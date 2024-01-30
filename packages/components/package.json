@@ -1,0 +1,27 @@
+{
+  "name": "aheart-ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "module":"es/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:prod": "vite build"
+  },
+  "files": [
+    "es",
+    "lib"
+  ],
+  "keywords": [
+    "aheart-ui",
+    "vue3组件库"
+  ],
+  "author": "小凡",
+  "license": "MIT",
+  "dependencies": {
+    "@aheart-ui/utils": "workspace:^",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "vite": "^5.0.12",
+    "vite-plugin-dts": "^3.7.2"
+  }
+}
