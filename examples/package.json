@@ -1,16 +1,21 @@
 {
   "name": "examples",
   "version": "1.0.0",
-  "description": "",
+  "description": "Local playground for aheart-ui.",
   "main": "index.ts",
   "scripts": {
     "dev": "vite",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No example tests configured\""
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "aheart-ui": "workspace:^"
+    "aheart-ui": "workspace:^",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "vite": "^5.0.12"
   }
 }

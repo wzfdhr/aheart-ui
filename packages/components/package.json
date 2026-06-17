@@ -1,12 +1,25 @@
 {
   "name": "aheart-ui",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/index.ts",
-  "module":"es/index.js",
+  "description": "A Vue 3 component library.",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "types": "es/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.js"
+    },
+    "./es/*": "./es/*",
+    "./lib/*": "./lib/*"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:prod": "vite build"
+    "build": "vite build",
+    "build:prod": "vite build",
+    "typecheck": "vue-tsc --noEmit -p ../../tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "files": [
     "es",
@@ -18,10 +31,20 @@
   ],
   "author": "小凡",
   "license": "MIT",
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  },
   "dependencies": {
-    "@aheart-ui/utils": "workspace:^",
+    "@aheart-ui/utils": "workspace:^"
+  },
+  "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^24.1.1",
     "vite": "^5.0.12",
-    "vite-plugin-dts": "^3.7.2"
+    "vite-plugin-dts": "^3.7.2",
+    "vitest": "^1.6.1",
+    "vue": "^3.4.0",
+    "vue-tsc": "^2.0.29"
   }
 }
