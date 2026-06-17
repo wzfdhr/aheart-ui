@@ -1,4 +1,4 @@
-declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly type: {
         readonly type: import("vue").PropType<"default" | "primary" | "success" | "warning" | "danger">;
         readonly default: "default";
@@ -18,7 +18,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
     readonly loading: BooleanConstructor;
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;
-}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
         readonly type: import("vue").PropType<"default" | "primary" | "success" | "warning" | "danger">;
         readonly default: "default";
@@ -38,7 +38,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
     readonly loading: BooleanConstructor;
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;
-}>>, {
+}>> & Readonly<{}>, {
     readonly type: "default" | "primary" | "success" | "warning" | "danger";
     readonly size: "large" | "normal" | "small" | "mini";
     readonly nativeType: "button" | "submit" | "reset";
@@ -46,7 +46,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<{
     readonly loading: boolean;
     readonly block: boolean;
     readonly round: boolean;
-}, {}>, {
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
 }>;
 export default _default;

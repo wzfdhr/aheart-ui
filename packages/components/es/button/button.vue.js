@@ -35,7 +35,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         _ctx.loading ? (openBlock(), createElementBlock("span", _hoisted_2)) : createCommentVNode("", true),
         createElementVNode("span", _hoisted_3, [
           renderSlot(_ctx.$slots, "default", {}, () => [
-            createTextVNode("按钮")
+            _cache[0] || (_cache[0] = createTextVNode("按钮", -1))
           ])
         ])
       ], 10, _hoisted_1);

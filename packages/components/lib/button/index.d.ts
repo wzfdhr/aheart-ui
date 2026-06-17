@@ -1,5 +1,5 @@
 declare const Button: import("../utils/install").SFCWithInstall<{
-    new (...args: any[]): import("vue").CreateComponentPublicInstance<Readonly<import("vue").ExtractPropTypes<{
+    new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly type: {
             readonly type: import("vue").PropType<"default" | "primary" | "success" | "warning" | "danger">;
             readonly default: "default";
@@ -19,27 +19,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly loading: BooleanConstructor;
         readonly block: BooleanConstructor;
         readonly round: BooleanConstructor;
-    }>>, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & Readonly<import("vue").ExtractPropTypes<{
-        readonly type: {
-            readonly type: import("vue").PropType<"default" | "primary" | "success" | "warning" | "danger">;
-            readonly default: "default";
-            readonly validator: (value: string) => boolean;
-        };
-        readonly size: {
-            readonly type: import("vue").PropType<"large" | "normal" | "small" | "mini">;
-            readonly default: "normal";
-            readonly validator: (value: string) => boolean;
-        };
-        readonly nativeType: {
-            readonly type: import("vue").PropType<"button" | "submit" | "reset">;
-            readonly default: "button";
-            readonly validator: (value: string) => boolean;
-        };
-        readonly disabled: BooleanConstructor;
-        readonly loading: BooleanConstructor;
-        readonly block: BooleanConstructor;
-        readonly round: BooleanConstructor;
-    }>>, {
+    }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly type: "default" | "primary" | "success" | "warning" | "danger";
         readonly size: "large" | "normal" | "small" | "mini";
         readonly nativeType: "button" | "submit" | "reset";
@@ -47,7 +27,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly loading: boolean;
         readonly block: boolean;
         readonly round: boolean;
-    }, true, {}, {}, {
+    }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
         D: {};
@@ -74,7 +54,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly loading: BooleanConstructor;
         readonly block: BooleanConstructor;
         readonly round: BooleanConstructor;
-    }>>, {}, {}, {}, {}, {
+    }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly type: "default" | "primary" | "success" | "warning" | "danger";
         readonly size: "large" | "normal" | "small" | "mini";
         readonly nativeType: "button" | "submit" | "reset";
@@ -106,7 +86,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly loading: BooleanConstructor;
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;
-}>>, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
+}>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly type: "default" | "primary" | "success" | "warning" | "danger";
     readonly size: "large" | "normal" | "small" | "mini";
     readonly nativeType: "button" | "submit" | "reset";
@@ -114,7 +94,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly loading: boolean;
     readonly block: boolean;
     readonly round: boolean;
-}, {}, string, {}> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
+}, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;
     };

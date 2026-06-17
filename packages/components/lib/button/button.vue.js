@@ -37,7 +37,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         _ctx.loading ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2)) : vue.createCommentVNode("", true),
         vue.createElementVNode("span", _hoisted_3, [
           vue.renderSlot(_ctx.$slots, "default", {}, () => [
-            vue.createTextVNode("按钮")
+            _cache[0] || (_cache[0] = vue.createTextVNode("按钮", -1))
           ])
         ])
       ], 10, _hoisted_1);
