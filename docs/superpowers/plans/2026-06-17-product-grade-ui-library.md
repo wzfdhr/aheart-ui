@@ -975,7 +975,7 @@ Aheart UI is a Vue 3 component library focused on practical product interfaces.
 ```ts
 import { createApp } from 'vue'
 import AheartUI from 'aheart-ui'
-import 'aheart-ui/es/index.css'
+import 'aheart-ui/es/style.css'
 
 createApp(App).use(AheartUI).mount('#app')
 ```

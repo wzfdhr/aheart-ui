@@ -1,4 +1,14 @@
-import { default as default2 } from "./button/index.js";
+import Button from "./button/index.js";
+import "./theme/index.css.js";
+const components = [Button];
+const AheartUI = {
+  install(app) {
+    components.forEach((component) => {
+      app.use(component);
+    });
+  }
+};
 export {
-  default2 as Button
+  Button,
+  AheartUI as default
 };
