@@ -1,12 +1,23 @@
 {
-  "name": "aheart-ui",
+  "name": "aheart-ui-workspace",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Vue 3 component library workspace for aheart-ui.",
+  "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm --filter ./examples dev",
+    "build": "pnpm --filter ./packages/components build",
+    "build:components": "pnpm --filter ./packages/components build",
+    "typecheck": "pnpm --filter ./packages/components typecheck",
+    "test": "pnpm --filter ./packages/components test",
+    "docs:dev": "pnpm --filter ./docs dev",
+    "docs:build": "pnpm --filter ./docs build"
   },
-  "keywords": [],
+  "keywords": [
+    "aheart-ui",
+    "vue3",
+    "component-library"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
