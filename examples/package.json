@@ -12,7 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "aheart-ui": "workspace:^",
-    "vue": "^3.4.0"
+    "vue": "^3.5.38"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",
