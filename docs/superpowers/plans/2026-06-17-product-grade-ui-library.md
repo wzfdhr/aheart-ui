@@ -308,6 +308,7 @@ Commit is pushed to GitHub branch codex/product-grade-ui-roadmap.
 
 **Files:**
 - Create: `packages/components/src/utils/install.ts`
+- Create: `packages/components/src/theme/index.css`
 - Modify: `packages/components/src/index.ts`
 - Modify: `packages/components/src/button/index.ts`
 
@@ -342,7 +343,29 @@ const Button = withInstall(button, 'AButton')
 export default Button
 ```
 
-- [ ] **Step 3: Add library plugin entry**
+- [ ] **Step 3: Create global theme token file**
+
+Create `packages/components/src/theme/index.css` before importing it from the package entry:
+
+```css
+:root {
+  --aheart-color-primary: #1677ff;
+  --aheart-color-primary-hover: #4096ff;
+  --aheart-color-success: #52c41a;
+  --aheart-color-warning: #faad14;
+  --aheart-color-danger: #ff4d4f;
+  --aheart-color-text: #1f2329;
+  --aheart-color-text-secondary: #646a73;
+  --aheart-color-border: #d9d9d9;
+  --aheart-color-bg: #ffffff;
+  --aheart-color-bg-disabled: #f5f5f5;
+  --aheart-font-size: 14px;
+  --aheart-radius: 6px;
+  --aheart-motion-duration: 0.2s;
+}
+```
+
+- [ ] **Step 4: Add library plugin entry**
 
 Change `packages/components/src/index.ts` to:
 
@@ -365,7 +388,7 @@ export { Button }
 export default AheartUI
 ```
 
-- [ ] **Step 4: Verify TypeScript parse**
+- [ ] **Step 5: Verify TypeScript parse**
 
 Run:
 
@@ -379,12 +402,12 @@ Expected:
 entry files updated
 ```
 
-- [ ] **Step 5: Commit and push**
+- [ ] **Step 6: Commit and push**
 
 Run:
 
 ```bash
-git add packages/components/src/utils/install.ts packages/components/src/index.ts packages/components/src/button/index.ts
+git add docs/superpowers/plans/2026-06-17-product-grade-ui-library.md packages/components/src/utils/install.ts packages/components/src/theme/index.css packages/components/src/index.ts packages/components/src/button/index.ts
 git commit -m "feat: add library install entry"
 git push
 ```
@@ -398,15 +421,15 @@ Commit is pushed to GitHub branch codex/product-grade-ui-roadmap.
 ## Task 4: Theme Tokens And Button Implementation
 
 **Files:**
-- Create: `packages/components/src/theme/index.css`
 - Create: `packages/components/src/button/style.css`
+- Modify: `packages/components/src/theme/index.css`
 - Modify: `packages/components/src/button/button.vue`
 - Modify: `packages/components/src/button/types.ts`
 - Modify: `examples/app.vue`
 
-- [ ] **Step 1: Create global theme tokens**
+- [ ] **Step 1: Confirm global theme tokens**
 
-Create `packages/components/src/theme/index.css`:
+Keep `packages/components/src/theme/index.css` aligned with these tokens:
 
 ```css
 :root {
