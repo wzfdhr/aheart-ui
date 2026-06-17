@@ -1,0 +1,110 @@
+.aheart-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  background: var(--aheart-color-bg);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--aheart-motion-duration),
+    border-color var(--aheart-motion-duration),
+    background-color var(--aheart-motion-duration),
+    opacity var(--aheart-motion-duration);
+}
+
+.aheart-button:hover:not(:disabled) {
+  border-color: var(--aheart-color-primary-hover);
+  color: var(--aheart-color-primary-hover);
+}
+
+.aheart-button--primary:hover:not(:disabled),
+.aheart-button--success:hover:not(:disabled),
+.aheart-button--warning:hover:not(:disabled),
+.aheart-button--danger:hover:not(:disabled) {
+  border-color: transparent;
+  color: #fff;
+  opacity: 0.88;
+}
+
+.aheart-button:disabled {
+  background: var(--aheart-color-bg-disabled);
+  color: var(--aheart-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.aheart-button--large {
+  height: 40px;
+  padding: 0 18px;
+}
+
+.aheart-button--normal {
+  height: 32px;
+  padding: 0 14px;
+}
+
+.aheart-button--small {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.aheart-button--mini {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.aheart-button--primary,
+.aheart-button--success,
+.aheart-button--warning,
+.aheart-button--danger {
+  border-color: transparent;
+  color: #fff;
+}
+
+.aheart-button--primary {
+  background: var(--aheart-color-primary);
+}
+
+.aheart-button--success {
+  background: var(--aheart-color-success);
+}
+
+.aheart-button--warning {
+  background: var(--aheart-color-warning);
+}
+
+.aheart-button--danger {
+  background: var(--aheart-color-danger);
+}
+
+.aheart-button.is-block {
+  display: flex;
+  width: 100%;
+}
+
+.aheart-button.is-round {
+  border-radius: 999px;
+}
+
+.aheart-button__loading {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: aheart-button-spin 0.8s linear infinite;
+}
+
+@keyframes aheart-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
