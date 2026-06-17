@@ -213,9 +213,9 @@ Change `packages/components/package.json` to use publish-ready entries:
   "scripts": {
     "build": "vite build",
     "build:prod": "vite build",
-    "typecheck": "vue-tsc --noEmit -p ../../tsconfig.json",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --environment jsdom",
+    "test:watch": "vitest --environment jsdom"
   },
   "files": [
     "es",
@@ -689,7 +689,9 @@ Commit is pushed to GitHub branch codex/product-grade-ui-roadmap.
 
 **Files:**
 - Create: `packages/components/src/button/__tests__/button.test.ts`
+- Create: `packages/components/tsconfig.json`
 - Modify: `packages/components/package.json`
+- Modify: `packages/components/vite.config.ts`
 - Modify: `pnpm-lock.yaml`
 
 - [ ] **Step 1: Install test dependencies**
@@ -709,6 +711,48 @@ Dependencies are installed and pnpm-lock.yaml is updated if dependency versions 
 ```
 
 - [ ] **Step 2: Create Button tests**
+
+Create `packages/components/tsconfig.json` so component type checking does not pull the example app into package checks:
+
+```json
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "es",
+    "lib",
+    "node_modules"
+  ]
+}
+```
+
+Update `packages/components/package.json` scripts:
+
+```json
+{
+  "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+  "test": "vitest run --environment jsdom",
+  "test:watch": "vitest --environment jsdom"
+}
+```
+
+Update `packages/components/vite.config.ts` dts options to use supported option names:
+
+```ts
+dts({
+  tsconfigPath: './tsconfig.json'
+})
+
+dts({
+  outDir: 'lib',
+  tsconfigPath: './tsconfig.json'
+})
+```
+
+- [ ] **Step 3: Create Button tests**
 
 Create `packages/components/src/button/__tests__/button.test.ts`:
 
@@ -754,7 +798,7 @@ describe('Button', () => {
 })
 ```
 
-- [ ] **Step 3: Run tests**
+- [ ] **Step 4: Run tests**
 
 Run:
 
@@ -768,7 +812,7 @@ Expected:
 3 tests pass.
 ```
 
-- [ ] **Step 4: Run type check**
+- [ ] **Step 5: Run type check**
 
 Run:
 
@@ -782,12 +826,12 @@ Expected:
 vue-tsc exits with code 0.
 ```
 
-- [ ] **Step 5: Commit and push**
+- [ ] **Step 6: Commit and push**
 
 Run:
 
 ```bash
-git add packages/components/src/button/__tests__/button.test.ts packages/components/package.json pnpm-lock.yaml
+git add docs/superpowers/plans/2026-06-17-product-grade-ui-library.md packages/components/src/button/__tests__/button.test.ts packages/components/tsconfig.json packages/components/package.json packages/components/vite.config.ts pnpm-lock.yaml
 git commit -m "test: cover button component"
 git push
 ```

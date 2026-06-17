@@ -17,9 +17,9 @@
   "scripts": {
     "build": "vite build",
     "build:prod": "vite build",
-    "typecheck": "vue-tsc --noEmit -p ../../tsconfig.json",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --environment jsdom",
+    "test:watch": "vitest --environment jsdom"
   },
   "files": [
     "es",

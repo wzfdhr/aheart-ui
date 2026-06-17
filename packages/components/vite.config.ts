@@ -47,11 +47,11 @@ export default defineConfig(
         plugins: [
             vue(),
             dts({
-              tsConfigFilePath: '../../tsconfig.json'
+              tsconfigPath: './tsconfig.json'
             }),
             dts({
-                outputDir:'lib',
-                tsConfigFilePath: '../../tsconfig.json'
+                outDir:'lib',
+                tsconfigPath: './tsconfig.json'
             })
         ]
     }
