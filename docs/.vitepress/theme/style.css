@@ -82,6 +82,12 @@
   font-size: 13px;
 }
 
+.aheart-action-link {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+}
+
 .aheart-preview {
   margin-top: 34px;
   padding: 18px;
