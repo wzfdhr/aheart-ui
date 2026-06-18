@@ -4,9 +4,9 @@ outline: false
 ---
 
 <script setup lang="ts">
-import { getComponentCategories, statusText } from './.vitepress/data/components'
+import { getComponentCategories, statusText } from '../.vitepress/data/components'
 
-const componentCategories = getComponentCategories('zh')
+const componentCategories = getComponentCategories('en')
 const components = componentCategories.flatMap((category) => category.components)
 const readyCount = components.filter((component) => component.status === 'Ready').length
 const plannedCount = components.filter((component) => component.status === 'Planned').length
@@ -14,60 +14,60 @@ const plannedCount = components.filter((component) => component.status === 'Plan
 
 <section class="aheart-hero">
   <div class="aheart-hero__inner">
-    <p class="aheart-eyebrow">Vue 3 组件库</p>
+    <p class="aheart-eyebrow">Vue 3 Component Library</p>
     <h1 class="aheart-title">Aheart UI</h1>
     <p class="aheart-subtitle">
-      Aheart UI 是面向产品界面的 Vue 3 组件库。当前版本从稳定的 Button、主题 Token、插件安装和清晰的组件路线图开始。
+      Aheart UI is a Vue 3 component library for calm, consistent product interfaces. It starts with a tested Button foundation, theme tokens, plugin installation, and a clear component roadmap.
     </p>
     <div class="aheart-actions">
-      <a class="aheart-action-link" href="/guide/installation">
-        <AButton type="primary" size="large">开始使用</AButton>
+      <a class="aheart-action-link" href="/en/guide/installation">
+        <AButton type="primary" size="large">Get Started</AButton>
       </a>
-      <a class="aheart-action-link" href="/components/overview">
-        <AButton size="large">组件总览</AButton>
+      <a class="aheart-action-link" href="/en/components/overview">
+        <AButton size="large">Components</AButton>
       </a>
       <code class="aheart-command">pnpm add aheart-ui</code>
     </div>
-    <div class="aheart-preview" aria-label="Aheart UI 预览">
+    <div class="aheart-preview" aria-label="Aheart UI preview">
       <div class="aheart-demo-row">
-        <AButton>默认按钮</AButton>
-        <AButton type="primary">主要按钮</AButton>
-        <AButton type="success">成功按钮</AButton>
-        <AButton type="danger" loading>加载中</AButton>
+        <AButton>Default</AButton>
+        <AButton type="primary">Primary</AButton>
+        <AButton type="success">Success</AButton>
+        <AButton type="danger" loading>Loading</AButton>
       </div>
     </div>
   </div>
 </section>
 
 <section class="aheart-section">
-  <h2>为产品界面而生</h2>
+  <h2>Built For Product Interfaces</h2>
   <p class="aheart-section__intro">
-    文档结构参考成熟组件库的信息组织方式，同时保持 Aheart UI 当前能力边界清晰可见。
+    The docs follow a familiar component-library structure while keeping Aheart UI's current capability boundary visible.
   </p>
   <div class="aheart-feature-grid">
     <article class="aheart-card">
       <h3>Vue 3 + TypeScript</h3>
-      <p>组件源码、props 类型和构建产物都围绕 Vue 3 与 TypeScript 组织。</p>
+      <p>Component source, prop types, and build outputs are organized around Vue 3 and TypeScript.</p>
     </article>
     <article class="aheart-card">
       <h3>Theme Tokens</h3>
-      <p>使用 CSS Variables 管理颜色、字号、圆角和动效时长。</p>
+      <p>CSS variables control colors, font size, radius, and motion duration.</p>
     </article>
     <article class="aheart-card">
       <h3>Plugin Install</h3>
-      <p>支持全量安装、命名导入和单组件注册的基础模式。</p>
+      <p>Use full installation, named imports, or single-component registration.</p>
     </article>
     <article class="aheart-card">
       <h3>Verified Foundation</h3>
-      <p>Button 已接入样式、状态、测试、类型检查和构建验证。</p>
+      <p>Button is wired through styles, states, tests, type checking, and build verification.</p>
     </article>
   </div>
 </section>
 
 <section class="aheart-section">
-  <h2>组件路线图</h2>
+  <h2>Component Roadmap</h2>
   <p class="aheart-section__intro">
-    当前有 {{ readyCount }} 个{{ statusText.zh.Ready }}组件，{{ plannedCount }} 个{{ statusText.zh.Planned }}组件。{{ statusText.zh.Planned }}表示路线图方向，不代表当前已经发布。
+    There is currently {{ readyCount }} {{ statusText.en.Ready }} component and {{ plannedCount }} {{ statusText.en.Planned }} components. {{ statusText.en.Planned }} means roadmap direction, not current availability.
   </p>
   <div class="aheart-category-grid">
     <section v-for="category in componentCategories" :key="category.key" class="aheart-component-card">
@@ -78,17 +78,17 @@ const plannedCount = components.filter((component) => component.status === 'Plan
           v-for="component in category.components.slice(0, 4)"
           :key="component.key"
           class="aheart-component-item"
-          :href="component.link || '/components/overview'"
+          :href="component.link || '/en/components/overview'"
         >
           <span>
             <strong>{{ component.name }}</strong>
-            <small v-if="component.zhName" style="display:block;color:#667085">{{ component.zhName }}</small>
+            <small style="display:block;color:#667085">{{ component.description }}</small>
           </span>
           <span
             class="aheart-status"
             :class="component.status === 'Ready' ? 'aheart-status--ready' : 'aheart-status--planned'"
           >
-            {{ statusText.zh[component.status] }}
+            {{ statusText.en[component.status] }}
           </span>
         </a>
       </div>

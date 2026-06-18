@@ -3,14 +3,14 @@ outline: false
 ---
 
 <script setup lang="ts">
-import { getComponentCategories, statusText } from '../.vitepress/data/components'
+import { getComponentCategories, statusText } from '../../.vitepress/data/components'
 
-const componentCategories = getComponentCategories('zh')
+const componentCategories = getComponentCategories('en')
 </script>
 
-# 组件总览
+# Components Overview
 
-Aheart UI 按照产品界面中的常见任务组织组件。标记为 `{{ statusText.zh.Ready }}` 的组件已经可以在当前包中使用；标记为 `{{ statusText.zh.Planned }}` 的组件属于路线图方向，会逐步实现。
+Aheart UI organizes components around common product-interface tasks. Components marked `{{ statusText.en.Ready }}` are available in the current package. Components marked `{{ statusText.en.Planned }}` are roadmap items that will be implemented gradually.
 
 <div class="aheart-section" style="padding: 18px 0 0">
   <div class="aheart-category-grid">
@@ -27,14 +27,13 @@ Aheart UI 按照产品界面中的常见任务组织组件。标记为 `{{ statu
         >
           <span>
             <strong>{{ component.name }}</strong>
-            <small v-if="component.zhName" style="display:block;color:#667085">{{ component.zhName }} · {{ component.description }}</small>
-            <small v-else style="display:block;color:#667085">{{ component.description }}</small>
+            <small style="display:block;color:#667085">{{ component.description }}</small>
           </span>
           <span
             class="aheart-status"
             :class="component.status === 'Ready' ? 'aheart-status--ready' : 'aheart-status--planned'"
           >
-            {{ statusText.zh[component.status] }}
+            {{ statusText.en[component.status] }}
           </span>
         </a>
       </div>
