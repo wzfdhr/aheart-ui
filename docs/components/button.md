@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { h } from 'vue'
+
+const nodeIcon = h('span', { class: 'demo-button-node-icon' }, '★')
+</script>
+
 # Button 按钮 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Button 用于触发操作。它支持 Ant 风格的视觉类型、危险态、幽灵态、形状、链接渲染、加载、禁用、块级宽度和原生按钮类型。
@@ -133,10 +139,17 @@ import 'aheart-ui/es/style.css'
       </template>
       打开
     </AButton>
+    <AButton :icon="nodeIcon">节点图标</AButton>
   </div>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const nodeIcon = h('span', { class: 'demo-button-node-icon' }, '★')
+</script>
+
 <template>
   <Button icon="+">新建</Button>
   <Button icon=">" icon-placement="end">下一步</Button>
@@ -146,6 +159,25 @@ import 'aheart-ui/es/style.css'
     </template>
     打开
   </Button>
+  <Button :icon="nodeIcon">节点图标</Button>
+</template>
+```
+
+## 中文自动空格
+
+<div class="aheart-demo-panel">
+  <div class="aheart-demo-row">
+    <AButton>保存</AButton>
+    <AButton :auto-insert-space="false">保存</AButton>
+    <AButton>默认按钮</AButton>
+  </div>
+</div>
+
+```vue
+<template>
+  <Button>保存</Button>
+  <Button :auto-insert-space="false">保存</Button>
+  <Button>默认按钮</Button>
 </template>
 ```
 
@@ -223,7 +255,8 @@ import 'aheart-ui/es/style.css'
 | danger | 设置危险按钮状态 | `boolean` | `false` |
 | ghost | 设置幽灵按钮状态 | `boolean` | `false` |
 | shape | 按钮形状 | `default` \| `circle` \| `round` | `default` |
-| icon | 图标名称，渲染为 `AIcon` | `string` | - |
+| autoInsertSpace | 自动在两个中文字符之间插入空格 | `boolean` | `true` |
+| icon | 图标内容，字符串会作为 `AIcon` 名称渲染 | `VNodeChild` | - |
 | iconPlacement | 图标位置 | `start` \| `end` | `start` |
 | iconPosition | 图标位置兼容别名 | `start` \| `end` | - |
 | href | 设置后渲染为链接按钮 | `string` | - |
