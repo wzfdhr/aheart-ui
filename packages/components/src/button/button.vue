@@ -21,22 +21,24 @@
     </span>
     <span v-if="showStartIcon" :class="iconClass" :style="iconStyle" aria-hidden="true">
       <slot name="icon">
-        <AIcon :name="icon" />
+        <AIcon v-if="isStringIcon" :name="stringIcon" />
+        <ARenderNode v-else :node="icon" />
       </slot>
     </span>
     <span :class="contentClass" :style="contentStyle">
-      <slot>按钮</slot>
+      <ARenderNode :node="contentNode" />
     </span>
     <span v-if="showEndIcon" :class="iconClass" :style="iconStyle" aria-hidden="true">
       <slot name="icon">
-        <AIcon :name="icon" />
+        <AIcon v-if="isStringIcon" :name="stringIcon" />
+        <ARenderNode v-else :node="icon" />
       </slot>
     </span>
   </component>
 </template>
 
 <script lang="ts" setup>
-import { computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType, type VNodeChild } from 'vue'
+import { Comment, Text, computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AIcon from '../icon/icon.vue'
 import type { ButtonColor, ButtonType, ButtonVariant } from './types'
@@ -66,6 +68,42 @@ const ARenderNode = defineComponent({
     return () => renderProps.node
   }
 })
+
+const isTwoChineseCharacters = (value: string) => /^[\u4e00-\u9fa5]{2}$/.test(value)
+
+const getAutoSpacedText = (value: string) => {
+  if (!props.autoInsertSpace || !isTwoChineseCharacters(value)) {
+    return value
+  }
+
+  return `${value[0]} ${value[1]}`
+}
+
+const getContentNode = () => {
+  const nodes = slots.default?.()
+
+  if (!nodes) {
+    return getAutoSpacedText('按钮')
+  }
+
+  const meaningfulNodes = nodes.filter((node) => node.type !== Comment)
+
+  if (meaningfulNodes.length !== 1) {
+    return nodes
+  }
+
+  const [node] = meaningfulNodes
+
+  if (typeof node.children !== 'string') {
+    return nodes
+  }
+
+  if (node.type === Text) {
+    return getAutoSpacedText(node.children)
+  }
+
+  return nodes
+}
 
 const colorTokens: Record<ButtonColor, string> = {
   default: 'var(--aheart-color-text)',
@@ -163,7 +201,16 @@ const isDanger = computed(() => props.danger || props.type === 'danger')
 const resolvedColor = computed<ButtonColor>(() => props.color || (isDanger.value ? 'danger' : typeColorMap[props.type] || 'default'))
 const resolvedVariant = computed<ButtonVariant>(() => props.variant || typeVariantMap[props.type] || 'outlined')
 const resolvedIconPlacement = computed(() => props.iconPlacement || props.iconPosition || 'start')
-const hasIcon = computed(() => Boolean(slots.icon) || Boolean(props.icon))
+const isStringIcon = computed(() => typeof props.icon === 'string')
+const stringIcon = computed(() => (isStringIcon.value ? props.icon as string : ''))
+const hasRenderableIcon = computed(() => {
+  if (Array.isArray(props.icon)) {
+    return props.icon.length > 0
+  }
+
+  return props.icon !== undefined && props.icon !== null && props.icon !== false && props.icon !== true && props.icon !== ''
+})
+const hasIcon = computed(() => Boolean(slots.icon) || hasRenderableIcon.value)
 const showStartIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === 'start')
 const showEndIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === 'end')
 const objectLoadingIcon = computed(() =>
@@ -204,6 +251,7 @@ const iconClass = computed(() => ['aheart-button__icon', props.classNames?.icon]
 const iconStyle = computed(() => props.styles?.icon)
 const contentClass = computed(() => ['aheart-button__content', props.classNames?.content])
 const contentStyle = computed(() => props.styles?.content)
+const contentNode = computed(() => getContentNode())
 
 const handleClick = (event: MouseEvent) => {
   if (isInteractiveDisabled.value) {

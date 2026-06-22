@@ -16,7 +16,7 @@ describe('Button', () => {
       }
     })
 
-    expect(wrapper.text()).toContain('保存')
+    expect(wrapper.text()).toContain('保 存')
   })
 
   it('applies type and size classes', () => {
@@ -138,10 +138,37 @@ describe('Button', () => {
     expect(wrapper.find('.aheart-icon').text()).toBe('plus')
   })
 
+  it('renders vnode icon prop content', () => {
+    const wrapper = mount(Button, {
+      props: {
+        icon: h('span', { class: 'icon-node' }, 'node')
+      },
+      slots: {
+        default: 'Create'
+      }
+    })
+
+    expect(wrapper.find('.icon-node').text()).toBe('node')
+    expect(wrapper.find('.aheart-icon').exists()).toBe(false)
+  })
+
+  it('renders numeric zero icon prop content', () => {
+    const wrapper = mount(Button, {
+      props: {
+        icon: 0
+      },
+      slots: {
+        default: 'Count'
+      }
+    })
+
+    expect(wrapper.find('.aheart-button__icon').text()).toBe('0')
+  })
+
   it('uses the icon slot before the icon prop', () => {
     const wrapper = mount(Button, {
       props: {
-        icon: 'plus'
+        icon: h('span', { class: 'prop-icon-node' }, 'prop')
       },
       slots: {
         icon: '<span class="custom-icon">custom</span>',
@@ -151,6 +178,7 @@ describe('Button', () => {
 
     expect(wrapper.find('.custom-icon').exists()).toBe(true)
     expect(wrapper.find('.aheart-icon').exists()).toBe(false)
+    expect(wrapper.find('.prop-icon-node').exists()).toBe(false)
   })
 
   it('renders icon after content when iconPlacement is end', () => {
@@ -229,6 +257,45 @@ describe('Button', () => {
     expect(wrapper.find('.aheart-button__loading').exists()).toBe(true)
     expect(wrapper.find('.custom-loading').exists()).toBe(true)
     expect(wrapper.find('.aheart-button__loading-spinner').exists()).toBe(false)
+  })
+
+  it('auto inserts a space between exactly two Chinese characters by default', () => {
+    const wrapper = mount(Button, {
+      slots: {
+        default: '保存'
+      }
+    })
+
+    expect(wrapper.find('.aheart-button__content').text()).toBe('保 存')
+  })
+
+  it('can disable Chinese character auto spacing', () => {
+    const wrapper = mount(Button, {
+      props: {
+        autoInsertSpace: false
+      },
+      slots: {
+        default: '保存'
+      }
+    })
+
+    expect(wrapper.find('.aheart-button__content').text()).toBe('保存')
+  })
+
+  it('does not auto space non-Chinese or longer text content', () => {
+    const english = mount(Button, {
+      slots: {
+        default: 'OK'
+      }
+    })
+    const longerChinese = mount(Button, {
+      slots: {
+        default: '默认按钮'
+      }
+    })
+
+    expect(english.find('.aheart-button__content').text()).toBe('OK')
+    expect(longerChinese.find('.aheart-button__content').text()).toBe('默认按钮')
   })
 
   it('applies root, icon, and content semantic hooks', () => {

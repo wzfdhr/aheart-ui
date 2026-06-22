@@ -35,6 +35,7 @@ export type ButtonShape = (typeof buttonShapes)[number]
 export type ButtonIconPlacement = (typeof buttonIconPlacements)[number]
 export type ButtonColor = (typeof buttonColors)[number]
 export type ButtonVariant = (typeof buttonVariants)[number]
+export type ButtonIcon = VNodeChild
 export type ButtonLoading = boolean | { delay?: number; icon?: VNodeChild }
 export type ButtonSemanticPart = 'root' | 'icon' | 'content'
 export type ButtonClassNames = Partial<Record<ButtonSemanticPart, string>>
@@ -76,7 +77,14 @@ export const buttonProps = {
     default: 'default',
     validator: (value: string) => buttonShapes.includes(value as ButtonShape)
   },
-  icon: String,
+  autoInsertSpace: {
+    type: Boolean,
+    default: true
+  },
+  icon: {
+    type: null as unknown as PropType<ButtonIcon>,
+    default: undefined
+  },
   iconPlacement: {
     type: String as PropType<ButtonIconPlacement>,
     validator: (value: string) => buttonIconPlacements.includes(value as ButtonIconPlacement)
