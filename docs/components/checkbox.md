@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+</script>
+
 # Checkbox 多选框 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Checkbox captures a boolean choice or a grouped set of choices with checked, disabled, and indeterminate states.
@@ -42,6 +48,30 @@ Checkbox captures a boolean choice or a grouped set of choices with checked, dis
 <template>
   <ACheckbox :checked="checked" label="Checked alias" />
   <ACheckbox default-checked label="Default checked" />
+</template>
+```
+
+## 焦点控制
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <ACheckbox ref="checkboxRef" label="Focusable checkbox" />
+    <AButton size="small" @click="checkboxRef?.focus()">Focus</AButton>
+    <AButton size="small" @click="checkboxRef?.blur()">Blur</AButton>
+  </ASpace>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+</script>
+
+<template>
+  <ACheckbox ref="checkboxRef" label="Focusable checkbox" />
+  <AButton @click="checkboxRef?.focus()">Focus</AButton>
+  <AButton @click="checkboxRef?.blur()">Blur</AButton>
 </template>
 ```
 
@@ -202,6 +232,14 @@ Checkbox captures a boolean choice or a grouped set of choices with checked, dis
 | style | 选项根节点样式 | `StyleValue` | - |
 | title | 选项根节点 title 属性 | `string` | - |
 
+## Methods
+
+| 名称 | 说明 |
+| --- | --- |
+| focus() | 聚焦原生 checkbox 输入框 |
+| blur() | 移除原生 checkbox 输入框焦点 |
+| nativeElement | 根 label 元素 |
+
 ## Events
 
 | 事件名 | 说明 | 回调参数 |
@@ -209,6 +247,8 @@ Checkbox captures a boolean choice or a grouped set of choices with checked, dis
 | update:modelValue | 选中状态变化时触发 | `(checked: boolean) => void` |
 | update:checked | 选中状态变化时触发，配合 `checked` 使用 | `(checked: boolean) => void` |
 | change | 选中状态变化时触发 | `(checked: boolean, event: Event) => void` |
+| focus | 原生 checkbox 聚焦时触发 | `(event: FocusEvent) => void` |
+| blur | 原生 checkbox 失焦时触发 | `(event: FocusEvent) => void` |
 | CheckboxGroup update:modelValue | 组内选中值变化时触发 | `(value: CheckboxValue[]) => void` |
 | CheckboxGroup update:value | 组内选中值变化时触发，配合 `value` 使用 | `(value: CheckboxValue[]) => void` |
 | CheckboxGroup change | 组内选中值变化时触发 | `(value: CheckboxValue[]) => void` |
