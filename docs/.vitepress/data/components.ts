@@ -68,10 +68,10 @@ export const componentCategories: ComponentCategory[] = [
     name: 'Data Display',
     description: 'Present structured information.',
     components: [
-      { name: 'Tag', description: 'Label content with status.', status: 'Planned' },
-      { name: 'Badge', description: 'Show counts and states.', status: 'Planned' },
+      { name: 'Tag', description: 'Label content with status.', status: 'Ready', link: '/components/tag' },
+      { name: 'Badge', description: 'Show counts and states.', status: 'Ready', link: '/components/badge' },
       { name: 'Card', description: 'Group related content.', status: 'Planned' },
-      { name: 'Empty', description: 'Show empty states.', status: 'Planned' },
+      { name: 'Empty', description: 'Show empty states.', status: 'Ready', link: '/components/empty' },
       { name: 'Descriptions', description: 'Display record details.', status: 'Planned' },
       { name: 'Table', description: 'Display tabular data.', status: 'Planned' },
       { name: 'Pagination', description: 'Navigate paged data.', status: 'Planned' }
@@ -81,14 +81,14 @@ export const componentCategories: ComponentCategory[] = [
     name: 'Feedback',
     description: 'Communicate system state and user feedback.',
     components: [
-      { name: 'Alert', description: 'Show contextual information.', status: 'Planned' },
+      { name: 'Alert', description: 'Show contextual information.', status: 'Ready', link: '/components/alert' },
       { name: 'Message', description: 'Show global lightweight feedback.', status: 'Planned' },
       { name: 'Modal', description: 'Focus attention in a dialog.', status: 'Planned' },
       { name: 'Drawer', description: 'Show a side panel.', status: 'Planned' },
       { name: 'Tooltip', description: 'Explain compact controls.', status: 'Planned' },
       { name: 'Popover', description: 'Show floating content.', status: 'Planned' },
       { name: 'Popconfirm', description: 'Confirm risky actions.', status: 'Planned' },
-      { name: 'Spin', description: 'Show loading state.', status: 'Planned' },
+      { name: 'Spin', description: 'Show loading state.', status: 'Ready', link: '/components/spin' },
       { name: 'Skeleton', description: 'Reserve loading layout.', status: 'Planned' }
     ]
   }

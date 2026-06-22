@@ -41,7 +41,12 @@ export default defineConfig({
             { text: 'Typography 排版', link: '/components/typography' },
             { text: 'Space 间距', link: '/components/space' },
             { text: 'Divider 分割线', link: '/components/divider' },
-            { text: 'Flex 弹性布局', link: '/components/flex' }
+            { text: 'Flex 弹性布局', link: '/components/flex' },
+            { text: 'Tag 标签', link: '/components/tag' },
+            { text: 'Badge 徽标', link: '/components/badge' },
+            { text: 'Alert 警告提示', link: '/components/alert' },
+            { text: 'Spin 加载中', link: '/components/spin' },
+            { text: 'Empty 空状态', link: '/components/empty' }
           ]
         }
       ]
