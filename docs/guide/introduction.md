@@ -1,14 +1,14 @@
 # 介绍
 
-Aheart UI is a Vue 3 component library for product interfaces.
+Aheart UI 是面向产品界面的 Vue 3 组件库。它从小而稳定的基础开始，优先提供清晰的类型、可靠的样式和可持续扩展的文档结构。
 
-The current package focuses on a stable foundation:
+当前包聚焦在这些能力：
 
-- Vue 3 and TypeScript source.
-- CSS variable theme tokens.
-- Global plugin installation.
-- Named component imports.
-- A tested Button component.
-- ES Module and CommonJS build outputs.
+- Vue 3 与 TypeScript 源码。
+- CSS 变量驱动的主题 Token。
+- 全量插件安装。
+- 命名组件导入。
+- 已测试的 Button 组件。
+- ES Module 与 CommonJS 构建产物。
 
-The roadmap follows practical product UI categories such as General, Layout, Navigation, Data Entry, Data Display, and Feedback.
+组件路线图按照产品 UI 常见类别组织，包括通用、布局、导航、数据录入、数据展示和反馈。

@@ -1,6 +1,6 @@
-# 安装
+# Installation
 
-使用 pnpm、npm 或 yarn 安装 Aheart UI：
+Install Aheart UI with pnpm, npm, or yarn:
 
 ```bash
 pnpm add aheart-ui
@@ -14,13 +14,13 @@ npm install aheart-ui
 yarn add aheart-ui
 ```
 
-Aheart UI 需要 Vue 3：
+Aheart UI requires Vue 3:
 
 ```bash
 pnpm add vue
 ```
 
-在入口文件中引入样式：
+Import the stylesheet in your app entry:
 
 ```ts
 import 'aheart-ui/es/style.css'

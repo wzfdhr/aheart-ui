@@ -1,6 +1,6 @@
-# Button 按钮 <span class="aheart-status aheart-status--ready">Ready</span>
+# Button 按钮 <span class="aheart-status aheart-status--ready">已完成</span>
 
-Button is used to trigger an action. It supports Ant-style visual type, danger, ghost, shape, anchor rendering, loading, disabled, block, and native button type.
+Button 用于触发操作。它支持 Ant 风格的视觉类型、危险态、幽灵态、形状、链接渲染、加载、禁用、块级宽度和原生按钮类型。
 
 ## 基础用法
 
@@ -39,19 +39,19 @@ import 'aheart-ui/es/style.css'
 
 <div class="aheart-demo-panel">
   <div class="aheart-demo-row">
-    <AButton size="large">Large</AButton>
-    <AButton>Normal</AButton>
-    <AButton size="small">Small</AButton>
-    <AButton size="mini">Mini</AButton>
+    <AButton size="large">大按钮</AButton>
+    <AButton>默认按钮</AButton>
+    <AButton size="small">小按钮</AButton>
+    <AButton size="mini">迷你按钮</AButton>
   </div>
 </div>
 
 ```vue
 <template>
-  <Button size="large">Large</Button>
-  <Button>Normal</Button>
-  <Button size="small">Small</Button>
-  <Button size="mini">Mini</Button>
+  <Button size="large">大按钮</Button>
+  <Button>默认按钮</Button>
+  <Button size="small">小按钮</Button>
+  <Button size="mini">迷你按钮</Button>
 </template>
 ```
 
@@ -59,21 +59,23 @@ import 'aheart-ui/es/style.css'
 
 <div class="aheart-demo-panel">
   <div class="aheart-demo-row">
-    <AButton disabled>Disabled</AButton>
-    <AButton type="primary" loading>Loading</AButton>
-    <AButton round>Round</AButton>
-    <AButton danger>Danger</AButton>
-    <AButton type="primary" ghost>Ghost</AButton>
+    <AButton disabled>禁用</AButton>
+    <AButton type="primary" loading>加载中</AButton>
+    <AButton block>块级按钮</AButton>
+    <AButton round>圆角按钮</AButton>
+    <AButton danger>危险态</AButton>
+    <AButton type="primary" ghost>幽灵按钮</AButton>
   </div>
 </div>
 
 ```vue
 <template>
-  <Button disabled>Disabled</Button>
-  <Button type="primary" loading>Loading</Button>
-  <Button round>Round</Button>
-  <Button danger>Danger</Button>
-  <Button type="primary" ghost>Ghost</Button>
+  <Button disabled>禁用</Button>
+  <Button type="primary" loading>加载中</Button>
+  <Button block>块级按钮</Button>
+  <Button round>圆角按钮</Button>
+  <Button danger>危险态</Button>
+  <Button type="primary" ghost>幽灵按钮</Button>
 </template>
 ```
 
@@ -81,7 +83,7 @@ import 'aheart-ui/es/style.css'
 
 <div class="aheart-demo-panel">
   <div class="aheart-demo-row">
-    <AButton shape="round">Round</AButton>
+    <AButton shape="round">圆角</AButton>
     <AButton shape="circle">i</AButton>
     <AButton href="https://ant.design" target="_blank" type="link">Ant Design</AButton>
   </div>
@@ -89,7 +91,7 @@ import 'aheart-ui/es/style.css'
 
 ```vue
 <template>
-  <Button shape="round">Round</Button>
+  <Button shape="round">圆角</Button>
   <Button shape="circle">i</Button>
   <Button href="https://ant.design" target="_blank" type="link">Ant Design</Button>
 </template>
@@ -99,26 +101,26 @@ import 'aheart-ui/es/style.css'
 
 <div class="aheart-demo-panel">
   <div class="aheart-demo-row">
-    <AButton icon="+">Create</AButton>
-    <AButton icon=">" icon-placement="end">Next</AButton>
+    <AButton icon="+">新建</AButton>
+    <AButton icon=">" icon-placement="end">下一步</AButton>
     <AButton icon-position="end">
       <template #icon>
         <span>^</span>
       </template>
-      Open
+      打开
     </AButton>
   </div>
 </div>
 
 ```vue
 <template>
-  <Button icon="+">Create</Button>
-  <Button icon=">" icon-placement="end">Next</Button>
+  <Button icon="+">新建</Button>
+  <Button icon=">" icon-placement="end">下一步</Button>
   <Button icon-position="end">
     <template #icon>
       <span>^</span>
     </template>
-    Open
+    打开
   </Button>
 </template>
 ```
@@ -127,24 +129,24 @@ import 'aheart-ui/es/style.css'
 
 <div class="aheart-demo-panel">
   <div class="aheart-demo-row">
-    <AButton type="primary" :loading="{ delay: 300 }">Delayed loading</AButton>
+    <AButton type="primary" :loading="{ delay: 300 }">延迟加载</AButton>
     <AButton loading>
       <template #loadingIcon>
         <span>...</span>
       </template>
-      Custom loading
+      自定义加载
     </AButton>
   </div>
 </div>
 
 ```vue
 <template>
-  <Button type="primary" :loading="{ delay: 300 }">Delayed loading</Button>
+  <Button type="primary" :loading="{ delay: 300 }">延迟加载</Button>
   <Button loading>
     <template #loadingIcon>
       <span>...</span>
     </template>
-    Custom loading
+    自定义加载
   </Button>
 </template>
 ```
@@ -160,7 +162,7 @@ import 'aheart-ui/es/style.css'
     :class-names="{ root: 'demo-button-semantic-root', icon: 'demo-button-icon', content: 'demo-button-content' }"
     :styles="{ icon: { color: 'var(--aheart-color-primary)' }, content: { fontWeight: 600 } }"
   >
-    Configure
+    配置
   </AButton>
 </div>
 
@@ -174,7 +176,7 @@ import 'aheart-ui/es/style.css'
     :class-names="{ root: 'demo-button-semantic-root', icon: 'demo-button-icon', content: 'demo-button-content' }"
     :styles="{ icon: { color: 'var(--aheart-color-primary)' }, content: { fontWeight: 600 } }"
   >
-    Configure
+    配置
   </Button>
 </template>
 ```
@@ -221,7 +223,7 @@ import 'aheart-ui/es/style.css'
 
 ## Theme Tokens
 
-Button uses the global Aheart UI CSS variables, including:
+Button 使用 Aheart UI 的全局 CSS 变量：
 
 - `--aheart-color-primary`
 - `--aheart-color-primary-hover`

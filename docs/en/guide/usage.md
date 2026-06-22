@@ -1,8 +1,6 @@
-# 使用
+# Usage
 
-Aheart UI 支持全量安装、命名导入和单组件注册。当前已完成的 Button 可以直接通过这些方式接入应用。
-
-## 全量安装
+## Full Installation
 
 ```ts
 import { createApp } from 'vue'
@@ -13,11 +11,11 @@ import App from './App.vue'
 createApp(App).use(AheartUI).mount('#app')
 ```
 
-## 命名导入
+## Named Import
 
 ```vue
 <template>
-  <Button type="primary">保存</Button>
+  <Button type="primary">Save</Button>
 </template>
 
 <script setup lang="ts">
@@ -26,7 +24,7 @@ import 'aheart-ui/es/style.css'
 </script>
 ```
 
-## 单组件注册
+## Single Component Registration
 
 ```ts
 import { createApp } from 'vue'
