@@ -1,0 +1,102 @@
+.aheart-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aheart-spacing-md);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-form--inline {
+  flex-flow: row wrap;
+  align-items: flex-start;
+}
+
+.aheart-form-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-form--vertical .aheart-form-item,
+.aheart-form-item.aheart-form-item--vertical {
+  flex-direction: column;
+}
+
+.aheart-form--inline .aheart-form-item {
+  margin-right: var(--aheart-spacing-md);
+}
+
+.aheart-form-item__label {
+  display: inline-flex;
+  align-items: center;
+  min-width: 96px;
+  padding-top: 5px;
+  color: var(--aheart-color-text);
+  font-weight: 500;
+}
+
+.aheart-form--label-right .aheart-form-item__label {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.aheart-form--label-left .aheart-form-item__label {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.aheart-form--vertical .aheart-form-item__label {
+  justify-content: flex-start;
+  min-width: 0;
+  padding-top: 0;
+  text-align: left;
+}
+
+.aheart-form-item__required {
+  margin-right: var(--aheart-spacing-xs);
+  color: var(--aheart-color-danger);
+}
+
+.aheart-form-item__control {
+  min-width: 0;
+  flex: 1;
+}
+
+.aheart-form-item__content {
+  display: flex;
+  align-items: center;
+  gap: var(--aheart-spacing-xs);
+}
+
+.aheart-form-item__feedback {
+  color: var(--aheart-color-text-secondary);
+}
+
+.aheart-form-item--success .aheart-form-item__feedback {
+  color: var(--aheart-color-success);
+}
+
+.aheart-form-item--warning .aheart-form-item__feedback,
+.aheart-form-item--warning .aheart-form-item__help {
+  color: var(--aheart-color-warning);
+}
+
+.aheart-form-item--error .aheart-form-item__feedback,
+.aheart-form-item--error .aheart-form-item__help {
+  color: var(--aheart-color-danger);
+}
+
+.aheart-form-item--validating .aheart-form-item__feedback {
+  color: var(--aheart-color-primary);
+}
+
+.aheart-form-item__help,
+.aheart-form-item__extra {
+  margin-top: var(--aheart-spacing-xs);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-form-item__extra {
+  color: var(--aheart-color-text-secondary);
+}
