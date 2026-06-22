@@ -50,15 +50,15 @@ const plannedCount = components.filter((component) => component.status === 'Plan
       <p>组件源码、props 类型和构建产物都围绕 Vue 3 与 TypeScript 组织。</p>
     </article>
     <article class="aheart-card">
-      <h3>Theme Tokens</h3>
+      <h3>主题变量</h3>
       <p>使用 CSS Variables 管理颜色、字号、圆角和动效时长。</p>
     </article>
     <article class="aheart-card">
-      <h3>Plugin Install</h3>
+      <h3>插件安装</h3>
       <p>支持全量安装、命名导入和单组件注册的基础模式。</p>
     </article>
     <article class="aheart-card">
-      <h3>Verified Foundation</h3>
+      <h3>已验证的基础能力</h3>
       <p>Button 已接入样式、状态、测试、类型检查和构建验证。</p>
     </article>
   </div>

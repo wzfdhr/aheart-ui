@@ -67,7 +67,7 @@ const plannedCount = components.filter((component) => component.status === 'Plan
 <section class="aheart-section">
   <h2>Component Roadmap</h2>
   <p class="aheart-section__intro">
-    There is currently {{ readyCount }} {{ statusText.en.Ready }} component and {{ plannedCount }} {{ statusText.en.Planned }} components. {{ statusText.en.Planned }} means roadmap direction, not current availability.
+    There are currently {{ readyCount }} {{ statusText.en.Ready }} components and {{ plannedCount }} {{ statusText.en.Planned }} components. {{ statusText.en.Planned }} means roadmap direction, not current availability.
   </p>
   <div class="aheart-category-grid">
     <section v-for="category in componentCategories" :key="category.key" class="aheart-component-card">

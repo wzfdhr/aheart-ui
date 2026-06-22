@@ -43,6 +43,7 @@ export default defineConfig({
             {
               text: '组件',
               items: [
+                { text: '组件总览', link: '/components/overview' },
                 { text: 'Button 按钮', link: '/components/button' }
               ]
             }
@@ -86,6 +87,7 @@ export default defineConfig({
             {
               text: 'Components',
               items: [
+                { text: 'Overview', link: '/en/components/overview' },
                 { text: 'Button', link: '/en/components/button' }
               ]
             }
