@@ -264,4 +264,84 @@ describe('Button', () => {
     expect(wrapper.find('.aheart-button__content').classes()).toContain('semantic-content')
     expect(wrapper.find('.aheart-button__content').attributes('style')).toContain('font-weight: 600')
   })
+
+  it('resolves explicit color and variant classes over type sugar', () => {
+    const wrapper = mount(Button, {
+      props: {
+        type: 'primary',
+        color: 'danger',
+        variant: 'filled'
+      },
+      slots: {
+        default: 'Delete'
+      }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-button--primary')
+    expect(wrapper.classes()).toContain('aheart-button--color-danger')
+    expect(wrapper.classes()).toContain('aheart-button--variant-filled')
+    expect(wrapper.classes()).not.toContain('aheart-button--color-primary')
+    expect(wrapper.attributes('style')).toContain('--aheart-button-color: var(--aheart-color-danger)')
+  })
+
+  it('maps type and danger to Ant-style color and variant classes', () => {
+    const primary = mount(Button, {
+      props: {
+        type: 'primary'
+      }
+    })
+    const dashedDanger = mount(Button, {
+      props: {
+        type: 'dashed',
+        danger: true
+      }
+    })
+
+    expect(primary.classes()).toContain('aheart-button--color-primary')
+    expect(primary.classes()).toContain('aheart-button--variant-solid')
+    expect(dashedDanger.classes()).toContain('aheart-button--color-danger')
+    expect(dashedDanger.classes()).toContain('aheart-button--variant-dashed')
+  })
+
+  it('renders loading.icon from object loading after delay', async () => {
+    vi.useFakeTimers()
+
+    const wrapper = mount(Button, {
+      props: {
+        loading: {
+          delay: 50,
+          icon: h('span', { class: 'object-loading-icon' }, 'loading')
+        }
+      },
+      slots: {
+        default: 'Save'
+      }
+    })
+
+    expect(wrapper.find('.object-loading-icon').exists()).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(50)
+    await nextTick()
+
+    expect(wrapper.find('.aheart-button__loading').exists()).toBe(true)
+    expect(wrapper.find('.object-loading-icon').text()).toBe('loading')
+    expect(wrapper.find('.aheart-button__loading-spinner').exists()).toBe(false)
+  })
+
+  it('keeps the loadingIcon slot higher priority than loading.icon', () => {
+    const wrapper = mount(Button, {
+      props: {
+        loading: {
+          icon: h('span', { class: 'object-loading-icon' }, 'object')
+        }
+      },
+      slots: {
+        loadingIcon: '<span class="slot-loading-icon">slot</span>',
+        default: 'Save'
+      }
+    })
+
+    expect(wrapper.find('.slot-loading-icon').text()).toBe('slot')
+    expect(wrapper.find('.object-loading-icon').exists()).toBe(false)
+  })
 })

@@ -1,17 +1,41 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 
 export const buttonTypes = ['default', 'primary', 'dashed', 'link', 'text', 'success', 'warning', 'danger'] as const
 export const buttonSizes = ['large', 'normal', 'middle', 'small', 'mini'] as const
 export const nativeButtonTypes = ['button', 'submit', 'reset'] as const
 export const buttonShapes = ['default', 'circle', 'round'] as const
 export const buttonIconPlacements = ['start', 'end'] as const
+export const buttonColors = [
+  'default',
+  'primary',
+  'danger',
+  'success',
+  'warning',
+  'info',
+  'blue',
+  'purple',
+  'cyan',
+  'green',
+  'magenta',
+  'pink',
+  'red',
+  'orange',
+  'yellow',
+  'volcano',
+  'geekblue',
+  'lime',
+  'gold'
+] as const
+export const buttonVariants = ['outlined', 'dashed', 'solid', 'filled', 'text', 'link'] as const
 
 export type ButtonType = (typeof buttonTypes)[number]
 export type ButtonSize = (typeof buttonSizes)[number]
 export type NativeButtonType = (typeof nativeButtonTypes)[number]
 export type ButtonShape = (typeof buttonShapes)[number]
 export type ButtonIconPlacement = (typeof buttonIconPlacements)[number]
-export type ButtonLoading = boolean | { delay?: number }
+export type ButtonColor = (typeof buttonColors)[number]
+export type ButtonVariant = (typeof buttonVariants)[number]
+export type ButtonLoading = boolean | { delay?: number; icon?: VNodeChild }
 export type ButtonSemanticPart = 'root' | 'icon' | 'content'
 export type ButtonClassNames = Partial<Record<ButtonSemanticPart, string>>
 export type ButtonStyles = Partial<Record<ButtonSemanticPart, StyleValue>>
@@ -60,6 +84,14 @@ export const buttonProps = {
   iconPosition: {
     type: String as PropType<ButtonIconPlacement>,
     validator: (value: string) => buttonIconPlacements.includes(value as ButtonIconPlacement)
+  },
+  color: {
+    type: String as PropType<ButtonColor>,
+    validator: (value: string) => buttonColors.includes(value as ButtonColor)
+  },
+  variant: {
+    type: String as PropType<ButtonVariant>,
+    validator: (value: string) => buttonVariants.includes(value as ButtonVariant)
   },
   href: String,
   target: String,

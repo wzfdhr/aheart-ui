@@ -125,6 +125,66 @@
   color: #fff;
 }
 
+.aheart-button--variant-solid {
+  border-color: transparent;
+  background: var(--aheart-button-color);
+  color: #fff;
+}
+
+.aheart-button--variant-outlined,
+.aheart-button--variant-dashed {
+  border-color: var(--aheart-button-color);
+  color: var(--aheart-button-color);
+}
+
+.aheart-button--variant-dashed {
+  border-style: dashed;
+}
+
+.aheart-button--variant-filled {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aheart-button-color) 12%, white);
+  color: var(--aheart-button-color);
+}
+
+.aheart-button--variant-text,
+.aheart-button--variant-link {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--aheart-button-color);
+}
+
+.aheart-button--variant-outlined:hover:not(:disabled),
+.aheart-button--variant-dashed:hover:not(:disabled) {
+  border-color: var(--aheart-button-color-hover);
+  color: var(--aheart-button-color-hover);
+}
+
+.aheart-button--variant-solid:hover:not(:disabled) {
+  border-color: transparent;
+  color: #fff;
+  opacity: 0.88;
+}
+
+.aheart-button--variant-filled:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--aheart-button-color) 18%, white);
+  color: var(--aheart-button-color-hover);
+}
+
+.aheart-button--variant-text:hover:not(:disabled),
+.aheart-button--variant-link:hover:not(:disabled) {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aheart-button-color) 8%, transparent);
+  color: var(--aheart-button-color-hover);
+}
+
+.aheart-button--color-default.aheart-button--variant-outlined,
+.aheart-button--color-default.aheart-button--variant-dashed {
+  border-color: var(--aheart-color-border);
+  color: var(--aheart-color-text);
+}
+
 .aheart-button.is-ghost {
   background: transparent;
 }

@@ -15,7 +15,8 @@
   >
     <span v-if="isLoading" class="aheart-button__loading" aria-hidden="true">
       <slot name="loadingIcon">
-        <span class="aheart-button__loading-spinner" />
+        <ARenderNode v-if="hasObjectLoadingIcon" :node="objectLoadingIcon" />
+        <span v-else class="aheart-button__loading-spinner" />
       </slot>
     </span>
     <span v-if="showStartIcon" :class="iconClass" :style="iconStyle" aria-hidden="true">
@@ -35,9 +36,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref, useSlots, watch } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AIcon from '../icon/icon.vue'
+import type { ButtonColor, ButtonType, ButtonVariant } from './types'
 import { buttonEmits, buttonProps } from './types'
 import './style.css'
 
@@ -51,6 +53,58 @@ const config = useAheartConfig()
 const slots = useSlots()
 const delayedLoading = ref(false)
 let loadingTimer: ReturnType<typeof setTimeout> | undefined
+
+const ARenderNode = defineComponent({
+  name: 'AButtonRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
+
+const colorTokens: Record<ButtonColor, string> = {
+  default: 'var(--aheart-color-text)',
+  primary: 'var(--aheart-color-primary)',
+  danger: 'var(--aheart-color-danger)',
+  success: 'var(--aheart-color-success)',
+  warning: 'var(--aheart-color-warning)',
+  info: 'var(--aheart-color-info)',
+  blue: '#1677ff',
+  purple: '#722ed1',
+  cyan: '#13c2c2',
+  green: '#52c41a',
+  magenta: '#eb2f96',
+  pink: '#eb2f96',
+  red: '#f5222d',
+  orange: '#fa8c16',
+  yellow: '#fadb14',
+  volcano: '#fa541c',
+  geekblue: '#2f54eb',
+  lime: '#a0d911',
+  gold: '#faad14'
+}
+
+const typeColorMap: Partial<Record<ButtonType, ButtonColor>> = {
+  primary: 'primary',
+  success: 'success',
+  warning: 'warning',
+  danger: 'danger'
+}
+
+const typeVariantMap: Partial<Record<ButtonType, ButtonVariant>> = {
+  primary: 'solid',
+  success: 'solid',
+  warning: 'solid',
+  danger: 'solid',
+  dashed: 'dashed',
+  link: 'link',
+  text: 'text'
+}
 
 const resolvedSize = computed(() => {
   const providerSize = config.value.size === 'middle' ? 'normal' : config.value.size
@@ -106,14 +160,24 @@ const isInteractiveDisabled = computed(() => isDisabled.value || isLoading.value
 const rootTag = computed(() => (props.href ? 'a' : 'button'))
 const resolvedNativeType = computed(() => props.htmlType || props.nativeType)
 const isDanger = computed(() => props.danger || props.type === 'danger')
+const resolvedColor = computed<ButtonColor>(() => props.color || (isDanger.value ? 'danger' : typeColorMap[props.type] || 'default'))
+const resolvedVariant = computed<ButtonVariant>(() => props.variant || typeVariantMap[props.type] || 'outlined')
 const resolvedIconPlacement = computed(() => props.iconPlacement || props.iconPosition || 'start')
 const hasIcon = computed(() => Boolean(slots.icon) || Boolean(props.icon))
 const showStartIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === 'start')
 const showEndIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === 'end')
+const objectLoadingIcon = computed(() =>
+  typeof props.loading === 'object' && props.loading !== null ? props.loading.icon : undefined
+)
+const hasObjectLoadingIcon = computed(
+  () => objectLoadingIcon.value !== undefined && objectLoadingIcon.value !== null && objectLoadingIcon.value !== false
+)
 
 const buttonClass = computed(() => [
   `aheart-button--${props.type}`,
   `aheart-button--${resolvedSize.value}`,
+  `aheart-button--color-${resolvedColor.value}`,
+  `aheart-button--variant-${resolvedVariant.value}`,
   props.className,
   props.rootClassName,
   props.classNames?.root,
@@ -127,7 +191,15 @@ const buttonClass = computed(() => [
     'is-anchor': rootTag.value === 'a'
   }
 ])
-const rootStyle = computed(() => [props.style, props.styles?.root])
+const rootStyle = computed(() => [
+  {
+    '--aheart-button-color': colorTokens[resolvedColor.value],
+    '--aheart-button-color-hover':
+      resolvedColor.value === 'default' ? 'var(--aheart-color-primary-hover)' : colorTokens[resolvedColor.value]
+  },
+  props.style,
+  props.styles?.root
+])
 const iconClass = computed(() => ['aheart-button__icon', props.classNames?.icon])
 const iconStyle = computed(() => props.styles?.icon)
 const contentClass = computed(() => ['aheart-button__content', props.classNames?.content])
