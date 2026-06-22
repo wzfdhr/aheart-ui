@@ -3,6 +3,13 @@ import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Checkbox from '../checkbox.vue'
+import CheckboxGroup from '../checkbox-group.vue'
+
+const checkboxOptions = [
+  { label: 'Apple', value: 'apple' },
+  { label: 'Banana', value: 'banana' },
+  { label: 'Cherry', value: 'cherry', disabled: true }
+]
 
 describe('Checkbox', () => {
   it('renders checked state, label, and indeterminate class', () => {
@@ -40,5 +47,41 @@ describe('Checkbox', () => {
     })
 
     expect(wrapper.find('input').attributes()).toHaveProperty('disabled')
+  })
+
+  it('renders CheckboxGroup options and emits array updates', async () => {
+    const wrapper = mount(CheckboxGroup, {
+      props: {
+        modelValue: ['apple'],
+        options: checkboxOptions,
+        name: 'fruit',
+        direction: 'vertical'
+      }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-checkbox-group--vertical')
+    expect(wrapper.findAll('input').map((input) => input.attributes('name'))).toEqual(['fruit', 'fruit', 'fruit'])
+    expect(wrapper.findAll('input')[0].element.checked).toBe(true)
+    expect(wrapper.findAll('input')[2].attributes()).toHaveProperty('disabled')
+
+    await wrapper.findAll('input')[1].setValue(true)
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['apple', 'banana']])
+    expect(wrapper.emitted('change')?.[0]).toEqual([['apple', 'banana']])
+  })
+
+  it('CheckboxGroup inherits disabled from ConfigProvider', () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { disabled: true },
+      slots: {
+        default: {
+          render() {
+            return h(CheckboxGroup, { options: checkboxOptions })
+          }
+        }
+      }
+    })
+
+    expect(wrapper.findAll('input').every((input) => input.attributes('disabled') !== undefined)).toBe(true)
   })
 })

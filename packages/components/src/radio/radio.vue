@@ -5,6 +5,7 @@
         class="aheart-radio__input"
         type="radio"
         :name="name"
+        :value="value"
         :checked="modelValue"
         :disabled="isDisabled"
         @change="handleChange"

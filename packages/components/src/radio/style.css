@@ -60,3 +60,104 @@
   background: var(--aheart-color-primary);
   content: '';
 }
+
+.aheart-radio-group {
+  display: inline-flex;
+  gap: var(--aheart-spacing-md);
+  color: var(--aheart-color-text);
+}
+
+.aheart-radio-group--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.aheart-radio-group--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-radio-group--button {
+  gap: 0;
+  flex-wrap: nowrap;
+}
+
+.aheart-radio-group--block {
+  display: flex;
+  width: 100%;
+}
+
+.aheart-radio-group--block .aheart-radio-button {
+  flex: 1;
+}
+
+.aheart-radio-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: var(--aheart-control-height);
+  padding: 0 var(--aheart-spacing-md);
+  border: 1px solid var(--aheart-color-border);
+  border-left-width: 0;
+  background: var(--aheart-color-bg);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+  cursor: pointer;
+  transition:
+    border-color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    background-color var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-radio-button:first-child {
+  border-left-width: 1px;
+  border-start-start-radius: var(--aheart-radius);
+  border-end-start-radius: var(--aheart-radius);
+}
+
+.aheart-radio-button:last-child {
+  border-start-end-radius: var(--aheart-radius);
+  border-end-end-radius: var(--aheart-radius);
+}
+
+.aheart-radio-group--small .aheart-radio-button {
+  height: var(--aheart-control-height-sm);
+  padding: 0 var(--aheart-spacing-sm);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-radio-group--large .aheart-radio-button {
+  height: var(--aheart-control-height-lg);
+  padding: 0 var(--aheart-spacing-lg);
+  font-size: var(--aheart-font-size-lg);
+}
+
+.aheart-radio-button:hover:not(.is-disabled),
+.aheart-radio-button.is-checked {
+  border-color: var(--aheart-color-primary);
+  color: var(--aheart-color-primary);
+}
+
+.aheart-radio-group--solid .aheart-radio-button.is-checked {
+  background: var(--aheart-color-primary);
+  color: #fff;
+}
+
+.aheart-radio-button.is-disabled {
+  color: var(--aheart-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.aheart-radio-button__input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}

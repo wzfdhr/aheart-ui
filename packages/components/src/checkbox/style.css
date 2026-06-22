@@ -73,3 +73,25 @@
   background: #fff;
   content: '';
 }
+
+.aheart-checkbox-group {
+  display: inline-flex;
+  gap: var(--aheart-spacing-md);
+  color: var(--aheart-color-text);
+}
+
+.aheart-checkbox-group--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.aheart-checkbox-group--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-checkbox-group.is-disabled {
+  cursor: not-allowed;
+}

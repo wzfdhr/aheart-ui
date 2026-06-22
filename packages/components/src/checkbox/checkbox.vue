@@ -4,6 +4,8 @@
       <input
         class="aheart-checkbox__input"
         type="checkbox"
+        :name="name"
+        :value="value"
         :checked="modelValue"
         :disabled="isDisabled"
         :aria-checked="indeterminate ? 'mixed' : modelValue ? 'true' : 'false'"
