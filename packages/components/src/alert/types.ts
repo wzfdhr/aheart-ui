@@ -1,32 +1,56 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 
+export type AlertRenderable = VNodeChild
 export type AlertType = 'success' | 'info' | 'warning' | 'error'
 export type AlertVariant = 'outlined' | 'filled'
-export type AlertSemanticPart = 'root' | 'icon' | 'content' | 'title' | 'description' | 'action' | 'close'
+export type AlertSemanticPart =
+  | 'root'
+  | 'icon'
+  | 'content'
+  | 'section'
+  | 'title'
+  | 'description'
+  | 'action'
+  | 'actions'
+  | 'close'
 export type AlertClassNames = Partial<Record<AlertSemanticPart, string>>
 export type AlertStyles = Partial<Record<AlertSemanticPart, StyleValue>>
+
+export interface AlertClosableConfig {
+  closeIcon?: AlertRenderable
+  ariaLabel?: string
+  ariaLabelledby?: string
+  ariaDescribedby?: string
+  onClose?: (event: MouseEvent) => void
+  afterClose?: () => void
+}
+
+const renderableProp = [String, Number, Object, Array, Function] as PropType<AlertRenderable>
 
 export const alertProps = {
   type: {
     type: String as PropType<AlertType>,
     default: undefined
   },
-  title: String,
-  message: String,
-  description: String,
+  title: renderableProp,
+  message: renderableProp,
+  description: renderableProp,
   showIcon: {
     type: Boolean,
     default: undefined
   },
-  closable: Boolean,
+  closable: {
+    type: [Boolean, Object] as PropType<boolean | AlertClosableConfig>,
+    default: false
+  },
   banner: Boolean,
   variant: {
     type: String as PropType<AlertVariant>,
     default: 'outlined'
   },
-  action: String,
-  icon: String,
-  closeIcon: String,
+  action: renderableProp,
+  icon: renderableProp,
+  closeIcon: renderableProp,
   role: {
     type: String,
     default: 'alert'

@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { h } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
 import Alert from '../alert.vue'
 
 describe('Alert', () => {
@@ -172,5 +173,86 @@ describe('Alert', () => {
     expect(wrapper.find('.aheart-alert__action').attributes('style')).toContain('margin-inline-start: 16px')
     expect(wrapper.find('.aheart-alert__close').classes()).toContain('semantic-close')
     expect(wrapper.find('.aheart-alert__close').attributes('style')).toContain('opacity: 0.5')
+  })
+
+  it('renders vnode content props for message description action icon and close icon', () => {
+    const wrapper = mount(Alert, {
+      props: {
+        message: h('span', { class: 'message-node' }, 'Node message'),
+        description: h('span', { class: 'description-node' }, 'Node description'),
+        action: h('button', { class: 'action-node' }, 'Act'),
+        icon: h('span', { class: 'icon-node' }, '?'),
+        closeIcon: h('span', { class: 'close-node' }, 'Dismiss'),
+        showIcon: true,
+        closable: true
+      }
+    })
+
+    expect(wrapper.find('.message-node').text()).toBe('Node message')
+    expect(wrapper.find('.description-node').text()).toBe('Node description')
+    expect(wrapper.find('.action-node').text()).toBe('Act')
+    expect(wrapper.find('.icon-node').text()).toBe('?')
+    expect(wrapper.find('.close-node').text()).toBe('Dismiss')
+  })
+
+  it('supports closable config callbacks aria attributes and close icon', async () => {
+    const onClose = vi.fn()
+    const afterClose = vi.fn()
+    const wrapper = mount(Alert, {
+      props: {
+        message: 'Closable config',
+        closable: {
+          closeIcon: h('span', { class: 'configured-close' }, 'Close'),
+          ariaLabel: 'Dismiss alert',
+          ariaDescribedby: 'alert-help',
+          onClose,
+          afterClose
+        }
+      }
+    })
+
+    const button = wrapper.find('.aheart-alert__close')
+    expect(button.attributes('aria-label')).toBe('Dismiss alert')
+    expect(button.attributes('aria-describedby')).toBe('alert-help')
+    expect(button.find('.configured-close').text()).toBe('Close')
+
+    await button.trigger('click')
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(afterClose).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted('close')).toHaveLength(1)
+    expect(wrapper.emitted('afterClose')).toHaveLength(1)
+    expect(wrapper.find('.aheart-alert').exists()).toBe(false)
+  })
+
+  it('supports Ant section and actions semantic aliases alongside local aliases', () => {
+    const wrapper = mount(Alert, {
+      props: {
+        message: 'Semantic alert',
+        action: 'Details',
+        classNames: {
+          content: 'local-content',
+          section: 'ant-section',
+          action: 'local-action',
+          actions: 'ant-actions'
+        },
+        styles: {
+          content: { paddingInlineStart: '2px' },
+          section: { paddingInlineEnd: '4px' },
+          action: { marginInlineStart: '8px' },
+          actions: { marginInlineEnd: '10px' }
+        }
+      }
+    })
+
+    const content = wrapper.find('.aheart-alert__content')
+    expect(content.classes()).toEqual(expect.arrayContaining(['local-content', 'ant-section']))
+    expect(content.attributes('style')).toContain('padding-inline-start: 2px')
+    expect(content.attributes('style')).toContain('padding-inline-end: 4px')
+
+    const action = wrapper.find('.aheart-alert__action')
+    expect(action.classes()).toEqual(expect.arrayContaining(['local-action', 'ant-actions']))
+    expect(action.attributes('style')).toContain('margin-inline-start: 8px')
+    expect(action.attributes('style')).toContain('margin-inline-end: 10px')
   })
 })
