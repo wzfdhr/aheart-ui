@@ -1,7 +1,8 @@
 <template>
-  <label class="aheart-checkbox" :class="checkboxClass" :style="rootStyle" :title="title">
+  <label ref="rootRef" class="aheart-checkbox" :class="checkboxClass" :style="rootStyle" :title="title">
     <span class="aheart-checkbox__box">
       <input
+        ref="inputRef"
         class="aheart-checkbox__input"
         type="checkbox"
         :name="name"
@@ -10,6 +11,8 @@
         :disabled="isDisabled"
         :aria-checked="indeterminate ? 'mixed' : mergedChecked ? 'true' : 'false'"
         @change="handleChange"
+        @focus="handleFocus"
+        @blur="handleBlur"
       />
       <span :class="iconClass" :style="iconStyle" aria-hidden="true" />
     </span>
@@ -32,6 +35,8 @@ defineOptions({
 const props = defineProps(checkboxProps)
 const emit = defineEmits(checkboxEmits)
 const config = useAheartConfig()
+const rootRef = ref<HTMLLabelElement>()
+const inputRef = ref<HTMLInputElement>()
 const internalChecked = ref(props.defaultChecked ?? false)
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -64,4 +69,26 @@ const handleChange = (event: Event) => {
   emit('update:checked', checked)
   emit('change', checked, event)
 }
+
+const handleFocus = (event: FocusEvent) => {
+  emit('focus', event)
+}
+
+const handleBlur = (event: FocusEvent) => {
+  emit('blur', event)
+}
+
+const focus = () => {
+  inputRef.value?.focus()
+}
+
+const blur = () => {
+  inputRef.value?.blur()
+}
+
+defineExpose({
+  focus,
+  blur,
+  nativeElement: rootRef
+})
 </script>

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Checkbox from '../checkbox.vue'
@@ -33,6 +33,46 @@ describe('Checkbox', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
     expect(wrapper.emitted('change')?.[0]?.[0]).toBe(true)
     expect(wrapper.emitted('change')?.[0]?.[1]).toBeInstanceOf(Event)
+  })
+
+  it('emits focus and blur events from the native input', async () => {
+    const wrapper = mount(Checkbox)
+    const input = wrapper.find('input')
+
+    await input.trigger('focus')
+    await input.trigger('blur')
+
+    expect(wrapper.emitted('focus')?.[0]?.[0]).toBeInstanceOf(FocusEvent)
+    expect(wrapper.emitted('blur')?.[0]?.[0]).toBeInstanceOf(FocusEvent)
+  })
+
+  it('exposes focus blur and nativeElement methods', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Checkbox, {
+      attachTo: host,
+      props: { label: 'Focusable' }
+    })
+    const checkboxVm = wrapper.vm as unknown as {
+      focus: () => void
+      blur: () => void
+      nativeElement?: HTMLLabelElement
+    }
+    const input = wrapper.find('input').element
+
+    checkboxVm.focus()
+    await nextTick()
+    expect(document.activeElement).toBe(input)
+
+    checkboxVm.blur()
+    await nextTick()
+    expect(document.activeElement).not.toBe(input)
+
+    expect(checkboxVm.nativeElement).toBe(wrapper.element)
+
+    wrapper.unmount()
+    host.remove()
   })
 
   it('uses ConfigProvider disabled fallback', () => {
