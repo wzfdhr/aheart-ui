@@ -58,6 +58,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   emits: types.tableEmits,
   setup(__props, { emit: __emit }) {
     var _a, _b;
+    const ARenderNode = vue.defineComponent({
+      name: "ATableRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
@@ -69,7 +81,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasInitializedSort = vue.ref(false);
     const initializedFilterKeys = vue.ref(/* @__PURE__ */ new Set());
     const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`;
-    const normalizedColumns = vue.computed(() => props.columns ?? []);
+    const normalizedColumns = vue.computed(() => (props.columns ?? []).filter((column) => !column.hidden));
     const normalizedData = vue.computed(() => props.dataSource ?? []);
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
@@ -261,7 +273,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (column.customRender) {
         return column.customRender({ text, record, index: index2, column });
       }
-      return text ?? "";
+      return text === void 0 || text === null ? "" : String(text);
     };
     const renderExpanded = (record, index2) => {
       var _a2, _b2;
@@ -433,13 +445,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         disabled: isDisabled.value,
                         onClick: ($event) => toggleSort(column)
                       }, [
-                        vue.createElementVNode("span", null, vue.toDisplayString(column.title), 1),
+                        vue.createElementVNode("span", null, [
+                          vue.createVNode(vue.unref(ARenderNode), {
+                            node: column.title
+                          }, null, 8, ["node"])
+                        ]),
                         vue.createElementVNode("span", {
                           class: "aheart-table__sort-icon",
                           "data-sort": getSortState(column),
                           "aria-hidden": "true"
                         }, null, 8, _hoisted_7)
-                      ], 8, _hoisted_6)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_8, vue.toDisplayString(column.title), 1)),
+                      ], 8, _hoisted_6)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_8, [
+                        vue.createVNode(vue.unref(ARenderNode), {
+                          node: column.title
+                        }, null, 8, ["node"])
+                      ])),
                       ((_a2 = column.filters) == null ? void 0 : _a2.length) ? (vue.openBlock(), vue.createElementBlock("div", {
                         key: 2,
                         class: "aheart-table__filters",
@@ -494,14 +514,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         key: getColumnKey(column),
                         class: vue.normalizeClass(columnCellClass(column)),
                         style: vue.normalizeStyle(columnStyle(column))
-                      }, vue.toDisplayString(renderCell(column, row.record, row.index)), 7);
+                      }, [
+                        vue.createVNode(vue.unref(ARenderNode), {
+                          node: renderCell(column, row.record, row.index)
+                        }, null, 8, ["node"])
+                      ], 6);
                     }), 128))
                   ], 2),
                   hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_15, [
                     vue.createElementVNode("td", {
                       colspan: columnCount.value,
                       class: "aheart-table__expanded-cell"
-                    }, vue.toDisplayString(renderExpanded(row.record, row.index)), 9, _hoisted_16)
+                    }, [
+                      vue.createVNode(vue.unref(ARenderNode), {
+                        node: renderExpanded(row.record, row.index)
+                      }, null, 8, ["node"])
+                    ], 8, _hoisted_16)
                   ])) : vue.createCommentVNode("", true)
                 ], 64);
               }), 128)),

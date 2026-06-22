@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, createCommentVNode, Fragment, renderList, normalizeStyle, toDisplayString, createBlock, unref } from "vue";
+import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, createCommentVNode, Fragment, renderList, normalizeStyle, createVNode, unref, toDisplayString, createBlock } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import Pagination from "../pagination/index.js";
 import { tableProps, tableEmits } from "./types.js";
@@ -56,6 +56,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   emits: tableEmits,
   setup(__props, { emit: __emit }) {
     var _a, _b;
+    const ARenderNode = defineComponent({
+      name: "ATableRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
@@ -67,7 +79,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasInitializedSort = ref(false);
     const initializedFilterKeys = ref(/* @__PURE__ */ new Set());
     const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`;
-    const normalizedColumns = computed(() => props.columns ?? []);
+    const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden));
     const normalizedData = computed(() => props.dataSource ?? []);
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
@@ -259,7 +271,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (column.customRender) {
         return column.customRender({ text, record, index, column });
       }
-      return text ?? "";
+      return text === void 0 || text === null ? "" : String(text);
     };
     const renderExpanded = (record, index) => {
       var _a2, _b2;
@@ -431,13 +443,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         disabled: isDisabled.value,
                         onClick: ($event) => toggleSort(column)
                       }, [
-                        createElementVNode("span", null, toDisplayString(column.title), 1),
+                        createElementVNode("span", null, [
+                          createVNode(unref(ARenderNode), {
+                            node: column.title
+                          }, null, 8, ["node"])
+                        ]),
                         createElementVNode("span", {
                           class: "aheart-table__sort-icon",
                           "data-sort": getSortState(column),
                           "aria-hidden": "true"
                         }, null, 8, _hoisted_7)
-                      ], 8, _hoisted_6)) : (openBlock(), createElementBlock("span", _hoisted_8, toDisplayString(column.title), 1)),
+                      ], 8, _hoisted_6)) : (openBlock(), createElementBlock("span", _hoisted_8, [
+                        createVNode(unref(ARenderNode), {
+                          node: column.title
+                        }, null, 8, ["node"])
+                      ])),
                       ((_a2 = column.filters) == null ? void 0 : _a2.length) ? (openBlock(), createElementBlock("div", {
                         key: 2,
                         class: "aheart-table__filters",
@@ -492,14 +512,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         key: getColumnKey(column),
                         class: normalizeClass(columnCellClass(column)),
                         style: normalizeStyle(columnStyle(column))
-                      }, toDisplayString(renderCell(column, row.record, row.index)), 7);
+                      }, [
+                        createVNode(unref(ARenderNode), {
+                          node: renderCell(column, row.record, row.index)
+                        }, null, 8, ["node"])
+                      ], 6);
                     }), 128))
                   ], 2),
                   hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_15, [
                     createElementVNode("td", {
                       colspan: columnCount.value,
                       class: "aheart-table__expanded-cell"
-                    }, toDisplayString(renderExpanded(row.record, row.index)), 9, _hoisted_16)
+                    }, [
+                      createVNode(unref(ARenderNode), {
+                        node: renderExpanded(row.record, row.index)
+                      }, null, 8, ["node"])
+                    ], 8, _hoisted_16)
                   ])) : createCommentVNode("", true)
                 ], 64);
               }), 128)),

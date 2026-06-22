@@ -58,6 +58,46 @@ Table displays structured records with columns, sorting, selection, expansion, p
 
 使用 `defaultSortOrder` 设置默认排序，使用 `sortOrder` 接管排序状态。`sorter: true` 会按当前列 `dataIndex` 的值进行基础比较，传入函数时使用自定义比较逻辑。
 
+## 自定义渲染与隐藏列
+
+<div class="aheart-demo-panel">
+  <ATable
+    :columns="[
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        customRender: ({ text }) => text + ' ✓'
+      },
+      { title: 'Secret', dataIndex: 'secret', key: 'secret', hidden: true },
+      { title: 'Role', dataIndex: 'role', key: 'role' }
+    ]"
+    :data-source="[
+      { key: 'ada', name: 'Ada', secret: 'internal', role: 'Architect' },
+      { key: 'grace', name: 'Grace', secret: 'internal', role: 'Engineer' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ATable
+    :columns="[
+      {
+        title: h('span', { class: 'column-title' }, 'Name'),
+        dataIndex: 'name',
+        key: 'name',
+        customRender: ({ text }) => h('strong', String(text))
+      },
+      { title: 'Secret', dataIndex: 'secret', key: 'secret', hidden: true }
+    ]"
+    :data-source="dataSource"
+  />
+</template>
+```
+
+`title`、`customRender` 和 `expandedRowRender` 都会渲染返回的 `VNodeChild`；`hidden: true` 的列不会参与表头、单元格、筛选、排序和展开行列数计算。
+
 ## 筛选
 
 <div class="aheart-demo-panel">
@@ -216,12 +256,13 @@ Table displays structured records with columns, sorting, selection, expansion, p
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| title | 列标题 | `string` | - |
+| title | 列标题 | `VNodeChild` | - |
 | dataIndex | 数据字段路径 | `string` \| `number` \| `(string \| number)[]` | - |
 | key | 列唯一标识 | `string` | `dataIndex` |
 | align | 对齐方式 | `left` \| `center` \| `right` | `left` |
 | width | 列宽 | `string` \| `number` | - |
 | className | 自定义类名 | `string` | - |
+| hidden | 是否隐藏该列 | `boolean` | `false` |
 | sorter | 是否按列值排序，或本地排序函数 | `boolean` \| `(a, b) => number` | - |
 | sortOrder | 受控排序方向 | `ascend` \| `descend` | - |
 | defaultSortOrder | 默认排序方向 | `ascend` \| `descend` | - |
@@ -230,7 +271,7 @@ Table displays structured records with columns, sorting, selection, expansion, p
 | defaultFilteredValue | 默认筛选值 | `(string \| number \| boolean)[]` | - |
 | filterMultiple | 是否允许多选筛选 | `boolean` | `true` |
 | ellipsis | 是否省略文本 | `boolean` | `false` |
-| customRender | 自定义渲染函数 | `(context) => VNodeChild` | - |
+| customRender | 自定义单元格渲染函数，返回内容会作为节点渲染 | `(context) => VNodeChild` | - |
 
 ### TableColumnFilter
 
@@ -254,7 +295,7 @@ Table displays structured records with columns, sorting, selection, expansion, p
 | --- | --- | --- | --- |
 | expandedRowKeys | 受控展开 keys | `(string \| number)[]` | - |
 | defaultExpandedRowKeys | 默认展开 keys | `(string \| number)[]` | `[]` |
-| expandedRowRender | 展开行内容 | `(record, index) => VNodeChild` | - |
+| expandedRowRender | 展开行内容，返回内容会作为节点渲染 | `(record, index) => VNodeChild` | - |
 | rowExpandable | 是否允许展开当前行 | `(record) => boolean` | - |
 
 ### TablePaginationConfig

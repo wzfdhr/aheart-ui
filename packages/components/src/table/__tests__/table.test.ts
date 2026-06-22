@@ -36,6 +36,53 @@ describe('Table', () => {
     expect(wrapper.text()).toContain('Maintainer')
   })
 
+  it('renders vnode column titles custom cells and expanded content', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          {
+            title: h('span', { class: 'title-node' }, 'Name node'),
+            dataIndex: 'name',
+            key: 'name',
+            customRender: ({ text }) => h('strong', { class: 'cell-node' }, String(text))
+          }
+        ],
+        dataSource,
+        expandable: {
+          expandedRowRender: (record) => h('span', { class: 'expanded-node' }, `${record.name} details`)
+        }
+      }
+    })
+
+    expect(wrapper.find('.title-node').text()).toBe('Name node')
+    expect(wrapper.find('.cell-node').text()).toBe('Ada')
+
+    await wrapper.find('.aheart-table__expand-button').trigger('click')
+
+    expect(wrapper.find('.expanded-node').text()).toBe('Ada details')
+  })
+
+  it('omits hidden columns from headers body cells and column count', () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          { title: 'Name', dataIndex: 'name', key: 'name' },
+          { title: 'Secret', dataIndex: 'role', key: 'secret', hidden: true },
+          { title: 'Age', dataIndex: 'age', key: 'age' }
+        ],
+        dataSource: [dataSource[0]],
+        expandable: {
+          defaultExpandedRowKeys: ['ada'],
+          expandedRowRender: () => 'Expanded'
+        }
+      }
+    })
+
+    expect(wrapper.findAll('th').map((cell) => cell.text())).toEqual(['', 'Name', 'Age'])
+    expect(wrapper.find('tbody tr').text()).not.toContain('Architect')
+    expect(wrapper.find('.aheart-table__expanded-cell').attributes('colspan')).toBe('3')
+  })
+
   it('renders custom empty text when no data is available', () => {
     const wrapper = mount(Table, {
       props: { columns, dataSource: [], emptyText: 'No records' }

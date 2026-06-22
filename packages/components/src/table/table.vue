@@ -25,10 +25,14 @@
                   :disabled="isDisabled"
                   @click="toggleSort(column)"
                 >
-                  <span>{{ column.title }}</span>
+                  <span>
+                    <ARenderNode :node="column.title" />
+                  </span>
                   <span class="aheart-table__sort-icon" :data-sort="getSortState(column)" aria-hidden="true" />
                 </button>
-                <span v-else class="aheart-table__title">{{ column.title }}</span>
+                <span v-else class="aheart-table__title">
+                  <ARenderNode :node="column.title" />
+                </span>
                 <div v-if="column.filters?.length" class="aheart-table__filters" :aria-label="`${column.title} filters`">
                   <button
                     v-for="filter in column.filters"
@@ -78,12 +82,12 @@
                 :class="columnCellClass(column)"
                 :style="columnStyle(column)"
               >
-                {{ renderCell(column, row.record, row.index) }}
+                <ARenderNode :node="renderCell(column, row.record, row.index)" />
               </td>
             </tr>
             <tr v-if="hasExpandable && isExpanded(row.key)" class="aheart-table__expanded-row">
               <td :colspan="columnCount" class="aheart-table__expanded-cell">
-                {{ renderExpanded(row.record, row.index) }}
+                <ARenderNode :node="renderExpanded(row.record, row.index)" />
               </td>
             </tr>
           </template>
@@ -114,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import APagination from '../pagination'
 import {
@@ -125,6 +129,7 @@ import {
   type TableFilterValue,
   type TableFilters,
   type TableKey,
+  type TableRenderable,
   type TableRecord,
   type TableSortOrder
 } from './types'
@@ -132,6 +137,19 @@ import './style.css'
 
 defineOptions({
   name: 'ATable'
+})
+
+const ARenderNode = defineComponent({
+  name: 'ATableRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
 })
 
 const props = defineProps(tableProps)
@@ -158,7 +176,7 @@ const hasInitializedSort = ref(false)
 const initializedFilterKeys = ref(new Set<string>())
 const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`
 
-const normalizedColumns = computed(() => props.columns ?? [])
+const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden))
 const normalizedData = computed(() => props.dataSource ?? [])
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -366,14 +384,14 @@ function getNormalizedFilters(filters: TableFilters) {
   }, {})
 }
 
-const renderCell = (column: TableColumn, record: TableRecord, index: number) => {
+const renderCell = (column: TableColumn, record: TableRecord, index: number): TableRenderable => {
   const text = getValueByDataIndex(record, column.dataIndex)
 
   if (column.customRender) {
     return column.customRender({ text, record, index, column })
   }
 
-  return text ?? ''
+  return text === undefined || text === null ? '' : String(text)
 }
 
 const renderExpanded = (record: TableRecord, index: number) => {

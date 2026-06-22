@@ -9,17 +9,19 @@ export type TableColumnAlign = 'left' | 'center' | 'right';
 export type TableDataIndex = string | number | Array<string | number>;
 export type TableFilterValue = string | number | boolean;
 export type TableChangeAction = 'paginate' | 'sort' | 'filter';
+export type TableRenderable = VNodeChild;
 export interface TableColumnFilter {
     text: string;
     value: TableFilterValue;
 }
 export interface TableColumn<T extends TableRecord = TableRecord> {
-    title: string;
+    title: TableRenderable;
     dataIndex?: keyof T | TableDataIndex;
     key?: string;
     align?: TableColumnAlign;
     width?: string | number;
     className?: string;
+    hidden?: boolean;
     sorter?: boolean | ((a: T, b: T) => number);
     sortOrder?: TableSortOrder;
     defaultSortOrder?: TableSortOrder;

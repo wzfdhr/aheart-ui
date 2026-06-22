@@ -1,24 +1,25 @@
+import { type PropType } from 'vue';
 import { type TableColumn, type TableFilters, type TableKey, type TableRecord } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly columns: import("vue").PropType<TableColumn<TableRecord>[]>;
-    readonly dataSource: import("vue").PropType<TableRecord[]>;
+    readonly columns: PropType<TableColumn<TableRecord>[]>;
+    readonly dataSource: PropType<TableRecord[]>;
     readonly rowKey: {
-        readonly type: import("vue").PropType<string | ((record: TableRecord) => TableKey)>;
+        readonly type: PropType<string | ((record: TableRecord) => TableKey)>;
         readonly default: "key";
     };
     readonly bordered: BooleanConstructor;
     readonly loading: BooleanConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
     readonly pagination: {
-        readonly type: import("vue").PropType<false | import("./types").TablePaginationConfig>;
+        readonly type: PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection>;
-    readonly expandable: import("vue").PropType<import("./types").TableExpandable<TableRecord>>;
+    readonly rowSelection: PropType<import("./types").TableRowSelection>;
+    readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -30,25 +31,25 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "update:selectedRowKeys": (keys: TableKey[]) => void;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly columns: import("vue").PropType<TableColumn<TableRecord>[]>;
-    readonly dataSource: import("vue").PropType<TableRecord[]>;
+    readonly columns: PropType<TableColumn<TableRecord>[]>;
+    readonly dataSource: PropType<TableRecord[]>;
     readonly rowKey: {
-        readonly type: import("vue").PropType<string | ((record: TableRecord) => TableKey)>;
+        readonly type: PropType<string | ((record: TableRecord) => TableKey)>;
         readonly default: "key";
     };
     readonly bordered: BooleanConstructor;
     readonly loading: BooleanConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
     readonly pagination: {
-        readonly type: import("vue").PropType<false | import("./types").TablePaginationConfig>;
+        readonly type: PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection>;
-    readonly expandable: import("vue").PropType<import("./types").TableExpandable<TableRecord>>;
+    readonly rowSelection: PropType<import("./types").TableRowSelection>;
+    readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
         readonly default: true;
