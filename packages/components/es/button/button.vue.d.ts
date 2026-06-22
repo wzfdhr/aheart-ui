@@ -21,7 +21,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly loading: BooleanConstructor;
+    readonly loading: {
+        readonly type: import("vue").PropType<import("./types").ButtonLoading>;
+        readonly default: false;
+    };
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;
     readonly danger: BooleanConstructor;
@@ -31,8 +34,22 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
+    readonly icon: StringConstructor;
+    readonly iconPlacement: {
+        readonly type: import("vue").PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly iconPosition: {
+        readonly type: import("vue").PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
     readonly href: StringConstructor;
     readonly target: StringConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (event: MouseEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
@@ -58,7 +75,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly loading: BooleanConstructor;
+    readonly loading: {
+        readonly type: import("vue").PropType<import("./types").ButtonLoading>;
+        readonly default: false;
+    };
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;
     readonly danger: BooleanConstructor;
@@ -68,8 +88,22 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
+    readonly icon: StringConstructor;
+    readonly iconPlacement: {
+        readonly type: import("vue").PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly iconPosition: {
+        readonly type: import("vue").PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
     readonly href: StringConstructor;
     readonly target: StringConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
 }>, {
@@ -79,10 +113,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly disabled: boolean;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";
-    readonly loading: boolean;
+    readonly loading: import("./types").ButtonLoading;
     readonly ghost: boolean;
     readonly shape: "default" | "round" | "circle";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
+    loadingIcon?(_: {}): any;
+    icon?(_: {}): any;
     default?(_: {}): any;
 }>;
 export default _default;

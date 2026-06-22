@@ -22,7 +22,10 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly loading: BooleanConstructor;
+        readonly loading: {
+            readonly type: import("vue").PropType<import("./types").ButtonLoading>;
+            readonly default: false;
+        };
         readonly block: BooleanConstructor;
         readonly round: BooleanConstructor;
         readonly danger: BooleanConstructor;
@@ -32,8 +35,22 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
+        readonly icon: StringConstructor;
+        readonly iconPlacement: {
+            readonly type: import("vue").PropType<"end" | "start">;
+            readonly validator: (value: string) => boolean;
+        };
+        readonly iconPosition: {
+            readonly type: import("vue").PropType<"end" | "start">;
+            readonly validator: (value: string) => boolean;
+        };
         readonly href: StringConstructor;
         readonly target: StringConstructor;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
         onClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
@@ -45,7 +62,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly disabled: boolean;
         readonly danger: boolean;
         readonly nativeType: "reset" | "submit" | "button";
-        readonly loading: boolean;
+        readonly loading: import("./types").ButtonLoading;
         readonly ghost: boolean;
         readonly shape: "default" | "round" | "circle";
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -78,7 +95,10 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly loading: BooleanConstructor;
+        readonly loading: {
+            readonly type: import("vue").PropType<import("./types").ButtonLoading>;
+            readonly default: false;
+        };
         readonly block: BooleanConstructor;
         readonly round: BooleanConstructor;
         readonly danger: BooleanConstructor;
@@ -88,8 +108,22 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
+        readonly icon: StringConstructor;
+        readonly iconPlacement: {
+            readonly type: import("vue").PropType<"end" | "start">;
+            readonly validator: (value: string) => boolean;
+        };
+        readonly iconPosition: {
+            readonly type: import("vue").PropType<"end" | "start">;
+            readonly validator: (value: string) => boolean;
+        };
         readonly href: StringConstructor;
         readonly target: StringConstructor;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
         onClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
@@ -99,7 +133,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly disabled: boolean;
         readonly danger: boolean;
         readonly nativeType: "reset" | "submit" | "button";
-        readonly loading: boolean;
+        readonly loading: import("./types").ButtonLoading;
         readonly ghost: boolean;
         readonly shape: "default" | "round" | "circle";
     }>;
@@ -129,7 +163,10 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly loading: BooleanConstructor;
+    readonly loading: {
+        readonly type: import("vue").PropType<import("./types").ButtonLoading>;
+        readonly default: false;
+    };
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;
     readonly danger: BooleanConstructor;
@@ -139,8 +176,22 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
+    readonly icon: StringConstructor;
+    readonly iconPlacement: {
+        readonly type: import("vue").PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly iconPosition: {
+        readonly type: import("vue").PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
     readonly href: StringConstructor;
     readonly target: StringConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
@@ -152,11 +203,13 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly disabled: boolean;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";
-    readonly loading: boolean;
+    readonly loading: import("./types").ButtonLoading;
     readonly ghost: boolean;
     readonly shape: "default" | "round" | "circle";
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
+        loadingIcon?(_: {}): any;
+        icon?(_: {}): any;
         default?(_: {}): any;
     };
 })>;

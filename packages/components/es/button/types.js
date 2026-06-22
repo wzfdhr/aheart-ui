@@ -2,6 +2,7 @@ const buttonTypes = ["default", "primary", "dashed", "link", "text", "success", 
 const buttonSizes = ["large", "normal", "middle", "small", "mini"];
 const nativeButtonTypes = ["button", "submit", "reset"];
 const buttonShapes = ["default", "circle", "round"];
+const buttonIconPlacements = ["start", "end"];
 const buttonProps = {
   type: {
     type: String,
@@ -25,7 +26,10 @@ const buttonProps = {
     type: Boolean,
     default: void 0
   },
-  loading: Boolean,
+  loading: {
+    type: [Boolean, Object],
+    default: false
+  },
   block: Boolean,
   round: Boolean,
   danger: Boolean,
@@ -35,14 +39,29 @@ const buttonProps = {
     default: "default",
     validator: (value) => buttonShapes.includes(value)
   },
+  icon: String,
+  iconPlacement: {
+    type: String,
+    validator: (value) => buttonIconPlacements.includes(value)
+  },
+  iconPosition: {
+    type: String,
+    validator: (value) => buttonIconPlacements.includes(value)
+  },
   href: String,
-  target: String
+  target: String,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const buttonEmits = {
   click: (event) => event instanceof MouseEvent
 };
 export {
   buttonEmits,
+  buttonIconPlacements,
   buttonProps,
   buttonShapes,
   buttonSizes,
