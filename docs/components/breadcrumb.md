@@ -58,8 +58,8 @@ Breadcrumb shows the user's position in a page hierarchy.
   <ABreadcrumb
     :params="{ projectId: 'aheart' }"
     :items="[
-      { title: 'Projects', path: '/projects' },
-      { title: 'Aheart UI', path: '/projects/:projectId' },
+      { title: 'Projects', path: 'projects' },
+      { title: 'Aheart UI', path: ':projectId' },
       { title: 'Settings' }
     ]"
   />
@@ -70,13 +70,69 @@ Breadcrumb shows the user's position in a page hierarchy.
   <ABreadcrumb
     :params="{ projectId: 'aheart' }"
     :items="[
-      { title: 'Projects', path: '/projects' },
-      { title: 'Aheart UI', path: '/projects/:projectId' },
+      { title: 'Projects', path: 'projects' },
+      { title: 'Aheart UI', path: ':projectId' },
       { title: 'Settings' }
     ]"
   />
 </template>
 ```
+
+## 独立分隔符
+
+<div class="aheart-demo-panel">
+  <ABreadcrumb
+    :items="[
+      { title: 'Location', href: '/' },
+      { type: 'separator', separator: ':' },
+      { title: 'Application Center', path: 'application' },
+      { title: 'Application List' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ABreadcrumb
+    :items="[
+      { title: 'Location', href: '/' },
+      { type: 'separator', separator: ':' },
+      { title: 'Application Center', path: 'application' },
+      { title: 'Application List' }
+    ]"
+  />
+</template>
+```
+
+`type: 'separator'` follows Ant Design's `SeparatorType` shape. It renders a separator as its own item, so the previous route item does not also render the global `separator`.
+
+## 连接路径
+
+<div class="aheart-demo-panel">
+  <ABreadcrumb
+    :params="{ projectId: 'aheart' }"
+    :items="[
+      { title: 'Projects', path: 'projects' },
+      { title: 'Aheart UI', path: ':projectId' },
+      { title: 'Settings', path: 'settings' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ABreadcrumb
+    :params="{ projectId: 'aheart' }"
+    :items="[
+      { title: 'Projects', path: 'projects' },
+      { title: 'Aheart UI', path: ':projectId' },
+      { title: 'Settings', path: 'settings' }
+    ]"
+  />
+</template>
+```
+
+每个 `path` 会作为路径片段与前序 `path` 连接，生成 `/projects`、`/projects/aheart` 这样的链接。`href` 仍可用于完全自定义某一项链接地址。
 
 ## 自定义渲染
 
@@ -143,14 +199,31 @@ Breadcrumb shows the user's position in a page hierarchy.
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
+`BreadcrumbItem` 可以是普通路径项 `BreadcrumbRouteItem`，也可以是独立分隔符项 `BreadcrumbSeparatorItem`。
+
+### BreadcrumbRouteItem
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
 | key | 稳定 key | `string` \| `number` | - |
+| type | 项类型 | `'item'` | - |
 | title | 展示内容 | `VNodeChild` | - |
-| href | 链接地址 | `string` | - |
-| path | 可使用 `params` 替换的路径 | `string` | - |
+| href | 链接地址，优先级高于 `path` | `string` | - |
+| path | 可使用 `params` 替换并与前序项连接的路径片段 | `string` | - |
 | className | 项目附加类名 | `string` | - |
 | style | 项目附加样式 | `StyleValue` | - |
 | disabled | 是否禁用链接 | `boolean` | `false` |
 | onClick | 点击回调 | `(event, item, index) => void` | - |
+
+### BreadcrumbSeparatorItem
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| key | 稳定 key | `string` \| `number` | - |
+| type | 项类型 | `'separator'` | - |
+| separator | 分隔符内容 | `VNodeChild` | `separator` prop |
+| className | 项目附加类名 | `string` | - |
+| style | 项目附加样式 | `StyleValue` | - |
 
 ### Semantic DOM
 
