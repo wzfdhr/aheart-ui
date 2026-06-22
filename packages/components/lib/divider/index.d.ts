@@ -23,10 +23,10 @@ declare const Divider: import("../utils/install").SFCWithInstall<{
         readonly plain: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly type: import("./types").DividerType;
-        readonly size: import("./types").DividerSize;
-        readonly dashed: boolean;
-        readonly vertical: boolean;
         readonly variant: import("./types").DividerVariant;
+        readonly dashed: boolean;
+        readonly size: import("./types").DividerSize;
+        readonly vertical: boolean;
         readonly orientation: import("./types").DividerOrientation;
         readonly plain: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -60,10 +60,10 @@ declare const Divider: import("../utils/install").SFCWithInstall<{
         readonly plain: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly type: import("./types").DividerType;
-        readonly size: import("./types").DividerSize;
-        readonly dashed: boolean;
-        readonly vertical: boolean;
         readonly variant: import("./types").DividerVariant;
+        readonly dashed: boolean;
+        readonly size: import("./types").DividerSize;
+        readonly vertical: boolean;
         readonly orientation: import("./types").DividerOrientation;
         readonly plain: boolean;
     }>;
@@ -94,10 +94,10 @@ declare const Divider: import("../utils/install").SFCWithInstall<{
     readonly plain: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly type: import("./types").DividerType;
-    readonly size: import("./types").DividerSize;
-    readonly dashed: boolean;
-    readonly vertical: boolean;
     readonly variant: import("./types").DividerVariant;
+    readonly dashed: boolean;
+    readonly size: import("./types").DividerSize;
+    readonly vertical: boolean;
     readonly orientation: import("./types").DividerOrientation;
     readonly plain: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

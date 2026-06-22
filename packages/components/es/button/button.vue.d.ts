@@ -1,6 +1,6 @@
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
@@ -27,7 +27,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly danger: BooleanConstructor;
     readonly ghost: BooleanConstructor;
     readonly shape: {
-        readonly type: import("vue").PropType<"default" | "circle" | "round">;
+        readonly type: import("vue").PropType<"default" | "round" | "circle">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
@@ -37,7 +37,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     click: (event: MouseEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
@@ -64,7 +64,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly danger: BooleanConstructor;
     readonly ghost: BooleanConstructor;
     readonly shape: {
-        readonly type: import("vue").PropType<"default" | "circle" | "round">;
+        readonly type: import("vue").PropType<"default" | "round" | "circle">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
@@ -73,7 +73,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
 }>, {
-    readonly type: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+    readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     readonly round: boolean;
     readonly block: boolean;
     readonly disabled: boolean;
@@ -81,7 +81,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly nativeType: "reset" | "submit" | "button";
     readonly loading: boolean;
     readonly ghost: boolean;
-    readonly shape: "default" | "circle" | "round";
+    readonly shape: "default" | "round" | "circle";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
 }>;

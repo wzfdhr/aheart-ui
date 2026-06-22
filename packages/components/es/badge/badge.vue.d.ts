@@ -37,10 +37,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly classNames: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, string>>>;
     readonly styles: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{}>, {
+    readonly size: import("./types").BadgeSize;
     readonly dot: boolean;
     readonly overflowCount: number;
     readonly showZero: boolean;
-    readonly size: import("./types").BadgeSize;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
     count?(_: {}): any;

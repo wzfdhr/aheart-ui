@@ -84,9 +84,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onFinishFailed?: ((info: import("./types").FormFinishFailedInfo) => any) | undefined;
     onValidate?: ((name: string, status: boolean, errors: string[]) => any) | undefined;
 }>, {
+    readonly variant: import("../config").AheartVariant;
     readonly layout: import("./types").FormLayout;
     readonly disabled: boolean;
-    readonly variant: import("../config").AheartVariant;
     readonly model: FormModel;
     readonly rules: import("./types").FormRules;
     readonly labelAlign: import("./types").FormLabelAlign;

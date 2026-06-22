@@ -67,11 +67,11 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly underline: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
-        readonly code: boolean;
-        readonly strong: boolean;
         readonly italic: boolean;
         readonly underline: boolean;
         readonly disabled: boolean;
+        readonly code: boolean;
+        readonly strong: boolean;
         readonly delete: boolean;
         readonly keyboard: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -91,11 +91,11 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly underline: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
-        readonly code: boolean;
-        readonly strong: boolean;
         readonly italic: boolean;
         readonly underline: boolean;
         readonly disabled: boolean;
+        readonly code: boolean;
+        readonly strong: boolean;
         readonly delete: boolean;
         readonly keyboard: boolean;
     }>;
@@ -112,11 +112,11 @@ declare const Text: import("../utils/install").SFCWithInstall<{
     readonly underline: BooleanConstructor;
     readonly disabled: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
-    readonly code: boolean;
-    readonly strong: boolean;
     readonly italic: boolean;
     readonly underline: boolean;
     readonly disabled: boolean;
+    readonly code: boolean;
+    readonly strong: boolean;
     readonly delete: boolean;
     readonly keyboard: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
@@ -132,10 +132,10 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly ellipsis: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
-        readonly strong: boolean;
         readonly italic: boolean;
         readonly ellipsis: boolean;
         readonly disabled: boolean;
+        readonly strong: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -150,10 +150,10 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly ellipsis: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
-        readonly strong: boolean;
         readonly italic: boolean;
         readonly ellipsis: boolean;
         readonly disabled: boolean;
+        readonly strong: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -165,10 +165,10 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
     readonly ellipsis: BooleanConstructor;
     readonly disabled: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
-    readonly strong: boolean;
     readonly italic: boolean;
     readonly ellipsis: boolean;
     readonly disabled: boolean;
+    readonly strong: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;

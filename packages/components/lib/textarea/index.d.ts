@@ -65,8 +65,8 @@ declare const Textarea: import("../utils/install").SFCWithInstall<import("vue").
     "onUpdate:modelValue"?: ((value: string) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
-    readonly disabled: boolean;
     readonly variant: import("./types").TextareaVariant;
+    readonly disabled: boolean;
     readonly bordered: boolean;
     readonly rows: number;
     readonly readOnly: boolean;

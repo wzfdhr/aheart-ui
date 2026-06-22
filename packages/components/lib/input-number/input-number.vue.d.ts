@@ -85,9 +85,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
+    readonly variant: import("./types").InputNumberVariant;
     readonly disabled: boolean;
     readonly step: number;
-    readonly variant: import("./types").InputNumberVariant;
     readonly bordered: boolean;
     readonly keyboard: boolean;
     readonly readOnly: boolean;

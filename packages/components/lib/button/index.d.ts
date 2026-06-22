@@ -1,7 +1,7 @@
 declare const Button: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly type: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
@@ -28,7 +28,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly danger: BooleanConstructor;
         readonly ghost: BooleanConstructor;
         readonly shape: {
-            readonly type: import("vue").PropType<"default" | "circle" | "round">;
+            readonly type: import("vue").PropType<"default" | "round" | "circle">;
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
@@ -39,7 +39,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         click: (event: MouseEvent) => void;
     }, import("vue").PublicProps, {
-        readonly type: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+        readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
         readonly round: boolean;
         readonly block: boolean;
         readonly disabled: boolean;
@@ -47,7 +47,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly nativeType: "reset" | "submit" | "button";
         readonly loading: boolean;
         readonly ghost: boolean;
-        readonly shape: "default" | "circle" | "round";
+        readonly shape: "default" | "round" | "circle";
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -57,7 +57,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly type: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
@@ -84,7 +84,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly danger: BooleanConstructor;
         readonly ghost: BooleanConstructor;
         readonly shape: {
-            readonly type: import("vue").PropType<"default" | "circle" | "round">;
+            readonly type: import("vue").PropType<"default" | "round" | "circle">;
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
@@ -93,7 +93,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{
         onClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
-        readonly type: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+        readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
         readonly round: boolean;
         readonly block: boolean;
         readonly disabled: boolean;
@@ -101,14 +101,14 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly nativeType: "reset" | "submit" | "button";
         readonly loading: boolean;
         readonly ghost: boolean;
-        readonly shape: "default" | "circle" | "round";
+        readonly shape: "default" | "round" | "circle";
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
@@ -135,7 +135,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly danger: BooleanConstructor;
     readonly ghost: BooleanConstructor;
     readonly shape: {
-        readonly type: import("vue").PropType<"default" | "circle" | "round">;
+        readonly type: import("vue").PropType<"default" | "round" | "circle">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
@@ -146,7 +146,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (event: MouseEvent) => void;
 }, string, {
-    readonly type: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+    readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     readonly round: boolean;
     readonly block: boolean;
     readonly disabled: boolean;
@@ -154,7 +154,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly nativeType: "reset" | "submit" | "button";
     readonly loading: boolean;
     readonly ghost: boolean;
-    readonly shape: "default" | "circle" | "round";
+    readonly shape: "default" | "round" | "circle";
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;

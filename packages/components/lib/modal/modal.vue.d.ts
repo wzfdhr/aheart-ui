@@ -33,7 +33,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -51,14 +51,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<CSSProperties>;
     readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    cancel: () => void;
     close: () => void;
+    cancel: () => void;
     "update:open": (open: boolean) => void;
     afterOpenChange: (open: boolean) => void;
     ok: () => void;
@@ -96,7 +96,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -114,22 +114,22 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<CSSProperties>;
     readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
 }>> & Readonly<{
-    onCancel?: (() => any) | undefined;
     onClose?: (() => any) | undefined;
+    onCancel?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
     onOk?: (() => any) | undefined;
 }>, {
     readonly closable: boolean;
+    readonly open: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
-    readonly open: boolean;
     readonly loading: boolean;
     readonly width: string | number;
     readonly zIndex: number;
@@ -142,7 +142,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly confirmLoading: boolean;
     readonly okText: string;
     readonly cancelText: string;
-    readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+    readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;
     default?(_: {}): any;

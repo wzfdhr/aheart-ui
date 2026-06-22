@@ -50,9 +50,9 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         finishFailed: (info: import("./types").FormFinishFailedInfo) => void;
         validate: (name: string, status: boolean, errors: string[]) => void;
     }, import("vue").PublicProps, {
+        readonly variant: import("../config").AheartVariant;
         readonly layout: import("./types").FormLayout;
         readonly disabled: boolean;
-        readonly variant: import("../config").AheartVariant;
         readonly model: import("./types").FormModel;
         readonly rules: import("./types").FormRules;
         readonly labelAlign: import("./types").FormLabelAlign;
@@ -111,9 +111,9 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         };
         clearValidate: (names?: string[] | undefined) => void;
     }, {}, {}, {}, {
+        readonly variant: import("../config").AheartVariant;
         readonly layout: import("./types").FormLayout;
         readonly disabled: boolean;
-        readonly variant: import("../config").AheartVariant;
         readonly model: import("./types").FormModel;
         readonly rules: import("./types").FormRules;
         readonly labelAlign: import("./types").FormLabelAlign;
@@ -174,9 +174,9 @@ declare const Form: import("../utils/install").SFCWithInstall<{
     finishFailed: (info: import("./types").FormFinishFailedInfo) => void;
     validate: (name: string, status: boolean, errors: string[]) => void;
 }, string, {
+    readonly variant: import("../config").AheartVariant;
     readonly layout: import("./types").FormLayout;
     readonly disabled: boolean;
-    readonly variant: import("../config").AheartVariant;
     readonly model: import("./types").FormModel;
     readonly rules: import("./types").FormRules;
     readonly labelAlign: import("./types").FormLabelAlign;

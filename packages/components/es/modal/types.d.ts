@@ -39,7 +39,7 @@ export declare const modalProps: {
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly okButtonProps: PropType<Partial<ButtonProps>>;
@@ -57,8 +57,8 @@ export declare const modalProps: {
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", string>>>;
-    readonly styles: PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", CSSProperties>>>;
+    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

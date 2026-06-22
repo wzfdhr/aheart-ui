@@ -46,8 +46,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<CSSProperties>;
     readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -102,8 +102,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<CSSProperties>;
     readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -113,10 +113,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
     readonly closable: boolean;
-    readonly footer: boolean;
-    readonly mask: boolean;
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
+    readonly footer: boolean;
+    readonly mask: boolean;
     readonly loading: boolean;
     readonly width: string | number;
     readonly height: string | number;

@@ -35,9 +35,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly maxCount: NumberConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    search: (value: string) => void;
     change: (value: SelectValue) => void;
     clear: () => void;
-    search: (value: string) => void;
     "update:modelValue": (value: SelectValue) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
@@ -75,13 +75,13 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly maxCount: NumberConstructor;
 }>> & Readonly<{
+    onSearch?: ((value: string) => any) | undefined;
     onChange?: ((value: SelectValue) => any) | undefined;
     onClear?: (() => any) | undefined;
-    onSearch?: ((value: string) => any) | undefined;
     "onUpdate:modelValue"?: ((value: SelectValue) => any) | undefined;
 }>, {
-    readonly disabled: boolean;
     readonly variant: import("./types").SelectVariant;
+    readonly disabled: boolean;
     readonly bordered: boolean;
     readonly allowClear: boolean;
     readonly showSearch: boolean;

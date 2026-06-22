@@ -72,8 +72,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
     readonly type: string;
-    readonly disabled: boolean;
     readonly variant: import("./types").InputVariant;
+    readonly disabled: boolean;
     readonly bordered: boolean;
     readonly readOnly: boolean;
     readonly allowClear: boolean;

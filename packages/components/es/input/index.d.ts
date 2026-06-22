@@ -43,8 +43,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         pressEnter: (event: KeyboardEvent) => void;
     }, import("vue").PublicProps, {
         readonly type: string;
-        readonly disabled: boolean;
         readonly variant: import("./types").InputVariant;
+        readonly disabled: boolean;
         readonly bordered: boolean;
         readonly readOnly: boolean;
         readonly allowClear: boolean;
@@ -94,8 +94,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly type: string;
-        readonly disabled: boolean;
         readonly variant: import("./types").InputVariant;
+        readonly disabled: boolean;
         readonly bordered: boolean;
         readonly readOnly: boolean;
         readonly allowClear: boolean;
@@ -148,8 +148,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     pressEnter: (event: KeyboardEvent) => void;
 }, string, {
     readonly type: string;
-    readonly disabled: boolean;
     readonly variant: import("./types").InputVariant;
+    readonly disabled: boolean;
     readonly bordered: boolean;
     readonly readOnly: boolean;
     readonly allowClear: boolean;

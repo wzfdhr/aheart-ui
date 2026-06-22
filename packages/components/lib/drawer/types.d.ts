@@ -55,8 +55,8 @@ export declare const drawerProps: {
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
-    readonly styles: PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", CSSProperties>>>;
+    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
+    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

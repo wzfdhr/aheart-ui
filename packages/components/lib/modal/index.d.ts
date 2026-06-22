@@ -33,7 +33,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: "Cancel";
         };
         readonly okType: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
         readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -51,28 +51,28 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", import("vue").CSSProperties>>>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
     }>> & Readonly<{
-        onCancel?: (() => any) | undefined;
         onClose?: (() => any) | undefined;
+        onCancel?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
         onOk?: (() => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-        cancel: () => void;
         close: () => void;
+        cancel: () => void;
         "update:open": (open: boolean) => void;
         afterOpenChange: (open: boolean) => void;
         ok: () => void;
     }, import("vue").PublicProps, {
         readonly closable: boolean;
+        readonly open: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
-        readonly open: boolean;
         readonly loading: boolean;
         readonly width: string | number;
         readonly zIndex: number;
@@ -85,7 +85,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly confirmLoading: boolean;
         readonly okText: string;
         readonly cancelText: string;
-        readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+        readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -127,7 +127,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: "Cancel";
         };
         readonly okType: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
         readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -145,22 +145,22 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", import("vue").CSSProperties>>>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
     }>> & Readonly<{
-        onCancel?: (() => any) | undefined;
         onClose?: (() => any) | undefined;
+        onCancel?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
         onOk?: (() => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly closable: boolean;
+        readonly open: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
-        readonly open: boolean;
         readonly loading: boolean;
         readonly width: string | number;
         readonly zIndex: number;
@@ -173,7 +173,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly confirmLoading: boolean;
         readonly okText: string;
         readonly cancelText: string;
-        readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+        readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -212,7 +212,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -230,28 +230,28 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "dialog" | "footer" | "header" | "title" | "mask" | "root" | "wrap", import("vue").CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", import("vue").CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
 }>> & Readonly<{
-    onCancel?: (() => any) | undefined;
     onClose?: (() => any) | undefined;
+    onCancel?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
     onOk?: (() => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    cancel: () => void;
     close: () => void;
+    cancel: () => void;
     "update:open": (open: boolean) => void;
     afterOpenChange: (open: boolean) => void;
     ok: () => void;
 }, string, {
     readonly closable: boolean;
+    readonly open: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
-    readonly open: boolean;
     readonly loading: boolean;
     readonly width: string | number;
     readonly zIndex: number;
@@ -264,7 +264,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly confirmLoading: boolean;
     readonly okText: string;
     readonly cancelText: string;
-    readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+    readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         title?(_: {}): any;

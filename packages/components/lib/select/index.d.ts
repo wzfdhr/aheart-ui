@@ -35,18 +35,18 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         };
         readonly maxCount: NumberConstructor;
     }>> & Readonly<{
+        onSearch?: ((value: string) => any) | undefined;
         onChange?: ((value: import("./types").SelectValue) => any) | undefined;
         onClear?: (() => any) | undefined;
-        onSearch?: ((value: string) => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+        search: (value: string) => void;
         change: (value: import("./types").SelectValue) => void;
         clear: () => void;
-        search: (value: string) => void;
         "update:modelValue": (value: import("./types").SelectValue) => void;
     }, import("vue").PublicProps, {
-        readonly disabled: boolean;
         readonly variant: import("./types").SelectVariant;
+        readonly disabled: boolean;
         readonly bordered: boolean;
         readonly allowClear: boolean;
         readonly showSearch: boolean;
@@ -95,13 +95,13 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         };
         readonly maxCount: NumberConstructor;
     }>> & Readonly<{
+        onSearch?: ((value: string) => any) | undefined;
         onChange?: ((value: import("./types").SelectValue) => any) | undefined;
         onClear?: (() => any) | undefined;
-        onSearch?: ((value: string) => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
     }>, {}, {}, {}, {}, {
-        readonly disabled: boolean;
         readonly variant: import("./types").SelectVariant;
+        readonly disabled: boolean;
         readonly bordered: boolean;
         readonly allowClear: boolean;
         readonly showSearch: boolean;
@@ -147,18 +147,18 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     };
     readonly maxCount: NumberConstructor;
 }>> & Readonly<{
+    onSearch?: ((value: string) => any) | undefined;
     onChange?: ((value: import("./types").SelectValue) => any) | undefined;
     onClear?: (() => any) | undefined;
-    onSearch?: ((value: string) => any) | undefined;
     "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    search: (value: string) => void;
     change: (value: import("./types").SelectValue) => void;
     clear: () => void;
-    search: (value: string) => void;
     "update:modelValue": (value: import("./types").SelectValue) => void;
 }, string, {
-    readonly disabled: boolean;
     readonly variant: import("./types").SelectVariant;
+    readonly disabled: boolean;
     readonly bordered: boolean;
     readonly allowClear: boolean;
     readonly showSearch: boolean;

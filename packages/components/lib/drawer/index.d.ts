@@ -46,8 +46,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", import("vue").CSSProperties>>>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -61,10 +61,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         afterOpenChange: (open: boolean) => void;
     }, import("vue").PublicProps, {
         readonly closable: boolean;
-        readonly footer: boolean;
-        readonly mask: boolean;
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
+        readonly footer: boolean;
+        readonly mask: boolean;
         readonly loading: boolean;
         readonly width: string | number;
         readonly height: string | number;
@@ -129,8 +129,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", import("vue").CSSProperties>>>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -140,10 +140,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly closable: boolean;
-        readonly footer: boolean;
-        readonly mask: boolean;
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
+        readonly footer: boolean;
+        readonly mask: boolean;
         readonly loading: boolean;
         readonly width: string | number;
         readonly height: string | number;
@@ -205,8 +205,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", import("vue").CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", import("vue").CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -220,10 +220,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     afterOpenChange: (open: boolean) => void;
 }, string, {
     readonly closable: boolean;
-    readonly footer: boolean;
-    readonly mask: boolean;
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
+    readonly footer: boolean;
+    readonly mask: boolean;
     readonly loading: boolean;
     readonly width: string | number;
     readonly height: string | number;
