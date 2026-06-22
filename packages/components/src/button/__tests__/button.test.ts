@@ -1,10 +1,14 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { h, nextTick } from 'vue'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Button from '../button.vue'
 
 describe('Button', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders slot content', () => {
     const wrapper = mount(Button, {
       slots: {
@@ -116,5 +120,148 @@ describe('Button', () => {
     })
 
     expect(wrapper.attributes('type')).toBe('submit')
+  })
+
+  it('renders icon prop before content by default', () => {
+    const wrapper = mount(Button, {
+      props: {
+        icon: 'plus'
+      },
+      slots: {
+        default: 'Create'
+      }
+    })
+
+    const children = Array.from(wrapper.element.children)
+    expect(children[0].classList.contains('aheart-button__icon')).toBe(true)
+    expect(children[1].classList.contains('aheart-button__content')).toBe(true)
+    expect(wrapper.find('.aheart-icon').text()).toBe('plus')
+  })
+
+  it('uses the icon slot before the icon prop', () => {
+    const wrapper = mount(Button, {
+      props: {
+        icon: 'plus'
+      },
+      slots: {
+        icon: '<span class="custom-icon">custom</span>',
+        default: 'Create'
+      }
+    })
+
+    expect(wrapper.find('.custom-icon').exists()).toBe(true)
+    expect(wrapper.find('.aheart-icon').exists()).toBe(false)
+  })
+
+  it('renders icon after content when iconPlacement is end', () => {
+    const wrapper = mount(Button, {
+      props: {
+        icon: 'arrow',
+        iconPlacement: 'end'
+      },
+      slots: {
+        default: 'Next'
+      }
+    })
+
+    const children = Array.from(wrapper.element.children)
+    expect(children[0].classList.contains('aheart-button__content')).toBe(true)
+    expect(children[1].classList.contains('aheart-button__icon')).toBe(true)
+  })
+
+  it('supports iconPosition as an icon placement alias', () => {
+    const wrapper = mount(Button, {
+      props: {
+        icon: 'arrow',
+        iconPosition: 'end'
+      },
+      slots: {
+        default: 'Next'
+      }
+    })
+
+    const children = Array.from(wrapper.element.children)
+    expect(children[0].classList.contains('aheart-button__content')).toBe(true)
+    expect(children[1].classList.contains('aheart-button__icon')).toBe(true)
+  })
+
+  it('defers loading indicator and disabled state when loading has delay', async () => {
+    vi.useFakeTimers()
+
+    const wrapper = mount(Button, {
+      props: {
+        loading: {
+          delay: 120
+        }
+      },
+      slots: {
+        default: 'Save'
+      }
+    })
+
+    expect(wrapper.find('.aheart-button__loading').exists()).toBe(false)
+    expect(wrapper.attributes('disabled')).toBeUndefined()
+
+    await vi.advanceTimersByTimeAsync(119)
+    await nextTick()
+
+    expect(wrapper.find('.aheart-button__loading').exists()).toBe(false)
+    expect(wrapper.attributes('disabled')).toBeUndefined()
+
+    await vi.advanceTimersByTimeAsync(1)
+    await nextTick()
+
+    expect(wrapper.find('.aheart-button__loading').exists()).toBe(true)
+    expect(wrapper.attributes('disabled')).toBeDefined()
+  })
+
+  it('renders a custom loading icon slot', () => {
+    const wrapper = mount(Button, {
+      props: {
+        loading: true
+      },
+      slots: {
+        loadingIcon: '<span class="custom-loading">wait</span>',
+        default: 'Save'
+      }
+    })
+
+    expect(wrapper.find('.aheart-button__loading').exists()).toBe(true)
+    expect(wrapper.find('.custom-loading').exists()).toBe(true)
+    expect(wrapper.find('.aheart-button__loading-spinner').exists()).toBe(false)
+  })
+
+  it('applies root, icon, and content semantic hooks', () => {
+    const wrapper = mount(Button, {
+      props: {
+        icon: 'setting',
+        className: 'button-class',
+        rootClassName: 'button-root',
+        style: { width: '120px' },
+        classNames: {
+          root: 'semantic-root',
+          icon: 'semantic-icon',
+          content: 'semantic-content'
+        },
+        styles: {
+          root: { marginTop: '4px' },
+          icon: { color: 'red' },
+          content: { fontWeight: '600' }
+        }
+      },
+      slots: {
+        default: 'Settings'
+      }
+    })
+
+    expect(wrapper.classes()).toContain('button-class')
+    expect(wrapper.classes()).toContain('button-root')
+    expect(wrapper.classes()).toContain('semantic-root')
+    expect(wrapper.attributes('style')).toContain('width: 120px')
+    expect(wrapper.attributes('style')).toContain('margin-top: 4px')
+    expect(wrapper.find('.aheart-button__icon').classes()).toContain('semantic-icon')
+    expect(wrapper.find('.aheart-button__icon').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-button__content').classes()).toContain('semantic-content')
+    expect(wrapper.find('.aheart-button__content').attributes('style')).toContain('font-weight: 600')
   })
 })

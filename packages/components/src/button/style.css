@@ -181,7 +181,15 @@
   text-decoration: none;
 }
 
-.aheart-button__loading {
+.aheart-button__loading,
+.aheart-button__icon,
+.aheart-button__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aheart-button__loading-spinner {
   width: 1em;
   height: 1em;
   border: 2px solid currentColor;

@@ -1,14 +1,20 @@
-import type { ExtractPropTypes, PropType } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
 
 export const buttonTypes = ['default', 'primary', 'dashed', 'link', 'text', 'success', 'warning', 'danger'] as const
 export const buttonSizes = ['large', 'normal', 'middle', 'small', 'mini'] as const
 export const nativeButtonTypes = ['button', 'submit', 'reset'] as const
 export const buttonShapes = ['default', 'circle', 'round'] as const
+export const buttonIconPlacements = ['start', 'end'] as const
 
 export type ButtonType = (typeof buttonTypes)[number]
 export type ButtonSize = (typeof buttonSizes)[number]
 export type NativeButtonType = (typeof nativeButtonTypes)[number]
 export type ButtonShape = (typeof buttonShapes)[number]
+export type ButtonIconPlacement = (typeof buttonIconPlacements)[number]
+export type ButtonLoading = boolean | { delay?: number }
+export type ButtonSemanticPart = 'root' | 'icon' | 'content'
+export type ButtonClassNames = Partial<Record<ButtonSemanticPart, string>>
+export type ButtonStyles = Partial<Record<ButtonSemanticPart, StyleValue>>
 
 export const buttonProps = {
   type: {
@@ -33,7 +39,10 @@ export const buttonProps = {
     type: Boolean,
     default: undefined
   },
-  loading: Boolean,
+  loading: {
+    type: [Boolean, Object] as PropType<ButtonLoading>,
+    default: false
+  },
   block: Boolean,
   round: Boolean,
   danger: Boolean,
@@ -43,8 +52,22 @@ export const buttonProps = {
     default: 'default',
     validator: (value: string) => buttonShapes.includes(value as ButtonShape)
   },
+  icon: String,
+  iconPlacement: {
+    type: String as PropType<ButtonIconPlacement>,
+    validator: (value: string) => buttonIconPlacements.includes(value as ButtonIconPlacement)
+  },
+  iconPosition: {
+    type: String as PropType<ButtonIconPlacement>,
+    validator: (value: string) => buttonIconPlacements.includes(value as ButtonIconPlacement)
+  },
   href: String,
-  target: String
+  target: String,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<ButtonClassNames>,
+  styles: Object as PropType<ButtonStyles>
 } as const
 
 export const buttonEmits = {
