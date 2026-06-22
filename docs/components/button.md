@@ -1,6 +1,6 @@
 # Button 按钮 <span class="aheart-status aheart-status--ready">Ready</span>
 
-Button is used to trigger an action. It supports visual type, size, loading, disabled, block, round, and native button type.
+Button is used to trigger an action. It supports Ant-style visual type, danger, ghost, shape, anchor rendering, loading, disabled, block, and native button type.
 
 ## 基础用法
 
@@ -8,6 +8,9 @@ Button is used to trigger an action. It supports visual type, size, loading, dis
   <div class="aheart-demo-row">
     <AButton>默认按钮</AButton>
     <AButton type="primary">主要按钮</AButton>
+    <AButton type="dashed">虚线按钮</AButton>
+    <AButton type="link">链接按钮</AButton>
+    <AButton type="text">文本按钮</AButton>
     <AButton type="success">成功按钮</AButton>
     <AButton type="warning">警告按钮</AButton>
     <AButton type="danger">危险按钮</AButton>
@@ -18,6 +21,9 @@ Button is used to trigger an action. It supports visual type, size, loading, dis
 <template>
   <Button>默认按钮</Button>
   <Button type="primary">主要按钮</Button>
+  <Button type="dashed">虚线按钮</Button>
+  <Button type="link">链接按钮</Button>
+  <Button type="text">文本按钮</Button>
   <Button type="success">成功按钮</Button>
   <Button type="warning">警告按钮</Button>
   <Button type="danger">危险按钮</Button>
@@ -56,6 +62,8 @@ import 'aheart-ui/es/style.css'
     <AButton disabled>Disabled</AButton>
     <AButton type="primary" loading>Loading</AButton>
     <AButton round>Round</AButton>
+    <AButton danger>Danger</AButton>
+    <AButton type="primary" ghost>Ghost</AButton>
   </div>
 </div>
 
@@ -64,6 +72,26 @@ import 'aheart-ui/es/style.css'
   <Button disabled>Disabled</Button>
   <Button type="primary" loading>Loading</Button>
   <Button round>Round</Button>
+  <Button danger>Danger</Button>
+  <Button type="primary" ghost>Ghost</Button>
+</template>
+```
+
+## 形状与链接
+
+<div class="aheart-demo-panel">
+  <div class="aheart-demo-row">
+    <AButton shape="round">Round</AButton>
+    <AButton shape="circle">i</AButton>
+    <AButton href="https://ant.design" target="_blank" type="link">Ant Design</AButton>
+  </div>
+</div>
+
+```vue
+<template>
+  <Button shape="round">Round</Button>
+  <Button shape="circle">i</Button>
+  <Button href="https://ant.design" target="_blank" type="link">Ant Design</Button>
 </template>
 ```
 
@@ -71,13 +99,25 @@ import 'aheart-ui/es/style.css'
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| type | 按钮类型 | `default` \| `primary` \| `success` \| `warning` \| `danger` | `default` |
+| type | 按钮类型 | `default` \| `primary` \| `dashed` \| `link` \| `text` \| `success` \| `warning` \| `danger` | `default` |
 | size | 按钮尺寸 | `large` \| `normal` \| `small` \| `mini` | `normal` |
 | nativeType | 原生按钮类型 | `button` \| `submit` \| `reset` | `button` |
+| htmlType | Ant 风格原生按钮类型别名，优先于 `nativeType` | `button` \| `submit` \| `reset` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
 | loading | 是否加载中 | `boolean` | `false` |
 | block | 是否块级显示 | `boolean` | `false` |
-| round | 是否圆角按钮 | `boolean` | `false` |
+| danger | 设置危险按钮状态 | `boolean` | `false` |
+| ghost | 设置幽灵按钮状态 | `boolean` | `false` |
+| shape | 按钮形状 | `default` \| `circle` \| `round` | `default` |
+| href | 设置后渲染为链接按钮 | `string` | - |
+| target | 链接目标 | `string` | - |
+| round | 是否圆角按钮，等价于 `shape="round"` | `boolean` | `false` |
+
+## Events
+
+| 事件名 | 说明 | 回调参数 |
+| --- | --- | --- |
+| click | 点击按钮时触发，禁用或加载中不会触发 | `(event: MouseEvent) => void` |
 
 ## Slots
 
