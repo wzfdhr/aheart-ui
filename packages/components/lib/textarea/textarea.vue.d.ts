@@ -1,4 +1,4 @@
-declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly modelValue: StringConstructor;
     readonly placeholder: StringConstructor;
@@ -21,10 +21,22 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
+    readonly allowClear: {
+        readonly type: import("vue").PropType<import("./types").TextareaAllowClear>;
+        readonly default: false;
+    };
     readonly maxlength: NumberConstructor;
-    readonly showCount: BooleanConstructor;
+    readonly showCount: {
+        readonly type: import("vue").PropType<import("./types").TextareaShowCount>;
+        readonly default: false;
+    };
+    readonly count: import("vue").PropType<import("./types").TextareaCountConfig>;
     readonly autoSize: import("vue").PropType<boolean | import("./types").TextareaAutoSizeConfig>;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").TextareaSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").TextareaSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: string) => void;
     input: (value: string) => void;
@@ -54,10 +66,22 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
+    readonly allowClear: {
+        readonly type: import("vue").PropType<import("./types").TextareaAllowClear>;
+        readonly default: false;
+    };
     readonly maxlength: NumberConstructor;
-    readonly showCount: BooleanConstructor;
+    readonly showCount: {
+        readonly type: import("vue").PropType<import("./types").TextareaShowCount>;
+        readonly default: false;
+    };
+    readonly count: import("vue").PropType<import("./types").TextareaCountConfig>;
     readonly autoSize: import("vue").PropType<boolean | import("./types").TextareaAutoSizeConfig>;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").TextareaSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").TextareaSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((value: string) => any) | undefined;
     onInput?: ((value: string) => any) | undefined;
@@ -70,7 +94,14 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly bordered: boolean;
     readonly rows: number;
     readonly readOnly: boolean;
-    readonly allowClear: boolean;
-    readonly showCount: boolean;
-}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
+    readonly allowClear: import("./types").TextareaAllowClear;
+    readonly showCount: import("./types").TextareaShowCount;
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
+    clearIcon?(_: {}): any;
+}>;
 export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

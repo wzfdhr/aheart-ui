@@ -1,12 +1,8 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, createCommentVNode, toDisplayString } from "vue";
+import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString, createCommentVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { textareaProps, textareaEmits } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["id", "value", "placeholder", "rows", "disabled", "readonly", "maxlength"];
-const _hoisted_2 = {
-  key: 1,
-  class: "aheart-textarea__count"
-};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATextarea"
@@ -25,17 +21,31 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
     const hasAutoSize = computed(() => Boolean(props.autoSize));
-    const textareaClass = computed(() => [
-      `aheart-textarea--${resolvedSize.value}`,
-      `aheart-textarea--${resolvedVariant.value}`,
-      {
-        [`aheart-textarea--${props.status}`]: props.status,
-        "is-autosize": hasAutoSize.value,
-        "is-disabled": isDisabled.value,
-        "is-readonly": props.readOnly
-      }
-    ]);
-    const textareaStyle = computed(() => {
+    const allowClearConfig = computed(
+      () => typeof props.allowClear === "object" && props.allowClear !== null ? props.allowClear : void 0
+    );
+    const showClear = computed(() => Boolean(props.allowClear) && !isDisabled.value && Boolean(currentValue.value));
+    const clearIconContent = computed(() => {
+      var _a;
+      return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
+    });
+    const textareaClass = computed(() => {
+      var _a;
+      return [
+        `aheart-textarea--${resolvedSize.value}`,
+        `aheart-textarea--${resolvedVariant.value}`,
+        props.className,
+        props.rootClassName,
+        (_a = props.classNames) == null ? void 0 : _a.root,
+        {
+          [`aheart-textarea--${props.status}`]: props.status,
+          "is-autosize": hasAutoSize.value,
+          "is-disabled": isDisabled.value,
+          "is-readonly": props.readOnly
+        }
+      ];
+    });
+    const autoSizeStyle = computed(() => {
       if (!props.autoSize || typeof props.autoSize === "boolean") {
         return void 0;
       }
@@ -44,9 +54,66 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ...props.autoSize.maxRows ? { "--aheart-textarea-max-rows": props.autoSize.maxRows } : {}
       };
     });
+    const textareaStyle = computed(() => {
+      var _a;
+      return [autoSizeStyle.value, props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const controlClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.textarea;
+    });
+    const controlStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.textarea;
+    });
+    const clearClass = computed(() => {
+      var _a;
+      return ["aheart-textarea__clear", (_a = props.classNames) == null ? void 0 : _a.clear];
+    });
+    const clearStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.clear;
+    });
+    const countClass = computed(() => {
+      var _a;
+      return ["aheart-textarea__count", (_a = props.classNames) == null ? void 0 : _a.count];
+    });
+    const countStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.count;
+    });
+    const countLength = computed(() => {
+      var _a, _b;
+      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, currentValue.value)) ?? currentValue.value.length;
+    });
+    const countMaxLength = computed(() => {
+      var _a;
+      return ((_a = props.count) == null ? void 0 : _a.max) ?? props.maxlength;
+    });
+    const countInfo = computed(() => ({
+      count: countLength.value,
+      maxLength: countMaxLength.value,
+      value: currentValue.value
+    }));
+    const showCountFormatter = computed(
+      () => typeof props.showCount === "object" && props.showCount !== null ? props.showCount.formatter : void 0
+    );
+    const showCountDisplay = computed(() => {
+      var _a, _b, _c;
+      if (((_a = props.count) == null ? void 0 : _a.show) === false) {
+        return false;
+      }
+      return Boolean(props.showCount) || ((_b = props.count) == null ? void 0 : _b.show) === true || typeof ((_c = props.count) == null ? void 0 : _c.show) === "function";
+    });
     const countText = computed(() => {
-      const length = currentValue.value.length;
-      return props.maxlength ? `${length} / ${props.maxlength}` : String(length);
+      var _a;
+      if (typeof ((_a = props.count) == null ? void 0 : _a.show) === "function") {
+        return props.count.show(countInfo.value);
+      }
+      if (showCountFormatter.value) {
+        return showCountFormatter.value(countInfo.value);
+      }
+      return countMaxLength.value ? `${countLength.value} / ${countMaxLength.value}` : String(countLength.value);
     });
     const getEventValue = (event) => event.target.value;
     const handleInput = (event) => {
@@ -73,7 +140,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         style: normalizeStyle(textareaStyle.value)
       }, [
         createElementVNode("textarea", {
-          class: "aheart-textarea__control",
+          class: normalizeClass(["aheart-textarea__control", controlClass.value]),
+          style: normalizeStyle(controlStyle.value),
           id: _ctx.id,
           value: _ctx.modelValue ?? "",
           placeholder: _ctx.placeholder,
@@ -84,15 +152,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onInput: handleInput,
           onChange: handleChange,
           onKeydown: handleKeydown
-        }, null, 40, _hoisted_1),
-        _ctx.allowClear && !isDisabled.value && _ctx.modelValue ? (openBlock(), createElementBlock("button", {
+        }, null, 46, _hoisted_1),
+        showClear.value ? (openBlock(), createElementBlock("button", {
           key: 0,
-          class: "aheart-textarea__clear",
+          class: normalizeClass(clearClass.value),
+          style: normalizeStyle(clearStyle.value),
           type: "button",
           "aria-label": "Clear",
           onClick: handleClear
-        }, " × ")) : createCommentVNode("", true),
-        _ctx.showCount ? (openBlock(), createElementBlock("span", _hoisted_2, toDisplayString(countText.value), 1)) : createCommentVNode("", true)
+        }, [
+          renderSlot(_ctx.$slots, "clearIcon", {}, () => [
+            createTextVNode(toDisplayString(clearIconContent.value), 1)
+          ])
+        ], 6)) : createCommentVNode("", true),
+        showCountDisplay.value ? (openBlock(), createElementBlock("span", {
+          key: 1,
+          class: normalizeClass(countClass.value),
+          style: normalizeStyle(countStyle.value)
+        }, toDisplayString(countText.value), 7)) : createCommentVNode("", true)
       ], 6);
     };
   }

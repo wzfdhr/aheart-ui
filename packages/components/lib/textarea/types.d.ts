@@ -1,11 +1,32 @@
-import type { ExtractPropTypes, PropType } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
 import type { AheartSize } from '../config';
 export type TextareaStatus = 'error' | 'warning';
 export type TextareaVariant = 'outlined' | 'borderless' | 'filled' | 'underlined';
+export interface TextareaCountFormatterInfo {
+    count: number;
+    maxLength?: number;
+    value: string;
+}
+export interface TextareaAllowClearConfig {
+    clearIcon?: string;
+}
+export interface TextareaShowCountConfig {
+    formatter?: (info: TextareaCountFormatterInfo) => string;
+}
+export interface TextareaCountConfig {
+    max?: number;
+    strategy?: (value: string) => number;
+    show?: boolean | ((info: TextareaCountFormatterInfo) => string);
+}
 export interface TextareaAutoSizeConfig {
     minRows?: number;
     maxRows?: number;
 }
+export type TextareaAllowClear = boolean | TextareaAllowClearConfig;
+export type TextareaShowCount = boolean | TextareaShowCountConfig;
+export type TextareaSemanticPart = 'root' | 'textarea' | 'clear' | 'count';
+export type TextareaClassNames = Partial<Record<TextareaSemanticPart, string>>;
+export type TextareaStyles = Partial<Record<TextareaSemanticPart, StyleValue>>;
 export declare const textareaProps: {
     readonly id: StringConstructor;
     readonly modelValue: StringConstructor;
@@ -29,10 +50,22 @@ export declare const textareaProps: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
+    readonly allowClear: {
+        readonly type: PropType<TextareaAllowClear>;
+        readonly default: false;
+    };
     readonly maxlength: NumberConstructor;
-    readonly showCount: BooleanConstructor;
+    readonly showCount: {
+        readonly type: PropType<TextareaShowCount>;
+        readonly default: false;
+    };
+    readonly count: PropType<TextareaCountConfig>;
     readonly autoSize: PropType<boolean | TextareaAutoSizeConfig>;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<Partial<Record<TextareaSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<TextareaSemanticPart, StyleValue>>>;
 };
 export declare const textareaEmits: {
     'update:modelValue': (value: string) => boolean;

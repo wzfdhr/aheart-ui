@@ -21,10 +21,22 @@ const textareaProps = {
     type: Boolean,
     default: void 0
   },
-  allowClear: Boolean,
+  allowClear: {
+    type: [Boolean, Object],
+    default: false
+  },
   maxlength: Number,
-  showCount: Boolean,
-  autoSize: [Boolean, Object]
+  showCount: {
+    type: [Boolean, Object],
+    default: false
+  },
+  count: Object,
+  autoSize: [Boolean, Object],
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const textareaEmits = {
   "update:modelValue": (value) => typeof value === "string",
