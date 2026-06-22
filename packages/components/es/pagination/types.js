@@ -26,12 +26,22 @@ const paginationProps = {
   },
   align: String,
   showLessItems: Boolean,
-  showSizeChanger: Boolean,
+  showSizeChanger: {
+    type: Boolean,
+    default: void 0
+  },
+  totalBoundaryShowSizeChanger: {
+    type: Number,
+    default: 50
+  },
   pageSizeOptions: {
     type: Array,
     default: () => [10, 20, 50, 100]
   },
-  showQuickJumper: Boolean,
+  showQuickJumper: {
+    type: [Boolean, Object],
+    default: false
+  },
   itemRender: Function,
   className: String,
   rootClassName: String,

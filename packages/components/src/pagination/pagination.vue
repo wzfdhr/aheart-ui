@@ -46,7 +46,7 @@
       {{ nextLabel }}
     </button>
     <select
-      v-if="showSizeChanger"
+      v-if="shouldShowSizeChanger"
       :class="sizeChangerClass"
       :style="sizeChangerStyle"
       :value="mergedPageSize"
@@ -70,25 +70,39 @@
         @keydown.enter="jumpToQuickPage"
       />
       <button
+        v-if="showQuickJumperGoButton"
         class="aheart-pagination__quick-jumper-go"
         type="button"
         :disabled="isDisabled"
         @click="jumpToQuickPage"
       >
-        Go
+        <ARenderNode :node="quickJumperGoButton" />
       </button>
     </span>
   </nav>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
-import { paginationEmits, paginationProps, type PaginationItemType } from './types'
+import { paginationEmits, paginationProps, type PaginationItemType, type PaginationQuickJumperConfig } from './types'
 import './style.css'
 
 defineOptions({
   name: 'APagination'
+})
+
+const ARenderNode = defineComponent({
+  name: 'APaginationRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
 })
 
 const props = defineProps(paginationProps)
@@ -113,6 +127,18 @@ const normalizedPageSizeOptions = computed(() => {
 
   return Array.from(new Set(options.length > 0 ? options : [10, 20, 50, 100]))
 })
+const normalizedSizeChangerBoundary = computed(() => Math.max(0, props.totalBoundaryShowSizeChanger))
+const shouldShowSizeChanger = computed(
+  () => props.showSizeChanger ?? props.total > normalizedSizeChangerBoundary.value
+)
+const isQuickJumperConfig = (value: boolean | PaginationQuickJumperConfig): value is PaginationQuickJumperConfig =>
+  typeof value === 'object' && value !== null
+const hasRenderable = (value: unknown) => value !== undefined && value !== null && value !== false && value !== ''
+const quickJumperConfig = computed(() => (isQuickJumperConfig(props.showQuickJumper) ? props.showQuickJumper : undefined))
+const quickJumperGoButton = computed(() => quickJumperConfig.value?.goButton ?? 'Go')
+const showQuickJumperGoButton = computed(
+  () => props.showQuickJumper === true || hasRenderable(quickJumperConfig.value?.goButton)
+)
 
 const paginationClass = computed(() => [
   `aheart-pagination--${resolvedSize.value}`,

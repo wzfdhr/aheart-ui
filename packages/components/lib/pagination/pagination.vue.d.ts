@@ -1,3 +1,5 @@
+import { type PropType } from 'vue';
+import { type PaginationQuickJumperConfig } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly total: {
         readonly type: NumberConstructor;
@@ -17,27 +19,37 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly simple: BooleanConstructor;
     readonly hideOnSinglePage: BooleanConstructor;
     readonly showTotal: {
-        readonly type: import("vue").PropType<boolean | import("./types").PaginationShowTotal>;
+        readonly type: PropType<boolean | import("./types").PaginationShowTotal>;
         readonly default: false;
     };
-    readonly align: import("vue").PropType<import("./types").PaginationAlign>;
+    readonly align: PropType<import("./types").PaginationAlign>;
     readonly showLessItems: BooleanConstructor;
-    readonly showSizeChanger: BooleanConstructor;
+    readonly showSizeChanger: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly totalBoundaryShowSizeChanger: {
+        readonly type: NumberConstructor;
+        readonly default: 50;
+    };
     readonly pageSizeOptions: {
-        readonly type: import("vue").PropType<(string | number)[]>;
+        readonly type: PropType<(string | number)[]>;
         readonly default: () => number[];
     };
-    readonly showQuickJumper: BooleanConstructor;
-    readonly itemRender: import("vue").PropType<import("./types").PaginationItemRender>;
+    readonly showQuickJumper: {
+        readonly type: PropType<boolean | PaginationQuickJumperConfig>;
+        readonly default: false;
+    };
+    readonly itemRender: PropType<import("./types").PaginationItemRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PaginationSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PaginationSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").PaginationSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").PaginationSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (current: number, pageSize: number) => void;
     "update:current": (current: number) => void;
@@ -62,27 +74,37 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly simple: BooleanConstructor;
     readonly hideOnSinglePage: BooleanConstructor;
     readonly showTotal: {
-        readonly type: import("vue").PropType<boolean | import("./types").PaginationShowTotal>;
+        readonly type: PropType<boolean | import("./types").PaginationShowTotal>;
         readonly default: false;
     };
-    readonly align: import("vue").PropType<import("./types").PaginationAlign>;
+    readonly align: PropType<import("./types").PaginationAlign>;
     readonly showLessItems: BooleanConstructor;
-    readonly showSizeChanger: BooleanConstructor;
+    readonly showSizeChanger: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly totalBoundaryShowSizeChanger: {
+        readonly type: NumberConstructor;
+        readonly default: 50;
+    };
     readonly pageSizeOptions: {
-        readonly type: import("vue").PropType<(string | number)[]>;
+        readonly type: PropType<(string | number)[]>;
         readonly default: () => number[];
     };
-    readonly showQuickJumper: BooleanConstructor;
-    readonly itemRender: import("vue").PropType<import("./types").PaginationItemRender>;
+    readonly showQuickJumper: {
+        readonly type: PropType<boolean | PaginationQuickJumperConfig>;
+        readonly default: false;
+    };
+    readonly itemRender: PropType<import("./types").PaginationItemRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PaginationSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PaginationSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").PaginationSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").PaginationSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((current: number, pageSize: number) => any) | undefined;
     "onUpdate:current"?: ((current: number) => any) | undefined;
@@ -98,7 +120,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly showTotal: boolean | import("./types").PaginationShowTotal;
     readonly showLessItems: boolean;
     readonly showSizeChanger: boolean;
+    readonly totalBoundaryShowSizeChanger: number;
     readonly pageSizeOptions: (string | number)[];
-    readonly showQuickJumper: boolean;
+    readonly showQuickJumper: boolean | PaginationQuickJumperConfig;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

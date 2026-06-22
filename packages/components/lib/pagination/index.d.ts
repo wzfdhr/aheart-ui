@@ -26,12 +26,22 @@ declare const Pagination: import("../utils/install").SFCWithInstall<import("vue"
     };
     readonly align: import("vue").PropType<import("./types").PaginationAlign>;
     readonly showLessItems: BooleanConstructor;
-    readonly showSizeChanger: BooleanConstructor;
+    readonly showSizeChanger: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly totalBoundaryShowSizeChanger: {
+        readonly type: NumberConstructor;
+        readonly default: 50;
+    };
     readonly pageSizeOptions: {
         readonly type: import("vue").PropType<(string | number)[]>;
         readonly default: () => number[];
     };
-    readonly showQuickJumper: BooleanConstructor;
+    readonly showQuickJumper: {
+        readonly type: import("vue").PropType<boolean | import("./types").PaginationQuickJumperConfig>;
+        readonly default: false;
+    };
     readonly itemRender: import("vue").PropType<import("./types").PaginationItemRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -71,12 +81,22 @@ declare const Pagination: import("../utils/install").SFCWithInstall<import("vue"
     };
     readonly align: import("vue").PropType<import("./types").PaginationAlign>;
     readonly showLessItems: BooleanConstructor;
-    readonly showSizeChanger: BooleanConstructor;
+    readonly showSizeChanger: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly totalBoundaryShowSizeChanger: {
+        readonly type: NumberConstructor;
+        readonly default: 50;
+    };
     readonly pageSizeOptions: {
         readonly type: import("vue").PropType<(string | number)[]>;
         readonly default: () => number[];
     };
-    readonly showQuickJumper: BooleanConstructor;
+    readonly showQuickJumper: {
+        readonly type: import("vue").PropType<boolean | import("./types").PaginationQuickJumperConfig>;
+        readonly default: false;
+    };
     readonly itemRender: import("vue").PropType<import("./types").PaginationItemRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -98,7 +118,8 @@ declare const Pagination: import("../utils/install").SFCWithInstall<import("vue"
     readonly showTotal: boolean | import("./types").PaginationShowTotal;
     readonly showLessItems: boolean;
     readonly showSizeChanger: boolean;
+    readonly totalBoundaryShowSizeChanger: number;
     readonly pageSizeOptions: (string | number)[];
-    readonly showQuickJumper: boolean;
+    readonly showQuickJumper: boolean | import("./types").PaginationQuickJumperConfig;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Pagination;

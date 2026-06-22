@@ -41,7 +41,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 ## 每页条数
 
 <div class="aheart-demo-panel">
-  <APagination :total="95" :current="2" :page-size="10" show-size-changer :page-size-options="[10, 20, 50]" />
+  <APagination :total="95" :current="2" :page-size="10" :page-size-options="[10, 20, 50]" />
 </div>
 
 ```vue
@@ -50,7 +50,6 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
     v-model:current="page"
     v-model:page-size="pageSize"
     :total="95"
-    show-size-changer
     :page-size-options="[10, 20, 50]"
   />
 </template>
@@ -65,6 +64,18 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 ```vue
 <template>
   <APagination :total="95" :page-size="10" show-quick-jumper />
+</template>
+```
+
+## 自定义跳转按钮
+
+<div class="aheart-demo-panel">
+  <APagination :total="95" :current="1" :page-size="10" :show-quick-jumper="{ goButton: 'Jump' }" />
+</div>
+
+```vue
+<template>
+  <APagination :total="95" :page-size="10" :show-quick-jumper="{ goButton: 'Jump' }" />
 </template>
 ```
 
@@ -158,9 +169,10 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 | showTotal | 是否显示总数，或自定义总数文本 | `boolean` \| `(total: number, range: [number, number]) => string \| number` | `false` |
 | align | 对齐方式 | `start` \| `center` \| `end` | - |
 | showLessItems | 是否显示较少页码 | `boolean` | `false` |
-| showSizeChanger | 是否显示每页条数切换器 | `boolean` | `false` |
+| showSizeChanger | 是否显示每页条数切换器；未设置时总数超过边界会自动显示 | `boolean` | `total > 50` |
+| totalBoundaryShowSizeChanger | 自动显示每页条数切换器的总数边界 | `number` | `50` |
 | pageSizeOptions | 每页条数选项 | `Array<number \| string>` | `[10, 20, 50, 100]` |
-| showQuickJumper | 是否显示快速跳转 | `boolean` | `false` |
+| showQuickJumper | 是否显示快速跳转，可传自定义跳转按钮 | `boolean` \| `{ goButton?: VNodeChild }` | `false` |
 | itemRender | 自定义上一页、下一页和页码文本 | `(page: number, type: 'page' \| 'prev' \| 'next', originalElement: string) => string \| number` | - |
 | className | 根节点 class | `string` | - |
 | rootClassName | 根节点 class | `string` | - |

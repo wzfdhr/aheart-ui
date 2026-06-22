@@ -1,9 +1,13 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
 export type PaginationAlign = 'start' | 'center' | 'end';
 export type PaginationItemType = 'page' | 'prev' | 'next';
+export type PaginationRenderable = VNodeChild;
 export type PaginationItemRender = (page: number, type: PaginationItemType, originalElement: string) => string | number;
 export type PaginationShowTotal = (total: number, range: [number, number]) => string | number;
+export interface PaginationQuickJumperConfig {
+    goButton?: PaginationRenderable;
+}
 export type PaginationSemanticPart = 'root' | 'total' | 'prev' | 'next' | 'page' | 'activePage' | 'sizeChanger' | 'quickJumper';
 export type PaginationClassNames = Partial<Record<PaginationSemanticPart, string>>;
 export type PaginationStyles = Partial<Record<PaginationSemanticPart, StyleValue>>;
@@ -35,12 +39,22 @@ export declare const paginationProps: {
     };
     readonly align: PropType<PaginationAlign>;
     readonly showLessItems: BooleanConstructor;
-    readonly showSizeChanger: BooleanConstructor;
+    readonly showSizeChanger: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly totalBoundaryShowSizeChanger: {
+        readonly type: NumberConstructor;
+        readonly default: 50;
+    };
     readonly pageSizeOptions: {
         readonly type: PropType<(string | number)[]>;
         readonly default: () => number[];
     };
-    readonly showQuickJumper: BooleanConstructor;
+    readonly showQuickJumper: {
+        readonly type: PropType<boolean | PaginationQuickJumperConfig>;
+        readonly default: false;
+    };
     readonly itemRender: PropType<PaginationItemRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;

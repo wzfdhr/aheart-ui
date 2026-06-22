@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, toDisplayString, createCommentVNode, createElementVNode, Fragment, renderList, withDirectives, withKeys, vModelText } from "vue";
+import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, toDisplayString, createCommentVNode, createElementVNode, Fragment, renderList, withDirectives, withKeys, vModelText, createVNode, unref } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { paginationProps, paginationEmits } from "./types.js";
 import "./style.css.js";
@@ -26,6 +26,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: paginationProps,
   emits: paginationEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = defineComponent({
+      name: "APaginationRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
@@ -44,6 +56,23 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const options = props.pageSizeOptions.map((option) => Number(option)).filter((option) => Number.isInteger(option) && option > 0);
       return Array.from(new Set(options.length > 0 ? options : [10, 20, 50, 100]));
     });
+    const normalizedSizeChangerBoundary = computed(() => Math.max(0, props.totalBoundaryShowSizeChanger));
+    const shouldShowSizeChanger = computed(
+      () => props.showSizeChanger ?? props.total > normalizedSizeChangerBoundary.value
+    );
+    const isQuickJumperConfig = (value) => typeof value === "object" && value !== null;
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
+    const quickJumperConfig = computed(() => isQuickJumperConfig(props.showQuickJumper) ? props.showQuickJumper : void 0);
+    const quickJumperGoButton = computed(() => {
+      var _a;
+      return ((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton) ?? "Go";
+    });
+    const showQuickJumperGoButton = computed(
+      () => {
+        var _a;
+        return props.showQuickJumper === true || hasRenderable((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton);
+      }
+    );
     const paginationClass = computed(() => {
       var _a;
       return [
@@ -274,7 +303,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "aria-label": "Next Page",
           onClick: _cache[1] || (_cache[1] = ($event) => setCurrent(mergedCurrent.value + 1))
         }, toDisplayString(nextLabel.value), 15, _hoisted_5),
-        _ctx.showSizeChanger ? (openBlock(), createElementBlock("select", {
+        shouldShowSizeChanger.value ? (openBlock(), createElementBlock("select", {
           key: 3,
           class: normalizeClass(sizeChangerClass.value),
           style: normalizeStyle(sizeChangerStyle.value),
@@ -307,12 +336,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           }, null, 40, _hoisted_8), [
             [vModelText, quickJumpValue.value]
           ]),
-          createElementVNode("button", {
+          showQuickJumperGoButton.value ? (openBlock(), createElementBlock("button", {
+            key: 0,
             class: "aheart-pagination__quick-jumper-go",
             type: "button",
             disabled: isDisabled.value,
             onClick: jumpToQuickPage
-          }, " Go ", 8, _hoisted_9)
+          }, [
+            createVNode(unref(ARenderNode), { node: quickJumperGoButton.value }, null, 8, ["node"])
+          ], 8, _hoisted_9)) : createCommentVNode("", true)
         ], 6)) : createCommentVNode("", true)
       ], 6)) : createCommentVNode("", true);
     };

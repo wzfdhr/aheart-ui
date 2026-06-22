@@ -28,6 +28,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.paginationProps,
   emits: types.paginationEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = vue.defineComponent({
+      name: "APaginationRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
@@ -46,6 +58,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const options = props.pageSizeOptions.map((option) => Number(option)).filter((option) => Number.isInteger(option) && option > 0);
       return Array.from(new Set(options.length > 0 ? options : [10, 20, 50, 100]));
     });
+    const normalizedSizeChangerBoundary = vue.computed(() => Math.max(0, props.totalBoundaryShowSizeChanger));
+    const shouldShowSizeChanger = vue.computed(
+      () => props.showSizeChanger ?? props.total > normalizedSizeChangerBoundary.value
+    );
+    const isQuickJumperConfig = (value) => typeof value === "object" && value !== null;
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
+    const quickJumperConfig = vue.computed(() => isQuickJumperConfig(props.showQuickJumper) ? props.showQuickJumper : void 0);
+    const quickJumperGoButton = vue.computed(() => {
+      var _a;
+      return ((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton) ?? "Go";
+    });
+    const showQuickJumperGoButton = vue.computed(
+      () => {
+        var _a;
+        return props.showQuickJumper === true || hasRenderable((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton);
+      }
+    );
     const paginationClass = vue.computed(() => {
       var _a;
       return [
@@ -276,7 +305,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           "aria-label": "Next Page",
           onClick: _cache[1] || (_cache[1] = ($event) => setCurrent(mergedCurrent.value + 1))
         }, vue.toDisplayString(nextLabel.value), 15, _hoisted_5),
-        _ctx.showSizeChanger ? (vue.openBlock(), vue.createElementBlock("select", {
+        shouldShowSizeChanger.value ? (vue.openBlock(), vue.createElementBlock("select", {
           key: 3,
           class: vue.normalizeClass(sizeChangerClass.value),
           style: vue.normalizeStyle(sizeChangerStyle.value),
@@ -309,12 +338,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           }, null, 40, _hoisted_8), [
             [vue.vModelText, quickJumpValue.value]
           ]),
-          vue.createElementVNode("button", {
+          showQuickJumperGoButton.value ? (vue.openBlock(), vue.createElementBlock("button", {
+            key: 0,
             class: "aheart-pagination__quick-jumper-go",
             type: "button",
             disabled: isDisabled.value,
             onClick: jumpToQuickPage
-          }, " Go ", 8, _hoisted_9)
+          }, [
+            vue.createVNode(vue.unref(ARenderNode), { node: quickJumperGoButton.value }, null, 8, ["node"])
+          ], 8, _hoisted_9)) : vue.createCommentVNode("", true)
         ], 6)) : vue.createCommentVNode("", true)
       ], 6)) : vue.createCommentVNode("", true);
     };

@@ -1,14 +1,18 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
 export type PaginationAlign = 'start' | 'center' | 'end'
 export type PaginationItemType = 'page' | 'prev' | 'next'
+export type PaginationRenderable = VNodeChild
 export type PaginationItemRender = (
   page: number,
   type: PaginationItemType,
   originalElement: string
 ) => string | number
 export type PaginationShowTotal = (total: number, range: [number, number]) => string | number
+export interface PaginationQuickJumperConfig {
+  goButton?: PaginationRenderable
+}
 export type PaginationSemanticPart =
   | 'root'
   | 'total'
@@ -49,12 +53,22 @@ export const paginationProps = {
   },
   align: String as PropType<PaginationAlign>,
   showLessItems: Boolean,
-  showSizeChanger: Boolean,
+  showSizeChanger: {
+    type: Boolean,
+    default: undefined
+  },
+  totalBoundaryShowSizeChanger: {
+    type: Number,
+    default: 50
+  },
   pageSizeOptions: {
     type: Array as PropType<Array<number | string>>,
     default: () => [10, 20, 50, 100]
   },
-  showQuickJumper: Boolean,
+  showQuickJumper: {
+    type: [Boolean, Object] as PropType<boolean | PaginationQuickJumperConfig>,
+    default: false
+  },
   itemRender: Function as PropType<PaginationItemRender>,
   className: String,
   rootClassName: String,

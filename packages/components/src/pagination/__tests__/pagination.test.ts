@@ -77,6 +77,49 @@ describe('Pagination', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([5, 20])
   })
 
+  it('shows the size changer automatically when total exceeds the boundary', () => {
+    const wrapper = mount(Pagination, {
+      props: {
+        total: 80,
+        pageSize: 10
+      }
+    })
+
+    expect(wrapper.find('.aheart-pagination__size-changer').exists()).toBe(true)
+  })
+
+  it('lets explicit showSizeChanger false override automatic boundary behavior', () => {
+    const wrapper = mount(Pagination, {
+      props: {
+        total: 80,
+        pageSize: 10,
+        showSizeChanger: false
+      }
+    })
+
+    expect(wrapper.find('.aheart-pagination__size-changer').exists()).toBe(false)
+  })
+
+  it('uses totalBoundaryShowSizeChanger to control automatic size changer display', () => {
+    const hiddenWrapper = mount(Pagination, {
+      props: {
+        total: 80,
+        pageSize: 10,
+        totalBoundaryShowSizeChanger: 100
+      }
+    })
+    const shownWrapper = mount(Pagination, {
+      props: {
+        total: 80,
+        pageSize: 10,
+        totalBoundaryShowSizeChanger: 70
+      }
+    })
+
+    expect(hiddenWrapper.find('.aheart-pagination__size-changer').exists()).toBe(false)
+    expect(shownWrapper.find('.aheart-pagination__size-changer').exists()).toBe(true)
+  })
+
   it('quick jumper normalizes input from Enter and Go button', async () => {
     const wrapper = mount(Pagination, {
       props: { total: 95, defaultCurrent: 1, pageSize: 10, showQuickJumper: true }
@@ -93,6 +136,27 @@ describe('Pagination', () => {
 
     expect(wrapper.emitted('update:current')?.[1]).toEqual([3])
     expect(wrapper.emitted('change')?.[1]).toEqual([3, 10])
+  })
+
+  it('renders object quick jumper custom go button content', async () => {
+    const wrapper = mount(Pagination, {
+      props: {
+        total: 95,
+        defaultCurrent: 1,
+        pageSize: 10,
+        showQuickJumper: { goButton: 'Jump' }
+      }
+    })
+
+    await wrapper.find('.aheart-pagination__quick-jumper-input').setValue('4')
+
+    const goButton = wrapper.find('.aheart-pagination__quick-jumper-go')
+    expect(goButton.text()).toBe('Jump')
+
+    await goButton.trigger('click')
+
+    expect(wrapper.emitted('update:current')?.[0]).toEqual([4])
+    expect(wrapper.emitted('change')?.[0]).toEqual([4, 10])
   })
 
   it('renders alignment compact pages and functional total text', () => {
