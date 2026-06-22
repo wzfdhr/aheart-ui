@@ -160,4 +160,60 @@ describe('Descriptions', () => {
     const summaryContent = summary.find('.aheart-descriptions__content')
     expect(summaryContent.attributes('style')).toContain('font-weight: 600')
   })
+
+  it('renders VNode title extra label and item content', () => {
+    const wrapper = mount(Descriptions, {
+      props: {
+        title: h('strong', { class: 'title-node' }, 'Profile node'),
+        extra: h('button', { class: 'extra-node' }, 'Refresh'),
+        items: [
+          {
+            label: h('span', { class: 'label-node' }, 'Owner'),
+            content: h('em', { class: 'content-node' }, 'Design System')
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.title-node').text()).toBe('Profile node')
+    expect(wrapper.find('.extra-node').text()).toBe('Refresh')
+    expect(wrapper.find('.label-node').text()).toBe('Owner')
+    expect(wrapper.find('.content-node').text()).toBe('Design System')
+  })
+
+  it('lets title and extra slots override renderable props', () => {
+    const wrapper = mount(Descriptions, {
+      props: {
+        title: h('span', { class: 'prop-title' }, 'Prop title'),
+        extra: h('span', { class: 'prop-extra' }, 'Prop extra'),
+        items: [{ label: 'User', content: 'Ada' }]
+      },
+      slots: {
+        title: '<span class="slot-title">Slot title</span>',
+        extra: '<button class="slot-extra">Slot extra</button>'
+      }
+    })
+
+    expect(wrapper.find('.slot-title').text()).toBe('Slot title')
+    expect(wrapper.find('.slot-extra').text()).toBe('Slot extra')
+    expect(wrapper.find('.prop-title').exists()).toBe(false)
+    expect(wrapper.find('.prop-extra').exists()).toBe(false)
+  })
+
+  it('prefers content over children when both are renderable', () => {
+    const wrapper = mount(Descriptions, {
+      props: {
+        items: [
+          {
+            label: 'Priority',
+            content: h('span', { class: 'content-value' }, 'Content wins'),
+            children: h('span', { class: 'children-value' }, 'Children fallback')
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.content-value').text()).toBe('Content wins')
+    expect(wrapper.find('.children-value').exists()).toBe(false)
+  })
 })

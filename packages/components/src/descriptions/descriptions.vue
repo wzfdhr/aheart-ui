@@ -1,14 +1,20 @@
 <template>
   <section class="aheart-descriptions" :class="descriptionsClass" :style="descriptionsStyle">
     <div
-      v-if="title || extra"
+      v-if="hasHeader"
       class="aheart-descriptions__header"
       :class="classNames.header"
       :style="styles.header"
     >
-      <div class="aheart-descriptions__title" :class="classNames.title" :style="styles.title">{{ title }}</div>
-      <div v-if="extra" class="aheart-descriptions__extra" :class="classNames.extra" :style="styles.extra">
-        {{ extra }}
+      <div v-if="hasTitle" class="aheart-descriptions__title" :class="classNames.title" :style="styles.title">
+        <slot name="title">
+          <ARenderNode :node="title" />
+        </slot>
+      </div>
+      <div v-if="hasExtra" class="aheart-descriptions__extra" :class="classNames.extra" :style="styles.extra">
+        <slot name="extra">
+          <ARenderNode :node="extra" />
+        </slot>
       </div>
     </div>
     <div class="aheart-descriptions__table" :class="classNames.table" :style="styles.table" role="table">
@@ -33,14 +39,14 @@
             :class="getLabelClass()"
             :style="getLabelStyle(item)"
           >
-            {{ item.label }}
+            <ARenderNode :node="item.label" />
           </div>
           <div
             class="aheart-descriptions__content"
             :class="classNames.content"
             :style="getContentStyle(item)"
           >
-            {{ item.resolvedContent }}
+            <ARenderNode :node="item.resolvedContent" />
           </div>
         </div>
       </div>
@@ -49,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineComponent, type PropType, useSlots, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { descriptionsProps, type DescriptionItem } from './types'
 import './style.css'
@@ -59,15 +65,33 @@ defineOptions({
 })
 
 const props = defineProps(descriptionsProps)
+const slots = useSlots()
 const config = useAheartConfig()
 
+const ARenderNode = defineComponent({
+  name: 'ADescriptionsRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
+
+const hasRenderable = (value: unknown) => value !== undefined && value !== null && value !== false && value !== ''
 const normalizedItems = computed(() => props.items ?? [])
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const normalizedColumn = computed(() => Math.max(1, Math.floor(props.column)))
+const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title))
+const hasExtra = computed(() => Boolean(slots.extra) || hasRenderable(props.extra))
+const hasHeader = computed(() => hasTitle.value || hasExtra.value)
 
 interface RenderedDescriptionItem extends DescriptionItem {
   resolvedKey: string | number
-  resolvedContent: string | number
+  resolvedContent: VNodeChild
   span: number
 }
 

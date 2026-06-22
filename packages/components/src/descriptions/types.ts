@@ -1,6 +1,7 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
+export type DescriptionRenderable = VNodeChild
 export type DescriptionsLayout = 'horizontal' | 'vertical'
 export type DescriptionItemSpan = number | 'filled'
 export type DescriptionsSemanticPart =
@@ -18,9 +19,9 @@ export type DescriptionsStyles = Partial<Record<DescriptionsSemanticPart, StyleV
 
 export interface DescriptionItem {
   key?: string | number
-  label: string
-  content?: string | number
-  children?: string | number
+  label: DescriptionRenderable
+  content?: DescriptionRenderable
+  children?: DescriptionRenderable
   span?: DescriptionItemSpan
   className?: string
   style?: StyleValue
@@ -28,9 +29,11 @@ export interface DescriptionItem {
   contentStyle?: StyleValue
 }
 
+const renderableProp = [String, Number, Boolean, Object, Array, Function] as PropType<DescriptionRenderable>
+
 export const descriptionsProps = {
-  title: String,
-  extra: String,
+  title: renderableProp,
+  extra: renderableProp,
   items: Array as PropType<DescriptionItem[]>,
   bordered: Boolean,
   column: {
