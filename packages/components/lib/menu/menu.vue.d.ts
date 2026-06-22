@@ -118,8 +118,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly styles: Partial<Record<import("./types").MenuSemanticPart, import("vue").StyleValue>>;
     readonly multiple: boolean;
     readonly disabled: boolean;
-    readonly theme: import("./types").MenuTheme;
     readonly mode: import("./types").MenuMode;
+    readonly theme: import("./types").MenuTheme;
     readonly defaultSelectedKeys: string[];
     readonly defaultOpenKeys: string[];
     readonly selectable: boolean;

@@ -1740,6 +1740,8 @@ kbd.aheart-typography-text {
 }
 
 .aheart-breadcrumb__link {
+  display: inline-flex;
+  align-items: center;
   color: var(--aheart-color-text-secondary);
   text-decoration: none;
   transition: color var(--aheart-motion-duration) var(--aheart-motion-ease);
@@ -1750,7 +1752,14 @@ kbd.aheart-typography-text {
 }
 
 .aheart-breadcrumb__text {
+  display: inline-flex;
+  align-items: center;
   color: inherit;
+}
+
+.aheart-breadcrumb__custom {
+  display: inline-flex;
+  align-items: center;
 }
 
 .aheart-breadcrumb__item.is-current .aheart-breadcrumb__text {
