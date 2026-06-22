@@ -1,4 +1,4 @@
-import { type PropType } from 'vue';
+import { type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly type: {
         readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
@@ -35,7 +35,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
-    readonly icon: StringConstructor;
+    readonly autoInsertSpace: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly icon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly iconPlacement: {
         readonly type: PropType<"end" | "start">;
         readonly validator: (value: string) => boolean;
@@ -97,7 +104,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
-    readonly icon: StringConstructor;
+    readonly autoInsertSpace: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly icon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly iconPlacement: {
         readonly type: PropType<"end" | "start">;
         readonly validator: (value: string) => boolean;
@@ -124,6 +138,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
 }>, {
+    readonly icon: VNodeChild;
     readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     readonly round: boolean;
     readonly block: boolean;
@@ -133,10 +148,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly loading: import("./types").ButtonLoading;
     readonly ghost: boolean;
     readonly shape: "default" | "round" | "circle";
+    readonly autoInsertSpace: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     loadingIcon?(_: {}): any;
     icon?(_: {}): any;
-    default?(_: {}): any;
 }>;
 export default _default;
 type __VLS_WithTemplateSlots<T, S> = T & {

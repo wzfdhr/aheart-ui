@@ -63,7 +63,14 @@ const buttonProps = {
     default: "default",
     validator: (value) => buttonShapes.includes(value)
   },
-  icon: String,
+  autoInsertSpace: {
+    type: Boolean,
+    default: true
+  },
+  icon: {
+    type: null,
+    default: void 0
+  },
   iconPlacement: {
     type: String,
     validator: (value) => buttonIconPlacements.includes(value)

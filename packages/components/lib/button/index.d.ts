@@ -35,7 +35,14 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
-        readonly icon: StringConstructor;
+        readonly autoInsertSpace: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
+        readonly icon: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
         readonly iconPlacement: {
             readonly type: import("vue").PropType<"end" | "start">;
             readonly validator: (value: string) => boolean;
@@ -64,6 +71,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         click: (event: MouseEvent) => void;
     }, import("vue").PublicProps, {
+        readonly icon: import("vue").VNodeChild;
         readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
         readonly round: boolean;
         readonly block: boolean;
@@ -73,6 +81,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly loading: import("./types").ButtonLoading;
         readonly ghost: boolean;
         readonly shape: "default" | "round" | "circle";
+        readonly autoInsertSpace: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -116,7 +125,14 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
-        readonly icon: StringConstructor;
+        readonly autoInsertSpace: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
+        readonly icon: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
         readonly iconPlacement: {
             readonly type: import("vue").PropType<"end" | "start">;
             readonly validator: (value: string) => boolean;
@@ -143,6 +159,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{
         onClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
+        readonly icon: import("vue").VNodeChild;
         readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
         readonly round: boolean;
         readonly block: boolean;
@@ -152,6 +169,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly loading: import("./types").ButtonLoading;
         readonly ghost: boolean;
         readonly shape: "default" | "round" | "circle";
+        readonly autoInsertSpace: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -192,7 +210,14 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
-    readonly icon: StringConstructor;
+    readonly autoInsertSpace: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly icon: {
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
+        readonly default: undefined;
+    };
     readonly iconPlacement: {
         readonly type: import("vue").PropType<"end" | "start">;
         readonly validator: (value: string) => boolean;
@@ -221,6 +246,7 @@ declare const Button: import("../utils/install").SFCWithInstall<{
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (event: MouseEvent) => void;
 }, string, {
+    readonly icon: import("vue").VNodeChild;
     readonly type: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     readonly round: boolean;
     readonly block: boolean;
@@ -230,11 +256,11 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly loading: import("./types").ButtonLoading;
     readonly ghost: boolean;
     readonly shape: "default" | "round" | "circle";
+    readonly autoInsertSpace: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         loadingIcon?(_: {}): any;
         icon?(_: {}): any;
-        default?(_: {}): any;
     };
 })>;
 export default Button;

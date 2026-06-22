@@ -13,6 +13,7 @@ export type ButtonShape = (typeof buttonShapes)[number];
 export type ButtonIconPlacement = (typeof buttonIconPlacements)[number];
 export type ButtonColor = (typeof buttonColors)[number];
 export type ButtonVariant = (typeof buttonVariants)[number];
+export type ButtonIcon = VNodeChild;
 export type ButtonLoading = boolean | {
     delay?: number;
     icon?: VNodeChild;
@@ -56,7 +57,14 @@ export declare const buttonProps: {
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
-    readonly icon: StringConstructor;
+    readonly autoInsertSpace: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly icon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly iconPlacement: {
         readonly type: PropType<"end" | "start">;
         readonly validator: (value: string) => boolean;

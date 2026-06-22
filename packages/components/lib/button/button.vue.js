@@ -40,6 +40,32 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return () => renderProps.node;
       }
     });
+    const isTwoChineseCharacters = (value) => /^[\u4e00-\u9fa5]{2}$/.test(value);
+    const getAutoSpacedText = (value) => {
+      if (!props.autoInsertSpace || !isTwoChineseCharacters(value)) {
+        return value;
+      }
+      return `${value[0]} ${value[1]}`;
+    };
+    const getContentNode = () => {
+      var _a;
+      const nodes = (_a = slots.default) == null ? void 0 : _a.call(slots);
+      if (!nodes) {
+        return getAutoSpacedText("按钮");
+      }
+      const meaningfulNodes = nodes.filter((node2) => node2.type !== vue.Comment);
+      if (meaningfulNodes.length !== 1) {
+        return nodes;
+      }
+      const [node] = meaningfulNodes;
+      if (typeof node.children !== "string") {
+        return nodes;
+      }
+      if (node.type === vue.Text) {
+        return getAutoSpacedText(node.children);
+      }
+      return nodes;
+    };
     const colorTokens = {
       default: "var(--aheart-color-text)",
       primary: "var(--aheart-color-primary)",
@@ -125,7 +151,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const resolvedColor = vue.computed(() => props.color || (isDanger.value ? "danger" : typeColorMap[props.type] || "default"));
     const resolvedVariant = vue.computed(() => props.variant || typeVariantMap[props.type] || "outlined");
     const resolvedIconPlacement = vue.computed(() => props.iconPlacement || props.iconPosition || "start");
-    const hasIcon = vue.computed(() => Boolean(slots.icon) || Boolean(props.icon));
+    const isStringIcon = vue.computed(() => typeof props.icon === "string");
+    const stringIcon = vue.computed(() => isStringIcon.value ? props.icon : "");
+    const hasRenderableIcon = vue.computed(() => {
+      if (Array.isArray(props.icon)) {
+        return props.icon.length > 0;
+      }
+      return props.icon !== void 0 && props.icon !== null && props.icon !== false && props.icon !== true && props.icon !== "";
+    });
+    const hasIcon = vue.computed(() => Boolean(slots.icon) || hasRenderableIcon.value);
     const showStartIcon = vue.computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "start");
     const showEndIcon = vue.computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "end");
     const objectLoadingIcon = vue.computed(
@@ -182,6 +216,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return (_a = props.styles) == null ? void 0 : _a.content;
     });
+    const contentNode = vue.computed(() => getContentNode());
     const handleClick = (event) => {
       if (isInteractiveDisabled.value) {
         event.preventDefault();
@@ -219,16 +254,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "aria-hidden": "true"
           }, [
             vue.renderSlot(_ctx.$slots, "icon", {}, () => [
-              vue.createVNode(icon_vue_vue_type_script_setup_true_lang.default, { name: _ctx.icon }, null, 8, ["name"])
+              isStringIcon.value ? (vue.openBlock(), vue.createBlock(icon_vue_vue_type_script_setup_true_lang.default, {
+                key: 0,
+                name: stringIcon.value
+              }, null, 8, ["name"])) : (vue.openBlock(), vue.createBlock(vue.unref(ARenderNode), {
+                key: 1,
+                node: _ctx.icon
+              }, null, 8, ["node"]))
             ])
           ], 6)) : vue.createCommentVNode("", true),
           vue.createElementVNode("span", {
             class: vue.normalizeClass(contentClass.value),
             style: vue.normalizeStyle(contentStyle.value)
           }, [
-            vue.renderSlot(_ctx.$slots, "default", {}, () => [
-              _cache[0] || (_cache[0] = vue.createTextVNode("按钮", -1))
-            ])
+            vue.createVNode(vue.unref(ARenderNode), { node: contentNode.value }, null, 8, ["node"])
           ], 6),
           showEndIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {
             key: 2,
@@ -237,7 +276,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "aria-hidden": "true"
           }, [
             vue.renderSlot(_ctx.$slots, "icon", {}, () => [
-              vue.createVNode(icon_vue_vue_type_script_setup_true_lang.default, { name: _ctx.icon }, null, 8, ["name"])
+              isStringIcon.value ? (vue.openBlock(), vue.createBlock(icon_vue_vue_type_script_setup_true_lang.default, {
+                key: 0,
+                name: stringIcon.value
+              }, null, 8, ["name"])) : (vue.openBlock(), vue.createBlock(vue.unref(ARenderNode), {
+                key: 1,
+                node: _ctx.icon
+              }, null, 8, ["node"]))
             ])
           ], 6)) : vue.createCommentVNode("", true)
         ]),

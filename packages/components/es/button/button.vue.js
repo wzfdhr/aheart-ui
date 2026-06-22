@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, createElementBlock, renderSlot, unref, createCommentVNode, createVNode, createElementVNode, createTextVNode } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, createElementBlock, renderSlot, unref, createCommentVNode, createElementVNode, createVNode, Comment, Text } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { buttonProps, buttonEmits } from "./types.js";
@@ -38,6 +38,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return () => renderProps.node;
       }
     });
+    const isTwoChineseCharacters = (value) => /^[\u4e00-\u9fa5]{2}$/.test(value);
+    const getAutoSpacedText = (value) => {
+      if (!props.autoInsertSpace || !isTwoChineseCharacters(value)) {
+        return value;
+      }
+      return `${value[0]} ${value[1]}`;
+    };
+    const getContentNode = () => {
+      var _a;
+      const nodes = (_a = slots.default) == null ? void 0 : _a.call(slots);
+      if (!nodes) {
+        return getAutoSpacedText("按钮");
+      }
+      const meaningfulNodes = nodes.filter((node2) => node2.type !== Comment);
+      if (meaningfulNodes.length !== 1) {
+        return nodes;
+      }
+      const [node] = meaningfulNodes;
+      if (typeof node.children !== "string") {
+        return nodes;
+      }
+      if (node.type === Text) {
+        return getAutoSpacedText(node.children);
+      }
+      return nodes;
+    };
     const colorTokens = {
       default: "var(--aheart-color-text)",
       primary: "var(--aheart-color-primary)",
@@ -123,7 +149,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const resolvedColor = computed(() => props.color || (isDanger.value ? "danger" : typeColorMap[props.type] || "default"));
     const resolvedVariant = computed(() => props.variant || typeVariantMap[props.type] || "outlined");
     const resolvedIconPlacement = computed(() => props.iconPlacement || props.iconPosition || "start");
-    const hasIcon = computed(() => Boolean(slots.icon) || Boolean(props.icon));
+    const isStringIcon = computed(() => typeof props.icon === "string");
+    const stringIcon = computed(() => isStringIcon.value ? props.icon : "");
+    const hasRenderableIcon = computed(() => {
+      if (Array.isArray(props.icon)) {
+        return props.icon.length > 0;
+      }
+      return props.icon !== void 0 && props.icon !== null && props.icon !== false && props.icon !== true && props.icon !== "";
+    });
+    const hasIcon = computed(() => Boolean(slots.icon) || hasRenderableIcon.value);
     const showStartIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "start");
     const showEndIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "end");
     const objectLoadingIcon = computed(
@@ -180,6 +214,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return (_a = props.styles) == null ? void 0 : _a.content;
     });
+    const contentNode = computed(() => getContentNode());
     const handleClick = (event) => {
       if (isInteractiveDisabled.value) {
         event.preventDefault();
@@ -217,16 +252,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "aria-hidden": "true"
           }, [
             renderSlot(_ctx.$slots, "icon", {}, () => [
-              createVNode(_sfc_main$1, { name: _ctx.icon }, null, 8, ["name"])
+              isStringIcon.value ? (openBlock(), createBlock(_sfc_main$1, {
+                key: 0,
+                name: stringIcon.value
+              }, null, 8, ["name"])) : (openBlock(), createBlock(unref(ARenderNode), {
+                key: 1,
+                node: _ctx.icon
+              }, null, 8, ["node"]))
             ])
           ], 6)) : createCommentVNode("", true),
           createElementVNode("span", {
             class: normalizeClass(contentClass.value),
             style: normalizeStyle(contentStyle.value)
           }, [
-            renderSlot(_ctx.$slots, "default", {}, () => [
-              _cache[0] || (_cache[0] = createTextVNode("按钮", -1))
-            ])
+            createVNode(unref(ARenderNode), { node: contentNode.value }, null, 8, ["node"])
           ], 6),
           showEndIcon.value ? (openBlock(), createElementBlock("span", {
             key: 2,
@@ -235,7 +274,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "aria-hidden": "true"
           }, [
             renderSlot(_ctx.$slots, "icon", {}, () => [
-              createVNode(_sfc_main$1, { name: _ctx.icon }, null, 8, ["name"])
+              isStringIcon.value ? (openBlock(), createBlock(_sfc_main$1, {
+                key: 0,
+                name: stringIcon.value
+              }, null, 8, ["name"])) : (openBlock(), createBlock(unref(ARenderNode), {
+                key: 1,
+                node: _ctx.icon
+              }, null, 8, ["node"]))
             ])
           ], 6)) : createCommentVNode("", true)
         ]),
