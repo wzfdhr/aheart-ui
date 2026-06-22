@@ -25,6 +25,12 @@
   background: var(--aheart-color-fill);
 }
 
+.aheart-empty__image-element {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 .aheart-empty__description {
   font-size: var(--aheart-font-size);
 }
