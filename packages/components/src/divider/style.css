@@ -1,8 +1,8 @@
 .aheart-divider {
   box-sizing: border-box;
   color: var(--aheart-color-text);
-  border-color: var(--aheart-color-border);
   --aheart-divider-border-width: 1px;
+  --aheart-divider-border-style: solid;
   --aheart-divider-orientation-margin: 8%;
 }
 
@@ -14,39 +14,42 @@
   margin: var(--aheart-spacing-md) 0;
 }
 
-.aheart-divider--horizontal::before,
-.aheart-divider--horizontal::after {
-  content: '';
+.aheart-divider__line {
   flex: 1;
-  border-top: var(--aheart-divider-border-width) solid var(--aheart-color-border);
+  border-color: var(--aheart-color-border);
+  border-style: var(--aheart-divider-border-style);
 }
 
-.aheart-divider--horizontal:not(.has-text)::after {
-  display: none;
+.aheart-divider--horizontal .aheart-divider__line {
+  border-width: var(--aheart-divider-border-width) 0 0;
+}
+
+.aheart-divider--vertical .aheart-divider__line {
+  display: inline-block;
+  height: 0.9em;
+  border-width: 0 0 0 var(--aheart-divider-border-width);
 }
 
 .aheart-divider--vertical {
-  display: inline-block;
-  height: 0.9em;
+  display: inline-flex;
   margin: 0 var(--aheart-spacing-sm);
   vertical-align: middle;
-  border-left: var(--aheart-divider-border-width) solid var(--aheart-color-border);
 }
 
-.aheart-divider--left::before,
-.aheart-divider--start::before,
-.aheart-divider--right::after,
-.aheart-divider--end::after {
+.aheart-divider--left.has-text .aheart-divider__line:first-child,
+.aheart-divider--start.has-text .aheart-divider__line:first-child,
+.aheart-divider--right.has-text .aheart-divider__line:last-child,
+.aheart-divider--end.has-text .aheart-divider__line:last-child {
   flex: 0.08;
 }
 
-.aheart-divider--left::before,
-.aheart-divider--start::before {
+.aheart-divider--left.has-text .aheart-divider__line:first-child,
+.aheart-divider--start.has-text .aheart-divider__line:first-child {
   max-width: var(--aheart-divider-orientation-margin);
 }
 
-.aheart-divider--right::after,
-.aheart-divider--end::after {
+.aheart-divider--right.has-text .aheart-divider__line:last-child,
+.aheart-divider--end.has-text .aheart-divider__line:last-child {
   max-width: var(--aheart-divider-orientation-margin);
 }
 
@@ -67,16 +70,12 @@
   font-weight: 500;
 }
 
-.aheart-divider.is-dashed,
-.aheart-divider.is-dashed::before,
-.aheart-divider.is-dashed::after {
-  border-style: dashed;
+.aheart-divider.is-dashed {
+  --aheart-divider-border-style: dashed;
 }
 
-.aheart-divider.is-dotted,
-.aheart-divider.is-dotted::before,
-.aheart-divider.is-dotted::after {
-  border-style: dotted;
+.aheart-divider.is-dotted {
+  --aheart-divider-border-style: dotted;
 }
 
 .aheart-divider.is-plain .aheart-divider__text {
