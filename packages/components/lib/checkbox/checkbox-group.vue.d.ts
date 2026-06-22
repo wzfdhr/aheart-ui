@@ -2,10 +2,18 @@ import { type CheckboxValue } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly modelValue: {
         readonly type: import("vue").PropType<CheckboxValue[]>;
-        readonly default: () => never[];
+        readonly default: undefined;
+    };
+    readonly value: {
+        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly default: undefined;
+    };
+    readonly defaultValue: {
+        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").CheckboxOption[]>;
+        readonly type: import("vue").PropType<import("./types").CheckboxRawOption[]>;
         readonly default: () => never[];
     };
     readonly disabled: {
@@ -17,16 +25,28 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: import("vue").PropType<import("./types").CheckboxGroupDirection>;
         readonly default: "horizontal";
     };
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: CheckboxValue[]) => void;
     "update:modelValue": (value: CheckboxValue[]) => void;
+    "update:value": (value: CheckboxValue[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly modelValue: {
         readonly type: import("vue").PropType<CheckboxValue[]>;
-        readonly default: () => never[];
+        readonly default: undefined;
+    };
+    readonly value: {
+        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly default: undefined;
+    };
+    readonly defaultValue: {
+        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").CheckboxOption[]>;
+        readonly type: import("vue").PropType<import("./types").CheckboxRawOption[]>;
         readonly default: () => never[];
     };
     readonly disabled: {
@@ -38,13 +58,19 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: import("vue").PropType<import("./types").CheckboxGroupDirection>;
         readonly default: "horizontal";
     };
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
 }>> & Readonly<{
     onChange?: ((value: CheckboxValue[]) => any) | undefined;
     "onUpdate:modelValue"?: ((value: CheckboxValue[]) => any) | undefined;
+    "onUpdate:value"?: ((value: CheckboxValue[]) => any) | undefined;
 }>, {
     readonly disabled: boolean;
+    readonly value: CheckboxValue[];
     readonly modelValue: CheckboxValue[];
-    readonly options: import("./types").CheckboxOption[];
+    readonly defaultValue: CheckboxValue[];
+    readonly options: import("./types").CheckboxRawOption[];
     readonly direction: import("./types").CheckboxGroupDirection;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

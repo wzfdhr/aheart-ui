@@ -51,8 +51,8 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly loading: boolean;
         readonly modelValue: boolean;
         readonly checked: boolean;
-        readonly defaultValue: boolean;
         readonly defaultChecked: boolean;
+        readonly defaultValue: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -106,8 +106,8 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly loading: boolean;
         readonly modelValue: boolean;
         readonly checked: boolean;
-        readonly defaultValue: boolean;
         readonly defaultChecked: boolean;
+        readonly defaultValue: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -164,8 +164,8 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     readonly loading: boolean;
     readonly modelValue: boolean;
     readonly checked: boolean;
-    readonly defaultValue: boolean;
     readonly defaultChecked: boolean;
+    readonly defaultValue: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         checkedChildren?(_: {}): any;
