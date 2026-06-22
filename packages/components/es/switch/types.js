@@ -1,3 +1,7 @@
+const renderableProp = {
+  type: null,
+  default: void 0
+};
 const switchProps = {
   modelValue: {
     type: Boolean,
@@ -25,8 +29,9 @@ const switchProps = {
   },
   loading: Boolean,
   size: String,
-  checkedChildren: String,
-  unCheckedChildren: String,
+  autoFocus: Boolean,
+  checkedChildren: renderableProp,
+  unCheckedChildren: renderableProp,
   className: String,
   rootClassName: String,
   style: [String, Object, Array],

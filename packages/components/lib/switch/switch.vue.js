@@ -12,11 +12,24 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   __name: "switch",
   props: types.switchProps,
   emits: types.switchEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
+    const switchRef = vue.ref();
     const internalChecked = vue.ref(props.defaultChecked ?? props.defaultValue ?? false);
+    const ASwitchRenderNode = vue.defineComponent({
+      name: "ASwitchRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const isControlled = vue.computed(() => props.checked !== void 0 || props.value !== void 0 || props.modelValue !== void 0);
@@ -68,8 +81,27 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("change", checked, event);
       emit("click", checked, event);
     };
+    const focus = () => {
+      var _a;
+      (_a = switchRef.value) == null ? void 0 : _a.focus();
+    };
+    const blur = () => {
+      var _a;
+      (_a = switchRef.value) == null ? void 0 : _a.blur();
+    };
+    vue.onMounted(() => {
+      if (props.autoFocus) {
+        vue.nextTick(focus);
+      }
+    });
+    __expose({
+      focus,
+      blur
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("button", {
+        ref_key: "switchRef",
+        ref: switchRef,
         class: vue.normalizeClass(["aheart-switch", switchClass.value]),
         style: vue.normalizeStyle(rootStyle.value),
         type: "button",
@@ -89,9 +121,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           style: vue.normalizeStyle(contentStyle.value)
         }, [
           mergedChecked.value ? vue.renderSlot(_ctx.$slots, "checkedChildren", { key: 0 }, () => [
-            vue.createTextVNode(vue.toDisplayString(_ctx.checkedChildren), 1)
+            vue.createVNode(vue.unref(ASwitchRenderNode), { node: _ctx.checkedChildren }, null, 8, ["node"])
           ]) : vue.renderSlot(_ctx.$slots, "unCheckedChildren", { key: 1 }, () => [
-            vue.createTextVNode(vue.toDisplayString(_ctx.unCheckedChildren), 1)
+            vue.createVNode(vue.unref(ASwitchRenderNode), { node: _ctx.unCheckedChildren }, null, 8, ["node"])
           ])
         ], 6)
       ], 14, _hoisted_1);

@@ -1,3 +1,4 @@
+import type { PropType, VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly modelValue: {
         readonly type: BooleanConstructor;
@@ -24,15 +25,25 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly loading: BooleanConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
-    readonly checkedChildren: StringConstructor;
-    readonly unCheckedChildren: StringConstructor;
+    readonly size: PropType<import("../config").AheartSize>;
+    readonly autoFocus: BooleanConstructor;
+    readonly checkedChildren: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly unCheckedChildren: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").SwitchSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").SwitchSemanticPart, import("vue").StyleValue>>>;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").SwitchSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").SwitchSemanticPart, import("vue").StyleValue>>>;
+}>, {
+    focus: () => void;
+    blur: () => void;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (checked: boolean, event: MouseEvent) => void;
     click: (checked: boolean, event: MouseEvent) => void;
     "update:modelValue": (checked: boolean) => void;
@@ -64,14 +75,21 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly loading: BooleanConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
-    readonly checkedChildren: StringConstructor;
-    readonly unCheckedChildren: StringConstructor;
+    readonly size: PropType<import("../config").AheartSize>;
+    readonly autoFocus: BooleanConstructor;
+    readonly checkedChildren: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly unCheckedChildren: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").SwitchSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").SwitchSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").SwitchSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").SwitchSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((checked: boolean, event: MouseEvent) => any) | undefined;
     onClick?: ((checked: boolean, event: MouseEvent) => any) | undefined;
@@ -86,6 +104,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly checked: boolean;
     readonly defaultChecked: boolean;
     readonly defaultValue: boolean;
+    readonly autoFocus: boolean;
+    readonly checkedChildren: VNodeChild;
+    readonly unCheckedChildren: VNodeChild;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     checkedChildren?(_: {}): any;
     unCheckedChildren?(_: {}): any;

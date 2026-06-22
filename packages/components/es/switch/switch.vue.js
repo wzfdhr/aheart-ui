@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { switchProps, switchEmits } from "./types.js";
 import "./style.css.js";
@@ -10,11 +10,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "switch",
   props: switchProps,
   emits: switchEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
+    const switchRef = ref();
     const internalChecked = ref(props.defaultChecked ?? props.defaultValue ?? false);
+    const ASwitchRenderNode = defineComponent({
+      name: "ASwitchRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const isControlled = computed(() => props.checked !== void 0 || props.value !== void 0 || props.modelValue !== void 0);
@@ -66,8 +79,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("change", checked, event);
       emit("click", checked, event);
     };
+    const focus = () => {
+      var _a;
+      (_a = switchRef.value) == null ? void 0 : _a.focus();
+    };
+    const blur = () => {
+      var _a;
+      (_a = switchRef.value) == null ? void 0 : _a.blur();
+    };
+    onMounted(() => {
+      if (props.autoFocus) {
+        nextTick(focus);
+      }
+    });
+    __expose({
+      focus,
+      blur
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("button", {
+        ref_key: "switchRef",
+        ref: switchRef,
         class: normalizeClass(["aheart-switch", switchClass.value]),
         style: normalizeStyle(rootStyle.value),
         type: "button",
@@ -87,9 +119,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           style: normalizeStyle(contentStyle.value)
         }, [
           mergedChecked.value ? renderSlot(_ctx.$slots, "checkedChildren", { key: 0 }, () => [
-            createTextVNode(toDisplayString(_ctx.checkedChildren), 1)
+            createVNode(unref(ASwitchRenderNode), { node: _ctx.checkedChildren }, null, 8, ["node"])
           ]) : renderSlot(_ctx.$slots, "unCheckedChildren", { key: 1 }, () => [
-            createTextVNode(toDisplayString(_ctx.unCheckedChildren), 1)
+            createVNode(unref(ASwitchRenderNode), { node: _ctx.unCheckedChildren }, null, 8, ["node"])
           ])
         ], 6)
       ], 14, _hoisted_1);

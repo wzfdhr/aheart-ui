@@ -26,8 +26,15 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         };
         readonly loading: BooleanConstructor;
         readonly size: import("vue").PropType<import("../config").AheartSize>;
-        readonly checkedChildren: StringConstructor;
-        readonly unCheckedChildren: StringConstructor;
+        readonly autoFocus: BooleanConstructor;
+        readonly checkedChildren: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly unCheckedChildren: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -39,7 +46,10 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
         "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
         "onUpdate:value"?: ((checked: boolean) => any) | undefined;
-    }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+    }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         change: (checked: boolean, event: MouseEvent) => void;
         click: (checked: boolean, event: MouseEvent) => void;
         "update:modelValue": (checked: boolean) => void;
@@ -53,6 +63,9 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly checked: boolean;
         readonly defaultChecked: boolean;
         readonly defaultValue: boolean;
+        readonly autoFocus: boolean;
+        readonly checkedChildren: import("vue").VNodeChild;
+        readonly unCheckedChildren: import("vue").VNodeChild;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -87,8 +100,15 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         };
         readonly loading: BooleanConstructor;
         readonly size: import("vue").PropType<import("../config").AheartSize>;
-        readonly checkedChildren: StringConstructor;
-        readonly unCheckedChildren: StringConstructor;
+        readonly autoFocus: BooleanConstructor;
+        readonly checkedChildren: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly unCheckedChildren: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -100,7 +120,10 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
         "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
         "onUpdate:value"?: ((checked: boolean) => any) | undefined;
-    }>, {}, {}, {}, {}, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+    }, {}, {}, {}, {
         readonly disabled: boolean;
         readonly value: boolean;
         readonly loading: boolean;
@@ -108,6 +131,9 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly checked: boolean;
         readonly defaultChecked: boolean;
         readonly defaultValue: boolean;
+        readonly autoFocus: boolean;
+        readonly checkedChildren: import("vue").VNodeChild;
+        readonly unCheckedChildren: import("vue").VNodeChild;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -139,8 +165,15 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     };
     readonly loading: BooleanConstructor;
     readonly size: import("vue").PropType<import("../config").AheartSize>;
-    readonly checkedChildren: StringConstructor;
-    readonly unCheckedChildren: StringConstructor;
+    readonly autoFocus: BooleanConstructor;
+    readonly checkedChildren: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
+    readonly unCheckedChildren: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -152,7 +185,10 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
     "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
     "onUpdate:value"?: ((checked: boolean) => any) | undefined;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: () => void;
+    blur: () => void;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (checked: boolean, event: MouseEvent) => void;
     click: (checked: boolean, event: MouseEvent) => void;
     "update:modelValue": (checked: boolean) => void;
@@ -166,6 +202,9 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     readonly checked: boolean;
     readonly defaultChecked: boolean;
     readonly defaultValue: boolean;
+    readonly autoFocus: boolean;
+    readonly checkedChildren: import("vue").VNodeChild;
+    readonly unCheckedChildren: import("vue").VNodeChild;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         checkedChildren?(_: {}): any;

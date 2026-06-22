@@ -1,5 +1,6 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
+export type SwitchRenderable = VNodeChild;
 export type SwitchSemanticPart = 'root' | 'content' | 'indicator';
 export type SwitchClassNames = Partial<Record<SwitchSemanticPart, string>>;
 export type SwitchStyles = Partial<Record<SwitchSemanticPart, StyleValue>>;
@@ -30,8 +31,15 @@ export declare const switchProps: {
     };
     readonly loading: BooleanConstructor;
     readonly size: PropType<AheartSize>;
-    readonly checkedChildren: StringConstructor;
-    readonly unCheckedChildren: StringConstructor;
+    readonly autoFocus: BooleanConstructor;
+    readonly checkedChildren: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly unCheckedChildren: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;
