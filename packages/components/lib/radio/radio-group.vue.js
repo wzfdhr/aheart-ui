@@ -5,8 +5,9 @@ const context = require("../config/context.js");
 const radio_vue_vue_type_script_setup_true_lang = require("./radio.vue.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["name", "value", "checked", "disabled", "onChange"];
-const _hoisted_2 = { class: "aheart-radio-button__label" };
+const _hoisted_1 = ["title"];
+const _hoisted_2 = ["name", "value", "checked", "disabled", "onChange"];
+const _hoisted_3 = { class: "aheart-radio-button__label" };
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ARadioGroup"
@@ -18,11 +19,24 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
+    const internalValue = vue.ref(props.defaultValue);
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
+    const isControlled = vue.computed(() => props.value !== void 0 || props.modelValue !== void 0);
+    const mergedValue = vue.computed(() => props.value ?? props.modelValue ?? internalValue.value);
+    const normalizedOptions = vue.computed(
+      () => props.options.map(
+        (option) => typeof option === "object" && option !== null ? option : {
+          label: String(option),
+          value: option
+        }
+      )
+    );
     const radioGroupClass = vue.computed(() => [
       `aheart-radio-group--${props.direction}`,
       `aheart-radio-group--${resolvedSize.value}`,
+      props.className,
+      props.rootClassName,
       {
         "aheart-radio-group--button": props.optionType === "button",
         "aheart-radio-group--solid": props.buttonStyle === "solid",
@@ -31,26 +45,36 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     ]);
     const getOptionKey = (value) => `${typeof value}:${String(value)}`;
-    const isSelected = (value) => props.modelValue === value;
-    const getButtonClass = (option) => ({
-      "is-checked": isSelected(option.value),
-      "is-disabled": isDisabled.value || option.disabled
-    });
+    const isSelected = (value) => mergedValue.value === value;
+    const getButtonClass = (option) => [
+      option.className,
+      {
+        "is-checked": isSelected(option.value),
+        "is-disabled": isDisabled.value || option.disabled
+      }
+    ];
     const handleOptionChange = (option) => {
       if (isDisabled.value || option.disabled) {
         return;
       }
+      if (!isControlled.value) {
+        internalValue.value = option.value;
+      }
       emit("update:modelValue", option.value);
+      emit("update:value", option.value);
       emit("change", option.value);
     };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
-        class: vue.normalizeClass(["aheart-radio-group", radioGroupClass.value])
+        class: vue.normalizeClass(["aheart-radio-group", radioGroupClass.value]),
+        style: vue.normalizeStyle(_ctx.style)
       }, [
-        _ctx.optionType === "button" ? (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 0 }, vue.renderList(_ctx.options, (option) => {
+        _ctx.optionType === "button" ? (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 0 }, vue.renderList(normalizedOptions.value, (option) => {
           return vue.openBlock(), vue.createElementBlock("label", {
             key: getOptionKey(option.value),
-            class: vue.normalizeClass(["aheart-radio-button", getButtonClass(option)])
+            class: vue.normalizeClass(["aheart-radio-button", getButtonClass(option)]),
+            style: vue.normalizeStyle(option.style),
+            title: option.title
           }, [
             vue.createElementVNode("input", {
               class: "aheart-radio-button__input",
@@ -60,10 +84,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               checked: isSelected(option.value),
               disabled: isDisabled.value || option.disabled,
               onChange: ($event) => handleOptionChange(option)
-            }, null, 40, _hoisted_1),
-            vue.createElementVNode("span", _hoisted_2, vue.toDisplayString(option.label), 1)
-          ], 2);
-        }), 128)) : (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 1 }, vue.renderList(_ctx.options, (option) => {
+            }, null, 40, _hoisted_2),
+            vue.createElementVNode("span", _hoisted_3, vue.toDisplayString(option.label), 1)
+          ], 14, _hoisted_1);
+        }), 128)) : (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 1 }, vue.renderList(normalizedOptions.value, (option) => {
           return vue.openBlock(), vue.createBlock(radio_vue_vue_type_script_setup_true_lang.default, {
             key: getOptionKey(option.value),
             "model-value": isSelected(option.value),
@@ -71,10 +95,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             name: _ctx.name,
             label: option.label,
             disabled: isDisabled.value || option.disabled,
+            "class-name": option.className,
+            style: vue.normalizeStyle(option.style),
+            title: option.title,
             onChange: () => handleOptionChange(option)
-          }, null, 8, ["model-value", "value", "name", "label", "disabled", "onChange"]);
+          }, null, 8, ["model-value", "value", "name", "label", "disabled", "class-name", "style", "title", "onChange"]);
         }), 128))
-      ], 2);
+      ], 6);
     };
   }
 });
