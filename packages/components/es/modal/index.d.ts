@@ -55,8 +55,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly closable: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
-        readonly open: boolean;
         readonly width: string | number;
+        readonly open: boolean;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly destroyOnClose: boolean;
@@ -123,8 +123,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly closable: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
-        readonly open: boolean;
         readonly width: string | number;
+        readonly open: boolean;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly destroyOnClose: boolean;
@@ -193,8 +193,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly closable: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
-    readonly open: boolean;
     readonly width: string | number;
+    readonly open: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly destroyOnClose: boolean;

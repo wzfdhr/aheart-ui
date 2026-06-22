@@ -70,8 +70,8 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly code: boolean;
         readonly strong: boolean;
         readonly disabled: boolean;
-        readonly keyboard: boolean;
         readonly delete: boolean;
+        readonly keyboard: boolean;
         readonly italic: boolean;
         readonly underline: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -94,8 +94,8 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly code: boolean;
         readonly strong: boolean;
         readonly disabled: boolean;
-        readonly keyboard: boolean;
         readonly delete: boolean;
+        readonly keyboard: boolean;
         readonly italic: boolean;
         readonly underline: boolean;
     }>;
@@ -115,8 +115,8 @@ declare const Text: import("../utils/install").SFCWithInstall<{
     readonly code: boolean;
     readonly strong: boolean;
     readonly disabled: boolean;
-    readonly keyboard: boolean;
     readonly delete: boolean;
+    readonly keyboard: boolean;
     readonly italic: boolean;
     readonly underline: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

@@ -1,25 +1,9 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const index = require("../skeleton/index.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-drawer__header"
-};
-const _hoisted_2 = {
-  key: 1,
-  class: "aheart-drawer__title"
-};
-const _hoisted_3 = {
-  key: 2,
-  class: "aheart-drawer__extra"
-};
-const _hoisted_4 = { class: "aheart-drawer__body" };
-const _hoisted_5 = {
-  key: 1,
-  class: "aheart-drawer__footer"
-};
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ADrawer"
@@ -31,12 +15,81 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
+    const hasRendered = vue.ref(props.open || props.forceRender);
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const isVertical = vue.computed(() => props.placement === "top" || props.placement === "bottom");
+    const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
+    const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
+    const hasExtra = vue.computed(() => Boolean(slots.extra) || props.extra !== void 0);
+    const hasHeader = vue.computed(() => Boolean(props.title || slots.title || hasExtra.value || props.closable));
+    const resolvedSize = vue.computed(() => {
+      if (props.size === "large") {
+        return 736;
+      }
+      if (props.size === "default") {
+        return 378;
+      }
+      return props.size;
+    });
     const panelStyle = vue.computed(
-      () => isVertical.value ? { height: normalizeSize(props.height) } : { width: normalizeSize(props.width) }
+      () => isVertical.value ? {
+        ...props.style,
+        ...semanticStyle("section"),
+        height: normalizeSize(props.height ?? resolvedSize.value)
+      } : {
+        ...props.style,
+        ...semanticStyle("section"),
+        width: normalizeSize(props.width ?? resolvedSize.value)
+      }
     );
+    const rootStyle = vue.computed(() => ({
+      ...props.rootStyle,
+      ...semanticStyle("root"),
+      zIndex: props.zIndex
+    }));
+    const maskStyle = vue.computed(() => semanticStyle("mask"));
     const hasFooter = vue.computed(() => props.footer || Boolean(slots.footer));
+    const rootClass = vue.computed(() => ["aheart-drawer", props.rootClassName, semanticClass("root")]);
+    const maskClass = vue.computed(() => ["aheart-drawer__mask", semanticClass("mask")]);
+    const panelClass = vue.computed(() => [
+      "aheart-drawer__panel",
+      `aheart-drawer__panel--${props.placement}`,
+      props.className,
+      semanticClass("section")
+    ]);
+    const headerClass = vue.computed(() => ["aheart-drawer__header", semanticClass("header")]);
+    const titleClass = vue.computed(() => ["aheart-drawer__title", semanticClass("title")]);
+    const extraClass = vue.computed(() => ["aheart-drawer__extra", semanticClass("extra")]);
+    const bodyClass = vue.computed(() => ["aheart-drawer__body", { "is-loading": props.loading }, semanticClass("body")]);
+    const footerClass = vue.computed(() => ["aheart-drawer__footer", semanticClass("footer")]);
+    const closeClass = vue.computed(() => ["aheart-drawer__close", semanticClass("close")]);
+    vue.watch(
+      () => props.open,
+      (open) => {
+        if (open) {
+          hasRendered.value = true;
+        } else if (shouldDestroy.value && !props.forceRender) {
+          hasRendered.value = false;
+        }
+        emit("afterOpenChange", open);
+      }
+    );
+    vue.watch(
+      () => props.forceRender,
+      (forceRender) => {
+        if (forceRender) {
+          hasRendered.value = true;
+        }
+      }
+    );
+    const semanticClass = (part) => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a[part];
+    };
+    const semanticStyle = (part) => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a[part];
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -52,49 +105,79 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     return (_ctx, _cache) => {
-      return _ctx.open ? (vue.openBlock(), vue.createElementBlock("div", {
+      return shouldRender.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
         key: 0,
-        class: "aheart-drawer",
+        class: vue.normalizeClass(rootClass.value),
+        style: vue.normalizeStyle(rootStyle.value),
         role: "presentation",
         tabindex: "-1",
         onKeydown: handleKeydown
       }, [
         _ctx.mask ? (vue.openBlock(), vue.createElementBlock("div", {
           key: 0,
-          class: "aheart-drawer__mask",
+          class: vue.normalizeClass(maskClass.value),
+          style: vue.normalizeStyle(maskStyle.value),
           onClick: handleMaskClick
-        })) : vue.createCommentVNode("", true),
+        }, null, 6)) : vue.createCommentVNode("", true),
         vue.createElementVNode("section", {
-          class: vue.normalizeClass(["aheart-drawer__panel", `aheart-drawer__panel--${_ctx.placement}`]),
+          class: vue.normalizeClass(panelClass.value),
           style: vue.normalizeStyle(panelStyle.value),
           role: "dialog",
           "aria-modal": "true"
         }, [
-          _ctx.title || _ctx.$slots.title || _ctx.$slots.extra || _ctx.closable ? (vue.openBlock(), vue.createElementBlock("header", _hoisted_1, [
+          hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
+            key: 0,
+            class: vue.normalizeClass(headerClass.value),
+            style: vue.normalizeStyle(semanticStyle("header"))
+          }, [
             _ctx.closable ? (vue.openBlock(), vue.createElementBlock("button", {
               key: 0,
-              class: "aheart-drawer__close",
+              class: vue.normalizeClass(closeClass.value),
+              style: vue.normalizeStyle(semanticStyle("close")),
               type: "button",
               "aria-label": "Close",
               onClick: close
-            }, " × ")) : vue.createCommentVNode("", true),
-            _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_2, [
+            }, " × ", 6)) : vue.createCommentVNode("", true),
+            _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("div", {
+              key: 1,
+              class: vue.normalizeClass(titleClass.value),
+              style: vue.normalizeStyle(semanticStyle("title"))
+            }, [
               vue.renderSlot(_ctx.$slots, "title", {}, () => [
                 vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
               ])
-            ])) : vue.createCommentVNode("", true),
-            _ctx.$slots.extra ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_3, [
-              vue.renderSlot(_ctx.$slots, "extra")
-            ])) : vue.createCommentVNode("", true)
-          ])) : vue.createCommentVNode("", true),
-          vue.createElementVNode("div", _hoisted_4, [
-            vue.renderSlot(_ctx.$slots, "default")
-          ]),
-          hasFooter.value ? (vue.openBlock(), vue.createElementBlock("footer", _hoisted_5, [
+            ], 6)) : vue.createCommentVNode("", true),
+            hasExtra.value ? (vue.openBlock(), vue.createElementBlock("div", {
+              key: 2,
+              class: vue.normalizeClass(extraClass.value),
+              style: vue.normalizeStyle(semanticStyle("extra"))
+            }, [
+              vue.renderSlot(_ctx.$slots, "extra", {}, () => [
+                vue.createTextVNode(vue.toDisplayString(_ctx.extra), 1)
+              ])
+            ], 6)) : vue.createCommentVNode("", true)
+          ], 6)) : vue.createCommentVNode("", true),
+          vue.createElementVNode("div", {
+            class: vue.normalizeClass(bodyClass.value),
+            style: vue.normalizeStyle(semanticStyle("body"))
+          }, [
+            _ctx.loading ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), {
+              key: 0,
+              active: "",
+              paragraph: { rows: 4 }
+            })) : vue.renderSlot(_ctx.$slots, "default", { key: 1 })
+          ], 6),
+          hasFooter.value ? (vue.openBlock(), vue.createElementBlock("footer", {
+            key: 1,
+            class: vue.normalizeClass(footerClass.value),
+            style: vue.normalizeStyle(semanticStyle("footer"))
+          }, [
             vue.renderSlot(_ctx.$slots, "footer")
-          ])) : vue.createCommentVNode("", true)
+          ], 6)) : vue.createCommentVNode("", true)
         ], 6)
-      ], 32)) : vue.createCommentVNode("", true);
+      ], 38)), [
+        [vue.vShow, _ctx.open]
+      ]) : vue.createCommentVNode("", true);
     };
   }
 });

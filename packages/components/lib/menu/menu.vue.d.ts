@@ -77,9 +77,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly disabled: boolean;
     readonly theme: import("./types").MenuTheme;
     readonly mode: import("./types").MenuMode;
+    readonly multiple: boolean;
     readonly defaultSelectedKeys: string[];
     readonly defaultOpenKeys: string[];
-    readonly multiple: boolean;
     readonly selectable: boolean;
     readonly inlineCollapsed: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;

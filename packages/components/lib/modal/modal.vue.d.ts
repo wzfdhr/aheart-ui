@@ -96,8 +96,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly closable: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
-    readonly open: boolean;
     readonly width: string | number;
+    readonly open: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly destroyOnClose: boolean;

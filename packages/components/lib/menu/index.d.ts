@@ -76,9 +76,9 @@ declare const Menu: import("../utils/install").SFCWithInstall<import("vue").Defi
     readonly disabled: boolean;
     readonly theme: import("./types").MenuTheme;
     readonly mode: import("./types").MenuMode;
+    readonly multiple: boolean;
     readonly defaultSelectedKeys: string[];
     readonly defaultOpenKeys: string[];
-    readonly multiple: boolean;
     readonly selectable: boolean;
     readonly inlineCollapsed: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;

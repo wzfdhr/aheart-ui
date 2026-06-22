@@ -1,23 +1,7 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, createCommentVNode, createElementVNode, normalizeClass, normalizeStyle, renderSlot, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createTextVNode, toDisplayString, createBlock, unref, vShow } from "vue";
+import Skeleton from "../skeleton/index.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-drawer__header"
-};
-const _hoisted_2 = {
-  key: 1,
-  class: "aheart-drawer__title"
-};
-const _hoisted_3 = {
-  key: 2,
-  class: "aheart-drawer__extra"
-};
-const _hoisted_4 = { class: "aheart-drawer__body" };
-const _hoisted_5 = {
-  key: 1,
-  class: "aheart-drawer__footer"
-};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ADrawer"
@@ -29,12 +13,81 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = useSlots();
+    const hasRendered = ref(props.open || props.forceRender);
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const isVertical = computed(() => props.placement === "top" || props.placement === "bottom");
+    const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
+    const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
+    const hasExtra = computed(() => Boolean(slots.extra) || props.extra !== void 0);
+    const hasHeader = computed(() => Boolean(props.title || slots.title || hasExtra.value || props.closable));
+    const resolvedSize = computed(() => {
+      if (props.size === "large") {
+        return 736;
+      }
+      if (props.size === "default") {
+        return 378;
+      }
+      return props.size;
+    });
     const panelStyle = computed(
-      () => isVertical.value ? { height: normalizeSize(props.height) } : { width: normalizeSize(props.width) }
+      () => isVertical.value ? {
+        ...props.style,
+        ...semanticStyle("section"),
+        height: normalizeSize(props.height ?? resolvedSize.value)
+      } : {
+        ...props.style,
+        ...semanticStyle("section"),
+        width: normalizeSize(props.width ?? resolvedSize.value)
+      }
     );
+    const rootStyle = computed(() => ({
+      ...props.rootStyle,
+      ...semanticStyle("root"),
+      zIndex: props.zIndex
+    }));
+    const maskStyle = computed(() => semanticStyle("mask"));
     const hasFooter = computed(() => props.footer || Boolean(slots.footer));
+    const rootClass = computed(() => ["aheart-drawer", props.rootClassName, semanticClass("root")]);
+    const maskClass = computed(() => ["aheart-drawer__mask", semanticClass("mask")]);
+    const panelClass = computed(() => [
+      "aheart-drawer__panel",
+      `aheart-drawer__panel--${props.placement}`,
+      props.className,
+      semanticClass("section")
+    ]);
+    const headerClass = computed(() => ["aheart-drawer__header", semanticClass("header")]);
+    const titleClass = computed(() => ["aheart-drawer__title", semanticClass("title")]);
+    const extraClass = computed(() => ["aheart-drawer__extra", semanticClass("extra")]);
+    const bodyClass = computed(() => ["aheart-drawer__body", { "is-loading": props.loading }, semanticClass("body")]);
+    const footerClass = computed(() => ["aheart-drawer__footer", semanticClass("footer")]);
+    const closeClass = computed(() => ["aheart-drawer__close", semanticClass("close")]);
+    watch(
+      () => props.open,
+      (open) => {
+        if (open) {
+          hasRendered.value = true;
+        } else if (shouldDestroy.value && !props.forceRender) {
+          hasRendered.value = false;
+        }
+        emit("afterOpenChange", open);
+      }
+    );
+    watch(
+      () => props.forceRender,
+      (forceRender) => {
+        if (forceRender) {
+          hasRendered.value = true;
+        }
+      }
+    );
+    const semanticClass = (part) => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a[part];
+    };
+    const semanticStyle = (part) => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a[part];
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -50,49 +103,79 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     return (_ctx, _cache) => {
-      return _ctx.open ? (openBlock(), createElementBlock("div", {
+      return shouldRender.value ? withDirectives((openBlock(), createElementBlock("div", {
         key: 0,
-        class: "aheart-drawer",
+        class: normalizeClass(rootClass.value),
+        style: normalizeStyle(rootStyle.value),
         role: "presentation",
         tabindex: "-1",
         onKeydown: handleKeydown
       }, [
         _ctx.mask ? (openBlock(), createElementBlock("div", {
           key: 0,
-          class: "aheart-drawer__mask",
+          class: normalizeClass(maskClass.value),
+          style: normalizeStyle(maskStyle.value),
           onClick: handleMaskClick
-        })) : createCommentVNode("", true),
+        }, null, 6)) : createCommentVNode("", true),
         createElementVNode("section", {
-          class: normalizeClass(["aheart-drawer__panel", `aheart-drawer__panel--${_ctx.placement}`]),
+          class: normalizeClass(panelClass.value),
           style: normalizeStyle(panelStyle.value),
           role: "dialog",
           "aria-modal": "true"
         }, [
-          _ctx.title || _ctx.$slots.title || _ctx.$slots.extra || _ctx.closable ? (openBlock(), createElementBlock("header", _hoisted_1, [
+          hasHeader.value ? (openBlock(), createElementBlock("header", {
+            key: 0,
+            class: normalizeClass(headerClass.value),
+            style: normalizeStyle(semanticStyle("header"))
+          }, [
             _ctx.closable ? (openBlock(), createElementBlock("button", {
               key: 0,
-              class: "aheart-drawer__close",
+              class: normalizeClass(closeClass.value),
+              style: normalizeStyle(semanticStyle("close")),
               type: "button",
               "aria-label": "Close",
               onClick: close
-            }, " × ")) : createCommentVNode("", true),
-            _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("div", _hoisted_2, [
+            }, " × ", 6)) : createCommentVNode("", true),
+            _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("div", {
+              key: 1,
+              class: normalizeClass(titleClass.value),
+              style: normalizeStyle(semanticStyle("title"))
+            }, [
               renderSlot(_ctx.$slots, "title", {}, () => [
                 createTextVNode(toDisplayString(_ctx.title), 1)
               ])
-            ])) : createCommentVNode("", true),
-            _ctx.$slots.extra ? (openBlock(), createElementBlock("div", _hoisted_3, [
-              renderSlot(_ctx.$slots, "extra")
-            ])) : createCommentVNode("", true)
-          ])) : createCommentVNode("", true),
-          createElementVNode("div", _hoisted_4, [
-            renderSlot(_ctx.$slots, "default")
-          ]),
-          hasFooter.value ? (openBlock(), createElementBlock("footer", _hoisted_5, [
+            ], 6)) : createCommentVNode("", true),
+            hasExtra.value ? (openBlock(), createElementBlock("div", {
+              key: 2,
+              class: normalizeClass(extraClass.value),
+              style: normalizeStyle(semanticStyle("extra"))
+            }, [
+              renderSlot(_ctx.$slots, "extra", {}, () => [
+                createTextVNode(toDisplayString(_ctx.extra), 1)
+              ])
+            ], 6)) : createCommentVNode("", true)
+          ], 6)) : createCommentVNode("", true),
+          createElementVNode("div", {
+            class: normalizeClass(bodyClass.value),
+            style: normalizeStyle(semanticStyle("body"))
+          }, [
+            _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
+              key: 0,
+              active: "",
+              paragraph: { rows: 4 }
+            })) : renderSlot(_ctx.$slots, "default", { key: 1 })
+          ], 6),
+          hasFooter.value ? (openBlock(), createElementBlock("footer", {
+            key: 1,
+            class: normalizeClass(footerClass.value),
+            style: normalizeStyle(semanticStyle("footer"))
+          }, [
             renderSlot(_ctx.$slots, "footer")
-          ])) : createCommentVNode("", true)
+          ], 6)) : createCommentVNode("", true)
         ], 6)
-      ], 32)) : createCommentVNode("", true);
+      ], 38)), [
+        [vShow, _ctx.open]
+      ]) : createCommentVNode("", true);
     };
   }
 });

@@ -4,18 +4,27 @@ const drawerPlacements = ["top", "right", "bottom", "left"];
 const drawerProps = {
   open: Boolean,
   title: String,
+  extra: [String, Number],
   placement: {
     type: String,
     default: "right",
     validator: (value) => drawerPlacements.includes(value)
   },
+  size: {
+    type: [String, Number],
+    default: "default"
+  },
   width: {
     type: [Number, String],
-    default: 378
+    default: void 0
   },
   height: {
     type: [Number, String],
-    default: 378
+    default: void 0
+  },
+  zIndex: {
+    type: Number,
+    default: 1e3
   },
   closable: {
     type: Boolean,
@@ -33,12 +42,22 @@ const drawerProps = {
     type: Boolean,
     default: true
   },
+  loading: Boolean,
   footer: Boolean,
-  destroyOnClose: Boolean
+  className: String,
+  rootClassName: String,
+  style: Object,
+  rootStyle: Object,
+  classNames: Object,
+  styles: Object,
+  forceRender: Boolean,
+  destroyOnClose: Boolean,
+  destroyOnHidden: Boolean
 };
 const drawerEmits = {
   "update:open": (open) => typeof open === "boolean",
-  close: () => true
+  close: () => true,
+  afterOpenChange: (open) => typeof open === "boolean"
 };
 exports.drawerEmits = drawerEmits;
 exports.drawerPlacements = drawerPlacements;
