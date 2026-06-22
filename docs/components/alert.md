@@ -65,27 +65,139 @@ Alert displays contextual information with optional icons, descriptions, and clo
 </template>
 ```
 
+## 顶部公告
+
+<div class="aheart-demo-panel">
+  <AAlert banner title="Scheduled maintenance starts at 22:00" />
+</div>
+
+```vue
+<template>
+  <AAlert banner title="Scheduled maintenance starts at 22:00" />
+</template>
+```
+
+## 样式变体
+
+<div class="aheart-demo-panel">
+  <ASpace direction="vertical" style="width: 100%">
+    <AAlert type="info" title="Outlined alert" variant="outlined" show-icon />
+    <AAlert type="success" title="Filled alert" variant="filled" show-icon />
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <ASpace direction="vertical" style="width: 100%">
+    <AAlert type="info" title="Outlined alert" variant="outlined" show-icon />
+    <AAlert type="success" title="Filled alert" variant="filled" show-icon />
+  </ASpace>
+</template>
+```
+
+## 操作区域
+
+<div class="aheart-demo-panel">
+  <AAlert type="warning" title="Update available" show-icon action="Restart now" />
+</div>
+
+```vue
+<template>
+  <AAlert type="warning" title="Update available" show-icon action="Restart now" />
+</template>
+```
+
+## 自定义图标
+
+<div class="aheart-demo-panel">
+  <AAlert
+    type="info"
+    title="Custom controls"
+    description="Use icon and closeIcon for compact inline customization."
+    show-icon
+    icon="?"
+    closable
+    close-icon="dismiss"
+  />
+</div>
+
+```vue
+<template>
+  <AAlert
+    type="info"
+    title="Custom controls"
+    description="Use icon and closeIcon for compact inline customization."
+    show-icon
+    icon="?"
+    closable
+    close-icon="dismiss"
+  />
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <AAlert
+    title="Semantic alert"
+    description="Style individual Alert parts without depending on internal selectors."
+    show-icon
+    action="Details"
+    :class-names="{ title: 'demo-alert-title', action: 'demo-alert-action' }"
+    :styles="{ root: { marginBlockStart: '8px' }, action: { marginInlineStart: '16px' } }"
+  />
+</div>
+
+```vue
+<template>
+  <AAlert
+    title="Semantic alert"
+    description="Style individual Alert parts without depending on internal selectors."
+    show-icon
+    action="Details"
+    :class-names="{ title: 'demo-alert-title', action: 'demo-alert-action' }"
+    :styles="{ root: { marginBlockStart: '8px' }, action: { marginInlineStart: '16px' } }"
+  />
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | type | 警告类型 | `success` \| `info` \| `warning` \| `error` | `info` |
+| title | 标题内容，优先级高于 `message` | `string` | - |
 | message | 标题内容 | `string` | - |
 | description | 辅助描述 | `string` | - |
 | showIcon | 是否显示类型图标 | `boolean` | `false` |
 | closable | 是否显示关闭按钮 | `boolean` | `false` |
+| banner | 是否用作顶部公告，默认展示 warning 图标 | `boolean` | `false` |
+| variant | 样式变体 | `outlined` \| `filled` | `outlined` |
+| action | 右侧操作内容 | `string` | - |
+| icon | 自定义图标内容 | `string` | - |
+| closeIcon | 自定义关闭内容 | `string` | - |
+| role | 根节点 ARIA role | `string` | `alert` |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'icon' \| 'content' \| 'title' \| 'description' \| 'action' \| 'close', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'icon' \| 'content' \| 'title' \| 'description' \| 'action' \| 'close', StyleValue>>` | - |
 
 ## Events
 
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | close | 点击关闭按钮时触发 | `(event: MouseEvent) => void` |
+| afterClose | Alert 隐藏后触发 | `() => void` |
 
 ## Slots
 
 | 名称 | 说明 |
 | --- | --- |
 | default | 自定义描述内容 |
+| action | 自定义右侧操作区域 |
+| icon | 自定义图标区域 |
+| closeIcon | 自定义关闭区域 |
 
 ## Theme Tokens
 
