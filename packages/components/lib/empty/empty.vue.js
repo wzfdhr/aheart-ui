@@ -4,12 +4,11 @@ const vue = require("vue");
 const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = { class: "aheart-empty" };
-const _hoisted_2 = { class: "aheart-empty__image" };
-const _hoisted_3 = { class: "aheart-empty__description" };
-const _hoisted_4 = {
-  key: 0,
-  class: "aheart-empty__footer"
+const _hoisted_1 = ["src"];
+const _hoisted_2 = {
+  key: 1,
+  class: "aheart-empty__default-image",
+  "aria-hidden": "true"
 };
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
@@ -20,25 +19,88 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props) {
     const props = __props;
     const config = context.useAheartConfig();
+    const slots = vue.useSlots();
+    const imageUrl = vue.computed(() => typeof props.image === "string" && props.image ? props.image : void 0);
+    const showImage = vue.computed(() => Boolean(slots.image) || props.image !== false);
     const resolvedDescription = vue.computed(() => {
       var _a, _b;
-      return props.description || ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) || "No Data";
+      if (props.description === false) {
+        return "";
+      }
+      if (typeof props.description === "string") {
+        return props.description;
+      }
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) || "No Data";
+    });
+    const showDescription = vue.computed(() => Boolean(slots.description) || props.description !== false);
+    const emptyClass = vue.computed(() => {
+      var _a;
+      return [props.className, props.rootClassName, (_a = props.classNames) == null ? void 0 : _a.root];
+    });
+    const rootStyle = vue.computed(() => {
+      var _a;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const imageClass = vue.computed(() => {
+      var _a;
+      return ["aheart-empty__image", (_a = props.classNames) == null ? void 0 : _a.image];
+    });
+    const imageStyleValue = vue.computed(() => {
+      var _a;
+      return [props.imageStyle, (_a = props.styles) == null ? void 0 : _a.image];
+    });
+    const descriptionClass = vue.computed(() => {
+      var _a;
+      return ["aheart-empty__description", (_a = props.classNames) == null ? void 0 : _a.description];
+    });
+    const descriptionStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.description;
+    });
+    const footerClass = vue.computed(() => {
+      var _a;
+      return ["aheart-empty__footer", (_a = props.classNames) == null ? void 0 : _a.footer];
+    });
+    const footerStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.footer;
     });
     return (_ctx, _cache) => {
-      return vue.openBlock(), vue.createElementBlock("div", _hoisted_1, [
-        vue.createElementVNode("div", _hoisted_2, [
+      return vue.openBlock(), vue.createElementBlock("div", {
+        class: vue.normalizeClass(["aheart-empty", emptyClass.value]),
+        style: vue.normalizeStyle(rootStyle.value)
+      }, [
+        showImage.value ? (vue.openBlock(), vue.createElementBlock("div", {
+          key: 0,
+          class: vue.normalizeClass(imageClass.value),
+          style: vue.normalizeStyle(imageStyleValue.value)
+        }, [
           vue.renderSlot(_ctx.$slots, "image", {}, () => [
-            _cache[0] || (_cache[0] = vue.createElementVNode("span", {
-              class: "aheart-empty__default-image",
-              "aria-hidden": "true"
-            }, "∅", -1))
+            imageUrl.value ? (vue.openBlock(), vue.createElementBlock("img", {
+              key: 0,
+              class: "aheart-empty__image-element",
+              src: imageUrl.value,
+              alt: ""
+            }, null, 8, _hoisted_1)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, "∅"))
           ])
-        ]),
-        vue.createElementVNode("div", _hoisted_3, vue.toDisplayString(resolvedDescription.value), 1),
-        _ctx.$slots.default ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_4, [
+        ], 6)) : vue.createCommentVNode("", true),
+        showDescription.value ? (vue.openBlock(), vue.createElementBlock("div", {
+          key: 1,
+          class: vue.normalizeClass(descriptionClass.value),
+          style: vue.normalizeStyle(descriptionStyle.value)
+        }, [
+          vue.renderSlot(_ctx.$slots, "description", {}, () => [
+            vue.createTextVNode(vue.toDisplayString(resolvedDescription.value), 1)
+          ])
+        ], 6)) : vue.createCommentVNode("", true),
+        _ctx.$slots.default ? (vue.openBlock(), vue.createElementBlock("div", {
+          key: 2,
+          class: vue.normalizeClass(footerClass.value),
+          style: vue.normalizeStyle(footerStyle.value)
+        }, [
           vue.renderSlot(_ctx.$slots, "default")
-        ])) : vue.createCommentVNode("", true)
-      ]);
+        ], 6)) : vue.createCommentVNode("", true)
+      ], 6);
     };
   }
 });

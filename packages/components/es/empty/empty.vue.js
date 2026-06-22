@@ -1,13 +1,12 @@
-import { defineComponent, computed, openBlock, createElementBlock, createElementVNode, renderSlot, toDisplayString, createCommentVNode } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createCommentVNode, createTextVNode, toDisplayString } from "vue";
 import { useAheartConfig } from "../config/context.js";
 import { emptyProps } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = { class: "aheart-empty" };
-const _hoisted_2 = { class: "aheart-empty__image" };
-const _hoisted_3 = { class: "aheart-empty__description" };
-const _hoisted_4 = {
-  key: 0,
-  class: "aheart-empty__footer"
+const _hoisted_1 = ["src"];
+const _hoisted_2 = {
+  key: 1,
+  class: "aheart-empty__default-image",
+  "aria-hidden": "true"
 };
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
@@ -18,25 +17,88 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const config = useAheartConfig();
+    const slots = useSlots();
+    const imageUrl = computed(() => typeof props.image === "string" && props.image ? props.image : void 0);
+    const showImage = computed(() => Boolean(slots.image) || props.image !== false);
     const resolvedDescription = computed(() => {
       var _a, _b;
-      return props.description || ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) || "No Data";
+      if (props.description === false) {
+        return "";
+      }
+      if (typeof props.description === "string") {
+        return props.description;
+      }
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) || "No Data";
+    });
+    const showDescription = computed(() => Boolean(slots.description) || props.description !== false);
+    const emptyClass = computed(() => {
+      var _a;
+      return [props.className, props.rootClassName, (_a = props.classNames) == null ? void 0 : _a.root];
+    });
+    const rootStyle = computed(() => {
+      var _a;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const imageClass = computed(() => {
+      var _a;
+      return ["aheart-empty__image", (_a = props.classNames) == null ? void 0 : _a.image];
+    });
+    const imageStyleValue = computed(() => {
+      var _a;
+      return [props.imageStyle, (_a = props.styles) == null ? void 0 : _a.image];
+    });
+    const descriptionClass = computed(() => {
+      var _a;
+      return ["aheart-empty__description", (_a = props.classNames) == null ? void 0 : _a.description];
+    });
+    const descriptionStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.description;
+    });
+    const footerClass = computed(() => {
+      var _a;
+      return ["aheart-empty__footer", (_a = props.classNames) == null ? void 0 : _a.footer];
+    });
+    const footerStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.footer;
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1, [
-        createElementVNode("div", _hoisted_2, [
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(["aheart-empty", emptyClass.value]),
+        style: normalizeStyle(rootStyle.value)
+      }, [
+        showImage.value ? (openBlock(), createElementBlock("div", {
+          key: 0,
+          class: normalizeClass(imageClass.value),
+          style: normalizeStyle(imageStyleValue.value)
+        }, [
           renderSlot(_ctx.$slots, "image", {}, () => [
-            _cache[0] || (_cache[0] = createElementVNode("span", {
-              class: "aheart-empty__default-image",
-              "aria-hidden": "true"
-            }, "∅", -1))
+            imageUrl.value ? (openBlock(), createElementBlock("img", {
+              key: 0,
+              class: "aheart-empty__image-element",
+              src: imageUrl.value,
+              alt: ""
+            }, null, 8, _hoisted_1)) : (openBlock(), createElementBlock("span", _hoisted_2, "∅"))
           ])
-        ]),
-        createElementVNode("div", _hoisted_3, toDisplayString(resolvedDescription.value), 1),
-        _ctx.$slots.default ? (openBlock(), createElementBlock("div", _hoisted_4, [
+        ], 6)) : createCommentVNode("", true),
+        showDescription.value ? (openBlock(), createElementBlock("div", {
+          key: 1,
+          class: normalizeClass(descriptionClass.value),
+          style: normalizeStyle(descriptionStyle.value)
+        }, [
+          renderSlot(_ctx.$slots, "description", {}, () => [
+            createTextVNode(toDisplayString(resolvedDescription.value), 1)
+          ])
+        ], 6)) : createCommentVNode("", true),
+        _ctx.$slots.default ? (openBlock(), createElementBlock("div", {
+          key: 2,
+          class: normalizeClass(footerClass.value),
+          style: normalizeStyle(footerStyle.value)
+        }, [
           renderSlot(_ctx.$slots, "default")
-        ])) : createCommentVNode("", true)
-      ]);
+        ], 6)) : createCommentVNode("", true)
+      ], 6);
     };
   }
 });
