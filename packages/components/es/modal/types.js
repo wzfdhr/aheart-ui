@@ -35,17 +35,33 @@ const modalProps = {
     type: String,
     default: "primary"
   },
+  okButtonProps: Object,
+  cancelButtonProps: Object,
+  zIndex: {
+    type: Number,
+    default: 1e3
+  },
+  loading: Boolean,
   footer: {
     type: Boolean,
     default: true
   },
-  destroyOnClose: Boolean
+  className: String,
+  rootClassName: String,
+  style: Object,
+  rootStyle: Object,
+  classNames: Object,
+  styles: Object,
+  forceRender: Boolean,
+  destroyOnClose: Boolean,
+  destroyOnHidden: Boolean
 };
 const modalEmits = {
   "update:open": (open) => typeof open === "boolean",
   ok: () => true,
   cancel: () => true,
-  close: () => true
+  close: () => true,
+  afterOpenChange: (open) => typeof open === "boolean"
 };
 export {
   modalEmits,

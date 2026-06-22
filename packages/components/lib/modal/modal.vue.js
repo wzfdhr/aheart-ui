@@ -1,23 +1,10 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const index = require("../button/index.js");
+const index$1 = require("../button/index.js");
+const index = require("../skeleton/index.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = { class: "aheart-modal__wrap" };
-const _hoisted_2 = {
-  key: 0,
-  class: "aheart-modal__header"
-};
-const _hoisted_3 = {
-  key: 0,
-  class: "aheart-modal__title"
-};
-const _hoisted_4 = { class: "aheart-modal__body" };
-const _hoisted_5 = {
-  key: 1,
-  class: "aheart-modal__footer"
-};
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AModal"
@@ -29,11 +16,73 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
+    const hasRendered = vue.ref(props.open || props.forceRender);
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
+    const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
     const dialogStyle = vue.computed(() => ({
+      ...props.style,
+      ...semanticStyle("dialog"),
       width: normalizeSize(props.width)
     }));
+    const rootStyle = vue.computed(() => ({
+      ...props.rootStyle,
+      ...semanticStyle("root"),
+      zIndex: props.zIndex
+    }));
     const hasFooter = vue.computed(() => props.footer || Boolean(slots.footer));
+    const rootClass = vue.computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
+    const maskClass = vue.computed(() => ["aheart-modal__mask", semanticClass("mask")]);
+    const wrapClass = vue.computed(() => ["aheart-modal__wrap", semanticClass("wrap")]);
+    const dialogClass = vue.computed(() => [
+      "aheart-modal__dialog",
+      {
+        "is-centered": props.centered
+      },
+      props.className,
+      semanticClass("dialog")
+    ]);
+    const headerClass = vue.computed(() => ["aheart-modal__header", semanticClass("header")]);
+    const titleClass = vue.computed(() => ["aheart-modal__title", semanticClass("title")]);
+    const bodyClass = vue.computed(() => ["aheart-modal__body", { "is-loading": props.loading }, semanticClass("body")]);
+    const footerClass = vue.computed(() => ["aheart-modal__footer", semanticClass("footer")]);
+    const closeClass = vue.computed(() => ["aheart-modal__close", semanticClass("close")]);
+    const resolvedCancelButtonProps = vue.computed(() => props.cancelButtonProps ?? {});
+    const resolvedOkButtonProps = vue.computed(() => {
+      var _a, _b;
+      return {
+        ...props.okButtonProps,
+        type: ((_a = props.okButtonProps) == null ? void 0 : _a.type) ?? props.okType,
+        loading: props.confirmLoading || Boolean((_b = props.okButtonProps) == null ? void 0 : _b.loading)
+      };
+    });
+    vue.watch(
+      () => props.open,
+      (open) => {
+        if (open) {
+          hasRendered.value = true;
+        } else if (shouldDestroy.value && !props.forceRender) {
+          hasRendered.value = false;
+        }
+        emit("afterOpenChange", open);
+      }
+    );
+    vue.watch(
+      () => props.forceRender,
+      (forceRender) => {
+        if (forceRender) {
+          hasRendered.value = true;
+        }
+      }
+    );
+    const semanticClass = (part) => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a[part];
+    };
+    const semanticStyle = (part) => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a[part];
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -56,69 +105,88 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     return (_ctx, _cache) => {
-      return _ctx.open ? (vue.openBlock(), vue.createElementBlock("div", {
+      return shouldRender.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
         key: 0,
-        class: "aheart-modal",
+        class: vue.normalizeClass(rootClass.value),
+        style: vue.normalizeStyle(rootStyle.value),
         role: "presentation",
         tabindex: "-1",
         onKeydown: handleKeydown
       }, [
         _ctx.mask ? (vue.openBlock(), vue.createElementBlock("div", {
           key: 0,
-          class: "aheart-modal__mask",
+          class: vue.normalizeClass(maskClass.value),
+          style: vue.normalizeStyle(semanticStyle("mask")),
           onClick: handleMaskClick
-        })) : vue.createCommentVNode("", true),
-        vue.createElementVNode("div", _hoisted_1, [
+        }, null, 6)) : vue.createCommentVNode("", true),
+        vue.createElementVNode("div", {
+          class: vue.normalizeClass(wrapClass.value),
+          style: vue.normalizeStyle(semanticStyle("wrap"))
+        }, [
           vue.createElementVNode("section", {
-            class: vue.normalizeClass(["aheart-modal__dialog", { "is-centered": _ctx.centered }]),
+            class: vue.normalizeClass(dialogClass.value),
             style: vue.normalizeStyle(dialogStyle.value),
             role: "dialog",
             "aria-modal": "true"
           }, [
-            _ctx.title || _ctx.$slots.title || _ctx.closable ? (vue.openBlock(), vue.createElementBlock("header", _hoisted_2, [
-              _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_3, [
+            _ctx.title || _ctx.$slots.title || _ctx.closable ? (vue.openBlock(), vue.createElementBlock("header", {
+              key: 0,
+              class: vue.normalizeClass(headerClass.value),
+              style: vue.normalizeStyle(semanticStyle("header"))
+            }, [
+              _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("div", {
+                key: 0,
+                class: vue.normalizeClass(titleClass.value),
+                style: vue.normalizeStyle(semanticStyle("title"))
+              }, [
                 vue.renderSlot(_ctx.$slots, "title", {}, () => [
                   vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
                 ])
-              ])) : vue.createCommentVNode("", true),
+              ], 6)) : vue.createCommentVNode("", true),
               _ctx.closable ? (vue.openBlock(), vue.createElementBlock("button", {
                 key: 1,
-                class: "aheart-modal__close",
+                class: vue.normalizeClass(closeClass.value),
+                style: vue.normalizeStyle(semanticStyle("close")),
                 type: "button",
                 "aria-label": "Close",
                 onClick: close
-              }, " × ")) : vue.createCommentVNode("", true)
-            ])) : vue.createCommentVNode("", true),
-            vue.createElementVNode("div", _hoisted_4, [
-              vue.renderSlot(_ctx.$slots, "default")
-            ]),
-            hasFooter.value ? (vue.openBlock(), vue.createElementBlock("footer", _hoisted_5, [
+              }, " × ", 6)) : vue.createCommentVNode("", true)
+            ], 6)) : vue.createCommentVNode("", true),
+            vue.createElementVNode("div", {
+              class: vue.normalizeClass(bodyClass.value),
+              style: vue.normalizeStyle(semanticStyle("body"))
+            }, [
+              _ctx.loading ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), {
+                key: 0,
+                active: "",
+                paragraph: { rows: 3 }
+              })) : vue.renderSlot(_ctx.$slots, "default", { key: 1 })
+            ], 6),
+            hasFooter.value ? (vue.openBlock(), vue.createElementBlock("footer", {
+              key: 1,
+              class: vue.normalizeClass(footerClass.value),
+              style: vue.normalizeStyle(semanticStyle("footer"))
+            }, [
               vue.renderSlot(_ctx.$slots, "footer", {}, () => [
-                vue.createVNode(vue.unref(index.default), {
-                  class: "aheart-modal__cancel",
-                  onClick: handleCancel
-                }, {
+                vue.createVNode(vue.unref(index$1.default), vue.mergeProps({ class: "aheart-modal__cancel" }, resolvedCancelButtonProps.value, { onClick: handleCancel }), {
                   default: vue.withCtx(() => [
                     vue.createTextVNode(vue.toDisplayString(_ctx.cancelText), 1)
                   ]),
                   _: 1
-                }),
-                vue.createVNode(vue.unref(index.default), {
-                  class: "aheart-modal__ok",
-                  type: _ctx.okType,
-                  loading: _ctx.confirmLoading,
-                  onClick: handleOk
-                }, {
+                }, 16),
+                vue.createVNode(vue.unref(index$1.default), vue.mergeProps({ class: "aheart-modal__ok" }, resolvedOkButtonProps.value, { onClick: handleOk }), {
                   default: vue.withCtx(() => [
                     vue.createTextVNode(vue.toDisplayString(_ctx.okText), 1)
                   ]),
                   _: 1
-                }, 8, ["type", "loading"])
+                }, 16)
               ])
-            ])) : vue.createCommentVNode("", true)
+            ], 6)) : vue.createCommentVNode("", true)
           ], 6)
-        ])
-      ], 32)) : vue.createCommentVNode("", true);
+        ], 6)
+      ], 38)), [
+        [vue.vShow, _ctx.open]
+      ]) : vue.createCommentVNode("", true);
     };
   }
 });
