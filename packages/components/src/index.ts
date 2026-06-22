@@ -31,7 +31,7 @@ import Spin from './spin'
 import Steps from './steps'
 import Switch from './switch'
 import Table from './table'
-import Tag from './tag'
+import Tag, { CheckableTag, TagGroup } from './tag'
 import Tabs from './tabs'
 import Textarea from './textarea'
 import Tooltip from './tooltip'
@@ -52,6 +52,8 @@ const components = [
   Paragraph,
   Link,
   Tag,
+  CheckableTag,
+  TagGroup,
   Badge,
   Alert,
   Message,
@@ -93,5 +95,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI
