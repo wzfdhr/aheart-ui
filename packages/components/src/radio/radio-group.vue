@@ -1,11 +1,13 @@
 <template>
-  <span class="aheart-radio-group" :class="radioGroupClass">
+  <span class="aheart-radio-group" :class="radioGroupClass" :style="style">
     <template v-if="optionType === 'button'">
       <label
-        v-for="option in options"
+        v-for="option in normalizedOptions"
         :key="getOptionKey(option.value)"
         class="aheart-radio-button"
         :class="getButtonClass(option)"
+        :style="option.style"
+        :title="option.title"
       >
         <input
           class="aheart-radio-button__input"
@@ -21,13 +23,16 @@
     </template>
     <template v-else>
       <Radio
-        v-for="option in options"
+        v-for="option in normalizedOptions"
         :key="getOptionKey(option.value)"
         :model-value="isSelected(option.value)"
         :value="option.value"
         :name="name"
         :label="option.label"
         :disabled="isDisabled || option.disabled"
+        :class-name="option.className"
+        :style="option.style"
+        :title="option.title"
         @change="() => handleOptionChange(option)"
       />
     </template>
@@ -35,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import Radio from './radio.vue'
 import { radioGroupEmits, radioGroupProps, type RadioOption, type RadioValue } from './types'
@@ -48,13 +53,28 @@ defineOptions({
 const props = defineProps(radioGroupProps)
 const emit = defineEmits(radioGroupEmits)
 const config = useAheartConfig()
+const internalValue = ref<RadioValue | undefined>(props.defaultValue)
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
+const isControlled = computed(() => props.value !== undefined || props.modelValue !== undefined)
+const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value)
+const normalizedOptions = computed<RadioOption[]>(() =>
+  props.options.map((option) =>
+    typeof option === 'object' && option !== null
+      ? option
+      : {
+          label: String(option),
+          value: option
+        }
+  )
+)
 
 const radioGroupClass = computed(() => [
   `aheart-radio-group--${props.direction}`,
   `aheart-radio-group--${resolvedSize.value}`,
+  props.className,
+  props.rootClassName,
   {
     'aheart-radio-group--button': props.optionType === 'button',
     'aheart-radio-group--solid': props.buttonStyle === 'solid',
@@ -65,19 +85,27 @@ const radioGroupClass = computed(() => [
 
 const getOptionKey = (value: RadioValue) => `${typeof value}:${String(value)}`
 
-const isSelected = (value: RadioValue) => props.modelValue === value
+const isSelected = (value: RadioValue) => mergedValue.value === value
 
-const getButtonClass = (option: RadioOption) => ({
-  'is-checked': isSelected(option.value),
-  'is-disabled': isDisabled.value || option.disabled
-})
+const getButtonClass = (option: RadioOption) => [
+  option.className,
+  {
+    'is-checked': isSelected(option.value),
+    'is-disabled': isDisabled.value || option.disabled
+  }
+]
 
 const handleOptionChange = (option: RadioOption) => {
   if (isDisabled.value || option.disabled) {
     return
   }
 
+  if (!isControlled.value) {
+    internalValue.value = option.value
+  }
+
   emit('update:modelValue', option.value)
+  emit('update:value', option.value)
   emit('change', option.value)
 }
 </script>
