@@ -32,7 +32,10 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
         onChange?: ((checked: boolean, event: Event) => any) | undefined;
         "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
         "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
-    }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+    }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         change: (checked: boolean, event: Event) => void;
         "update:modelValue": (checked: boolean) => void;
         "update:checked": (checked: boolean) => void;
@@ -82,7 +85,10 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
         onChange?: ((checked: boolean, event: Event) => any) | undefined;
         "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
         "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
-    }>, {}, {}, {}, {}, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+    }, {}, {}, {}, {
         readonly disabled: boolean;
         readonly value: import("./types").RadioValue;
         readonly modelValue: boolean;
@@ -125,7 +131,10 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
     onChange?: ((checked: boolean, event: Event) => any) | undefined;
     "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
     "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: () => void;
+    blur: () => void;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (checked: boolean, event: Event) => void;
     "update:modelValue": (checked: boolean) => void;
     "update:checked": (checked: boolean) => void;
@@ -229,11 +238,11 @@ export declare const RadioGroup: import("../utils/install").SFCWithInstall<impor
 }>, {
     readonly block: boolean;
     readonly disabled: boolean;
+    readonly direction: import("./types").RadioGroupDirection;
     readonly value: import("./types").RadioValue;
     readonly modelValue: import("./types").RadioValue;
     readonly defaultValue: import("./types").RadioValue;
     readonly options: import("./types").RadioRawOption[];
-    readonly direction: import("./types").RadioGroupDirection;
     readonly buttonStyle: import("./types").RadioButtonStyle;
     readonly optionType: import("./types").RadioOptionType;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;

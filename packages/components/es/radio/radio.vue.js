@@ -12,10 +12,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "radio",
   props: radioProps,
   emits: radioEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
+    const inputRef = ref();
     const internalChecked = ref(props.defaultChecked ?? false);
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const isControlled = computed(() => props.checked !== void 0 || props.modelValue !== void 0);
@@ -63,6 +64,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("update:checked", true);
       emit("change", true, event);
     };
+    const focus = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.focus();
+    };
+    const blur = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.blur();
+    };
+    __expose({
+      focus,
+      blur
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("label", {
         class: normalizeClass(["aheart-radio", radioClass.value]),
@@ -71,6 +84,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }, [
         createElementVNode("span", _hoisted_2, [
           createElementVNode("input", {
+            ref_key: "inputRef",
+            ref: inputRef,
             class: "aheart-radio__input",
             type: "radio",
             name: _ctx.name,

@@ -14,10 +14,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   __name: "radio",
   props: types.radioProps,
   emits: types.radioEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
+    const inputRef = vue.ref();
     const internalChecked = vue.ref(props.defaultChecked ?? false);
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const isControlled = vue.computed(() => props.checked !== void 0 || props.modelValue !== void 0);
@@ -65,6 +66,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("update:checked", true);
       emit("change", true, event);
     };
+    const focus = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.focus();
+    };
+    const blur = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.blur();
+    };
+    __expose({
+      focus,
+      blur
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("label", {
         class: vue.normalizeClass(["aheart-radio", radioClass.value]),
@@ -73,6 +86,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }, [
         vue.createElementVNode("span", _hoisted_2, [
           vue.createElementVNode("input", {
+            ref_key: "inputRef",
+            ref: inputRef,
             class: "aheart-radio__input",
             type: "radio",
             name: _ctx.name,

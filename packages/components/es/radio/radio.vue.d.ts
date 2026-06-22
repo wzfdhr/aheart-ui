@@ -27,7 +27,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly style: import("vue").PropType<import("vue").StyleValue>;
     readonly classNames: import("vue").PropType<Partial<Record<import("./types").RadioSemanticPart, string>>>;
     readonly styles: import("vue").PropType<Partial<Record<import("./types").RadioSemanticPart, import("vue").StyleValue>>>;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: () => void;
+    blur: () => void;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (checked: boolean, event: Event) => void;
     "update:modelValue": (checked: boolean) => void;
     "update:checked": (checked: boolean) => void;
