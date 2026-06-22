@@ -2,6 +2,7 @@
   <label class="aheart-radio" :class="radioClass" :style="rootStyle" :title="title">
     <span class="aheart-radio__box">
       <input
+        ref="inputRef"
         class="aheart-radio__input"
         type="radio"
         :name="name"
@@ -31,6 +32,7 @@ defineOptions({
 const props = defineProps(radioProps)
 const emit = defineEmits(radioEmits)
 const config = useAheartConfig()
+const inputRef = ref<HTMLInputElement>()
 const internalChecked = ref(props.defaultChecked ?? false)
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -65,4 +67,17 @@ const handleChange = (event: Event) => {
   emit('update:checked', true)
   emit('change', true, event)
 }
+
+const focus = () => {
+  inputRef.value?.focus()
+}
+
+const blur = () => {
+  inputRef.value?.blur()
+}
+
+defineExpose({
+  focus,
+  blur
+})
 </script>

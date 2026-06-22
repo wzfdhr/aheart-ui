@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import RadioGroup from '../radio-group.vue'
@@ -34,6 +34,32 @@ describe('Radio', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
     expect(wrapper.emitted('change')?.[0]?.[0]).toBe(true)
     expect(wrapper.emitted('change')?.[0]?.[1]).toBeInstanceOf(Event)
+  })
+
+  it('exposes focus and blur methods', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Radio, {
+      attachTo: host,
+      props: { label: 'Focusable' }
+    })
+    const radioVm = wrapper.vm as unknown as {
+      focus: () => void
+      blur: () => void
+    }
+    const input = wrapper.find('input').element
+
+    radioVm.focus()
+    await nextTick()
+    expect(document.activeElement).toBe(input)
+
+    radioVm.blur()
+    await nextTick()
+    expect(document.activeElement).not.toBe(input)
+
+    wrapper.unmount()
+    host.remove()
   })
 
   it('uses ConfigProvider disabled fallback', () => {
