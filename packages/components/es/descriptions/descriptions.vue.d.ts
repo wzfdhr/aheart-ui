@@ -1,64 +1,65 @@
+import { type PropType, type VNodeChild } from 'vue';
 import { type DescriptionItem } from './types';
-declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly extra: StringConstructor;
-    readonly items: import("vue").PropType<DescriptionItem[]>;
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
+    readonly title: PropType<VNodeChild>;
+    readonly extra: PropType<VNodeChild>;
+    readonly items: PropType<DescriptionItem[]>;
     readonly bordered: BooleanConstructor;
     readonly column: {
         readonly type: NumberConstructor;
         readonly default: 3;
     };
     readonly layout: {
-        readonly type: import("vue").PropType<import("./types").DescriptionsLayout>;
+        readonly type: PropType<import("./types").DescriptionsLayout>;
         readonly default: "horizontal";
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly colon: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
-    readonly labelStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly contentStyle: import("vue").PropType<import("vue").StyleValue>;
+    readonly labelStyle: PropType<import("vue").StyleValue>;
+    readonly contentStyle: PropType<import("vue").StyleValue>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly classNames: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").DescriptionsSemanticPart, string>>>;
+        readonly type: PropType<Partial<Record<import("./types").DescriptionsSemanticPart, string>>>;
         readonly default: () => {};
     };
     readonly styles: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").DescriptionsSemanticPart, import("vue").StyleValue>>>;
+        readonly type: PropType<Partial<Record<import("./types").DescriptionsSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly extra: StringConstructor;
-    readonly items: import("vue").PropType<DescriptionItem[]>;
+    readonly title: PropType<VNodeChild>;
+    readonly extra: PropType<VNodeChild>;
+    readonly items: PropType<DescriptionItem[]>;
     readonly bordered: BooleanConstructor;
     readonly column: {
         readonly type: NumberConstructor;
         readonly default: 3;
     };
     readonly layout: {
-        readonly type: import("vue").PropType<import("./types").DescriptionsLayout>;
+        readonly type: PropType<import("./types").DescriptionsLayout>;
         readonly default: "horizontal";
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly colon: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
-    readonly labelStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly contentStyle: import("vue").PropType<import("vue").StyleValue>;
+    readonly labelStyle: PropType<import("vue").StyleValue>;
+    readonly contentStyle: PropType<import("vue").StyleValue>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly classNames: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").DescriptionsSemanticPart, string>>>;
+        readonly type: PropType<Partial<Record<import("./types").DescriptionsSemanticPart, string>>>;
         readonly default: () => {};
     };
     readonly styles: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").DescriptionsSemanticPart, import("vue").StyleValue>>>;
+        readonly type: PropType<Partial<Record<import("./types").DescriptionsSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
 }>> & Readonly<{}>, {
@@ -68,5 +69,13 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly layout: import("./types").DescriptionsLayout;
     readonly bordered: boolean;
     readonly colon: boolean;
-}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
+    title?(_: {}): any;
+    extra?(_: {}): any;
+}>;
 export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

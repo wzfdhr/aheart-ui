@@ -1,6 +1,7 @@
+const renderableProp = [String, Number, Boolean, Object, Array, Function];
 const descriptionsProps = {
-  title: String,
-  extra: String,
+  title: renderableProp,
+  extra: renderableProp,
   items: Array,
   bordered: Boolean,
   column: {

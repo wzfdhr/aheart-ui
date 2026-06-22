@@ -1,4 +1,4 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, toDisplayString, createCommentVNode, Fragment, renderList } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode, Fragment, renderList } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { descriptionsProps } from "./types.js";
 import "./style.css.js";
@@ -10,10 +10,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: descriptionsProps,
   setup(__props) {
     const props = __props;
+    const slots = useSlots();
     const config = useAheartConfig();
+    const ARenderNode = defineComponent({
+      name: "ADescriptionsRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const normalizedItems = computed(() => props.items ?? []);
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const normalizedColumn = computed(() => Math.max(1, Math.floor(props.column)));
+    const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    const hasExtra = computed(() => Boolean(slots.extra) || hasRenderable(props.extra));
+    const hasHeader = computed(() => hasTitle.value || hasExtra.value);
     const resolveItemContent = (item) => item.content ?? item.children ?? "";
     const resolveNumericSpan = (item, currentSpan) => {
       if (item.span === "filled") {
@@ -91,20 +108,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["aheart-descriptions", descriptionsClass.value]),
         style: normalizeStyle(descriptionsStyle.value)
       }, [
-        _ctx.title || _ctx.extra ? (openBlock(), createElementBlock("div", {
+        hasHeader.value ? (openBlock(), createElementBlock("div", {
           key: 0,
           class: normalizeClass(["aheart-descriptions__header", _ctx.classNames.header]),
           style: normalizeStyle(_ctx.styles.header)
         }, [
-          createElementVNode("div", {
+          hasTitle.value ? (openBlock(), createElementBlock("div", {
+            key: 0,
             class: normalizeClass(["aheart-descriptions__title", _ctx.classNames.title]),
             style: normalizeStyle(_ctx.styles.title)
-          }, toDisplayString(_ctx.title), 7),
-          _ctx.extra ? (openBlock(), createElementBlock("div", {
-            key: 0,
+          }, [
+            renderSlot(_ctx.$slots, "title", {}, () => [
+              createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+            ])
+          ], 6)) : createCommentVNode("", true),
+          hasExtra.value ? (openBlock(), createElementBlock("div", {
+            key: 1,
             class: normalizeClass(["aheart-descriptions__extra", _ctx.classNames.extra]),
             style: normalizeStyle(_ctx.styles.extra)
-          }, toDisplayString(_ctx.extra), 7)) : createCommentVNode("", true)
+          }, [
+            renderSlot(_ctx.$slots, "extra", {}, () => [
+              createVNode(unref(ARenderNode), { node: _ctx.extra }, null, 8, ["node"])
+            ])
+          ], 6)) : createCommentVNode("", true)
         ], 6)) : createCommentVNode("", true),
         createElementVNode("div", {
           class: normalizeClass(["aheart-descriptions__table", _ctx.classNames.table]),
@@ -128,11 +154,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   createElementVNode("div", {
                     class: normalizeClass(["aheart-descriptions__label", getLabelClass()]),
                     style: normalizeStyle(getLabelStyle(item))
-                  }, toDisplayString(item.label), 7),
+                  }, [
+                    createVNode(unref(ARenderNode), {
+                      node: item.label
+                    }, null, 8, ["node"])
+                  ], 6),
                   createElementVNode("div", {
                     class: normalizeClass(["aheart-descriptions__content", _ctx.classNames.content]),
                     style: normalizeStyle(getContentStyle(item))
-                  }, toDisplayString(item.resolvedContent), 7)
+                  }, [
+                    createVNode(unref(ARenderNode), {
+                      node: item.resolvedContent
+                    }, null, 8, ["node"])
+                  ], 6)
                 ], 6);
               }), 128))
             ], 6);
