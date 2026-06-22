@@ -3,6 +3,7 @@ import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Empty from '../empty.vue'
+import EmptyInstall from '../index'
 
 describe('Empty', () => {
   it('renders default description', () => {
@@ -20,6 +21,19 @@ describe('Empty', () => {
     })
 
     expect(wrapper.text()).toContain('Nothing here')
+  })
+
+  it('renders vnode description and image props', () => {
+    const wrapper = mount(Empty, {
+      props: {
+        description: h('span', { class: 'description-node' }, 'Node description'),
+        image: h('span', { class: 'image-node' }, 'Node image')
+      }
+    })
+
+    expect(wrapper.find('.description-node').text()).toBe('Node description')
+    expect(wrapper.find('.image-node').text()).toBe('Node image')
+    expect(wrapper.find('.aheart-empty__image img').exists()).toBe(false)
   })
 
   it('uses ConfigProvider empty locale fallback', () => {
@@ -67,6 +81,32 @@ describe('Empty', () => {
     expect(image.exists()).toBe(true)
     expect(image.attributes('src')).toBe('/empty-state.svg')
     expect(image.attributes('alt')).toBe('')
+  })
+
+  it('exposes and renders built-in image presets', () => {
+    const emptyWithPresets = EmptyInstall as typeof EmptyInstall & {
+      PRESENTED_IMAGE_DEFAULT?: unknown
+      PRESENTED_IMAGE_SIMPLE?: unknown
+    }
+
+    expect(emptyWithPresets.PRESENTED_IMAGE_DEFAULT).toBeTruthy()
+    expect(emptyWithPresets.PRESENTED_IMAGE_SIMPLE).toBeTruthy()
+
+    const defaultWrapper = mount(Empty, {
+      props: {
+        image: emptyWithPresets.PRESENTED_IMAGE_DEFAULT,
+        description: 'Default preset'
+      }
+    })
+    expect(defaultWrapper.find('.aheart-empty__default-image').exists()).toBe(true)
+
+    const simpleWrapper = mount(Empty, {
+      props: {
+        image: emptyWithPresets.PRESENTED_IMAGE_SIMPLE,
+        description: 'Simple preset'
+      }
+    })
+    expect(simpleWrapper.find('.aheart-empty__simple-image').exists()).toBe(true)
   })
 
   it('hides image area when image is false', () => {

@@ -10,7 +10,7 @@ import Descriptions from './descriptions'
 import Divider from './divider'
 import Drawer from './drawer'
 import Dropdown from './dropdown'
-import Empty from './empty'
+import Empty, { PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE } from './empty'
 import Flex from './flex'
 import Form, { FormItem } from './form'
 import Grid, { Col, Row } from './grid'
@@ -96,5 +96,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI

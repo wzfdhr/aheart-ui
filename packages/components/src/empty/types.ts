@@ -1,18 +1,25 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 
-export type EmptyImage = string | false
-export type EmptyDescription = string | false
+export const EMPTY_PRESENTED_IMAGE_DEFAULT = '__AHEART_EMPTY_PRESENTED_IMAGE_DEFAULT__' as const
+export const EMPTY_PRESENTED_IMAGE_SIMPLE = '__AHEART_EMPTY_PRESENTED_IMAGE_SIMPLE__' as const
+
+export type EmptyRenderable = VNodeChild
+export type EmptyPresetImage = typeof EMPTY_PRESENTED_IMAGE_DEFAULT | typeof EMPTY_PRESENTED_IMAGE_SIMPLE
+export type EmptyImage = EmptyRenderable | EmptyPresetImage | false
+export type EmptyDescription = EmptyRenderable | false
 export type EmptySemanticPart = 'root' | 'image' | 'description' | 'footer'
 export type EmptyClassNames = Partial<Record<EmptySemanticPart, string>>
 export type EmptyStyles = Partial<Record<EmptySemanticPart, StyleValue>>
 
+const renderableProp = [String, Number, Boolean, Object, Array, Function] as PropType<EmptyRenderable | false>
+
 export const emptyProps = {
   description: {
-    type: [String, Boolean] as PropType<EmptyDescription>,
+    type: renderableProp as PropType<EmptyDescription>,
     default: undefined
   },
   image: {
-    type: [String, Boolean] as PropType<EmptyImage>,
+    type: renderableProp as PropType<EmptyImage>,
     default: undefined
   },
   imageStyle: [String, Object, Array] as PropType<StyleValue>,
