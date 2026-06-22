@@ -1,13 +1,39 @@
-import type { ExtractPropTypes, PropType } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
 import type { AheartSize } from '../config'
 
 export type TextareaStatus = 'error' | 'warning'
 export type TextareaVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
 
+export interface TextareaCountFormatterInfo {
+  count: number
+  maxLength?: number
+  value: string
+}
+
+export interface TextareaAllowClearConfig {
+  clearIcon?: string
+}
+
+export interface TextareaShowCountConfig {
+  formatter?: (info: TextareaCountFormatterInfo) => string
+}
+
+export interface TextareaCountConfig {
+  max?: number
+  strategy?: (value: string) => number
+  show?: boolean | ((info: TextareaCountFormatterInfo) => string)
+}
+
 export interface TextareaAutoSizeConfig {
   minRows?: number
   maxRows?: number
 }
+
+export type TextareaAllowClear = boolean | TextareaAllowClearConfig
+export type TextareaShowCount = boolean | TextareaShowCountConfig
+export type TextareaSemanticPart = 'root' | 'textarea' | 'clear' | 'count'
+export type TextareaClassNames = Partial<Record<TextareaSemanticPart, string>>
+export type TextareaStyles = Partial<Record<TextareaSemanticPart, StyleValue>>
 
 export const textareaProps = {
   id: String,
@@ -32,10 +58,22 @@ export const textareaProps = {
     type: Boolean,
     default: undefined
   },
-  allowClear: Boolean,
+  allowClear: {
+    type: [Boolean, Object] as PropType<TextareaAllowClear>,
+    default: false
+  },
   maxlength: Number,
-  showCount: Boolean,
-  autoSize: [Boolean, Object] as PropType<boolean | TextareaAutoSizeConfig>
+  showCount: {
+    type: [Boolean, Object] as PropType<TextareaShowCount>,
+    default: false
+  },
+  count: Object as PropType<TextareaCountConfig>,
+  autoSize: [Boolean, Object] as PropType<boolean | TextareaAutoSizeConfig>,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<TextareaClassNames>,
+  styles: Object as PropType<TextareaStyles>
 } as const
 
 export const textareaEmits = {

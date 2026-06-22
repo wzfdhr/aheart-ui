@@ -75,4 +75,130 @@ describe('Textarea', () => {
     expect(wrapper.attributes('style')).toContain('--aheart-textarea-min-rows: 2')
     expect(wrapper.attributes('style')).toContain('--aheart-textarea-max-rows: 5')
   })
+
+  it('renders custom allowClear icon content', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'Clear me',
+        allowClear: {
+          clearIcon: 'clear'
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-textarea__clear').text()).toBe('clear')
+  })
+
+  it('lets clearIcon slot override allowClear clearIcon', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'Clear me',
+        allowClear: {
+          clearIcon: 'clear'
+        }
+      },
+      slots: {
+        clearIcon: '<span class="custom-clear">x</span>'
+      }
+    })
+
+    expect(wrapper.find('.custom-clear').exists()).toBe(true)
+    expect(wrapper.find('.aheart-textarea__clear').text()).toBe('x')
+  })
+
+  it('renders showCount formatter output', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'abc',
+        showCount: {
+          formatter: ({ count, maxLength, value }: { count: number; maxLength?: number; value: string }) =>
+            `${count}:${maxLength}:${value}`
+        },
+        maxlength: 8
+      }
+    })
+
+    expect(wrapper.find('.aheart-textarea__count').text()).toBe('3:8:abc')
+  })
+
+  it('supports count max, strategy, and show formatter', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'hello',
+        count: {
+          max: 10,
+          strategy: (value: string) => value.split('').filter((char) => char === 'l').length,
+          show: ({ count, maxLength }: { count: number; maxLength?: number }) => `${count} of ${maxLength}`
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-textarea__count').text()).toBe('2 of 10')
+  })
+
+  it('lets count show false hide count display', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'hidden',
+        showCount: true,
+        count: {
+          show: false
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-textarea__count').exists()).toBe(false)
+  })
+
+  it('applies root class and style hooks with autosize variables', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        autoSize: { minRows: 2, maxRows: 5 },
+        className: 'textarea-class',
+        rootClassName: 'textarea-root',
+        style: { width: '320px' },
+        classNames: {
+          root: 'semantic-root'
+        },
+        styles: {
+          root: { marginTop: '6px' }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toContain('textarea-class')
+    expect(wrapper.classes()).toContain('textarea-root')
+    expect(wrapper.classes()).toContain('semantic-root')
+    expect(wrapper.attributes('style')).toContain('width: 320px')
+    expect(wrapper.attributes('style')).toContain('margin-top: 6px')
+    expect(wrapper.attributes('style')).toContain('--aheart-textarea-min-rows: 2')
+    expect(wrapper.attributes('style')).toContain('--aheart-textarea-max-rows: 5')
+  })
+
+  it('applies semantic class and style hooks to Textarea parts', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'value',
+        allowClear: true,
+        showCount: true,
+        classNames: {
+          textarea: 'semantic-textarea',
+          clear: 'semantic-clear',
+          count: 'semantic-count'
+        },
+        styles: {
+          textarea: { color: 'red' },
+          clear: { color: 'purple' },
+          count: { color: 'orange' }
+        }
+      }
+    })
+
+    expect(wrapper.find('textarea').classes()).toContain('semantic-textarea')
+    expect(wrapper.find('textarea').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-textarea__clear').classes()).toContain('semantic-clear')
+    expect(wrapper.find('.aheart-textarea__clear').attributes('style')).toContain('color: purple')
+    expect(wrapper.find('.aheart-textarea__count').classes()).toContain('semantic-count')
+    expect(wrapper.find('.aheart-textarea__count').attributes('style')).toContain('color: orange')
+  })
 })

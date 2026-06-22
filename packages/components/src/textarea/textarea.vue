@@ -2,6 +2,8 @@
   <span class="aheart-textarea" :class="textareaClass" :style="textareaStyle">
     <textarea
       class="aheart-textarea__control"
+      :class="controlClass"
+      :style="controlStyle"
       :id="id"
       :value="modelValue ?? ''"
       :placeholder="placeholder"
@@ -14,15 +16,16 @@
       @keydown="handleKeydown"
     />
     <button
-      v-if="allowClear && !isDisabled && modelValue"
-      class="aheart-textarea__clear"
+      v-if="showClear"
+      :class="clearClass"
+      :style="clearStyle"
       type="button"
       aria-label="Clear"
       @click="handleClear"
     >
-      ×
+      <slot name="clearIcon">{{ clearIconContent }}</slot>
     </button>
-    <span v-if="showCount" class="aheart-textarea__count">{{ countText }}</span>
+    <span v-if="showCountDisplay" :class="countClass" :style="countStyle">{{ countText }}</span>
   </span>
 </template>
 
@@ -47,10 +50,18 @@ const resolvedVariant = computed(() =>
   props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined')
 )
 const hasAutoSize = computed(() => Boolean(props.autoSize))
+const allowClearConfig = computed(() =>
+  typeof props.allowClear === 'object' && props.allowClear !== null ? props.allowClear : undefined
+)
+const showClear = computed(() => Boolean(props.allowClear) && !isDisabled.value && Boolean(currentValue.value))
+const clearIconContent = computed(() => allowClearConfig.value?.clearIcon ?? '×')
 
 const textareaClass = computed(() => [
   `aheart-textarea--${resolvedSize.value}`,
   `aheart-textarea--${resolvedVariant.value}`,
+  props.className,
+  props.rootClassName,
+  props.classNames?.root,
   {
     [`aheart-textarea--${props.status}`]: props.status,
     'is-autosize': hasAutoSize.value,
@@ -59,7 +70,7 @@ const textareaClass = computed(() => [
   }
 ])
 
-const textareaStyle = computed(() => {
+const autoSizeStyle = computed(() => {
   if (!props.autoSize || typeof props.autoSize === 'boolean') {
     return undefined
   }
@@ -69,10 +80,41 @@ const textareaStyle = computed(() => {
     ...(props.autoSize.maxRows ? { '--aheart-textarea-max-rows': props.autoSize.maxRows } : {})
   }
 })
+const textareaStyle = computed(() => [autoSizeStyle.value, props.style, props.styles?.root])
+const controlClass = computed(() => props.classNames?.textarea)
+const controlStyle = computed(() => props.styles?.textarea)
+const clearClass = computed(() => ['aheart-textarea__clear', props.classNames?.clear])
+const clearStyle = computed(() => props.styles?.clear)
+const countClass = computed(() => ['aheart-textarea__count', props.classNames?.count])
+const countStyle = computed(() => props.styles?.count)
 
+const countLength = computed(() => props.count?.strategy?.(currentValue.value) ?? currentValue.value.length)
+const countMaxLength = computed(() => props.count?.max ?? props.maxlength)
+const countInfo = computed(() => ({
+  count: countLength.value,
+  maxLength: countMaxLength.value,
+  value: currentValue.value
+}))
+const showCountFormatter = computed(() =>
+  typeof props.showCount === 'object' && props.showCount !== null ? props.showCount.formatter : undefined
+)
+const showCountDisplay = computed(() => {
+  if (props.count?.show === false) {
+    return false
+  }
+
+  return Boolean(props.showCount) || props.count?.show === true || typeof props.count?.show === 'function'
+})
 const countText = computed(() => {
-  const length = currentValue.value.length
-  return props.maxlength ? `${length} / ${props.maxlength}` : String(length)
+  if (typeof props.count?.show === 'function') {
+    return props.count.show(countInfo.value)
+  }
+
+  if (showCountFormatter.value) {
+    return showCountFormatter.value(countInfo.value)
+  }
+
+  return countMaxLength.value ? `${countLength.value} / ${countMaxLength.value}` : String(countLength.value)
 })
 
 const getEventValue = (event: Event) => (event.target as HTMLTextAreaElement).value
