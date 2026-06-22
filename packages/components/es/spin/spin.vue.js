@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, watch, onBeforeUnmount, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, unref, toDisplayString, createCommentVNode } from "vue";
+import { defineComponent, useSlots, ref, watch, onBeforeUnmount, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, unref, createVNode, createCommentVNode, toDisplayString } from "vue";
 import { spinProps } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["aria-busy"];
@@ -25,6 +25,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return () => renderProps.node;
       }
     });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const clearDelayTimer = () => {
       if (delayTimer) {
         clearTimeout(delayTimer);
@@ -56,6 +57,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const indicatorNode = computed(
       () => typeof props.indicator === "function" ? props.indicator() : props.indicator
     );
+    const hasDescriptionSlot = computed(() => Boolean(slots.description));
+    const descriptionNode = computed(() => props.description ?? props.tip);
+    const hasDescription = computed(() => hasDescriptionSlot.value || hasRenderable(descriptionNode.value));
     const percentText = computed(() => {
       if (props.percent === void 0 || props.percent === null) {
         return "";
@@ -91,6 +95,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     ]);
     const indicatorStyle = computed(() => props.styles.indicator);
+    const descriptionClass = computed(() => [props.classNames.description, props.classNames.tip]);
+    const descriptionStyle = computed(() => [props.styles.description, props.styles.tip]);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(spinRootClass.value),
@@ -124,11 +130,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               style: normalizeStyle(_ctx.styles.dot),
               "aria-hidden": "true"
             }, null, 6)),
-            _ctx.tip ? (openBlock(), createElementBlock("span", {
+            hasDescription.value ? (openBlock(), createElementBlock("span", {
               key: 2,
-              class: normalizeClass(["aheart-spin__tip", _ctx.classNames.tip]),
-              style: normalizeStyle(_ctx.styles.tip)
-            }, toDisplayString(_ctx.tip), 7)) : createCommentVNode("", true),
+              class: normalizeClass(["aheart-spin__tip aheart-spin__description", descriptionClass.value]),
+              style: normalizeStyle(descriptionStyle.value)
+            }, [
+              renderSlot(_ctx.$slots, "description", {}, () => [
+                createVNode(unref(ARenderNode), { node: descriptionNode.value }, null, 8, ["node"])
+              ])
+            ], 6)) : createCommentVNode("", true),
             percentText.value ? (openBlock(), createElementBlock("span", {
               key: 3,
               class: normalizeClass(["aheart-spin__percent", _ctx.classNames.percent]),
@@ -151,11 +161,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(_ctx.styles.dot),
             "aria-hidden": "true"
           }, null, 6)),
-          _ctx.tip ? (openBlock(), createElementBlock("span", {
+          hasDescription.value ? (openBlock(), createElementBlock("span", {
             key: 2,
-            class: normalizeClass(["aheart-spin__tip", _ctx.classNames.tip]),
-            style: normalizeStyle(_ctx.styles.tip)
-          }, toDisplayString(_ctx.tip), 7)) : createCommentVNode("", true),
+            class: normalizeClass(["aheart-spin__tip aheart-spin__description", descriptionClass.value]),
+            style: normalizeStyle(descriptionStyle.value)
+          }, [
+            renderSlot(_ctx.$slots, "description", {}, () => [
+              createVNode(unref(ARenderNode), { node: descriptionNode.value }, null, 8, ["node"])
+            ])
+          ], 6)) : createCommentVNode("", true),
           percentText.value ? (openBlock(), createElementBlock("span", {
             key: 3,
             class: normalizeClass(["aheart-spin__percent", _ctx.classNames.percent]),

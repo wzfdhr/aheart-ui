@@ -1,5 +1,9 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const renderableProp = {
+  type: [String, Number, Boolean, Object, Array, Function],
+  default: void 0
+};
 const spinProps = {
   spinning: {
     type: Boolean,
@@ -9,7 +13,8 @@ const spinProps = {
     type: String,
     default: "middle"
   },
-  tip: String,
+  description: renderableProp,
+  tip: renderableProp,
   delay: Number,
   indicator: [String, Number, Object, Array, Function],
   percent: [Number, String],

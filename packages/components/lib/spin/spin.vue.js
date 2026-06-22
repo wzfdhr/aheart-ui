@@ -27,6 +27,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return () => renderProps.node;
       }
     });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const clearDelayTimer = () => {
       if (delayTimer) {
         clearTimeout(delayTimer);
@@ -58,6 +59,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const indicatorNode = vue.computed(
       () => typeof props.indicator === "function" ? props.indicator() : props.indicator
     );
+    const hasDescriptionSlot = vue.computed(() => Boolean(slots.description));
+    const descriptionNode = vue.computed(() => props.description ?? props.tip);
+    const hasDescription = vue.computed(() => hasDescriptionSlot.value || hasRenderable(descriptionNode.value));
     const percentText = vue.computed(() => {
       if (props.percent === void 0 || props.percent === null) {
         return "";
@@ -93,6 +97,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     ]);
     const indicatorStyle = vue.computed(() => props.styles.indicator);
+    const descriptionClass = vue.computed(() => [props.classNames.description, props.classNames.tip]);
+    const descriptionStyle = vue.computed(() => [props.styles.description, props.styles.tip]);
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
         class: vue.normalizeClass(spinRootClass.value),
@@ -126,11 +132,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               style: vue.normalizeStyle(_ctx.styles.dot),
               "aria-hidden": "true"
             }, null, 6)),
-            _ctx.tip ? (vue.openBlock(), vue.createElementBlock("span", {
+            hasDescription.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 2,
-              class: vue.normalizeClass(["aheart-spin__tip", _ctx.classNames.tip]),
-              style: vue.normalizeStyle(_ctx.styles.tip)
-            }, vue.toDisplayString(_ctx.tip), 7)) : vue.createCommentVNode("", true),
+              class: vue.normalizeClass(["aheart-spin__tip aheart-spin__description", descriptionClass.value]),
+              style: vue.normalizeStyle(descriptionStyle.value)
+            }, [
+              vue.renderSlot(_ctx.$slots, "description", {}, () => [
+                vue.createVNode(vue.unref(ARenderNode), { node: descriptionNode.value }, null, 8, ["node"])
+              ])
+            ], 6)) : vue.createCommentVNode("", true),
             percentText.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 3,
               class: vue.normalizeClass(["aheart-spin__percent", _ctx.classNames.percent]),
@@ -153,11 +163,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(_ctx.styles.dot),
             "aria-hidden": "true"
           }, null, 6)),
-          _ctx.tip ? (vue.openBlock(), vue.createElementBlock("span", {
+          hasDescription.value ? (vue.openBlock(), vue.createElementBlock("span", {
             key: 2,
-            class: vue.normalizeClass(["aheart-spin__tip", _ctx.classNames.tip]),
-            style: vue.normalizeStyle(_ctx.styles.tip)
-          }, vue.toDisplayString(_ctx.tip), 7)) : vue.createCommentVNode("", true),
+            class: vue.normalizeClass(["aheart-spin__tip aheart-spin__description", descriptionClass.value]),
+            style: vue.normalizeStyle(descriptionStyle.value)
+          }, [
+            vue.renderSlot(_ctx.$slots, "description", {}, () => [
+              vue.createVNode(vue.unref(ARenderNode), { node: descriptionNode.value }, null, 8, ["node"])
+            ])
+          ], 6)) : vue.createCommentVNode("", true),
           percentText.value ? (vue.openBlock(), vue.createElementBlock("span", {
             key: 3,
             class: vue.normalizeClass(["aheart-spin__percent", _ctx.classNames.percent]),

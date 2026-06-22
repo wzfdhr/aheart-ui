@@ -1,4 +1,4 @@
-import { type PropType } from 'vue';
+import { type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly spinning: {
         readonly type: BooleanConstructor;
@@ -8,7 +8,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("../config").AheartSize>;
         readonly default: "middle";
     };
-    readonly tip: StringConstructor;
+    readonly description: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly tip: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly delay: NumberConstructor;
     readonly indicator: PropType<import("./types").SpinIndicator>;
     readonly percent: PropType<import("./types").SpinPercent>;
@@ -34,7 +41,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("../config").AheartSize>;
         readonly default: "middle";
     };
-    readonly tip: StringConstructor;
+    readonly description: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly tip: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly delay: NumberConstructor;
     readonly indicator: PropType<import("./types").SpinIndicator>;
     readonly percent: PropType<import("./types").SpinPercent>;
@@ -52,13 +66,16 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: () => {};
     };
 }>> & Readonly<{}>, {
+    readonly description: VNodeChild;
     readonly classNames: Partial<Record<import("./types").SpinSemanticPart, string>>;
     readonly styles: Partial<Record<import("./types").SpinSemanticPart, import("vue").StyleValue>>;
     readonly size: import("../config").AheartSize;
+    readonly tip: VNodeChild;
     readonly spinning: boolean;
     readonly fullscreen: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
+    description?(_: {}): any;
 }>;
 export default _default;
 type __VLS_WithTemplateSlots<T, S> = T & {

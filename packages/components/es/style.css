@@ -1811,7 +1811,8 @@ kbd.aheart-typography-text {
   font-size: var(--aheart-font-size-lg);
 }
 
-.aheart-spin__tip {
+.aheart-spin__tip,
+.aheart-spin__description {
   color: var(--aheart-color-text-secondary);
   font-size: var(--aheart-font-size);
 }
