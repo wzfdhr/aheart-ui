@@ -33,9 +33,15 @@ const inputNumberProps = {
     default: true
   },
   controls: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: true
-  }
+  },
+  changeOnWheel: Boolean,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const inputNumberEmits = {
   "update:modelValue": (value) => typeof value === "number" || value === void 0,

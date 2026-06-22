@@ -1,8 +1,20 @@
-import type { ExtractPropTypes, PropType } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
 import type { AheartSize } from '../config';
 export type InputNumberStatus = 'error' | 'warning';
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined';
 export type InputNumberStepType = 'up' | 'down';
+export interface InputNumberFormatterInfo {
+    userTyping: boolean;
+    input: string;
+}
+export interface InputNumberControlsConfig {
+    upIcon?: string;
+    downIcon?: string;
+}
+export type InputNumberControls = boolean | InputNumberControlsConfig;
+export type InputNumberSemanticPart = 'root' | 'input' | 'prefix' | 'suffix' | 'actions' | 'action';
+export type InputNumberClassNames = Partial<Record<InputNumberSemanticPart, string>>;
+export type InputNumberStyles = Partial<Record<InputNumberSemanticPart, StyleValue>>;
 export interface InputNumberStepInfo {
     offset: number;
     type: InputNumberStepType;
@@ -35,16 +47,22 @@ export declare const inputNumberProps: {
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
-    readonly formatter: PropType<(value: number | undefined) => string>;
+    readonly formatter: PropType<(value: number | undefined, info: InputNumberFormatterInfo) => string>;
     readonly parser: PropType<(displayValue: string) => number | undefined>;
     readonly keyboard: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
     readonly controls: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<InputNumberControls>;
         readonly default: true;
     };
+    readonly changeOnWheel: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<Partial<Record<InputNumberSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<InputNumberSemanticPart, StyleValue>>>;
 };
 export declare const inputNumberEmits: {
     'update:modelValue': (value: number | undefined) => boolean;

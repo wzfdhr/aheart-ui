@@ -4,21 +4,9 @@ const vue = require("vue");
 const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-input-number__prefix"
-};
-const _hoisted_2 = ["id", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
-const _hoisted_3 = {
-  key: 1,
-  class: "aheart-input-number__suffix"
-};
-const _hoisted_4 = {
-  key: 2,
-  class: "aheart-input-number__controls"
-};
-const _hoisted_5 = ["disabled"];
-const _hoisted_6 = ["disabled"];
+const _hoisted_1 = ["id", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
+const _hoisted_2 = ["disabled"];
+const _hoisted_3 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AInputNumber"
@@ -36,21 +24,87 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
     const isInteractiveDisabled = vue.computed(() => isDisabled.value || props.readOnly);
-    const displayValue = vue.computed(() => {
-      if (props.formatter) {
-        return props.formatter(props.modelValue);
-      }
-      return props.modelValue === void 0 ? "" : String(props.modelValue);
+    const controlsConfig = vue.computed(
+      () => typeof props.controls === "object" && props.controls !== null ? props.controls : void 0
+    );
+    const showControls = vue.computed(() => props.controls !== false);
+    const increaseIcon = vue.computed(() => {
+      var _a;
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? "+";
     });
-    const inputNumberClass = vue.computed(() => [
-      `aheart-input-number--${resolvedSize.value}`,
-      `aheart-input-number--${resolvedVariant.value}`,
-      {
-        [`aheart-input-number--${props.status}`]: props.status,
-        "is-disabled": isDisabled.value,
-        "is-readonly": props.readOnly
+    const decreaseIcon = vue.computed(() => {
+      var _a;
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? "−";
+    });
+    const displayValue = vue.computed(() => {
+      const input = props.modelValue === void 0 ? "" : String(props.modelValue);
+      if (props.formatter) {
+        return props.formatter(props.modelValue, {
+          userTyping: false,
+          input
+        });
       }
-    ]);
+      return input;
+    });
+    const inputNumberClass = vue.computed(() => {
+      var _a;
+      return [
+        `aheart-input-number--${resolvedSize.value}`,
+        `aheart-input-number--${resolvedVariant.value}`,
+        props.className,
+        props.rootClassName,
+        (_a = props.classNames) == null ? void 0 : _a.root,
+        {
+          [`aheart-input-number--${props.status}`]: props.status,
+          "is-disabled": isDisabled.value,
+          "is-readonly": props.readOnly
+        }
+      ];
+    });
+    const rootStyle = vue.computed(() => {
+      var _a;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const controlClass = vue.computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.input;
+    });
+    const controlStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.input;
+    });
+    const prefixClass = vue.computed(() => {
+      var _a;
+      return ["aheart-input-number__prefix", (_a = props.classNames) == null ? void 0 : _a.prefix];
+    });
+    const prefixStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.prefix;
+    });
+    const suffixClass = vue.computed(() => {
+      var _a;
+      return ["aheart-input-number__suffix", (_a = props.classNames) == null ? void 0 : _a.suffix];
+    });
+    const suffixStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.suffix;
+    });
+    const actionsClass = vue.computed(() => {
+      var _a;
+      return ["aheart-input-number__controls", (_a = props.classNames) == null ? void 0 : _a.actions];
+    });
+    const actionsStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.actions;
+    });
+    const actionClass = vue.computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.action;
+    });
+    const actionStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.action;
+    });
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;
@@ -107,13 +161,26 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         handleStep(-props.step, "down");
       }
     };
+    const handleWheel = (event) => {
+      if (!props.changeOnWheel || event.deltaY === 0) {
+        return;
+      }
+      event.preventDefault();
+      handleStep(event.deltaY < 0 ? props.step : -props.step, event.deltaY < 0 ? "up" : "down");
+    };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
-        class: vue.normalizeClass(["aheart-input-number", inputNumberClass.value])
+        class: vue.normalizeClass(["aheart-input-number", inputNumberClass.value]),
+        style: vue.normalizeStyle(rootStyle.value)
       }, [
-        _ctx.prefix ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, vue.toDisplayString(_ctx.prefix), 1)) : vue.createCommentVNode("", true),
+        _ctx.prefix ? (vue.openBlock(), vue.createElementBlock("span", {
+          key: 0,
+          class: vue.normalizeClass(prefixClass.value),
+          style: vue.normalizeStyle(prefixStyle.value)
+        }, vue.toDisplayString(_ctx.prefix), 7)) : vue.createCommentVNode("", true),
         vue.createElementVNode("input", {
-          class: "aheart-input-number__control",
+          class: vue.normalizeClass(["aheart-input-number__control", controlClass.value]),
+          style: vue.normalizeStyle(controlStyle.value),
           id: _ctx.id,
           type: "text",
           inputmode: "decimal",
@@ -125,26 +192,37 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           max: _ctx.max,
           step: _ctx.step,
           onInput: handleInput,
-          onKeydown: handleKeydown
-        }, null, 40, _hoisted_2),
-        _ctx.suffix ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, vue.toDisplayString(_ctx.suffix), 1)) : vue.createCommentVNode("", true),
-        _ctx.controls ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, [
+          onKeydown: handleKeydown,
+          onWheel: handleWheel
+        }, null, 46, _hoisted_1),
+        _ctx.suffix ? (vue.openBlock(), vue.createElementBlock("span", {
+          key: 1,
+          class: vue.normalizeClass(suffixClass.value),
+          style: vue.normalizeStyle(suffixStyle.value)
+        }, vue.toDisplayString(_ctx.suffix), 7)) : vue.createCommentVNode("", true),
+        showControls.value ? (vue.openBlock(), vue.createElementBlock("span", {
+          key: 2,
+          class: vue.normalizeClass(actionsClass.value),
+          style: vue.normalizeStyle(actionsStyle.value)
+        }, [
           vue.createElementVNode("button", {
-            class: "aheart-input-number__increase",
+            class: vue.normalizeClass(["aheart-input-number__increase", actionClass.value]),
+            style: vue.normalizeStyle(actionStyle.value),
             type: "button",
             "aria-label": "Increase",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[0] || (_cache[0] = ($event) => handleStep(_ctx.step, "up"))
-          }, " + ", 8, _hoisted_5),
+          }, vue.toDisplayString(increaseIcon.value), 15, _hoisted_2),
           vue.createElementVNode("button", {
-            class: "aheart-input-number__decrease",
+            class: vue.normalizeClass(["aheart-input-number__decrease", actionClass.value]),
+            style: vue.normalizeStyle(actionStyle.value),
             type: "button",
             "aria-label": "Decrease",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[1] || (_cache[1] = ($event) => handleStep(-_ctx.step, "down"))
-          }, " − ", 8, _hoisted_6)
-        ])) : vue.createCommentVNode("", true)
-      ], 2);
+          }, vue.toDisplayString(decreaseIcon.value), 15, _hoisted_3)
+        ], 6)) : vue.createCommentVNode("", true)
+      ], 6);
     };
   }
 });

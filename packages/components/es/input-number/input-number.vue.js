@@ -1,22 +1,10 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, toDisplayString, createCommentVNode, createElementVNode } from "vue";
+import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, toDisplayString, createCommentVNode, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-input-number__prefix"
-};
-const _hoisted_2 = ["id", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
-const _hoisted_3 = {
-  key: 1,
-  class: "aheart-input-number__suffix"
-};
-const _hoisted_4 = {
-  key: 2,
-  class: "aheart-input-number__controls"
-};
-const _hoisted_5 = ["disabled"];
-const _hoisted_6 = ["disabled"];
+const _hoisted_1 = ["id", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
+const _hoisted_2 = ["disabled"];
+const _hoisted_3 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AInputNumber"
@@ -34,21 +22,87 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
     const isInteractiveDisabled = computed(() => isDisabled.value || props.readOnly);
-    const displayValue = computed(() => {
-      if (props.formatter) {
-        return props.formatter(props.modelValue);
-      }
-      return props.modelValue === void 0 ? "" : String(props.modelValue);
+    const controlsConfig = computed(
+      () => typeof props.controls === "object" && props.controls !== null ? props.controls : void 0
+    );
+    const showControls = computed(() => props.controls !== false);
+    const increaseIcon = computed(() => {
+      var _a;
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? "+";
     });
-    const inputNumberClass = computed(() => [
-      `aheart-input-number--${resolvedSize.value}`,
-      `aheart-input-number--${resolvedVariant.value}`,
-      {
-        [`aheart-input-number--${props.status}`]: props.status,
-        "is-disabled": isDisabled.value,
-        "is-readonly": props.readOnly
+    const decreaseIcon = computed(() => {
+      var _a;
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? "−";
+    });
+    const displayValue = computed(() => {
+      const input = props.modelValue === void 0 ? "" : String(props.modelValue);
+      if (props.formatter) {
+        return props.formatter(props.modelValue, {
+          userTyping: false,
+          input
+        });
       }
-    ]);
+      return input;
+    });
+    const inputNumberClass = computed(() => {
+      var _a;
+      return [
+        `aheart-input-number--${resolvedSize.value}`,
+        `aheart-input-number--${resolvedVariant.value}`,
+        props.className,
+        props.rootClassName,
+        (_a = props.classNames) == null ? void 0 : _a.root,
+        {
+          [`aheart-input-number--${props.status}`]: props.status,
+          "is-disabled": isDisabled.value,
+          "is-readonly": props.readOnly
+        }
+      ];
+    });
+    const rootStyle = computed(() => {
+      var _a;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const controlClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.input;
+    });
+    const controlStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.input;
+    });
+    const prefixClass = computed(() => {
+      var _a;
+      return ["aheart-input-number__prefix", (_a = props.classNames) == null ? void 0 : _a.prefix];
+    });
+    const prefixStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.prefix;
+    });
+    const suffixClass = computed(() => {
+      var _a;
+      return ["aheart-input-number__suffix", (_a = props.classNames) == null ? void 0 : _a.suffix];
+    });
+    const suffixStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.suffix;
+    });
+    const actionsClass = computed(() => {
+      var _a;
+      return ["aheart-input-number__controls", (_a = props.classNames) == null ? void 0 : _a.actions];
+    });
+    const actionsStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.actions;
+    });
+    const actionClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.action;
+    });
+    const actionStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.action;
+    });
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;
@@ -105,13 +159,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         handleStep(-props.step, "down");
       }
     };
+    const handleWheel = (event) => {
+      if (!props.changeOnWheel || event.deltaY === 0) {
+        return;
+      }
+      event.preventDefault();
+      handleStep(event.deltaY < 0 ? props.step : -props.step, event.deltaY < 0 ? "up" : "down");
+    };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
-        class: normalizeClass(["aheart-input-number", inputNumberClass.value])
+        class: normalizeClass(["aheart-input-number", inputNumberClass.value]),
+        style: normalizeStyle(rootStyle.value)
       }, [
-        _ctx.prefix ? (openBlock(), createElementBlock("span", _hoisted_1, toDisplayString(_ctx.prefix), 1)) : createCommentVNode("", true),
+        _ctx.prefix ? (openBlock(), createElementBlock("span", {
+          key: 0,
+          class: normalizeClass(prefixClass.value),
+          style: normalizeStyle(prefixStyle.value)
+        }, toDisplayString(_ctx.prefix), 7)) : createCommentVNode("", true),
         createElementVNode("input", {
-          class: "aheart-input-number__control",
+          class: normalizeClass(["aheart-input-number__control", controlClass.value]),
+          style: normalizeStyle(controlStyle.value),
           id: _ctx.id,
           type: "text",
           inputmode: "decimal",
@@ -123,26 +190,37 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           max: _ctx.max,
           step: _ctx.step,
           onInput: handleInput,
-          onKeydown: handleKeydown
-        }, null, 40, _hoisted_2),
-        _ctx.suffix ? (openBlock(), createElementBlock("span", _hoisted_3, toDisplayString(_ctx.suffix), 1)) : createCommentVNode("", true),
-        _ctx.controls ? (openBlock(), createElementBlock("span", _hoisted_4, [
+          onKeydown: handleKeydown,
+          onWheel: handleWheel
+        }, null, 46, _hoisted_1),
+        _ctx.suffix ? (openBlock(), createElementBlock("span", {
+          key: 1,
+          class: normalizeClass(suffixClass.value),
+          style: normalizeStyle(suffixStyle.value)
+        }, toDisplayString(_ctx.suffix), 7)) : createCommentVNode("", true),
+        showControls.value ? (openBlock(), createElementBlock("span", {
+          key: 2,
+          class: normalizeClass(actionsClass.value),
+          style: normalizeStyle(actionsStyle.value)
+        }, [
           createElementVNode("button", {
-            class: "aheart-input-number__increase",
+            class: normalizeClass(["aheart-input-number__increase", actionClass.value]),
+            style: normalizeStyle(actionStyle.value),
             type: "button",
             "aria-label": "Increase",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[0] || (_cache[0] = ($event) => handleStep(_ctx.step, "up"))
-          }, " + ", 8, _hoisted_5),
+          }, toDisplayString(increaseIcon.value), 15, _hoisted_2),
           createElementVNode("button", {
-            class: "aheart-input-number__decrease",
+            class: normalizeClass(["aheart-input-number__decrease", actionClass.value]),
+            style: normalizeStyle(actionStyle.value),
             type: "button",
             "aria-label": "Decrease",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[1] || (_cache[1] = ($event) => handleStep(-_ctx.step, "down"))
-          }, " − ", 8, _hoisted_6)
-        ])) : createCommentVNode("", true)
-      ], 2);
+          }, toDisplayString(decreaseIcon.value), 15, _hoisted_3)
+        ], 6)) : createCommentVNode("", true)
+      ], 6);
     };
   }
 });
