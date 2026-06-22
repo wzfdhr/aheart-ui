@@ -1,0 +1,383 @@
+import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, createCommentVNode, Fragment, renderList, normalizeStyle, toDisplayString, createBlock, unref } from "vue";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
+import Pagination from "../pagination/index.js";
+import { tableProps, tableEmits } from "./types.js";
+import "./style.css.js";
+const _hoisted_1 = { class: "aheart-table__container" };
+const _hoisted_2 = { key: 0 };
+const _hoisted_3 = {
+  key: 0,
+  class: "aheart-table__selection-cell",
+  scope: "col"
+};
+const _hoisted_4 = {
+  key: 1,
+  class: "aheart-table__expand-cell",
+  scope: "col"
+};
+const _hoisted_5 = ["disabled", "onClick"];
+const _hoisted_6 = ["data-sort"];
+const _hoisted_7 = { key: 1 };
+const _hoisted_8 = {
+  key: 0,
+  class: "aheart-table__selection-cell"
+};
+const _hoisted_9 = ["type", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_10 = {
+  key: 1,
+  class: "aheart-table__expand-cell"
+};
+const _hoisted_11 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_12 = {
+  key: 0,
+  class: "aheart-table__expanded-row"
+};
+const _hoisted_13 = ["colspan"];
+const _hoisted_14 = { key: 0 };
+const _hoisted_15 = ["colspan"];
+const _hoisted_16 = {
+  key: 0,
+  class: "aheart-table__loading",
+  role: "status",
+  "aria-live": "polite"
+};
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  ...{
+    name: "ATable"
+  },
+  __name: "table",
+  props: tableProps,
+  emits: tableEmits,
+  setup(__props, { emit: __emit }) {
+    var _a, _b;
+    const props = __props;
+    const emit = __emit;
+    const config = useAheartConfig();
+    const innerSelectedRowKeys = ref(((_a = props.rowSelection) == null ? void 0 : _a.defaultSelectedRowKeys) ?? []);
+    const innerExpandedRowKeys = ref(((_b = props.expandable) == null ? void 0 : _b.defaultExpandedRowKeys) ?? []);
+    const innerCurrent = ref(props.pagination && typeof props.pagination === "object" ? props.pagination.defaultCurrent ?? props.pagination.current ?? 1 : 1);
+    const innerSort = ref({});
+    const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`;
+    const normalizedColumns = computed(() => props.columns ?? []);
+    const normalizedData = computed(() => props.dataSource ?? []);
+    const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
+    const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
+    const hasSelection = computed(() => Boolean(props.rowSelection));
+    const hasExpandable = computed(() => {
+      var _a2;
+      return Boolean((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowRender);
+    });
+    const selectionType = computed(() => {
+      var _a2;
+      return ((_a2 = props.rowSelection) == null ? void 0 : _a2.type) ?? "checkbox";
+    });
+    const isSelectionDisabled = computed(() => {
+      var _a2;
+      return isDisabled.value || Boolean((_a2 = props.rowSelection) == null ? void 0 : _a2.disabled);
+    });
+    const selectedKeys = computed(() => {
+      var _a2;
+      return ((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) ?? innerSelectedRowKeys.value;
+    });
+    const expandedKeys = computed(() => {
+      var _a2;
+      return ((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys) ?? innerExpandedRowKeys.value;
+    });
+    const resolvedEmptyText = computed(() => {
+      var _a2, _b2;
+      return props.emptyText || ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.empty) == null ? void 0 : _b2.description) || "No Data";
+    });
+    const paginationConfig = computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
+    const pageSize = computed(() => paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10);
+    const currentPage = computed(() => paginationConfig.value.current ?? innerCurrent.value);
+    const paginationTotal = computed(() => paginationConfig.value.total ?? sortedData.value.length);
+    const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== void 0 || sortedData.value.length > pageSize.value));
+    const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
+    const tableClass = computed(() => [
+      `aheart-table--${resolvedSize.value}`,
+      {
+        "is-bordered": props.bordered,
+        "is-loading": props.loading,
+        "is-disabled": isDisabled.value
+      }
+    ]);
+    const sortedData = computed(() => {
+      const activeColumn = normalizedColumns.value.find((column) => getColumnKey(column) === innerSort.value.columnKey);
+      if (!activeColumn || !innerSort.value.order || typeof activeColumn.sorter !== "function") {
+        return normalizedData.value;
+      }
+      const sorter = activeColumn.sorter;
+      const direction = innerSort.value.order === "ascend" ? 1 : -1;
+      return [...normalizedData.value].sort((a, b) => sorter(a, b) * direction);
+    });
+    const allRows = computed(
+      () => sortedData.value.map((record, index) => ({
+        key: getRowKey(record, index),
+        record,
+        index
+      }))
+    );
+    const pagedRows = computed(() => {
+      if (!shouldShowPagination.value) {
+        return allRows.value;
+      }
+      const start = (currentPage.value - 1) * pageSize.value;
+      return allRows.value.slice(start, start + pageSize.value);
+    });
+    watch(
+      () => {
+        var _a2;
+        return (_a2 = props.rowSelection) == null ? void 0 : _a2.defaultSelectedRowKeys;
+      },
+      (keys) => {
+        var _a2;
+        if (!((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) && keys) {
+          innerSelectedRowKeys.value = keys;
+        }
+      }
+    );
+    const getColumnKey = (column) => {
+      return column.key ?? String(Array.isArray(column.dataIndex) ? column.dataIndex.join(".") : column.dataIndex ?? column.title);
+    };
+    const getRowKey = (record, index) => {
+      if (typeof props.rowKey === "function") {
+        return props.rowKey(record);
+      }
+      const key = record[props.rowKey];
+      return typeof key === "string" || typeof key === "number" ? key : index;
+    };
+    const getValueByDataIndex = (record, dataIndex) => {
+      if (dataIndex === void 0) {
+        return void 0;
+      }
+      const paths = Array.isArray(dataIndex) ? dataIndex : [dataIndex];
+      return paths.reduce((current, path) => {
+        if (current && typeof current === "object") {
+          return current[String(path)];
+        }
+        return void 0;
+      }, record);
+    };
+    const renderCell = (column, record, index) => {
+      const text = getValueByDataIndex(record, column.dataIndex);
+      if (column.customRender) {
+        return column.customRender({ text, record, index, column });
+      }
+      return text ?? "";
+    };
+    const renderExpanded = (record, index) => {
+      var _a2, _b2;
+      return ((_b2 = (_a2 = props.expandable) == null ? void 0 : _a2.expandedRowRender) == null ? void 0 : _b2.call(_a2, record, index)) ?? "";
+    };
+    const columnStyle = (column) => ({
+      width: typeof column.width === "number" ? `${column.width}px` : column.width
+    });
+    const columnClass = (column) => [
+      column.className,
+      column.align ? `aheart-table__cell--${column.align}` : void 0,
+      {
+        "is-sortable": Boolean(column.sorter),
+        "is-ellipsis": column.ellipsis
+      }
+    ];
+    const columnCellClass = (column) => [
+      column.className,
+      column.align ? `aheart-table__cell--${column.align}` : void 0,
+      {
+        "is-ellipsis": column.ellipsis
+      }
+    ];
+    const getSortState = (column) => {
+      const key = getColumnKey(column);
+      if (innerSort.value.columnKey !== key || !innerSort.value.order) {
+        return "none";
+      }
+      return innerSort.value.order;
+    };
+    const toggleSort = (column) => {
+      if (isDisabled.value) {
+        return;
+      }
+      const key = getColumnKey(column);
+      const currentOrder = innerSort.value.columnKey === key ? innerSort.value.order : void 0;
+      const nextOrder = currentOrder === void 0 ? "ascend" : currentOrder === "ascend" ? "descend" : void 0;
+      innerSort.value = { columnKey: nextOrder ? key : void 0, order: nextOrder };
+      emitTableChange(currentPage.value, pageSize.value);
+    };
+    const isSelected = (key) => selectedKeys.value.includes(key);
+    const toggleSelection = (record, key, checked) => {
+      var _a2;
+      if (isSelectionDisabled.value) {
+        return;
+      }
+      const nextKeys = selectionType.value === "radio" ? checked ? [key] : [] : checked ? Array.from(/* @__PURE__ */ new Set([...selectedKeys.value, key])) : selectedKeys.value.filter((currentKey) => currentKey !== key);
+      if (!((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys)) {
+        innerSelectedRowKeys.value = nextKeys;
+      }
+      emit("update:selectedRowKeys", nextKeys);
+      emit("select", key, checked, record, nextKeys);
+    };
+    const isRowExpandable = (record) => {
+      var _a2, _b2;
+      return ((_b2 = (_a2 = props.expandable) == null ? void 0 : _a2.rowExpandable) == null ? void 0 : _b2.call(_a2, record)) ?? true;
+    };
+    const isExpanded = (key) => expandedKeys.value.includes(key);
+    const toggleExpand = (record, key) => {
+      var _a2;
+      if (isDisabled.value) {
+        return;
+      }
+      const nextExpanded = !isExpanded(key);
+      const nextKeys = nextExpanded ? [...expandedKeys.value, key] : expandedKeys.value.filter((currentKey) => currentKey !== key);
+      if (!((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys)) {
+        innerExpandedRowKeys.value = nextKeys;
+      }
+      emit("expand", nextExpanded, record, key);
+    };
+    const handlePageChange = (current, nextPageSize) => {
+      innerCurrent.value = current;
+      emitTableChange(current, nextPageSize);
+    };
+    const emitTableChange = (current, nextPageSize) => {
+      const activeColumn = normalizedColumns.value.find((column) => getColumnKey(column) === innerSort.value.columnKey);
+      emit(
+        "change",
+        { current, pageSize: nextPageSize, total: paginationTotal.value },
+        {},
+        {
+          column: activeColumn,
+          columnKey: innerSort.value.columnKey,
+          field: activeColumn == null ? void 0 : activeColumn.dataIndex,
+          order: innerSort.value.order
+        }
+      );
+    };
+    const getEventChecked = (event) => {
+      var _a2;
+      return Boolean((_a2 = event.target) == null ? void 0 : _a2.checked);
+    };
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("section", {
+        class: normalizeClass(["aheart-table", tableClass.value])
+      }, [
+        createElementVNode("div", _hoisted_1, [
+          createElementVNode("table", null, [
+            _ctx.showHeader ? (openBlock(), createElementBlock("thead", _hoisted_2, [
+              createElementVNode("tr", null, [
+                hasSelection.value ? (openBlock(), createElementBlock("th", _hoisted_3, [..._cache[0] || (_cache[0] = [
+                  createElementVNode("span", {
+                    class: "aheart-table__selection-title",
+                    "aria-hidden": "true"
+                  }, null, -1)
+                ])])) : createCommentVNode("", true),
+                hasExpandable.value ? (openBlock(), createElementBlock("th", _hoisted_4, [..._cache[1] || (_cache[1] = [
+                  createElementVNode("span", {
+                    class: "aheart-table__expand-title",
+                    "aria-hidden": "true"
+                  }, null, -1)
+                ])])) : createCommentVNode("", true),
+                (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
+                  return openBlock(), createElementBlock("th", {
+                    key: getColumnKey(column),
+                    class: normalizeClass(columnClass(column)),
+                    style: normalizeStyle(columnStyle(column)),
+                    scope: "col"
+                  }, [
+                    column.sorter ? (openBlock(), createElementBlock("button", {
+                      key: 0,
+                      class: "aheart-table__sorter",
+                      type: "button",
+                      disabled: isDisabled.value,
+                      onClick: ($event) => toggleSort(column)
+                    }, [
+                      createElementVNode("span", null, toDisplayString(column.title), 1),
+                      createElementVNode("span", {
+                        class: "aheart-table__sort-icon",
+                        "data-sort": getSortState(column),
+                        "aria-hidden": "true"
+                      }, null, 8, _hoisted_6)
+                    ], 8, _hoisted_5)) : (openBlock(), createElementBlock("span", _hoisted_7, toDisplayString(column.title), 1))
+                  ], 6);
+                }), 128))
+              ])
+            ])) : createCommentVNode("", true),
+            createElementVNode("tbody", null, [
+              (openBlock(true), createElementBlock(Fragment, null, renderList(pagedRows.value, (row) => {
+                return openBlock(), createElementBlock(Fragment, {
+                  key: row.key
+                }, [
+                  createElementVNode("tr", {
+                    class: normalizeClass({ "is-selected": isSelected(row.key) })
+                  }, [
+                    hasSelection.value ? (openBlock(), createElementBlock("td", _hoisted_8, [
+                      createElementVNode("input", {
+                        type: selectionType.value,
+                        name: radioName,
+                        checked: isSelected(row.key),
+                        disabled: isSelectionDisabled.value,
+                        "aria-label": `Select row ${row.key}`,
+                        onChange: ($event) => toggleSelection(row.record, row.key, getEventChecked($event))
+                      }, null, 40, _hoisted_9)
+                    ])) : createCommentVNode("", true),
+                    hasExpandable.value ? (openBlock(), createElementBlock("td", _hoisted_10, [
+                      isRowExpandable(row.record) ? (openBlock(), createElementBlock("button", {
+                        key: 0,
+                        class: "aheart-table__expand-button",
+                        type: "button",
+                        "aria-expanded": isExpanded(row.key),
+                        disabled: isDisabled.value,
+                        onClick: ($event) => toggleExpand(row.record, row.key)
+                      }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_11)) : createCommentVNode("", true)
+                    ])) : createCommentVNode("", true),
+                    (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
+                      return openBlock(), createElementBlock("td", {
+                        key: getColumnKey(column),
+                        class: normalizeClass(columnCellClass(column)),
+                        style: normalizeStyle(columnStyle(column))
+                      }, toDisplayString(renderCell(column, row.record, row.index)), 7);
+                    }), 128))
+                  ], 2),
+                  hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_12, [
+                    createElementVNode("td", {
+                      colspan: columnCount.value,
+                      class: "aheart-table__expanded-cell"
+                    }, toDisplayString(renderExpanded(row.record, row.index)), 9, _hoisted_13)
+                  ])) : createCommentVNode("", true)
+                ], 64);
+              }), 128)),
+              !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_14, [
+                createElementVNode("td", {
+                  colspan: columnCount.value,
+                  class: "aheart-table__empty"
+                }, toDisplayString(resolvedEmptyText.value), 9, _hoisted_15)
+              ])) : createCommentVNode("", true)
+            ])
+          ]),
+          _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_16, [..._cache[2] || (_cache[2] = [
+            createElementVNode("span", {
+              class: "aheart-table__loading-dot",
+              "aria-hidden": "true"
+            }, null, -1),
+            createElementVNode("span", null, "Loading", -1)
+          ])])) : createCommentVNode("", true)
+        ]),
+        shouldShowPagination.value ? (openBlock(), createBlock(unref(Pagination), {
+          key: 0,
+          class: "aheart-table__pagination",
+          current: currentPage.value,
+          "page-size": pageSize.value,
+          total: paginationTotal.value,
+          simple: paginationConfig.value.simple,
+          "hide-on-single-page": paginationConfig.value.hideOnSinglePage,
+          "show-total": paginationConfig.value.showTotal,
+          disabled: isDisabled.value,
+          size: resolvedSize.value,
+          onChange: handlePageChange
+        }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "disabled", "size"])) : createCommentVNode("", true)
+      ], 2);
+    };
+  }
+});
+export {
+  _sfc_main as default
+};

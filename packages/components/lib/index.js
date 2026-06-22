@@ -22,6 +22,7 @@ const index$2 = require("./space/index.js");
 const index$a = require("./spin/index.js");
 const index$e = require("./steps/index.js");
 const index$k = require("./switch/index.js");
+const index$q = require("./table/index.js");
 const index$7 = require("./tag/index.js");
 const index$d = require("./tabs/index.js");
 const index$g = require("./textarea/index.js");
@@ -58,7 +59,8 @@ const components = [
   index$n.default,
   index$o.default,
   index$p.default,
-  index$p.FormItem
+  index$p.FormItem,
+  index$q.default
 ];
 const AheartUI = {
   install(app) {
@@ -90,6 +92,7 @@ exports.Space = index$2.default;
 exports.Spin = index$a.default;
 exports.Steps = index$e.default;
 exports.Switch = index$k.default;
+exports.Table = index$q.default;
 exports.Tag = index$7.default;
 exports.Tabs = index$d.default;
 exports.Textarea = index$g.default;

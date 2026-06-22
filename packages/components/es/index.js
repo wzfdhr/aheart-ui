@@ -20,6 +20,7 @@ import Space from "./space/index.js";
 import Spin from "./spin/index.js";
 import Steps from "./steps/index.js";
 import Switch from "./switch/index.js";
+import Table from "./table/index.js";
 import Tag from "./tag/index.js";
 import Tabs from "./tabs/index.js";
 import Textarea from "./textarea/index.js";
@@ -56,7 +57,8 @@ const components = [
   Pagination,
   Select,
   Form,
-  FormItem
+  FormItem,
+  Table
 ];
 const AheartUI = {
   install(app) {
@@ -91,6 +93,7 @@ export {
   Spin,
   Steps,
   Switch,
+  Table,
   Tabs,
   Tag,
   Text,
