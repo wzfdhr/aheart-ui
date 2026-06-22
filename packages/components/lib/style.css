@@ -369,6 +369,10 @@
   gap: var(--aheart-flex-gap, 0);
 }
 
+.aheart-flex--horizontal {
+  flex-direction: row;
+}
+
 .aheart-flex.is-vertical {
   flex-direction: column;
 }
