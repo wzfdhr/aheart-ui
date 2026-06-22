@@ -9,7 +9,8 @@
 
 .aheart-textarea__control {
   width: 100%;
-  min-height: calc(var(--aheart-control-height) * 2);
+  min-height: calc(var(--aheart-control-height) * var(--aheart-textarea-min-rows, 2));
+  max-height: calc(var(--aheart-control-height) * var(--aheart-textarea-max-rows, 999));
   padding: var(--aheart-spacing-sm);
   border: 1px solid var(--aheart-color-border);
   border-radius: var(--aheart-radius);
@@ -58,10 +59,50 @@
   border-color: var(--aheart-color-warning);
 }
 
+.aheart-textarea--borderless .aheart-textarea__control {
+  border-color: transparent;
+  background: transparent;
+}
+
+.aheart-textarea--borderless .aheart-textarea__control:focus {
+  box-shadow: none;
+}
+
+.aheart-textarea--filled .aheart-textarea__control {
+  background: var(--aheart-color-fill);
+}
+
+.aheart-textarea--underlined .aheart-textarea__control {
+  border-color: transparent;
+  border-bottom-color: var(--aheart-color-border);
+  border-radius: 0;
+}
+
+.aheart-textarea--underlined .aheart-textarea__control:focus {
+  box-shadow: none;
+}
+
 .aheart-textarea__count {
   position: absolute;
   right: var(--aheart-spacing-sm);
   bottom: var(--aheart-spacing-xs);
   color: var(--aheart-color-text-secondary);
   font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-textarea__clear {
+  position: absolute;
+  top: var(--aheart-spacing-sm);
+  right: var(--aheart-spacing-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--aheart-color-fill);
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
 }

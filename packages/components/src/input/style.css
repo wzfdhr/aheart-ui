@@ -1,3 +1,12 @@
+.aheart-input-group {
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
 .aheart-input {
   display: inline-flex;
   align-items: center;
@@ -13,6 +22,24 @@
   transition:
     border-color var(--aheart-motion-duration) var(--aheart-motion-ease),
     box-shadow var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-input-group .aheart-input {
+  flex: 1;
+  width: auto;
+  border-radius: 0;
+}
+
+.aheart-input-group .aheart-input:first-child,
+.aheart-input__addon--before:first-child {
+  border-start-start-radius: var(--aheart-radius);
+  border-end-start-radius: var(--aheart-radius);
+}
+
+.aheart-input-group .aheart-input:last-child,
+.aheart-input__addon--after:last-child {
+  border-start-end-radius: var(--aheart-radius);
+  border-end-end-radius: var(--aheart-radius);
 }
 
 .aheart-input:hover:not(.is-disabled),
@@ -48,6 +75,29 @@
   border-color: var(--aheart-color-warning);
 }
 
+.aheart-input--borderless {
+  border-color: transparent;
+  background: transparent;
+}
+
+.aheart-input--borderless:focus-within {
+  box-shadow: none;
+}
+
+.aheart-input--filled {
+  background: var(--aheart-color-fill);
+}
+
+.aheart-input--underlined {
+  border-color: transparent;
+  border-bottom-color: var(--aheart-color-border);
+  border-radius: 0;
+}
+
+.aheart-input--underlined:focus-within {
+  box-shadow: none;
+}
+
 .aheart-input__control {
   min-width: 0;
   flex: 1;
@@ -61,6 +111,10 @@
 
 .aheart-input__control:disabled {
   cursor: not-allowed;
+}
+
+.aheart-input__control:read-only {
+  cursor: default;
 }
 
 .aheart-input__prefix,
@@ -92,4 +146,22 @@
   background: var(--aheart-color-fill);
   color: var(--aheart-color-text-secondary);
   cursor: pointer;
+}
+
+.aheart-input__addon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--aheart-spacing-sm);
+  border: 1px solid var(--aheart-color-border);
+  background: var(--aheart-color-fill);
+  color: var(--aheart-color-text-secondary);
+  white-space: nowrap;
+}
+
+.aheart-input__addon--before {
+  border-right: 0;
+}
+
+.aheart-input__addon--after {
+  border-left: 0;
 }

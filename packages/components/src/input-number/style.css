@@ -39,6 +39,37 @@
   font-size: var(--aheart-font-size-lg);
 }
 
+.aheart-input-number--error {
+  border-color: var(--aheart-color-danger);
+}
+
+.aheart-input-number--warning {
+  border-color: var(--aheart-color-warning);
+}
+
+.aheart-input-number--borderless {
+  border-color: transparent;
+  background: transparent;
+}
+
+.aheart-input-number--borderless:focus-within {
+  box-shadow: none;
+}
+
+.aheart-input-number--filled {
+  background: var(--aheart-color-fill);
+}
+
+.aheart-input-number--underlined {
+  border-color: transparent;
+  border-bottom-color: var(--aheart-color-border);
+  border-radius: 0;
+}
+
+.aheart-input-number--underlined:focus-within {
+  box-shadow: none;
+}
+
 .aheart-input-number__control {
   min-width: 0;
   flex: 1;
@@ -52,6 +83,26 @@
 
 .aheart-input-number__control:disabled {
   cursor: not-allowed;
+}
+
+.aheart-input-number__control:read-only {
+  cursor: default;
+}
+
+.aheart-input-number__prefix,
+.aheart-input-number__suffix {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  color: var(--aheart-color-text-secondary);
+}
+
+.aheart-input-number__prefix {
+  padding-left: var(--aheart-spacing-sm);
+}
+
+.aheart-input-number__suffix {
+  padding-right: var(--aheart-spacing-sm);
 }
 
 .aheart-input-number__controls {

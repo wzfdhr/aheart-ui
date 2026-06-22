@@ -1,11 +1,33 @@
 import type { ExtractPropTypes, PropType } from 'vue'
 import type { AheartSize } from '../config'
 
+export type InputNumberStatus = 'error' | 'warning'
+export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
+export type InputNumberStepType = 'up' | 'down'
+
+export interface InputNumberStepInfo {
+  offset: number
+  type: InputNumberStepType
+}
+
 export const inputNumberProps = {
+  id: String,
   modelValue: Number,
   placeholder: String,
+  prefix: String,
+  suffix: String,
   size: String as PropType<AheartSize>,
   disabled: {
+    type: Boolean,
+    default: undefined
+  },
+  readOnly: Boolean,
+  status: String as PropType<InputNumberStatus>,
+  variant: {
+    type: String as PropType<InputNumberVariant>,
+    default: undefined
+  },
+  bordered: {
     type: Boolean,
     default: undefined
   },
@@ -15,6 +37,13 @@ export const inputNumberProps = {
     type: Number,
     default: 1
   },
+  precision: Number,
+  formatter: Function as PropType<(value: number | undefined) => string>,
+  parser: Function as PropType<(displayValue: string) => number | undefined>,
+  keyboard: {
+    type: Boolean,
+    default: true
+  },
   controls: {
     type: Boolean,
     default: true
@@ -23,7 +52,12 @@ export const inputNumberProps = {
 
 export const inputNumberEmits = {
   'update:modelValue': (value: number | undefined) => typeof value === 'number' || value === undefined,
-  change: (value: number | undefined) => typeof value === 'number' || value === undefined
+  change: (value: number | undefined) => typeof value === 'number' || value === undefined,
+  pressEnter: (event: KeyboardEvent) => event instanceof KeyboardEvent,
+  step: (value: number, info: InputNumberStepInfo) =>
+    typeof value === 'number' &&
+    typeof info.offset === 'number' &&
+    (info.type === 'up' || info.type === 'down')
 }
 
 export type InputNumberProps = ExtractPropTypes<typeof inputNumberProps>

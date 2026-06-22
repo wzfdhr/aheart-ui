@@ -54,4 +54,56 @@ describe('InputNumber', () => {
     expect(inputNumber.classes()).toContain('aheart-input-number--large')
     expect(inputNumber.find('input').attributes()).toHaveProperty('disabled')
   })
+
+  it('supports prefix suffix status variant readonly id and formatted display', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 1200,
+        prefix: '$',
+        suffix: 'USD',
+        status: 'warning',
+        variant: 'filled',
+        id: 'amount',
+        readOnly: true,
+        formatter: (value?: number) => (value === undefined ? '' : `${value.toLocaleString()}`)
+      }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-input-number--warning')
+    expect(wrapper.classes()).toContain('aheart-input-number--filled')
+    expect(wrapper.find('.aheart-input-number__prefix').text()).toBe('$')
+    expect(wrapper.find('.aheart-input-number__suffix').text()).toBe('USD')
+    expect(wrapper.find('input').element.value).toBe('1,200')
+    expect(wrapper.find('input').attributes('id')).toBe('amount')
+    expect(wrapper.find('input').attributes()).toHaveProperty('readonly')
+  })
+
+  it('parses input applies precision and emits pressEnter', async () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        precision: 2,
+        parser: (value: string) => Number(value.replace('$', ''))
+      }
+    })
+
+    await wrapper.find('input').setValue('$12.345')
+    await wrapper.find('input').trigger('keydown', { key: 'Enter' })
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([12.35])
+    expect(wrapper.emitted('pressEnter')).toHaveLength(1)
+  })
+
+  it('supports keyboard suppression and step events', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 2, keyboard: false }
+    })
+
+    await wrapper.find('input').trigger('keydown', { key: 'ArrowUp' })
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([3])
+    expect(wrapper.emitted('step')?.[0]).toEqual([3, { offset: 1, type: 'up' }])
+  })
 })

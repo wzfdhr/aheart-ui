@@ -56,4 +56,40 @@ describe('Input', () => {
     expect(input.classes()).toContain('aheart-input--large')
     expect(input.find('input').attributes()).toHaveProperty('disabled')
   })
+
+  it('supports Ant-style addons prefix suffix and variants', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'site',
+        prefix: 'https://',
+        suffix: '.com',
+        addonBefore: 'URL',
+        addonAfter: 'open',
+        variant: 'filled',
+        id: 'site-input',
+        readOnly: true
+      }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-input-group')
+    expect(wrapper.find('.aheart-input__addon--before').text()).toBe('URL')
+    expect(wrapper.find('.aheart-input__addon--after').text()).toBe('open')
+    expect(wrapper.find('.aheart-input').classes()).toContain('aheart-input--filled')
+    expect(wrapper.find('.aheart-input__prefix').text()).toBe('https://')
+    expect(wrapper.find('.aheart-input__suffix').text()).toBe('.com')
+    expect(wrapper.find('input').attributes('id')).toBe('site-input')
+    expect(wrapper.find('input').attributes()).toHaveProperty('readonly')
+  })
+
+  it('maps bordered false to borderless and emits pressEnter', async () => {
+    const wrapper = mount(Input, {
+      props: { bordered: false }
+    })
+
+    expect(wrapper.find('.aheart-input').classes()).toContain('aheart-input--borderless')
+
+    await wrapper.find('input').trigger('keydown', { key: 'Enter' })
+
+    expect(wrapper.emitted('pressEnter')).toHaveLength(1)
+  })
 })
