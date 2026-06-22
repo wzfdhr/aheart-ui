@@ -135,6 +135,28 @@ Alert displays contextual information with optional icons, descriptions, and clo
 </template>
 ```
 
+## 关闭配置
+
+<div class="aheart-demo-panel">
+  <AAlert
+    type="info"
+    message="Closable configuration"
+    description="Use object closable to configure close icon and ARIA labels."
+    :closable="{ closeIcon: 'Dismiss', ariaLabel: 'Dismiss alert', ariaDescribedby: 'alert-description' }"
+  />
+</div>
+
+```vue
+<template>
+  <AAlert
+    type="info"
+    message="Closable configuration"
+    description="Use object closable to configure close icon and ARIA labels."
+    :closable="{ closeIcon: 'Dismiss', ariaLabel: 'Dismiss alert', ariaDescribedby: 'alert-description' }"
+  />
+</template>
+```
+
 ## 语义化样式
 
 <div class="aheart-demo-panel">
@@ -143,8 +165,8 @@ Alert displays contextual information with optional icons, descriptions, and clo
     description="Style individual Alert parts without depending on internal selectors."
     show-icon
     action="Details"
-    :class-names="{ title: 'demo-alert-title', action: 'demo-alert-action' }"
-    :styles="{ root: { marginBlockStart: '8px' }, action: { marginInlineStart: '16px' } }"
+    :class-names="{ title: 'demo-alert-title', section: 'demo-alert-section', actions: 'demo-alert-actions' }"
+    :styles="{ root: { marginBlockStart: '8px' }, actions: { marginInlineStart: '16px' } }"
   />
 </div>
 
@@ -155,8 +177,8 @@ Alert displays contextual information with optional icons, descriptions, and clo
     description="Style individual Alert parts without depending on internal selectors."
     show-icon
     action="Details"
-    :class-names="{ title: 'demo-alert-title', action: 'demo-alert-action' }"
-    :styles="{ root: { marginBlockStart: '8px' }, action: { marginInlineStart: '16px' } }"
+    :class-names="{ title: 'demo-alert-title', section: 'demo-alert-section', actions: 'demo-alert-actions' }"
+    :styles="{ root: { marginBlockStart: '8px' }, actions: { marginInlineStart: '16px' } }"
   />
 </template>
 ```
@@ -166,22 +188,33 @@ Alert displays contextual information with optional icons, descriptions, and clo
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | type | 警告类型 | `success` \| `info` \| `warning` \| `error` | `info` |
-| title | 标题内容，优先级高于 `message` | `string` | - |
-| message | 标题内容 | `string` | - |
-| description | 辅助描述 | `string` | - |
+| title | 标题内容，优先级高于 `message` | `VNodeChild` | - |
+| message | 标题内容 | `VNodeChild` | - |
+| description | 辅助描述 | `VNodeChild` | - |
 | showIcon | 是否显示类型图标 | `boolean` | `false` |
-| closable | 是否显示关闭按钮 | `boolean` | `false` |
+| closable | 是否显示关闭按钮，可传对象配置关闭按钮 | `boolean` \| `AlertClosableConfig` | `false` |
 | banner | 是否用作顶部公告，默认展示 warning 图标 | `boolean` | `false` |
 | variant | 样式变体 | `outlined` \| `filled` | `outlined` |
-| action | 右侧操作内容 | `string` | - |
-| icon | 自定义图标内容 | `string` | - |
-| closeIcon | 自定义关闭内容 | `string` | - |
+| action | 右侧操作内容 | `VNodeChild` | - |
+| icon | 自定义图标内容 | `VNodeChild` | - |
+| closeIcon | 自定义关闭内容 | `VNodeChild` | - |
 | role | 根节点 ARIA role | `string` | `alert` |
 | className | 根节点兼容 class | `string` | - |
 | rootClassName | 根节点 class | `string` | - |
 | style | 根节点样式 | `StyleValue` | - |
-| classNames | 语义化结构 class | `Partial<Record<'root' \| 'icon' \| 'content' \| 'title' \| 'description' \| 'action' \| 'close', string>>` | - |
-| styles | 语义化结构样式 | `Partial<Record<'root' \| 'icon' \| 'content' \| 'title' \| 'description' \| 'action' \| 'close', StyleValue>>` | - |
+| classNames | 语义化结构 class | `AlertClassNames` | - |
+| styles | 语义化结构样式 | `AlertStyles` | - |
+
+## AlertClosableConfig
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| closeIcon | 关闭按钮内容，优先级高于 `closeIcon` prop | `VNodeChild` | - |
+| ariaLabel | 关闭按钮 `aria-label` | `string` | `Close` |
+| ariaLabelledby | 关闭按钮 `aria-labelledby` | `string` | - |
+| ariaDescribedby | 关闭按钮 `aria-describedby` | `string` | - |
+| onClose | 点击关闭按钮后的回调 | `(event: MouseEvent) => void` | - |
+| afterClose | Alert 隐藏后的回调 | `() => void` | - |
 
 ## Events
 
@@ -198,6 +231,20 @@ Alert displays contextual information with optional icons, descriptions, and clo
 | action | 自定义右侧操作区域 |
 | icon | 自定义图标区域 |
 | closeIcon | 自定义关闭区域 |
+
+## Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 根容器 |
+| icon | 图标区域 |
+| section | 内容包裹区域，Ant 语义别名 |
+| content | 内容包裹区域，兼容别名 |
+| title | 标题区域 |
+| description | 描述区域 |
+| actions | 操作区域，Ant 语义别名 |
+| action | 操作区域，兼容别名 |
+| close | 关闭按钮 |
 
 ## Theme Tokens
 
