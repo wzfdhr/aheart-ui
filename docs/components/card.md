@@ -106,6 +106,52 @@ Card groups related content in a bordered container with optional header, cover,
 </template>
 ```
 
+## 页签卡片
+
+<div class="aheart-demo-panel">
+  <ACard
+    title="Project"
+    default-active-tab-key="overview"
+    tab-bar-extra-content="More"
+    :tab-props="{ tabBarGutter: 24 }"
+    :tab-list="[
+      { key: 'overview', tab: 'Overview' },
+      { key: 'activity', tab: 'Activity' },
+      { key: 'disabled', tab: 'Disabled', disabled: true }
+    ]"
+  >
+    <template #tab-overview>
+      Delivery health, timeline, and owner notes.
+    </template>
+    <template #tab-activity>
+      Recent comments and workflow changes.
+    </template>
+  </ACard>
+</div>
+
+```vue
+<template>
+  <ACard
+    title="Project"
+    default-active-tab-key="overview"
+    tab-bar-extra-content="More"
+    :tab-props="{ tabBarGutter: 24 }"
+    :tab-list="[
+      { key: 'overview', tab: 'Overview' },
+      { key: 'activity', tab: 'Activity' },
+      { key: 'disabled', tab: 'Disabled', disabled: true }
+    ]"
+  >
+    <template #tab-overview>
+      Delivery health, timeline, and owner notes.
+    </template>
+    <template #tab-activity>
+      Recent comments and workflow changes.
+    </template>
+  </ACard>
+</template>
+```
+
 ## 加载状态
 
 <div class="aheart-demo-panel">
@@ -227,6 +273,11 @@ Card groups related content in a bordered container with optional header, cover,
 | loading | 是否显示加载占位 | `boolean` | `false` |
 | size | 卡片尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
 | actions | 底部操作项，`actions` 插槽优先 | `(string \| number)[]` | - |
+| tabList | 页签列表 | `CardTab[]` | - |
+| activeTabKey | 当前激活页签，受控模式 | `string` | - |
+| defaultActiveTabKey | 默认激活页签，非受控模式 | `string` | 首个可用页签 |
+| tabBarExtraContent | 页签栏右侧内容，`tabBarExtraContent` 插槽优先 | `VNodeChild` | - |
+| tabProps | 页签栏 class、style 与间距配置 | `CardTabProps` | - |
 | className | 根节点兼容 class | `string` | - |
 | rootClassName | 根节点 class | `string` | - |
 | style | 根节点样式 | `StyleValue` | - |
@@ -234,6 +285,33 @@ Card groups related content in a bordered container with optional header, cover,
 | bodyStyle | 内容区样式兼容属性 | `StyleValue` | - |
 | classNames | 语义化结构 class | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', string>>` | - |
 | styles | 语义化结构样式 | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', StyleValue>>` | - |
+
+## Events
+
+| 事件名 | 说明 | 回调参数 |
+| --- | --- | --- |
+| update:activeTabKey | 点击可用非激活页签时触发 | `(key: string) => void` |
+| tabChange | 点击可用非激活页签时触发 | `(key: string) => void` |
+
+## CardTab API
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| key | 页签唯一标识 | `string` | - |
+| tab | 页签标题内容 | `VNodeChild` | - |
+| disabled | 是否禁用页签 | `boolean` | `false` |
+| children | 页签内容，低于 `tab-{key}` 插槽优先级 | `VNodeChild` | - |
+
+## CardTabProps API
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| className | 页签栏根节点兼容 class | `string` | - |
+| rootClassName | 页签栏根节点 class | `string` | - |
+| style | 页签栏根节点样式 | `StyleValue` | - |
+| tabBarGutter | 页签间距 | `number` | - |
+| classNames | 页签栏语义化结构 class | `Partial<Record<'root' \| 'list' \| 'tab' \| 'activeTab' \| 'tabLabel' \| 'extra', string>>` | - |
+| styles | 页签栏语义化结构样式 | `Partial<Record<'root' \| 'list' \| 'tab' \| 'activeTab' \| 'tabLabel' \| 'extra', StyleValue>>` | - |
 
 ## CardMeta API
 
@@ -270,6 +348,8 @@ Card groups related content in a bordered container with optional header, cover,
 | extra | 自定义额外内容 |
 | cover | 封面区域 |
 | actions | 底部操作区域 |
+| tab-{key} | 对应 `tabList` key 的页签内容 |
+| tabBarExtraContent | 自定义页签栏右侧内容，优先于 `tabBarExtraContent` 属性 |
 
 ## CardMeta Slots
 
@@ -293,11 +373,23 @@ Card groups related content in a bordered container with optional header, cover,
 | root | 网格卡片根元素 |
 | content | 网格卡片内容容器 |
 
+## CardTab Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 页签栏根元素 |
+| list | 页签按钮列表 |
+| tab | 页签按钮 |
+| activeTab | 激活页签按钮 |
+| tabLabel | 页签标题容器 |
+| extra | 页签栏右侧内容容器 |
+
 ## Theme Tokens
 
 - `--aheart-color-bg`
 - `--aheart-color-border`
 - `--aheart-color-fill`
 - `--aheart-color-primary-hover`
+- `--aheart-color-primary`
 - `--aheart-radius`
 - `--aheart-shadow`
