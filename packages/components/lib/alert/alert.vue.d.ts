@@ -1,73 +1,81 @@
+import { type PropType, type VNodeChild } from 'vue';
+import { type AlertClosableConfig } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<import("./types").AlertType>;
+        readonly type: PropType<import("./types").AlertType>;
         readonly default: undefined;
     };
-    readonly title: StringConstructor;
-    readonly message: StringConstructor;
-    readonly description: StringConstructor;
+    readonly title: PropType<VNodeChild>;
+    readonly message: PropType<VNodeChild>;
+    readonly description: PropType<VNodeChild>;
     readonly showIcon: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly closable: BooleanConstructor;
+    readonly closable: {
+        readonly type: PropType<boolean | AlertClosableConfig>;
+        readonly default: false;
+    };
     readonly banner: BooleanConstructor;
     readonly variant: {
-        readonly type: import("vue").PropType<import("./types").AlertVariant>;
+        readonly type: PropType<import("./types").AlertVariant>;
         readonly default: "outlined";
     };
-    readonly action: StringConstructor;
-    readonly icon: StringConstructor;
-    readonly closeIcon: StringConstructor;
+    readonly action: PropType<VNodeChild>;
+    readonly icon: PropType<VNodeChild>;
+    readonly closeIcon: PropType<VNodeChild>;
     readonly role: {
         readonly type: StringConstructor;
         readonly default: "alert";
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").AlertSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").AlertSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").AlertSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").AlertSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     close: (event: MouseEvent) => void;
     afterClose: () => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<import("./types").AlertType>;
+        readonly type: PropType<import("./types").AlertType>;
         readonly default: undefined;
     };
-    readonly title: StringConstructor;
-    readonly message: StringConstructor;
-    readonly description: StringConstructor;
+    readonly title: PropType<VNodeChild>;
+    readonly message: PropType<VNodeChild>;
+    readonly description: PropType<VNodeChild>;
     readonly showIcon: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly closable: BooleanConstructor;
+    readonly closable: {
+        readonly type: PropType<boolean | AlertClosableConfig>;
+        readonly default: false;
+    };
     readonly banner: BooleanConstructor;
     readonly variant: {
-        readonly type: import("vue").PropType<import("./types").AlertVariant>;
+        readonly type: PropType<import("./types").AlertVariant>;
         readonly default: "outlined";
     };
-    readonly action: StringConstructor;
-    readonly icon: StringConstructor;
-    readonly closeIcon: StringConstructor;
+    readonly action: PropType<VNodeChild>;
+    readonly icon: PropType<VNodeChild>;
+    readonly closeIcon: PropType<VNodeChild>;
     readonly role: {
         readonly type: StringConstructor;
         readonly default: "alert";
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").AlertSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").AlertSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").AlertSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").AlertSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onClose?: ((event: MouseEvent) => any) | undefined;
     onAfterClose?: (() => any) | undefined;
 }>, {
     readonly type: import("./types").AlertType;
     readonly showIcon: boolean;
-    readonly closable: boolean;
+    readonly closable: boolean | AlertClosableConfig;
     readonly banner: boolean;
     readonly variant: import("./types").AlertVariant;
     readonly role: string;

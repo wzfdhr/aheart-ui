@@ -4,22 +4,25 @@ declare const Alert: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").AlertType>;
             readonly default: undefined;
         };
-        readonly title: StringConstructor;
-        readonly message: StringConstructor;
-        readonly description: StringConstructor;
+        readonly title: import("vue").PropType<import("vue").VNodeChild>;
+        readonly message: import("vue").PropType<import("vue").VNodeChild>;
+        readonly description: import("vue").PropType<import("vue").VNodeChild>;
         readonly showIcon: {
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly closable: BooleanConstructor;
+        readonly closable: {
+            readonly type: import("vue").PropType<boolean | import("./types").AlertClosableConfig>;
+            readonly default: false;
+        };
         readonly banner: BooleanConstructor;
         readonly variant: {
             readonly type: import("vue").PropType<import("./types").AlertVariant>;
             readonly default: "outlined";
         };
-        readonly action: StringConstructor;
-        readonly icon: StringConstructor;
-        readonly closeIcon: StringConstructor;
+        readonly action: import("vue").PropType<import("vue").VNodeChild>;
+        readonly icon: import("vue").PropType<import("vue").VNodeChild>;
+        readonly closeIcon: import("vue").PropType<import("vue").VNodeChild>;
         readonly role: {
             readonly type: StringConstructor;
             readonly default: "alert";
@@ -38,7 +41,7 @@ declare const Alert: import("../utils/install").SFCWithInstall<{
     }, import("vue").PublicProps, {
         readonly type: import("./types").AlertType;
         readonly showIcon: boolean;
-        readonly closable: boolean;
+        readonly closable: boolean | import("./types").AlertClosableConfig;
         readonly banner: boolean;
         readonly variant: import("./types").AlertVariant;
         readonly role: string;
@@ -54,22 +57,25 @@ declare const Alert: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").AlertType>;
             readonly default: undefined;
         };
-        readonly title: StringConstructor;
-        readonly message: StringConstructor;
-        readonly description: StringConstructor;
+        readonly title: import("vue").PropType<import("vue").VNodeChild>;
+        readonly message: import("vue").PropType<import("vue").VNodeChild>;
+        readonly description: import("vue").PropType<import("vue").VNodeChild>;
         readonly showIcon: {
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly closable: BooleanConstructor;
+        readonly closable: {
+            readonly type: import("vue").PropType<boolean | import("./types").AlertClosableConfig>;
+            readonly default: false;
+        };
         readonly banner: BooleanConstructor;
         readonly variant: {
             readonly type: import("vue").PropType<import("./types").AlertVariant>;
             readonly default: "outlined";
         };
-        readonly action: StringConstructor;
-        readonly icon: StringConstructor;
-        readonly closeIcon: StringConstructor;
+        readonly action: import("vue").PropType<import("vue").VNodeChild>;
+        readonly icon: import("vue").PropType<import("vue").VNodeChild>;
+        readonly closeIcon: import("vue").PropType<import("vue").VNodeChild>;
         readonly role: {
             readonly type: StringConstructor;
             readonly default: "alert";
@@ -85,7 +91,7 @@ declare const Alert: import("../utils/install").SFCWithInstall<{
     }>, {}, {}, {}, {}, {
         readonly type: import("./types").AlertType;
         readonly showIcon: boolean;
-        readonly closable: boolean;
+        readonly closable: boolean | import("./types").AlertClosableConfig;
         readonly banner: boolean;
         readonly variant: import("./types").AlertVariant;
         readonly role: string;
@@ -98,22 +104,25 @@ declare const Alert: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").AlertType>;
         readonly default: undefined;
     };
-    readonly title: StringConstructor;
-    readonly message: StringConstructor;
-    readonly description: StringConstructor;
+    readonly title: import("vue").PropType<import("vue").VNodeChild>;
+    readonly message: import("vue").PropType<import("vue").VNodeChild>;
+    readonly description: import("vue").PropType<import("vue").VNodeChild>;
     readonly showIcon: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly closable: BooleanConstructor;
+    readonly closable: {
+        readonly type: import("vue").PropType<boolean | import("./types").AlertClosableConfig>;
+        readonly default: false;
+    };
     readonly banner: BooleanConstructor;
     readonly variant: {
         readonly type: import("vue").PropType<import("./types").AlertVariant>;
         readonly default: "outlined";
     };
-    readonly action: StringConstructor;
-    readonly icon: StringConstructor;
-    readonly closeIcon: StringConstructor;
+    readonly action: import("vue").PropType<import("vue").VNodeChild>;
+    readonly icon: import("vue").PropType<import("vue").VNodeChild>;
+    readonly closeIcon: import("vue").PropType<import("vue").VNodeChild>;
     readonly role: {
         readonly type: StringConstructor;
         readonly default: "alert";
@@ -132,7 +141,7 @@ declare const Alert: import("../utils/install").SFCWithInstall<{
 }, string, {
     readonly type: import("./types").AlertType;
     readonly showIcon: boolean;
-    readonly closable: boolean;
+    readonly closable: boolean | import("./types").AlertClosableConfig;
     readonly banner: boolean;
     readonly variant: import("./types").AlertVariant;
     readonly role: string;
