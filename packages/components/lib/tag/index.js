@@ -1,6 +1,14 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const tag_vue_vue_type_script_setup_true_lang = require("./tag.vue.js");
+const checkableTag_vue_vue_type_script_setup_true_lang = require("./checkable-tag.vue.js");
+const tagGroup_vue_vue_type_script_setup_true_lang = require("./tag-group.vue.js");
 const install = require("../utils/install.js");
 const Tag = install.withInstall(tag_vue_vue_type_script_setup_true_lang.default, "ATag");
+const CheckableTag = install.withInstall(checkableTag_vue_vue_type_script_setup_true_lang.default, "ACheckableTag");
+const TagGroup = install.withInstall(tagGroup_vue_vue_type_script_setup_true_lang.default, "ATagGroup");
+exports.ACheckableTag = CheckableTag;
+exports.ATagGroup = TagGroup;
+exports.CheckableTag = CheckableTag;
+exports.TagGroup = TagGroup;
 exports.default = Tag;

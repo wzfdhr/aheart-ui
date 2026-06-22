@@ -31,7 +31,7 @@ import Spin from "./spin/index.js";
 import Steps from "./steps/index.js";
 import Switch from "./switch/index.js";
 import Table from "./table/index.js";
-import Tag from "./tag/index.js";
+import Tag, { CheckableTag, TagGroup } from "./tag/index.js";
 import Tabs from "./tabs/index.js";
 import Textarea from "./textarea/index.js";
 import Tooltip from "./tooltip/index.js";
@@ -52,6 +52,8 @@ const components = [
   Paragraph,
   Link,
   Tag,
+  CheckableTag,
+  TagGroup,
   Badge,
   Alert,
   Message,
@@ -97,6 +99,7 @@ export {
   Breadcrumb,
   Button,
   Card,
+  CheckableTag,
   Checkbox,
   CheckboxGroup,
   Col,
@@ -133,6 +136,7 @@ export {
   Table,
   Tabs,
   Tag,
+  TagGroup,
   Text,
   Textarea,
   Title,

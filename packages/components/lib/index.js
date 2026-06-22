@@ -53,6 +53,8 @@ const components = [
   index$7.Paragraph,
   index$7.Link,
   index$8.default,
+  index$8.CheckableTag,
+  index$8.TagGroup,
   index$9.default,
   index$a.default,
   index$b.default,
@@ -129,7 +131,9 @@ exports.Spin = index$h.default;
 exports.Steps = index$o.default;
 exports.Switch = index$u.default;
 exports.Table = index$A.default;
+exports.CheckableTag = index$8.CheckableTag;
 exports.Tag = index$8.default;
+exports.TagGroup = index$8.TagGroup;
 exports.Tabs = index$n.default;
 exports.Textarea = index$q.default;
 exports.Tooltip = index$e.default;
