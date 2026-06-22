@@ -31,7 +31,8 @@ describe('Checkbox', () => {
     await wrapper.find('input').setValue(true)
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
-    expect(wrapper.emitted('change')?.[0]).toEqual([true])
+    expect(wrapper.emitted('change')?.[0]?.[0]).toBe(true)
+    expect(wrapper.emitted('change')?.[0]?.[1]).toBeInstanceOf(Event)
   })
 
   it('uses ConfigProvider disabled fallback', () => {
@@ -83,5 +84,121 @@ describe('Checkbox', () => {
     })
 
     expect(wrapper.findAll('input').every((input) => input.attributes('disabled') !== undefined)).toBe(true)
+  })
+
+  it('prefers checked alias over modelValue and supports defaultChecked', async () => {
+    const checkedWrapper = mount(Checkbox, {
+      props: { checked: true, modelValue: false, label: 'Alias' }
+    })
+    const defaultWrapper = mount(Checkbox, {
+      props: { defaultChecked: true, label: 'Default' }
+    })
+
+    expect(checkedWrapper.find('input').element.checked).toBe(true)
+    expect(defaultWrapper.find('input').element.checked).toBe(true)
+
+    await defaultWrapper.find('input').setValue(false)
+
+    expect(defaultWrapper.find('input').element.checked).toBe(false)
+  })
+
+  it('emits checked alias update and change event payload', async () => {
+    const wrapper = mount(Checkbox, {
+      props: { checked: false }
+    })
+
+    await wrapper.find('input').setValue(true)
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
+    expect(wrapper.emitted('update:checked')?.[0]).toEqual([true])
+    expect(wrapper.emitted('change')?.[0]?.[0]).toBe(true)
+    expect(wrapper.emitted('change')?.[0]?.[1]).toBeInstanceOf(Event)
+  })
+
+  it('applies Checkbox semantic classes and styles', () => {
+    const wrapper = mount(Checkbox, {
+      props: {
+        checked: true,
+        label: 'Styled',
+        className: 'checkbox-class',
+        rootClassName: 'checkbox-root',
+        style: { marginTop: '4px' },
+        classNames: {
+          root: 'semantic-root',
+          icon: 'semantic-icon',
+          label: 'semantic-label'
+        },
+        styles: {
+          root: { color: 'red' },
+          icon: { borderColor: 'blue' },
+          label: { fontWeight: 600 }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toContain('checkbox-class')
+    expect(wrapper.classes()).toContain('checkbox-root')
+    expect(wrapper.classes()).toContain('semantic-root')
+    expect(wrapper.attributes('style')).toContain('margin-top: 4px')
+    expect(wrapper.attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-checkbox__inner').classes()).toContain('semantic-icon')
+    expect(wrapper.find('.aheart-checkbox__inner').attributes('style')).toContain('border-color: blue')
+    expect(wrapper.find('.aheart-checkbox__label').classes()).toContain('semantic-label')
+    expect(wrapper.find('.aheart-checkbox__label').attributes('style')).toContain('font-weight: 600')
+  })
+
+  it('supports CheckboxGroup value alias and uncontrolled defaultValue', async () => {
+    const valueWrapper = mount(CheckboxGroup, {
+      props: {
+        value: ['banana'],
+        modelValue: ['apple'],
+        options: checkboxOptions
+      }
+    })
+    const defaultWrapper = mount(CheckboxGroup, {
+      props: {
+        defaultValue: ['apple'],
+        options: checkboxOptions
+      }
+    })
+
+    expect(valueWrapper.findAll('input')[1].element.checked).toBe(true)
+    expect(defaultWrapper.findAll('input')[0].element.checked).toBe(true)
+
+    await defaultWrapper.findAll('input')[1].setValue(true)
+
+    expect(defaultWrapper.emitted('update:modelValue')?.[0]).toEqual([['apple', 'banana']])
+    expect(defaultWrapper.emitted('update:value')?.[0]).toEqual([['apple', 'banana']])
+    expect(defaultWrapper.emitted('change')?.[0]).toEqual([['apple', 'banana']])
+    expect(defaultWrapper.findAll('input')[1].element.checked).toBe(true)
+  })
+
+  it('normalizes primitive group options and applies option metadata', () => {
+    const wrapper = mount(CheckboxGroup, {
+      props: {
+        defaultValue: ['Plain', 2],
+        options: [
+          'Plain',
+          2,
+          {
+            label: 'Styled',
+            value: 'styled',
+            className: 'option-class',
+            style: { color: 'green' },
+            title: 'Styled title'
+          }
+        ]
+      }
+    })
+
+    const checkboxes = wrapper.findAllComponents(Checkbox)
+
+    expect(wrapper.text()).toContain('Plain')
+    expect(wrapper.text()).toContain('2')
+    expect(wrapper.findAll('input')[0].element.checked).toBe(true)
+    expect(wrapper.findAll('input')[1].element.checked).toBe(true)
+    expect(checkboxes[2].classes()).toContain('option-class')
+    expect(checkboxes[2].attributes('style')).toContain('color: green')
+    expect(checkboxes[2].attributes('title')).toBe('Styled title')
   })
 })

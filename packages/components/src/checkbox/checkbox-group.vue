@@ -1,23 +1,26 @@
 <template>
-  <span class="aheart-checkbox-group" :class="checkboxGroupClass">
+  <span class="aheart-checkbox-group" :class="checkboxGroupClass" :style="style">
     <Checkbox
-      v-for="option in options"
+      v-for="option in normalizedOptions"
       :key="getOptionKey(option.value)"
       :model-value="isChecked(option.value)"
       :value="option.value"
       :name="name"
       :label="option.label"
       :disabled="isDisabled || option.disabled"
+      :class-name="option.className"
+      :style="option.style"
+      :title="option.title"
       @change="(checked) => handleOptionChange(option.value, checked)"
     />
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import Checkbox from './checkbox.vue'
-import { checkboxGroupEmits, checkboxGroupProps, type CheckboxValue } from './types'
+import { checkboxGroupEmits, checkboxGroupProps, type CheckboxOption, type CheckboxValue } from './types'
 import './style.css'
 
 defineOptions({
@@ -27,11 +30,26 @@ defineOptions({
 const props = defineProps(checkboxGroupProps)
 const emit = defineEmits(checkboxGroupEmits)
 const config = useAheartConfig()
+const internalValue = ref<CheckboxValue[]>(props.defaultValue ? [...props.defaultValue] : [])
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
+const isControlled = computed(() => props.value !== undefined || props.modelValue !== undefined)
+const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value)
+const normalizedOptions = computed<CheckboxOption[]>(() =>
+  props.options.map((option) =>
+    typeof option === 'object' && option !== null
+      ? option
+      : {
+          label: String(option),
+          value: option
+        }
+  )
+)
 
 const checkboxGroupClass = computed(() => [
   `aheart-checkbox-group--${props.direction}`,
+  props.className,
+  props.rootClassName,
   {
     'is-disabled': isDisabled.value
   }
@@ -39,14 +57,19 @@ const checkboxGroupClass = computed(() => [
 
 const getOptionKey = (value: CheckboxValue) => `${typeof value}:${String(value)}`
 
-const isChecked = (value: CheckboxValue) => props.modelValue.includes(value)
+const isChecked = (value: CheckboxValue) => mergedValue.value.includes(value)
 
 const handleOptionChange = (value: CheckboxValue, checked: boolean) => {
   const nextValue = checked
-    ? Array.from(new Set([...props.modelValue, value]))
-    : props.modelValue.filter((currentValue) => currentValue !== value)
+    ? Array.from(new Set([...mergedValue.value, value]))
+    : mergedValue.value.filter((currentValue) => currentValue !== value)
+
+  if (!isControlled.value) {
+    internalValue.value = nextValue
+  }
 
   emit('update:modelValue', nextValue)
+  emit('update:value', nextValue)
   emit('change', nextValue)
 }
 </script>
