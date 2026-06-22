@@ -1,16 +1,21 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 export declare const buttonTypes: readonly ["default", "primary", "dashed", "link", "text", "success", "warning", "danger"];
 export declare const buttonSizes: readonly ["large", "normal", "middle", "small", "mini"];
 export declare const nativeButtonTypes: readonly ["button", "submit", "reset"];
 export declare const buttonShapes: readonly ["default", "circle", "round"];
 export declare const buttonIconPlacements: readonly ["start", "end"];
+export declare const buttonColors: readonly ["default", "primary", "danger", "success", "warning", "info", "blue", "purple", "cyan", "green", "magenta", "pink", "red", "orange", "yellow", "volcano", "geekblue", "lime", "gold"];
+export declare const buttonVariants: readonly ["outlined", "dashed", "solid", "filled", "text", "link"];
 export type ButtonType = (typeof buttonTypes)[number];
 export type ButtonSize = (typeof buttonSizes)[number];
 export type NativeButtonType = (typeof nativeButtonTypes)[number];
 export type ButtonShape = (typeof buttonShapes)[number];
 export type ButtonIconPlacement = (typeof buttonIconPlacements)[number];
+export type ButtonColor = (typeof buttonColors)[number];
+export type ButtonVariant = (typeof buttonVariants)[number];
 export type ButtonLoading = boolean | {
     delay?: number;
+    icon?: VNodeChild;
 };
 export type ButtonSemanticPart = 'root' | 'icon' | 'content';
 export type ButtonClassNames = Partial<Record<ButtonSemanticPart, string>>;
@@ -58,6 +63,14 @@ export declare const buttonProps: {
     };
     readonly iconPosition: {
         readonly type: PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly color: {
+        readonly type: PropType<"success" | "info" | "warning" | "default" | "blue" | "cyan" | "gold" | "green" | "lime" | "magenta" | "orange" | "pink" | "purple" | "red" | "yellow" | "primary" | "danger" | "volcano" | "geekblue">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly variant: {
+        readonly type: PropType<"outlined" | "filled" | "link" | "text" | "dashed" | "solid">;
         readonly validator: (value: string) => boolean;
     };
     readonly href: StringConstructor;

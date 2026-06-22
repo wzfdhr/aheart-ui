@@ -5,6 +5,28 @@ const buttonSizes = ["large", "normal", "middle", "small", "mini"];
 const nativeButtonTypes = ["button", "submit", "reset"];
 const buttonShapes = ["default", "circle", "round"];
 const buttonIconPlacements = ["start", "end"];
+const buttonColors = [
+  "default",
+  "primary",
+  "danger",
+  "success",
+  "warning",
+  "info",
+  "blue",
+  "purple",
+  "cyan",
+  "green",
+  "magenta",
+  "pink",
+  "red",
+  "orange",
+  "yellow",
+  "volcano",
+  "geekblue",
+  "lime",
+  "gold"
+];
+const buttonVariants = ["outlined", "dashed", "solid", "filled", "text", "link"];
 const buttonProps = {
   type: {
     type: String,
@@ -50,6 +72,14 @@ const buttonProps = {
     type: String,
     validator: (value) => buttonIconPlacements.includes(value)
   },
+  color: {
+    type: String,
+    validator: (value) => buttonColors.includes(value)
+  },
+  variant: {
+    type: String,
+    validator: (value) => buttonVariants.includes(value)
+  },
   href: String,
   target: String,
   className: String,
@@ -61,10 +91,12 @@ const buttonProps = {
 const buttonEmits = {
   click: (event) => event instanceof MouseEvent
 };
+exports.buttonColors = buttonColors;
 exports.buttonEmits = buttonEmits;
 exports.buttonIconPlacements = buttonIconPlacements;
 exports.buttonProps = buttonProps;
 exports.buttonShapes = buttonShapes;
 exports.buttonSizes = buttonSizes;
 exports.buttonTypes = buttonTypes;
+exports.buttonVariants = buttonVariants;
 exports.nativeButtonTypes = nativeButtonTypes;

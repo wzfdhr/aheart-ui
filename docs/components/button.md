@@ -79,6 +79,30 @@ import 'aheart-ui/es/style.css'
 </template>
 ```
 
+## 颜色与变体
+
+<div class="aheart-demo-panel">
+  <div class="aheart-demo-row">
+    <AButton color="primary" variant="solid">Solid</AButton>
+    <AButton color="danger" variant="filled">Filled</AButton>
+    <AButton color="success" variant="outlined">Outlined</AButton>
+    <AButton color="warning" variant="dashed">Dashed</AButton>
+    <AButton color="geekblue" variant="text">Text</AButton>
+    <AButton color="purple" variant="link">Link</AButton>
+  </div>
+</div>
+
+```vue
+<template>
+  <Button color="primary" variant="solid">Solid</Button>
+  <Button color="danger" variant="filled">Filled</Button>
+  <Button color="success" variant="outlined">Outlined</Button>
+  <Button color="warning" variant="dashed">Dashed</Button>
+  <Button color="geekblue" variant="text">Text</Button>
+  <Button color="purple" variant="link">Link</Button>
+</template>
+```
+
 ## 形状与链接
 
 <div class="aheart-demo-panel">
@@ -130,6 +154,7 @@ import 'aheart-ui/es/style.css'
 <div class="aheart-demo-panel">
   <div class="aheart-demo-row">
     <AButton type="primary" :loading="{ delay: 300 }">延迟加载</AButton>
+    <AButton :loading="{ icon: '···' }">对象图标</AButton>
     <AButton loading>
       <template #loadingIcon>
         <span>...</span>
@@ -142,6 +167,7 @@ import 'aheart-ui/es/style.css'
 ```vue
 <template>
   <Button type="primary" :loading="{ delay: 300 }">延迟加载</Button>
+  <Button :loading="{ icon: '···' }">对象图标</Button>
   <Button loading>
     <template #loadingIcon>
       <span>...</span>
@@ -190,7 +216,9 @@ import 'aheart-ui/es/style.css'
 | nativeType | 原生按钮类型 | `button` \| `submit` \| `reset` | `button` |
 | htmlType | Ant 风格原生按钮类型别名，优先于 `nativeType` | `button` \| `submit` \| `reset` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
-| loading | 是否加载中，支持延迟显示 | `boolean` \| `{ delay?: number }` | `false` |
+| color | 按钮颜色，显式设置时优先于 `type` 推导 | `default` \| `primary` \| `danger` \| `success` \| `warning` \| `info` \| Ant 预设色 | - |
+| variant | 按钮变体，显式设置时优先于 `type` 推导 | `outlined` \| `dashed` \| `solid` \| `filled` \| `text` \| `link` | - |
+| loading | 是否加载中，支持延迟显示和自定义图标 | `boolean` \| `{ delay?: number; icon?: VNodeChild }` | `false` |
 | block | 是否块级显示 | `boolean` | `false` |
 | danger | 设置危险按钮状态 | `boolean` | `false` |
 | ghost | 设置幽灵按钮状态 | `boolean` | `false` |
@@ -230,5 +258,6 @@ Button 使用 Aheart UI 的全局 CSS 变量：
 - `--aheart-color-success`
 - `--aheart-color-warning`
 - `--aheart-color-danger`
+- `--aheart-color-info`
 - `--aheart-radius`
 - `--aheart-motion-duration`

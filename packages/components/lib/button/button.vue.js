@@ -10,6 +10,10 @@ const _hoisted_1 = {
   class: "aheart-button__loading",
   "aria-hidden": "true"
 };
+const _hoisted_2 = {
+  key: 1,
+  class: "aheart-button__loading-spinner"
+};
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AButton"
@@ -24,6 +28,54 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const slots = vue.useSlots();
     const delayedLoading = vue.ref(false);
     let loadingTimer;
+    const ARenderNode = vue.defineComponent({
+      name: "AButtonRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const colorTokens = {
+      default: "var(--aheart-color-text)",
+      primary: "var(--aheart-color-primary)",
+      danger: "var(--aheart-color-danger)",
+      success: "var(--aheart-color-success)",
+      warning: "var(--aheart-color-warning)",
+      info: "var(--aheart-color-info)",
+      blue: "#1677ff",
+      purple: "#722ed1",
+      cyan: "#13c2c2",
+      green: "#52c41a",
+      magenta: "#eb2f96",
+      pink: "#eb2f96",
+      red: "#f5222d",
+      orange: "#fa8c16",
+      yellow: "#fadb14",
+      volcano: "#fa541c",
+      geekblue: "#2f54eb",
+      lime: "#a0d911",
+      gold: "#faad14"
+    };
+    const typeColorMap = {
+      primary: "primary",
+      success: "success",
+      warning: "warning",
+      danger: "danger"
+    };
+    const typeVariantMap = {
+      primary: "solid",
+      success: "solid",
+      warning: "solid",
+      danger: "solid",
+      dashed: "dashed",
+      link: "link",
+      text: "text"
+    };
     const resolvedSize = vue.computed(() => {
       const providerSize = config.value.size === "middle" ? "normal" : config.value.size;
       return context.resolveConfigValue(props.size, providerSize, "normal");
@@ -70,15 +122,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootTag = vue.computed(() => props.href ? "a" : "button");
     const resolvedNativeType = vue.computed(() => props.htmlType || props.nativeType);
     const isDanger = vue.computed(() => props.danger || props.type === "danger");
+    const resolvedColor = vue.computed(() => props.color || (isDanger.value ? "danger" : typeColorMap[props.type] || "default"));
+    const resolvedVariant = vue.computed(() => props.variant || typeVariantMap[props.type] || "outlined");
     const resolvedIconPlacement = vue.computed(() => props.iconPlacement || props.iconPosition || "start");
     const hasIcon = vue.computed(() => Boolean(slots.icon) || Boolean(props.icon));
     const showStartIcon = vue.computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "start");
     const showEndIcon = vue.computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "end");
+    const objectLoadingIcon = vue.computed(
+      () => typeof props.loading === "object" && props.loading !== null ? props.loading.icon : void 0
+    );
+    const hasObjectLoadingIcon = vue.computed(
+      () => objectLoadingIcon.value !== void 0 && objectLoadingIcon.value !== null && objectLoadingIcon.value !== false
+    );
     const buttonClass = vue.computed(() => {
       var _a;
       return [
         `aheart-button--${props.type}`,
         `aheart-button--${resolvedSize.value}`,
+        `aheart-button--color-${resolvedColor.value}`,
+        `aheart-button--variant-${resolvedVariant.value}`,
         props.className,
         props.rootClassName,
         (_a = props.classNames) == null ? void 0 : _a.root,
@@ -95,7 +157,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const rootStyle = vue.computed(() => {
       var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+      return [
+        {
+          "--aheart-button-color": colorTokens[resolvedColor.value],
+          "--aheart-button-color-hover": resolvedColor.value === "default" ? "var(--aheart-color-primary-hover)" : colorTokens[resolvedColor.value]
+        },
+        props.style,
+        (_a = props.styles) == null ? void 0 : _a.root
+      ];
     });
     const iconClass = vue.computed(() => {
       var _a;
@@ -137,7 +206,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         default: vue.withCtx(() => [
           isLoading.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, [
             vue.renderSlot(_ctx.$slots, "loadingIcon", {}, () => [
-              _cache[0] || (_cache[0] = vue.createElementVNode("span", { class: "aheart-button__loading-spinner" }, null, -1))
+              hasObjectLoadingIcon.value ? (vue.openBlock(), vue.createBlock(vue.unref(ARenderNode), {
+                key: 0,
+                node: objectLoadingIcon.value
+              }, null, 8, ["node"])) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_2))
             ])
           ])) : vue.createCommentVNode("", true),
           showStartIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {
@@ -155,7 +227,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(contentStyle.value)
           }, [
             vue.renderSlot(_ctx.$slots, "default", {}, () => [
-              _cache[1] || (_cache[1] = vue.createTextVNode("按钮", -1))
+              _cache[0] || (_cache[0] = vue.createTextVNode("按钮", -1))
             ])
           ], 6),
           showEndIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {

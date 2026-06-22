@@ -1,20 +1,21 @@
+import { type PropType } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: import("vue").PropType<"small" | "normal" | "middle" | "large" | "mini">;
+        readonly type: PropType<"small" | "normal" | "middle" | "large" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {
-        readonly type: import("vue").PropType<"reset" | "submit" | "button">;
+        readonly type: PropType<"reset" | "submit" | "button">;
         readonly default: "button";
         readonly validator: (value: string) => boolean;
     };
     readonly htmlType: {
-        readonly type: import("vue").PropType<"reset" | "submit" | "button">;
+        readonly type: PropType<"reset" | "submit" | "button">;
         readonly validator: (value: string) => boolean;
     };
     readonly disabled: {
@@ -22,7 +23,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly loading: {
-        readonly type: import("vue").PropType<import("./types").ButtonLoading>;
+        readonly type: PropType<import("./types").ButtonLoading>;
         readonly default: false;
     };
     readonly block: BooleanConstructor;
@@ -30,45 +31,53 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly danger: BooleanConstructor;
     readonly ghost: BooleanConstructor;
     readonly shape: {
-        readonly type: import("vue").PropType<"default" | "round" | "circle">;
+        readonly type: PropType<"default" | "round" | "circle">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly icon: StringConstructor;
     readonly iconPlacement: {
-        readonly type: import("vue").PropType<"end" | "start">;
+        readonly type: PropType<"end" | "start">;
         readonly validator: (value: string) => boolean;
     };
     readonly iconPosition: {
-        readonly type: import("vue").PropType<"end" | "start">;
+        readonly type: PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly color: {
+        readonly type: PropType<"success" | "info" | "warning" | "default" | "blue" | "cyan" | "gold" | "green" | "lime" | "magenta" | "orange" | "pink" | "purple" | "red" | "yellow" | "primary" | "danger" | "volcano" | "geekblue">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly variant: {
+        readonly type: PropType<"outlined" | "filled" | "link" | "text" | "dashed" | "solid">;
         readonly validator: (value: string) => boolean;
     };
     readonly href: StringConstructor;
     readonly target: StringConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (event: MouseEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: import("vue").PropType<"small" | "normal" | "middle" | "large" | "mini">;
+        readonly type: PropType<"small" | "normal" | "middle" | "large" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {
-        readonly type: import("vue").PropType<"reset" | "submit" | "button">;
+        readonly type: PropType<"reset" | "submit" | "button">;
         readonly default: "button";
         readonly validator: (value: string) => boolean;
     };
     readonly htmlType: {
-        readonly type: import("vue").PropType<"reset" | "submit" | "button">;
+        readonly type: PropType<"reset" | "submit" | "button">;
         readonly validator: (value: string) => boolean;
     };
     readonly disabled: {
@@ -76,7 +85,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly loading: {
-        readonly type: import("vue").PropType<import("./types").ButtonLoading>;
+        readonly type: PropType<import("./types").ButtonLoading>;
         readonly default: false;
     };
     readonly block: BooleanConstructor;
@@ -84,26 +93,34 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly danger: BooleanConstructor;
     readonly ghost: BooleanConstructor;
     readonly shape: {
-        readonly type: import("vue").PropType<"default" | "round" | "circle">;
+        readonly type: PropType<"default" | "round" | "circle">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly icon: StringConstructor;
     readonly iconPlacement: {
-        readonly type: import("vue").PropType<"end" | "start">;
+        readonly type: PropType<"end" | "start">;
         readonly validator: (value: string) => boolean;
     };
     readonly iconPosition: {
-        readonly type: import("vue").PropType<"end" | "start">;
+        readonly type: PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly color: {
+        readonly type: PropType<"success" | "info" | "warning" | "default" | "blue" | "cyan" | "gold" | "green" | "lime" | "magenta" | "orange" | "pink" | "purple" | "red" | "yellow" | "primary" | "danger" | "volcano" | "geekblue">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly variant: {
+        readonly type: PropType<"outlined" | "filled" | "link" | "text" | "dashed" | "solid">;
         readonly validator: (value: string) => boolean;
     };
     readonly href: StringConstructor;
     readonly target: StringConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").ButtonSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").ButtonSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
 }>, {

@@ -44,6 +44,14 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<"end" | "start">;
             readonly validator: (value: string) => boolean;
         };
+        readonly color: {
+            readonly type: import("vue").PropType<"success" | "info" | "warning" | "default" | "blue" | "cyan" | "gold" | "green" | "lime" | "magenta" | "orange" | "pink" | "purple" | "red" | "yellow" | "primary" | "danger" | "volcano" | "geekblue">;
+            readonly validator: (value: string) => boolean;
+        };
+        readonly variant: {
+            readonly type: import("vue").PropType<"outlined" | "filled" | "link" | "text" | "dashed" | "solid">;
+            readonly validator: (value: string) => boolean;
+        };
         readonly href: StringConstructor;
         readonly target: StringConstructor;
         readonly className: StringConstructor;
@@ -117,6 +125,14 @@ declare const Button: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<"end" | "start">;
             readonly validator: (value: string) => boolean;
         };
+        readonly color: {
+            readonly type: import("vue").PropType<"success" | "info" | "warning" | "default" | "blue" | "cyan" | "gold" | "green" | "lime" | "magenta" | "orange" | "pink" | "purple" | "red" | "yellow" | "primary" | "danger" | "volcano" | "geekblue">;
+            readonly validator: (value: string) => boolean;
+        };
+        readonly variant: {
+            readonly type: import("vue").PropType<"outlined" | "filled" | "link" | "text" | "dashed" | "solid">;
+            readonly validator: (value: string) => boolean;
+        };
         readonly href: StringConstructor;
         readonly target: StringConstructor;
         readonly className: StringConstructor;
@@ -183,6 +199,14 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     };
     readonly iconPosition: {
         readonly type: import("vue").PropType<"end" | "start">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly color: {
+        readonly type: import("vue").PropType<"success" | "info" | "warning" | "default" | "blue" | "cyan" | "gold" | "green" | "lime" | "magenta" | "orange" | "pink" | "purple" | "red" | "yellow" | "primary" | "danger" | "volcano" | "geekblue">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly variant: {
+        readonly type: import("vue").PropType<"outlined" | "filled" | "link" | "text" | "dashed" | "solid">;
         readonly validator: (value: string) => boolean;
     };
     readonly href: StringConstructor;

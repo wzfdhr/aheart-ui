@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, createElementBlock, renderSlot, createElementVNode, createCommentVNode, createVNode, createTextVNode } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, createElementBlock, renderSlot, unref, createCommentVNode, createVNode, createElementVNode, createTextVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { buttonProps, buttonEmits } from "./types.js";
@@ -7,6 +7,10 @@ const _hoisted_1 = {
   key: 0,
   class: "aheart-button__loading",
   "aria-hidden": "true"
+};
+const _hoisted_2 = {
+  key: 1,
+  class: "aheart-button__loading-spinner"
 };
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
@@ -22,6 +26,54 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const slots = useSlots();
     const delayedLoading = ref(false);
     let loadingTimer;
+    const ARenderNode = defineComponent({
+      name: "AButtonRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const colorTokens = {
+      default: "var(--aheart-color-text)",
+      primary: "var(--aheart-color-primary)",
+      danger: "var(--aheart-color-danger)",
+      success: "var(--aheart-color-success)",
+      warning: "var(--aheart-color-warning)",
+      info: "var(--aheart-color-info)",
+      blue: "#1677ff",
+      purple: "#722ed1",
+      cyan: "#13c2c2",
+      green: "#52c41a",
+      magenta: "#eb2f96",
+      pink: "#eb2f96",
+      red: "#f5222d",
+      orange: "#fa8c16",
+      yellow: "#fadb14",
+      volcano: "#fa541c",
+      geekblue: "#2f54eb",
+      lime: "#a0d911",
+      gold: "#faad14"
+    };
+    const typeColorMap = {
+      primary: "primary",
+      success: "success",
+      warning: "warning",
+      danger: "danger"
+    };
+    const typeVariantMap = {
+      primary: "solid",
+      success: "solid",
+      warning: "solid",
+      danger: "solid",
+      dashed: "dashed",
+      link: "link",
+      text: "text"
+    };
     const resolvedSize = computed(() => {
       const providerSize = config.value.size === "middle" ? "normal" : config.value.size;
       return resolveConfigValue(props.size, providerSize, "normal");
@@ -68,15 +120,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootTag = computed(() => props.href ? "a" : "button");
     const resolvedNativeType = computed(() => props.htmlType || props.nativeType);
     const isDanger = computed(() => props.danger || props.type === "danger");
+    const resolvedColor = computed(() => props.color || (isDanger.value ? "danger" : typeColorMap[props.type] || "default"));
+    const resolvedVariant = computed(() => props.variant || typeVariantMap[props.type] || "outlined");
     const resolvedIconPlacement = computed(() => props.iconPlacement || props.iconPosition || "start");
     const hasIcon = computed(() => Boolean(slots.icon) || Boolean(props.icon));
     const showStartIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "start");
     const showEndIcon = computed(() => !isLoading.value && hasIcon.value && resolvedIconPlacement.value === "end");
+    const objectLoadingIcon = computed(
+      () => typeof props.loading === "object" && props.loading !== null ? props.loading.icon : void 0
+    );
+    const hasObjectLoadingIcon = computed(
+      () => objectLoadingIcon.value !== void 0 && objectLoadingIcon.value !== null && objectLoadingIcon.value !== false
+    );
     const buttonClass = computed(() => {
       var _a;
       return [
         `aheart-button--${props.type}`,
         `aheart-button--${resolvedSize.value}`,
+        `aheart-button--color-${resolvedColor.value}`,
+        `aheart-button--variant-${resolvedVariant.value}`,
         props.className,
         props.rootClassName,
         (_a = props.classNames) == null ? void 0 : _a.root,
@@ -93,7 +155,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const rootStyle = computed(() => {
       var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+      return [
+        {
+          "--aheart-button-color": colorTokens[resolvedColor.value],
+          "--aheart-button-color-hover": resolvedColor.value === "default" ? "var(--aheart-color-primary-hover)" : colorTokens[resolvedColor.value]
+        },
+        props.style,
+        (_a = props.styles) == null ? void 0 : _a.root
+      ];
     });
     const iconClass = computed(() => {
       var _a;
@@ -135,7 +204,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         default: withCtx(() => [
           isLoading.value ? (openBlock(), createElementBlock("span", _hoisted_1, [
             renderSlot(_ctx.$slots, "loadingIcon", {}, () => [
-              _cache[0] || (_cache[0] = createElementVNode("span", { class: "aheart-button__loading-spinner" }, null, -1))
+              hasObjectLoadingIcon.value ? (openBlock(), createBlock(unref(ARenderNode), {
+                key: 0,
+                node: objectLoadingIcon.value
+              }, null, 8, ["node"])) : (openBlock(), createElementBlock("span", _hoisted_2))
             ])
           ])) : createCommentVNode("", true),
           showStartIcon.value ? (openBlock(), createElementBlock("span", {
@@ -153,7 +225,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(contentStyle.value)
           }, [
             renderSlot(_ctx.$slots, "default", {}, () => [
-              _cache[1] || (_cache[1] = createTextVNode("按钮", -1))
+              _cache[0] || (_cache[0] = createTextVNode("按钮", -1))
             ])
           ], 6),
           showEndIcon.value ? (openBlock(), createElementBlock("span", {
