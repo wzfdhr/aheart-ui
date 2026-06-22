@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
-import Badge from '../badge.vue'
+import * as BadgeModule from '../index'
+
+const Badge = BadgeModule.default
+const BadgeRibbon = (BadgeModule as { BadgeRibbon?: unknown }).BadgeRibbon
 
 describe('Badge', () => {
   it('renders count with overflow text', () => {
@@ -145,5 +149,81 @@ describe('Badge', () => {
     const statusDot = wrapper.find('.aheart-badge__status-dot')
     expect(statusDot.classes()).toContain('custom-status-dot')
     expect(statusDot.attributes('style')).toContain('background-color: rgb(19, 194, 194)')
+  })
+
+  it('supports root hooks and vnode count and status text content', () => {
+    const wrapper = mount(Badge, {
+      props: {
+        count: h('span', { class: 'count-node' }, 'hot'),
+        status: 'processing',
+        text: h('span', { class: 'status-node' }, 'Syncing'),
+        className: 'badge-class',
+        rootClassName: 'badge-root',
+        style: { marginInlineStart: '6px' },
+        classNames: {
+          root: 'semantic-root',
+          indicator: 'semantic-indicator'
+        },
+        styles: {
+          root: { padding: '2px' },
+          indicator: { boxShadow: '0 0 0 1px #fff' }
+        }
+      },
+      slots: {
+        default: '<span>Inbox</span>'
+      }
+    })
+
+    expect(wrapper.classes()).toEqual(expect.arrayContaining(['badge-class', 'badge-root', 'semantic-root']))
+    expect(wrapper.attributes('style')).toContain('margin-inline-start: 6px')
+    expect(wrapper.attributes('style')).toContain('padding: 2px')
+    expect(wrapper.find('.count-node').text()).toBe('hot')
+    expect(wrapper.find('.aheart-badge__count').classes()).toContain('semantic-indicator')
+    expect(wrapper.find('.aheart-badge__count').attributes('style')).toContain('box-shadow: 0 0 0 1px #fff')
+    expect(wrapper.find('.status-node').text()).toBe('Syncing')
+  })
+
+  it('renders ribbon with placement color root hooks and semantic content hooks', () => {
+    const wrapper = mount(BadgeRibbon as never, {
+      props: {
+        text: h('strong', { class: 'ribbon-text' }, 'Limited'),
+        color: '#722ed1',
+        placement: 'start',
+        className: 'legacy-ribbon',
+        rootClassName: 'root-ribbon',
+        style: { marginTop: '8px' },
+        classNames: {
+          root: 'semantic-ribbon-root',
+          indicator: 'semantic-ribbon-indicator',
+          content: 'semantic-ribbon-content'
+        },
+        styles: {
+          root: { padding: '4px' },
+          indicator: { boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+          content: { fontWeight: '700' }
+        }
+      },
+      slots: {
+        default: '<div class="card-body">Card</div>'
+      }
+    })
+
+    expect(wrapper.classes()).toEqual(
+      expect.arrayContaining(['legacy-ribbon', 'root-ribbon', 'semantic-ribbon-root', 'aheart-ribbon--start'])
+    )
+    expect(wrapper.attributes('style')).toContain('margin-top: 8px')
+    expect(wrapper.attributes('style')).toContain('padding: 4px')
+    expect(wrapper.find('.card-body').text()).toBe('Card')
+    expect(wrapper.find('.aheart-ribbon__indicator').classes()).toContain('semantic-ribbon-indicator')
+    expect(wrapper.find('.aheart-ribbon__indicator').attributes('style')).toContain('background-color: rgb(114, 46, 209)')
+    expect(wrapper.find('.aheart-ribbon__indicator').attributes('style')).toContain('box-shadow: 0 2px 4px rgba(0,0,0,0.1)')
+    expect(wrapper.find('.aheart-ribbon__content').classes()).toContain('semantic-ribbon-content')
+    expect(wrapper.find('.aheart-ribbon__content').attributes('style')).toContain('font-weight: 700')
+    expect(wrapper.find('.ribbon-text').text()).toBe('Limited')
+  })
+
+  it('exposes BadgeRibbon as a named export and Badge.Ribbon helper', () => {
+    expect(BadgeRibbon).toBeTruthy()
+    expect((Badge as typeof Badge & { Ribbon?: unknown }).Ribbon).toBe(BadgeRibbon)
   })
 })

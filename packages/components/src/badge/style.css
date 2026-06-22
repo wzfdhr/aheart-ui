@@ -84,3 +84,56 @@
   color: var(--aheart-color-text);
   font-size: var(--aheart-font-size);
 }
+
+.aheart-ribbon-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.aheart-ribbon__indicator {
+  position: absolute;
+  top: var(--aheart-spacing-sm);
+  inset-inline-end: -6px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 var(--aheart-spacing-sm);
+  border-radius: var(--aheart-radius-sm) var(--aheart-radius-sm) 0 var(--aheart-radius-sm);
+  background: var(--aheart-color-primary);
+  color: #fff;
+  font-size: var(--aheart-font-size-sm);
+  line-height: 22px;
+  white-space: nowrap;
+}
+
+.aheart-ribbon--start .aheart-ribbon__indicator {
+  inset-inline-start: -6px;
+  inset-inline-end: auto;
+  border-radius: var(--aheart-radius-sm) var(--aheart-radius-sm) var(--aheart-radius-sm) 0;
+}
+
+.aheart-ribbon__content {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+}
+
+.aheart-ribbon__corner {
+  position: absolute;
+  top: 100%;
+  inset-inline-end: 0;
+  width: 0;
+  height: 0;
+  color: var(--aheart-color-primary);
+  border: 3px solid currentcolor;
+  border-block-end-color: transparent;
+  border-inline-end-color: transparent;
+}
+
+.aheart-ribbon--start .aheart-ribbon__corner {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  border-inline-start-color: transparent;
+  border-inline-end-color: currentcolor;
+}
