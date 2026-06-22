@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 # Textarea 文本域 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Textarea captures multi-line text with rows, count, clear action, auto-size row bounds, variants, disabled state, and validation status.
@@ -84,7 +88,8 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 
 <div class="aheart-demo-panel">
   <ASpace direction="vertical" style="width: 100%">
-    <ATextarea model-value="Clear me" :allow-clear="{ clearIcon: 'clear' }" />
+    <ATextarea model-value="Clear me" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
+    <ATextarea model-value="Clear disabled" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
     <ATextarea model-value="Slot clear" allow-clear>
       <template #clearIcon>x</template>
     </ATextarea>
@@ -92,8 +97,13 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <ATextarea v-model="value" :allow-clear="{ clearIcon: 'clear' }" />
+  <ATextarea v-model="value" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
+  <ATextarea v-model="disabledClearValue" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
   <ATextarea v-model="slotValue" allow-clear>
     <template #clearIcon>x</template>
   </ATextarea>
@@ -107,7 +117,7 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
     <ATextarea
       model-value="Aheart"
       :maxlength="20"
-      :show-count="{ formatter: ({ count, maxLength }) => `${count}/${maxLength}` }"
+      :show-count="{ formatter: ({ count, maxLength }) => h('strong', null, `${count}/${maxLength}`) }"
     />
     <ATextarea
       model-value="hello"
@@ -117,15 +127,27 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
         show: ({ count, maxLength }) => `${count} of ${maxLength}`
       }"
     />
+    <ATextarea
+      model-value="clipped textarea"
+      :count="{
+        max: 8,
+        exceedFormatter: (value, { max }) => value.slice(0, max),
+        show: ({ count, maxLength }) => h('span', null, `${count}/${maxLength}`)
+      }"
+    />
   </ASpace>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
   <ATextarea
     v-model="value"
     :maxlength="20"
-    :show-count="{ formatter: ({ count, maxLength }) => `${count}/${maxLength}` }"
+    :show-count="{ formatter: ({ count, maxLength }) => h('strong', null, `${count}/${maxLength}`) }"
   />
   <ATextarea
     v-model="strategyValue"
@@ -133,6 +155,14 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
       max: 10,
       strategy: (value) => value.split('').filter((char) => char === 'l').length,
       show: ({ count, maxLength }) => `${count} of ${maxLength}`
+    }"
+  />
+  <ATextarea
+    v-model="clippedValue"
+    :count="{
+      max: 8,
+      exceedFormatter: (value, { max }) => value.slice(0, max),
+      show: ({ count, maxLength }) => h('span', null, `${count}/${maxLength}`)
     }"
   />
 </template>
@@ -184,10 +214,10 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 | status | 校验状态 | `error` \| `warning` | - |
 | variant | 文本域变体 | `outlined` \| `borderless` \| `filled` \| `underlined` | `outlined` |
 | bordered | 是否显示边框，设为 `false` 时等同 `borderless` | `boolean` | `true` |
-| allowClear | 是否显示清除按钮，支持自定义清除图标 | `boolean` \| `{ clearIcon?: string }` | `false` |
+| allowClear | 是否显示清除按钮，支持自定义清除图标与禁用清除按钮 | `boolean` \| `{ clearIcon?: VNodeChild; disabled?: boolean }` | `false` |
 | maxlength | 最大字符数 | `number` | - |
-| showCount | 是否显示字数，支持格式化 | `boolean` \| `{ formatter?: (info: CountInfo) => string }` | `false` |
-| count | 计数配置 | `{ max?: number; strategy?: (value: string) => number; show?: boolean \| ((info: CountInfo) => string) }` | - |
+| showCount | 是否显示字数，支持格式化 | `boolean` \| `{ formatter?: (info: CountInfo) => VNodeChild }` | `false` |
+| count | 计数配置 | `{ max?: number; strategy?: (value: string) => number; show?: boolean \| ((info: CountInfo) => VNodeChild); exceedFormatter?: (value: string, config: { max: number }) => string }` | - |
 | autoSize | 是否禁用手动 resize，或配置最小/最大行数 | `boolean` \| `{ minRows?: number; maxRows?: number }` | `false` |
 | className | 文本域根节点兼容 class | `string` | - |
 | rootClassName | 文本域根节点 class | `string` | - |
@@ -210,6 +240,15 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 | 名称 | 说明 |
 | --- | --- |
 | clearIcon | 自定义清除按钮内容 |
+
+## Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 文本域根容器 |
+| textarea | 原生文本域控件 |
+| clear | 清除按钮 |
+| count | 计数文本容器 |
 
 ## Theme Tokens
 
