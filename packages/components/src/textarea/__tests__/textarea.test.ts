@@ -150,6 +150,75 @@ describe('Textarea', () => {
     expect(wrapper.find('.aheart-textarea__count').exists()).toBe(false)
   })
 
+  it('renders vnode clear icon and showCount formatter', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'Aheart',
+        allowClear: {
+          clearIcon: h('span', { class: 'clear-node' }, 'clear')
+        },
+        showCount: {
+          formatter: ({ count }: { count: number }) => h('span', { class: 'count-node' }, `${count} chars`)
+        }
+      }
+    })
+
+    expect(wrapper.find('.clear-node').text()).toBe('clear')
+    expect(wrapper.find('.count-node').text()).toBe('6 chars')
+  })
+
+  it('renders vnode count show output', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'hello',
+        count: {
+          max: 10,
+          show: ({ count, maxLength }: { count: number; maxLength?: number }) =>
+            h('strong', { class: 'count-show-node' }, `${count}/${maxLength}`)
+        }
+      }
+    })
+
+    expect(wrapper.find('.count-show-node').text()).toBe('5/10')
+  })
+
+  it('supports disabled allowClear config', () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'value',
+        allowClear: {
+          disabled: true,
+          clearIcon: 'clear'
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-textarea__clear').exists()).toBe(false)
+  })
+
+  it('uses count exceedFormatter for displayed and emitted values', async () => {
+    const wrapper = mount(Textarea, {
+      props: {
+        modelValue: 'abcdef',
+        count: {
+          max: 3,
+          exceedFormatter: (value: string, { max }: { max: number }) => value.slice(0, max)
+        },
+        showCount: true
+      }
+    })
+
+    expect(wrapper.find('textarea').element.value).toBe('abc')
+    expect(wrapper.find('.aheart-textarea__count').text()).toBe('3 / 3')
+
+    await wrapper.find('textarea').setValue('12345')
+    await wrapper.find('textarea').trigger('change')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['123'])
+    expect(wrapper.emitted('input')?.[0]).toEqual(['123'])
+    expect(wrapper.emitted('change')?.[0]).toEqual(['123'])
+  })
+
   it('applies root class and style hooks with autosize variables', () => {
     const wrapper = mount(Textarea, {
       props: {

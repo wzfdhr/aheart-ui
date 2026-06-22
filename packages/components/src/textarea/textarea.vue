@@ -5,7 +5,7 @@
       :class="controlClass"
       :style="controlStyle"
       :id="id"
-      :value="modelValue ?? ''"
+      :value="currentValue"
       :placeholder="placeholder"
       :rows="rows"
       :disabled="isDisabled"
@@ -23,14 +23,19 @@
       aria-label="Clear"
       @click="handleClear"
     >
-      <slot name="clearIcon">{{ clearIconContent }}</slot>
+      <slot name="clearIcon">
+        <ATextareaRenderNode :node="clearIconContent" />
+      </slot>
     </button>
-    <span v-if="showCountDisplay" :class="countClass" :style="countStyle">{{ countText }}</span>
+    <span v-if="showCountDisplay" :class="countClass" :style="countStyle">
+      <ATextareaRenderNode :node="countText" />
+    </span>
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineComponent } from 'vue'
+import type { PropType, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { textareaEmits, textareaProps } from './types'
 import './style.css'
@@ -43,9 +48,33 @@ const props = defineProps(textareaProps)
 const emit = defineEmits(textareaEmits)
 const config = useAheartConfig()
 
+const ATextareaRenderNode = defineComponent({
+  name: 'ATextareaRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
+
+const measureCount = (value: string) => props.count?.strategy?.(value) ?? value.length
+const formatExceededValue = (value: string) => {
+  const max = props.count?.max
+
+  if (max === undefined || !props.count?.exceedFormatter || measureCount(value) <= max) {
+    return value
+  }
+
+  return props.count.exceedFormatter(value, { max })
+}
+
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
-const currentValue = computed(() => props.modelValue ?? '')
+const currentValue = computed(() => formatExceededValue(props.modelValue ?? ''))
 const resolvedVariant = computed(() =>
   props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined')
 )
@@ -53,7 +82,10 @@ const hasAutoSize = computed(() => Boolean(props.autoSize))
 const allowClearConfig = computed(() =>
   typeof props.allowClear === 'object' && props.allowClear !== null ? props.allowClear : undefined
 )
-const showClear = computed(() => Boolean(props.allowClear) && !isDisabled.value && Boolean(currentValue.value))
+const allowClearDisabled = computed(() => allowClearConfig.value?.disabled ?? false)
+const showClear = computed(
+  () => Boolean(props.allowClear) && !allowClearDisabled.value && !isDisabled.value && Boolean(currentValue.value)
+)
 const clearIconContent = computed(() => allowClearConfig.value?.clearIcon ?? '×')
 
 const textareaClass = computed(() => [
@@ -88,7 +120,7 @@ const clearStyle = computed(() => props.styles?.clear)
 const countClass = computed(() => ['aheart-textarea__count', props.classNames?.count])
 const countStyle = computed(() => props.styles?.count)
 
-const countLength = computed(() => props.count?.strategy?.(currentValue.value) ?? currentValue.value.length)
+const countLength = computed(() => measureCount(currentValue.value))
 const countMaxLength = computed(() => props.count?.max ?? props.maxlength)
 const countInfo = computed(() => ({
   count: countLength.value,
@@ -117,7 +149,16 @@ const countText = computed(() => {
   return countMaxLength.value ? `${countLength.value} / ${countMaxLength.value}` : String(countLength.value)
 })
 
-const getEventValue = (event: Event) => (event.target as HTMLTextAreaElement).value
+const getEventValue = (event: Event) => {
+  const target = event.target as HTMLTextAreaElement
+  const value = formatExceededValue(target.value)
+
+  if (target.value !== value) {
+    target.value = value
+  }
+
+  return value
+}
 
 const handleInput = (event: Event) => {
   const value = getEventValue(event)
