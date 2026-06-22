@@ -72,6 +72,10 @@
   cursor: not-allowed;
 }
 
+.aheart-select.is-loading .aheart-select__control {
+  padding-right: calc(var(--aheart-spacing-xl) + var(--aheart-spacing-md));
+}
+
 .aheart-select--small,
 .aheart-select--small .aheart-select__control {
   min-height: var(--aheart-control-height-sm);
@@ -127,7 +131,8 @@
 }
 
 .aheart-select__prefix,
-.aheart-select__suffix {
+.aheart-select__suffix,
+.aheart-select__loading {
   position: absolute;
   z-index: 1;
   display: inline-flex;
@@ -145,8 +150,20 @@
   right: var(--aheart-spacing-sm);
 }
 
+.aheart-select__loading {
+  right: var(--aheart-spacing-sm);
+}
+
+.aheart-select.has-suffix .aheart-select__loading {
+  right: calc(var(--aheart-spacing-xl) + var(--aheart-spacing-xs));
+}
+
 .aheart-select.has-suffix .aheart-select__clear {
   right: calc(var(--aheart-spacing-xl) + var(--aheart-spacing-xs));
+}
+
+.aheart-select.is-loading.has-suffix .aheart-select__clear {
+  right: calc((var(--aheart-spacing-xl) * 2) + var(--aheart-spacing-xs));
 }
 
 .aheart-select__clear {
