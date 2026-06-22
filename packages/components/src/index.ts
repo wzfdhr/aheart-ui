@@ -12,6 +12,7 @@ import Dropdown from './dropdown'
 import Empty from './empty'
 import Flex from './flex'
 import Form, { FormItem } from './form'
+import Grid, { Col, Row } from './grid'
 import Icon from './icon'
 import Input from './input'
 import InputNumber from './input-number'
@@ -36,6 +37,7 @@ const components = [
   Space,
   Divider,
   Flex,
+  Grid,
   Icon,
   Typography,
   Title,
@@ -75,5 +77,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI
