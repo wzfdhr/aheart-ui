@@ -68,17 +68,111 @@ Empty presents an intentional empty state with optional custom image and action 
 </template>
 ```
 
+## 图片地址
+
+<div class="aheart-demo-panel">
+  <AEmpty image="/logo.svg" description="No matching records">
+    <AButton>Refresh</AButton>
+  </AEmpty>
+</div>
+
+```vue
+<template>
+  <AEmpty image="/logo.svg" description="No matching records">
+    <AButton>Refresh</AButton>
+  </AEmpty>
+</template>
+```
+
+## 隐藏区域
+
+<div class="aheart-demo-panel">
+  <ASpace direction="vertical" style="width: 100%">
+    <AEmpty :image="false" description="No illustration" />
+    <AEmpty :description="false">
+      <AButton>Only action</AButton>
+    </AEmpty>
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <ASpace direction="vertical" style="width: 100%">
+    <AEmpty :image="false" description="No illustration" />
+    <AEmpty :description="false">
+      <AButton>Only action</AButton>
+    </AEmpty>
+  </ASpace>
+</template>
+```
+
+## 自定义描述插槽
+
+<div class="aheart-demo-panel">
+  <AEmpty>
+    <template #description>
+      <span>No deployments have run in this environment.</span>
+    </template>
+    <AButton type="primary">Run deployment</AButton>
+  </AEmpty>
+</div>
+
+```vue
+<template>
+  <AEmpty>
+    <template #description>
+      <span>No deployments have run in this environment.</span>
+    </template>
+    <AButton type="primary">Run deployment</AButton>
+  </AEmpty>
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <AEmpty
+    description="Styled empty state"
+    :image-style="{ width: '80px' }"
+    :class-names="{ root: 'demo-empty-root', image: 'demo-empty-image', footer: 'demo-empty-footer' }"
+    :styles="{ root: { padding: '20px' }, footer: { marginTop: '16px' } }"
+  >
+    <AButton>Configure</AButton>
+  </AEmpty>
+</div>
+
+```vue
+<template>
+  <AEmpty
+    description="Styled empty state"
+    :image-style="{ width: '80px' }"
+    :class-names="{ root: 'demo-empty-root', image: 'demo-empty-image', footer: 'demo-empty-footer' }"
+    :styles="{ root: { padding: '20px' }, footer: { marginTop: '16px' } }"
+  >
+    <AButton>Configure</AButton>
+  </AEmpty>
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| description | 空状态描述文案 | `string` | ConfigProvider locale |
+| description | 空状态描述文案，设置为 `false` 时隐藏 | `string` \| `false` | ConfigProvider locale |
+| image | 自定义图片地址，设置为 `false` 时隐藏图片区域 | `string` \| `false` | - |
+| imageStyle | 图片区域样式 | `StyleValue` | - |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'image' \| 'description' \| 'footer', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'image' \| 'description' \| 'footer', StyleValue>>` | - |
 
 ## Slots
 
 | 名称 | 说明 |
 | --- | --- |
 | image | 自定义图片区域 |
+| description | 自定义描述区域 |
 | default | 底部操作区域 |
 
 ## Theme Tokens
