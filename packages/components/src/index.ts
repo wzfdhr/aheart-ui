@@ -1,6 +1,7 @@
 import type { App, Plugin } from 'vue'
 import Alert from './alert'
 import Badge from './badge'
+import Breadcrumb from './breadcrumb'
 import Button from './button'
 import ConfigProvider from './config-provider'
 import Divider from './divider'
@@ -9,7 +10,9 @@ import Flex from './flex'
 import Icon from './icon'
 import Space from './space'
 import Spin from './spin'
+import Steps from './steps'
 import Tag from './tag'
+import Tabs from './tabs'
 import Typography, { Link, Paragraph, Text, Title } from './typography'
 import './theme/index.css'
 
@@ -29,7 +32,10 @@ const components = [
   Badge,
   Alert,
   Spin,
-  Empty
+  Empty,
+  Breadcrumb,
+  Tabs,
+  Steps
 ]
 
 const AheartUI: Plugin = {
@@ -40,5 +46,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty }
+export { Button, ConfigProvider, Space, Divider, Flex, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Tabs, Steps }
 export default AheartUI

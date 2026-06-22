@@ -1,0 +1,93 @@
+.aheart-tabs {
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-tabs__nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--aheart-spacing-md);
+  border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-tabs.is-centered .aheart-tabs__nav {
+  justify-content: center;
+}
+
+.aheart-tabs__tab {
+  position: relative;
+  min-height: var(--aheart-control-height);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--aheart-color-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    background-color var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-tabs__tab:hover:not(:disabled),
+.aheart-tabs__tab.is-active {
+  color: var(--aheart-color-primary);
+}
+
+.aheart-tabs__tab.is-active::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--aheart-color-primary);
+  content: '';
+}
+
+.aheart-tabs__tab:disabled {
+  color: var(--aheart-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.aheart-tabs__tab:focus-visible {
+  border-radius: var(--aheart-radius-sm);
+  outline: 2px solid var(--aheart-color-primary-hover);
+  outline-offset: 2px;
+}
+
+.aheart-tabs--small .aheart-tabs__tab {
+  min-height: var(--aheart-control-height-sm);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-tabs--large .aheart-tabs__tab {
+  min-height: var(--aheart-control-height-lg);
+  font-size: var(--aheart-font-size-lg);
+}
+
+.aheart-tabs--card .aheart-tabs__nav {
+  gap: var(--aheart-spacing-xs);
+}
+
+.aheart-tabs--card .aheart-tabs__tab {
+  margin-bottom: -1px;
+  padding: 0 var(--aheart-spacing-md);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius-sm) var(--aheart-radius-sm) 0 0;
+  background: var(--aheart-color-fill);
+}
+
+.aheart-tabs--card .aheart-tabs__tab.is-active {
+  border-bottom-color: var(--aheart-color-bg);
+  background: var(--aheart-color-bg);
+}
+
+.aheart-tabs--card .aheart-tabs__tab.is-active::after {
+  display: none;
+}
+
+.aheart-tabs__panel {
+  padding: var(--aheart-spacing-md) 0 0;
+}
