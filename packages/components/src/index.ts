@@ -3,14 +3,17 @@ import Alert from './alert'
 import Badge from './badge'
 import Breadcrumb from './breadcrumb'
 import Button from './button'
+import Card from './card'
 import Checkbox from './checkbox'
 import ConfigProvider from './config-provider'
+import Descriptions from './descriptions'
 import Divider from './divider'
 import Empty from './empty'
 import Flex from './flex'
 import Icon from './icon'
 import Input from './input'
 import InputNumber from './input-number'
+import Pagination from './pagination'
 import Radio from './radio'
 import Space from './space'
 import Spin from './spin'
@@ -47,7 +50,10 @@ const components = [
   InputNumber,
   Checkbox,
   Radio,
-  Switch
+  Switch,
+  Card,
+  Descriptions,
+  Pagination
 ]
 
 const AheartUI: Plugin = {
@@ -58,5 +64,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch }
+export { Button, ConfigProvider, Space, Divider, Flex, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch, Card, Descriptions, Pagination }
 export default AheartUI

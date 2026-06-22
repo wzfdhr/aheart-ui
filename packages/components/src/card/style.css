@@ -1,0 +1,96 @@
+.aheart-card {
+  overflow: hidden;
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  background: var(--aheart-color-bg);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+  transition:
+    border-color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    box-shadow var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-card.is-borderless {
+  border-color: transparent;
+}
+
+.aheart-card.is-hoverable:hover {
+  border-color: var(--aheart-color-primary-hover);
+  box-shadow: var(--aheart-shadow);
+}
+
+.aheart-card__cover {
+  border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--aheart-control-height-lg);
+  padding: 0 var(--aheart-spacing-md);
+  border-bottom: 1px solid var(--aheart-color-border);
+  gap: var(--aheart-spacing-md);
+}
+
+.aheart-card__title {
+  min-width: 0;
+  color: var(--aheart-color-text);
+  font-weight: 600;
+}
+
+.aheart-card__extra {
+  flex: 0 0 auto;
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-card__body {
+  padding: var(--aheart-spacing-md);
+}
+
+.aheart-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--aheart-spacing-sm) var(--aheart-spacing-md);
+  border-top: 1px solid var(--aheart-color-border);
+  background: var(--aheart-color-fill);
+  gap: var(--aheart-spacing-md);
+}
+
+.aheart-card--small .aheart-card__header {
+  min-height: var(--aheart-control-height);
+  padding: 0 var(--aheart-spacing-sm);
+}
+
+.aheart-card--small .aheart-card__body {
+  padding: var(--aheart-spacing-sm);
+}
+
+.aheart-card--large .aheart-card__header {
+  min-height: calc(var(--aheart-control-height-lg) + 8px);
+}
+
+.aheart-card--large .aheart-card__body {
+  padding: var(--aheart-spacing-lg);
+}
+
+.aheart-card__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-card__loading-line {
+  display: block;
+  width: 100%;
+  height: 14px;
+  border-radius: var(--aheart-radius-sm);
+  background: var(--aheart-color-fill);
+}
+
+.aheart-card__loading-line.is-short {
+  width: 62%;
+}

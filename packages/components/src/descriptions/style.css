@@ -1,0 +1,96 @@
+.aheart-descriptions {
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-descriptions__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--aheart-spacing-md);
+  gap: var(--aheart-spacing-md);
+}
+
+.aheart-descriptions__title {
+  font-weight: 600;
+}
+
+.aheart-descriptions__extra {
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-descriptions__table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-descriptions__row {
+  display: grid;
+  grid-template-columns: repeat(var(--aheart-descriptions-column), minmax(0, 1fr));
+  gap: var(--aheart-spacing-sm) var(--aheart-spacing-md);
+}
+
+.aheart-descriptions__item {
+  display: flex;
+  grid-column: span var(--aheart-descriptions-item-span);
+  min-width: 0;
+}
+
+.aheart-descriptions--vertical .aheart-descriptions__item {
+  flex-direction: column;
+}
+
+.aheart-descriptions__label {
+  flex: 0 0 auto;
+  margin-right: var(--aheart-spacing-sm);
+  color: var(--aheart-color-text-secondary);
+}
+
+.aheart-descriptions--vertical .aheart-descriptions__label {
+  margin-right: 0;
+  margin-bottom: var(--aheart-spacing-xs);
+}
+
+.aheart-descriptions__content {
+  min-width: 0;
+  color: var(--aheart-color-text);
+}
+
+.aheart-descriptions.is-bordered .aheart-descriptions__table {
+  overflow: hidden;
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  gap: 0;
+}
+
+.aheart-descriptions.is-bordered .aheart-descriptions__row {
+  gap: 0;
+}
+
+.aheart-descriptions.is-bordered .aheart-descriptions__row:not(:last-child) {
+  border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-descriptions.is-bordered .aheart-descriptions__item {
+  padding: var(--aheart-spacing-sm) var(--aheart-spacing-md);
+  border-right: 1px solid var(--aheart-color-border);
+}
+
+.aheart-descriptions.is-bordered .aheart-descriptions__item:last-child {
+  border-right: 0;
+}
+
+.aheart-descriptions.is-bordered .aheart-descriptions__label {
+  font-weight: 500;
+}
+
+.aheart-descriptions--small {
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-descriptions--large {
+  font-size: var(--aheart-font-size-lg);
+}
