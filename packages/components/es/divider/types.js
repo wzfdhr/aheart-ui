@@ -19,7 +19,18 @@ const dividerProps = {
     default: "middle"
   },
   dashed: Boolean,
-  plain: Boolean
+  plain: Boolean,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: {
+    type: Object,
+    default: () => ({})
+  },
+  styles: {
+    type: Object,
+    default: () => ({})
+  }
 };
 export {
   dividerProps

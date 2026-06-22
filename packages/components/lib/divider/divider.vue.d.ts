@@ -20,6 +20,17 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly dashed: BooleanConstructor;
     readonly plain: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: {
+        readonly type: import("vue").PropType<Partial<Record<import("./types").DividerSemanticPart, string>>>;
+        readonly default: () => {};
+    };
+    readonly styles: {
+        readonly type: import("vue").PropType<Partial<Record<import("./types").DividerSemanticPart, import("vue").StyleValue>>>;
+        readonly default: () => {};
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
         readonly type: import("vue").PropType<import("./types").DividerType>;
@@ -42,9 +53,22 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly dashed: BooleanConstructor;
     readonly plain: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: {
+        readonly type: import("vue").PropType<Partial<Record<import("./types").DividerSemanticPart, string>>>;
+        readonly default: () => {};
+    };
+    readonly styles: {
+        readonly type: import("vue").PropType<Partial<Record<import("./types").DividerSemanticPart, import("vue").StyleValue>>>;
+        readonly default: () => {};
+    };
 }>> & Readonly<{}>, {
     readonly type: import("./types").DividerType;
     readonly variant: import("./types").DividerVariant;
+    readonly classNames: Partial<Record<import("./types").DividerSemanticPart, string>>;
+    readonly styles: Partial<Record<import("./types").DividerSemanticPart, import("vue").StyleValue>>;
     readonly dashed: boolean;
     readonly size: import("./types").DividerSize;
     readonly vertical: boolean;
