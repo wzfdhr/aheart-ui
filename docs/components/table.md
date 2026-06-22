@@ -32,7 +32,7 @@ Table displays structured records with columns, sorting, selection, expansion, p
     bordered
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
-      { title: 'Age', dataIndex: 'age', key: 'age', sorter: (a, b) => a.age - b.age },
+      { title: 'Age', dataIndex: 'age', key: 'age', sorter: (a, b) => a.age - b.age, defaultSortOrder: 'ascend' },
       { title: 'Role', dataIndex: 'role', key: 'role' }
     ]"
     :data-source="[
@@ -49,12 +49,65 @@ Table displays structured records with columns, sorting, selection, expansion, p
     bordered
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
-      { title: 'Age', dataIndex: 'age', key: 'age', sorter: (a, b) => a.age - b.age }
+      { title: 'Age', dataIndex: 'age', key: 'age', sorter: true, defaultSortOrder: 'ascend' }
     ]"
     :data-source="dataSource"
   />
 </template>
 ```
+
+使用 `defaultSortOrder` 设置默认排序，使用 `sortOrder` 接管排序状态。`sorter: true` 会按当前列 `dataIndex` 的值进行基础比较，传入函数时使用自定义比较逻辑。
+
+## 筛选
+
+<div class="aheart-demo-panel">
+  <ATable
+    :columns="[
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      {
+        title: 'Role',
+        dataIndex: 'role',
+        key: 'role',
+        defaultFilteredValue: ['Engineer'],
+        filters: [
+          { text: 'Architect', value: 'Architect' },
+          { text: 'Engineer', value: 'Engineer' },
+          { text: 'Maintainer', value: 'Maintainer' }
+        ]
+      },
+      { title: 'Age', dataIndex: 'age', key: 'age', sorter: true }
+    ]"
+    :data-source="[
+      { key: 'ada', name: 'Ada', age: 36, role: 'Architect' },
+      { key: 'grace', name: 'Grace', age: 28, role: 'Engineer' },
+      { key: 'linus', name: 'Linus', age: 42, role: 'Maintainer' }
+    ]"
+    :pagination="{ pageSize: 2 }"
+  />
+</div>
+
+```vue
+<template>
+  <ATable
+    :columns="[
+      {
+        title: 'Role',
+        dataIndex: 'role',
+        key: 'role',
+        filters: [
+          { text: 'Architect', value: 'Architect' },
+          { text: 'Engineer', value: 'Engineer' }
+        ],
+        filterMultiple: false
+      }
+    ]"
+    :data-source="dataSource"
+    @change="handleTableChange"
+  />
+</template>
+```
+
+筛选默认支持多选，设置 `filterMultiple: false` 后同一列只保留一个筛选值。使用 `filteredValue` 可以接管筛选状态，使用 `defaultFilteredValue` 可以设置初始筛选值。
 
 ## 行选择
 
@@ -169,10 +222,22 @@ Table displays structured records with columns, sorting, selection, expansion, p
 | align | 对齐方式 | `left` \| `center` \| `right` | `left` |
 | width | 列宽 | `string` \| `number` | - |
 | className | 自定义类名 | `string` | - |
-| sorter | 本地排序函数 | `boolean` \| `(a, b) => number` | - |
-| sortOrder | 排序方向 | `ascend` \| `descend` | - |
+| sorter | 是否按列值排序，或本地排序函数 | `boolean` \| `(a, b) => number` | - |
+| sortOrder | 受控排序方向 | `ascend` \| `descend` | - |
+| defaultSortOrder | 默认排序方向 | `ascend` \| `descend` | - |
+| filters | 筛选项 | `TableColumnFilter[]` | - |
+| filteredValue | 受控筛选值 | `(string \| number \| boolean)[]` | - |
+| defaultFilteredValue | 默认筛选值 | `(string \| number \| boolean)[]` | - |
+| filterMultiple | 是否允许多选筛选 | `boolean` | `true` |
 | ellipsis | 是否省略文本 | `boolean` | `false` |
 | customRender | 自定义渲染函数 | `(context) => VNodeChild` | - |
+
+### TableColumnFilter
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| text | 筛选按钮文本 | `string` | - |
+| value | 筛选值 | `string` \| `number` \| `boolean` | - |
 
 ### TableRowSelection
 
@@ -209,10 +274,17 @@ Table displays structured records with columns, sorting, selection, expansion, p
 
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| change | 分页或排序变化时触发 | `(pagination, filters, sorter) => void` |
+| change | 分页、筛选或排序变化时触发 | `(pagination, filters, sorter, extra) => void` |
 | update:selectedRowKeys | 选择项变化时触发 | `(keys) => void` |
 | select | 选择某一行时触发 | `(key, selected, record, selectedRowKeys) => void` |
 | expand | 展开状态变化时触发 | `(expanded, record, key) => void` |
+
+### TableChangeExtra
+
+| 字段 | 说明 | 类型 |
+| --- | --- | --- |
+| currentDataSource | 当前筛选和排序后的数据 | `Record<string, unknown>[]` |
+| action | 触发来源 | `paginate` \| `sort` \| `filter` |
 
 ## Theme Tokens
 
