@@ -1,6 +1,6 @@
 # Aheart UI Collaboration Handoff
 
-更新时间：2026-06-18
+更新时间：2026-06-22
 
 ## 当前状态
 
@@ -14,19 +14,52 @@
 - Phase 1 实施计划：`docs/superpowers/plans/2026-06-18-phase-1-i18n-ready-components.md`
 - 本交接文档：`docs/superpowers/COLLABORATION_HANDOFF.md`
 
-已经完成：
+本次交接前的本地最新功能提交：
 
-- 仿 Ant Design 的 VitePress 文档站基础结构。
-- 组件总览页面与 Button 文档页。
-- 全量产品级组件库路线设计。
-- Phase 1 的详细实施计划。
-- Task 1：文档默认中文、英文 `/en/`、组件元数据国际化、中文乱码文案修复、英文镜像页面。
+- `d68b9ca docs: polish i18n navigation`
 
-截至本交接前的最新功能提交：
+这次交接文档提交并推送后，GitHub 远端分支会包含 `d68b9ca` 以及本交接文档更新。
 
-- `ddbb635 docs: add chinese default and english locale`
+## 已完成
 
-注意：Task 1 已通过规格审查。代码质量审查在本交接前被暂停，没有宣称已通过。
+- 搭建了仿 Ant Design 的 VitePress 文档站基础结构。
+- 添加了组件总览页面、Button 文档页、指南页和主题说明页。
+- 写入了产品级组件库全量路线设计。
+- 写入了 Phase 1 的详细实施计划。
+- 完成了 Phase 1 Task 1：
+  - 默认中文站点。
+  - 英文 `/en/` 站点。
+  - 组件元数据国际化。
+  - 中文文档乱码修复。
+  - 英文镜像首页、指南、组件总览和 Button 文档。
+- Task 1 规格审查已通过。
+- Task 1 代码质量审查发现的主要问题已部分修复：
+  - 中文组件侧边栏已补回 `组件总览`。
+  - 英文组件侧边栏已补回 `Overview`。
+  - 中文首页卡片标题已本地化。
+
+## 当前未完成问题
+
+下一次继续前，先修这个问题：
+
+- `docs/en/index.md` 的英文状态句现在会渲染成类似 `There are currently 1 Ready components`，因为当前只有 1 个 Ready 组件。
+- 建议改成不需要单复数判断的句子，例如：
+
+```md
+Current status: {{ readyCount }} ready, {{ plannedCount }} planned. Planned components are roadmap items and are not published yet.
+```
+
+或者用 computed 生成单复数文案。
+
+建议修复提交：
+
+```powershell
+git add docs/en/index.md
+git commit -m "docs: fix english status wording"
+git push origin codex/ant-style-docs-site
+```
+
+修完之后再继续 Phase 1 Task 2。
 
 ## 当前真实能力边界
 
@@ -34,7 +67,13 @@
 
 - `Button`
 
-文档里的 `Icon`、`Space`、`Divider`、`Tag`、`Alert` 等组件在 Task 1 之后仍应是 `Planned`，还没有实现源码、测试、导出和组件文档。
+这些组件仍是 `Planned`，尚未实现源码、测试、导出和组件文档：
+
+- `Icon`
+- `Space`
+- `Divider`
+- `Tag`
+- `Alert`
 
 不要在 npm、官网或 README 中宣称这些组件已经可用，直到对应任务完成并通过验证。
 
@@ -42,31 +81,29 @@
 
 建议严格按 Phase 1 计划继续：
 
-1. Task 2：实现 `Icon`
+1. 修复 `docs/en/index.md` 的英文计数文案。
+2. Task 2：实现 `Icon`
    - 新增 `packages/components/src/icon/*`
-   - 先写失败测试，再实现组件
-   - 更新根导出
-   - 添加中英文 Icon 文档
-   - 在组件元数据里把 Icon 改为 `Ready`
-
-2. Task 3：实现 `Space` 和 `Divider`
-   - 新增两个组件源码、样式、类型和测试
-   - 更新根导出
-   - 添加中英文组件文档
-   - 在组件元数据里把 Space、Divider 改为 `Ready`
-
-3. Task 4：实现 `Tag` 和 `Alert`
-   - 新增两个组件源码、样式、类型和测试
-   - `Alert` 会依赖 `Icon`
-   - 更新根导出
-   - 添加中英文组件文档
-   - 在组件元数据里把 Tag、Alert 改为 `Ready`
-
-4. Task 5：全量验证、构建产物、推送
-   - 跑完整测试、类型检查、组件构建、文档构建
-   - 刷新 `packages/components/es/**` 和 `packages/components/lib/**`
-   - 提交构建产物
-   - 推送到 GitHub
+   - 先写失败测试，再实现组件。
+   - 更新 `packages/components/src/index.ts` 根导出。
+   - 添加中英文 Icon 文档。
+   - 在组件元数据里把 Icon 改为 `Ready`。
+3. Task 3：实现 `Space` 和 `Divider`
+   - 新增两个组件源码、样式、类型和测试。
+   - 更新根导出。
+   - 添加中英文组件文档。
+   - 在组件元数据里把 Space、Divider 改为 `Ready`。
+4. Task 4：实现 `Tag` 和 `Alert`
+   - 新增两个组件源码、样式、类型和测试。
+   - `Alert` 会依赖 `Icon`。
+   - 更新根导出。
+   - 添加中英文组件文档。
+   - 在组件元数据里把 Tag、Alert 改为 `Ready`。
+5. Task 5：全量验证、构建产物、推送
+   - 跑完整测试、类型检查、组件构建、文档构建。
+   - 刷新 `packages/components/es/**` 和 `packages/components/lib/**`。
+   - 提交构建产物。
+   - 推送到 GitHub。
 
 后续第二阶段再做：
 
@@ -76,9 +113,20 @@
 
 更复杂的 `Form`、`Table`、`DatePicker`、`Upload`、`Tree` 等不要提前混进 Phase 1。
 
+## 本次已验证
+
+2026-06-22 已验证：
+
+- `pnpm --filter ./packages/components test`：通过，当前 1 个测试文件、3 个测试。
+- `pnpm --filter ./packages/components typecheck`：通过。
+- `pnpm --filter ./docs build`：通过。
+- `d68b9ca` 后再次执行 `pnpm --filter ./docs build`：通过。
+
+注意：这些命令在 Codex 环境里是用 bundled Node + pnpm 跑的。本机如果已经安装 pnpm，可以直接使用普通命令。
+
 ## 推荐验证命令
 
-如果你的本机已经安装了 `pnpm`，可以直接使用：
+如果本机已经安装了 `pnpm`：
 
 ```powershell
 pnpm --filter ./packages/components test
@@ -103,11 +151,7 @@ $pnpm='C:\Users\12864\.cache\codex-runtimes\codex-primary-runtime\dependencies\n
 启动文档站：
 
 ```powershell
-$env:PATH='C:\Users\12864\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin;' + $env:PATH
-$node='C:\Users\12864\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
-$pnpm='C:\Users\12864\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\node_modules\pnpm\bin\pnpm.cjs'
-
-& $node $pnpm --filter ./docs dev -- --host 127.0.0.1 --port 5173
+pnpm --filter ./docs dev -- --host 127.0.0.1 --port 5173
 ```
 
 访问地址：
@@ -157,7 +201,7 @@ git push origin codex/ant-style-docs-site
 
 ## 接手建议
 
-回家后建议先做这三步：
+回家后建议先做这几步：
 
 1. 拉取最新分支：
 
@@ -166,13 +210,9 @@ git checkout codex/ant-style-docs-site
 git pull origin codex/ant-style-docs-site
 ```
 
-2. 启动文档站，看中文和英文首页：
+2. 修复 `docs/en/index.md` 的英文计数文案，并跑文档构建。
 
-```powershell
-pnpm --filter ./docs dev -- --host 127.0.0.1 --port 5173
-```
-
-3. 打开 Phase 1 计划，从 Task 2 开始做：
+3. 打开 Phase 1 计划，从 Task 2 的 `Icon` 开始：
 
 ```text
 docs/superpowers/plans/2026-06-18-phase-1-i18n-ready-components.md
