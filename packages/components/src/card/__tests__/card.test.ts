@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { createApp, h } from 'vue'
 import { describe, expect, it } from 'vitest'
+import AheartUI, { CardGrid as RootCardGrid } from '../../index'
 import ConfigProvider from '../../config-provider/config-provider.vue'
-import Card, { CardMeta } from '../index'
+import Card, { CardGrid, CardMeta } from '../index'
 
 describe('Card', () => {
   it('renders title, extra, default content, cover, and actions', () => {
@@ -246,6 +247,62 @@ describe('Card', () => {
     expect(wrapper.find('.aheart-card-meta__title').attributes('style')).toContain('color: blue')
     expect(wrapper.find('.aheart-card-meta__description').classes()).toContain('semantic-description')
     expect(wrapper.find('.aheart-card-meta__description').attributes('style')).toContain('color: green')
+  })
+
+  it('renders CardGrid slot content with hoverable default', () => {
+    const wrapper = mount(CardGrid, {
+      slots: {
+        default: '<span class="grid-content">Tile</span>'
+      }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-card-grid')
+    expect(wrapper.classes()).toContain('is-hoverable')
+    expect(wrapper.find('.aheart-card-grid__content .grid-content').text()).toBe('Tile')
+  })
+
+  it('supports non-hoverable CardGrid and semantic hooks', () => {
+    const wrapper = mount(CardGrid, {
+      props: {
+        hoverable: false,
+        className: 'grid-class',
+        rootClassName: 'grid-root',
+        style: { width: '50%' },
+        classNames: {
+          root: 'semantic-root',
+          content: 'semantic-content'
+        },
+        styles: {
+          root: { padding: '20px' },
+          content: { color: 'red' }
+        }
+      },
+      slots: {
+        default: 'Tile'
+      }
+    })
+
+    expect(wrapper.classes()).not.toContain('is-hoverable')
+    expect(wrapper.classes()).toEqual(expect.arrayContaining(['grid-class', 'grid-root', 'semantic-root']))
+    expect(wrapper.attributes('style')).toContain('width: 50%')
+    expect(wrapper.attributes('style')).toContain('padding: 20px')
+    expect(wrapper.find('.aheart-card-grid__content').classes()).toContain('semantic-content')
+    expect(wrapper.find('.aheart-card-grid__content').attributes('style')).toContain('color: red')
+  })
+
+  it('exposes Card.Grid for Ant-style composition', () => {
+    expect(CardGrid).toBeDefined()
+    expect(Card.Grid).toBeDefined()
+    expect(Card.Grid).toBe(CardGrid)
+  })
+
+  it('installs CardGrid from the root plugin', () => {
+    const app = createApp({})
+
+    app.use(AheartUI)
+
+    expect(RootCardGrid).toBe(CardGrid)
+    expect(app.component('ACardGrid')).toBeTruthy()
   })
 
   it('exposes Card.Meta for Ant-style composition', () => {

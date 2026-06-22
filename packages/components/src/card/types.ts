@@ -13,6 +13,9 @@ export type CardStyles = Partial<Record<CardSemanticPart, StyleValue>>
 export type CardMetaSemanticPart = 'root' | 'section' | 'avatar' | 'title' | 'description'
 export type CardMetaClassNames = Partial<Record<CardMetaSemanticPart, string>>
 export type CardMetaStyles = Partial<Record<CardMetaSemanticPart, StyleValue>>
+export type CardGridSemanticPart = 'root' | 'content'
+export type CardGridClassNames = Partial<Record<CardGridSemanticPart, string>>
+export type CardGridStyles = Partial<Record<CardGridSemanticPart, StyleValue>>
 
 export const cardProps = {
   title: String,
@@ -53,5 +56,18 @@ export const cardMetaProps = {
   styles: Object as PropType<CardMetaStyles>
 } as const
 
+export const cardGridProps = {
+  hoverable: {
+    type: Boolean,
+    default: true
+  },
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<CardGridClassNames>,
+  styles: Object as PropType<CardGridStyles>
+} as const
+
 export type CardProps = ExtractPropTypes<typeof cardProps>
 export type CardMetaProps = ExtractPropTypes<typeof cardMetaProps>
+export type CardGridProps = ExtractPropTypes<typeof cardGridProps>
