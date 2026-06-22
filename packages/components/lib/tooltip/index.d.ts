@@ -51,8 +51,8 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
-        readonly defaultOpen: boolean;
         readonly arrow: import("./types").TooltipArrow;
+        readonly defaultOpen: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly fresh: boolean;
@@ -112,8 +112,8 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
-        readonly defaultOpen: boolean;
         readonly arrow: import("./types").TooltipArrow;
+        readonly defaultOpen: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly fresh: boolean;
@@ -173,8 +173,8 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
-    readonly defaultOpen: boolean;
     readonly arrow: import("./types").TooltipArrow;
+    readonly defaultOpen: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly fresh: boolean;

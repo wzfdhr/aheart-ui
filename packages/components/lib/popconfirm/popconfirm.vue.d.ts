@@ -113,8 +113,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly disabled: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
-    readonly defaultOpen: boolean;
     readonly arrow: boolean;
+    readonly defaultOpen: boolean;
     readonly okText: string;
     readonly cancelText: string;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
