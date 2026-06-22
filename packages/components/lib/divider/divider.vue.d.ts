@@ -3,9 +3,20 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("./types").DividerType>;
         readonly default: "horizontal";
     };
+    readonly vertical: BooleanConstructor;
     readonly orientation: {
         readonly type: import("vue").PropType<import("./types").DividerOrientation>;
         readonly default: "center";
+    };
+    readonly titlePlacement: import("vue").PropType<import("./types").DividerTitlePlacement>;
+    readonly orientationMargin: import("vue").PropType<string | number>;
+    readonly variant: {
+        readonly type: import("vue").PropType<import("./types").DividerVariant>;
+        readonly default: "solid";
+    };
+    readonly size: {
+        readonly type: import("vue").PropType<import("./types").DividerSize>;
+        readonly default: "middle";
     };
     readonly dashed: BooleanConstructor;
     readonly plain: BooleanConstructor;
@@ -14,16 +25,30 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("./types").DividerType>;
         readonly default: "horizontal";
     };
+    readonly vertical: BooleanConstructor;
     readonly orientation: {
         readonly type: import("vue").PropType<import("./types").DividerOrientation>;
         readonly default: "center";
+    };
+    readonly titlePlacement: import("vue").PropType<import("./types").DividerTitlePlacement>;
+    readonly orientationMargin: import("vue").PropType<string | number>;
+    readonly variant: {
+        readonly type: import("vue").PropType<import("./types").DividerVariant>;
+        readonly default: "solid";
+    };
+    readonly size: {
+        readonly type: import("vue").PropType<import("./types").DividerSize>;
+        readonly default: "middle";
     };
     readonly dashed: BooleanConstructor;
     readonly plain: BooleanConstructor;
 }>> & Readonly<{}>, {
     readonly type: import("./types").DividerType;
-    readonly orientation: import("./types").DividerOrientation;
+    readonly size: import("./types").DividerSize;
     readonly dashed: boolean;
+    readonly vertical: boolean;
+    readonly orientation: import("./types").DividerOrientation;
+    readonly variant: import("./types").DividerVariant;
     readonly plain: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

@@ -33,8 +33,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly round: BooleanConstructor;
 }>> & Readonly<{}>, {
     readonly title: boolean | SkeletonTitleConfig;
-    readonly loading: boolean;
     readonly round: boolean;
+    readonly loading: boolean;
     readonly active: boolean;
     readonly paragraph: boolean | SkeletonParagraphConfig;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

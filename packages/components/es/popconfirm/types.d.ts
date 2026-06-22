@@ -27,7 +27,7 @@ export declare const popconfirmProps: {
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: PropType<"success" | "warning" | "default" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
         readonly default: "primary";
     };
     readonly disabled: BooleanConstructor;

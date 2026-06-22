@@ -17,25 +17,36 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props) {
     const props = __props;
     const slots = vue.useSlots();
+    const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const resolvedType = vue.computed(() => props.vertical ? "vertical" : props.type);
+    const resolvedTitlePlacement = vue.computed(() => props.titlePlacement || props.orientation);
+    const resolvedVariant = vue.computed(() => props.dashed ? "dashed" : props.variant);
     const dividerClass = vue.computed(() => [
-      `aheart-divider--${props.type}`,
-      `aheart-divider--${props.orientation}`,
+      `aheart-divider--${resolvedType.value}`,
+      `aheart-divider--${resolvedTitlePlacement.value}`,
+      `aheart-divider--${props.size}`,
       {
-        "has-text": Boolean(slots.default && props.type === "horizontal"),
-        "is-dashed": props.dashed,
+        "has-text": Boolean(slots.default && resolvedType.value === "horizontal"),
+        [`is-${resolvedVariant.value}`]: resolvedVariant.value,
         "is-plain": props.plain
       }
     ]);
+    const dividerStyle = vue.computed(
+      () => props.orientationMargin ? {
+        "--aheart-divider-orientation-margin": normalizeSize(props.orientationMargin)
+      } : void 0
+    );
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
         class: vue.normalizeClass(["aheart-divider", dividerClass.value]),
+        style: vue.normalizeStyle(dividerStyle.value),
         role: "separator",
-        "aria-orientation": _ctx.type
+        "aria-orientation": resolvedType.value
       }, [
-        _ctx.$slots.default && _ctx.type === "horizontal" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, [
+        _ctx.$slots.default && resolvedType.value === "horizontal" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, [
           vue.renderSlot(_ctx.$slots, "default")
         ])) : vue.createCommentVNode("", true)
-      ], 10, _hoisted_1);
+      ], 14, _hoisted_1);
     };
   }
 });

@@ -32,7 +32,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
         readonly default: "primary";
     };
     readonly footer: {
@@ -79,7 +79,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
         readonly default: "primary";
     };
     readonly footer: {
@@ -105,7 +105,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly confirmLoading: boolean;
     readonly okText: string;
     readonly cancelText: string;
-    readonly okType: "success" | "warning" | "default" | "primary" | "danger";
+    readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;
     default?(_: {}): any;

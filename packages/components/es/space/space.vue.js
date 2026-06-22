@@ -1,7 +1,12 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createBlock, resolveDynamicComponent, Comment } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createBlock, resolveDynamicComponent, toDisplayString, createCommentVNode, Comment } from "vue";
 import { useAheartConfig } from "../config/context.js";
 import { spaceProps } from "./types.js";
 import "./style.css.js";
+const _hoisted_1 = { class: "aheart-space__item" };
+const _hoisted_2 = {
+  key: 0,
+  class: "aheart-space__separator"
+};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ASpace"
@@ -27,6 +32,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return flattenChildren(((_a = slots.default) == null ? void 0 : _a.call(slots)) || []);
     });
+    const resolvedDirection = computed(() => props.orientation || (props.vertical ? "vertical" : props.direction));
+    const separatorText = computed(() => props.separator ?? props.split);
     const sizeToGap = (size) => {
       if (Array.isArray(size)) {
         return [`${size[0]}px`, `${size[1]}px`];
@@ -43,7 +50,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return [tokenMap[resolved], tokenMap[resolved]];
     };
     const spaceClass = computed(() => [
-      `aheart-space--${props.direction}`,
+      `aheart-space--${resolvedDirection.value}`,
       {
         [`aheart-space--align-${props.align}`]: props.align,
         "is-wrap": props.wrap
@@ -62,12 +69,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         style: normalizeStyle(spaceStyle.value)
       }, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedChildren.value, (child, index) => {
-          return openBlock(), createElementBlock("div", {
-            key: index,
-            class: "aheart-space__item"
-          }, [
-            (openBlock(), createBlock(resolveDynamicComponent(child)))
-          ]);
+          return openBlock(), createElementBlock(Fragment, { key: index }, [
+            createElementVNode("div", _hoisted_1, [
+              (openBlock(), createBlock(resolveDynamicComponent(child)))
+            ]),
+            separatorText.value && index < normalizedChildren.value.length - 1 ? (openBlock(), createElementBlock("span", _hoisted_2, toDisplayString(separatorText.value), 1)) : createCommentVNode("", true)
+          ], 64);
         }), 128))
       ], 6);
     };

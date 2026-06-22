@@ -25,7 +25,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
         readonly default: "primary";
     };
     readonly disabled: BooleanConstructor;
@@ -70,7 +70,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
         readonly default: "primary";
     };
     readonly disabled: BooleanConstructor;
@@ -97,7 +97,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly arrow: boolean;
     readonly okText: string;
     readonly cancelText: string;
-    readonly okType: "success" | "warning" | "default" | "primary" | "danger";
+    readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
     readonly showCancel: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

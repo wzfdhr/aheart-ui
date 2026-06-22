@@ -26,7 +26,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly default: "Cancel";
         };
         readonly okType: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
             readonly default: "primary";
         };
         readonly disabled: BooleanConstructor;
@@ -58,7 +58,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly arrow: boolean;
         readonly okText: string;
         readonly cancelText: string;
-        readonly okType: "success" | "warning" | "default" | "primary" | "danger";
+        readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
         readonly showCancel: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -94,7 +94,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly default: "Cancel";
         };
         readonly okType: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
             readonly default: "primary";
         };
         readonly disabled: BooleanConstructor;
@@ -121,7 +121,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly arrow: boolean;
         readonly okText: string;
         readonly cancelText: string;
-        readonly okType: "success" | "warning" | "default" | "primary" | "danger";
+        readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
         readonly showCancel: boolean;
     }>;
     __isFragment?: undefined;
@@ -154,7 +154,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
         readonly default: "primary";
     };
     readonly disabled: BooleanConstructor;
@@ -186,7 +186,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly arrow: boolean;
     readonly okText: string;
     readonly cancelText: string;
-    readonly okType: "success" | "warning" | "default" | "primary" | "danger";
+    readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
     readonly showCancel: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

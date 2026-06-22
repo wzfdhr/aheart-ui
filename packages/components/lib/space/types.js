@@ -6,7 +6,11 @@ const spaceProps = {
     type: String,
     default: "horizontal"
   },
+  orientation: String,
+  vertical: Boolean,
   align: String,
-  wrap: Boolean
+  wrap: Boolean,
+  separator: String,
+  split: String
 };
 exports.spaceProps = spaceProps;
