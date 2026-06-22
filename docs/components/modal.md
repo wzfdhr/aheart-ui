@@ -4,6 +4,8 @@ import { ref } from 'vue'
 const basicOpen = ref(false)
 const footerOpen = ref(false)
 const centeredOpen = ref(false)
+const loadingOpen = ref(false)
+const styledOpen = ref(false)
 </script>
 
 # Modal 对话框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -76,6 +78,76 @@ const open = ref(false)
 </template>
 ```
 
+## 加载与按钮配置
+
+<div class="aheart-demo-panel">
+  <AButton @click="loadingOpen = true">Loading modal</AButton>
+  <AModal
+    v-model:open="loadingOpen"
+    title="Sync workspace"
+    loading
+    ok-text="Sync"
+    cancel-text="Later"
+    :ok-button-props="{ danger: true }"
+    :cancel-button-props="{ type: 'dashed' }"
+  >
+    Sync details appear after the request finishes.
+  </AModal>
+</div>
+
+```vue
+<template>
+  <AModal
+    v-model:open="open"
+    title="Sync workspace"
+    loading
+    ok-text="Sync"
+    cancel-text="Later"
+    :ok-button-props="{ danger: true }"
+    :cancel-button-props="{ type: 'dashed' }"
+  >
+    Sync details appear after the request finishes.
+  </AModal>
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <AButton @click="styledOpen = true">Styled modal</AButton>
+  <AModal
+    v-model:open="styledOpen"
+    title="Styled modal"
+    root-class-name="docs-modal-root"
+    class-name="docs-modal-dialog"
+    :z-index="1210"
+    :root-style="{ color: 'var(--aheart-color-text)' }"
+    :style="{ maxWidth: '92vw' }"
+    :class-names="{ body: 'docs-modal-body' }"
+    :styles="{ body: { padding: '24px' } }"
+  >
+    Semantic class and style hooks make app-specific modal shells easier.
+  </AModal>
+</div>
+
+```vue
+<template>
+  <AModal
+    v-model:open="open"
+    title="Styled modal"
+    root-class-name="workspace-modal-root"
+    class-name="workspace-modal-dialog"
+    :z-index="1210"
+    :root-style="{ color: 'var(--aheart-color-text)' }"
+    :style="{ maxWidth: '92vw' }"
+    :class-names="{ body: 'workspace-modal-body' }"
+    :styles="{ body: { padding: '24px' } }"
+  >
+    Semantic class and style hooks make app-specific modal shells easier.
+  </AModal>
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -92,8 +164,24 @@ const open = ref(false)
 | okText | OK 按钮文本 | `string` | `OK` |
 | cancelText | Cancel 按钮文本 | `string` | `Cancel` |
 | okType | OK 按钮类型 | `ButtonType` | `primary` |
+| okButtonProps | OK 按钮属性 | `Partial<ButtonProps>` | - |
+| cancelButtonProps | Cancel 按钮属性 | `Partial<ButtonProps>` | - |
+| zIndex | 根节点层级 | `number` | `1000` |
+| loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 是否显示默认页脚 | `boolean` | `true` |
-| destroyOnClose | 关闭时销毁内容的语义开关；当前实现关闭后不渲染节点 | `boolean` | `false` |
+| className | 对话框自定义类名 | `string` | - |
+| rootClassName | 根节点自定义类名 | `string` | - |
+| style | 对话框自定义样式 | `CSSProperties` | - |
+| rootStyle | 根节点自定义样式 | `CSSProperties` | - |
+| classNames | 语义化结构类名 | `Partial<Record<ModalSemanticPart, string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<ModalSemanticPart, CSSProperties>>` | - |
+| forceRender | 关闭时也预渲染对话框结构 | `boolean` | `false` |
+| destroyOnClose | 关闭后销毁内容；兼容旧命名 | `boolean` | `false` |
+| destroyOnHidden | 关闭后销毁内容 | `boolean` | `false` |
+
+### ModalSemanticPart
+
+`root`、`mask`、`wrap`、`dialog`、`header`、`title`、`body`、`footer`、`close`
 
 ## Events
 
@@ -103,6 +191,7 @@ const open = ref(false)
 | ok | 点击 OK 按钮时触发 | `() => void` |
 | cancel | 点击 Cancel 按钮时触发 | `() => void` |
 | close | 点击关闭按钮、遮罩、Cancel 或 Escape 时触发 | `() => void` |
+| afterOpenChange | 显隐状态变化后触发 | `(open: boolean) => void` |
 
 ## Slots
 
