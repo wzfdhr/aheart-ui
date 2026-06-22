@@ -1,0 +1,227 @@
+# Table 表格 <span class="aheart-status aheart-status--ready">Ready</span>
+
+Table displays structured records with columns, sorting, selection, expansion, pagination, loading, and empty states.
+
+## 基础用法
+
+<div class="aheart-demo-panel">
+  <ATable
+    :columns="[
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      { title: 'Age', dataIndex: 'age', key: 'age', align: 'right' },
+      { title: 'Role', dataIndex: 'role', key: 'role' }
+    ]"
+    :data-source="[
+      { key: 'ada', name: 'Ada', age: 36, role: 'Architect' },
+      { key: 'grace', name: 'Grace', age: 28, role: 'Engineer' },
+      { key: 'linus', name: 'Linus', age: 42, role: 'Maintainer' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ATable :columns="columns" :data-source="dataSource" />
+</template>
+```
+
+## 排序
+
+<div class="aheart-demo-panel">
+  <ATable
+    bordered
+    :columns="[
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      { title: 'Age', dataIndex: 'age', key: 'age', sorter: (a, b) => a.age - b.age },
+      { title: 'Role', dataIndex: 'role', key: 'role' }
+    ]"
+    :data-source="[
+      { key: 'ada', name: 'Ada', age: 36, role: 'Architect' },
+      { key: 'grace', name: 'Grace', age: 28, role: 'Engineer' },
+      { key: 'linus', name: 'Linus', age: 42, role: 'Maintainer' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ATable
+    bordered
+    :columns="[
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      { title: 'Age', dataIndex: 'age', key: 'age', sorter: (a, b) => a.age - b.age }
+    ]"
+    :data-source="dataSource"
+  />
+</template>
+```
+
+## 行选择
+
+<div class="aheart-demo-panel">
+  <ATable
+    :row-selection="{ defaultSelectedRowKeys: ['ada'] }"
+    :columns="[
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      { title: 'Age', dataIndex: 'age', key: 'age' },
+      { title: 'Role', dataIndex: 'role', key: 'role' }
+    ]"
+    :data-source="[
+      { key: 'ada', name: 'Ada', age: 36, role: 'Architect' },
+      { key: 'grace', name: 'Grace', age: 28, role: 'Engineer' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ATable
+    :row-selection="{ selectedRowKeys, type: 'checkbox' }"
+    :columns="columns"
+    :data-source="dataSource"
+    @update:selected-row-keys="selectedRowKeys = $event"
+  />
+</template>
+```
+
+## 展开行
+
+<div class="aheart-demo-panel">
+  <ATable
+    :columns="[
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      { title: 'Role', dataIndex: 'role', key: 'role' }
+    ]"
+    :data-source="[
+      { key: 'ada', name: 'Ada', role: 'Architect', detail: 'Owns design system architecture.' },
+      { key: 'grace', name: 'Grace', role: 'Engineer', detail: 'Builds product workflows.' }
+    ]"
+    :expandable="{ expandedRowRender: (record) => record.detail }"
+  />
+</div>
+
+```vue
+<template>
+  <ATable
+    :columns="columns"
+    :data-source="dataSource"
+    :expandable="{ expandedRowRender: (record) => record.detail }"
+  />
+</template>
+```
+
+## 分页与状态
+
+<div class="aheart-demo-panel">
+  <AConfigProvider size="small">
+    <ATable
+      empty-text="No records"
+      :pagination="{ current: 1, pageSize: 2, showTotal: true }"
+      :columns="[
+        { title: 'Name', dataIndex: 'name', key: 'name' },
+        { title: 'Role', dataIndex: 'role', key: 'role' }
+      ]"
+      :data-source="[
+        { key: 'ada', name: 'Ada', role: 'Architect' },
+        { key: 'grace', name: 'Grace', role: 'Engineer' },
+        { key: 'linus', name: 'Linus', role: 'Maintainer' }
+      ]"
+    />
+  </AConfigProvider>
+</div>
+
+```vue
+<template>
+  <AConfigProvider size="small">
+    <ATable
+      :pagination="{ current: 1, pageSize: 2, showTotal: true }"
+      :columns="columns"
+      :data-source="dataSource"
+    />
+  </AConfigProvider>
+</template>
+```
+
+## API
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| columns | 表格列配置 | `TableColumn[]` | `[]` |
+| dataSource | 数据数组 | `Record<string, unknown>[]` | `[]` |
+| rowKey | 行 key | `string` \| `(record) => string \| number` | `key` |
+| bordered | 是否显示边框 | `boolean` | `false` |
+| loading | 是否显示加载遮罩 | `boolean` | `false` |
+| size | 表格尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
+| disabled | 是否禁用交互 | `boolean` | ConfigProvider disabled |
+| pagination | 分页配置，设为 `false` 时隐藏 | `false` \| `TablePaginationConfig` | 自动 |
+| rowSelection | 行选择配置 | `TableRowSelection` | - |
+| expandable | 展开行配置 | `TableExpandable` | - |
+| showHeader | 是否显示表头 | `boolean` | `true` |
+| emptyText | 空状态文本 | `string` | ConfigProvider locale.empty.description |
+
+### TableColumn
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| title | 列标题 | `string` | - |
+| dataIndex | 数据字段路径 | `string` \| `number` \| `(string \| number)[]` | - |
+| key | 列唯一标识 | `string` | `dataIndex` |
+| align | 对齐方式 | `left` \| `center` \| `right` | `left` |
+| width | 列宽 | `string` \| `number` | - |
+| className | 自定义类名 | `string` | - |
+| sorter | 本地排序函数 | `boolean` \| `(a, b) => number` | - |
+| sortOrder | 排序方向 | `ascend` \| `descend` | - |
+| ellipsis | 是否省略文本 | `boolean` | `false` |
+| customRender | 自定义渲染函数 | `(context) => VNodeChild` | - |
+
+### TableRowSelection
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| selectedRowKeys | 受控选中 keys | `(string \| number)[]` | - |
+| defaultSelectedRowKeys | 默认选中 keys | `(string \| number)[]` | `[]` |
+| type | 选择类型 | `checkbox` \| `radio` | `checkbox` |
+| disabled | 是否禁用选择 | `boolean` | `false` |
+
+### TableExpandable
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| expandedRowKeys | 受控展开 keys | `(string \| number)[]` | - |
+| defaultExpandedRowKeys | 默认展开 keys | `(string \| number)[]` | `[]` |
+| expandedRowRender | 展开行内容 | `(record, index) => VNodeChild` | - |
+| rowExpandable | 是否允许展开当前行 | `(record) => boolean` | - |
+
+### TablePaginationConfig
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| current | 当前页 | `number` | - |
+| defaultCurrent | 默认当前页 | `number` | `1` |
+| pageSize | 每页条数 | `number` | - |
+| defaultPageSize | 默认每页条数 | `number` | `10` |
+| total | 数据总数 | `number` | `dataSource.length` |
+| simple | 是否简洁模式 | `boolean` | `false` |
+| hideOnSinglePage | 只有一页时隐藏 | `boolean` | `false` |
+| showTotal | 是否显示总数 | `boolean` | `false` |
+
+## Events
+
+| 事件名 | 说明 | 回调参数 |
+| --- | --- | --- |
+| change | 分页或排序变化时触发 | `(pagination, filters, sorter) => void` |
+| update:selectedRowKeys | 选择项变化时触发 | `(keys) => void` |
+| select | 选择某一行时触发 | `(key, selected, record, selectedRowKeys) => void` |
+| expand | 展开状态变化时触发 | `(expanded, record, key) => void` |
+
+## Theme Tokens
+
+- `--aheart-color-primary`
+- `--aheart-color-text`
+- `--aheart-color-text-secondary`
+- `--aheart-color-border`
+- `--aheart-color-fill`
+- `--aheart-color-bg`
+- `--aheart-radius`
+- `--aheart-spacing-sm`
+- `--aheart-spacing-md`

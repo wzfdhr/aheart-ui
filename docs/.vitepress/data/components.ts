@@ -73,7 +73,7 @@ export const componentCategories: ComponentCategory[] = [
       { name: 'Card', description: 'Group related content.', status: 'Ready', link: '/components/card' },
       { name: 'Empty', description: 'Show empty states.', status: 'Ready', link: '/components/empty' },
       { name: 'Descriptions', description: 'Display record details.', status: 'Ready', link: '/components/descriptions' },
-      { name: 'Table', description: 'Display tabular data.', status: 'Planned' },
+      { name: 'Table', description: 'Display tabular data.', status: 'Ready', link: '/components/table' },
       { name: 'Pagination', description: 'Navigate paged data.', status: 'Ready', link: '/components/pagination' }
     ]
   },
