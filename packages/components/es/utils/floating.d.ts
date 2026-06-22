@@ -1,0 +1,11 @@
+import type { CSSProperties } from 'vue';
+export declare const floatingPlacements: readonly ["top", "left", "right", "bottom", "topLeft", "topRight", "bottomLeft", "bottomRight", "leftTop", "leftBottom", "rightTop", "rightBottom"];
+export declare const floatingTriggers: readonly ["hover", "focus", "click", "contextMenu"];
+export type FloatingPlacement = (typeof floatingPlacements)[number];
+export type FloatingTrigger = (typeof floatingTriggers)[number];
+export type FloatingTriggerProp = FloatingTrigger | FloatingTrigger[];
+export declare const isFloatingPlacement: (value: string) => boolean;
+export declare const isFloatingTrigger: (value: string) => boolean;
+export declare const isFloatingTriggerProp: (value: unknown) => boolean;
+export declare const normalizeFloatingTriggers: (trigger: FloatingTriggerProp) => ("click" | "focus" | "hover" | "contextMenu")[];
+export declare const getFloatingPopupStyle: (color?: string, zIndex?: number) => CSSProperties;

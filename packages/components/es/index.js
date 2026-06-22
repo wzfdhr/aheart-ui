@@ -21,6 +21,8 @@ import Menu from "./menu/index.js";
 import Message from "./message/index.js";
 import Modal from "./modal/index.js";
 import Pagination from "./pagination/index.js";
+import Popconfirm from "./popconfirm/index.js";
+import Popover from "./popover/index.js";
 import Radio from "./radio/index.js";
 import Select from "./select/index.js";
 import Skeleton from "./skeleton/index.js";
@@ -32,6 +34,7 @@ import Table from "./table/index.js";
 import Tag from "./tag/index.js";
 import Tabs from "./tabs/index.js";
 import Textarea from "./textarea/index.js";
+import Tooltip from "./tooltip/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
 import "./theme/index.css.js";
 import { message } from "./message/service.js";
@@ -54,6 +57,9 @@ const components = [
   Message,
   Modal,
   Drawer,
+  Tooltip,
+  Popover,
+  Popconfirm,
   Spin,
   Skeleton,
   Empty,
@@ -110,6 +116,8 @@ export {
   Modal,
   Pagination,
   Paragraph,
+  Popconfirm,
+  Popover,
   Radio,
   Row,
   Select,
@@ -124,6 +132,7 @@ export {
   Text,
   Textarea,
   Title,
+  Tooltip,
   Typography,
   AheartUI as default,
   message
