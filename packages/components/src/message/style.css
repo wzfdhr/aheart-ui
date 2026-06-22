@@ -12,6 +12,10 @@
   transform: translateX(-50%);
 }
 
+.aheart-message.is-rtl {
+  direction: rtl;
+}
+
 .aheart-message-notice {
   display: inline-flex;
   align-items: center;
@@ -24,6 +28,10 @@
   border: 1px solid var(--aheart-color-border);
   border-radius: var(--aheart-radius);
   box-shadow: var(--aheart-shadow);
+}
+
+.aheart-message-notice.is-rtl {
+  direction: rtl;
 }
 
 .aheart-message-notice__icon {
