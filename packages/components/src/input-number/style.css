@@ -1,0 +1,84 @@
+.aheart-input-number {
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  min-height: var(--aheart-control-height);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  background: var(--aheart-color-bg);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+  transition:
+    border-color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    box-shadow var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-input-number:hover:not(.is-disabled),
+.aheart-input-number:focus-within {
+  border-color: var(--aheart-color-primary-hover);
+}
+
+.aheart-input-number:focus-within {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--aheart-color-primary) 18%, transparent);
+}
+
+.aheart-input-number.is-disabled {
+  background: var(--aheart-color-bg-disabled);
+  color: var(--aheart-color-text-secondary);
+  cursor: not-allowed;
+}
+
+.aheart-input-number--small {
+  min-height: var(--aheart-control-height-sm);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-input-number--large {
+  min-height: var(--aheart-control-height-lg);
+  font-size: var(--aheart-font-size-lg);
+}
+
+.aheart-input-number__control {
+  min-width: 0;
+  flex: 1;
+  padding: 0 var(--aheart-spacing-sm);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.aheart-input-number__control:disabled {
+  cursor: not-allowed;
+}
+
+.aheart-input-number__controls {
+  display: inline-flex;
+  width: 28px;
+  border-left: 1px solid var(--aheart-color-border);
+  flex-direction: column;
+}
+
+.aheart-input-number__increase,
+.aheart-input-number__decrease {
+  min-height: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.aheart-input-number__increase {
+  border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-input-number__increase:disabled,
+.aheart-input-number__decrease:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}

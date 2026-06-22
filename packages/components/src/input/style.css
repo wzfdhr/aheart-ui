@@ -1,0 +1,95 @@
+.aheart-input {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--aheart-control-height);
+  padding: 0 var(--aheart-spacing-sm);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  background: var(--aheart-color-bg);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+  transition:
+    border-color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    box-shadow var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-input:hover:not(.is-disabled),
+.aheart-input:focus-within {
+  border-color: var(--aheart-color-primary-hover);
+}
+
+.aheart-input:focus-within {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--aheart-color-primary) 18%, transparent);
+}
+
+.aheart-input.is-disabled {
+  background: var(--aheart-color-bg-disabled);
+  color: var(--aheart-color-text-secondary);
+  cursor: not-allowed;
+}
+
+.aheart-input--small {
+  min-height: var(--aheart-control-height-sm);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-input--large {
+  min-height: var(--aheart-control-height-lg);
+  font-size: var(--aheart-font-size-lg);
+}
+
+.aheart-input--error {
+  border-color: var(--aheart-color-danger);
+}
+
+.aheart-input--warning {
+  border-color: var(--aheart-color-warning);
+}
+
+.aheart-input__control {
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.aheart-input__control:disabled {
+  cursor: not-allowed;
+}
+
+.aheart-input__prefix,
+.aheart-input__suffix,
+.aheart-input__count {
+  flex: 0 0 auto;
+  color: var(--aheart-color-text-secondary);
+}
+
+.aheart-input__prefix {
+  margin-right: var(--aheart-spacing-xs);
+}
+
+.aheart-input__suffix,
+.aheart-input__count {
+  margin-left: var(--aheart-spacing-xs);
+}
+
+.aheart-input__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: var(--aheart-spacing-xs);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--aheart-color-fill);
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
+}
