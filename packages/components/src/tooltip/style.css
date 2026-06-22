@@ -15,7 +15,6 @@
   z-index: 1070;
   box-sizing: border-box;
   max-width: 250px;
-  padding: 6px 8px;
   border-radius: var(--aheart-radius-sm);
   background: rgba(0, 0, 0, 0.85);
   box-shadow: var(--aheart-shadow);
@@ -25,7 +24,17 @@
   white-space: normal;
 }
 
+.aheart-tooltip__container {
+  display: inline-flex;
+  min-width: 0;
+  padding: 6px 8px;
+}
+
 .aheart-tooltip__content {
   position: relative;
   z-index: 1;
+}
+
+.aheart-tooltip__arrow--point-at-center {
+  transform: rotate(45deg) scale(1.05);
 }
