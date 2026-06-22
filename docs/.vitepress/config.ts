@@ -36,7 +36,10 @@ export default defineConfig({
           items: [
             { text: '组件总览', link: '/components/overview' },
             { text: 'Button 按钮', link: '/components/button' },
-            { text: 'ConfigProvider 全局配置', link: '/components/config-provider' }
+            { text: 'ConfigProvider 全局配置', link: '/components/config-provider' },
+            { text: 'Space 间距', link: '/components/space' },
+            { text: 'Divider 分割线', link: '/components/divider' },
+            { text: 'Flex 弹性布局', link: '/components/flex' }
           ]
         }
       ]
