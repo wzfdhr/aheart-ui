@@ -1,14 +1,8 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, normalizeStyle, createCommentVNode, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createTextVNode, toDisplayString, vShow } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
 import { tooltipProps, tooltipEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-floating__arrow aheart-tooltip__arrow",
-  "aria-hidden": "true"
-};
-const _hoisted_2 = { class: "aheart-tooltip__content" };
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATooltip"
@@ -21,12 +15,78 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const innerOpen = ref(props.defaultOpen);
+    const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open));
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const hasTitle = computed(() => Boolean(props.title || slots.title));
     const visible = computed(() => hasTitle.value && mergedOpen.value);
-    const popupStyle = computed(() => getFloatingPopupStyle(props.color, props.zIndex));
+    const shouldRenderPopup = computed(() => hasTitle.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
+    const tooltipClass = computed(() => {
+      var _a;
+      return [
+        props.className,
+        props.rootClassName,
+        (_a = props.classNames) == null ? void 0 : _a.root,
+        {
+          "is-open": visible.value
+        }
+      ];
+    });
+    const rootStyle = computed(() => {
+      var _a;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const triggerClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.trigger;
+    });
+    const triggerStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.trigger;
+    });
+    const popupClass = computed(() => {
+      var _a;
+      return [`aheart-floating--${props.placement}`, props.overlayClassName, (_a = props.classNames) == null ? void 0 : _a.popup];
+    });
+    const popupStyle = computed(() => {
+      var _a;
+      return [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
+    });
+    const containerClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.container;
+    });
+    const containerStyle = computed(() => {
+      var _a;
+      return [props.overlayInnerStyle, (_a = props.styles) == null ? void 0 : _a.container];
+    });
+    const contentClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.content;
+    });
+    const contentStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.content;
+    });
+    const showArrow = computed(() => props.arrow !== false);
+    const arrowPointsAtCenter = computed(() => {
+      var _a;
+      return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
+    });
+    const arrowClass = computed(() => {
+      var _a;
+      return [
+        (_a = props.classNames) == null ? void 0 : _a.arrow,
+        {
+          "aheart-tooltip__arrow--point-at-center": arrowPointsAtCenter.value
+        }
+      ];
+    });
+    const arrowStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.arrow;
+    });
     let enterTimer;
     let leaveTimer;
     watch(
@@ -36,6 +96,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           innerOpen.value = open;
         }
       }
+    );
+    watch(
+      visible,
+      (open) => {
+        if (open) {
+          hasRenderedPopup.value = true;
+        }
+      },
+      { immediate: true }
     );
     const clearTimers = () => {
       if (enterTimer) {
@@ -101,12 +170,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     onBeforeUnmount(clearTimers);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
-        class: normalizeClass(["aheart-tooltip", { "is-open": visible.value }]),
+        class: normalizeClass(["aheart-tooltip", tooltipClass.value]),
+        style: normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
         onMouseleave: handleMouseLeave
       }, [
         createElementVNode("span", {
-          class: "aheart-tooltip__trigger",
+          class: normalizeClass(["aheart-tooltip__trigger", triggerClass.value]),
+          style: normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
           onFocusin: handleFocusIn,
@@ -115,21 +186,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onContextmenu: handleContextmenu
         }, [
           renderSlot(_ctx.$slots, "default")
-        ], 32),
-        visible.value ? (openBlock(), createElementBlock("span", {
+        ], 38),
+        shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
           key: 0,
-          class: normalizeClass(["aheart-tooltip__popup", `aheart-floating--${_ctx.placement}`]),
+          class: normalizeClass(["aheart-tooltip__popup", popupClass.value]),
           style: normalizeStyle(popupStyle.value),
           role: "tooltip"
         }, [
-          _ctx.arrow ? (openBlock(), createElementBlock("span", _hoisted_1)) : createCommentVNode("", true),
-          createElementVNode("span", _hoisted_2, [
-            renderSlot(_ctx.$slots, "title", {}, () => [
-              createTextVNode(toDisplayString(_ctx.title), 1)
-            ])
-          ])
-        ], 6)) : createCommentVNode("", true)
-      ], 34);
+          showArrow.value ? (openBlock(), createElementBlock("span", {
+            key: 0,
+            class: normalizeClass(["aheart-floating__arrow aheart-tooltip__arrow", arrowClass.value]),
+            style: normalizeStyle(arrowStyle.value),
+            "aria-hidden": "true"
+          }, null, 6)) : createCommentVNode("", true),
+          createElementVNode("span", {
+            class: normalizeClass(["aheart-tooltip__container", containerClass.value]),
+            style: normalizeStyle(containerStyle.value)
+          }, [
+            createElementVNode("span", {
+              class: normalizeClass(["aheart-tooltip__content", contentClass.value]),
+              style: normalizeStyle(contentStyle.value)
+            }, [
+              renderSlot(_ctx.$slots, "title", {}, () => [
+                createTextVNode(toDisplayString(_ctx.title), 1)
+              ])
+            ], 6)
+          ], 6)
+        ], 6)), [
+          [vShow, visible.value]
+        ]) : createCommentVNode("", true)
+      ], 38);
     };
   }
 });
