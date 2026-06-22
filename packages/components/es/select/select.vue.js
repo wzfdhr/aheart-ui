@@ -1,28 +1,15 @@
-import { defineComponent, useSlots, ref, computed, openBlock, createElementBlock, normalizeClass, renderSlot, createTextVNode, toDisplayString, createCommentVNode, createElementVNode, Fragment, renderList } from "vue";
+import { defineComponent, useSlots, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createTextVNode, toDisplayString, createCommentVNode, createElementVNode, Fragment, renderList, createVNode, unref } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { selectProps, selectEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-select__prefix"
-};
-const _hoisted_2 = ["value", "disabled", "placeholder"];
-const _hoisted_3 = ["id", "name", "value", "multiple", "disabled"];
-const _hoisted_4 = {
+const _hoisted_1 = ["value", "disabled", "placeholder"];
+const _hoisted_2 = ["id", "name", "value", "multiple", "disabled"];
+const _hoisted_3 = {
   key: 0,
   value: "",
   disabled: ""
 };
-const _hoisted_5 = {
-  key: 1,
-  value: "",
-  disabled: ""
-};
-const _hoisted_6 = ["value", "disabled"];
-const _hoisted_7 = {
-  key: 3,
-  class: "aheart-select__suffix"
-};
+const _hoisted_4 = ["value", "disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ASelect"
@@ -36,8 +23,45 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const slots = useSlots();
     const config = useAheartConfig();
     const internalSearchValue = ref("");
-    const normalizedOptions = computed(() => props.options ?? []);
+    const internalValue = ref(props.defaultValue);
+    const ARenderNode = defineComponent({
+      name: "ASelectRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const defaultFieldNames = {
+      label: "label",
+      value: "value",
+      disabled: "disabled"
+    };
+    const resolvedFieldNames = computed(() => ({
+      ...defaultFieldNames,
+      ...props.fieldNames
+    }));
+    const getRawField = (option, field) => option[field];
+    const normalizeOption = (option) => {
+      const fieldNames = resolvedFieldNames.value;
+      const label = getRawField(option, fieldNames.label);
+      const value = getRawField(option, fieldNames.value);
+      const disabled = getRawField(option, fieldNames.disabled);
+      return {
+        label: String(label ?? ""),
+        value: typeof value === "number" || typeof value === "string" ? value : String(value ?? ""),
+        disabled: Boolean(disabled)
+      };
+    };
+    const rawOptions = computed(() => props.options ?? []);
+    const normalizedOptions = computed(() => rawOptions.value.map(normalizeOption));
     const isMultiple = computed(() => props.mode === "multiple" || props.mode === "tags");
+    const isControlled = computed(() => props.modelValue !== void 0);
+    const mergedValue = computed(() => isControlled.value ? props.modelValue : internalValue.value);
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const resolvedVariant = computed(
@@ -46,6 +70,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const currentSearchValue = computed(() => props.searchValue ?? internalSearchValue.value);
     const hasPrefix = computed(() => Boolean(props.prefix || slots.prefix));
     const hasSuffix = computed(() => Boolean(props.suffixIcon || slots.suffixIcon));
+    const hasSuffixAffordance = computed(() => hasSuffix.value || props.loading);
+    const allowClearConfig = computed(() => {
+      if (!props.allowClear) {
+        return void 0;
+      }
+      return typeof props.allowClear === "object" ? props.allowClear : {};
+    });
+    const clearIconContent = computed(() => {
+      var _a;
+      return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
+    });
+    const loadingIconContent = computed(() => props.loadingIcon ?? "…");
     const stringifyValue = (value) => String(value);
     const getOptionKey = (value) => `${typeof value}:${String(value)}`;
     const mapNativeValue = (value) => {
@@ -61,37 +97,51 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return normalizedOptions.value;
       }
       const filterOption = props.filterOption;
-      if (typeof filterOption === "function") {
-        return normalizedOptions.value.filter((option) => filterOption(searchText, option));
-      }
-      return normalizedOptions.value.filter((option) => option.label.toLowerCase().includes(searchText));
+      const fieldNames = resolvedFieldNames.value;
+      const filterField = props.optionFilterProp === fieldNames.label || props.optionFilterProp === "label" ? fieldNames.label : props.optionFilterProp === fieldNames.value || props.optionFilterProp === "value" ? fieldNames.value : props.optionFilterProp;
+      const filtered = typeof filterOption === "function" ? normalizedOptions.value.filter((option) => filterOption(searchText, option)) : normalizedOptions.value.filter((option, index) => {
+        const rawValue = getRawField(rawOptions.value[index], filterField);
+        return String(rawValue ?? "").toLowerCase().includes(searchText);
+      });
+      return props.filterSort ? filtered.slice().sort((a, b) => {
+        var _a;
+        return ((_a = props.filterSort) == null ? void 0 : _a.call(props, a, b, { searchValue: searchText })) ?? 0;
+      }) : filtered;
     });
     const hasNoOptions = computed(() => filteredOptions.value.length === 0);
     const selectValue = computed(() => {
       if (isMultiple.value) {
-        return Array.isArray(props.modelValue) ? props.modelValue.map(stringifyValue) : [];
+        return Array.isArray(mergedValue.value) ? mergedValue.value.map(stringifyValue) : [];
       }
-      return typeof props.modelValue === "string" || typeof props.modelValue === "number" ? stringifyValue(props.modelValue) : "";
+      return typeof mergedValue.value === "string" || typeof mergedValue.value === "number" ? stringifyValue(mergedValue.value) : "";
     });
     const hasValue = computed(() => {
-      if (Array.isArray(props.modelValue)) {
-        return props.modelValue.length > 0;
+      if (Array.isArray(mergedValue.value)) {
+        return mergedValue.value.length > 0;
       }
-      return Boolean(props.modelValue);
+      return mergedValue.value !== void 0 && mergedValue.value !== null && mergedValue.value !== "";
     });
     const selectClass = computed(() => [
+      props.className,
+      props.rootClassName,
+      props.classNames.root,
       `aheart-select--${resolvedSize.value}`,
       `aheart-select--${resolvedVariant.value}`,
       {
         [`aheart-select--${props.status}`]: props.status,
         "is-disabled": isDisabled.value,
+        "is-loading": props.loading,
         "is-multiple": isMultiple.value,
         "is-searchable": props.showSearch,
         "has-prefix": hasPrefix.value,
-        "has-suffix": hasSuffix.value
+        "has-suffix": hasSuffixAffordance.value
       }
     ]);
+    const rootStyle = computed(() => [props.style, props.styles.root]);
     const emitValue = (value) => {
+      if (!isControlled.value) {
+        internalValue.value = value;
+      }
       emit("update:modelValue", value);
       emit("change", value);
     };
@@ -106,6 +156,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleClear = () => {
       const value = isMultiple.value ? [] : "";
+      if (!isControlled.value) {
+        internalValue.value = value;
+      }
       emit("update:modelValue", value);
       emit("change", value);
       emit("clear");
@@ -118,25 +171,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
-        class: normalizeClass(["aheart-select", selectClass.value])
+        class: normalizeClass(["aheart-select", selectClass.value]),
+        style: normalizeStyle(rootStyle.value)
       }, [
-        hasPrefix.value ? (openBlock(), createElementBlock("span", _hoisted_1, [
+        hasPrefix.value ? (openBlock(), createElementBlock("span", {
+          key: 0,
+          class: normalizeClass(["aheart-select__prefix", _ctx.classNames.prefix]),
+          style: normalizeStyle(_ctx.styles.prefix)
+        }, [
           renderSlot(_ctx.$slots, "prefix", {}, () => [
             createTextVNode(toDisplayString(_ctx.prefix), 1)
           ])
-        ])) : createCommentVNode("", true),
+        ], 6)) : createCommentVNode("", true),
         _ctx.showSearch ? (openBlock(), createElementBlock("input", {
           key: 1,
-          class: "aheart-select__search",
+          class: normalizeClass(["aheart-select__search", _ctx.classNames.search]),
+          style: normalizeStyle(_ctx.styles.search),
           type: "search",
           value: currentSearchValue.value,
           disabled: isDisabled.value,
           placeholder: _ctx.placeholder,
           "aria-label": "Search options",
           onInput: handleSearch
-        }, null, 40, _hoisted_2)) : createCommentVNode("", true),
+        }, null, 46, _hoisted_1)) : createCommentVNode("", true),
         createElementVNode("select", {
-          class: "aheart-select__control",
+          class: normalizeClass(["aheart-select__control", _ctx.classNames.selector]),
+          style: normalizeStyle(_ctx.styles.selector),
           id: _ctx.id,
           name: _ctx.name,
           value: selectValue.value,
@@ -144,29 +204,56 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           disabled: isDisabled.value,
           onChange: handleChange
         }, [
-          _ctx.placeholder && !isMultiple.value && !_ctx.showSearch && !hasNoOptions.value ? (openBlock(), createElementBlock("option", _hoisted_4, toDisplayString(_ctx.placeholder), 1)) : createCommentVNode("", true),
-          hasNoOptions.value ? (openBlock(), createElementBlock("option", _hoisted_5, toDisplayString(_ctx.notFoundContent), 1)) : createCommentVNode("", true),
+          _ctx.placeholder && !isMultiple.value && !_ctx.showSearch && !hasNoOptions.value ? (openBlock(), createElementBlock("option", _hoisted_3, toDisplayString(_ctx.placeholder), 1)) : createCommentVNode("", true),
+          hasNoOptions.value ? (openBlock(), createElementBlock("option", {
+            key: 1,
+            value: "",
+            disabled: "",
+            class: normalizeClass(_ctx.classNames.notFound),
+            style: normalizeStyle(_ctx.styles.notFound)
+          }, toDisplayString(_ctx.notFoundContent), 7)) : createCommentVNode("", true),
           (openBlock(true), createElementBlock(Fragment, null, renderList(filteredOptions.value, (option) => {
             return openBlock(), createElementBlock("option", {
               key: getOptionKey(option.value),
               value: stringifyValue(option.value),
-              disabled: isOptionDisabled(option)
-            }, toDisplayString(option.label), 9, _hoisted_6);
+              disabled: isOptionDisabled(option),
+              class: normalizeClass(_ctx.classNames.option),
+              style: normalizeStyle(_ctx.styles.option)
+            }, toDisplayString(option.label), 15, _hoisted_4);
           }), 128))
-        ], 40, _hoisted_3),
+        ], 46, _hoisted_2),
         _ctx.allowClear && !isDisabled.value && hasValue.value ? (openBlock(), createElementBlock("button", {
           key: 2,
-          class: "aheart-select__clear",
+          class: normalizeClass(["aheart-select__clear", _ctx.classNames.clear]),
+          style: normalizeStyle(_ctx.styles.clear),
           type: "button",
           "aria-label": "Clear",
           onClick: handleClear
-        }, " × ")) : createCommentVNode("", true),
-        hasSuffix.value ? (openBlock(), createElementBlock("span", _hoisted_7, [
+        }, [
+          renderSlot(_ctx.$slots, "clearIcon", {}, () => [
+            createVNode(unref(ARenderNode), { node: clearIconContent.value }, null, 8, ["node"])
+          ])
+        ], 6)) : createCommentVNode("", true),
+        _ctx.loading ? (openBlock(), createElementBlock("span", {
+          key: 3,
+          class: normalizeClass(["aheart-select__loading", _ctx.classNames.loading]),
+          style: normalizeStyle(_ctx.styles.loading),
+          "aria-hidden": "true"
+        }, [
+          renderSlot(_ctx.$slots, "loadingIcon", {}, () => [
+            createVNode(unref(ARenderNode), { node: loadingIconContent.value }, null, 8, ["node"])
+          ])
+        ], 6)) : createCommentVNode("", true),
+        hasSuffix.value ? (openBlock(), createElementBlock("span", {
+          key: 4,
+          class: normalizeClass(["aheart-select__suffix", _ctx.classNames.suffix]),
+          style: normalizeStyle(_ctx.styles.suffix)
+        }, [
           renderSlot(_ctx.$slots, "suffixIcon", {}, () => [
             createTextVNode(toDisplayString(_ctx.suffixIcon), 1)
           ])
-        ])) : createCommentVNode("", true)
-      ], 2);
+        ], 6)) : createCommentVNode("", true)
+      ], 6);
     };
   }
 });

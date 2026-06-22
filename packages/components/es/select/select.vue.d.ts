@@ -1,39 +1,63 @@
-import { type SelectOption, type SelectValue } from './types';
+import { type PropType, type VNodeChild } from 'vue';
+import { type SelectFieldNames, type SelectRawOption, type SelectValue } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly name: StringConstructor;
-    readonly modelValue: import("vue").PropType<SelectValue>;
-    readonly options: import("vue").PropType<SelectOption[]>;
+    readonly modelValue: PropType<SelectValue>;
+    readonly defaultValue: PropType<SelectValue>;
+    readonly options: PropType<SelectRawOption[]>;
     readonly placeholder: StringConstructor;
     readonly prefix: StringConstructor;
     readonly suffixIcon: StringConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly loadingIcon: PropType<VNodeChild>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly status: import("vue").PropType<import("./types").SelectStatus>;
+    readonly status: PropType<import("./types").SelectStatus>;
     readonly variant: {
-        readonly type: import("vue").PropType<import("./types").SelectVariant>;
+        readonly type: PropType<import("./types").SelectVariant>;
         readonly default: undefined;
     };
     readonly bordered: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
-    readonly mode: import("vue").PropType<import("./types").SelectMode>;
+    readonly allowClear: {
+        readonly type: PropType<import("./types").SelectAllowClear>;
+        readonly default: false;
+    };
+    readonly mode: PropType<import("./types").SelectMode>;
     readonly showSearch: BooleanConstructor;
     readonly searchValue: StringConstructor;
+    readonly optionFilterProp: {
+        readonly type: StringConstructor;
+        readonly default: "label";
+    };
     readonly filterOption: {
-        readonly type: import("vue").PropType<import("./types").SelectFilterOption>;
+        readonly type: PropType<import("./types").SelectFilterOption>;
         readonly default: undefined;
     };
+    readonly filterSort: PropType<import("./types").SelectFilterSort>;
+    readonly fieldNames: PropType<SelectFieldNames>;
     readonly notFoundContent: {
         readonly type: StringConstructor;
         readonly default: "Not Found";
     };
     readonly maxCount: NumberConstructor;
+    readonly loading: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: {
+        readonly type: PropType<Partial<Record<import("./types").SelectSemanticPart, string>>>;
+        readonly default: () => {};
+    };
+    readonly styles: {
+        readonly type: PropType<Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>>;
+        readonly default: () => {};
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     search: (value: string) => void;
     change: (value: SelectValue) => void;
@@ -42,38 +66,61 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly name: StringConstructor;
-    readonly modelValue: import("vue").PropType<SelectValue>;
-    readonly options: import("vue").PropType<SelectOption[]>;
+    readonly modelValue: PropType<SelectValue>;
+    readonly defaultValue: PropType<SelectValue>;
+    readonly options: PropType<SelectRawOption[]>;
     readonly placeholder: StringConstructor;
     readonly prefix: StringConstructor;
     readonly suffixIcon: StringConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly loadingIcon: PropType<VNodeChild>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly status: import("vue").PropType<import("./types").SelectStatus>;
+    readonly status: PropType<import("./types").SelectStatus>;
     readonly variant: {
-        readonly type: import("vue").PropType<import("./types").SelectVariant>;
+        readonly type: PropType<import("./types").SelectVariant>;
         readonly default: undefined;
     };
     readonly bordered: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
-    readonly mode: import("vue").PropType<import("./types").SelectMode>;
+    readonly allowClear: {
+        readonly type: PropType<import("./types").SelectAllowClear>;
+        readonly default: false;
+    };
+    readonly mode: PropType<import("./types").SelectMode>;
     readonly showSearch: BooleanConstructor;
     readonly searchValue: StringConstructor;
+    readonly optionFilterProp: {
+        readonly type: StringConstructor;
+        readonly default: "label";
+    };
     readonly filterOption: {
-        readonly type: import("vue").PropType<import("./types").SelectFilterOption>;
+        readonly type: PropType<import("./types").SelectFilterOption>;
         readonly default: undefined;
     };
+    readonly filterSort: PropType<import("./types").SelectFilterSort>;
+    readonly fieldNames: PropType<SelectFieldNames>;
     readonly notFoundContent: {
         readonly type: StringConstructor;
         readonly default: "Not Found";
     };
     readonly maxCount: NumberConstructor;
+    readonly loading: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: {
+        readonly type: PropType<Partial<Record<import("./types").SelectSemanticPart, string>>>;
+        readonly default: () => {};
+    };
+    readonly styles: {
+        readonly type: PropType<Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>>;
+        readonly default: () => {};
+    };
 }>> & Readonly<{
     onSearch?: ((value: string) => any) | undefined;
     onChange?: ((value: SelectValue) => any) | undefined;
@@ -81,14 +128,20 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     "onUpdate:modelValue"?: ((value: SelectValue) => any) | undefined;
 }>, {
     readonly variant: import("./types").SelectVariant;
+    readonly classNames: Partial<Record<import("./types").SelectSemanticPart, string>>;
+    readonly styles: Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>;
     readonly disabled: boolean;
+    readonly loading: boolean;
     readonly bordered: boolean;
-    readonly allowClear: boolean;
+    readonly allowClear: import("./types").SelectAllowClear;
     readonly showSearch: boolean;
+    readonly optionFilterProp: string;
     readonly filterOption: import("./types").SelectFilterOption;
     readonly notFoundContent: string;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     prefix?(_: {}): any;
+    clearIcon?(_: {}): any;
+    loadingIcon?(_: {}): any;
     suffixIcon?(_: {}): any;
 }>;
 export default _default;

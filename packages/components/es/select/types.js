@@ -2,10 +2,12 @@ const selectProps = {
   id: String,
   name: String,
   modelValue: [String, Number, Array],
+  defaultValue: [String, Number, Array],
   options: Array,
   placeholder: String,
   prefix: String,
   suffixIcon: String,
+  loadingIcon: [String, Number, Object, Array, Function],
   size: String,
   disabled: {
     type: Boolean,
@@ -20,19 +22,40 @@ const selectProps = {
     type: Boolean,
     default: void 0
   },
-  allowClear: Boolean,
+  allowClear: {
+    type: [Boolean, Object],
+    default: false
+  },
   mode: String,
   showSearch: Boolean,
   searchValue: String,
+  optionFilterProp: {
+    type: String,
+    default: "label"
+  },
   filterOption: {
     type: [Boolean, Function],
     default: void 0
   },
+  filterSort: Function,
+  fieldNames: Object,
   notFoundContent: {
     type: String,
     default: "Not Found"
   },
-  maxCount: Number
+  maxCount: Number,
+  loading: Boolean,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: {
+    type: Object,
+    default: () => ({})
+  },
+  styles: {
+    type: Object,
+    default: () => ({})
+  }
 };
 const selectEmits = {
   "update:modelValue": (value) => typeof value === "string" || typeof value === "number" || Array.isArray(value),
