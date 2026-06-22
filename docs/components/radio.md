@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const radioRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 # Radio 单选框 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Radio captures a single boolean selection or one value from a grouped option set.
@@ -42,6 +48,30 @@ Radio captures a single boolean selection or one value from a grouped option set
 <template>
   <ARadio :checked="checked" label="Checked alias" />
   <ARadio default-checked label="Default checked" />
+</template>
+```
+
+## 焦点控制
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <ARadio ref="radioRef" label="Focusable radio" />
+    <AButton size="small" @click="radioRef?.focus()">Focus</AButton>
+    <AButton size="small" @click="radioRef?.blur()">Blur</AButton>
+  </ASpace>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const radioRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
+<template>
+  <ARadio ref="radioRef" label="Focusable radio" />
+  <AButton @click="radioRef?.focus()">Focus</AButton>
+  <AButton @click="radioRef?.blur()">Blur</AButton>
 </template>
 ```
 
@@ -214,6 +244,13 @@ Radio captures a single boolean selection or one value from a grouped option set
 | className | 选项根节点 class | `string` | - |
 | style | 选项根节点样式 | `StyleValue` | - |
 | title | 选项根节点 title 属性 | `string` | - |
+
+## Methods
+
+| 名称 | 说明 |
+| --- | --- |
+| focus() | 聚焦原生 radio 输入框 |
+| blur() | 移除原生 radio 输入框焦点 |
 
 ## Events
 
