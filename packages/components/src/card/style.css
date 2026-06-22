@@ -15,6 +15,10 @@
   border-color: transparent;
 }
 
+.aheart-card--inner {
+  background: var(--aheart-color-fill);
+}
+
 .aheart-card.is-hoverable:hover {
   border-color: var(--aheart-color-primary-hover);
   box-shadow: var(--aheart-shadow);
@@ -58,6 +62,14 @@
   border-top: 1px solid var(--aheart-color-border);
   background: var(--aheart-color-fill);
   gap: var(--aheart-spacing-md);
+}
+
+.aheart-card__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
 }
 
 .aheart-card--small .aheart-card__header {
