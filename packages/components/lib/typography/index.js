@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
+const typography_vue_vue_type_script_setup_true_lang = require("./typography.vue.js");
+const title_vue_vue_type_script_setup_true_lang = require("./title.vue.js");
+const text_vue_vue_type_script_setup_true_lang = require("./text.vue.js");
+const paragraph_vue_vue_type_script_setup_true_lang = require("./paragraph.vue.js");
+const link_vue_vue_type_script_setup_true_lang = require("./link.vue.js");
+const install = require("../utils/install.js");
+const Typography = install.withInstall(typography_vue_vue_type_script_setup_true_lang.default, "ATypography");
+const Title = install.withInstall(title_vue_vue_type_script_setup_true_lang.default, "ATitle");
+const Text = install.withInstall(text_vue_vue_type_script_setup_true_lang.default, "AText");
+const Paragraph = install.withInstall(paragraph_vue_vue_type_script_setup_true_lang.default, "AParagraph");
+const Link = install.withInstall(link_vue_vue_type_script_setup_true_lang.default, "ALink");
+exports.Link = Link;
+exports.Paragraph = Paragraph;
+exports.Text = Text;
+exports.Title = Title;
+exports.default = Typography;
