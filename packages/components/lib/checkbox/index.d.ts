@@ -27,11 +27,19 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
         readonly classNames: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, string>>>;
         readonly styles: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
+        onBlur?: ((event: FocusEvent) => any) | undefined;
         onChange?: ((checked: boolean, event: Event) => any) | undefined;
+        onFocus?: ((event: FocusEvent) => any) | undefined;
         "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
         "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
-    }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+        nativeElement: import("vue").Ref<HTMLLabelElement | undefined, HTMLLabelElement | undefined>;
+    }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+        blur: (event: FocusEvent) => void;
         change: (checked: boolean, event: Event) => void;
+        focus: (event: FocusEvent) => void;
         "update:modelValue": (checked: boolean) => void;
         "update:checked": (checked: boolean) => void;
     }, import("vue").PublicProps, {
@@ -75,10 +83,16 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
         readonly classNames: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, string>>>;
         readonly styles: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
+        onBlur?: ((event: FocusEvent) => any) | undefined;
         onChange?: ((checked: boolean, event: Event) => any) | undefined;
+        onFocus?: ((event: FocusEvent) => any) | undefined;
         "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
         "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
-    }>, {}, {}, {}, {}, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+        nativeElement: import("vue").Ref<HTMLLabelElement | undefined, HTMLLabelElement | undefined>;
+    }, {}, {}, {}, {
         readonly disabled: boolean;
         readonly modelValue: boolean;
         readonly checked: boolean;
@@ -116,11 +130,19 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
     readonly classNames: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, string>>>;
     readonly styles: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
+    onBlur?: ((event: FocusEvent) => any) | undefined;
     onChange?: ((checked: boolean, event: Event) => any) | undefined;
+    onFocus?: ((event: FocusEvent) => any) | undefined;
     "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
     "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: () => void;
+    blur: () => void;
+    nativeElement: import("vue").Ref<HTMLLabelElement | undefined, HTMLLabelElement | undefined>;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    blur: (event: FocusEvent) => void;
     change: (checked: boolean, event: Event) => void;
+    focus: (event: FocusEvent) => void;
     "update:modelValue": (checked: boolean) => void;
     "update:checked": (checked: boolean) => void;
 }, string, {
@@ -202,11 +224,11 @@ export declare const CheckboxGroup: import("../utils/install").SFCWithInstall<im
     "onUpdate:value"?: ((value: import("./types").CheckboxValue[]) => any) | undefined;
 }>, {
     readonly disabled: boolean;
+    readonly direction: import("./types").CheckboxGroupDirection;
     readonly value: import("./types").CheckboxValue[];
     readonly modelValue: import("./types").CheckboxValue[];
     readonly defaultValue: import("./types").CheckboxValue[];
     readonly options: import("./types").CheckboxRawOption[];
-    readonly direction: import("./types").CheckboxGroupDirection;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export { CheckboxGroup as ACheckboxGroup };
 export type { CheckboxGroupProps, CheckboxOption, CheckboxProps, CheckboxValue } from './types';

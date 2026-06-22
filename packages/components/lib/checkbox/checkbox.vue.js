@@ -14,10 +14,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   __name: "checkbox",
   props: types.checkboxProps,
   emits: types.checkboxEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
+    const rootRef = vue.ref();
+    const inputRef = vue.ref();
     const internalChecked = vue.ref(props.defaultChecked ?? false);
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const isControlled = vue.computed(() => props.checked !== void 0 || props.modelValue !== void 0);
@@ -64,14 +66,37 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("update:checked", checked);
       emit("change", checked, event);
     };
+    const handleFocus = (event) => {
+      emit("focus", event);
+    };
+    const handleBlur = (event) => {
+      emit("blur", event);
+    };
+    const focus = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.focus();
+    };
+    const blur = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.blur();
+    };
+    __expose({
+      focus,
+      blur,
+      nativeElement: rootRef
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("label", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: vue.normalizeClass(["aheart-checkbox", checkboxClass.value]),
         style: vue.normalizeStyle(rootStyle.value),
         title: _ctx.title
       }, [
         vue.createElementVNode("span", _hoisted_2, [
           vue.createElementVNode("input", {
+            ref_key: "inputRef",
+            ref: inputRef,
             class: "aheart-checkbox__input",
             type: "checkbox",
             name: _ctx.name,
@@ -79,7 +104,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             checked: mergedChecked.value,
             disabled: isDisabled.value,
             "aria-checked": _ctx.indeterminate ? "mixed" : mergedChecked.value ? "true" : "false",
-            onChange: handleChange
+            onChange: handleChange,
+            onFocus: handleFocus,
+            onBlur: handleBlur
           }, null, 40, _hoisted_3),
           vue.createElementVNode("span", {
             class: vue.normalizeClass(iconClass.value),

@@ -25,8 +25,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly style: import("vue").PropType<import("vue").StyleValue>;
     readonly classNames: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, string>>>;
     readonly styles: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, import("vue").StyleValue>>>;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: () => void;
+    blur: () => void;
+    nativeElement: import("vue").Ref<HTMLLabelElement | undefined, HTMLLabelElement | undefined>;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    blur: (event: FocusEvent) => void;
     change: (checked: boolean, event: Event) => void;
+    focus: (event: FocusEvent) => void;
     "update:modelValue": (checked: boolean) => void;
     "update:checked": (checked: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
@@ -57,7 +63,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly classNames: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, string>>>;
     readonly styles: import("vue").PropType<Partial<Record<import("./types").CheckboxSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
+    onBlur?: ((event: FocusEvent) => any) | undefined;
     onChange?: ((checked: boolean, event: Event) => any) | undefined;
+    onFocus?: ((event: FocusEvent) => any) | undefined;
     "onUpdate:modelValue"?: ((checked: boolean) => any) | undefined;
     "onUpdate:checked"?: ((checked: boolean) => any) | undefined;
 }>, {

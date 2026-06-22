@@ -67,10 +67,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "onUpdate:value"?: ((value: CheckboxValue[]) => any) | undefined;
 }>, {
     readonly disabled: boolean;
+    readonly direction: import("./types").CheckboxGroupDirection;
     readonly value: CheckboxValue[];
     readonly modelValue: CheckboxValue[];
     readonly defaultValue: CheckboxValue[];
     readonly options: import("./types").CheckboxRawOption[];
-    readonly direction: import("./types").CheckboxGroupDirection;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

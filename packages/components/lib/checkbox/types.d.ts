@@ -45,6 +45,8 @@ export declare const checkboxEmits: {
     'update:modelValue': (checked: boolean) => boolean;
     'update:checked': (checked: boolean) => boolean;
     change: (checked: boolean, event: Event) => boolean;
+    focus: (event: FocusEvent) => boolean;
+    blur: (event: FocusEvent) => boolean;
 };
 export declare const checkboxGroupProps: {
     readonly modelValue: {

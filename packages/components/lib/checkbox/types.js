@@ -31,7 +31,9 @@ const checkboxProps = {
 const checkboxEmits = {
   "update:modelValue": (checked) => typeof checked === "boolean",
   "update:checked": (checked) => typeof checked === "boolean",
-  change: (checked, event) => typeof checked === "boolean" && event instanceof Event
+  change: (checked, event) => typeof checked === "boolean" && event instanceof Event,
+  focus: (event) => event instanceof FocusEvent,
+  blur: (event) => event instanceof FocusEvent
 };
 const checkboxGroupProps = {
   modelValue: {
