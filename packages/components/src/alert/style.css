@@ -10,6 +10,10 @@
   line-height: var(--aheart-line-height);
 }
 
+.aheart-alert--banner {
+  border-radius: 0;
+}
+
 .aheart-alert--success {
   border-color: var(--aheart-color-success);
   background: color-mix(in srgb, var(--aheart-color-success) 10%, white);
@@ -30,7 +34,28 @@
   background: color-mix(in srgb, var(--aheart-color-danger) 10%, white);
 }
 
+.aheart-alert--variant-filled.aheart-alert--success {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aheart-color-success) 16%, white);
+}
+
+.aheart-alert--variant-filled.aheart-alert--info {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aheart-color-info) 16%, white);
+}
+
+.aheart-alert--variant-filled.aheart-alert--warning {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aheart-color-warning) 18%, white);
+}
+
+.aheart-alert--variant-filled.aheart-alert--error {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--aheart-color-danger) 16%, white);
+}
+
 .aheart-alert__icon {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -53,7 +78,17 @@
   color: var(--aheart-color-text-secondary);
 }
 
+.aheart-alert__action {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-left: auto;
+}
+
 .aheart-alert__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   background: transparent;
   color: var(--aheart-color-text-secondary);
