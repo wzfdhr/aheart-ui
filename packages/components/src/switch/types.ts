@@ -1,9 +1,15 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
+export type SwitchRenderable = VNodeChild
 export type SwitchSemanticPart = 'root' | 'content' | 'indicator'
 export type SwitchClassNames = Partial<Record<SwitchSemanticPart, string>>
 export type SwitchStyles = Partial<Record<SwitchSemanticPart, StyleValue>>
+
+const renderableProp = {
+  type: null as unknown as PropType<SwitchRenderable>,
+  default: undefined
+}
 
 export const switchProps = {
   modelValue: {
@@ -32,8 +38,9 @@ export const switchProps = {
   },
   loading: Boolean,
   size: String as PropType<AheartSize>,
-  checkedChildren: String,
-  unCheckedChildren: String,
+  autoFocus: Boolean,
+  checkedChildren: renderableProp,
+  unCheckedChildren: renderableProp,
   className: String,
   rootClassName: String,
   style: [String, Object, Array] as PropType<StyleValue>,

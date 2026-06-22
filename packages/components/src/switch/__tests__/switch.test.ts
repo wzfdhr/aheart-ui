@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Switch from '../switch.vue'
@@ -147,5 +147,83 @@ describe('Switch', () => {
     await wrapper.trigger('click')
 
     expect(wrapper.find('.unchecked-slot').exists()).toBe(true)
+  })
+
+  it('renders vnode checked and unchecked children props', async () => {
+    const wrapper = mount(Switch, {
+      props: {
+        defaultChecked: true,
+        checkedChildren: h('span', { class: 'checked-node' }, 'yes'),
+        unCheckedChildren: h('span', { class: 'unchecked-node' }, 'no')
+      }
+    })
+
+    expect(wrapper.find('.checked-node').text()).toBe('yes')
+
+    await wrapper.trigger('click')
+
+    expect(wrapper.find('.unchecked-node').text()).toBe('no')
+  })
+
+  it('lets slots override renderable checked and unchecked props', async () => {
+    const wrapper = mount(Switch, {
+      props: {
+        defaultChecked: true,
+        checkedChildren: h('span', { class: 'prop-checked' }, 'prop yes'),
+        unCheckedChildren: h('span', { class: 'prop-unchecked' }, 'prop no')
+      },
+      slots: {
+        checkedChildren: '<span class="slot-checked">slot yes</span>',
+        unCheckedChildren: '<span class="slot-unchecked">slot no</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-checked').text()).toBe('slot yes')
+    expect(wrapper.find('.prop-checked').exists()).toBe(false)
+
+    await wrapper.trigger('click')
+
+    expect(wrapper.find('.slot-unchecked').text()).toBe('slot no')
+    expect(wrapper.find('.prop-unchecked').exists()).toBe(false)
+  })
+
+  it('renders numeric zero checked and unchecked children', async () => {
+    const wrapper = mount(Switch, {
+      props: {
+        defaultChecked: true,
+        checkedChildren: 0,
+        unCheckedChildren: 0
+      }
+    })
+
+    expect(wrapper.find('.aheart-switch__label').text()).toBe('0')
+
+    await wrapper.trigger('click')
+
+    expect(wrapper.find('.aheart-switch__label').text()).toBe('0')
+  })
+
+  it('focuses root button with autoFocus and exposes focus controls', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Switch, {
+      attachTo: host,
+      props: { autoFocus: true }
+    })
+
+    await nextTick()
+
+    expect(document.activeElement).toBe(wrapper.element)
+
+    const switchVm = wrapper.vm as unknown as { focus: () => void; blur: () => void }
+    switchVm.blur()
+    expect(document.activeElement).not.toBe(wrapper.element)
+
+    switchVm.focus()
+    expect(document.activeElement).toBe(wrapper.element)
+
+    wrapper.unmount()
+    host.remove()
   })
 })
