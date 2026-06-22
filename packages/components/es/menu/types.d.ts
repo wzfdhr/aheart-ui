@@ -1,13 +1,26 @@
-import type { ExtractPropTypes, PropType, VNodeChild } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 export type MenuMode = 'vertical' | 'horizontal' | 'inline';
 export type MenuTheme = 'light' | 'dark';
 export type MenuItemType = 'item' | 'group' | 'divider';
+export type MenuTriggerSubMenuAction = 'hover' | 'click';
+export type MenuSemanticPart = 'root' | 'list' | 'item' | 'itemButton' | 'submenu' | 'submenuTitle' | 'submenuList' | 'group' | 'groupTitle' | 'divider' | 'icon' | 'label' | 'extra' | 'expandIcon';
+export type MenuClassNames = Partial<Record<MenuSemanticPart, string>>;
+export type MenuStyles = Partial<Record<MenuSemanticPart, StyleValue>>;
+export type MenuExpandIcon = VNodeChild | ((info: {
+    item: MenuItem;
+    isOpen: boolean;
+    disabled: boolean;
+    level: number;
+}) => VNodeChild);
 export interface MenuItem {
     key: string;
-    label?: string;
+    label?: VNodeChild;
     icon?: VNodeChild;
+    extra?: VNodeChild;
+    title?: string;
     disabled?: boolean;
     danger?: boolean;
+    dashed?: boolean;
     type?: MenuItemType;
     children?: MenuItem[];
 }
@@ -45,6 +58,26 @@ export declare const menuProps: {
         readonly default: true;
     };
     readonly inlineCollapsed: BooleanConstructor;
+    readonly inlineIndent: {
+        readonly type: NumberConstructor;
+        readonly default: 24;
+    };
+    readonly forceSubMenuRender: BooleanConstructor;
+    readonly triggerSubMenuAction: {
+        readonly type: PropType<MenuTriggerSubMenuAction>;
+        readonly default: "click";
+    };
+    readonly expandIcon: PropType<MenuExpandIcon>;
+    readonly className: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: {
+        readonly type: PropType<Partial<Record<MenuSemanticPart, string>>>;
+        readonly default: () => {};
+    };
+    readonly styles: {
+        readonly type: PropType<Partial<Record<MenuSemanticPart, StyleValue>>>;
+        readonly default: () => {};
+    };
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;

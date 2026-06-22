@@ -1892,6 +1892,9 @@ kbd.aheart-typography-text {
   width: 100%;
   min-height: var(--aheart-control-height);
   padding: 0 var(--aheart-spacing-md);
+  padding-left: calc(
+    var(--aheart-spacing-md) + (var(--aheart-menu-node-level, 0) * var(--aheart-menu-inline-indent, 24px))
+  );
   color: inherit;
   font: inherit;
   text-align: left;
@@ -1902,6 +1905,29 @@ kbd.aheart-typography-text {
   transition:
     color var(--aheart-motion-duration) var(--aheart-motion-ease),
     background var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-menu__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 1em;
+  margin-right: var(--aheart-spacing-sm);
+}
+
+.aheart-menu__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aheart-menu__extra {
+  flex: none;
+  margin-left: auto;
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
 }
 
 .aheart-menu__item-button:hover:not(:disabled),
@@ -1927,6 +1953,10 @@ kbd.aheart-typography-text {
 }
 
 .aheart-menu__submenu-arrow {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
   margin-left: var(--aheart-spacing-sm);
   color: var(--aheart-color-text-secondary);
   transition: transform var(--aheart-motion-duration) var(--aheart-motion-ease);
@@ -1938,7 +1968,7 @@ kbd.aheart-typography-text {
 
 .aheart-menu__submenu-list,
 .aheart-menu__group-list {
-  padding-left: var(--aheart-spacing-md);
+  padding-left: 0;
 }
 
 .aheart-menu__group-title {
@@ -1952,6 +1982,12 @@ kbd.aheart-typography-text {
   margin: var(--aheart-spacing-xs) 0;
   overflow: hidden;
   background: var(--aheart-color-border);
+}
+
+.aheart-menu__divider.is-dashed {
+  height: 0;
+  border-top: 1px dashed var(--aheart-color-border);
+  background: transparent;
 }
 
 .aheart-menu--dark {

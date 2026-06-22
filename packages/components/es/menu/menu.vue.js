@@ -1,12 +1,8 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, createBlock } from "vue";
+import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, Fragment, renderList, createBlock } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import _sfc_main$1 from "./menu-node.vue.js";
 import { menuProps, menuEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = {
-  role: "menu",
-  class: "aheart-menu__list"
-};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AMenu"
@@ -29,10 +25,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const menuClass = computed(() => [
       `aheart-menu--${props.mode}`,
       `aheart-menu--${props.theme}`,
+      props.className,
+      props.classNames.root,
       {
         "is-disabled": isDisabled.value,
         "is-collapsed": props.inlineCollapsed
       }
+    ]);
+    const rootStyle = computed(() => [
+      { "--aheart-menu-inline-indent": `${props.inlineIndent}px` },
+      props.style,
+      props.styles.root
     ]);
     watch(
       () => props.defaultSelectedKeys,
@@ -77,10 +80,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       });
     };
     const handleSubmenuToggle = (key) => {
+      setOpenKey(key);
+    };
+    const handleSubmenuOpenChange = ({ key, open }) => {
+      setOpenKey(key, open);
+    };
+    const setOpenKey = (key, open) => {
       if (isDisabled.value) {
         return;
       }
-      const nextOpenKeys = mergedOpenKeys.value.includes(key) ? mergedOpenKeys.value.filter((currentKey) => currentKey !== key) : [...mergedOpenKeys.value, key];
+      const isOpen = mergedOpenKeys.value.includes(key);
+      const shouldOpen = open ?? !isOpen;
+      if (isOpen === shouldOpen) {
+        return;
+      }
+      const nextOpenKeys = shouldOpen ? [...mergedOpenKeys.value, key] : mergedOpenKeys.value.filter((currentKey) => currentKey !== key);
       if (!isOpenControlled.value) {
         innerOpenKeys.value = nextOpenKeys;
       }
@@ -90,9 +104,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("nav", {
         class: normalizeClass(["aheart-menu", menuClass.value]),
+        style: normalizeStyle(rootStyle.value),
         "aria-label": "menu"
       }, [
-        createElementVNode("ul", _hoisted_1, [
+        createElementVNode("ul", {
+          role: "menu",
+          class: normalizeClass(["aheart-menu__list", _ctx.classNames.list]),
+          style: normalizeStyle(_ctx.styles.list)
+        }, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedItems.value, (item) => {
             return openBlock(), createBlock(_sfc_main$1, {
               key: item.key,
@@ -101,12 +120,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "open-keys": mergedOpenKeys.value,
               disabled: isDisabled.value,
               mode: _ctx.mode,
+              "force-sub-menu-render": _ctx.forceSubMenuRender,
+              "trigger-sub-menu-action": _ctx.triggerSubMenuAction,
+              "expand-icon": _ctx.expandIcon,
+              "class-names": _ctx.classNames,
+              styles: _ctx.styles,
               onItemClick: handleItemClick,
-              onSubmenuToggle: handleSubmenuToggle
-            }, null, 8, ["item", "selected-keys", "open-keys", "disabled", "mode"]);
+              onSubmenuToggle: handleSubmenuToggle,
+              onSubmenuOpenChange: handleSubmenuOpenChange
+            }, null, 8, ["item", "selected-keys", "open-keys", "disabled", "mode", "force-sub-menu-render", "trigger-sub-menu-action", "expand-icon", "class-names", "styles"]);
           }), 128))
-        ])
-      ], 2);
+        ], 6)
+      ], 6);
     };
   }
 });

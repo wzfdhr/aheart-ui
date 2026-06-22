@@ -5,10 +5,6 @@ const context = require("../config/context.js");
 const menuNode_vue_vue_type_script_setup_true_lang = require("./menu-node.vue.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = {
-  role: "menu",
-  class: "aheart-menu__list"
-};
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AMenu"
@@ -31,10 +27,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const menuClass = vue.computed(() => [
       `aheart-menu--${props.mode}`,
       `aheart-menu--${props.theme}`,
+      props.className,
+      props.classNames.root,
       {
         "is-disabled": isDisabled.value,
         "is-collapsed": props.inlineCollapsed
       }
+    ]);
+    const rootStyle = vue.computed(() => [
+      { "--aheart-menu-inline-indent": `${props.inlineIndent}px` },
+      props.style,
+      props.styles.root
     ]);
     vue.watch(
       () => props.defaultSelectedKeys,
@@ -79,10 +82,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       });
     };
     const handleSubmenuToggle = (key) => {
+      setOpenKey(key);
+    };
+    const handleSubmenuOpenChange = ({ key, open }) => {
+      setOpenKey(key, open);
+    };
+    const setOpenKey = (key, open) => {
       if (isDisabled.value) {
         return;
       }
-      const nextOpenKeys = mergedOpenKeys.value.includes(key) ? mergedOpenKeys.value.filter((currentKey) => currentKey !== key) : [...mergedOpenKeys.value, key];
+      const isOpen = mergedOpenKeys.value.includes(key);
+      const shouldOpen = open ?? !isOpen;
+      if (isOpen === shouldOpen) {
+        return;
+      }
+      const nextOpenKeys = shouldOpen ? [...mergedOpenKeys.value, key] : mergedOpenKeys.value.filter((currentKey) => currentKey !== key);
       if (!isOpenControlled.value) {
         innerOpenKeys.value = nextOpenKeys;
       }
@@ -92,9 +106,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("nav", {
         class: vue.normalizeClass(["aheart-menu", menuClass.value]),
+        style: vue.normalizeStyle(rootStyle.value),
         "aria-label": "menu"
       }, [
-        vue.createElementVNode("ul", _hoisted_1, [
+        vue.createElementVNode("ul", {
+          role: "menu",
+          class: vue.normalizeClass(["aheart-menu__list", _ctx.classNames.list]),
+          style: vue.normalizeStyle(_ctx.styles.list)
+        }, [
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedItems.value, (item) => {
             return vue.openBlock(), vue.createBlock(menuNode_vue_vue_type_script_setup_true_lang.default, {
               key: item.key,
@@ -103,12 +122,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               "open-keys": mergedOpenKeys.value,
               disabled: isDisabled.value,
               mode: _ctx.mode,
+              "force-sub-menu-render": _ctx.forceSubMenuRender,
+              "trigger-sub-menu-action": _ctx.triggerSubMenuAction,
+              "expand-icon": _ctx.expandIcon,
+              "class-names": _ctx.classNames,
+              styles: _ctx.styles,
               onItemClick: handleItemClick,
-              onSubmenuToggle: handleSubmenuToggle
-            }, null, 8, ["item", "selected-keys", "open-keys", "disabled", "mode"]);
+              onSubmenuToggle: handleSubmenuToggle,
+              onSubmenuOpenChange: handleSubmenuOpenChange
+            }, null, 8, ["item", "selected-keys", "open-keys", "disabled", "mode", "force-sub-menu-render", "trigger-sub-menu-action", "expand-icon", "class-names", "styles"]);
           }), 128))
-        ])
-      ], 2);
+        ], 6)
+      ], 6);
     };
   }
 });

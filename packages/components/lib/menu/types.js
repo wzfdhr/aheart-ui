@@ -26,6 +26,26 @@ const menuProps = {
     default: true
   },
   inlineCollapsed: Boolean,
+  inlineIndent: {
+    type: Number,
+    default: 24
+  },
+  forceSubMenuRender: Boolean,
+  triggerSubMenuAction: {
+    type: String,
+    default: "click"
+  },
+  expandIcon: [Function, String, Number, Boolean, Object, Array],
+  className: String,
+  style: [String, Object, Array],
+  classNames: {
+    type: Object,
+    default: () => ({})
+  },
+  styles: {
+    type: Object,
+    default: () => ({})
+  },
   disabled: {
     type: Boolean,
     default: void 0
