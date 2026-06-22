@@ -3786,6 +3786,36 @@ kbd.aheart-typography-text {
 .aheart-card__loading-line.is-short {
   width: 62%;
 }
+
+.aheart-card-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--aheart-spacing-md);
+}
+
+.aheart-card-meta__avatar {
+  flex: 0 0 auto;
+}
+
+.aheart-card-meta__section {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aheart-card-meta__title {
+  color: var(--aheart-color-text);
+  font-weight: 600;
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-card-meta__description {
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
+  line-height: var(--aheart-line-height);
+}
 .aheart-descriptions {
   color: var(--aheart-color-text);
   font-size: var(--aheart-font-size);

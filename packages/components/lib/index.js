@@ -81,6 +81,7 @@ const components = [
   index$t.RadioGroup,
   index$u.default,
   index$v.default,
+  index$v.CardMeta,
   index$w.default,
   index$x.default,
   index$y.default,
@@ -101,6 +102,7 @@ exports.BadgeRibbon = index$9.BadgeRibbon;
 exports.Breadcrumb = index$k.default;
 exports.Button = index.default;
 exports.Card = index$v.default;
+exports.CardMeta = index$v.CardMeta;
 exports.Checkbox = index$s.default;
 exports.CheckboxGroup = index$s.CheckboxGroup;
 exports.ConfigProvider = index$1.default;

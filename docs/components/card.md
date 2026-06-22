@@ -48,6 +48,30 @@ Card groups related content in a bordered container with optional header, cover,
 </template>
 ```
 
+## Meta 信息
+
+<div class="aheart-demo-panel">
+  <ACard hoverable>
+    <ACardMeta title="Europe Street beat" description="www.instagram.com">
+      <template #avatar>
+        <AIcon name="user" />
+      </template>
+    </ACardMeta>
+  </ACard>
+</div>
+
+```vue
+<template>
+  <ACard hoverable>
+    <ACardMeta title="Europe Street beat" description="www.instagram.com">
+      <template #avatar>
+        <AIcon name="user" />
+      </template>
+    </ACardMeta>
+  </ACard>
+</template>
+```
+
 ## 加载状态
 
 <div class="aheart-demo-panel">
@@ -177,6 +201,19 @@ Card groups related content in a bordered container with optional header, cover,
 | classNames | 语义化结构 class | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', string>>` | - |
 | styles | 语义化结构样式 | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', StyleValue>>` | - |
 
+## CardMeta API
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| avatar | 头像区域内容 | `VNodeChild` | - |
+| title | 标题内容 | `VNodeChild` | - |
+| description | 描述内容 | `VNodeChild` | - |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', StyleValue>>` | - |
+
 ## Slots
 
 | 名称 | 说明 |
@@ -186,6 +223,15 @@ Card groups related content in a bordered container with optional header, cover,
 | extra | 自定义额外内容 |
 | cover | 封面区域 |
 | actions | 底部操作区域 |
+
+## CardMeta Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| avatar | 自定义头像区域，优先于 `avatar` 属性 |
+| title | 自定义标题，优先于 `title` 属性 |
+| description | 自定义描述，优先于 `description` 属性 |
+| default | 当未提供 `title` / `description` 时作为内容区 fallback |
 
 ## Theme Tokens
 

@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
 export declare const cardVariants: readonly ["outlined", "borderless"];
 export declare const cardTypes: readonly ["inner"];
@@ -8,6 +8,9 @@ export type CardAction = string | number;
 export type CardSemanticPart = 'root' | 'header' | 'title' | 'extra' | 'cover' | 'body' | 'actions';
 export type CardClassNames = Partial<Record<CardSemanticPart, string>>;
 export type CardStyles = Partial<Record<CardSemanticPart, StyleValue>>;
+export type CardMetaSemanticPart = 'root' | 'section' | 'avatar' | 'title' | 'description';
+export type CardMetaClassNames = Partial<Record<CardMetaSemanticPart, string>>;
+export type CardMetaStyles = Partial<Record<CardMetaSemanticPart, StyleValue>>;
 export declare const cardProps: {
     readonly title: StringConstructor;
     readonly extra: StringConstructor;
@@ -35,4 +38,15 @@ export declare const cardProps: {
     readonly classNames: PropType<Partial<Record<CardSemanticPart, string>>>;
     readonly styles: PropType<Partial<Record<CardSemanticPart, StyleValue>>>;
 };
+export declare const cardMetaProps: {
+    readonly avatar: PropType<VNodeChild>;
+    readonly title: PropType<VNodeChild>;
+    readonly description: PropType<VNodeChild>;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<Partial<Record<CardMetaSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<CardMetaSemanticPart, StyleValue>>>;
+};
 export type CardProps = ExtractPropTypes<typeof cardProps>;
+export type CardMetaProps = ExtractPropTypes<typeof cardMetaProps>;

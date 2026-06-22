@@ -27,7 +27,18 @@ const cardProps = {
   classNames: Object,
   styles: Object
 };
+const cardMetaProps = {
+  avatar: [String, Number, Boolean, Object, Array, Function],
+  title: [String, Number, Boolean, Object, Array, Function],
+  description: [String, Number, Boolean, Object, Array, Function],
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
+};
 export {
+  cardMetaProps,
   cardProps,
   cardTypes,
   cardVariants
