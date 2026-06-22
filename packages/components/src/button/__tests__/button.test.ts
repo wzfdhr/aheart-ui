@@ -74,4 +74,47 @@ describe('Button', () => {
     expect(button.classes()).toContain('aheart-button--small')
     expect(button.attributes('disabled')).toBeUndefined()
   })
+
+  it('supports Ant-style visual props and shapes', () => {
+    const dashed = mount(Button, {
+      props: { type: 'dashed', danger: true, ghost: true, shape: 'round' },
+      slots: { default: 'Delete' }
+    })
+
+    expect(dashed.classes()).toContain('aheart-button--dashed')
+    expect(dashed.classes()).toContain('is-danger')
+    expect(dashed.classes()).toContain('is-ghost')
+    expect(dashed.classes()).toContain('is-round')
+
+    const circle = mount(Button, {
+      props: { shape: 'circle' },
+      slots: { default: 'i' }
+    })
+
+    expect(circle.classes()).toContain('is-circle')
+  })
+
+  it('renders anchor buttons from href and suppresses disabled clicks', async () => {
+    const wrapper = mount(Button, {
+      props: { href: 'https://example.com', target: '_blank', disabled: true },
+      slots: { default: 'Docs' }
+    })
+
+    expect(wrapper.element.tagName).toBe('A')
+    expect(wrapper.attributes('href')).toBeUndefined()
+    expect(wrapper.attributes('aria-disabled')).toBe('true')
+    expect(wrapper.attributes('target')).toBe('_blank')
+
+    await wrapper.trigger('click')
+
+    expect(wrapper.emitted('click')).toBeUndefined()
+  })
+
+  it('uses htmlType over nativeType for native buttons', () => {
+    const wrapper = mount(Button, {
+      props: { nativeType: 'button', htmlType: 'submit' }
+    })
+
+    expect(wrapper.attributes('type')).toBe('submit')
+  })
 })

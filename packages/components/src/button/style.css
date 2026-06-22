@@ -32,11 +32,13 @@
   opacity: 0.88;
 }
 
-.aheart-button:disabled {
+.aheart-button:disabled,
+.aheart-button[aria-disabled='true'] {
   background: var(--aheart-color-bg-disabled);
   color: var(--aheart-color-text-secondary);
   cursor: not-allowed;
   opacity: 0.72;
+  pointer-events: none;
 }
 
 .aheart-button--large {
@@ -86,6 +88,68 @@
   background: var(--aheart-color-danger);
 }
 
+.aheart-button--dashed {
+  border-style: dashed;
+}
+
+.aheart-button--link,
+.aheart-button--text {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.aheart-button--link {
+  color: var(--aheart-color-primary);
+}
+
+.aheart-button--text {
+  color: var(--aheart-color-text);
+}
+
+.aheart-button--link:hover:not(:disabled),
+.aheart-button--text:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--aheart-color-fill);
+}
+
+.aheart-button.is-danger:not(.aheart-button--primary):not(.aheart-button--success):not(.aheart-button--warning) {
+  border-color: var(--aheart-color-danger);
+  color: var(--aheart-color-danger);
+}
+
+.aheart-button.is-danger.aheart-button--primary,
+.aheart-button.is-danger.aheart-button--danger {
+  border-color: transparent;
+  background: var(--aheart-color-danger);
+  color: #fff;
+}
+
+.aheart-button.is-ghost {
+  background: transparent;
+}
+
+.aheart-button.is-ghost.aheart-button--primary {
+  border-color: var(--aheart-color-primary);
+  color: var(--aheart-color-primary);
+}
+
+.aheart-button.is-ghost.aheart-button--success {
+  border-color: var(--aheart-color-success);
+  color: var(--aheart-color-success);
+}
+
+.aheart-button.is-ghost.aheart-button--warning {
+  border-color: var(--aheart-color-warning);
+  color: var(--aheart-color-warning);
+}
+
+.aheart-button.is-ghost.aheart-button--danger,
+.aheart-button.is-ghost.is-danger {
+  border-color: var(--aheart-color-danger);
+  color: var(--aheart-color-danger);
+}
+
 .aheart-button.is-block {
   display: flex;
   width: 100%;
@@ -93,6 +157,28 @@
 
 .aheart-button.is-round {
   border-radius: 999px;
+}
+
+.aheart-button.is-circle {
+  width: var(--aheart-control-height);
+  padding: 0;
+  border-radius: 50%;
+}
+
+.aheart-button--large.is-circle {
+  width: var(--aheart-control-height-lg);
+}
+
+.aheart-button--small.is-circle {
+  width: 28px;
+}
+
+.aheart-button--mini.is-circle {
+  width: var(--aheart-control-height-sm);
+}
+
+.aheart-button.is-anchor {
+  text-decoration: none;
 }
 
 .aheart-button__loading {

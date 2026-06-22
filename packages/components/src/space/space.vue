@@ -1,8 +1,13 @@
 <template>
   <div class="aheart-space" :class="spaceClass" :style="spaceStyle">
-    <div v-for="(child, index) in normalizedChildren" :key="index" class="aheart-space__item">
-      <component :is="child" />
-    </div>
+    <template v-for="(child, index) in normalizedChildren" :key="index">
+      <div class="aheart-space__item">
+        <component :is="child" />
+      </div>
+      <span v-if="separatorText && index < normalizedChildren.length - 1" class="aheart-space__separator">
+        {{ separatorText }}
+      </span>
+    </template>
   </div>
 </template>
 
@@ -35,6 +40,8 @@ const flattenChildren = (children: VNode[]): VNode[] => {
 }
 
 const normalizedChildren = computed(() => flattenChildren(slots.default?.() || []))
+const resolvedDirection = computed(() => props.orientation || (props.vertical ? 'vertical' : props.direction))
+const separatorText = computed(() => props.separator ?? props.split)
 
 const sizeToGap = (size: SpaceSize | undefined) => {
   if (Array.isArray(size)) {
@@ -56,7 +63,7 @@ const sizeToGap = (size: SpaceSize | undefined) => {
 }
 
 const spaceClass = computed(() => [
-  `aheart-space--${props.direction}`,
+  `aheart-space--${resolvedDirection.value}`,
   {
     [`aheart-space--align-${props.align}`]: props.align,
     'is-wrap': props.wrap

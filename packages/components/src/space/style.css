@@ -35,3 +35,9 @@
   display: inline-flex;
   min-width: 0;
 }
+
+.aheart-space__separator {
+  display: inline-flex;
+  align-items: center;
+  color: var(--aheart-color-text-secondary);
+}

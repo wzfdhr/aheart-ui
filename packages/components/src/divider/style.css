@@ -2,6 +2,8 @@
   box-sizing: border-box;
   color: var(--aheart-color-text);
   border-color: var(--aheart-color-border);
+  --aheart-divider-border-width: 1px;
+  --aheart-divider-orientation-margin: 8%;
 }
 
 .aheart-divider--horizontal {
@@ -16,7 +18,7 @@
 .aheart-divider--horizontal::after {
   content: '';
   flex: 1;
-  border-top: 1px solid var(--aheart-color-border);
+  border-top: var(--aheart-divider-border-width) solid var(--aheart-color-border);
 }
 
 .aheart-divider--horizontal:not(.has-text)::after {
@@ -28,12 +30,36 @@
   height: 0.9em;
   margin: 0 var(--aheart-spacing-sm);
   vertical-align: middle;
-  border-left: 1px solid var(--aheart-color-border);
+  border-left: var(--aheart-divider-border-width) solid var(--aheart-color-border);
 }
 
 .aheart-divider--left::before,
-.aheart-divider--right::after {
+.aheart-divider--start::before,
+.aheart-divider--right::after,
+.aheart-divider--end::after {
   flex: 0.08;
+}
+
+.aheart-divider--left::before,
+.aheart-divider--start::before {
+  max-width: var(--aheart-divider-orientation-margin);
+}
+
+.aheart-divider--right::after,
+.aheart-divider--end::after {
+  max-width: var(--aheart-divider-orientation-margin);
+}
+
+.aheart-divider--small {
+  --aheart-divider-border-width: 1px;
+}
+
+.aheart-divider--middle {
+  --aheart-divider-border-width: 1px;
+}
+
+.aheart-divider--large {
+  --aheart-divider-border-width: 2px;
 }
 
 .aheart-divider__text {
@@ -45,6 +71,12 @@
 .aheart-divider.is-dashed::before,
 .aheart-divider.is-dashed::after {
   border-style: dashed;
+}
+
+.aheart-divider.is-dotted,
+.aheart-divider.is-dotted::before,
+.aheart-divider.is-dotted::after {
+  border-style: dotted;
 }
 
 .aheart-divider.is-plain .aheart-divider__text {

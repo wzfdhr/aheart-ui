@@ -55,4 +55,31 @@ describe('Space', () => {
       '--aheart-space-gap-horizontal: var(--aheart-spacing-lg)'
     )
   })
+
+  it('renders separators between items', () => {
+    const wrapper = mount(Space, {
+      props: { separator: '|' },
+      slots: { default: '<span>One</span><span>Two</span><span>Three</span>' }
+    })
+
+    expect(wrapper.findAll('.aheart-space__item')).toHaveLength(3)
+    expect(wrapper.findAll('.aheart-space__separator')).toHaveLength(2)
+    expect(wrapper.text()).toContain('|')
+  })
+
+  it('supports Ant-style orientation and vertical shortcut', () => {
+    const oriented = mount(Space, {
+      props: { orientation: 'vertical' },
+      slots: { default: '<span>One</span><span>Two</span>' }
+    })
+
+    expect(oriented.classes()).toContain('aheart-space--vertical')
+
+    const vertical = mount(Space, {
+      props: { vertical: true },
+      slots: { default: '<span>One</span><span>Two</span>' }
+    })
+
+    expect(vertical.classes()).toContain('aheart-space--vertical')
+  })
 })

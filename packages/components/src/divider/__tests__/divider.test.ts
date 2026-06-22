@@ -38,4 +38,30 @@ describe('Divider', () => {
     expect(wrapper.classes()).toContain('aheart-divider--vertical')
     expect(wrapper.classes()).toContain('is-dashed')
   })
+
+  it('supports Ant-style title placement margin variant and size', () => {
+    const wrapper = mount(Divider, {
+      props: {
+        titlePlacement: 'start',
+        orientationMargin: 24,
+        variant: 'dotted',
+        size: 'large'
+      },
+      slots: { default: 'Section' }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-divider--start')
+    expect(wrapper.classes()).toContain('aheart-divider--large')
+    expect(wrapper.classes()).toContain('is-dotted')
+    expect(wrapper.attributes('style')).toContain('--aheart-divider-orientation-margin: 24px')
+  })
+
+  it('supports vertical shortcut', () => {
+    const wrapper = mount(Divider, {
+      props: { vertical: true }
+    })
+
+    expect(wrapper.attributes('aria-orientation')).toBe('vertical')
+    expect(wrapper.classes()).toContain('aheart-divider--vertical')
+  })
 })
