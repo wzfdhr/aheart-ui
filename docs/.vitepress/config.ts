@@ -49,6 +49,8 @@ export default defineConfig({
             { text: 'Empty 空状态', link: '/components/empty' },
             { text: 'Tabs 标签页', link: '/components/tabs' },
             { text: 'Breadcrumb 面包屑', link: '/components/breadcrumb' },
+            { text: 'Dropdown 下拉菜单', link: '/components/dropdown' },
+            { text: 'Menu 导航菜单', link: '/components/menu' },
             { text: 'Steps 步骤条', link: '/components/steps' },
             { text: 'Input 输入框', link: '/components/input' },
             { text: 'Textarea 文本域', link: '/components/textarea' },

@@ -45,8 +45,8 @@ export const componentCategories: ComponentCategory[] = [
     components: [
       { name: 'Tabs', description: 'Switch related panels.', status: 'Ready', link: '/components/tabs' },
       { name: 'Breadcrumb', description: 'Show page hierarchy.', status: 'Ready', link: '/components/breadcrumb' },
-      { name: 'Dropdown', description: 'Expose actions in a menu.', status: 'Planned' },
-      { name: 'Menu', description: 'Navigate application sections.', status: 'Planned' },
+      { name: 'Dropdown', description: 'Expose actions in a menu.', status: 'Ready', link: '/components/dropdown' },
+      { name: 'Menu', description: 'Navigate application sections.', status: 'Ready', link: '/components/menu' },
       { name: 'Steps', description: 'Show workflow progress.', status: 'Ready', link: '/components/steps' }
     ]
   },
