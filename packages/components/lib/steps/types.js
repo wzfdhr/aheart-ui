@@ -14,7 +14,26 @@ const stepsProps = {
     type: String,
     default: "horizontal"
   },
-  size: String
+  orientation: String,
+  size: String,
+  type: {
+    type: String,
+    default: "default"
+  },
+  titlePlacement: {
+    type: String,
+    default: "horizontal"
+  },
+  initial: {
+    type: Number,
+    default: 1
+  },
+  percent: Number,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const stepsEmits = {
   change: (current) => Number.isInteger(current)
