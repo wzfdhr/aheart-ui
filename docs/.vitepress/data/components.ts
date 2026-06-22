@@ -83,8 +83,8 @@ export const componentCategories: ComponentCategory[] = [
     components: [
       { name: 'Alert', description: 'Show contextual information.', status: 'Ready', link: '/components/alert' },
       { name: 'Message', description: 'Show global lightweight feedback.', status: 'Ready', link: '/components/message' },
-      { name: 'Modal', description: 'Focus attention in a dialog.', status: 'Planned' },
-      { name: 'Drawer', description: 'Show a side panel.', status: 'Planned' },
+      { name: 'Modal', description: 'Focus attention in a dialog.', status: 'Ready', link: '/components/modal' },
+      { name: 'Drawer', description: 'Show a side panel.', status: 'Ready', link: '/components/drawer' },
       { name: 'Tooltip', description: 'Explain compact controls.', status: 'Planned' },
       { name: 'Popover', description: 'Show floating content.', status: 'Planned' },
       { name: 'Popconfirm', description: 'Confirm risky actions.', status: 'Planned' },
