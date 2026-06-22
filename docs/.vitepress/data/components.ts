@@ -25,8 +25,8 @@ export const componentCategories: ComponentCategory[] = [
         status: 'Ready',
         link: '/components/config-provider'
       },
-      { name: 'Icon', description: 'Display semantic symbols.', status: 'Planned' },
-      { name: 'Typography', description: 'Text, title, and link styles.', status: 'Planned' }
+      { name: 'Icon', description: 'Display semantic symbols.', status: 'Ready', link: '/components/icon' },
+      { name: 'Typography', description: 'Text, title, and link styles.', status: 'Ready', link: '/components/typography' }
     ]
   },
   {
