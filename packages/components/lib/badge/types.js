@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const renderableProp = [String, Number, Boolean, Object, Array, Function];
 const badgeProps = {
-  count: [Number, String],
+  count: renderableProp,
   dot: Boolean,
   status: String,
-  text: String,
+  text: renderableProp,
   overflowCount: {
     type: Number,
     default: 99
@@ -17,7 +18,24 @@ const badgeProps = {
   offset: Array,
   color: String,
   title: String,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
+};
+const badgeRibbonProps = {
+  text: renderableProp,
+  color: String,
+  placement: {
+    type: String,
+    default: "end"
+  },
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
   classNames: Object,
   styles: Object
 };
 exports.badgeProps = badgeProps;
+exports.badgeRibbonProps = badgeRibbonProps;

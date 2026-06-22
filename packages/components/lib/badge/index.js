@@ -1,6 +1,12 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const badge_vue_vue_type_script_setup_true_lang = require("./badge.vue.js");
+const ribbon_vue_vue_type_script_setup_true_lang = require("./ribbon.vue.js");
 const install = require("../utils/install.js");
 const Badge = install.withInstall(badge_vue_vue_type_script_setup_true_lang.default, "ABadge");
-exports.default = Badge;
+const BadgeRibbon = install.withInstall(ribbon_vue_vue_type_script_setup_true_lang.default, "ABadgeRibbon");
+const BadgeWithRibbon = Badge;
+BadgeWithRibbon.Ribbon = BadgeRibbon;
+exports.ABadgeRibbon = BadgeRibbon;
+exports.BadgeRibbon = BadgeRibbon;
+exports.default = BadgeWithRibbon;

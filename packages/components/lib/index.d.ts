@@ -1,6 +1,6 @@
 import type { Plugin } from 'vue';
 import Alert from './alert';
-import Badge from './badge';
+import Badge, { BadgeRibbon } from './badge';
 import Breadcrumb from './breadcrumb';
 import Button from './button';
 import Card from './card';
@@ -37,5 +37,5 @@ import Textarea from './textarea';
 import Tooltip from './tooltip';
 import Typography, { Link, Paragraph, Text, Title } from './typography';
 declare const AheartUI: Plugin;
-export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table };
+export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table };
 export default AheartUI;

@@ -1,9 +1,68 @@
-declare const Badge: import("../utils/install").SFCWithInstall<{
+export declare const BadgeRibbon: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
-        readonly count: import("vue").PropType<string | number>;
+        readonly text: import("vue").PropType<import("vue").VNodeChild>;
+        readonly color: StringConstructor;
+        readonly placement: {
+            readonly type: import("vue").PropType<import("./types").BadgeRibbonPlacement>;
+            readonly default: "end";
+        };
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").BadgeRibbonSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").BadgeRibbonSemanticPart, import("vue").StyleValue>>>;
+    }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
+        readonly placement: import("./types").BadgeRibbonPlacement;
+    }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
+        P: {};
+        B: {};
+        D: {};
+        C: {};
+        M: {};
+        Defaults: {};
+    }, Readonly<import("vue").ExtractPropTypes<{
+        readonly text: import("vue").PropType<import("vue").VNodeChild>;
+        readonly color: StringConstructor;
+        readonly placement: {
+            readonly type: import("vue").PropType<import("./types").BadgeRibbonPlacement>;
+            readonly default: "end";
+        };
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").BadgeRibbonSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").BadgeRibbonSemanticPart, import("vue").StyleValue>>>;
+    }>> & Readonly<{}>, {}, {}, {}, {}, {
+        readonly placement: import("./types").BadgeRibbonPlacement;
+    }>;
+    __isFragment?: undefined;
+    __isTeleport?: undefined;
+    __isSuspense?: undefined;
+} & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
+    readonly text: import("vue").PropType<import("vue").VNodeChild>;
+    readonly color: StringConstructor;
+    readonly placement: {
+        readonly type: import("vue").PropType<import("./types").BadgeRibbonPlacement>;
+        readonly default: "end";
+    };
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").BadgeRibbonSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").BadgeRibbonSemanticPart, import("vue").StyleValue>>>;
+}>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
+    readonly placement: import("./types").BadgeRibbonPlacement;
+}, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
+    $slots: {
+        default?(_: {}): any;
+    };
+})>;
+declare const BadgeWithRibbon: import("../utils/install").SFCWithInstall<{
+    new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
+        readonly count: import("vue").PropType<import("vue").VNodeChild>;
         readonly dot: BooleanConstructor;
         readonly status: import("vue").PropType<import("./types").BadgeStatus>;
-        readonly text: StringConstructor;
+        readonly text: import("vue").PropType<import("vue").VNodeChild>;
         readonly overflowCount: {
             readonly type: NumberConstructor;
             readonly default: 99;
@@ -16,6 +75,9 @@ declare const Badge: import("../utils/install").SFCWithInstall<{
         readonly offset: import("vue").PropType<import("./types").BadgeOffset>;
         readonly color: StringConstructor;
         readonly title: StringConstructor;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
         readonly classNames: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, string>>>;
         readonly styles: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
@@ -31,10 +93,10 @@ declare const Badge: import("../utils/install").SFCWithInstall<{
         M: {};
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
-        readonly count: import("vue").PropType<string | number>;
+        readonly count: import("vue").PropType<import("vue").VNodeChild>;
         readonly dot: BooleanConstructor;
         readonly status: import("vue").PropType<import("./types").BadgeStatus>;
-        readonly text: StringConstructor;
+        readonly text: import("vue").PropType<import("vue").VNodeChild>;
         readonly overflowCount: {
             readonly type: NumberConstructor;
             readonly default: 99;
@@ -47,6 +109,9 @@ declare const Badge: import("../utils/install").SFCWithInstall<{
         readonly offset: import("vue").PropType<import("./types").BadgeOffset>;
         readonly color: StringConstructor;
         readonly title: StringConstructor;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
         readonly classNames: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, string>>>;
         readonly styles: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
@@ -59,10 +124,10 @@ declare const Badge: import("../utils/install").SFCWithInstall<{
     __isTeleport?: undefined;
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
-    readonly count: import("vue").PropType<string | number>;
+    readonly count: import("vue").PropType<import("vue").VNodeChild>;
     readonly dot: BooleanConstructor;
     readonly status: import("vue").PropType<import("./types").BadgeStatus>;
-    readonly text: StringConstructor;
+    readonly text: import("vue").PropType<import("vue").VNodeChild>;
     readonly overflowCount: {
         readonly type: NumberConstructor;
         readonly default: 99;
@@ -75,6 +140,9 @@ declare const Badge: import("../utils/install").SFCWithInstall<{
     readonly offset: import("vue").PropType<import("./types").BadgeOffset>;
     readonly color: StringConstructor;
     readonly title: StringConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
     readonly classNames: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, string>>>;
     readonly styles: import("vue").PropType<Partial<Record<import("./types").BadgeSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
@@ -87,5 +155,9 @@ declare const Badge: import("../utils/install").SFCWithInstall<{
         default?(_: {}): any;
         count?(_: {}): any;
     };
-})>;
-export default Badge;
+})> & {
+    Ribbon: typeof BadgeRibbon;
+};
+export { BadgeRibbon as ABadgeRibbon };
+export type { BadgeClassNames, BadgeOffset, BadgeProps, BadgeRenderable, BadgeRibbonClassNames, BadgeRibbonPlacement, BadgeRibbonProps, BadgeRibbonSemanticPart, BadgeRibbonStyles, BadgeSemanticPart, BadgeSize, BadgeStatus, BadgeStyles } from './types';
+export default BadgeWithRibbon;

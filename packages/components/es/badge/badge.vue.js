@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createTextVNode, toDisplayString, createCommentVNode, Fragment, createElementVNode } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, createElementVNode } from "vue";
 import { badgeProps } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["title"];
@@ -16,13 +16,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const slots = useSlots();
+    const ARenderNode = defineComponent({
+      name: "ABadgeRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const hasDefaultSlot = computed(() => Boolean(slots.default));
     const isStandalone = computed(() => !hasDefaultSlot.value);
+    const hasCount = computed(() => props.count !== void 0 && props.count !== null && props.count !== false);
     const isZeroCount = computed(() => props.count === 0);
     const showIndicatorWithCount = computed(() => !isZeroCount.value || props.showZero);
     const showDotIndicator = computed(() => props.dot && showIndicatorWithCount.value);
-    const showCountIndicator = computed(() => !props.dot && props.count !== void 0 && showIndicatorWithCount.value);
+    const showCountIndicator = computed(() => !props.dot && hasCount.value && showIndicatorWithCount.value);
     const normalizedSize = computed(() => props.size === "small" ? "small" : "medium");
+    const hasStatusText = computed(() => props.text !== void 0 && props.text !== null && props.text !== false);
     const displayCount = computed(() => {
       if (typeof props.count === "number" && props.count > props.overflowCount) {
         return `${props.overflowCount}+`;
@@ -31,7 +45,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const rootStyle = computed(() => {
       var _a;
-      return (_a = props.styles) == null ? void 0 : _a.root;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
     });
     const internalIndicatorStyle = computed(() => {
       const style = {};
@@ -51,6 +65,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const badgeClass = computed(() => {
       var _a;
       return [
+        props.className,
+        props.rootClassName,
         {
           "aheart-badge--status": props.status,
           "aheart-badge--standalone": isStandalone.value
@@ -100,7 +116,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           title: _ctx.title
         }, [
           renderSlot(_ctx.$slots, "count", {}, () => [
-            createTextVNode(toDisplayString(displayCount.value), 1)
+            createVNode(unref(ARenderNode), { node: displayCount.value }, null, 8, ["node"])
           ])
         ], 14, _hoisted_2)) : createCommentVNode("", true),
         _ctx.status ? (openBlock(), createElementBlock(Fragment, { key: 2 }, [
@@ -108,7 +124,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: normalizeClass(statusDotClass.value),
             style: normalizeStyle(indicatorStyle.value)
           }, null, 6),
-          _ctx.text ? (openBlock(), createElementBlock("span", _hoisted_3, toDisplayString(_ctx.text), 1)) : createCommentVNode("", true)
+          hasStatusText.value ? (openBlock(), createElementBlock("span", _hoisted_3, [
+            createVNode(unref(ARenderNode), { node: _ctx.text }, null, 8, ["node"])
+          ])) : createCommentVNode("", true)
         ], 64)) : createCommentVNode("", true)
       ], 6);
     };

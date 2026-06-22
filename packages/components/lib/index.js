@@ -56,6 +56,7 @@ const components = [
   index$8.CheckableTag,
   index$8.TagGroup,
   index$9.default,
+  index$9.BadgeRibbon,
   index$a.default,
   index$b.default,
   index$c.default,
@@ -96,6 +97,7 @@ const AheartUI = {
 };
 exports.Alert = index$a.default;
 exports.Badge = index$9.default;
+exports.BadgeRibbon = index$9.BadgeRibbon;
 exports.Breadcrumb = index$k.default;
 exports.Button = index.default;
 exports.Card = index$v.default;

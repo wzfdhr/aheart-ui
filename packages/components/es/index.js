@@ -1,5 +1,5 @@
 import Alert from "./alert/index.js";
-import Badge from "./badge/index.js";
+import BadgeWithRibbon, { BadgeRibbon } from "./badge/index.js";
 import Breadcrumb from "./breadcrumb/index.js";
 import Button from "./button/index.js";
 import Card from "./card/index.js";
@@ -54,7 +54,8 @@ const components = [
   Tag,
   CheckableTag,
   TagGroup,
-  Badge,
+  BadgeWithRibbon,
+  BadgeRibbon,
   Alert,
   Message,
   Modal,
@@ -95,7 +96,8 @@ const AheartUI = {
 };
 export {
   Alert,
-  Badge,
+  BadgeWithRibbon as Badge,
+  BadgeRibbon,
   Breadcrumb,
   Button,
   Card,
