@@ -1,5 +1,17 @@
 # Empty 空状态 <span class="aheart-status aheart-status--ready">Ready</span>
 
+<script setup lang="ts">
+import { h } from 'vue'
+import { Empty } from 'aheart-ui'
+
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
+const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' } }, [
+  'No archived ',
+  h('strong', 'records'),
+  ' are available.'
+])
+</script>
+
 Empty presents an intentional empty state with optional custom image and action content.
 
 ## 基础用法
@@ -84,6 +96,54 @@ Empty presents an intentional empty state with optional custom image and action 
 </template>
 ```
 
+## 内置图片预设
+
+<div class="aheart-demo-panel">
+  <AEmpty :image="simpleImage" description="No lightweight records">
+    <AButton>Import records</AButton>
+  </AEmpty>
+</div>
+
+```vue
+<script setup lang="ts">
+import { Empty } from 'aheart-ui'
+
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
+</script>
+
+<template>
+  <AEmpty :image="simpleImage" description="No lightweight records">
+    <AButton>Import records</AButton>
+  </AEmpty>
+</template>
+```
+
+## 节点描述
+
+<div class="aheart-demo-panel">
+  <AEmpty :description="richDescription">
+    <AButton>View archive settings</AButton>
+  </AEmpty>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const richDescription = h('span', [
+  'No archived ',
+  h('strong', 'records'),
+  ' are available.'
+])
+</script>
+
+<template>
+  <AEmpty :description="richDescription">
+    <AButton>View archive settings</AButton>
+  </AEmpty>
+</template>
+```
+
 ## 隐藏区域
 
 <div class="aheart-demo-panel">
@@ -158,8 +218,8 @@ Empty presents an intentional empty state with optional custom image and action 
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| description | 空状态描述文案，设置为 `false` 时隐藏 | `string` \| `false` | ConfigProvider locale |
-| image | 自定义图片地址，设置为 `false` 时隐藏图片区域 | `string` \| `false` | - |
+| description | 空状态描述内容，设置为 `false` 时隐藏 | `VNodeChild` \| `false` | ConfigProvider locale |
+| image | 自定义图片地址、节点或内置预设，设置为 `false` 时隐藏图片区域 | `string` \| `VNodeChild` \| `Empty.PRESENTED_IMAGE_DEFAULT` \| `Empty.PRESENTED_IMAGE_SIMPLE` \| `false` | `Empty.PRESENTED_IMAGE_DEFAULT` |
 | imageStyle | 图片区域样式 | `StyleValue` | - |
 | className | 根节点兼容 class | `string` | - |
 | rootClassName | 根节点 class | `string` | - |
@@ -174,6 +234,13 @@ Empty presents an intentional empty state with optional custom image and action 
 | image | 自定义图片区域 |
 | description | 自定义描述区域 |
 | default | 底部操作区域 |
+
+## Static Constants
+
+| 名称 | 说明 |
+| --- | --- |
+| Empty.PRESENTED_IMAGE_DEFAULT | 默认空状态图片预设 |
+| Empty.PRESENTED_IMAGE_SIMPLE | 简洁空状态图片预设 |
 
 ## Theme Tokens
 
