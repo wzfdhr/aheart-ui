@@ -1,13 +1,39 @@
-import type { ExtractPropTypes, PropType } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
 export type TypographyType = 'secondary' | 'success' | 'warning' | 'danger';
 export type TitleLevel = 1 | 2 | 3 | 4 | 5;
-export declare const typographyProps: {};
+export type TypographySemanticPart = 'root';
+export type TypographySemanticClassNames = Partial<Record<TypographySemanticPart, string>>;
+export type TypographySemanticStyles = Partial<Record<TypographySemanticPart, StyleValue>>;
+export interface TypographySemanticInfo {
+    props: Record<string, unknown>;
+}
+export type TypographyClassNames = TypographySemanticClassNames | ((info: TypographySemanticInfo) => TypographySemanticClassNames);
+export type TypographyStyles = TypographySemanticStyles | ((info: TypographySemanticInfo) => TypographySemanticStyles);
+export interface TypographyEllipsisConfig {
+    rows?: number;
+}
+export type TypographyEllipsis = boolean | TypographyEllipsisConfig;
+export declare const typographyProps: {
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<TypographyClassNames>;
+    readonly styles: PropType<TypographyStyles>;
+};
 export declare const titleProps: {
     readonly level: {
         readonly type: PropType<TitleLevel>;
         readonly default: 1;
         readonly validator: (value: number) => boolean;
     };
+    readonly type: PropType<TypographyType>;
+    readonly disabled: BooleanConstructor;
+    readonly mark: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<TypographyClassNames>;
+    readonly styles: PropType<TypographyStyles>;
 };
 export declare const textProps: {
     readonly type: PropType<TypographyType>;
@@ -17,20 +43,37 @@ export declare const textProps: {
     readonly keyboard: BooleanConstructor;
     readonly delete: BooleanConstructor;
     readonly underline: BooleanConstructor;
+    readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<TypographyClassNames>;
+    readonly styles: PropType<TypographyStyles>;
 };
 export declare const paragraphProps: {
     readonly type: PropType<TypographyType>;
     readonly strong: BooleanConstructor;
     readonly italic: BooleanConstructor;
-    readonly ellipsis: BooleanConstructor;
+    readonly ellipsis: PropType<TypographyEllipsis>;
+    readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<TypographyClassNames>;
+    readonly styles: PropType<TypographyStyles>;
 };
 export declare const linkProps: {
     readonly href: StringConstructor;
     readonly target: StringConstructor;
     readonly disabled: BooleanConstructor;
     readonly underline: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<TypographyClassNames>;
+    readonly styles: PropType<TypographyStyles>;
 };
 export type TypographyProps = ExtractPropTypes<typeof typographyProps>;
 export type TitleProps = ExtractPropTypes<typeof titleProps>;

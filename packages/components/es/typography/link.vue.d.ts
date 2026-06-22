@@ -3,11 +3,21 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly target: StringConstructor;
     readonly disabled: BooleanConstructor;
     readonly underline: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<import("./types").TypographyClassNames>;
+    readonly styles: import("vue").PropType<import("./types").TypographyStyles>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly href: StringConstructor;
     readonly target: StringConstructor;
     readonly disabled: BooleanConstructor;
     readonly underline: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<import("./types").TypographyClassNames>;
+    readonly styles: import("vue").PropType<import("./types").TypographyStyles>;
 }>> & Readonly<{}>, {
     readonly underline: boolean;
     readonly disabled: boolean;
