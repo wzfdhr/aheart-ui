@@ -56,7 +56,9 @@ const config = useAheartConfig()
 
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
-const resolvedVariant = computed(() => props.variant ?? (props.bordered === false ? 'borderless' : 'outlined'))
+const resolvedVariant = computed(() =>
+  props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined')
+)
 const isInteractiveDisabled = computed(() => isDisabled.value || props.readOnly)
 const displayValue = computed(() => {
   if (props.formatter) {

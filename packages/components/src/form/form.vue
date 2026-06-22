@@ -5,9 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, provide, reactive } from 'vue'
 import { provideAheartConfig } from '../config'
-import { formEmits, formProps } from './types'
+import {
+  formContextKey,
+  formEmits,
+  formProps,
+  type FormContext,
+  type FormFieldState,
+  type FormModel,
+  type FormRule,
+  type FormValidationError
+} from './types'
 import './style.css'
 
 defineOptions({
@@ -16,20 +25,194 @@ defineOptions({
 
 const props = defineProps(formProps)
 const emit = defineEmits(formEmits)
+const fieldStates = reactive<Record<string, FormFieldState>>({})
 
 provideAheartConfig(
   computed(() => ({
     size: props.size,
-    disabled: props.disabled
+    disabled: props.disabled,
+    variant: props.variant
   }))
 )
 
 const formClass = computed(() => [
   `aheart-form--${props.layout}`,
-  `aheart-form--label-${props.labelAlign}`
+  `aheart-form--label-${props.labelAlign}`,
+  `aheart-form--required-${props.requiredMark === false ? 'hidden' : props.requiredMark === 'optional' ? 'optional' : 'visible'}`,
+  {
+    [`aheart-form--${props.variant}`]: props.variant,
+    'aheart-form--no-colon': !props.colon
+  }
 ])
+
+const cloneValues = (): FormModel => ({ ...props.model })
+
+const getRules = (name: string) => [...(props.rules[name] ?? []), ...(fieldStates[name]?.rules ?? [])]
+
+const isEmptyValue = (value: unknown) =>
+  value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)
+
+const getValueSize = (value: unknown) => {
+  if (typeof value === 'number') {
+    return value
+  }
+
+  if (typeof value === 'string' || Array.isArray(value)) {
+    return value.length
+  }
+
+  return undefined
+}
+
+const getDefaultMessage = (name: string, rule: FormRule) => {
+  if (rule.required) {
+    return `${name} is required`
+  }
+
+  if (rule.type) {
+    return `${name} is not a valid ${rule.type}`
+  }
+
+  if (rule.len !== undefined) {
+    return `${name} length must be ${rule.len}`
+  }
+
+  if (rule.min !== undefined) {
+    return `${name} must be at least ${rule.min}`
+  }
+
+  if (rule.max !== undefined) {
+    return `${name} must be at most ${rule.max}`
+  }
+
+  if (rule.pattern) {
+    return `${name} format is invalid`
+  }
+
+  return `${name} is invalid`
+}
+
+const validateRule = (name: string, value: unknown, rule: FormRule) => {
+  const message = rule.message ?? getDefaultMessage(name, rule)
+
+  if (rule.required && isEmptyValue(value)) {
+    return message
+  }
+
+  if (isEmptyValue(value)) {
+    return undefined
+  }
+
+  if (rule.type === 'email' && (typeof value !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) {
+    return message
+  }
+
+  if (rule.type === 'number' && typeof value !== 'number') {
+    return message
+  }
+
+  if (rule.type === 'string' && typeof value !== 'string') {
+    return message
+  }
+
+  if (rule.type === 'array' && !Array.isArray(value)) {
+    return message
+  }
+
+  const valueSize = getValueSize(value)
+
+  if (rule.len !== undefined && valueSize !== rule.len) {
+    return message
+  }
+
+  if (rule.min !== undefined && valueSize !== undefined && valueSize < rule.min) {
+    return message
+  }
+
+  if (rule.max !== undefined && valueSize !== undefined && valueSize > rule.max) {
+    return message
+  }
+
+  if (rule.pattern && (typeof value !== 'string' || !rule.pattern.test(value))) {
+    return message
+  }
+
+  return undefined
+}
+
+const validateField = (name: string): FormValidationError | undefined => {
+  const errors = getRules(name)
+    .map((rule) => validateRule(name, props.model[name], rule))
+    .filter((error): error is string => Boolean(error))
+
+  if (!fieldStates[name]) {
+    fieldStates[name] = { errors: [], rules: [] }
+  }
+
+  fieldStates[name].errors = errors
+  emit('validate', name, errors.length === 0, errors)
+
+  return errors.length > 0 ? { name, errors } : undefined
+}
+
+const getFieldNames = () => Array.from(new Set([...Object.keys(props.rules), ...Object.keys(fieldStates)]))
+
+const validate = () => {
+  const errorFields = getFieldNames()
+    .map((name) => validateField(name))
+    .filter((error): error is FormValidationError => Boolean(error))
+
+  return {
+    values: cloneValues(),
+    errorFields
+  }
+}
+
+const clearValidate = (names?: string[]) => {
+  const targetNames = names ?? Object.keys(fieldStates)
+  targetNames.forEach((name) => {
+    if (fieldStates[name]) {
+      fieldStates[name].errors = []
+    }
+  })
+}
+
+const formContext: FormContext = {
+  requiredMark: computed(() => props.requiredMark),
+  colon: computed(() => props.colon),
+  registerField(name, rules) {
+    fieldStates[name] = {
+      errors: fieldStates[name]?.errors ?? [],
+      rules
+    }
+  },
+  unregisterField(name) {
+    delete fieldStates[name]
+  },
+  getFieldErrors(name) {
+    return fieldStates[name]?.errors ?? []
+  },
+  isFieldRequired(name) {
+    return getRules(name).some((rule) => rule.required)
+  }
+}
+
+provide(formContextKey, formContext)
 
 const handleSubmit = (event: Event) => {
   emit('submit', event)
+  const validationResult = validate()
+
+  if (validationResult.errorFields.length > 0) {
+    emit('finishFailed', validationResult)
+    return
+  }
+
+  emit('finish', validationResult.values)
 }
+
+defineExpose({
+  validate,
+  clearValidate
+})
 </script>
