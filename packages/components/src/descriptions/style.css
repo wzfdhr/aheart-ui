@@ -49,6 +49,11 @@
   color: var(--aheart-color-text-secondary);
 }
 
+.aheart-descriptions__label.has-colon::after {
+  content: ":";
+  margin-left: 2px;
+}
+
 .aheart-descriptions--vertical .aheart-descriptions__label {
   margin-right: 0;
   margin-bottom: var(--aheart-spacing-xs);
