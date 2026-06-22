@@ -10,7 +10,12 @@ const spaceProps = {
   vertical: Boolean,
   align: String,
   wrap: Boolean,
-  separator: String,
-  split: String
+  separator: [String, Number, Object, Array, Function],
+  split: [String, Number, Object, Array, Function],
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: [Object, Function],
+  styles: [Object, Function]
 };
 exports.spaceProps = spaceProps;

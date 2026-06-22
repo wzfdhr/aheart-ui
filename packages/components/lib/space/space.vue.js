@@ -4,11 +4,6 @@ const vue = require("vue");
 const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = { class: "aheart-space__item" };
-const _hoisted_2 = {
-  key: 0,
-  class: "aheart-space__separator"
-};
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ASpace"
@@ -19,6 +14,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const ARenderNode = vue.defineComponent({
+      name: "ASpaceRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const flattenChildren = (children) => {
       return children.flatMap((child) => {
         if (child.type === vue.Comment) {
@@ -35,7 +42,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return flattenChildren(((_a = slots.default) == null ? void 0 : _a.call(slots)) || []);
     });
     const resolvedDirection = vue.computed(() => props.orientation || (props.vertical ? "vertical" : props.direction));
-    const separatorText = vue.computed(() => props.separator ?? props.split);
+    const separatorNode = vue.computed(() => props.separator ?? props.split);
+    const semanticInfo = vue.computed(() => ({
+      props: {
+        size: props.size,
+        direction: props.direction,
+        orientation: props.orientation,
+        vertical: props.vertical,
+        align: props.align,
+        wrap: props.wrap,
+        separator: props.separator,
+        split: props.split
+      }
+    }));
+    const semanticClassNames = vue.computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const semanticStyles = vue.computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
     const sizeToGap = (size) => {
       if (Array.isArray(size)) {
         return [`${size[0]}px`, `${size[1]}px`];
@@ -52,6 +77,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return [tokenMap[resolved], tokenMap[resolved]];
     };
     const spaceClass = vue.computed(() => [
+      props.className,
+      props.rootClassName,
+      semanticClassNames.value.root,
       `aheart-space--${resolvedDirection.value}`,
       {
         [`aheart-space--align-${props.align}`]: props.align,
@@ -60,10 +88,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     ]);
     const spaceStyle = vue.computed(() => {
       const [horizontal, vertical] = sizeToGap(props.size);
-      return {
-        "--aheart-space-gap-horizontal": horizontal,
-        "--aheart-space-gap-vertical": vertical
-      };
+      return [
+        {
+          "--aheart-space-gap-horizontal": horizontal,
+          "--aheart-space-gap-vertical": vertical
+        },
+        props.style,
+        semanticStyles.value.root
+      ];
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
@@ -72,10 +104,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }, [
         (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedChildren.value, (child, index) => {
           return vue.openBlock(), vue.createElementBlock(vue.Fragment, { key: index }, [
-            vue.createElementVNode("div", _hoisted_1, [
+            vue.createElementVNode("div", {
+              class: vue.normalizeClass(["aheart-space__item", semanticClassNames.value.item]),
+              style: vue.normalizeStyle(semanticStyles.value.item)
+            }, [
               (vue.openBlock(), vue.createBlock(vue.resolveDynamicComponent(child)))
-            ]),
-            separatorText.value && index < normalizedChildren.value.length - 1 ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, vue.toDisplayString(separatorText.value), 1)) : vue.createCommentVNode("", true)
+            ], 6),
+            separatorNode.value !== void 0 && separatorNode.value !== null && index < normalizedChildren.value.length - 1 ? (vue.openBlock(), vue.createElementBlock("span", {
+              key: 0,
+              class: vue.normalizeClass(["aheart-space__separator", semanticClassNames.value.separator]),
+              style: vue.normalizeStyle(semanticStyles.value.separator)
+            }, [
+              vue.createVNode(vue.unref(ARenderNode), { node: separatorNode.value }, null, 8, ["node"])
+            ], 6)) : vue.createCommentVNode("", true)
           ], 64);
         }), 128))
       ], 6);

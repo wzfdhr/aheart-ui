@@ -1,12 +1,7 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createBlock, resolveDynamicComponent, toDisplayString, createCommentVNode, Comment } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createBlock, resolveDynamicComponent, createVNode, unref, createCommentVNode, Comment } from "vue";
 import { useAheartConfig } from "../config/context.js";
 import { spaceProps } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = { class: "aheart-space__item" };
-const _hoisted_2 = {
-  key: 0,
-  class: "aheart-space__separator"
-};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ASpace"
@@ -17,6 +12,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const slots = useSlots();
     const config = useAheartConfig();
+    const ARenderNode = defineComponent({
+      name: "ASpaceRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const flattenChildren = (children) => {
       return children.flatMap((child) => {
         if (child.type === Comment) {
@@ -33,7 +40,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return flattenChildren(((_a = slots.default) == null ? void 0 : _a.call(slots)) || []);
     });
     const resolvedDirection = computed(() => props.orientation || (props.vertical ? "vertical" : props.direction));
-    const separatorText = computed(() => props.separator ?? props.split);
+    const separatorNode = computed(() => props.separator ?? props.split);
+    const semanticInfo = computed(() => ({
+      props: {
+        size: props.size,
+        direction: props.direction,
+        orientation: props.orientation,
+        vertical: props.vertical,
+        align: props.align,
+        wrap: props.wrap,
+        separator: props.separator,
+        split: props.split
+      }
+    }));
+    const semanticClassNames = computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const semanticStyles = computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
     const sizeToGap = (size) => {
       if (Array.isArray(size)) {
         return [`${size[0]}px`, `${size[1]}px`];
@@ -50,6 +75,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return [tokenMap[resolved], tokenMap[resolved]];
     };
     const spaceClass = computed(() => [
+      props.className,
+      props.rootClassName,
+      semanticClassNames.value.root,
       `aheart-space--${resolvedDirection.value}`,
       {
         [`aheart-space--align-${props.align}`]: props.align,
@@ -58,10 +86,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     ]);
     const spaceStyle = computed(() => {
       const [horizontal, vertical] = sizeToGap(props.size);
-      return {
-        "--aheart-space-gap-horizontal": horizontal,
-        "--aheart-space-gap-vertical": vertical
-      };
+      return [
+        {
+          "--aheart-space-gap-horizontal": horizontal,
+          "--aheart-space-gap-vertical": vertical
+        },
+        props.style,
+        semanticStyles.value.root
+      ];
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -70,10 +102,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedChildren.value, (child, index) => {
           return openBlock(), createElementBlock(Fragment, { key: index }, [
-            createElementVNode("div", _hoisted_1, [
+            createElementVNode("div", {
+              class: normalizeClass(["aheart-space__item", semanticClassNames.value.item]),
+              style: normalizeStyle(semanticStyles.value.item)
+            }, [
               (openBlock(), createBlock(resolveDynamicComponent(child)))
-            ]),
-            separatorText.value && index < normalizedChildren.value.length - 1 ? (openBlock(), createElementBlock("span", _hoisted_2, toDisplayString(separatorText.value), 1)) : createCommentVNode("", true)
+            ], 6),
+            separatorNode.value !== void 0 && separatorNode.value !== null && index < normalizedChildren.value.length - 1 ? (openBlock(), createElementBlock("span", {
+              key: 0,
+              class: normalizeClass(["aheart-space__separator", semanticClassNames.value.separator]),
+              style: normalizeStyle(semanticStyles.value.separator)
+            }, [
+              createVNode(unref(ARenderNode), { node: separatorNode.value }, null, 8, ["node"])
+            ], 6)) : createCommentVNode("", true)
           ], 64);
         }), 128))
       ], 6);
