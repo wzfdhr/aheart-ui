@@ -4,16 +4,22 @@ const index$9 = require("./alert/index.js");
 const index$8 = require("./badge/index.js");
 const index$c = require("./breadcrumb/index.js");
 const index = require("./button/index.js");
+const index$i = require("./checkbox/index.js");
 const index$1 = require("./config-provider/index.js");
 const index$3 = require("./divider/index.js");
 const index$b = require("./empty/index.js");
 const index$4 = require("./flex/index.js");
 const index$5 = require("./icon/index.js");
+const index$f = require("./input/index.js");
+const index$h = require("./input-number/index.js");
+const index$j = require("./radio/index.js");
 const index$2 = require("./space/index.js");
 const index$a = require("./spin/index.js");
 const index$e = require("./steps/index.js");
+const index$k = require("./switch/index.js");
 const index$7 = require("./tag/index.js");
 const index$d = require("./tabs/index.js");
+const index$g = require("./textarea/index.js");
 const index$6 = require("./typography/index.js");
 require("./theme/index.css.js");
 const components = [
@@ -35,7 +41,13 @@ const components = [
   index$b.default,
   index$c.default,
   index$d.default,
-  index$e.default
+  index$e.default,
+  index$f.default,
+  index$g.default,
+  index$h.default,
+  index$i.default,
+  index$j.default,
+  index$k.default
 ];
 const AheartUI = {
   install(app) {
@@ -48,16 +60,22 @@ exports.Alert = index$9.default;
 exports.Badge = index$8.default;
 exports.Breadcrumb = index$c.default;
 exports.Button = index.default;
+exports.Checkbox = index$i.default;
 exports.ConfigProvider = index$1.default;
 exports.Divider = index$3.default;
 exports.Empty = index$b.default;
 exports.Flex = index$4.default;
 exports.Icon = index$5.default;
+exports.Input = index$f.default;
+exports.InputNumber = index$h.default;
+exports.Radio = index$j.default;
 exports.Space = index$2.default;
 exports.Spin = index$a.default;
 exports.Steps = index$e.default;
+exports.Switch = index$k.default;
 exports.Tag = index$7.default;
 exports.Tabs = index$d.default;
+exports.Textarea = index$g.default;
 exports.Link = index$6.Link;
 exports.Paragraph = index$6.Paragraph;
 exports.Text = index$6.Text;
