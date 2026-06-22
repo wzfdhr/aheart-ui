@@ -167,6 +167,108 @@ describe('Input', () => {
     expect(wrapper.find('.aheart-input__count').exists()).toBe(false)
   })
 
+  it('renders vnode adornments clear icon and count formatter', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'Aheart',
+        prefix: h('span', { class: 'prefix-node' }, 'pre'),
+        suffix: h('span', { class: 'suffix-node' }, 'suf'),
+        addonBefore: h('span', { class: 'addon-before-node' }, 'before'),
+        addonAfter: h('span', { class: 'addon-after-node' }, 'after'),
+        allowClear: { clearIcon: h('span', { class: 'clear-node' }, 'clear') },
+        showCount: {
+          formatter: ({ count }: { count: number }) => h('span', { class: 'count-node' }, `${count} chars`)
+        }
+      }
+    })
+
+    expect(wrapper.find('.prefix-node').text()).toBe('pre')
+    expect(wrapper.find('.suffix-node').text()).toBe('suf')
+    expect(wrapper.find('.addon-before-node').text()).toBe('before')
+    expect(wrapper.find('.addon-after-node').text()).toBe('after')
+    expect(wrapper.find('.clear-node').text()).toBe('clear')
+    expect(wrapper.find('.count-node').text()).toBe('6 chars')
+  })
+
+  it('lets addon slots override renderable addon props', () => {
+    const wrapper = mount(Input, {
+      props: {
+        addonBefore: h('span', { class: 'prop-before' }, 'prop before'),
+        addonAfter: h('span', { class: 'prop-after' }, 'prop after')
+      },
+      slots: {
+        addonBefore: '<span class="slot-before">slot before</span>',
+        addonAfter: '<span class="slot-after">slot after</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-before').text()).toBe('slot before')
+    expect(wrapper.find('.slot-after').text()).toBe('slot after')
+    expect(wrapper.find('.prop-before').exists()).toBe(false)
+    expect(wrapper.find('.prop-after').exists()).toBe(false)
+  })
+
+  it('supports disabled allowClear config', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'value',
+        allowClear: {
+          disabled: true,
+          clearIcon: 'clear'
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-input__clear').exists()).toBe(false)
+  })
+
+  it('uses count exceedFormatter for displayed and emitted values', async () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'abcdef',
+        count: {
+          max: 3,
+          exceedFormatter: (value: string, { max }: { max: number }) => value.slice(0, max)
+        },
+        showCount: true
+      }
+    })
+
+    expect(wrapper.find('input').element.value).toBe('abc')
+    expect(wrapper.find('.aheart-input__count').text()).toBe('3 / 3')
+
+    await wrapper.find('input').setValue('12345')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['123'])
+    expect(wrapper.emitted('input')?.[0]).toEqual(['123'])
+  })
+
+  it('applies group and addon semantic hooks', () => {
+    const wrapper = mount(Input, {
+      props: {
+        addonBefore: 'before',
+        addonAfter: 'after',
+        classNames: {
+          group: 'semantic-group',
+          addonBefore: 'semantic-before',
+          addonAfter: 'semantic-after'
+        },
+        styles: {
+          group: { width: '360px' },
+          addonBefore: { color: 'red' },
+          addonAfter: { color: 'blue' }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toContain('semantic-group')
+    expect(wrapper.attributes('style')).toContain('width: 360px')
+    expect(wrapper.find('.aheart-input__addon--before').classes()).toContain('semantic-before')
+    expect(wrapper.find('.aheart-input__addon--before').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-input__addon--after').classes()).toContain('semantic-after')
+    expect(wrapper.find('.aheart-input__addon--after').attributes('style')).toContain('color: blue')
+  })
+
   it('applies root class and style hooks', () => {
     const wrapper = mount(Input, {
       props: {

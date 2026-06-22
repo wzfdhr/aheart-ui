@@ -1,8 +1,9 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
 export type InputStatus = 'error' | 'warning'
 export type InputVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
+export type InputRenderable = VNodeChild
 export interface InputCountFormatterInfo {
   count: number
   maxLength?: number
@@ -10,33 +11,53 @@ export interface InputCountFormatterInfo {
 }
 
 export interface InputAllowClearConfig {
-  clearIcon?: string
+  clearIcon?: InputRenderable
+  disabled?: boolean
 }
 
 export interface InputShowCountConfig {
-  formatter?: (info: InputCountFormatterInfo) => string
+  formatter?: (info: InputCountFormatterInfo) => InputRenderable
+}
+
+export interface InputCountExceedFormatterInfo {
+  max: number
 }
 
 export interface InputCountConfig {
   max?: number
   strategy?: (value: string) => number
-  show?: boolean | ((info: InputCountFormatterInfo) => string)
+  show?: boolean | ((info: InputCountFormatterInfo) => InputRenderable)
+  exceedFormatter?: (value: string, config: InputCountExceedFormatterInfo) => string
 }
 
 export type InputAllowClear = boolean | InputAllowClearConfig
 export type InputShowCount = boolean | InputShowCountConfig
-export type InputSemanticPart = 'root' | 'input' | 'prefix' | 'suffix' | 'clear' | 'count'
+export type InputSemanticPart =
+  | 'root'
+  | 'group'
+  | 'input'
+  | 'prefix'
+  | 'suffix'
+  | 'clear'
+  | 'count'
+  | 'addonBefore'
+  | 'addonAfter'
 export type InputClassNames = Partial<Record<InputSemanticPart, string>>
 export type InputStyles = Partial<Record<InputSemanticPart, StyleValue>>
+
+const renderableProp = {
+  type: null as unknown as PropType<InputRenderable>,
+  default: undefined
+}
 
 export const inputProps = {
   id: String,
   modelValue: String,
   placeholder: String,
-  prefix: String,
-  suffix: String,
-  addonBefore: String,
-  addonAfter: String,
+  prefix: renderableProp,
+  suffix: renderableProp,
+  addonBefore: renderableProp,
+  addonAfter: renderableProp,
   size: String as PropType<AheartSize>,
   disabled: {
     type: Boolean,
