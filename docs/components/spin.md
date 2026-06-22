@@ -25,24 +25,24 @@ Spin communicates loading state for standalone areas or nested content.
 ## 提示文案
 
 <div class="aheart-demo-panel">
-  <ASpin tip="Loading" />
+  <ASpin description="Loading" />
 </div>
 
 ```vue
 <template>
-  <ASpin tip="Loading" />
+  <ASpin description="Loading" />
 </template>
 ```
 
 ## 延迟显示
 
 <div class="aheart-demo-panel">
-  <ASpin tip="Loading" :delay="300" />
+  <ASpin description="Loading" :delay="300" />
 </div>
 
 ```vue
 <template>
-  <ASpin tip="Loading" :delay="300" />
+  <ASpin description="Loading" :delay="300" />
 </template>
 ```
 
@@ -50,18 +50,18 @@ Spin communicates loading state for standalone areas or nested content.
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ASpin indicator="Loading" tip="Custom" />
-    <ASpin tip="Uploading" :percent="45" />
-    <ASpin tip="Syncing" percent="auto" />
+    <ASpin indicator="Loading" description="Custom" />
+    <ASpin description="Uploading" :percent="45" />
+    <ASpin description="Syncing" percent="auto" />
   </ASpace>
 </div>
 
 ```vue
 <template>
   <ASpace>
-    <ASpin indicator="Loading" tip="Custom" />
-    <ASpin tip="Uploading" :percent="45" />
-    <ASpin tip="Syncing" percent="auto" />
+    <ASpin indicator="Loading" description="Custom" />
+    <ASpin description="Uploading" :percent="45" />
+    <ASpin description="Syncing" percent="auto" />
   </ASpace>
 </template>
 ```
@@ -69,7 +69,7 @@ Spin communicates loading state for standalone areas or nested content.
 ## 包裹内容
 
 <div class="aheart-demo-panel">
-  <ASpin tip="Saving" :spinning="true">
+  <ASpin description="Saving" :spinning="true">
     <div style="padding: 16px; border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-border-radius-md);">
       Content is visible while the loading indicator stays above it.
     </div>
@@ -78,7 +78,7 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpin tip="Saving" :spinning="true">
+  <ASpin description="Saving" :spinning="true">
     <div class="panel-content">
       Content is visible while the loading indicator stays above it.
     </div>
@@ -90,11 +90,11 @@ Spin communicates loading state for standalone areas or nested content.
 
 <div class="aheart-demo-panel">
   <ASpin
-    tip="Styled"
+    description="Styled"
     :percent="66"
     wrapper-class-name="demo-spin-wrapper"
-    :class-names="{ indicator: 'demo-spin-indicator', percent: 'demo-spin-percent' }"
-    :styles="{ tip: { color: 'var(--aheart-color-primary)' } }"
+    :class-names="{ indicator: 'demo-spin-indicator', description: 'demo-spin-description', percent: 'demo-spin-percent' }"
+    :styles="{ description: { color: 'var(--aheart-color-primary)' } }"
   >
     <div style="padding: 16px; border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-border-radius-md);">
       Semantic hooks can style precise Spin parts.
@@ -105,11 +105,11 @@ Spin communicates loading state for standalone areas or nested content.
 ```vue
 <template>
   <ASpin
-    tip="Styled"
+    description="Styled"
     :percent="66"
     wrapper-class-name="demo-spin-wrapper"
-    :class-names="{ indicator: 'demo-spin-indicator', percent: 'demo-spin-percent' }"
-    :styles="{ tip: { color: 'var(--aheart-color-primary)' } }"
+    :class-names="{ indicator: 'demo-spin-indicator', description: 'demo-spin-description', percent: 'demo-spin-percent' }"
+    :styles="{ description: { color: 'var(--aheart-color-primary)' } }"
   >
     <div class="panel-content">
       Semantic hooks can style precise Spin parts.
@@ -122,7 +122,7 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpin fullscreen tip="Loading page" />
+  <ASpin fullscreen description="Loading page" />
 </template>
 ```
 
@@ -132,7 +132,8 @@ Spin communicates loading state for standalone areas or nested content.
 | --- | --- | --- | --- |
 | spinning | 是否处于加载中 | `boolean` | `true` |
 | size | 加载尺寸 | `large` \| `middle` \| `small` | `middle` |
-| tip | 提示文案 | `string` | - |
+| description | 自定义描述内容 | `VNodeChild` | - |
+| tip | 兼容旧版提示内容，低于 `description` 优先级 | `VNodeChild` | - |
 | delay | 延迟显示加载状态的毫秒数 | `number` | - |
 | indicator | 自定义指示符 | `VNodeChild \| () => VNodeChild` | - |
 | percent | 进度文本 | `number \| 'auto'` | - |
@@ -149,6 +150,7 @@ Spin communicates loading state for standalone areas or nested content.
 | 名称 | 说明 |
 | --- | --- |
 | default | 被加载状态包裹的内容 |
+| description | 自定义描述内容，优先于 `description` / `tip` 属性 |
 
 ## Semantic DOM
 
@@ -158,7 +160,8 @@ Spin communicates loading state for standalone areas or nested content.
 | section | 包裹内容时的内部定位层 |
 | indicator | 加载状态节点 |
 | dot | 默认旋转点 |
-| tip | 提示文案 |
+| description | 描述内容节点 |
+| tip | 描述内容节点兼容别名 |
 | percent | 进度文本 |
 | container | 被包裹内容容器 |
 
