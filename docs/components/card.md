@@ -72,6 +72,40 @@ Card groups related content in a bordered container with optional header, cover,
 </template>
 ```
 
+## 网格卡片
+
+<div class="aheart-demo-panel">
+  <ACard title="Project modules">
+    <ACardGrid>Overview</ACardGrid>
+    <ACardGrid>Reports</ACardGrid>
+    <ACardGrid :hoverable="false">Read only</ACardGrid>
+    <ACardGrid
+      class-name="demo-card-grid"
+      :class-names="{ content: 'demo-card-grid-content' }"
+      :styles="{ content: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }"
+    >
+      Styled
+    </ACardGrid>
+  </ACard>
+</div>
+
+```vue
+<template>
+  <ACard title="Project modules">
+    <ACardGrid>Overview</ACardGrid>
+    <ACardGrid>Reports</ACardGrid>
+    <ACardGrid :hoverable="false">Read only</ACardGrid>
+    <ACardGrid
+      class-name="demo-card-grid"
+      :class-names="{ content: 'demo-card-grid-content' }"
+      :styles="{ content: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }"
+    >
+      Styled
+    </ACardGrid>
+  </ACard>
+</template>
+```
+
 ## 加载状态
 
 <div class="aheart-demo-panel">
@@ -214,6 +248,19 @@ Card groups related content in a bordered container with optional header, cover,
 | classNames | 语义化结构 class | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', string>>` | - |
 | styles | 语义化结构样式 | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', StyleValue>>` | - |
 
+## CardGrid API
+
+`ACardGrid` 也可通过 `Card.Grid` / `ACard.Grid` 组合方式使用。
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| hoverable | 是否有 hover 阴影 | `boolean` | `true` |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'content', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'content', StyleValue>>` | - |
+
 ## Slots
 
 | 名称 | 说明 |
@@ -232,6 +279,19 @@ Card groups related content in a bordered container with optional header, cover,
 | title | 自定义标题，优先于 `title` 属性 |
 | description | 自定义描述，优先于 `description` 属性 |
 | default | 当未提供 `title` / `description` 时作为内容区 fallback |
+
+## CardGrid Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| default | 网格卡片内容 |
+
+## CardGrid Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 网格卡片根元素 |
+| content | 网格卡片内容容器 |
 
 ## Theme Tokens
 
