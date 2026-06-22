@@ -1,6 +1,6 @@
 # Form 表单 <span class="aheart-status aheart-status--ready">Ready</span>
 
-Form manages field layout and visual validation state. This first slice focuses on structure and configuration inheritance.
+Form manages field layout, model validation, submit success/failure events, and configuration inheritance.
 
 ## 基础用法
 
@@ -23,6 +23,62 @@ Form manages field layout and visual validation state. This first slice focuses 
     </AFormItem>
     <AFormItem label="Email" validate-status="error" help="Email is required">
       <AInput v-model="email" status="error" />
+    </AFormItem>
+  </AForm>
+</template>
+```
+
+## 校验与提交
+
+<div class="aheart-demo-panel">
+  <AForm
+    :model="{ email: '' }"
+    :rules="{ email: [{ required: true, message: 'Email is required' }] }"
+    layout="vertical"
+  >
+    <AFormItem label="Email" name="email">
+      <AInput model-value="" placeholder="Email" />
+    </AFormItem>
+    <AFormItem>
+      <AButton type="primary" native-type="submit">Submit</AButton>
+    </AFormItem>
+  </AForm>
+</div>
+
+```vue
+<template>
+  <AForm :model="formState" :rules="rules" layout="vertical" @finish="handleFinish" @finish-failed="handleFailed">
+    <AFormItem label="Email" name="email">
+      <AInput v-model="formState.email" />
+    </AFormItem>
+    <AFormItem>
+      <AButton type="primary" native-type="submit">Submit</AButton>
+    </AFormItem>
+  </AForm>
+</template>
+```
+
+## 必填标记与变体
+
+<div class="aheart-demo-panel">
+  <AForm
+    :model="{ age: 12 }"
+    required-mark="optional"
+    :colon="false"
+    variant="filled"
+    layout="vertical"
+  >
+    <AFormItem label="Age" name="age" :rules="[{ min: 18, message: 'Adults only' }]">
+      <AInput model-value="12" />
+    </AFormItem>
+  </AForm>
+</div>
+
+```vue
+<template>
+  <AForm :model="formState" required-mark="optional" :colon="false" variant="filled">
+    <AFormItem label="Age" name="age" :rules="[{ min: 18, message: 'Adults only' }]">
+      <AInput v-model="formState.age" />
     </AFormItem>
   </AForm>
 </template>
@@ -84,16 +140,24 @@ Form manages field layout and visual validation state. This first slice focuses 
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
+| model | 表单数据对象 | `Record<string, unknown>` | `{}` |
+| rules | 表单校验规则，按字段名索引 | `Record<string, FormRule[]>` | `{}` |
 | layout | 表单布局 | `horizontal` \| `vertical` \| `inline` | `horizontal` |
 | labelAlign | 标签对齐方式 | `left` \| `right` | `right` |
 | size | 表单控件尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
 | disabled | 是否禁用内部控件 | `boolean` | ConfigProvider disabled |
+| requiredMark | 必填标记展示方式 | `boolean` \| `optional` | `true` |
+| colon | 是否在 label 后显示冒号 | `boolean` | `true` |
+| variant | 内部控件默认变体 | `outlined` \| `borderless` \| `filled` \| `underlined` | - |
 
 ## Form Events
 
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | submit | 提交表单时触发 | `(event: Event) => void` |
+| finish | 校验成功后触发 | `(values: FormModel) => void` |
+| finishFailed | 校验失败后触发 | `(info: FormFinishFailedInfo) => void` |
+| validate | 字段校验完成时触发 | `(name: string, status: boolean, errors: string[]) => void` |
 
 ## FormItem API
 
@@ -102,10 +166,37 @@ Form manages field layout and visual validation state. This first slice focuses 
 | label | 标签文本 | `string` | - |
 | name | 字段名 | `string` | - |
 | required | 是否显示必填标记 | `boolean` | `false` |
+| rules | 表单项校验规则 | `FormRule[]` | - |
 | validateStatus | 校验状态 | `success` \| `warning` \| `error` \| `validating` | - |
 | help | 帮助或错误文案 | `string` | - |
 | extra | 额外提示 | `string` | - |
 | hasFeedback | 是否显示反馈图标 | `boolean` | `false` |
+
+## FormRule
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| required | 是否必填 | `boolean` | `false` |
+| message | 校验失败提示 | `string` | - |
+| type | 值类型 | `string` \| `number` \| `email` \| `array` | - |
+| min | 字符/数组最小长度，或数字最小值 | `number` | - |
+| max | 字符/数组最大长度，或数字最大值 | `number` | - |
+| len | 字符/数组固定长度，或数字固定值 | `number` | - |
+| pattern | 正则校验 | `RegExp` | - |
+
+## FormFinishFailedInfo
+
+| 字段 | 说明 | 类型 |
+| --- | --- | --- |
+| values | 当前表单数据 | `FormModel` |
+| errorFields | 错误字段列表 | `{ name: string; errors: string[] }[]` |
+
+## Exposes
+
+| 名称 | 说明 | 类型 |
+| --- | --- | --- |
+| validate | 触发表单同步校验 | `() => { values: FormModel; errorFields: FormValidationError[] }` |
+| clearValidate | 清除字段错误 | `(names?: string[]) => void` |
 
 ## Slots
 
