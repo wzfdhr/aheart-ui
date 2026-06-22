@@ -55,7 +55,10 @@ export default defineConfig({
             { text: 'InputNumber 数字输入框', link: '/components/input-number' },
             { text: 'Checkbox 多选框', link: '/components/checkbox' },
             { text: 'Radio 单选框', link: '/components/radio' },
-            { text: 'Switch 开关', link: '/components/switch' }
+            { text: 'Switch 开关', link: '/components/switch' },
+            { text: 'Card 卡片', link: '/components/card' },
+            { text: 'Descriptions 描述列表', link: '/components/descriptions' },
+            { text: 'Pagination 分页', link: '/components/pagination' }
           ]
         }
       ]
