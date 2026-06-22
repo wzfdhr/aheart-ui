@@ -1,26 +1,27 @@
+import { type PropType } from 'vue';
 import { type StepItem, type StepStatus } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly items: import("vue").PropType<StepItem[]>;
+    readonly items: PropType<StepItem[]>;
     readonly current: {
         readonly type: NumberConstructor;
         readonly default: 0;
     };
     readonly status: {
-        readonly type: import("vue").PropType<StepStatus>;
+        readonly type: PropType<StepStatus>;
         readonly default: "process";
     };
     readonly direction: {
-        readonly type: import("vue").PropType<import("./types").StepsDirection>;
+        readonly type: PropType<import("./types").StepsDirection>;
         readonly default: "horizontal";
     };
-    readonly orientation: import("vue").PropType<import("./types").StepsDirection>;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly orientation: PropType<import("./types").StepsDirection>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly type: {
-        readonly type: import("vue").PropType<import("./types").StepsType>;
+        readonly type: PropType<import("./types").StepsType>;
         readonly default: "default";
     };
     readonly titlePlacement: {
-        readonly type: import("vue").PropType<import("./types").StepsTitlePlacement>;
+        readonly type: PropType<import("./types").StepsTitlePlacement>;
         readonly default: "horizontal";
     };
     readonly initial: {
@@ -30,33 +31,33 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly percent: NumberConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").StepsSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").StepsSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").StepsSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").StepsSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (current: number) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly items: import("vue").PropType<StepItem[]>;
+    readonly items: PropType<StepItem[]>;
     readonly current: {
         readonly type: NumberConstructor;
         readonly default: 0;
     };
     readonly status: {
-        readonly type: import("vue").PropType<StepStatus>;
+        readonly type: PropType<StepStatus>;
         readonly default: "process";
     };
     readonly direction: {
-        readonly type: import("vue").PropType<import("./types").StepsDirection>;
+        readonly type: PropType<import("./types").StepsDirection>;
         readonly default: "horizontal";
     };
-    readonly orientation: import("vue").PropType<import("./types").StepsDirection>;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly orientation: PropType<import("./types").StepsDirection>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly type: {
-        readonly type: import("vue").PropType<import("./types").StepsType>;
+        readonly type: PropType<import("./types").StepsType>;
         readonly default: "default";
     };
     readonly titlePlacement: {
-        readonly type: import("vue").PropType<import("./types").StepsTitlePlacement>;
+        readonly type: PropType<import("./types").StepsTitlePlacement>;
         readonly default: "horizontal";
     };
     readonly initial: {
@@ -66,16 +67,16 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly percent: NumberConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").StepsSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").StepsSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").StepsSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").StepsSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((current: number) => any) | undefined;
 }>, {
     readonly type: import("./types").StepsType;
     readonly initial: number;
-    readonly status: StepStatus;
     readonly direction: import("./types").StepsDirection;
+    readonly status: StepStatus;
     readonly titlePlacement: import("./types").StepsTitlePlacement;
     readonly current: number;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;

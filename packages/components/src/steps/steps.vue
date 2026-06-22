@@ -20,21 +20,27 @@
       >
         <span class="aheart-steps__indicator" :class="indicatorClass" :style="indicatorStyle" aria-hidden="true">
           <span class="aheart-steps__icon" :class="iconClass" :style="getIconStyle(item, index)">
-            <span v-if="!hasPercent(item, index)" class="aheart-steps__icon-text">{{ getIndicatorText(item, index) }}</span>
+            <span v-if="showIconText(item, index)" class="aheart-steps__icon-text">
+              <ARenderNode :node="getIndicatorText(item, index)" />
+            </span>
             <span v-if="hasPercent(item, index)" class="aheart-steps__percent">{{ percentText }}%</span>
           </span>
         </span>
         <span class="aheart-steps__content" :class="contentClass" :style="contentStyle">
           <span class="aheart-steps__title-row">
-            <span class="aheart-steps__title" :class="titleClass" :style="titleStyle">{{ item.title }}</span>
+            <span class="aheart-steps__title" :class="titleClass" :style="titleStyle">
+              <ARenderNode :node="item.title" />
+            </span>
             <span v-if="item.subTitle" class="aheart-steps__subtitle" :class="subTitleClass" :style="subTitleStyle">
-              {{ item.subTitle }}
+              <ARenderNode :node="item.subTitle" />
             </span>
           </span>
           <span v-if="item.description" class="aheart-steps__description" :class="descriptionClass" :style="descriptionStyle">
-            {{ item.description }}
+            <ARenderNode :node="item.description" />
           </span>
-          <span v-if="item.content" class="aheart-steps__extra-content">{{ item.content }}</span>
+          <span v-if="item.content" class="aheart-steps__extra-content">
+            <ARenderNode :node="item.content" />
+          </span>
         </span>
       </button>
       <span
@@ -49,13 +55,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineComponent, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { stepsEmits, stepsProps, type StepItem, type StepStatus } from './types'
 import './style.css'
 
 defineOptions({
   name: 'ASteps'
+})
+
+const ARenderNode = defineComponent({
+  name: 'AStepsRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
 })
 
 const props = defineProps(stepsProps)
@@ -148,15 +167,13 @@ const getIconStyle = (item: StepItem, index: number) => [
 
 const getDisplayNumber = (index: number) => props.initial + index
 
-const shouldUseNumericIndicator = () => props.type === 'dot'
+const isDotType = computed(() => props.type === 'dot')
+const showIconText = (item: StepItem, index: number) =>
+  !hasPercent(item, index) && (!isDotType.value || item.icon !== undefined)
 
 const getIndicatorText = (item: StepItem, index: number) => {
   if (item.icon) {
     return item.icon
-  }
-
-  if (shouldUseNumericIndicator()) {
-    return getDisplayNumber(index)
   }
 
   const status = getStatus(item, index)

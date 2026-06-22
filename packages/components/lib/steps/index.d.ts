@@ -73,8 +73,8 @@ declare const Steps: import("../utils/install").SFCWithInstall<import("vue").Def
 }>, {
     readonly type: import("./types").StepsType;
     readonly initial: number;
-    readonly status: import("./types").StepStatus;
     readonly direction: import("./types").StepsDirection;
+    readonly status: import("./types").StepStatus;
     readonly titlePlacement: import("./types").StepsTitlePlacement;
     readonly current: number;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;

@@ -1,10 +1,11 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
 export type StepStatus = 'wait' | 'process' | 'finish' | 'error'
 export type StepsDirection = 'horizontal' | 'vertical'
 export type StepsType = 'default' | 'dot' | 'navigation' | 'panel' | 'inline'
 export type StepsTitlePlacement = 'horizontal' | 'vertical'
+export type StepRenderable = VNodeChild
 export type StepsSemanticPart =
   | 'root'
   | 'item'
@@ -21,13 +22,13 @@ export type StepsClassNames = Partial<Record<StepsSemanticPart, string>>
 export type StepsStyles = Partial<Record<StepsSemanticPart, StyleValue>>
 
 export interface StepItem {
-  title: string
-  description?: string
+  title: StepRenderable
+  description?: StepRenderable
   status?: StepStatus
   disabled?: boolean
-  icon?: string
-  subTitle?: string
-  content?: string
+  icon?: StepRenderable
+  subTitle?: StepRenderable
+  content?: StepRenderable
 }
 
 export const stepsProps = {

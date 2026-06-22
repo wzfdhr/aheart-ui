@@ -1,4 +1,4 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, toDisplayString, createCommentVNode } from "vue";
+import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createVNode, unref, createCommentVNode, toDisplayString } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { stepsProps, stepsEmits } from "./types.js";
 import "./style.css.js";
@@ -25,6 +25,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: stepsProps,
   emits: stepsEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = defineComponent({
+      name: "AStepsRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
@@ -156,13 +168,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       ];
     };
     const getDisplayNumber = (index) => props.initial + index;
-    const shouldUseNumericIndicator = () => props.type === "dot";
+    const isDotType = computed(() => props.type === "dot");
+    const showIconText = (item, index) => !hasPercent(item, index) && (!isDotType.value || item.icon !== void 0);
     const getIndicatorText = (item, index) => {
       if (item.icon) {
         return item.icon;
-      }
-      if (shouldUseNumericIndicator()) {
-        return getDisplayNumber(index);
       }
       const status = getStatus(item, index);
       if (status === "finish") {
@@ -210,7 +220,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   class: normalizeClass(["aheart-steps__icon", iconClass.value]),
                   style: normalizeStyle(getIconStyle(item, index))
                 }, [
-                  !hasPercent(item, index) ? (openBlock(), createElementBlock("span", _hoisted_3, toDisplayString(getIndicatorText(item, index)), 1)) : createCommentVNode("", true),
+                  showIconText(item, index) ? (openBlock(), createElementBlock("span", _hoisted_3, [
+                    createVNode(unref(ARenderNode), {
+                      node: getIndicatorText(item, index)
+                    }, null, 8, ["node"])
+                  ])) : createCommentVNode("", true),
                   hasPercent(item, index) ? (openBlock(), createElementBlock("span", _hoisted_4, toDisplayString(percentText.value) + "%", 1)) : createCommentVNode("", true)
                 ], 6)
               ], 6),
@@ -222,19 +236,35 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   createElementVNode("span", {
                     class: normalizeClass(["aheart-steps__title", titleClass.value]),
                     style: normalizeStyle(titleStyle.value)
-                  }, toDisplayString(item.title), 7),
+                  }, [
+                    createVNode(unref(ARenderNode), {
+                      node: item.title
+                    }, null, 8, ["node"])
+                  ], 6),
                   item.subTitle ? (openBlock(), createElementBlock("span", {
                     key: 0,
                     class: normalizeClass(["aheart-steps__subtitle", subTitleClass.value]),
                     style: normalizeStyle(subTitleStyle.value)
-                  }, toDisplayString(item.subTitle), 7)) : createCommentVNode("", true)
+                  }, [
+                    createVNode(unref(ARenderNode), {
+                      node: item.subTitle
+                    }, null, 8, ["node"])
+                  ], 6)) : createCommentVNode("", true)
                 ]),
                 item.description ? (openBlock(), createElementBlock("span", {
                   key: 0,
                   class: normalizeClass(["aheart-steps__description", descriptionClass.value]),
                   style: normalizeStyle(descriptionStyle.value)
-                }, toDisplayString(item.description), 7)) : createCommentVNode("", true),
-                item.content ? (openBlock(), createElementBlock("span", _hoisted_6, toDisplayString(item.content), 1)) : createCommentVNode("", true)
+                }, [
+                  createVNode(unref(ARenderNode), {
+                    node: item.description
+                  }, null, 8, ["node"])
+                ], 6)) : createCommentVNode("", true),
+                item.content ? (openBlock(), createElementBlock("span", _hoisted_6, [
+                  createVNode(unref(ARenderNode), {
+                    node: item.content
+                  }, null, 8, ["node"])
+                ])) : createCommentVNode("", true)
               ], 6)
             ], 14, _hoisted_2),
             index < normalizedItems.value.length - 1 ? (openBlock(), createElementBlock("span", {

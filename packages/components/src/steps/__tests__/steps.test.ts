@@ -90,9 +90,20 @@ describe('Steps', () => {
         'aheart-steps--title-vertical'
       ])
     )
-    expect(wrapper.findAll('.aheart-steps__icon')[0].text()).toBe('3')
+    expect(wrapper.findAll('.aheart-steps__icon')[0].text()).toBe('')
     expect(wrapper.findAll('.aheart-steps__icon')[1].text()).toContain('65%')
     expect(wrapper.findAll('.aheart-steps__icon')[1].attributes('style')).toContain('--aheart-steps-percent: 65')
+  })
+
+  it('uses initial for generated numeric indicators in non-dot mode', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        items,
+        initial: 3
+      }
+    })
+
+    expect(wrapper.findAll('.aheart-steps__icon')[0].text()).toBe('3')
   })
 
   it('renders item icons subtitles and content', () => {
@@ -114,6 +125,55 @@ describe('Steps', () => {
       'Account content',
       'Billing content'
     ])
+  })
+
+  it('renders vnode item title description icon subtitle and content', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        current: 1,
+        items: [
+          {
+            title: h('span', { class: 'title-node' }, 'Account node'),
+            icon: h('span', { class: 'icon-node' }, 'A'),
+            subTitle: h('span', { class: 'subtitle-node' }, 'Ready'),
+            description: h('span', { class: 'description-node' }, 'Account description'),
+            content: h('span', { class: 'content-node' }, 'Account content')
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.title-node').text()).toBe('Account node')
+    expect(wrapper.find('.icon-node').text()).toBe('A')
+    expect(wrapper.find('.subtitle-node').text()).toBe('Ready')
+    expect(wrapper.find('.description-node').text()).toBe('Account description')
+    expect(wrapper.find('.content-node').text()).toBe('Account content')
+  })
+
+  it('renders dot type without generated numeric text', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        type: 'dot',
+        current: 1,
+        initial: 3,
+        items
+      }
+    })
+
+    expect(wrapper.findAll('.aheart-steps__icon-text')).toHaveLength(0)
+    expect(wrapper.findAll('.aheart-steps__icon').map((icon) => icon.text())).toEqual(['', '', ''])
+  })
+
+  it('keeps explicit item icons in dot type', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        type: 'dot',
+        current: 0,
+        items: [{ title: 'Custom', icon: h('span', { class: 'dot-icon-node' }, 'C') }]
+      }
+    })
+
+    expect(wrapper.find('.dot-icon-node').text()).toBe('C')
   })
 
   it('applies root and semantic class and style hooks', () => {

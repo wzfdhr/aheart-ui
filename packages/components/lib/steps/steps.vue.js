@@ -27,6 +27,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.stepsProps,
   emits: types.stepsEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = vue.defineComponent({
+      name: "AStepsRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
@@ -158,13 +170,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       ];
     };
     const getDisplayNumber = (index) => props.initial + index;
-    const shouldUseNumericIndicator = () => props.type === "dot";
+    const isDotType = vue.computed(() => props.type === "dot");
+    const showIconText = (item, index) => !hasPercent(item, index) && (!isDotType.value || item.icon !== void 0);
     const getIndicatorText = (item, index) => {
       if (item.icon) {
         return item.icon;
-      }
-      if (shouldUseNumericIndicator()) {
-        return getDisplayNumber(index);
       }
       const status = getStatus(item, index);
       if (status === "finish") {
@@ -212,7 +222,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   class: vue.normalizeClass(["aheart-steps__icon", iconClass.value]),
                   style: vue.normalizeStyle(getIconStyle(item, index))
                 }, [
-                  !hasPercent(item, index) ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, vue.toDisplayString(getIndicatorText(item, index)), 1)) : vue.createCommentVNode("", true),
+                  showIconText(item, index) ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, [
+                    vue.createVNode(vue.unref(ARenderNode), {
+                      node: getIndicatorText(item, index)
+                    }, null, 8, ["node"])
+                  ])) : vue.createCommentVNode("", true),
                   hasPercent(item, index) ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, vue.toDisplayString(percentText.value) + "%", 1)) : vue.createCommentVNode("", true)
                 ], 6)
               ], 6),
@@ -224,19 +238,35 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   vue.createElementVNode("span", {
                     class: vue.normalizeClass(["aheart-steps__title", titleClass.value]),
                     style: vue.normalizeStyle(titleStyle.value)
-                  }, vue.toDisplayString(item.title), 7),
+                  }, [
+                    vue.createVNode(vue.unref(ARenderNode), {
+                      node: item.title
+                    }, null, 8, ["node"])
+                  ], 6),
                   item.subTitle ? (vue.openBlock(), vue.createElementBlock("span", {
                     key: 0,
                     class: vue.normalizeClass(["aheart-steps__subtitle", subTitleClass.value]),
                     style: vue.normalizeStyle(subTitleStyle.value)
-                  }, vue.toDisplayString(item.subTitle), 7)) : vue.createCommentVNode("", true)
+                  }, [
+                    vue.createVNode(vue.unref(ARenderNode), {
+                      node: item.subTitle
+                    }, null, 8, ["node"])
+                  ], 6)) : vue.createCommentVNode("", true)
                 ]),
                 item.description ? (vue.openBlock(), vue.createElementBlock("span", {
                   key: 0,
                   class: vue.normalizeClass(["aheart-steps__description", descriptionClass.value]),
                   style: vue.normalizeStyle(descriptionStyle.value)
-                }, vue.toDisplayString(item.description), 7)) : vue.createCommentVNode("", true),
-                item.content ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, vue.toDisplayString(item.content), 1)) : vue.createCommentVNode("", true)
+                }, [
+                  vue.createVNode(vue.unref(ARenderNode), {
+                    node: item.description
+                  }, null, 8, ["node"])
+                ], 6)) : vue.createCommentVNode("", true),
+                item.content ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, [
+                  vue.createVNode(vue.unref(ARenderNode), {
+                    node: item.content
+                  }, null, 8, ["node"])
+                ])) : vue.createCommentVNode("", true)
               ], 6)
             ], 14, _hoisted_2),
             index < normalizedItems.value.length - 1 ? (vue.openBlock(), vue.createElementBlock("span", {

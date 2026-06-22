@@ -134,9 +134,9 @@ Steps communicates progress through a multi-step workflow.
     :initial="3"
     :current="1"
     :items="[
-      { title: 'Create', description: 'Start from display number 3.' },
+      { title: 'Create', description: 'Dot mode uses compact markers.' },
       { title: 'Process', description: 'The active item keeps zero-based current.' },
-      { title: 'Finish', description: 'Display numbering is offset only.' }
+      { title: 'Finish', description: 'Generated numbers are hidden for dot markers.' }
     ]"
   />
 </div>
@@ -181,6 +181,8 @@ Steps communicates progress through a multi-step workflow.
   />
 </template>
 ```
+
+`StepItem` 的标题、描述、图标、辅助标题和额外内容都支持 `VNodeChild`，可直接传入渲染节点用于更复杂的标签、按钮或图标。
 
 ## 语义样式
 
@@ -227,7 +229,7 @@ Steps communicates progress through a multi-step workflow.
 | size | 步骤尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
 | type | 步骤类型 | `default` \| `dot` \| `navigation` \| `panel` \| `inline` | `default` |
 | titlePlacement | 标题位置 | `horizontal` \| `vertical` | `horizontal` |
-| initial | 显示序号的起始值，不影响 `current` | `number` | `1` |
+| initial | 生成数字指示器的起始值，不影响 `current`；`dot` 类型隐藏生成数字 | `number` | `1` |
 | percent | 当前 `process` 步骤的进度百分比，自动限制在 `0..100` | `number` | - |
 | className | 根元素 class | `string` | - |
 | rootClassName | 根元素 class | `string` | - |
@@ -239,13 +241,13 @@ Steps communicates progress through a multi-step workflow.
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| title | 标题 | `string` | - |
-| description | 描述 | `string` | - |
+| title | 标题 | `VNodeChild` | - |
+| description | 描述 | `VNodeChild` | - |
 | status | 自定义步骤状态 | `wait` \| `process` \| `finish` \| `error` | 自动计算 |
 | disabled | 是否禁用点击 | `boolean` | `false` |
-| icon | 自定义图标文本 | `string` | - |
-| subTitle | 标题旁的辅助文本 | `string` | - |
-| content | 额外内容，适合 `panel` 或详情步骤 | `string` | - |
+| icon | 自定义图标 | `VNodeChild` | - |
+| subTitle | 标题旁的辅助内容 | `VNodeChild` | - |
+| content | 额外内容，适合 `panel` 或详情步骤 | `VNodeChild` | - |
 
 ### StepsSemanticPart
 
