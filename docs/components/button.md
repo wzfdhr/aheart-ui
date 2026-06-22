@@ -95,6 +95,90 @@ import 'aheart-ui/es/style.css'
 </template>
 ```
 
+## 图标
+
+<div class="aheart-demo-panel">
+  <div class="aheart-demo-row">
+    <AButton icon="+">Create</AButton>
+    <AButton icon=">" icon-placement="end">Next</AButton>
+    <AButton icon-position="end">
+      <template #icon>
+        <span>^</span>
+      </template>
+      Open
+    </AButton>
+  </div>
+</div>
+
+```vue
+<template>
+  <Button icon="+">Create</Button>
+  <Button icon=">" icon-placement="end">Next</Button>
+  <Button icon-position="end">
+    <template #icon>
+      <span>^</span>
+    </template>
+    Open
+  </Button>
+</template>
+```
+
+## 延迟加载
+
+<div class="aheart-demo-panel">
+  <div class="aheart-demo-row">
+    <AButton type="primary" :loading="{ delay: 300 }">Delayed loading</AButton>
+    <AButton loading>
+      <template #loadingIcon>
+        <span>...</span>
+      </template>
+      Custom loading
+    </AButton>
+  </div>
+</div>
+
+```vue
+<template>
+  <Button type="primary" :loading="{ delay: 300 }">Delayed loading</Button>
+  <Button loading>
+    <template #loadingIcon>
+      <span>...</span>
+    </template>
+    Custom loading
+  </Button>
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <AButton
+    icon="setting"
+    class-name="demo-button-class"
+    root-class-name="demo-button-root"
+    :style="{ minWidth: '180px' }"
+    :class-names="{ root: 'demo-button-semantic-root', icon: 'demo-button-icon', content: 'demo-button-content' }"
+    :styles="{ icon: { color: 'var(--aheart-color-primary)' }, content: { fontWeight: 600 } }"
+  >
+    Configure
+  </AButton>
+</div>
+
+```vue
+<template>
+  <Button
+    icon="setting"
+    class-name="demo-button-class"
+    root-class-name="demo-button-root"
+    :style="{ minWidth: '180px' }"
+    :class-names="{ root: 'demo-button-semantic-root', icon: 'demo-button-icon', content: 'demo-button-content' }"
+    :styles="{ icon: { color: 'var(--aheart-color-primary)' }, content: { fontWeight: 600 } }"
+  >
+    Configure
+  </Button>
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -104,14 +188,22 @@ import 'aheart-ui/es/style.css'
 | nativeType | 原生按钮类型 | `button` \| `submit` \| `reset` | `button` |
 | htmlType | Ant 风格原生按钮类型别名，优先于 `nativeType` | `button` \| `submit` \| `reset` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
-| loading | 是否加载中 | `boolean` | `false` |
+| loading | 是否加载中，支持延迟显示 | `boolean` \| `{ delay?: number }` | `false` |
 | block | 是否块级显示 | `boolean` | `false` |
 | danger | 设置危险按钮状态 | `boolean` | `false` |
 | ghost | 设置幽灵按钮状态 | `boolean` | `false` |
 | shape | 按钮形状 | `default` \| `circle` \| `round` | `default` |
+| icon | 图标名称，渲染为 `AIcon` | `string` | - |
+| iconPlacement | 图标位置 | `start` \| `end` | `start` |
+| iconPosition | 图标位置兼容别名 | `start` \| `end` | - |
 | href | 设置后渲染为链接按钮 | `string` | - |
 | target | 链接目标 | `string` | - |
 | round | 是否圆角按钮，等价于 `shape="round"` | `boolean` | `false` |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'icon' \| 'content', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'icon' \| 'content', StyleValue>>` | - |
 
 ## Events
 
@@ -123,6 +215,8 @@ import 'aheart-ui/es/style.css'
 
 | 名称 | 说明 |
 | --- | --- |
+| icon | 自定义图标区域 |
+| loadingIcon | 自定义加载图标 |
 | default | 按钮内容 |
 
 ## Theme Tokens
