@@ -1,0 +1,31 @@
+.aheart-tooltip {
+  position: relative;
+  display: inline-flex;
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-tooltip__trigger {
+  display: inline-flex;
+}
+
+.aheart-tooltip__popup {
+  position: absolute;
+  z-index: 1070;
+  box-sizing: border-box;
+  max-width: 250px;
+  padding: 6px 8px;
+  border-radius: var(--aheart-radius-sm);
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: var(--aheart-shadow);
+  color: #fff;
+  font-size: var(--aheart-font-size-sm);
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.aheart-tooltip__content {
+  position: relative;
+  z-index: 1;
+}
