@@ -82,14 +82,14 @@ export const componentCategories: ComponentCategory[] = [
     description: 'Communicate system state and user feedback.',
     components: [
       { name: 'Alert', description: 'Show contextual information.', status: 'Ready', link: '/components/alert' },
-      { name: 'Message', description: 'Show global lightweight feedback.', status: 'Planned' },
+      { name: 'Message', description: 'Show global lightweight feedback.', status: 'Ready', link: '/components/message' },
       { name: 'Modal', description: 'Focus attention in a dialog.', status: 'Planned' },
       { name: 'Drawer', description: 'Show a side panel.', status: 'Planned' },
       { name: 'Tooltip', description: 'Explain compact controls.', status: 'Planned' },
       { name: 'Popover', description: 'Show floating content.', status: 'Planned' },
       { name: 'Popconfirm', description: 'Confirm risky actions.', status: 'Planned' },
       { name: 'Spin', description: 'Show loading state.', status: 'Ready', link: '/components/spin' },
-      { name: 'Skeleton', description: 'Reserve loading layout.', status: 'Planned' }
+      { name: 'Skeleton', description: 'Reserve loading layout.', status: 'Ready', link: '/components/skeleton' }
     ]
   }
 ]
