@@ -2,5 +2,12 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const empty_vue_vue_type_script_setup_true_lang = require("./empty.vue.js");
 const install = require("../utils/install.js");
+const types = require("./types.js");
+const PRESENTED_IMAGE_DEFAULT = types.EMPTY_PRESENTED_IMAGE_DEFAULT;
+const PRESENTED_IMAGE_SIMPLE = types.EMPTY_PRESENTED_IMAGE_SIMPLE;
 const Empty = install.withInstall(empty_vue_vue_type_script_setup_true_lang.default, "AEmpty");
+Empty.PRESENTED_IMAGE_DEFAULT = PRESENTED_IMAGE_DEFAULT;
+Empty.PRESENTED_IMAGE_SIMPLE = PRESENTED_IMAGE_SIMPLE;
+exports.PRESENTED_IMAGE_DEFAULT = PRESENTED_IMAGE_DEFAULT;
+exports.PRESENTED_IMAGE_SIMPLE = PRESENTED_IMAGE_SIMPLE;
 exports.default = Empty;

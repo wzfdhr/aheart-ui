@@ -1,10 +1,15 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createCommentVNode, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createBlock, unref, createCommentVNode, Fragment, createTextVNode, toDisplayString } from "vue";
 import { useAheartConfig } from "../config/context.js";
-import { emptyProps } from "./types.js";
+import { emptyProps, EMPTY_PRESENTED_IMAGE_SIMPLE, EMPTY_PRESENTED_IMAGE_DEFAULT } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["src"];
 const _hoisted_2 = {
-  key: 1,
+  key: 2,
+  class: "aheart-empty__simple-image",
+  "aria-hidden": "true"
+};
+const _hoisted_3 = {
+  key: 3,
   class: "aheart-empty__default-image",
   "aria-hidden": "true"
 };
@@ -18,16 +23,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const config = useAheartConfig();
     const slots = useSlots();
-    const imageUrl = computed(() => typeof props.image === "string" && props.image ? props.image : void 0);
+    const AEmptyRenderNode = defineComponent({
+      name: "AEmptyRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const isPresetImage = (value) => {
+      return value === EMPTY_PRESENTED_IMAGE_DEFAULT || value === EMPTY_PRESENTED_IMAGE_SIMPLE;
+    };
+    const imageUrl = computed(() => {
+      return typeof props.image === "string" && props.image && !isPresetImage(props.image) ? props.image : void 0;
+    });
     const showImage = computed(() => Boolean(slots.image) || props.image !== false);
-    const resolvedDescription = computed(() => {
+    const isSimpleImage = computed(() => props.image === EMPTY_PRESENTED_IMAGE_SIMPLE);
+    const hasCustomImageNode = computed(() => {
+      return props.image !== void 0 && props.image !== false && !imageUrl.value && !isPresetImage(props.image);
+    });
+    const hasDescriptionProp = computed(() => props.description !== void 0 && props.description !== false);
+    const fallbackDescription = computed(() => {
       var _a, _b;
-      if (props.description === false) {
-        return "";
-      }
-      if (typeof props.description === "string") {
-        return props.description;
-      }
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) || "No Data";
     });
     const showDescription = computed(() => Boolean(slots.description) || props.description !== false);
@@ -79,7 +100,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               class: "aheart-empty__image-element",
               src: imageUrl.value,
               alt: ""
-            }, null, 8, _hoisted_1)) : (openBlock(), createElementBlock("span", _hoisted_2, "∅"))
+            }, null, 8, _hoisted_1)) : hasCustomImageNode.value ? (openBlock(), createBlock(unref(AEmptyRenderNode), {
+              key: 1,
+              node: _ctx.image
+            }, null, 8, ["node"])) : isSimpleImage.value ? (openBlock(), createElementBlock("span", _hoisted_2, "∅")) : (openBlock(), createElementBlock("span", _hoisted_3, "∅"))
           ])
         ], 6)) : createCommentVNode("", true),
         showDescription.value ? (openBlock(), createElementBlock("div", {
@@ -88,7 +112,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           style: normalizeStyle(descriptionStyle.value)
         }, [
           renderSlot(_ctx.$slots, "description", {}, () => [
-            createTextVNode(toDisplayString(resolvedDescription.value), 1)
+            hasDescriptionProp.value ? (openBlock(), createBlock(unref(AEmptyRenderNode), {
+              key: 0,
+              node: _ctx.description
+            }, null, 8, ["node"])) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+              createTextVNode(toDisplayString(fallbackDescription.value), 1)
+            ], 64))
           ])
         ], 6)) : createCommentVNode("", true),
         _ctx.$slots.default ? (openBlock(), createElementBlock("div", {

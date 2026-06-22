@@ -6,7 +6,12 @@ const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["src"];
 const _hoisted_2 = {
-  key: 1,
+  key: 2,
+  class: "aheart-empty__simple-image",
+  "aria-hidden": "true"
+};
+const _hoisted_3 = {
+  key: 3,
   class: "aheart-empty__default-image",
   "aria-hidden": "true"
 };
@@ -20,16 +25,32 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const config = context.useAheartConfig();
     const slots = vue.useSlots();
-    const imageUrl = vue.computed(() => typeof props.image === "string" && props.image ? props.image : void 0);
+    const AEmptyRenderNode = vue.defineComponent({
+      name: "AEmptyRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const isPresetImage = (value) => {
+      return value === types.EMPTY_PRESENTED_IMAGE_DEFAULT || value === types.EMPTY_PRESENTED_IMAGE_SIMPLE;
+    };
+    const imageUrl = vue.computed(() => {
+      return typeof props.image === "string" && props.image && !isPresetImage(props.image) ? props.image : void 0;
+    });
     const showImage = vue.computed(() => Boolean(slots.image) || props.image !== false);
-    const resolvedDescription = vue.computed(() => {
+    const isSimpleImage = vue.computed(() => props.image === types.EMPTY_PRESENTED_IMAGE_SIMPLE);
+    const hasCustomImageNode = vue.computed(() => {
+      return props.image !== void 0 && props.image !== false && !imageUrl.value && !isPresetImage(props.image);
+    });
+    const hasDescriptionProp = vue.computed(() => props.description !== void 0 && props.description !== false);
+    const fallbackDescription = vue.computed(() => {
       var _a, _b;
-      if (props.description === false) {
-        return "";
-      }
-      if (typeof props.description === "string") {
-        return props.description;
-      }
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) || "No Data";
     });
     const showDescription = vue.computed(() => Boolean(slots.description) || props.description !== false);
@@ -81,7 +102,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               class: "aheart-empty__image-element",
               src: imageUrl.value,
               alt: ""
-            }, null, 8, _hoisted_1)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, "∅"))
+            }, null, 8, _hoisted_1)) : hasCustomImageNode.value ? (vue.openBlock(), vue.createBlock(vue.unref(AEmptyRenderNode), {
+              key: 1,
+              node: _ctx.image
+            }, null, 8, ["node"])) : isSimpleImage.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, "∅")) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, "∅"))
           ])
         ], 6)) : vue.createCommentVNode("", true),
         showDescription.value ? (vue.openBlock(), vue.createElementBlock("div", {
@@ -90,7 +114,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           style: vue.normalizeStyle(descriptionStyle.value)
         }, [
           vue.renderSlot(_ctx.$slots, "description", {}, () => [
-            vue.createTextVNode(vue.toDisplayString(resolvedDescription.value), 1)
+            hasDescriptionProp.value ? (vue.openBlock(), vue.createBlock(vue.unref(AEmptyRenderNode), {
+              key: 0,
+              node: _ctx.description
+            }, null, 8, ["node"])) : (vue.openBlock(), vue.createElementBlock(vue.Fragment, { key: 1 }, [
+              vue.createTextVNode(vue.toDisplayString(fallbackDescription.value), 1)
+            ], 64))
           ])
         ], 6)) : vue.createCommentVNode("", true),
         _ctx.$slots.default ? (vue.openBlock(), vue.createElementBlock("div", {

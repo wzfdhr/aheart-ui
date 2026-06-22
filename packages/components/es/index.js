@@ -10,6 +10,7 @@ import Divider from "./divider/index.js";
 import Drawer from "./drawer/index.js";
 import Dropdown from "./dropdown/index.js";
 import Empty from "./empty/index.js";
+import { PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE } from "./empty/index.js";
 import Flex from "./flex/index.js";
 import Form, { FormItem } from "./form/index.js";
 import Grid from "./grid/index.js";
@@ -122,6 +123,8 @@ export {
   Menu,
   Message,
   Modal,
+  PRESENTED_IMAGE_DEFAULT,
+  PRESENTED_IMAGE_SIMPLE,
   Pagination,
   Paragraph,
   Popconfirm,

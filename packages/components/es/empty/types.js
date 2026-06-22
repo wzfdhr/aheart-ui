@@ -1,10 +1,13 @@
+const EMPTY_PRESENTED_IMAGE_DEFAULT = "__AHEART_EMPTY_PRESENTED_IMAGE_DEFAULT__";
+const EMPTY_PRESENTED_IMAGE_SIMPLE = "__AHEART_EMPTY_PRESENTED_IMAGE_SIMPLE__";
+const renderableProp = [String, Number, Boolean, Object, Array, Function];
 const emptyProps = {
   description: {
-    type: [String, Boolean],
+    type: renderableProp,
     default: void 0
   },
   image: {
-    type: [String, Boolean],
+    type: renderableProp,
     default: void 0
   },
   imageStyle: [String, Object, Array],
@@ -15,5 +18,7 @@ const emptyProps = {
   styles: Object
 };
 export {
+  EMPTY_PRESENTED_IMAGE_DEFAULT,
+  EMPTY_PRESENTED_IMAGE_SIMPLE,
   emptyProps
 };

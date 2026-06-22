@@ -1978,6 +1978,18 @@ kbd.aheart-typography-text {
   background: var(--aheart-color-fill);
 }
 
+.aheart-empty__simple-image {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 32px;
+  border: 1px dashed var(--aheart-color-border);
+  border-radius: var(--aheart-radius-sm);
+  background: transparent;
+  font-size: 28px;
+}
+
 .aheart-empty__image-element {
   display: block;
   max-width: 100%;
