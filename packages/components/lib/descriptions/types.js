@@ -13,6 +13,23 @@ const descriptionsProps = {
     type: String,
     default: "horizontal"
   },
-  size: String
+  size: String,
+  colon: {
+    type: Boolean,
+    default: true
+  },
+  labelStyle: [String, Object, Array],
+  contentStyle: [String, Object, Array],
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: {
+    type: Object,
+    default: () => ({})
+  },
+  styles: {
+    type: Object,
+    default: () => ({})
+  }
 };
 exports.descriptionsProps = descriptionsProps;
