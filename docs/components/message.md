@@ -51,6 +51,44 @@ message.loading({ key: 'upload', content: 'Uploading', duration: 0 })
 message.success({ key: 'upload', content: 'Uploaded', duration: 2 })
 ```
 
+## 自定义样式和图标
+
+<div class="aheart-demo-panel">
+  <AButton
+    @click="
+      message.info({
+        content: 'Styled message',
+        icon: '★',
+        className: 'demo-message',
+        style: { minWidth: '220px' },
+        duration: 2
+      })
+    "
+  >
+    Custom message
+  </AButton>
+</div>
+
+```ts
+message.info({
+  content: 'Styled message',
+  icon: '★',
+  className: 'demo-message',
+  style: { minWidth: '220px' },
+  duration: 2
+})
+```
+
+## Promise 接口
+
+```ts
+message
+  .loading('Saving', 1)
+  .then(() => {
+    message.success('Saved')
+  })
+```
+
 ## 全局配置
 
 <div class="aheart-demo-panel">
@@ -71,21 +109,41 @@ message.config({ top: 32, maxCount: 1 })
 message.info('Only one message')
 ```
 
+## 自定义容器
+
+```ts
+message.config({
+  getContainer: () => document.querySelector('#message-root') as HTMLElement,
+  prefixCls: 'custom-message',
+  rtl: true,
+  pauseOnHover: true
+})
+```
+
 ## AMessage
 
 <div class="aheart-demo-panel" style="position: relative; min-height: 96px;">
   <AMessage
     style="position: absolute;"
+    prefix-cls="demo-message-host"
+    :class-names="{ notice: 'demo-message-notice' }"
+    :styles="{ root: { top: '12px' } }"
     :notices="[
-      { key: 'saved', type: 'success', content: 'Saved' },
-      { key: 'warning', type: 'warning', content: 'Check settings' }
+      { key: 'saved', type: 'success', content: 'Saved', icon: '✓' },
+      { key: 'warning', type: 'warning', content: 'Check settings', className: 'demo-warning' }
     ]"
   />
 </div>
 
 ```vue
 <template>
-  <AMessage :notices="notices" @close="removeNotice" />
+  <AMessage
+    prefix-cls="demo-message-host"
+    :class-names="{ notice: 'demo-message-notice' }"
+    :styles="{ root: { top: '12px' } }"
+    :notices="notices"
+    @close="removeNotice"
+  />
 </template>
 ```
 
@@ -100,17 +158,46 @@ message.info('Only one message')
 | message.error | 打开错误提示 |
 | message.loading | 打开加载提示 |
 | message.destroy | 关闭某条或全部提示 |
-| message.config | 设置全局 top、duration、maxCount |
+| message.config | 设置全局 top、duration、maxCount、getContainer、prefixCls、rtl、pauseOnHover |
+
+所有打开提示的方法都会返回 `MessageHandle`，可调用 `close()` 主动关闭，也可通过 `.then()` 在关闭后继续执行。
+
+### MessageHandle
+
+| 字段 | 说明 | 类型 |
+| --- | --- | --- |
+| key | 提示唯一标识 | `string \| number` |
+| close | 主动关闭当前提示 | `() => void` |
+| then | 关闭后的 thenable 接口 | `Promise<void>['then']` |
 
 ### MessageOpenConfig
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| key | 唯一标识，相同 key 会更新同一条提示 | `string` | 自动生成 |
+| key | 唯一标识，相同 key 会更新同一条提示 | `string \| number` | 自动生成 |
 | type | 提示类型 | `success` \| `info` \| `warning` \| `error` \| `loading` | `info` |
-| content | 提示内容 | `string` | - |
+| content | 提示内容 | `VNodeChild` | - |
 | duration | 自动关闭时间，单位秒；`0` 表示不自动关闭 | `number` | `3` |
+| className | 提示节点类名 | `string` | - |
+| style | 提示节点样式 | `StyleValue` | - |
+| icon | 自定义图标 | `VNodeChild` | - |
+| onClick | 点击提示回调 | `() => void` | - |
 | onClose | 关闭回调 | `() => void` | - |
+| pauseOnHover | 鼠标悬停时暂停关闭计时 | `boolean` | 全局配置 |
+| classNames | 语义化 DOM 类名 | `MessageClassNames` | - |
+| styles | 语义化 DOM 样式 | `MessageStyles` | - |
+
+### MessageGlobalConfig
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| top | 顶部偏移 | `number \| string` | `8` |
+| duration | 默认自动关闭时间，单位秒 | `number` | `3` |
+| maxCount | 最大显示数量 | `number` | - |
+| getContainer | 自定义挂载容器 | `() => HTMLElement` | `document.body` |
+| prefixCls | 自定义类名前缀 | `string` | - |
+| rtl | 是否启用 RTL 类名状态 | `boolean` | `false` |
+| pauseOnHover | 是否默认悬停暂停关闭计时 | `boolean` | `false` |
 
 ## AMessage API
 
@@ -118,12 +205,28 @@ message.info('Only one message')
 | --- | --- | --- | --- |
 | notices | 提示列表 | `MessageNotice[]` | `[]` |
 | top | 顶部偏移 | `number` \| `string` | `8` |
+| prefixCls | 自定义类名前缀 | `string` | - |
+| rtl | 是否启用 RTL 类名状态 | `boolean` | `false` |
+| classNames | 语义化 DOM 类名 | `MessageClassNames` | `{}` |
+| styles | 语义化 DOM 样式 | `MessageStyles` | `{}` |
 
 ## Events
 
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| close | 点击关闭按钮时触发 | `(key: string) => void` |
+| close | 点击关闭按钮时触发 | `(key: string \| number) => void` |
+| noticeMouseEnter | 鼠标进入提示时触发 | `(key: string \| number) => void` |
+| noticeMouseLeave | 鼠标离开提示时触发 | `(key: string \| number) => void` |
+
+## Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 消息宿主根节点 |
+| notice | 单条提示节点 |
+| icon | 图标节点 |
+| content | 内容节点 |
+| close | 关闭按钮 |
 
 ## Theme Tokens
 
