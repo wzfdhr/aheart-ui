@@ -1,0 +1,27 @@
+.aheart-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--aheart-icon-size, 1em);
+  height: var(--aheart-icon-size, 1em);
+  color: var(--aheart-icon-color, currentColor);
+  font-size: var(--aheart-icon-size, 1em);
+  line-height: 1;
+  vertical-align: -0.125em;
+}
+
+.aheart-icon svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
+.aheart-icon--spin {
+  animation: aheart-icon-spin 1s linear infinite;
+}
+
+@keyframes aheart-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
