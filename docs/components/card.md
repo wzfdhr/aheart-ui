@@ -68,6 +68,94 @@ Card groups related content in a bordered container with optional header, cover,
 </template>
 ```
 
+## 变体与内嵌卡片
+
+<div class="aheart-demo-panel">
+  <div style="display: grid; gap: 12px;">
+    <ACard title="Outlined" variant="outlined">
+      Default outlined card.
+    </ACard>
+    <ACard title="Borderless" variant="borderless">
+      Borderless card.
+    </ACard>
+    <ACard title="Parent">
+      <ACard title="Inner" type="inner" size="small">
+        Nested content.
+      </ACard>
+    </ACard>
+  </div>
+</div>
+
+```vue
+<template>
+  <ACard title="Outlined" variant="outlined">
+    Default outlined card.
+  </ACard>
+  <ACard title="Borderless" variant="borderless">
+    Borderless card.
+  </ACard>
+  <ACard title="Parent">
+    <ACard title="Inner" type="inner" size="small">
+      Nested content.
+    </ACard>
+  </ACard>
+</template>
+```
+
+## 操作项
+
+<div class="aheart-demo-panel">
+  <ACard title="Ticket" :actions="['Assign', 'Close']">
+    A simple card with action items.
+  </ACard>
+</div>
+
+```vue
+<template>
+  <ACard title="Ticket" :actions="['Assign', 'Close']">
+    A simple card with action items.
+  </ACard>
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <ACard
+    title="Styled Card"
+    extra="More"
+    :actions="['Open']"
+    class-name="demo-card-class"
+    root-class-name="demo-card-root"
+    :style="{ maxWidth: '360px' }"
+    :head-style="{ background: 'var(--aheart-color-fill)' }"
+    :body-style="{ minHeight: '72px' }"
+    :class-names="{ root: 'demo-card-semantic-root', header: 'demo-card-header', body: 'demo-card-body', actions: 'demo-card-actions' }"
+    :styles="{ title: { color: 'var(--aheart-color-primary)' }, actions: { justifyContent: 'flex-start' } }"
+  >
+    Semantic hooks can target the Card structure.
+  </ACard>
+</div>
+
+```vue
+<template>
+  <ACard
+    title="Styled Card"
+    extra="More"
+    :actions="['Open']"
+    class-name="demo-card-class"
+    root-class-name="demo-card-root"
+    :style="{ maxWidth: '360px' }"
+    :head-style="{ background: 'var(--aheart-color-fill)' }"
+    :body-style="{ minHeight: '72px' }"
+    :class-names="{ root: 'demo-card-semantic-root', header: 'demo-card-header', body: 'demo-card-body', actions: 'demo-card-actions' }"
+    :styles="{ title: { color: 'var(--aheart-color-primary)' }, actions: { justifyContent: 'flex-start' } }"
+  >
+    Semantic hooks can target the Card structure.
+  </ACard>
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -75,9 +163,19 @@ Card groups related content in a bordered container with optional header, cover,
 | title | 卡片标题 | `string` | - |
 | extra | 右侧额外内容 | `string` | - |
 | bordered | 是否显示边框 | `boolean` | `true` |
+| variant | 卡片变体，优先于 `bordered` | `outlined` \| `borderless` | - |
+| type | 卡片类型 | `inner` | - |
 | hoverable | 是否有 hover 阴影 | `boolean` | `false` |
 | loading | 是否显示加载占位 | `boolean` | `false` |
 | size | 卡片尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
+| actions | 底部操作项，`actions` 插槽优先 | `(string \| number)[]` | - |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| headStyle | 头部样式兼容属性 | `StyleValue` | - |
+| bodyStyle | 内容区样式兼容属性 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', StyleValue>>` | - |
 
 ## Slots
 
