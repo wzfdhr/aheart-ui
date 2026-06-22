@@ -2,6 +2,21 @@
 
 Descriptions displays record details as label and content pairs.
 
+<script setup>
+import { h } from 'vue'
+
+const renderableDescriptionItems = [
+  {
+    label: h('span', { style: { color: 'var(--aheart-color-primary)' } }, 'Owner'),
+    content: h('strong', 'Design System')
+  },
+  {
+    label: 'Status',
+    children: h('span', { style: { fontWeight: 600 } }, 'Renderable')
+  }
+]
+</script>
+
 ## 基础用法
 
 <div class="aheart-demo-panel">
@@ -27,6 +42,47 @@ Descriptions displays record details as label and content pairs.
       { label: 'Status', content: 'Active' }
     ]"
   />
+</template>
+```
+
+## 可渲染内容
+
+<div class="aheart-demo-panel">
+  <ADescriptions :items="renderableDescriptionItems">
+    <template #title>
+      <span>Profile <AIcon name="info" /></span>
+    </template>
+    <template #extra>
+      <AButton size="small">Refresh</AButton>
+    </template>
+  </ADescriptions>
+</div>
+
+```vue
+<script setup>
+import { h } from 'vue'
+
+const renderableDescriptionItems = [
+  {
+    label: h('span', { style: { color: 'var(--aheart-color-primary)' } }, 'Owner'),
+    content: h('strong', 'Design System')
+  },
+  {
+    label: 'Status',
+    children: h('span', { style: { fontWeight: 600 } }, 'Renderable')
+  }
+]
+</script>
+
+<template>
+  <ADescriptions :items="renderableDescriptionItems">
+    <template #title>
+      <span>Profile <AIcon name="info" /></span>
+    </template>
+    <template #extra>
+      <AButton size="small">Refresh</AButton>
+    </template>
+  </ADescriptions>
 </template>
 ```
 
@@ -158,8 +214,8 @@ Descriptions displays record details as label and content pairs.
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| title | 标题 | `string` | - |
-| extra | 右侧额外内容 | `string` | - |
+| title | 标题，`title` 插槽优先 | `VNodeChild` | - |
+| extra | 右侧额外内容，`extra` 插槽优先 | `VNodeChild` | - |
 | items | 描述项 | `DescriptionItem[]` | `[]` |
 | bordered | 是否显示边框 | `boolean` | `false` |
 | column | 每行列数 | `number` | `3` |
@@ -179,14 +235,21 @@ Descriptions displays record details as label and content pairs.
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | key | 描述项 key | `string` \| `number` | `label + index` |
-| label | 标签 | `string` | - |
-| content | 内容 | `string` \| `number` | - |
-| children | 内容备用字段 | `string` \| `number` | - |
+| label | 标签 | `VNodeChild` | - |
+| content | 内容，优先于 `children` | `VNodeChild` | - |
+| children | 内容备用字段 | `VNodeChild` | - |
 | span | 占用列数，`filled` 会填满当前行剩余列 | `number` \| `filled` | `1` |
 | className | 描述项类名 | `string` | - |
 | style | 描述项样式 | `StyleValue` | - |
 | labelStyle | 当前项标签样式 | `StyleValue` | - |
 | contentStyle | 当前项内容样式 | `StyleValue` | - |
+
+## Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| title | 自定义标题，优先于 `title` 属性 |
+| extra | 自定义额外内容，优先于 `extra` 属性 |
 
 ### Semantic DOM
 
