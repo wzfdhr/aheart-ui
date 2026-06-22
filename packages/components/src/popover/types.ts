@@ -1,10 +1,19 @@
-import type { ExtractPropTypes, PropType } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
 import {
   floatingPlacements,
   isFloatingTriggerProp,
   type FloatingPlacement,
   type FloatingTriggerProp
 } from '../utils/floating'
+
+export interface PopoverArrowConfig {
+  pointAtCenter?: boolean
+}
+
+export type PopoverArrow = boolean | PopoverArrowConfig
+export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow'
+export type PopoverClassNames = Partial<Record<PopoverSemanticPart, string>>
+export type PopoverStyles = Partial<Record<PopoverSemanticPart, StyleValue>>
 
 export const popoverProps = {
   title: String,
@@ -25,11 +34,29 @@ export const popoverProps = {
   },
   defaultOpen: Boolean,
   color: String,
+  mouseEnterDelay: {
+    type: Number,
+    default: 0.1
+  },
+  mouseLeaveDelay: {
+    type: Number,
+    default: 0.1
+  },
+  destroyOnHidden: Boolean,
+  fresh: Boolean,
   arrow: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<PopoverArrow>,
     default: true
   },
-  zIndex: Number
+  zIndex: Number,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  overlayClassName: String,
+  overlayStyle: [String, Object, Array] as PropType<StyleValue>,
+  overlayInnerStyle: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<PopoverClassNames>,
+  styles: Object as PropType<PopoverStyles>
 } as const
 
 export const popoverEmits = {

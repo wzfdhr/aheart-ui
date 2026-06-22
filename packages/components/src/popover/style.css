@@ -25,6 +25,12 @@
   color: var(--aheart-color-text);
 }
 
+.aheart-popover__container {
+  display: inline-flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
 .aheart-popover__title {
   padding: 8px 12px;
   border-bottom: 1px solid var(--aheart-color-border);
@@ -39,4 +45,8 @@
 .aheart-popover__arrow {
   border-right: 1px solid var(--aheart-color-border);
   border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-popover__arrow--point-at-center {
+  transform: rotate(45deg) scale(1.05);
 }
