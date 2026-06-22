@@ -77,6 +77,90 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 </template>
 ```
 
+## 图标、附加内容与标题
+
+<div class="aheart-demo-panel">
+  <AMenu
+    :items="[
+      { key: 'dashboard', icon: 'D', label: 'Dashboard', extra: 'New', title: 'Open dashboard' },
+      { key: 'command', icon: 'K', label: 'Command palette', extra: 'Ctrl K' },
+      { type: 'divider', key: 'split', dashed: true },
+      { key: 'danger', label: 'Delete workspace', danger: true }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <AMenu
+    :items="[
+      { key: 'dashboard', icon: 'D', label: 'Dashboard', extra: 'New', title: 'Open dashboard' },
+      { key: 'command', icon: 'K', label: 'Command palette', extra: 'Ctrl K' },
+      { type: 'divider', key: 'split', dashed: true },
+      { key: 'danger', label: 'Delete workspace', danger: true }
+    ]"
+  />
+</template>
+```
+
+## 子菜单渲染与触发
+
+<div class="aheart-demo-panel">
+  <AMenu
+    force-sub-menu-render
+    trigger-sub-menu-action="hover"
+    expand-icon="+"
+    :inline-indent="32"
+    :items="[
+      {
+        key: 'workspace',
+        label: 'Workspace',
+        children: [
+          { key: 'projects', label: 'Projects' },
+          { key: 'reports', label: 'Reports' }
+        ]
+      }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <AMenu
+    force-sub-menu-render
+    trigger-sub-menu-action="hover"
+    expand-icon="+"
+    :inline-indent="32"
+    :items="items"
+  />
+</template>
+```
+
+## 语义样式
+
+<div class="aheart-demo-panel">
+  <AMenu
+    class-name="docs-menu"
+    :class-names="{ root: 'docs-menu-root', itemButton: 'docs-menu-button', extra: 'docs-menu-extra' }"
+    :styles="{ root: { maxWidth: '320px' }, itemButton: { borderRadius: '8px' } }"
+    :items="[
+      { key: 'inbox', label: 'Inbox', extra: '12' },
+      { key: 'archive', label: 'Archive' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <AMenu
+    class-name="docs-menu"
+    :class-names="{ root: 'docs-menu-root', itemButton: 'docs-menu-button' }"
+    :styles="{ root: { maxWidth: '320px' }, itemButton: { borderRadius: '8px' } }"
+    :items="items"
+  />
+</template>
+```
+
 ## 多选与禁用
 
 <div class="aheart-demo-panel">
@@ -115,6 +199,14 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 | multiple | 是否多选 | `boolean` | `false` |
 | selectable | 是否允许选择 | `boolean` | `true` |
 | inlineCollapsed | 是否折叠 inline 菜单 | `boolean` | `false` |
+| inlineIndent | inline 层级缩进宽度 | `number` | `24` |
+| forceSubMenuRender | 是否始终渲染子菜单 DOM | `boolean` | `false` |
+| triggerSubMenuAction | 子菜单触发方式 | `hover` \| `click` | `click` |
+| expandIcon | 自定义子菜单展开图标 | `VNodeChild` \| `(info) => VNodeChild` | - |
+| className | 根节点附加类名 | `string` | - |
+| style | 根节点附加样式 | `StyleValue` | - |
+| classNames | 语义 DOM 类名 | `MenuClassNames` | `{}` |
+| styles | 语义 DOM 样式 | `MenuStyles` | `{}` |
 | disabled | 是否禁用交互 | `boolean` | ConfigProvider disabled |
 
 ### MenuItem
@@ -122,11 +214,34 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | key | 唯一标识 | `string` | - |
-| label | 菜单文本 | `string` | - |
+| label | 菜单内容 | `VNodeChild` | - |
+| icon | 前置图标 | `VNodeChild` | - |
+| extra | 右侧附加内容 | `VNodeChild` | - |
+| title | 交互节点标题提示 | `string` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
 | danger | 是否危险项 | `boolean` | `false` |
+| dashed | divider 是否为虚线 | `boolean` | `false` |
 | type | 节点类型 | `item` \| `group` \| `divider` | `item` |
 | children | 子菜单或分组项 | `MenuItem[]` | - |
+
+### Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 根导航容器 |
+| list | 根菜单列表 |
+| item | 普通菜单项容器 |
+| itemButton | 普通菜单项按钮 |
+| submenu | 子菜单容器 |
+| submenuTitle | 子菜单标题按钮 |
+| submenuList | 子菜单列表 |
+| group | 分组容器 |
+| groupTitle | 分组标题 |
+| divider | 分割线 |
+| icon | 图标区域 |
+| label | 文本区域 |
+| extra | 附加内容区域 |
+| expandIcon | 展开图标区域 |
 
 ## Events
 
