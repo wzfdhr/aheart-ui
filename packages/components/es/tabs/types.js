@@ -7,11 +7,27 @@ const tabsProps = {
     default: "line"
   },
   size: String,
-  centered: Boolean
+  centered: Boolean,
+  tabPlacement: String,
+  tabPosition: String,
+  tabBarExtraContent: [String, Object],
+  tabBarGutter: Number,
+  tabBarStyle: [String, Object, Array],
+  indicator: Object,
+  animated: {
+    type: [Boolean, Object],
+    default: false
+  },
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const tabsEmits = {
   "update:activeKey": (key) => typeof key === "string",
-  change: (key) => typeof key === "string"
+  change: (key) => typeof key === "string",
+  tabClick: (key, event) => typeof key === "string" && event instanceof MouseEvent
 };
 export {
   tabsEmits,

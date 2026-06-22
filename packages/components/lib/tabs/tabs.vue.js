@@ -4,12 +4,8 @@ const vue = require("vue");
 const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = {
-  class: "aheart-tabs__nav",
-  role: "tablist"
-};
-const _hoisted_2 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick"];
-const _hoisted_3 = ["id", "aria-labelledby"];
+const _hoisted_1 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick"];
+const _hoisted_2 = ["id", "aria-labelledby"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ATabs"
@@ -34,13 +30,104 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const activeItem = vue.computed(() => normalizedItems.value.find((item) => item.key === mergedActiveKey.value));
     const activeSlotName = vue.computed(() => activeItem.value ? `tab-${activeItem.value.key}` : void 0);
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
-    const tabsClass = vue.computed(() => [
-      `aheart-tabs--${props.type}`,
-      `aheart-tabs--${resolvedSize.value}`,
-      {
-        "is-centered": props.centered
+    const positionPlacementMap = {
+      left: "start",
+      right: "end",
+      top: "top",
+      bottom: "bottom"
+    };
+    const resolvedPlacement = vue.computed(() => props.tabPlacement ?? (props.tabPosition ? positionPlacementMap[props.tabPosition] : "top"));
+    const animatedInkBar = vue.computed(() => typeof props.animated === "object" ? props.animated.inkBar === true : props.animated);
+    const animatedTabPane = vue.computed(() => typeof props.animated === "object" ? props.animated.tabPane === true : props.animated);
+    const extraContentConfig = vue.computed(() => {
+      if (typeof props.tabBarExtraContent === "string") {
+        return { right: props.tabBarExtraContent };
       }
-    ]);
+      return props.tabBarExtraContent ?? {};
+    });
+    const leftExtraContent = vue.computed(() => extraContentConfig.value.left);
+    const rightExtraContent = vue.computed(() => extraContentConfig.value.right);
+    const hasLeftExtra = vue.computed(() => Boolean(leftExtraContent.value));
+    const hasRightExtra = vue.computed(() => Boolean(rightExtraContent.value));
+    const tabsClass = vue.computed(() => {
+      var _a;
+      return [
+        `aheart-tabs--${props.type}`,
+        `aheart-tabs--${resolvedSize.value}`,
+        `aheart-tabs--placement-${resolvedPlacement.value}`,
+        props.className,
+        props.rootClassName,
+        (_a = props.classNames) == null ? void 0 : _a.root,
+        {
+          "is-centered": props.centered,
+          "is-ink-bar-animated": animatedInkBar.value,
+          "is-tab-pane-animated": animatedTabPane.value
+        }
+      ];
+    });
+    const rootStyle = vue.computed(() => {
+      var _a;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const navClass = vue.computed(() => {
+      var _a;
+      return ["aheart-tabs__nav", (_a = props.classNames) == null ? void 0 : _a.nav];
+    });
+    const navStyle = vue.computed(() => {
+      var _a;
+      return [props.tabBarStyle, (_a = props.styles) == null ? void 0 : _a.nav];
+    });
+    const navListClass = vue.computed(() => {
+      var _a;
+      return ["aheart-tabs__nav-list", (_a = props.classNames) == null ? void 0 : _a.navList];
+    });
+    const navListStyle = vue.computed(() => {
+      var _a;
+      return [
+        props.tabBarGutter !== void 0 ? { "--aheart-tabs-gutter": `${props.tabBarGutter}px` } : void 0,
+        (_a = props.styles) == null ? void 0 : _a.navList
+      ];
+    });
+    const tabIconClass = vue.computed(() => {
+      var _a;
+      return ["aheart-tabs__tab-icon", (_a = props.classNames) == null ? void 0 : _a.tabIcon];
+    });
+    const tabIconStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.tabIcon;
+    });
+    const tabLabelClass = vue.computed(() => {
+      var _a;
+      return ["aheart-tabs__tab-label", (_a = props.classNames) == null ? void 0 : _a.tabLabel];
+    });
+    const tabLabelStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.tabLabel;
+    });
+    const panelClass = vue.computed(() => {
+      var _a;
+      return ["aheart-tabs__panel", (_a = props.classNames) == null ? void 0 : _a.panel];
+    });
+    const panelStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.panel;
+    });
+    const extraLeftClass = vue.computed(() => {
+      var _a, _b;
+      return ["aheart-tabs__extra", "aheart-tabs__extra--left", (_a = props.classNames) == null ? void 0 : _a.extra, (_b = props.classNames) == null ? void 0 : _b.extraLeft];
+    });
+    const extraLeftStyle = vue.computed(() => {
+      var _a, _b;
+      return [(_a = props.styles) == null ? void 0 : _a.extra, (_b = props.styles) == null ? void 0 : _b.extraLeft];
+    });
+    const extraRightClass = vue.computed(() => {
+      var _a, _b;
+      return ["aheart-tabs__extra", "aheart-tabs__extra--right", (_a = props.classNames) == null ? void 0 : _a.extra, (_b = props.classNames) == null ? void 0 : _b.extraRight];
+    });
+    const extraRightStyle = vue.computed(() => {
+      var _a, _b;
+      return [(_a = props.styles) == null ? void 0 : _a.extra, (_b = props.styles) == null ? void 0 : _b.extraRight];
+    });
     vue.watch(
       () => props.items,
       () => {
@@ -52,8 +139,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     );
     const getTabId = (key) => `aheart-tab-${key}`;
     const getPanelId = (key) => `aheart-tab-panel-${key}`;
-    const handleTabClick = (item) => {
-      if (item.disabled || item.key === mergedActiveKey.value) {
+    const getTabClass = (item) => {
+      var _a, _b, _c, _d;
+      return [
+        (_a = props.classNames) == null ? void 0 : _a.tab,
+        ((_b = props.indicator) == null ? void 0 : _b.align) ? `aheart-tabs__tab--indicator-${props.indicator.align}` : void 0,
+        {
+          "is-active": item.key === mergedActiveKey.value,
+          [String((_c = props.classNames) == null ? void 0 : _c.activeTab)]: item.key === mergedActiveKey.value && ((_d = props.classNames) == null ? void 0 : _d.activeTab)
+        }
+      ];
+    };
+    const getTabStyle = (item) => {
+      var _a, _b, _c;
+      return [
+        ((_a = props.indicator) == null ? void 0 : _a.size) !== void 0 ? { "--aheart-tabs-indicator-size": `${props.indicator.size}px` } : void 0,
+        (_b = props.styles) == null ? void 0 : _b.tab,
+        item.key === mergedActiveKey.value ? (_c = props.styles) == null ? void 0 : _c.activeTab : void 0
+      ];
+    };
+    const handleTabClick = (item, event) => {
+      if (item.disabled) {
+        return;
+      }
+      emit("tabClick", item.key, event);
+      if (item.key === mergedActiveKey.value) {
         return;
       }
       if (!isControlled.value) {
@@ -64,36 +174,77 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
-        class: vue.normalizeClass(["aheart-tabs", tabsClass.value])
+        class: vue.normalizeClass(["aheart-tabs", tabsClass.value]),
+        style: vue.normalizeStyle(rootStyle.value)
       }, [
-        vue.createElementVNode("div", _hoisted_1, [
-          (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedItems.value, (item) => {
-            return vue.openBlock(), vue.createElementBlock("button", {
-              id: getTabId(item.key),
-              key: item.key,
-              class: vue.normalizeClass(["aheart-tabs__tab", { "is-active": item.key === mergedActiveKey.value }]),
-              type: "button",
-              role: "tab",
-              "aria-selected": item.key === mergedActiveKey.value ? "true" : "false",
-              "aria-controls": getPanelId(item.key),
-              disabled: item.disabled,
-              tabindex: item.key === mergedActiveKey.value ? 0 : -1,
-              onClick: ($event) => handleTabClick(item)
-            }, vue.toDisplayString(item.label), 11, _hoisted_2);
-          }), 128))
-        ]),
+        vue.createElementVNode("div", {
+          class: vue.normalizeClass(navClass.value),
+          style: vue.normalizeStyle(navStyle.value)
+        }, [
+          hasLeftExtra.value ? (vue.openBlock(), vue.createElementBlock("span", {
+            key: 0,
+            class: vue.normalizeClass(extraLeftClass.value),
+            style: vue.normalizeStyle(extraLeftStyle.value)
+          }, [
+            vue.renderSlot(_ctx.$slots, "extraLeft", {}, () => [
+              vue.createTextVNode(vue.toDisplayString(leftExtraContent.value), 1)
+            ])
+          ], 6)) : vue.createCommentVNode("", true),
+          vue.createElementVNode("div", {
+            class: vue.normalizeClass(navListClass.value),
+            style: vue.normalizeStyle(navListStyle.value),
+            role: "tablist"
+          }, [
+            (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedItems.value, (item) => {
+              return vue.openBlock(), vue.createElementBlock("button", {
+                id: getTabId(item.key),
+                key: item.key,
+                class: vue.normalizeClass(["aheart-tabs__tab", getTabClass(item)]),
+                style: vue.normalizeStyle(getTabStyle(item)),
+                type: "button",
+                role: "tab",
+                "aria-selected": item.key === mergedActiveKey.value ? "true" : "false",
+                "aria-controls": getPanelId(item.key),
+                disabled: item.disabled,
+                tabindex: item.key === mergedActiveKey.value ? 0 : -1,
+                onClick: ($event) => handleTabClick(item, $event)
+              }, [
+                item.icon ? (vue.openBlock(), vue.createElementBlock("span", {
+                  key: 0,
+                  class: vue.normalizeClass(tabIconClass.value),
+                  style: vue.normalizeStyle(tabIconStyle.value),
+                  "aria-hidden": "true"
+                }, vue.toDisplayString(item.icon), 7)) : vue.createCommentVNode("", true),
+                vue.createElementVNode("span", {
+                  class: vue.normalizeClass(tabLabelClass.value),
+                  style: vue.normalizeStyle(tabLabelStyle.value)
+                }, vue.toDisplayString(item.label), 7)
+              ], 14, _hoisted_1);
+            }), 128))
+          ], 6),
+          hasRightExtra.value ? (vue.openBlock(), vue.createElementBlock("span", {
+            key: 1,
+            class: vue.normalizeClass(extraRightClass.value),
+            style: vue.normalizeStyle(extraRightStyle.value)
+          }, [
+            vue.renderSlot(_ctx.$slots, "extraRight", {}, () => [
+              vue.createTextVNode(vue.toDisplayString(rightExtraContent.value), 1)
+            ])
+          ], 6)) : vue.createCommentVNode("", true)
+        ], 6),
         activeItem.value ? (vue.openBlock(), vue.createElementBlock("div", {
           key: 0,
           id: getPanelId(activeItem.value.key),
-          class: "aheart-tabs__panel",
+          class: vue.normalizeClass(panelClass.value),
+          style: vue.normalizeStyle(panelStyle.value),
           role: "tabpanel",
           "aria-labelledby": getTabId(activeItem.value.key)
         }, [
           activeSlotName.value ? vue.renderSlot(_ctx.$slots, activeSlotName.value, { key: 0 }, () => [
             vue.createTextVNode(vue.toDisplayString(activeItem.value.children), 1)
           ]) : vue.createCommentVNode("", true)
-        ], 8, _hoisted_3)) : vue.createCommentVNode("", true)
-      ], 2);
+        ], 14, _hoisted_2)) : vue.createCommentVNode("", true)
+      ], 6);
     };
   }
 });
