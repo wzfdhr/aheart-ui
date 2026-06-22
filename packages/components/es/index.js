@@ -1,5 +1,6 @@
 import Alert from "./alert/index.js";
 import Badge from "./badge/index.js";
+import Breadcrumb from "./breadcrumb/index.js";
 import Button from "./button/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Divider from "./divider/index.js";
@@ -8,7 +9,9 @@ import Flex from "./flex/index.js";
 import Icon from "./icon/index.js";
 import Space from "./space/index.js";
 import Spin from "./spin/index.js";
+import Steps from "./steps/index.js";
 import Tag from "./tag/index.js";
+import Tabs from "./tabs/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
 import "./theme/index.css.js";
 const components = [
@@ -27,7 +30,10 @@ const components = [
   Badge,
   Alert,
   Spin,
-  Empty
+  Empty,
+  Breadcrumb,
+  Tabs,
+  Steps
 ];
 const AheartUI = {
   install(app) {
@@ -39,6 +45,7 @@ const AheartUI = {
 export {
   Alert,
   Badge,
+  Breadcrumb,
   Button,
   ConfigProvider,
   Divider,
@@ -49,6 +56,8 @@ export {
   Paragraph,
   Space,
   Spin,
+  Steps,
+  Tabs,
   Tag,
   Text,
   Title,
