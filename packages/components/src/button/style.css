@@ -40,12 +40,13 @@
 }
 
 .aheart-button--large {
-  height: 40px;
+  height: var(--aheart-control-height-lg);
   padding: 0 18px;
 }
 
+.aheart-button--middle,
 .aheart-button--normal {
-  height: 32px;
+  height: var(--aheart-control-height);
   padding: 0 14px;
 }
 
@@ -56,9 +57,9 @@
 }
 
 .aheart-button--mini {
-  height: 24px;
+  height: var(--aheart-control-height-sm);
   padding: 0 8px;
-  font-size: 12px;
+  font-size: var(--aheart-font-size-sm);
 }
 
 .aheart-button--primary,
