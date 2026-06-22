@@ -1,15 +1,16 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
 export type InputNumberStatus = 'error' | 'warning';
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined';
 export type InputNumberStepType = 'up' | 'down';
+export type InputNumberRenderable = VNodeChild;
 export interface InputNumberFormatterInfo {
     userTyping: boolean;
     input: string;
 }
 export interface InputNumberControlsConfig {
-    upIcon?: string;
-    downIcon?: string;
+    upIcon?: InputNumberRenderable;
+    downIcon?: InputNumberRenderable;
 }
 export type InputNumberControls = boolean | InputNumberControlsConfig;
 export type InputNumberSemanticPart = 'root' | 'input' | 'prefix' | 'suffix' | 'actions' | 'action';
@@ -23,8 +24,14 @@ export declare const inputNumberProps: {
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
     readonly placeholder: StringConstructor;
-    readonly prefix: StringConstructor;
-    readonly suffix: StringConstructor;
+    readonly prefix: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly suffix: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly size: PropType<AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;

@@ -1,4 +1,4 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, toDisplayString, createCommentVNode, createElementVNode } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
@@ -16,6 +16,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
+    const slots = useSlots();
+    const AInputNumberRenderNode = defineComponent({
+      name: "AInputNumberRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
+    };
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const resolvedVariant = computed(
@@ -34,6 +53,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? "−";
     });
+    const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
+    const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
     const displayValue = computed(() => {
       const input = props.modelValue === void 0 ? "" : String(props.modelValue);
       if (props.formatter) {
@@ -171,11 +192,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["aheart-input-number", inputNumberClass.value]),
         style: normalizeStyle(rootStyle.value)
       }, [
-        _ctx.prefix ? (openBlock(), createElementBlock("span", {
+        hasPrefix.value ? (openBlock(), createElementBlock("span", {
           key: 0,
           class: normalizeClass(prefixClass.value),
           style: normalizeStyle(prefixStyle.value)
-        }, toDisplayString(_ctx.prefix), 7)) : createCommentVNode("", true),
+        }, [
+          renderSlot(_ctx.$slots, "prefix", {}, () => [
+            createVNode(unref(AInputNumberRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
+          ])
+        ], 6)) : createCommentVNode("", true),
         createElementVNode("input", {
           class: normalizeClass(["aheart-input-number__control", controlClass.value]),
           style: normalizeStyle(controlStyle.value),
@@ -193,11 +218,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onKeydown: handleKeydown,
           onWheel: handleWheel
         }, null, 46, _hoisted_1),
-        _ctx.suffix ? (openBlock(), createElementBlock("span", {
+        hasSuffix.value ? (openBlock(), createElementBlock("span", {
           key: 1,
           class: normalizeClass(suffixClass.value),
           style: normalizeStyle(suffixStyle.value)
-        }, toDisplayString(_ctx.suffix), 7)) : createCommentVNode("", true),
+        }, [
+          renderSlot(_ctx.$slots, "suffix", {}, () => [
+            createVNode(unref(AInputNumberRenderNode), { node: _ctx.suffix }, null, 8, ["node"])
+          ])
+        ], 6)) : createCommentVNode("", true),
         showControls.value ? (openBlock(), createElementBlock("span", {
           key: 2,
           class: normalizeClass(actionsClass.value),
@@ -210,7 +239,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "aria-label": "Increase",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[0] || (_cache[0] = ($event) => handleStep(_ctx.step, "up"))
-          }, toDisplayString(increaseIcon.value), 15, _hoisted_2),
+          }, [
+            renderSlot(_ctx.$slots, "increaseIcon", {}, () => [
+              createVNode(unref(AInputNumberRenderNode), { node: increaseIcon.value }, null, 8, ["node"])
+            ])
+          ], 14, _hoisted_2),
           createElementVNode("button", {
             class: normalizeClass(["aheart-input-number__decrease", actionClass.value]),
             style: normalizeStyle(actionStyle.value),
@@ -218,7 +251,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "aria-label": "Decrease",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[1] || (_cache[1] = ($event) => handleStep(-_ctx.step, "down"))
-          }, toDisplayString(decreaseIcon.value), 15, _hoisted_3)
+          }, [
+            renderSlot(_ctx.$slots, "decreaseIcon", {}, () => [
+              createVNode(unref(AInputNumberRenderNode), { node: decreaseIcon.value }, null, 8, ["node"])
+            ])
+          ], 14, _hoisted_3)
         ], 6)) : createCommentVNode("", true)
       ], 6);
     };

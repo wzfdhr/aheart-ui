@@ -1,18 +1,25 @@
-declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
+import type { PropType, VNodeChild } from 'vue';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
     readonly placeholder: StringConstructor;
-    readonly prefix: StringConstructor;
-    readonly suffix: StringConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly prefix: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly suffix: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly size: PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
     readonly readOnly: BooleanConstructor;
-    readonly status: import("vue").PropType<import("./types").InputNumberStatus>;
+    readonly status: PropType<import("./types").InputNumberStatus>;
     readonly variant: {
-        readonly type: import("vue").PropType<import("./types").InputNumberVariant>;
+        readonly type: PropType<import("./types").InputNumberVariant>;
         readonly default: undefined;
     };
     readonly bordered: {
@@ -26,22 +33,22 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
-    readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
-    readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
+    readonly formatter: PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
+    readonly parser: PropType<(displayValue: string) => number | undefined>;
     readonly keyboard: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
     readonly controls: {
-        readonly type: import("vue").PropType<import("./types").InputNumberControls>;
+        readonly type: PropType<import("./types").InputNumberControls>;
         readonly default: true;
     };
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: number | undefined) => void;
     step: (value: number, info: import("./types").InputNumberStepInfo) => void;
@@ -51,17 +58,23 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
     readonly placeholder: StringConstructor;
-    readonly prefix: StringConstructor;
-    readonly suffix: StringConstructor;
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly prefix: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly suffix: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly size: PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
     readonly readOnly: BooleanConstructor;
-    readonly status: import("vue").PropType<import("./types").InputNumberStatus>;
+    readonly status: PropType<import("./types").InputNumberStatus>;
     readonly variant: {
-        readonly type: import("vue").PropType<import("./types").InputNumberVariant>;
+        readonly type: PropType<import("./types").InputNumberVariant>;
         readonly default: undefined;
     };
     readonly bordered: {
@@ -75,22 +88,22 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
-    readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
-    readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
+    readonly formatter: PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
+    readonly parser: PropType<(displayValue: string) => number | undefined>;
     readonly keyboard: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
     readonly controls: {
-        readonly type: import("vue").PropType<import("./types").InputNumberControls>;
+        readonly type: PropType<import("./types").InputNumberControls>;
         readonly default: true;
     };
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((value: number | undefined) => any) | undefined;
     onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
@@ -102,8 +115,20 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly step: number;
     readonly bordered: boolean;
     readonly keyboard: boolean;
+    readonly prefix: VNodeChild;
+    readonly suffix: VNodeChild;
     readonly readOnly: boolean;
     readonly controls: import("./types").InputNumberControls;
     readonly changeOnWheel: boolean;
-}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
+    prefix?(_: {}): any;
+    suffix?(_: {}): any;
+    increaseIcon?(_: {}): any;
+    decreaseIcon?(_: {}): any;
+}>;
 export default _default;
+type __VLS_WithTemplateSlots<T, S> = T & {
+    new (): {
+        $slots: S;
+    };
+};

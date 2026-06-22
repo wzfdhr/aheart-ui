@@ -18,6 +18,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
+    const slots = vue.useSlots();
+    const AInputNumberRenderNode = vue.defineComponent({
+      name: "AInputNumberRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
+    };
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const resolvedVariant = vue.computed(
@@ -36,6 +55,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? "−";
     });
+    const hasPrefix = vue.computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
+    const hasSuffix = vue.computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
     const displayValue = vue.computed(() => {
       const input = props.modelValue === void 0 ? "" : String(props.modelValue);
       if (props.formatter) {
@@ -173,11 +194,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         class: vue.normalizeClass(["aheart-input-number", inputNumberClass.value]),
         style: vue.normalizeStyle(rootStyle.value)
       }, [
-        _ctx.prefix ? (vue.openBlock(), vue.createElementBlock("span", {
+        hasPrefix.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 0,
           class: vue.normalizeClass(prefixClass.value),
           style: vue.normalizeStyle(prefixStyle.value)
-        }, vue.toDisplayString(_ctx.prefix), 7)) : vue.createCommentVNode("", true),
+        }, [
+          vue.renderSlot(_ctx.$slots, "prefix", {}, () => [
+            vue.createVNode(vue.unref(AInputNumberRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
+          ])
+        ], 6)) : vue.createCommentVNode("", true),
         vue.createElementVNode("input", {
           class: vue.normalizeClass(["aheart-input-number__control", controlClass.value]),
           style: vue.normalizeStyle(controlStyle.value),
@@ -195,11 +220,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onKeydown: handleKeydown,
           onWheel: handleWheel
         }, null, 46, _hoisted_1),
-        _ctx.suffix ? (vue.openBlock(), vue.createElementBlock("span", {
+        hasSuffix.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 1,
           class: vue.normalizeClass(suffixClass.value),
           style: vue.normalizeStyle(suffixStyle.value)
-        }, vue.toDisplayString(_ctx.suffix), 7)) : vue.createCommentVNode("", true),
+        }, [
+          vue.renderSlot(_ctx.$slots, "suffix", {}, () => [
+            vue.createVNode(vue.unref(AInputNumberRenderNode), { node: _ctx.suffix }, null, 8, ["node"])
+          ])
+        ], 6)) : vue.createCommentVNode("", true),
         showControls.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 2,
           class: vue.normalizeClass(actionsClass.value),
@@ -212,7 +241,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "aria-label": "Increase",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[0] || (_cache[0] = ($event) => handleStep(_ctx.step, "up"))
-          }, vue.toDisplayString(increaseIcon.value), 15, _hoisted_2),
+          }, [
+            vue.renderSlot(_ctx.$slots, "increaseIcon", {}, () => [
+              vue.createVNode(vue.unref(AInputNumberRenderNode), { node: increaseIcon.value }, null, 8, ["node"])
+            ])
+          ], 14, _hoisted_2),
           vue.createElementVNode("button", {
             class: vue.normalizeClass(["aheart-input-number__decrease", actionClass.value]),
             style: vue.normalizeStyle(actionStyle.value),
@@ -220,7 +253,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "aria-label": "Decrease",
             disabled: isInteractiveDisabled.value,
             onClick: _cache[1] || (_cache[1] = ($event) => handleStep(-_ctx.step, "down"))
-          }, vue.toDisplayString(decreaseIcon.value), 15, _hoisted_3)
+          }, [
+            vue.renderSlot(_ctx.$slots, "decreaseIcon", {}, () => [
+              vue.createVNode(vue.unref(AInputNumberRenderNode), { node: decreaseIcon.value }, null, 8, ["node"])
+            ])
+          ], 14, _hoisted_3)
         ], 6)) : vue.createCommentVNode("", true)
       ], 6);
     };

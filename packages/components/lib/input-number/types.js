@@ -1,11 +1,15 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const renderableProp = {
+  type: null,
+  default: void 0
+};
 const inputNumberProps = {
   id: String,
   modelValue: Number,
   placeholder: String,
-  prefix: String,
-  suffix: String,
+  prefix: renderableProp,
+  suffix: renderableProp,
   size: String,
   disabled: {
     type: Boolean,
