@@ -1,3 +1,11 @@
+<script setup lang="ts">
+import { h, ref } from 'vue'
+
+const switchRef = ref<{ focus: () => void; blur: () => void }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
 # Switch 开关 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Switch toggles a boolean setting with semantic `role="switch"` output.
@@ -69,6 +77,57 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 </template>
 ```
 
+## 渲染节点内容
+
+<div class="aheart-demo-panel">
+  <ASwitch
+    default-checked
+    :checked-children="checkedNode"
+    :un-checked-children="uncheckedNode"
+  />
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
+<template>
+  <ASwitch
+    v-model="checked"
+    :checked-children="checkedNode"
+    :un-checked-children="uncheckedNode"
+  />
+</template>
+```
+
+## 焦点控制
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <ASwitch ref="switchRef" auto-focus />
+    <AButton size="small" @click="switchRef?.focus()">Focus</AButton>
+    <AButton size="small" @click="switchRef?.blur()">Blur</AButton>
+  </ASpace>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const switchRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
+<template>
+  <ASwitch ref="switchRef" auto-focus />
+  <AButton @click="switchRef?.focus()">Focus</AButton>
+  <AButton @click="switchRef?.blur()">Blur</AButton>
+</template>
+```
+
 ## 语义化样式
 
 <div class="aheart-demo-panel">
@@ -125,13 +184,21 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
 | loading | 是否加载中 | `boolean` | `false` |
 | size | 开关尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
-| checkedChildren | 开启时内容 | `string` | - |
-| unCheckedChildren | 关闭时内容 | `string` | - |
+| autoFocus | 是否自动获取焦点 | `boolean` | `false` |
+| checkedChildren | 开启时内容 | `VNodeChild` | - |
+| unCheckedChildren | 关闭时内容 | `VNodeChild` | - |
 | className | 根节点兼容 class | `string` | - |
 | rootClassName | 根节点 class | `string` | - |
 | style | 根节点样式 | `StyleValue` | - |
 | classNames | 语义化结构 class | `Partial<Record<'root' \| 'content' \| 'indicator', string>>` | - |
 | styles | 语义化结构样式 | `Partial<Record<'root' \| 'content' \| 'indicator', StyleValue>>` | - |
+
+## Methods
+
+| 名称 | 说明 |
+| --- | --- |
+| focus() | 聚焦根按钮元素 |
+| blur() | 移除根按钮元素焦点 |
 
 ## Events
 
