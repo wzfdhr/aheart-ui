@@ -1,8 +1,33 @@
-import type { ExtractPropTypes, PropType } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
 import type { AheartSize } from '../config'
 
 export type InputStatus = 'error' | 'warning'
 export type InputVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
+export interface InputCountFormatterInfo {
+  count: number
+  maxLength?: number
+  value: string
+}
+
+export interface InputAllowClearConfig {
+  clearIcon?: string
+}
+
+export interface InputShowCountConfig {
+  formatter?: (info: InputCountFormatterInfo) => string
+}
+
+export interface InputCountConfig {
+  max?: number
+  strategy?: (value: string) => number
+  show?: boolean | ((info: InputCountFormatterInfo) => string)
+}
+
+export type InputAllowClear = boolean | InputAllowClearConfig
+export type InputShowCount = boolean | InputShowCountConfig
+export type InputSemanticPart = 'root' | 'input' | 'prefix' | 'suffix' | 'clear' | 'count'
+export type InputClassNames = Partial<Record<InputSemanticPart, string>>
+export type InputStyles = Partial<Record<InputSemanticPart, StyleValue>>
 
 export const inputProps = {
   id: String,
@@ -27,13 +52,25 @@ export const inputProps = {
     type: Boolean,
     default: undefined
   },
-  allowClear: Boolean,
+  allowClear: {
+    type: [Boolean, Object] as PropType<InputAllowClear>,
+    default: false
+  },
   maxlength: Number,
-  showCount: Boolean,
+  showCount: {
+    type: [Boolean, Object] as PropType<InputShowCount>,
+    default: false
+  },
+  count: Object as PropType<InputCountConfig>,
   type: {
     type: String,
     default: 'text'
-  }
+  },
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<InputClassNames>,
+  styles: Object as PropType<InputStyles>
 } as const
 
 export const inputEmits = {

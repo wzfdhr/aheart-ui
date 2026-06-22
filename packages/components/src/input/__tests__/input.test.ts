@@ -92,4 +92,137 @@ describe('Input', () => {
 
     expect(wrapper.emitted('pressEnter')).toHaveLength(1)
   })
+
+  it('renders custom allowClear icon content', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'Clear me',
+        allowClear: {
+          clearIcon: 'clear'
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-input__clear').text()).toBe('clear')
+  })
+
+  it('lets clearIcon slot override allowClear clearIcon', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'Clear me',
+        allowClear: {
+          clearIcon: 'clear'
+        }
+      },
+      slots: {
+        clearIcon: '<span class="custom-clear">x</span>'
+      }
+    })
+
+    expect(wrapper.find('.custom-clear').exists()).toBe(true)
+    expect(wrapper.find('.aheart-input__clear').text()).toBe('x')
+  })
+
+  it('renders showCount formatter output', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'abc',
+        showCount: {
+          formatter: ({ count, maxLength, value }: { count: number; maxLength?: number; value: string }) =>
+            `${count}:${maxLength}:${value}`
+        },
+        maxlength: 8
+      }
+    })
+
+    expect(wrapper.find('.aheart-input__count').text()).toBe('3:8:abc')
+  })
+
+  it('supports count max, strategy, and show formatter', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'hello',
+        count: {
+          max: 10,
+          strategy: (value: string) => value.split('').filter((char) => char === 'l').length,
+          show: ({ count, maxLength }: { count: number; maxLength?: number }) => `${count} of ${maxLength}`
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-input__count').text()).toBe('2 of 10')
+  })
+
+  it('lets count show false hide count display', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'hidden',
+        showCount: true,
+        count: {
+          show: false
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-input__count').exists()).toBe(false)
+  })
+
+  it('applies root class and style hooks', () => {
+    const wrapper = mount(Input, {
+      props: {
+        className: 'input-class',
+        rootClassName: 'input-root',
+        style: { width: '320px' },
+        classNames: {
+          root: 'semantic-root'
+        },
+        styles: {
+          root: { marginTop: '6px' }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toContain('input-class')
+    expect(wrapper.classes()).toContain('input-root')
+    expect(wrapper.classes()).toContain('semantic-root')
+    expect(wrapper.attributes('style')).toContain('width: 320px')
+    expect(wrapper.attributes('style')).toContain('margin-top: 6px')
+  })
+
+  it('applies semantic class and style hooks to Input parts', () => {
+    const wrapper = mount(Input, {
+      props: {
+        modelValue: 'value',
+        prefix: 'pre',
+        suffix: 'suf',
+        allowClear: true,
+        showCount: true,
+        classNames: {
+          input: 'semantic-input',
+          prefix: 'semantic-prefix',
+          suffix: 'semantic-suffix',
+          clear: 'semantic-clear',
+          count: 'semantic-count'
+        },
+        styles: {
+          input: { color: 'red' },
+          prefix: { color: 'blue' },
+          suffix: { color: 'green' },
+          clear: { color: 'purple' },
+          count: { color: 'orange' }
+        }
+      }
+    })
+
+    expect(wrapper.find('input').classes()).toContain('semantic-input')
+    expect(wrapper.find('input').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-input__prefix').classes()).toContain('semantic-prefix')
+    expect(wrapper.find('.aheart-input__prefix').attributes('style')).toContain('color: blue')
+    expect(wrapper.find('.aheart-input__suffix').classes()).toContain('semantic-suffix')
+    expect(wrapper.find('.aheart-input__suffix').attributes('style')).toContain('color: green')
+    expect(wrapper.find('.aheart-input__clear').classes()).toContain('semantic-clear')
+    expect(wrapper.find('.aheart-input__clear').attributes('style')).toContain('color: purple')
+    expect(wrapper.find('.aheart-input__count').classes()).toContain('semantic-count')
+    expect(wrapper.find('.aheart-input__count').attributes('style')).toContain('color: orange')
+  })
 })
