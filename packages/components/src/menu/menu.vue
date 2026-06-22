@@ -1,6 +1,6 @@
 <template>
-  <nav class="aheart-menu" :class="menuClass" aria-label="menu">
-    <ul role="menu" class="aheart-menu__list">
+  <nav class="aheart-menu" :class="menuClass" :style="rootStyle" aria-label="menu">
+    <ul role="menu" class="aheart-menu__list" :class="classNames.list" :style="styles.list">
       <AMenuNode
         v-for="item in normalizedItems"
         :key="item.key"
@@ -9,8 +9,14 @@
         :open-keys="mergedOpenKeys"
         :disabled="isDisabled"
         :mode="mode"
+        :force-sub-menu-render="forceSubMenuRender"
+        :trigger-sub-menu-action="triggerSubMenuAction"
+        :expand-icon="expandIcon"
+        :class-names="classNames"
+        :styles="styles"
         @item-click="handleItemClick"
         @submenu-toggle="handleSubmenuToggle"
+        @submenu-open-change="handleSubmenuOpenChange"
       />
     </ul>
   </nav>
@@ -44,10 +50,18 @@ const isOpenControlled = computed(() => props.openKeys !== undefined)
 const menuClass = computed(() => [
   `aheart-menu--${props.mode}`,
   `aheart-menu--${props.theme}`,
+  props.className,
+  props.classNames.root,
   {
     'is-disabled': isDisabled.value,
     'is-collapsed': props.inlineCollapsed
   }
+])
+
+const rootStyle = computed(() => [
+  { '--aheart-menu-inline-indent': `${props.inlineIndent}px` },
+  props.style,
+  props.styles.root
 ])
 
 watch(
@@ -107,13 +121,28 @@ const handleItemClick = (info: MenuClickInfo) => {
 }
 
 const handleSubmenuToggle = (key: string) => {
+  setOpenKey(key)
+}
+
+const handleSubmenuOpenChange = ({ key, open }: { key: string; open: boolean }) => {
+  setOpenKey(key, open)
+}
+
+const setOpenKey = (key: string, open?: boolean) => {
   if (isDisabled.value) {
     return
   }
 
-  const nextOpenKeys = mergedOpenKeys.value.includes(key)
-    ? mergedOpenKeys.value.filter((currentKey) => currentKey !== key)
-    : [...mergedOpenKeys.value, key]
+  const isOpen = mergedOpenKeys.value.includes(key)
+  const shouldOpen = open ?? !isOpen
+
+  if (isOpen === shouldOpen) {
+    return
+  }
+
+  const nextOpenKeys = shouldOpen
+    ? [...mergedOpenKeys.value, key]
+    : mergedOpenKeys.value.filter((currentKey) => currentKey !== key)
 
   if (!isOpenControlled.value) {
     innerOpenKeys.value = nextOpenKeys

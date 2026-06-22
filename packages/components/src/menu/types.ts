@@ -1,15 +1,40 @@
-import type { ExtractPropTypes, PropType, VNodeChild } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 
 export type MenuMode = 'vertical' | 'horizontal' | 'inline'
 export type MenuTheme = 'light' | 'dark'
 export type MenuItemType = 'item' | 'group' | 'divider'
+export type MenuTriggerSubMenuAction = 'hover' | 'click'
+export type MenuSemanticPart =
+  | 'root'
+  | 'list'
+  | 'item'
+  | 'itemButton'
+  | 'submenu'
+  | 'submenuTitle'
+  | 'submenuList'
+  | 'group'
+  | 'groupTitle'
+  | 'divider'
+  | 'icon'
+  | 'label'
+  | 'extra'
+  | 'expandIcon'
+
+export type MenuClassNames = Partial<Record<MenuSemanticPart, string>>
+export type MenuStyles = Partial<Record<MenuSemanticPart, StyleValue>>
+export type MenuExpandIcon =
+  | VNodeChild
+  | ((info: { item: MenuItem; isOpen: boolean; disabled: boolean; level: number }) => VNodeChild)
 
 export interface MenuItem {
   key: string
-  label?: string
+  label?: VNodeChild
   icon?: VNodeChild
+  extra?: VNodeChild
+  title?: string
   disabled?: boolean
   danger?: boolean
+  dashed?: boolean
   type?: MenuItemType
   children?: MenuItem[]
 }
@@ -50,6 +75,26 @@ export const menuProps = {
     default: true
   },
   inlineCollapsed: Boolean,
+  inlineIndent: {
+    type: Number,
+    default: 24
+  },
+  forceSubMenuRender: Boolean,
+  triggerSubMenuAction: {
+    type: String as PropType<MenuTriggerSubMenuAction>,
+    default: 'click'
+  },
+  expandIcon: [Function, String, Number, Boolean, Object, Array] as PropType<MenuExpandIcon>,
+  className: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: {
+    type: Object as PropType<MenuClassNames>,
+    default: () => ({})
+  },
+  styles: {
+    type: Object as PropType<MenuStyles>,
+    default: () => ({})
+  },
   disabled: {
     type: Boolean,
     default: undefined

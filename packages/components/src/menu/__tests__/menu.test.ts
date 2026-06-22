@@ -87,4 +87,128 @@ describe('Menu', () => {
     expect(menu.classes()).toContain('is-disabled')
     expect(menu.emitted('click')).toBeUndefined()
   })
+
+  it('applies root and semantic class/style hooks with inline indentation', () => {
+    const wrapper = mount(Menu, {
+      props: {
+        items: [{ key: 'dashboard', label: 'Dashboard' }],
+        inlineIndent: 32,
+        className: 'custom-menu',
+        style: { borderColor: 'red' },
+        classNames: {
+          root: 'semantic-root',
+          list: 'semantic-list',
+          item: 'semantic-item',
+          itemButton: 'semantic-button',
+          label: 'semantic-label'
+        },
+        styles: {
+          root: { marginTop: '4px' },
+          list: { gap: '6px' },
+          itemButton: { minHeight: '36px' }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toEqual(expect.arrayContaining(['custom-menu', 'semantic-root']))
+    expect(wrapper.attributes('style')).toContain('--aheart-menu-inline-indent: 32px')
+    expect(wrapper.attributes('style')).toContain('border-color: red')
+    expect(wrapper.attributes('style')).toContain('margin-top: 4px')
+    expect(wrapper.find('.aheart-menu__list').classes()).toContain('semantic-list')
+    expect(wrapper.find('.aheart-menu__list').attributes('style')).toContain('gap: 6px')
+    expect(wrapper.find('.aheart-menu__item').classes()).toContain('semantic-item')
+    expect(wrapper.find('.aheart-menu__item-button').classes()).toContain('semantic-button')
+    expect(wrapper.find('.aheart-menu__item-button').attributes('style')).toContain('min-height: 36px')
+    expect(wrapper.find('.aheart-menu__label').classes()).toContain('semantic-label')
+  })
+
+  it('renders icon, extra, title, and dashed divider item fields', () => {
+    const wrapper = mount(Menu, {
+      props: {
+        items: [
+          {
+            key: 'command',
+            label: h('span', { class: 'custom-label' }, 'Command'),
+            icon: h('span', { class: 'custom-icon' }, 'I'),
+            extra: h('kbd', { class: 'custom-extra' }, 'Ctrl K'),
+            title: 'Open command menu'
+          },
+          { type: 'divider', key: 'split', dashed: true }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.aheart-menu__icon .custom-icon').text()).toBe('I')
+    expect(wrapper.find('.aheart-menu__label .custom-label').text()).toBe('Command')
+    expect(wrapper.find('.aheart-menu__extra .custom-extra').text()).toBe('Ctrl K')
+    expect(wrapper.find('[data-menu-key="command"]').attributes('title')).toBe('Open command menu')
+    expect(wrapper.find('.aheart-menu__divider').classes()).toContain('is-dashed')
+  })
+
+  it('keeps submenu DOM mounted when forceSubMenuRender is true', () => {
+    const wrapper = mount(Menu, {
+      props: {
+        forceSubMenuRender: true,
+        items: [
+          {
+            key: 'workspace',
+            label: 'Workspace',
+            children: [{ key: 'projects', label: 'Projects' }]
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('[data-menu-key="projects"]').exists()).toBe(true)
+    expect(wrapper.find('.aheart-menu__submenu-list').attributes('style')).toContain('display: none')
+  })
+
+  it('can open and close submenus by hover instead of click', async () => {
+    const wrapper = mount(Menu, {
+      props: {
+        triggerSubMenuAction: 'hover',
+        forceSubMenuRender: true,
+        items: [
+          {
+            key: 'workspace',
+            label: 'Workspace',
+            children: [{ key: 'projects', label: 'Projects' }]
+          }
+        ]
+      }
+    })
+
+    await wrapper.find('[data-submenu-key="workspace"]').trigger('click')
+    expect(wrapper.emitted('openChange')).toBeUndefined()
+
+    await wrapper.find('.aheart-menu__submenu').trigger('mouseenter')
+    expect(wrapper.emitted('openChange')?.[0]).toEqual([['workspace']])
+    expect(wrapper.find('.aheart-menu__submenu-list').attributes('style') ?? '').not.toContain('display: none')
+
+    await wrapper.find('.aheart-menu__submenu').trigger('mouseleave')
+    expect(wrapper.emitted('openChange')?.[1]).toEqual([[]])
+    expect(wrapper.find('.aheart-menu__submenu-list').attributes('style')).toContain('display: none')
+  })
+
+  it('renders custom expand icons with submenu state', async () => {
+    const wrapper = mount(Menu, {
+      props: {
+        items: [
+          {
+            key: 'workspace',
+            label: 'Workspace',
+            children: [{ key: 'projects', label: 'Projects' }]
+          }
+        ],
+        expandIcon: ({ isOpen }: { isOpen: boolean }) =>
+          h('span', { class: 'custom-expand' }, isOpen ? 'open' : 'closed')
+      }
+    })
+
+    expect(wrapper.find('.aheart-menu__expand-icon .custom-expand').text()).toBe('closed')
+
+    await wrapper.find('[data-submenu-key="workspace"]').trigger('click')
+
+    expect(wrapper.find('.aheart-menu__expand-icon .custom-expand').text()).toBe('open')
+  })
 })
