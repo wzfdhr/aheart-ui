@@ -11,6 +11,9 @@ export type CardStyles = Partial<Record<CardSemanticPart, StyleValue>>;
 export type CardMetaSemanticPart = 'root' | 'section' | 'avatar' | 'title' | 'description';
 export type CardMetaClassNames = Partial<Record<CardMetaSemanticPart, string>>;
 export type CardMetaStyles = Partial<Record<CardMetaSemanticPart, StyleValue>>;
+export type CardGridSemanticPart = 'root' | 'content';
+export type CardGridClassNames = Partial<Record<CardGridSemanticPart, string>>;
+export type CardGridStyles = Partial<Record<CardGridSemanticPart, StyleValue>>;
 export declare const cardProps: {
     readonly title: StringConstructor;
     readonly extra: StringConstructor;
@@ -48,5 +51,17 @@ export declare const cardMetaProps: {
     readonly classNames: PropType<Partial<Record<CardMetaSemanticPart, string>>>;
     readonly styles: PropType<Partial<Record<CardMetaSemanticPart, StyleValue>>>;
 };
+export declare const cardGridProps: {
+    readonly hoverable: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<Partial<Record<CardGridSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<CardGridSemanticPart, StyleValue>>>;
+};
 export type CardProps = ExtractPropTypes<typeof cardProps>;
 export type CardMetaProps = ExtractPropTypes<typeof cardMetaProps>;
+export type CardGridProps = ExtractPropTypes<typeof cardGridProps>;

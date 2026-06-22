@@ -2,7 +2,7 @@ import Alert from "./alert/index.js";
 import BadgeWithRibbon, { BadgeRibbon } from "./badge/index.js";
 import Breadcrumb from "./breadcrumb/index.js";
 import Button from "./button/index.js";
-import Card, { CardMeta } from "./card/index.js";
+import Card, { CardGrid, CardMeta } from "./card/index.js";
 import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
@@ -81,6 +81,7 @@ const components = [
   RadioGroup,
   Switch,
   Card,
+  CardGrid,
   CardMeta,
   Descriptions,
   Pagination,
@@ -103,6 +104,7 @@ export {
   Breadcrumb,
   Button,
   Card,
+  CardGrid,
   CardMeta,
   CheckableTag,
   Checkbox,

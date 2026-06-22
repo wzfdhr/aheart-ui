@@ -3816,6 +3816,40 @@ kbd.aheart-typography-text {
   font-size: var(--aheart-font-size-sm);
   line-height: var(--aheart-line-height);
 }
+
+.aheart-card-grid {
+  display: inline-flex;
+  width: 25%;
+  min-height: 96px;
+  box-sizing: border-box;
+  align-items: stretch;
+  border: 1px solid var(--aheart-color-border);
+  background: var(--aheart-color-bg);
+  color: var(--aheart-color-text);
+  cursor: default;
+  transition:
+    border-color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    box-shadow var(--aheart-motion-duration) var(--aheart-motion-ease);
+  vertical-align: top;
+}
+
+.aheart-card-grid.is-hoverable {
+  cursor: pointer;
+}
+
+.aheart-card-grid.is-hoverable:hover {
+  border-color: var(--aheart-color-primary-hover);
+  box-shadow: var(--aheart-shadow);
+}
+
+.aheart-card-grid__content {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  padding: var(--aheart-spacing-md);
+}
 .aheart-descriptions {
   color: var(--aheart-color-text);
   font-size: var(--aheart-font-size);

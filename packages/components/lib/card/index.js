@@ -1,11 +1,16 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const card_vue_vue_type_script_setup_true_lang = require("./card.vue.js");
+const grid_vue_vue_type_script_setup_true_lang = require("./grid.vue.js");
 const meta_vue_vue_type_script_setup_true_lang = require("./meta.vue.js");
 const install = require("../utils/install.js");
 const CardMeta = install.withInstall(meta_vue_vue_type_script_setup_true_lang.default, "ACardMeta");
+const CardGrid = install.withInstall(grid_vue_vue_type_script_setup_true_lang.default, "ACardGrid");
 const Card = install.withInstall(card_vue_vue_type_script_setup_true_lang.default, "ACard");
 Card.Meta = CardMeta;
+Card.Grid = CardGrid;
+exports.ACardGrid = CardGrid;
 exports.ACardMeta = CardMeta;
+exports.CardGrid = CardGrid;
 exports.CardMeta = CardMeta;
 exports.default = Card;

@@ -37,7 +37,19 @@ const cardMetaProps = {
   classNames: Object,
   styles: Object
 };
+const cardGridProps = {
+  hoverable: {
+    type: Boolean,
+    default: true
+  },
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
+};
 export {
+  cardGridProps,
   cardMetaProps,
   cardProps,
   cardTypes,

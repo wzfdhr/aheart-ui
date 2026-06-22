@@ -81,6 +81,7 @@ const components = [
   index$t.RadioGroup,
   index$u.default,
   index$v.default,
+  index$v.CardGrid,
   index$v.CardMeta,
   index$w.default,
   index$x.default,
@@ -102,6 +103,7 @@ exports.BadgeRibbon = index$9.BadgeRibbon;
 exports.Breadcrumb = index$k.default;
 exports.Button = index.default;
 exports.Card = index$v.default;
+exports.CardGrid = index$v.CardGrid;
 exports.CardMeta = index$v.CardMeta;
 exports.Checkbox = index$s.default;
 exports.CheckboxGroup = index$s.CheckboxGroup;
