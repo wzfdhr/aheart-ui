@@ -4,14 +4,17 @@ const index$9 = require("./alert/index.js");
 const index$8 = require("./badge/index.js");
 const index$c = require("./breadcrumb/index.js");
 const index = require("./button/index.js");
+const index$l = require("./card/index.js");
 const index$i = require("./checkbox/index.js");
 const index$1 = require("./config-provider/index.js");
+const index$m = require("./descriptions/index.js");
 const index$3 = require("./divider/index.js");
 const index$b = require("./empty/index.js");
 const index$4 = require("./flex/index.js");
 const index$5 = require("./icon/index.js");
 const index$f = require("./input/index.js");
 const index$h = require("./input-number/index.js");
+const index$n = require("./pagination/index.js");
 const index$j = require("./radio/index.js");
 const index$2 = require("./space/index.js");
 const index$a = require("./spin/index.js");
@@ -47,7 +50,10 @@ const components = [
   index$h.default,
   index$i.default,
   index$j.default,
-  index$k.default
+  index$k.default,
+  index$l.default,
+  index$m.default,
+  index$n.default
 ];
 const AheartUI = {
   install(app) {
@@ -60,14 +66,17 @@ exports.Alert = index$9.default;
 exports.Badge = index$8.default;
 exports.Breadcrumb = index$c.default;
 exports.Button = index.default;
+exports.Card = index$l.default;
 exports.Checkbox = index$i.default;
 exports.ConfigProvider = index$1.default;
+exports.Descriptions = index$m.default;
 exports.Divider = index$3.default;
 exports.Empty = index$b.default;
 exports.Flex = index$4.default;
 exports.Icon = index$5.default;
 exports.Input = index$f.default;
 exports.InputNumber = index$h.default;
+exports.Pagination = index$n.default;
 exports.Radio = index$j.default;
 exports.Space = index$2.default;
 exports.Spin = index$a.default;

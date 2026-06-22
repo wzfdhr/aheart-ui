@@ -34,7 +34,7 @@ declare const Steps: import("../utils/install").SFCWithInstall<import("vue").Def
     onChange?: ((current: number) => any) | undefined;
 }>, {
     readonly status: import("./types").StepStatus;
-    readonly direction: import("./types").StepsDirection;
     readonly current: number;
+    readonly direction: import("./types").StepsDirection;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Steps;

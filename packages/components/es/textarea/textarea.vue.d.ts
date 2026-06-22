@@ -40,8 +40,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "onUpdate:modelValue"?: ((value: string) => any) | undefined;
 }>, {
     readonly disabled: boolean;
-    readonly showCount: boolean;
     readonly rows: number;
+    readonly showCount: boolean;
     readonly autoSize: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;
