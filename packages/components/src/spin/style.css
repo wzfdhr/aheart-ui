@@ -12,6 +12,11 @@
   display: inline-block;
 }
 
+.aheart-spin-section {
+  position: relative;
+  display: inline-block;
+}
+
 .aheart-spin-container {
   transition: opacity var(--aheart-motion-duration);
 }
@@ -26,6 +31,7 @@
   display: inline-flex;
   gap: var(--aheart-spacing-sm);
   align-items: center;
+  justify-content: center;
 }
 
 .aheart-spin-nested .aheart-spin__indicator {
@@ -43,6 +49,10 @@
   animation: aheart-spin-rotate 0.8s linear infinite;
 }
 
+.aheart-spin__indicator.is-custom {
+  line-height: 1;
+}
+
 .aheart-spin--small {
   font-size: var(--aheart-font-size-sm);
 }
@@ -54,6 +64,27 @@
 .aheart-spin__tip {
   color: var(--aheart-color-text-secondary);
   font-size: var(--aheart-font-size);
+}
+
+.aheart-spin__percent {
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.aheart-spin-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--aheart-color-bg-container) 82%, transparent);
+}
+
+.aheart-spin-fullscreen .aheart-spin__indicator {
+  position: static;
+  padding: var(--aheart-spacing-md);
 }
 
 @keyframes aheart-spin-rotate {
