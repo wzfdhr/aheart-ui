@@ -31,6 +31,22 @@
   font-size: 16px;
 }
 
+.aheart-typography-title--secondary {
+  color: var(--aheart-color-text-secondary);
+}
+
+.aheart-typography-title--success {
+  color: var(--aheart-color-success);
+}
+
+.aheart-typography-title--warning {
+  color: var(--aheart-color-warning);
+}
+
+.aheart-typography-title--danger {
+  color: var(--aheart-color-danger);
+}
+
 .aheart-typography-text,
 .aheart-typography-paragraph,
 .aheart-typography-link {
@@ -75,10 +91,17 @@
 
 .aheart-typography-text.is-disabled,
 .aheart-typography-paragraph.is-disabled,
+.aheart-typography-title.is-disabled,
 .aheart-typography-link.is-disabled {
   color: var(--aheart-color-text-secondary);
   cursor: not-allowed;
   opacity: 0.72;
+}
+
+.aheart-typography-text.is-mark,
+.aheart-typography-paragraph.is-mark,
+.aheart-typography-title.is-mark {
+  background: color-mix(in srgb, var(--aheart-color-warning) 24%, transparent);
 }
 
 .aheart-typography-text:is(code),
@@ -103,6 +126,13 @@ kbd.aheart-typography-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.aheart-typography-paragraph.is-ellipsis-multiline {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--aheart-typography-ellipsis-rows, 1);
+  white-space: normal;
 }
 
 .aheart-typography-link {

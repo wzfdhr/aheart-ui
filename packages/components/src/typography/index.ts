@@ -13,3 +13,19 @@ const Link = withInstall(link, 'ALink')
 
 export { Title, Text, Paragraph, Link }
 export default Typography
+export type {
+  LinkProps,
+  ParagraphProps,
+  TextProps,
+  TitleProps,
+  TypographyClassNames,
+  TypographyEllipsis,
+  TypographyEllipsisConfig,
+  TypographyProps,
+  TypographySemanticClassNames,
+  TypographySemanticInfo,
+  TypographySemanticPart,
+  TypographySemanticStyles,
+  TypographyStyles,
+  TypographyType
+} from './types'
