@@ -35,7 +35,8 @@ export default defineConfig({
           text: '组件',
           items: [
             { text: '组件总览', link: '/components/overview' },
-            { text: 'Button 按钮', link: '/components/button' }
+            { text: 'Button 按钮', link: '/components/button' },
+            { text: 'ConfigProvider 全局配置', link: '/components/config-provider' }
           ]
         }
       ]

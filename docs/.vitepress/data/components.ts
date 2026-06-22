@@ -19,6 +19,12 @@ export const componentCategories: ComponentCategory[] = [
     description: 'Basic building blocks used across product interfaces.',
     components: [
       { name: 'Button', description: 'Trigger an action.', status: 'Ready', link: '/components/button' },
+      {
+        name: 'ConfigProvider',
+        description: 'Configure global theme, size, locale, and disabled state.',
+        status: 'Ready',
+        link: '/components/config-provider'
+      },
       { name: 'Icon', description: 'Display semantic symbols.', status: 'Planned' },
       { name: 'Typography', description: 'Text, title, and link styles.', status: 'Planned' }
     ]
