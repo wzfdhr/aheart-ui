@@ -33,6 +33,70 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 </template>
 ```
 
+## 别名与默认值
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <ASwitch :checked="true" checked-children="Checked" un-checked-children="Unchecked" />
+    <ASwitch :value="true" checked-children="Value" />
+    <ASwitch default-checked checked-children="Default" un-checked-children="Off" />
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <ASwitch :checked="checked" />
+  <ASwitch :value="enabled" />
+  <ASwitch default-checked />
+</template>
+```
+
+## 自定义内容
+
+<div class="aheart-demo-panel">
+  <ASwitch default-checked>
+    <template #checkedChildren>1</template>
+    <template #unCheckedChildren>0</template>
+  </ASwitch>
+</div>
+
+```vue
+<template>
+  <ASwitch v-model="checked">
+    <template #checkedChildren>1</template>
+    <template #unCheckedChildren>0</template>
+  </ASwitch>
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <ASwitch
+    default-checked
+    class-name="demo-switch"
+    root-class-name="demo-switch-root"
+    :style="{ width: '72px' }"
+    :class-names="{ root: 'demo-switch-semantic-root', indicator: 'demo-switch-indicator', content: 'demo-switch-content' }"
+    :styles="{ indicator: { boxShadow: '0 0 0 2px rgba(22, 119, 255, 0.2)' }, content: { fontWeight: 600 } }"
+    checked-children="On"
+    un-checked-children="Off"
+  />
+</div>
+
+```vue
+<template>
+  <ASwitch
+    v-model="checked"
+    class-name="demo-switch"
+    root-class-name="demo-switch-root"
+    :style="{ width: '72px' }"
+    :class-names="{ root: 'demo-switch-semantic-root', indicator: 'demo-switch-indicator', content: 'demo-switch-content' }"
+    :styles="{ indicator: { boxShadow: '0 0 0 2px rgba(22, 119, 255, 0.2)' }, content: { fontWeight: 600 } }"
+  />
+</template>
+```
+
 ## 全局配置
 
 <div class="aheart-demo-panel">
@@ -54,18 +118,45 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | modelValue | 是否开启 | `boolean` | `false` |
+| checked | 是否开启，Ant 风格受控别名，优先级高于 `value` 和 `modelValue` | `boolean` | - |
+| value | 是否开启，Ant 风格受控别名 | `boolean` | - |
+| defaultChecked | 非受控初始开启状态 | `boolean` | - |
+| defaultValue | 非受控初始开启状态别名 | `boolean` | - |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
 | loading | 是否加载中 | `boolean` | `false` |
 | size | 开关尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
 | checkedChildren | 开启时内容 | `string` | - |
 | unCheckedChildren | 关闭时内容 | `string` | - |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'content' \| 'indicator', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'content' \| 'indicator', StyleValue>>` | - |
 
 ## Events
 
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | update:modelValue | 开关状态变化时触发 | `(checked: boolean) => void` |
-| change | 开关状态变化时触发 | `(checked: boolean) => void` |
+| update:checked | 开关状态变化时触发，配合 `checked` 使用 | `(checked: boolean) => void` |
+| update:value | 开关状态变化时触发，配合 `value` 使用 | `(checked: boolean) => void` |
+| change | 开关状态变化时触发 | `(checked: boolean, event: MouseEvent) => void` |
+| click | 点击开关时触发 | `(checked: boolean, event: MouseEvent) => void` |
+
+## Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| checkedChildren | 开启时内容 |
+| unCheckedChildren | 关闭时内容 |
+
+## Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 根按钮元素 |
+| indicator | 开关圆点 |
+| content | 开启或关闭内容 |
 
 ## Theme Tokens
 
