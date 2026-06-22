@@ -7,12 +7,14 @@ import Checkbox from "./checkbox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
 import Divider from "./divider/index.js";
+import Dropdown from "./dropdown/index.js";
 import Empty from "./empty/index.js";
 import Flex from "./flex/index.js";
 import Form, { FormItem } from "./form/index.js";
 import Icon from "./icon/index.js";
 import Input from "./input/index.js";
 import InputNumber from "./input-number/index.js";
+import Menu from "./menu/index.js";
 import Pagination from "./pagination/index.js";
 import Radio from "./radio/index.js";
 import Select from "./select/index.js";
@@ -44,6 +46,8 @@ const components = [
   Spin,
   Empty,
   Breadcrumb,
+  Dropdown,
+  Menu,
   Tabs,
   Steps,
   Input,
@@ -77,6 +81,7 @@ export {
   ConfigProvider,
   Descriptions,
   Divider,
+  Dropdown,
   Empty,
   Flex,
   Form,
@@ -85,6 +90,7 @@ export {
   Input,
   InputNumber,
   Link,
+  Menu,
   Pagination,
   Paragraph,
   Radio,
