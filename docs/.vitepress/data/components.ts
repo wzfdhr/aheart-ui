@@ -85,9 +85,9 @@ export const componentCategories: ComponentCategory[] = [
       { name: 'Message', description: 'Show global lightweight feedback.', status: 'Ready', link: '/components/message' },
       { name: 'Modal', description: 'Focus attention in a dialog.', status: 'Ready', link: '/components/modal' },
       { name: 'Drawer', description: 'Show a side panel.', status: 'Ready', link: '/components/drawer' },
-      { name: 'Tooltip', description: 'Explain compact controls.', status: 'Planned' },
-      { name: 'Popover', description: 'Show floating content.', status: 'Planned' },
-      { name: 'Popconfirm', description: 'Confirm risky actions.', status: 'Planned' },
+      { name: 'Tooltip', description: 'Explain compact controls.', status: 'Ready', link: '/components/tooltip' },
+      { name: 'Popover', description: 'Show floating content.', status: 'Ready', link: '/components/popover' },
+      { name: 'Popconfirm', description: 'Confirm risky actions.', status: 'Ready', link: '/components/popconfirm' },
       { name: 'Spin', description: 'Show loading state.', status: 'Ready', link: '/components/spin' },
       { name: 'Skeleton', description: 'Reserve loading layout.', status: 'Ready', link: '/components/skeleton' }
     ]
