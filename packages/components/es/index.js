@@ -17,9 +17,11 @@ import Icon from "./icon/index.js";
 import Input from "./input/index.js";
 import InputNumber from "./input-number/index.js";
 import Menu from "./menu/index.js";
+import Message from "./message/index.js";
 import Pagination from "./pagination/index.js";
 import Radio from "./radio/index.js";
 import Select from "./select/index.js";
+import Skeleton from "./skeleton/index.js";
 import Space from "./space/index.js";
 import Spin from "./spin/index.js";
 import Steps from "./steps/index.js";
@@ -30,6 +32,7 @@ import Tabs from "./tabs/index.js";
 import Textarea from "./textarea/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
 import "./theme/index.css.js";
+import { message } from "./message/service.js";
 const components = [
   Button,
   ConfigProvider,
@@ -46,7 +49,9 @@ const components = [
   Tag,
   Badge,
   Alert,
+  Message,
   Spin,
+  Skeleton,
   Empty,
   Breadcrumb,
   Dropdown,
@@ -96,11 +101,13 @@ export {
   InputNumber,
   Link,
   Menu,
+  Message,
   Pagination,
   Paragraph,
   Radio,
   Row,
   Select,
+  Skeleton,
   Space,
   Spin,
   Steps,
@@ -112,5 +119,6 @@ export {
   Textarea,
   Title,
   Typography,
-  AheartUI as default
+  AheartUI as default,
+  message
 };
