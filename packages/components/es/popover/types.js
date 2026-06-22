@@ -18,11 +18,29 @@ const popoverProps = {
   },
   defaultOpen: Boolean,
   color: String,
+  mouseEnterDelay: {
+    type: Number,
+    default: 0.1
+  },
+  mouseLeaveDelay: {
+    type: Number,
+    default: 0.1
+  },
+  destroyOnHidden: Boolean,
+  fresh: Boolean,
   arrow: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: true
   },
-  zIndex: Number
+  zIndex: Number,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  overlayClassName: String,
+  overlayStyle: [String, Object, Array],
+  overlayInnerStyle: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const popoverEmits = {
   "update:open": (open) => typeof open === "boolean",

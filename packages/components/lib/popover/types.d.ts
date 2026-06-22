@@ -1,5 +1,12 @@
-import type { ExtractPropTypes, PropType } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
 import { type FloatingTriggerProp } from '../utils/floating';
+export interface PopoverArrowConfig {
+    pointAtCenter?: boolean;
+}
+export type PopoverArrow = boolean | PopoverArrowConfig;
+export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow';
+export type PopoverClassNames = Partial<Record<PopoverSemanticPart, string>>;
+export type PopoverStyles = Partial<Record<PopoverSemanticPart, StyleValue>>;
 export declare const popoverProps: {
     readonly title: StringConstructor;
     readonly content: StringConstructor;
@@ -19,11 +26,29 @@ export declare const popoverProps: {
     };
     readonly defaultOpen: BooleanConstructor;
     readonly color: StringConstructor;
+    readonly mouseEnterDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
+    readonly mouseLeaveDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
+    readonly destroyOnHidden: BooleanConstructor;
+    readonly fresh: BooleanConstructor;
     readonly arrow: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<PopoverArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly overlayClassName: StringConstructor;
+    readonly overlayStyle: PropType<StyleValue>;
+    readonly overlayInnerStyle: PropType<StyleValue>;
+    readonly classNames: PropType<Partial<Record<PopoverSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<PopoverSemanticPart, StyleValue>>>;
 };
 export declare const popoverEmits: {
     'update:open': (open: boolean) => boolean;
