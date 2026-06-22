@@ -3,12 +3,8 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = {
-  class: "aheart-message-notice__icon",
-  "aria-hidden": "true"
-};
-const _hoisted_2 = { class: "aheart-message-notice__content" };
-const _hoisted_3 = ["onClick"];
+const _hoisted_1 = ["onClick", "onMouseenter", "onMouseleave"];
+const _hoisted_2 = ["onClick"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AMessage"
@@ -18,6 +14,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   emits: types.messageEmits,
   setup(__props) {
     const props = __props;
+    const ARenderNode = vue.defineComponent({
+      name: "AMessageRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const iconMap = {
       success: "✓",
       info: "i",
@@ -26,32 +34,118 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       loading: "…"
     };
     const normalizeTop = (top) => typeof top === "number" ? `${top}px` : top;
-    const messageStyle = vue.computed(() => ({
-      top: normalizeTop(props.top)
-    }));
+    const messageClass = vue.computed(() => [
+      props.prefixCls,
+      props.classNames.root,
+      {
+        "is-rtl": props.rtl
+      }
+    ]);
+    const messageStyle = vue.computed(() => [
+      {
+        top: normalizeTop(props.top)
+      },
+      props.styles.root
+    ]);
+    const getNoticeClass = (notice) => {
+      var _a;
+      return [
+        `aheart-message-notice--${notice.type}`,
+        props.prefixCls ? `${props.prefixCls}-notice` : void 0,
+        notice.className,
+        props.classNames.notice,
+        (_a = notice.classNames) == null ? void 0 : _a.notice,
+        {
+          "is-rtl": props.rtl
+        }
+      ];
+    };
+    const getNoticeStyle = (notice) => {
+      var _a;
+      return [props.styles.notice, notice.style, (_a = notice.styles) == null ? void 0 : _a.notice];
+    };
+    const getIconClass = (notice) => {
+      var _a;
+      return [
+        props.prefixCls ? `${props.prefixCls}-notice-icon` : void 0,
+        props.classNames.icon,
+        (_a = notice.classNames) == null ? void 0 : _a.icon
+      ];
+    };
+    const getIconStyle = (notice) => {
+      var _a;
+      return [props.styles.icon, (_a = notice.styles) == null ? void 0 : _a.icon];
+    };
+    const getContentClass = (notice) => {
+      var _a;
+      return [
+        props.prefixCls ? `${props.prefixCls}-notice-content` : void 0,
+        props.classNames.content,
+        (_a = notice.classNames) == null ? void 0 : _a.content
+      ];
+    };
+    const getContentStyle = (notice) => {
+      var _a;
+      return [props.styles.content, (_a = notice.styles) == null ? void 0 : _a.content];
+    };
+    const getCloseClass = (notice) => {
+      var _a;
+      return [
+        props.prefixCls ? `${props.prefixCls}-notice-close` : void 0,
+        props.classNames.close,
+        (_a = notice.classNames) == null ? void 0 : _a.close
+      ];
+    };
+    const getCloseStyle = (notice) => {
+      var _a;
+      return [props.styles.close, (_a = notice.styles) == null ? void 0 : _a.close];
+    };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
-        class: "aheart-message",
+        class: vue.normalizeClass(["aheart-message", messageClass.value]),
         style: vue.normalizeStyle(messageStyle.value)
       }, [
         (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(_ctx.notices, (notice) => {
           return vue.openBlock(), vue.createElementBlock("div", {
             key: notice.key,
-            class: vue.normalizeClass(["aheart-message-notice", `aheart-message-notice--${notice.type}`]),
+            class: vue.normalizeClass(["aheart-message-notice", getNoticeClass(notice)]),
+            style: vue.normalizeStyle(getNoticeStyle(notice)),
             role: "status",
-            "aria-live": "polite"
+            "aria-live": "polite",
+            onClick: ($event) => {
+              var _a;
+              return (_a = notice.onClick) == null ? void 0 : _a.call(notice);
+            },
+            onMouseenter: ($event) => _ctx.$emit("noticeMouseEnter", notice.key),
+            onMouseleave: ($event) => _ctx.$emit("noticeMouseLeave", notice.key)
           }, [
-            vue.createElementVNode("span", _hoisted_1, vue.toDisplayString(iconMap[notice.type]), 1),
-            vue.createElementVNode("span", _hoisted_2, vue.toDisplayString(notice.content), 1),
+            vue.createElementVNode("span", {
+              class: vue.normalizeClass(["aheart-message-notice__icon", getIconClass(notice)]),
+              style: vue.normalizeStyle(getIconStyle(notice)),
+              "aria-hidden": "true"
+            }, [
+              vue.createVNode(vue.unref(ARenderNode), {
+                node: notice.icon ?? iconMap[notice.type]
+              }, null, 8, ["node"])
+            ], 6),
+            vue.createElementVNode("span", {
+              class: vue.normalizeClass(["aheart-message-notice__content", getContentClass(notice)]),
+              style: vue.normalizeStyle(getContentStyle(notice))
+            }, [
+              vue.createVNode(vue.unref(ARenderNode), {
+                node: notice.content
+              }, null, 8, ["node"])
+            ], 6),
             vue.createElementVNode("button", {
-              class: "aheart-message-notice__close",
+              class: vue.normalizeClass(["aheart-message-notice__close", getCloseClass(notice)]),
+              style: vue.normalizeStyle(getCloseStyle(notice)),
               type: "button",
               "aria-label": "Close",
-              onClick: ($event) => _ctx.$emit("close", notice.key)
-            }, " × ", 8, _hoisted_3)
-          ], 2);
+              onClick: vue.withModifiers(($event) => _ctx.$emit("close", notice.key), ["stop"])
+            }, " × ", 14, _hoisted_2)
+          ], 46, _hoisted_1);
         }), 128))
-      ], 4);
+      ], 6);
     };
   }
 });

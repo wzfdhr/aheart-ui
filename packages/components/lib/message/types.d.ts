@@ -1,25 +1,48 @@
-import type { ExtractPropTypes, PropType } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 export type MessageType = 'success' | 'info' | 'warning' | 'error' | 'loading';
+export type MessageKey = string | number;
+export type MessageContentNode = VNodeChild;
+export type MessageSemanticPart = 'root' | 'notice' | 'icon' | 'content' | 'close';
+export type MessageClassNames = Partial<Record<MessageSemanticPart, string>>;
+export type MessageStyles = Partial<Record<MessageSemanticPart, StyleValue>>;
 export interface MessageNotice {
-    key: string;
+    key: MessageKey;
     type: MessageType;
-    content: string;
+    content: MessageContentNode;
     duration?: number;
+    className?: string;
+    style?: StyleValue;
+    icon?: MessageContentNode;
+    onClick?: () => void;
     onClose?: () => void;
+    pauseOnHover?: boolean;
+    classNames?: MessageClassNames;
+    styles?: MessageStyles;
 }
 export interface MessageOpenConfig {
-    key?: string;
+    key?: MessageKey;
     type?: MessageType;
-    content: string;
+    content: MessageContentNode;
     duration?: number;
+    className?: string;
+    style?: StyleValue;
+    icon?: MessageContentNode;
+    onClick?: () => void;
     onClose?: () => void;
+    pauseOnHover?: boolean;
+    classNames?: MessageClassNames;
+    styles?: MessageStyles;
 }
 export interface MessageGlobalConfig {
     top?: number | string;
     duration?: number;
     maxCount?: number;
+    getContainer?: () => HTMLElement;
+    prefixCls?: string;
+    rtl?: boolean;
+    pauseOnHover?: boolean;
 }
-export type MessageContent = string | MessageOpenConfig;
+export type MessageContent = MessageContentNode | MessageOpenConfig;
 export declare const messageProps: {
     readonly notices: {
         readonly type: PropType<MessageNotice[]>;
@@ -29,8 +52,20 @@ export declare const messageProps: {
         readonly type: PropType<string | number>;
         readonly default: 8;
     };
+    readonly prefixCls: StringConstructor;
+    readonly rtl: BooleanConstructor;
+    readonly classNames: {
+        readonly type: PropType<Partial<Record<MessageSemanticPart, string>>>;
+        readonly default: () => {};
+    };
+    readonly styles: {
+        readonly type: PropType<Partial<Record<MessageSemanticPart, StyleValue>>>;
+        readonly default: () => {};
+    };
 };
 export declare const messageEmits: {
-    close: (key: string) => boolean;
+    close: (key: MessageKey) => boolean;
+    noticeMouseEnter: (key: MessageKey) => boolean;
+    noticeMouseLeave: (key: MessageKey) => boolean;
 };
 export type MessageProps = ExtractPropTypes<typeof messageProps>;

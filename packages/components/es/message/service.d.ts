@@ -1,7 +1,8 @@
-import type { MessageContent, MessageGlobalConfig } from './types';
+import type { MessageContent, MessageGlobalConfig, MessageKey } from './types';
 export interface MessageHandle {
-    key: string;
+    key: MessageKey;
     close: () => void;
+    then: Promise<void>['then'];
 }
 export declare const message: {
     open: (contentOrConfig: MessageContent, duration?: number, onClose?: () => void) => MessageHandle;
@@ -10,6 +11,6 @@ export declare const message: {
     warning: (contentOrConfig: MessageContent, duration?: number, onClose?: () => void) => MessageHandle;
     error: (contentOrConfig: MessageContent, duration?: number, onClose?: () => void) => MessageHandle;
     loading: (contentOrConfig: MessageContent, duration?: number, onClose?: () => void) => MessageHandle;
-    destroy: (key?: string) => void;
+    destroy: (key?: MessageKey) => void;
     config: (options: MessageGlobalConfig) => void;
 };
