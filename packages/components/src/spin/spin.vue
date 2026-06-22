@@ -7,7 +7,16 @@
       <div v-if="visible" class="aheart-spin__indicator" :class="indicatorClass" :style="indicatorStyle" role="status" aria-live="polite">
         <ARenderNode v-if="hasCustomIndicator" :node="indicatorNode" />
         <span v-else class="aheart-spin__dot" :class="classNames.dot" :style="styles.dot" aria-hidden="true" />
-        <span v-if="tip" class="aheart-spin__tip" :class="classNames.tip" :style="styles.tip">{{ tip }}</span>
+        <span
+          v-if="hasDescription"
+          class="aheart-spin__tip aheart-spin__description"
+          :class="descriptionClass"
+          :style="descriptionStyle"
+        >
+          <slot name="description">
+            <ARenderNode :node="descriptionNode" />
+          </slot>
+        </span>
         <span v-if="percentText" class="aheart-spin__percent" :class="classNames.percent" :style="styles.percent">
           {{ percentText }}
         </span>
@@ -16,7 +25,16 @@
     <div v-else-if="visible" class="aheart-spin__indicator" :class="indicatorClass" :style="indicatorStyle" role="status" aria-live="polite">
       <ARenderNode v-if="hasCustomIndicator" :node="indicatorNode" />
       <span v-else class="aheart-spin__dot" :class="classNames.dot" :style="styles.dot" aria-hidden="true" />
-      <span v-if="tip" class="aheart-spin__tip" :class="classNames.tip" :style="styles.tip">{{ tip }}</span>
+      <span
+        v-if="hasDescription"
+        class="aheart-spin__tip aheart-spin__description"
+        :class="descriptionClass"
+        :style="descriptionStyle"
+      >
+        <slot name="description">
+          <ARenderNode :node="descriptionNode" />
+        </slot>
+      </span>
       <span v-if="percentText" class="aheart-spin__percent" :class="classNames.percent" :style="styles.percent">
         {{ percentText }}
       </span>
@@ -50,6 +68,8 @@ const ARenderNode = defineComponent({
     return () => renderProps.node
   }
 })
+
+const hasRenderable = (value: unknown) => value !== undefined && value !== null && value !== false && value !== ''
 
 const clearDelayTimer = () => {
   if (delayTimer) {
@@ -90,6 +110,9 @@ const hasCustomIndicator = computed(() => props.indicator !== undefined && props
 const indicatorNode = computed(() =>
   typeof props.indicator === 'function' ? props.indicator() : props.indicator
 )
+const hasDescriptionSlot = computed(() => Boolean(slots.description))
+const descriptionNode = computed(() => props.description ?? props.tip)
+const hasDescription = computed(() => hasDescriptionSlot.value || hasRenderable(descriptionNode.value))
 const percentText = computed(() => {
   if (props.percent === undefined || props.percent === null) {
     return ''
@@ -127,4 +150,6 @@ const indicatorClass = computed(() => [
   }
 ])
 const indicatorStyle = computed(() => props.styles.indicator)
+const descriptionClass = computed(() => [props.classNames.description, props.classNames.tip])
+const descriptionStyle = computed(() => [props.styles.description, props.styles.tip])
 </script>

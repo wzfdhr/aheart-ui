@@ -99,6 +99,67 @@ describe('Spin', () => {
     expect(wrapper.find('.aheart-spin__percent').text()).toBe('45%')
   })
 
+  it('renders vnode description and uses tip as fallback', () => {
+    const descriptionWrapper = mount(Spin, {
+      props: {
+        description: h('span', { class: 'description-node' }, 'Syncing node'),
+        tip: 'Legacy tip'
+      }
+    })
+
+    expect(descriptionWrapper.find('.description-node').text()).toBe('Syncing node')
+    expect(descriptionWrapper.text()).not.toContain('Legacy tip')
+
+    const tipWrapper = mount(Spin, {
+      props: {
+        tip: h('span', { class: 'tip-node' }, 'Legacy node')
+      }
+    })
+
+    expect(tipWrapper.find('.tip-node').text()).toBe('Legacy node')
+  })
+
+  it('lets description slot override description and tip props', () => {
+    const wrapper = mount(Spin, {
+      props: {
+        description: h('span', { class: 'prop-description' }, 'Prop description'),
+        tip: 'Legacy tip'
+      },
+      slots: {
+        description: '<span class="slot-description">Slot description</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-description').text()).toBe('Slot description')
+    expect(wrapper.find('.prop-description').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Legacy tip')
+  })
+
+  it('applies description semantic hooks with legacy tip hooks', () => {
+    const wrapper = mount(Spin, {
+      props: {
+        description: 'Styled',
+        classNames: {
+          description: 'semantic-description',
+          tip: 'legacy-tip'
+        },
+        styles: {
+          description: { color: 'rgb(7, 8, 9)' },
+          tip: { fontWeight: '600' }
+        }
+      }
+    })
+
+    const description = wrapper.find('.aheart-spin__description')
+
+    expect(description.exists()).toBe(true)
+    expect(description.classes()).toEqual(
+      expect.arrayContaining(['aheart-spin__tip', 'semantic-description', 'legacy-tip'])
+    )
+    expect(description.attributes('style')).toContain('color: rgb(7, 8, 9)')
+    expect(description.attributes('style')).toContain('font-weight: 600')
+  })
+
   it('renders custom indicator and fullscreen state', () => {
     const wrapper = mount(Spin, {
       props: {

@@ -2,10 +2,16 @@ import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
 export type SpinPercent = number | 'auto'
+export type SpinRenderable = VNodeChild
 export type SpinIndicator = VNodeChild | (() => VNodeChild)
-export type SpinSemanticPart = 'root' | 'section' | 'indicator' | 'dot' | 'tip' | 'percent' | 'container'
+export type SpinSemanticPart = 'root' | 'section' | 'indicator' | 'dot' | 'description' | 'tip' | 'percent' | 'container'
 export type SpinClassNames = Partial<Record<SpinSemanticPart, string>>
 export type SpinStyles = Partial<Record<SpinSemanticPart, StyleValue>>
+
+const renderableProp = {
+  type: [String, Number, Boolean, Object, Array, Function] as PropType<SpinRenderable>,
+  default: undefined
+}
 
 export const spinProps = {
   spinning: {
@@ -16,7 +22,8 @@ export const spinProps = {
     type: String as PropType<AheartSize>,
     default: 'middle'
   },
-  tip: String,
+  description: renderableProp,
+  tip: renderableProp,
   delay: Number,
   indicator: [String, Number, Object, Array, Function] as PropType<SpinIndicator>,
   percent: [Number, String] as PropType<SpinPercent>,
