@@ -60,7 +60,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly disabled: boolean;
     readonly options: RadioOption[];
     readonly direction: import("./types").RadioGroupDirection;
-    readonly optionType: import("./types").RadioOptionType;
     readonly buttonStyle: import("./types").RadioButtonStyle;
+    readonly optionType: import("./types").RadioOptionType;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

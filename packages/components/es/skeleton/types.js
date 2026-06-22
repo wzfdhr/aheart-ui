@@ -13,7 +13,22 @@ const skeletonProps = {
     type: [Boolean, Object],
     default: true
   },
-  round: Boolean
+  button: [Boolean, Object],
+  input: [Boolean, Object],
+  image: [Boolean, Object],
+  node: [Boolean, Object],
+  round: Boolean,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: {
+    type: Object,
+    default: () => ({})
+  },
+  styles: {
+    type: Object,
+    default: () => ({})
+  }
 };
 export {
   skeletonProps

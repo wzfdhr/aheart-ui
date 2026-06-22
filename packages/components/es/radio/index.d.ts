@@ -127,8 +127,8 @@ export declare const RadioGroup: import("../utils/install").SFCWithInstall<impor
     readonly disabled: boolean;
     readonly options: import("./types").RadioOption[];
     readonly direction: import("./types").RadioGroupDirection;
-    readonly optionType: import("./types").RadioOptionType;
     readonly buttonStyle: import("./types").RadioButtonStyle;
+    readonly optionType: import("./types").RadioOptionType;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export { RadioGroup as ARadioGroup };
 export type { RadioButtonStyle, RadioGroupProps, RadioOption, RadioOptionType, RadioProps, RadioValue } from './types';

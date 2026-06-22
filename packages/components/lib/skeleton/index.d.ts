@@ -14,9 +14,26 @@ declare const Skeleton: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<boolean | import("./types").SkeletonParagraphConfig>;
             readonly default: true;
         };
+        readonly button: import("vue").PropType<boolean | import("./types").SkeletonButtonConfig>;
+        readonly input: import("vue").PropType<boolean | import("./types").SkeletonInputConfig>;
+        readonly image: import("vue").PropType<boolean | import("./types").SkeletonImageConfig>;
+        readonly node: import("vue").PropType<boolean | import("./types").SkeletonNodeConfig>;
         readonly round: BooleanConstructor;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: {
+            readonly type: import("vue").PropType<Partial<Record<import("./types").SkeletonSemanticPart, string>>>;
+            readonly default: () => {};
+        };
+        readonly styles: {
+            readonly type: import("vue").PropType<Partial<Record<import("./types").SkeletonSemanticPart, import("vue").StyleValue>>>;
+            readonly default: () => {};
+        };
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly title: boolean | import("./types").SkeletonTitleConfig;
+        readonly classNames: Partial<Record<import("./types").SkeletonSemanticPart, string>>;
+        readonly styles: Partial<Record<import("./types").SkeletonSemanticPart, import("vue").StyleValue>>;
         readonly round: boolean;
         readonly active: boolean;
         readonly loading: boolean;
@@ -43,9 +60,26 @@ declare const Skeleton: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<boolean | import("./types").SkeletonParagraphConfig>;
             readonly default: true;
         };
+        readonly button: import("vue").PropType<boolean | import("./types").SkeletonButtonConfig>;
+        readonly input: import("vue").PropType<boolean | import("./types").SkeletonInputConfig>;
+        readonly image: import("vue").PropType<boolean | import("./types").SkeletonImageConfig>;
+        readonly node: import("vue").PropType<boolean | import("./types").SkeletonNodeConfig>;
         readonly round: BooleanConstructor;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: {
+            readonly type: import("vue").PropType<Partial<Record<import("./types").SkeletonSemanticPart, string>>>;
+            readonly default: () => {};
+        };
+        readonly styles: {
+            readonly type: import("vue").PropType<Partial<Record<import("./types").SkeletonSemanticPart, import("vue").StyleValue>>>;
+            readonly default: () => {};
+        };
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly title: boolean | import("./types").SkeletonTitleConfig;
+        readonly classNames: Partial<Record<import("./types").SkeletonSemanticPart, string>>;
+        readonly styles: Partial<Record<import("./types").SkeletonSemanticPart, import("vue").StyleValue>>;
         readonly round: boolean;
         readonly active: boolean;
         readonly loading: boolean;
@@ -69,9 +103,26 @@ declare const Skeleton: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<boolean | import("./types").SkeletonParagraphConfig>;
         readonly default: true;
     };
+    readonly button: import("vue").PropType<boolean | import("./types").SkeletonButtonConfig>;
+    readonly input: import("vue").PropType<boolean | import("./types").SkeletonInputConfig>;
+    readonly image: import("vue").PropType<boolean | import("./types").SkeletonImageConfig>;
+    readonly node: import("vue").PropType<boolean | import("./types").SkeletonNodeConfig>;
     readonly round: BooleanConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: {
+        readonly type: import("vue").PropType<Partial<Record<import("./types").SkeletonSemanticPart, string>>>;
+        readonly default: () => {};
+    };
+    readonly styles: {
+        readonly type: import("vue").PropType<Partial<Record<import("./types").SkeletonSemanticPart, import("vue").StyleValue>>>;
+        readonly default: () => {};
+    };
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly title: boolean | import("./types").SkeletonTitleConfig;
+    readonly classNames: Partial<Record<import("./types").SkeletonSemanticPart, string>>;
+    readonly styles: Partial<Record<import("./types").SkeletonSemanticPart, import("vue").StyleValue>>;
     readonly round: boolean;
     readonly active: boolean;
     readonly loading: boolean;
