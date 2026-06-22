@@ -82,6 +82,98 @@ Input captures single-line text with optional prefix, suffix, addons, clear acti
 </template>
 ```
 
+## 自定义清除图标
+
+<div class="aheart-demo-panel">
+  <ASpace direction="vertical" style="width: 100%">
+    <AInput model-value="Clear me" :allow-clear="{ clearIcon: 'clear' }" />
+    <AInput model-value="Slot clear" allow-clear>
+      <template #clearIcon>x</template>
+    </AInput>
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <AInput v-model="value" :allow-clear="{ clearIcon: 'clear' }" />
+  <AInput v-model="slotValue" allow-clear>
+    <template #clearIcon>x</template>
+  </AInput>
+</template>
+```
+
+## 计数配置
+
+<div class="aheart-demo-panel">
+  <ASpace direction="vertical" style="width: 100%">
+    <AInput
+      model-value="Aheart"
+      :maxlength="20"
+      :show-count="{ formatter: ({ count, maxLength }) => `${count}/${maxLength}` }"
+    />
+    <AInput
+      model-value="hello"
+      :count="{
+        max: 10,
+        strategy: (value) => value.split('').filter((char) => char === 'l').length,
+        show: ({ count, maxLength }) => `${count} of ${maxLength}`
+      }"
+    />
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <AInput
+    v-model="value"
+    :maxlength="20"
+    :show-count="{ formatter: ({ count, maxLength }) => `${count}/${maxLength}` }"
+  />
+  <AInput
+    v-model="strategyValue"
+    :count="{
+      max: 10,
+      strategy: (value) => value.split('').filter((char) => char === 'l').length,
+      show: ({ count, maxLength }) => `${count} of ${maxLength}`
+    }"
+  />
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <AInput
+    model-value="Styled input"
+    prefix="pre"
+    suffix="suf"
+    allow-clear
+    show-count
+    class-name="demo-input-class"
+    root-class-name="demo-input-root"
+    :style="{ maxWidth: '420px' }"
+    :class-names="{ root: 'demo-input-semantic-root', input: 'demo-input-control', prefix: 'demo-input-prefix', suffix: 'demo-input-suffix', clear: 'demo-input-clear', count: 'demo-input-count' }"
+    :styles="{ prefix: { color: 'var(--aheart-color-primary)' }, count: { color: 'var(--aheart-color-warning)' } }"
+  />
+</div>
+
+```vue
+<template>
+  <AInput
+    v-model="value"
+    prefix="pre"
+    suffix="suf"
+    allow-clear
+    show-count
+    class-name="demo-input-class"
+    root-class-name="demo-input-root"
+    :style="{ maxWidth: '420px' }"
+    :class-names="{ root: 'demo-input-semantic-root', input: 'demo-input-control', prefix: 'demo-input-prefix', suffix: 'demo-input-suffix', clear: 'demo-input-clear', count: 'demo-input-count' }"
+    :styles="{ prefix: { color: 'var(--aheart-color-primary)' }, count: { color: 'var(--aheart-color-warning)' } }"
+  />
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -99,10 +191,16 @@ Input captures single-line text with optional prefix, suffix, addons, clear acti
 | status | 校验状态 | `error` \| `warning` | - |
 | variant | 输入框变体 | `outlined` \| `borderless` \| `filled` \| `underlined` | `outlined` |
 | bordered | 是否显示边框，设为 `false` 时等同 `borderless` | `boolean` | `true` |
-| allowClear | 是否显示清除按钮 | `boolean` | `false` |
+| allowClear | 是否显示清除按钮，支持自定义清除图标 | `boolean` \| `{ clearIcon?: string }` | `false` |
 | maxlength | 最大字符数 | `number` | - |
-| showCount | 是否显示字数 | `boolean` | `false` |
+| showCount | 是否显示字数，支持格式化 | `boolean` \| `{ formatter?: (info: CountInfo) => string }` | `false` |
+| count | 计数配置 | `{ max?: number; strategy?: (value: string) => number; show?: boolean \| ((info: CountInfo) => string) }` | - |
 | type | 原生输入类型 | `string` | `text` |
+| className | 输入框根节点兼容 class | `string` | - |
+| rootClassName | 输入框根节点 class | `string` | - |
+| style | 输入框根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'input' \| 'prefix' \| 'suffix' \| 'clear' \| 'count', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'input' \| 'prefix' \| 'suffix' \| 'clear' \| 'count', StyleValue>>` | - |
 
 ## Events
 
@@ -120,6 +218,7 @@ Input captures single-line text with optional prefix, suffix, addons, clear acti
 | --- | --- |
 | prefix | 输入框前缀 |
 | suffix | 输入框后缀 |
+| clearIcon | 自定义清除按钮内容 |
 
 ## Theme Tokens
 
