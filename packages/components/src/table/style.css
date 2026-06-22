@@ -77,6 +77,18 @@
   text-align: right;
 }
 
+.aheart-table__head-content {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.aheart-table__title {
+  font-weight: 600;
+}
+
 .aheart-table .is-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -119,6 +131,45 @@
 
 .aheart-table__sort-icon[data-sort="descend"]::before {
   content: "↓";
+}
+
+.aheart-table__filters {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--aheart-spacing-xs);
+  max-width: 100%;
+}
+
+.aheart-table__filter-option {
+  min-height: 22px;
+  padding: 1px 7px;
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
+  line-height: 18px;
+  cursor: pointer;
+  background: var(--aheart-color-bg);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius-sm);
+  transition:
+    color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    background var(--aheart-motion-duration) var(--aheart-motion-ease),
+    border-color var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-table__filter-option:hover:not(:disabled) {
+  color: var(--aheart-color-primary);
+  border-color: var(--aheart-color-primary);
+}
+
+.aheart-table__filter-option.is-active {
+  color: var(--aheart-color-primary);
+  background: #e6f4ff;
+  border-color: var(--aheart-color-primary);
+}
+
+.aheart-table__filter-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .aheart-table__selection-cell,

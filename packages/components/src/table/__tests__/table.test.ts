@@ -56,6 +56,101 @@ describe('Table', () => {
     expect(wrapper.emitted('change')?.[0]?.[2]).toMatchObject({ columnKey: 'age', order: 'ascend' })
   })
 
+  it('applies defaultSortOrder on initial render', () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          { title: 'Name', dataIndex: 'name', key: 'name' },
+          { title: 'Age', dataIndex: 'age', key: 'age', sorter: (a, b) => a.age - b.age, defaultSortOrder: 'descend' }
+        ],
+        dataSource
+      }
+    })
+
+    expect(wrapper.find('tbody tr').text()).toContain('Linus')
+  })
+
+  it('lets controlled sortOrder override internal sort state', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          { title: 'Name', dataIndex: 'name', key: 'name' },
+          { title: 'Age', dataIndex: 'age', key: 'age', sorter: true, sortOrder: 'descend' }
+        ],
+        dataSource
+      }
+    })
+
+    expect(wrapper.find('tbody tr').text()).toContain('Linus')
+
+    await wrapper.findAll('th')[1].find('button').trigger('click')
+
+    expect(wrapper.find('tbody tr').text()).toContain('Linus')
+    expect(wrapper.emitted('change')?.[0]).toBeTruthy()
+  })
+
+  it('filters rows from column filters and emits change metadata', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          { title: 'Name', dataIndex: 'name', key: 'name' },
+          {
+            title: 'Role',
+            dataIndex: 'role',
+            key: 'role',
+            filters: [
+              { text: 'Architect', value: 'Architect' },
+              { text: 'Engineer', value: 'Engineer' }
+            ]
+          }
+        ],
+        dataSource
+      }
+    })
+
+    const engineerFilter = wrapper.findAll('.aheart-table__filter-option').find((button) => button.text() === 'Engineer')
+    expect(engineerFilter).toBeTruthy()
+
+    await engineerFilter!.trigger('click')
+
+    expect(wrapper.findAll('tbody tr')).toHaveLength(1)
+    expect(wrapper.find('tbody tr').text()).toContain('Grace')
+    expect(wrapper.emitted('change')?.[0]?.[1]).toEqual({ role: ['Engineer'] })
+    expect(wrapper.emitted('change')?.[0]?.[3]).toMatchObject({
+      action: 'filter',
+      currentDataSource: [dataSource[1]]
+    })
+  })
+
+  it('supports single-value filters with filterMultiple false', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          { title: 'Name', dataIndex: 'name', key: 'name' },
+          {
+            title: 'Role',
+            dataIndex: 'role',
+            key: 'role',
+            filterMultiple: false,
+            filters: [
+              { text: 'Architect', value: 'Architect' },
+              { text: 'Engineer', value: 'Engineer' }
+            ]
+          }
+        ],
+        dataSource
+      }
+    })
+
+    const filters = wrapper.findAll('.aheart-table__filter-option')
+    await filters.find((button) => button.text() === 'Architect')!.trigger('click')
+    await filters.find((button) => button.text() === 'Engineer')!.trigger('click')
+
+    expect(wrapper.findAll('tbody tr')).toHaveLength(1)
+    expect(wrapper.find('tbody tr').text()).toContain('Grace')
+    expect(wrapper.emitted('change')?.[1]?.[1]).toEqual({ role: ['Engineer'] })
+  })
+
   it('selects checkbox rows and emits selected keys', async () => {
     const wrapper = mount(Table, {
       props: {
@@ -119,6 +214,41 @@ describe('Table', () => {
     await wrapper.find('.aheart-pagination__next').trigger('click')
 
     expect(wrapper.emitted('change')?.[0]?.[0]).toMatchObject({ current: 2, pageSize: 2 })
+  })
+
+  it('emits filters, sorter, and currentDataSource when pagination changes', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          { title: 'Name', dataIndex: 'name', key: 'name' },
+          { title: 'Age', dataIndex: 'age', key: 'age', sorter: true, defaultSortOrder: 'ascend' },
+          {
+            title: 'Role',
+            dataIndex: 'role',
+            key: 'role',
+            defaultFilteredValue: ['Engineer', 'Maintainer'],
+            filters: [
+              { text: 'Engineer', value: 'Engineer' },
+              { text: 'Maintainer', value: 'Maintainer' }
+            ]
+          }
+        ],
+        dataSource,
+        pagination: { current: 1, pageSize: 1 }
+      }
+    })
+
+    expect(wrapper.find('tbody tr').text()).toContain('Grace')
+
+    await wrapper.find('.aheart-pagination__next').trigger('click')
+
+    expect(wrapper.emitted('change')?.[0]?.[0]).toEqual({ current: 2, pageSize: 1, total: 2 })
+    expect(wrapper.emitted('change')?.[0]?.[1]).toEqual({ role: ['Engineer', 'Maintainer'] })
+    expect(wrapper.emitted('change')?.[0]?.[2]).toMatchObject({ columnKey: 'age', field: 'age', order: 'ascend' })
+    expect(wrapper.emitted('change')?.[0]?.[3]).toMatchObject({
+      action: 'paginate',
+      currentDataSource: [dataSource[1], dataSource[2]]
+    })
   })
 
   it('uses ConfigProvider size and disabled fallback', () => {
