@@ -60,6 +60,79 @@ Descriptions displays record details as label and content pairs.
 </template>
 ```
 
+## 填满剩余列与冒号
+
+<div class="aheart-demo-panel">
+  <ADescriptions
+    :column="3"
+    :colon="false"
+    :items="[
+      { label: 'User', content: 'Ada' },
+      { label: 'Summary', children: 'This item fills the remaining columns.', span: 'filled' }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ADescriptions
+    :column="3"
+    :colon="false"
+    :items="[
+      { label: 'User', content: 'Ada' },
+      { label: 'Summary', children: 'This item fills the remaining columns.', span: 'filled' }
+    ]"
+  />
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <ADescriptions
+    title="Semantic profile"
+    extra="Custom"
+    class-name="profile-descriptions"
+    root-class-name="profile-descriptions-root"
+    :class-names="{
+      header: 'profile-descriptions-header',
+      label: 'profile-descriptions-label',
+      content: 'profile-descriptions-content'
+    }"
+    :styles="{
+      root: { padding: '12px', backgroundColor: 'var(--aheart-color-fill)' },
+      label: { fontWeight: 600 },
+      content: { color: 'var(--aheart-color-primary)' }
+    }"
+    :items="[
+      { label: 'Owner', content: 'Design System' },
+      { label: 'State', content: 'Ready', contentStyle: { fontWeight: 600 } }
+    ]"
+  />
+</div>
+
+```vue
+<template>
+  <ADescriptions
+    title="Semantic profile"
+    extra="Custom"
+    class-name="profile-descriptions"
+    root-class-name="profile-descriptions-root"
+    :class-names="{
+      header: 'profile-descriptions-header',
+      label: 'profile-descriptions-label',
+      content: 'profile-descriptions-content'
+    }"
+    :styles="{
+      root: { padding: '12px', backgroundColor: 'var(--aheart-color-fill)' },
+      label: { fontWeight: 600 },
+      content: { color: 'var(--aheart-color-primary)' }
+    }"
+    :items="items"
+  />
+</template>
+```
+
 ## 全局尺寸
 
 <div class="aheart-demo-panel">
@@ -92,14 +165,42 @@ Descriptions displays record details as label and content pairs.
 | column | 每行列数 | `number` | `3` |
 | layout | 排列方式 | `horizontal` \| `vertical` | `horizontal` |
 | size | 描述列表尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
+| colon | 是否显示标签后的冒号 | `boolean` | `true` |
+| labelStyle | 全局标签样式，兼容 Ant 旧 API | `StyleValue` | - |
+| contentStyle | 全局内容样式，兼容 Ant 旧 API | `StyleValue` | - |
+| className | 根元素类名 | `string` | - |
+| rootClassName | 根元素类名 | `string` | - |
+| style | 根元素样式 | `StyleValue` | - |
+| classNames | 语义化 DOM 类名 | `Partial<Record<DescriptionsSemanticPart, string>>` | `{}` |
+| styles | 语义化 DOM 样式 | `Partial<Record<DescriptionsSemanticPart, StyleValue>>` | `{}` |
 
 ### DescriptionItem
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
+| key | 描述项 key | `string` \| `number` | `label + index` |
 | label | 标签 | `string` | - |
-| content | 内容 | `string` | - |
-| span | 占用列数 | `number` | `1` |
+| content | 内容 | `string` \| `number` | - |
+| children | 内容备用字段 | `string` \| `number` | - |
+| span | 占用列数，`filled` 会填满当前行剩余列 | `number` \| `filled` | `1` |
+| className | 描述项类名 | `string` | - |
+| style | 描述项样式 | `StyleValue` | - |
+| labelStyle | 当前项标签样式 | `StyleValue` | - |
+| contentStyle | 当前项内容样式 | `StyleValue` | - |
+
+### Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 根元素 |
+| header | 标题和额外内容容器 |
+| title | 标题 |
+| extra | 额外内容 |
+| table | 描述列表表格容器 |
+| row | 每一行 |
+| item | 每个描述项 |
+| label | 描述项标签 |
+| content | 描述项内容 |
 
 ## Theme Tokens
 
