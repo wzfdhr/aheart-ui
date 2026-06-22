@@ -4,16 +4,8 @@ const vue = require("vue");
 const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-input__addon aheart-input__addon--before"
-};
+const _hoisted_1 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _hoisted_2 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
-const _hoisted_3 = {
-  key: 1,
-  class: "aheart-input__addon aheart-input__addon--after"
-};
-const _hoisted_4 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AInput"
@@ -26,22 +18,72 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const AInputRenderNode = vue.defineComponent({
+      name: "AInputRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
+    };
+    const measureCount = (value) => {
+      var _a, _b;
+      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, value)) ?? value.length;
+    };
+    const formatExceededValue = (value) => {
+      var _a, _b;
+      const max = (_a = props.count) == null ? void 0 : _a.max;
+      if (max === void 0 || !((_b = props.count) == null ? void 0 : _b.exceedFormatter) || measureCount(value) <= max) {
+        return value;
+      }
+      return props.count.exceedFormatter(value, { max });
+    };
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const currentValue = vue.computed(() => props.modelValue ?? "");
+    const currentValue = vue.computed(() => formatExceededValue(props.modelValue ?? ""));
     const resolvedVariant = vue.computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
-    const hasAddon = vue.computed(() => Boolean(props.addonBefore || props.addonAfter));
-    const hasPrefix = vue.computed(() => Boolean(props.prefix || slots.prefix));
-    const hasSuffix = vue.computed(() => Boolean(props.suffix || slots.suffix));
+    const hasAddonBefore = vue.computed(() => Boolean(slots.addonBefore) || hasRenderable(props.addonBefore));
+    const hasAddonAfter = vue.computed(() => Boolean(slots.addonAfter) || hasRenderable(props.addonAfter));
+    const hasAddon = vue.computed(() => hasAddonBefore.value || hasAddonAfter.value);
+    const hasPrefix = vue.computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
+    const hasSuffix = vue.computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
     const allowClearConfig = vue.computed(
       () => typeof props.allowClear === "object" && props.allowClear !== null ? props.allowClear : void 0
     );
-    const showClear = vue.computed(() => Boolean(props.allowClear) && !isDisabled.value && Boolean(currentValue.value));
+    const allowClearDisabled = vue.computed(() => {
+      var _a;
+      return ((_a = allowClearConfig.value) == null ? void 0 : _a.disabled) ?? false;
+    });
+    const showClear = vue.computed(
+      () => Boolean(props.allowClear) && !allowClearDisabled.value && !isDisabled.value && Boolean(currentValue.value)
+    );
     const clearIconContent = vue.computed(() => {
       var _a;
       return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
+    });
+    const groupClass = vue.computed(() => {
+      var _a;
+      return [
+        "aheart-input-group",
+        `aheart-input-group--${resolvedSize.value}`,
+        (_a = props.classNames) == null ? void 0 : _a.group
+      ];
+    });
+    const groupStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.group;
     });
     const inputClass = vue.computed(() => {
       var _a;
@@ -61,6 +103,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootStyle = vue.computed(() => {
       var _a;
       return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const addonBeforeClass = vue.computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.addonBefore;
+    });
+    const addonBeforeStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.addonBefore;
+    });
+    const addonAfterClass = vue.computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.addonAfter;
+    });
+    const addonAfterStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.addonAfter;
     });
     const controlClass = vue.computed(() => {
       var _a;
@@ -102,10 +160,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return (_a = props.styles) == null ? void 0 : _a.count;
     });
-    const countLength = vue.computed(() => {
-      var _a, _b;
-      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, currentValue.value)) ?? currentValue.value.length;
-    });
+    const countLength = vue.computed(() => measureCount(currentValue.value));
     const countMaxLength = vue.computed(() => {
       var _a;
       return ((_a = props.count) == null ? void 0 : _a.max) ?? props.maxlength;
@@ -135,7 +190,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return countMaxLength.value ? `${countLength.value} / ${countMaxLength.value}` : String(countLength.value);
     });
-    const getEventValue = (event) => event.target.value;
+    const getEventValue = (event) => {
+      const target = event.target;
+      const value = formatExceededValue(target.value);
+      if (target.value !== value) {
+        target.value = value;
+      }
+      return value;
+    };
     const handleInput = (event) => {
       const value = getEventValue(event);
       emit("update:modelValue", value);
@@ -157,9 +219,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     return (_ctx, _cache) => {
       return hasAddon.value ? (vue.openBlock(), vue.createElementBlock("span", {
         key: 0,
-        class: vue.normalizeClass(["aheart-input-group", `aheart-input-group--${resolvedSize.value}`])
+        class: vue.normalizeClass(groupClass.value),
+        style: vue.normalizeStyle(groupStyle.value)
       }, [
-        _ctx.addonBefore ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, vue.toDisplayString(_ctx.addonBefore), 1)) : vue.createCommentVNode("", true),
+        hasAddonBefore.value ? (vue.openBlock(), vue.createElementBlock("span", {
+          key: 0,
+          class: vue.normalizeClass(["aheart-input__addon aheart-input__addon--before", addonBeforeClass.value]),
+          style: vue.normalizeStyle(addonBeforeStyle.value)
+        }, [
+          vue.renderSlot(_ctx.$slots, "addonBefore", {}, () => [
+            vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.addonBefore }, null, 8, ["node"])
+          ])
+        ], 6)) : vue.createCommentVNode("", true),
         vue.createElementVNode("span", {
           class: vue.normalizeClass(["aheart-input", inputClass.value]),
           style: vue.normalizeStyle(rootStyle.value)
@@ -170,7 +241,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(prefixStyle.value)
           }, [
             vue.renderSlot(_ctx.$slots, "prefix", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(_ctx.prefix), 1)
+              vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true),
           vue.createElementVNode("input", {
@@ -178,7 +249,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(controlStyle.value),
             id: _ctx.id,
             type: _ctx.type,
-            value: _ctx.modelValue ?? "",
+            value: currentValue.value,
             placeholder: _ctx.placeholder,
             disabled: isDisabled.value,
             readonly: _ctx.readOnly,
@@ -186,7 +257,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onInput: handleInput,
             onChange: handleChange,
             onKeydown: handleKeydown
-          }, null, 46, _hoisted_2),
+          }, null, 46, _hoisted_1),
           showClear.value ? (vue.openBlock(), vue.createElementBlock("button", {
             key: 1,
             class: vue.normalizeClass(clearClass.value),
@@ -196,7 +267,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onClick: handleClear
           }, [
             vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(clearIconContent.value), 1)
+              vue.createVNode(vue.unref(AInputRenderNode), { node: clearIconContent.value }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true),
           hasSuffix.value ? (vue.openBlock(), vue.createElementBlock("span", {
@@ -205,17 +276,27 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(suffixStyle.value)
           }, [
             vue.renderSlot(_ctx.$slots, "suffix", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(_ctx.suffix), 1)
+              vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.suffix }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true),
           showCountDisplay.value ? (vue.openBlock(), vue.createElementBlock("span", {
             key: 3,
             class: vue.normalizeClass(countClass.value),
             style: vue.normalizeStyle(countStyle.value)
-          }, vue.toDisplayString(countText.value), 7)) : vue.createCommentVNode("", true)
+          }, [
+            vue.createVNode(vue.unref(AInputRenderNode), { node: countText.value }, null, 8, ["node"])
+          ], 6)) : vue.createCommentVNode("", true)
         ], 6),
-        _ctx.addonAfter ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, vue.toDisplayString(_ctx.addonAfter), 1)) : vue.createCommentVNode("", true)
-      ], 2)) : (vue.openBlock(), vue.createElementBlock("span", {
+        hasAddonAfter.value ? (vue.openBlock(), vue.createElementBlock("span", {
+          key: 1,
+          class: vue.normalizeClass(["aheart-input__addon aheart-input__addon--after", addonAfterClass.value]),
+          style: vue.normalizeStyle(addonAfterStyle.value)
+        }, [
+          vue.renderSlot(_ctx.$slots, "addonAfter", {}, () => [
+            vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.addonAfter }, null, 8, ["node"])
+          ])
+        ], 6)) : vue.createCommentVNode("", true)
+      ], 6)) : (vue.openBlock(), vue.createElementBlock("span", {
         key: 1,
         class: vue.normalizeClass(["aheart-input", inputClass.value]),
         style: vue.normalizeStyle(rootStyle.value)
@@ -226,7 +307,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           style: vue.normalizeStyle(prefixStyle.value)
         }, [
           vue.renderSlot(_ctx.$slots, "prefix", {}, () => [
-            vue.createTextVNode(vue.toDisplayString(_ctx.prefix), 1)
+            vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true),
         vue.createElementVNode("input", {
@@ -234,7 +315,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           style: vue.normalizeStyle(controlStyle.value),
           id: _ctx.id,
           type: _ctx.type,
-          value: _ctx.modelValue ?? "",
+          value: currentValue.value,
           placeholder: _ctx.placeholder,
           disabled: isDisabled.value,
           readonly: _ctx.readOnly,
@@ -242,7 +323,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onInput: handleInput,
           onChange: handleChange,
           onKeydown: handleKeydown
-        }, null, 46, _hoisted_4),
+        }, null, 46, _hoisted_2),
         showClear.value ? (vue.openBlock(), vue.createElementBlock("button", {
           key: 1,
           class: vue.normalizeClass(clearClass.value),
@@ -252,7 +333,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onClick: handleClear
         }, [
           vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [
-            vue.createTextVNode(vue.toDisplayString(clearIconContent.value), 1)
+            vue.createVNode(vue.unref(AInputRenderNode), { node: clearIconContent.value }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true),
         hasSuffix.value ? (vue.openBlock(), vue.createElementBlock("span", {
@@ -261,14 +342,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           style: vue.normalizeStyle(suffixStyle.value)
         }, [
           vue.renderSlot(_ctx.$slots, "suffix", {}, () => [
-            vue.createTextVNode(vue.toDisplayString(_ctx.suffix), 1)
+            vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.suffix }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true),
         showCountDisplay.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 3,
           class: vue.normalizeClass(countClass.value),
           style: vue.normalizeStyle(countStyle.value)
-        }, vue.toDisplayString(countText.value), 7)) : vue.createCommentVNode("", true)
+        }, [
+          vue.createVNode(vue.unref(AInputRenderNode), { node: countText.value }, null, 8, ["node"])
+        ], 6)) : vue.createCommentVNode("", true)
       ], 6));
     };
   }

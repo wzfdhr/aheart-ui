@@ -1,17 +1,9 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, toDisplayString, createCommentVNode, createElementVNode, normalizeStyle, renderSlot, createTextVNode } from "vue";
+import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputProps, inputEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-input__addon aheart-input__addon--before"
-};
+const _hoisted_1 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _hoisted_2 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
-const _hoisted_3 = {
-  key: 1,
-  class: "aheart-input__addon aheart-input__addon--after"
-};
-const _hoisted_4 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AInput"
@@ -24,22 +16,72 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const config = useAheartConfig();
+    const AInputRenderNode = defineComponent({
+      name: "AInputRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
+    };
+    const measureCount = (value) => {
+      var _a, _b;
+      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, value)) ?? value.length;
+    };
+    const formatExceededValue = (value) => {
+      var _a, _b;
+      const max = (_a = props.count) == null ? void 0 : _a.max;
+      if (max === void 0 || !((_b = props.count) == null ? void 0 : _b.exceedFormatter) || measureCount(value) <= max) {
+        return value;
+      }
+      return props.count.exceedFormatter(value, { max });
+    };
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const currentValue = computed(() => props.modelValue ?? "");
+    const currentValue = computed(() => formatExceededValue(props.modelValue ?? ""));
     const resolvedVariant = computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
-    const hasAddon = computed(() => Boolean(props.addonBefore || props.addonAfter));
-    const hasPrefix = computed(() => Boolean(props.prefix || slots.prefix));
-    const hasSuffix = computed(() => Boolean(props.suffix || slots.suffix));
+    const hasAddonBefore = computed(() => Boolean(slots.addonBefore) || hasRenderable(props.addonBefore));
+    const hasAddonAfter = computed(() => Boolean(slots.addonAfter) || hasRenderable(props.addonAfter));
+    const hasAddon = computed(() => hasAddonBefore.value || hasAddonAfter.value);
+    const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
+    const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
     const allowClearConfig = computed(
       () => typeof props.allowClear === "object" && props.allowClear !== null ? props.allowClear : void 0
     );
-    const showClear = computed(() => Boolean(props.allowClear) && !isDisabled.value && Boolean(currentValue.value));
+    const allowClearDisabled = computed(() => {
+      var _a;
+      return ((_a = allowClearConfig.value) == null ? void 0 : _a.disabled) ?? false;
+    });
+    const showClear = computed(
+      () => Boolean(props.allowClear) && !allowClearDisabled.value && !isDisabled.value && Boolean(currentValue.value)
+    );
     const clearIconContent = computed(() => {
       var _a;
       return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
+    });
+    const groupClass = computed(() => {
+      var _a;
+      return [
+        "aheart-input-group",
+        `aheart-input-group--${resolvedSize.value}`,
+        (_a = props.classNames) == null ? void 0 : _a.group
+      ];
+    });
+    const groupStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.group;
     });
     const inputClass = computed(() => {
       var _a;
@@ -59,6 +101,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootStyle = computed(() => {
       var _a;
       return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const addonBeforeClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.addonBefore;
+    });
+    const addonBeforeStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.addonBefore;
+    });
+    const addonAfterClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.addonAfter;
+    });
+    const addonAfterStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.addonAfter;
     });
     const controlClass = computed(() => {
       var _a;
@@ -100,10 +158,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return (_a = props.styles) == null ? void 0 : _a.count;
     });
-    const countLength = computed(() => {
-      var _a, _b;
-      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, currentValue.value)) ?? currentValue.value.length;
-    });
+    const countLength = computed(() => measureCount(currentValue.value));
     const countMaxLength = computed(() => {
       var _a;
       return ((_a = props.count) == null ? void 0 : _a.max) ?? props.maxlength;
@@ -133,7 +188,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return countMaxLength.value ? `${countLength.value} / ${countMaxLength.value}` : String(countLength.value);
     });
-    const getEventValue = (event) => event.target.value;
+    const getEventValue = (event) => {
+      const target = event.target;
+      const value = formatExceededValue(target.value);
+      if (target.value !== value) {
+        target.value = value;
+      }
+      return value;
+    };
     const handleInput = (event) => {
       const value = getEventValue(event);
       emit("update:modelValue", value);
@@ -155,9 +217,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return hasAddon.value ? (openBlock(), createElementBlock("span", {
         key: 0,
-        class: normalizeClass(["aheart-input-group", `aheart-input-group--${resolvedSize.value}`])
+        class: normalizeClass(groupClass.value),
+        style: normalizeStyle(groupStyle.value)
       }, [
-        _ctx.addonBefore ? (openBlock(), createElementBlock("span", _hoisted_1, toDisplayString(_ctx.addonBefore), 1)) : createCommentVNode("", true),
+        hasAddonBefore.value ? (openBlock(), createElementBlock("span", {
+          key: 0,
+          class: normalizeClass(["aheart-input__addon aheart-input__addon--before", addonBeforeClass.value]),
+          style: normalizeStyle(addonBeforeStyle.value)
+        }, [
+          renderSlot(_ctx.$slots, "addonBefore", {}, () => [
+            createVNode(unref(AInputRenderNode), { node: _ctx.addonBefore }, null, 8, ["node"])
+          ])
+        ], 6)) : createCommentVNode("", true),
         createElementVNode("span", {
           class: normalizeClass(["aheart-input", inputClass.value]),
           style: normalizeStyle(rootStyle.value)
@@ -168,7 +239,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(prefixStyle.value)
           }, [
             renderSlot(_ctx.$slots, "prefix", {}, () => [
-              createTextVNode(toDisplayString(_ctx.prefix), 1)
+              createVNode(unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
             ])
           ], 6)) : createCommentVNode("", true),
           createElementVNode("input", {
@@ -176,7 +247,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(controlStyle.value),
             id: _ctx.id,
             type: _ctx.type,
-            value: _ctx.modelValue ?? "",
+            value: currentValue.value,
             placeholder: _ctx.placeholder,
             disabled: isDisabled.value,
             readonly: _ctx.readOnly,
@@ -184,7 +255,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onInput: handleInput,
             onChange: handleChange,
             onKeydown: handleKeydown
-          }, null, 46, _hoisted_2),
+          }, null, 46, _hoisted_1),
           showClear.value ? (openBlock(), createElementBlock("button", {
             key: 1,
             class: normalizeClass(clearClass.value),
@@ -194,7 +265,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onClick: handleClear
           }, [
             renderSlot(_ctx.$slots, "clearIcon", {}, () => [
-              createTextVNode(toDisplayString(clearIconContent.value), 1)
+              createVNode(unref(AInputRenderNode), { node: clearIconContent.value }, null, 8, ["node"])
             ])
           ], 6)) : createCommentVNode("", true),
           hasSuffix.value ? (openBlock(), createElementBlock("span", {
@@ -203,17 +274,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(suffixStyle.value)
           }, [
             renderSlot(_ctx.$slots, "suffix", {}, () => [
-              createTextVNode(toDisplayString(_ctx.suffix), 1)
+              createVNode(unref(AInputRenderNode), { node: _ctx.suffix }, null, 8, ["node"])
             ])
           ], 6)) : createCommentVNode("", true),
           showCountDisplay.value ? (openBlock(), createElementBlock("span", {
             key: 3,
             class: normalizeClass(countClass.value),
             style: normalizeStyle(countStyle.value)
-          }, toDisplayString(countText.value), 7)) : createCommentVNode("", true)
+          }, [
+            createVNode(unref(AInputRenderNode), { node: countText.value }, null, 8, ["node"])
+          ], 6)) : createCommentVNode("", true)
         ], 6),
-        _ctx.addonAfter ? (openBlock(), createElementBlock("span", _hoisted_3, toDisplayString(_ctx.addonAfter), 1)) : createCommentVNode("", true)
-      ], 2)) : (openBlock(), createElementBlock("span", {
+        hasAddonAfter.value ? (openBlock(), createElementBlock("span", {
+          key: 1,
+          class: normalizeClass(["aheart-input__addon aheart-input__addon--after", addonAfterClass.value]),
+          style: normalizeStyle(addonAfterStyle.value)
+        }, [
+          renderSlot(_ctx.$slots, "addonAfter", {}, () => [
+            createVNode(unref(AInputRenderNode), { node: _ctx.addonAfter }, null, 8, ["node"])
+          ])
+        ], 6)) : createCommentVNode("", true)
+      ], 6)) : (openBlock(), createElementBlock("span", {
         key: 1,
         class: normalizeClass(["aheart-input", inputClass.value]),
         style: normalizeStyle(rootStyle.value)
@@ -224,7 +305,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           style: normalizeStyle(prefixStyle.value)
         }, [
           renderSlot(_ctx.$slots, "prefix", {}, () => [
-            createTextVNode(toDisplayString(_ctx.prefix), 1)
+            createVNode(unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
           ])
         ], 6)) : createCommentVNode("", true),
         createElementVNode("input", {
@@ -232,7 +313,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           style: normalizeStyle(controlStyle.value),
           id: _ctx.id,
           type: _ctx.type,
-          value: _ctx.modelValue ?? "",
+          value: currentValue.value,
           placeholder: _ctx.placeholder,
           disabled: isDisabled.value,
           readonly: _ctx.readOnly,
@@ -240,7 +321,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onInput: handleInput,
           onChange: handleChange,
           onKeydown: handleKeydown
-        }, null, 46, _hoisted_4),
+        }, null, 46, _hoisted_2),
         showClear.value ? (openBlock(), createElementBlock("button", {
           key: 1,
           class: normalizeClass(clearClass.value),
@@ -250,7 +331,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onClick: handleClear
         }, [
           renderSlot(_ctx.$slots, "clearIcon", {}, () => [
-            createTextVNode(toDisplayString(clearIconContent.value), 1)
+            createVNode(unref(AInputRenderNode), { node: clearIconContent.value }, null, 8, ["node"])
           ])
         ], 6)) : createCommentVNode("", true),
         hasSuffix.value ? (openBlock(), createElementBlock("span", {
@@ -259,14 +340,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           style: normalizeStyle(suffixStyle.value)
         }, [
           renderSlot(_ctx.$slots, "suffix", {}, () => [
-            createTextVNode(toDisplayString(_ctx.suffix), 1)
+            createVNode(unref(AInputRenderNode), { node: _ctx.suffix }, null, 8, ["node"])
           ])
         ], 6)) : createCommentVNode("", true),
         showCountDisplay.value ? (openBlock(), createElementBlock("span", {
           key: 3,
           class: normalizeClass(countClass.value),
           style: normalizeStyle(countStyle.value)
-        }, toDisplayString(countText.value), 7)) : createCommentVNode("", true)
+        }, [
+          createVNode(unref(AInputRenderNode), { node: countText.value }, null, 8, ["node"])
+        ], 6)) : createCommentVNode("", true)
       ], 6));
     };
   }

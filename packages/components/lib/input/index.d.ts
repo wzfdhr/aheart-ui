@@ -3,10 +3,22 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly id: StringConstructor;
         readonly modelValue: StringConstructor;
         readonly placeholder: StringConstructor;
-        readonly prefix: StringConstructor;
-        readonly suffix: StringConstructor;
-        readonly addonBefore: StringConstructor;
-        readonly addonAfter: StringConstructor;
+        readonly prefix: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly suffix: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly addonBefore: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly addonAfter: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly size: import("vue").PropType<import("../config").AheartSize>;
         readonly disabled: {
             readonly type: BooleanConstructor;
@@ -58,6 +70,10 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly variant: import("./types").InputVariant;
         readonly disabled: boolean;
         readonly bordered: boolean;
+        readonly prefix: import("vue").VNodeChild;
+        readonly suffix: import("vue").VNodeChild;
+        readonly addonBefore: import("vue").VNodeChild;
+        readonly addonAfter: import("vue").VNodeChild;
         readonly readOnly: boolean;
         readonly allowClear: import("./types").InputAllowClear;
         readonly showCount: import("./types").InputShowCount;
@@ -72,10 +88,22 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly id: StringConstructor;
         readonly modelValue: StringConstructor;
         readonly placeholder: StringConstructor;
-        readonly prefix: StringConstructor;
-        readonly suffix: StringConstructor;
-        readonly addonBefore: StringConstructor;
-        readonly addonAfter: StringConstructor;
+        readonly prefix: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly suffix: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly addonBefore: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly addonAfter: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly size: import("vue").PropType<import("../config").AheartSize>;
         readonly disabled: {
             readonly type: BooleanConstructor;
@@ -121,6 +149,10 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly variant: import("./types").InputVariant;
         readonly disabled: boolean;
         readonly bordered: boolean;
+        readonly prefix: import("vue").VNodeChild;
+        readonly suffix: import("vue").VNodeChild;
+        readonly addonBefore: import("vue").VNodeChild;
+        readonly addonAfter: import("vue").VNodeChild;
         readonly readOnly: boolean;
         readonly allowClear: import("./types").InputAllowClear;
         readonly showCount: import("./types").InputShowCount;
@@ -132,10 +164,22 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     readonly id: StringConstructor;
     readonly modelValue: StringConstructor;
     readonly placeholder: StringConstructor;
-    readonly prefix: StringConstructor;
-    readonly suffix: StringConstructor;
-    readonly addonBefore: StringConstructor;
-    readonly addonAfter: StringConstructor;
+    readonly prefix: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
+    readonly suffix: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
+    readonly addonBefore: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
+    readonly addonAfter: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
     readonly size: import("vue").PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
@@ -187,14 +231,20 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     readonly variant: import("./types").InputVariant;
     readonly disabled: boolean;
     readonly bordered: boolean;
+    readonly prefix: import("vue").VNodeChild;
+    readonly suffix: import("vue").VNodeChild;
+    readonly addonBefore: import("vue").VNodeChild;
+    readonly addonAfter: import("vue").VNodeChild;
     readonly readOnly: boolean;
     readonly allowClear: import("./types").InputAllowClear;
     readonly showCount: import("./types").InputShowCount;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
+        addonBefore?(_: {}): any;
         prefix?(_: {}): any;
         clearIcon?(_: {}): any;
         suffix?(_: {}): any;
+        addonAfter?(_: {}): any;
     };
 })>;
 export default Input;
