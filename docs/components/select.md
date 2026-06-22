@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 # Select 选择器 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Select lets users choose one or more values from a fixed option list, with search, variants, adornments, and multi-value limits.
@@ -53,6 +59,37 @@ Select lets users choose one or more values from a fixed option list, with searc
     allow-clear
     :options="options"
   />
+</template>
+```
+
+## 焦点控制
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <ASelect
+      ref="selectRef"
+      placeholder="Focusable select"
+      :options="[
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' }
+      ]"
+    />
+    <AButton size="small" @click="selectRef?.focus()">Focus</AButton>
+    <AButton size="small" @click="selectRef?.blur()">Blur</AButton>
+  </ASpace>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
+<template>
+  <ASelect ref="selectRef" placeholder="Focusable select" :options="options" />
+  <AButton @click="selectRef?.focus()">Focus</AButton>
+  <AButton @click="selectRef?.blur()">Blur</AButton>
 </template>
 ```
 
@@ -313,6 +350,13 @@ Select lets users choose one or more values from a fixed option list, with searc
 | --- | --- | --- |
 | searchValue | 当前搜索文本 | `string` |
 
+## Methods
+
+| 名称 | 说明 |
+| --- | --- |
+| focus() | 聚焦选择器；开启 `showSearch` 时聚焦搜索输入框 |
+| blur() | 移除选择器焦点 |
+
 ## Events
 
 | 事件名 | 说明 | 回调参数 |
@@ -321,6 +365,8 @@ Select lets users choose one or more values from a fixed option list, with searc
 | change | 选中值变化时触发 | `(value: SelectValue) => void` |
 | clear | 点击清除按钮时触发 | `() => void` |
 | search | 搜索文本变化时触发 | `(value: string) => void` |
+| focus | 选择器或搜索输入框聚焦时触发 | `(event: FocusEvent) => void` |
+| blur | 选择器或搜索输入框失焦时触发 | `(event: FocusEvent) => void` |
 
 ## Slots
 
