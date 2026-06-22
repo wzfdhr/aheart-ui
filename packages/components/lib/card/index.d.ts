@@ -6,9 +6,25 @@ declare const Card: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: true;
         };
+        readonly variant: {
+            readonly type: import("vue").PropType<"outlined" | "borderless">;
+            readonly validator: (value: string) => boolean;
+        };
+        readonly type: {
+            readonly type: import("vue").PropType<"inner">;
+            readonly validator: (value: string) => boolean;
+        };
         readonly hoverable: BooleanConstructor;
         readonly loading: BooleanConstructor;
         readonly size: import("vue").PropType<import("../config").AheartSize>;
+        readonly actions: import("vue").PropType<import("./types").CardAction[]>;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly headStyle: import("vue").PropType<import("vue").StyleValue>;
+        readonly bodyStyle: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").CardSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").CardSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly loading: boolean;
         readonly bordered: boolean;
@@ -27,9 +43,25 @@ declare const Card: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: true;
         };
+        readonly variant: {
+            readonly type: import("vue").PropType<"outlined" | "borderless">;
+            readonly validator: (value: string) => boolean;
+        };
+        readonly type: {
+            readonly type: import("vue").PropType<"inner">;
+            readonly validator: (value: string) => boolean;
+        };
         readonly hoverable: BooleanConstructor;
         readonly loading: BooleanConstructor;
         readonly size: import("vue").PropType<import("../config").AheartSize>;
+        readonly actions: import("vue").PropType<import("./types").CardAction[]>;
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly headStyle: import("vue").PropType<import("vue").StyleValue>;
+        readonly bodyStyle: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").CardSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").CardSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly loading: boolean;
         readonly bordered: boolean;
@@ -45,9 +77,25 @@ declare const Card: import("../utils/install").SFCWithInstall<{
         readonly type: BooleanConstructor;
         readonly default: true;
     };
+    readonly variant: {
+        readonly type: import("vue").PropType<"outlined" | "borderless">;
+        readonly validator: (value: string) => boolean;
+    };
+    readonly type: {
+        readonly type: import("vue").PropType<"inner">;
+        readonly validator: (value: string) => boolean;
+    };
     readonly hoverable: BooleanConstructor;
     readonly loading: BooleanConstructor;
     readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly actions: import("vue").PropType<import("./types").CardAction[]>;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly headStyle: import("vue").PropType<import("vue").StyleValue>;
+    readonly bodyStyle: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").CardSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").CardSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly loading: boolean;
     readonly bordered: boolean;
