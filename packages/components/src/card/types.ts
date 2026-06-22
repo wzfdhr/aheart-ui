@@ -7,6 +7,23 @@ export const cardTypes = ['inner'] as const
 export type CardVariant = (typeof cardVariants)[number]
 export type CardType = (typeof cardTypes)[number]
 export type CardAction = string | number
+export interface CardTab {
+  key: string
+  tab: VNodeChild
+  disabled?: boolean
+  children?: VNodeChild
+}
+export type CardTabSemanticPart = 'root' | 'list' | 'tab' | 'activeTab' | 'tabLabel' | 'extra'
+export type CardTabClassNames = Partial<Record<CardTabSemanticPart, string>>
+export type CardTabStyles = Partial<Record<CardTabSemanticPart, StyleValue>>
+export interface CardTabProps {
+  className?: string
+  rootClassName?: string
+  style?: StyleValue
+  tabBarGutter?: number
+  classNames?: CardTabClassNames
+  styles?: CardTabStyles
+}
 export type CardSemanticPart = 'root' | 'header' | 'title' | 'extra' | 'cover' | 'body' | 'actions'
 export type CardClassNames = Partial<Record<CardSemanticPart, string>>
 export type CardStyles = Partial<Record<CardSemanticPart, StyleValue>>
@@ -36,6 +53,11 @@ export const cardProps = {
   loading: Boolean,
   size: String as PropType<AheartSize>,
   actions: Array as PropType<CardAction[]>,
+  tabList: Array as PropType<CardTab[]>,
+  activeTabKey: String,
+  defaultActiveTabKey: String,
+  tabBarExtraContent: [String, Number, Boolean, Object, Array, Function] as PropType<VNodeChild>,
+  tabProps: Object as PropType<CardTabProps>,
   className: String,
   rootClassName: String,
   style: [String, Object, Array] as PropType<StyleValue>,
@@ -44,6 +66,11 @@ export const cardProps = {
   classNames: Object as PropType<CardClassNames>,
   styles: Object as PropType<CardStyles>
 } as const
+
+export const cardEmits = {
+  'update:activeTabKey': (key: string) => typeof key === 'string',
+  tabChange: (key: string) => typeof key === 'string'
+}
 
 export const cardMetaProps = {
   avatar: [String, Number, Boolean, Object, Array, Function] as PropType<VNodeChild>,

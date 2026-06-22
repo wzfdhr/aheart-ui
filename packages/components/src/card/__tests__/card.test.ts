@@ -172,6 +172,169 @@ describe('Card', () => {
     expect(wrapper.find('.aheart-card__body').attributes('style')).toContain('min-height: 80px')
   })
 
+  it('renders tab list with first enabled tab and keyed slot content', () => {
+    const wrapper = mount(Card, {
+      props: {
+        title: 'Tabbed',
+        tabList: [
+          { key: 'disabled', tab: 'Disabled', disabled: true },
+          { key: 'overview', tab: 'Overview' },
+          { key: 'settings', tab: 'Settings' }
+        ]
+      },
+      slots: {
+        default: 'Default content',
+        'tab-overview': '<span class="overview-panel">Overview panel</span>',
+        'tab-settings': '<span class="settings-panel">Settings panel</span>'
+      }
+    })
+
+    expect(wrapper.find('.aheart-card__tabs').exists()).toBe(true)
+    expect(wrapper.find('[role="tablist"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-selected="true"]').text()).toContain('Overview')
+    expect(wrapper.find('.overview-panel').text()).toBe('Overview panel')
+    expect(wrapper.text()).not.toContain('Default content')
+  })
+
+  it('supports default active tab and emits tab changes when uncontrolled', async () => {
+    const wrapper = mount(Card, {
+      props: {
+        tabList: [
+          { key: 'overview', tab: 'Overview' },
+          { key: 'settings', tab: 'Settings' }
+        ],
+        defaultActiveTabKey: 'settings'
+      },
+      slots: {
+        'tab-overview': 'Overview panel',
+        'tab-settings': 'Settings panel'
+      }
+    })
+
+    expect(wrapper.find('[aria-selected="true"]').text()).toContain('Settings')
+
+    await wrapper.findAll('[role="tab"]')[0].trigger('click')
+
+    expect(wrapper.find('[aria-selected="true"]').text()).toContain('Overview')
+    expect(wrapper.emitted('update:activeTabKey')?.[0]).toEqual(['overview'])
+    expect(wrapper.emitted('tabChange')?.[0]).toEqual(['overview'])
+  })
+
+  it('keeps controlled active tab visual state after tab clicks', async () => {
+    const wrapper = mount(Card, {
+      props: {
+        activeTabKey: 'overview',
+        tabList: [
+          { key: 'overview', tab: 'Overview' },
+          { key: 'settings', tab: 'Settings' }
+        ]
+      },
+      slots: {
+        'tab-overview': 'Overview panel',
+        'tab-settings': 'Settings panel'
+      }
+    })
+
+    await wrapper.findAll('[role="tab"]')[1].trigger('click')
+
+    expect(wrapper.find('[aria-selected="true"]').text()).toContain('Overview')
+    expect(wrapper.emitted('update:activeTabKey')?.[0]).toEqual(['settings'])
+    expect(wrapper.emitted('tabChange')?.[0]).toEqual(['settings'])
+  })
+
+  it('does not emit tab changes for disabled or active tabs', async () => {
+    const wrapper = mount(Card, {
+      props: {
+        defaultActiveTabKey: 'overview',
+        tabList: [
+          { key: 'overview', tab: 'Overview' },
+          { key: 'disabled', tab: 'Disabled', disabled: true }
+        ]
+      }
+    })
+
+    await wrapper.findAll('[role="tab"]')[0].trigger('click')
+    await wrapper.findAll('[role="tab"]')[1].trigger('click')
+
+    expect(wrapper.emitted('update:activeTabKey')).toBeUndefined()
+    expect(wrapper.emitted('tabChange')).toBeUndefined()
+  })
+
+  it('renders tab item children, tab extra content, and tabProps hooks', async () => {
+    const wrapper = mount(Card, {
+      props: {
+        tabBarExtraContent: 'Extra',
+        tabProps: {
+          className: 'tabs-class',
+          rootClassName: 'tabs-root',
+          style: { marginTop: '4px' },
+          tabBarGutter: 20,
+          classNames: {
+            root: 'semantic-tabs',
+            list: 'semantic-list',
+            tab: 'semantic-tab',
+            activeTab: 'semantic-active-tab',
+            tabLabel: 'semantic-label',
+            extra: 'semantic-extra'
+          },
+          styles: {
+            root: { backgroundColor: 'rgb(250, 250, 250)' },
+            list: { paddingInlineStart: '2px' },
+            tab: { minWidth: '64px' },
+            activeTab: { fontWeight: 700 },
+            tabLabel: { color: 'red' },
+            extra: { color: 'blue' }
+          }
+        },
+        tabList: [
+          { key: 'overview', tab: 'Overview', children: 'Overview children' },
+          { key: 'settings', tab: 'Settings', children: 'Settings children' }
+        ]
+      },
+      slots: {
+        default: 'Default fallback'
+      }
+    })
+
+    expect(wrapper.text()).toContain('Overview children')
+    expect(wrapper.find('.aheart-card__tabs').classes()).toEqual(
+      expect.arrayContaining(['tabs-class', 'tabs-root', 'semantic-tabs'])
+    )
+    expect(wrapper.find('.aheart-card__tabs').attributes('style')).toContain('margin-top: 4px')
+    expect(wrapper.find('.aheart-card__tabs').attributes('style')).toContain('background-color: rgb(250, 250, 250)')
+    expect(wrapper.find('.aheart-card__tab-list').attributes('style')).toContain('--aheart-card-tab-gutter: 20px')
+    expect(wrapper.find('.aheart-card__tab-list').classes()).toContain('semantic-list')
+    expect(wrapper.find('.aheart-card__tab').classes()).toContain('semantic-tab')
+    expect(wrapper.find('.aheart-card__tab.is-active').classes()).toContain('semantic-active-tab')
+    expect(wrapper.find('.aheart-card__tab-label').classes()).toContain('semantic-label')
+    expect(wrapper.find('.aheart-card__tab-extra').classes()).toContain('semantic-extra')
+    expect(wrapper.find('.aheart-card__tab-extra').text()).toBe('Extra')
+
+    await wrapper.findAll('[role="tab"]')[1].trigger('click')
+
+    expect(wrapper.text()).toContain('Settings children')
+  })
+
+  it('lets tabBarExtraContent slot override the prop and falls back to default slot', () => {
+    const wrapper = mount(Card, {
+      props: {
+        tabBarExtraContent: 'Prop extra',
+        tabList: [
+          { key: 'overview', tab: 'Overview' }
+        ]
+      },
+      slots: {
+        default: '<span class="fallback-panel">Fallback panel</span>',
+        tabBarExtraContent: '<button class="extra-slot">Action</button>'
+      }
+    })
+
+    expect(wrapper.find('.extra-slot').exists()).toBe(true)
+    expect(wrapper.find('.aheart-card__tab-extra').text()).toBe('Action')
+    expect(wrapper.text()).not.toContain('Prop extra')
+    expect(wrapper.find('.fallback-panel').text()).toBe('Fallback panel')
+  })
+
   it('renders CardMeta avatar, title, and description props', () => {
     const wrapper = mount(CardMeta, {
       props: {

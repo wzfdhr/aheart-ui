@@ -54,6 +54,77 @@
   padding: var(--aheart-spacing-md);
 }
 
+.aheart-card__tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--aheart-spacing-md);
+  border-bottom: 1px solid var(--aheart-color-border);
+  gap: var(--aheart-spacing-md);
+}
+
+.aheart-card__tab-list {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--aheart-card-tab-gutter, var(--aheart-spacing-md));
+  overflow: hidden;
+}
+
+.aheart-card__tab {
+  position: relative;
+  display: inline-flex;
+  min-height: var(--aheart-control-height-lg);
+  flex: 0 0 auto;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  transition: color var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-card__tab::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: transparent;
+  content: "";
+  transition: background var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-card__tab:hover:not(:disabled),
+.aheart-card__tab.is-active {
+  color: var(--aheart-color-primary);
+}
+
+.aheart-card__tab.is-active::after {
+  background: var(--aheart-color-primary);
+}
+
+.aheart-card__tab:disabled {
+  color: var(--aheart-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.aheart-card__tab-label {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.aheart-card__tab-extra {
+  flex: 0 0 auto;
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
+}
+
 .aheart-card__actions {
   display: flex;
   align-items: center;
@@ -81,12 +152,24 @@
   padding: var(--aheart-spacing-sm);
 }
 
+.aheart-card--small .aheart-card__tabs {
+  padding: 0 var(--aheart-spacing-sm);
+}
+
+.aheart-card--small .aheart-card__tab {
+  min-height: var(--aheart-control-height);
+}
+
 .aheart-card--large .aheart-card__header {
   min-height: calc(var(--aheart-control-height-lg) + 8px);
 }
 
 .aheart-card--large .aheart-card__body {
   padding: var(--aheart-spacing-lg);
+}
+
+.aheart-card--large .aheart-card__tab {
+  min-height: calc(var(--aheart-control-height-lg) + 8px);
 }
 
 .aheart-card__loading {

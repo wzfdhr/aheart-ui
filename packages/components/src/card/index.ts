@@ -30,6 +30,11 @@ export type {
   CardProps,
   CardSemanticPart,
   CardStyles,
+  CardTab,
+  CardTabClassNames,
+  CardTabProps,
+  CardTabSemanticPart,
+  CardTabStyles,
   CardType,
   CardVariant
 } from './types'
