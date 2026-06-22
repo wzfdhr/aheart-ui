@@ -21,13 +21,25 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
+    readonly allowClear: {
+        readonly type: import("vue").PropType<import("./types").InputAllowClear>;
+        readonly default: false;
+    };
     readonly maxlength: NumberConstructor;
-    readonly showCount: BooleanConstructor;
+    readonly showCount: {
+        readonly type: import("vue").PropType<import("./types").InputShowCount>;
+        readonly default: false;
+    };
+    readonly count: import("vue").PropType<import("./types").InputCountConfig>;
     readonly type: {
         readonly type: StringConstructor;
         readonly default: "text";
     };
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: string) => void;
     input: (value: string) => void;
@@ -57,13 +69,25 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
+    readonly allowClear: {
+        readonly type: import("vue").PropType<import("./types").InputAllowClear>;
+        readonly default: false;
+    };
     readonly maxlength: NumberConstructor;
-    readonly showCount: BooleanConstructor;
+    readonly showCount: {
+        readonly type: import("vue").PropType<import("./types").InputShowCount>;
+        readonly default: false;
+    };
+    readonly count: import("vue").PropType<import("./types").InputCountConfig>;
     readonly type: {
         readonly type: StringConstructor;
         readonly default: "text";
     };
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((value: string) => any) | undefined;
     onInput?: ((value: string) => any) | undefined;
@@ -76,10 +100,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly disabled: boolean;
     readonly bordered: boolean;
     readonly readOnly: boolean;
-    readonly allowClear: boolean;
-    readonly showCount: boolean;
+    readonly allowClear: import("./types").InputAllowClear;
+    readonly showCount: import("./types").InputShowCount;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     prefix?(_: {}): any;
+    clearIcon?(_: {}): any;
     suffix?(_: {}): any;
 }>;
 export default _default;

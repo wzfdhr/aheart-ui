@@ -22,13 +22,25 @@ declare const Input: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly allowClear: BooleanConstructor;
+        readonly allowClear: {
+            readonly type: import("vue").PropType<import("./types").InputAllowClear>;
+            readonly default: false;
+        };
         readonly maxlength: NumberConstructor;
-        readonly showCount: BooleanConstructor;
+        readonly showCount: {
+            readonly type: import("vue").PropType<import("./types").InputShowCount>;
+            readonly default: false;
+        };
+        readonly count: import("vue").PropType<import("./types").InputCountConfig>;
         readonly type: {
             readonly type: StringConstructor;
             readonly default: "text";
         };
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
         onChange?: ((value: string) => any) | undefined;
         onInput?: ((value: string) => any) | undefined;
@@ -47,8 +59,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly disabled: boolean;
         readonly bordered: boolean;
         readonly readOnly: boolean;
-        readonly allowClear: boolean;
-        readonly showCount: boolean;
+        readonly allowClear: import("./types").InputAllowClear;
+        readonly showCount: import("./types").InputShowCount;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -79,13 +91,25 @@ declare const Input: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly allowClear: BooleanConstructor;
+        readonly allowClear: {
+            readonly type: import("vue").PropType<import("./types").InputAllowClear>;
+            readonly default: false;
+        };
         readonly maxlength: NumberConstructor;
-        readonly showCount: BooleanConstructor;
+        readonly showCount: {
+            readonly type: import("vue").PropType<import("./types").InputShowCount>;
+            readonly default: false;
+        };
+        readonly count: import("vue").PropType<import("./types").InputCountConfig>;
         readonly type: {
             readonly type: StringConstructor;
             readonly default: "text";
         };
+        readonly className: StringConstructor;
+        readonly rootClassName: StringConstructor;
+        readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
         onChange?: ((value: string) => any) | undefined;
         onInput?: ((value: string) => any) | undefined;
@@ -98,8 +122,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly disabled: boolean;
         readonly bordered: boolean;
         readonly readOnly: boolean;
-        readonly allowClear: boolean;
-        readonly showCount: boolean;
+        readonly allowClear: import("./types").InputAllowClear;
+        readonly showCount: import("./types").InputShowCount;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -127,13 +151,25 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly allowClear: BooleanConstructor;
+    readonly allowClear: {
+        readonly type: import("vue").PropType<import("./types").InputAllowClear>;
+        readonly default: false;
+    };
     readonly maxlength: NumberConstructor;
-    readonly showCount: BooleanConstructor;
+    readonly showCount: {
+        readonly type: import("vue").PropType<import("./types").InputShowCount>;
+        readonly default: false;
+    };
+    readonly count: import("vue").PropType<import("./types").InputCountConfig>;
     readonly type: {
         readonly type: StringConstructor;
         readonly default: "text";
     };
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<import("./types").InputSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((value: string) => any) | undefined;
     onInput?: ((value: string) => any) | undefined;
@@ -152,11 +188,12 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     readonly disabled: boolean;
     readonly bordered: boolean;
     readonly readOnly: boolean;
-    readonly allowClear: boolean;
-    readonly showCount: boolean;
+    readonly allowClear: import("./types").InputAllowClear;
+    readonly showCount: import("./types").InputShowCount;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         prefix?(_: {}): any;
+        clearIcon?(_: {}): any;
         suffix?(_: {}): any;
     };
 })>;

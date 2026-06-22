@@ -23,13 +23,25 @@ const inputProps = {
     type: Boolean,
     default: void 0
   },
-  allowClear: Boolean,
+  allowClear: {
+    type: [Boolean, Object],
+    default: false
+  },
   maxlength: Number,
-  showCount: Boolean,
+  showCount: {
+    type: [Boolean, Object],
+    default: false
+  },
+  count: Object,
   type: {
     type: String,
     default: "text"
-  }
+  },
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const inputEmits = {
   "update:modelValue": (value) => typeof value === "string",
