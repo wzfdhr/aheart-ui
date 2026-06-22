@@ -42,6 +42,7 @@ export default defineConfig({
             { text: 'Space 间距', link: '/components/space' },
             { text: 'Divider 分割线', link: '/components/divider' },
             { text: 'Flex 弹性布局', link: '/components/flex' },
+            { text: 'Grid 栅格', link: '/components/grid' },
             { text: 'Tag 标签', link: '/components/tag' },
             { text: 'Badge 徽标', link: '/components/badge' },
             { text: 'Alert 警告提示', link: '/components/alert' },

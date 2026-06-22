@@ -36,7 +36,7 @@ export const componentCategories: ComponentCategory[] = [
       { name: 'Space', description: 'Set consistent inline spacing.', status: 'Ready', link: '/components/space' },
       { name: 'Divider', description: 'Separate content groups.', status: 'Ready', link: '/components/divider' },
       { name: 'Flex', description: 'Compose flexible layouts.', status: 'Ready', link: '/components/flex' },
-      { name: 'Grid', description: 'Build responsive grids.', status: 'Planned' }
+      { name: 'Grid', description: 'Build responsive grids.', status: 'Ready', link: '/components/grid' }
     ]
   },
   {
