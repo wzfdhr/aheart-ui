@@ -5,7 +5,7 @@ const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = { class: "aheart-radio__box" };
-const _hoisted_2 = ["name", "checked", "disabled"];
+const _hoisted_2 = ["name", "value", "checked", "disabled"];
 const _hoisted_3 = { class: "aheart-radio__label" };
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
@@ -36,6 +36,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: "aheart-radio__input",
             type: "radio",
             name: _ctx.name,
+            value: _ctx.value,
             checked: _ctx.modelValue,
             disabled: isDisabled.value,
             onChange: handleChange

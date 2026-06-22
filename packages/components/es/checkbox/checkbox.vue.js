@@ -3,7 +3,7 @@ import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { checkboxProps, checkboxEmits } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = { class: "aheart-checkbox__box" };
-const _hoisted_2 = ["checked", "disabled", "aria-checked"];
+const _hoisted_2 = ["name", "value", "checked", "disabled", "aria-checked"];
 const _hoisted_3 = { class: "aheart-checkbox__label" };
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
@@ -35,6 +35,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           createElementVNode("input", {
             class: "aheart-checkbox__input",
             type: "checkbox",
+            name: _ctx.name,
+            value: _ctx.value,
             checked: _ctx.modelValue,
             disabled: isDisabled.value,
             "aria-checked": _ctx.indeterminate ? "mixed" : _ctx.modelValue ? "true" : "false",

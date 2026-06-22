@@ -24,7 +24,7 @@ declare const Space: import("../utils/install").SFCWithInstall<import("vue").Def
     readonly split: StringConstructor;
 }>> & Readonly<{}>, {
     readonly vertical: boolean;
-    readonly wrap: boolean;
     readonly direction: import("./types").SpaceDirection;
+    readonly wrap: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Space;

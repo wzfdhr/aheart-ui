@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const radio_vue_vue_type_script_setup_true_lang = require("./radio.vue.js");
+const radioGroup_vue_vue_type_script_setup_true_lang = require("./radio-group.vue.js");
 const install = require("../utils/install.js");
 const Radio = install.withInstall(radio_vue_vue_type_script_setup_true_lang.default, "ARadio");
+const RadioGroup = install.withInstall(radioGroup_vue_vue_type_script_setup_true_lang.default, "ARadioGroup");
+exports.ARadioGroup = RadioGroup;
+exports.RadioGroup = RadioGroup;
 exports.default = Radio;

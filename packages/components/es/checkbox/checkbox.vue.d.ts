@@ -1,5 +1,7 @@
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly modelValue: BooleanConstructor;
+    readonly value: import("vue").PropType<import("./types").CheckboxValue>;
+    readonly name: StringConstructor;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -11,6 +13,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     "update:modelValue": (checked: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly modelValue: BooleanConstructor;
+    readonly value: import("vue").PropType<import("./types").CheckboxValue>;
+    readonly name: StringConstructor;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;

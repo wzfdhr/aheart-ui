@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const checkbox_vue_vue_type_script_setup_true_lang = require("./checkbox.vue.js");
+const checkboxGroup_vue_vue_type_script_setup_true_lang = require("./checkbox-group.vue.js");
 const install = require("../utils/install.js");
 const Checkbox = install.withInstall(checkbox_vue_vue_type_script_setup_true_lang.default, "ACheckbox");
+const CheckboxGroup = install.withInstall(checkboxGroup_vue_vue_type_script_setup_true_lang.default, "ACheckboxGroup");
+exports.ACheckboxGroup = CheckboxGroup;
+exports.CheckboxGroup = CheckboxGroup;
 exports.default = Checkbox;

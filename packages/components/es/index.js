@@ -3,7 +3,7 @@ import Badge from "./badge/index.js";
 import Breadcrumb from "./breadcrumb/index.js";
 import Button from "./button/index.js";
 import Card from "./card/index.js";
-import Checkbox from "./checkbox/index.js";
+import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
 import Divider from "./divider/index.js";
@@ -23,7 +23,7 @@ import Modal from "./modal/index.js";
 import Pagination from "./pagination/index.js";
 import Popconfirm from "./popconfirm/index.js";
 import Popover from "./popover/index.js";
-import Radio from "./radio/index.js";
+import Radio, { RadioGroup } from "./radio/index.js";
 import Select from "./select/index.js";
 import Skeleton from "./skeleton/index.js";
 import Space from "./space/index.js";
@@ -72,7 +72,9 @@ const components = [
   Textarea,
   InputNumber,
   Checkbox,
+  CheckboxGroup,
   Radio,
+  RadioGroup,
   Switch,
   Card,
   Descriptions,
@@ -96,6 +98,7 @@ export {
   Button,
   Card,
   Checkbox,
+  CheckboxGroup,
   Col,
   ConfigProvider,
   Descriptions,
@@ -119,6 +122,7 @@ export {
   Popconfirm,
   Popover,
   Radio,
+  RadioGroup,
   Row,
   Select,
   Skeleton,

@@ -35,7 +35,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     onChange?: ((current: number) => any) | undefined;
 }>, {
     readonly status: StepStatus;
-    readonly current: number;
     readonly direction: import("./types").StepsDirection;
+    readonly current: number;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

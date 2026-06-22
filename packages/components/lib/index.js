@@ -73,7 +73,9 @@ const components = [
   index$q.default,
   index$r.default,
   index$s.default,
+  index$s.CheckboxGroup,
   index$t.default,
+  index$t.RadioGroup,
   index$u.default,
   index$v.default,
   index$w.default,
@@ -96,6 +98,7 @@ exports.Breadcrumb = index$k.default;
 exports.Button = index.default;
 exports.Card = index$v.default;
 exports.Checkbox = index$s.default;
+exports.CheckboxGroup = index$s.CheckboxGroup;
 exports.ConfigProvider = index$1.default;
 exports.Descriptions = index$w.default;
 exports.Divider = index$3.default;
@@ -118,6 +121,7 @@ exports.Pagination = index$x.default;
 exports.Popconfirm = index$g.default;
 exports.Popover = index$f.default;
 exports.Radio = index$t.default;
+exports.RadioGroup = index$t.RadioGroup;
 exports.Select = index$y.default;
 exports.Skeleton = index$i.default;
 exports.Space = index$2.default;
