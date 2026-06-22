@@ -32,14 +32,14 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{
         onChange?: ((value: string) => any) | undefined;
         onInput?: ((value: string) => any) | undefined;
-        "onUpdate:modelValue"?: ((value: string) => any) | undefined;
         onClear?: (() => any) | undefined;
+        "onUpdate:modelValue"?: ((value: string) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         change: (value: string) => void;
         input: (value: string) => void;
-        "update:modelValue": (value: string) => void;
         clear: () => void;
+        "update:modelValue": (value: string) => void;
         pressEnter: (event: KeyboardEvent) => void;
     }, import("vue").PublicProps, {
         readonly type: string;
@@ -89,8 +89,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{
         onChange?: ((value: string) => any) | undefined;
         onInput?: ((value: string) => any) | undefined;
-        "onUpdate:modelValue"?: ((value: string) => any) | undefined;
         onClear?: (() => any) | undefined;
+        "onUpdate:modelValue"?: ((value: string) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly type: string;
@@ -137,14 +137,14 @@ declare const Input: import("../utils/install").SFCWithInstall<{
 }>> & Readonly<{
     onChange?: ((value: string) => any) | undefined;
     onInput?: ((value: string) => any) | undefined;
-    "onUpdate:modelValue"?: ((value: string) => any) | undefined;
     onClear?: (() => any) | undefined;
+    "onUpdate:modelValue"?: ((value: string) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: string) => void;
     input: (value: string) => void;
-    "update:modelValue": (value: string) => void;
     clear: () => void;
+    "update:modelValue": (value: string) => void;
     pressEnter: (event: KeyboardEvent) => void;
 }, string, {
     readonly type: string;

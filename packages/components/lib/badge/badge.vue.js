@@ -3,14 +3,8 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-badge__dot"
-};
-const _hoisted_2 = {
-  key: 1,
-  class: "aheart-badge__count"
-};
+const _hoisted_1 = ["title"];
+const _hoisted_2 = ["title"];
 const _hoisted_3 = {
   key: 0,
   class: "aheart-badge__status-text"
@@ -23,29 +17,102 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.badgeProps,
   setup(__props) {
     const props = __props;
+    const slots = vue.useSlots();
+    const hasDefaultSlot = vue.computed(() => Boolean(slots.default));
+    const isStandalone = vue.computed(() => !hasDefaultSlot.value);
+    const isZeroCount = vue.computed(() => props.count === 0);
+    const showIndicatorWithCount = vue.computed(() => !isZeroCount.value || props.showZero);
+    const showDotIndicator = vue.computed(() => props.dot && showIndicatorWithCount.value);
+    const showCountIndicator = vue.computed(() => !props.dot && props.count !== void 0 && showIndicatorWithCount.value);
+    const normalizedSize = vue.computed(() => props.size === "small" ? "small" : "medium");
     const displayCount = vue.computed(() => {
       if (typeof props.count === "number" && props.count > props.overflowCount) {
         return `${props.overflowCount}+`;
       }
       return props.count;
     });
-    const badgeClass = vue.computed(() => ({
-      "aheart-badge--status": props.status,
-      "aheart-badge--standalone": props.count === void 0 && !props.dot
+    const rootStyle = vue.computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.root;
+    });
+    const internalIndicatorStyle = vue.computed(() => {
+      const style = {};
+      if (props.color) {
+        style.backgroundColor = props.color;
+      }
+      if (props.offset && !isStandalone.value) {
+        const [x, y] = props.offset;
+        style.transform = `translate(50%, -50%) translate(${x}px, ${y}px)`;
+      }
+      return style;
+    });
+    const indicatorStyle = vue.computed(() => {
+      var _a;
+      return [internalIndicatorStyle.value, (_a = props.styles) == null ? void 0 : _a.indicator];
+    });
+    const badgeClass = vue.computed(() => {
+      var _a;
+      return [
+        {
+          "aheart-badge--status": props.status,
+          "aheart-badge--standalone": isStandalone.value
+        },
+        (_a = props.classNames) == null ? void 0 : _a.root
+      ];
+    });
+    const indicatorClass = vue.computed(() => ({
+      "is-standalone": isStandalone.value
     }));
+    const countClass = vue.computed(() => {
+      var _a;
+      return [
+        "aheart-badge__count",
+        `aheart-badge__count--${normalizedSize.value}`,
+        indicatorClass.value,
+        (_a = props.classNames) == null ? void 0 : _a.indicator
+      ];
+    });
+    const dotClass = vue.computed(() => {
+      var _a;
+      return ["aheart-badge__dot", indicatorClass.value, (_a = props.classNames) == null ? void 0 : _a.indicator];
+    });
+    const statusDotClass = vue.computed(() => {
+      var _a;
+      return [
+        "aheart-badge__status-dot",
+        `aheart-badge__status-dot--${props.status}`,
+        (_a = props.classNames) == null ? void 0 : _a.indicator
+      ];
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
-        class: vue.normalizeClass(["aheart-badge", badgeClass.value])
+        class: vue.normalizeClass(["aheart-badge", badgeClass.value]),
+        style: vue.normalizeStyle(rootStyle.value)
       }, [
         vue.renderSlot(_ctx.$slots, "default"),
-        _ctx.dot ? (vue.openBlock(), vue.createElementBlock("sup", _hoisted_1)) : _ctx.count !== void 0 ? (vue.openBlock(), vue.createElementBlock("sup", _hoisted_2, vue.toDisplayString(displayCount.value), 1)) : vue.createCommentVNode("", true),
+        showDotIndicator.value ? (vue.openBlock(), vue.createElementBlock("sup", {
+          key: 0,
+          class: vue.normalizeClass(dotClass.value),
+          style: vue.normalizeStyle(indicatorStyle.value),
+          title: _ctx.title
+        }, null, 14, _hoisted_1)) : showCountIndicator.value ? (vue.openBlock(), vue.createElementBlock("sup", {
+          key: 1,
+          class: vue.normalizeClass(countClass.value),
+          style: vue.normalizeStyle(indicatorStyle.value),
+          title: _ctx.title
+        }, [
+          vue.renderSlot(_ctx.$slots, "count", {}, () => [
+            vue.createTextVNode(vue.toDisplayString(displayCount.value), 1)
+          ])
+        ], 14, _hoisted_2)) : vue.createCommentVNode("", true),
         _ctx.status ? (vue.openBlock(), vue.createElementBlock(vue.Fragment, { key: 2 }, [
           vue.createElementVNode("span", {
-            class: vue.normalizeClass(["aheart-badge__status-dot", `aheart-badge__status-dot--${_ctx.status}`])
-          }, null, 2),
+            class: vue.normalizeClass(statusDotClass.value),
+            style: vue.normalizeStyle(indicatorStyle.value)
+          }, null, 6),
           _ctx.text ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, vue.toDisplayString(_ctx.text), 1)) : vue.createCommentVNode("", true)
         ], 64)) : vue.createCommentVNode("", true)
-      ], 2);
+      ], 6);
     };
   }
 });

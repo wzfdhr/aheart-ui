@@ -56,8 +56,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     onChange?: ((value: RadioValue) => any) | undefined;
     "onUpdate:modelValue"?: ((value: RadioValue) => any) | undefined;
 }>, {
-    readonly disabled: boolean;
     readonly block: boolean;
+    readonly disabled: boolean;
     readonly options: RadioOption[];
     readonly direction: import("./types").RadioGroupDirection;
     readonly optionType: import("./types").RadioOptionType;

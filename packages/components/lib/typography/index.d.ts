@@ -69,11 +69,11 @@ declare const Text: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly code: boolean;
         readonly strong: boolean;
+        readonly italic: boolean;
+        readonly underline: boolean;
         readonly disabled: boolean;
         readonly delete: boolean;
         readonly keyboard: boolean;
-        readonly italic: boolean;
-        readonly underline: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -93,11 +93,11 @@ declare const Text: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly code: boolean;
         readonly strong: boolean;
+        readonly italic: boolean;
+        readonly underline: boolean;
         readonly disabled: boolean;
         readonly delete: boolean;
         readonly keyboard: boolean;
-        readonly italic: boolean;
-        readonly underline: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -114,11 +114,11 @@ declare const Text: import("../utils/install").SFCWithInstall<{
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly code: boolean;
     readonly strong: boolean;
+    readonly italic: boolean;
+    readonly underline: boolean;
     readonly disabled: boolean;
     readonly delete: boolean;
     readonly keyboard: boolean;
-    readonly italic: boolean;
-    readonly underline: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;
@@ -133,9 +133,9 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly strong: boolean;
-        readonly disabled: boolean;
         readonly italic: boolean;
         readonly ellipsis: boolean;
+        readonly disabled: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -151,9 +151,9 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly strong: boolean;
-        readonly disabled: boolean;
         readonly italic: boolean;
         readonly ellipsis: boolean;
+        readonly disabled: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -166,9 +166,9 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
     readonly disabled: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly strong: boolean;
-    readonly disabled: boolean;
     readonly italic: boolean;
     readonly ellipsis: boolean;
+    readonly disabled: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;
@@ -181,8 +181,8 @@ declare const Link: import("../utils/install").SFCWithInstall<{
         readonly disabled: BooleanConstructor;
         readonly underline: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
-        readonly disabled: boolean;
         readonly underline: boolean;
+        readonly disabled: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -196,8 +196,8 @@ declare const Link: import("../utils/install").SFCWithInstall<{
         readonly disabled: BooleanConstructor;
         readonly underline: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
-        readonly disabled: boolean;
         readonly underline: boolean;
+        readonly disabled: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -208,8 +208,8 @@ declare const Link: import("../utils/install").SFCWithInstall<{
     readonly disabled: BooleanConstructor;
     readonly underline: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
-    readonly disabled: boolean;
     readonly underline: boolean;
+    readonly disabled: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;

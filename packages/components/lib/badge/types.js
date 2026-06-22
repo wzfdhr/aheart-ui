@@ -8,6 +8,16 @@ const badgeProps = {
   overflowCount: {
     type: Number,
     default: 99
-  }
+  },
+  showZero: Boolean,
+  size: {
+    type: String,
+    default: "medium"
+  },
+  offset: Array,
+  color: String,
+  title: String,
+  classNames: Object,
+  styles: Object
 };
 exports.badgeProps = badgeProps;

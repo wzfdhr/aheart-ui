@@ -4,7 +4,7 @@ export declare const popoverProps: {
     readonly title: StringConstructor;
     readonly content: StringConstructor;
     readonly placement: {
-        readonly type: PropType<"left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };

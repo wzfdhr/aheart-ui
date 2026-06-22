@@ -28,8 +28,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: string) => void;
     input: (value: string) => void;
-    "update:modelValue": (value: string) => void;
     clear: () => void;
+    "update:modelValue": (value: string) => void;
     pressEnter: (event: KeyboardEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
@@ -61,8 +61,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
 }>> & Readonly<{
     onChange?: ((value: string) => any) | undefined;
     onInput?: ((value: string) => any) | undefined;
-    "onUpdate:modelValue"?: ((value: string) => any) | undefined;
     onClear?: (() => any) | undefined;
+    "onUpdate:modelValue"?: ((value: string) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
     readonly disabled: boolean;

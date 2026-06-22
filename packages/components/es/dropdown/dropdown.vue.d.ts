@@ -48,8 +48,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
-    readonly disabled: boolean;
     readonly open: boolean;
+    readonly disabled: boolean;
     readonly placement: import("./types").DropdownPlacement;
     readonly trigger: import("./types").DropdownTrigger[];
     readonly defaultOpen: boolean;

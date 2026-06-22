@@ -18,8 +18,8 @@ declare const Skeleton: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly title: boolean | import("./types").SkeletonTitleConfig;
         readonly round: boolean;
-        readonly loading: boolean;
         readonly active: boolean;
+        readonly loading: boolean;
         readonly paragraph: boolean | import("./types").SkeletonParagraphConfig;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -47,8 +47,8 @@ declare const Skeleton: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly title: boolean | import("./types").SkeletonTitleConfig;
         readonly round: boolean;
-        readonly loading: boolean;
         readonly active: boolean;
+        readonly loading: boolean;
         readonly paragraph: boolean | import("./types").SkeletonParagraphConfig;
     }>;
     __isFragment?: undefined;
@@ -73,8 +73,8 @@ declare const Skeleton: import("../utils/install").SFCWithInstall<{
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly title: boolean | import("./types").SkeletonTitleConfig;
     readonly round: boolean;
-    readonly loading: boolean;
     readonly active: boolean;
+    readonly loading: boolean;
     readonly paragraph: boolean | import("./types").SkeletonParagraphConfig;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

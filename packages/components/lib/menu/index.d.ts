@@ -73,10 +73,10 @@ declare const Menu: import("../utils/install").SFCWithInstall<import("vue").Defi
     "onUpdate:selectedKeys"?: ((keys: string[]) => any) | undefined;
     "onUpdate:openKeys"?: ((keys: string[]) => any) | undefined;
 }>, {
+    readonly multiple: boolean;
     readonly disabled: boolean;
     readonly theme: import("./types").MenuTheme;
     readonly mode: import("./types").MenuMode;
-    readonly multiple: boolean;
     readonly defaultSelectedKeys: string[];
     readonly defaultOpenKeys: string[];
     readonly selectable: boolean;

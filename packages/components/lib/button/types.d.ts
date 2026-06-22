@@ -9,12 +9,12 @@ export type NativeButtonType = (typeof nativeButtonTypes)[number];
 export type ButtonShape = (typeof buttonShapes)[number];
 export declare const buttonProps: {
     readonly type: {
-        readonly type: PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+        readonly type: PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: PropType<"small" | "large" | "middle" | "normal" | "mini">;
+        readonly type: PropType<"small" | "normal" | "middle" | "large" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {

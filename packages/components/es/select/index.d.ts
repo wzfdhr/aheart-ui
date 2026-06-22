@@ -36,14 +36,14 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         readonly maxCount: NumberConstructor;
     }>> & Readonly<{
         onChange?: ((value: import("./types").SelectValue) => any) | undefined;
+        onClear?: (() => any) | undefined;
         onSearch?: ((value: string) => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
-        onClear?: (() => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         change: (value: import("./types").SelectValue) => void;
+        clear: () => void;
         search: (value: string) => void;
         "update:modelValue": (value: import("./types").SelectValue) => void;
-        clear: () => void;
     }, import("vue").PublicProps, {
         readonly disabled: boolean;
         readonly variant: import("./types").SelectVariant;
@@ -96,9 +96,9 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         readonly maxCount: NumberConstructor;
     }>> & Readonly<{
         onChange?: ((value: import("./types").SelectValue) => any) | undefined;
+        onClear?: (() => any) | undefined;
         onSearch?: ((value: string) => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
-        onClear?: (() => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly disabled: boolean;
         readonly variant: import("./types").SelectVariant;
@@ -148,14 +148,14 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     readonly maxCount: NumberConstructor;
 }>> & Readonly<{
     onChange?: ((value: import("./types").SelectValue) => any) | undefined;
+    onClear?: (() => any) | undefined;
     onSearch?: ((value: string) => any) | undefined;
     "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
-    onClear?: (() => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: import("./types").SelectValue) => void;
+    clear: () => void;
     search: (value: string) => void;
     "update:modelValue": (value: import("./types").SelectValue) => void;
-    clear: () => void;
 }, string, {
     readonly disabled: boolean;
     readonly variant: import("./types").SelectVariant;

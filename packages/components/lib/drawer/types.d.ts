@@ -13,7 +13,7 @@ export declare const drawerProps: {
     readonly title: StringConstructor;
     readonly extra: PropType<string | number>;
     readonly placement: {
-        readonly type: PropType<"left" | "right" | "top" | "bottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
         readonly validator: (value: string) => boolean;
     };
@@ -55,8 +55,8 @@ export declare const drawerProps: {
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", string>>>;
-    readonly styles: PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", CSSProperties>>>;
+    readonly classNames: PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
+    readonly styles: PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

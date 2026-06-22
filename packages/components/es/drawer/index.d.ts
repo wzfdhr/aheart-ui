@@ -4,7 +4,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly title: StringConstructor;
         readonly extra: import("vue").PropType<string | number>;
         readonly placement: {
-            readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom">;
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
             readonly default: "right";
             readonly validator: (value: string) => boolean;
         };
@@ -46,8 +46,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", import("vue").CSSProperties>>>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -64,11 +64,11 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly footer: boolean;
         readonly mask: boolean;
         readonly size: import("./types").DrawerSize;
+        readonly open: boolean;
         readonly loading: boolean;
         readonly width: string | number;
         readonly height: string | number;
-        readonly open: boolean;
-        readonly placement: "left" | "right" | "top" | "bottom";
+        readonly placement: "left" | "right" | "bottom" | "top";
         readonly zIndex: number;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
@@ -87,7 +87,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly title: StringConstructor;
         readonly extra: import("vue").PropType<string | number>;
         readonly placement: {
-            readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom">;
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
             readonly default: "right";
             readonly validator: (value: string) => boolean;
         };
@@ -129,8 +129,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
+        readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", import("vue").CSSProperties>>>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -143,11 +143,11 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly footer: boolean;
         readonly mask: boolean;
         readonly size: import("./types").DrawerSize;
+        readonly open: boolean;
         readonly loading: boolean;
         readonly width: string | number;
         readonly height: string | number;
-        readonly open: boolean;
-        readonly placement: "left" | "right" | "top" | "bottom";
+        readonly placement: "left" | "right" | "bottom" | "top";
         readonly zIndex: number;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
@@ -163,7 +163,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly title: StringConstructor;
     readonly extra: import("vue").PropType<string | number>;
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom">;
+        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
         readonly validator: (value: string) => boolean;
     };
@@ -205,8 +205,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "extra" | "root", import("vue").CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"close" | "body" | "footer" | "header" | "section" | "title" | "mask" | "root" | "extra", import("vue").CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -223,11 +223,11 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly footer: boolean;
     readonly mask: boolean;
     readonly size: import("./types").DrawerSize;
+    readonly open: boolean;
     readonly loading: boolean;
     readonly width: string | number;
     readonly height: string | number;
-    readonly open: boolean;
-    readonly placement: "left" | "right" | "top" | "bottom";
+    readonly placement: "left" | "right" | "bottom" | "top";
     readonly zIndex: number;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;

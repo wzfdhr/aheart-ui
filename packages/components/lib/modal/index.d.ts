@@ -33,7 +33,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: "Cancel";
         };
         readonly okType: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
         readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -72,9 +72,9 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly closable: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
+        readonly open: boolean;
         readonly loading: boolean;
         readonly width: string | number;
-        readonly open: boolean;
         readonly zIndex: number;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
@@ -85,7 +85,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly confirmLoading: boolean;
         readonly okText: string;
         readonly cancelText: string;
-        readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
+        readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -127,7 +127,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: "Cancel";
         };
         readonly okType: {
-            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
         readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -160,9 +160,9 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly closable: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
+        readonly open: boolean;
         readonly loading: boolean;
         readonly width: string | number;
-        readonly open: boolean;
         readonly zIndex: number;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
@@ -173,7 +173,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly confirmLoading: boolean;
         readonly okText: string;
         readonly cancelText: string;
-        readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
+        readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -212,7 +212,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -251,9 +251,9 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly closable: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
+    readonly open: boolean;
     readonly loading: boolean;
     readonly width: string | number;
-    readonly open: boolean;
     readonly zIndex: number;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
@@ -264,7 +264,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly confirmLoading: boolean;
     readonly okText: string;
     readonly cancelText: string;
-    readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
+    readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         title?(_: {}): any;

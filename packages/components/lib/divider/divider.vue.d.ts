@@ -45,9 +45,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>> & Readonly<{}>, {
     readonly type: import("./types").DividerType;
     readonly size: import("./types").DividerSize;
-    readonly variant: import("./types").DividerVariant;
     readonly dashed: boolean;
     readonly vertical: boolean;
+    readonly variant: import("./types").DividerVariant;
     readonly orientation: import("./types").DividerOrientation;
     readonly plain: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

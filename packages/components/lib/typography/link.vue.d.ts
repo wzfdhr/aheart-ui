@@ -9,8 +9,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly disabled: BooleanConstructor;
     readonly underline: BooleanConstructor;
 }>> & Readonly<{}>, {
-    readonly disabled: boolean;
     readonly underline: boolean;
+    readonly disabled: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
 }>;

@@ -33,7 +33,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -96,7 +96,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
@@ -129,9 +129,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly closable: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
+    readonly open: boolean;
     readonly loading: boolean;
     readonly width: string | number;
-    readonly open: boolean;
     readonly zIndex: number;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
@@ -142,7 +142,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly confirmLoading: boolean;
     readonly okText: string;
     readonly cancelText: string;
-    readonly okType: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
+    readonly okType: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;
     default?(_: {}): any;

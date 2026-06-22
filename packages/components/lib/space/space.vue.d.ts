@@ -24,8 +24,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly separator: StringConstructor;
     readonly split: StringConstructor;
 }>> & Readonly<{}>, {
+    readonly wrap: boolean;
     readonly vertical: boolean;
     readonly direction: import("./types").SpaceDirection;
-    readonly wrap: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

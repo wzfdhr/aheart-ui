@@ -2,7 +2,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly title: StringConstructor;
         readonly placement: {
-            readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
             readonly validator: (value: string) => boolean;
         };
@@ -38,7 +38,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         openChange: (open: boolean) => void;
     }, import("vue").PublicProps, {
         readonly open: boolean;
-        readonly placement: "left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly defaultOpen: boolean;
         readonly arrow: boolean;
@@ -54,7 +54,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly title: StringConstructor;
         readonly placement: {
-            readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
             readonly validator: (value: string) => boolean;
         };
@@ -87,7 +87,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         onOpenChange?: ((open: boolean) => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly open: boolean;
-        readonly placement: "left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly defaultOpen: boolean;
         readonly arrow: boolean;
@@ -100,7 +100,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly title: StringConstructor;
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -136,7 +136,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     openChange: (open: boolean) => void;
 }, string, {
     readonly open: boolean;
-    readonly placement: "left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
     readonly defaultOpen: boolean;
     readonly arrow: boolean;

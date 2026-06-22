@@ -24,9 +24,9 @@ declare const Divider: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly type: import("./types").DividerType;
         readonly size: import("./types").DividerSize;
-        readonly variant: import("./types").DividerVariant;
         readonly dashed: boolean;
         readonly vertical: boolean;
+        readonly variant: import("./types").DividerVariant;
         readonly orientation: import("./types").DividerOrientation;
         readonly plain: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -61,9 +61,9 @@ declare const Divider: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly type: import("./types").DividerType;
         readonly size: import("./types").DividerSize;
-        readonly variant: import("./types").DividerVariant;
         readonly dashed: boolean;
         readonly vertical: boolean;
+        readonly variant: import("./types").DividerVariant;
         readonly orientation: import("./types").DividerOrientation;
         readonly plain: boolean;
     }>;
@@ -95,9 +95,9 @@ declare const Divider: import("../utils/install").SFCWithInstall<{
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly type: import("./types").DividerType;
     readonly size: import("./types").DividerSize;
-    readonly variant: import("./types").DividerVariant;
     readonly dashed: boolean;
     readonly vertical: boolean;
+    readonly variant: import("./types").DividerVariant;
     readonly orientation: import("./types").DividerOrientation;
     readonly plain: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

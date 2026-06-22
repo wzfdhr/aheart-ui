@@ -123,8 +123,8 @@ export declare const RadioGroup: import("../utils/install").SFCWithInstall<impor
     onChange?: ((value: import("./types").RadioValue) => any) | undefined;
     "onUpdate:modelValue"?: ((value: import("./types").RadioValue) => any) | undefined;
 }>, {
-    readonly disabled: boolean;
     readonly block: boolean;
+    readonly disabled: boolean;
     readonly options: import("./types").RadioOption[];
     readonly direction: import("./types").RadioGroupDirection;
     readonly optionType: import("./types").RadioOptionType;

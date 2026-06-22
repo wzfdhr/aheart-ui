@@ -28,8 +28,8 @@ declare const Dropdown: import("../utils/install").SFCWithInstall<{
         "update:open": (open: boolean) => void;
         openChange: (open: boolean) => void;
     }, import("vue").PublicProps, {
-        readonly disabled: boolean;
         readonly open: boolean;
+        readonly disabled: boolean;
         readonly placement: import("./types").DropdownPlacement;
         readonly trigger: import("./types").DropdownTrigger[];
         readonly defaultOpen: boolean;
@@ -66,8 +66,8 @@ declare const Dropdown: import("../utils/install").SFCWithInstall<{
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
     }>, {}, {}, {}, {}, {
-        readonly disabled: boolean;
         readonly open: boolean;
+        readonly disabled: boolean;
         readonly placement: import("./types").DropdownPlacement;
         readonly trigger: import("./types").DropdownTrigger[];
         readonly defaultOpen: boolean;
@@ -105,8 +105,8 @@ declare const Dropdown: import("../utils/install").SFCWithInstall<{
     "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
 }, string, {
-    readonly disabled: boolean;
     readonly open: boolean;
+    readonly disabled: boolean;
     readonly placement: import("./types").DropdownPlacement;
     readonly trigger: import("./types").DropdownTrigger[];
     readonly defaultOpen: boolean;

@@ -85,8 +85,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<import("vue
     "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
-    readonly step: number;
     readonly disabled: boolean;
+    readonly step: number;
     readonly variant: import("./types").InputNumberVariant;
     readonly bordered: boolean;
     readonly keyboard: boolean;

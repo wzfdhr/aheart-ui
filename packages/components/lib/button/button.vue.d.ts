@@ -1,11 +1,11 @@
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: import("vue").PropType<"small" | "large" | "middle" | "normal" | "mini">;
+        readonly type: import("vue").PropType<"small" | "normal" | "middle" | "large" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {
@@ -37,12 +37,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     click: (event: MouseEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: import("vue").PropType<"small" | "large" | "middle" | "normal" | "mini">;
+        readonly type: import("vue").PropType<"small" | "normal" | "middle" | "large" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {
@@ -73,13 +73,13 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
 }>, {
-    readonly type: "success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger";
+    readonly type: "success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger";
+    readonly round: boolean;
+    readonly block: boolean;
     readonly disabled: boolean;
     readonly danger: boolean;
-    readonly round: boolean;
     readonly nativeType: "reset" | "submit" | "button";
     readonly loading: boolean;
-    readonly block: boolean;
     readonly ghost: boolean;
     readonly shape: "default" | "circle" | "round";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

@@ -27,8 +27,8 @@ declare const Descriptions: import("../utils/install").SFCWithInstall<import("vu
     };
     readonly size: import("vue").PropType<import("../config").AheartSize>;
 }>> & Readonly<{}>, {
-    readonly bordered: boolean;
     readonly column: number;
     readonly layout: import("./types").DescriptionsLayout;
+    readonly bordered: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Descriptions;

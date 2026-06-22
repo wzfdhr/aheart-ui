@@ -4,7 +4,7 @@ export declare const popconfirmProps: {
     readonly title: StringConstructor;
     readonly description: StringConstructor;
     readonly placement: {
-        readonly type: PropType<"left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -27,7 +27,7 @@ export declare const popconfirmProps: {
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: PropType<"success" | "warning" | "default" | "link" | "text" | "primary" | "dashed" | "danger">;
+        readonly type: PropType<"success" | "warning" | "default" | "link" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
     readonly disabled: BooleanConstructor;

@@ -1,7 +1,7 @@
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly title: StringConstructor;
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -35,7 +35,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly title: StringConstructor;
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -68,7 +68,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
     readonly open: boolean;
-    readonly placement: "left" | "right" | "top" | "bottom" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
     readonly defaultOpen: boolean;
     readonly arrow: boolean;
