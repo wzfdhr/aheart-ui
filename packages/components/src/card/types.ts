@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
 export const cardVariants = ['outlined', 'borderless'] as const
@@ -10,6 +10,9 @@ export type CardAction = string | number
 export type CardSemanticPart = 'root' | 'header' | 'title' | 'extra' | 'cover' | 'body' | 'actions'
 export type CardClassNames = Partial<Record<CardSemanticPart, string>>
 export type CardStyles = Partial<Record<CardSemanticPart, StyleValue>>
+export type CardMetaSemanticPart = 'root' | 'section' | 'avatar' | 'title' | 'description'
+export type CardMetaClassNames = Partial<Record<CardMetaSemanticPart, string>>
+export type CardMetaStyles = Partial<Record<CardMetaSemanticPart, StyleValue>>
 
 export const cardProps = {
   title: String,
@@ -39,4 +42,16 @@ export const cardProps = {
   styles: Object as PropType<CardStyles>
 } as const
 
+export const cardMetaProps = {
+  avatar: [String, Number, Boolean, Object, Array, Function] as PropType<VNodeChild>,
+  title: [String, Number, Boolean, Object, Array, Function] as PropType<VNodeChild>,
+  description: [String, Number, Boolean, Object, Array, Function] as PropType<VNodeChild>,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<CardMetaClassNames>,
+  styles: Object as PropType<CardMetaStyles>
+} as const
+
 export type CardProps = ExtractPropTypes<typeof cardProps>
+export type CardMetaProps = ExtractPropTypes<typeof cardMetaProps>

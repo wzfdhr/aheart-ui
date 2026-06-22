@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
-import Card from '../card.vue'
+import Card, { CardMeta } from '../index'
 
 describe('Card', () => {
   it('renders title, extra, default content, cover, and actions', () => {
@@ -169,5 +169,88 @@ describe('Card', () => {
 
     expect(wrapper.find('.aheart-card__header').attributes('style')).toContain('background: rgb(10, 20, 30)')
     expect(wrapper.find('.aheart-card__body').attributes('style')).toContain('min-height: 80px')
+  })
+
+  it('renders CardMeta avatar, title, and description props', () => {
+    const wrapper = mount(CardMeta, {
+      props: {
+        avatar: h('span', { class: 'avatar-node' }, 'A'),
+        title: 'Meta title',
+        description: 'Meta description'
+      }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-card-meta')
+    expect(wrapper.find('.aheart-card-meta__avatar .avatar-node').text()).toBe('A')
+    expect(wrapper.find('.aheart-card-meta__title').text()).toBe('Meta title')
+    expect(wrapper.find('.aheart-card-meta__description').text()).toBe('Meta description')
+  })
+
+  it('lets CardMeta slots override renderable props', () => {
+    const wrapper = mount(CardMeta, {
+      props: {
+        avatar: 'prop avatar',
+        title: 'prop title',
+        description: 'prop description'
+      },
+      slots: {
+        avatar: '<span class="slot-avatar">slot avatar</span>',
+        title: '<strong class="slot-title">slot title</strong>',
+        description: '<em class="slot-description">slot description</em>'
+      }
+    })
+
+    expect(wrapper.find('.slot-avatar').text()).toBe('slot avatar')
+    expect(wrapper.find('.slot-title').text()).toBe('slot title')
+    expect(wrapper.find('.slot-description').text()).toBe('slot description')
+    expect(wrapper.text()).not.toContain('prop title')
+    expect(wrapper.text()).not.toContain('prop description')
+  })
+
+  it('applies CardMeta semantic classes and styles', () => {
+    const wrapper = mount(CardMeta, {
+      props: {
+        avatar: 'A',
+        title: 'Title',
+        description: 'Description',
+        className: 'meta-class',
+        rootClassName: 'meta-root',
+        style: { width: '180px' },
+        classNames: {
+          root: 'semantic-root',
+          section: 'semantic-section',
+          avatar: 'semantic-avatar',
+          title: 'semantic-title',
+          description: 'semantic-description'
+        },
+        styles: {
+          root: { marginTop: '4px' },
+          section: { gap: '2px' },
+          avatar: { color: 'red' },
+          title: { color: 'blue' },
+          description: { color: 'green' }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toContain('meta-class')
+    expect(wrapper.classes()).toContain('meta-root')
+    expect(wrapper.classes()).toContain('semantic-root')
+    expect(wrapper.attributes('style')).toContain('width: 180px')
+    expect(wrapper.attributes('style')).toContain('margin-top: 4px')
+    expect(wrapper.find('.aheart-card-meta__section').classes()).toContain('semantic-section')
+    expect(wrapper.find('.aheart-card-meta__section').attributes('style')).toContain('gap: 2px')
+    expect(wrapper.find('.aheart-card-meta__avatar').classes()).toContain('semantic-avatar')
+    expect(wrapper.find('.aheart-card-meta__avatar').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-card-meta__title').classes()).toContain('semantic-title')
+    expect(wrapper.find('.aheart-card-meta__title').attributes('style')).toContain('color: blue')
+    expect(wrapper.find('.aheart-card-meta__description').classes()).toContain('semantic-description')
+    expect(wrapper.find('.aheart-card-meta__description').attributes('style')).toContain('color: green')
+  })
+
+  it('exposes Card.Meta for Ant-style composition', () => {
+    expect(CardMeta).toBeDefined()
+    expect(Card.Meta).toBeDefined()
+    expect(Card.Meta).toBe(CardMeta)
   })
 })
