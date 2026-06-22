@@ -1,4 +1,4 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString, createCommentVNode } from "vue";
+import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { textareaProps, textareaEmits } from "./types.js";
 import "./style.css.js";
@@ -14,9 +14,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
+    const ATextareaRenderNode = defineComponent({
+      name: "ATextareaRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const measureCount = (value) => {
+      var _a, _b;
+      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, value)) ?? value.length;
+    };
+    const formatExceededValue = (value) => {
+      var _a, _b;
+      const max = (_a = props.count) == null ? void 0 : _a.max;
+      if (max === void 0 || !((_b = props.count) == null ? void 0 : _b.exceedFormatter) || measureCount(value) <= max) {
+        return value;
+      }
+      return props.count.exceedFormatter(value, { max });
+    };
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const currentValue = computed(() => props.modelValue ?? "");
+    const currentValue = computed(() => formatExceededValue(props.modelValue ?? ""));
     const resolvedVariant = computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
@@ -24,7 +48,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const allowClearConfig = computed(
       () => typeof props.allowClear === "object" && props.allowClear !== null ? props.allowClear : void 0
     );
-    const showClear = computed(() => Boolean(props.allowClear) && !isDisabled.value && Boolean(currentValue.value));
+    const allowClearDisabled = computed(() => {
+      var _a;
+      return ((_a = allowClearConfig.value) == null ? void 0 : _a.disabled) ?? false;
+    });
+    const showClear = computed(
+      () => Boolean(props.allowClear) && !allowClearDisabled.value && !isDisabled.value && Boolean(currentValue.value)
+    );
     const clearIconContent = computed(() => {
       var _a;
       return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
@@ -82,10 +112,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return (_a = props.styles) == null ? void 0 : _a.count;
     });
-    const countLength = computed(() => {
-      var _a, _b;
-      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, currentValue.value)) ?? currentValue.value.length;
-    });
+    const countLength = computed(() => measureCount(currentValue.value));
     const countMaxLength = computed(() => {
       var _a;
       return ((_a = props.count) == null ? void 0 : _a.max) ?? props.maxlength;
@@ -115,7 +142,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return countMaxLength.value ? `${countLength.value} / ${countMaxLength.value}` : String(countLength.value);
     });
-    const getEventValue = (event) => event.target.value;
+    const getEventValue = (event) => {
+      const target = event.target;
+      const value = formatExceededValue(target.value);
+      if (target.value !== value) {
+        target.value = value;
+      }
+      return value;
+    };
     const handleInput = (event) => {
       const value = getEventValue(event);
       emit("update:modelValue", value);
@@ -143,7 +177,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           class: normalizeClass(["aheart-textarea__control", controlClass.value]),
           style: normalizeStyle(controlStyle.value),
           id: _ctx.id,
-          value: _ctx.modelValue ?? "",
+          value: currentValue.value,
           placeholder: _ctx.placeholder,
           rows: _ctx.rows,
           disabled: isDisabled.value,
@@ -162,14 +196,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onClick: handleClear
         }, [
           renderSlot(_ctx.$slots, "clearIcon", {}, () => [
-            createTextVNode(toDisplayString(clearIconContent.value), 1)
+            createVNode(unref(ATextareaRenderNode), { node: clearIconContent.value }, null, 8, ["node"])
           ])
         ], 6)) : createCommentVNode("", true),
         showCountDisplay.value ? (openBlock(), createElementBlock("span", {
           key: 1,
           class: normalizeClass(countClass.value),
           style: normalizeStyle(countStyle.value)
-        }, toDisplayString(countText.value), 7)) : createCommentVNode("", true)
+        }, [
+          createVNode(unref(ATextareaRenderNode), { node: countText.value }, null, 8, ["node"])
+        ], 6)) : createCommentVNode("", true)
       ], 6);
     };
   }

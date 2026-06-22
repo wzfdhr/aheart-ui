@@ -16,9 +16,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
+    const ATextareaRenderNode = vue.defineComponent({
+      name: "ATextareaRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const measureCount = (value) => {
+      var _a, _b;
+      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, value)) ?? value.length;
+    };
+    const formatExceededValue = (value) => {
+      var _a, _b;
+      const max = (_a = props.count) == null ? void 0 : _a.max;
+      if (max === void 0 || !((_b = props.count) == null ? void 0 : _b.exceedFormatter) || measureCount(value) <= max) {
+        return value;
+      }
+      return props.count.exceedFormatter(value, { max });
+    };
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const currentValue = vue.computed(() => props.modelValue ?? "");
+    const currentValue = vue.computed(() => formatExceededValue(props.modelValue ?? ""));
     const resolvedVariant = vue.computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
@@ -26,7 +50,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const allowClearConfig = vue.computed(
       () => typeof props.allowClear === "object" && props.allowClear !== null ? props.allowClear : void 0
     );
-    const showClear = vue.computed(() => Boolean(props.allowClear) && !isDisabled.value && Boolean(currentValue.value));
+    const allowClearDisabled = vue.computed(() => {
+      var _a;
+      return ((_a = allowClearConfig.value) == null ? void 0 : _a.disabled) ?? false;
+    });
+    const showClear = vue.computed(
+      () => Boolean(props.allowClear) && !allowClearDisabled.value && !isDisabled.value && Boolean(currentValue.value)
+    );
     const clearIconContent = vue.computed(() => {
       var _a;
       return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
@@ -84,10 +114,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return (_a = props.styles) == null ? void 0 : _a.count;
     });
-    const countLength = vue.computed(() => {
-      var _a, _b;
-      return ((_b = (_a = props.count) == null ? void 0 : _a.strategy) == null ? void 0 : _b.call(_a, currentValue.value)) ?? currentValue.value.length;
-    });
+    const countLength = vue.computed(() => measureCount(currentValue.value));
     const countMaxLength = vue.computed(() => {
       var _a;
       return ((_a = props.count) == null ? void 0 : _a.max) ?? props.maxlength;
@@ -117,7 +144,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return countMaxLength.value ? `${countLength.value} / ${countMaxLength.value}` : String(countLength.value);
     });
-    const getEventValue = (event) => event.target.value;
+    const getEventValue = (event) => {
+      const target = event.target;
+      const value = formatExceededValue(target.value);
+      if (target.value !== value) {
+        target.value = value;
+      }
+      return value;
+    };
     const handleInput = (event) => {
       const value = getEventValue(event);
       emit("update:modelValue", value);
@@ -145,7 +179,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           class: vue.normalizeClass(["aheart-textarea__control", controlClass.value]),
           style: vue.normalizeStyle(controlStyle.value),
           id: _ctx.id,
-          value: _ctx.modelValue ?? "",
+          value: currentValue.value,
           placeholder: _ctx.placeholder,
           rows: _ctx.rows,
           disabled: isDisabled.value,
@@ -164,14 +198,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onClick: handleClear
         }, [
           vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [
-            vue.createTextVNode(vue.toDisplayString(clearIconContent.value), 1)
+            vue.createVNode(vue.unref(ATextareaRenderNode), { node: clearIconContent.value }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true),
         showCountDisplay.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 1,
           class: vue.normalizeClass(countClass.value),
           style: vue.normalizeStyle(countStyle.value)
-        }, vue.toDisplayString(countText.value), 7)) : vue.createCommentVNode("", true)
+        }, [
+          vue.createVNode(vue.unref(ATextareaRenderNode), { node: countText.value }, null, 8, ["node"])
+        ], 6)) : vue.createCommentVNode("", true)
       ], 6);
     };
   }

@@ -1,22 +1,28 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
 export type TextareaStatus = 'error' | 'warning';
 export type TextareaVariant = 'outlined' | 'borderless' | 'filled' | 'underlined';
+export type TextareaRenderable = VNodeChild;
 export interface TextareaCountFormatterInfo {
     count: number;
     maxLength?: number;
     value: string;
 }
 export interface TextareaAllowClearConfig {
-    clearIcon?: string;
+    clearIcon?: TextareaRenderable;
+    disabled?: boolean;
 }
 export interface TextareaShowCountConfig {
-    formatter?: (info: TextareaCountFormatterInfo) => string;
+    formatter?: (info: TextareaCountFormatterInfo) => TextareaRenderable;
+}
+export interface TextareaCountExceedFormatterInfo {
+    max: number;
 }
 export interface TextareaCountConfig {
     max?: number;
     strategy?: (value: string) => number;
-    show?: boolean | ((info: TextareaCountFormatterInfo) => string);
+    show?: boolean | ((info: TextareaCountFormatterInfo) => TextareaRenderable);
+    exceedFormatter?: (value: string, config: TextareaCountExceedFormatterInfo) => string;
 }
 export interface TextareaAutoSizeConfig {
     minRows?: number;
