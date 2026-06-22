@@ -1,14 +1,33 @@
-import type { ExtractPropTypes, PropType } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
 import type { AheartSize } from '../config'
 
 export type StepStatus = 'wait' | 'process' | 'finish' | 'error'
 export type StepsDirection = 'horizontal' | 'vertical'
+export type StepsType = 'default' | 'dot' | 'navigation' | 'panel' | 'inline'
+export type StepsTitlePlacement = 'horizontal' | 'vertical'
+export type StepsSemanticPart =
+  | 'root'
+  | 'item'
+  | 'activeItem'
+  | 'button'
+  | 'indicator'
+  | 'icon'
+  | 'content'
+  | 'title'
+  | 'subTitle'
+  | 'description'
+  | 'connector'
+export type StepsClassNames = Partial<Record<StepsSemanticPart, string>>
+export type StepsStyles = Partial<Record<StepsSemanticPart, StyleValue>>
 
 export interface StepItem {
   title: string
   description?: string
   status?: StepStatus
   disabled?: boolean
+  icon?: string
+  subTitle?: string
+  content?: string
 }
 
 export const stepsProps = {
@@ -25,7 +44,26 @@ export const stepsProps = {
     type: String as PropType<StepsDirection>,
     default: 'horizontal'
   },
-  size: String as PropType<AheartSize>
+  orientation: String as PropType<StepsDirection>,
+  size: String as PropType<AheartSize>,
+  type: {
+    type: String as PropType<StepsType>,
+    default: 'default'
+  },
+  titlePlacement: {
+    type: String as PropType<StepsTitlePlacement>,
+    default: 'horizontal'
+  },
+  initial: {
+    type: Number,
+    default: 1
+  },
+  percent: Number,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<StepsClassNames>,
+  styles: Object as PropType<StepsStyles>
 } as const
 
 export const stepsEmits = {

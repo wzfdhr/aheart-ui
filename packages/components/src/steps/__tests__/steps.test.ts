@@ -69,4 +69,102 @@ describe('Steps', () => {
     expect(steps.classes()).toContain('aheart-steps--vertical')
     expect(steps.classes()).toContain('aheart-steps--small')
   })
+
+  it('renders type orientation title placement initial and percent controls', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        items,
+        current: 1,
+        type: 'dot',
+        orientation: 'vertical',
+        titlePlacement: 'vertical',
+        initial: 3,
+        percent: 65
+      }
+    })
+
+    expect(wrapper.classes()).toEqual(
+      expect.arrayContaining([
+        'aheart-steps--dot',
+        'aheart-steps--vertical',
+        'aheart-steps--title-vertical'
+      ])
+    )
+    expect(wrapper.findAll('.aheart-steps__icon')[0].text()).toBe('3')
+    expect(wrapper.findAll('.aheart-steps__icon')[1].text()).toContain('65%')
+    expect(wrapper.findAll('.aheart-steps__icon')[1].attributes('style')).toContain('--aheart-steps-percent: 65')
+  })
+
+  it('renders item icons subtitles and content', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        type: 'panel',
+        current: 1,
+        items: [
+          { title: 'Account', icon: 'A', subTitle: 'Ready', content: 'Account content' },
+          { title: 'Billing', icon: 'B', subTitle: 'Now', description: 'Add card', content: 'Billing content' }
+        ]
+      }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-steps--panel')
+    expect(wrapper.findAll('.aheart-steps__icon').map((icon) => icon.text())).toEqual(['A', 'B'])
+    expect(wrapper.findAll('.aheart-steps__subtitle').map((subtitle) => subtitle.text())).toEqual(['Ready', 'Now'])
+    expect(wrapper.findAll('.aheart-steps__extra-content').map((content) => content.text())).toEqual([
+      'Account content',
+      'Billing content'
+    ])
+  })
+
+  it('applies root and semantic class and style hooks', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        items,
+        current: 1,
+        className: 'steps-class',
+        rootClassName: 'steps-root',
+        style: 'color: red;',
+        classNames: {
+          root: 'semantic-root',
+          item: 'semantic-item',
+          activeItem: 'semantic-active-item',
+          button: 'semantic-button',
+          indicator: 'semantic-indicator',
+          icon: 'semantic-icon',
+          content: 'semantic-content',
+          title: 'semantic-title',
+          subTitle: 'semantic-subtitle',
+          description: 'semantic-description',
+          connector: 'semantic-connector'
+        },
+        styles: {
+          root: { backgroundColor: 'blue' },
+          item: { minWidth: '80px' },
+          activeItem: { fontWeight: 700 },
+          button: { gap: '4px' },
+          indicator: { marginRight: '4px' },
+          icon: { color: 'green' },
+          content: { paddingRight: '12px' },
+          title: { letterSpacing: '1px' },
+          subTitle: { color: 'purple' },
+          description: { marginTop: '6px' },
+          connector: { backgroundColor: 'orange' }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toEqual(expect.arrayContaining(['steps-class', 'steps-root', 'semantic-root']))
+    expect(wrapper.attributes('style')).toContain('color: red')
+    expect(wrapper.attributes('style')).toContain('background-color: blue')
+    expect(wrapper.find('.aheart-steps__item').classes()).toContain('semantic-item')
+    expect(wrapper.find('.aheart-steps__item--process').classes()).toContain('semantic-active-item')
+    expect(wrapper.find('.aheart-steps__button').classes()).toContain('semantic-button')
+    expect(wrapper.find('.aheart-steps__indicator').classes()).toContain('semantic-indicator')
+    expect(wrapper.find('.aheart-steps__icon').classes()).toContain('semantic-icon')
+    expect(wrapper.find('.aheart-steps__content').classes()).toContain('semantic-content')
+    expect(wrapper.find('.aheart-steps__title').classes()).toContain('semantic-title')
+    expect(wrapper.find('.aheart-steps__description').classes()).toContain('semantic-description')
+    expect(wrapper.find('.aheart-steps__connector').classes()).toContain('semantic-connector')
+    expect(wrapper.find('.aheart-steps__connector').attributes('style')).toContain('background-color: orange')
+  })
 })
