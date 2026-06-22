@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 # InputNumber 数字输入框 <span class="aheart-status aheart-status--ready">Ready</span>
 
 InputNumber captures numeric values with min, max, step, controls, precision, formatter/parser hooks, variants, status, and size inheritance.
@@ -20,13 +24,27 @@ InputNumber captures numeric values with min, max, step, controls, precision, fo
   <ASpace>
     <AInputNumber :model-value="2" :step="2" />
     <AInputNumber :model-value="12.345" :precision="2" prefix="$" suffix="USD" />
+    <AInputNumber
+      :model-value="88"
+      :prefix="h('strong', { class: 'demo-input-number-node' }, '$')"
+      :suffix="h('span', { class: 'demo-input-number-node' }, 'USD')"
+    />
   </ASpace>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
   <AInputNumber v-model="value" :step="2" />
   <AInputNumber v-model="amount" :precision="2" prefix="$" suffix="USD" />
+  <AInputNumber
+    v-model="nodeAmount"
+    :prefix="h('strong', { class: 'demo-input-number-node' }, '$')"
+    :suffix="h('span', { class: 'demo-input-number-node' }, 'USD')"
+  />
 </template>
 ```
 
@@ -68,14 +86,30 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <AInputNumber :model-value="8" :controls="{ upIcon: 'up', downIcon: 'down' }" />
+    <AInputNumber
+      :model-value="8"
+      :controls="{
+        upIcon: h('span', { class: 'demo-input-number-node' }, 'up'),
+        downIcon: h('span', { class: 'demo-input-number-node' }, 'down')
+      }"
+    />
     <AInputNumber :model-value="8" :controls="false" />
   </ASpace>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <AInputNumber v-model="value" :controls="{ upIcon: 'up', downIcon: 'down' }" />
+  <AInputNumber
+    v-model="value"
+    :controls="{
+      upIcon: h('span', { class: 'demo-input-number-node' }, 'up'),
+      downIcon: h('span', { class: 'demo-input-number-node' }, 'down')
+    }"
+  />
   <AInputNumber v-model="plainValue" :controls="false" />
 </template>
 ```
@@ -145,8 +179,8 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 | modelValue | 数字值 | `number` | - |
 | id | 原生输入框 id | `string` | - |
 | placeholder | 占位提示 | `string` | - |
-| prefix | 输入框前缀内容 | `string` | - |
-| suffix | 输入框后缀内容 | `string` | - |
+| prefix | 输入框前缀内容 | `VNodeChild` | - |
+| suffix | 输入框后缀内容 | `VNodeChild` | - |
 | size | 输入框尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
 | readOnly | 是否只读 | `boolean` | `false` |
@@ -160,7 +194,7 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 | formatter | 展示值格式化函数 | `(value?: number, info: { userTyping: boolean; input: string }) => string` | - |
 | parser | 展示值解析函数 | `(displayValue: string) => number \| undefined` | - |
 | keyboard | 是否启用方向键步进 | `boolean` | `true` |
-| controls | 是否显示控制按钮，支持自定义上下按钮内容 | `boolean` \| `{ upIcon?: string; downIcon?: string }` | `true` |
+| controls | 是否显示控制按钮，支持自定义上下按钮内容 | `boolean` \| `{ upIcon?: VNodeChild; downIcon?: VNodeChild }` | `true` |
 | changeOnWheel | 是否启用鼠标滚轮步进 | `boolean` | `false` |
 | className | 数字输入框根节点兼容 class | `string` | - |
 | rootClassName | 数字输入框根节点 class | `string` | - |
@@ -176,6 +210,26 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 | change | 数字值变化时触发 | `(value: number \| undefined) => void` |
 | pressEnter | 按下回车时触发 | `(event: KeyboardEvent) => void` |
 | step | 点击控制按钮或键盘步进时触发 | `(value: number, info: { offset: number; type: 'up' \| 'down' }) => void` |
+
+## Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| prefix | 输入框前缀内容 |
+| suffix | 输入框后缀内容 |
+| increaseIcon | 自定义增加按钮内容 |
+| decreaseIcon | 自定义减少按钮内容 |
+
+## Semantic DOM
+
+| 名称 | 说明 |
+| --- | --- |
+| root | 数字输入框根容器 |
+| input | 原生输入控件 |
+| prefix | 前缀容器 |
+| suffix | 后缀容器 |
+| actions | 步进按钮组容器 |
+| action | 单个步进按钮 |
 
 ## Theme Tokens
 
