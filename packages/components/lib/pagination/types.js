@@ -22,12 +22,30 @@ const paginationProps = {
   size: String,
   simple: Boolean,
   hideOnSinglePage: Boolean,
-  showTotal: Boolean
+  showTotal: {
+    type: [Boolean, Function],
+    default: false
+  },
+  align: String,
+  showLessItems: Boolean,
+  showSizeChanger: Boolean,
+  pageSizeOptions: {
+    type: Array,
+    default: () => [10, 20, 50, 100]
+  },
+  showQuickJumper: Boolean,
+  itemRender: Function,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const paginationEmits = {
   "update:current": (current) => Number.isInteger(current),
   "update:pageSize": (pageSize) => Number.isInteger(pageSize),
-  change: (current, pageSize) => Number.isInteger(current) && Number.isInteger(pageSize)
+  change: (current, pageSize) => Number.isInteger(current) && Number.isInteger(pageSize),
+  showSizeChange: (current, pageSize) => Number.isInteger(current) && Number.isInteger(pageSize)
 };
 exports.paginationEmits = paginationEmits;
 exports.paginationProps = paginationProps;
