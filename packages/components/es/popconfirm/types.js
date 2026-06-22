@@ -2,6 +2,7 @@ import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating.js"
 const popconfirmProps = {
   title: String,
   description: String,
+  icon: String,
   placement: {
     type: String,
     default: "top",
@@ -29,22 +30,31 @@ const popconfirmProps = {
     type: String,
     default: "primary"
   },
+  okButtonProps: Object,
+  cancelButtonProps: Object,
   disabled: Boolean,
   showCancel: {
     type: Boolean,
     default: true
   },
+  color: String,
   arrow: {
     type: Boolean,
     default: true
   },
-  zIndex: Number
+  zIndex: Number,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array],
+  classNames: Object,
+  styles: Object
 };
 const popconfirmEmits = {
   "update:open": (open) => typeof open === "boolean",
   openChange: (open) => typeof open === "boolean",
   confirm: () => true,
-  cancel: () => true
+  cancel: () => true,
+  popupClick: (event) => event instanceof MouseEvent
 };
 export {
   popconfirmEmits,

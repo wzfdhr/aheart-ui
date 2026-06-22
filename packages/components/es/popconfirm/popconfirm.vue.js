@@ -1,29 +1,9 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, normalizeStyle, createCommentVNode, createTextVNode, toDisplayString, createBlock, unref, withCtx, createVNode } from "vue";
+import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createCommentVNode, createTextVNode, toDisplayString, createBlock, unref, mergeProps, withCtx, createVNode } from "vue";
 import Button from "../button/index.js";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
 import { popconfirmProps, popconfirmEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = {
-  key: 0,
-  class: "aheart-floating__arrow aheart-popconfirm__arrow",
-  "aria-hidden": "true"
-};
-const _hoisted_2 = { class: "aheart-popconfirm__message" };
-const _hoisted_3 = {
-  class: "aheart-popconfirm__icon",
-  "aria-hidden": "true"
-};
-const _hoisted_4 = { class: "aheart-popconfirm__text" };
-const _hoisted_5 = {
-  key: 0,
-  class: "aheart-popconfirm__title"
-};
-const _hoisted_6 = {
-  key: 1,
-  class: "aheart-popconfirm__description"
-};
-const _hoisted_7 = { class: "aheart-popconfirm__actions" };
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "APopconfirm"
@@ -39,7 +19,119 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const visible = computed(() => !props.disabled && mergedOpen.value);
-    const popupStyle = computed(() => getFloatingPopupStyle(void 0, props.zIndex));
+    const popconfirmClass = computed(() => {
+      var _a;
+      return [
+        props.className,
+        props.rootClassName,
+        (_a = props.classNames) == null ? void 0 : _a.root,
+        {
+          "is-open": visible.value,
+          "is-disabled": props.disabled
+        }
+      ];
+    });
+    const rootStyle = computed(() => {
+      var _a;
+      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
+    });
+    const triggerClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.trigger;
+    });
+    const triggerStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.trigger;
+    });
+    const popupClass = computed(() => {
+      var _a;
+      return [`aheart-floating--${props.placement}`, (_a = props.classNames) == null ? void 0 : _a.popup];
+    });
+    const popupStyle = computed(() => {
+      var _a;
+      return [getFloatingPopupStyle(props.color, props.zIndex), (_a = props.styles) == null ? void 0 : _a.popup];
+    });
+    const arrowClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.arrow;
+    });
+    const arrowStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.arrow;
+    });
+    const messageClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.message;
+    });
+    const messageStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.message;
+    });
+    const iconClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.icon;
+    });
+    const iconStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.icon;
+    });
+    const textClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.text;
+    });
+    const textStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.text;
+    });
+    const titleClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.title;
+    });
+    const titleStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.title;
+    });
+    const descriptionClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.description;
+    });
+    const descriptionStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.description;
+    });
+    const actionsClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.actions;
+    });
+    const actionsStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.actions;
+    });
+    const cancelButtonClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.cancelButton;
+    });
+    const cancelButtonStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.cancelButton;
+    });
+    const okButtonClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.okButton;
+    });
+    const okButtonStyle = computed(() => {
+      var _a;
+      return (_a = props.styles) == null ? void 0 : _a.okButton;
+    });
+    const resolvedCancelButtonProps = computed(() => ({
+      size: "small",
+      ...props.cancelButtonProps
+    }));
+    const resolvedOkButtonProps = computed(() => ({
+      size: "small",
+      type: props.okType,
+      ...props.okButtonProps
+    }));
     watch(
       () => props.defaultOpen,
       (open) => {
@@ -89,6 +181,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpen(true);
       }
     };
+    const handlePopupClick = (event) => {
+      emit("popupClick", event);
+    };
     const handleConfirm = () => {
       emit("confirm");
       requestOpen(false);
@@ -99,12 +194,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
-        class: normalizeClass(["aheart-popconfirm", { "is-open": visible.value, "is-disabled": _ctx.disabled }]),
+        class: normalizeClass(["aheart-popconfirm", popconfirmClass.value]),
+        style: normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
         onMouseleave: handleMouseLeave
       }, [
         createElementVNode("span", {
-          class: "aheart-popconfirm__trigger",
+          class: normalizeClass(["aheart-popconfirm__trigger", triggerClass.value]),
+          style: normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
           onFocusin: handleFocusIn,
@@ -113,59 +210,84 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onContextmenu: handleContextmenu
         }, [
           renderSlot(_ctx.$slots, "default")
-        ], 32),
+        ], 38),
         visible.value ? (openBlock(), createElementBlock("span", {
           key: 0,
-          class: normalizeClass(["aheart-popconfirm__popup", `aheart-floating--${_ctx.placement}`]),
+          class: normalizeClass(["aheart-popconfirm__popup", popupClass.value]),
           style: normalizeStyle(popupStyle.value),
-          role: "dialog"
+          role: "dialog",
+          onClick: handlePopupClick
         }, [
-          _ctx.arrow ? (openBlock(), createElementBlock("span", _hoisted_1)) : createCommentVNode("", true),
-          createElementVNode("span", _hoisted_2, [
-            createElementVNode("span", _hoisted_3, [
+          _ctx.arrow ? (openBlock(), createElementBlock("span", {
+            key: 0,
+            class: normalizeClass(["aheart-floating__arrow aheart-popconfirm__arrow", arrowClass.value]),
+            style: normalizeStyle(arrowStyle.value),
+            "aria-hidden": "true"
+          }, null, 6)) : createCommentVNode("", true),
+          createElementVNode("span", {
+            class: normalizeClass(["aheart-popconfirm__message", messageClass.value]),
+            style: normalizeStyle(messageStyle.value)
+          }, [
+            createElementVNode("span", {
+              class: normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
+              style: normalizeStyle(iconStyle.value),
+              "aria-hidden": "true"
+            }, [
               renderSlot(_ctx.$slots, "icon", {}, () => [
-                _cache[0] || (_cache[0] = createTextVNode("!", -1))
+                createTextVNode(toDisplayString(_ctx.icon ?? "!"), 1)
               ])
-            ]),
-            createElementVNode("span", _hoisted_4, [
-              _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("span", _hoisted_5, [
+            ], 6),
+            createElementVNode("span", {
+              class: normalizeClass(["aheart-popconfirm__text", textClass.value]),
+              style: normalizeStyle(textStyle.value)
+            }, [
+              _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("span", {
+                key: 0,
+                class: normalizeClass(["aheart-popconfirm__title", titleClass.value]),
+                style: normalizeStyle(titleStyle.value)
+              }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
                   createTextVNode(toDisplayString(_ctx.title), 1)
                 ])
-              ])) : createCommentVNode("", true),
-              _ctx.description || _ctx.$slots.description ? (openBlock(), createElementBlock("span", _hoisted_6, [
+              ], 6)) : createCommentVNode("", true),
+              _ctx.description || _ctx.$slots.description ? (openBlock(), createElementBlock("span", {
+                key: 1,
+                class: normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
+                style: normalizeStyle(descriptionStyle.value)
+              }, [
                 renderSlot(_ctx.$slots, "description", {}, () => [
                   createTextVNode(toDisplayString(_ctx.description), 1)
                 ])
-              ])) : createCommentVNode("", true)
-            ])
-          ]),
-          createElementVNode("span", _hoisted_7, [
-            _ctx.showCancel ? (openBlock(), createBlock(unref(Button), {
-              key: 0,
-              class: "aheart-popconfirm__cancel",
-              size: "small",
+              ], 6)) : createCommentVNode("", true)
+            ], 6)
+          ], 6),
+          createElementVNode("span", {
+            class: normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
+            style: normalizeStyle(actionsStyle.value)
+          }, [
+            _ctx.showCancel ? (openBlock(), createBlock(unref(Button), mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
+              class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
+              style: cancelButtonStyle.value,
               onClick: handleCancel
-            }, {
+            }), {
               default: withCtx(() => [
                 createTextVNode(toDisplayString(_ctx.cancelText), 1)
               ]),
               _: 1
-            })) : createCommentVNode("", true),
-            createVNode(unref(Button), {
-              class: "aheart-popconfirm__ok",
-              type: _ctx.okType,
-              size: "small",
+            }, 16, ["class", "style"])) : createCommentVNode("", true),
+            createVNode(unref(Button), mergeProps(resolvedOkButtonProps.value, {
+              class: ["aheart-popconfirm__ok", okButtonClass.value],
+              style: okButtonStyle.value,
               onClick: handleConfirm
-            }, {
+            }), {
               default: withCtx(() => [
                 createTextVNode(toDisplayString(_ctx.okText), 1)
               ]),
               _: 1
-            }, 8, ["type"])
-          ])
+            }, 16, ["class", "style"])
+          ], 6)
         ], 6)) : createCommentVNode("", true)
-      ], 34);
+      ], 38);
     };
   }
 });

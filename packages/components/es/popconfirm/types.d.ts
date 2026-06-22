@@ -1,8 +1,14 @@
-import type { ExtractPropTypes, PropType } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ButtonProps } from '../button/types';
 import { type FloatingTriggerProp } from '../utils/floating';
+export type PopconfirmButtonProps = Partial<ButtonProps>;
+export type PopconfirmSemanticPart = 'root' | 'trigger' | 'popup' | 'arrow' | 'message' | 'icon' | 'text' | 'title' | 'description' | 'actions' | 'cancelButton' | 'okButton';
+export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>;
+export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>;
 export declare const popconfirmProps: {
     readonly title: StringConstructor;
     readonly description: StringConstructor;
+    readonly icon: StringConstructor;
     readonly placement: {
         readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
@@ -30,21 +36,30 @@ export declare const popconfirmProps: {
         readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
+    readonly okButtonProps: PropType<Partial<ButtonProps>>;
+    readonly cancelButtonProps: PropType<Partial<ButtonProps>>;
     readonly disabled: BooleanConstructor;
     readonly showCancel: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
+    readonly color: StringConstructor;
     readonly arrow: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly className: StringConstructor;
+    readonly rootClassName: StringConstructor;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<Partial<Record<PopconfirmSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<PopconfirmSemanticPart, StyleValue>>>;
 };
 export declare const popconfirmEmits: {
     'update:open': (open: boolean) => boolean;
     openChange: (open: boolean) => boolean;
     confirm: () => boolean;
     cancel: () => boolean;
+    popupClick: (event: MouseEvent) => boolean;
 };
 export type PopconfirmProps = ExtractPropTypes<typeof popconfirmProps>;
