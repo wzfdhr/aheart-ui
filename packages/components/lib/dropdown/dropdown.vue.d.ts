@@ -21,8 +21,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly arrow: BooleanConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (_info: MenuClickInfo) => void;
-    openChange: (open: boolean) => void;
     "update:open": (open: boolean) => void;
+    openChange: (open: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly menu: import("vue").PropType<import("./types").DropdownMenuConfig>;
     readonly trigger: {
@@ -45,13 +45,13 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly arrow: BooleanConstructor;
 }>> & Readonly<{
     onClick?: ((_info: MenuClickInfo) => any) | undefined;
-    onOpenChange?: ((open: boolean) => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
+    onOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
     readonly disabled: boolean;
-    readonly trigger: import("./types").DropdownTrigger[];
-    readonly placement: import("./types").DropdownPlacement;
     readonly open: boolean;
+    readonly placement: import("./types").DropdownPlacement;
+    readonly trigger: import("./types").DropdownTrigger[];
     readonly defaultOpen: boolean;
     readonly arrow: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

@@ -7,6 +7,7 @@ import Checkbox from "./checkbox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
 import Divider from "./divider/index.js";
+import Drawer from "./drawer/index.js";
 import Dropdown from "./dropdown/index.js";
 import Empty from "./empty/index.js";
 import Flex from "./flex/index.js";
@@ -18,6 +19,7 @@ import Input from "./input/index.js";
 import InputNumber from "./input-number/index.js";
 import Menu from "./menu/index.js";
 import Message from "./message/index.js";
+import Modal from "./modal/index.js";
 import Pagination from "./pagination/index.js";
 import Radio from "./radio/index.js";
 import Select from "./select/index.js";
@@ -50,6 +52,8 @@ const components = [
   Badge,
   Alert,
   Message,
+  Modal,
+  Drawer,
   Spin,
   Skeleton,
   Empty,
@@ -90,6 +94,7 @@ export {
   ConfigProvider,
   Descriptions,
   Divider,
+  Drawer,
   Dropdown,
   Empty,
   Flex,
@@ -102,6 +107,7 @@ export {
   Link,
   Menu,
   Message,
+  Modal,
   Pagination,
   Paragraph,
   Radio,

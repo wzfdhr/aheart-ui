@@ -21,17 +21,17 @@ declare const Dropdown: import("../utils/install").SFCWithInstall<{
         readonly arrow: BooleanConstructor;
     }>> & Readonly<{
         onClick?: ((_info: import("../menu").MenuClickInfo) => any) | undefined;
-        onOpenChange?: ((open: boolean) => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
+        onOpenChange?: ((open: boolean) => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         click: (_info: import("../menu").MenuClickInfo) => void;
-        openChange: (open: boolean) => void;
         "update:open": (open: boolean) => void;
+        openChange: (open: boolean) => void;
     }, import("vue").PublicProps, {
         readonly disabled: boolean;
-        readonly trigger: import("./types").DropdownTrigger[];
-        readonly placement: import("./types").DropdownPlacement;
         readonly open: boolean;
+        readonly placement: import("./types").DropdownPlacement;
+        readonly trigger: import("./types").DropdownTrigger[];
         readonly defaultOpen: boolean;
         readonly arrow: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -63,13 +63,13 @@ declare const Dropdown: import("../utils/install").SFCWithInstall<{
         readonly arrow: BooleanConstructor;
     }>> & Readonly<{
         onClick?: ((_info: import("../menu").MenuClickInfo) => any) | undefined;
-        onOpenChange?: ((open: boolean) => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
+        onOpenChange?: ((open: boolean) => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly disabled: boolean;
-        readonly trigger: import("./types").DropdownTrigger[];
-        readonly placement: import("./types").DropdownPlacement;
         readonly open: boolean;
+        readonly placement: import("./types").DropdownPlacement;
+        readonly trigger: import("./types").DropdownTrigger[];
         readonly defaultOpen: boolean;
         readonly arrow: boolean;
     }>;
@@ -98,17 +98,17 @@ declare const Dropdown: import("../utils/install").SFCWithInstall<{
     readonly arrow: BooleanConstructor;
 }>> & Readonly<{
     onClick?: ((_info: import("../menu").MenuClickInfo) => any) | undefined;
-    onOpenChange?: ((open: boolean) => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
+    onOpenChange?: ((open: boolean) => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (_info: import("../menu").MenuClickInfo) => void;
-    openChange: (open: boolean) => void;
     "update:open": (open: boolean) => void;
+    openChange: (open: boolean) => void;
 }, string, {
     readonly disabled: boolean;
-    readonly trigger: import("./types").DropdownTrigger[];
-    readonly placement: import("./types").DropdownPlacement;
     readonly open: boolean;
+    readonly placement: import("./types").DropdownPlacement;
+    readonly trigger: import("./types").DropdownTrigger[];
     readonly defaultOpen: boolean;
     readonly arrow: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

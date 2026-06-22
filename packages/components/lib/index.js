@@ -2,35 +2,37 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const index$a = require("./alert/index.js");
 const index$9 = require("./badge/index.js");
-const index$f = require("./breadcrumb/index.js");
+const index$h = require("./breadcrumb/index.js");
 const index = require("./button/index.js");
-const index$q = require("./card/index.js");
-const index$n = require("./checkbox/index.js");
+const index$s = require("./card/index.js");
+const index$p = require("./checkbox/index.js");
 const index$1 = require("./config-provider/index.js");
-const index$r = require("./descriptions/index.js");
+const index$t = require("./descriptions/index.js");
 const index$3 = require("./divider/index.js");
-const index$g = require("./dropdown/index.js");
-const index$e = require("./empty/index.js");
+const index$d = require("./drawer/index.js");
+const index$i = require("./dropdown/index.js");
+const index$g = require("./empty/index.js");
 const index$4 = require("./flex/index.js");
-const index$u = require("./form/index.js");
+const index$w = require("./form/index.js");
 const index$5 = require("./grid/index.js");
 const index$6 = require("./icon/index.js");
-const index$k = require("./input/index.js");
-const index$m = require("./input-number/index.js");
-const index$h = require("./menu/index.js");
+const index$m = require("./input/index.js");
+const index$o = require("./input-number/index.js");
+const index$j = require("./menu/index.js");
 const index$b = require("./message/index.js");
-const index$s = require("./pagination/index.js");
-const index$o = require("./radio/index.js");
-const index$t = require("./select/index.js");
-const index$d = require("./skeleton/index.js");
+const index$c = require("./modal/index.js");
+const index$u = require("./pagination/index.js");
+const index$q = require("./radio/index.js");
+const index$v = require("./select/index.js");
+const index$f = require("./skeleton/index.js");
 const index$2 = require("./space/index.js");
-const index$c = require("./spin/index.js");
-const index$j = require("./steps/index.js");
-const index$p = require("./switch/index.js");
-const index$v = require("./table/index.js");
+const index$e = require("./spin/index.js");
+const index$l = require("./steps/index.js");
+const index$r = require("./switch/index.js");
+const index$x = require("./table/index.js");
 const index$8 = require("./tag/index.js");
-const index$i = require("./tabs/index.js");
-const index$l = require("./textarea/index.js");
+const index$k = require("./tabs/index.js");
+const index$n = require("./textarea/index.js");
 const index$7 = require("./typography/index.js");
 require("./theme/index.css.js");
 const service = require("./message/service.js");
@@ -70,8 +72,10 @@ const components = [
   index$s.default,
   index$t.default,
   index$u.default,
-  index$u.FormItem,
-  index$v.default
+  index$v.default,
+  index$w.default,
+  index$w.FormItem,
+  index$x.default
 ];
 const AheartUI = {
   install(app) {
@@ -82,38 +86,40 @@ const AheartUI = {
 };
 exports.Alert = index$a.default;
 exports.Badge = index$9.default;
-exports.Breadcrumb = index$f.default;
+exports.Breadcrumb = index$h.default;
 exports.Button = index.default;
-exports.Card = index$q.default;
-exports.Checkbox = index$n.default;
+exports.Card = index$s.default;
+exports.Checkbox = index$p.default;
 exports.ConfigProvider = index$1.default;
-exports.Descriptions = index$r.default;
+exports.Descriptions = index$t.default;
 exports.Divider = index$3.default;
-exports.Dropdown = index$g.default;
-exports.Empty = index$e.default;
+exports.Drawer = index$d.default;
+exports.Dropdown = index$i.default;
+exports.Empty = index$g.default;
 exports.Flex = index$4.default;
-exports.Form = index$u.default;
-exports.FormItem = index$u.FormItem;
+exports.Form = index$w.default;
+exports.FormItem = index$w.FormItem;
 exports.Col = index$5.Col;
 exports.Grid = index$5.default;
 exports.Row = index$5.Row;
 exports.Icon = index$6.default;
-exports.Input = index$k.default;
-exports.InputNumber = index$m.default;
-exports.Menu = index$h.default;
+exports.Input = index$m.default;
+exports.InputNumber = index$o.default;
+exports.Menu = index$j.default;
 exports.Message = index$b.default;
-exports.Pagination = index$s.default;
-exports.Radio = index$o.default;
-exports.Select = index$t.default;
-exports.Skeleton = index$d.default;
+exports.Modal = index$c.default;
+exports.Pagination = index$u.default;
+exports.Radio = index$q.default;
+exports.Select = index$v.default;
+exports.Skeleton = index$f.default;
 exports.Space = index$2.default;
-exports.Spin = index$c.default;
-exports.Steps = index$j.default;
-exports.Switch = index$p.default;
-exports.Table = index$v.default;
+exports.Spin = index$e.default;
+exports.Steps = index$l.default;
+exports.Switch = index$r.default;
+exports.Table = index$x.default;
 exports.Tag = index$8.default;
-exports.Tabs = index$i.default;
-exports.Textarea = index$l.default;
+exports.Tabs = index$k.default;
+exports.Textarea = index$n.default;
 exports.Link = index$7.Link;
 exports.Paragraph = index$7.Paragraph;
 exports.Text = index$7.Text;
