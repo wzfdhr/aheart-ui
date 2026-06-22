@@ -5,6 +5,23 @@ export declare const cardTypes: readonly ["inner"];
 export type CardVariant = (typeof cardVariants)[number];
 export type CardType = (typeof cardTypes)[number];
 export type CardAction = string | number;
+export interface CardTab {
+    key: string;
+    tab: VNodeChild;
+    disabled?: boolean;
+    children?: VNodeChild;
+}
+export type CardTabSemanticPart = 'root' | 'list' | 'tab' | 'activeTab' | 'tabLabel' | 'extra';
+export type CardTabClassNames = Partial<Record<CardTabSemanticPart, string>>;
+export type CardTabStyles = Partial<Record<CardTabSemanticPart, StyleValue>>;
+export interface CardTabProps {
+    className?: string;
+    rootClassName?: string;
+    style?: StyleValue;
+    tabBarGutter?: number;
+    classNames?: CardTabClassNames;
+    styles?: CardTabStyles;
+}
 export type CardSemanticPart = 'root' | 'header' | 'title' | 'extra' | 'cover' | 'body' | 'actions';
 export type CardClassNames = Partial<Record<CardSemanticPart, string>>;
 export type CardStyles = Partial<Record<CardSemanticPart, StyleValue>>;
@@ -33,6 +50,11 @@ export declare const cardProps: {
     readonly loading: BooleanConstructor;
     readonly size: PropType<AheartSize>;
     readonly actions: PropType<CardAction[]>;
+    readonly tabList: PropType<CardTab[]>;
+    readonly activeTabKey: StringConstructor;
+    readonly defaultActiveTabKey: StringConstructor;
+    readonly tabBarExtraContent: PropType<VNodeChild>;
+    readonly tabProps: PropType<CardTabProps>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;
@@ -40,6 +62,10 @@ export declare const cardProps: {
     readonly bodyStyle: PropType<StyleValue>;
     readonly classNames: PropType<Partial<Record<CardSemanticPart, string>>>;
     readonly styles: PropType<Partial<Record<CardSemanticPart, StyleValue>>>;
+};
+export declare const cardEmits: {
+    'update:activeTabKey': (key: string) => boolean;
+    tabChange: (key: string) => boolean;
 };
 export declare const cardMetaProps: {
     readonly avatar: PropType<VNodeChild>;

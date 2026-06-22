@@ -106,5 +106,5 @@ type CardComponent = SFCWithInstall<typeof card> & {
 };
 declare const Card: CardComponent;
 export { CardGrid as ACardGrid, CardMeta as ACardMeta };
-export type { CardAction, CardClassNames, CardGridClassNames, CardGridProps, CardGridSemanticPart, CardGridStyles, CardMetaClassNames, CardMetaProps, CardMetaSemanticPart, CardMetaStyles, CardProps, CardSemanticPart, CardStyles, CardType, CardVariant } from './types';
+export type { CardAction, CardClassNames, CardGridClassNames, CardGridProps, CardGridSemanticPart, CardGridStyles, CardMetaClassNames, CardMetaProps, CardMetaSemanticPart, CardMetaStyles, CardProps, CardSemanticPart, CardStyles, CardTab, CardTabClassNames, CardTabProps, CardTabSemanticPart, CardTabStyles, CardType, CardVariant } from './types';
 export default Card;

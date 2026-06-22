@@ -21,6 +21,11 @@ const cardProps = {
   loading: Boolean,
   size: String,
   actions: Array,
+  tabList: Array,
+  activeTabKey: String,
+  defaultActiveTabKey: String,
+  tabBarExtraContent: [String, Number, Boolean, Object, Array, Function],
+  tabProps: Object,
   className: String,
   rootClassName: String,
   style: [String, Object, Array],
@@ -28,6 +33,10 @@ const cardProps = {
   bodyStyle: [String, Object, Array],
   classNames: Object,
   styles: Object
+};
+const cardEmits = {
+  "update:activeTabKey": (key) => typeof key === "string",
+  tabChange: (key) => typeof key === "string"
 };
 const cardMetaProps = {
   avatar: [String, Number, Boolean, Object, Array, Function],
@@ -50,6 +59,7 @@ const cardGridProps = {
   classNames: Object,
   styles: Object
 };
+exports.cardEmits = cardEmits;
 exports.cardGridProps = cardGridProps;
 exports.cardMetaProps = cardMetaProps;
 exports.cardProps = cardProps;
