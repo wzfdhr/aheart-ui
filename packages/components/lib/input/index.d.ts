@@ -44,8 +44,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     }, import("vue").PublicProps, {
         readonly type: string;
         readonly disabled: boolean;
-        readonly bordered: boolean;
         readonly variant: import("./types").InputVariant;
+        readonly bordered: boolean;
         readonly readOnly: boolean;
         readonly allowClear: boolean;
         readonly showCount: boolean;
@@ -95,8 +95,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     }>, {}, {}, {}, {}, {
         readonly type: string;
         readonly disabled: boolean;
-        readonly bordered: boolean;
         readonly variant: import("./types").InputVariant;
+        readonly bordered: boolean;
         readonly readOnly: boolean;
         readonly allowClear: boolean;
         readonly showCount: boolean;
@@ -149,8 +149,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
 }, string, {
     readonly type: string;
     readonly disabled: boolean;
-    readonly bordered: boolean;
     readonly variant: import("./types").InputVariant;
+    readonly bordered: boolean;
     readonly readOnly: boolean;
     readonly allowClear: boolean;
     readonly showCount: boolean;

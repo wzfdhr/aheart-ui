@@ -1,4 +1,13 @@
+import { type FormModel, type FormValidationError } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
+    readonly model: {
+        readonly type: import("vue").PropType<FormModel>;
+        readonly default: () => {};
+    };
+    readonly rules: {
+        readonly type: import("vue").PropType<import("./types").FormRules>;
+        readonly default: () => {};
+    };
     readonly layout: {
         readonly type: import("vue").PropType<import("./types").FormLayout>;
         readonly default: "horizontal";
@@ -12,9 +21,38 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    readonly requiredMark: {
+        readonly type: import("vue").PropType<import("./types").FormRequiredMark>;
+        readonly default: true;
+    };
+    readonly colon: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly variant: {
+        readonly type: import("vue").PropType<import("../config").AheartVariant>;
+        readonly default: undefined;
+    };
+}>, {
+    validate: () => {
+        values: FormModel;
+        errorFields: FormValidationError[];
+    };
+    clearValidate: (names?: string[] | undefined) => void;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     submit: (event: Event) => void;
+    finish: (values: FormModel) => void;
+    finishFailed: (info: import("./types").FormFinishFailedInfo) => void;
+    validate: (name: string, status: boolean, errors: string[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    readonly model: {
+        readonly type: import("vue").PropType<FormModel>;
+        readonly default: () => {};
+    };
+    readonly rules: {
+        readonly type: import("vue").PropType<import("./types").FormRules>;
+        readonly default: () => {};
+    };
     readonly layout: {
         readonly type: import("vue").PropType<import("./types").FormLayout>;
         readonly default: "horizontal";
@@ -26,14 +64,34 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly size: import("vue").PropType<import("../config").AheartSize>;
     readonly disabled: {
         readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly requiredMark: {
+        readonly type: import("vue").PropType<import("./types").FormRequiredMark>;
+        readonly default: true;
+    };
+    readonly colon: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly variant: {
+        readonly type: import("vue").PropType<import("../config").AheartVariant>;
         readonly default: undefined;
     };
 }>> & Readonly<{
     onSubmit?: ((event: Event) => any) | undefined;
+    onFinish?: ((values: FormModel) => any) | undefined;
+    onFinishFailed?: ((info: import("./types").FormFinishFailedInfo) => any) | undefined;
+    onValidate?: ((name: string, status: boolean, errors: string[]) => any) | undefined;
 }>, {
     readonly disabled: boolean;
+    readonly variant: import("../config").AheartVariant;
     readonly layout: import("./types").FormLayout;
+    readonly model: FormModel;
+    readonly rules: import("./types").FormRules;
     readonly labelAlign: import("./types").FormLabelAlign;
+    readonly requiredMark: import("./types").FormRequiredMark;
+    readonly colon: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
 }>;

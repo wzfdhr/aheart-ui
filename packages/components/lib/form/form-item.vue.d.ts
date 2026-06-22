@@ -2,6 +2,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly label: StringConstructor;
     readonly name: StringConstructor;
     readonly required: BooleanConstructor;
+    readonly rules: import("vue").PropType<import("./types").FormRule[]>;
     readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
     readonly help: StringConstructor;
     readonly extra: StringConstructor;
@@ -10,6 +11,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly label: StringConstructor;
     readonly name: StringConstructor;
     readonly required: BooleanConstructor;
+    readonly rules: import("vue").PropType<import("./types").FormRule[]>;
     readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
     readonly help: StringConstructor;
     readonly extra: StringConstructor;

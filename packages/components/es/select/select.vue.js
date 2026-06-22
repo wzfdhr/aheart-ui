@@ -40,7 +40,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isMultiple = computed(() => props.mode === "multiple" || props.mode === "tags");
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const resolvedVariant = computed(() => props.variant ?? (props.bordered === false ? "borderless" : "outlined"));
+    const resolvedVariant = computed(
+      () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
+    );
     const currentSearchValue = computed(() => props.searchValue ?? internalSearchValue.value);
     const hasPrefix = computed(() => Boolean(props.prefix || slots.prefix));
     const hasSuffix = computed(() => Boolean(props.suffixIcon || slots.suffixIcon));

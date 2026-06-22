@@ -51,7 +51,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const currentValue = computed(() => props.modelValue ?? "");
-    const resolvedVariant = computed(() => props.variant ?? (props.bordered === false ? "borderless" : "outlined"));
+    const resolvedVariant = computed(
+      () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
+    );
     const hasAddon = computed(() => Boolean(props.addonBefore || props.addonAfter));
     const hasPrefix = computed(() => Boolean(props.prefix || slots.prefix));
     const hasSuffix = computed(() => Boolean(props.suffix || slots.suffix));

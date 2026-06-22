@@ -13,18 +13,22 @@ const _hoisted_3 = {
   class: "aheart-form-item__required",
   "aria-hidden": "true"
 };
-const _hoisted_4 = { class: "aheart-form-item__control" };
-const _hoisted_5 = { class: "aheart-form-item__content" };
-const _hoisted_6 = {
+const _hoisted_4 = {
+  key: 1,
+  class: "aheart-form-item__optional"
+};
+const _hoisted_5 = { class: "aheart-form-item__control" };
+const _hoisted_6 = { class: "aheart-form-item__content" };
+const _hoisted_7 = {
   key: 0,
   class: "aheart-form-item__feedback",
   "aria-hidden": "true"
 };
-const _hoisted_7 = {
+const _hoisted_8 = {
   key: 0,
   class: "aheart-form-item__help"
 };
-const _hoisted_8 = {
+const _hoisted_9 = {
   key: 1,
   class: "aheart-form-item__extra"
 };
@@ -36,9 +40,39 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.formItemProps,
   setup(__props) {
     const props = __props;
+    const formContext = vue.inject(types.formContextKey, void 0);
+    const effectiveRules = vue.computed(() => props.rules ?? []);
+    const fieldErrors = vue.computed(() => props.name ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
+    const isRequired = vue.computed(() => Boolean(props.required || props.name && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
+    const showRequiredMark = vue.computed(() => isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) !== false);
+    const showOptionalMark = vue.computed(
+      () => Boolean(props.label || props.name) && !isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) === "optional"
+    );
+    const effectiveValidateStatus = vue.computed(() => props.validateStatus ?? (fieldErrors.value.length > 0 ? "error" : void 0));
+    const effectiveHelp = vue.computed(() => props.help ?? fieldErrors.value[0] ?? "");
+    const hasHelp = vue.computed(() => Boolean(effectiveHelp.value));
+    vue.watch(
+      () => [props.name, effectiveRules.value],
+      ([name, rules], previous) => {
+        const previousName = previous == null ? void 0 : previous[0];
+        if (previousName && previousName !== name) {
+          formContext == null ? void 0 : formContext.unregisterField(previousName);
+        }
+        if (name) {
+          formContext == null ? void 0 : formContext.registerField(name, rules);
+        }
+      },
+      { immediate: true, deep: true }
+    );
+    vue.onBeforeUnmount(() => {
+      if (props.name) {
+        formContext == null ? void 0 : formContext.unregisterField(props.name);
+      }
+    });
     const formItemClass = vue.computed(() => ({
-      [`aheart-form-item--${props.validateStatus}`]: props.validateStatus,
-      "is-required": props.required,
+      [`aheart-form-item--${effectiveValidateStatus.value}`]: effectiveValidateStatus.value,
+      "is-required": isRequired.value,
+      "is-optional": showOptionalMark.value,
       "has-feedback": props.hasFeedback
     }));
     const feedbackIcon = vue.computed(() => {
@@ -48,7 +82,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         error: "×",
         validating: "…"
       };
-      return props.validateStatus ? iconMap[props.validateStatus] : "";
+      return effectiveValidateStatus.value ? iconMap[effectiveValidateStatus.value] : "";
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
@@ -56,22 +90,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         "data-name": _ctx.name
       }, [
         _ctx.label || _ctx.$slots.label ? (vue.openBlock(), vue.createElementBlock("label", _hoisted_2, [
-          _ctx.required ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, "*")) : vue.createCommentVNode("", true),
+          showRequiredMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, "*")) : vue.createCommentVNode("", true),
           vue.renderSlot(_ctx.$slots, "label", {}, () => [
             vue.createTextVNode(vue.toDisplayString(_ctx.label), 1)
-          ])
-        ])) : vue.createCommentVNode("", true),
-        vue.createElementVNode("div", _hoisted_4, [
-          vue.createElementVNode("div", _hoisted_5, [
-            vue.renderSlot(_ctx.$slots, "default"),
-            _ctx.hasFeedback ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, vue.toDisplayString(feedbackIcon.value), 1)) : vue.createCommentVNode("", true)
           ]),
-          _ctx.help || _ctx.$slots.help ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_7, [
+          showOptionalMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, "optional")) : vue.createCommentVNode("", true)
+        ])) : vue.createCommentVNode("", true),
+        vue.createElementVNode("div", _hoisted_5, [
+          vue.createElementVNode("div", _hoisted_6, [
+            vue.renderSlot(_ctx.$slots, "default"),
+            _ctx.hasFeedback ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_7, vue.toDisplayString(feedbackIcon.value), 1)) : vue.createCommentVNode("", true)
+          ]),
+          hasHelp.value || _ctx.$slots.help ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_8, [
             vue.renderSlot(_ctx.$slots, "help", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(_ctx.help), 1)
+              vue.createTextVNode(vue.toDisplayString(effectiveHelp.value), 1)
             ])
           ])) : vue.createCommentVNode("", true),
-          _ctx.extra || _ctx.$slots.extra ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_8, [
+          _ctx.extra || _ctx.$slots.extra ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_9, [
             vue.renderSlot(_ctx.$slots, "extra", {}, () => [
               vue.createTextVNode(vue.toDisplayString(_ctx.extra), 1)
             ])

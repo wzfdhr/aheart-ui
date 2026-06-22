@@ -23,7 +23,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const currentValue = vue.computed(() => props.modelValue ?? "");
-    const resolvedVariant = vue.computed(() => props.variant ?? (props.bordered === false ? "borderless" : "outlined"));
+    const resolvedVariant = vue.computed(
+      () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
+    );
     const hasAutoSize = vue.computed(() => Boolean(props.autoSize));
     const textareaClass = vue.computed(() => [
       `aheart-textarea--${resolvedSize.value}`,

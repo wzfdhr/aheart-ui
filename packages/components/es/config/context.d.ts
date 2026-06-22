@@ -1,5 +1,6 @@
 import { type ComputedRef, type InjectionKey, type Ref } from 'vue';
 export type AheartSize = 'large' | 'middle' | 'small';
+export type AheartVariant = 'outlined' | 'borderless' | 'filled' | 'underlined';
 export interface AheartLocale {
     empty?: {
         description?: string;
@@ -23,6 +24,7 @@ export interface AheartTheme {
 export interface AheartConfig {
     size?: AheartSize;
     disabled?: boolean;
+    variant?: AheartVariant;
     locale?: AheartLocale;
     theme?: AheartTheme;
 }

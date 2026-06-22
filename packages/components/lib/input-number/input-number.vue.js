@@ -32,7 +32,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const config = context.useAheartConfig();
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const resolvedVariant = vue.computed(() => props.variant ?? (props.bordered === false ? "borderless" : "outlined"));
+    const resolvedVariant = vue.computed(
+      () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
+    );
     const isInteractiveDisabled = vue.computed(() => isDisabled.value || props.readOnly);
     const displayValue = vue.computed(() => {
       if (props.formatter) {

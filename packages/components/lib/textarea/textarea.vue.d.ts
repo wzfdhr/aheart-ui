@@ -66,9 +66,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
     readonly disabled: boolean;
+    readonly variant: import("./types").TextareaVariant;
     readonly bordered: boolean;
     readonly rows: number;
-    readonly variant: import("./types").TextareaVariant;
     readonly readOnly: boolean;
     readonly allowClear: boolean;
     readonly showCount: boolean;

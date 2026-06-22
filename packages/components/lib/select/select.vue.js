@@ -42,7 +42,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isMultiple = vue.computed(() => props.mode === "multiple" || props.mode === "tags");
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const resolvedVariant = vue.computed(() => props.variant ?? (props.bordered === false ? "borderless" : "outlined"));
+    const resolvedVariant = vue.computed(
+      () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
+    );
     const currentSearchValue = vue.computed(() => props.searchValue ?? internalSearchValue.value);
     const hasPrefix = vue.computed(() => Boolean(props.prefix || slots.prefix));
     const hasSuffix = vue.computed(() => Boolean(props.suffixIcon || slots.suffixIcon));

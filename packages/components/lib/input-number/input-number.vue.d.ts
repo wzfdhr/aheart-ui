@@ -87,8 +87,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
 }>, {
     readonly step: number;
     readonly disabled: boolean;
-    readonly bordered: boolean;
     readonly variant: import("./types").InputNumberVariant;
+    readonly bordered: boolean;
     readonly keyboard: boolean;
     readonly readOnly: boolean;
     readonly controls: boolean;

@@ -46,8 +46,8 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         clear: () => void;
     }, import("vue").PublicProps, {
         readonly disabled: boolean;
-        readonly bordered: boolean;
         readonly variant: import("./types").SelectVariant;
+        readonly bordered: boolean;
         readonly allowClear: boolean;
         readonly showSearch: boolean;
         readonly filterOption: import("./types").SelectFilterOption;
@@ -101,8 +101,8 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         onClear?: (() => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly disabled: boolean;
-        readonly bordered: boolean;
         readonly variant: import("./types").SelectVariant;
+        readonly bordered: boolean;
         readonly allowClear: boolean;
         readonly showSearch: boolean;
         readonly filterOption: import("./types").SelectFilterOption;
@@ -158,8 +158,8 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     clear: () => void;
 }, string, {
     readonly disabled: boolean;
-    readonly bordered: boolean;
     readonly variant: import("./types").SelectVariant;
+    readonly bordered: boolean;
     readonly allowClear: boolean;
     readonly showSearch: boolean;
     readonly filterOption: import("./types").SelectFilterOption;

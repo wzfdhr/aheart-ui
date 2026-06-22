@@ -53,7 +53,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const currentValue = vue.computed(() => props.modelValue ?? "");
-    const resolvedVariant = vue.computed(() => props.variant ?? (props.bordered === false ? "borderless" : "outlined"));
+    const resolvedVariant = vue.computed(
+      () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
+    );
     const hasAddon = vue.computed(() => Boolean(props.addonBefore || props.addonAfter));
     const hasPrefix = vue.computed(() => Boolean(props.prefix || slots.prefix));
     const hasSuffix = vue.computed(() => Boolean(props.suffix || slots.suffix));

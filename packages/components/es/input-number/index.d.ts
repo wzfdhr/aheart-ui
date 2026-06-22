@@ -87,8 +87,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<import("vue
 }>, {
     readonly step: number;
     readonly disabled: boolean;
-    readonly bordered: boolean;
     readonly variant: import("./types").InputNumberVariant;
+    readonly bordered: boolean;
     readonly keyboard: boolean;
     readonly readOnly: boolean;
     readonly controls: boolean;

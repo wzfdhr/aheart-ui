@@ -73,8 +73,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>, {
     readonly type: string;
     readonly disabled: boolean;
-    readonly bordered: boolean;
     readonly variant: import("./types").InputVariant;
+    readonly bordered: boolean;
     readonly readOnly: boolean;
     readonly allowClear: boolean;
     readonly showCount: boolean;

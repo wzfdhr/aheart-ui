@@ -81,8 +81,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onClear?: (() => any) | undefined;
 }>, {
     readonly disabled: boolean;
-    readonly bordered: boolean;
     readonly variant: import("./types").SelectVariant;
+    readonly bordered: boolean;
     readonly allowClear: boolean;
     readonly showSearch: boolean;
     readonly filterOption: import("./types").SelectFilterOption;
