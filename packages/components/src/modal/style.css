@@ -1,0 +1,96 @@
+.aheart-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-modal__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.aheart-modal__wrap {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  outline: 0;
+}
+
+.aheart-modal__dialog {
+  position: relative;
+  max-width: calc(100vw - 32px);
+  margin: 100px auto var(--aheart-spacing-lg);
+  background: var(--aheart-color-bg-elevated);
+  border-radius: var(--aheart-radius);
+  box-shadow: var(--aheart-shadow);
+}
+
+.aheart-modal__dialog.is-centered {
+  top: 50%;
+  margin-top: 0;
+  transform: translateY(-50%);
+}
+
+.aheart-modal__header {
+  display: flex;
+  gap: var(--aheart-spacing-md);
+  align-items: center;
+  min-height: 56px;
+  padding: var(--aheart-spacing-md) var(--aheart-spacing-lg);
+  border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-modal__title {
+  flex: 1;
+  min-width: 0;
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size-lg);
+  font-weight: 600;
+}
+
+.aheart-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--aheart-radius-sm);
+  background: transparent;
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
+  font: inherit;
+}
+
+.aheart-modal__close:hover {
+  background: var(--aheart-color-fill);
+  color: var(--aheart-color-text);
+}
+
+.aheart-modal__body {
+  padding: var(--aheart-spacing-lg);
+}
+
+.aheart-modal__footer {
+  display: flex;
+  gap: var(--aheart-spacing-sm);
+  justify-content: flex-end;
+  padding: 10px var(--aheart-spacing-lg);
+  border-top: 1px solid var(--aheart-color-border);
+}
+
+@media (max-width: 575px) {
+  .aheart-modal__dialog {
+    width: auto !important;
+    margin: var(--aheart-spacing-lg) var(--aheart-spacing-md);
+  }
+
+  .aheart-modal__dialog.is-centered {
+    top: auto;
+    transform: none;
+  }
+}

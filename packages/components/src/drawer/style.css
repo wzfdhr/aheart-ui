@@ -1,0 +1,115 @@
+.aheart-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-drawer__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.aheart-drawer__panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--aheart-color-bg-elevated);
+  box-shadow: var(--aheart-shadow);
+}
+
+.aheart-drawer__panel--right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 100vw;
+}
+
+.aheart-drawer__panel--left {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  max-width: 100vw;
+}
+
+.aheart-drawer__panel--top {
+  top: 0;
+  right: 0;
+  left: 0;
+  max-height: 100vh;
+}
+
+.aheart-drawer__panel--bottom {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 100vh;
+}
+
+.aheart-drawer__header {
+  display: flex;
+  gap: var(--aheart-spacing-md);
+  align-items: center;
+  min-height: 56px;
+  padding: var(--aheart-spacing-md) var(--aheart-spacing-lg);
+  border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--aheart-radius-sm);
+  background: transparent;
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
+  font: inherit;
+}
+
+.aheart-drawer__close:hover {
+  background: var(--aheart-color-fill);
+  color: var(--aheart-color-text);
+}
+
+.aheart-drawer__title {
+  flex: 1;
+  min-width: 0;
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size-lg);
+  font-weight: 600;
+}
+
+.aheart-drawer__extra {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-drawer__body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--aheart-spacing-lg);
+  overflow: auto;
+}
+
+.aheart-drawer__footer {
+  display: flex;
+  gap: var(--aheart-spacing-sm);
+  justify-content: flex-end;
+  padding: 10px var(--aheart-spacing-lg);
+  border-top: 1px solid var(--aheart-color-border);
+}
+
+@media (max-width: 575px) {
+  .aheart-drawer__panel--right,
+  .aheart-drawer__panel--left {
+    width: min(100vw, 378px) !important;
+  }
+}
