@@ -7,6 +7,12 @@ export type TableSortOrder = 'ascend' | 'descend';
 export type TableSelectionType = 'checkbox' | 'radio';
 export type TableColumnAlign = 'left' | 'center' | 'right';
 export type TableDataIndex = string | number | Array<string | number>;
+export type TableFilterValue = string | number | boolean;
+export type TableChangeAction = 'paginate' | 'sort' | 'filter';
+export interface TableColumnFilter {
+    text: string;
+    value: TableFilterValue;
+}
 export interface TableColumn<T extends TableRecord = TableRecord> {
     title: string;
     dataIndex?: keyof T | TableDataIndex;
@@ -16,6 +22,11 @@ export interface TableColumn<T extends TableRecord = TableRecord> {
     className?: string;
     sorter?: boolean | ((a: T, b: T) => number);
     sortOrder?: TableSortOrder;
+    defaultSortOrder?: TableSortOrder;
+    filters?: TableColumnFilter[];
+    filteredValue?: TableFilterValue[];
+    defaultFilteredValue?: TableFilterValue[];
+    filterMultiple?: boolean;
     ellipsis?: boolean;
     customRender?: (context: {
         text: unknown;
@@ -44,6 +55,11 @@ export interface TableChangePagination {
     current: number;
     pageSize: number;
     total: number;
+}
+export type TableFilters = Record<string, TableFilterValue[]>;
+export interface TableChangeExtra<T extends TableRecord = TableRecord> {
+    currentDataSource: T[];
+    action: TableChangeAction;
 }
 export interface TableRowSelection {
     selectedRowKeys?: TableKey[];
@@ -84,7 +100,7 @@ export declare const tableProps: {
     readonly emptyText: StringConstructor;
 };
 export declare const tableEmits: {
-    change: (_pagination: TableChangePagination, _filters: Record<string, unknown>, _sorter: TableSorter) => boolean;
+    change: (_pagination: TableChangePagination, _filters: TableFilters, _sorter: TableSorter, _extra: TableChangeExtra) => boolean;
     'update:selectedRowKeys': (keys: TableKey[]) => boolean;
     select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => boolean;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => boolean;

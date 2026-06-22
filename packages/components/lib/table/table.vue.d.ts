@@ -1,4 +1,4 @@
-import { type TableColumn, type TableKey, type TableRecord } from './types';
+import { type TableColumn, type TableFilters, type TableKey, type TableRecord } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly columns: import("vue").PropType<TableColumn<TableRecord>[]>;
     readonly dataSource: import("vue").PropType<TableRecord[]>;
@@ -25,7 +25,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly emptyText: StringConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    change: (_pagination: import("./types").TableChangePagination, _filters: Record<string, unknown>, _sorter: import("./types").TableSorter<TableRecord>) => void;
+    change: (_pagination: import("./types").TableChangePagination, _filters: TableFilters, _sorter: import("./types").TableSorter<TableRecord>, _extra: import("./types").TableChangeExtra<TableRecord>) => void;
     select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => void;
     "update:selectedRowKeys": (keys: TableKey[]) => void;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => void;
@@ -55,7 +55,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly emptyText: StringConstructor;
 }>> & Readonly<{
-    onChange?: ((_pagination: import("./types").TableChangePagination, _filters: Record<string, unknown>, _sorter: import("./types").TableSorter<TableRecord>) => any) | undefined;
+    onChange?: ((_pagination: import("./types").TableChangePagination, _filters: TableFilters, _sorter: import("./types").TableSorter<TableRecord>, _extra: import("./types").TableChangeExtra<TableRecord>) => any) | undefined;
     onSelect?: ((_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => any) | undefined;
     "onUpdate:selectedRowKeys"?: ((keys: TableKey[]) => any) | undefined;
     onExpand?: ((_expanded: boolean, _record: TableRecord, _key: TableKey) => any) | undefined;

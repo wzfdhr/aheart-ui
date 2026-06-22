@@ -24,7 +24,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     };
     readonly emptyText: StringConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    change: (_pagination: import("./types").TableChangePagination, _filters: Record<string, unknown>, _sorter: import("./types").TableSorter<import("./types").TableRecord>) => void;
+    change: (_pagination: import("./types").TableChangePagination, _filters: import("./types").TableFilters, _sorter: import("./types").TableSorter<import("./types").TableRecord>, _extra: import("./types").TableChangeExtra<import("./types").TableRecord>) => void;
     select: (_key: import("./types").TableKey, _selected: boolean, _record: import("./types").TableRecord, _selectedRowKeys: import("./types").TableKey[]) => void;
     "update:selectedRowKeys": (keys: import("./types").TableKey[]) => void;
     expand: (_expanded: boolean, _record: import("./types").TableRecord, _key: import("./types").TableKey) => void;
@@ -54,7 +54,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     };
     readonly emptyText: StringConstructor;
 }>> & Readonly<{
-    onChange?: ((_pagination: import("./types").TableChangePagination, _filters: Record<string, unknown>, _sorter: import("./types").TableSorter<import("./types").TableRecord>) => any) | undefined;
+    onChange?: ((_pagination: import("./types").TableChangePagination, _filters: import("./types").TableFilters, _sorter: import("./types").TableSorter<import("./types").TableRecord>, _extra: import("./types").TableChangeExtra<import("./types").TableRecord>) => any) | undefined;
     onSelect?: ((_key: import("./types").TableKey, _selected: boolean, _record: import("./types").TableRecord, _selectedRowKeys: import("./types").TableKey[]) => any) | undefined;
     "onUpdate:selectedRowKeys"?: ((keys: import("./types").TableKey[]) => any) | undefined;
     onExpand?: ((_expanded: boolean, _record: import("./types").TableRecord, _key: import("./types").TableKey) => any) | undefined;

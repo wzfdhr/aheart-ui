@@ -27,7 +27,7 @@ const tableProps = {
   emptyText: String
 };
 const tableEmits = {
-  change: (_pagination, _filters, _sorter) => true,
+  change: (_pagination, _filters, _sorter, _extra) => true,
   "update:selectedRowKeys": (keys) => Array.isArray(keys),
   select: (_key, _selected, _record, _selectedRowKeys) => true,
   expand: (_expanded, _record, _key) => true
