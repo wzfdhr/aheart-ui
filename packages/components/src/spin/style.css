@@ -1,0 +1,63 @@
+.aheart-spin,
+.aheart-spin-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--aheart-color-primary);
+  font-size: var(--aheart-font-size);
+}
+
+.aheart-spin-nested {
+  display: inline-block;
+}
+
+.aheart-spin-container {
+  transition: opacity var(--aheart-motion-duration);
+}
+
+.aheart-spin-container.is-blur {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+
+.aheart-spin__indicator {
+  display: inline-flex;
+  gap: var(--aheart-spacing-sm);
+  align-items: center;
+}
+
+.aheart-spin-nested .aheart-spin__indicator {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+}
+
+.aheart-spin__dot {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: aheart-spin-rotate 0.8s linear infinite;
+}
+
+.aheart-spin--small {
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-spin--large {
+  font-size: var(--aheart-font-size-lg);
+}
+
+.aheart-spin__tip {
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size);
+}
+
+@keyframes aheart-spin-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

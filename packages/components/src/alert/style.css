@@ -1,0 +1,62 @@
+.aheart-alert {
+  display: flex;
+  gap: var(--aheart-spacing-sm);
+  align-items: flex-start;
+  padding: 8px 12px;
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-alert--success {
+  border-color: var(--aheart-color-success);
+  background: color-mix(in srgb, var(--aheart-color-success) 10%, white);
+}
+
+.aheart-alert--info {
+  border-color: var(--aheart-color-info);
+  background: color-mix(in srgb, var(--aheart-color-info) 10%, white);
+}
+
+.aheart-alert--warning {
+  border-color: var(--aheart-color-warning);
+  background: color-mix(in srgb, var(--aheart-color-warning) 10%, white);
+}
+
+.aheart-alert--error {
+  border-color: var(--aheart-color-danger);
+  background: color-mix(in srgb, var(--aheart-color-danger) 10%, white);
+}
+
+.aheart-alert__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4em;
+  height: 1.4em;
+  color: inherit;
+  font-weight: 700;
+}
+
+.aheart-alert__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.aheart-alert__message {
+  font-weight: 600;
+}
+
+.aheart-alert__description {
+  color: var(--aheart-color-text-secondary);
+}
+
+.aheart-alert__close {
+  border: 0;
+  background: transparent;
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
+  font: inherit;
+}

@@ -1,0 +1,34 @@
+.aheart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--aheart-spacing-sm);
+  padding: var(--aheart-spacing-lg);
+  color: var(--aheart-color-text-secondary);
+  text-align: center;
+}
+
+.aheart-empty__image {
+  color: var(--aheart-color-border);
+  font-size: 42px;
+  line-height: 1;
+}
+
+.aheart-empty__default-image {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 48px;
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  background: var(--aheart-color-fill);
+}
+
+.aheart-empty__description {
+  font-size: var(--aheart-font-size);
+}
+
+.aheart-empty__footer {
+  margin-top: var(--aheart-spacing-sm);
+}
