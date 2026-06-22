@@ -19,11 +19,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   __name: "select",
   props: types.selectProps,
   emits: types.selectEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const searchRef = vue.ref();
+    const selectRef = vue.ref();
     const internalSearchValue = vue.ref("");
     const internalValue = vue.ref(props.defaultValue);
     const ARenderNode = vue.defineComponent({
@@ -171,6 +173,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       internalSearchValue.value = value;
       emit("search", value);
     };
+    const handleFocus = (event) => {
+      emit("focus", event);
+    };
+    const handleBlur = (event) => {
+      emit("blur", event);
+    };
+    const focus = () => {
+      const target = props.showSearch ? searchRef.value : selectRef.value;
+      target == null ? void 0 : target.focus();
+    };
+    const blur = () => {
+      var _a, _b;
+      (_a = searchRef.value) == null ? void 0 : _a.blur();
+      (_b = selectRef.value) == null ? void 0 : _b.blur();
+    };
+    __expose({
+      focus,
+      blur
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
         class: vue.normalizeClass(["aheart-select", selectClass.value]),
@@ -187,6 +208,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ], 6)) : vue.createCommentVNode("", true),
         _ctx.showSearch ? (vue.openBlock(), vue.createElementBlock("input", {
           key: 1,
+          ref_key: "searchRef",
+          ref: searchRef,
           class: vue.normalizeClass(["aheart-select__search", _ctx.classNames.search]),
           style: vue.normalizeStyle(_ctx.styles.search),
           type: "search",
@@ -194,9 +217,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           disabled: isDisabled.value,
           placeholder: _ctx.placeholder,
           "aria-label": "Search options",
-          onInput: handleSearch
+          onInput: handleSearch,
+          onFocus: handleFocus,
+          onBlur: handleBlur
         }, null, 46, _hoisted_1)) : vue.createCommentVNode("", true),
         vue.createElementVNode("select", {
+          ref_key: "selectRef",
+          ref: selectRef,
           class: vue.normalizeClass(["aheart-select__control", _ctx.classNames.selector]),
           style: vue.normalizeStyle(_ctx.styles.selector),
           id: _ctx.id,
@@ -204,7 +231,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           value: selectValue.value,
           multiple: isMultiple.value,
           disabled: isDisabled.value,
-          onChange: handleChange
+          onChange: handleChange,
+          onFocus: handleFocus,
+          onBlur: handleBlur
         }, [
           _ctx.placeholder && !isMultiple.value && !_ctx.showSearch && !hasNoOptions.value ? (vue.openBlock(), vue.createElementBlock("option", _hoisted_3, vue.toDisplayString(_ctx.placeholder), 1)) : vue.createCommentVNode("", true),
           hasNoOptions.value ? (vue.openBlock(), vue.createElementBlock("option", {

@@ -91,5 +91,7 @@ export declare const selectEmits: {
     change: (value: SelectValue) => boolean;
     clear: () => boolean;
     search: (value: string) => boolean;
+    focus: (event: FocusEvent) => boolean;
+    blur: (event: FocusEvent) => boolean;
 };
 export type SelectProps = ExtractPropTypes<typeof selectProps>;

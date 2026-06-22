@@ -63,7 +63,9 @@ const selectEmits = {
   "update:modelValue": (value) => typeof value === "string" || typeof value === "number" || Array.isArray(value),
   change: (value) => typeof value === "string" || typeof value === "number" || Array.isArray(value),
   clear: () => true,
-  search: (value) => typeof value === "string"
+  search: (value) => typeof value === "string",
+  focus: (event) => event instanceof FocusEvent,
+  blur: (event) => event instanceof FocusEvent
 };
 exports.selectEmits = selectEmits;
 exports.selectProps = selectProps;

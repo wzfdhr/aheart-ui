@@ -59,12 +59,19 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         };
     }>> & Readonly<{
         onSearch?: ((value: string) => any) | undefined;
+        onBlur?: ((event: FocusEvent) => any) | undefined;
         onChange?: ((value: import("./types").SelectValue) => any) | undefined;
+        onFocus?: ((event: FocusEvent) => any) | undefined;
         onClear?: (() => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
-    }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+    }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         search: (value: string) => void;
+        blur: (event: FocusEvent) => void;
         change: (value: import("./types").SelectValue) => void;
+        focus: (event: FocusEvent) => void;
         clear: () => void;
         "update:modelValue": (value: import("./types").SelectValue) => void;
     }, import("vue").PublicProps, {
@@ -146,10 +153,15 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         };
     }>> & Readonly<{
         onSearch?: ((value: string) => any) | undefined;
+        onBlur?: ((event: FocusEvent) => any) | undefined;
         onChange?: ((value: import("./types").SelectValue) => any) | undefined;
+        onFocus?: ((event: FocusEvent) => any) | undefined;
         onClear?: (() => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
-    }>, {}, {}, {}, {}, {
+    }>, {
+        focus: () => void;
+        blur: () => void;
+    }, {}, {}, {}, {
         readonly variant: import("./types").SelectVariant;
         readonly classNames: Partial<Record<import("./types").SelectSemanticPart, string>>;
         readonly styles: Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>;
@@ -225,12 +237,19 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     };
 }>> & Readonly<{
     onSearch?: ((value: string) => any) | undefined;
+    onBlur?: ((event: FocusEvent) => any) | undefined;
     onChange?: ((value: import("./types").SelectValue) => any) | undefined;
+    onFocus?: ((event: FocusEvent) => any) | undefined;
     onClear?: (() => any) | undefined;
     "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: () => void;
+    blur: () => void;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     search: (value: string) => void;
+    blur: (event: FocusEvent) => void;
     change: (value: import("./types").SelectValue) => void;
+    focus: (event: FocusEvent) => void;
     clear: () => void;
     "update:modelValue": (value: import("./types").SelectValue) => void;
 }, string, {

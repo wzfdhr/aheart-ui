@@ -58,9 +58,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: () => void;
+    blur: () => void;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     search: (value: string) => void;
+    blur: (event: FocusEvent) => void;
     change: (value: SelectValue) => void;
+    focus: (event: FocusEvent) => void;
     clear: () => void;
     "update:modelValue": (value: SelectValue) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
@@ -123,7 +128,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
 }>> & Readonly<{
     onSearch?: ((value: string) => any) | undefined;
+    onBlur?: ((event: FocusEvent) => any) | undefined;
     onChange?: ((value: SelectValue) => any) | undefined;
+    onFocus?: ((event: FocusEvent) => any) | undefined;
     onClear?: (() => any) | undefined;
     "onUpdate:modelValue"?: ((value: SelectValue) => any) | undefined;
 }>, {

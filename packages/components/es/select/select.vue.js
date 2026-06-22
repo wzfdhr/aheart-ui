@@ -17,11 +17,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "select",
   props: selectProps,
   emits: selectEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const slots = useSlots();
     const config = useAheartConfig();
+    const searchRef = ref();
+    const selectRef = ref();
     const internalSearchValue = ref("");
     const internalValue = ref(props.defaultValue);
     const ARenderNode = defineComponent({
@@ -169,6 +171,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       internalSearchValue.value = value;
       emit("search", value);
     };
+    const handleFocus = (event) => {
+      emit("focus", event);
+    };
+    const handleBlur = (event) => {
+      emit("blur", event);
+    };
+    const focus = () => {
+      const target = props.showSearch ? searchRef.value : selectRef.value;
+      target == null ? void 0 : target.focus();
+    };
+    const blur = () => {
+      var _a, _b;
+      (_a = searchRef.value) == null ? void 0 : _a.blur();
+      (_b = selectRef.value) == null ? void 0 : _b.blur();
+    };
+    __expose({
+      focus,
+      blur
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
         class: normalizeClass(["aheart-select", selectClass.value]),
@@ -185,6 +206,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ], 6)) : createCommentVNode("", true),
         _ctx.showSearch ? (openBlock(), createElementBlock("input", {
           key: 1,
+          ref_key: "searchRef",
+          ref: searchRef,
           class: normalizeClass(["aheart-select__search", _ctx.classNames.search]),
           style: normalizeStyle(_ctx.styles.search),
           type: "search",
@@ -192,9 +215,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           disabled: isDisabled.value,
           placeholder: _ctx.placeholder,
           "aria-label": "Search options",
-          onInput: handleSearch
+          onInput: handleSearch,
+          onFocus: handleFocus,
+          onBlur: handleBlur
         }, null, 46, _hoisted_1)) : createCommentVNode("", true),
         createElementVNode("select", {
+          ref_key: "selectRef",
+          ref: selectRef,
           class: normalizeClass(["aheart-select__control", _ctx.classNames.selector]),
           style: normalizeStyle(_ctx.styles.selector),
           id: _ctx.id,
@@ -202,7 +229,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           value: selectValue.value,
           multiple: isMultiple.value,
           disabled: isDisabled.value,
-          onChange: handleChange
+          onChange: handleChange,
+          onFocus: handleFocus,
+          onBlur: handleBlur
         }, [
           _ctx.placeholder && !isMultiple.value && !_ctx.showSearch && !hasNoOptions.value ? (openBlock(), createElementBlock("option", _hoisted_3, toDisplayString(_ctx.placeholder), 1)) : createCommentVNode("", true),
           hasNoOptions.value ? (openBlock(), createElementBlock("option", {
