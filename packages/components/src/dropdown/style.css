@@ -22,6 +22,10 @@
   box-shadow: var(--aheart-shadow);
 }
 
+.aheart-dropdown__menu {
+  min-width: 0;
+}
+
 .aheart-dropdown__overlay--bottomLeft {
   top: calc(100% + var(--aheart-spacing-xs));
   left: 0;
@@ -62,6 +66,10 @@
   border-top: 1px solid var(--aheart-color-border);
   border-left: 1px solid var(--aheart-color-border);
   transform: rotate(45deg);
+}
+
+.aheart-dropdown__arrow--point-at-center {
+  transform: rotate(45deg) scale(1.05);
 }
 
 .aheart-dropdown__overlay--bottomLeft .aheart-dropdown__arrow,
