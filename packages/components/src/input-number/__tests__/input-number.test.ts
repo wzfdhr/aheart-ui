@@ -106,4 +106,119 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([3])
     expect(wrapper.emitted('step')?.[0]).toEqual([3, { offset: 1, type: 'up' }])
   })
+
+  it('renders custom controls icon content and hides controls when disabled', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 2,
+        controls: {
+          upIcon: 'up',
+          downIcon: 'down'
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-input-number__increase').text()).toBe('up')
+    expect(wrapper.find('.aheart-input-number__decrease').text()).toBe('down')
+
+    const withoutControls = mount(InputNumber, {
+      props: { modelValue: 2, controls: false }
+    })
+
+    expect(withoutControls.find('.aheart-input-number__controls').exists()).toBe(false)
+  })
+
+  it('steps with mouse wheel only when changeOnWheel is enabled', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 2, step: 2, changeOnWheel: true }
+    })
+
+    await wrapper.find('input').trigger('wheel', { deltaY: -1 })
+    await wrapper.find('input').trigger('wheel', { deltaY: 1 })
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([4])
+    expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0])
+
+    const disabledWheel = mount(InputNumber, {
+      props: { modelValue: 2 }
+    })
+
+    await disabledWheel.find('input').trigger('wheel', { deltaY: -1 })
+    expect(disabledWheel.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it('passes formatter info to formatter', () => {
+    const calls: Array<{ value: number | undefined; userTyping?: boolean; input?: string }> = []
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 1200,
+        formatter: (value, info) => {
+          calls.push({ value, ...info })
+          return `${info.userTyping}:${info.input}`
+        }
+      }
+    })
+
+    expect(wrapper.find('input').element.value).toBe('false:1200')
+    expect(calls[0]).toEqual({ value: 1200, userTyping: false, input: '1200' })
+  })
+
+  it('applies root class and style hooks', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        className: 'input-number-class',
+        rootClassName: 'input-number-root',
+        style: { width: '320px' },
+        classNames: {
+          root: 'semantic-root'
+        },
+        styles: {
+          root: { marginTop: '6px' }
+        }
+      }
+    })
+
+    expect(wrapper.classes()).toContain('input-number-class')
+    expect(wrapper.classes()).toContain('input-number-root')
+    expect(wrapper.classes()).toContain('semantic-root')
+    expect(wrapper.attributes('style')).toContain('width: 320px')
+    expect(wrapper.attributes('style')).toContain('margin-top: 6px')
+  })
+
+  it('applies semantic class and style hooks to InputNumber parts', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 2,
+        prefix: '$',
+        suffix: 'USD',
+        classNames: {
+          input: 'semantic-input',
+          prefix: 'semantic-prefix',
+          suffix: 'semantic-suffix',
+          actions: 'semantic-actions',
+          action: 'semantic-action'
+        },
+        styles: {
+          input: { color: 'red' },
+          prefix: { color: 'blue' },
+          suffix: { color: 'green' },
+          actions: { color: 'purple' },
+          action: { color: 'orange' }
+        }
+      }
+    })
+
+    expect(wrapper.find('input').classes()).toContain('semantic-input')
+    expect(wrapper.find('input').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-input-number__prefix').classes()).toContain('semantic-prefix')
+    expect(wrapper.find('.aheart-input-number__prefix').attributes('style')).toContain('color: blue')
+    expect(wrapper.find('.aheart-input-number__suffix').classes()).toContain('semantic-suffix')
+    expect(wrapper.find('.aheart-input-number__suffix').attributes('style')).toContain('color: green')
+    expect(wrapper.find('.aheart-input-number__controls').classes()).toContain('semantic-actions')
+    expect(wrapper.find('.aheart-input-number__controls').attributes('style')).toContain('color: purple')
+    expect(wrapper.find('.aheart-input-number__increase').classes()).toContain('semantic-action')
+    expect(wrapper.find('.aheart-input-number__increase').attributes('style')).toContain('color: orange')
+    expect(wrapper.find('.aheart-input-number__decrease').classes()).toContain('semantic-action')
+    expect(wrapper.find('.aheart-input-number__decrease').attributes('style')).toContain('color: orange')
+  })
 })

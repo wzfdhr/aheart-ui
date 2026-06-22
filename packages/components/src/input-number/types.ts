@@ -1,9 +1,24 @@
-import type { ExtractPropTypes, PropType } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
 import type { AheartSize } from '../config'
 
 export type InputNumberStatus = 'error' | 'warning'
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
 export type InputNumberStepType = 'up' | 'down'
+
+export interface InputNumberFormatterInfo {
+  userTyping: boolean
+  input: string
+}
+
+export interface InputNumberControlsConfig {
+  upIcon?: string
+  downIcon?: string
+}
+
+export type InputNumberControls = boolean | InputNumberControlsConfig
+export type InputNumberSemanticPart = 'root' | 'input' | 'prefix' | 'suffix' | 'actions' | 'action'
+export type InputNumberClassNames = Partial<Record<InputNumberSemanticPart, string>>
+export type InputNumberStyles = Partial<Record<InputNumberSemanticPart, StyleValue>>
 
 export interface InputNumberStepInfo {
   offset: number
@@ -38,16 +53,22 @@ export const inputNumberProps = {
     default: 1
   },
   precision: Number,
-  formatter: Function as PropType<(value: number | undefined) => string>,
+  formatter: Function as PropType<(value: number | undefined, info: InputNumberFormatterInfo) => string>,
   parser: Function as PropType<(displayValue: string) => number | undefined>,
   keyboard: {
     type: Boolean,
     default: true
   },
   controls: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<InputNumberControls>,
     default: true
-  }
+  },
+  changeOnWheel: Boolean,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  classNames: Object as PropType<InputNumberClassNames>,
+  styles: Object as PropType<InputNumberStyles>
 } as const
 
 export const inputNumberEmits = {

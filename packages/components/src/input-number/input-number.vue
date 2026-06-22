@@ -1,8 +1,10 @@
 <template>
-  <span class="aheart-input-number" :class="inputNumberClass">
-    <span v-if="prefix" class="aheart-input-number__prefix">{{ prefix }}</span>
+  <span class="aheart-input-number" :class="inputNumberClass" :style="rootStyle">
+    <span v-if="prefix" :class="prefixClass" :style="prefixStyle">{{ prefix }}</span>
     <input
       class="aheart-input-number__control"
+      :class="controlClass"
+      :style="controlStyle"
       :id="id"
       type="text"
       inputmode="decimal"
@@ -15,26 +17,31 @@
       :step="step"
       @input="handleInput"
       @keydown="handleKeydown"
+      @wheel="handleWheel"
     />
-    <span v-if="suffix" class="aheart-input-number__suffix">{{ suffix }}</span>
-    <span v-if="controls" class="aheart-input-number__controls">
+    <span v-if="suffix" :class="suffixClass" :style="suffixStyle">{{ suffix }}</span>
+    <span v-if="showControls" :class="actionsClass" :style="actionsStyle">
       <button
         class="aheart-input-number__increase"
+        :class="actionClass"
+        :style="actionStyle"
         type="button"
         aria-label="Increase"
         :disabled="isInteractiveDisabled"
         @click="handleStep(step, 'up')"
       >
-        +
+        {{ increaseIcon }}
       </button>
       <button
         class="aheart-input-number__decrease"
+        :class="actionClass"
+        :style="actionStyle"
         type="button"
         aria-label="Decrease"
         :disabled="isInteractiveDisabled"
         @click="handleStep(-step, 'down')"
       >
-        −
+        {{ decreaseIcon }}
       </button>
     </span>
   </span>
@@ -60,23 +67,48 @@ const resolvedVariant = computed(() =>
   props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined')
 )
 const isInteractiveDisabled = computed(() => isDisabled.value || props.readOnly)
+const controlsConfig = computed(() =>
+  typeof props.controls === 'object' && props.controls !== null ? props.controls : undefined
+)
+const showControls = computed(() => props.controls !== false)
+const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? '+')
+const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? '−')
 const displayValue = computed(() => {
+  const input = props.modelValue === undefined ? '' : String(props.modelValue)
+
   if (props.formatter) {
-    return props.formatter(props.modelValue)
+    return props.formatter(props.modelValue, {
+      userTyping: false,
+      input
+    })
   }
 
-  return props.modelValue === undefined ? '' : String(props.modelValue)
+  return input
 })
 
 const inputNumberClass = computed(() => [
   `aheart-input-number--${resolvedSize.value}`,
   `aheart-input-number--${resolvedVariant.value}`,
+  props.className,
+  props.rootClassName,
+  props.classNames?.root,
   {
     [`aheart-input-number--${props.status}`]: props.status,
     'is-disabled': isDisabled.value,
     'is-readonly': props.readOnly
   }
 ])
+const rootStyle = computed(() => [props.style, props.styles?.root])
+const controlClass = computed(() => props.classNames?.input)
+const controlStyle = computed(() => props.styles?.input)
+const prefixClass = computed(() => ['aheart-input-number__prefix', props.classNames?.prefix])
+const prefixStyle = computed(() => props.styles?.prefix)
+const suffixClass = computed(() => ['aheart-input-number__suffix', props.classNames?.suffix])
+const suffixStyle = computed(() => props.styles?.suffix)
+const actionsClass = computed(() => ['aheart-input-number__controls', props.classNames?.actions])
+const actionsStyle = computed(() => props.styles?.actions)
+const actionClass = computed(() => props.classNames?.action)
+const actionStyle = computed(() => props.styles?.action)
 
 const applyPrecision = (value: number) => {
   if (props.precision === undefined) {
@@ -149,5 +181,14 @@ const handleKeydown = (event: KeyboardEvent) => {
     event.preventDefault()
     handleStep(-props.step, 'down')
   }
+}
+
+const handleWheel = (event: WheelEvent) => {
+  if (!props.changeOnWheel || event.deltaY === 0) {
+    return
+  }
+
+  event.preventDefault()
+  handleStep(event.deltaY < 0 ? props.step : -props.step, event.deltaY < 0 ? 'up' : 'down')
 }
 </script>
