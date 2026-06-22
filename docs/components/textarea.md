@@ -80,6 +80,96 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 </template>
 ```
 
+## 自定义清除图标
+
+<div class="aheart-demo-panel">
+  <ASpace direction="vertical" style="width: 100%">
+    <ATextarea model-value="Clear me" :allow-clear="{ clearIcon: 'clear' }" />
+    <ATextarea model-value="Slot clear" allow-clear>
+      <template #clearIcon>x</template>
+    </ATextarea>
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <ATextarea v-model="value" :allow-clear="{ clearIcon: 'clear' }" />
+  <ATextarea v-model="slotValue" allow-clear>
+    <template #clearIcon>x</template>
+  </ATextarea>
+</template>
+```
+
+## 计数配置
+
+<div class="aheart-demo-panel">
+  <ASpace direction="vertical" style="width: 100%">
+    <ATextarea
+      model-value="Aheart"
+      :maxlength="20"
+      :show-count="{ formatter: ({ count, maxLength }) => `${count}/${maxLength}` }"
+    />
+    <ATextarea
+      model-value="hello"
+      :count="{
+        max: 10,
+        strategy: (value) => value.split('').filter((char) => char === 'l').length,
+        show: ({ count, maxLength }) => `${count} of ${maxLength}`
+      }"
+    />
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <ATextarea
+    v-model="value"
+    :maxlength="20"
+    :show-count="{ formatter: ({ count, maxLength }) => `${count}/${maxLength}` }"
+  />
+  <ATextarea
+    v-model="strategyValue"
+    :count="{
+      max: 10,
+      strategy: (value) => value.split('').filter((char) => char === 'l').length,
+      show: ({ count, maxLength }) => `${count} of ${maxLength}`
+    }"
+  />
+</template>
+```
+
+## 语义化样式
+
+<div class="aheart-demo-panel">
+  <ATextarea
+    model-value="Styled textarea"
+    allow-clear
+    show-count
+    class-name="demo-textarea-class"
+    root-class-name="demo-textarea-root"
+    :auto-size="{ minRows: 2, maxRows: 5 }"
+    :style="{ maxWidth: '420px' }"
+    :class-names="{ root: 'demo-textarea-semantic-root', textarea: 'demo-textarea-control', clear: 'demo-textarea-clear', count: 'demo-textarea-count' }"
+    :styles="{ textarea: { color: 'var(--aheart-color-primary)' }, count: { color: 'var(--aheart-color-warning)' } }"
+  />
+</div>
+
+```vue
+<template>
+  <ATextarea
+    v-model="value"
+    allow-clear
+    show-count
+    class-name="demo-textarea-class"
+    root-class-name="demo-textarea-root"
+    :auto-size="{ minRows: 2, maxRows: 5 }"
+    :style="{ maxWidth: '420px' }"
+    :class-names="{ root: 'demo-textarea-semantic-root', textarea: 'demo-textarea-control', clear: 'demo-textarea-clear', count: 'demo-textarea-count' }"
+    :styles="{ textarea: { color: 'var(--aheart-color-primary)' }, count: { color: 'var(--aheart-color-warning)' } }"
+  />
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -94,10 +184,16 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 | status | 校验状态 | `error` \| `warning` | - |
 | variant | 文本域变体 | `outlined` \| `borderless` \| `filled` \| `underlined` | `outlined` |
 | bordered | 是否显示边框，设为 `false` 时等同 `borderless` | `boolean` | `true` |
-| allowClear | 是否显示清除按钮 | `boolean` | `false` |
+| allowClear | 是否显示清除按钮，支持自定义清除图标 | `boolean` \| `{ clearIcon?: string }` | `false` |
 | maxlength | 最大字符数 | `number` | - |
-| showCount | 是否显示字数 | `boolean` | `false` |
+| showCount | 是否显示字数，支持格式化 | `boolean` \| `{ formatter?: (info: CountInfo) => string }` | `false` |
+| count | 计数配置 | `{ max?: number; strategy?: (value: string) => number; show?: boolean \| ((info: CountInfo) => string) }` | - |
 | autoSize | 是否禁用手动 resize，或配置最小/最大行数 | `boolean` \| `{ minRows?: number; maxRows?: number }` | `false` |
+| className | 文本域根节点兼容 class | `string` | - |
+| rootClassName | 文本域根节点 class | `string` | - |
+| style | 文本域根节点样式 | `StyleValue` | - |
+| classNames | 语义化结构 class | `Partial<Record<'root' \| 'textarea' \| 'clear' \| 'count', string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<'root' \| 'textarea' \| 'clear' \| 'count', StyleValue>>` | - |
 
 ## Events
 
@@ -109,8 +205,15 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 | clear | 点击清除按钮时触发 | `() => void` |
 | pressEnter | 按下回车时触发 | `(event: KeyboardEvent) => void` |
 
+## Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| clearIcon | 自定义清除按钮内容 |
+
 ## Theme Tokens
 
+- `--aheart-color-primary`
 - `--aheart-color-primary-hover`
 - `--aheart-color-border`
 - `--aheart-color-danger`
