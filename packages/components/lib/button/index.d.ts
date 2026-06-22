@@ -1,16 +1,16 @@
 declare const Button: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly type: {
-            readonly type: import("vue").PropType<"default" | "primary" | "success" | "warning" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
         readonly size: {
-            readonly type: import("vue").PropType<"large" | "middle" | "small" | "normal" | "mini">;
+            readonly type: import("vue").PropType<"small" | "large" | "middle" | "normal" | "mini">;
             readonly validator: (value: string) => boolean;
         };
         readonly nativeType: {
-            readonly type: import("vue").PropType<"button" | "submit" | "reset">;
+            readonly type: import("vue").PropType<"reset" | "submit" | "button">;
             readonly default: "button";
             readonly validator: (value: string) => boolean;
         };
@@ -22,9 +22,9 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly block: BooleanConstructor;
         readonly round: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
+        readonly type: "success" | "warning" | "default" | "primary" | "danger";
         readonly disabled: boolean;
-        readonly type: "default" | "primary" | "success" | "warning" | "danger";
-        readonly nativeType: "button" | "submit" | "reset";
+        readonly nativeType: "reset" | "submit" | "button";
         readonly loading: boolean;
         readonly block: boolean;
         readonly round: boolean;
@@ -37,16 +37,16 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly type: {
-            readonly type: import("vue").PropType<"default" | "primary" | "success" | "warning" | "danger">;
+            readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
             readonly default: "default";
             readonly validator: (value: string) => boolean;
         };
         readonly size: {
-            readonly type: import("vue").PropType<"large" | "middle" | "small" | "normal" | "mini">;
+            readonly type: import("vue").PropType<"small" | "large" | "middle" | "normal" | "mini">;
             readonly validator: (value: string) => boolean;
         };
         readonly nativeType: {
-            readonly type: import("vue").PropType<"button" | "submit" | "reset">;
+            readonly type: import("vue").PropType<"reset" | "submit" | "button">;
             readonly default: "button";
             readonly validator: (value: string) => boolean;
         };
@@ -58,9 +58,9 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly block: BooleanConstructor;
         readonly round: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
+        readonly type: "success" | "warning" | "default" | "primary" | "danger";
         readonly disabled: boolean;
-        readonly type: "default" | "primary" | "success" | "warning" | "danger";
-        readonly nativeType: "button" | "submit" | "reset";
+        readonly nativeType: "reset" | "submit" | "button";
         readonly loading: boolean;
         readonly block: boolean;
         readonly round: boolean;
@@ -70,16 +70,16 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly type: {
-        readonly type: import("vue").PropType<"default" | "primary" | "success" | "warning" | "danger">;
+        readonly type: import("vue").PropType<"success" | "warning" | "default" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: import("vue").PropType<"large" | "middle" | "small" | "normal" | "mini">;
+        readonly type: import("vue").PropType<"small" | "large" | "middle" | "normal" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {
-        readonly type: import("vue").PropType<"button" | "submit" | "reset">;
+        readonly type: import("vue").PropType<"reset" | "submit" | "button">;
         readonly default: "button";
         readonly validator: (value: string) => boolean;
     };
@@ -91,9 +91,9 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
+    readonly type: "success" | "warning" | "default" | "primary" | "danger";
     readonly disabled: boolean;
-    readonly type: "default" | "primary" | "success" | "warning" | "danger";
-    readonly nativeType: "button" | "submit" | "reset";
+    readonly nativeType: "reset" | "submit" | "button";
     readonly loading: boolean;
     readonly block: boolean;
     readonly round: boolean;

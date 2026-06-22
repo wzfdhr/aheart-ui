@@ -7,16 +7,16 @@ export type ButtonSize = (typeof buttonSizes)[number];
 export type NativeButtonType = (typeof nativeButtonTypes)[number];
 export declare const buttonProps: {
     readonly type: {
-        readonly type: PropType<"default" | "primary" | "success" | "warning" | "danger">;
+        readonly type: PropType<"success" | "warning" | "default" | "primary" | "danger">;
         readonly default: "default";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: PropType<"large" | "middle" | "small" | "normal" | "mini">;
+        readonly type: PropType<"small" | "large" | "middle" | "normal" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {
-        readonly type: PropType<"button" | "submit" | "reset">;
+        readonly type: PropType<"reset" | "submit" | "button">;
         readonly default: "button";
         readonly validator: (value: string) => boolean;
     };

@@ -67,9 +67,9 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly underline: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
-        readonly disabled: boolean;
         readonly code: boolean;
         readonly strong: boolean;
+        readonly disabled: boolean;
         readonly delete: boolean;
         readonly italic: boolean;
         readonly keyboard: boolean;
@@ -91,9 +91,9 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly underline: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
-        readonly disabled: boolean;
         readonly code: boolean;
         readonly strong: boolean;
+        readonly disabled: boolean;
         readonly delete: boolean;
         readonly italic: boolean;
         readonly keyboard: boolean;
@@ -112,9 +112,9 @@ declare const Text: import("../utils/install").SFCWithInstall<{
     readonly underline: BooleanConstructor;
     readonly disabled: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
-    readonly disabled: boolean;
     readonly code: boolean;
     readonly strong: boolean;
+    readonly disabled: boolean;
     readonly delete: boolean;
     readonly italic: boolean;
     readonly keyboard: boolean;
@@ -132,8 +132,8 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly ellipsis: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
-        readonly disabled: boolean;
         readonly strong: boolean;
+        readonly disabled: boolean;
         readonly italic: boolean;
         readonly ellipsis: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -150,8 +150,8 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly ellipsis: BooleanConstructor;
         readonly disabled: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
-        readonly disabled: boolean;
         readonly strong: boolean;
+        readonly disabled: boolean;
         readonly italic: boolean;
         readonly ellipsis: boolean;
     }>;
@@ -165,8 +165,8 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
     readonly ellipsis: BooleanConstructor;
     readonly disabled: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
-    readonly disabled: boolean;
     readonly strong: boolean;
+    readonly disabled: boolean;
     readonly italic: boolean;
     readonly ellipsis: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
