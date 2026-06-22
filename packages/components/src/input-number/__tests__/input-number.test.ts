@@ -128,6 +128,67 @@ describe('InputNumber', () => {
     expect(withoutControls.find('.aheart-input-number__controls').exists()).toBe(false)
   })
 
+  it('renders vnode prefix suffix and controls icon content', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 8,
+        prefix: h('span', { class: 'prefix-node' }, '$'),
+        suffix: h('span', { class: 'suffix-node' }, 'USD'),
+        controls: {
+          upIcon: h('span', { class: 'up-node' }, 'plus'),
+          downIcon: h('span', { class: 'down-node' }, 'minus')
+        }
+      }
+    })
+
+    expect(wrapper.find('.prefix-node').text()).toBe('$')
+    expect(wrapper.find('.suffix-node').text()).toBe('USD')
+    expect(wrapper.find('.up-node').text()).toBe('plus')
+    expect(wrapper.find('.down-node').text()).toBe('minus')
+  })
+
+  it('lets slots override renderable prefix suffix and controls icons', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 8,
+        prefix: h('span', { class: 'prop-prefix' }, 'prop prefix'),
+        suffix: h('span', { class: 'prop-suffix' }, 'prop suffix'),
+        controls: {
+          upIcon: h('span', { class: 'prop-up' }, 'prop up'),
+          downIcon: h('span', { class: 'prop-down' }, 'prop down')
+        }
+      },
+      slots: {
+        prefix: '<span class="slot-prefix">slot prefix</span>',
+        suffix: '<span class="slot-suffix">slot suffix</span>',
+        increaseIcon: '<span class="slot-up">slot up</span>',
+        decreaseIcon: '<span class="slot-down">slot down</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-prefix').text()).toBe('slot prefix')
+    expect(wrapper.find('.slot-suffix').text()).toBe('slot suffix')
+    expect(wrapper.find('.slot-up').text()).toBe('slot up')
+    expect(wrapper.find('.slot-down').text()).toBe('slot down')
+    expect(wrapper.find('.prop-prefix').exists()).toBe(false)
+    expect(wrapper.find('.prop-suffix').exists()).toBe(false)
+    expect(wrapper.find('.prop-up').exists()).toBe(false)
+    expect(wrapper.find('.prop-down').exists()).toBe(false)
+  })
+
+  it('renders numeric zero prefix and suffix as renderable content', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 8,
+        prefix: 0,
+        suffix: 0
+      }
+    })
+
+    expect(wrapper.find('.aheart-input-number__prefix').text()).toBe('0')
+    expect(wrapper.find('.aheart-input-number__suffix').text()).toBe('0')
+  })
+
   it('steps with mouse wheel only when changeOnWheel is enabled', async () => {
     const wrapper = mount(InputNumber, {
       props: { modelValue: 2, step: 2, changeOnWheel: true }

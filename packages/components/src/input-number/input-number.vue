@@ -1,6 +1,10 @@
 <template>
   <span class="aheart-input-number" :class="inputNumberClass" :style="rootStyle">
-    <span v-if="prefix" :class="prefixClass" :style="prefixStyle">{{ prefix }}</span>
+    <span v-if="hasPrefix" :class="prefixClass" :style="prefixStyle">
+      <slot name="prefix">
+        <AInputNumberRenderNode :node="prefix" />
+      </slot>
+    </span>
     <input
       class="aheart-input-number__control"
       :class="controlClass"
@@ -19,7 +23,11 @@
       @keydown="handleKeydown"
       @wheel="handleWheel"
     />
-    <span v-if="suffix" :class="suffixClass" :style="suffixStyle">{{ suffix }}</span>
+    <span v-if="hasSuffix" :class="suffixClass" :style="suffixStyle">
+      <slot name="suffix">
+        <AInputNumberRenderNode :node="suffix" />
+      </slot>
+    </span>
     <span v-if="showControls" :class="actionsClass" :style="actionsStyle">
       <button
         class="aheart-input-number__increase"
@@ -30,7 +38,9 @@
         :disabled="isInteractiveDisabled"
         @click="handleStep(step, 'up')"
       >
-        {{ increaseIcon }}
+        <slot name="increaseIcon">
+          <AInputNumberRenderNode :node="increaseIcon" />
+        </slot>
       </button>
       <button
         class="aheart-input-number__decrease"
@@ -41,14 +51,17 @@
         :disabled="isInteractiveDisabled"
         @click="handleStep(-step, 'down')"
       >
-        {{ decreaseIcon }}
+        <slot name="decreaseIcon">
+          <AInputNumberRenderNode :node="decreaseIcon" />
+        </slot>
       </button>
     </span>
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineComponent, useSlots } from 'vue'
+import type { PropType, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputNumberEmits, inputNumberProps } from './types'
 import './style.css'
@@ -60,6 +73,28 @@ defineOptions({
 const props = defineProps(inputNumberProps)
 const emit = defineEmits(inputNumberEmits)
 const config = useAheartConfig()
+const slots = useSlots()
+
+const AInputNumberRenderNode = defineComponent({
+  name: 'AInputNumberRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
+
+const hasRenderable = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.length > 0
+  }
+
+  return value !== undefined && value !== null && value !== false && value !== true && value !== ''
+}
 
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -73,6 +108,8 @@ const controlsConfig = computed(() =>
 const showControls = computed(() => props.controls !== false)
 const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? '+')
 const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? '−')
+const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix))
+const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix))
 const displayValue = computed(() => {
   const input = props.modelValue === undefined ? '' : String(props.modelValue)
 

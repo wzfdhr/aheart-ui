@@ -1,9 +1,10 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
 
 export type InputNumberStatus = 'error' | 'warning'
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
 export type InputNumberStepType = 'up' | 'down'
+export type InputNumberRenderable = VNodeChild
 
 export interface InputNumberFormatterInfo {
   userTyping: boolean
@@ -11,8 +12,8 @@ export interface InputNumberFormatterInfo {
 }
 
 export interface InputNumberControlsConfig {
-  upIcon?: string
-  downIcon?: string
+  upIcon?: InputNumberRenderable
+  downIcon?: InputNumberRenderable
 }
 
 export type InputNumberControls = boolean | InputNumberControlsConfig
@@ -25,12 +26,17 @@ export interface InputNumberStepInfo {
   type: InputNumberStepType
 }
 
+const renderableProp = {
+  type: null as unknown as PropType<InputNumberRenderable>,
+  default: undefined
+}
+
 export const inputNumberProps = {
   id: String,
   modelValue: Number,
   placeholder: String,
-  prefix: String,
-  suffix: String,
+  prefix: renderableProp,
+  suffix: renderableProp,
   size: String as PropType<AheartSize>,
   disabled: {
     type: Boolean,
