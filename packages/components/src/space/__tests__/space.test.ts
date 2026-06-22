@@ -82,4 +82,72 @@ describe('Space', () => {
 
     expect(vertical.classes()).toContain('aheart-space--vertical')
   })
+
+  it('applies root item and separator semantic classes and styles', () => {
+    const wrapper = mount(Space, {
+      props: {
+        separator: '|',
+        size: [8, 12],
+        className: 'space-class',
+        rootClassName: 'space-root',
+        style: { marginTop: '4px' },
+        classNames: {
+          root: 'semantic-root',
+          item: 'semantic-item',
+          separator: 'semantic-separator'
+        },
+        styles: {
+          root: { color: 'red' },
+          item: { paddingInline: '4px' },
+          separator: { fontWeight: 600 }
+        }
+      },
+      slots: {
+        default: '<span>One</span><span>Two</span>'
+      }
+    })
+
+    expect(wrapper.classes()).toContain('space-class')
+    expect(wrapper.classes()).toContain('space-root')
+    expect(wrapper.classes()).toContain('semantic-root')
+    expect(wrapper.attributes('style')).toContain('--aheart-space-gap-horizontal: 8px')
+    expect(wrapper.attributes('style')).toContain('--aheart-space-gap-vertical: 12px')
+    expect(wrapper.attributes('style')).toContain('margin-top: 4px')
+    expect(wrapper.attributes('style')).toContain('color: red')
+
+    const item = wrapper.find('.aheart-space__item')
+    expect(item.classes()).toContain('semantic-item')
+    expect(item.attributes('style')).toContain('padding-inline: 4px')
+
+    const separator = wrapper.find('.aheart-space__separator')
+    expect(separator.classes()).toContain('semantic-separator')
+    expect(separator.attributes('style')).toContain('font-weight: 600')
+  })
+
+  it('supports function semantic maps and node separators', () => {
+    const wrapper = mount(Space, {
+      props: {
+        orientation: 'vertical',
+        separator: h('strong', { class: 'separator-node' }, '/'),
+        classNames: ({ props }) => ({
+          root: `semantic-${props.orientation}`,
+          item: 'semantic-item',
+          separator: 'semantic-separator'
+        }),
+        styles: ({ props }) => ({
+          root: { justifyContent: props.orientation === 'vertical' ? 'center' : 'flex-start' },
+          separator: { color: 'blue' }
+        })
+      },
+      slots: {
+        default: '<span>One</span><span>Two</span>'
+      }
+    })
+
+    expect(wrapper.classes()).toContain('semantic-vertical')
+    expect(wrapper.attributes('style')).toContain('justify-content: center')
+    expect(wrapper.findAll('.semantic-item')).toHaveLength(2)
+    expect(wrapper.find('.semantic-separator').attributes('style')).toContain('color: blue')
+    expect(wrapper.find('.separator-node').text()).toBe('/')
+  })
 })

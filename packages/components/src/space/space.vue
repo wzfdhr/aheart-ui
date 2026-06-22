@@ -1,18 +1,23 @@
 <template>
   <div class="aheart-space" :class="spaceClass" :style="spaceStyle">
     <template v-for="(child, index) in normalizedChildren" :key="index">
-      <div class="aheart-space__item">
+      <div class="aheart-space__item" :class="semanticClassNames.item" :style="semanticStyles.item">
         <component :is="child" />
       </div>
-      <span v-if="separatorText && index < normalizedChildren.length - 1" class="aheart-space__separator">
-        {{ separatorText }}
+      <span
+        v-if="separatorNode !== undefined && separatorNode !== null && index < normalizedChildren.length - 1"
+        class="aheart-space__separator"
+        :class="semanticClassNames.separator"
+        :style="semanticStyles.separator"
+      >
+        <ARenderNode :node="separatorNode" />
       </span>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Comment, Fragment, computed, useSlots, type VNode } from 'vue'
+import { Comment, Fragment, computed, defineComponent, useSlots, type PropType, type VNode, type VNodeChild } from 'vue'
 import { useAheartConfig } from '../config'
 import { spaceProps, type SpaceSize } from './types'
 import './style.css'
@@ -24,6 +29,19 @@ defineOptions({
 const props = defineProps(spaceProps)
 const slots = useSlots()
 const config = useAheartConfig()
+
+const ARenderNode = defineComponent({
+  name: 'ASpaceRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
 
 const flattenChildren = (children: VNode[]): VNode[] => {
   return children.flatMap((child) => {
@@ -41,7 +59,26 @@ const flattenChildren = (children: VNode[]): VNode[] => {
 
 const normalizedChildren = computed(() => flattenChildren(slots.default?.() || []))
 const resolvedDirection = computed(() => props.orientation || (props.vertical ? 'vertical' : props.direction))
-const separatorText = computed(() => props.separator ?? props.split)
+const separatorNode = computed(() => props.separator ?? props.split)
+const semanticInfo = computed(() => ({
+  props: {
+    size: props.size,
+    direction: props.direction,
+    orientation: props.orientation,
+    vertical: props.vertical,
+    align: props.align,
+    wrap: props.wrap,
+    separator: props.separator,
+    split: props.split
+  }
+}))
+
+const semanticClassNames = computed(() =>
+  typeof props.classNames === 'function' ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+)
+const semanticStyles = computed(() =>
+  typeof props.styles === 'function' ? props.styles(semanticInfo.value) : props.styles ?? {}
+)
 
 const sizeToGap = (size: SpaceSize | undefined) => {
   if (Array.isArray(size)) {
@@ -63,6 +100,9 @@ const sizeToGap = (size: SpaceSize | undefined) => {
 }
 
 const spaceClass = computed(() => [
+  props.className,
+  props.rootClassName,
+  semanticClassNames.value.root,
   `aheart-space--${resolvedDirection.value}`,
   {
     [`aheart-space--align-${props.align}`]: props.align,
@@ -73,9 +113,13 @@ const spaceClass = computed(() => [
 const spaceStyle = computed(() => {
   const [horizontal, vertical] = sizeToGap(props.size)
 
-  return {
-    '--aheart-space-gap-horizontal': horizontal,
-    '--aheart-space-gap-vertical': vertical
-  }
+  return [
+    {
+      '--aheart-space-gap-horizontal': horizontal,
+      '--aheart-space-gap-vertical': vertical
+    },
+    props.style,
+    semanticStyles.value.root
+  ]
 })
 </script>
