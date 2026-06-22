@@ -46,7 +46,10 @@ export default defineConfig({
             { text: 'Badge 徽标', link: '/components/badge' },
             { text: 'Alert 警告提示', link: '/components/alert' },
             { text: 'Spin 加载中', link: '/components/spin' },
-            { text: 'Empty 空状态', link: '/components/empty' }
+            { text: 'Empty 空状态', link: '/components/empty' },
+            { text: 'Tabs 标签页', link: '/components/tabs' },
+            { text: 'Breadcrumb 面包屑', link: '/components/breadcrumb' },
+            { text: 'Steps 步骤条', link: '/components/steps' }
           ]
         }
       ]
