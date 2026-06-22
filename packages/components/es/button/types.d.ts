@@ -1,6 +1,6 @@
 import type { ExtractPropTypes, PropType } from 'vue';
 export declare const buttonTypes: readonly ["default", "primary", "success", "warning", "danger"];
-export declare const buttonSizes: readonly ["large", "normal", "small", "mini"];
+export declare const buttonSizes: readonly ["large", "normal", "middle", "small", "mini"];
 export declare const nativeButtonTypes: readonly ["button", "submit", "reset"];
 export type ButtonType = (typeof buttonTypes)[number];
 export type ButtonSize = (typeof buttonSizes)[number];
@@ -12,8 +12,7 @@ export declare const buttonProps: {
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: PropType<"large" | "normal" | "small" | "mini">;
-        readonly default: "normal";
+        readonly type: PropType<"large" | "middle" | "small" | "normal" | "mini">;
         readonly validator: (value: string) => boolean;
     };
     readonly nativeType: {
@@ -21,7 +20,10 @@ export declare const buttonProps: {
         readonly default: "button";
         readonly validator: (value: string) => boolean;
     };
-    readonly disabled: BooleanConstructor;
+    readonly disabled: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
     readonly loading: BooleanConstructor;
     readonly block: BooleanConstructor;
     readonly round: BooleanConstructor;

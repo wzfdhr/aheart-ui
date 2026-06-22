@@ -1,4 +1,5 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, createCommentVNode, createElementVNode, renderSlot, createTextVNode } from "vue";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { buttonProps } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["type", "disabled", "aria-busy"];
@@ -16,9 +17,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: buttonProps,
   setup(__props) {
     const props = __props;
+    const config = useAheartConfig();
+    const resolvedSize = computed(() => {
+      const providerSize = config.value.size === "middle" ? "normal" : config.value.size;
+      return resolveConfigValue(props.size, providerSize, "normal");
+    });
+    const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const buttonClass = computed(() => [
       `aheart-button--${props.type}`,
-      `aheart-button--${props.size}`,
+      `aheart-button--${resolvedSize.value}`,
       {
         "is-block": props.block,
         "is-round": props.round,
@@ -29,7 +36,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("button", {
         class: normalizeClass(["aheart-button", buttonClass.value]),
         type: _ctx.nativeType,
-        disabled: _ctx.disabled || _ctx.loading,
+        disabled: isDisabled.value || _ctx.loading,
         "aria-busy": _ctx.loading
       }, [
         _ctx.loading ? (openBlock(), createElementBlock("span", _hoisted_2)) : createCommentVNode("", true),

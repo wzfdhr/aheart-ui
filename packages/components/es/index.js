@@ -1,6 +1,7 @@
 import Button from "./button/index.js";
+import ConfigProvider from "./config-provider/index.js";
 import "./theme/index.css.js";
-const components = [Button];
+const components = [Button, ConfigProvider];
 const AheartUI = {
   install(app) {
     components.forEach((component) => {
@@ -10,5 +11,6 @@ const AheartUI = {
 };
 export {
   Button,
+  ConfigProvider,
   AheartUI as default
 };

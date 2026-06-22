@@ -1,5 +1,5 @@
 const buttonTypes = ["default", "primary", "success", "warning", "danger"];
-const buttonSizes = ["large", "normal", "small", "mini"];
+const buttonSizes = ["large", "normal", "middle", "small", "mini"];
 const nativeButtonTypes = ["button", "submit", "reset"];
 const buttonProps = {
   type: {
@@ -9,7 +9,6 @@ const buttonProps = {
   },
   size: {
     type: String,
-    default: "normal",
     validator: (value) => buttonSizes.includes(value)
   },
   nativeType: {
@@ -17,7 +16,10 @@ const buttonProps = {
     default: "button",
     validator: (value) => nativeButtonTypes.includes(value)
   },
-  disabled: Boolean,
+  disabled: {
+    type: Boolean,
+    default: void 0
+  },
   loading: Boolean,
   block: Boolean,
   round: Boolean
