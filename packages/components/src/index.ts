@@ -17,9 +17,11 @@ import Icon from './icon'
 import Input from './input'
 import InputNumber from './input-number'
 import Menu from './menu'
+import Message, { message } from './message'
 import Pagination from './pagination'
 import Radio from './radio'
 import Select from './select'
+import Skeleton from './skeleton'
 import Space from './space'
 import Spin from './spin'
 import Steps from './steps'
@@ -47,7 +49,9 @@ const components = [
   Tag,
   Badge,
   Alert,
+  Message,
   Spin,
+  Skeleton,
   Empty,
   Breadcrumb,
   Dropdown,
@@ -77,5 +81,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Message, message, Spin, Skeleton, Empty, Breadcrumb, Dropdown, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI

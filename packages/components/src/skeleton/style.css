@@ -1,0 +1,78 @@
+.aheart-skeleton {
+  display: flex;
+  width: 100%;
+  color: var(--aheart-color-text);
+}
+
+.aheart-skeleton__avatar {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin-right: var(--aheart-spacing-md);
+  background: var(--aheart-color-fill);
+  border-radius: var(--aheart-radius-sm);
+}
+
+.aheart-skeleton__avatar--circle {
+  border-radius: 50%;
+}
+
+.aheart-skeleton__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.aheart-skeleton__title,
+.aheart-skeleton__paragraph-row {
+  display: block;
+  height: 16px;
+  background: var(--aheart-color-fill);
+  border-radius: var(--aheart-radius-sm);
+}
+
+.aheart-skeleton__title {
+  width: 38%;
+  margin-bottom: var(--aheart-spacing-md);
+}
+
+.aheart-skeleton__paragraph {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-skeleton__paragraph-row {
+  width: 100%;
+}
+
+.aheart-skeleton__paragraph-row:last-child {
+  width: 61%;
+}
+
+.aheart-skeleton.is-round .aheart-skeleton__title,
+.aheart-skeleton.is-round .aheart-skeleton__paragraph-row {
+  border-radius: 999px;
+}
+
+.aheart-skeleton.is-active .aheart-skeleton__avatar,
+.aheart-skeleton.is-active .aheart-skeleton__title,
+.aheart-skeleton.is-active .aheart-skeleton__paragraph-row {
+  background: linear-gradient(
+    90deg,
+    var(--aheart-color-fill) 25%,
+    #f0f0f0 37%,
+    var(--aheart-color-fill) 63%
+  );
+  background-size: 400% 100%;
+  animation: aheart-skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes aheart-skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
+}
