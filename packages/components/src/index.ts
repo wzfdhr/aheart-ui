@@ -21,6 +21,7 @@ import Space from './space'
 import Spin from './spin'
 import Steps from './steps'
 import Switch from './switch'
+import Table from './table'
 import Tag from './tag'
 import Tabs from './tabs'
 import Textarea from './textarea'
@@ -58,7 +59,8 @@ const components = [
   Pagination,
   Select,
   Form,
-  FormItem
+  FormItem,
+  Table
 ]
 
 const AheartUI: Plugin = {
@@ -69,5 +71,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch, Card, Descriptions, Pagination, Select, Form, FormItem }
+export { Button, ConfigProvider, Space, Divider, Flex, Icon, Typography, Title, Text, Paragraph, Link, Tag, Badge, Alert, Spin, Empty, Breadcrumb, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, Radio, Switch, Card, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI

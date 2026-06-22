@@ -1,0 +1,212 @@
+.aheart-table {
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  line-height: var(--aheart-line-height);
+}
+
+.aheart-table__container {
+  position: relative;
+  overflow-x: auto;
+  border-radius: var(--aheart-radius);
+}
+
+.aheart-table table {
+  width: 100%;
+  min-width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+  background: var(--aheart-color-bg);
+}
+
+.aheart-table th,
+.aheart-table td {
+  padding: 12px var(--aheart-spacing-md);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--aheart-color-border);
+  transition:
+    background var(--aheart-motion-duration) var(--aheart-motion-ease),
+    color var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-table th {
+  color: var(--aheart-color-text);
+  font-weight: 600;
+  background: var(--aheart-color-fill);
+}
+
+.aheart-table tbody tr:hover td {
+  background: #fafafa;
+}
+
+.aheart-table tbody tr.is-selected td {
+  background: #e6f4ff;
+}
+
+.aheart-table--small th,
+.aheart-table--small td {
+  padding: var(--aheart-spacing-sm);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-table--large th,
+.aheart-table--large td {
+  padding: var(--aheart-spacing-md);
+  font-size: var(--aheart-font-size-lg);
+}
+
+.aheart-table.is-bordered .aheart-table__container {
+  border: 1px solid var(--aheart-color-border);
+}
+
+.aheart-table.is-bordered th,
+.aheart-table.is-bordered td {
+  border-right: 1px solid var(--aheart-color-border);
+}
+
+.aheart-table.is-bordered th:last-child,
+.aheart-table.is-bordered td:last-child {
+  border-right: 0;
+}
+
+.aheart-table__cell--center {
+  text-align: center;
+}
+
+.aheart-table__cell--right {
+  text-align: right;
+}
+
+.aheart-table .is-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aheart-table__sorter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--aheart-spacing-xs);
+  max-width: 100%;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.aheart-table__sorter:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.aheart-table__sort-icon {
+  min-width: 14px;
+  color: var(--aheart-color-text-secondary);
+  font-size: var(--aheart-font-size-sm);
+}
+
+.aheart-table__sort-icon::before {
+  content: "↕";
+}
+
+.aheart-table__sort-icon[data-sort="ascend"]::before {
+  content: "↑";
+}
+
+.aheart-table__sort-icon[data-sort="descend"]::before {
+  content: "↓";
+}
+
+.aheart-table__selection-cell,
+.aheart-table__expand-cell {
+  width: 48px;
+  text-align: center;
+}
+
+.aheart-table__selection-cell input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--aheart-color-primary);
+}
+
+.aheart-table__expand-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: var(--aheart-color-text);
+  cursor: pointer;
+  background: var(--aheart-color-bg);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius-sm);
+  transition:
+    color var(--aheart-motion-duration) var(--aheart-motion-ease),
+    border-color var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-table__expand-button:hover:not(:disabled) {
+  color: var(--aheart-color-primary);
+  border-color: var(--aheart-color-primary);
+}
+
+.aheart-table__expand-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.aheart-table__expanded-row td,
+.aheart-table__expanded-cell {
+  background: #fafafa;
+}
+
+.aheart-table__empty {
+  padding: var(--aheart-spacing-lg) var(--aheart-spacing-md);
+  color: var(--aheart-color-text-secondary);
+  text-align: center;
+}
+
+.aheart-table__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--aheart-spacing-sm);
+  color: var(--aheart-color-primary);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.aheart-table__loading-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--aheart-color-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: aheart-table-spin 0.8s linear infinite;
+}
+
+.aheart-table__pagination {
+  justify-content: flex-end;
+  margin-top: var(--aheart-spacing-md);
+}
+
+.aheart-table.is-disabled {
+  color: var(--aheart-color-text-secondary);
+}
+
+.aheart-table.is-disabled input {
+  cursor: not-allowed;
+}
+
+@keyframes aheart-table-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
