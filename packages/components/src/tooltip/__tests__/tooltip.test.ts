@@ -54,4 +54,16 @@ describe('Tooltip', () => {
     expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(false)
     expect(wrapper.emitted('update:open')?.[0]).toEqual([true])
   })
+
+  it('opens from Ant-style contextMenu trigger', async () => {
+    const wrapper = mount(Tooltip, {
+      props: { title: 'Context help', trigger: 'contextMenu' },
+      slots: { default: '<button>Help</button>' }
+    })
+
+    await wrapper.find('.aheart-tooltip__trigger').trigger('contextmenu')
+
+    expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(true)
+    expect(wrapper.emitted('update:open')?.[0]).toEqual([true])
+  })
 })

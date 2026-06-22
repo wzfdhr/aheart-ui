@@ -107,7 +107,7 @@ const handleClick = () => {
 }
 
 const handleContextmenu = (event: MouseEvent) => {
-  if (normalizedTriggers.value.has('contextmenu')) {
+  if (normalizedTriggers.value.has('contextMenu')) {
     event.preventDefault()
     requestOpen(true)
   }

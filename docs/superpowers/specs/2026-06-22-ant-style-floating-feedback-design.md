@@ -75,7 +75,7 @@ Supported triggers:
 - `hover`
 - `focus`
 - `click`
-- `contextmenu`
+- `contextMenu`
 
 ### Tooltip
 
@@ -190,7 +190,7 @@ Slots:
 - Hover opens on mouseenter and closes on mouseleave, with optional delays for Tooltip.
 - Focus opens on focusin and closes on focusout.
 - Click toggles open state.
-- Context menu opens on `contextmenu` and prevents the native context menu.
+- Context menu opens on `contextmenu` DOM events when the Ant-style `contextMenu` trigger is configured and prevents the native context menu.
 - Tooltip hides when no title prop or title slot is provided.
 - Popover hides when no title/content prop or corresponding slot is provided.
 - Popconfirm opens from its trigger unless `disabled` is true.

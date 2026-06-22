@@ -15,7 +15,7 @@ export const floatingPlacements = [
   'rightBottom'
 ] as const
 
-export const floatingTriggers = ['hover', 'focus', 'click', 'contextmenu'] as const
+export const floatingTriggers = ['hover', 'focus', 'click', 'contextMenu'] as const
 
 export type FloatingPlacement = (typeof floatingPlacements)[number]
 export type FloatingTrigger = (typeof floatingTriggers)[number]
