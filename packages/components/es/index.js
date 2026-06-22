@@ -9,11 +9,13 @@ import Descriptions from "./descriptions/index.js";
 import Divider from "./divider/index.js";
 import Empty from "./empty/index.js";
 import Flex from "./flex/index.js";
+import Form, { FormItem } from "./form/index.js";
 import Icon from "./icon/index.js";
 import Input from "./input/index.js";
 import InputNumber from "./input-number/index.js";
 import Pagination from "./pagination/index.js";
 import Radio from "./radio/index.js";
+import Select from "./select/index.js";
 import Space from "./space/index.js";
 import Spin from "./spin/index.js";
 import Steps from "./steps/index.js";
@@ -51,7 +53,10 @@ const components = [
   Switch,
   Card,
   Descriptions,
-  Pagination
+  Pagination,
+  Select,
+  Form,
+  FormItem
 ];
 const AheartUI = {
   install(app) {
@@ -72,6 +77,8 @@ export {
   Divider,
   Empty,
   Flex,
+  Form,
+  FormItem,
   Icon,
   Input,
   InputNumber,
@@ -79,6 +86,7 @@ export {
   Pagination,
   Paragraph,
   Radio,
+  Select,
   Space,
   Spin,
   Steps,
