@@ -54,12 +54,12 @@ export const componentCategories: ComponentCategory[] = [
     name: 'Data Entry',
     description: 'Collect and validate user input.',
     components: [
-      { name: 'Input', description: 'Enter single-line text.', status: 'Planned' },
-      { name: 'Textarea', description: 'Enter multi-line text.', status: 'Planned' },
-      { name: 'InputNumber', description: 'Enter numeric values.', status: 'Planned' },
-      { name: 'Checkbox', description: 'Choose multiple options.', status: 'Planned' },
-      { name: 'Radio', description: 'Choose one option.', status: 'Planned' },
-      { name: 'Switch', description: 'Toggle a setting.', status: 'Planned' },
+      { name: 'Input', description: 'Enter single-line text.', status: 'Ready', link: '/components/input' },
+      { name: 'Textarea', description: 'Enter multi-line text.', status: 'Ready', link: '/components/textarea' },
+      { name: 'InputNumber', description: 'Enter numeric values.', status: 'Ready', link: '/components/input-number' },
+      { name: 'Checkbox', description: 'Choose multiple options.', status: 'Ready', link: '/components/checkbox' },
+      { name: 'Radio', description: 'Choose one option.', status: 'Ready', link: '/components/radio' },
+      { name: 'Switch', description: 'Toggle a setting.', status: 'Ready', link: '/components/switch' },
       { name: 'Select', description: 'Select from options.', status: 'Planned' },
       { name: 'Form', description: 'Manage form layout and validation.', status: 'Planned' }
     ]

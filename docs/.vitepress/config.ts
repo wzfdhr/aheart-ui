@@ -49,7 +49,13 @@ export default defineConfig({
             { text: 'Empty 空状态', link: '/components/empty' },
             { text: 'Tabs 标签页', link: '/components/tabs' },
             { text: 'Breadcrumb 面包屑', link: '/components/breadcrumb' },
-            { text: 'Steps 步骤条', link: '/components/steps' }
+            { text: 'Steps 步骤条', link: '/components/steps' },
+            { text: 'Input 输入框', link: '/components/input' },
+            { text: 'Textarea 文本域', link: '/components/textarea' },
+            { text: 'InputNumber 数字输入框', link: '/components/input-number' },
+            { text: 'Checkbox 多选框', link: '/components/checkbox' },
+            { text: 'Radio 单选框', link: '/components/radio' },
+            { text: 'Switch 开关', link: '/components/switch' }
           ]
         }
       ]
