@@ -58,7 +58,9 @@ export default defineConfig({
             { text: 'Switch 开关', link: '/components/switch' },
             { text: 'Card 卡片', link: '/components/card' },
             { text: 'Descriptions 描述列表', link: '/components/descriptions' },
-            { text: 'Pagination 分页', link: '/components/pagination' }
+            { text: 'Pagination 分页', link: '/components/pagination' },
+            { text: 'Select 选择器', link: '/components/select' },
+            { text: 'Form 表单', link: '/components/form' }
           ]
         }
       ]

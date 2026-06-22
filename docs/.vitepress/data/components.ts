@@ -60,8 +60,8 @@ export const componentCategories: ComponentCategory[] = [
       { name: 'Checkbox', description: 'Choose multiple options.', status: 'Ready', link: '/components/checkbox' },
       { name: 'Radio', description: 'Choose one option.', status: 'Ready', link: '/components/radio' },
       { name: 'Switch', description: 'Toggle a setting.', status: 'Ready', link: '/components/switch' },
-      { name: 'Select', description: 'Select from options.', status: 'Planned' },
-      { name: 'Form', description: 'Manage form layout and validation.', status: 'Planned' }
+      { name: 'Select', description: 'Select from options.', status: 'Ready', link: '/components/select' },
+      { name: 'Form', description: 'Manage form layout and validation.', status: 'Ready', link: '/components/form' }
     ]
   },
   {
