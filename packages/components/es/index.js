@@ -11,6 +11,8 @@ import Dropdown from "./dropdown/index.js";
 import Empty from "./empty/index.js";
 import Flex from "./flex/index.js";
 import Form, { FormItem } from "./form/index.js";
+import Grid from "./grid/index.js";
+import { Col, Row } from "./grid/index.js";
 import Icon from "./icon/index.js";
 import Input from "./input/index.js";
 import InputNumber from "./input-number/index.js";
@@ -34,6 +36,7 @@ const components = [
   Space,
   Divider,
   Flex,
+  Grid,
   Icon,
   Typography,
   Title,
@@ -78,6 +81,7 @@ export {
   Button,
   Card,
   Checkbox,
+  Col,
   ConfigProvider,
   Descriptions,
   Divider,
@@ -86,6 +90,7 @@ export {
   Flex,
   Form,
   FormItem,
+  Grid,
   Icon,
   Input,
   InputNumber,
@@ -94,6 +99,7 @@ export {
   Pagination,
   Paragraph,
   Radio,
+  Row,
   Select,
   Space,
   Spin,
