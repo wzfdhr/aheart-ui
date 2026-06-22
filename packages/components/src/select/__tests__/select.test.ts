@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Select from '../select.vue'
@@ -30,6 +30,74 @@ describe('Select', () => {
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['banana'])
     expect(wrapper.emitted('change')?.[0]).toEqual(['banana'])
+  })
+
+  it('emits focus and blur events from the native selector', async () => {
+    const wrapper = mount(Select, {
+      props: { options }
+    })
+    const select = wrapper.find('select')
+
+    await select.trigger('focus')
+    await select.trigger('blur')
+
+    expect(wrapper.emitted('focus')?.[0]?.[0]).toBeInstanceOf(FocusEvent)
+    expect(wrapper.emitted('blur')?.[0]?.[0]).toBeInstanceOf(FocusEvent)
+  })
+
+  it('exposes focus and blur methods for the native selector', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Select, {
+      attachTo: host,
+      props: { options }
+    })
+    const selectVm = wrapper.vm as unknown as {
+      focus: () => void
+      blur: () => void
+    }
+    const select = wrapper.find('select').element
+
+    selectVm.focus()
+    await nextTick()
+    expect(document.activeElement).toBe(select)
+
+    selectVm.blur()
+    await nextTick()
+    expect(document.activeElement).not.toBe(select)
+
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('focuses the search input when showSearch is enabled', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Select, {
+      attachTo: host,
+      props: {
+        options,
+        showSearch: true
+      }
+    })
+    const selectVm = wrapper.vm as unknown as {
+      focus: () => void
+      blur: () => void
+    }
+    const searchInput = wrapper.find('.aheart-select__search').element
+
+    selectVm.focus()
+    await nextTick()
+    expect(document.activeElement).toBe(searchInput)
+
+    selectVm.blur()
+    await nextTick()
+    expect(document.activeElement).not.toBe(searchInput)
+
+    wrapper.unmount()
+    host.remove()
   })
 
   it('clears selected value when allowClear is clicked', async () => {

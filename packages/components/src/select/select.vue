@@ -5,6 +5,7 @@
     </span>
     <input
       v-if="showSearch"
+      ref="searchRef"
       class="aheart-select__search"
       :class="classNames.search"
       :style="styles.search"
@@ -14,8 +15,11 @@
       :placeholder="placeholder"
       aria-label="Search options"
       @input="handleSearch"
+      @focus="handleFocus"
+      @blur="handleBlur"
     />
     <select
+      ref="selectRef"
       class="aheart-select__control"
       :class="classNames.selector"
       :style="styles.selector"
@@ -25,6 +29,8 @@
       :multiple="isMultiple"
       :disabled="isDisabled"
       @change="handleChange"
+      @focus="handleFocus"
+      @blur="handleBlur"
     >
       <option v-if="placeholder && !isMultiple && !showSearch && !hasNoOptions" value="" disabled>{{ placeholder }}</option>
       <option v-if="hasNoOptions" value="" disabled :class="classNames.notFound" :style="styles.notFound">{{ notFoundContent }}</option>
@@ -85,6 +91,8 @@ const props = defineProps(selectProps)
 const emit = defineEmits(selectEmits)
 const slots = useSlots()
 const config = useAheartConfig()
+const searchRef = ref<HTMLInputElement>()
+const selectRef = ref<HTMLSelectElement>()
 const internalSearchValue = ref('')
 const internalValue = ref<SelectValue | undefined>(props.defaultValue)
 
@@ -264,4 +272,27 @@ const handleSearch = (event: Event) => {
   internalSearchValue.value = value
   emit('search', value)
 }
+
+const handleFocus = (event: FocusEvent) => {
+  emit('focus', event)
+}
+
+const handleBlur = (event: FocusEvent) => {
+  emit('blur', event)
+}
+
+const focus = () => {
+  const target = props.showSearch ? searchRef.value : selectRef.value
+  target?.focus()
+}
+
+const blur = () => {
+  searchRef.value?.blur()
+  selectRef.value?.blur()
+}
+
+defineExpose({
+  focus,
+  blur
+})
 </script>

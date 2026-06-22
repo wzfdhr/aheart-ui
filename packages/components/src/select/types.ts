@@ -105,7 +105,9 @@ export const selectEmits = {
     typeof value === 'string' || typeof value === 'number' || Array.isArray(value),
   change: (value: SelectValue) => typeof value === 'string' || typeof value === 'number' || Array.isArray(value),
   clear: () => true,
-  search: (value: string) => typeof value === 'string'
+  search: (value: string) => typeof value === 'string',
+  focus: (event: FocusEvent) => event instanceof FocusEvent,
+  blur: (event: FocusEvent) => event instanceof FocusEvent
 }
 
 export type SelectProps = ExtractPropTypes<typeof selectProps>
