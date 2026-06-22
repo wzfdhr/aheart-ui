@@ -38,6 +38,25 @@ describe('Breadcrumb', () => {
     expect(wrapper.findAll('a')).toHaveLength(1)
   })
 
+  it('renders explicit separator items without duplicate automatic separators', () => {
+    const wrapper = mount(Breadcrumb, {
+      props: {
+        separator: '/',
+        items: [
+          { title: 'Location', href: '/' },
+          { type: 'separator', separator: ':', className: 'custom-separator-item', style: { color: 'red' } },
+          { title: 'Application Center', path: 'application' },
+          { title: 'Application List' }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.custom-separator-item').attributes('style')).toContain('color: red')
+    expect(wrapper.findAll('.aheart-breadcrumb__separator').map((item) => item.text())).toEqual([':', '/'])
+    expect(wrapper.find('a[href="/"]').text()).toBe('Location')
+    expect(wrapper.find('a[href="/application"]').text()).toBe('Application Center')
+  })
+
   it('renders vnode title and separator with semantic class/style hooks', () => {
     const wrapper = mount(Breadcrumb, {
       props: {
@@ -105,6 +124,49 @@ describe('Breadcrumb', () => {
       paths: ['projects/42', 'settings'],
       index: 1
     })
+  })
+
+  it('joins route path segments cumulatively for links and itemRender paths', () => {
+    const calls: unknown[] = []
+    const items = [
+      { title: 'Projects', path: 'projects' },
+      { title: 'Aheart', path: ':projectId' },
+      { title: 'Settings', path: 'settings' }
+    ]
+
+    const wrapper = mount(Breadcrumb, {
+      props: {
+        items,
+        params: { projectId: 'aheart' },
+        itemRender: (item, params, allItems, paths, index) => {
+          calls.push({ item, params, allItems, paths, index })
+          return h('span', { class: 'path-node', 'data-paths': paths.join('|') }, item.title)
+        }
+      }
+    })
+
+    expect(wrapper.findAll('.path-node').map((item) => item.attributes('data-paths'))).toEqual([
+      'projects',
+      'projects|aheart',
+      'projects|aheart|settings'
+    ])
+    expect(calls).toHaveLength(3)
+    expect(calls[1]).toMatchObject({
+      params: { projectId: 'aheart' },
+      allItems: items,
+      paths: ['projects', 'aheart'],
+      index: 1
+    })
+
+    const linkedWrapper = mount(Breadcrumb, {
+      props: {
+        items,
+        params: { projectId: 'aheart' }
+      }
+    })
+    expect(linkedWrapper.find('a[href="/projects"]').text()).toBe('Projects')
+    expect(linkedWrapper.find('a[href="/projects/aheart"]').text()).toBe('Aheart')
+    expect(linkedWrapper.find('a[href="/projects/aheart/settings"]').exists()).toBe(false)
   })
 
   it('resolves path params and invokes enabled item click handlers', async () => {
