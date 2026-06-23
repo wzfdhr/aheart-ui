@@ -9,8 +9,12 @@ const modalProps = {
   },
   centered: Boolean,
   closable: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: true
+  },
+  closeIcon: {
+    type: null,
+    default: void 0
   },
   mask: {
     type: Boolean,

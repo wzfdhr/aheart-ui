@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 const basicOpen = ref(false)
+const closeControlsOpen = ref(false)
 const footerOpen = ref(false)
 const centeredOpen = ref(false)
 const loadingOpen = ref(false)
 const styledOpen = ref(false)
+const customCloseIcon = h('span', { class: 'docs-modal-close-icon' }, 'X')
 </script>
 
 # Modal 对话框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -32,6 +34,38 @@ const open = ref(false)
   <AButton type="primary" @click="open = true">Open modal</AButton>
   <AModal v-model:open="open" title="Edit profile">
     Profile settings can be reviewed before saving.
+  </AModal>
+</template>
+```
+
+## 关闭控件
+
+<div class="aheart-demo-panel">
+  <AButton @click="closeControlsOpen = true">Custom close</AButton>
+  <AModal
+    v-model:open="closeControlsOpen"
+    title="Custom close"
+    :closable="{ closeIcon: customCloseIcon }"
+  >
+    The close button can render custom content through `closeIcon` or object-form `closable`.
+  </AModal>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+
+const open = ref(false)
+const customCloseIcon = h('span', { class: 'modal-close-icon' }, 'X')
+</script>
+
+<template>
+  <AModal
+    v-model:open="open"
+    title="Custom close"
+    :closable="{ closeIcon: customCloseIcon }"
+  >
+    The close button can render custom content.
   </AModal>
 </template>
 ```
@@ -156,7 +190,8 @@ const open = ref(false)
 | title | 标题内容 | `string` | - |
 | width | 对话框宽度 | `number` \| `string` | `520` |
 | centered | 是否垂直居中 | `boolean` | `false` |
-| closable | 是否显示右上角关闭按钮 | `boolean` | `true` |
+| closable | 是否显示右上角关闭按钮，可配置关闭图标或禁用关闭按钮 | `boolean` \| `{ closeIcon?: VNodeChild; disabled?: boolean }` | `true` |
+| closeIcon | 自定义关闭图标，传入 `false` 或 `null` 时隐藏关闭按钮 | `VNodeChild` | `×` |
 | mask | 是否显示遮罩 | `boolean` | `true` |
 | maskClosable | 点击遮罩是否关闭 | `boolean` | `true` |
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |

@@ -1,15 +1,19 @@
-import { type CSSProperties } from 'vue';
+import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: StringConstructor;
     readonly width: {
-        readonly type: import("vue").PropType<string | number>;
+        readonly type: PropType<string | number>;
         readonly default: 520;
     };
     readonly centered: BooleanConstructor;
     readonly closable: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").ModalClosable>;
         readonly default: true;
+    };
+    readonly closeIcon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
     };
     readonly mask: {
         readonly type: BooleanConstructor;
@@ -33,11 +37,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly cancelButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
     readonly zIndex: {
         readonly type: NumberConstructor;
         readonly default: 1000;
@@ -49,10 +53,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<CSSProperties>;
-    readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
+    readonly style: PropType<CSSProperties>;
+    readonly rootStyle: PropType<CSSProperties>;
+    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -66,13 +70,17 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly open: BooleanConstructor;
     readonly title: StringConstructor;
     readonly width: {
-        readonly type: import("vue").PropType<string | number>;
+        readonly type: PropType<string | number>;
         readonly default: 520;
     };
     readonly centered: BooleanConstructor;
     readonly closable: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").ModalClosable>;
         readonly default: true;
+    };
+    readonly closeIcon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
     };
     readonly mask: {
         readonly type: BooleanConstructor;
@@ -96,11 +104,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly cancelButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
     readonly zIndex: {
         readonly type: NumberConstructor;
         readonly default: 1000;
@@ -112,10 +120,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<CSSProperties>;
-    readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
+    readonly style: PropType<CSSProperties>;
+    readonly rootStyle: PropType<CSSProperties>;
+    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
+    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -126,13 +134,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
     onOk?: (() => any) | undefined;
 }>, {
-    readonly closable: boolean;
+    readonly closable: import("./types").ModalClosable;
+    readonly closeIcon: VNodeChild;
     readonly open: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
-    readonly loading: boolean;
     readonly width: string | number;
     readonly zIndex: number;
+    readonly loading: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly forceRender: boolean;

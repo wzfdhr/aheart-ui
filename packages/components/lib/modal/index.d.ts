@@ -8,8 +8,12 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly centered: BooleanConstructor;
         readonly closable: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").ModalClosable>;
             readonly default: true;
+        };
+        readonly closeIcon: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
         };
         readonly mask: {
             readonly type: BooleanConstructor;
@@ -69,13 +73,14 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         afterOpenChange: (open: boolean) => void;
         ok: () => void;
     }, import("vue").PublicProps, {
-        readonly closable: boolean;
+        readonly closable: import("./types").ModalClosable;
+        readonly closeIcon: import("vue").VNodeChild;
         readonly open: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
-        readonly loading: boolean;
         readonly width: string | number;
         readonly zIndex: number;
+        readonly loading: boolean;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly forceRender: boolean;
@@ -102,8 +107,12 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly centered: BooleanConstructor;
         readonly closable: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").ModalClosable>;
             readonly default: true;
+        };
+        readonly closeIcon: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
         };
         readonly mask: {
             readonly type: BooleanConstructor;
@@ -157,13 +166,14 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
         onOk?: (() => any) | undefined;
     }>, {}, {}, {}, {}, {
-        readonly closable: boolean;
+        readonly closable: import("./types").ModalClosable;
+        readonly closeIcon: import("vue").VNodeChild;
         readonly open: boolean;
         readonly footer: boolean;
         readonly mask: boolean;
-        readonly loading: boolean;
         readonly width: string | number;
         readonly zIndex: number;
+        readonly loading: boolean;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly forceRender: boolean;
@@ -187,8 +197,12 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     };
     readonly centered: BooleanConstructor;
     readonly closable: {
-        readonly type: BooleanConstructor;
+        readonly type: import("vue").PropType<import("./types").ModalClosable>;
         readonly default: true;
+    };
+    readonly closeIcon: {
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
+        readonly default: undefined;
     };
     readonly mask: {
         readonly type: BooleanConstructor;
@@ -248,13 +262,14 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     afterOpenChange: (open: boolean) => void;
     ok: () => void;
 }, string, {
-    readonly closable: boolean;
+    readonly closable: import("./types").ModalClosable;
+    readonly closeIcon: import("vue").VNodeChild;
     readonly open: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
-    readonly loading: boolean;
     readonly width: string | number;
     readonly zIndex: number;
+    readonly loading: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly forceRender: boolean;

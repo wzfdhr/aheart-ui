@@ -16,12 +16,20 @@
         role="dialog"
         aria-modal="true"
       >
-        <header v-if="title || $slots.title || closable" :class="headerClass" :style="semanticStyle('header')">
+        <header v-if="title || $slots.title || showCloseButton" :class="headerClass" :style="semanticStyle('header')">
           <div v-if="title || $slots.title" :class="titleClass" :style="semanticStyle('title')">
             <slot name="title">{{ title }}</slot>
           </div>
-          <button v-if="closable" :class="closeClass" :style="semanticStyle('close')" type="button" aria-label="Close" @click="close">
-            ×
+          <button
+            v-if="showCloseButton"
+            :class="closeClass"
+            :style="semanticStyle('close')"
+            :disabled="isCloseButtonDisabled"
+            type="button"
+            aria-label="Close"
+            @click="handleCloseButtonClick"
+          >
+            <AModalRenderNode :node="resolvedCloseIcon" />
           </button>
         </header>
         <div :class="bodyClass" :style="semanticStyle('body')">
@@ -46,10 +54,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots, watch, type CSSProperties } from 'vue'
+import { computed, defineComponent, ref, useSlots, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
 import AButton from '../button'
 import ASkeleton from '../skeleton'
-import { modalEmits, modalProps, type ModalSemanticPart } from './types'
+import { modalEmits, modalProps, type ModalClosableConfig, type ModalSemanticPart } from './types'
 import './style.css'
 
 defineOptions({
@@ -60,6 +68,22 @@ const props = defineProps(modalProps)
 const emit = defineEmits(modalEmits)
 const slots = useSlots()
 const hasRendered = ref(props.open || props.forceRender)
+
+const AModalRenderNode = defineComponent({
+  name: 'AModalRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
+
+const isClosableConfig = (value: typeof props.closable): value is ModalClosableConfig =>
+  typeof value === 'object' && value !== null
 
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
 
@@ -96,6 +120,22 @@ const titleClass = computed(() => ['aheart-modal__title', semanticClass('title')
 const bodyClass = computed(() => ['aheart-modal__body', { 'is-loading': props.loading }, semanticClass('body')])
 const footerClass = computed(() => ['aheart-modal__footer', semanticClass('footer')])
 const closeClass = computed(() => ['aheart-modal__close', semanticClass('close')])
+const closableConfig = computed(() => (isClosableConfig(props.closable) ? props.closable : undefined))
+const resolvedCloseIcon = computed(() => {
+  if (closableConfig.value?.closeIcon !== undefined) {
+    return closableConfig.value.closeIcon
+  }
+
+  if (props.closeIcon !== undefined) {
+    return props.closeIcon
+  }
+
+  return '×'
+})
+const showCloseButton = computed(
+  () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
+)
+const isCloseButtonDisabled = computed(() => closableConfig.value?.disabled === true)
 
 const resolvedCancelButtonProps = computed(() => props.cancelButtonProps ?? {})
 const resolvedOkButtonProps = computed(() => ({
@@ -132,6 +172,14 @@ const semanticStyle = (part: ModalSemanticPart): CSSProperties | undefined => pr
 const close = () => {
   emit('update:open', false)
   emit('close')
+}
+
+const handleCloseButtonClick = () => {
+  if (isCloseButtonDisabled.value) {
+    return
+  }
+
+  close()
 }
 
 const handleOk = () => {

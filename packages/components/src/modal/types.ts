@@ -1,4 +1,4 @@
-import type { CSSProperties, ExtractPropTypes, PropType } from 'vue'
+import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue'
 import type { ButtonProps, ButtonType } from '../button/types'
 
 export const modalSemanticParts = ['root', 'mask', 'wrap', 'dialog', 'header', 'title', 'body', 'footer', 'close'] as const
@@ -7,6 +7,14 @@ export type ModalSemanticPart = (typeof modalSemanticParts)[number]
 export type ModalClassNames = Partial<Record<ModalSemanticPart, string>>
 export type ModalStyles = Partial<Record<ModalSemanticPart, CSSProperties>>
 export type ModalButtonProps = Partial<ButtonProps>
+export type ModalRenderable = VNodeChild
+
+export interface ModalClosableConfig {
+  closeIcon?: ModalRenderable
+  disabled?: boolean
+}
+
+export type ModalClosable = boolean | ModalClosableConfig
 
 export const modalProps = {
   open: Boolean,
@@ -17,8 +25,12 @@ export const modalProps = {
   },
   centered: Boolean,
   closable: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<ModalClosable>,
     default: true
+  },
+  closeIcon: {
+    type: null as unknown as PropType<ModalRenderable>,
+    default: undefined
   },
   mask: {
     type: Boolean,

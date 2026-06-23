@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
 import Modal from '../modal.vue'
 
@@ -147,6 +148,47 @@ describe('Modal', () => {
     const locked = mount(Modal, { props: { open: true, keyboard: false } })
     await locked.find('.aheart-modal').trigger('keydown', { key: 'Escape' })
     expect(locked.emitted('update:open')).toBeUndefined()
+  })
+
+  it('renders custom closeIcon content and hides the close button when closeIcon is false', () => {
+    const custom = mount(Modal, {
+      props: {
+        open: true,
+        closeIcon: h('span', { class: 'custom-close-icon' }, 'Close')
+      }
+    })
+
+    expect(custom.find('.custom-close-icon').text()).toBe('Close')
+
+    const hidden = mount(Modal, {
+      props: {
+        open: true,
+        closeIcon: false
+      }
+    })
+
+    expect(hidden.find('.aheart-modal__close').exists()).toBe(false)
+  })
+
+  it('supports object closable closeIcon and disabled close button', async () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        closable: {
+          closeIcon: h('span', { class: 'object-close-icon' }, 'Dismiss'),
+          disabled: true
+        }
+      }
+    })
+
+    const close = wrapper.find('.aheart-modal__close')
+    expect(wrapper.find('.object-close-icon').text()).toBe('Dismiss')
+    expect(close.attributes()).toHaveProperty('disabled')
+
+    await close.trigger('click')
+
+    expect(wrapper.emitted('update:open')).toBeUndefined()
+    expect(wrapper.emitted('close')).toBeUndefined()
   })
 
   it('does not render overlay nodes when closed', () => {

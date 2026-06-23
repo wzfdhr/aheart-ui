@@ -71,6 +71,16 @@
   color: var(--aheart-color-text);
 }
 
+.aheart-modal__close:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.aheart-modal__close:disabled:hover {
+  background: transparent;
+  color: var(--aheart-color-text-secondary);
+}
+
 .aheart-modal__body {
   padding: var(--aheart-spacing-lg);
 }

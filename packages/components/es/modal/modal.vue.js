@@ -1,8 +1,9 @@
-import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createTextVNode, toDisplayString, createBlock, unref, createVNode, mergeProps, withCtx, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createTextVNode, toDisplayString, createVNode, unref, createBlock, mergeProps, withCtx, vShow } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { modalProps, modalEmits } from "./types.js";
 import "./style.css.js";
+const _hoisted_1 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AModal"
@@ -15,6 +16,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const hasRendered = ref(props.open || props.forceRender);
+    const AModalRenderNode = defineComponent({
+      name: "AModalRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const isClosableConfig = (value) => typeof value === "object" && value !== null;
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
@@ -45,6 +59,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const bodyClass = computed(() => ["aheart-modal__body", { "is-loading": props.loading }, semanticClass("body")]);
     const footerClass = computed(() => ["aheart-modal__footer", semanticClass("footer")]);
     const closeClass = computed(() => ["aheart-modal__close", semanticClass("close")]);
+    const closableConfig = computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
+    const resolvedCloseIcon = computed(() => {
+      var _a;
+      if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
+        return closableConfig.value.closeIcon;
+      }
+      if (props.closeIcon !== void 0) {
+        return props.closeIcon;
+      }
+      return "×";
+    });
+    const showCloseButton = computed(
+      () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
+    );
+    const isCloseButtonDisabled = computed(() => {
+      var _a;
+      return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
+    });
     const resolvedCancelButtonProps = computed(() => props.cancelButtonProps ?? {});
     const resolvedOkButtonProps = computed(() => {
       var _a, _b;
@@ -84,6 +116,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const close = () => {
       emit("update:open", false);
       emit("close");
+    };
+    const handleCloseButtonClick = () => {
+      if (isCloseButtonDisabled.value) {
+        return;
+      }
+      close();
     };
     const handleOk = () => {
       emit("ok");
@@ -127,7 +165,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             role: "dialog",
             "aria-modal": "true"
           }, [
-            _ctx.title || _ctx.$slots.title || _ctx.closable ? (openBlock(), createElementBlock("header", {
+            _ctx.title || _ctx.$slots.title || showCloseButton.value ? (openBlock(), createElementBlock("header", {
               key: 0,
               class: normalizeClass(headerClass.value),
               style: normalizeStyle(semanticStyle("header"))
@@ -141,14 +179,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   createTextVNode(toDisplayString(_ctx.title), 1)
                 ])
               ], 6)) : createCommentVNode("", true),
-              _ctx.closable ? (openBlock(), createElementBlock("button", {
+              showCloseButton.value ? (openBlock(), createElementBlock("button", {
                 key: 1,
                 class: normalizeClass(closeClass.value),
                 style: normalizeStyle(semanticStyle("close")),
+                disabled: isCloseButtonDisabled.value,
                 type: "button",
                 "aria-label": "Close",
-                onClick: close
-              }, " × ", 6)) : createCommentVNode("", true)
+                onClick: handleCloseButtonClick
+              }, [
+                createVNode(unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+              ], 14, _hoisted_1)) : createCommentVNode("", true)
             ], 6)) : createCommentVNode("", true),
             createElementVNode("div", {
               class: normalizeClass(bodyClass.value),

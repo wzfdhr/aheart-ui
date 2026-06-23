@@ -5,6 +5,7 @@ const index$1 = require("../button/index.js");
 const index = require("../skeleton/index.js");
 const types = require("./types.js");
 require("./style.css.js");
+const _hoisted_1 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AModal"
@@ -17,6 +18,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const hasRendered = vue.ref(props.open || props.forceRender);
+    const AModalRenderNode = vue.defineComponent({
+      name: "AModalRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const isClosableConfig = (value) => typeof value === "object" && value !== null;
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
@@ -47,6 +61,24 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const bodyClass = vue.computed(() => ["aheart-modal__body", { "is-loading": props.loading }, semanticClass("body")]);
     const footerClass = vue.computed(() => ["aheart-modal__footer", semanticClass("footer")]);
     const closeClass = vue.computed(() => ["aheart-modal__close", semanticClass("close")]);
+    const closableConfig = vue.computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
+    const resolvedCloseIcon = vue.computed(() => {
+      var _a;
+      if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
+        return closableConfig.value.closeIcon;
+      }
+      if (props.closeIcon !== void 0) {
+        return props.closeIcon;
+      }
+      return "×";
+    });
+    const showCloseButton = vue.computed(
+      () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
+    );
+    const isCloseButtonDisabled = vue.computed(() => {
+      var _a;
+      return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
+    });
     const resolvedCancelButtonProps = vue.computed(() => props.cancelButtonProps ?? {});
     const resolvedOkButtonProps = vue.computed(() => {
       var _a, _b;
@@ -86,6 +118,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const close = () => {
       emit("update:open", false);
       emit("close");
+    };
+    const handleCloseButtonClick = () => {
+      if (isCloseButtonDisabled.value) {
+        return;
+      }
+      close();
     };
     const handleOk = () => {
       emit("ok");
@@ -129,7 +167,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             role: "dialog",
             "aria-modal": "true"
           }, [
-            _ctx.title || _ctx.$slots.title || _ctx.closable ? (vue.openBlock(), vue.createElementBlock("header", {
+            _ctx.title || _ctx.$slots.title || showCloseButton.value ? (vue.openBlock(), vue.createElementBlock("header", {
               key: 0,
               class: vue.normalizeClass(headerClass.value),
               style: vue.normalizeStyle(semanticStyle("header"))
@@ -143,14 +181,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
                 ])
               ], 6)) : vue.createCommentVNode("", true),
-              _ctx.closable ? (vue.openBlock(), vue.createElementBlock("button", {
+              showCloseButton.value ? (vue.openBlock(), vue.createElementBlock("button", {
                 key: 1,
                 class: vue.normalizeClass(closeClass.value),
                 style: vue.normalizeStyle(semanticStyle("close")),
+                disabled: isCloseButtonDisabled.value,
                 type: "button",
                 "aria-label": "Close",
-                onClick: close
-              }, " × ", 6)) : vue.createCommentVNode("", true)
+                onClick: handleCloseButtonClick
+              }, [
+                vue.createVNode(vue.unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+              ], 14, _hoisted_1)) : vue.createCommentVNode("", true)
             ], 6)) : vue.createCommentVNode("", true),
             vue.createElementVNode("div", {
               class: vue.normalizeClass(bodyClass.value),
