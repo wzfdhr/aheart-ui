@@ -57,6 +57,7 @@ const modalProps = {
   },
   className: String,
   rootClassName: String,
+  wrapClassName: String,
   style: Object,
   rootStyle: Object,
   classNames: Object,

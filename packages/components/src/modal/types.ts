@@ -83,6 +83,7 @@ export const modalProps = {
   },
   className: String,
   rootClassName: String,
+  wrapClassName: String,
   style: Object as PropType<CSSProperties>,
   rootStyle: Object as PropType<CSSProperties>,
   classNames: Object as PropType<ModalClassNames>,

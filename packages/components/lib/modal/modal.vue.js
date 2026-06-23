@@ -55,7 +55,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasFooter = vue.computed(() => Boolean(slots.footer) || props.footer !== false && props.footer !== null);
     const rootClass = vue.computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
     const maskClass = vue.computed(() => ["aheart-modal__mask", semanticClass("mask")]);
-    const wrapClass = vue.computed(() => ["aheart-modal__wrap", semanticClass("wrap")]);
+    const wrapClass = vue.computed(() => ["aheart-modal__wrap", props.wrapClassName, semanticClass("wrap")]);
     const dialogClass = vue.computed(() => [
       "aheart-modal__dialog",
       {

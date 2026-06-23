@@ -207,6 +207,7 @@ const footer = (
     v-model:open="styledOpen"
     title="Styled modal"
     root-class-name="docs-modal-root"
+    wrap-class-name="docs-modal-wrap"
     class-name="docs-modal-dialog"
     :z-index="1210"
     :root-style="{ color: 'var(--aheart-color-text)' }"
@@ -224,6 +225,7 @@ const footer = (
     v-model:open="open"
     title="Styled modal"
     root-class-name="workspace-modal-root"
+    wrap-class-name="workspace-modal-wrap"
     class-name="workspace-modal-dialog"
     :z-index="1210"
     :root-style="{ color: 'var(--aheart-color-text)' }"
@@ -260,6 +262,7 @@ const footer = (
 | footer | 页脚内容，`false` 或 `null` 时隐藏默认页脚 | `boolean` \| `VNodeChild` \| `ModalFooterRender` | `true` |
 | className | 对话框自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
+| wrapClassName | 对话框外层容器自定义类名 | `string` | - |
 | style | 对话框自定义样式 | `CSSProperties` | - |
 | rootStyle | 根节点自定义样式 | `CSSProperties` | - |
 | classNames | 语义化结构类名 | `Partial<Record<ModalSemanticPart, string>>` | - |

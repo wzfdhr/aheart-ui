@@ -56,6 +56,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
+        readonly wrapClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
         readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
@@ -161,6 +162,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
+        readonly wrapClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
         readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
@@ -256,6 +258,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
+    readonly wrapClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
     readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;

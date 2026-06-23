@@ -76,6 +76,7 @@ export declare const modalProps: {
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
+    readonly wrapClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;

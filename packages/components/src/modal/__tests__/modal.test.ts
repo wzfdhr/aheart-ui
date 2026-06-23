@@ -105,6 +105,22 @@ describe('Modal', () => {
     expect(wrapper.find('.aheart-modal__footer').attributes('style')).toContain('justify-content: flex-start')
   })
 
+  it('applies wrapClassName alongside semantic wrap class', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        wrapClassName: 'custom-wrap-name',
+        classNames: {
+          wrap: 'semantic-wrap'
+        }
+      }
+    })
+
+    expect(wrapper.find('.aheart-modal__wrap').classes()).toEqual(
+      expect.arrayContaining(['custom-wrap-name', 'semantic-wrap'])
+    )
+  })
+
   it('supports afterOpenChange forceRender and destroyOnHidden', async () => {
     const persistent = mount(Modal, {
       props: { open: false, forceRender: true, title: 'Pre-rendered' }

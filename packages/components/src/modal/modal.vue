@@ -118,7 +118,7 @@ const hasFooter = computed(() => Boolean(slots.footer) || (props.footer !== fals
 
 const rootClass = computed(() => ['aheart-modal', props.rootClassName, semanticClass('root')])
 const maskClass = computed(() => ['aheart-modal__mask', semanticClass('mask')])
-const wrapClass = computed(() => ['aheart-modal__wrap', semanticClass('wrap')])
+const wrapClass = computed(() => ['aheart-modal__wrap', props.wrapClassName, semanticClass('wrap')])
 const dialogClass = computed(() => [
   'aheart-modal__dialog',
   {
