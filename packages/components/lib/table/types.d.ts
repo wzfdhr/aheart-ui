@@ -11,7 +11,7 @@ export type TableFilterValue = string | number | boolean;
 export type TableChangeAction = 'paginate' | 'sort' | 'filter';
 export type TableRenderable = VNodeChild;
 export interface TableColumnFilter {
-    text: string;
+    text: TableRenderable;
     value: TableFilterValue;
 }
 export interface TableColumn<T extends TableRecord = TableRecord> {
@@ -99,7 +99,10 @@ export declare const tableProps: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
-    readonly emptyText: StringConstructor;
+    readonly emptyText: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
 };
 export declare const tableEmits: {
     change: (_pagination: TableChangePagination, _filters: TableFilters, _sorter: TableSorter, _extra: TableChangeExtra) => boolean;

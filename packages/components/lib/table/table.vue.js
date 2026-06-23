@@ -106,10 +106,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a2;
       return ((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys) ?? innerExpandedRowKeys.value;
     });
-    const resolvedEmptyText = vue.computed(() => {
-      var _a2, _b2;
-      return props.emptyText || ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.empty) == null ? void 0 : _b2.description) || "No Data";
-    });
+    const resolvedEmptyText = vue.computed(
+      () => {
+        var _a2, _b2;
+        return hasRenderableContent(props.emptyText) ? props.emptyText : ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.empty) == null ? void 0 : _b2.description) || "No Data";
+      }
+    );
     const paginationConfig = vue.computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
     const pageSize = vue.computed(() => paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10);
     const currentPage = vue.computed(() => paginationConfig.value.current ?? innerCurrent.value);
@@ -208,6 +210,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     );
     function getColumnKey(column) {
       return column.key ?? String(Array.isArray(column.dataIndex) ? column.dataIndex.join(".") : column.dataIndex ?? column.title);
+    }
+    function hasRenderableContent(value) {
+      return value !== void 0 && value !== null && value !== false && value !== "";
     }
     function getRowKey(record, index2) {
       if (typeof props.rowKey === "function") {
@@ -473,7 +478,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                             "aria-pressed": isFilterActive(column, filter.value),
                             disabled: isDisabled.value,
                             onClick: ($event) => toggleFilter(column, filter.value)
-                          }, vue.toDisplayString(filter.text), 11, _hoisted_10);
+                          }, [
+                            vue.createVNode(vue.unref(ARenderNode), {
+                              node: filter.text
+                            }, null, 8, ["node"])
+                          ], 10, _hoisted_10);
                         }), 128))
                       ], 8, _hoisted_9)) : vue.createCommentVNode("", true)
                     ])
@@ -537,7 +546,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 vue.createElementVNode("td", {
                   colspan: columnCount.value,
                   class: "aheart-table__empty"
-                }, vue.toDisplayString(resolvedEmptyText.value), 9, _hoisted_18)
+                }, [
+                  vue.createVNode(vue.unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
+                ], 8, _hoisted_18)
               ])) : vue.createCommentVNode("", true)
             ])
           ]),

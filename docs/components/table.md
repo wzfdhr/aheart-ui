@@ -1,3 +1,24 @@
+<script setup lang="ts">
+import { h } from 'vue'
+
+const tableRenderableColumns = [
+  { title: 'Name', dataIndex: 'name', key: 'name' },
+  {
+    title: 'Role',
+    dataIndex: 'role',
+    key: 'role',
+    filters: [
+      {
+        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
+        value: 'Engineer'
+      }
+    ]
+  }
+]
+
+const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
+</script>
+
 # Table 表格 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Table displays structured records with columns, sorting, selection, expansion, pagination, loading, and empty states.
@@ -149,6 +170,39 @@ Table displays structured records with columns, sorting, selection, expansion, p
 
 筛选默认支持多选，设置 `filterMultiple: false` 后同一列只保留一个筛选值。使用 `filteredValue` 可以接管筛选状态，使用 `defaultFilteredValue` 可以设置初始筛选值。
 
+## 筛选项与空态节点
+
+<div class="aheart-demo-panel">
+  <ATable
+    :columns="tableRenderableColumns"
+    :data-source="[]"
+    :empty-text="tableRenderableEmptyText"
+  />
+</div>
+
+```vue
+<template>
+  <ATable :columns="columns" :data-source="[]" :empty-text="emptyText" />
+</template>
+
+<script setup lang="ts">
+import { h } from 'vue'
+
+const columns = [
+  {
+    title: 'Role',
+    dataIndex: 'role',
+    key: 'role',
+    filters: [{ text: h('span', { class: 'filter-node' }, 'Engineer filter'), value: 'Engineer' }]
+  }
+]
+
+const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
+</script>
+```
+
+`filters[].text` 和 `emptyText` 都支持 `VNodeChild`，可以用于强调筛选标签或复用自定义空态内容。
+
 ## 行选择
 
 <div class="aheart-demo-panel">
@@ -250,7 +304,7 @@ Table displays structured records with columns, sorting, selection, expansion, p
 | rowSelection | 行选择配置 | `TableRowSelection` | - |
 | expandable | 展开行配置 | `TableExpandable` | - |
 | showHeader | 是否显示表头 | `boolean` | `true` |
-| emptyText | 空状态文本 | `string` | ConfigProvider locale.empty.description |
+| emptyText | 空状态内容 | `VNodeChild` | ConfigProvider locale.empty.description |
 
 ### TableColumn
 
@@ -277,7 +331,7 @@ Table displays structured records with columns, sorting, selection, expansion, p
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| text | 筛选按钮文本 | `string` | - |
+| text | 筛选按钮内容 | `VNodeChild` | - |
 | value | 筛选值 | `string` \| `number` \| `boolean` | - |
 
 ### TableRowSelection

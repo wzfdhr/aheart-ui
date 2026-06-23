@@ -22,7 +22,10 @@ const tableProps = {
     type: Boolean,
     default: true
   },
-  emptyText: String
+  emptyText: {
+    type: [String, Number, Boolean, Object, Array],
+    default: void 0
+  }
 };
 const tableEmits = {
   change: (_pagination, _filters, _sorter, _extra) => true,

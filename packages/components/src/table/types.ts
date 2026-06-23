@@ -13,7 +13,7 @@ export type TableChangeAction = 'paginate' | 'sort' | 'filter'
 export type TableRenderable = VNodeChild
 
 export interface TableColumnFilter {
-  text: string
+  text: TableRenderable
   value: TableFilterValue
 }
 
@@ -105,7 +105,10 @@ export const tableProps = {
     type: Boolean,
     default: true
   },
-  emptyText: String
+  emptyText: {
+    type: [String, Number, Boolean, Object, Array] as PropType<TableRenderable>,
+    default: undefined
+  }
 } as const
 
 export const tableEmits = {

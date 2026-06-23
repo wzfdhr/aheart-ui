@@ -44,7 +44,7 @@
                     :disabled="isDisabled"
                     @click="toggleFilter(column, filter.value)"
                   >
-                    {{ filter.text }}
+                    <ARenderNode :node="filter.text" />
                   </button>
                 </div>
               </div>
@@ -92,7 +92,9 @@
             </tr>
           </template>
           <tr v-if="!loading && pagedRows.length === 0">
-            <td :colspan="columnCount" class="aheart-table__empty">{{ resolvedEmptyText }}</td>
+            <td :colspan="columnCount" class="aheart-table__empty">
+              <ARenderNode :node="resolvedEmptyText" />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -186,7 +188,9 @@ const selectionType = computed(() => props.rowSelection?.type ?? 'checkbox')
 const isSelectionDisabled = computed(() => isDisabled.value || Boolean(props.rowSelection?.disabled))
 const selectedKeys = computed(() => props.rowSelection?.selectedRowKeys ?? innerSelectedRowKeys.value)
 const expandedKeys = computed(() => props.expandable?.expandedRowKeys ?? innerExpandedRowKeys.value)
-const resolvedEmptyText = computed(() => props.emptyText || config.value.locale?.empty?.description || 'No Data')
+const resolvedEmptyText = computed<TableRenderable>(() =>
+  hasRenderableContent(props.emptyText) ? props.emptyText : config.value.locale?.empty?.description || 'No Data'
+)
 
 const paginationConfig = computed(() => (props.pagination && typeof props.pagination === 'object' ? props.pagination : {}))
 const pageSize = computed(() => paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10)
@@ -305,6 +309,10 @@ watch(
 
 function getColumnKey(column: TableColumn) {
   return column.key ?? String(Array.isArray(column.dataIndex) ? column.dataIndex.join('.') : column.dataIndex ?? column.title)
+}
+
+function hasRenderableContent(value: TableRenderable | undefined): value is TableRenderable {
+  return value !== undefined && value !== null && value !== false && value !== ''
 }
 
 function getRowKey(record: TableRecord, index: number): TableKey {

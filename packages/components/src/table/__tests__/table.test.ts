@@ -91,6 +91,26 @@ describe('Table', () => {
     expect(wrapper.find('.aheart-table__empty').text()).toBe('No records')
   })
 
+  it('renders vnode filter labels and empty content', () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns: [
+          {
+            title: 'Role',
+            dataIndex: 'role',
+            key: 'role',
+            filters: [{ text: h('span', { class: 'filter-node' }, 'Engineer filter'), value: 'Engineer' }]
+          }
+        ],
+        dataSource: [],
+        emptyText: h('span', { class: 'empty-node' }, 'No engineers')
+      }
+    })
+
+    expect(wrapper.find('.filter-node').text()).toBe('Engineer filter')
+    expect(wrapper.find('.empty-node').text()).toBe('No engineers')
+  })
+
   it('sorts local data when a sortable header is clicked', async () => {
     const wrapper = mount(Table, {
       props: { columns, dataSource }

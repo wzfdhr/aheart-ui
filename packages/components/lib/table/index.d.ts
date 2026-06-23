@@ -22,7 +22,10 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
         readonly type: BooleanConstructor;
         readonly default: true;
     };
-    readonly emptyText: StringConstructor;
+    readonly emptyText: {
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
+        readonly default: undefined;
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (_pagination: import("./types").TableChangePagination, _filters: import("./types").TableFilters, _sorter: import("./types").TableSorter<import("./types").TableRecord>, _extra: import("./types").TableChangeExtra<import("./types").TableRecord>) => void;
     select: (_key: import("./types").TableKey, _selected: boolean, _record: import("./types").TableRecord, _selectedRowKeys: import("./types").TableKey[]) => void;
@@ -52,7 +55,10 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
         readonly type: BooleanConstructor;
         readonly default: true;
     };
-    readonly emptyText: StringConstructor;
+    readonly emptyText: {
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
+        readonly default: undefined;
+    };
 }>> & Readonly<{
     onChange?: ((_pagination: import("./types").TableChangePagination, _filters: import("./types").TableFilters, _sorter: import("./types").TableSorter<import("./types").TableRecord>, _extra: import("./types").TableChangeExtra<import("./types").TableRecord>) => any) | undefined;
     onSelect?: ((_key: import("./types").TableKey, _selected: boolean, _record: import("./types").TableRecord, _selectedRowKeys: import("./types").TableKey[]) => any) | undefined;
@@ -65,6 +71,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     readonly pagination: false | import("./types").TablePaginationConfig;
     readonly rowKey: string | ((record: import("./types").TableRecord) => import("./types").TableKey);
     readonly showHeader: boolean;
+    readonly emptyText: import("vue").VNodeChild;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Table;
 export type { TableChangePagination, TableColumn, TableDataIndex, TableExpandable, TableKey, TablePaginationConfig, TableProps, TableRecord, TableRowSelection, TableSorter } from './types';
