@@ -365,6 +365,46 @@ describe('Drawer', () => {
     expect(locked.emitted('update:open')).toBeUndefined()
   })
 
+  it('supports mask config enabled and blur options', () => {
+    const hidden = mountDrawer({
+      props: {
+        open: true,
+        mask: { enabled: false }
+      }
+    })
+    expect(hidden.find('.aheart-drawer__mask').exists()).toBe(false)
+
+    const blurred = mountDrawer({
+      props: {
+        open: true,
+        mask: { blur: true }
+      }
+    })
+    expect(blurred.find('.aheart-drawer__mask').exists()).toBe(true)
+    expect(blurred.find('.aheart-drawer__mask').classes()).toContain('is-blur')
+  })
+
+  it('lets mask config closable override maskClosable', async () => {
+    const locked = mountDrawer({
+      props: {
+        open: true,
+        mask: { closable: false }
+      }
+    })
+    await locked.find('.aheart-drawer__mask').trigger('click')
+    expect(locked.emitted('update:open')).toBeUndefined()
+
+    const closable = mountDrawer({
+      props: {
+        open: true,
+        maskClosable: false,
+        mask: { closable: true }
+      }
+    })
+    await closable.find('.aheart-drawer__mask').trigger('click')
+    expect(closable.emitted('update:open')?.[0]).toEqual([false])
+  })
+
   it('closes from Escape only when keyboard is true', async () => {
     const closable = mountDrawer({ props: { open: true } })
     await closable.find('.aheart-drawer').trigger('keydown', { key: 'Escape' })

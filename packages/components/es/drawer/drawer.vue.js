@@ -41,6 +41,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
+    const isMaskConfig = (value) => typeof value === "object" && value !== null;
+    const maskConfig = computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
+    const showMask = computed(() => {
+      var _a;
+      return props.mask !== false && ((_a = maskConfig.value) == null ? void 0 : _a.enabled) !== false;
+    });
+    const isMaskBlurred = computed(() => {
+      var _a;
+      return ((_a = maskConfig.value) == null ? void 0 : _a.blur) === true;
+    });
+    const isMaskClosable = computed(() => {
+      var _a;
+      return ((_a = maskConfig.value) == null ? void 0 : _a.closable) ?? props.maskClosable;
+    });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
     const closableConfig = computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
     const resolvedCloseIcon = computed(() => {
@@ -100,7 +114,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       () => !shouldHideFooter.value && (Boolean(slots.footer) || props.footer === true || shouldRenderFooterProp.value)
     );
     const rootClass = computed(() => ["aheart-drawer", props.rootClassName, semanticClass("root")]);
-    const maskClass = computed(() => ["aheart-drawer__mask", semanticClass("mask")]);
+    const maskClass = computed(() => [
+      "aheart-drawer__mask",
+      { "is-blur": isMaskBlurred.value },
+      semanticClass("mask")
+    ]);
     const panelClass = computed(() => [
       "aheart-drawer__panel",
       `aheart-drawer__panel--${props.placement}`,
@@ -155,7 +173,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       close();
     };
     const handleMaskClick = () => {
-      if (props.maskClosable) {
+      if (isMaskClosable.value) {
         close();
       }
     };
@@ -177,7 +195,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           tabindex: "-1",
           onKeydown: handleKeydown
         }, [
-          _ctx.mask ? (openBlock(), createElementBlock("div", {
+          showMask.value ? (openBlock(), createElementBlock("div", {
             key: 0,
             class: normalizeClass(maskClass.value),
             style: normalizeStyle(maskStyle.value),

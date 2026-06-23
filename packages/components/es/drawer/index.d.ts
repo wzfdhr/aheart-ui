@@ -39,7 +39,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly mask: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").DrawerMask>;
             readonly default: true;
         };
         readonly maskClosable: {
@@ -83,7 +83,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
         readonly footer: import("./types").DrawerFooter;
-        readonly mask: boolean;
+        readonly mask: import("./types").DrawerMask;
         readonly height: string | number;
         readonly width: string | number;
         readonly zIndex: number;
@@ -143,7 +143,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly mask: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").DrawerMask>;
             readonly default: true;
         };
         readonly maskClosable: {
@@ -183,7 +183,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
         readonly footer: import("./types").DrawerFooter;
-        readonly mask: boolean;
+        readonly mask: import("./types").DrawerMask;
         readonly height: string | number;
         readonly width: string | number;
         readonly zIndex: number;
@@ -240,7 +240,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly default: undefined;
     };
     readonly mask: {
-        readonly type: BooleanConstructor;
+        readonly type: import("vue").PropType<import("./types").DrawerMask>;
         readonly default: true;
     };
     readonly maskClosable: {
@@ -284,7 +284,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
     readonly footer: import("./types").DrawerFooter;
-    readonly mask: boolean;
+    readonly mask: import("./types").DrawerMask;
     readonly height: string | number;
     readonly width: string | number;
     readonly zIndex: number;

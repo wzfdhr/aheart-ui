@@ -9,7 +9,7 @@
       tabindex="-1"
       @keydown="handleKeydown"
     >
-      <div v-if="mask" :class="maskClass" :style="maskStyle" @click="handleMaskClick" />
+      <div v-if="showMask" :class="maskClass" :style="maskStyle" @click="handleMaskClick" />
       <section
         :class="panelClass"
         :style="panelStyle"
@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, ref, useSlots, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
 import ASkeleton from '../skeleton'
-import { drawerEmits, drawerProps, type DrawerClosableConfig, type DrawerSemanticPart } from './types'
+import { drawerEmits, drawerProps, type DrawerClosableConfig, type DrawerMaskConfig, type DrawerSemanticPart } from './types'
 import './style.css'
 
 defineOptions({
@@ -108,6 +108,12 @@ const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClo
 const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
 const isRenderableNode = (value: VNodeChild) =>
   value !== undefined && value !== null && value !== false && value !== true && value !== ''
+const isMaskConfig = (value: typeof props.mask): value is DrawerMaskConfig =>
+  typeof value === 'object' && value !== null
+const maskConfig = computed(() => (isMaskConfig(props.mask) ? props.mask : undefined))
+const showMask = computed(() => props.mask !== false && maskConfig.value?.enabled !== false)
+const isMaskBlurred = computed(() => maskConfig.value?.blur === true)
+const isMaskClosable = computed(() => maskConfig.value?.closable ?? props.maskClosable)
 const isClosableConfig = (value: typeof props.closable): value is DrawerClosableConfig =>
   typeof value === 'object' && value !== null
 const closableConfig = computed(() => (isClosableConfig(props.closable) ? props.closable : undefined))
@@ -172,7 +178,11 @@ const hasFooter = computed(
 )
 
 const rootClass = computed(() => ['aheart-drawer', props.rootClassName, semanticClass('root')])
-const maskClass = computed(() => ['aheart-drawer__mask', semanticClass('mask')])
+const maskClass = computed(() => [
+  'aheart-drawer__mask',
+  { 'is-blur': isMaskBlurred.value },
+  semanticClass('mask')
+])
 const panelClass = computed(() => [
   'aheart-drawer__panel',
   `aheart-drawer__panel--${props.placement}`,
@@ -229,7 +239,7 @@ const handleCloseButtonClick = () => {
 }
 
 const handleMaskClick = () => {
-  if (props.maskClosable) {
+  if (isMaskClosable.value) {
     close()
   }
 }

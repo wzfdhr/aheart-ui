@@ -7,6 +7,7 @@ const bottomOpen = ref(false)
 const loadingOpen = ref(false)
 const renderableOpen = ref(false)
 const closeControlsOpen = ref(false)
+const maskConfigOpen = ref(false)
 const styledOpen = ref(false)
 const renderableTitle = h('span', { class: 'docs-drawer-renderable-title' }, 'Review profile')
 const renderableExtra = h('span', { class: 'docs-drawer-renderable-extra' }, 'Synced')
@@ -162,6 +163,31 @@ const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come 
 </template>
 ```
 
+## 遮罩配置
+
+<div class="aheart-demo-panel">
+  <AButton @click="maskConfigOpen = true">Blurred mask drawer</AButton>
+  <ADrawer
+    v-model:open="maskConfigOpen"
+    title="Mask config"
+    :mask="{ blur: true, closable: false }"
+  >
+    This drawer uses a blurred mask and ignores mask clicks.
+  </ADrawer>
+</div>
+
+```vue
+<template>
+  <ADrawer
+    v-model:open="open"
+    title="Mask config"
+    :mask="{ blur: true, closable: false }"
+  >
+    This drawer uses a blurred mask and ignores mask clicks.
+  </ADrawer>
+</template>
+```
+
 ## 语义化样式
 
 <div class="aheart-demo-panel">
@@ -213,7 +239,7 @@ const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come 
 | zIndex | 根节点层级 | `number` | `1000` |
 | closable | 是否显示关闭按钮；对象形式可配置图标、禁用状态和位置 | `boolean` \| `DrawerClosableConfig` | `true` |
 | closeIcon | 自定义关闭图标；传入 `false` 或 `null` 隐藏关闭按钮 | `VNodeChild` | `×` |
-| mask | 是否显示遮罩 | `boolean` | `true` |
+| mask | 是否显示遮罩；对象形式可配置显示、模糊和点击关闭 | `boolean` \| `DrawerMaskConfig` | `true` |
 | maskClosable | 点击遮罩是否关闭 | `boolean` | `true` |
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
@@ -243,6 +269,16 @@ type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
 
 ```ts
 type DrawerRenderable = VNodeChild
+```
+
+### DrawerMaskConfig
+
+```ts
+interface DrawerMaskConfig {
+  enabled?: boolean
+  blur?: boolean
+  closable?: boolean
+}
 ```
 
 ### DrawerClosableConfig

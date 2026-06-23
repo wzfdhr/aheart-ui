@@ -39,7 +39,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly mask: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").DrawerMask>;
         readonly default: true;
     };
     readonly maskClosable: {
@@ -112,7 +112,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly mask: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").DrawerMask>;
         readonly default: true;
     };
     readonly maskClosable: {
@@ -152,7 +152,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
     readonly footer: import("./types").DrawerFooter;
-    readonly mask: boolean;
+    readonly mask: import("./types").DrawerMask;
     readonly height: string | number;
     readonly width: string | number;
     readonly zIndex: number;

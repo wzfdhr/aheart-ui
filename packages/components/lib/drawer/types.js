@@ -41,7 +41,7 @@ const drawerProps = {
     default: void 0
   },
   mask: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: true
   },
   maskClosable: {

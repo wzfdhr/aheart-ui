@@ -1542,6 +1542,10 @@ kbd.aheart-typography-text {
   background: rgba(0, 0, 0, 0.45);
 }
 
+.aheart-drawer__mask.is-blur {
+  backdrop-filter: blur(6px);
+}
+
 .aheart-drawer__panel {
   position: absolute;
   display: flex;

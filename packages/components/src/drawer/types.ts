@@ -15,6 +15,14 @@ export type DrawerRenderable = VNodeChild
 export type DrawerTitle = DrawerRenderable
 export type DrawerExtra = DrawerRenderable
 export type DrawerFooter = boolean | DrawerRenderable
+
+export interface DrawerMaskConfig {
+  enabled?: boolean
+  blur?: boolean
+  closable?: boolean
+}
+
+export type DrawerMask = boolean | DrawerMaskConfig
 export type DrawerClosePlacement = 'start' | 'end'
 export type DrawerCloseIcon = VNodeChild
 
@@ -66,7 +74,7 @@ export const drawerProps = {
     default: undefined
   },
   mask: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<DrawerMask>,
     default: true
   },
   maskClosable: {
