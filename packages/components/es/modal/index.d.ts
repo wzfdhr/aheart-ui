@@ -19,7 +19,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly mask: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").ModalMask>;
             readonly default: true;
         };
         readonly maskClosable: {
@@ -85,7 +85,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly closeIcon: import("vue").VNodeChild;
         readonly open: boolean;
         readonly footer: import("./types").ModalFooter;
-        readonly mask: boolean;
+        readonly mask: import("./types").ModalMask;
         readonly width: string | number;
         readonly zIndex: number;
         readonly loading: boolean;
@@ -126,7 +126,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly mask: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").ModalMask>;
             readonly default: true;
         };
         readonly maskClosable: {
@@ -185,7 +185,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly closeIcon: import("vue").VNodeChild;
         readonly open: boolean;
         readonly footer: import("./types").ModalFooter;
-        readonly mask: boolean;
+        readonly mask: import("./types").ModalMask;
         readonly width: string | number;
         readonly zIndex: number;
         readonly loading: boolean;
@@ -223,7 +223,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly default: undefined;
     };
     readonly mask: {
-        readonly type: BooleanConstructor;
+        readonly type: import("vue").PropType<import("./types").ModalMask>;
         readonly default: true;
     };
     readonly maskClosable: {
@@ -289,7 +289,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly closeIcon: import("vue").VNodeChild;
     readonly open: boolean;
     readonly footer: import("./types").ModalFooter;
-    readonly mask: boolean;
+    readonly mask: import("./types").ModalMask;
     readonly width: string | number;
     readonly zIndex: number;
     readonly loading: boolean;

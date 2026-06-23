@@ -44,6 +44,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
+    const isMaskConfig = (value) => typeof value === "object" && value !== null;
     const hasRenderable = (value) => {
       if (Array.isArray(value)) {
         return value.length > 0;
@@ -67,7 +68,26 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasHeader = vue.computed(() => hasTitle.value || showCloseButton.value);
     const hasFooter = vue.computed(() => Boolean(slots.footer) || props.footer !== false && props.footer !== null);
     const rootClass = vue.computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
-    const maskClass = vue.computed(() => ["aheart-modal__mask", semanticClass("mask")]);
+    const maskConfig = vue.computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
+    const isMaskVisible = vue.computed(() => {
+      var _a;
+      return props.mask === false ? false : ((_a = maskConfig.value) == null ? void 0 : _a.enabled) !== false;
+    });
+    const isMaskBlurred = vue.computed(() => {
+      var _a;
+      return ((_a = maskConfig.value) == null ? void 0 : _a.blur) === true;
+    });
+    const isMaskClosable = vue.computed(() => {
+      var _a;
+      return ((_a = maskConfig.value) == null ? void 0 : _a.closable) ?? props.maskClosable;
+    });
+    const maskClass = vue.computed(() => [
+      "aheart-modal__mask",
+      {
+        "is-blur": isMaskBlurred.value
+      },
+      semanticClass("mask")
+    ]);
     const wrapClass = vue.computed(() => ["aheart-modal__wrap", props.wrapClassName, semanticClass("wrap")]);
     const dialogClass = vue.computed(() => [
       "aheart-modal__dialog",
@@ -191,7 +211,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       close();
     };
     const handleMaskClick = () => {
-      if (props.maskClosable) {
+      if (isMaskClosable.value) {
         close();
       }
     };
@@ -209,7 +229,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         tabindex: "-1",
         onKeydown: handleKeydown
       }, [
-        _ctx.mask ? (vue.openBlock(), vue.createElementBlock("div", {
+        isMaskVisible.value ? (vue.openBlock(), vue.createElementBlock("div", {
           key: 0,
           class: vue.normalizeClass(maskClass.value),
           style: vue.normalizeStyle(semanticStyle("mask")),

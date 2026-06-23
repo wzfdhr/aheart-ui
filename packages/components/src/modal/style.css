@@ -13,6 +13,11 @@
   background: rgba(0, 0, 0, 0.45);
 }
 
+.aheart-modal__mask.is-blur {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
 .aheart-modal__wrap {
   position: absolute;
   inset: 0;

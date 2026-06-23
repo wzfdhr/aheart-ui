@@ -20,7 +20,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly mask: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").ModalMask>;
         readonly default: true;
     };
     readonly maskClosable: {
@@ -93,7 +93,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly mask: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").ModalMask>;
         readonly default: true;
     };
     readonly maskClosable: {
@@ -152,7 +152,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly closeIcon: VNodeChild;
     readonly open: boolean;
     readonly footer: import("./types").ModalFooter;
-    readonly mask: boolean;
+    readonly mask: import("./types").ModalMask;
     readonly width: string | number;
     readonly zIndex: number;
     readonly loading: boolean;

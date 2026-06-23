@@ -222,6 +222,54 @@ describe('Modal', () => {
     expect(locked.emitted('update:open')).toBeUndefined()
   })
 
+  it('supports object mask enabled and blur settings', () => {
+    const blurred = mount(Modal, {
+      props: {
+        open: true,
+        mask: { enabled: true, blur: true }
+      }
+    })
+
+    expect(blurred.find('.aheart-modal__mask').exists()).toBe(true)
+    expect(blurred.find('.aheart-modal__mask').classes()).toContain('is-blur')
+
+    const hidden = mount(Modal, {
+      props: {
+        open: true,
+        mask: { enabled: false }
+      }
+    })
+
+    expect(hidden.find('.aheart-modal__mask').exists()).toBe(false)
+    expect(hidden.find('.aheart-modal__dialog').exists()).toBe(true)
+  })
+
+  it('uses mask closable config before legacy maskClosable', async () => {
+    const locked = mount(Modal, {
+      props: {
+        open: true,
+        mask: { closable: false },
+        maskClosable: true
+      }
+    })
+
+    await locked.find('.aheart-modal__mask').trigger('click')
+
+    expect(locked.emitted('update:open')).toBeUndefined()
+
+    const closable = mount(Modal, {
+      props: {
+        open: true,
+        mask: { closable: true },
+        maskClosable: false
+      }
+    })
+
+    await closable.find('.aheart-modal__mask').trigger('click')
+
+    expect(closable.emitted('update:open')?.[0]).toEqual([false])
+  })
+
   it('closes from Escape only when keyboard is true', async () => {
     const closable = mount(Modal, { props: { open: true } })
     await closable.find('.aheart-modal').trigger('keydown', { key: 'Escape' })

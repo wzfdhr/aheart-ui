@@ -5,6 +5,7 @@ const basicOpen = ref(false)
 const closeControlsOpen = ref(false)
 const renderableOpen = ref(false)
 const renderWrapperOpen = ref(false)
+const maskConfigOpen = ref(false)
 const footerOpen = ref(false)
 const centeredOpen = ref(false)
 const loadingOpen = ref(false)
@@ -155,6 +156,37 @@ const modalRender = (node: VNodeChild) =>
 </template>
 ```
 
+## 遮罩配置
+
+<div class="aheart-demo-panel">
+  <AButton @click="maskConfigOpen = true">Mask config</AButton>
+  <AModal
+    v-model:open="maskConfigOpen"
+    title="Mask config"
+    :mask="{ blur: true, closable: false }"
+  >
+    The blurred mask stays visible, and mask clicks do not close this modal.
+  </AModal>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const open = ref(false)
+</script>
+
+<template>
+  <AModal
+    v-model:open="open"
+    title="Mask config"
+    :mask="{ blur: true, closable: false }"
+  >
+    The blurred mask stays visible, and mask clicks do not close this modal.
+  </AModal>
+</template>
+```
+
 ## 自定义页脚
 
 <div class="aheart-demo-panel">
@@ -279,8 +311,8 @@ const modalRender = (node: VNodeChild) =>
 | centered | 是否垂直居中 | `boolean` | `false` |
 | closable | 是否显示右上角关闭按钮，可配置关闭图标或禁用关闭按钮 | `boolean` \| `{ closeIcon?: VNodeChild; disabled?: boolean }` | `true` |
 | closeIcon | 自定义关闭图标，传入 `false` 或 `null` 时隐藏关闭按钮 | `VNodeChild` | `×` |
-| mask | 是否显示遮罩 | `boolean` | `true` |
-| maskClosable | 点击遮罩是否关闭 | `boolean` | `true` |
+| mask | 遮罩配置 | `boolean` \| `{ enabled?: boolean; blur?: boolean; closable?: boolean }` | `true` |
+| maskClosable | 点击遮罩是否关闭；优先使用 `mask.closable` | `boolean` | `true` |
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |
 | confirmLoading | OK 按钮是否显示加载态 | `boolean` | `false` |
 | okText | OK 按钮文本 | `VNodeChild` | `OK` |
@@ -302,6 +334,16 @@ const modalRender = (node: VNodeChild) =>
 | forceRender | 关闭时也预渲染对话框结构 | `boolean` | `false` |
 | destroyOnClose | 关闭后销毁内容；兼容旧命名 | `boolean` | `false` |
 | destroyOnHidden | 关闭后销毁内容 | `boolean` | `false` |
+
+### ModalMaskConfig
+
+```ts
+interface ModalMaskConfig {
+  enabled?: boolean
+  blur?: boolean
+  closable?: boolean
+}
+```
 
 ### ModalSemanticPart
 

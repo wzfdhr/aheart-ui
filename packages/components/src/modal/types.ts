@@ -10,6 +10,14 @@ export type ModalButtonProps = Partial<ButtonProps>
 export type ModalRenderable = VNodeChild
 export type ModalRender = (node: ModalRenderable) => ModalRenderable
 
+export interface ModalMaskConfig {
+  enabled?: boolean
+  blur?: boolean
+  closable?: boolean
+}
+
+export type ModalMask = boolean | ModalMaskConfig
+
 export interface ModalFooterRenderExtra {
   okButton: ModalRenderable
   cancelButton: ModalRenderable
@@ -47,7 +55,7 @@ export const modalProps = {
     default: undefined
   },
   mask: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<ModalMask>,
     default: true
   },
   maskClosable: {

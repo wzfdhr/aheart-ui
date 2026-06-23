@@ -8,7 +8,7 @@
     tabindex="-1"
     @keydown="handleKeydown"
   >
-    <div v-if="mask" :class="maskClass" :style="semanticStyle('mask')" @click="handleMaskClick" />
+    <div v-if="isMaskVisible" :class="maskClass" :style="semanticStyle('mask')" @click="handleMaskClick" />
     <div :class="wrapClass" :style="semanticStyle('wrap')">
       <AModalRenderWrapper :renderer="modalRender">
         <section
@@ -60,6 +60,7 @@ import {
   type ModalButtonProps,
   type ModalClosableConfig,
   type ModalFooterRenderExtra,
+  type ModalMaskConfig,
   type ModalRender,
   type ModalSemanticPart
 } from './types'
@@ -103,6 +104,9 @@ const AModalRenderWrapper = defineComponent({
 const isClosableConfig = (value: typeof props.closable): value is ModalClosableConfig =>
   typeof value === 'object' && value !== null
 
+const isMaskConfig = (value: typeof props.mask): value is ModalMaskConfig =>
+  typeof value === 'object' && value !== null
+
 const hasRenderable = (value: unknown) => {
   if (Array.isArray(value)) {
     return value.length > 0
@@ -133,7 +137,17 @@ const hasHeader = computed(() => hasTitle.value || showCloseButton.value)
 const hasFooter = computed(() => Boolean(slots.footer) || (props.footer !== false && props.footer !== null))
 
 const rootClass = computed(() => ['aheart-modal', props.rootClassName, semanticClass('root')])
-const maskClass = computed(() => ['aheart-modal__mask', semanticClass('mask')])
+const maskConfig = computed(() => (isMaskConfig(props.mask) ? props.mask : undefined))
+const isMaskVisible = computed(() => (props.mask === false ? false : maskConfig.value?.enabled !== false))
+const isMaskBlurred = computed(() => maskConfig.value?.blur === true)
+const isMaskClosable = computed(() => maskConfig.value?.closable ?? props.maskClosable)
+const maskClass = computed(() => [
+  'aheart-modal__mask',
+  {
+    'is-blur': isMaskBlurred.value
+  },
+  semanticClass('mask')
+])
 const wrapClass = computed(() => ['aheart-modal__wrap', props.wrapClassName, semanticClass('wrap')])
 const dialogClass = computed(() => [
   'aheart-modal__dialog',
@@ -266,7 +280,7 @@ const handleCancel = () => {
 }
 
 const handleMaskClick = () => {
-  if (props.maskClosable) {
+  if (isMaskClosable.value) {
     close()
   }
 }

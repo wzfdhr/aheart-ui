@@ -42,6 +42,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
+    const isMaskConfig = (value) => typeof value === "object" && value !== null;
     const hasRenderable = (value) => {
       if (Array.isArray(value)) {
         return value.length > 0;
@@ -65,7 +66,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasHeader = computed(() => hasTitle.value || showCloseButton.value);
     const hasFooter = computed(() => Boolean(slots.footer) || props.footer !== false && props.footer !== null);
     const rootClass = computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
-    const maskClass = computed(() => ["aheart-modal__mask", semanticClass("mask")]);
+    const maskConfig = computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
+    const isMaskVisible = computed(() => {
+      var _a;
+      return props.mask === false ? false : ((_a = maskConfig.value) == null ? void 0 : _a.enabled) !== false;
+    });
+    const isMaskBlurred = computed(() => {
+      var _a;
+      return ((_a = maskConfig.value) == null ? void 0 : _a.blur) === true;
+    });
+    const isMaskClosable = computed(() => {
+      var _a;
+      return ((_a = maskConfig.value) == null ? void 0 : _a.closable) ?? props.maskClosable;
+    });
+    const maskClass = computed(() => [
+      "aheart-modal__mask",
+      {
+        "is-blur": isMaskBlurred.value
+      },
+      semanticClass("mask")
+    ]);
     const wrapClass = computed(() => ["aheart-modal__wrap", props.wrapClassName, semanticClass("wrap")]);
     const dialogClass = computed(() => [
       "aheart-modal__dialog",
@@ -189,7 +209,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       close();
     };
     const handleMaskClick = () => {
-      if (props.maskClosable) {
+      if (isMaskClosable.value) {
         close();
       }
     };
@@ -207,7 +227,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         tabindex: "-1",
         onKeydown: handleKeydown
       }, [
-        _ctx.mask ? (openBlock(), createElementBlock("div", {
+        isMaskVisible.value ? (openBlock(), createElementBlock("div", {
           key: 0,
           class: normalizeClass(maskClass.value),
           style: normalizeStyle(semanticStyle("mask")),

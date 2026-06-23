@@ -7,6 +7,12 @@ export type ModalStyles = Partial<Record<ModalSemanticPart, CSSProperties>>;
 export type ModalButtonProps = Partial<ButtonProps>;
 export type ModalRenderable = VNodeChild;
 export type ModalRender = (node: ModalRenderable) => ModalRenderable;
+export interface ModalMaskConfig {
+    enabled?: boolean;
+    blur?: boolean;
+    closable?: boolean;
+}
+export type ModalMask = boolean | ModalMaskConfig;
 export interface ModalFooterRenderExtra {
     okButton: ModalRenderable;
     cancelButton: ModalRenderable;
@@ -40,7 +46,7 @@ export declare const modalProps: {
         readonly default: undefined;
     };
     readonly mask: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<ModalMask>;
         readonly default: true;
     };
     readonly maskClosable: {
