@@ -65,6 +65,12 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly bodyStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly headerStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly footerStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly maskStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly drawerStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly contentWrapperStyle: import("vue").PropType<import("vue").CSSProperties>;
         readonly classNames: import("vue").PropType<import("./types").DrawerClassNames>;
         readonly styles: import("vue").PropType<import("./types").DrawerStyles>;
         readonly forceRender: BooleanConstructor;
@@ -171,6 +177,12 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly bodyStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly headerStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly footerStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly maskStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly drawerStyle: import("vue").PropType<import("vue").CSSProperties>;
+        readonly contentWrapperStyle: import("vue").PropType<import("vue").CSSProperties>;
         readonly classNames: import("vue").PropType<import("./types").DrawerClassNames>;
         readonly styles: import("vue").PropType<import("./types").DrawerStyles>;
         readonly forceRender: BooleanConstructor;
@@ -270,6 +282,12 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
+    readonly bodyStyle: import("vue").PropType<import("vue").CSSProperties>;
+    readonly headerStyle: import("vue").PropType<import("vue").CSSProperties>;
+    readonly footerStyle: import("vue").PropType<import("vue").CSSProperties>;
+    readonly maskStyle: import("vue").PropType<import("vue").CSSProperties>;
+    readonly drawerStyle: import("vue").PropType<import("vue").CSSProperties>;
+    readonly contentWrapperStyle: import("vue").PropType<import("vue").CSSProperties>;
     readonly classNames: import("vue").PropType<import("./types").DrawerClassNames>;
     readonly styles: import("vue").PropType<import("./types").DrawerStyles>;
     readonly forceRender: BooleanConstructor;

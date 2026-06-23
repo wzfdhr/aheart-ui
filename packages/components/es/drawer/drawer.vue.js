@@ -132,10 +132,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const panelStyle = computed(
       () => isVertical.value ? {
         ...props.style,
+        ...props.drawerStyle,
+        ...props.contentWrapperStyle,
         ...semanticStyle("section"),
         height: normalizeSize(props.height ?? resolvedSize.value)
       } : {
         ...props.style,
+        ...props.drawerStyle,
+        ...props.contentWrapperStyle,
         ...semanticStyle("section"),
         width: normalizeSize(props.width ?? resolvedSize.value)
       }
@@ -145,7 +149,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       ...semanticStyle("root"),
       zIndex: props.zIndex
     }));
-    const maskStyle = computed(() => semanticStyle("mask"));
+    const mergedMaskStyle = computed(() => ({
+      ...props.maskStyle,
+      ...semanticStyle("mask")
+    }));
+    const mergedHeaderStyle = computed(() => ({
+      ...props.headerStyle,
+      ...semanticStyle("header")
+    }));
+    const mergedBodyStyle = computed(() => ({
+      ...props.bodyStyle,
+      ...semanticStyle("body")
+    }));
+    const mergedFooterStyle = computed(() => ({
+      ...props.footerStyle,
+      ...semanticStyle("footer")
+    }));
     const shouldHideFooter = computed(() => props.footer === false || props.footer === null);
     const shouldRenderFooterProp = computed(() => isRenderableNode(props.footer));
     const hasFooter = computed(
@@ -283,7 +302,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           showMask.value ? (openBlock(), createElementBlock("div", {
             key: 0,
             class: normalizeClass(maskClass.value),
-            style: normalizeStyle(maskStyle.value),
+            style: normalizeStyle(mergedMaskStyle.value),
             onClick: handleMaskClick
           }, null, 6)) : createCommentVNode("", true),
           createVNode(unref(ADrawerRenderWrapper), { renderer: _ctx.drawerRender }, {
@@ -300,7 +319,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 hasHeader.value ? (openBlock(), createElementBlock("header", {
                   key: 0,
                   class: normalizeClass(headerClass.value),
-                  style: normalizeStyle(semanticStyle("header"))
+                  style: normalizeStyle(mergedHeaderStyle.value)
                 }, [
                   showCloseButton.value && !isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
                     key: 0,
@@ -345,7 +364,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 ], 6)) : createCommentVNode("", true),
                 createElementVNode("div", {
                   class: normalizeClass(bodyClass.value),
-                  style: normalizeStyle(semanticStyle("body"))
+                  style: normalizeStyle(mergedBodyStyle.value)
                 }, [
                   _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
                     key: 0,
@@ -356,7 +375,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 hasFooter.value ? (openBlock(), createElementBlock("footer", {
                   key: 1,
                   class: normalizeClass(footerClass.value),
-                  style: normalizeStyle(semanticStyle("footer"))
+                  style: normalizeStyle(mergedFooterStyle.value)
                 }, [
                   renderSlot(_ctx.$slots, "footer", {}, () => [
                     shouldRenderFooterProp.value ? (openBlock(), createBlock(unref(ADrawerRenderNode), {

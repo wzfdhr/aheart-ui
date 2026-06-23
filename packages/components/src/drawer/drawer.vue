@@ -9,7 +9,7 @@
       tabindex="-1"
       @keydown="handleKeydown"
     >
-      <div v-if="showMask" :class="maskClass" :style="maskStyle" @click="handleMaskClick" />
+      <div v-if="showMask" :class="maskClass" :style="mergedMaskStyle" @click="handleMaskClick" />
       <ADrawerRenderWrapper :renderer="drawerRender">
         <section
           ref="panelRef"
@@ -19,7 +19,7 @@
           aria-modal="true"
           tabindex="-1"
         >
-          <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
+          <header v-if="hasHeader" :class="headerClass" :style="mergedHeaderStyle">
             <button
               v-if="showCloseButton && !isCloseAtEnd"
               :class="closeClass"
@@ -53,11 +53,11 @@
               <ADrawerRenderNode :node="resolvedCloseIcon" />
             </button>
           </header>
-          <div :class="bodyClass" :style="semanticStyle('body')">
+          <div :class="bodyClass" :style="mergedBodyStyle">
             <ASkeleton v-if="loading" active :paragraph="{ rows: 4 }" />
             <slot v-else />
           </div>
-          <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
+          <footer v-if="hasFooter" :class="footerClass" :style="mergedFooterStyle">
             <slot name="footer">
               <ADrawerRenderNode v-if="shouldRenderFooterProp" :node="footer" />
             </slot>
@@ -210,11 +210,15 @@ const panelStyle = computed(() =>
   isVertical.value
     ? {
         ...props.style,
+        ...props.drawerStyle,
+        ...props.contentWrapperStyle,
         ...semanticStyle('section'),
         height: normalizeSize(props.height ?? resolvedSize.value)
       }
     : {
         ...props.style,
+        ...props.drawerStyle,
+        ...props.contentWrapperStyle,
         ...semanticStyle('section'),
         width: normalizeSize(props.width ?? resolvedSize.value)
       }
@@ -226,7 +230,22 @@ const rootStyle = computed(() => ({
   zIndex: props.zIndex
 }))
 
-const maskStyle = computed(() => semanticStyle('mask'))
+const mergedMaskStyle = computed(() => ({
+  ...props.maskStyle,
+  ...semanticStyle('mask')
+}))
+const mergedHeaderStyle = computed(() => ({
+  ...props.headerStyle,
+  ...semanticStyle('header')
+}))
+const mergedBodyStyle = computed(() => ({
+  ...props.bodyStyle,
+  ...semanticStyle('body')
+}))
+const mergedFooterStyle = computed(() => ({
+  ...props.footerStyle,
+  ...semanticStyle('footer')
+}))
 const shouldHideFooter = computed(() => props.footer === false || props.footer === null)
 const shouldRenderFooterProp = computed(() => isRenderableNode(props.footer))
 const hasFooter = computed(

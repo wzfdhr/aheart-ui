@@ -103,6 +103,12 @@ export declare const drawerProps: {
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
+    readonly bodyStyle: PropType<CSSProperties>;
+    readonly headerStyle: PropType<CSSProperties>;
+    readonly footerStyle: PropType<CSSProperties>;
+    readonly maskStyle: PropType<CSSProperties>;
+    readonly drawerStyle: PropType<CSSProperties>;
+    readonly contentWrapperStyle: PropType<CSSProperties>;
     readonly classNames: PropType<DrawerClassNames>;
     readonly styles: PropType<DrawerStyles>;
     readonly forceRender: BooleanConstructor;

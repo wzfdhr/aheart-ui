@@ -66,6 +66,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
+    readonly bodyStyle: PropType<CSSProperties>;
+    readonly headerStyle: PropType<CSSProperties>;
+    readonly footerStyle: PropType<CSSProperties>;
+    readonly maskStyle: PropType<CSSProperties>;
+    readonly drawerStyle: PropType<CSSProperties>;
+    readonly contentWrapperStyle: PropType<CSSProperties>;
     readonly classNames: PropType<import("./types").DrawerClassNames>;
     readonly styles: PropType<import("./types").DrawerStyles>;
     readonly forceRender: BooleanConstructor;
@@ -141,6 +147,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
+    readonly bodyStyle: PropType<CSSProperties>;
+    readonly headerStyle: PropType<CSSProperties>;
+    readonly footerStyle: PropType<CSSProperties>;
+    readonly maskStyle: PropType<CSSProperties>;
+    readonly drawerStyle: PropType<CSSProperties>;
+    readonly contentWrapperStyle: PropType<CSSProperties>;
     readonly classNames: PropType<import("./types").DrawerClassNames>;
     readonly styles: PropType<import("./types").DrawerStyles>;
     readonly forceRender: BooleanConstructor;

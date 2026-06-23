@@ -317,6 +317,12 @@ const open = ref(false)
 | rootClassName | 根节点自定义类名 | `string` | - |
 | style | 面板自定义样式 | `CSSProperties` | - |
 | rootStyle | 根节点自定义样式 | `CSSProperties` | - |
+| bodyStyle | 内容区样式别名；新代码优先使用 `styles.body` | `CSSProperties` | - |
+| headerStyle | 头部样式别名；新代码优先使用 `styles.header` | `CSSProperties` | - |
+| footerStyle | 页脚样式别名；新代码优先使用 `styles.footer` | `CSSProperties` | - |
+| maskStyle | 遮罩样式别名；新代码优先使用 `styles.mask` | `CSSProperties` | - |
+| drawerStyle | 面板样式别名；新代码优先使用 `styles.section` | `CSSProperties` | - |
+| contentWrapperStyle | 面板外层样式兼容别名；当前映射到 `styles.section` | `CSSProperties` | - |
 | classNames | 语义化结构类名，支持对象或函数 | `Partial<Record<DrawerSemanticPart, string>>` \| `(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, string>>` | - |
 | styles | 语义化结构样式，支持对象或函数 | `Partial<Record<DrawerSemanticPart, CSSProperties>>` \| `(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, CSSProperties>>` | - |
 | forceRender | 关闭时也预渲染抽屉结构 | `boolean` | `false` |

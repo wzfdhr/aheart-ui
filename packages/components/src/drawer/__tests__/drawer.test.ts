@@ -242,6 +242,69 @@ describe('Drawer', () => {
     expect(wrapper.find('.aheart-drawer__body').attributes('style')).toContain('padding: 32px')
   })
 
+  it('applies deprecated Ant style aliases to drawer elements', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Alias styled drawer',
+        footer: true,
+        width: 320,
+        maskStyle: { opacity: '0.3' },
+        headerStyle: { padding: '12px' },
+        bodyStyle: { backgroundColor: 'rgb(10, 11, 12)' },
+        footerStyle: { justifyContent: 'flex-start' },
+        drawerStyle: { borderInlineStart: '2px solid rgb(1, 2, 3)' },
+        contentWrapperStyle: { maxWidth: '80vw' }
+      },
+      slots: {
+        default: 'Alias body',
+        footer: 'Alias footer'
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer__mask').attributes('style')).toContain('opacity: 0.3')
+    expect(wrapper.find('.aheart-drawer__header').attributes('style')).toContain('padding: 12px')
+    expect(wrapper.find('.aheart-drawer__body').attributes('style')).toContain('background-color: rgb(10, 11, 12)')
+    expect(wrapper.find('.aheart-drawer__footer').attributes('style')).toContain('justify-content: flex-start')
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain(
+      'border-inline-start: 2px solid rgb(1, 2, 3)'
+    )
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('max-width: 80vw')
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('width: 320px')
+  })
+
+  it('lets semantic styles override deprecated style aliases', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Override styled drawer',
+        footer: true,
+        maskStyle: { opacity: '0.2' },
+        headerStyle: { padding: '4px' },
+        bodyStyle: { padding: '4px' },
+        footerStyle: { justifyContent: 'flex-start' },
+        drawerStyle: { maxWidth: '70vw' },
+        styles: {
+          mask: { opacity: '0.8' },
+          header: { padding: '16px' },
+          body: { padding: '28px' },
+          footer: { justifyContent: 'flex-end' },
+          section: { maxWidth: '90vw' }
+        }
+      },
+      slots: {
+        default: 'Override body',
+        footer: 'Override footer'
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer__mask').attributes('style')).toContain('opacity: 0.8')
+    expect(wrapper.find('.aheart-drawer__header').attributes('style')).toContain('padding: 16px')
+    expect(wrapper.find('.aheart-drawer__body').attributes('style')).toContain('padding: 28px')
+    expect(wrapper.find('.aheart-drawer__footer').attributes('style')).toContain('justify-content: flex-end')
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('max-width: 90vw')
+  })
+
   it('supports afterOpenChange forceRender and destroyOnHidden', async () => {
     const persistent = mountDrawer({
       props: { open: false, forceRender: true, title: 'Pre-rendered' }

@@ -134,10 +134,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const panelStyle = vue.computed(
       () => isVertical.value ? {
         ...props.style,
+        ...props.drawerStyle,
+        ...props.contentWrapperStyle,
         ...semanticStyle("section"),
         height: normalizeSize(props.height ?? resolvedSize.value)
       } : {
         ...props.style,
+        ...props.drawerStyle,
+        ...props.contentWrapperStyle,
         ...semanticStyle("section"),
         width: normalizeSize(props.width ?? resolvedSize.value)
       }
@@ -147,7 +151,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       ...semanticStyle("root"),
       zIndex: props.zIndex
     }));
-    const maskStyle = vue.computed(() => semanticStyle("mask"));
+    const mergedMaskStyle = vue.computed(() => ({
+      ...props.maskStyle,
+      ...semanticStyle("mask")
+    }));
+    const mergedHeaderStyle = vue.computed(() => ({
+      ...props.headerStyle,
+      ...semanticStyle("header")
+    }));
+    const mergedBodyStyle = vue.computed(() => ({
+      ...props.bodyStyle,
+      ...semanticStyle("body")
+    }));
+    const mergedFooterStyle = vue.computed(() => ({
+      ...props.footerStyle,
+      ...semanticStyle("footer")
+    }));
     const shouldHideFooter = vue.computed(() => props.footer === false || props.footer === null);
     const shouldRenderFooterProp = vue.computed(() => isRenderableNode(props.footer));
     const hasFooter = vue.computed(
@@ -285,7 +304,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           showMask.value ? (vue.openBlock(), vue.createElementBlock("div", {
             key: 0,
             class: vue.normalizeClass(maskClass.value),
-            style: vue.normalizeStyle(maskStyle.value),
+            style: vue.normalizeStyle(mergedMaskStyle.value),
             onClick: handleMaskClick
           }, null, 6)) : vue.createCommentVNode("", true),
           vue.createVNode(vue.unref(ADrawerRenderWrapper), { renderer: _ctx.drawerRender }, {
@@ -302,7 +321,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
                   key: 0,
                   class: vue.normalizeClass(headerClass.value),
-                  style: vue.normalizeStyle(semanticStyle("header"))
+                  style: vue.normalizeStyle(mergedHeaderStyle.value)
                 }, [
                   showCloseButton.value && !isCloseAtEnd.value ? (vue.openBlock(), vue.createElementBlock("button", {
                     key: 0,
@@ -347,7 +366,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 ], 6)) : vue.createCommentVNode("", true),
                 vue.createElementVNode("div", {
                   class: vue.normalizeClass(bodyClass.value),
-                  style: vue.normalizeStyle(semanticStyle("body"))
+                  style: vue.normalizeStyle(mergedBodyStyle.value)
                 }, [
                   _ctx.loading ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), {
                     key: 0,
@@ -358,7 +377,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 hasFooter.value ? (vue.openBlock(), vue.createElementBlock("footer", {
                   key: 1,
                   class: vue.normalizeClass(footerClass.value),
-                  style: vue.normalizeStyle(semanticStyle("footer"))
+                  style: vue.normalizeStyle(mergedFooterStyle.value)
                 }, [
                   vue.renderSlot(_ctx.$slots, "footer", {}, () => [
                     shouldRenderFooterProp.value ? (vue.openBlock(), vue.createBlock(vue.unref(ADrawerRenderNode), {
