@@ -1,8 +1,14 @@
 const drawerPlacements = ["top", "right", "bottom", "left"];
 const drawerProps = {
   open: Boolean,
-  title: String,
-  extra: [String, Number],
+  title: {
+    type: [String, Number, Boolean, Object, Array, Function],
+    default: void 0
+  },
+  extra: {
+    type: [String, Number, Boolean, Object, Array, Function],
+    default: void 0
+  },
   placement: {
     type: String,
     default: "right",
@@ -45,7 +51,10 @@ const drawerProps = {
     default: true
   },
   loading: Boolean,
-  footer: Boolean,
+  footer: {
+    type: [Boolean, String, Number, Object, Array, Function],
+    default: void 0
+  },
   getContainer: {
     type: [String, Object, Function, Boolean],
     default: void 0

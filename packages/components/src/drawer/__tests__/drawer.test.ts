@@ -71,6 +71,74 @@ describe('Drawer', () => {
     expect(wrapper.find('.aheart-drawer__extra').text()).toBe('Refresh')
   })
 
+  it('renders VNode title extra and footer props', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: h('span', { class: 'render-title' }, 'Render title'),
+        extra: h('button', { class: 'render-extra' }, 'Render extra'),
+        footer: h('div', { class: 'render-footer' }, 'Render footer')
+      }
+    })
+
+    expect(wrapper.find('.render-title').text()).toBe('Render title')
+    expect(wrapper.find('.render-extra').text()).toBe('Render extra')
+    expect(wrapper.find('.render-footer').text()).toBe('Render footer')
+  })
+
+  it('lets title extra and footer slots override renderable props', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: h('span', { class: 'prop-title' }, 'Prop title'),
+        extra: h('span', { class: 'prop-extra' }, 'Prop extra'),
+        footer: h('span', { class: 'prop-footer' }, 'Prop footer')
+      },
+      slots: {
+        title: '<span class="slot-title">Slot title</span>',
+        extra: '<span class="slot-extra">Slot extra</span>',
+        footer: '<span class="slot-footer">Slot footer</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-title').text()).toBe('Slot title')
+    expect(wrapper.find('.slot-extra').text()).toBe('Slot extra')
+    expect(wrapper.find('.slot-footer').text()).toBe('Slot footer')
+    expect(wrapper.find('.prop-title').exists()).toBe(false)
+    expect(wrapper.find('.prop-extra').exists()).toBe(false)
+    expect(wrapper.find('.prop-footer').exists()).toBe(false)
+  })
+
+  it('renders numeric zero title extra and footer props', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 0,
+        extra: 0,
+        footer: 0
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer__title').text()).toBe('0')
+    expect(wrapper.find('.aheart-drawer__extra').text()).toBe('0')
+    expect(wrapper.find('.aheart-drawer__footer').text()).toBe('0')
+  })
+
+  it('hides footer slot when footer is null', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        footer: null
+      },
+      slots: {
+        footer: '<span class="hidden-footer">Hidden footer</span>'
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer__footer').exists()).toBe(false)
+    expect(wrapper.find('.hidden-footer').exists()).toBe(false)
+  })
+
   it('applies root panel semantic classes styles and z-index', () => {
     const wrapper = mountDrawer({
       props: {

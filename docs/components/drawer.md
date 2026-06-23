@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 const basicOpen = ref(false)
 const leftOpen = ref(false)
 const bottomOpen = ref(false)
 const loadingOpen = ref(false)
+const renderableOpen = ref(false)
 const closeControlsOpen = ref(false)
 const styledOpen = ref(false)
+const renderableTitle = h('span', { class: 'docs-drawer-renderable-title' }, 'Review profile')
+const renderableExtra = h('span', { class: 'docs-drawer-renderable-extra' }, 'Synced')
+const renderableFooter = h('div', { class: 'docs-drawer-renderable-footer' }, 'Footer content can come from props.')
 </script>
 
 # Drawer 抽屉 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -102,6 +106,37 @@ const open = ref(false)
 
 `size="default"` uses the standard drawer width or height, while `size="large"` gives workflows more room. A number or CSS length can be passed to `size`; `width` and `height` still override the resolved size for compatibility.
 
+## 可渲染内容
+
+<div class="aheart-demo-panel">
+  <AButton @click="renderableOpen = true">Renderable drawer</AButton>
+  <ADrawer
+    v-model:open="renderableOpen"
+    :title="renderableTitle"
+    :extra="renderableExtra"
+    :footer="renderableFooter"
+  >
+    Title, extra, and footer can come from renderable props or slots.
+  </ADrawer>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+
+const open = ref(false)
+const title = h('span', { class: 'workspace-title' }, 'Review profile')
+const extra = h('span', { class: 'workspace-extra' }, 'Synced')
+const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come from props.')
+</script>
+
+<template>
+  <ADrawer v-model:open="open" :title="title" :extra="extra" :footer="footer">
+    Title, extra, and footer can come from renderable props or slots.
+  </ADrawer>
+</template>
+```
+
 ## 关闭按钮
 
 <div class="aheart-demo-panel">
@@ -169,8 +204,8 @@ const open = ref(false)
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | open | 是否显示抽屉 | `boolean` | `false` |
-| title | 标题内容 | `string` | - |
-| extra | 标题栏右侧额外内容文本；复杂内容建议使用 `extra` slot | `string` \| `number` | - |
+| title | 标题内容 | `DrawerRenderable` | - |
+| extra | 标题栏右侧额外内容；复杂内容也可使用 `extra` slot | `DrawerRenderable` | - |
 | placement | 抽屉出现位置 | `top` \| `right` \| `bottom` \| `left` | `right` |
 | size | 抽屉预设尺寸或自定义尺寸 | `default` \| `large` \| `number` \| `string` | `default` |
 | width | 左右方向抽屉宽度 | `number` \| `string` | `378` |
@@ -182,7 +217,7 @@ const open = ref(false)
 | maskClosable | 点击遮罩是否关闭 | `boolean` | `true` |
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
-| footer | 是否显示页脚区域 | `boolean` | `false` |
+| footer | 页脚内容；`true` 可只显示 footer slot，`false` 或 `null` 隐藏页脚 | `boolean` \| `DrawerRenderable` | - |
 | getContainer | 指定 Drawer 挂载容器；传入 `false` 时保持内联渲染 | `HTMLElement` \| `string` \| `() => HTMLElement` \| `false` | `document.body` |
 | className | 面板自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
@@ -202,6 +237,12 @@ const open = ref(false)
 
 ```ts
 type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
+```
+
+### DrawerRenderable
+
+```ts
+type DrawerRenderable = VNodeChild
 ```
 
 ### DrawerClosableConfig

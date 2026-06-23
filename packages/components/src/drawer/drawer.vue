@@ -28,11 +28,15 @@
           >
             <ADrawerRenderNode :node="resolvedCloseIcon" />
           </button>
-          <div v-if="title || $slots.title" :class="titleClass" :style="semanticStyle('title')">
-            <slot name="title">{{ title }}</slot>
+          <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
+            <slot name="title">
+              <ADrawerRenderNode :node="title" />
+            </slot>
           </div>
           <div v-if="hasExtra" :class="extraClass" :style="semanticStyle('extra')">
-            <slot name="extra">{{ extra }}</slot>
+            <slot name="extra">
+              <ADrawerRenderNode :node="extra" />
+            </slot>
           </div>
           <button
             v-if="showCloseButton && isCloseAtEnd"
@@ -51,7 +55,9 @@
           <slot v-else />
         </div>
         <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
-          <slot name="footer" />
+          <slot name="footer">
+            <ADrawerRenderNode v-if="shouldRenderFooterProp" :node="footer" />
+          </slot>
         </footer>
       </section>
     </div>
@@ -100,6 +106,8 @@ const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : tel
 const isVertical = computed(() => props.placement === 'top' || props.placement === 'bottom')
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose)
 const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
+const isRenderableNode = (value: VNodeChild) =>
+  value !== undefined && value !== null && value !== false && value !== true && value !== ''
 const isClosableConfig = (value: typeof props.closable): value is DrawerClosableConfig =>
   typeof value === 'object' && value !== null
 const closableConfig = computed(() => (isClosableConfig(props.closable) ? props.closable : undefined))
@@ -120,8 +128,9 @@ const showCloseButton = computed(
 const isCloseButtonDisabled = computed(() => closableConfig.value?.disabled === true)
 const closePlacement = computed(() => closableConfig.value?.placement ?? 'start')
 const isCloseAtEnd = computed(() => closePlacement.value === 'end')
-const hasExtra = computed(() => Boolean(slots.extra) || props.extra !== undefined)
-const hasHeader = computed(() => Boolean(props.title || slots.title || hasExtra.value || showCloseButton.value))
+const hasTitle = computed(() => Boolean(slots.title) || isRenderableNode(props.title))
+const hasExtra = computed(() => Boolean(slots.extra) || isRenderableNode(props.extra))
+const hasHeader = computed(() => hasTitle.value || hasExtra.value || showCloseButton.value)
 
 const resolvedSize = computed(() => {
   if (props.size === 'large') {
@@ -156,7 +165,11 @@ const rootStyle = computed(() => ({
 }))
 
 const maskStyle = computed(() => semanticStyle('mask'))
-const hasFooter = computed(() => props.footer || Boolean(slots.footer))
+const shouldHideFooter = computed(() => props.footer === false || props.footer === null)
+const shouldRenderFooterProp = computed(() => isRenderableNode(props.footer))
+const hasFooter = computed(
+  () => !shouldHideFooter.value && (Boolean(slots.footer) || props.footer === true || shouldRenderFooterProp.value)
+)
 
 const rootClass = computed(() => ['aheart-drawer', props.rootClassName, semanticClass('root')])
 const maskClass = computed(() => ['aheart-drawer__mask', semanticClass('mask')])

@@ -9,6 +9,10 @@ export type DrawerSemanticPart = (typeof drawerSemanticParts)[number];
 export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>;
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>;
 export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false;
+export type DrawerRenderable = VNodeChild;
+export type DrawerTitle = DrawerRenderable;
+export type DrawerExtra = DrawerRenderable;
+export type DrawerFooter = boolean | DrawerRenderable;
 export type DrawerClosePlacement = 'start' | 'end';
 export type DrawerCloseIcon = VNodeChild;
 export interface DrawerClosableConfig {
@@ -19,8 +23,14 @@ export interface DrawerClosableConfig {
 export type DrawerClosable = boolean | DrawerClosableConfig;
 export declare const drawerProps: {
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
-    readonly extra: PropType<string | number>;
+    readonly title: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
+    readonly extra: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly placement: {
         readonly type: PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
@@ -63,7 +73,10 @@ export declare const drawerProps: {
         readonly default: true;
     };
     readonly loading: BooleanConstructor;
-    readonly footer: BooleanConstructor;
+    readonly footer: {
+        readonly type: PropType<DrawerFooter>;
+        readonly default: undefined;
+    };
     readonly getContainer: {
         readonly type: PropType<DrawerGetContainer>;
         readonly default: undefined;

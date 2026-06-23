@@ -1,8 +1,14 @@
 import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
-    readonly extra: PropType<string | number>;
+    readonly title: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
+    readonly extra: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly placement: {
         readonly type: PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
@@ -45,7 +51,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly loading: BooleanConstructor;
-    readonly footer: BooleanConstructor;
+    readonly footer: {
+        readonly type: PropType<import("./types").DrawerFooter>;
+        readonly default: undefined;
+    };
     readonly getContainer: {
         readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
@@ -65,8 +74,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     afterOpenChange: (open: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
-    readonly extra: PropType<string | number>;
+    readonly title: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
+    readonly extra: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly placement: {
         readonly type: PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
@@ -109,7 +124,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly loading: BooleanConstructor;
-    readonly footer: BooleanConstructor;
+    readonly footer: {
+        readonly type: PropType<import("./types").DrawerFooter>;
+        readonly default: undefined;
+    };
     readonly getContainer: {
         readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
@@ -128,17 +146,19 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
+    readonly title: VNodeChild;
     readonly closable: import("./types").DrawerClosable;
     readonly closeIcon: VNodeChild;
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
-    readonly footer: boolean;
+    readonly footer: import("./types").DrawerFooter;
     readonly mask: boolean;
     readonly height: string | number;
     readonly width: string | number;
     readonly zIndex: number;
     readonly placement: "left" | "right" | "bottom" | "top";
     readonly loading: boolean;
+    readonly extra: VNodeChild;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly getContainer: import("./types").DrawerGetContainer;

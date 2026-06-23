@@ -11,6 +11,10 @@ export type DrawerSemanticPart = (typeof drawerSemanticParts)[number]
 export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>
 export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
+export type DrawerRenderable = VNodeChild
+export type DrawerTitle = DrawerRenderable
+export type DrawerExtra = DrawerRenderable
+export type DrawerFooter = boolean | DrawerRenderable
 export type DrawerClosePlacement = 'start' | 'end'
 export type DrawerCloseIcon = VNodeChild
 
@@ -24,8 +28,14 @@ export type DrawerClosable = boolean | DrawerClosableConfig
 
 export const drawerProps = {
   open: Boolean,
-  title: String,
-  extra: [String, Number] as PropType<string | number>,
+  title: {
+    type: [String, Number, Boolean, Object, Array, Function] as PropType<DrawerTitle>,
+    default: undefined
+  },
+  extra: {
+    type: [String, Number, Boolean, Object, Array, Function] as PropType<DrawerExtra>,
+    default: undefined
+  },
   placement: {
     type: String as PropType<DrawerPlacement>,
     default: 'right',
@@ -68,7 +78,10 @@ export const drawerProps = {
     default: true
   },
   loading: Boolean,
-  footer: Boolean,
+  footer: {
+    type: [Boolean, String, Number, Object, Array, Function] as PropType<DrawerFooter>,
+    default: undefined
+  },
   getContainer: {
     type: [String, Object, Function, Boolean] as PropType<DrawerGetContainer>,
     default: undefined

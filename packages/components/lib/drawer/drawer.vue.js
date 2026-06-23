@@ -42,6 +42,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isVertical = vue.computed(() => props.placement === "top" || props.placement === "bottom");
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
+    const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
     const closableConfig = vue.computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
     const resolvedCloseIcon = vue.computed(() => {
@@ -66,8 +67,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return ((_a = closableConfig.value) == null ? void 0 : _a.placement) ?? "start";
     });
     const isCloseAtEnd = vue.computed(() => closePlacement.value === "end");
-    const hasExtra = vue.computed(() => Boolean(slots.extra) || props.extra !== void 0);
-    const hasHeader = vue.computed(() => Boolean(props.title || slots.title || hasExtra.value || showCloseButton.value));
+    const hasTitle = vue.computed(() => Boolean(slots.title) || isRenderableNode(props.title));
+    const hasExtra = vue.computed(() => Boolean(slots.extra) || isRenderableNode(props.extra));
+    const hasHeader = vue.computed(() => hasTitle.value || hasExtra.value || showCloseButton.value);
     const resolvedSize = vue.computed(() => {
       if (props.size === "large") {
         return 736;
@@ -94,7 +96,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       zIndex: props.zIndex
     }));
     const maskStyle = vue.computed(() => semanticStyle("mask"));
-    const hasFooter = vue.computed(() => props.footer || Boolean(slots.footer));
+    const shouldHideFooter = vue.computed(() => props.footer === false || props.footer === null);
+    const shouldRenderFooterProp = vue.computed(() => isRenderableNode(props.footer));
+    const hasFooter = vue.computed(
+      () => !shouldHideFooter.value && (Boolean(slots.footer) || props.footer === true || shouldRenderFooterProp.value)
+    );
     const rootClass = vue.computed(() => ["aheart-drawer", props.rootClassName, semanticClass("root")]);
     const maskClass = vue.computed(() => ["aheart-drawer__mask", semanticClass("mask")]);
     const panelClass = vue.computed(() => [
@@ -201,13 +207,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               }, [
                 vue.createVNode(vue.unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
               ], 14, _hoisted_1)) : vue.createCommentVNode("", true),
-              _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("div", {
+              hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
                 key: 1,
                 class: vue.normalizeClass(titleClass.value),
                 style: vue.normalizeStyle(semanticStyle("title"))
               }, [
                 vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                  vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
+                  vue.createVNode(vue.unref(ADrawerRenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
               ], 6)) : vue.createCommentVNode("", true),
               hasExtra.value ? (vue.openBlock(), vue.createElementBlock("div", {
@@ -216,7 +222,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 style: vue.normalizeStyle(semanticStyle("extra"))
               }, [
                 vue.renderSlot(_ctx.$slots, "extra", {}, () => [
-                  vue.createTextVNode(vue.toDisplayString(_ctx.extra), 1)
+                  vue.createVNode(vue.unref(ADrawerRenderNode), { node: _ctx.extra }, null, 8, ["node"])
                 ])
               ], 6)) : vue.createCommentVNode("", true),
               showCloseButton.value && isCloseAtEnd.value ? (vue.openBlock(), vue.createElementBlock("button", {
@@ -246,7 +252,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               class: vue.normalizeClass(footerClass.value),
               style: vue.normalizeStyle(semanticStyle("footer"))
             }, [
-              vue.renderSlot(_ctx.$slots, "footer")
+              vue.renderSlot(_ctx.$slots, "footer", {}, () => [
+                shouldRenderFooterProp.value ? (vue.openBlock(), vue.createBlock(vue.unref(ADrawerRenderNode), {
+                  key: 0,
+                  node: _ctx.footer
+                }, null, 8, ["node"])) : vue.createCommentVNode("", true)
+              ])
             ], 6)) : vue.createCommentVNode("", true)
           ], 6)
         ], 38)), [

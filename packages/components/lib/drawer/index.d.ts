@@ -1,8 +1,14 @@
 declare const Drawer: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly open: BooleanConstructor;
-        readonly title: StringConstructor;
-        readonly extra: import("vue").PropType<string | number>;
+        readonly title: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
+        readonly extra: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
         readonly placement: {
             readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
             readonly default: "right";
@@ -45,7 +51,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly loading: BooleanConstructor;
-        readonly footer: BooleanConstructor;
+        readonly footer: {
+            readonly type: import("vue").PropType<import("./types").DrawerFooter>;
+            readonly default: undefined;
+        };
         readonly getContainer: {
             readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
             readonly default: undefined;
@@ -68,17 +77,19 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         "update:open": (open: boolean) => void;
         afterOpenChange: (open: boolean) => void;
     }, import("vue").PublicProps, {
+        readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").DrawerClosable;
         readonly closeIcon: import("vue").VNodeChild;
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
-        readonly footer: boolean;
+        readonly footer: import("./types").DrawerFooter;
         readonly mask: boolean;
         readonly height: string | number;
         readonly width: string | number;
         readonly zIndex: number;
         readonly placement: "left" | "right" | "bottom" | "top";
         readonly loading: boolean;
+        readonly extra: import("vue").VNodeChild;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly getContainer: import("./types").DrawerGetContainer;
@@ -94,8 +105,14 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly open: BooleanConstructor;
-        readonly title: StringConstructor;
-        readonly extra: import("vue").PropType<string | number>;
+        readonly title: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
+        readonly extra: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
         readonly placement: {
             readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
             readonly default: "right";
@@ -138,7 +155,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly loading: BooleanConstructor;
-        readonly footer: BooleanConstructor;
+        readonly footer: {
+            readonly type: import("vue").PropType<import("./types").DrawerFooter>;
+            readonly default: undefined;
+        };
         readonly getContainer: {
             readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
             readonly default: undefined;
@@ -157,17 +177,19 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
     }>, {}, {}, {}, {}, {
+        readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").DrawerClosable;
         readonly closeIcon: import("vue").VNodeChild;
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
-        readonly footer: boolean;
+        readonly footer: import("./types").DrawerFooter;
         readonly mask: boolean;
         readonly height: string | number;
         readonly width: string | number;
         readonly zIndex: number;
         readonly placement: "left" | "right" | "bottom" | "top";
         readonly loading: boolean;
+        readonly extra: import("vue").VNodeChild;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly getContainer: import("./types").DrawerGetContainer;
@@ -180,8 +202,14 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
-    readonly extra: import("vue").PropType<string | number>;
+    readonly title: {
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
+        readonly default: undefined;
+    };
+    readonly extra: {
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
+        readonly default: undefined;
+    };
     readonly placement: {
         readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
@@ -224,7 +252,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly default: true;
     };
     readonly loading: BooleanConstructor;
-    readonly footer: BooleanConstructor;
+    readonly footer: {
+        readonly type: import("vue").PropType<import("./types").DrawerFooter>;
+        readonly default: undefined;
+    };
     readonly getContainer: {
         readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
@@ -247,17 +278,19 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     "update:open": (open: boolean) => void;
     afterOpenChange: (open: boolean) => void;
 }, string, {
+    readonly title: import("vue").VNodeChild;
     readonly closable: import("./types").DrawerClosable;
     readonly closeIcon: import("vue").VNodeChild;
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
-    readonly footer: boolean;
+    readonly footer: import("./types").DrawerFooter;
     readonly mask: boolean;
     readonly height: string | number;
     readonly width: string | number;
     readonly zIndex: number;
     readonly placement: "left" | "right" | "bottom" | "top";
     readonly loading: boolean;
+    readonly extra: import("vue").VNodeChild;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly getContainer: import("./types").DrawerGetContainer;

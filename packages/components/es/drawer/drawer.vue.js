@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, renderSlot, createTextVNode, toDisplayString, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, renderSlot, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
@@ -40,6 +40,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isVertical = computed(() => props.placement === "top" || props.placement === "bottom");
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
+    const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
     const closableConfig = computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
     const resolvedCloseIcon = computed(() => {
@@ -64,8 +65,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return ((_a = closableConfig.value) == null ? void 0 : _a.placement) ?? "start";
     });
     const isCloseAtEnd = computed(() => closePlacement.value === "end");
-    const hasExtra = computed(() => Boolean(slots.extra) || props.extra !== void 0);
-    const hasHeader = computed(() => Boolean(props.title || slots.title || hasExtra.value || showCloseButton.value));
+    const hasTitle = computed(() => Boolean(slots.title) || isRenderableNode(props.title));
+    const hasExtra = computed(() => Boolean(slots.extra) || isRenderableNode(props.extra));
+    const hasHeader = computed(() => hasTitle.value || hasExtra.value || showCloseButton.value);
     const resolvedSize = computed(() => {
       if (props.size === "large") {
         return 736;
@@ -92,7 +94,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       zIndex: props.zIndex
     }));
     const maskStyle = computed(() => semanticStyle("mask"));
-    const hasFooter = computed(() => props.footer || Boolean(slots.footer));
+    const shouldHideFooter = computed(() => props.footer === false || props.footer === null);
+    const shouldRenderFooterProp = computed(() => isRenderableNode(props.footer));
+    const hasFooter = computed(
+      () => !shouldHideFooter.value && (Boolean(slots.footer) || props.footer === true || shouldRenderFooterProp.value)
+    );
     const rootClass = computed(() => ["aheart-drawer", props.rootClassName, semanticClass("root")]);
     const maskClass = computed(() => ["aheart-drawer__mask", semanticClass("mask")]);
     const panelClass = computed(() => [
@@ -199,13 +205,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               }, [
                 createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
               ], 14, _hoisted_1)) : createCommentVNode("", true),
-              _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("div", {
+              hasTitle.value ? (openBlock(), createElementBlock("div", {
                 key: 1,
                 class: normalizeClass(titleClass.value),
                 style: normalizeStyle(semanticStyle("title"))
               }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
-                  createTextVNode(toDisplayString(_ctx.title), 1)
+                  createVNode(unref(ADrawerRenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
               ], 6)) : createCommentVNode("", true),
               hasExtra.value ? (openBlock(), createElementBlock("div", {
@@ -214,7 +220,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 style: normalizeStyle(semanticStyle("extra"))
               }, [
                 renderSlot(_ctx.$slots, "extra", {}, () => [
-                  createTextVNode(toDisplayString(_ctx.extra), 1)
+                  createVNode(unref(ADrawerRenderNode), { node: _ctx.extra }, null, 8, ["node"])
                 ])
               ], 6)) : createCommentVNode("", true),
               showCloseButton.value && isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
@@ -244,7 +250,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               class: normalizeClass(footerClass.value),
               style: normalizeStyle(semanticStyle("footer"))
             }, [
-              renderSlot(_ctx.$slots, "footer")
+              renderSlot(_ctx.$slots, "footer", {}, () => [
+                shouldRenderFooterProp.value ? (openBlock(), createBlock(unref(ADrawerRenderNode), {
+                  key: 0,
+                  node: _ctx.footer
+                }, null, 8, ["node"])) : createCommentVNode("", true)
+              ])
             ], 6)) : createCommentVNode("", true)
           ], 6)
         ], 38)), [
