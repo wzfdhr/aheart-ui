@@ -14,6 +14,7 @@ export type PopoverArrow = boolean | PopoverArrowConfig
 export type PopoverRenderable = VNodeChild
 export type PopoverRenderableFactory = () => VNodeChild
 export type PopoverContent = PopoverRenderable | PopoverRenderableFactory
+export type PopoverGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
 export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow'
 export type PopoverClassNames = Partial<Record<PopoverSemanticPart, string>>
 export type PopoverStyles = Partial<Record<PopoverSemanticPart, StyleValue>>
@@ -57,6 +58,7 @@ export const popoverProps = {
     default: true
   },
   zIndex: Number,
+  getPopupContainer: Function as PropType<PopoverGetPopupContainer>,
   className: String,
   rootClassName: String,
   style: [String, Object, Array] as PropType<StyleValue>,

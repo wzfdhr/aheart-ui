@@ -7,6 +7,7 @@ export type PopoverArrow = boolean | PopoverArrowConfig;
 export type PopoverRenderable = VNodeChild;
 export type PopoverRenderableFactory = () => VNodeChild;
 export type PopoverContent = PopoverRenderable | PopoverRenderableFactory;
+export type PopoverGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
 export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow';
 export type PopoverClassNames = Partial<Record<PopoverSemanticPart, string>>;
 export type PopoverStyles = Partial<Record<PopoverSemanticPart, StyleValue>>;
@@ -50,6 +51,7 @@ export declare const popoverProps: {
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: PropType<PopoverGetPopupContainer>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;

@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
 import { popoverProps, popoverEmits } from "./types.js";
@@ -29,6 +29,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const slots = useSlots();
     const innerOpen = ref(props.defaultOpen);
     const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open));
+    const triggerRef = ref(null);
     let mouseEnterTimer;
     let mouseLeaveTimer;
     const isControlled = computed(() => props.open !== void 0);
@@ -39,6 +40,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasPopupContent = computed(() => hasTitle.value || hasContent.value);
     const visible = computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
+    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
+    const popupContainer = computed(() => {
+      if (props.getPopupContainer && triggerRef.value) {
+        return props.getPopupContainer(triggerRef.value);
+      }
+      return getDefaultPopupContainer();
+    });
+    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const popoverClass = computed(() => {
       var _a;
       return [
@@ -219,6 +229,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         onMouseleave: handleMouseLeave
       }, [
         createElementVNode("span", {
+          ref_key: "triggerRef",
+          ref: triggerRef,
           class: normalizeClass(["aheart-popover__trigger", triggerClass.value]),
           style: normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
@@ -230,44 +242,51 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           renderSlot(_ctx.$slots, "default")
         ], 38),
-        shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
-          key: 0,
-          class: normalizeClass(["aheart-popover__popup", popupClass.value]),
-          style: normalizeStyle(popupStyle.value),
-          role: "dialog"
+        (openBlock(), createBlock(Teleport, {
+          to: teleportTo.value,
+          disabled: !shouldTeleport.value
         }, [
-          showArrow.value ? (openBlock(), createElementBlock("span", {
+          shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
             key: 0,
-            class: normalizeClass(["aheart-floating__arrow aheart-popover__arrow", arrowClass.value]),
-            style: normalizeStyle(arrowStyle.value),
-            "aria-hidden": "true"
-          }, null, 6)) : createCommentVNode("", true),
-          createElementVNode("span", {
-            class: normalizeClass(["aheart-popover__container", containerClass.value]),
-            style: normalizeStyle(containerStyle.value)
+            class: normalizeClass(["aheart-popover__popup", popupClass.value]),
+            style: normalizeStyle(popupStyle.value),
+            role: "dialog",
+            onMouseenter: handleMouseEnter,
+            onMouseleave: handleMouseLeave
           }, [
-            hasTitle.value ? (openBlock(), createElementBlock("span", {
+            showArrow.value ? (openBlock(), createElementBlock("span", {
               key: 0,
-              class: normalizeClass(["aheart-popover__title", titleClass.value]),
-              style: normalizeStyle(titleStyle.value)
+              class: normalizeClass(["aheart-floating__arrow aheart-popover__arrow", arrowClass.value]),
+              style: normalizeStyle(arrowStyle.value),
+              "aria-hidden": "true"
+            }, null, 6)) : createCommentVNode("", true),
+            createElementVNode("span", {
+              class: normalizeClass(["aheart-popover__container", containerClass.value]),
+              style: normalizeStyle(containerStyle.value)
             }, [
-              renderSlot(_ctx.$slots, "title", {}, () => [
-                createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
-              ])
-            ], 6)) : createCommentVNode("", true),
-            hasContent.value ? (openBlock(), createElementBlock("span", {
-              key: 1,
-              class: normalizeClass(["aheart-popover__content", contentClass.value]),
-              style: normalizeStyle(contentStyle.value)
-            }, [
-              renderSlot(_ctx.$slots, "content", {}, () => [
-                createVNode(unref(ARenderNode), { node: _ctx.content }, null, 8, ["node"])
-              ])
-            ], 6)) : createCommentVNode("", true)
-          ], 6)
-        ], 6)), [
-          [vShow, visible.value]
-        ]) : createCommentVNode("", true)
+              hasTitle.value ? (openBlock(), createElementBlock("span", {
+                key: 0,
+                class: normalizeClass(["aheart-popover__title", titleClass.value]),
+                style: normalizeStyle(titleStyle.value)
+              }, [
+                renderSlot(_ctx.$slots, "title", {}, () => [
+                  createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                ])
+              ], 6)) : createCommentVNode("", true),
+              hasContent.value ? (openBlock(), createElementBlock("span", {
+                key: 1,
+                class: normalizeClass(["aheart-popover__content", contentClass.value]),
+                style: normalizeStyle(contentStyle.value)
+              }, [
+                renderSlot(_ctx.$slots, "content", {}, () => [
+                  createVNode(unref(ARenderNode), { node: _ctx.content }, null, 8, ["node"])
+                ])
+              ], 6)) : createCommentVNode("", true)
+            ], 6)
+          ], 38)), [
+            [vShow, visible.value]
+          ]) : createCommentVNode("", true)
+        ], 8, ["to", "disabled"]))
       ], 38);
     };
   }

@@ -7,6 +7,7 @@
     @mouseleave="handleMouseLeave"
   >
     <span
+      ref="triggerRef"
       class="aheart-popover__trigger"
       :class="triggerClass"
       :style="triggerStyle"
@@ -19,34 +20,38 @@
     >
       <slot />
     </span>
-    <span
-      v-if="shouldRenderPopup"
-      v-show="visible"
-      class="aheart-popover__popup"
-      :class="popupClass"
-      :style="popupStyle"
-      role="dialog"
-    >
+    <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <span
-        v-if="showArrow"
-        class="aheart-floating__arrow aheart-popover__arrow"
-        :class="arrowClass"
-        :style="arrowStyle"
-        aria-hidden="true"
-      />
-      <span class="aheart-popover__container" :class="containerClass" :style="containerStyle">
-        <span v-if="hasTitle" class="aheart-popover__title" :class="titleClass" :style="titleStyle">
-          <slot name="title">
-            <ARenderNode :node="title" />
-          </slot>
-        </span>
-        <span v-if="hasContent" class="aheart-popover__content" :class="contentClass" :style="contentStyle">
-          <slot name="content">
-            <ARenderNode :node="content" />
-          </slot>
+        v-if="shouldRenderPopup"
+        v-show="visible"
+        class="aheart-popover__popup"
+        :class="popupClass"
+        :style="popupStyle"
+        role="dialog"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
+      >
+        <span
+          v-if="showArrow"
+          class="aheart-floating__arrow aheart-popover__arrow"
+          :class="arrowClass"
+          :style="arrowStyle"
+          aria-hidden="true"
+        />
+        <span class="aheart-popover__container" :class="containerClass" :style="containerStyle">
+          <span v-if="hasTitle" class="aheart-popover__title" :class="titleClass" :style="titleStyle">
+            <slot name="title">
+              <ARenderNode :node="title" />
+            </slot>
+          </span>
+          <span v-if="hasContent" class="aheart-popover__content" :class="contentClass" :style="contentStyle">
+            <slot name="content">
+              <ARenderNode :node="content" />
+            </slot>
+          </span>
         </span>
       </span>
-    </span>
+    </Teleport>
   </span>
 </template>
 
@@ -82,6 +87,7 @@ const slots = useSlots()
 
 const innerOpen = ref(props.defaultOpen)
 const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open))
+const triggerRef = ref<HTMLElement | null>(null)
 let mouseEnterTimer: ReturnType<typeof setTimeout> | undefined
 let mouseLeaveTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -93,6 +99,16 @@ const hasContent = computed(() => Boolean(slots.content) || hasRenderable(props.
 const hasPopupContent = computed(() => hasTitle.value || hasContent.value)
 const visible = computed(() => hasPopupContent.value && mergedOpen.value)
 const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || (!props.destroyOnHidden && hasRenderedPopup.value)))
+const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
+const popupContainer = computed(() => {
+  if (props.getPopupContainer && triggerRef.value) {
+    return props.getPopupContainer(triggerRef.value)
+  }
+
+  return getDefaultPopupContainer()
+})
+const shouldTeleport = computed(() => popupContainer.value !== false)
+const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
 const popoverClass = computed(() => [
   props.className,
   props.rootClassName,

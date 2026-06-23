@@ -31,6 +31,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const slots = vue.useSlots();
     const innerOpen = vue.ref(props.defaultOpen);
     const hasRenderedPopup = vue.ref(Boolean(props.defaultOpen || props.open));
+    const triggerRef = vue.ref(null);
     let mouseEnterTimer;
     let mouseLeaveTimer;
     const isControlled = vue.computed(() => props.open !== void 0);
@@ -41,6 +42,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasPopupContent = vue.computed(() => hasTitle.value || hasContent.value);
     const visible = vue.computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldRenderPopup = vue.computed(() => hasPopupContent.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
+    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
+    const popupContainer = vue.computed(() => {
+      if (props.getPopupContainer && triggerRef.value) {
+        return props.getPopupContainer(triggerRef.value);
+      }
+      return getDefaultPopupContainer();
+    });
+    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const popoverClass = vue.computed(() => {
       var _a;
       return [
@@ -221,6 +231,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         onMouseleave: handleMouseLeave
       }, [
         vue.createElementVNode("span", {
+          ref_key: "triggerRef",
+          ref: triggerRef,
           class: vue.normalizeClass(["aheart-popover__trigger", triggerClass.value]),
           style: vue.normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
@@ -232,44 +244,51 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           vue.renderSlot(_ctx.$slots, "default")
         ], 38),
-        shouldRenderPopup.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("span", {
-          key: 0,
-          class: vue.normalizeClass(["aheart-popover__popup", popupClass.value]),
-          style: vue.normalizeStyle(popupStyle.value),
-          role: "dialog"
+        (vue.openBlock(), vue.createBlock(vue.Teleport, {
+          to: teleportTo.value,
+          disabled: !shouldTeleport.value
         }, [
-          showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
+          shouldRenderPopup.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("span", {
             key: 0,
-            class: vue.normalizeClass(["aheart-floating__arrow aheart-popover__arrow", arrowClass.value]),
-            style: vue.normalizeStyle(arrowStyle.value),
-            "aria-hidden": "true"
-          }, null, 6)) : vue.createCommentVNode("", true),
-          vue.createElementVNode("span", {
-            class: vue.normalizeClass(["aheart-popover__container", containerClass.value]),
-            style: vue.normalizeStyle(containerStyle.value)
+            class: vue.normalizeClass(["aheart-popover__popup", popupClass.value]),
+            style: vue.normalizeStyle(popupStyle.value),
+            role: "dialog",
+            onMouseenter: handleMouseEnter,
+            onMouseleave: handleMouseLeave
           }, [
-            hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
+            showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 0,
-              class: vue.normalizeClass(["aheart-popover__title", titleClass.value]),
-              style: vue.normalizeStyle(titleStyle.value)
+              class: vue.normalizeClass(["aheart-floating__arrow aheart-popover__arrow", arrowClass.value]),
+              style: vue.normalizeStyle(arrowStyle.value),
+              "aria-hidden": "true"
+            }, null, 6)) : vue.createCommentVNode("", true),
+            vue.createElementVNode("span", {
+              class: vue.normalizeClass(["aheart-popover__container", containerClass.value]),
+              style: vue.normalizeStyle(containerStyle.value)
             }, [
-              vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
-              ])
-            ], 6)) : vue.createCommentVNode("", true),
-            hasContent.value ? (vue.openBlock(), vue.createElementBlock("span", {
-              key: 1,
-              class: vue.normalizeClass(["aheart-popover__content", contentClass.value]),
-              style: vue.normalizeStyle(contentStyle.value)
-            }, [
-              vue.renderSlot(_ctx.$slots, "content", {}, () => [
-                vue.createVNode(vue.unref(ARenderNode), { node: _ctx.content }, null, 8, ["node"])
-              ])
-            ], 6)) : vue.createCommentVNode("", true)
-          ], 6)
-        ], 6)), [
-          [vue.vShow, visible.value]
-        ]) : vue.createCommentVNode("", true)
+              hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
+                key: 0,
+                class: vue.normalizeClass(["aheart-popover__title", titleClass.value]),
+                style: vue.normalizeStyle(titleStyle.value)
+              }, [
+                vue.renderSlot(_ctx.$slots, "title", {}, () => [
+                  vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                ])
+              ], 6)) : vue.createCommentVNode("", true),
+              hasContent.value ? (vue.openBlock(), vue.createElementBlock("span", {
+                key: 1,
+                class: vue.normalizeClass(["aheart-popover__content", contentClass.value]),
+                style: vue.normalizeStyle(contentStyle.value)
+              }, [
+                vue.renderSlot(_ctx.$slots, "content", {}, () => [
+                  vue.createVNode(vue.unref(ARenderNode), { node: _ctx.content }, null, 8, ["node"])
+                ])
+              ], 6)) : vue.createCommentVNode("", true)
+            ], 6)
+          ], 38)), [
+            [vue.vShow, visible.value]
+          ]) : vue.createCommentVNode("", true)
+        ], 8, ["to", "disabled"]))
       ], 38);
     };
   }

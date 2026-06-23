@@ -40,6 +40,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: PropType<import("./types").PopoverGetPopupContainer>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<import("vue").StyleValue>;
@@ -91,6 +92,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: PropType<import("./types").PopoverGetPopupContainer>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<import("vue").StyleValue>;

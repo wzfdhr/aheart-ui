@@ -1,11 +1,23 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Popover from '../popover.vue'
 
+const mountPopover = (options: Record<string, any> = {}) =>
+  mount(Popover, {
+    ...options,
+    global: {
+      ...options.global,
+      stubs: {
+        ...options.global?.stubs,
+        Teleport: true
+      }
+    }
+  })
+
 describe('Popover', () => {
   it('renders title and content props when open', () => {
-    const wrapper = mount(Popover, {
+    const wrapper = mountPopover({
       props: { open: true, title: 'Card title', content: 'Card content', placement: 'rightTop' },
       slots: { default: '<button>Details</button>' }
     })
@@ -17,7 +29,7 @@ describe('Popover', () => {
   })
 
   it('renders vnode and function title and content props', () => {
-    const wrapper = mount(Popover, {
+    const wrapper = mountPopover({
       props: {
         open: true,
         title: () => h('span', { class: 'title-node' }, 'Account node'),
@@ -31,7 +43,7 @@ describe('Popover', () => {
   })
 
   it('renders numeric renderables without treating zero as empty', () => {
-    const wrapper = mount(Popover, {
+    const wrapper = mountPopover({
       props: {
         open: true,
         title: 0,
@@ -45,7 +57,7 @@ describe('Popover', () => {
   })
 
   it('lets content slots override renderable prop fallbacks', () => {
-    const wrapper = mount(Popover, {
+    const wrapper = mountPopover({
       props: {
         open: true,
         title: h('span', { class: 'prop-title-node' }, 'Prop title'),
@@ -65,7 +77,7 @@ describe('Popover', () => {
   })
 
   it('renders title and content slots', () => {
-    const wrapper = mount(Popover, {
+    const wrapper = mountPopover({
       props: { open: true },
       slots: {
         default: '<button>Details</button>',
@@ -79,7 +91,7 @@ describe('Popover', () => {
   })
 
   it('toggles from click trigger and emits open events', async () => {
-    const wrapper = mount(Popover, {
+    const wrapper = mountPopover({
       props: { content: 'Clickable', trigger: 'click' },
       slots: { default: '<button>Details</button>' }
     })
@@ -92,7 +104,7 @@ describe('Popover', () => {
   })
 
   it('applies root semantic and overlay class and style hooks', () => {
-    const wrapper = mount(Popover, {
+    const wrapper = mountPopover({
       props: {
         open: true,
         title: 'Card title',
@@ -148,7 +160,7 @@ describe('Popover', () => {
     vi.useFakeTimers()
 
     try {
-      const wrapper = mount(Popover, {
+      const wrapper = mountPopover({
         props: { content: 'Delayed', mouseEnterDelay: 0.2, mouseLeaveDelay: 0.3 },
         slots: { default: '<button>Details</button>' }
       })
@@ -175,7 +187,7 @@ describe('Popover', () => {
   })
 
   it('preserves or destroys hidden popup according to destroyOnHidden', async () => {
-    const preserved = mount(Popover, {
+    const preserved = mountPopover({
       props: { content: 'Preserved', trigger: 'click' },
       slots: { default: '<button>Details</button>' }
     })
@@ -186,7 +198,7 @@ describe('Popover', () => {
     expect(preserved.find('.aheart-popover__popup').exists()).toBe(true)
     expect(preserved.find('.aheart-popover__popup').isVisible()).toBe(false)
 
-    const destroyed = mount(Popover, {
+    const destroyed = mountPopover({
       props: { content: 'Destroyed', trigger: 'click', destroyOnHidden: true },
       slots: { default: '<button>Details</button>' }
     })
@@ -197,8 +209,63 @@ describe('Popover', () => {
     expect(destroyed.find('.aheart-popover__popup').exists()).toBe(false)
   })
 
-  it('renders object arrow point at center class', () => {
+  it('teleports popup to document body by default', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
     const wrapper = mount(Popover, {
+      attachTo: host,
+      props: {
+        open: true,
+        content: 'Body popover'
+      },
+      slots: {
+        default: '<button>Details</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(document.body.querySelector('.aheart-popover__popup')).toBeTruthy()
+    expect(host.querySelector('.aheart-popover__popup')).toBeNull()
+
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('teleports popup to getPopupContainer target', async () => {
+    const container = document.createElement('section')
+    let triggerNode: HTMLElement | undefined
+    document.body.appendChild(container)
+
+    const wrapper = mount(Popover, {
+      props: {
+        open: true,
+        title: 'Target title',
+        content: 'Target content',
+        getPopupContainer: (node: HTMLElement) => {
+          triggerNode = node
+          return container
+        }
+      },
+      slots: {
+        default: '<button>Details</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(triggerNode?.classList.contains('aheart-popover__trigger')).toBe(true)
+    expect(container.querySelector('.aheart-popover__popup')).toBeTruthy()
+    expect(container.textContent).toContain('Target title')
+    expect(container.textContent).toContain('Target content')
+
+    wrapper.unmount()
+    container.remove()
+  })
+
+  it('renders object arrow point at center class', () => {
+    const wrapper = mountPopover({
       props: { open: true, content: 'Arrow', arrow: { pointAtCenter: true } },
       slots: { default: '<button>Details</button>' }
     })

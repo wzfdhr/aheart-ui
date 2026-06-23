@@ -39,6 +39,7 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly zIndex: NumberConstructor;
+        readonly getPopupContainer: import("vue").PropType<import("./types").PopoverGetPopupContainer>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -112,6 +113,7 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly zIndex: NumberConstructor;
+        readonly getPopupContainer: import("vue").PropType<import("./types").PopoverGetPopupContainer>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -179,6 +181,7 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: import("vue").PropType<import("./types").PopoverGetPopupContainer>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
