@@ -200,14 +200,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
     );
-    const semanticClass = (part) => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a[part];
+    const resolveSemanticConfig = (config, part) => {
+      const resolved = typeof config === "function" ? config({ props }) : config;
+      return resolved == null ? void 0 : resolved[part];
     };
-    const semanticStyle = (part) => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a[part];
-    };
+    const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
+    const semanticStyle = (part) => resolveSemanticConfig(props.styles, part);
     const captureTriggerElement = () => {
       triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     };

@@ -216,6 +216,32 @@ describe('Drawer', () => {
     expect(wrapper.find('.aheart-drawer__footer').attributes('style')).toContain('justify-content: flex-start')
   })
 
+  it('resolves semantic class and style functions with drawer props', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Function drawer',
+        placement: 'left',
+        classNames: ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+          root: props.placement === 'left' ? 'semantic-left-root' : 'semantic-other-root',
+          body: props.open ? 'semantic-open-body' : 'semantic-closed-body'
+        }),
+        styles: ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+          root: props.placement === 'left' ? { color: 'rgb(9, 8, 7)' } : { color: 'rgb(1, 1, 1)' },
+          body: props.open ? { padding: '32px' } : { padding: '4px' }
+        })
+      },
+      slots: {
+        default: 'Function styled body'
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer').classes()).toContain('semantic-left-root')
+    expect(wrapper.find('.aheart-drawer').attributes('style')).toContain('color: rgb(9, 8, 7)')
+    expect(wrapper.find('.aheart-drawer__body').classes()).toContain('semantic-open-body')
+    expect(wrapper.find('.aheart-drawer__body').attributes('style')).toContain('padding: 32px')
+  })
+
   it('supports afterOpenChange forceRender and destroyOnHidden', async () => {
     const persistent = mountDrawer({
       props: { open: false, forceRender: true, title: 'Pre-rendered' }

@@ -88,6 +88,7 @@ import {
   type DrawerFocusableConfig,
   type DrawerMaskConfig,
   type DrawerRender,
+  type DrawerSemanticConfig,
   type DrawerSemanticPart
 } from './types'
 import './style.css'
@@ -285,8 +286,17 @@ watch(
   }
 )
 
-const semanticClass = (part: DrawerSemanticPart) => props.classNames?.[part]
-const semanticStyle = (part: DrawerSemanticPart): CSSProperties | undefined => props.styles?.[part]
+const resolveSemanticConfig = <T,>(
+  config: DrawerSemanticConfig<T> | undefined,
+  part: DrawerSemanticPart
+): T | undefined => {
+  const resolved = typeof config === 'function' ? config({ props }) : config
+  return resolved?.[part]
+}
+
+const semanticClass = (part: DrawerSemanticPart) => resolveSemanticConfig(props.classNames, part)
+const semanticStyle = (part: DrawerSemanticPart): CSSProperties | undefined =>
+  resolveSemanticConfig(props.styles, part)
 
 const captureTriggerElement = () => {
   triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null

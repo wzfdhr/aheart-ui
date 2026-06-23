@@ -65,8 +65,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<import("./types").DrawerClassNames>;
+        readonly styles: import("vue").PropType<import("./types").DrawerStyles>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -171,8 +171,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<import("./types").DrawerClassNames>;
+        readonly styles: import("vue").PropType<import("./types").DrawerStyles>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -270,8 +270,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", import("vue").CSSProperties>>>;
+    readonly classNames: import("vue").PropType<import("./types").DrawerClassNames>;
+    readonly styles: import("vue").PropType<import("./types").DrawerStyles>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

@@ -317,8 +317,8 @@ const open = ref(false)
 | rootClassName | 根节点自定义类名 | `string` | - |
 | style | 面板自定义样式 | `CSSProperties` | - |
 | rootStyle | 根节点自定义样式 | `CSSProperties` | - |
-| classNames | 语义化结构类名 | `Partial<Record<DrawerSemanticPart, string>>` | - |
-| styles | 语义化结构样式 | `Partial<Record<DrawerSemanticPart, CSSProperties>>` | - |
+| classNames | 语义化结构类名，支持对象或函数 | `Partial<Record<DrawerSemanticPart, string>>` \| `(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, string>>` | - |
+| styles | 语义化结构样式，支持对象或函数 | `Partial<Record<DrawerSemanticPart, CSSProperties>>` \| `(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, CSSProperties>>` | - |
 | forceRender | 关闭时也预渲染抽屉结构 | `boolean` | `false` |
 | destroyOnClose | 关闭后销毁内容；兼容旧命名 | `boolean` | `false` |
 | destroyOnHidden | 关闭后销毁内容 | `boolean` | `false` |
@@ -326,6 +326,14 @@ const open = ref(false)
 ### DrawerSemanticPart
 
 `root`、`mask`、`section`、`header`、`title`、`extra`、`body`、`footer`、`close`
+
+### DrawerSemanticInfo
+
+```ts
+interface DrawerSemanticInfo {
+  props: Readonly<Record<string, unknown>>
+}
+```
 
 ### DrawerGetContainer
 

@@ -67,8 +67,8 @@ const drawerProps = {
   rootClassName: String,
   style: Object,
   rootStyle: Object,
-  classNames: Object,
-  styles: Object,
+  classNames: [Object, Function],
+  styles: [Object, Function],
   forceRender: Boolean,
   destroyOnClose: Boolean,
   destroyOnHidden: Boolean

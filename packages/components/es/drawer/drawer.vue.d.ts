@@ -66,8 +66,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
-    readonly styles: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
+    readonly classNames: PropType<import("./types").DrawerClassNames>;
+    readonly styles: PropType<import("./types").DrawerStyles>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -141,8 +141,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
-    readonly styles: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
+    readonly classNames: PropType<import("./types").DrawerClassNames>;
+    readonly styles: PropType<import("./types").DrawerStyles>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

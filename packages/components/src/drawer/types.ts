@@ -8,8 +8,14 @@ export type DrawerPlacement = (typeof drawerPlacements)[number]
 export type DrawerSizePreset = (typeof drawerSizePresets)[number]
 export type DrawerSize = DrawerSizePreset | number | string
 export type DrawerSemanticPart = (typeof drawerSemanticParts)[number]
-export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>
-export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>
+export interface DrawerSemanticInfo {
+  props: Readonly<Record<string, unknown>>
+}
+
+export type DrawerSemanticRecord<T> = Partial<Record<DrawerSemanticPart, T>>
+export type DrawerSemanticConfig<T> = DrawerSemanticRecord<T> | ((info: DrawerSemanticInfo) => DrawerSemanticRecord<T>)
+export type DrawerClassNames = DrawerSemanticConfig<string>
+export type DrawerStyles = DrawerSemanticConfig<CSSProperties>
 export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
 export type DrawerRenderable = VNodeChild
 export type DrawerRender = (node: DrawerRenderable) => DrawerRenderable
@@ -107,8 +113,8 @@ export const drawerProps = {
   rootClassName: String,
   style: Object as PropType<CSSProperties>,
   rootStyle: Object as PropType<CSSProperties>,
-  classNames: Object as PropType<DrawerClassNames>,
-  styles: Object as PropType<DrawerStyles>,
+  classNames: [Object, Function] as PropType<DrawerClassNames>,
+  styles: [Object, Function] as PropType<DrawerStyles>,
   forceRender: Boolean,
   destroyOnClose: Boolean,
   destroyOnHidden: Boolean
