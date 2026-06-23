@@ -8,6 +8,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly underline: BooleanConstructor;
     readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+    readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -23,6 +25,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly underline: BooleanConstructor;
     readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+    readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;

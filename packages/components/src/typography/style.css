@@ -145,3 +145,37 @@ kbd.aheart-typography-text {
 .aheart-typography-link.is-underline {
   text-decoration: underline;
 }
+
+.aheart-typography__content {
+  display: inline;
+}
+
+.aheart-typography__copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline-start: 4px;
+  padding: 0 2px;
+  border: 0;
+  border-radius: var(--aheart-radius-sm);
+  background: transparent;
+  color: var(--aheart-color-primary);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.aheart-typography__copy:first-child {
+  margin-inline-start: 0;
+  margin-inline-end: 4px;
+}
+
+.aheart-typography__copy:hover:not(:disabled) {
+  background: var(--aheart-color-fill);
+}
+
+.aheart-typography__copy:disabled {
+  color: var(--aheart-color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.72;
+}

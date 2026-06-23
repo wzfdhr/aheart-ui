@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const copyableProp = [Boolean, Object];
+const actionsProp = Object;
 const rootHookProps = {
   className: String,
   rootClassName: String,
@@ -19,7 +21,9 @@ const titleProps = {
   },
   type: String,
   disabled: Boolean,
-  mark: Boolean
+  mark: Boolean,
+  copyable: copyableProp,
+  actions: actionsProp
 };
 const textProps = {
   ...rootHookProps,
@@ -31,7 +35,9 @@ const textProps = {
   delete: Boolean,
   underline: Boolean,
   mark: Boolean,
-  disabled: Boolean
+  disabled: Boolean,
+  copyable: copyableProp,
+  actions: actionsProp
 };
 const paragraphProps = {
   ...rootHookProps,
@@ -40,7 +46,9 @@ const paragraphProps = {
   italic: Boolean,
   ellipsis: [Boolean, Object],
   mark: Boolean,
-  disabled: Boolean
+  disabled: Boolean,
+  copyable: copyableProp,
+  actions: actionsProp
 };
 const linkProps = {
   ...rootHookProps,

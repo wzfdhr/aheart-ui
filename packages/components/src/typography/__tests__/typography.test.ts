@@ -1,10 +1,20 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 import Link from '../link.vue'
 import Paragraph from '../paragraph.vue'
 import Text from '../text.vue'
 import Title from '../title.vue'
 import Typography from '../typography.vue'
+
+const stubClipboard = () => {
+  const writeText = vi.fn().mockResolvedValue(undefined)
+  vi.stubGlobal('navigator', {
+    clipboard: {
+      writeText
+    }
+  })
+  return writeText
+}
 
 describe('Typography', () => {
   it('renders the root typography wrapper', () => {
@@ -211,6 +221,95 @@ describe('Typography', () => {
 
     expect(wrapper.element.tagName).toBe('P')
     expect(wrapper.classes()).toContain('is-ellipsis')
+  })
+
+  it('copies rendered text content from copyable Text', async () => {
+    const writeText = stubClipboard()
+    const wrapper = mount(Text, {
+      props: {
+        copyable: true
+      },
+      slots: {
+        default: 'Copy me'
+      }
+    })
+
+  await wrapper.find('.aheart-typography__copy').trigger('click')
+  await flushPromises()
+
+  expect(writeText).toHaveBeenCalledWith('Copy me')
+  expect(wrapper.find('.aheart-typography__copy').text()).toBe('copied')
+  })
+
+  it('supports Paragraph copyable config icon callback text and start placement', async () => {
+    const writeText = stubClipboard()
+    const onCopy = vi.fn()
+    const wrapper = mount(Paragraph, {
+      props: {
+        copyable: {
+          text: async () => 'Async copy',
+          icon: ['copy-icon', 'done-icon'],
+          tooltips: ['Copy paragraph', 'Copied paragraph'],
+          onCopy,
+          tabIndex: 3
+        },
+        actions: {
+          placement: 'start'
+        }
+      },
+      slots: {
+        default: 'Visible paragraph'
+      }
+    })
+
+    const firstChild = wrapper.element.firstElementChild
+    expect(firstChild?.classList.contains('aheart-typography__copy')).toBe(true)
+    expect(wrapper.find('.aheart-typography__copy').attributes('title')).toBe('Copy paragraph')
+    expect(wrapper.find('.aheart-typography__copy').attributes('tabindex')).toBe('3')
+
+  await wrapper.find('.aheart-typography__copy').trigger('click')
+  await flushPromises()
+
+  expect(writeText).toHaveBeenCalledWith('Async copy')
+  expect(onCopy).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('.aheart-typography__copy').text()).toBe('done-icon')
+    expect(wrapper.find('.aheart-typography__copy').attributes('title')).toBe('Copied paragraph')
+  })
+
+  it('renders copyable Title action while preserving heading level', () => {
+    const wrapper = mount(Title, {
+      props: {
+        level: 2,
+        copyable: {
+          icon: ['copy-title', 'copied-title']
+        }
+      },
+      slots: {
+        default: 'Heading'
+      }
+    })
+
+    expect(wrapper.element.tagName).toBe('H2')
+    expect(wrapper.find('.aheart-typography__copy').text()).toBe('copy-title')
+    expect(wrapper.find('.aheart-typography__content').text()).toBe('Heading')
+  })
+
+  it('does not copy disabled copyable Text', async () => {
+    const writeText = stubClipboard()
+    const wrapper = mount(Text, {
+      props: {
+        disabled: true,
+        copyable: true
+      },
+      slots: {
+        default: 'Disabled copy'
+      }
+    })
+
+    await wrapper.find('.aheart-typography__copy').trigger('click')
+
+    expect(writeText).not.toHaveBeenCalled()
+    expect(wrapper.find('.aheart-typography__copy').attributes()).toHaveProperty('disabled')
   })
 
   it('renders link and handles disabled state', () => {

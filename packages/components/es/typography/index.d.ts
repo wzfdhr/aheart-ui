@@ -43,6 +43,8 @@ declare const Title: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").TypographyType>;
         readonly disabled: BooleanConstructor;
         readonly mark: BooleanConstructor;
+        readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+        readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -68,6 +70,8 @@ declare const Title: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").TypographyType>;
         readonly disabled: BooleanConstructor;
         readonly mark: BooleanConstructor;
+        readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+        readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -90,6 +94,8 @@ declare const Title: import("../utils/install").SFCWithInstall<{
     readonly type: import("vue").PropType<import("./types").TypographyType>;
     readonly disabled: BooleanConstructor;
     readonly mark: BooleanConstructor;
+    readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+    readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -115,6 +121,8 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly underline: BooleanConstructor;
         readonly mark: BooleanConstructor;
         readonly disabled: BooleanConstructor;
+        readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+        readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -146,6 +154,8 @@ declare const Text: import("../utils/install").SFCWithInstall<{
         readonly underline: BooleanConstructor;
         readonly mark: BooleanConstructor;
         readonly disabled: BooleanConstructor;
+        readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+        readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -174,6 +184,8 @@ declare const Text: import("../utils/install").SFCWithInstall<{
     readonly underline: BooleanConstructor;
     readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+    readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -201,6 +213,8 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly ellipsis: import("vue").PropType<import("./types").TypographyEllipsis>;
         readonly mark: BooleanConstructor;
         readonly disabled: BooleanConstructor;
+        readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+        readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -225,6 +239,8 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
         readonly ellipsis: import("vue").PropType<import("./types").TypographyEllipsis>;
         readonly mark: BooleanConstructor;
         readonly disabled: BooleanConstructor;
+        readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+        readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -246,6 +262,8 @@ declare const Paragraph: import("../utils/install").SFCWithInstall<{
     readonly ellipsis: import("vue").PropType<import("./types").TypographyEllipsis>;
     readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly copyable: import("vue").PropType<import("./types").TypographyCopyable>;
+    readonly actions: import("vue").PropType<import("./types").TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
@@ -319,4 +337,4 @@ declare const Link: import("../utils/install").SFCWithInstall<{
 })>;
 export { Title, Text, Paragraph, Link };
 export default Typography;
-export type { LinkProps, ParagraphProps, TextProps, TitleProps, TypographyClassNames, TypographyEllipsis, TypographyEllipsisConfig, TypographyProps, TypographySemanticClassNames, TypographySemanticInfo, TypographySemanticPart, TypographySemanticStyles, TypographyStyles, TypographyType } from './types';
+export type { LinkProps, ParagraphProps, TextProps, TitleProps, TypographyActionPlacement, TypographyActionsConfig, TypographyClassNames, TypographyCopyable, TypographyCopyableConfig, TypographyCopyableIcon, TypographyCopyableTooltip, TypographyEllipsis, TypographyEllipsisConfig, TypographyProps, TypographySemanticClassNames, TypographySemanticInfo, TypographySemanticPart, TypographySemanticStyles, TypographyStyles, TypographyType } from './types';

@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 
 export type TypographyType = 'secondary' | 'success' | 'warning' | 'danger'
 export type TitleLevel = 1 | 2 | 3 | 4 | 5
@@ -20,6 +20,27 @@ export interface TypographyEllipsisConfig {
 }
 
 export type TypographyEllipsis = boolean | TypographyEllipsisConfig
+export type TypographyCopyableIcon = VNodeChild | [VNodeChild, VNodeChild]
+export type TypographyCopyableTooltip = false | [VNodeChild, VNodeChild]
+
+export interface TypographyCopyableConfig {
+  text?: string | (() => string | Promise<string>)
+  icon?: TypographyCopyableIcon
+  tooltips?: TypographyCopyableTooltip
+  format?: 'text/plain' | 'text/html'
+  tabIndex?: number
+  onCopy?: (event: MouseEvent) => void
+}
+
+export type TypographyCopyable = boolean | TypographyCopyableConfig
+export type TypographyActionPlacement = 'start' | 'end'
+
+export interface TypographyActionsConfig {
+  placement?: TypographyActionPlacement
+}
+
+const copyableProp = [Boolean, Object] as PropType<TypographyCopyable>
+const actionsProp = Object as PropType<TypographyActionsConfig>
 
 const rootHookProps = {
   className: String,
@@ -42,7 +63,9 @@ export const titleProps = {
   },
   type: String as PropType<TypographyType>,
   disabled: Boolean,
-  mark: Boolean
+  mark: Boolean,
+  copyable: copyableProp,
+  actions: actionsProp
 } as const
 
 export const textProps = {
@@ -55,7 +78,9 @@ export const textProps = {
   delete: Boolean,
   underline: Boolean,
   mark: Boolean,
-  disabled: Boolean
+  disabled: Boolean,
+  copyable: copyableProp,
+  actions: actionsProp
 } as const
 
 export const paragraphProps = {
@@ -65,7 +90,9 @@ export const paragraphProps = {
   italic: Boolean,
   ellipsis: [Boolean, Object] as PropType<TypographyEllipsis>,
   mark: Boolean,
-  disabled: Boolean
+  disabled: Boolean,
+  copyable: copyableProp,
+  actions: actionsProp
 } as const
 
 export const linkProps = {

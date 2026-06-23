@@ -1,6 +1,9 @@
-import { defineComponent, computed, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, renderSlot } from "vue";
+import { defineComponent, ref, computed, toRef, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, unref, createElementBlock, createVNode, createCommentVNode, createElementVNode, renderSlot } from "vue";
+import { useTypographyCopyable, TypographyRenderNode } from "./copyable.js";
 import { titleProps } from "./types.js";
 import "./style.css.js";
+const _hoisted_1 = ["title", "aria-label", "tabindex", "disabled"];
+const _hoisted_2 = ["title", "aria-label", "tabindex", "disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATitle"
@@ -9,6 +12,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: titleProps,
   setup(__props) {
     const props = __props;
+    const contentRef = ref(null);
     const tagName = computed(() => `h${props.level}`);
     const semanticInfo = computed(() => ({ props }));
     const semanticClassNames = computed(
@@ -16,6 +20,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     );
     const semanticStyles = computed(
       () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
+    const actionPlacement = computed(() => {
+      var _a;
+      return ((_a = props.actions) == null ? void 0 : _a.placement) ?? "end";
+    });
+    const { isCopyable, copyIcon, copyTitle, copyTabIndex, handleCopy } = useTypographyCopyable(
+      toRef(props, "copyable"),
+      contentRef,
+      computed(() => props.disabled)
     );
     const titleClass = computed(() => [
       `aheart-typography-title--${props.level}`,
@@ -35,7 +48,39 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         style: normalizeStyle(titleStyle.value)
       }, {
         default: withCtx(() => [
-          renderSlot(_ctx.$slots, "default")
+          unref(isCopyable) && actionPlacement.value === "start" ? (openBlock(), createElementBlock("button", {
+            key: 0,
+            class: "aheart-typography__copy",
+            type: "button",
+            title: unref(copyTitle),
+            "aria-label": unref(copyTitle) || "Copy",
+            tabindex: unref(copyTabIndex),
+            disabled: _ctx.disabled,
+            onClick: _cache[0] || (_cache[0] = //@ts-ignore
+            (...args) => unref(handleCopy) && unref(handleCopy)(...args))
+          }, [
+            createVNode(unref(TypographyRenderNode), { node: unref(copyIcon) }, null, 8, ["node"])
+          ], 8, _hoisted_1)) : createCommentVNode("", true),
+          createElementVNode("span", {
+            ref_key: "contentRef",
+            ref: contentRef,
+            class: "aheart-typography__content"
+          }, [
+            renderSlot(_ctx.$slots, "default")
+          ], 512),
+          unref(isCopyable) && actionPlacement.value === "end" ? (openBlock(), createElementBlock("button", {
+            key: 1,
+            class: "aheart-typography__copy",
+            type: "button",
+            title: unref(copyTitle),
+            "aria-label": unref(copyTitle) || "Copy",
+            tabindex: unref(copyTabIndex),
+            disabled: _ctx.disabled,
+            onClick: _cache[1] || (_cache[1] = //@ts-ignore
+            (...args) => unref(handleCopy) && unref(handleCopy)(...args))
+          }, [
+            createVNode(unref(TypographyRenderNode), { node: unref(copyIcon) }, null, 8, ["node"])
+          ], 8, _hoisted_2)) : createCommentVNode("", true)
         ]),
         _: 3
       }, 8, ["class", "style"]);

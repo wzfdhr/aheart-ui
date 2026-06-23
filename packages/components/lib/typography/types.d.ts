@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 export type TypographyType = 'secondary' | 'success' | 'warning' | 'danger';
 export type TitleLevel = 1 | 2 | 3 | 4 | 5;
 export type TypographySemanticPart = 'root';
@@ -13,6 +13,21 @@ export interface TypographyEllipsisConfig {
     rows?: number;
 }
 export type TypographyEllipsis = boolean | TypographyEllipsisConfig;
+export type TypographyCopyableIcon = VNodeChild | [VNodeChild, VNodeChild];
+export type TypographyCopyableTooltip = false | [VNodeChild, VNodeChild];
+export interface TypographyCopyableConfig {
+    text?: string | (() => string | Promise<string>);
+    icon?: TypographyCopyableIcon;
+    tooltips?: TypographyCopyableTooltip;
+    format?: 'text/plain' | 'text/html';
+    tabIndex?: number;
+    onCopy?: (event: MouseEvent) => void;
+}
+export type TypographyCopyable = boolean | TypographyCopyableConfig;
+export type TypographyActionPlacement = 'start' | 'end';
+export interface TypographyActionsConfig {
+    placement?: TypographyActionPlacement;
+}
 export declare const typographyProps: {
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -29,6 +44,8 @@ export declare const titleProps: {
     readonly type: PropType<TypographyType>;
     readonly disabled: BooleanConstructor;
     readonly mark: BooleanConstructor;
+    readonly copyable: PropType<TypographyCopyable>;
+    readonly actions: PropType<TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;
@@ -45,6 +62,8 @@ export declare const textProps: {
     readonly underline: BooleanConstructor;
     readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly copyable: PropType<TypographyCopyable>;
+    readonly actions: PropType<TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;
@@ -58,6 +77,8 @@ export declare const paragraphProps: {
     readonly ellipsis: PropType<TypographyEllipsis>;
     readonly mark: BooleanConstructor;
     readonly disabled: BooleanConstructor;
+    readonly copyable: PropType<TypographyCopyable>;
+    readonly actions: PropType<TypographyActionsConfig>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;
