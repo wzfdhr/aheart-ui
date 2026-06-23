@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createTextVNode, toDisplayString, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
 import { tooltipProps, tooltipEmits } from "./types.js";
@@ -11,6 +11,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: tooltipProps,
   emits: tooltipEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = defineComponent({
+      name: "ATooltipRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => typeof renderProps.node === "function" ? renderProps.node() : renderProps.node;
+      }
+    });
+    const hasTitleContent = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const props = __props;
     const emit = __emit;
     const slots = useSlots();
@@ -19,7 +32,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
-    const hasTitle = computed(() => Boolean(props.title || slots.title));
+    const hasTitle = computed(() => Boolean(slots.title) || hasTitleContent(props.title));
     const visible = computed(() => hasTitle.value && mergedOpen.value);
     const shouldRenderPopup = computed(() => hasTitle.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
     const tooltipClass = computed(() => {
@@ -208,7 +221,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               style: normalizeStyle(contentStyle.value)
             }, [
               renderSlot(_ctx.$slots, "title", {}, () => [
-                createTextVNode(toDisplayString(_ctx.title), 1)
+                createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
               ])
             ], 6)
           ], 6)

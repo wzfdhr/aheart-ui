@@ -1,6 +1,9 @@
 declare const Tooltip: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
-        readonly title: StringConstructor;
+        readonly title: {
+            type: import("vue").PropType<import("./types").TooltipTitle>;
+            default: undefined;
+        };
         readonly placement: {
             readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
@@ -47,6 +50,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         "update:open": (open: boolean) => void;
         openChange: (open: boolean) => void;
     }, import("vue").PublicProps, {
+        readonly title: import("./types").TooltipTitle;
         readonly open: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly destroyOnHidden: boolean;
@@ -64,7 +68,10 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         M: {};
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
-        readonly title: StringConstructor;
+        readonly title: {
+            type: import("vue").PropType<import("./types").TooltipTitle>;
+            default: undefined;
+        };
         readonly placement: {
             readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
@@ -108,6 +115,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
     }>, {}, {}, {}, {}, {
+        readonly title: import("./types").TooltipTitle;
         readonly open: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly destroyOnHidden: boolean;
@@ -122,7 +130,10 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     __isTeleport?: undefined;
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
+    readonly title: {
+        type: import("vue").PropType<import("./types").TooltipTitle>;
+        default: undefined;
+    };
     readonly placement: {
         readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
@@ -169,6 +180,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
 }, string, {
+    readonly title: import("./types").TooltipTitle;
     readonly open: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly destroyOnHidden: boolean;

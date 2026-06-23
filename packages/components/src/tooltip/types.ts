@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import {
   floatingPlacements,
   isFloatingTriggerProp,
@@ -11,12 +11,20 @@ export interface TooltipArrowConfig {
 }
 
 export type TooltipArrow = boolean | TooltipArrowConfig
+export type TooltipRenderable = VNodeChild
+export type TooltipRenderableFactory = () => VNodeChild
+export type TooltipTitle = TooltipRenderable | TooltipRenderableFactory
 export type TooltipSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'content' | 'arrow'
 export type TooltipClassNames = Partial<Record<TooltipSemanticPart, string>>
 export type TooltipStyles = Partial<Record<TooltipSemanticPart, StyleValue>>
 
+const titleProp = {
+  type: null as unknown as PropType<TooltipTitle>,
+  default: undefined
+}
+
 export const tooltipProps = {
-  title: String,
+  title: titleProp,
   placement: {
     type: String as PropType<FloatingPlacement>,
     default: 'top',

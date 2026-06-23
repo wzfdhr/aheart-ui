@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Tooltip from '../tooltip.vue'
 
@@ -15,6 +16,60 @@ describe('Tooltip', () => {
 
     expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(true)
     expect(wrapper.text()).toContain('Helpful text')
+  })
+
+  it('renders vnode and function title props', () => {
+    const wrapper = mount(Tooltip, {
+      props: {
+        open: true,
+        title: () => h('span', { class: 'title-node' }, 'Helpful node')
+      },
+      slots: { default: '<button>Help</button>' }
+    })
+
+    expect(wrapper.find('.title-node').text()).toBe('Helpful node')
+  })
+
+  it('renders numeric title without treating zero as empty', () => {
+    const wrapper = mount(Tooltip, {
+      props: {
+        open: true,
+        title: 0
+      },
+      slots: { default: '<button>Count</button>' }
+    })
+
+    expect(wrapper.find('.aheart-tooltip__content').text()).toBe('0')
+  })
+
+  it('lets title slot override renderable prop fallback', () => {
+    const wrapper = mount(Tooltip, {
+      props: {
+        open: true,
+        title: h('span', { class: 'prop-title-node' }, 'Prop title')
+      },
+      slots: {
+        default: '<button>Help</button>',
+        title: '<span class="slot-title-node">Slot title</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-title-node').text()).toBe('Slot title')
+    expect(wrapper.find('.prop-title-node').exists()).toBe(false)
+  })
+
+  it('does not render popup for an empty title string', async () => {
+    const wrapper = mount(Tooltip, {
+      props: {
+        title: '',
+        mouseEnterDelay: 0
+      },
+      slots: { default: '<button>Help</button>' }
+    })
+
+    await wrapper.find('.aheart-tooltip__trigger').trigger('mouseenter')
+
+    expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(false)
   })
 
   it('applies placement color arrow and zIndex', () => {

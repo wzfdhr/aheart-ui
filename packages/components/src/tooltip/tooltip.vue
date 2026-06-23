@@ -36,7 +36,9 @@
       />
       <span class="aheart-tooltip__container" :class="containerClass" :style="containerStyle">
         <span class="aheart-tooltip__content" :class="contentClass" :style="contentStyle">
-          <slot name="title">{{ title }}</slot>
+          <slot name="title">
+            <ARenderNode :node="title" />
+          </slot>
         </span>
       </span>
     </span>
@@ -44,15 +46,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, useSlots, watch } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType } from 'vue'
 import { getFloatingPopupStyle, normalizeFloatingTriggers } from '../utils/floating'
 import '../utils/floating.css'
-import { tooltipEmits, tooltipProps } from './types'
+import { tooltipEmits, tooltipProps, type TooltipTitle } from './types'
 import './style.css'
 
 defineOptions({
   name: 'ATooltip'
 })
+
+const ARenderNode = defineComponent({
+  name: 'ATooltipRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<TooltipTitle>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => (typeof renderProps.node === 'function' ? renderProps.node() : renderProps.node)
+  }
+})
+
+const hasTitleContent = (value: TooltipTitle | undefined | null) =>
+  value !== undefined && value !== null && value !== false && value !== ''
 
 const props = defineProps(tooltipProps)
 const emit = defineEmits(tooltipEmits)
@@ -63,7 +81,7 @@ const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open))
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
-const hasTitle = computed(() => Boolean(props.title || slots.title))
+const hasTitle = computed(() => Boolean(slots.title) || hasTitleContent(props.title))
 const visible = computed(() => hasTitle.value && mergedOpen.value)
 const shouldRenderPopup = computed(() => hasTitle.value && (visible.value || (!props.destroyOnHidden && hasRenderedPopup.value)))
 const tooltipClass = computed(() => [

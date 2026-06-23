@@ -1,12 +1,17 @@
+import { type PropType } from 'vue';
+import { type TooltipTitle } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
+    readonly title: {
+        type: PropType<TooltipTitle>;
+        default: undefined;
+    };
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
     readonly trigger: {
-        readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "hover";
         readonly validator: (value: unknown) => boolean;
     };
@@ -17,7 +22,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly defaultOpen: BooleanConstructor;
     readonly color: StringConstructor;
     readonly arrow: {
-        readonly type: import("vue").PropType<import("./types").TooltipArrow>;
+        readonly type: PropType<import("./types").TooltipArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
@@ -33,24 +38,27 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly fresh: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly overlayClassName: StringConstructor;
-    readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
+    readonly overlayStyle: PropType<import("vue").StyleValue>;
+    readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
+    readonly title: {
+        type: PropType<TooltipTitle>;
+        default: undefined;
+    };
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
     readonly trigger: {
-        readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "hover";
         readonly validator: (value: unknown) => boolean;
     };
@@ -61,7 +69,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly defaultOpen: BooleanConstructor;
     readonly color: StringConstructor;
     readonly arrow: {
-        readonly type: import("vue").PropType<import("./types").TooltipArrow>;
+        readonly type: PropType<import("./types").TooltipArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
@@ -77,16 +85,17 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly fresh: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly overlayClassName: StringConstructor;
-    readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
+    readonly overlayStyle: PropType<import("vue").StyleValue>;
+    readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
+    readonly title: TooltipTitle;
     readonly open: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly destroyOnHidden: boolean;

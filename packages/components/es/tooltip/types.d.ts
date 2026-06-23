@@ -1,14 +1,20 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import { type FloatingTriggerProp } from '../utils/floating';
 export interface TooltipArrowConfig {
     pointAtCenter?: boolean;
 }
 export type TooltipArrow = boolean | TooltipArrowConfig;
+export type TooltipRenderable = VNodeChild;
+export type TooltipRenderableFactory = () => VNodeChild;
+export type TooltipTitle = TooltipRenderable | TooltipRenderableFactory;
 export type TooltipSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'content' | 'arrow';
 export type TooltipClassNames = Partial<Record<TooltipSemanticPart, string>>;
 export type TooltipStyles = Partial<Record<TooltipSemanticPart, StyleValue>>;
 export declare const tooltipProps: {
-    readonly title: StringConstructor;
+    readonly title: {
+        type: PropType<TooltipTitle>;
+        default: undefined;
+    };
     readonly placement: {
         readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";

@@ -1,6 +1,10 @@
 import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating.js";
+const titleProp = {
+  type: null,
+  default: void 0
+};
 const tooltipProps = {
-  title: String,
+  title: titleProp,
   placement: {
     type: String,
     default: "top",

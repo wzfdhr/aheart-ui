@@ -2,6 +2,15 @@
 
 Tooltip displays compact explanatory text for controls and dense interface elements.
 
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderableTooltipTitle = () => h('span', [
+  'Latency: ',
+  h('strong', '42ms')
+])
+</script>
+
 ## 基础用法
 
 <div class="aheart-demo-panel">
@@ -14,6 +23,31 @@ Tooltip displays compact explanatory text for controls and dense interface eleme
 <template>
   <ATooltip title="Helpful text">
     <AButton>Hover me</AButton>
+  </ATooltip>
+</template>
+```
+
+## 可渲染内容
+
+<div class="aheart-demo-panel">
+  <ATooltip default-open :title="renderableTooltipTitle">
+    <AButton>Latency</AButton>
+  </ATooltip>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderableTooltipTitle = () => h('span', [
+  'Latency: ',
+  h('strong', '42ms')
+])
+</script>
+
+<template>
+  <ATooltip :title="renderableTooltipTitle">
+    <AButton>Latency</AButton>
   </ATooltip>
 </template>
 ```
@@ -159,7 +193,7 @@ Tooltip displays compact explanatory text for controls and dense interface eleme
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| title | 提示内容 | `string` | - |
+| title | 提示内容，`title` 插槽优先级更高；为空字符串、`null` 或 `false` 时不显示 | `VNodeChild` \| `() => VNodeChild` | - |
 | placement | 气泡位置 | `FloatingPlacement` | `top` |
 | trigger | 触发方式 | `hover` \| `focus` \| `click` \| `contextMenu` \| `FloatingTrigger[]` | `hover` |
 | open | 受控显示状态 | `boolean` | - |

@@ -1,8 +1,12 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const floating = require("../utils/floating.js");
+const titleProp = {
+  type: null,
+  default: void 0
+};
 const tooltipProps = {
-  title: String,
+  title: titleProp,
   placement: {
     type: String,
     default: "top",

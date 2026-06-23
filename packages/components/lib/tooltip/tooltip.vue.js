@@ -13,6 +13,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.tooltipProps,
   emits: types.tooltipEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = vue.defineComponent({
+      name: "ATooltipRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => typeof renderProps.node === "function" ? renderProps.node() : renderProps.node;
+      }
+    });
+    const hasTitleContent = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
@@ -21,7 +34,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
-    const hasTitle = vue.computed(() => Boolean(props.title || slots.title));
+    const hasTitle = vue.computed(() => Boolean(slots.title) || hasTitleContent(props.title));
     const visible = vue.computed(() => hasTitle.value && mergedOpen.value);
     const shouldRenderPopup = vue.computed(() => hasTitle.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
     const tooltipClass = vue.computed(() => {
@@ -210,7 +223,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               style: vue.normalizeStyle(contentStyle.value)
             }, [
               vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
+                vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
               ])
             ], 6)
           ], 6)
