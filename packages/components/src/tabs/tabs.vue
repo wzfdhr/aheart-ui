@@ -2,7 +2,9 @@
   <div class="aheart-tabs" :class="tabsClass" :style="rootStyle">
     <div :class="navClass" :style="navStyle">
       <span v-if="hasLeftExtra" :class="extraLeftClass" :style="extraLeftStyle">
-        <slot name="extraLeft">{{ leftExtraContent }}</slot>
+        <slot name="extraLeft">
+          <ARenderNode :node="leftExtraContent" />
+        </slot>
       </span>
       <div :class="navListClass" :style="navListStyle" role="tablist">
         <button
@@ -20,12 +22,18 @@
           :tabindex="item.key === mergedActiveKey ? 0 : -1"
           @click="handleTabClick(item, $event)"
         >
-          <span v-if="item.icon" :class="tabIconClass" :style="tabIconStyle" aria-hidden="true">{{ item.icon }}</span>
-          <span :class="tabLabelClass" :style="tabLabelStyle">{{ item.label }}</span>
+          <span v-if="hasRenderable(item.icon)" :class="tabIconClass" :style="tabIconStyle" aria-hidden="true">
+            <ARenderNode :node="item.icon" />
+          </span>
+          <span :class="tabLabelClass" :style="tabLabelStyle">
+            <ARenderNode :node="item.label" />
+          </span>
         </button>
       </div>
       <span v-if="hasRightExtra" :class="extraRightClass" :style="extraRightStyle">
-        <slot name="extraRight">{{ rightExtraContent }}</slot>
+        <slot name="extraRight">
+          <ARenderNode :node="rightExtraContent" />
+        </slot>
       </span>
     </div>
     <div
@@ -37,21 +45,36 @@
       :aria-labelledby="getTabId(activeItem.key)"
     >
       <slot v-if="activeSlotName" :name="activeSlotName">
-        {{ activeItem.children }}
+        <ARenderNode :node="activeItem.children" />
       </slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
-import { tabsEmits, tabsProps, type TabItem } from './types'
+import { tabsEmits, tabsProps, type TabItem, type TabsExtraContent, type TabsExtraContentConfig } from './types'
 import './style.css'
 
 defineOptions({
   name: 'ATabs'
 })
+
+const ARenderNode = defineComponent({
+  name: 'ATabsRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
+
+const hasRenderable = (value: VNodeChild | undefined) => value !== undefined && value !== null && value !== false
 
 const props = defineProps(tabsProps)
 const emit = defineEmits(tabsEmits)
@@ -81,17 +104,20 @@ const positionPlacementMap = {
 const resolvedPlacement = computed(() => props.tabPlacement ?? (props.tabPosition ? positionPlacementMap[props.tabPosition] : 'top'))
 const animatedInkBar = computed(() => (typeof props.animated === 'object' ? props.animated.inkBar === true : props.animated))
 const animatedTabPane = computed(() => (typeof props.animated === 'object' ? props.animated.tabPane === true : props.animated))
-const extraContentConfig = computed(() => {
-  if (typeof props.tabBarExtraContent === 'string') {
-    return { right: props.tabBarExtraContent }
+const isExtraContentConfig = (value: TabsExtraContent | undefined): value is TabsExtraContentConfig => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && ('left' in value || 'right' in value)
+}
+const extraContentConfig = computed<TabsExtraContentConfig>(() => {
+  if (isExtraContentConfig(props.tabBarExtraContent)) {
+    return props.tabBarExtraContent
   }
 
-  return props.tabBarExtraContent ?? {}
+  return props.tabBarExtraContent !== undefined ? { right: props.tabBarExtraContent } : {}
 })
 const leftExtraContent = computed(() => extraContentConfig.value.left)
 const rightExtraContent = computed(() => extraContentConfig.value.right)
-const hasLeftExtra = computed(() => Boolean(leftExtraContent.value))
-const hasRightExtra = computed(() => Boolean(rightExtraContent.value))
+const hasLeftExtra = computed(() => hasRenderable(leftExtraContent.value))
+const hasRightExtra = computed(() => hasRenderable(rightExtraContent.value))
 
 const tabsClass = computed(() => [
   `aheart-tabs--${props.type}`,

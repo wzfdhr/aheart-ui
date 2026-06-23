@@ -1,58 +1,59 @@
-import { type TabItem } from './types';
+import { type PropType } from 'vue';
+import { type TabItem, type TabsExtraContent } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly items: import("vue").PropType<TabItem[]>;
+    readonly items: PropType<TabItem[]>;
     readonly activeKey: StringConstructor;
     readonly defaultActiveKey: StringConstructor;
     readonly type: {
-        readonly type: import("vue").PropType<import("./types").TabsType>;
+        readonly type: PropType<import("./types").TabsType>;
         readonly default: "line";
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly centered: BooleanConstructor;
-    readonly tabPlacement: import("vue").PropType<import("./types").TabsPlacement>;
-    readonly tabPosition: import("vue").PropType<import("./types").TabsPosition>;
-    readonly tabBarExtraContent: import("vue").PropType<import("./types").TabsExtraContent>;
+    readonly tabPlacement: PropType<import("./types").TabsPlacement>;
+    readonly tabPosition: PropType<import("./types").TabsPosition>;
+    readonly tabBarExtraContent: PropType<TabsExtraContent>;
     readonly tabBarGutter: NumberConstructor;
-    readonly tabBarStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly indicator: import("vue").PropType<import("./types").TabsIndicatorConfig>;
+    readonly tabBarStyle: PropType<import("vue").StyleValue>;
+    readonly indicator: PropType<import("./types").TabsIndicatorConfig>;
     readonly animated: {
-        readonly type: import("vue").PropType<import("./types").TabsAnimated>;
+        readonly type: PropType<import("./types").TabsAnimated>;
         readonly default: false;
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").TabsSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").TabsSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").TabsSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").TabsSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (key: string) => void;
     "update:activeKey": (key: string) => void;
     tabClick: (key: string, event: MouseEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly items: import("vue").PropType<TabItem[]>;
+    readonly items: PropType<TabItem[]>;
     readonly activeKey: StringConstructor;
     readonly defaultActiveKey: StringConstructor;
     readonly type: {
-        readonly type: import("vue").PropType<import("./types").TabsType>;
+        readonly type: PropType<import("./types").TabsType>;
         readonly default: "line";
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly centered: BooleanConstructor;
-    readonly tabPlacement: import("vue").PropType<import("./types").TabsPlacement>;
-    readonly tabPosition: import("vue").PropType<import("./types").TabsPosition>;
-    readonly tabBarExtraContent: import("vue").PropType<import("./types").TabsExtraContent>;
+    readonly tabPlacement: PropType<import("./types").TabsPlacement>;
+    readonly tabPosition: PropType<import("./types").TabsPosition>;
+    readonly tabBarExtraContent: PropType<TabsExtraContent>;
     readonly tabBarGutter: NumberConstructor;
-    readonly tabBarStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly indicator: import("vue").PropType<import("./types").TabsIndicatorConfig>;
+    readonly tabBarStyle: PropType<import("vue").StyleValue>;
+    readonly indicator: PropType<import("./types").TabsIndicatorConfig>;
     readonly animated: {
-        readonly type: import("vue").PropType<import("./types").TabsAnimated>;
+        readonly type: PropType<import("./types").TabsAnimated>;
         readonly default: false;
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").TabsSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").TabsSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").TabsSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").TabsSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onChange?: ((key: string) => any) | undefined;
     "onUpdate:activeKey"?: ((key: string) => any) | undefined;

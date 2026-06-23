@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const renderableProp = [String, Number, Boolean, Object, Array, Function];
 const tabsProps = {
   items: Array,
   activeKey: String,
@@ -12,7 +13,7 @@ const tabsProps = {
   centered: Boolean,
   tabPlacement: String,
   tabPosition: String,
-  tabBarExtraContent: [String, Object],
+  tabBarExtraContent: renderableProp,
   tabBarGutter: Number,
   tabBarStyle: [String, Object, Array],
   indicator: Object,

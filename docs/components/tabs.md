@@ -2,6 +2,30 @@
 
 Tabs switch between related panels while keeping the surrounding page context stable.
 
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderableTabsItems = [
+  {
+    key: 'profile',
+    icon: h('span', { style: { color: 'var(--aheart-color-primary)' } }, 'P'),
+    label: h('span', { style: { fontWeight: 600 } }, 'Profile'),
+    children: h('span', 'Profile content from a VNode child')
+  },
+  {
+    key: 'activity',
+    icon: h('span', 'A'),
+    label: h('span', 'Activity'),
+    children: h('span', 'Activity content from a VNode child')
+  }
+]
+
+const renderableTabsExtraContent = {
+  left: h('span', { style: { color: 'var(--aheart-color-text-secondary)' } }, 'Workspace'),
+  right: h('button', { type: 'button', class: 'aheart-button aheart-button--small' }, 'Sync')
+}
+</script>
+
 ## 基础用法
 
 <div class="aheart-demo-panel">
@@ -102,6 +126,48 @@ Tabs switch between related panels while keeping the surrounding page context st
       { key: 'tasks', label: 'Tasks', children: 'Task list' },
       { key: 'files', label: 'Files', children: 'File list' }
     ]"
+  />
+</template>
+```
+
+## 可渲染内容
+
+<div class="aheart-demo-panel">
+  <ATabs
+    :items="renderableTabsItems"
+    :tab-bar-extra-content="renderableTabsExtraContent"
+  />
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderableTabsItems = [
+  {
+    key: 'profile',
+    icon: h('span', { style: { color: 'var(--aheart-color-primary)' } }, 'P'),
+    label: h('span', { style: { fontWeight: 600 } }, 'Profile'),
+    children: h('span', 'Profile content from a VNode child')
+  },
+  {
+    key: 'activity',
+    icon: h('span', 'A'),
+    label: h('span', 'Activity'),
+    children: h('span', 'Activity content from a VNode child')
+  }
+]
+
+const renderableTabsExtraContent = {
+  left: h('span', { style: { color: 'var(--aheart-color-text-secondary)' } }, 'Workspace'),
+  right: h('button', { type: 'button', class: 'aheart-button aheart-button--small' }, 'Sync')
+}
+</script>
+
+<template>
+  <ATabs
+    :items="renderableTabsItems"
+    :tab-bar-extra-content="renderableTabsExtraContent"
   />
 </template>
 ```
@@ -229,7 +295,7 @@ Tabs switch between related panels while keeping the surrounding page context st
 | centered | 标签是否居中 | `boolean` | `false` |
 | tabPlacement | 标签位置 | `top` \| `bottom` \| `start` \| `end` | `top` |
 | tabPosition | Ant 兼容位置别名 | `top` \| `bottom` \| `left` \| `right` | - |
-| tabBarExtraContent | 标签栏额外内容 | `string` \| `{ left?: string; right?: string }` | - |
+| tabBarExtraContent | 标签栏额外内容 | `VNodeChild` \| `{ left?: VNodeChild; right?: VNodeChild }` | - |
 | tabBarGutter | 标签间距 | `number` | - |
 | tabBarStyle | 标签栏样式 | `StyleValue` | - |
 | indicator | 指示器配置 | `{ size?: number; align?: 'start' \| 'center' \| 'end' }` | - |
@@ -245,9 +311,9 @@ Tabs switch between related panels while keeping the surrounding page context st
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | key | 唯一标识 | `string` | - |
-| label | 标签文本 | `string` | - |
-| icon | 标签前置图标文本 | `string` | - |
-| children | 面板文本内容 | `string` | - |
+| label | 标签内容 | `VNodeChild` | - |
+| icon | 标签前置图标 | `VNodeChild` | - |
+| children | 面板内容，低于 `tab-{key}` 插槽优先级 | `VNodeChild` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
 
 ## Events
@@ -262,7 +328,7 @@ Tabs switch between related panels while keeping the surrounding page context st
 
 | 名称 | 说明 |
 | --- | --- |
-| tab-{key} | 自定义指定 key 的面板内容 |
+| tab-{key} | 自定义指定 key 的面板内容，优先于 `TabItem.children` |
 | extraLeft | 自定义标签栏左侧额外内容 |
 | extraRight | 自定义标签栏右侧额外内容 |
 

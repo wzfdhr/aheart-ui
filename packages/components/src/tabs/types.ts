@@ -1,11 +1,13 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
+
+export type TabsRenderable = VNodeChild
 
 export interface TabItem {
   key: string
-  label: string
-  icon?: string
-  children?: string
+  label: TabsRenderable
+  icon?: TabsRenderable
+  children?: TabsRenderable
   disabled?: boolean
 }
 
@@ -15,8 +17,8 @@ export type TabsPosition = 'top' | 'bottom' | 'left' | 'right'
 export type TabsIndicatorAlign = 'start' | 'center' | 'end'
 
 export interface TabsExtraContentConfig {
-  left?: string
-  right?: string
+  left?: TabsRenderable
+  right?: TabsRenderable
 }
 
 export interface TabsIndicatorConfig {
@@ -29,7 +31,7 @@ export interface TabsAnimatedConfig {
   tabPane?: boolean
 }
 
-export type TabsExtraContent = string | TabsExtraContentConfig
+export type TabsExtraContent = TabsRenderable | TabsExtraContentConfig
 export type TabsAnimated = boolean | TabsAnimatedConfig
 export type TabsSemanticPart =
   | 'root'
@@ -46,6 +48,8 @@ export type TabsSemanticPart =
 export type TabsClassNames = Partial<Record<TabsSemanticPart, string>>
 export type TabsStyles = Partial<Record<TabsSemanticPart, StyleValue>>
 
+const renderableProp = [String, Number, Boolean, Object, Array, Function] as PropType<TabsRenderable>
+
 export const tabsProps = {
   items: Array as PropType<TabItem[]>,
   activeKey: String,
@@ -58,7 +62,7 @@ export const tabsProps = {
   centered: Boolean,
   tabPlacement: String as PropType<TabsPlacement>,
   tabPosition: String as PropType<TabsPosition>,
-  tabBarExtraContent: [String, Object] as PropType<TabsExtraContent>,
+  tabBarExtraContent: renderableProp as PropType<TabsExtraContent>,
   tabBarGutter: Number,
   tabBarStyle: [String, Object, Array] as PropType<StyleValue>,
   indicator: Object as PropType<TabsIndicatorConfig>,

@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString, createCommentVNode, Fragment, renderList } from "vue";
+import { defineComponent, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { tabsProps, tabsEmits } from "./types.js";
 import "./style.css.js";
@@ -12,6 +12,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: tabsProps,
   emits: tabsEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = defineComponent({
+      name: "ATabsRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
@@ -37,16 +50,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const resolvedPlacement = computed(() => props.tabPlacement ?? (props.tabPosition ? positionPlacementMap[props.tabPosition] : "top"));
     const animatedInkBar = computed(() => typeof props.animated === "object" ? props.animated.inkBar === true : props.animated);
     const animatedTabPane = computed(() => typeof props.animated === "object" ? props.animated.tabPane === true : props.animated);
+    const isExtraContentConfig = (value) => {
+      return typeof value === "object" && value !== null && !Array.isArray(value) && ("left" in value || "right" in value);
+    };
     const extraContentConfig = computed(() => {
-      if (typeof props.tabBarExtraContent === "string") {
-        return { right: props.tabBarExtraContent };
+      if (isExtraContentConfig(props.tabBarExtraContent)) {
+        return props.tabBarExtraContent;
       }
-      return props.tabBarExtraContent ?? {};
+      return props.tabBarExtraContent !== void 0 ? { right: props.tabBarExtraContent } : {};
     });
     const leftExtraContent = computed(() => extraContentConfig.value.left);
     const rightExtraContent = computed(() => extraContentConfig.value.right);
-    const hasLeftExtra = computed(() => Boolean(leftExtraContent.value));
-    const hasRightExtra = computed(() => Boolean(rightExtraContent.value));
+    const hasLeftExtra = computed(() => hasRenderable(leftExtraContent.value));
+    const hasRightExtra = computed(() => hasRenderable(rightExtraContent.value));
     const tabsClass = computed(() => {
       var _a;
       return [
@@ -185,7 +201,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(extraLeftStyle.value)
           }, [
             renderSlot(_ctx.$slots, "extraLeft", {}, () => [
-              createTextVNode(toDisplayString(leftExtraContent.value), 1)
+              createVNode(unref(ARenderNode), { node: leftExtraContent.value }, null, 8, ["node"])
             ])
           ], 6)) : createCommentVNode("", true),
           createElementVNode("div", {
@@ -207,16 +223,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 tabindex: item.key === mergedActiveKey.value ? 0 : -1,
                 onClick: ($event) => handleTabClick(item, $event)
               }, [
-                item.icon ? (openBlock(), createElementBlock("span", {
+                hasRenderable(item.icon) ? (openBlock(), createElementBlock("span", {
                   key: 0,
                   class: normalizeClass(tabIconClass.value),
                   style: normalizeStyle(tabIconStyle.value),
                   "aria-hidden": "true"
-                }, toDisplayString(item.icon), 7)) : createCommentVNode("", true),
+                }, [
+                  createVNode(unref(ARenderNode), {
+                    node: item.icon
+                  }, null, 8, ["node"])
+                ], 6)) : createCommentVNode("", true),
                 createElementVNode("span", {
                   class: normalizeClass(tabLabelClass.value),
                   style: normalizeStyle(tabLabelStyle.value)
-                }, toDisplayString(item.label), 7)
+                }, [
+                  createVNode(unref(ARenderNode), {
+                    node: item.label
+                  }, null, 8, ["node"])
+                ], 6)
               ], 14, _hoisted_1);
             }), 128))
           ], 6),
@@ -226,7 +250,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(extraRightStyle.value)
           }, [
             renderSlot(_ctx.$slots, "extraRight", {}, () => [
-              createTextVNode(toDisplayString(rightExtraContent.value), 1)
+              createVNode(unref(ARenderNode), { node: rightExtraContent.value }, null, 8, ["node"])
             ])
           ], 6)) : createCommentVNode("", true)
         ], 6),
@@ -239,7 +263,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "aria-labelledby": getTabId(activeItem.value.key)
         }, [
           activeSlotName.value ? renderSlot(_ctx.$slots, activeSlotName.value, { key: 0 }, () => [
-            createTextVNode(toDisplayString(activeItem.value.children), 1)
+            createVNode(unref(ARenderNode), {
+              node: activeItem.value.children
+            }, null, 8, ["node"])
           ]) : createCommentVNode("", true)
         ], 14, _hoisted_2)) : createCommentVNode("", true)
       ], 6);

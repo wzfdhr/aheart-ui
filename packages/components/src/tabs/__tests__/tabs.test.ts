@@ -27,6 +27,81 @@ describe('Tabs', () => {
     expect(wrapper.find('[role="tabpanel"]').text()).toContain('Overview panel')
   })
 
+  it('renders vnode item labels icons and children', () => {
+    const wrapper = mount(Tabs, {
+      props: {
+        items: [
+          {
+            key: 'overview',
+            label: h('span', { class: 'label-node' }, 'Overview node'),
+            icon: h('span', { class: 'icon-node' }, 'O'),
+            children: h('span', { class: 'panel-node' }, 'Overview panel node')
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.label-node').text()).toBe('Overview node')
+    expect(wrapper.find('.icon-node').text()).toBe('O')
+    expect(wrapper.find('.panel-node').text()).toBe('Overview panel node')
+  })
+
+  it('renders vnode tab bar extra content on both sides', () => {
+    const wrapper = mount(Tabs, {
+      props: {
+        items,
+        tabBarExtraContent: {
+          left: h('span', { class: 'extra-left-node' }, 'Filters'),
+          right: h('button', { class: 'extra-right-node' }, 'Action')
+        }
+      }
+    })
+
+    expect(wrapper.find('.extra-left-node').text()).toBe('Filters')
+    expect(wrapper.find('.extra-right-node').text()).toBe('Action')
+  })
+
+  it('renders numeric renderables without treating zero as empty', () => {
+    const wrapper = mount(Tabs, {
+      props: {
+        items: [
+          {
+            key: 'counts',
+            label: 0,
+            icon: 0,
+            children: 0
+          }
+        ],
+        tabBarExtraContent: 0
+      }
+    })
+
+    expect(wrapper.find('.aheart-tabs__tab-label').text()).toBe('0')
+    expect(wrapper.find('.aheart-tabs__tab-icon').text()).toBe('0')
+    expect(wrapper.find('[role="tabpanel"]').text()).toBe('0')
+    expect(wrapper.find('.aheart-tabs__extra--right').text()).toBe('0')
+  })
+
+  it('lets named panel slots override vnode item children', () => {
+    const wrapper = mount(Tabs, {
+      props: {
+        items: [
+          {
+            key: 'overview',
+            label: 'Overview',
+            children: h('span', { class: 'item-panel-node' }, 'Item panel')
+          }
+        ]
+      },
+      slots: {
+        'tab-overview': '<span class="slot-panel-node">Slot panel</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-panel-node').text()).toBe('Slot panel')
+    expect(wrapper.find('.item-panel-node').exists()).toBe(false)
+  })
+
   it('emits update and change when an enabled tab is clicked', async () => {
     const wrapper = mount(Tabs, {
       props: { items }

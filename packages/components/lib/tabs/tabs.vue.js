@@ -14,6 +14,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.tabsProps,
   emits: types.tabsEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = vue.defineComponent({
+      name: "ATabsRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
@@ -39,16 +52,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const resolvedPlacement = vue.computed(() => props.tabPlacement ?? (props.tabPosition ? positionPlacementMap[props.tabPosition] : "top"));
     const animatedInkBar = vue.computed(() => typeof props.animated === "object" ? props.animated.inkBar === true : props.animated);
     const animatedTabPane = vue.computed(() => typeof props.animated === "object" ? props.animated.tabPane === true : props.animated);
+    const isExtraContentConfig = (value) => {
+      return typeof value === "object" && value !== null && !Array.isArray(value) && ("left" in value || "right" in value);
+    };
     const extraContentConfig = vue.computed(() => {
-      if (typeof props.tabBarExtraContent === "string") {
-        return { right: props.tabBarExtraContent };
+      if (isExtraContentConfig(props.tabBarExtraContent)) {
+        return props.tabBarExtraContent;
       }
-      return props.tabBarExtraContent ?? {};
+      return props.tabBarExtraContent !== void 0 ? { right: props.tabBarExtraContent } : {};
     });
     const leftExtraContent = vue.computed(() => extraContentConfig.value.left);
     const rightExtraContent = vue.computed(() => extraContentConfig.value.right);
-    const hasLeftExtra = vue.computed(() => Boolean(leftExtraContent.value));
-    const hasRightExtra = vue.computed(() => Boolean(rightExtraContent.value));
+    const hasLeftExtra = vue.computed(() => hasRenderable(leftExtraContent.value));
+    const hasRightExtra = vue.computed(() => hasRenderable(rightExtraContent.value));
     const tabsClass = vue.computed(() => {
       var _a;
       return [
@@ -187,7 +203,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(extraLeftStyle.value)
           }, [
             vue.renderSlot(_ctx.$slots, "extraLeft", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(leftExtraContent.value), 1)
+              vue.createVNode(vue.unref(ARenderNode), { node: leftExtraContent.value }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true),
           vue.createElementVNode("div", {
@@ -209,16 +225,24 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 tabindex: item.key === mergedActiveKey.value ? 0 : -1,
                 onClick: ($event) => handleTabClick(item, $event)
               }, [
-                item.icon ? (vue.openBlock(), vue.createElementBlock("span", {
+                hasRenderable(item.icon) ? (vue.openBlock(), vue.createElementBlock("span", {
                   key: 0,
                   class: vue.normalizeClass(tabIconClass.value),
                   style: vue.normalizeStyle(tabIconStyle.value),
                   "aria-hidden": "true"
-                }, vue.toDisplayString(item.icon), 7)) : vue.createCommentVNode("", true),
+                }, [
+                  vue.createVNode(vue.unref(ARenderNode), {
+                    node: item.icon
+                  }, null, 8, ["node"])
+                ], 6)) : vue.createCommentVNode("", true),
                 vue.createElementVNode("span", {
                   class: vue.normalizeClass(tabLabelClass.value),
                   style: vue.normalizeStyle(tabLabelStyle.value)
-                }, vue.toDisplayString(item.label), 7)
+                }, [
+                  vue.createVNode(vue.unref(ARenderNode), {
+                    node: item.label
+                  }, null, 8, ["node"])
+                ], 6)
               ], 14, _hoisted_1);
             }), 128))
           ], 6),
@@ -228,7 +252,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(extraRightStyle.value)
           }, [
             vue.renderSlot(_ctx.$slots, "extraRight", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(rightExtraContent.value), 1)
+              vue.createVNode(vue.unref(ARenderNode), { node: rightExtraContent.value }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true)
         ], 6),
@@ -241,7 +265,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           "aria-labelledby": getTabId(activeItem.value.key)
         }, [
           activeSlotName.value ? vue.renderSlot(_ctx.$slots, activeSlotName.value, { key: 0 }, () => [
-            vue.createTextVNode(vue.toDisplayString(activeItem.value.children), 1)
+            vue.createVNode(vue.unref(ARenderNode), {
+              node: activeItem.value.children
+            }, null, 8, ["node"])
           ]) : vue.createCommentVNode("", true)
         ], 14, _hoisted_2)) : vue.createCommentVNode("", true)
       ], 6);

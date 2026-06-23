@@ -1,10 +1,11 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
+export type TabsRenderable = VNodeChild;
 export interface TabItem {
     key: string;
-    label: string;
-    icon?: string;
-    children?: string;
+    label: TabsRenderable;
+    icon?: TabsRenderable;
+    children?: TabsRenderable;
     disabled?: boolean;
 }
 export type TabsType = 'line' | 'card';
@@ -12,8 +13,8 @@ export type TabsPlacement = 'top' | 'bottom' | 'start' | 'end';
 export type TabsPosition = 'top' | 'bottom' | 'left' | 'right';
 export type TabsIndicatorAlign = 'start' | 'center' | 'end';
 export interface TabsExtraContentConfig {
-    left?: string;
-    right?: string;
+    left?: TabsRenderable;
+    right?: TabsRenderable;
 }
 export interface TabsIndicatorConfig {
     size?: number;
@@ -23,7 +24,7 @@ export interface TabsAnimatedConfig {
     inkBar?: boolean;
     tabPane?: boolean;
 }
-export type TabsExtraContent = string | TabsExtraContentConfig;
+export type TabsExtraContent = TabsRenderable | TabsExtraContentConfig;
 export type TabsAnimated = boolean | TabsAnimatedConfig;
 export type TabsSemanticPart = 'root' | 'nav' | 'navList' | 'tab' | 'activeTab' | 'tabIcon' | 'tabLabel' | 'panel' | 'extra' | 'extraLeft' | 'extraRight';
 export type TabsClassNames = Partial<Record<TabsSemanticPart, string>>;
