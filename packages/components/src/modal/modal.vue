@@ -62,6 +62,7 @@ import {
   type ModalFooterRenderExtra,
   type ModalMaskConfig,
   type ModalRender,
+  type ModalSemanticConfig,
   type ModalSemanticPart
 } from './types'
 import './style.css'
@@ -254,8 +255,17 @@ watch(
   }
 )
 
-const semanticClass = (part: ModalSemanticPart) => props.classNames?.[part]
-const semanticStyle = (part: ModalSemanticPart): CSSProperties | undefined => props.styles?.[part]
+const resolveSemanticConfig = <T,>(
+  config: ModalSemanticConfig<T> | undefined,
+  part: ModalSemanticPart
+): T | undefined => {
+  const resolved = typeof config === 'function' ? config({ props }) : config
+  return resolved?.[part]
+}
+
+const semanticClass = (part: ModalSemanticPart) => resolveSemanticConfig(props.classNames, part)
+const semanticStyle = (part: ModalSemanticPart): CSSProperties | undefined =>
+  resolveSemanticConfig(props.styles, part)
 
 const close = () => {
   emit('update:open', false)

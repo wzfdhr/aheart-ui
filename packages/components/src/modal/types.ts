@@ -4,8 +4,14 @@ import type { ButtonProps, ButtonType } from '../button/types'
 export const modalSemanticParts = ['root', 'mask', 'wrap', 'dialog', 'header', 'title', 'body', 'footer', 'close'] as const
 
 export type ModalSemanticPart = (typeof modalSemanticParts)[number]
-export type ModalClassNames = Partial<Record<ModalSemanticPart, string>>
-export type ModalStyles = Partial<Record<ModalSemanticPart, CSSProperties>>
+export interface ModalSemanticInfo {
+  props: Readonly<Record<string, unknown>>
+}
+
+export type ModalSemanticRecord<T> = Partial<Record<ModalSemanticPart, T>>
+export type ModalSemanticConfig<T> = ModalSemanticRecord<T> | ((info: ModalSemanticInfo) => ModalSemanticRecord<T>)
+export type ModalClassNames = ModalSemanticConfig<string>
+export type ModalStyles = ModalSemanticConfig<CSSProperties>
 export type ModalButtonProps = Partial<ButtonProps>
 export type ModalRenderable = VNodeChild
 export type ModalRender = (node: ModalRenderable) => ModalRenderable
@@ -96,8 +102,8 @@ export const modalProps = {
   modalRender: Function as PropType<ModalRender>,
   style: Object as PropType<CSSProperties>,
   rootStyle: Object as PropType<CSSProperties>,
-  classNames: Object as PropType<ModalClassNames>,
-  styles: Object as PropType<ModalStyles>,
+  classNames: [Object, Function] as PropType<ModalClassNames>,
+  styles: [Object, Function] as PropType<ModalStyles>,
   forceRender: Boolean,
   destroyOnClose: Boolean,
   destroyOnHidden: Boolean

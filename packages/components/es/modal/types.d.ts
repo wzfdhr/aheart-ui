@@ -2,8 +2,13 @@ import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue'
 import type { ButtonProps } from '../button/types';
 export declare const modalSemanticParts: readonly ["root", "mask", "wrap", "dialog", "header", "title", "body", "footer", "close"];
 export type ModalSemanticPart = (typeof modalSemanticParts)[number];
-export type ModalClassNames = Partial<Record<ModalSemanticPart, string>>;
-export type ModalStyles = Partial<Record<ModalSemanticPart, CSSProperties>>;
+export interface ModalSemanticInfo {
+    props: Readonly<Record<string, unknown>>;
+}
+export type ModalSemanticRecord<T> = Partial<Record<ModalSemanticPart, T>>;
+export type ModalSemanticConfig<T> = ModalSemanticRecord<T> | ((info: ModalSemanticInfo) => ModalSemanticRecord<T>);
+export type ModalClassNames = ModalSemanticConfig<string>;
+export type ModalStyles = ModalSemanticConfig<CSSProperties>;
 export type ModalButtonProps = Partial<ButtonProps>;
 export type ModalRenderable = VNodeChild;
 export type ModalRender = (node: ModalRenderable) => ModalRenderable;
@@ -87,8 +92,8 @@ export declare const modalProps: {
     readonly modalRender: PropType<ModalRender>;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
+    readonly classNames: PropType<ModalClassNames>;
+    readonly styles: PropType<ModalStyles>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

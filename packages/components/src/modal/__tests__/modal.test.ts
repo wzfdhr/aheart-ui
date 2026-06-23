@@ -105,6 +105,33 @@ describe('Modal', () => {
     expect(wrapper.find('.aheart-modal__footer').attributes('style')).toContain('justify-content: flex-start')
   })
 
+  it('resolves semantic class and style functions with modal props', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        title: 'Semantic functions',
+        width: 480,
+        classNames: ({ props }) => ({
+          root: props.open ? 'function-root-open' : 'function-root-closed',
+          dialog: props.width === 480 ? 'function-dialog-wide' : 'function-dialog-narrow'
+        }),
+        styles: ({ props }) => ({
+          body: {
+            padding: props.open ? '32px' : '8px'
+          },
+          footer: {
+            justifyContent: props.width === 480 ? 'center' : 'flex-end'
+          }
+        })
+      }
+    })
+
+    expect(wrapper.find('.aheart-modal').classes()).toContain('function-root-open')
+    expect(wrapper.find('.aheart-modal__dialog').classes()).toContain('function-dialog-wide')
+    expect(wrapper.find('.aheart-modal__body').attributes('style')).toContain('padding: 32px')
+    expect(wrapper.find('.aheart-modal__footer').attributes('style')).toContain('justify-content: center')
+  })
+
   it('applies wrapClassName alongside semantic wrap class', () => {
     const wrapper = mount(Modal, {
       props: {

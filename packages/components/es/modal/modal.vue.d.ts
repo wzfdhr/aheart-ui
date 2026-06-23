@@ -61,8 +61,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly modalRender: PropType<ModalRender>;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
+    readonly classNames: PropType<import("./types").ModalClassNames>;
+    readonly styles: PropType<import("./types").ModalStyles>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -134,8 +134,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly modalRender: PropType<ModalRender>;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", CSSProperties>>>;
+    readonly classNames: PropType<import("./types").ModalClassNames>;
+    readonly styles: PropType<import("./types").ModalStyles>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

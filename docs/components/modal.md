@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, ref, type VNodeChild } from 'vue'
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
 
 const basicOpen = ref(false)
 const closeControlsOpen = ref(false)
@@ -23,6 +23,15 @@ const renderableFooter = (
   okButton
 ])
 const modalRender = (node: VNodeChild) => h('div', { class: 'docs-modal-render-shell' }, [node])
+const semanticClassNames = ({ props }: { props: { open?: boolean } }) => ({
+  dialog: props.open ? 'docs-modal-dialog' : '',
+  body: 'docs-modal-body'
+})
+const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string, CSSProperties> => ({
+  body: {
+    padding: props.open ? '24px' : '16px'
+  }
+})
 </script>
 
 # Modal 对话框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -275,26 +284,40 @@ const open = ref(false)
     :z-index="1210"
     :root-style="{ color: 'var(--aheart-color-text)' }"
     :style="{ maxWidth: '92vw' }"
-    :class-names="{ body: 'docs-modal-body' }"
-    :styles="{ body: { padding: '24px' } }"
+    :class-names="semanticClassNames"
+    :styles="semanticStyles"
   >
     Semantic class and style hooks make app-specific modal shells easier.
   </AModal>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref, type CSSProperties } from 'vue'
+
+const open = ref(false)
+const semanticClassNames = ({ props }: { props: { open?: boolean } }) => ({
+  dialog: props.open ? 'workspace-modal-dialog' : '',
+  body: 'workspace-modal-body'
+})
+const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string, CSSProperties> => ({
+  body: {
+    padding: props.open ? '24px' : '16px'
+  }
+})
+</script>
+
 <template>
   <AModal
     v-model:open="open"
     title="Styled modal"
     root-class-name="workspace-modal-root"
     wrap-class-name="workspace-modal-wrap"
-    class-name="workspace-modal-dialog"
     :z-index="1210"
     :root-style="{ color: 'var(--aheart-color-text)' }"
     :style="{ maxWidth: '92vw' }"
-    :class-names="{ body: 'workspace-modal-body' }"
-    :styles="{ body: { padding: '24px' } }"
+    :class-names="semanticClassNames"
+    :styles="semanticStyles"
   >
     Semantic class and style hooks make app-specific modal shells easier.
   </AModal>
@@ -329,8 +352,8 @@ const open = ref(false)
 | wrapClassName | 对话框外层容器自定义类名 | `string` | - |
 | style | 对话框自定义样式 | `CSSProperties` | - |
 | rootStyle | 根节点自定义样式 | `CSSProperties` | - |
-| classNames | 语义化结构类名 | `Partial<Record<ModalSemanticPart, string>>` | - |
-| styles | 语义化结构样式 | `Partial<Record<ModalSemanticPart, CSSProperties>>` | - |
+| classNames | 语义化结构类名 | `Partial<Record<ModalSemanticPart, string>>` \| `(info: ModalSemanticInfo) => Partial<Record<ModalSemanticPart, string>>` | - |
+| styles | 语义化结构样式 | `Partial<Record<ModalSemanticPart, CSSProperties>>` \| `(info: ModalSemanticInfo) => Partial<Record<ModalSemanticPart, CSSProperties>>` | - |
 | forceRender | 关闭时也预渲染对话框结构 | `boolean` | `false` |
 | destroyOnClose | 关闭后销毁内容；兼容旧命名 | `boolean` | `false` |
 | destroyOnHidden | 关闭后销毁内容 | `boolean` | `false` |
@@ -348,6 +371,14 @@ interface ModalMaskConfig {
 ### ModalSemanticPart
 
 `root`、`mask`、`wrap`、`dialog`、`header`、`title`、`body`、`footer`、`close`
+
+### ModalSemanticInfo
+
+```ts
+interface ModalSemanticInfo {
+  props: Readonly<Record<string, unknown>>
+}
+```
 
 ### ModalFooterRender
 

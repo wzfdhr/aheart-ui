@@ -60,8 +60,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly modalRender: import("vue").PropType<import("./types").ModalRender>;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<import("./types").ModalClassNames>;
+        readonly styles: import("vue").PropType<import("./types").ModalStyles>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -167,8 +167,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly modalRender: import("vue").PropType<import("./types").ModalRender>;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-        readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", import("vue").CSSProperties>>>;
+        readonly classNames: import("vue").PropType<import("./types").ModalClassNames>;
+        readonly styles: import("vue").PropType<import("./types").ModalStyles>;
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -264,8 +264,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly modalRender: import("vue").PropType<import("./types").ModalRender>;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", import("vue").CSSProperties>>>;
+    readonly classNames: import("vue").PropType<import("./types").ModalClassNames>;
+    readonly styles: import("vue").PropType<import("./types").ModalStyles>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
