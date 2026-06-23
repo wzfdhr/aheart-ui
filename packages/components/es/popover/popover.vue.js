@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createTextVNode, toDisplayString, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
 import { popoverProps, popoverEmits } from "./types.js";
@@ -11,6 +11,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: popoverProps,
   emits: popoverEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = defineComponent({
+      name: "APopoverRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => typeof renderProps.node === "function" ? renderProps.node() : renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
     const props = __props;
     const emit = __emit;
     const slots = useSlots();
@@ -21,8 +34,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
-    const hasTitle = computed(() => Boolean(props.title || slots.title));
-    const hasContent = computed(() => Boolean(props.content || slots.content));
+    const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    const hasContent = computed(() => Boolean(slots.content) || hasRenderable(props.content));
     const hasPopupContent = computed(() => hasTitle.value || hasContent.value);
     const visible = computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
@@ -239,7 +252,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               style: normalizeStyle(titleStyle.value)
             }, [
               renderSlot(_ctx.$slots, "title", {}, () => [
-                createTextVNode(toDisplayString(_ctx.title), 1)
+                createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
               ])
             ], 6)) : createCommentVNode("", true),
             hasContent.value ? (openBlock(), createElementBlock("span", {
@@ -248,7 +261,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               style: normalizeStyle(contentStyle.value)
             }, [
               renderSlot(_ctx.$slots, "content", {}, () => [
-                createTextVNode(toDisplayString(_ctx.content), 1)
+                createVNode(unref(ARenderNode), { node: _ctx.content }, null, 8, ["node"])
               ])
             ], 6)) : createCommentVNode("", true)
           ], 6)

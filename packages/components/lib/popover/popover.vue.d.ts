@@ -1,13 +1,21 @@
+import { type PropType } from 'vue';
+import { type PopoverContent } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly content: StringConstructor;
+    readonly title: {
+        type: PropType<PopoverContent>;
+        default: undefined;
+    };
+    readonly content: {
+        type: PropType<PopoverContent>;
+        default: undefined;
+    };
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
     readonly trigger: {
-        readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "hover";
         readonly validator: (value: unknown) => boolean;
     };
@@ -28,31 +36,37 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly destroyOnHidden: BooleanConstructor;
     readonly fresh: BooleanConstructor;
     readonly arrow: {
-        readonly type: import("vue").PropType<import("./types").PopoverArrow>;
+        readonly type: PropType<import("./types").PopoverArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly overlayClassName: StringConstructor;
-    readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
+    readonly overlayStyle: PropType<import("vue").StyleValue>;
+    readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly content: StringConstructor;
+    readonly title: {
+        type: PropType<PopoverContent>;
+        default: undefined;
+    };
+    readonly content: {
+        type: PropType<PopoverContent>;
+        default: undefined;
+    };
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
     readonly trigger: {
-        readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "hover";
         readonly validator: (value: unknown) => boolean;
     };
@@ -73,22 +87,24 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly destroyOnHidden: BooleanConstructor;
     readonly fresh: BooleanConstructor;
     readonly arrow: {
-        readonly type: import("vue").PropType<import("./types").PopoverArrow>;
+        readonly type: PropType<import("./types").PopoverArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly overlayClassName: StringConstructor;
-    readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
+    readonly overlayStyle: PropType<import("vue").StyleValue>;
+    readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
+    readonly content: PopoverContent;
+    readonly title: PopoverContent;
     readonly open: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly destroyOnHidden: boolean;

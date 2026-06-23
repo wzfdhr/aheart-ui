@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Popover from '../popover.vue'
 
@@ -13,6 +14,54 @@ describe('Popover', () => {
     expect(wrapper.find('.aheart-popover__popup').classes()).toContain('aheart-floating--rightTop')
     expect(wrapper.text()).toContain('Card title')
     expect(wrapper.text()).toContain('Card content')
+  })
+
+  it('renders vnode and function title and content props', () => {
+    const wrapper = mount(Popover, {
+      props: {
+        open: true,
+        title: () => h('span', { class: 'title-node' }, 'Account node'),
+        content: h('span', { class: 'content-node' }, 'VNode body')
+      },
+      slots: { default: '<button>Details</button>' }
+    })
+
+    expect(wrapper.find('.title-node').text()).toBe('Account node')
+    expect(wrapper.find('.content-node').text()).toBe('VNode body')
+  })
+
+  it('renders numeric renderables without treating zero as empty', () => {
+    const wrapper = mount(Popover, {
+      props: {
+        open: true,
+        title: 0,
+        content: 0
+      },
+      slots: { default: '<button>Counts</button>' }
+    })
+
+    expect(wrapper.find('.aheart-popover__title').text()).toBe('0')
+    expect(wrapper.find('.aheart-popover__content').text()).toBe('0')
+  })
+
+  it('lets content slots override renderable prop fallbacks', () => {
+    const wrapper = mount(Popover, {
+      props: {
+        open: true,
+        title: h('span', { class: 'prop-title-node' }, 'Prop title'),
+        content: h('span', { class: 'prop-content-node' }, 'Prop content')
+      },
+      slots: {
+        default: '<button>Details</button>',
+        title: '<span class="slot-title-node">Slot title</span>',
+        content: '<span class="slot-content-node">Slot content</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-title-node').text()).toBe('Slot title')
+    expect(wrapper.find('.slot-content-node').text()).toBe('Slot content')
+    expect(wrapper.find('.prop-title-node').exists()).toBe(false)
+    expect(wrapper.find('.prop-content-node').exists()).toBe(false)
   })
 
   it('renders title and content slots', () => {

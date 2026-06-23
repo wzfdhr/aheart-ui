@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import {
   floatingPlacements,
   isFloatingTriggerProp,
@@ -11,13 +11,21 @@ export interface PopoverArrowConfig {
 }
 
 export type PopoverArrow = boolean | PopoverArrowConfig
+export type PopoverRenderable = VNodeChild
+export type PopoverRenderableFactory = () => VNodeChild
+export type PopoverContent = PopoverRenderable | PopoverRenderableFactory
 export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow'
 export type PopoverClassNames = Partial<Record<PopoverSemanticPart, string>>
 export type PopoverStyles = Partial<Record<PopoverSemanticPart, StyleValue>>
 
+const renderableProp = {
+  type: null as unknown as PropType<PopoverContent>,
+  default: undefined
+}
+
 export const popoverProps = {
-  title: String,
-  content: String,
+  title: renderableProp,
+  content: renderableProp,
   placement: {
     type: String as PropType<FloatingPlacement>,
     default: 'top',

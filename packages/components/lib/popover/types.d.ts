@@ -1,15 +1,24 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import { type FloatingTriggerProp } from '../utils/floating';
 export interface PopoverArrowConfig {
     pointAtCenter?: boolean;
 }
 export type PopoverArrow = boolean | PopoverArrowConfig;
+export type PopoverRenderable = VNodeChild;
+export type PopoverRenderableFactory = () => VNodeChild;
+export type PopoverContent = PopoverRenderable | PopoverRenderableFactory;
 export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow';
 export type PopoverClassNames = Partial<Record<PopoverSemanticPart, string>>;
 export type PopoverStyles = Partial<Record<PopoverSemanticPart, StyleValue>>;
 export declare const popoverProps: {
-    readonly title: StringConstructor;
-    readonly content: StringConstructor;
+    readonly title: {
+        type: PropType<PopoverContent>;
+        default: undefined;
+    };
+    readonly content: {
+        type: PropType<PopoverContent>;
+        default: undefined;
+    };
     readonly placement: {
         readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";

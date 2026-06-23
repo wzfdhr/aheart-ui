@@ -2,6 +2,17 @@
 
 Popover displays richer floating content with an optional title and body.
 
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderablePopoverTitle = () => h('span', { style: { fontWeight: 600 } }, 'Workspace details')
+const renderablePopoverContent = h('span', [
+  'Owner: ',
+  h('strong', 'Design System'),
+  ' · Status: active'
+])
+</script>
+
 ## 基础用法
 
 <div class="aheart-demo-panel">
@@ -14,6 +25,42 @@ Popover displays richer floating content with an optional title and body.
 <template>
   <APopover title="Account" content="Owner, plan, and recent activity." trigger="click">
     <AButton>Open popover</AButton>
+  </APopover>
+</template>
+```
+
+## 可渲染内容
+
+<div class="aheart-demo-panel">
+  <APopover
+    default-open
+    trigger="click"
+    :title="renderablePopoverTitle"
+    :content="renderablePopoverContent"
+  >
+    <AButton>Workspace</AButton>
+  </APopover>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderablePopoverTitle = () => h('span', { style: { fontWeight: 600 } }, 'Workspace details')
+const renderablePopoverContent = h('span', [
+  'Owner: ',
+  h('strong', 'Design System'),
+  ' · Status: active'
+])
+</script>
+
+<template>
+  <APopover
+    trigger="click"
+    :title="renderablePopoverTitle"
+    :content="renderablePopoverContent"
+  >
+    <AButton>Workspace</AButton>
   </APopover>
 </template>
 ```
@@ -190,8 +237,8 @@ Popover displays richer floating content with an optional title and body.
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| title | 卡片标题 | `string` | - |
-| content | 卡片内容 | `string` | - |
+| title | 卡片标题，`title` 插槽优先级更高 | `VNodeChild` \| `() => VNodeChild` | - |
+| content | 卡片内容，`content` 插槽优先级更高 | `VNodeChild` \| `() => VNodeChild` | - |
 | placement | 气泡位置 | `FloatingPlacement` | `top` |
 | trigger | 触发方式 | `hover` \| `focus` \| `click` \| `contextMenu` \| `FloatingTrigger[]` | `hover` |
 | open | 受控显示状态 | `boolean` | - |

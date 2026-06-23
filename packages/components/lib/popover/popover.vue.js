@@ -13,6 +13,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.popoverProps,
   emits: types.popoverEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = vue.defineComponent({
+      name: "APopoverRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => typeof renderProps.node === "function" ? renderProps.node() : renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
@@ -23,8 +36,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
-    const hasTitle = vue.computed(() => Boolean(props.title || slots.title));
-    const hasContent = vue.computed(() => Boolean(props.content || slots.content));
+    const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    const hasContent = vue.computed(() => Boolean(slots.content) || hasRenderable(props.content));
     const hasPopupContent = vue.computed(() => hasTitle.value || hasContent.value);
     const visible = vue.computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldRenderPopup = vue.computed(() => hasPopupContent.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
@@ -241,7 +254,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               style: vue.normalizeStyle(titleStyle.value)
             }, [
               vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
+                vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
               ])
             ], 6)) : vue.createCommentVNode("", true),
             hasContent.value ? (vue.openBlock(), vue.createElementBlock("span", {
@@ -250,7 +263,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               style: vue.normalizeStyle(contentStyle.value)
             }, [
               vue.renderSlot(_ctx.$slots, "content", {}, () => [
-                vue.createTextVNode(vue.toDisplayString(_ctx.content), 1)
+                vue.createVNode(vue.unref(ARenderNode), { node: _ctx.content }, null, 8, ["node"])
               ])
             ], 6)) : vue.createCommentVNode("", true)
           ], 6)

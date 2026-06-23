@@ -1,7 +1,11 @@
 import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating.js";
+const renderableProp = {
+  type: null,
+  default: void 0
+};
 const popoverProps = {
-  title: String,
-  content: String,
+  title: renderableProp,
+  content: renderableProp,
   placement: {
     type: String,
     default: "top",

@@ -36,10 +36,14 @@
       />
       <span class="aheart-popover__container" :class="containerClass" :style="containerStyle">
         <span v-if="hasTitle" class="aheart-popover__title" :class="titleClass" :style="titleStyle">
-          <slot name="title">{{ title }}</slot>
+          <slot name="title">
+            <ARenderNode :node="title" />
+          </slot>
         </span>
         <span v-if="hasContent" class="aheart-popover__content" :class="contentClass" :style="contentStyle">
-          <slot name="content">{{ content }}</slot>
+          <slot name="content">
+            <ARenderNode :node="content" />
+          </slot>
         </span>
       </span>
     </span>
@@ -47,15 +51,30 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, useSlots, watch } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType } from 'vue'
 import { getFloatingPopupStyle, normalizeFloatingTriggers } from '../utils/floating'
 import '../utils/floating.css'
-import { popoverEmits, popoverProps } from './types'
+import { popoverEmits, popoverProps, type PopoverContent } from './types'
 import './style.css'
 
 defineOptions({
   name: 'APopover'
 })
+
+const ARenderNode = defineComponent({
+  name: 'APopoverRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<PopoverContent>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => (typeof renderProps.node === 'function' ? renderProps.node() : renderProps.node)
+  }
+})
+
+const hasRenderable = (value: PopoverContent | undefined | null) => value !== undefined && value !== null && value !== false
 
 const props = defineProps(popoverProps)
 const emit = defineEmits(popoverEmits)
@@ -69,8 +88,8 @@ let mouseLeaveTimer: ReturnType<typeof setTimeout> | undefined
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
-const hasTitle = computed(() => Boolean(props.title || slots.title))
-const hasContent = computed(() => Boolean(props.content || slots.content))
+const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title))
+const hasContent = computed(() => Boolean(slots.content) || hasRenderable(props.content))
 const hasPopupContent = computed(() => hasTitle.value || hasContent.value)
 const visible = computed(() => hasPopupContent.value && mergedOpen.value)
 const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || (!props.destroyOnHidden && hasRenderedPopup.value)))
