@@ -1,5 +1,5 @@
 import { type PropType } from 'vue';
-import type { MessageNotice } from './types';
+import type { MessageNotice, MessageStackConfig } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly notices: {
         readonly type: PropType<MessageNotice[]>;
@@ -18,6 +18,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly styles: {
         readonly type: PropType<Partial<Record<import("./types").MessageSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
+    };
+    readonly stack: {
+        readonly type: PropType<MessageStackConfig>;
+        readonly default: false;
     };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     close: (key: import("./types").MessageKey) => void;
@@ -42,6 +46,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: PropType<Partial<Record<import("./types").MessageSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
+    readonly stack: {
+        readonly type: PropType<MessageStackConfig>;
+        readonly default: false;
+    };
 }>> & Readonly<{
     onClose?: ((key: import("./types").MessageKey) => any) | undefined;
     onNoticeMouseEnter?: ((key: import("./types").MessageKey) => any) | undefined;
@@ -52,5 +60,6 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly top: string | number;
     readonly rtl: boolean;
     readonly notices: MessageNotice[];
+    readonly stack: MessageStackConfig;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

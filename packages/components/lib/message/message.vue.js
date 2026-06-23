@@ -4,7 +4,13 @@ const vue = require("vue");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["onClick", "onMouseenter", "onMouseleave"];
-const _hoisted_2 = ["onClick"];
+const _hoisted_2 = {
+  key: 0,
+  class: "aheart-message-notice__stack-count",
+  "aria-label": "Stacked message count"
+};
+const _hoisted_3 = ["onClick"];
+const defaultStackThreshold = 3;
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AMessage"
@@ -34,11 +40,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       loading: "…"
     };
     const normalizeTop = (top) => typeof top === "number" ? `${top}px` : top;
+    const getStackThreshold = (stack) => {
+      if (!stack) {
+        return void 0;
+      }
+      if (stack === true) {
+        return defaultStackThreshold;
+      }
+      return Math.max(1, stack.threshold);
+    };
+    const stackThreshold = vue.computed(() => getStackThreshold(props.stack));
+    const isStacked = vue.computed(() => stackThreshold.value !== void 0 && props.notices.length > stackThreshold.value);
+    const visibleNotices = vue.computed(() => isStacked.value ? props.notices.slice(-1) : props.notices);
+    const stackedCount = vue.computed(() => Math.max(0, props.notices.length - visibleNotices.value.length));
     const messageClass = vue.computed(() => [
       props.prefixCls,
       props.classNames.root,
       {
-        "is-rtl": props.rtl
+        "is-rtl": props.rtl,
+        "is-stacked": isStacked.value
       }
     ]);
     const messageStyle = vue.computed(() => [
@@ -105,7 +125,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         class: vue.normalizeClass(["aheart-message", messageClass.value]),
         style: vue.normalizeStyle(messageStyle.value)
       }, [
-        (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(_ctx.notices, (notice) => {
+        (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(visibleNotices.value, (notice) => {
           return vue.openBlock(), vue.createElementBlock("div", {
             key: notice.key,
             class: vue.normalizeClass(["aheart-message-notice", getNoticeClass(notice)]),
@@ -136,13 +156,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 node: notice.content
               }, null, 8, ["node"])
             ], 6),
+            isStacked.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, "+" + vue.toDisplayString(stackedCount.value), 1)) : vue.createCommentVNode("", true),
             vue.createElementVNode("button", {
               class: vue.normalizeClass(["aheart-message-notice__close", getCloseClass(notice)]),
               style: vue.normalizeStyle(getCloseStyle(notice)),
               type: "button",
               "aria-label": "Close",
               onClick: vue.withModifiers(($event) => _ctx.$emit("close", notice.key), ["stop"])
-            }, " × ", 14, _hoisted_2)
+            }, " × ", 14, _hoisted_3)
           ], 46, _hoisted_1);
         }), 128))
       ], 6);

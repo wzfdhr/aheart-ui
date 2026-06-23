@@ -1,11 +1,12 @@
 import { createApp, h, shallowReactive, shallowRef, type App } from 'vue'
 import MessageHost from './message.vue'
-import type { MessageContent, MessageGlobalConfig, MessageKey, MessageNotice, MessageOpenConfig, MessageType } from './types'
+import type { MessageContent, MessageGlobalConfig, MessageKey, MessageNotice, MessageOpenConfig, MessageStackConfig, MessageType } from './types'
 
 interface MessageState {
   top: number | string
   duration: number
   maxCount?: number
+  stack?: MessageStackConfig
   getContainer?: () => HTMLElement
   prefixCls?: string
   rtl: boolean
@@ -79,6 +80,7 @@ const ensureHost = () => {
         top: state.top,
         prefixCls: state.prefixCls,
         rtl: state.rtl,
+        stack: state.stack,
         onClose: closeNotice,
         onNoticeMouseEnter: pauseNotice,
         onNoticeMouseLeave: resumeNotice
@@ -278,6 +280,7 @@ const destroy = (key?: MessageKey) => {
   state.top = 8
   state.duration = 3
   state.maxCount = undefined
+  state.stack = undefined
   state.getContainer = undefined
   state.prefixCls = undefined
   state.rtl = false
@@ -297,6 +300,10 @@ const config = (options: MessageGlobalConfig) => {
   }
 
   state.maxCount = options.maxCount
+
+  if (options.stack !== undefined) {
+    state.stack = options.stack
+  }
 
   if (options.getContainer !== undefined) {
     state.getContainer = options.getContainer

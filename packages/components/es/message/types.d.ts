@@ -2,6 +2,9 @@ import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 export type MessageType = 'success' | 'info' | 'warning' | 'error' | 'loading';
 export type MessageKey = string | number;
 export type MessageContentNode = VNodeChild;
+export type MessageStackConfig = boolean | {
+    threshold: number;
+};
 export type MessageSemanticPart = 'root' | 'notice' | 'icon' | 'content' | 'close';
 export type MessageClassNames = Partial<Record<MessageSemanticPart, string>>;
 export type MessageStyles = Partial<Record<MessageSemanticPart, StyleValue>>;
@@ -37,6 +40,7 @@ export interface MessageGlobalConfig {
     top?: number | string;
     duration?: number;
     maxCount?: number;
+    stack?: MessageStackConfig;
     getContainer?: () => HTMLElement;
     prefixCls?: string;
     rtl?: boolean;
@@ -61,6 +65,10 @@ export declare const messageProps: {
     readonly styles: {
         readonly type: PropType<Partial<Record<MessageSemanticPart, StyleValue>>>;
         readonly default: () => {};
+    };
+    readonly stack: {
+        readonly type: PropType<MessageStackConfig>;
+        readonly default: false;
     };
 };
 export declare const messageEmits: {

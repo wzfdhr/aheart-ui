@@ -109,6 +109,32 @@ message.config({ top: 32, maxCount: 1 })
 message.info('Only one message')
 ```
 
+## 堆叠提示
+
+<div class="aheart-demo-panel">
+  <AButton
+    @click="
+      () => {
+        message.config({ stack: { threshold: 2 } })
+        message.info('First stacked', 0)
+        message.info('Second stacked', 0)
+        message.info('Third stacked', 0)
+      }
+    "
+  >
+    Stacked message
+  </AButton>
+</div>
+
+```ts
+message.config({ stack: { threshold: 2 } })
+message.info('First stacked', 0)
+message.info('Second stacked', 0)
+message.info('Third stacked', 0)
+```
+
+设置 `stack` 后，当提示数量超过阈值时会折叠旧提示，只展示最新提示并显示隐藏数量。
+
 ## 自定义容器
 
 ```ts
@@ -158,7 +184,7 @@ message.config({
 | message.error | 打开错误提示 |
 | message.loading | 打开加载提示 |
 | message.destroy | 关闭某条或全部提示 |
-| message.config | 设置全局 top、duration、maxCount、getContainer、prefixCls、rtl、pauseOnHover |
+| message.config | 设置全局 top、duration、maxCount、stack、getContainer、prefixCls、rtl、pauseOnHover |
 
 所有打开提示的方法都会返回 `MessageHandle`，可调用 `close()` 主动关闭，也可通过 `.then()` 在关闭后继续执行。
 
@@ -194,6 +220,7 @@ message.config({
 | top | 顶部偏移 | `number \| string` | `8` |
 | duration | 默认自动关闭时间，单位秒 | `number` | `3` |
 | maxCount | 最大显示数量 | `number` | - |
+| stack | 超过阈值后堆叠提示；`true` 使用默认阈值 3 | `boolean \| { threshold: number }` | `false` |
 | getContainer | 自定义挂载容器 | `() => HTMLElement` | `document.body` |
 | prefixCls | 自定义类名前缀 | `string` | - |
 | rtl | 是否启用 RTL 类名状态 | `boolean` | `false` |
@@ -209,6 +236,7 @@ message.config({
 | rtl | 是否启用 RTL 类名状态 | `boolean` | `false` |
 | classNames | 语义化 DOM 类名 | `MessageClassNames` | `{}` |
 | styles | 语义化 DOM 样式 | `MessageStyles` | `{}` |
+| stack | 超过阈值后堆叠提示；`true` 使用默认阈值 3 | `boolean \| { threshold: number }` | `false` |
 
 ## Events
 

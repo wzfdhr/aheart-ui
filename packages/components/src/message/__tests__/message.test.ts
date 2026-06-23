@@ -214,4 +214,22 @@ describe('Message', () => {
 
     expect(document.body.textContent).not.toContain('Default hover pause')
   })
+
+  it('stacks notices over the configured threshold', async () => {
+    message.config({ stack: { threshold: 2 } })
+    message.info('First stacked', 0)
+    message.info('Second stacked', 0)
+    message.info('Third stacked', 0)
+    await nextTick()
+
+    const notices = document.body.querySelectorAll('.aheart-message-notice')
+    const host = document.body.querySelector('.aheart-message') as HTMLElement
+    const stackCount = document.body.querySelector('.aheart-message-notice__stack-count')
+
+    expect(notices).toHaveLength(1)
+    expect(host.classList.contains('is-stacked')).toBe(true)
+    expect(document.body.textContent).not.toContain('First stacked')
+    expect(document.body.textContent).toContain('Third stacked')
+    expect(stackCount?.textContent).toBe('+2')
+  })
 })

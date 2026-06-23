@@ -64,6 +64,20 @@
   min-width: 0;
 }
 
+.aheart-message-notice__stack-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 var(--aheart-spacing-xs);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--aheart-color-text-secondary);
+  background: var(--aheart-color-fill);
+  border-radius: 999px;
+}
+
 .aheart-message-notice__close {
   display: inline-flex;
   align-items: center;

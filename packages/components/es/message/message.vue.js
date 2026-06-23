@@ -1,8 +1,14 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createVNode, unref, withModifiers } from "vue";
+import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createVNode, unref, toDisplayString, createCommentVNode, withModifiers } from "vue";
 import { messageProps, messageEmits } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["onClick", "onMouseenter", "onMouseleave"];
-const _hoisted_2 = ["onClick"];
+const _hoisted_2 = {
+  key: 0,
+  class: "aheart-message-notice__stack-count",
+  "aria-label": "Stacked message count"
+};
+const _hoisted_3 = ["onClick"];
+const defaultStackThreshold = 3;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AMessage"
@@ -32,11 +38,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       loading: "…"
     };
     const normalizeTop = (top) => typeof top === "number" ? `${top}px` : top;
+    const getStackThreshold = (stack) => {
+      if (!stack) {
+        return void 0;
+      }
+      if (stack === true) {
+        return defaultStackThreshold;
+      }
+      return Math.max(1, stack.threshold);
+    };
+    const stackThreshold = computed(() => getStackThreshold(props.stack));
+    const isStacked = computed(() => stackThreshold.value !== void 0 && props.notices.length > stackThreshold.value);
+    const visibleNotices = computed(() => isStacked.value ? props.notices.slice(-1) : props.notices);
+    const stackedCount = computed(() => Math.max(0, props.notices.length - visibleNotices.value.length));
     const messageClass = computed(() => [
       props.prefixCls,
       props.classNames.root,
       {
-        "is-rtl": props.rtl
+        "is-rtl": props.rtl,
+        "is-stacked": isStacked.value
       }
     ]);
     const messageStyle = computed(() => [
@@ -103,7 +123,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["aheart-message", messageClass.value]),
         style: normalizeStyle(messageStyle.value)
       }, [
-        (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.notices, (notice) => {
+        (openBlock(true), createElementBlock(Fragment, null, renderList(visibleNotices.value, (notice) => {
           return openBlock(), createElementBlock("div", {
             key: notice.key,
             class: normalizeClass(["aheart-message-notice", getNoticeClass(notice)]),
@@ -134,13 +154,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 node: notice.content
               }, null, 8, ["node"])
             ], 6),
+            isStacked.value ? (openBlock(), createElementBlock("span", _hoisted_2, "+" + toDisplayString(stackedCount.value), 1)) : createCommentVNode("", true),
             createElementVNode("button", {
               class: normalizeClass(["aheart-message-notice__close", getCloseClass(notice)]),
               style: normalizeStyle(getCloseStyle(notice)),
               type: "button",
               "aria-label": "Close",
               onClick: withModifiers(($event) => _ctx.$emit("close", notice.key), ["stop"])
-            }, " × ", 14, _hoisted_2)
+            }, " × ", 14, _hoisted_3)
           ], 46, _hoisted_1);
         }), 128))
       ], 6);

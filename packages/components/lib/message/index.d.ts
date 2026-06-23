@@ -18,6 +18,10 @@ declare const Message: import("../utils/install").SFCWithInstall<import("vue").D
         readonly type: import("vue").PropType<Partial<Record<import("./types").MessageSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
+    readonly stack: {
+        readonly type: import("vue").PropType<import("./types").MessageStackConfig>;
+        readonly default: false;
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     close: (key: import("./types").MessageKey) => void;
     noticeMouseEnter: (key: import("./types").MessageKey) => void;
@@ -41,6 +45,10 @@ declare const Message: import("../utils/install").SFCWithInstall<import("vue").D
         readonly type: import("vue").PropType<Partial<Record<import("./types").MessageSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
+    readonly stack: {
+        readonly type: import("vue").PropType<import("./types").MessageStackConfig>;
+        readonly default: false;
+    };
 }>> & Readonly<{
     onClose?: ((key: import("./types").MessageKey) => any) | undefined;
     onNoticeMouseEnter?: ((key: import("./types").MessageKey) => any) | undefined;
@@ -51,6 +59,7 @@ declare const Message: import("../utils/install").SFCWithInstall<import("vue").D
     readonly top: string | number;
     readonly rtl: boolean;
     readonly notices: import("./types").MessageNotice[];
+    readonly stack: import("./types").MessageStackConfig;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export { message };
 export default Message;

@@ -53,6 +53,7 @@ const ensureHost = () => {
         top: state.top,
         prefixCls: state.prefixCls,
         rtl: state.rtl,
+        stack: state.stack,
         onClose: closeNotice,
         onNoticeMouseEnter: pauseNotice,
         onNoticeMouseLeave: resumeNotice
@@ -217,6 +218,7 @@ const destroy = (key) => {
   state.top = 8;
   state.duration = 3;
   state.maxCount = void 0;
+  state.stack = void 0;
   state.getContainer = void 0;
   state.prefixCls = void 0;
   state.rtl = false;
@@ -232,6 +234,9 @@ const config = (options) => {
     state.duration = options.duration;
   }
   state.maxCount = options.maxCount;
+  if (options.stack !== void 0) {
+    state.stack = options.stack;
+  }
   if (options.getContainer !== void 0) {
     state.getContainer = options.getContainer;
   }

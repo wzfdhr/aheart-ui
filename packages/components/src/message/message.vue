@@ -1,7 +1,7 @@
 <template>
   <div class="aheart-message" :class="messageClass" :style="messageStyle">
     <div
-      v-for="notice in notices"
+      v-for="notice in visibleNotices"
       :key="notice.key"
       class="aheart-message-notice"
       :class="getNoticeClass(notice)"
@@ -18,6 +18,7 @@
       <span class="aheart-message-notice__content" :class="getContentClass(notice)" :style="getContentStyle(notice)">
         <ARenderNode :node="notice.content" />
       </span>
+      <span v-if="isStacked" class="aheart-message-notice__stack-count" aria-label="Stacked message count">+{{ stackedCount }}</span>
       <button
         class="aheart-message-notice__close"
         :class="getCloseClass(notice)"
@@ -35,7 +36,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, type PropType, type VNodeChild } from 'vue'
 import { messageEmits, messageProps } from './types'
-import type { MessageNotice } from './types'
+import type { MessageNotice, MessageStackConfig } from './types'
 import './style.css'
 
 defineOptions({
@@ -66,13 +67,30 @@ const iconMap = {
   loading: '…'
 }
 
+const defaultStackThreshold = 3
 const normalizeTop = (top: number | string) => (typeof top === 'number' ? `${top}px` : top)
+const getStackThreshold = (stack: MessageStackConfig | undefined) => {
+  if (!stack) {
+    return undefined
+  }
+
+  if (stack === true) {
+    return defaultStackThreshold
+  }
+
+  return Math.max(1, stack.threshold)
+}
+const stackThreshold = computed(() => getStackThreshold(props.stack))
+const isStacked = computed(() => stackThreshold.value !== undefined && props.notices.length > stackThreshold.value)
+const visibleNotices = computed(() => (isStacked.value ? props.notices.slice(-1) : props.notices))
+const stackedCount = computed(() => Math.max(0, props.notices.length - visibleNotices.value.length))
 
 const messageClass = computed(() => [
   props.prefixCls,
   props.classNames.root,
   {
-    'is-rtl': props.rtl
+    'is-rtl': props.rtl,
+    'is-stacked': isStacked.value
   }
 ])
 const messageStyle = computed(() => [

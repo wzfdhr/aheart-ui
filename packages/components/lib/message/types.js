@@ -18,6 +18,10 @@ const messageProps = {
   styles: {
     type: Object,
     default: () => ({})
+  },
+  stack: {
+    type: [Boolean, Object],
+    default: false
   }
 };
 const messageEmits = {
