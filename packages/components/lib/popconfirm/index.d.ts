@@ -1,8 +1,17 @@
 declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
-        readonly title: StringConstructor;
-        readonly description: StringConstructor;
-        readonly icon: StringConstructor;
+        readonly title: {
+            type: import("vue").PropType<import("./types").PopconfirmContent>;
+            default: undefined;
+        };
+        readonly description: {
+            type: import("vue").PropType<import("./types").PopconfirmContent>;
+            default: undefined;
+        };
+        readonly icon: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly placement: {
             readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
@@ -61,6 +70,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         confirm: () => void;
         popupClick: (event: MouseEvent) => void;
     }, import("vue").PublicProps, {
+        readonly icon: import("vue").VNodeChild;
+        readonly title: import("./types").PopconfirmContent;
+        readonly description: import("./types").PopconfirmContent;
         readonly open: boolean;
         readonly disabled: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
@@ -79,9 +91,18 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         M: {};
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
-        readonly title: StringConstructor;
-        readonly description: StringConstructor;
-        readonly icon: StringConstructor;
+        readonly title: {
+            type: import("vue").PropType<import("./types").PopconfirmContent>;
+            default: undefined;
+        };
+        readonly description: {
+            type: import("vue").PropType<import("./types").PopconfirmContent>;
+            default: undefined;
+        };
+        readonly icon: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly placement: {
             readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
@@ -134,6 +155,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         onConfirm?: (() => any) | undefined;
         onPopupClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
+        readonly icon: import("vue").VNodeChild;
+        readonly title: import("./types").PopconfirmContent;
+        readonly description: import("./types").PopconfirmContent;
         readonly open: boolean;
         readonly disabled: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
@@ -149,9 +173,18 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     __isTeleport?: undefined;
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly description: StringConstructor;
-    readonly icon: StringConstructor;
+    readonly title: {
+        type: import("vue").PropType<import("./types").PopconfirmContent>;
+        default: undefined;
+    };
+    readonly description: {
+        type: import("vue").PropType<import("./types").PopconfirmContent>;
+        default: undefined;
+    };
+    readonly icon: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
     readonly placement: {
         readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
@@ -210,6 +243,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     confirm: () => void;
     popupClick: (event: MouseEvent) => void;
 }, string, {
+    readonly icon: import("vue").VNodeChild;
+    readonly title: import("./types").PopconfirmContent;
+    readonly description: import("./types").PopconfirmContent;
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";

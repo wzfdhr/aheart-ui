@@ -1,8 +1,16 @@
 import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating.js";
+const renderableProp = {
+  type: null,
+  default: void 0
+};
+const iconProp = {
+  type: null,
+  default: void 0
+};
 const popconfirmProps = {
-  title: String,
-  description: String,
-  icon: String,
+  title: renderableProp,
+  description: renderableProp,
+  icon: iconProp,
   placement: {
     type: String,
     default: "top",

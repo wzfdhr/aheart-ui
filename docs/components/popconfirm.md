@@ -2,6 +2,18 @@
 
 Popconfirm asks for confirmation near the triggering action before continuing.
 
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderablePopconfirmTitle = () => h('span', { style: { fontWeight: 600 } }, 'Release candidate?')
+const renderablePopconfirmDescription = h('span', [
+  'This will publish ',
+  h('strong', 'v2.4.0'),
+  ' to production.'
+])
+const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color-warning)' } }, '!')
+</script>
+
 ## 基础用法
 
 <div class="aheart-demo-panel">
@@ -42,6 +54,45 @@ Popconfirm asks for confirmation near the triggering action before continuing.
     placement="bottomRight"
   >
     <AButton type="primary">Publish</AButton>
+  </APopconfirm>
+</template>
+```
+
+## 可渲染内容
+
+<div class="aheart-demo-panel">
+  <APopconfirm
+    default-open
+    :title="renderablePopconfirmTitle"
+    :description="renderablePopconfirmDescription"
+    :icon="renderablePopconfirmIcon"
+    ok-text="Release"
+  >
+    <AButton type="primary">Release</AButton>
+  </APopconfirm>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderablePopconfirmTitle = () => h('span', { style: { fontWeight: 600 } }, 'Release candidate?')
+const renderablePopconfirmDescription = h('span', [
+  'This will publish ',
+  h('strong', 'v2.4.0'),
+  ' to production.'
+])
+const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color-warning)' } }, '!')
+</script>
+
+<template>
+  <APopconfirm
+    :title="renderablePopconfirmTitle"
+    :description="renderablePopconfirmDescription"
+    :icon="renderablePopconfirmIcon"
+    ok-text="Release"
+  >
+    <AButton type="primary">Release</AButton>
   </APopconfirm>
 </template>
 ```
@@ -193,9 +244,9 @@ Popconfirm asks for confirmation near the triggering action before continuing.
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| title | 确认标题 | `string` | - |
-| description | 辅助说明 | `string` | - |
-| icon | 提示图标文本，`icon` 插槽优先级更高 | `string` | `!` |
+| title | 确认标题，`title` 插槽优先级更高 | `VNodeChild` \| `() => VNodeChild` | - |
+| description | 辅助说明，`description` 插槽优先级更高 | `VNodeChild` \| `() => VNodeChild` | - |
+| icon | 提示图标内容，`icon` 插槽优先级更高；传 `false` 或 `null` 时隐藏 | `VNodeChild` | `!` |
 | placement | 气泡位置 | `FloatingPlacement` | `top` |
 | trigger | 触发方式 | `hover` \| `focus` \| `click` \| `contextMenu` \| `FloatingTrigger[]` | `click` |
 | open | 受控显示状态 | `boolean` | - |

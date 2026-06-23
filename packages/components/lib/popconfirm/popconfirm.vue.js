@@ -14,13 +14,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.popconfirmProps,
   emits: types.popconfirmEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = vue.defineComponent({
+      name: "APopconfirmRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => typeof renderProps.node === "function" ? renderProps.node() : renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
     const props = __props;
     const emit = __emit;
+    const slots = vue.useSlots();
     const innerOpen = vue.ref(props.defaultOpen);
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
     const visible = vue.computed(() => !props.disabled && mergedOpen.value);
+    const resolvedIcon = vue.computed(() => props.icon === void 0 ? "!" : props.icon);
+    const hasIcon = vue.computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value));
+    const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    const hasDescription = vue.computed(() => Boolean(slots.description) || hasRenderable(props.description));
     const popconfirmClass = vue.computed(() => {
       var _a;
       return [
@@ -230,35 +248,36 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-popconfirm__message", messageClass.value]),
             style: vue.normalizeStyle(messageStyle.value)
           }, [
-            vue.createElementVNode("span", {
+            hasIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {
+              key: 0,
               class: vue.normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
               style: vue.normalizeStyle(iconStyle.value),
               "aria-hidden": "true"
             }, [
               vue.renderSlot(_ctx.$slots, "icon", {}, () => [
-                vue.createTextVNode(vue.toDisplayString(_ctx.icon ?? "!"), 1)
+                vue.createVNode(vue.unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
               ])
-            ], 6),
+            ], 6)) : vue.createCommentVNode("", true),
             vue.createElementVNode("span", {
               class: vue.normalizeClass(["aheart-popconfirm__text", textClass.value]),
               style: vue.normalizeStyle(textStyle.value)
             }, [
-              _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("span", {
+              hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
                 key: 0,
                 class: vue.normalizeClass(["aheart-popconfirm__title", titleClass.value]),
                 style: vue.normalizeStyle(titleStyle.value)
               }, [
                 vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                  vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
+                  vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
               ], 6)) : vue.createCommentVNode("", true),
-              _ctx.description || _ctx.$slots.description ? (vue.openBlock(), vue.createElementBlock("span", {
+              hasDescription.value ? (vue.openBlock(), vue.createElementBlock("span", {
                 key: 1,
                 class: vue.normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
                 style: vue.normalizeStyle(descriptionStyle.value)
               }, [
                 vue.renderSlot(_ctx.$slots, "description", {}, () => [
-                  vue.createTextVNode(vue.toDisplayString(_ctx.description), 1)
+                  vue.createVNode(vue.unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
                 ])
               ], 6)) : vue.createCommentVNode("", true)
             ], 6)

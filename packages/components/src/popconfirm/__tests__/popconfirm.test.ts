@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
 import Popconfirm from '../popconfirm.vue'
 
@@ -17,6 +18,76 @@ describe('Popconfirm', () => {
     expect(wrapper.text()).toContain('OK')
     expect(wrapper.text()).toContain('Cancel')
     expect(wrapper.find('.aheart-popconfirm__icon').exists()).toBe(true)
+  })
+
+  it('renders vnode and function title description and icon props', () => {
+    const wrapper = mount(Popconfirm, {
+      props: {
+        defaultOpen: true,
+        title: () => h('span', { class: 'title-node' }, 'Delete node?'),
+        description: h('span', { class: 'description-node' }, 'VNode details'),
+        icon: h('span', { class: 'icon-node' }, '?')
+      },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    expect(wrapper.find('.title-node').text()).toBe('Delete node?')
+    expect(wrapper.find('.description-node').text()).toBe('VNode details')
+    expect(wrapper.find('.icon-node').text()).toBe('?')
+  })
+
+  it('renders numeric renderables without treating zero as empty', () => {
+    const wrapper = mount(Popconfirm, {
+      props: {
+        defaultOpen: true,
+        title: 0,
+        description: 0,
+        icon: 0
+      },
+      slots: { default: '<button>Count</button>' }
+    })
+
+    expect(wrapper.find('.aheart-popconfirm__title').text()).toBe('0')
+    expect(wrapper.find('.aheart-popconfirm__description').text()).toBe('0')
+    expect(wrapper.find('.aheart-popconfirm__icon').text()).toBe('0')
+  })
+
+  it('hides icon when icon is false', () => {
+    const wrapper = mount(Popconfirm, {
+      props: {
+        defaultOpen: true,
+        title: 'No icon',
+        icon: false
+      },
+      slots: { default: '<button>No icon</button>' }
+    })
+
+    expect(wrapper.find('.aheart-popconfirm__title').text()).toBe('No icon')
+    expect(wrapper.find('.aheart-popconfirm__icon').exists()).toBe(false)
+  })
+
+  it('lets content slots override renderable prop fallbacks', () => {
+    const wrapper = mount(Popconfirm, {
+      props: {
+        defaultOpen: true,
+        title: h('span', { class: 'prop-title-node' }, 'Prop title'),
+        description: h('span', { class: 'prop-description-node' }, 'Prop description'),
+        icon: h('span', { class: 'prop-icon-node' }, 'P')
+      },
+      slots: {
+        default: '<button>Delete</button>',
+        title: '<span class="slot-title-node">Slot title</span>',
+        description: '<span class="slot-description-node">Slot description</span>',
+        icon: '<span class="slot-icon-node">S</span>'
+      }
+    })
+
+    expect(wrapper.find('.slot-title-node').text()).toBe('Slot title')
+    expect(wrapper.find('.slot-description-node').text()).toBe('Slot description')
+    expect(wrapper.find('.slot-icon-node').text()).toBe('S')
+    expect(wrapper.find('.prop-title-node').exists()).toBe(false)
+    expect(wrapper.find('.prop-description-node').exists()).toBe(false)
+    expect(wrapper.find('.prop-icon-node').exists()).toBe(false)
   })
 
   it('emits confirm and closes from OK', async () => {

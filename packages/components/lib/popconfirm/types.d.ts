@@ -1,14 +1,26 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { ButtonProps } from '../button/types';
 import { type FloatingTriggerProp } from '../utils/floating';
 export type PopconfirmButtonProps = Partial<ButtonProps>;
+export type PopconfirmRenderable = VNodeChild;
+export type PopconfirmRenderableFactory = () => VNodeChild;
+export type PopconfirmContent = PopconfirmRenderable | PopconfirmRenderableFactory;
 export type PopconfirmSemanticPart = 'root' | 'trigger' | 'popup' | 'arrow' | 'message' | 'icon' | 'text' | 'title' | 'description' | 'actions' | 'cancelButton' | 'okButton';
 export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>;
 export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>;
 export declare const popconfirmProps: {
-    readonly title: StringConstructor;
-    readonly description: StringConstructor;
-    readonly icon: StringConstructor;
+    readonly title: {
+        type: PropType<PopconfirmContent>;
+        default: undefined;
+    };
+    readonly description: {
+        type: PropType<PopconfirmContent>;
+        default: undefined;
+    };
+    readonly icon: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly placement: {
         readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";

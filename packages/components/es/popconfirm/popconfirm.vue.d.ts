@@ -1,14 +1,25 @@
+import { type PropType } from 'vue';
+import { type PopconfirmContent } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly description: StringConstructor;
-    readonly icon: StringConstructor;
+    readonly title: {
+        type: PropType<PopconfirmContent>;
+        default: undefined;
+    };
+    readonly description: {
+        type: PropType<PopconfirmContent>;
+        default: undefined;
+    };
+    readonly icon: {
+        type: PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
     readonly trigger: {
-        readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "click";
         readonly validator: (value: unknown) => boolean;
     };
@@ -26,11 +37,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly cancelButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
     readonly disabled: BooleanConstructor;
     readonly showCancel: {
         readonly type: BooleanConstructor;
@@ -44,9 +55,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly zIndex: NumberConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     cancel: () => void;
     "update:open": (open: boolean) => void;
@@ -54,16 +65,25 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     confirm: () => void;
     popupClick: (event: MouseEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly description: StringConstructor;
-    readonly icon: StringConstructor;
+    readonly title: {
+        type: PropType<PopconfirmContent>;
+        default: undefined;
+    };
+    readonly description: {
+        type: PropType<PopconfirmContent>;
+        default: undefined;
+    };
+    readonly icon: {
+        type: PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
     readonly trigger: {
-        readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "click";
         readonly validator: (value: unknown) => boolean;
     };
@@ -81,11 +101,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "Cancel";
     };
     readonly okType: {
-        readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
+        readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly cancelButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
     readonly disabled: BooleanConstructor;
     readonly showCancel: {
         readonly type: BooleanConstructor;
@@ -99,9 +119,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly zIndex: NumberConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<import("vue").StyleValue>;
+    readonly classNames: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
+    readonly styles: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{
     onCancel?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
@@ -109,6 +129,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onConfirm?: (() => any) | undefined;
     onPopupClick?: ((event: MouseEvent) => any) | undefined;
 }>, {
+    readonly icon: import("vue").VNodeChild;
+    readonly title: PopconfirmContent;
+    readonly description: PopconfirmContent;
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";

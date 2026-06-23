@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue'
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { ButtonProps, ButtonType } from '../button/types'
 import {
   floatingPlacements,
@@ -8,6 +8,9 @@ import {
 } from '../utils/floating'
 
 export type PopconfirmButtonProps = Partial<ButtonProps>
+export type PopconfirmRenderable = VNodeChild
+export type PopconfirmRenderableFactory = () => VNodeChild
+export type PopconfirmContent = PopconfirmRenderable | PopconfirmRenderableFactory
 export type PopconfirmSemanticPart =
   | 'root'
   | 'trigger'
@@ -24,10 +27,20 @@ export type PopconfirmSemanticPart =
 export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>
 export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>
 
+const renderableProp = {
+  type: null as unknown as PropType<PopconfirmContent>,
+  default: undefined
+}
+
+const iconProp = {
+  type: null as unknown as PropType<PopconfirmRenderable>,
+  default: undefined
+}
+
 export const popconfirmProps = {
-  title: String,
-  description: String,
-  icon: String,
+  title: renderableProp,
+  description: renderableProp,
+  icon: iconProp,
   placement: {
     type: String as PropType<FloatingPlacement>,
     default: 'top',

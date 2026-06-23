@@ -35,20 +35,26 @@
         aria-hidden="true"
       />
       <span class="aheart-popconfirm__message" :class="messageClass" :style="messageStyle">
-        <span class="aheart-popconfirm__icon" :class="iconClass" :style="iconStyle" aria-hidden="true">
-          <slot name="icon">{{ icon ?? '!' }}</slot>
+        <span v-if="hasIcon" class="aheart-popconfirm__icon" :class="iconClass" :style="iconStyle" aria-hidden="true">
+          <slot name="icon">
+            <ARenderNode :node="resolvedIcon" />
+          </slot>
         </span>
         <span class="aheart-popconfirm__text" :class="textClass" :style="textStyle">
-          <span v-if="title || $slots.title" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
-            <slot name="title">{{ title }}</slot>
+          <span v-if="hasTitle" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
+            <slot name="title">
+              <ARenderNode :node="title" />
+            </slot>
           </span>
           <span
-            v-if="description || $slots.description"
+            v-if="hasDescription"
             class="aheart-popconfirm__description"
             :class="descriptionClass"
             :style="descriptionStyle"
           >
-            <slot name="description">{{ description }}</slot>
+            <slot name="description">
+              <ARenderNode :node="description" />
+            </slot>
           </span>
         </span>
       </span>
@@ -78,25 +84,45 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineComponent, ref, useSlots, watch, type PropType } from 'vue'
 import AButton from '../button'
 import { getFloatingPopupStyle, normalizeFloatingTriggers } from '../utils/floating'
 import '../utils/floating.css'
-import { popconfirmEmits, popconfirmProps } from './types'
+import { popconfirmEmits, popconfirmProps, type PopconfirmContent } from './types'
 import './style.css'
 
 defineOptions({
   name: 'APopconfirm'
 })
 
+const ARenderNode = defineComponent({
+  name: 'APopconfirmRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<PopconfirmContent>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => (typeof renderProps.node === 'function' ? renderProps.node() : renderProps.node)
+  }
+})
+
+const hasRenderable = (value: PopconfirmContent | undefined | null) => value !== undefined && value !== null && value !== false
+
 const props = defineProps(popconfirmProps)
 const emit = defineEmits(popconfirmEmits)
+const slots = useSlots()
 
 const innerOpen = ref(props.defaultOpen)
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
 const visible = computed(() => !props.disabled && mergedOpen.value)
+const resolvedIcon = computed<PopconfirmContent>(() => (props.icon === undefined ? '!' : props.icon))
+const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value))
+const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title))
+const hasDescription = computed(() => Boolean(slots.description) || hasRenderable(props.description))
 const popconfirmClass = computed(() => [
   props.className,
   props.rootClassName,

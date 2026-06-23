@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createCommentVNode, createTextVNode, toDisplayString, createBlock, unref, mergeProps, withCtx, createVNode } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createCommentVNode, createVNode, unref, createBlock, mergeProps, withCtx, createTextVNode, toDisplayString } from "vue";
 import Button from "../button/index.js";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
@@ -12,13 +12,31 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: popconfirmProps,
   emits: popconfirmEmits,
   setup(__props, { emit: __emit }) {
+    const ARenderNode = defineComponent({
+      name: "APopconfirmRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => typeof renderProps.node === "function" ? renderProps.node() : renderProps.node;
+      }
+    });
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
     const props = __props;
     const emit = __emit;
+    const slots = useSlots();
     const innerOpen = ref(props.defaultOpen);
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const visible = computed(() => !props.disabled && mergedOpen.value);
+    const resolvedIcon = computed(() => props.icon === void 0 ? "!" : props.icon);
+    const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value));
+    const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    const hasDescription = computed(() => Boolean(slots.description) || hasRenderable(props.description));
     const popconfirmClass = computed(() => {
       var _a;
       return [
@@ -228,35 +246,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: normalizeClass(["aheart-popconfirm__message", messageClass.value]),
             style: normalizeStyle(messageStyle.value)
           }, [
-            createElementVNode("span", {
+            hasIcon.value ? (openBlock(), createElementBlock("span", {
+              key: 0,
               class: normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
               style: normalizeStyle(iconStyle.value),
               "aria-hidden": "true"
             }, [
               renderSlot(_ctx.$slots, "icon", {}, () => [
-                createTextVNode(toDisplayString(_ctx.icon ?? "!"), 1)
+                createVNode(unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
               ])
-            ], 6),
+            ], 6)) : createCommentVNode("", true),
             createElementVNode("span", {
               class: normalizeClass(["aheart-popconfirm__text", textClass.value]),
               style: normalizeStyle(textStyle.value)
             }, [
-              _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("span", {
+              hasTitle.value ? (openBlock(), createElementBlock("span", {
                 key: 0,
                 class: normalizeClass(["aheart-popconfirm__title", titleClass.value]),
                 style: normalizeStyle(titleStyle.value)
               }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
-                  createTextVNode(toDisplayString(_ctx.title), 1)
+                  createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
               ], 6)) : createCommentVNode("", true),
-              _ctx.description || _ctx.$slots.description ? (openBlock(), createElementBlock("span", {
+              hasDescription.value ? (openBlock(), createElementBlock("span", {
                 key: 1,
                 class: normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
                 style: normalizeStyle(descriptionStyle.value)
               }, [
                 renderSlot(_ctx.$slots, "description", {}, () => [
-                  createTextVNode(toDisplayString(_ctx.description), 1)
+                  createVNode(unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
                 ])
               ], 6)) : createCommentVNode("", true)
             ], 6)
