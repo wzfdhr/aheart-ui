@@ -29,7 +29,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const slots = useSlots();
     const innerOpen = ref(props.defaultOpen);
     const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open));
+    const rootRef = ref(null);
     const triggerRef = ref(null);
+    const popupRef = ref(null);
     let mouseEnterTimer;
     let mouseLeaveTimer;
     const isControlled = computed(() => props.open !== void 0);
@@ -190,8 +192,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpenWithDelay(true, props.mouseEnterDelay);
       }
     };
-    const handleMouseLeave = () => {
-      if (normalizedTriggers.value.has("hover")) {
+    const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
+    const isHoveringTriggerOrPopup = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value);
+    const handleMouseLeave = (event) => {
+      if (normalizedTriggers.value.has("hover") && !isHoveringTriggerOrPopup(event)) {
         clearMouseEnterTimer();
         clearMouseLeaveTimer();
         requestOpenWithDelay(false, props.mouseLeaveDelay);
@@ -223,6 +227,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: normalizeClass(["aheart-popover", popoverClass.value]),
         style: normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
@@ -248,6 +254,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
             key: 0,
+            ref_key: "popupRef",
+            ref: popupRef,
             class: normalizeClass(["aheart-popover__popup", popupClass.value]),
             style: normalizeStyle(popupStyle.value),
             role: "dialog",

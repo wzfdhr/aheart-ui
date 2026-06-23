@@ -264,6 +264,42 @@ describe('Popover', () => {
     container.remove()
   })
 
+  it('keeps hover popover open when moving from trigger to popup', async () => {
+    const container = document.createElement('section')
+    document.body.appendChild(container)
+
+    const wrapper = mount(Popover, {
+      props: {
+        trigger: 'hover',
+        content: 'Hover content',
+        mouseEnterDelay: 0,
+        mouseLeaveDelay: 0,
+        getPopupContainer: () => container
+      },
+      slots: {
+        default: '<button>Details</button>'
+      }
+    })
+
+    await wrapper.find('.aheart-popover__trigger').trigger('mouseenter')
+    await nextTick()
+
+    const popup = container.querySelector('.aheart-popover__popup') as HTMLElement
+    expect(popup).toBeTruthy()
+
+    await wrapper.find('.aheart-popover__trigger').trigger('mouseleave', { relatedTarget: popup })
+    expect(container.querySelector('.aheart-popover__popup')).toBeTruthy()
+    expect((container.querySelector('.aheart-popover__popup') as HTMLElement).style.display).not.toBe('none')
+
+    popup.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget: document.body }))
+    await nextTick()
+
+    expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false])
+
+    wrapper.unmount()
+    container.remove()
+  })
+
   it('renders object arrow point at center class', () => {
     const wrapper = mountPopover({
       props: { open: true, content: 'Arrow', arrow: { pointAtCenter: true } },

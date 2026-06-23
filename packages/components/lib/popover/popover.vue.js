@@ -31,7 +31,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const slots = vue.useSlots();
     const innerOpen = vue.ref(props.defaultOpen);
     const hasRenderedPopup = vue.ref(Boolean(props.defaultOpen || props.open));
+    const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
+    const popupRef = vue.ref(null);
     let mouseEnterTimer;
     let mouseLeaveTimer;
     const isControlled = vue.computed(() => props.open !== void 0);
@@ -192,8 +194,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         requestOpenWithDelay(true, props.mouseEnterDelay);
       }
     };
-    const handleMouseLeave = () => {
-      if (normalizedTriggers.value.has("hover")) {
+    const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
+    const isHoveringTriggerOrPopup = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value);
+    const handleMouseLeave = (event) => {
+      if (normalizedTriggers.value.has("hover") && !isHoveringTriggerOrPopup(event)) {
         clearMouseEnterTimer();
         clearMouseLeaveTimer();
         requestOpenWithDelay(false, props.mouseLeaveDelay);
@@ -225,6 +229,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: vue.normalizeClass(["aheart-popover", popoverClass.value]),
         style: vue.normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
@@ -250,6 +256,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           shouldRenderPopup.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("span", {
             key: 0,
+            ref_key: "popupRef",
+            ref: popupRef,
             class: vue.normalizeClass(["aheart-popover__popup", popupClass.value]),
             style: vue.normalizeStyle(popupStyle.value),
             role: "dialog",
