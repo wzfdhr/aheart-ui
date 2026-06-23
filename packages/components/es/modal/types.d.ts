@@ -1,7 +1,7 @@
 import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue';
 import type { ButtonProps } from '../button/types';
 import type { GridBreakpoint } from '../grid/types';
-export declare const modalSemanticParts: readonly ["root", "mask", "wrap", "dialog", "header", "title", "body", "footer", "close"];
+export declare const modalSemanticParts: readonly ["root", "mask", "wrap", "wrapper", "dialog", "container", "header", "title", "body", "footer", "close"];
 export type ModalSemanticPart = (typeof modalSemanticParts)[number];
 export interface ModalSemanticInfo {
     props: Readonly<Record<string, unknown>>;

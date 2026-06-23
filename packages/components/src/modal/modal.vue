@@ -9,7 +9,7 @@
     @keydown="handleKeydown"
   >
     <div v-if="isMaskVisible" :class="maskClass" :style="semanticStyle('mask')" @click="handleMaskClick" />
-    <div :class="wrapClass" :style="semanticStyle('wrap')">
+    <div :class="wrapClass" :style="wrapStyle">
       <AModalRenderWrapper :renderer="modalRender">
         <section
           ref="dialogRef"
@@ -186,7 +186,7 @@ const shouldRender = computed(() => props.open || props.forceRender || hasRender
 const dialogStyle = computed(() => ({
   ...props.style,
   ...responsiveWidthVars.value,
-  ...semanticStyle('dialog'),
+  ...semanticStyles('dialog', 'container'),
   width: fixedDialogWidth.value
 }))
 
@@ -214,14 +214,15 @@ const maskClass = computed(() => [
   },
   semanticClass('mask')
 ])
-const wrapClass = computed(() => ['aheart-modal__wrap', props.wrapClassName, semanticClass('wrap')])
+const wrapClass = computed(() => ['aheart-modal__wrap', props.wrapClassName, semanticClasses('wrap', 'wrapper')])
+const wrapStyle = computed(() => semanticStyles('wrap', 'wrapper'))
 const dialogClass = computed(() => [
   'aheart-modal__dialog',
   {
     'is-centered': props.centered
   },
   props.className,
-  semanticClass('dialog')
+  semanticClasses('dialog', 'container')
 ])
 const headerClass = computed(() => ['aheart-modal__header', semanticClass('header')])
 const titleClass = computed(() => ['aheart-modal__title', semanticClass('title')])
@@ -342,6 +343,18 @@ const resolveSemanticConfig = <T,>(
 const semanticClass = (part: ModalSemanticPart) => resolveSemanticConfig(props.classNames, part)
 const semanticStyle = (part: ModalSemanticPart): CSSProperties | undefined =>
   resolveSemanticConfig(props.styles, part)
+const semanticClasses = (...parts: ModalSemanticPart[]) => parts.map((part) => semanticClass(part))
+const semanticStyles = (...parts: ModalSemanticPart[]): CSSProperties | undefined => {
+  const merged = parts.reduce<CSSProperties>(
+    (styles, part) => ({
+      ...styles,
+      ...semanticStyle(part)
+    }),
+    {}
+  )
+
+  return Object.keys(merged).length > 0 ? merged : undefined
+}
 
 const captureTriggerElement = () => {
   triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null

@@ -91,7 +91,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const dialogStyle = computed(() => ({
       ...props.style,
       ...responsiveWidthVars.value,
-      ...semanticStyle("dialog"),
+      ...semanticStyles("dialog", "container"),
       width: fixedDialogWidth.value
     }));
     const rootStyle = computed(() => ({
@@ -125,14 +125,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       },
       semanticClass("mask")
     ]);
-    const wrapClass = computed(() => ["aheart-modal__wrap", props.wrapClassName, semanticClass("wrap")]);
+    const wrapClass = computed(() => ["aheart-modal__wrap", props.wrapClassName, semanticClasses("wrap", "wrapper")]);
+    const wrapStyle = computed(() => semanticStyles("wrap", "wrapper"));
     const dialogClass = computed(() => [
       "aheart-modal__dialog",
       {
         "is-centered": props.centered
       },
       props.className,
-      semanticClass("dialog")
+      semanticClasses("dialog", "container")
     ]);
     const headerClass = computed(() => ["aheart-modal__header", semanticClass("header")]);
     const titleClass = computed(() => ["aheart-modal__title", semanticClass("title")]);
@@ -245,6 +246,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
     const semanticStyle = (part) => resolveSemanticConfig(props.styles, part);
+    const semanticClasses = (...parts) => parts.map((part) => semanticClass(part));
+    const semanticStyles = (...parts) => {
+      const merged = parts.reduce(
+        (styles, part) => ({
+          ...styles,
+          ...semanticStyle(part)
+        }),
+        {}
+      );
+      return Object.keys(merged).length > 0 ? merged : void 0;
+    };
     const captureTriggerElement = () => {
       triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     };
@@ -337,7 +349,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, null, 6)) : createCommentVNode("", true),
         createElementVNode("div", {
           class: normalizeClass(wrapClass.value),
-          style: normalizeStyle(semanticStyle("wrap"))
+          style: normalizeStyle(wrapStyle.value)
         }, [
           createVNode(unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
             default: withCtx(() => [

@@ -93,7 +93,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const dialogStyle = vue.computed(() => ({
       ...props.style,
       ...responsiveWidthVars.value,
-      ...semanticStyle("dialog"),
+      ...semanticStyles("dialog", "container"),
       width: fixedDialogWidth.value
     }));
     const rootStyle = vue.computed(() => ({
@@ -127,14 +127,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       },
       semanticClass("mask")
     ]);
-    const wrapClass = vue.computed(() => ["aheart-modal__wrap", props.wrapClassName, semanticClass("wrap")]);
+    const wrapClass = vue.computed(() => ["aheart-modal__wrap", props.wrapClassName, semanticClasses("wrap", "wrapper")]);
+    const wrapStyle = vue.computed(() => semanticStyles("wrap", "wrapper"));
     const dialogClass = vue.computed(() => [
       "aheart-modal__dialog",
       {
         "is-centered": props.centered
       },
       props.className,
-      semanticClass("dialog")
+      semanticClasses("dialog", "container")
     ]);
     const headerClass = vue.computed(() => ["aheart-modal__header", semanticClass("header")]);
     const titleClass = vue.computed(() => ["aheart-modal__title", semanticClass("title")]);
@@ -247,6 +248,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
     const semanticStyle = (part) => resolveSemanticConfig(props.styles, part);
+    const semanticClasses = (...parts) => parts.map((part) => semanticClass(part));
+    const semanticStyles = (...parts) => {
+      const merged = parts.reduce(
+        (styles, part) => ({
+          ...styles,
+          ...semanticStyle(part)
+        }),
+        {}
+      );
+      return Object.keys(merged).length > 0 ? merged : void 0;
+    };
     const captureTriggerElement = () => {
       triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     };
@@ -339,7 +351,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, null, 6)) : vue.createCommentVNode("", true),
         vue.createElementVNode("div", {
           class: vue.normalizeClass(wrapClass.value),
-          style: vue.normalizeStyle(semanticStyle("wrap"))
+          style: vue.normalizeStyle(wrapStyle.value)
         }, [
           vue.createVNode(vue.unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
             default: vue.withCtx(() => [

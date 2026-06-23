@@ -26,7 +26,8 @@ const renderableFooter = (
 ])
 const modalRender = (node: VNodeChild) => h('div', { class: 'docs-modal-render-shell' }, [node])
 const semanticClassNames = ({ props }: { props: { open?: boolean } }) => ({
-  dialog: props.open ? 'docs-modal-dialog' : '',
+  container: props.open ? 'docs-modal-dialog' : '',
+  wrapper: 'docs-modal-wrap',
   body: 'docs-modal-body'
 })
 const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string, CSSProperties> => ({
@@ -341,7 +342,6 @@ const open = ref(false)
     v-model:open="styledOpen"
     title="Styled modal"
     root-class-name="docs-modal-root"
-    wrap-class-name="docs-modal-wrap"
     class-name="docs-modal-dialog"
     :z-index="1210"
     :root-style="{ color: 'var(--aheart-color-text)' }"
@@ -359,7 +359,8 @@ import { ref, type CSSProperties } from 'vue'
 
 const open = ref(false)
 const semanticClassNames = ({ props }: { props: { open?: boolean } }) => ({
-  dialog: props.open ? 'workspace-modal-dialog' : '',
+  container: props.open ? 'workspace-modal-dialog' : '',
+  wrapper: 'workspace-modal-wrap',
   body: 'workspace-modal-body'
 })
 const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string, CSSProperties> => ({
@@ -374,7 +375,6 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
     v-model:open="open"
     title="Styled modal"
     root-class-name="workspace-modal-root"
-    wrap-class-name="workspace-modal-wrap"
     :z-index="1210"
     :root-style="{ color: 'var(--aheart-color-text)' }"
     :style="{ maxWidth: '92vw' }"
@@ -460,7 +460,7 @@ interface ModalFocusableConfig {
 
 ### ModalSemanticPart
 
-`root`、`mask`、`wrap`、`dialog`、`header`、`title`、`body`、`footer`、`close`
+`root`、`mask`、`wrap`、`wrapper`、`dialog`、`container`、`header`、`title`、`body`、`footer`、`close`
 
 ### ModalSemanticInfo
 

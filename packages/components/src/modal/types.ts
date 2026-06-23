@@ -2,7 +2,19 @@ import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue'
 import type { ButtonProps, ButtonType } from '../button/types'
 import type { GridBreakpoint } from '../grid/types'
 
-export const modalSemanticParts = ['root', 'mask', 'wrap', 'dialog', 'header', 'title', 'body', 'footer', 'close'] as const
+export const modalSemanticParts = [
+  'root',
+  'mask',
+  'wrap',
+  'wrapper',
+  'dialog',
+  'container',
+  'header',
+  'title',
+  'body',
+  'footer',
+  'close'
+] as const
 
 export type ModalSemanticPart = (typeof modalSemanticParts)[number]
 export interface ModalSemanticInfo {

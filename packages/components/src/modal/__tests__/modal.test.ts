@@ -185,6 +185,30 @@ describe('Modal', () => {
     )
   })
 
+  it('supports Ant-style wrapper and container semantic aliases', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        classNames: {
+          wrapper: 'semantic-wrapper',
+          container: 'semantic-container'
+        },
+        styles: {
+          wrapper: { outline: '1px solid rgb(1, 2, 3)' },
+          container: { maxWidth: '88vw' }
+        }
+      }
+    })
+
+    const wrap = wrapper.find('.aheart-modal__wrap')
+    const dialog = wrapper.find('.aheart-modal__dialog')
+
+    expect(wrap.classes()).toContain('semantic-wrapper')
+    expect(wrap.attributes('style')).toContain('outline: 1px solid rgb(1, 2, 3)')
+    expect(dialog.classes()).toContain('semantic-container')
+    expect(dialog.attributes('style')).toContain('max-width: 88vw')
+  })
+
   it('renders modalRender result around the dialog node', () => {
     const wrapper = mount(Modal, {
       props: {
