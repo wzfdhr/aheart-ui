@@ -37,6 +37,9 @@ export declare const popconfirmProps: {
         readonly default: undefined;
     };
     readonly defaultOpen: BooleanConstructor;
+    readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyTooltipOnHide: BooleanConstructor;
+    readonly fresh: BooleanConstructor;
     readonly okText: {
         readonly type: StringConstructor;
         readonly default: "OK";

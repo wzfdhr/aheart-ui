@@ -113,7 +113,8 @@ describe('Popconfirm', () => {
     expect(wrapper.emitted('confirm')).toHaveLength(1)
     expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
     expect(wrapper.emitted('openChange')?.[0]).toEqual([false])
-    expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(false)
+    expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
+    expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
   })
 
   it('emits cancel and closes from Cancel', async () => {
@@ -126,7 +127,8 @@ describe('Popconfirm', () => {
 
     expect(wrapper.emitted('cancel')).toHaveLength(1)
     expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
-    expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(false)
+    expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
+    expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
   })
 
   it('respects disabled and showCancel options', async () => {
@@ -337,5 +339,48 @@ describe('Popconfirm', () => {
 
     expect(wrapper.emitted('popupClick')?.[0][0]).toBeInstanceOf(MouseEvent)
     expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
+  })
+
+  it('preserves hidden popup by default and destroys it when requested', async () => {
+    const preserved = mountPopconfirm({
+      props: { title: 'Preserved popup' },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    await preserved.find('.aheart-popconfirm__trigger').trigger('click')
+    await preserved.find('.aheart-popconfirm__trigger').trigger('click')
+
+    expect(preserved.find('.aheart-popconfirm__popup').exists()).toBe(true)
+    expect(preserved.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
+
+    const destroyed = mountPopconfirm({
+      props: { title: 'Destroyed popup', destroyOnHidden: true },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    await destroyed.find('.aheart-popconfirm__trigger').trigger('click')
+    await destroyed.find('.aheart-popconfirm__trigger').trigger('click')
+
+    expect(destroyed.find('.aheart-popconfirm__popup').exists()).toBe(false)
+
+    const aliasDestroyed = mountPopconfirm({
+      props: { title: 'Alias destroyed popup', destroyTooltipOnHide: true },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    await aliasDestroyed.find('.aheart-popconfirm__trigger').trigger('click')
+    await aliasDestroyed.find('.aheart-popconfirm__trigger').trigger('click')
+
+    expect(aliasDestroyed.find('.aheart-popconfirm__popup').exists()).toBe(false)
+  })
+
+  it('accepts fresh without forwarding it as a DOM attribute', () => {
+    const wrapper = mountPopconfirm({
+      props: { defaultOpen: true, title: 'Fresh popup', fresh: true },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    expect(wrapper.attributes('fresh')).toBeUndefined()
+    expect(wrapper.find('.aheart-popconfirm__title').text()).toBe('Fresh popup')
   })
 })

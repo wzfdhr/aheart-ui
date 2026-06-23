@@ -57,6 +57,9 @@ export const popconfirmProps = {
     default: undefined
   },
   defaultOpen: Boolean,
+  destroyOnHidden: Boolean,
+  destroyTooltipOnHide: Boolean,
+  fresh: Boolean,
   okText: {
     type: String,
     default: 'OK'

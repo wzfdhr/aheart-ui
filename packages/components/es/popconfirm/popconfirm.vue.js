@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, createCommentVNode, createVNode, unref, mergeProps, withCtx, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, mergeProps, withCtx, createTextVNode, toDisplayString, vShow } from "vue";
 import Button from "../button/index.js";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
@@ -36,6 +36,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const visible = computed(() => !props.disabled && mergedOpen.value);
+    const hasRenderedPopup = ref(Boolean(visible.value));
+    const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
+    const shouldRenderPopup = computed(
+      () => !props.disabled && (visible.value || !shouldDestroyOnHidden.value && hasRenderedPopup.value)
+    );
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = computed(() => {
       if (props.getPopupContainer && triggerRef.value) {
@@ -170,6 +175,23 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     );
+    watch(
+      visible,
+      (open) => {
+        if (open) {
+          hasRenderedPopup.value = true;
+        }
+      },
+      { immediate: true }
+    );
+    watch(
+      () => props.disabled,
+      (disabled) => {
+        if (disabled) {
+          hasRenderedPopup.value = false;
+        }
+      }
+    );
     const requestOpen = (open) => {
       if (props.disabled) {
         return;
@@ -251,7 +273,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           to: teleportTo.value,
           disabled: !shouldTeleport.value
         }, [
-          visible.value ? (openBlock(), createElementBlock("span", {
+          shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
             key: 0,
             ref_key: "popupRef",
             ref: popupRef,
@@ -331,7 +353,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 _: 1
               }, 16, ["class", "style"])
             ], 6)
-          ], 38)) : createCommentVNode("", true)
+          ], 38)), [
+            [vShow, visible.value]
+          ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
       ], 38);
     };

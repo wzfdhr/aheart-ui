@@ -27,6 +27,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly defaultOpen: BooleanConstructor;
+        readonly destroyOnHidden: BooleanConstructor;
+        readonly destroyTooltipOnHide: BooleanConstructor;
+        readonly fresh: BooleanConstructor;
         readonly okText: {
             readonly type: StringConstructor;
             readonly default: "OK";
@@ -77,12 +80,15 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly disabled: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly arrow: boolean;
         readonly defaultOpen: boolean;
         readonly okText: string;
         readonly cancelText: string;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+        readonly destroyTooltipOnHide: boolean;
+        readonly fresh: boolean;
         readonly showCancel: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -119,6 +125,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly defaultOpen: BooleanConstructor;
+        readonly destroyOnHidden: BooleanConstructor;
+        readonly destroyTooltipOnHide: BooleanConstructor;
+        readonly fresh: BooleanConstructor;
         readonly okText: {
             readonly type: StringConstructor;
             readonly default: "OK";
@@ -163,12 +172,15 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly disabled: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly arrow: boolean;
         readonly defaultOpen: boolean;
         readonly okText: string;
         readonly cancelText: string;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+        readonly destroyTooltipOnHide: boolean;
+        readonly fresh: boolean;
         readonly showCancel: boolean;
     }>;
     __isFragment?: undefined;
@@ -202,6 +214,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly default: undefined;
     };
     readonly defaultOpen: BooleanConstructor;
+    readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyTooltipOnHide: BooleanConstructor;
+    readonly fresh: BooleanConstructor;
     readonly okText: {
         readonly type: StringConstructor;
         readonly default: "OK";
@@ -252,12 +267,15 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
     readonly arrow: boolean;
     readonly defaultOpen: boolean;
     readonly okText: string;
     readonly cancelText: string;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+    readonly destroyTooltipOnHide: boolean;
+    readonly fresh: boolean;
     readonly showCancel: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

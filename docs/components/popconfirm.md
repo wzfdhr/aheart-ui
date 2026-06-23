@@ -251,6 +251,9 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | trigger | 触发方式 | `hover` \| `focus` \| `click` \| `contextMenu` \| `FloatingTrigger[]` | `click` |
 | open | 受控显示状态 | `boolean` | - |
 | defaultOpen | 默认显示状态 | `boolean` | `false` |
+| destroyOnHidden | 关闭后销毁弹层 DOM | `boolean` | `false` |
+| destroyTooltipOnHide | 旧版关闭后销毁别名，等同 `destroyOnHidden` | `boolean` | `false` |
+| fresh | 兼容 Ant Design 的内容刷新标记；Vue 响应式内容默认保持更新 | `boolean` | `false` |
 | okText | 确认按钮文案 | `string` | `OK` |
 | cancelText | 取消按钮文案 | `string` | `Cancel` |
 | okType | 确认按钮类型 | `ButtonType` | `primary` |

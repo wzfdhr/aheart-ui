@@ -38,6 +38,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
     const visible = vue.computed(() => !props.disabled && mergedOpen.value);
+    const hasRenderedPopup = vue.ref(Boolean(visible.value));
+    const shouldDestroyOnHidden = vue.computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
+    const shouldRenderPopup = vue.computed(
+      () => !props.disabled && (visible.value || !shouldDestroyOnHidden.value && hasRenderedPopup.value)
+    );
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = vue.computed(() => {
       if (props.getPopupContainer && triggerRef.value) {
@@ -172,6 +177,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
     );
+    vue.watch(
+      visible,
+      (open) => {
+        if (open) {
+          hasRenderedPopup.value = true;
+        }
+      },
+      { immediate: true }
+    );
+    vue.watch(
+      () => props.disabled,
+      (disabled) => {
+        if (disabled) {
+          hasRenderedPopup.value = false;
+        }
+      }
+    );
     const requestOpen = (open) => {
       if (props.disabled) {
         return;
@@ -253,7 +275,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           to: teleportTo.value,
           disabled: !shouldTeleport.value
         }, [
-          visible.value ? (vue.openBlock(), vue.createElementBlock("span", {
+          shouldRenderPopup.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("span", {
             key: 0,
             ref_key: "popupRef",
             ref: popupRef,
@@ -333,7 +355,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 _: 1
               }, 16, ["class", "style"])
             ], 6)
-          ], 38)) : vue.createCommentVNode("", true)
+          ], 38)), [
+            [vue.vShow, visible.value]
+          ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
       ], 38);
     };

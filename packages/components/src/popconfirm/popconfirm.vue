@@ -23,7 +23,8 @@
     </span>
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <span
-        v-if="visible"
+        v-if="shouldRenderPopup"
+        v-show="visible"
         ref="popupRef"
         class="aheart-popconfirm__popup"
         :class="popupClass"
@@ -135,6 +136,11 @@ const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
 const visible = computed(() => !props.disabled && mergedOpen.value)
+const hasRenderedPopup = ref(Boolean(visible.value))
+const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide)
+const shouldRenderPopup = computed(
+  () => !props.disabled && (visible.value || (!shouldDestroyOnHidden.value && hasRenderedPopup.value))
+)
 const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
 const popupContainer = computed(() => {
   if (props.getPopupContainer && triggerRef.value) {
@@ -196,6 +202,25 @@ watch(
   (open) => {
     if (!isControlled.value) {
       innerOpen.value = open
+    }
+  }
+)
+
+watch(
+  visible,
+  (open) => {
+    if (open) {
+      hasRenderedPopup.value = true
+    }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.disabled,
+  (disabled) => {
+    if (disabled) {
+      hasRenderedPopup.value = false
     }
   }
 )
