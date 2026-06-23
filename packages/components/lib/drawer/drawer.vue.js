@@ -29,7 +29,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
+    const FOCUSABLE_SELECTOR = [
+      "a[href]",
+      "area[href]",
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "iframe",
+      "object",
+      "embed",
+      '[contenteditable="true"]',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(",");
     const hasRendered = vue.ref(props.open || props.forceRender);
+    const triggerElement = vue.ref(null);
+    const panelRef = vue.ref(null);
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const getDefaultContainer = () => typeof document === "undefined" ? false : document.body;
     const resolvedContainer = vue.computed(() => props.getContainer ?? getDefaultContainer());
@@ -58,7 +73,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return ((_a = maskConfig.value) == null ? void 0 : _a.closable) ?? props.maskClosable;
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
+    const isFocusableConfig = (value) => typeof value === "object" && value !== null;
     const closableConfig = vue.computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
+    const focusableConfig = vue.computed(() => isFocusableConfig(props.focusable) ? props.focusable : void 0);
+    const shouldFocusTriggerAfterClose = vue.computed(() => {
+      var _a;
+      return ((_a = focusableConfig.value) == null ? void 0 : _a.focusTriggerAfterClose) ?? true;
+    });
+    const shouldTrapFocus = vue.computed(() => {
+      var _a;
+      return ((_a = focusableConfig.value) == null ? void 0 : _a.trap) ?? showMask.value;
+    });
     const resolvedCloseIcon = vue.computed(() => {
       var _a;
       if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
@@ -139,13 +164,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     ]);
     vue.watch(
       () => props.open,
-      (open) => {
+      (open, previousOpen) => {
+        if (open && !previousOpen) {
+          captureTriggerElement();
+        }
         if (open) {
           hasRendered.value = true;
         } else if (shouldDestroy.value && !props.forceRender) {
           hasRendered.value = false;
         }
         emit("afterOpenChange", open);
+        if (!open) {
+          void vue.nextTick(() => restoreTriggerFocus());
+        }
       }
     );
     vue.watch(
@@ -164,6 +195,48 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return (_a = props.styles) == null ? void 0 : _a[part];
     };
+    const captureTriggerElement = () => {
+      triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    };
+    const restoreTriggerFocus = () => {
+      const target = triggerElement.value;
+      if (!shouldFocusTriggerAfterClose.value || !target || !document.contains(target)) {
+        return;
+      }
+      target.focus();
+    };
+    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element instanceof HTMLInputElement && element.type === "hidden");
+    const getFocusableElements = () => {
+      const panel = panelRef.value;
+      if (!panel) {
+        return [];
+      }
+      return Array.from(panel.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
+    };
+    const handleTrapTab = (event) => {
+      if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
+        return;
+      }
+      const panel = panelRef.value;
+      if (!panel) {
+        return;
+      }
+      const focusableElements = getFocusableElements();
+      const firstElement = focusableElements[0] ?? panel;
+      const lastElement = focusableElements[focusableElements.length - 1] ?? panel;
+      const activeElement = document.activeElement;
+      if (event.shiftKey) {
+        if (activeElement === firstElement || !panel.contains(activeElement)) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+        return;
+      }
+      if (activeElement === lastElement || !panel.contains(activeElement)) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -180,6 +253,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     const handleKeydown = (event) => {
+      handleTrapTab(event);
       if (props.keyboard && event.key === "Escape") {
         close();
       }
@@ -204,10 +278,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onClick: handleMaskClick
           }, null, 6)) : vue.createCommentVNode("", true),
           vue.createElementVNode("section", {
+            ref_key: "panelRef",
+            ref: panelRef,
             class: vue.normalizeClass(panelClass.value),
             style: vue.normalizeStyle(panelStyle.value),
             role: "dialog",
-            "aria-modal": "true"
+            "aria-modal": "true",
+            tabindex: "-1"
           }, [
             hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
               key: 0,

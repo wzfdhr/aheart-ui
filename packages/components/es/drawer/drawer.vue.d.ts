@@ -1,4 +1,5 @@
 import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
+import { type DrawerFocusableConfig } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: {
@@ -50,6 +51,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: true;
     };
+    readonly focusable: PropType<DrawerFocusableConfig>;
     readonly loading: BooleanConstructor;
     readonly footer: {
         readonly type: PropType<import("./types").DrawerFooter>;
@@ -123,6 +125,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: true;
     };
+    readonly focusable: PropType<DrawerFocusableConfig>;
     readonly loading: BooleanConstructor;
     readonly footer: {
         readonly type: PropType<import("./types").DrawerFooter>;

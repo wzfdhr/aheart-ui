@@ -50,6 +50,7 @@ const drawerProps = {
     type: Boolean,
     default: true
   },
+  focusable: Object,
   loading: Boolean,
   footer: {
     type: [Boolean, String, Number, Object, Array, Function],

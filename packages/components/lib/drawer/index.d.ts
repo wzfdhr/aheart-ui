@@ -50,6 +50,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: true;
         };
+        readonly focusable: import("vue").PropType<import("./types").DrawerFocusableConfig>;
         readonly loading: BooleanConstructor;
         readonly footer: {
             readonly type: import("vue").PropType<import("./types").DrawerFooter>;
@@ -154,6 +155,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: true;
         };
+        readonly focusable: import("vue").PropType<import("./types").DrawerFocusableConfig>;
         readonly loading: BooleanConstructor;
         readonly footer: {
             readonly type: import("vue").PropType<import("./types").DrawerFooter>;
@@ -251,6 +253,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly type: BooleanConstructor;
         readonly default: true;
     };
+    readonly focusable: import("vue").PropType<import("./types").DrawerFocusableConfig>;
     readonly loading: BooleanConstructor;
     readonly footer: {
         readonly type: import("vue").PropType<import("./types").DrawerFooter>;

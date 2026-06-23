@@ -23,6 +23,12 @@ export interface DrawerMaskConfig {
 }
 
 export type DrawerMask = boolean | DrawerMaskConfig
+
+export interface DrawerFocusableConfig {
+  trap?: boolean
+  focusTriggerAfterClose?: boolean
+}
+
 export type DrawerClosePlacement = 'start' | 'end'
 export type DrawerCloseIcon = VNodeChild
 
@@ -85,6 +91,7 @@ export const drawerProps = {
     type: Boolean,
     default: true
   },
+  focusable: Object as PropType<DrawerFocusableConfig>,
   loading: Boolean,
   footer: {
     type: [Boolean, String, Number, Object, Array, Function] as PropType<DrawerFooter>,

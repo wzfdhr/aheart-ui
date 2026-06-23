@@ -208,6 +208,163 @@ describe('Drawer', () => {
     expect(destroyable.find('.aheart-drawer').exists()).toBe(false)
   })
 
+  it('restores focus to the trigger after close by default', async () => {
+    const trigger = document.createElement('button')
+    const outside = document.createElement('button')
+    document.body.append(trigger, outside)
+    trigger.focus()
+
+    const wrapper = mountDrawer({
+      attachTo: document.body,
+      props: {
+        open: false,
+        title: 'Focusable drawer'
+      }
+    })
+
+    await wrapper.setProps({ open: true })
+    outside.focus()
+    await wrapper.setProps({ open: false })
+    await nextTick()
+
+    expect(document.activeElement).toBe(trigger)
+
+    wrapper.unmount()
+    trigger.remove()
+    outside.remove()
+  })
+
+  it('keeps focus in place when focus restoration is disabled', async () => {
+    const trigger = document.createElement('button')
+    const outside = document.createElement('button')
+    document.body.append(trigger, outside)
+    trigger.focus()
+
+    const wrapper = mountDrawer({
+      attachTo: document.body,
+      props: {
+        open: false,
+        title: 'Focusable drawer',
+        focusable: {
+          focusTriggerAfterClose: false
+        }
+      }
+    })
+
+    await wrapper.setProps({ open: true })
+    outside.focus()
+    await wrapper.setProps({ open: false })
+    await nextTick()
+
+    expect(document.activeElement).toBe(outside)
+
+    wrapper.unmount()
+    trigger.remove()
+    outside.remove()
+  })
+
+  it('traps tab focus inside masked drawers by default', async () => {
+    const wrapper = mountDrawer({
+    attachTo: document.body,
+    props: {
+      open: true,
+      title: 'Trap drawer',
+      closable: false
+    },
+      slots: {
+        default: '<button class="first-control">First</button><button class="last-control">Last</button>'
+      }
+    })
+
+    const first = wrapper.find('.first-control').element as HTMLElement
+    const last = wrapper.find('.last-control').element as HTMLElement
+    last.focus()
+
+    await wrapper.find('.aheart-drawer').trigger('keydown', { key: 'Tab' })
+
+    expect(document.activeElement).toBe(first)
+
+    wrapper.unmount()
+  })
+
+  it('traps shift tab focus back to the last drawer control', async () => {
+    const wrapper = mountDrawer({
+    attachTo: document.body,
+    props: {
+      open: true,
+      title: 'Reverse trap',
+      closable: false
+    },
+      slots: {
+        default: '<button class="first-control">First</button><button class="last-control">Last</button>'
+      }
+    })
+
+    const first = wrapper.find('.first-control').element as HTMLElement
+    const last = wrapper.find('.last-control').element as HTMLElement
+    first.focus()
+
+    await wrapper.find('.aheart-drawer').trigger('keydown', { key: 'Tab', shiftKey: true })
+
+    expect(document.activeElement).toBe(last)
+
+    wrapper.unmount()
+  })
+
+  it('lets focusable trap config override the mask default', async () => {
+    const wrapper = mountDrawer({
+    attachTo: document.body,
+    props: {
+      open: true,
+      title: 'No trap',
+      closable: false,
+      focusable: {
+        trap: false
+      }
+      },
+      slots: {
+        default: '<button class="first-control">First</button><button class="last-control">Last</button>'
+      }
+    })
+
+    const last = wrapper.find('.last-control').element as HTMLElement
+    last.focus()
+
+    await wrapper.find('.aheart-drawer').trigger('keydown', { key: 'Tab' })
+
+    expect(document.activeElement).toBe(last)
+
+    wrapper.unmount()
+  })
+
+  it('can trap focus without a mask when focusable trap is true', async () => {
+    const wrapper = mountDrawer({
+      attachTo: document.body,
+    props: {
+      open: true,
+      title: 'Forced trap',
+      closable: false,
+      mask: false,
+      focusable: {
+        trap: true
+        }
+      },
+      slots: {
+        default: '<button class="first-control">First</button><button class="last-control">Last</button>'
+      }
+    })
+
+    const first = wrapper.find('.first-control').element as HTMLElement
+    const last = wrapper.find('.last-control').element as HTMLElement
+    last.focus()
+
+    await wrapper.find('.aheart-drawer').trigger('keydown', { key: 'Tab' })
+
+    expect(document.activeElement).toBe(first)
+
+    wrapper.unmount()
+  })
+
   it('emits close and update events from the close button', async () => {
     const wrapper = mountDrawer({ props: { open: true, title: 'Details' } })
 

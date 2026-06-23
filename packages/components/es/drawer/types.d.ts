@@ -19,6 +19,10 @@ export interface DrawerMaskConfig {
     closable?: boolean;
 }
 export type DrawerMask = boolean | DrawerMaskConfig;
+export interface DrawerFocusableConfig {
+    trap?: boolean;
+    focusTriggerAfterClose?: boolean;
+}
 export type DrawerClosePlacement = 'start' | 'end';
 export type DrawerCloseIcon = VNodeChild;
 export interface DrawerClosableConfig {
@@ -78,6 +82,7 @@ export declare const drawerProps: {
         readonly type: BooleanConstructor;
         readonly default: true;
     };
+    readonly focusable: PropType<DrawerFocusableConfig>;
     readonly loading: BooleanConstructor;
     readonly footer: {
         readonly type: PropType<DrawerFooter>;

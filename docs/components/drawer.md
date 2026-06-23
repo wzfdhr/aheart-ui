@@ -8,6 +8,7 @@ const loadingOpen = ref(false)
 const renderableOpen = ref(false)
 const closeControlsOpen = ref(false)
 const maskConfigOpen = ref(false)
+const focusOpen = ref(false)
 const styledOpen = ref(false)
 const renderableTitle = h('span', { class: 'docs-drawer-renderable-title' }, 'Review profile')
 const renderableExtra = h('span', { class: 'docs-drawer-renderable-extra' }, 'Synced')
@@ -188,6 +189,40 @@ const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come 
 </template>
 ```
 
+## 焦点管理
+
+<div class="aheart-demo-panel">
+  <AButton @click="focusOpen = true">Focus management</AButton>
+  <ADrawer
+    v-model:open="focusOpen"
+    title="Focus management"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
+  >
+    This drawer keeps Tab focus inside the panel and restores focus to the opener after close.
+    <button type="button">Focusable control</button>
+  </ADrawer>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const open = ref(false)
+</script>
+
+<template>
+  <AButton @click="open = true">Focus management</AButton>
+  <ADrawer
+    v-model:open="open"
+    title="Focus management"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
+  >
+    This drawer keeps Tab focus inside the panel and restores focus to the opener after close.
+    <button type="button">Focusable control</button>
+  </ADrawer>
+</template>
+```
+
 ## 语义化样式
 
 <div class="aheart-demo-panel">
@@ -242,6 +277,7 @@ const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come 
 | mask | 是否显示遮罩；对象形式可配置显示、模糊和点击关闭 | `boolean` \| `DrawerMaskConfig` | `true` |
 | maskClosable | 点击遮罩是否关闭 | `boolean` | `true` |
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |
+| focusable | 焦点管理配置 | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 页脚内容；`true` 可只显示 footer slot，`false` 或 `null` 隐藏页脚 | `boolean` \| `DrawerRenderable` | - |
 | getContainer | 指定 Drawer 挂载容器；传入 `false` 时保持内联渲染 | `HTMLElement` \| `string` \| `() => HTMLElement` \| `false` | `document.body` |
@@ -278,6 +314,15 @@ interface DrawerMaskConfig {
   enabled?: boolean
   blur?: boolean
   closable?: boolean
+}
+```
+
+### DrawerFocusableConfig
+
+```ts
+interface DrawerFocusableConfig {
+  trap?: boolean
+  focusTriggerAfterClose?: boolean
 }
 ```
 
