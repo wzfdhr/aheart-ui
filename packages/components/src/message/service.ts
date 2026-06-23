@@ -22,7 +22,7 @@ const state = shallowReactive<MessageState>({
   top: 8,
   duration: 3,
   rtl: false,
-  pauseOnHover: false
+  pauseOnHover: true
 })
 const notices = shallowRef<MessageNotice[]>([])
 
@@ -281,7 +281,7 @@ const destroy = (key?: MessageKey) => {
   state.getContainer = undefined
   state.prefixCls = undefined
   state.rtl = false
-  state.pauseOnHover = false
+  state.pauseOnHover = true
   unmountHost()
 }
 

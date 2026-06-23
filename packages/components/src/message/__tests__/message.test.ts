@@ -194,4 +194,24 @@ describe('Message', () => {
 
     expect(document.body.textContent).not.toContain('Hover me')
   })
+
+  it('pauses auto close while hovered by default', async () => {
+    vi.useFakeTimers()
+
+    message.info('Default hover pause', 0.2)
+    await nextTick()
+
+    const notice = document.body.querySelector('.aheart-message-notice') as HTMLElement
+    notice.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+    await vi.advanceTimersByTimeAsync(250)
+    await nextTick()
+
+    expect(document.body.textContent).toContain('Default hover pause')
+
+    notice.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
+    await vi.advanceTimersByTimeAsync(250)
+    await nextTick()
+
+    expect(document.body.textContent).not.toContain('Default hover pause')
+  })
 })

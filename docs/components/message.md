@@ -197,7 +197,7 @@ message.config({
 | getContainer | 自定义挂载容器 | `() => HTMLElement` | `document.body` |
 | prefixCls | 自定义类名前缀 | `string` | - |
 | rtl | 是否启用 RTL 类名状态 | `boolean` | `false` |
-| pauseOnHover | 是否默认悬停暂停关闭计时 | `boolean` | `false` |
+| pauseOnHover | 是否默认悬停暂停关闭计时 | `boolean` | `true` |
 
 ## AMessage API
 

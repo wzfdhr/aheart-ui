@@ -6,7 +6,7 @@ const state = vue.shallowReactive({
   top: 8,
   duration: 3,
   rtl: false,
-  pauseOnHover: false
+  pauseOnHover: true
 });
 const notices = vue.shallowRef([]);
 let app;
@@ -222,7 +222,7 @@ const destroy = (key) => {
   state.getContainer = void 0;
   state.prefixCls = void 0;
   state.rtl = false;
-  state.pauseOnHover = false;
+  state.pauseOnHover = true;
   unmountHost();
 };
 const config = (options) => {
