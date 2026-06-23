@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import Modal from '../modal.vue'
 
 describe('Modal', () => {
@@ -581,6 +581,43 @@ describe('Modal', () => {
 
     expect(wrapper.emitted('update:open')).toBeUndefined()
     expect(wrapper.emitted('close')).toBeUndefined()
+  })
+
+  it('calls closable onClose when enabled close paths close the modal', async () => {
+    const onClose = vi.fn()
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        closable: {
+          onClose
+        }
+      }
+    })
+
+    await wrapper.find('.aheart-modal__close').trigger('click')
+    await wrapper.find('.aheart-modal__mask').trigger('click')
+    await wrapper.find('.aheart-modal__cancel').trigger('click')
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Escape' })
+
+    expect(onClose).toHaveBeenCalledTimes(4)
+    expect(wrapper.emitted('close')).toHaveLength(4)
+  })
+
+  it('calls closable afterClose when the modal finishes closing', async () => {
+    const afterClose = vi.fn()
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        closable: {
+          afterClose
+        }
+      }
+    })
+
+    await wrapper.setProps({ open: false })
+
+    expect(wrapper.emitted('afterClose')).toHaveLength(1)
+    expect(afterClose).toHaveBeenCalledTimes(1)
   })
 
   it('renders vnode title and action text props', async () => {

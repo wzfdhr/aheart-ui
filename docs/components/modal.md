@@ -365,7 +365,7 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 | title | 标题内容 | `VNodeChild` | - |
 | width | 对话框宽度 | `number` \| `string` | `520` |
 | centered | 是否垂直居中 | `boolean` | `false` |
-| closable | 是否显示右上角关闭按钮，可配置关闭图标或禁用关闭按钮 | `boolean` \| `{ closeIcon?: VNodeChild; disabled?: boolean }` | `true` |
+| closable | 是否显示右上角关闭按钮，可配置关闭图标、禁用状态和关闭回调 | `boolean` \| `ModalClosableConfig` | `true` |
 | closeIcon | 自定义关闭图标，传入 `false` 或 `null` 时隐藏关闭按钮 | `VNodeChild` | `×` |
 | mask | 遮罩配置 | `boolean` \| `{ enabled?: boolean; blur?: boolean; closable?: boolean }` | `true` |
 | maskClosable | 点击遮罩是否关闭；优先使用 `mask.closable` | `boolean` | `true` |
@@ -400,6 +400,17 @@ interface ModalMaskConfig {
   enabled?: boolean
   blur?: boolean
   closable?: boolean
+}
+```
+
+### ModalClosableConfig
+
+```ts
+interface ModalClosableConfig {
+  closeIcon?: VNodeChild
+  disabled?: boolean
+  onClose?: () => void
+  afterClose?: () => void
 }
 ```
 

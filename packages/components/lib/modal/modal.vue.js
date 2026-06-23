@@ -195,6 +195,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => props.open,
       (open, previousOpen) => {
+        var _a, _b;
         if (open && !previousOpen) {
           captureTriggerElement();
         }
@@ -206,6 +207,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         emit("afterOpenChange", open);
         if (!open) {
           emit("afterClose");
+          (_b = (_a = closableConfig.value) == null ? void 0 : _a.afterClose) == null ? void 0 : _b.call(_a);
           void vue.nextTick(() => restoreTriggerFocus());
         }
       }
@@ -266,7 +268,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         firstElement.focus();
       }
     };
+    const notifyClosableClose = () => {
+      var _a, _b;
+      (_b = (_a = closableConfig.value) == null ? void 0 : _a.onClose) == null ? void 0 : _b.call(_a);
+    };
     const close = () => {
+      notifyClosableClose();
       emit("update:open", false);
       emit("close");
     };

@@ -33,6 +33,8 @@ export type ModalFooter = boolean | ModalRenderable | ModalFooterRender;
 export interface ModalClosableConfig {
     closeIcon?: ModalRenderable;
     disabled?: boolean;
+    onClose?: () => void;
+    afterClose?: () => void;
 }
 export type ModalClosable = boolean | ModalClosableConfig;
 export declare const modalProps: {

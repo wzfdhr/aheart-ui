@@ -286,6 +286,7 @@ watch(
 
     if (!open) {
       emit('afterClose')
+      closableConfig.value?.afterClose?.()
       void nextTick(() => restoreTriggerFocus())
     }
   }
@@ -373,7 +374,12 @@ const handleTrapTab = (event: KeyboardEvent) => {
   }
 }
 
+const notifyClosableClose = () => {
+  closableConfig.value?.onClose?.()
+}
+
 const close = () => {
+  notifyClosableClose()
   emit('update:open', false)
   emit('close')
 }
