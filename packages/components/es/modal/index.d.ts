@@ -62,6 +62,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
         readonly classNames: import("vue").PropType<import("./types").ModalClassNames>;
         readonly styles: import("vue").PropType<import("./types").ModalStyles>;
+        readonly focusable: import("vue").PropType<import("./types").ModalFocusableConfig>;
+        readonly focusTriggerAfterClose: {
+            readonly type: import("vue").PropType<boolean | undefined>;
+            readonly default: undefined;
+        };
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -99,6 +104,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly okText: import("vue").VNodeChild;
         readonly cancelText: import("vue").VNodeChild;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+        readonly focusTriggerAfterClose: boolean | undefined;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -169,6 +175,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
         readonly classNames: import("vue").PropType<import("./types").ModalClassNames>;
         readonly styles: import("vue").PropType<import("./types").ModalStyles>;
+        readonly focusable: import("vue").PropType<import("./types").ModalFocusableConfig>;
+        readonly focusTriggerAfterClose: {
+            readonly type: import("vue").PropType<boolean | undefined>;
+            readonly default: undefined;
+        };
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
@@ -199,6 +210,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly okText: import("vue").VNodeChild;
         readonly cancelText: import("vue").VNodeChild;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+        readonly focusTriggerAfterClose: boolean | undefined;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -266,6 +278,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly rootStyle: import("vue").PropType<import("vue").CSSProperties>;
     readonly classNames: import("vue").PropType<import("./types").ModalClassNames>;
     readonly styles: import("vue").PropType<import("./types").ModalStyles>;
+    readonly focusable: import("vue").PropType<import("./types").ModalFocusableConfig>;
+    readonly focusTriggerAfterClose: {
+        readonly type: import("vue").PropType<boolean | undefined>;
+        readonly default: undefined;
+    };
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -303,6 +320,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly okText: import("vue").VNodeChild;
     readonly cancelText: import("vue").VNodeChild;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+    readonly focusTriggerAfterClose: boolean | undefined;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         title?(_: {}): any;

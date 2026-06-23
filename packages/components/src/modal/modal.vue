@@ -51,7 +51,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, ref, useSlots, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  ref,
+  useSlots,
+  watch,
+  type CSSProperties,
+  type PropType,
+  type VNodeChild
+} from 'vue'
 import AButton from '../button'
 import ASkeleton from '../skeleton'
 import {
@@ -59,6 +70,7 @@ import {
   modalProps,
   type ModalButtonProps,
   type ModalClosableConfig,
+  type ModalFocusableConfig,
   type ModalFooterRenderExtra,
   type ModalMaskConfig,
   type ModalRender,
@@ -75,6 +87,7 @@ const props = defineProps(modalProps)
 const emit = defineEmits(modalEmits)
 const slots = useSlots()
 const hasRendered = ref(props.open || props.forceRender)
+const triggerElement = ref<HTMLElement | null>(null)
 
 const AModalRenderNode = defineComponent({
   name: 'AModalRenderNode',
@@ -106,6 +119,9 @@ const isClosableConfig = (value: typeof props.closable): value is ModalClosableC
   typeof value === 'object' && value !== null
 
 const isMaskConfig = (value: typeof props.mask): value is ModalMaskConfig =>
+  typeof value === 'object' && value !== null
+
+const isFocusableConfig = (value: typeof props.focusable): value is ModalFocusableConfig =>
   typeof value === 'object' && value !== null
 
 const hasRenderable = (value: unknown) => {
@@ -164,6 +180,10 @@ const bodyClass = computed(() => ['aheart-modal__body', { 'is-loading': props.lo
 const footerClass = computed(() => ['aheart-modal__footer', semanticClass('footer')])
 const closeClass = computed(() => ['aheart-modal__close', semanticClass('close')])
 const closableConfig = computed(() => (isClosableConfig(props.closable) ? props.closable : undefined))
+const focusableConfig = computed(() => (isFocusableConfig(props.focusable) ? props.focusable : undefined))
+const shouldFocusTriggerAfterClose = computed(
+  () => focusableConfig.value?.focusTriggerAfterClose ?? props.focusTriggerAfterClose ?? true
+)
 const resolvedCloseIcon = computed(() => {
   if (closableConfig.value?.closeIcon !== undefined) {
     return closableConfig.value.closeIcon
@@ -231,7 +251,11 @@ const footerContent = computed(() => {
 
 watch(
   () => props.open,
-  (open) => {
+  (open, previousOpen) => {
+    if (open && !previousOpen) {
+      captureTriggerElement()
+    }
+
     if (open) {
       hasRendered.value = true
     } else if (shouldDestroy.value && !props.forceRender) {
@@ -242,6 +266,7 @@ watch(
 
     if (!open) {
       emit('afterClose')
+      void nextTick(() => restoreTriggerFocus())
     }
   }
 )
@@ -266,6 +291,20 @@ const resolveSemanticConfig = <T,>(
 const semanticClass = (part: ModalSemanticPart) => resolveSemanticConfig(props.classNames, part)
 const semanticStyle = (part: ModalSemanticPart): CSSProperties | undefined =>
   resolveSemanticConfig(props.styles, part)
+
+const captureTriggerElement = () => {
+  triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null
+}
+
+const restoreTriggerFocus = () => {
+  const target = triggerElement.value
+
+  if (!shouldFocusTriggerAfterClose.value || !target || !document.contains(target)) {
+    return
+  }
+
+  target.focus()
+}
 
 const close = () => {
   emit('update:open', false)

@@ -6,6 +6,7 @@ const closeControlsOpen = ref(false)
 const renderableOpen = ref(false)
 const renderWrapperOpen = ref(false)
 const maskConfigOpen = ref(false)
+const focusOpen = ref(false)
 const footerOpen = ref(false)
 const centeredOpen = ref(false)
 const loadingOpen = ref(false)
@@ -196,6 +197,38 @@ const open = ref(false)
 </template>
 ```
 
+## 焦点恢复
+
+<div class="aheart-demo-panel">
+  <AButton @click="focusOpen = true">Focus restore</AButton>
+  <AModal
+    v-model:open="focusOpen"
+    title="Focus restore"
+    :focusable="{ focusTriggerAfterClose: true }"
+  >
+    Closing this modal restores focus to the button that opened it.
+  </AModal>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const open = ref(false)
+</script>
+
+<template>
+  <AButton @click="open = true">Focus restore</AButton>
+  <AModal
+    v-model:open="open"
+    title="Focus restore"
+    :focusable="{ focusTriggerAfterClose: true }"
+  >
+    Closing this modal restores focus to the button that opened it.
+  </AModal>
+</template>
+```
+
 ## 自定义页脚
 
 <div class="aheart-demo-panel">
@@ -346,6 +379,8 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 | zIndex | 根节点层级 | `number` | `1000` |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 页脚内容，`false` 或 `null` 时隐藏默认页脚 | `boolean` \| `VNodeChild` \| `ModalFooterRender` | `true` |
+| focusable | 焦点管理配置 | `{ focusTriggerAfterClose?: boolean }` | - |
+| focusTriggerAfterClose | 关闭后是否聚焦触发元素；兼容旧命名，优先使用 `focusable.focusTriggerAfterClose` | `boolean` | `true` |
 | modalRender | 自定义渲染对话框内容 | `(node: VNodeChild) => VNodeChild` | - |
 | className | 对话框自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
@@ -365,6 +400,14 @@ interface ModalMaskConfig {
   enabled?: boolean
   blur?: boolean
   closable?: boolean
+}
+```
+
+### ModalFocusableConfig
+
+```ts
+interface ModalFocusableConfig {
+  focusTriggerAfterClose?: boolean
 }
 ```
 

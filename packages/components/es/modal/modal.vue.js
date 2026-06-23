@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, withCtx, renderSlot, createBlock, vShow, h } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, nextTick, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, withCtx, renderSlot, createBlock, vShow, h } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { modalProps, modalEmits } from "./types.js";
@@ -16,6 +16,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const hasRendered = ref(props.open || props.forceRender);
+    const triggerElement = ref(null);
     const AModalRenderNode = defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -43,6 +44,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
     const isMaskConfig = (value) => typeof value === "object" && value !== null;
+    const isFocusableConfig = (value) => typeof value === "object" && value !== null;
     const hasRenderable = (value) => {
       if (Array.isArray(value)) {
         return value.length > 0;
@@ -101,6 +103,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const footerClass = computed(() => ["aheart-modal__footer", semanticClass("footer")]);
     const closeClass = computed(() => ["aheart-modal__close", semanticClass("close")]);
     const closableConfig = computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
+    const focusableConfig = computed(() => isFocusableConfig(props.focusable) ? props.focusable : void 0);
+    const shouldFocusTriggerAfterClose = computed(
+      () => {
+        var _a;
+        return ((_a = focusableConfig.value) == null ? void 0 : _a.focusTriggerAfterClose) ?? props.focusTriggerAfterClose ?? true;
+      }
+    );
     const resolvedCloseIcon = computed(() => {
       var _a;
       if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
@@ -163,7 +172,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     watch(
       () => props.open,
-      (open) => {
+      (open, previousOpen) => {
+        if (open && !previousOpen) {
+          captureTriggerElement();
+        }
         if (open) {
           hasRendered.value = true;
         } else if (shouldDestroy.value && !props.forceRender) {
@@ -172,6 +184,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         emit("afterOpenChange", open);
         if (!open) {
           emit("afterClose");
+          void nextTick(() => restoreTriggerFocus());
         }
       }
     );
@@ -189,6 +202,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
     const semanticStyle = (part) => resolveSemanticConfig(props.styles, part);
+    const captureTriggerElement = () => {
+      triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    };
+    const restoreTriggerFocus = () => {
+      const target = triggerElement.value;
+      if (!shouldFocusTriggerAfterClose.value || !target || !document.contains(target)) {
+        return;
+      }
+      target.focus();
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");

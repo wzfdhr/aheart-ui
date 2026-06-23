@@ -24,6 +24,10 @@ export interface ModalMaskConfig {
 
 export type ModalMask = boolean | ModalMaskConfig
 
+export interface ModalFocusableConfig {
+  focusTriggerAfterClose?: boolean
+}
+
 export interface ModalFooterRenderExtra {
   okButton: ModalRenderable
   cancelButton: ModalRenderable
@@ -104,6 +108,11 @@ export const modalProps = {
   rootStyle: Object as PropType<CSSProperties>,
   classNames: [Object, Function] as PropType<ModalClassNames>,
   styles: [Object, Function] as PropType<ModalStyles>,
+  focusable: Object as PropType<ModalFocusableConfig>,
+  focusTriggerAfterClose: {
+    type: Boolean as PropType<boolean | undefined>,
+    default: undefined
+  },
   forceRender: Boolean,
   destroyOnClose: Boolean,
   destroyOnHidden: Boolean

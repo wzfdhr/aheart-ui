@@ -18,6 +18,9 @@ export interface ModalMaskConfig {
     closable?: boolean;
 }
 export type ModalMask = boolean | ModalMaskConfig;
+export interface ModalFocusableConfig {
+    focusTriggerAfterClose?: boolean;
+}
 export interface ModalFooterRenderExtra {
     okButton: ModalRenderable;
     cancelButton: ModalRenderable;
@@ -94,6 +97,11 @@ export declare const modalProps: {
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<ModalClassNames>;
     readonly styles: PropType<ModalStyles>;
+    readonly focusable: PropType<ModalFocusableConfig>;
+    readonly focusTriggerAfterClose: {
+        readonly type: PropType<boolean | undefined>;
+        readonly default: undefined;
+    };
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

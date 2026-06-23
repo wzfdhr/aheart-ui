@@ -18,6 +18,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const hasRendered = vue.ref(props.open || props.forceRender);
+    const triggerElement = vue.ref(null);
     const AModalRenderNode = vue.defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -45,6 +46,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
     const isMaskConfig = (value) => typeof value === "object" && value !== null;
+    const isFocusableConfig = (value) => typeof value === "object" && value !== null;
     const hasRenderable = (value) => {
       if (Array.isArray(value)) {
         return value.length > 0;
@@ -103,6 +105,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const footerClass = vue.computed(() => ["aheart-modal__footer", semanticClass("footer")]);
     const closeClass = vue.computed(() => ["aheart-modal__close", semanticClass("close")]);
     const closableConfig = vue.computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
+    const focusableConfig = vue.computed(() => isFocusableConfig(props.focusable) ? props.focusable : void 0);
+    const shouldFocusTriggerAfterClose = vue.computed(
+      () => {
+        var _a;
+        return ((_a = focusableConfig.value) == null ? void 0 : _a.focusTriggerAfterClose) ?? props.focusTriggerAfterClose ?? true;
+      }
+    );
     const resolvedCloseIcon = vue.computed(() => {
       var _a;
       if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
@@ -165,7 +174,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     vue.watch(
       () => props.open,
-      (open) => {
+      (open, previousOpen) => {
+        if (open && !previousOpen) {
+          captureTriggerElement();
+        }
         if (open) {
           hasRendered.value = true;
         } else if (shouldDestroy.value && !props.forceRender) {
@@ -174,6 +186,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         emit("afterOpenChange", open);
         if (!open) {
           emit("afterClose");
+          void vue.nextTick(() => restoreTriggerFocus());
         }
       }
     );
@@ -191,6 +204,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
     const semanticStyle = (part) => resolveSemanticConfig(props.styles, part);
+    const captureTriggerElement = () => {
+      triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    };
+    const restoreTriggerFocus = () => {
+      const target = triggerElement.value;
+      if (!shouldFocusTriggerAfterClose.value || !target || !document.contains(target)) {
+        return;
+      }
+      target.focus();
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");

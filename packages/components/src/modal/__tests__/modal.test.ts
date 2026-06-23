@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import Modal from '../modal.vue'
 
@@ -237,6 +237,91 @@ describe('Modal', () => {
 
     expect(wrapper.find('.aheart-modal').exists()).toBe(false)
     expect(wrapper.emitted('afterClose')).toHaveLength(1)
+  })
+
+  it('restores focus to the trigger after close by default', async () => {
+    const trigger = document.createElement('button')
+    const outside = document.createElement('button')
+    document.body.append(trigger, outside)
+    trigger.focus()
+
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: false,
+        title: 'Focusable modal'
+      }
+    })
+
+    await wrapper.setProps({ open: true })
+    outside.focus()
+    await wrapper.setProps({ open: false })
+    await nextTick()
+
+    expect(document.activeElement).toBe(trigger)
+
+    wrapper.unmount()
+    trigger.remove()
+    outside.remove()
+  })
+
+  it('lets focusable config control trigger focus restoration', async () => {
+    const trigger = document.createElement('button')
+    const outside = document.createElement('button')
+    document.body.append(trigger, outside)
+    trigger.focus()
+
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: false,
+        title: 'Focusable modal',
+        focusTriggerAfterClose: false,
+        focusable: {
+          focusTriggerAfterClose: true
+        }
+      }
+    })
+
+    await wrapper.setProps({ open: true })
+    outside.focus()
+    await wrapper.setProps({ open: false })
+    await nextTick()
+
+    expect(document.activeElement).toBe(trigger)
+
+    wrapper.unmount()
+    trigger.remove()
+    outside.remove()
+  })
+
+  it('keeps focus in place when focus restoration is disabled', async () => {
+    const trigger = document.createElement('button')
+    const outside = document.createElement('button')
+    document.body.append(trigger, outside)
+    trigger.focus()
+
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: false,
+        title: 'Focusable modal',
+        focusable: {
+          focusTriggerAfterClose: false
+        }
+      }
+    })
+
+    await wrapper.setProps({ open: true })
+    outside.focus()
+    await wrapper.setProps({ open: false })
+    await nextTick()
+
+    expect(document.activeElement).toBe(outside)
+
+    wrapper.unmount()
+    trigger.remove()
+    outside.remove()
   })
 
   it('closes from the mask only when maskClosable is true', async () => {

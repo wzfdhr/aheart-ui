@@ -1,5 +1,5 @@
 import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
-import { type ModalRender } from './types';
+import { type ModalFocusableConfig, type ModalRender } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: {
@@ -63,6 +63,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<import("./types").ModalClassNames>;
     readonly styles: PropType<import("./types").ModalStyles>;
+    readonly focusable: PropType<ModalFocusableConfig>;
+    readonly focusTriggerAfterClose: {
+        readonly type: PropType<boolean | undefined>;
+        readonly default: undefined;
+    };
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -136,6 +141,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<import("./types").ModalClassNames>;
     readonly styles: PropType<import("./types").ModalStyles>;
+    readonly focusable: PropType<ModalFocusableConfig>;
+    readonly focusTriggerAfterClose: {
+        readonly type: PropType<boolean | undefined>;
+        readonly default: undefined;
+    };
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -166,6 +176,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly okText: VNodeChild;
     readonly cancelText: VNodeChild;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+    readonly focusTriggerAfterClose: boolean | undefined;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;
     default?(_: {}): any;

@@ -61,6 +61,11 @@ const modalProps = {
   rootStyle: Object,
   classNames: [Object, Function],
   styles: [Object, Function],
+  focusable: Object,
+  focusTriggerAfterClose: {
+    type: Boolean,
+    default: void 0
+  },
   forceRender: Boolean,
   destroyOnClose: Boolean,
   destroyOnHidden: Boolean
