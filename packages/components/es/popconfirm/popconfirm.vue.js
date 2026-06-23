@@ -80,11 +80,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const popupClass = computed(() => {
       var _a;
-      return [`aheart-floating--${props.placement}`, (_a = props.classNames) == null ? void 0 : _a.popup];
+      return [`aheart-floating--${props.placement}`, props.overlayClassName, (_a = props.classNames) == null ? void 0 : _a.popup];
     });
     const popupStyle = computed(() => {
       var _a;
-      return [getFloatingPopupStyle(props.color, props.zIndex), (_a = props.styles) == null ? void 0 : _a.popup];
+      return [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
+    });
+    const containerClass = computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.container;
+    });
+    const containerStyle = computed(() => {
+      var _a;
+      return [props.overlayInnerStyle, (_a = props.styles) == null ? void 0 : _a.container];
     });
     const showArrow = computed(() => props.arrow !== false);
     const arrowPointsAtCenter = computed(() => {
@@ -347,67 +355,72 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "aria-hidden": "true"
             }, null, 6)) : createCommentVNode("", true),
             createElementVNode("span", {
-              class: normalizeClass(["aheart-popconfirm__message", messageClass.value]),
-              style: normalizeStyle(messageStyle.value)
+              class: normalizeClass(["aheart-popconfirm__container", containerClass.value]),
+              style: normalizeStyle(containerStyle.value)
             }, [
-              hasIcon.value ? (openBlock(), createElementBlock("span", {
-                key: 0,
-                class: normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
-                style: normalizeStyle(iconStyle.value),
-                "aria-hidden": "true"
-              }, [
-                renderSlot(_ctx.$slots, "icon", {}, () => [
-                  createVNode(unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
-                ])
-              ], 6)) : createCommentVNode("", true),
               createElementVNode("span", {
-                class: normalizeClass(["aheart-popconfirm__text", textClass.value]),
-                style: normalizeStyle(textStyle.value)
+                class: normalizeClass(["aheart-popconfirm__message", messageClass.value]),
+                style: normalizeStyle(messageStyle.value)
               }, [
-                hasTitle.value ? (openBlock(), createElementBlock("span", {
+                hasIcon.value ? (openBlock(), createElementBlock("span", {
                   key: 0,
-                  class: normalizeClass(["aheart-popconfirm__title", titleClass.value]),
-                  style: normalizeStyle(titleStyle.value)
+                  class: normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
+                  style: normalizeStyle(iconStyle.value),
+                  "aria-hidden": "true"
                 }, [
-                  renderSlot(_ctx.$slots, "title", {}, () => [
-                    createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                  renderSlot(_ctx.$slots, "icon", {}, () => [
+                    createVNode(unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
                   ])
                 ], 6)) : createCommentVNode("", true),
-                hasDescription.value ? (openBlock(), createElementBlock("span", {
-                  key: 1,
-                  class: normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
-                  style: normalizeStyle(descriptionStyle.value)
+                createElementVNode("span", {
+                  class: normalizeClass(["aheart-popconfirm__text", textClass.value]),
+                  style: normalizeStyle(textStyle.value)
                 }, [
-                  renderSlot(_ctx.$slots, "description", {}, () => [
-                    createVNode(unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
-                  ])
-                ], 6)) : createCommentVNode("", true)
+                  hasTitle.value ? (openBlock(), createElementBlock("span", {
+                    key: 0,
+                    class: normalizeClass(["aheart-popconfirm__title", titleClass.value]),
+                    style: normalizeStyle(titleStyle.value)
+                  }, [
+                    renderSlot(_ctx.$slots, "title", {}, () => [
+                      createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                    ])
+                  ], 6)) : createCommentVNode("", true),
+                  hasDescription.value ? (openBlock(), createElementBlock("span", {
+                    key: 1,
+                    class: normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
+                    style: normalizeStyle(descriptionStyle.value)
+                  }, [
+                    renderSlot(_ctx.$slots, "description", {}, () => [
+                      createVNode(unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
+                    ])
+                  ], 6)) : createCommentVNode("", true)
+                ], 6)
+              ], 6),
+              createElementVNode("span", {
+                class: normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
+                style: normalizeStyle(actionsStyle.value)
+              }, [
+                _ctx.showCancel ? (openBlock(), createBlock(unref(Button), mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
+                  class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
+                  style: cancelButtonStyle.value,
+                  onClick: handleCancel
+                }), {
+                  default: withCtx(() => [
+                    createTextVNode(toDisplayString(_ctx.cancelText), 1)
+                  ]),
+                  _: 1
+                }, 16, ["class", "style"])) : createCommentVNode("", true),
+                createVNode(unref(Button), mergeProps(resolvedOkButtonProps.value, {
+                  class: ["aheart-popconfirm__ok", okButtonClass.value],
+                  style: okButtonStyle.value,
+                  onClick: handleConfirm
+                }), {
+                  default: withCtx(() => [
+                    createTextVNode(toDisplayString(_ctx.okText), 1)
+                  ]),
+                  _: 1
+                }, 16, ["class", "style"])
               ], 6)
-            ], 6),
-            createElementVNode("span", {
-              class: normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
-              style: normalizeStyle(actionsStyle.value)
-            }, [
-              _ctx.showCancel ? (openBlock(), createBlock(unref(Button), mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
-                class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
-                style: cancelButtonStyle.value,
-                onClick: handleCancel
-              }), {
-                default: withCtx(() => [
-                  createTextVNode(toDisplayString(_ctx.cancelText), 1)
-                ]),
-                _: 1
-              }, 16, ["class", "style"])) : createCommentVNode("", true),
-              createVNode(unref(Button), mergeProps(resolvedOkButtonProps.value, {
-                class: ["aheart-popconfirm__ok", okButtonClass.value],
-                style: okButtonStyle.value,
-                onClick: handleConfirm
-              }), {
-                default: withCtx(() => [
-                  createTextVNode(toDisplayString(_ctx.okText), 1)
-                ]),
-                _: 1
-              }, 16, ["class", "style"])
             ], 6)
           ], 38)), [
             [vShow, visible.value]

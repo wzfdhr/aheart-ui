@@ -20,6 +20,7 @@ export type PopconfirmSemanticPart =
   | 'root'
   | 'trigger'
   | 'popup'
+  | 'container'
   | 'arrow'
   | 'message'
   | 'icon'
@@ -101,6 +102,9 @@ export const popconfirmProps = {
   className: String,
   rootClassName: String,
   style: [String, Object, Array] as PropType<StyleValue>,
+  overlayClassName: String,
+  overlayStyle: [String, Object, Array] as PropType<StyleValue>,
+  overlayInnerStyle: [String, Object, Array] as PropType<StyleValue>,
   classNames: Object as PropType<PopconfirmClassNames>,
   styles: Object as PropType<PopconfirmStyles>
 } as const

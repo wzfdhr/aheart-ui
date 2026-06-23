@@ -10,7 +10,7 @@ export interface PopconfirmArrowConfig {
     pointAtCenter?: boolean;
 }
 export type PopconfirmArrow = boolean | PopconfirmArrowConfig;
-export type PopconfirmSemanticPart = 'root' | 'trigger' | 'popup' | 'arrow' | 'message' | 'icon' | 'text' | 'title' | 'description' | 'actions' | 'cancelButton' | 'okButton';
+export type PopconfirmSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'arrow' | 'message' | 'icon' | 'text' | 'title' | 'description' | 'actions' | 'cancelButton' | 'okButton';
 export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>;
 export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>;
 export declare const popconfirmProps: {
@@ -81,6 +81,9 @@ export declare const popconfirmProps: {
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;
+    readonly overlayClassName: StringConstructor;
+    readonly overlayStyle: PropType<StyleValue>;
+    readonly overlayInnerStyle: PropType<StyleValue>;
     readonly classNames: PropType<Partial<Record<PopconfirmSemanticPart, string>>>;
     readonly styles: PropType<Partial<Record<PopconfirmSemanticPart, StyleValue>>>;
 };

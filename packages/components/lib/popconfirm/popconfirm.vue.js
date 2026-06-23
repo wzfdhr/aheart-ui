@@ -82,11 +82,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const popupClass = vue.computed(() => {
       var _a;
-      return [`aheart-floating--${props.placement}`, (_a = props.classNames) == null ? void 0 : _a.popup];
+      return [`aheart-floating--${props.placement}`, props.overlayClassName, (_a = props.classNames) == null ? void 0 : _a.popup];
     });
     const popupStyle = vue.computed(() => {
       var _a;
-      return [floating.getFloatingPopupStyle(props.color, props.zIndex), (_a = props.styles) == null ? void 0 : _a.popup];
+      return [floating.getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
+    });
+    const containerClass = vue.computed(() => {
+      var _a;
+      return (_a = props.classNames) == null ? void 0 : _a.container;
+    });
+    const containerStyle = vue.computed(() => {
+      var _a;
+      return [props.overlayInnerStyle, (_a = props.styles) == null ? void 0 : _a.container];
     });
     const showArrow = vue.computed(() => props.arrow !== false);
     const arrowPointsAtCenter = vue.computed(() => {
@@ -349,67 +357,72 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               "aria-hidden": "true"
             }, null, 6)) : vue.createCommentVNode("", true),
             vue.createElementVNode("span", {
-              class: vue.normalizeClass(["aheart-popconfirm__message", messageClass.value]),
-              style: vue.normalizeStyle(messageStyle.value)
+              class: vue.normalizeClass(["aheart-popconfirm__container", containerClass.value]),
+              style: vue.normalizeStyle(containerStyle.value)
             }, [
-              hasIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {
-                key: 0,
-                class: vue.normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
-                style: vue.normalizeStyle(iconStyle.value),
-                "aria-hidden": "true"
-              }, [
-                vue.renderSlot(_ctx.$slots, "icon", {}, () => [
-                  vue.createVNode(vue.unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
-                ])
-              ], 6)) : vue.createCommentVNode("", true),
               vue.createElementVNode("span", {
-                class: vue.normalizeClass(["aheart-popconfirm__text", textClass.value]),
-                style: vue.normalizeStyle(textStyle.value)
+                class: vue.normalizeClass(["aheart-popconfirm__message", messageClass.value]),
+                style: vue.normalizeStyle(messageStyle.value)
               }, [
-                hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
+                hasIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {
                   key: 0,
-                  class: vue.normalizeClass(["aheart-popconfirm__title", titleClass.value]),
-                  style: vue.normalizeStyle(titleStyle.value)
+                  class: vue.normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
+                  style: vue.normalizeStyle(iconStyle.value),
+                  "aria-hidden": "true"
                 }, [
-                  vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                    vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                  vue.renderSlot(_ctx.$slots, "icon", {}, () => [
+                    vue.createVNode(vue.unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
                   ])
                 ], 6)) : vue.createCommentVNode("", true),
-                hasDescription.value ? (vue.openBlock(), vue.createElementBlock("span", {
-                  key: 1,
-                  class: vue.normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
-                  style: vue.normalizeStyle(descriptionStyle.value)
+                vue.createElementVNode("span", {
+                  class: vue.normalizeClass(["aheart-popconfirm__text", textClass.value]),
+                  style: vue.normalizeStyle(textStyle.value)
                 }, [
-                  vue.renderSlot(_ctx.$slots, "description", {}, () => [
-                    vue.createVNode(vue.unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
-                  ])
-                ], 6)) : vue.createCommentVNode("", true)
+                  hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
+                    key: 0,
+                    class: vue.normalizeClass(["aheart-popconfirm__title", titleClass.value]),
+                    style: vue.normalizeStyle(titleStyle.value)
+                  }, [
+                    vue.renderSlot(_ctx.$slots, "title", {}, () => [
+                      vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                    ])
+                  ], 6)) : vue.createCommentVNode("", true),
+                  hasDescription.value ? (vue.openBlock(), vue.createElementBlock("span", {
+                    key: 1,
+                    class: vue.normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
+                    style: vue.normalizeStyle(descriptionStyle.value)
+                  }, [
+                    vue.renderSlot(_ctx.$slots, "description", {}, () => [
+                      vue.createVNode(vue.unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
+                    ])
+                  ], 6)) : vue.createCommentVNode("", true)
+                ], 6)
+              ], 6),
+              vue.createElementVNode("span", {
+                class: vue.normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
+                style: vue.normalizeStyle(actionsStyle.value)
+              }, [
+                _ctx.showCancel ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), vue.mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
+                  class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
+                  style: cancelButtonStyle.value,
+                  onClick: handleCancel
+                }), {
+                  default: vue.withCtx(() => [
+                    vue.createTextVNode(vue.toDisplayString(_ctx.cancelText), 1)
+                  ]),
+                  _: 1
+                }, 16, ["class", "style"])) : vue.createCommentVNode("", true),
+                vue.createVNode(vue.unref(index.default), vue.mergeProps(resolvedOkButtonProps.value, {
+                  class: ["aheart-popconfirm__ok", okButtonClass.value],
+                  style: okButtonStyle.value,
+                  onClick: handleConfirm
+                }), {
+                  default: vue.withCtx(() => [
+                    vue.createTextVNode(vue.toDisplayString(_ctx.okText), 1)
+                  ]),
+                  _: 1
+                }, 16, ["class", "style"])
               ], 6)
-            ], 6),
-            vue.createElementVNode("span", {
-              class: vue.normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
-              style: vue.normalizeStyle(actionsStyle.value)
-            }, [
-              _ctx.showCancel ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), vue.mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
-                class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
-                style: cancelButtonStyle.value,
-                onClick: handleCancel
-              }), {
-                default: vue.withCtx(() => [
-                  vue.createTextVNode(vue.toDisplayString(_ctx.cancelText), 1)
-                ]),
-                _: 1
-              }, 16, ["class", "style"])) : vue.createCommentVNode("", true),
-              vue.createVNode(vue.unref(index.default), vue.mergeProps(resolvedOkButtonProps.value, {
-                class: ["aheart-popconfirm__ok", okButtonClass.value],
-                style: okButtonStyle.value,
-                onClick: handleConfirm
-              }), {
-                default: vue.withCtx(() => [
-                  vue.createTextVNode(vue.toDisplayString(_ctx.okText), 1)
-                ]),
-                _: 1
-              }, 16, ["class", "style"])
             ], 6)
           ], 38)), [
             [vue.vShow, visible.value]

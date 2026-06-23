@@ -1952,6 +1952,11 @@ kbd.aheart-typography-text {
   font-weight: 700;
 }
 
+.aheart-popconfirm__container {
+  display: inline-flex;
+  flex-direction: column;
+}
+
 .aheart-popconfirm__text {
   display: inline-flex;
   flex: 1;

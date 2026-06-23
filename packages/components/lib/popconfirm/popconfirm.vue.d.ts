@@ -68,6 +68,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<import("vue").StyleValue>;
+    readonly overlayClassName: StringConstructor;
+    readonly overlayStyle: PropType<import("vue").StyleValue>;
+    readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
     readonly classNames: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
     readonly styles: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
@@ -144,6 +147,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<import("vue").StyleValue>;
+    readonly overlayClassName: StringConstructor;
+    readonly overlayStyle: PropType<import("vue").StyleValue>;
+    readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
     readonly classNames: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
     readonly styles: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{

@@ -189,10 +189,14 @@ describe('Popconfirm', () => {
         className: 'popconfirm-class',
         rootClassName: 'popconfirm-root',
         style: 'color: red;',
+        overlayClassName: 'overlay-class',
+        overlayStyle: { minWidth: '260px' },
+        overlayInnerStyle: { padding: '4px' },
         classNames: {
           root: 'semantic-root',
           trigger: 'semantic-trigger',
           popup: 'semantic-popup',
+          container: 'semantic-container',
           arrow: 'semantic-arrow',
           message: 'semantic-message',
           icon: 'semantic-icon',
@@ -207,6 +211,7 @@ describe('Popconfirm', () => {
           root: { backgroundColor: 'blue' },
           trigger: { outline: '1px solid red' },
           popup: { borderColor: 'green' },
+          container: { maxWidth: '280px' },
           arrow: { backgroundColor: 'yellow' },
           message: { columnGap: '8px' },
           icon: { color: 'purple' },
@@ -226,8 +231,14 @@ describe('Popconfirm', () => {
     expect(wrapper.attributes('style')).toContain('background-color: blue')
     expect(wrapper.find('.aheart-popconfirm__trigger').classes()).toContain('semantic-trigger')
     expect(wrapper.find('.aheart-popconfirm__trigger').attributes('style')).toContain('outline: 1px solid red')
-    expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('semantic-popup')
+    expect(wrapper.find('.aheart-popconfirm__popup').classes()).toEqual(
+      expect.arrayContaining(['overlay-class', 'semantic-popup'])
+    )
+    expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('min-width: 260px')
     expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('border-color: green')
+    expect(wrapper.find('.aheart-popconfirm__container').classes()).toContain('semantic-container')
+    expect(wrapper.find('.aheart-popconfirm__container').attributes('style')).toContain('padding: 4px')
+    expect(wrapper.find('.aheart-popconfirm__container').attributes('style')).toContain('max-width: 280px')
     expect(wrapper.find('.aheart-popconfirm__arrow').classes()).toContain('semantic-arrow')
     expect(wrapper.find('.aheart-popconfirm__message').classes()).toContain('semantic-message')
     expect(wrapper.find('.aheart-popconfirm__icon').classes()).toContain('semantic-icon')

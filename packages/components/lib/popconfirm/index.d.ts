@@ -67,6 +67,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly overlayClassName: StringConstructor;
+        readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
+        readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
         readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
@@ -175,6 +178,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
+        readonly overlayClassName: StringConstructor;
+        readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
+        readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
         readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
     }>> & Readonly<{
@@ -274,6 +280,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly overlayClassName: StringConstructor;
+    readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
+    readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
     readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
     readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
 }>> & Readonly<{

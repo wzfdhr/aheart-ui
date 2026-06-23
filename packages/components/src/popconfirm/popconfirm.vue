@@ -41,56 +41,58 @@
           :style="arrowStyle"
           aria-hidden="true"
         />
-        <span class="aheart-popconfirm__message" :class="messageClass" :style="messageStyle">
-          <span
-            v-if="hasIcon"
-            class="aheart-popconfirm__icon"
-            :class="iconClass"
-            :style="iconStyle"
-            aria-hidden="true"
-          >
-            <slot name="icon">
-              <ARenderNode :node="resolvedIcon" />
-            </slot>
-          </span>
-          <span class="aheart-popconfirm__text" :class="textClass" :style="textStyle">
-            <span v-if="hasTitle" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
-              <slot name="title">
-                <ARenderNode :node="title" />
-              </slot>
-            </span>
+        <span class="aheart-popconfirm__container" :class="containerClass" :style="containerStyle">
+          <span class="aheart-popconfirm__message" :class="messageClass" :style="messageStyle">
             <span
-              v-if="hasDescription"
-              class="aheart-popconfirm__description"
-              :class="descriptionClass"
-              :style="descriptionStyle"
+              v-if="hasIcon"
+              class="aheart-popconfirm__icon"
+              :class="iconClass"
+              :style="iconStyle"
+              aria-hidden="true"
             >
-              <slot name="description">
-                <ARenderNode :node="description" />
+              <slot name="icon">
+                <ARenderNode :node="resolvedIcon" />
               </slot>
             </span>
+            <span class="aheart-popconfirm__text" :class="textClass" :style="textStyle">
+              <span v-if="hasTitle" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
+                <slot name="title">
+                  <ARenderNode :node="title" />
+                </slot>
+              </span>
+              <span
+                v-if="hasDescription"
+                class="aheart-popconfirm__description"
+                :class="descriptionClass"
+                :style="descriptionStyle"
+              >
+                <slot name="description">
+                  <ARenderNode :node="description" />
+                </slot>
+              </span>
+            </span>
           </span>
-        </span>
-        <span class="aheart-popconfirm__actions" :class="actionsClass" :style="actionsStyle">
-          <AButton
-            v-if="showCancel"
-            v-bind="resolvedCancelButtonProps"
-            class="aheart-popconfirm__cancel"
-            :class="cancelButtonClass"
-            :style="cancelButtonStyle"
-            @click="handleCancel"
-          >
-            {{ cancelText }}
-          </AButton>
-          <AButton
-            v-bind="resolvedOkButtonProps"
-            class="aheart-popconfirm__ok"
-            :class="okButtonClass"
-            :style="okButtonStyle"
-            @click="handleConfirm"
-          >
-            {{ okText }}
-          </AButton>
+          <span class="aheart-popconfirm__actions" :class="actionsClass" :style="actionsStyle">
+            <AButton
+              v-if="showCancel"
+              v-bind="resolvedCancelButtonProps"
+              class="aheart-popconfirm__cancel"
+              :class="cancelButtonClass"
+              :style="cancelButtonStyle"
+              @click="handleCancel"
+            >
+              {{ cancelText }}
+            </AButton>
+            <AButton
+              v-bind="resolvedOkButtonProps"
+              class="aheart-popconfirm__ok"
+              :class="okButtonClass"
+              :style="okButtonStyle"
+              @click="handleConfirm"
+            >
+              {{ okText }}
+            </AButton>
+          </span>
         </span>
       </span>
     </Teleport>
@@ -167,8 +169,10 @@ const popconfirmClass = computed(() => [
 const rootStyle = computed(() => [props.style, props.styles?.root])
 const triggerClass = computed(() => props.classNames?.trigger)
 const triggerStyle = computed(() => props.styles?.trigger)
-const popupClass = computed(() => [`aheart-floating--${props.placement}`, props.classNames?.popup])
-const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.styles?.popup])
+const popupClass = computed(() => [`aheart-floating--${props.placement}`, props.overlayClassName, props.classNames?.popup])
+const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, props.styles?.popup])
+const containerClass = computed(() => props.classNames?.container)
+const containerStyle = computed(() => [props.overlayInnerStyle, props.styles?.container])
 const showArrow = computed(() => props.arrow !== false)
 const arrowPointsAtCenter = computed(() => typeof props.arrow === 'object' && props.arrow?.pointAtCenter === true)
 const arrowClass = computed(() => [

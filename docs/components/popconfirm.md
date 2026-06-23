@@ -237,16 +237,21 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
   <APopconfirm
     default-open
     title="Semantic hooks"
-    description="Root, popup, text, and action parts can be styled directly."
+    description="Popup, container, text, and action parts can be styled directly."
     root-class-name="popconfirm-semantic-demo"
+    overlay-class-name="popconfirm-semantic-demo__overlay"
+    :overlay-style="{ minWidth: '260px' }"
+    :overlay-inner-style="{ padding: '2px' }"
     :class-names="{
       popup: 'popconfirm-semantic-demo__popup',
+      container: 'popconfirm-semantic-demo__container',
       icon: 'popconfirm-semantic-demo__icon',
       okButton: 'popconfirm-semantic-demo__ok'
     }"
     :styles="{
       root: { maxWidth: '360px' },
       popup: { borderColor: 'var(--aheart-color-primary)' },
+      container: { maxWidth: '280px' },
       icon: { backgroundColor: 'var(--aheart-color-primary)' },
       okButton: { marginLeft: '8px' }
     }"
@@ -260,10 +265,21 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
   <APopconfirm
     default-open
     title="Semantic hooks"
-    description="Root, popup, text, and action parts can be styled directly."
+    description="Popup, container, text, and action parts can be styled directly."
     root-class-name="popconfirm-semantic-demo"
-    :class-names="{ popup: 'popconfirm-semantic-demo__popup', okButton: 'popconfirm-semantic-demo__ok' }"
-    :styles="{ popup: { borderColor: 'var(--aheart-color-primary)' }, okButton: { marginLeft: '8px' } }"
+    overlay-class-name="popconfirm-semantic-demo__overlay"
+    :overlay-style="{ minWidth: '260px' }"
+    :overlay-inner-style="{ padding: '2px' }"
+    :class-names="{
+      popup: 'popconfirm-semantic-demo__popup',
+      container: 'popconfirm-semantic-demo__container',
+      okButton: 'popconfirm-semantic-demo__ok'
+    }"
+    :styles="{
+      popup: { borderColor: 'var(--aheart-color-primary)' },
+      container: { maxWidth: '280px' },
+      okButton: { marginLeft: '8px' }
+    }"
   >
     <AButton>Styled popup</AButton>
   </APopconfirm>
@@ -300,6 +316,9 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | className | 根元素 class | `string` | - |
 | rootClassName | 根元素 class | `string` | - |
 | style | 根元素样式 | `StyleValue` | - |
+| overlayClassName | 弹层 class，兼容旧版浮层样式 API | `string` | - |
+| overlayStyle | 弹层样式，兼容旧版浮层样式 API | `StyleValue` | - |
+| overlayInnerStyle | 弹层内部容器样式，兼容旧版浮层样式 API | `StyleValue` | - |
 | classNames | 语义 DOM class 映射 | `Partial<Record<PopconfirmSemanticPart, string>>` | - |
 | styles | 语义 DOM style 映射 | `Partial<Record<PopconfirmSemanticPart, StyleValue>>` | - |
 
@@ -310,6 +329,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | root | 根元素 |
 | trigger | 触发元素包裹层 |
 | popup | 弹层 |
+| container | 弹层内部内容容器 |
 | arrow | 箭头 |
 | message | 图标与文本区域 |
 | icon | 图标 |

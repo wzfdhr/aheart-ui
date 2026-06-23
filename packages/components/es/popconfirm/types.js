@@ -66,6 +66,9 @@ const popconfirmProps = {
   className: String,
   rootClassName: String,
   style: [String, Object, Array],
+  overlayClassName: String,
+  overlayStyle: [String, Object, Array],
+  overlayInnerStyle: [String, Object, Array],
   classNames: Object,
   styles: Object
 };
