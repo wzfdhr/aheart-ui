@@ -121,6 +121,39 @@ describe('Modal', () => {
     )
   })
 
+  it('renders modalRender result around the dialog node', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        title: 'Wrapped modal',
+        modalRender: (node: unknown) => h('div', { class: 'modal-render-shell' }, [node])
+      },
+      slots: { default: 'Wrapped body' }
+    })
+
+    expect(wrapper.find('.modal-render-shell').exists()).toBe(true)
+    expect(wrapper.find('.modal-render-shell .aheart-modal__dialog').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Wrapped modal')
+    expect(wrapper.text()).toContain('Wrapped body')
+  })
+
+  it('preserves footer interactions inside modalRender', async () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        modalRender: (node: unknown) => h('div', { class: 'modal-render-shell' }, [node])
+      }
+    })
+
+    await wrapper.find('.aheart-modal__ok').trigger('click')
+    await wrapper.find('.aheart-modal__cancel').trigger('click')
+
+    expect(wrapper.emitted('ok')).toHaveLength(1)
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+    expect(wrapper.emitted('close')).toHaveLength(1)
+    expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
+  })
+
   it('supports afterOpenChange forceRender and destroyOnHidden', async () => {
     const persistent = mount(Modal, {
       props: { open: false, forceRender: true, title: 'Pre-rendered' }

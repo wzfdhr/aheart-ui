@@ -1,4 +1,5 @@
 import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
+import { type ModalRender } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: {
@@ -57,6 +58,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly wrapClassName: StringConstructor;
+    readonly modalRender: PropType<ModalRender>;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;
@@ -129,6 +131,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly wrapClassName: StringConstructor;
+    readonly modalRender: PropType<ModalRender>;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;

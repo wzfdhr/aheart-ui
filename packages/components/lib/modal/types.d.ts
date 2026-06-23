@@ -6,6 +6,7 @@ export type ModalClassNames = Partial<Record<ModalSemanticPart, string>>;
 export type ModalStyles = Partial<Record<ModalSemanticPart, CSSProperties>>;
 export type ModalButtonProps = Partial<ButtonProps>;
 export type ModalRenderable = VNodeChild;
+export type ModalRender = (node: ModalRenderable) => ModalRenderable;
 export interface ModalFooterRenderExtra {
     okButton: ModalRenderable;
     cancelButton: ModalRenderable;
@@ -77,6 +78,7 @@ export declare const modalProps: {
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly wrapClassName: StringConstructor;
+    readonly modalRender: PropType<ModalRender>;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "wrap" | "body" | "dialog" | "footer" | "header" | "mask", string>>>;

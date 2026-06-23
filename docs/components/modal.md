@@ -4,6 +4,7 @@ import { h, ref, type VNodeChild } from 'vue'
 const basicOpen = ref(false)
 const closeControlsOpen = ref(false)
 const renderableOpen = ref(false)
+const renderWrapperOpen = ref(false)
 const footerOpen = ref(false)
 const centeredOpen = ref(false)
 const loadingOpen = ref(false)
@@ -20,6 +21,7 @@ const renderableFooter = (
   cancelButton,
   okButton
 ])
+const modalRender = (node: VNodeChild) => h('div', { class: 'docs-modal-render-shell' }, [node])
 </script>
 
 # Modal 对话框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -120,6 +122,35 @@ const footer = (
     :footer="footer"
   >
     Modal title, action labels, and footer can render custom node content.
+  </AModal>
+</template>
+```
+
+## 自定义渲染
+
+<div class="aheart-demo-panel">
+  <AButton @click="renderWrapperOpen = true">Rendered shell</AButton>
+  <AModal
+    v-model:open="renderWrapperOpen"
+    title="Rendered shell"
+    :modal-render="modalRender"
+  >
+    modalRender can wrap the default dialog node while preserving actions.
+  </AModal>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+
+const open = ref(false)
+const modalRender = (node: VNodeChild) =>
+  h('div', { class: 'modal-render-shell' }, [node])
+</script>
+
+<template>
+  <AModal v-model:open="open" title="Rendered shell" :modal-render="modalRender">
+    modalRender can wrap the default dialog node while preserving actions.
   </AModal>
 </template>
 ```
@@ -260,6 +291,7 @@ const footer = (
 | zIndex | 根节点层级 | `number` | `1000` |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 页脚内容，`false` 或 `null` 时隐藏默认页脚 | `boolean` \| `VNodeChild` \| `ModalFooterRender` | `true` |
+| modalRender | 自定义渲染对话框内容 | `(node: VNodeChild) => VNodeChild` | - |
 | className | 对话框自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
 | wrapClassName | 对话框外层容器自定义类名 | `string` | - |

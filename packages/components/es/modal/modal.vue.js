@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createVNode, unref, createBlock, vShow, h } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, withCtx, renderSlot, createBlock, vShow, h } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { modalProps, modalEmits } from "./types.js";
@@ -26,6 +26,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       },
       setup(renderProps) {
         return () => renderProps.node;
+      }
+    });
+    const AModalRenderWrapper = defineComponent({
+      name: "AModalRenderWrapper",
+      props: {
+        renderer: Function
+      },
+      setup(renderProps, { slots: slots2 }) {
+        return () => {
+          var _a;
+          const node = ((_a = slots2.default) == null ? void 0 : _a.call(slots2)) ?? null;
+          return renderProps.renderer ? renderProps.renderer(node) : node;
+        };
       }
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
@@ -204,58 +217,63 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           class: normalizeClass(wrapClass.value),
           style: normalizeStyle(semanticStyle("wrap"))
         }, [
-          createElementVNode("section", {
-            class: normalizeClass(dialogClass.value),
-            style: normalizeStyle(dialogStyle.value),
-            role: "dialog",
-            "aria-modal": "true"
-          }, [
-            hasHeader.value ? (openBlock(), createElementBlock("header", {
-              key: 0,
-              class: normalizeClass(headerClass.value),
-              style: normalizeStyle(semanticStyle("header"))
-            }, [
-              hasTitle.value ? (openBlock(), createElementBlock("div", {
-                key: 0,
-                class: normalizeClass(titleClass.value),
-                style: normalizeStyle(semanticStyle("title"))
+          createVNode(unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
+            default: withCtx(() => [
+              createElementVNode("section", {
+                class: normalizeClass(dialogClass.value),
+                style: normalizeStyle(dialogStyle.value),
+                role: "dialog",
+                "aria-modal": "true"
               }, [
-                renderSlot(_ctx.$slots, "title", {}, () => [
-                  createVNode(unref(AModalRenderNode), { node: _ctx.title }, null, 8, ["node"])
-                ])
-              ], 6)) : createCommentVNode("", true),
-              showCloseButton.value ? (openBlock(), createElementBlock("button", {
-                key: 1,
-                class: normalizeClass(closeClass.value),
-                style: normalizeStyle(semanticStyle("close")),
-                disabled: isCloseButtonDisabled.value,
-                type: "button",
-                "aria-label": "Close",
-                onClick: handleCloseButtonClick
-              }, [
-                createVNode(unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-              ], 14, _hoisted_1)) : createCommentVNode("", true)
-            ], 6)) : createCommentVNode("", true),
-            createElementVNode("div", {
-              class: normalizeClass(bodyClass.value),
-              style: normalizeStyle(semanticStyle("body"))
-            }, [
-              _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
-                key: 0,
-                active: "",
-                paragraph: { rows: 3 }
-              })) : renderSlot(_ctx.$slots, "default", { key: 1 })
-            ], 6),
-            hasFooter.value ? (openBlock(), createElementBlock("footer", {
-              key: 1,
-              class: normalizeClass(footerClass.value),
-              style: normalizeStyle(semanticStyle("footer"))
-            }, [
-              renderSlot(_ctx.$slots, "footer", {}, () => [
-                createVNode(unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
-              ])
-            ], 6)) : createCommentVNode("", true)
-          ], 6)
+                hasHeader.value ? (openBlock(), createElementBlock("header", {
+                  key: 0,
+                  class: normalizeClass(headerClass.value),
+                  style: normalizeStyle(semanticStyle("header"))
+                }, [
+                  hasTitle.value ? (openBlock(), createElementBlock("div", {
+                    key: 0,
+                    class: normalizeClass(titleClass.value),
+                    style: normalizeStyle(semanticStyle("title"))
+                  }, [
+                    renderSlot(_ctx.$slots, "title", {}, () => [
+                      createVNode(unref(AModalRenderNode), { node: _ctx.title }, null, 8, ["node"])
+                    ])
+                  ], 6)) : createCommentVNode("", true),
+                  showCloseButton.value ? (openBlock(), createElementBlock("button", {
+                    key: 1,
+                    class: normalizeClass(closeClass.value),
+                    style: normalizeStyle(semanticStyle("close")),
+                    disabled: isCloseButtonDisabled.value,
+                    type: "button",
+                    "aria-label": "Close",
+                    onClick: handleCloseButtonClick
+                  }, [
+                    createVNode(unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+                  ], 14, _hoisted_1)) : createCommentVNode("", true)
+                ], 6)) : createCommentVNode("", true),
+                createElementVNode("div", {
+                  class: normalizeClass(bodyClass.value),
+                  style: normalizeStyle(semanticStyle("body"))
+                }, [
+                  _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
+                    key: 0,
+                    active: "",
+                    paragraph: { rows: 3 }
+                  })) : renderSlot(_ctx.$slots, "default", { key: 1 })
+                ], 6),
+                hasFooter.value ? (openBlock(), createElementBlock("footer", {
+                  key: 1,
+                  class: normalizeClass(footerClass.value),
+                  style: normalizeStyle(semanticStyle("footer"))
+                }, [
+                  renderSlot(_ctx.$slots, "footer", {}, () => [
+                    createVNode(unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
+                  ])
+                ], 6)) : createCommentVNode("", true)
+              ], 6)
+            ]),
+            _: 3
+          }, 8, ["renderer"])
         ], 6)
       ], 38)), [
         [vShow, _ctx.open]

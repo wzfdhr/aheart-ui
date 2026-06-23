@@ -10,40 +10,42 @@
   >
     <div v-if="mask" :class="maskClass" :style="semanticStyle('mask')" @click="handleMaskClick" />
     <div :class="wrapClass" :style="semanticStyle('wrap')">
-      <section
-        :class="dialogClass"
-        :style="dialogStyle"
-        role="dialog"
-        aria-modal="true"
-      >
-        <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
-          <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
-            <slot name="title">
-              <AModalRenderNode :node="title" />
-            </slot>
+      <AModalRenderWrapper :renderer="modalRender">
+        <section
+          :class="dialogClass"
+          :style="dialogStyle"
+          role="dialog"
+          aria-modal="true"
+        >
+          <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
+            <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
+              <slot name="title">
+                <AModalRenderNode :node="title" />
+              </slot>
+            </div>
+            <button
+              v-if="showCloseButton"
+              :class="closeClass"
+              :style="semanticStyle('close')"
+              :disabled="isCloseButtonDisabled"
+              type="button"
+              aria-label="Close"
+              @click="handleCloseButtonClick"
+            >
+              <AModalRenderNode :node="resolvedCloseIcon" />
+            </button>
+          </header>
+          <div :class="bodyClass" :style="semanticStyle('body')">
+            <ASkeleton v-if="loading" active :paragraph="{ rows: 3 }" />
+            <slot v-else />
           </div>
-          <button
-            v-if="showCloseButton"
-            :class="closeClass"
-            :style="semanticStyle('close')"
-            :disabled="isCloseButtonDisabled"
-            type="button"
-            aria-label="Close"
-            @click="handleCloseButtonClick"
-          >
-            <AModalRenderNode :node="resolvedCloseIcon" />
-          </button>
-        </header>
-        <div :class="bodyClass" :style="semanticStyle('body')">
-          <ASkeleton v-if="loading" active :paragraph="{ rows: 3 }" />
-          <slot v-else />
-        </div>
-        <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
-          <slot name="footer">
-            <AModalRenderNode :node="footerContent" />
-          </slot>
-        </footer>
-      </section>
+          <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
+            <slot name="footer">
+              <AModalRenderNode :node="footerContent" />
+            </slot>
+          </footer>
+        </section>
+      </AModalRenderWrapper>
     </div>
   </div>
 </template>
@@ -58,6 +60,7 @@ import {
   type ModalButtonProps,
   type ModalClosableConfig,
   type ModalFooterRenderExtra,
+  type ModalRender,
   type ModalSemanticPart
 } from './types'
 import './style.css'
@@ -81,6 +84,19 @@ const AModalRenderNode = defineComponent({
   },
   setup(renderProps) {
     return () => renderProps.node
+  }
+})
+
+const AModalRenderWrapper = defineComponent({
+  name: 'AModalRenderWrapper',
+  props: {
+    renderer: Function as PropType<ModalRender>
+  },
+  setup(renderProps, { slots }) {
+    return () => {
+      const node = slots.default?.() ?? null
+      return renderProps.renderer ? renderProps.renderer(node) : node
+    }
   }
 })
 
