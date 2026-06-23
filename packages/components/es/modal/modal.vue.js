@@ -28,6 +28,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       '[contenteditable="true"]',
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
+    const modalWidthBreakpoints = ["xs", "sm", "md", "lg", "xl", "xxl"];
     const hasRendered = ref(props.open || props.forceRender);
     const triggerElement = ref(null);
     const dialogRef = ref(null);
@@ -66,12 +67,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
     };
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const isResponsiveWidth = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+    const fixedDialogWidth = computed(() => {
+      const width = props.width;
+      return isResponsiveWidth(width) ? void 0 : normalizeSize(width);
+    });
+    const responsiveWidthVars = computed(() => {
+      const width = props.width;
+      if (!isResponsiveWidth(width)) {
+        return {};
+      }
+      const style = {};
+      modalWidthBreakpoints.forEach((breakpoint) => {
+        const breakpointWidth = width[breakpoint];
+        if (breakpointWidth !== void 0 && breakpointWidth !== null) {
+          style[`--aheart-modal-${breakpoint}-width`] = normalizeSize(breakpointWidth);
+        }
+      });
+      return style;
+    });
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
     const dialogStyle = computed(() => ({
       ...props.style,
+      ...responsiveWidthVars.value,
       ...semanticStyle("dialog"),
-      width: normalizeSize(props.width)
+      width: fixedDialogWidth.value
     }));
     const rootStyle = computed(() => ({
       ...props.rootStyle,

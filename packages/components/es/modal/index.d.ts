@@ -6,7 +6,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly width: {
-            readonly type: import("vue").PropType<string | number>;
+            readonly type: import("vue").PropType<import("./types").ModalWidth>;
             readonly default: 520;
         };
         readonly centered: BooleanConstructor;
@@ -91,7 +91,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly footer: import("./types").ModalFooter;
         readonly mask: import("./types").ModalMask;
-        readonly width: string | number;
+        readonly width: import("./types").ModalWidth;
         readonly zIndex: number;
         readonly loading: boolean;
         readonly maskClosable: boolean;
@@ -119,7 +119,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly default: undefined;
         };
         readonly width: {
-            readonly type: import("vue").PropType<string | number>;
+            readonly type: import("vue").PropType<import("./types").ModalWidth>;
             readonly default: 520;
         };
         readonly centered: BooleanConstructor;
@@ -197,7 +197,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly footer: import("./types").ModalFooter;
         readonly mask: import("./types").ModalMask;
-        readonly width: string | number;
+        readonly width: import("./types").ModalWidth;
         readonly zIndex: number;
         readonly loading: boolean;
         readonly maskClosable: boolean;
@@ -222,7 +222,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly default: undefined;
     };
     readonly width: {
-        readonly type: import("vue").PropType<string | number>;
+        readonly type: import("vue").PropType<import("./types").ModalWidth>;
         readonly default: 520;
     };
     readonly centered: BooleanConstructor;
@@ -307,7 +307,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly open: boolean;
     readonly footer: import("./types").ModalFooter;
     readonly mask: import("./types").ModalMask;
-    readonly width: string | number;
+    readonly width: import("./types").ModalWidth;
     readonly zIndex: number;
     readonly loading: boolean;
     readonly maskClosable: boolean;

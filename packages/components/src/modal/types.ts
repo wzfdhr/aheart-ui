@@ -1,5 +1,6 @@
 import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue'
 import type { ButtonProps, ButtonType } from '../button/types'
+import type { GridBreakpoint } from '../grid/types'
 
 export const modalSemanticParts = ['root', 'mask', 'wrap', 'dialog', 'header', 'title', 'body', 'footer', 'close'] as const
 
@@ -15,6 +16,8 @@ export type ModalStyles = ModalSemanticConfig<CSSProperties>
 export type ModalButtonProps = Partial<ButtonProps>
 export type ModalRenderable = VNodeChild
 export type ModalRender = (node: ModalRenderable) => ModalRenderable
+export type ModalResponsiveWidth = Partial<Record<GridBreakpoint, number | string>>
+export type ModalWidth = number | string | ModalResponsiveWidth
 
 export interface ModalMaskConfig {
   enabled?: boolean
@@ -55,7 +58,7 @@ export const modalProps = {
     default: undefined
   },
   width: {
-    type: [Number, String] as PropType<number | string>,
+    type: [Number, String, Object] as PropType<ModalWidth>,
     default: 520
   },
   centered: Boolean,

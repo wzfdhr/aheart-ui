@@ -76,8 +76,10 @@ import {
   type ModalFooterRenderExtra,
   type ModalMaskConfig,
   type ModalRender,
+  type ModalResponsiveWidth,
   type ModalSemanticConfig,
-  type ModalSemanticPart
+  type ModalSemanticPart,
+  type ModalWidth
 } from './types'
 import './style.css'
 
@@ -101,6 +103,7 @@ const FOCUSABLE_SELECTOR = [
   '[contenteditable="true"]',
   '[tabindex]:not([tabindex="-1"])'
 ].join(',')
+const modalWidthBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
 
 const hasRendered = ref(props.open || props.forceRender)
 const triggerElement = ref<HTMLElement | null>(null)
@@ -150,14 +153,41 @@ const hasRenderable = (value: unknown) => {
 }
 
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
+const isResponsiveWidth = (value: ModalWidth): value is ModalResponsiveWidth =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+const fixedDialogWidth = computed(() => {
+  const width = props.width
+
+  return isResponsiveWidth(width) ? undefined : normalizeSize(width)
+})
+const responsiveWidthVars = computed(() => {
+  const width = props.width
+
+  if (!isResponsiveWidth(width)) {
+    return {}
+  }
+
+  const style: Record<string, string> = {}
+
+  modalWidthBreakpoints.forEach((breakpoint) => {
+    const breakpointWidth = width[breakpoint]
+
+    if (breakpointWidth !== undefined && breakpointWidth !== null) {
+      style[`--aheart-modal-${breakpoint}-width`] = normalizeSize(breakpointWidth)
+    }
+  })
+
+  return style
+})
 
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose)
 const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
 
 const dialogStyle = computed(() => ({
   ...props.style,
+  ...responsiveWidthVars.value,
   ...semanticStyle('dialog'),
-  width: normalizeSize(props.width)
+  width: fixedDialogWidth.value
 }))
 
 const rootStyle = computed(() => ({

@@ -7,7 +7,7 @@ const modalProps = {
     default: void 0
   },
   width: {
-    type: [Number, String],
+    type: [Number, String, Object],
     default: 520
   },
   centered: Boolean,

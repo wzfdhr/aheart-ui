@@ -1,5 +1,6 @@
 import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue';
 import type { ButtonProps } from '../button/types';
+import type { GridBreakpoint } from '../grid/types';
 export declare const modalSemanticParts: readonly ["root", "mask", "wrap", "dialog", "header", "title", "body", "footer", "close"];
 export type ModalSemanticPart = (typeof modalSemanticParts)[number];
 export interface ModalSemanticInfo {
@@ -12,6 +13,8 @@ export type ModalStyles = ModalSemanticConfig<CSSProperties>;
 export type ModalButtonProps = Partial<ButtonProps>;
 export type ModalRenderable = VNodeChild;
 export type ModalRender = (node: ModalRenderable) => ModalRenderable;
+export type ModalResponsiveWidth = Partial<Record<GridBreakpoint, number | string>>;
+export type ModalWidth = number | string | ModalResponsiveWidth;
 export interface ModalMaskConfig {
     enabled?: boolean;
     blur?: boolean;
@@ -44,7 +47,7 @@ export declare const modalProps: {
         readonly default: undefined;
     };
     readonly width: {
-        readonly type: PropType<string | number>;
+        readonly type: PropType<ModalWidth>;
         readonly default: 520;
     };
     readonly centered: BooleanConstructor;

@@ -9,6 +9,7 @@ const maskConfigOpen = ref(false)
 const focusOpen = ref(false)
 const footerOpen = ref(false)
 const centeredOpen = ref(false)
+const responsiveWidthOpen = ref(false)
 const loadingOpen = ref(false)
 const styledOpen = ref(false)
 const customCloseIcon = h('span', { class: 'docs-modal-close-icon' }, 'X')
@@ -271,6 +272,34 @@ const open = ref(false)
 </template>
 ```
 
+## 响应式宽度
+
+<div class="aheart-demo-panel">
+  <AButton @click="responsiveWidthOpen = true">Responsive width</AButton>
+  <AModal
+    v-model:open="responsiveWidthOpen"
+    title="Responsive modal"
+    :width="{ xs: 320, md: 640, xl: '72vw' }"
+  >
+    The dialog width follows configured breakpoints.
+  </AModal>
+</div>
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const open = ref(false)
+</script>
+
+<template>
+  <AButton type="primary" @click="open = true">Responsive width</AButton>
+  <AModal v-model:open="open" title="Responsive modal" :width="{ xs: 320, md: 640, xl: '72vw' }">
+    The dialog width follows configured breakpoints.
+  </AModal>
+</template>
+```
+
 ## 加载与按钮配置
 
 <div class="aheart-demo-panel">
@@ -363,7 +392,7 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 | --- | --- | --- | --- |
 | open | 是否显示对话框 | `boolean` | `false` |
 | title | 标题内容 | `VNodeChild` | - |
-| width | 对话框宽度 | `number` \| `string` | `520` |
+| width | 对话框宽度，支持断点对象 | `number` \| `string` \| `ModalResponsiveWidth` | `520` |
 | centered | 是否垂直居中 | `boolean` | `false` |
 | closable | 是否显示右上角关闭按钮，可配置关闭图标、禁用状态和关闭回调 | `boolean` \| `ModalClosableConfig` | `true` |
 | closeIcon | 自定义关闭图标，传入 `false` 或 `null` 时隐藏关闭按钮 | `VNodeChild` | `×` |
@@ -401,6 +430,12 @@ interface ModalMaskConfig {
   blur?: boolean
   closable?: boolean
 }
+```
+
+### ModalResponsiveWidth
+
+```ts
+type ModalResponsiveWidth = Partial<Record<'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl', number | string>>
 ```
 
 ### ModalClosableConfig

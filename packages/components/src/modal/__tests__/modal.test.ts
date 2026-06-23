@@ -19,6 +19,26 @@ describe('Modal', () => {
     expect(wrapper.text()).toContain('Cancel')
   })
 
+  it('maps responsive width object to breakpoint CSS variables', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        width: {
+          xs: 320,
+          md: '640px',
+          xxl: '72vw'
+        }
+      }
+    })
+
+    const style = wrapper.find('.aheart-modal__dialog').attributes('style') ?? ''
+
+    expect(style).toContain('--aheart-modal-xs-width: 320px')
+    expect(style).toContain('--aheart-modal-md-width: 640px')
+    expect(style).toContain('--aheart-modal-xxl-width: 72vw')
+    expect(style).not.toContain('width: [object Object]')
+  })
+
   it('emits ok cancel close and update events from footer buttons', async () => {
     const wrapper = mount(Modal, {
       props: { open: true, okText: 'Save', cancelText: 'Back' }

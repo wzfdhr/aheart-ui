@@ -30,6 +30,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       '[contenteditable="true"]',
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
+    const modalWidthBreakpoints = ["xs", "sm", "md", "lg", "xl", "xxl"];
     const hasRendered = vue.ref(props.open || props.forceRender);
     const triggerElement = vue.ref(null);
     const dialogRef = vue.ref(null);
@@ -68,12 +69,32 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
     };
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const isResponsiveWidth = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+    const fixedDialogWidth = vue.computed(() => {
+      const width = props.width;
+      return isResponsiveWidth(width) ? void 0 : normalizeSize(width);
+    });
+    const responsiveWidthVars = vue.computed(() => {
+      const width = props.width;
+      if (!isResponsiveWidth(width)) {
+        return {};
+      }
+      const style = {};
+      modalWidthBreakpoints.forEach((breakpoint) => {
+        const breakpointWidth = width[breakpoint];
+        if (breakpointWidth !== void 0 && breakpointWidth !== null) {
+          style[`--aheart-modal-${breakpoint}-width`] = normalizeSize(breakpointWidth);
+        }
+      });
+      return style;
+    });
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
     const dialogStyle = vue.computed(() => ({
       ...props.style,
+      ...responsiveWidthVars.value,
       ...semanticStyle("dialog"),
-      width: normalizeSize(props.width)
+      width: fixedDialogWidth.value
     }));
     const rootStyle = vue.computed(() => ({
       ...props.rootStyle,

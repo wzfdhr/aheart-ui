@@ -1,5 +1,5 @@
 import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
-import { type ModalFocusableConfig, type ModalRender } from './types';
+import { type ModalFocusableConfig, type ModalRender, type ModalWidth } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: {
@@ -7,7 +7,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly width: {
-        readonly type: PropType<string | number>;
+        readonly type: PropType<ModalWidth>;
         readonly default: 520;
     };
     readonly centered: BooleanConstructor;
@@ -85,7 +85,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: undefined;
     };
     readonly width: {
-        readonly type: PropType<string | number>;
+        readonly type: PropType<ModalWidth>;
         readonly default: 520;
     };
     readonly centered: BooleanConstructor;
@@ -163,7 +163,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly open: boolean;
     readonly footer: import("./types").ModalFooter;
     readonly mask: import("./types").ModalMask;
-    readonly width: string | number;
+    readonly width: ModalWidth;
     readonly zIndex: number;
     readonly loading: boolean;
     readonly maskClosable: boolean;
