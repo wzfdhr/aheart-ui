@@ -51,8 +51,16 @@ const popconfirmProps = {
     default: true
   },
   color: String,
+  mouseEnterDelay: {
+    type: Number,
+    default: 0.1
+  },
+  mouseLeaveDelay: {
+    type: Number,
+    default: 0.1
+  },
   arrow: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: true
   },
   zIndex: Number,

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import Popconfirm from '../popconfirm.vue'
 
 const mountPopconfirm = (options: Record<string, any> = {}) =>
@@ -304,6 +304,8 @@ describe('Popconfirm', () => {
       props: {
         trigger: 'hover',
         title: 'Hover confirm',
+        mouseEnterDelay: 0,
+        mouseLeaveDelay: 0,
         getPopupContainer: () => container
       },
       slots: {
@@ -339,6 +341,58 @@ describe('Popconfirm', () => {
 
     expect(wrapper.emitted('popupClick')?.[0][0]).toBeInstanceOf(MouseEvent)
     expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
+  })
+
+  it('respects hover enter and leave delays', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const wrapper = mountPopconfirm({
+        props: {
+          title: 'Delayed confirm',
+          trigger: 'hover',
+          mouseEnterDelay: 0.2,
+          mouseLeaveDelay: 0.3
+        },
+        slots: { default: '<button>Delete</button>' }
+      })
+
+      await wrapper.find('.aheart-popconfirm__trigger').trigger('mouseenter')
+      expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(false)
+
+      await vi.advanceTimersByTimeAsync(199)
+      expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(false)
+
+      await vi.advanceTimersByTimeAsync(1)
+      await nextTick()
+      expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
+      expect(wrapper.find('.aheart-popconfirm__popup').attributes('style') ?? '').not.toContain('display: none')
+
+      await wrapper.find('.aheart-popconfirm__trigger').trigger('mouseleave')
+      await vi.advanceTimersByTimeAsync(299)
+      await nextTick()
+      expect(wrapper.find('.aheart-popconfirm__popup').attributes('style') ?? '').not.toContain('display: none')
+
+      await vi.advanceTimersByTimeAsync(1)
+      await nextTick()
+      expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
+      expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
+
+      wrapper.unmount()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('renders object arrow point at center class', () => {
+    const wrapper = mountPopconfirm({
+      props: { defaultOpen: true, title: 'Arrow confirm', arrow: { pointAtCenter: true } },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    expect(wrapper.find('.aheart-popconfirm__arrow').classes()).toContain(
+      'aheart-popconfirm__arrow--point-at-center'
+    )
   })
 
   it('preserves hidden popup by default and destroys it when requested', async () => {

@@ -88,9 +88,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return [floating.getFloatingPopupStyle(props.color, props.zIndex), (_a = props.styles) == null ? void 0 : _a.popup];
     });
+    const showArrow = vue.computed(() => props.arrow !== false);
+    const arrowPointsAtCenter = vue.computed(() => {
+      var _a;
+      return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
+    });
     const arrowClass = vue.computed(() => {
       var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.arrow;
+      return [
+        (_a = props.classNames) == null ? void 0 : _a.arrow,
+        {
+          "aheart-popconfirm__arrow--point-at-center": arrowPointsAtCenter.value
+        }
+      ];
     });
     const arrowStyle = vue.computed(() => {
       var _a;
@@ -204,16 +214,59 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("update:open", open);
       emit("openChange", open);
     };
+    let mouseEnterTimer;
+    let mouseLeaveTimer;
+    const clearMouseEnterTimer = () => {
+      if (mouseEnterTimer) {
+        clearTimeout(mouseEnterTimer);
+        mouseEnterTimer = void 0;
+      }
+    };
+    const clearMouseLeaveTimer = () => {
+      if (mouseLeaveTimer) {
+        clearTimeout(mouseLeaveTimer);
+        mouseLeaveTimer = void 0;
+      }
+    };
+    const clearHoverTimers = () => {
+      clearMouseEnterTimer();
+      clearMouseLeaveTimer();
+    };
+    const delayToMs = (delay) => Math.max(0, delay * 1e3);
+    const requestOpenWithDelay = (open, delay) => {
+      const timerDelay = delayToMs(delay);
+      if (timerDelay === 0) {
+        requestOpen(open);
+        return;
+      }
+      const timer = setTimeout(() => {
+        if (open) {
+          mouseEnterTimer = void 0;
+        } else {
+          mouseLeaveTimer = void 0;
+        }
+        requestOpen(open);
+      }, timerDelay);
+      if (open) {
+        mouseEnterTimer = timer;
+      } else {
+        mouseLeaveTimer = timer;
+      }
+    };
     const handleMouseEnter = () => {
       if (normalizedTriggers.value.has("hover")) {
-        requestOpen(true);
+        clearMouseLeaveTimer();
+        clearMouseEnterTimer();
+        requestOpenWithDelay(true, props.mouseEnterDelay);
       }
     };
     const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
     const isHoveringTriggerOrPopup = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value);
     const handleMouseLeave = (event) => {
       if (normalizedTriggers.value.has("hover") && !isHoveringTriggerOrPopup(event)) {
-        requestOpen(false);
+        clearMouseEnterTimer();
+        clearMouseLeaveTimer();
+        requestOpenWithDelay(false, props.mouseLeaveDelay);
       }
     };
     const handleFocusIn = () => {
@@ -248,6 +301,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("cancel");
       requestOpen(false);
     };
+    vue.onBeforeUnmount(() => {
+      clearHoverTimers();
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
         ref_key: "rootRef",
@@ -286,7 +342,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onMouseleave: handleMouseLeave,
             onClick: handlePopupClick
           }, [
-            _ctx.arrow ? (vue.openBlock(), vue.createElementBlock("span", {
+            showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 0,
               class: vue.normalizeClass(["aheart-floating__arrow aheart-popconfirm__arrow", arrowClass.value]),
               style: vue.normalizeStyle(arrowStyle.value),

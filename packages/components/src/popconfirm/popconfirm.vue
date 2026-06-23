@@ -35,7 +35,7 @@
         @click="handlePopupClick"
       >
         <span
-          v-if="arrow"
+          v-if="showArrow"
           class="aheart-floating__arrow aheart-popconfirm__arrow"
           :class="arrowClass"
           :style="arrowStyle"
@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, useSlots, watch, type PropType } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType } from 'vue'
 import AButton from '../button'
 import { getFloatingPopupStyle, normalizeFloatingTriggers } from '../utils/floating'
 import '../utils/floating.css'
@@ -169,7 +169,14 @@ const triggerClass = computed(() => props.classNames?.trigger)
 const triggerStyle = computed(() => props.styles?.trigger)
 const popupClass = computed(() => [`aheart-floating--${props.placement}`, props.classNames?.popup])
 const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.styles?.popup])
-const arrowClass = computed(() => props.classNames?.arrow)
+const showArrow = computed(() => props.arrow !== false)
+const arrowPointsAtCenter = computed(() => typeof props.arrow === 'object' && props.arrow?.pointAtCenter === true)
+const arrowClass = computed(() => [
+  props.classNames?.arrow,
+  {
+    'aheart-popconfirm__arrow--point-at-center': arrowPointsAtCenter.value
+  }
+])
 const arrowStyle = computed(() => props.styles?.arrow)
 const messageClass = computed(() => props.classNames?.message)
 const messageStyle = computed(() => props.styles?.message)
@@ -238,9 +245,60 @@ const requestOpen = (open: boolean) => {
   emit('openChange', open)
 }
 
+let mouseEnterTimer: ReturnType<typeof setTimeout> | undefined
+let mouseLeaveTimer: ReturnType<typeof setTimeout> | undefined
+
+const clearMouseEnterTimer = () => {
+  if (mouseEnterTimer) {
+    clearTimeout(mouseEnterTimer)
+    mouseEnterTimer = undefined
+  }
+}
+
+const clearMouseLeaveTimer = () => {
+  if (mouseLeaveTimer) {
+    clearTimeout(mouseLeaveTimer)
+    mouseLeaveTimer = undefined
+  }
+}
+
+const clearHoverTimers = () => {
+  clearMouseEnterTimer()
+  clearMouseLeaveTimer()
+}
+
+const delayToMs = (delay: number) => Math.max(0, delay * 1000)
+
+const requestOpenWithDelay = (open: boolean, delay: number) => {
+  const timerDelay = delayToMs(delay)
+
+  if (timerDelay === 0) {
+    requestOpen(open)
+    return
+  }
+
+  const timer = setTimeout(() => {
+    if (open) {
+      mouseEnterTimer = undefined
+    } else {
+      mouseLeaveTimer = undefined
+    }
+
+    requestOpen(open)
+  }, timerDelay)
+
+  if (open) {
+    mouseEnterTimer = timer
+  } else {
+    mouseLeaveTimer = timer
+  }
+}
+
 const handleMouseEnter = () => {
   if (normalizedTriggers.value.has('hover')) {
-    requestOpen(true)
+    clearMouseLeaveTimer()
+    clearMouseEnterTimer()
+    requestOpenWithDelay(true, props.mouseEnterDelay)
   }
 }
 
@@ -252,7 +310,9 @@ const isHoveringTriggerOrPopup = (event: MouseEvent) =>
 
 const handleMouseLeave = (event: MouseEvent) => {
   if (normalizedTriggers.value.has('hover') && !isHoveringTriggerOrPopup(event)) {
-    requestOpen(false)
+    clearMouseEnterTimer()
+    clearMouseLeaveTimer()
+    requestOpenWithDelay(false, props.mouseLeaveDelay)
   }
 }
 
@@ -294,4 +354,8 @@ const handleCancel = () => {
   emit('cancel')
   requestOpen(false)
 }
+
+onBeforeUnmount(() => {
+  clearHoverTimers()
+})
 </script>

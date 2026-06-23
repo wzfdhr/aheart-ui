@@ -1981,6 +1981,10 @@ kbd.aheart-typography-text {
   border-right: 1px solid var(--aheart-color-border);
   border-bottom: 1px solid var(--aheart-color-border);
 }
+
+.aheart-popconfirm__arrow--point-at-center {
+  transform: rotate(45deg) scale(1.05);
+}
 .aheart-spin,
 .aheart-spin-wrapper {
   position: relative;

@@ -12,6 +12,10 @@ export type PopconfirmRenderable = VNodeChild
 export type PopconfirmRenderableFactory = () => VNodeChild
 export type PopconfirmContent = PopconfirmRenderable | PopconfirmRenderableFactory
 export type PopconfirmGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
+export interface PopconfirmArrowConfig {
+  pointAtCenter?: boolean
+}
+export type PopconfirmArrow = boolean | PopconfirmArrowConfig
 export type PopconfirmSemanticPart =
   | 'root'
   | 'trigger'
@@ -80,8 +84,16 @@ export const popconfirmProps = {
     default: true
   },
   color: String,
+  mouseEnterDelay: {
+    type: Number,
+    default: 0.1
+  },
+  mouseLeaveDelay: {
+    type: Number,
+    default: 0.1
+  },
   arrow: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<PopconfirmArrow>,
     default: true
   },
   zIndex: Number,

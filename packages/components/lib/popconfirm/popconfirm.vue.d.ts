@@ -51,8 +51,16 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly color: StringConstructor;
+    readonly mouseEnterDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
+    readonly mouseLeaveDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
     readonly arrow: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").PopconfirmArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
@@ -119,8 +127,16 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly color: StringConstructor;
+    readonly mouseEnterDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
+    readonly mouseLeaveDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
     readonly arrow: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").PopconfirmArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
@@ -145,7 +161,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
-    readonly arrow: boolean;
+    readonly arrow: import("./types").PopconfirmArrow;
     readonly defaultOpen: boolean;
     readonly okText: string;
     readonly cancelText: string;
@@ -153,6 +169,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
     readonly showCancel: boolean;
+    readonly mouseEnterDelay: number;
+    readonly mouseLeaveDelay: number;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
     icon?(_: {}): any;

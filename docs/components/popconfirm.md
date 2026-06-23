@@ -201,6 +201,36 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 </template>
 ```
 
+## 悬停延迟与箭头
+
+<div class="aheart-demo-panel">
+  <APopconfirm
+    trigger="hover"
+    title="Delayed confirm"
+    description="Hover timing and centered arrow follow the shared floating API."
+    :mouse-enter-delay="0.4"
+    :mouse-leave-delay="0.2"
+    :arrow="{ pointAtCenter: true }"
+  >
+    <AButton>Hover with delay</AButton>
+  </APopconfirm>
+</div>
+
+```vue
+<template>
+  <APopconfirm
+    trigger="hover"
+    title="Delayed confirm"
+    description="Hover timing and centered arrow follow the shared floating API."
+    :mouse-enter-delay="0.4"
+    :mouse-leave-delay="0.2"
+    :arrow="{ pointAtCenter: true }"
+  >
+    <AButton>Hover with delay</AButton>
+  </APopconfirm>
+</template>
+```
+
 ## 语义样式
 
 <div class="aheart-demo-panel">
@@ -262,7 +292,9 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | disabled | 禁用弹出确认框 | `boolean` | `false` |
 | showCancel | 是否显示取消按钮 | `boolean` | `true` |
 | color | 自定义弹层背景色 | `string` | - |
-| arrow | 是否显示箭头 | `boolean` | `true` |
+| mouseEnterDelay | hover 打开延迟，单位秒 | `number` | `0.1` |
+| mouseLeaveDelay | hover 关闭延迟，单位秒 | `number` | `0.1` |
+| arrow | 是否显示箭头，或配置箭头指向中心 | `boolean` \| `{ pointAtCenter?: boolean }` | `true` |
 | zIndex | 自定义层级 | `number` | - |
 | getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | className | 根元素 class | `string` | - |

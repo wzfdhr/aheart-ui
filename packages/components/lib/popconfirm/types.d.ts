@@ -6,6 +6,10 @@ export type PopconfirmRenderable = VNodeChild;
 export type PopconfirmRenderableFactory = () => VNodeChild;
 export type PopconfirmContent = PopconfirmRenderable | PopconfirmRenderableFactory;
 export type PopconfirmGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
+export interface PopconfirmArrowConfig {
+    pointAtCenter?: boolean;
+}
+export type PopconfirmArrow = boolean | PopconfirmArrowConfig;
 export type PopconfirmSemanticPart = 'root' | 'trigger' | 'popup' | 'arrow' | 'message' | 'icon' | 'text' | 'title' | 'description' | 'actions' | 'cancelButton' | 'okButton';
 export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>;
 export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>;
@@ -60,8 +64,16 @@ export declare const popconfirmProps: {
         readonly default: true;
     };
     readonly color: StringConstructor;
+    readonly mouseEnterDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
+    readonly mouseLeaveDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
     readonly arrow: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<PopconfirmArrow>;
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;

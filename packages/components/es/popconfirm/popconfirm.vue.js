@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, mergeProps, withCtx, createTextVNode, toDisplayString, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, mergeProps, withCtx, createTextVNode, toDisplayString, vShow } from "vue";
 import Button from "../button/index.js";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
@@ -86,9 +86,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return [getFloatingPopupStyle(props.color, props.zIndex), (_a = props.styles) == null ? void 0 : _a.popup];
     });
+    const showArrow = computed(() => props.arrow !== false);
+    const arrowPointsAtCenter = computed(() => {
+      var _a;
+      return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
+    });
     const arrowClass = computed(() => {
       var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.arrow;
+      return [
+        (_a = props.classNames) == null ? void 0 : _a.arrow,
+        {
+          "aheart-popconfirm__arrow--point-at-center": arrowPointsAtCenter.value
+        }
+      ];
     });
     const arrowStyle = computed(() => {
       var _a;
@@ -202,16 +212,59 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("update:open", open);
       emit("openChange", open);
     };
+    let mouseEnterTimer;
+    let mouseLeaveTimer;
+    const clearMouseEnterTimer = () => {
+      if (mouseEnterTimer) {
+        clearTimeout(mouseEnterTimer);
+        mouseEnterTimer = void 0;
+      }
+    };
+    const clearMouseLeaveTimer = () => {
+      if (mouseLeaveTimer) {
+        clearTimeout(mouseLeaveTimer);
+        mouseLeaveTimer = void 0;
+      }
+    };
+    const clearHoverTimers = () => {
+      clearMouseEnterTimer();
+      clearMouseLeaveTimer();
+    };
+    const delayToMs = (delay) => Math.max(0, delay * 1e3);
+    const requestOpenWithDelay = (open, delay) => {
+      const timerDelay = delayToMs(delay);
+      if (timerDelay === 0) {
+        requestOpen(open);
+        return;
+      }
+      const timer = setTimeout(() => {
+        if (open) {
+          mouseEnterTimer = void 0;
+        } else {
+          mouseLeaveTimer = void 0;
+        }
+        requestOpen(open);
+      }, timerDelay);
+      if (open) {
+        mouseEnterTimer = timer;
+      } else {
+        mouseLeaveTimer = timer;
+      }
+    };
     const handleMouseEnter = () => {
       if (normalizedTriggers.value.has("hover")) {
-        requestOpen(true);
+        clearMouseLeaveTimer();
+        clearMouseEnterTimer();
+        requestOpenWithDelay(true, props.mouseEnterDelay);
       }
     };
     const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
     const isHoveringTriggerOrPopup = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value);
     const handleMouseLeave = (event) => {
       if (normalizedTriggers.value.has("hover") && !isHoveringTriggerOrPopup(event)) {
-        requestOpen(false);
+        clearMouseEnterTimer();
+        clearMouseLeaveTimer();
+        requestOpenWithDelay(false, props.mouseLeaveDelay);
       }
     };
     const handleFocusIn = () => {
@@ -246,6 +299,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("cancel");
       requestOpen(false);
     };
+    onBeforeUnmount(() => {
+      clearHoverTimers();
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
         ref_key: "rootRef",
@@ -284,7 +340,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onMouseleave: handleMouseLeave,
             onClick: handlePopupClick
           }, [
-            _ctx.arrow ? (openBlock(), createElementBlock("span", {
+            showArrow.value ? (openBlock(), createElementBlock("span", {
               key: 0,
               class: normalizeClass(["aheart-floating__arrow aheart-popconfirm__arrow", arrowClass.value]),
               style: normalizeStyle(arrowStyle.value),
