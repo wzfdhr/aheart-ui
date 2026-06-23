@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
 import { tooltipProps, tooltipEmits } from "./types.js";
@@ -29,12 +29,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const slots = useSlots();
     const innerOpen = ref(props.defaultOpen);
     const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open));
+    const triggerRef = ref(null);
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const hasTitle = computed(() => Boolean(slots.title) || hasTitleContent(props.title));
     const visible = computed(() => hasTitle.value && mergedOpen.value);
     const shouldRenderPopup = computed(() => hasTitle.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
+    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
+    const popupContainer = computed(() => {
+      if (props.getPopupContainer && triggerRef.value) {
+        return props.getPopupContainer(triggerRef.value);
+      }
+      return getDefaultPopupContainer();
+    });
+    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const tooltipClass = computed(() => {
       var _a;
       return [
@@ -189,6 +199,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         onMouseleave: handleMouseLeave
       }, [
         createElementVNode("span", {
+          ref_key: "triggerRef",
+          ref: triggerRef,
           class: normalizeClass(["aheart-tooltip__trigger", triggerClass.value]),
           style: normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
@@ -200,34 +212,41 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           renderSlot(_ctx.$slots, "default")
         ], 38),
-        shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
-          key: 0,
-          class: normalizeClass(["aheart-tooltip__popup", popupClass.value]),
-          style: normalizeStyle(popupStyle.value),
-          role: "tooltip"
+        (openBlock(), createBlock(Teleport, {
+          to: teleportTo.value,
+          disabled: !shouldTeleport.value
         }, [
-          showArrow.value ? (openBlock(), createElementBlock("span", {
+          shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
             key: 0,
-            class: normalizeClass(["aheart-floating__arrow aheart-tooltip__arrow", arrowClass.value]),
-            style: normalizeStyle(arrowStyle.value),
-            "aria-hidden": "true"
-          }, null, 6)) : createCommentVNode("", true),
-          createElementVNode("span", {
-            class: normalizeClass(["aheart-tooltip__container", containerClass.value]),
-            style: normalizeStyle(containerStyle.value)
+            class: normalizeClass(["aheart-tooltip__popup", popupClass.value]),
+            style: normalizeStyle(popupStyle.value),
+            role: "tooltip",
+            onMouseenter: handleMouseEnter,
+            onMouseleave: handleMouseLeave
           }, [
+            showArrow.value ? (openBlock(), createElementBlock("span", {
+              key: 0,
+              class: normalizeClass(["aheart-floating__arrow aheart-tooltip__arrow", arrowClass.value]),
+              style: normalizeStyle(arrowStyle.value),
+              "aria-hidden": "true"
+            }, null, 6)) : createCommentVNode("", true),
             createElementVNode("span", {
-              class: normalizeClass(["aheart-tooltip__content", contentClass.value]),
-              style: normalizeStyle(contentStyle.value)
+              class: normalizeClass(["aheart-tooltip__container", containerClass.value]),
+              style: normalizeStyle(containerStyle.value)
             }, [
-              renderSlot(_ctx.$slots, "title", {}, () => [
-                createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
-              ])
+              createElementVNode("span", {
+                class: normalizeClass(["aheart-tooltip__content", contentClass.value]),
+                style: normalizeStyle(contentStyle.value)
+              }, [
+                renderSlot(_ctx.$slots, "title", {}, () => [
+                  createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                ])
+              ], 6)
             ], 6)
-          ], 6)
-        ], 6)), [
-          [vShow, visible.value]
-        ]) : createCommentVNode("", true)
+          ], 38)), [
+            [vShow, visible.value]
+          ]) : createCommentVNode("", true)
+        ], 8, ["to", "disabled"]))
       ], 38);
     };
   }

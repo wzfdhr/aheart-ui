@@ -1,11 +1,23 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Tooltip from '../tooltip.vue'
 
+const mountTooltip = (options: Record<string, any> = {}) =>
+  mount(Tooltip, {
+    ...options,
+    global: {
+      ...options.global,
+      stubs: {
+        ...options.global?.stubs,
+        Teleport: true
+      }
+    }
+  })
+
 describe('Tooltip', () => {
   it('renders title from hover trigger', async () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: { title: 'Helpful text', mouseEnterDelay: 0 },
       slots: { default: '<button>Help</button>' }
     })
@@ -19,7 +31,7 @@ describe('Tooltip', () => {
   })
 
   it('renders vnode and function title props', () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: {
         open: true,
         title: () => h('span', { class: 'title-node' }, 'Helpful node')
@@ -31,7 +43,7 @@ describe('Tooltip', () => {
   })
 
   it('renders numeric title without treating zero as empty', () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: {
         open: true,
         title: 0
@@ -43,7 +55,7 @@ describe('Tooltip', () => {
   })
 
   it('lets title slot override renderable prop fallback', () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: {
         open: true,
         title: h('span', { class: 'prop-title-node' }, 'Prop title')
@@ -59,7 +71,7 @@ describe('Tooltip', () => {
   })
 
   it('does not render popup for an empty title string', async () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: {
         title: '',
         mouseEnterDelay: 0
@@ -73,7 +85,7 @@ describe('Tooltip', () => {
   })
 
   it('applies placement color arrow and zIndex', () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: { open: true, title: 'Colored', placement: 'bottomRight', color: '#111827', zIndex: 2000 },
       slots: { default: '<button>Help</button>' }
     })
@@ -86,7 +98,7 @@ describe('Tooltip', () => {
   })
 
   it('toggles from click trigger and emits open events', async () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: { title: 'Clickable', trigger: 'click' },
       slots: { default: '<button>Help</button>' }
     })
@@ -99,7 +111,7 @@ describe('Tooltip', () => {
   })
 
   it('respects controlled open state', async () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: { open: false, title: 'Controlled', trigger: 'click' },
       slots: { default: '<button>Help</button>' }
     })
@@ -111,7 +123,7 @@ describe('Tooltip', () => {
   })
 
   it('opens from Ant-style contextMenu trigger', async () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: { title: 'Context help', trigger: 'contextMenu' },
       slots: { default: '<button>Help</button>' }
     })
@@ -123,7 +135,7 @@ describe('Tooltip', () => {
   })
 
   it('applies root semantic and overlay class and style hooks', () => {
-    const wrapper = mount(Tooltip, {
+    const wrapper = mountTooltip({
       props: {
         open: true,
         title: 'Helpful text',
@@ -189,7 +201,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
 
     try {
-      const wrapper = mount(Tooltip, {
+      const wrapper = mountTooltip({
         props: { title: 'Delayed default' },
         slots: { default: '<button>Help</button>' }
       })
@@ -221,7 +233,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
 
     try {
-      const wrapper = mount(Tooltip, {
+      const wrapper = mountTooltip({
         props: { title: 'Delayed custom', mouseEnterDelay: 0.2, mouseLeaveDelay: 0.3 },
         slots: { default: '<button>Help</button>' }
       })
@@ -250,7 +262,7 @@ describe('Tooltip', () => {
   })
 
   it('preserves or destroys hidden popup according to destroyOnHidden', async () => {
-    const preserved = mount(Tooltip, {
+    const preserved = mountTooltip({
       props: { title: 'Preserved', trigger: 'click' },
       slots: { default: '<button>Help</button>' }
     })
@@ -263,7 +275,7 @@ describe('Tooltip', () => {
     expect(preservedPopup.exists()).toBe(true)
     expect(preservedPopup.attributes('style')).toContain('display: none')
 
-    const destroyed = mount(Tooltip, {
+    const destroyed = mountTooltip({
       props: { title: 'Destroyed', trigger: 'click', destroyOnHidden: true },
       slots: { default: '<button>Help</button>' }
     })
@@ -275,8 +287,61 @@ describe('Tooltip', () => {
     expect(destroyed.find('.aheart-tooltip__popup').exists()).toBe(false)
   })
 
-  it('renders object arrow point at center class', () => {
+  it('teleports popup to document body by default', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
     const wrapper = mount(Tooltip, {
+      attachTo: host,
+      props: {
+        open: true,
+        title: 'Body tooltip'
+      },
+      slots: {
+        default: '<button>Help</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(document.body.querySelector('.aheart-tooltip__popup')).toBeTruthy()
+    expect(host.querySelector('.aheart-tooltip__popup')).toBeNull()
+
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('teleports popup to getPopupContainer target', async () => {
+    const container = document.createElement('section')
+    let triggerNode: HTMLElement | undefined
+    document.body.appendChild(container)
+
+    const wrapper = mount(Tooltip, {
+      props: {
+        open: true,
+        title: 'Target tooltip',
+        getPopupContainer: (node: HTMLElement) => {
+          triggerNode = node
+          return container
+        }
+      },
+      slots: {
+        default: '<button>Help</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(triggerNode?.classList.contains('aheart-tooltip__trigger')).toBe(true)
+    expect(container.querySelector('.aheart-tooltip__popup')).toBeTruthy()
+    expect(container.textContent).toContain('Target tooltip')
+
+    wrapper.unmount()
+    container.remove()
+  })
+
+  it('renders object arrow point at center class', () => {
+    const wrapper = mountTooltip({
       props: { open: true, title: 'Arrow', arrow: { pointAtCenter: true } },
       slots: { default: '<button>Help</button>' }
     })

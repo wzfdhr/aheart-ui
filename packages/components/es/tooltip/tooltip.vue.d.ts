@@ -26,6 +26,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: PropType<import("./types").TooltipGetPopupContainer>;
     readonly mouseEnterDelay: {
         readonly type: NumberConstructor;
         readonly default: 0.1;
@@ -73,6 +74,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: PropType<import("./types").TooltipGetPopupContainer>;
     readonly mouseEnterDelay: {
         readonly type: NumberConstructor;
         readonly default: 0.1;

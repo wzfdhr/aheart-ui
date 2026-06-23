@@ -25,6 +25,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly zIndex: NumberConstructor;
+        readonly getPopupContainer: import("vue").PropType<import("./types").TooltipGetPopupContainer>;
         readonly mouseEnterDelay: {
             readonly type: NumberConstructor;
             readonly default: 0.1;
@@ -93,6 +94,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly zIndex: NumberConstructor;
+        readonly getPopupContainer: import("vue").PropType<import("./types").TooltipGetPopupContainer>;
         readonly mouseEnterDelay: {
             readonly type: NumberConstructor;
             readonly default: 0.1;
@@ -155,6 +157,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: import("vue").PropType<import("./types").TooltipGetPopupContainer>;
     readonly mouseEnterDelay: {
         readonly type: NumberConstructor;
         readonly default: 0.1;

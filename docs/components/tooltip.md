@@ -201,6 +201,7 @@ const renderableTooltipTitle = () => h('span', [
 | color | 自定义背景色 | `string` | - |
 | arrow | 是否显示箭头，或配置箭头指向中心 | `boolean \| { pointAtCenter?: boolean }` | `true` |
 | zIndex | 自定义层级 | `number` | - |
+| getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | mouseEnterDelay | hover 打开延迟，单位秒 | `number` | `0.1` |
 | mouseLeaveDelay | hover 关闭延迟，单位秒 | `number` | `0.1` |
 | destroyOnHidden | 关闭后是否销毁浮层 DOM | `boolean` | `false` |

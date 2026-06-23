@@ -7,6 +7,7 @@ export type TooltipArrow = boolean | TooltipArrowConfig;
 export type TooltipRenderable = VNodeChild;
 export type TooltipRenderableFactory = () => VNodeChild;
 export type TooltipTitle = TooltipRenderable | TooltipRenderableFactory;
+export type TooltipGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
 export type TooltipSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'content' | 'arrow';
 export type TooltipClassNames = Partial<Record<TooltipSemanticPart, string>>;
 export type TooltipStyles = Partial<Record<TooltipSemanticPart, StyleValue>>;
@@ -36,6 +37,7 @@ export declare const tooltipProps: {
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: PropType<TooltipGetPopupContainer>;
     readonly mouseEnterDelay: {
         readonly type: NumberConstructor;
         readonly default: 0.1;

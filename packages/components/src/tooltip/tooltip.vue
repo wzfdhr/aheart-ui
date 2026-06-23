@@ -7,6 +7,7 @@
     @mouseleave="handleMouseLeave"
   >
     <span
+      ref="triggerRef"
       class="aheart-tooltip__trigger"
       :class="triggerClass"
       :style="triggerStyle"
@@ -19,29 +20,33 @@
     >
       <slot />
     </span>
-    <span
-      v-if="shouldRenderPopup"
-      v-show="visible"
-      class="aheart-tooltip__popup"
-      :class="popupClass"
-      :style="popupStyle"
-      role="tooltip"
-    >
+    <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <span
-        v-if="showArrow"
-        class="aheart-floating__arrow aheart-tooltip__arrow"
-        :class="arrowClass"
-        :style="arrowStyle"
-        aria-hidden="true"
-      />
-      <span class="aheart-tooltip__container" :class="containerClass" :style="containerStyle">
-        <span class="aheart-tooltip__content" :class="contentClass" :style="contentStyle">
-          <slot name="title">
-            <ARenderNode :node="title" />
-          </slot>
+        v-if="shouldRenderPopup"
+        v-show="visible"
+        class="aheart-tooltip__popup"
+        :class="popupClass"
+        :style="popupStyle"
+        role="tooltip"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
+      >
+        <span
+          v-if="showArrow"
+          class="aheart-floating__arrow aheart-tooltip__arrow"
+          :class="arrowClass"
+          :style="arrowStyle"
+          aria-hidden="true"
+        />
+        <span class="aheart-tooltip__container" :class="containerClass" :style="containerStyle">
+          <span class="aheart-tooltip__content" :class="contentClass" :style="contentStyle">
+            <slot name="title">
+              <ARenderNode :node="title" />
+            </slot>
+          </span>
         </span>
       </span>
-    </span>
+    </Teleport>
   </span>
 </template>
 
@@ -78,12 +83,23 @@ const slots = useSlots()
 
 const innerOpen = ref(props.defaultOpen)
 const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open))
+const triggerRef = ref<HTMLElement | null>(null)
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
 const hasTitle = computed(() => Boolean(slots.title) || hasTitleContent(props.title))
 const visible = computed(() => hasTitle.value && mergedOpen.value)
 const shouldRenderPopup = computed(() => hasTitle.value && (visible.value || (!props.destroyOnHidden && hasRenderedPopup.value)))
+const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
+const popupContainer = computed(() => {
+  if (props.getPopupContainer && triggerRef.value) {
+    return props.getPopupContainer(triggerRef.value)
+  }
+
+  return getDefaultPopupContainer()
+})
+const shouldTeleport = computed(() => popupContainer.value !== false)
+const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
 const tooltipClass = computed(() => [
   props.className,
   props.rootClassName,

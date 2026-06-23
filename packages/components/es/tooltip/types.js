@@ -26,6 +26,7 @@ const tooltipProps = {
     default: true
   },
   zIndex: Number,
+  getPopupContainer: Function,
   mouseEnterDelay: {
     type: Number,
     default: 0.1
