@@ -12,6 +12,7 @@ export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>
 export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
 export type DrawerRenderable = VNodeChild
+export type DrawerRender = (node: DrawerRenderable) => DrawerRenderable
 export type DrawerTitle = DrawerRenderable
 export type DrawerExtra = DrawerRenderable
 export type DrawerFooter = boolean | DrawerRenderable
@@ -101,6 +102,7 @@ export const drawerProps = {
     type: [String, Object, Function, Boolean] as PropType<DrawerGetContainer>,
     default: undefined
   },
+  drawerRender: Function as PropType<DrawerRender>,
   className: String,
   rootClassName: String,
   style: Object as PropType<CSSProperties>,

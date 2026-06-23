@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { h, ref } from 'vue'
+import { h, ref, type VNodeChild } from 'vue'
 
 const basicOpen = ref(false)
 const leftOpen = ref(false)
 const bottomOpen = ref(false)
 const loadingOpen = ref(false)
 const renderableOpen = ref(false)
+const drawerRenderOpen = ref(false)
 const closeControlsOpen = ref(false)
 const maskConfigOpen = ref(false)
 const focusOpen = ref(false)
@@ -13,6 +14,7 @@ const styledOpen = ref(false)
 const renderableTitle = h('span', { class: 'docs-drawer-renderable-title' }, 'Review profile')
 const renderableExtra = h('span', { class: 'docs-drawer-renderable-extra' }, 'Synced')
 const renderableFooter = h('div', { class: 'docs-drawer-renderable-footer' }, 'Footer content can come from props.')
+const drawerRender = (node: VNodeChild) => h('div', { class: 'docs-drawer-render-shell' }, [node])
 </script>
 
 # Drawer 抽屉 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -135,6 +137,35 @@ const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come 
 <template>
   <ADrawer v-model:open="open" :title="title" :extra="extra" :footer="footer">
     Title, extra, and footer can come from renderable props or slots.
+  </ADrawer>
+</template>
+```
+
+## 自定义渲染面板
+
+<div class="aheart-demo-panel">
+  <AButton @click="drawerRenderOpen = true">Rendered drawer shell</AButton>
+  <ADrawer
+    v-model:open="drawerRenderOpen"
+    title="Rendered shell"
+    :drawer-render="drawerRender"
+  >
+    drawerRender can wrap the default drawer panel while preserving close and focus behavior.
+  </ADrawer>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+
+const open = ref(false)
+const drawerRender = (node: VNodeChild) =>
+  h('div', { class: 'workspace-drawer-shell' }, [node])
+</script>
+
+<template>
+  <ADrawer v-model:open="open" title="Rendered shell" :drawer-render="drawerRender">
+    drawerRender can wrap the default drawer panel while preserving close and focus behavior.
   </ADrawer>
 </template>
 ```
@@ -281,6 +312,7 @@ const open = ref(false)
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 页脚内容；`true` 可只显示 footer slot，`false` 或 `null` 隐藏页脚 | `boolean` \| `DrawerRenderable` | - |
 | getContainer | 指定 Drawer 挂载容器；传入 `false` 时保持内联渲染 | `HTMLElement` \| `string` \| `() => HTMLElement` \| `false` | `document.body` |
+| drawerRender | 自定义渲染抽屉面板内容 | `(node: VNodeChild) => VNodeChild` | - |
 | className | 面板自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
 | style | 面板自定义样式 | `CSSProperties` | - |

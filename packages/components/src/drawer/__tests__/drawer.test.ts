@@ -86,6 +86,39 @@ describe('Drawer', () => {
     expect(wrapper.find('.render-footer').text()).toBe('Render footer')
   })
 
+  it('renders drawerRender result around the panel node', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Rendered drawer',
+        drawerRender: (node: unknown) => h('div', { class: 'drawer-render-shell' }, [node])
+      },
+      slots: {
+        default: '<button class="wrapped-action">Wrapped action</button>'
+      }
+    })
+
+    expect(wrapper.find('.drawer-render-shell').exists()).toBe(true)
+    expect(wrapper.find('.drawer-render-shell .aheart-drawer__panel').exists()).toBe(true)
+    expect(wrapper.find('.drawer-render-shell .wrapped-action').text()).toBe('Wrapped action')
+    expect(wrapper.find('.drawer-render-shell .aheart-drawer__mask').exists()).toBe(false)
+  })
+
+  it('preserves close interactions inside drawerRender', async () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Rendered close',
+        drawerRender: (node: unknown) => h('div', { class: 'drawer-render-shell' }, [node])
+      }
+    })
+
+    await wrapper.find('.drawer-render-shell .aheart-drawer__close').trigger('click')
+
+    expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
+    expect(wrapper.emitted('close')).toHaveLength(1)
+  })
+
   it('lets title extra and footer slots override renderable props', () => {
     const wrapper = mountDrawer({
       props: {

@@ -1,5 +1,5 @@
 import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
-import { type DrawerFocusableConfig } from './types';
+import { type DrawerFocusableConfig, type DrawerRender } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: {
@@ -61,6 +61,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
+    readonly drawerRender: PropType<DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
@@ -135,6 +136,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
+    readonly drawerRender: PropType<DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;

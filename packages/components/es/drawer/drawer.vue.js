@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, renderSlot, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, withCtx, createElementVNode, renderSlot, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
@@ -22,6 +22,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       },
       setup(renderProps) {
         return () => renderProps.node;
+      }
+    });
+    const ADrawerRenderWrapper = defineComponent({
+      name: "ADrawerRenderWrapper",
+      props: {
+        renderer: Function
+      },
+      setup(renderProps, { slots: slots2 }) {
+        return () => {
+          var _a;
+          const node = ((_a = slots2.default) == null ? void 0 : _a.call(slots2)) ?? null;
+          return renderProps.renderer ? renderProps.renderer(node) : node;
+        };
       }
     });
     const props = __props;
@@ -275,84 +288,89 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(maskStyle.value),
             onClick: handleMaskClick
           }, null, 6)) : createCommentVNode("", true),
-          createElementVNode("section", {
-            ref_key: "panelRef",
-            ref: panelRef,
-            class: normalizeClass(panelClass.value),
-            style: normalizeStyle(panelStyle.value),
-            role: "dialog",
-            "aria-modal": "true",
-            tabindex: "-1"
-          }, [
-            hasHeader.value ? (openBlock(), createElementBlock("header", {
-              key: 0,
-              class: normalizeClass(headerClass.value),
-              style: normalizeStyle(semanticStyle("header"))
-            }, [
-              showCloseButton.value && !isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
-                key: 0,
-                class: normalizeClass(closeClass.value),
-                style: normalizeStyle(semanticStyle("close")),
-                disabled: isCloseButtonDisabled.value,
-                type: "button",
-                "aria-label": "Close",
-                onClick: handleCloseButtonClick
+          createVNode(unref(ADrawerRenderWrapper), { renderer: _ctx.drawerRender }, {
+            default: withCtx(() => [
+              createElementVNode("section", {
+                ref_key: "panelRef",
+                ref: panelRef,
+                class: normalizeClass(panelClass.value),
+                style: normalizeStyle(panelStyle.value),
+                role: "dialog",
+                "aria-modal": "true",
+                tabindex: "-1"
               }, [
-                createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-              ], 14, _hoisted_1)) : createCommentVNode("", true),
-              hasTitle.value ? (openBlock(), createElementBlock("div", {
-                key: 1,
-                class: normalizeClass(titleClass.value),
-                style: normalizeStyle(semanticStyle("title"))
-              }, [
-                renderSlot(_ctx.$slots, "title", {}, () => [
-                  createVNode(unref(ADrawerRenderNode), { node: _ctx.title }, null, 8, ["node"])
-                ])
-              ], 6)) : createCommentVNode("", true),
-              hasExtra.value ? (openBlock(), createElementBlock("div", {
-                key: 2,
-                class: normalizeClass(extraClass.value),
-                style: normalizeStyle(semanticStyle("extra"))
-              }, [
-                renderSlot(_ctx.$slots, "extra", {}, () => [
-                  createVNode(unref(ADrawerRenderNode), { node: _ctx.extra }, null, 8, ["node"])
-                ])
-              ], 6)) : createCommentVNode("", true),
-              showCloseButton.value && isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
-                key: 3,
-                class: normalizeClass(closeClass.value),
-                style: normalizeStyle(semanticStyle("close")),
-                disabled: isCloseButtonDisabled.value,
-                type: "button",
-                "aria-label": "Close",
-                onClick: handleCloseButtonClick
-              }, [
-                createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-              ], 14, _hoisted_2)) : createCommentVNode("", true)
-            ], 6)) : createCommentVNode("", true),
-            createElementVNode("div", {
-              class: normalizeClass(bodyClass.value),
-              style: normalizeStyle(semanticStyle("body"))
-            }, [
-              _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
-                key: 0,
-                active: "",
-                paragraph: { rows: 4 }
-              })) : renderSlot(_ctx.$slots, "default", { key: 1 })
-            ], 6),
-            hasFooter.value ? (openBlock(), createElementBlock("footer", {
-              key: 1,
-              class: normalizeClass(footerClass.value),
-              style: normalizeStyle(semanticStyle("footer"))
-            }, [
-              renderSlot(_ctx.$slots, "footer", {}, () => [
-                shouldRenderFooterProp.value ? (openBlock(), createBlock(unref(ADrawerRenderNode), {
+                hasHeader.value ? (openBlock(), createElementBlock("header", {
                   key: 0,
-                  node: _ctx.footer
-                }, null, 8, ["node"])) : createCommentVNode("", true)
-              ])
-            ], 6)) : createCommentVNode("", true)
-          ], 6)
+                  class: normalizeClass(headerClass.value),
+                  style: normalizeStyle(semanticStyle("header"))
+                }, [
+                  showCloseButton.value && !isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
+                    key: 0,
+                    class: normalizeClass(closeClass.value),
+                    style: normalizeStyle(semanticStyle("close")),
+                    disabled: isCloseButtonDisabled.value,
+                    type: "button",
+                    "aria-label": "Close",
+                    onClick: handleCloseButtonClick
+                  }, [
+                    createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+                  ], 14, _hoisted_1)) : createCommentVNode("", true),
+                  hasTitle.value ? (openBlock(), createElementBlock("div", {
+                    key: 1,
+                    class: normalizeClass(titleClass.value),
+                    style: normalizeStyle(semanticStyle("title"))
+                  }, [
+                    renderSlot(_ctx.$slots, "title", {}, () => [
+                      createVNode(unref(ADrawerRenderNode), { node: _ctx.title }, null, 8, ["node"])
+                    ])
+                  ], 6)) : createCommentVNode("", true),
+                  hasExtra.value ? (openBlock(), createElementBlock("div", {
+                    key: 2,
+                    class: normalizeClass(extraClass.value),
+                    style: normalizeStyle(semanticStyle("extra"))
+                  }, [
+                    renderSlot(_ctx.$slots, "extra", {}, () => [
+                      createVNode(unref(ADrawerRenderNode), { node: _ctx.extra }, null, 8, ["node"])
+                    ])
+                  ], 6)) : createCommentVNode("", true),
+                  showCloseButton.value && isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
+                    key: 3,
+                    class: normalizeClass(closeClass.value),
+                    style: normalizeStyle(semanticStyle("close")),
+                    disabled: isCloseButtonDisabled.value,
+                    type: "button",
+                    "aria-label": "Close",
+                    onClick: handleCloseButtonClick
+                  }, [
+                    createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+                  ], 14, _hoisted_2)) : createCommentVNode("", true)
+                ], 6)) : createCommentVNode("", true),
+                createElementVNode("div", {
+                  class: normalizeClass(bodyClass.value),
+                  style: normalizeStyle(semanticStyle("body"))
+                }, [
+                  _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
+                    key: 0,
+                    active: "",
+                    paragraph: { rows: 4 }
+                  })) : renderSlot(_ctx.$slots, "default", { key: 1 })
+                ], 6),
+                hasFooter.value ? (openBlock(), createElementBlock("footer", {
+                  key: 1,
+                  class: normalizeClass(footerClass.value),
+                  style: normalizeStyle(semanticStyle("footer"))
+                }, [
+                  renderSlot(_ctx.$slots, "footer", {}, () => [
+                    shouldRenderFooterProp.value ? (openBlock(), createBlock(unref(ADrawerRenderNode), {
+                      key: 0,
+                      node: _ctx.footer
+                    }, null, 8, ["node"])) : createCommentVNode("", true)
+                  ])
+                ], 6)) : createCommentVNode("", true)
+              ], 6)
+            ]),
+            _: 3
+          }, 8, ["renderer"])
         ], 38)), [
           [vShow, _ctx.open]
         ]) : createCommentVNode("", true)

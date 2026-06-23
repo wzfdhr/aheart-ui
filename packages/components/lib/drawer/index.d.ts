@@ -60,6 +60,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
             readonly default: undefined;
         };
+        readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
@@ -165,6 +166,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
             readonly default: undefined;
         };
+        readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").CSSProperties>;
@@ -263,6 +265,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
+    readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").CSSProperties>;

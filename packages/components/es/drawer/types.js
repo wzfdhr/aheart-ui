@@ -60,6 +60,7 @@ const drawerProps = {
     type: [String, Object, Function, Boolean],
     default: void 0
   },
+  drawerRender: Function,
   className: String,
   rootClassName: String,
   style: Object,

@@ -10,6 +10,7 @@ export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>;
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>;
 export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false;
 export type DrawerRenderable = VNodeChild;
+export type DrawerRender = (node: DrawerRenderable) => DrawerRenderable;
 export type DrawerTitle = DrawerRenderable;
 export type DrawerExtra = DrawerRenderable;
 export type DrawerFooter = boolean | DrawerRenderable;
@@ -92,6 +93,7 @@ export declare const drawerProps: {
         readonly type: PropType<DrawerGetContainer>;
         readonly default: undefined;
     };
+    readonly drawerRender: PropType<DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;

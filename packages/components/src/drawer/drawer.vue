@@ -10,58 +10,60 @@
       @keydown="handleKeydown"
     >
       <div v-if="showMask" :class="maskClass" :style="maskStyle" @click="handleMaskClick" />
-      <section
-        ref="panelRef"
-        :class="panelClass"
-        :style="panelStyle"
-        role="dialog"
-        aria-modal="true"
-        tabindex="-1"
-      >
-        <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
-          <button
-            v-if="showCloseButton && !isCloseAtEnd"
-            :class="closeClass"
-            :style="semanticStyle('close')"
-            :disabled="isCloseButtonDisabled"
-            type="button"
-            aria-label="Close"
-            @click="handleCloseButtonClick"
-          >
-            <ADrawerRenderNode :node="resolvedCloseIcon" />
-          </button>
-          <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
-            <slot name="title">
-              <ADrawerRenderNode :node="title" />
-            </slot>
+      <ADrawerRenderWrapper :renderer="drawerRender">
+        <section
+          ref="panelRef"
+          :class="panelClass"
+          :style="panelStyle"
+          role="dialog"
+          aria-modal="true"
+          tabindex="-1"
+        >
+          <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
+            <button
+              v-if="showCloseButton && !isCloseAtEnd"
+              :class="closeClass"
+              :style="semanticStyle('close')"
+              :disabled="isCloseButtonDisabled"
+              type="button"
+              aria-label="Close"
+              @click="handleCloseButtonClick"
+            >
+              <ADrawerRenderNode :node="resolvedCloseIcon" />
+            </button>
+            <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
+              <slot name="title">
+                <ADrawerRenderNode :node="title" />
+              </slot>
+            </div>
+            <div v-if="hasExtra" :class="extraClass" :style="semanticStyle('extra')">
+              <slot name="extra">
+                <ADrawerRenderNode :node="extra" />
+              </slot>
+            </div>
+            <button
+              v-if="showCloseButton && isCloseAtEnd"
+              :class="closeClass"
+              :style="semanticStyle('close')"
+              :disabled="isCloseButtonDisabled"
+              type="button"
+              aria-label="Close"
+              @click="handleCloseButtonClick"
+            >
+              <ADrawerRenderNode :node="resolvedCloseIcon" />
+            </button>
+          </header>
+          <div :class="bodyClass" :style="semanticStyle('body')">
+            <ASkeleton v-if="loading" active :paragraph="{ rows: 4 }" />
+            <slot v-else />
           </div>
-          <div v-if="hasExtra" :class="extraClass" :style="semanticStyle('extra')">
-            <slot name="extra">
-              <ADrawerRenderNode :node="extra" />
+          <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
+            <slot name="footer">
+              <ADrawerRenderNode v-if="shouldRenderFooterProp" :node="footer" />
             </slot>
-          </div>
-          <button
-            v-if="showCloseButton && isCloseAtEnd"
-            :class="closeClass"
-            :style="semanticStyle('close')"
-            :disabled="isCloseButtonDisabled"
-            type="button"
-            aria-label="Close"
-            @click="handleCloseButtonClick"
-          >
-            <ADrawerRenderNode :node="resolvedCloseIcon" />
-          </button>
-        </header>
-        <div :class="bodyClass" :style="semanticStyle('body')">
-          <ASkeleton v-if="loading" active :paragraph="{ rows: 4 }" />
-          <slot v-else />
-        </div>
-        <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
-          <slot name="footer">
-            <ADrawerRenderNode v-if="shouldRenderFooterProp" :node="footer" />
-          </slot>
-        </footer>
-      </section>
+          </footer>
+        </section>
+      </ADrawerRenderWrapper>
     </div>
   </Teleport>
 </template>
@@ -85,6 +87,7 @@ import {
   type DrawerClosableConfig,
   type DrawerFocusableConfig,
   type DrawerMaskConfig,
+  type DrawerRender,
   type DrawerSemanticPart
 } from './types'
 import './style.css'
@@ -103,6 +106,19 @@ const ADrawerRenderNode = defineComponent({
   },
   setup(renderProps) {
     return () => renderProps.node
+  }
+})
+
+const ADrawerRenderWrapper = defineComponent({
+  name: 'ADrawerRenderWrapper',
+  props: {
+    renderer: Function as PropType<DrawerRender>
+  },
+  setup(renderProps, { slots }) {
+    return () => {
+      const node = slots.default?.() ?? null
+      return renderProps.renderer ? renderProps.renderer(node) : node
+    }
   }
 })
 
