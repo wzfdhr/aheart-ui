@@ -14,7 +14,7 @@ describe('Message', () => {
     const wrapper = mount(Message, {
       props: {
         notices: [
-          { key: 'saved', type: 'success', content: 'Saved' },
+          { key: 'saved', type: 'success', content: 'Saved', closable: true },
           { key: 'failed', type: 'error', content: 'Failed' }
         ]
       }
@@ -28,6 +28,52 @@ describe('Message', () => {
     await wrapper.find('.aheart-message-notice__close').trigger('click')
 
     expect(wrapper.emitted('close')?.[0]).toEqual(['saved'])
+  })
+
+  it('hides close controls by default', () => {
+    const wrapper = mount(Message, {
+      props: {
+        notices: [{ key: 'saved', type: 'success', content: 'Saved' }]
+      }
+    })
+
+    expect(wrapper.find('.aheart-message-notice__close').exists()).toBe(false)
+  })
+
+  it('renders closable notices with custom close icon and emits close', async () => {
+    const wrapper = mount(Message, {
+      props: {
+        notices: [
+          {
+            key: 'manual',
+            type: 'info',
+            content: 'Manual close',
+            closable: true,
+            closeIcon: h('span', { class: 'close-node' }, 'Dismiss')
+          }
+        ]
+      }
+    })
+
+    const close = wrapper.find('.aheart-message-notice__close')
+    expect(close.find('.close-node').text()).toBe('Dismiss')
+
+    await close.trigger('click')
+
+    expect(wrapper.emitted('close')?.[0]).toEqual(['manual'])
+  })
+
+  it('message service removes closable notices when the close button is clicked', async () => {
+    message.info({ content: 'Service close', duration: 0, closable: true, closeIcon: 'dismiss' })
+    await nextTick()
+
+    const close = document.body.querySelector('.aheart-message-notice__close') as HTMLButtonElement
+    expect(close.textContent).toContain('dismiss')
+
+    close.click()
+    await nextTick()
+
+    expect(document.body.textContent).not.toContain('Service close')
   })
 
   it('message.success mounts a global persistent notice', async () => {
@@ -121,7 +167,7 @@ describe('Message', () => {
           content: { fontWeight: '600' },
           close: { color: 'rgb(1, 2, 3)' }
         },
-        notices: [{ key: 'semantic', type: 'success', content: 'Semantic' }]
+        notices: [{ key: 'semantic', type: 'success', content: 'Semantic', closable: true }]
       }
     })
 

@@ -79,6 +79,34 @@ message.info({
 })
 ```
 
+## 手动关闭
+
+<div class="aheart-demo-panel">
+  <AButton
+    @click="
+      message.info({
+        content: 'Manual close',
+        duration: 0,
+        closable: true,
+        closeIcon: 'dismiss'
+      })
+    "
+  >
+    Closable message
+  </AButton>
+</div>
+
+```ts
+message.info({
+  content: 'Manual close',
+  duration: 0,
+  closable: true,
+  closeIcon: 'dismiss'
+})
+```
+
+默认提示不显示关闭按钮，以贴近 Ant Message 的轻量反馈样式。需要手动关闭入口时可设置 `closable: true`，也可以使用返回值的 `close()` 主动关闭。
+
 ## Promise 接口
 
 ```ts
@@ -207,6 +235,8 @@ message.config({
 | className | 提示节点类名 | `string` | - |
 | style | 提示节点样式 | `StyleValue` | - |
 | icon | 自定义图标 | `VNodeChild` | - |
+| closable | 是否显示关闭按钮 | `boolean` | `false` |
+| closeIcon | 自定义关闭按钮内容 | `VNodeChild` | `×` |
 | onClick | 点击提示回调 | `() => void` | - |
 | onClose | 关闭回调 | `() => void` | - |
 | pauseOnHover | 鼠标悬停时暂停关闭计时 | `boolean` | 全局配置 |
@@ -254,7 +284,7 @@ message.config({
 | notice | 单条提示节点 |
 | icon | 图标节点 |
 | content | 内容节点 |
-| close | 关闭按钮 |
+| close | 关闭按钮，仅在 `closable` 时渲染 |
 
 ## Theme Tokens
 

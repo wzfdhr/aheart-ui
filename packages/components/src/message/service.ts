@@ -226,6 +226,8 @@ const open = (contentOrConfig: MessageContent, duration?: number, onClose?: () =
     className: config.className,
     style: config.style,
     icon: config.icon,
+    closable: config.closable,
+    closeIcon: config.closeIcon,
     onClick: config.onClick,
     onClose: config.onClose,
     pauseOnHover: config.pauseOnHover ?? state.pauseOnHover,

@@ -20,6 +20,7 @@
       </span>
       <span v-if="isStacked" class="aheart-message-notice__stack-count" aria-label="Stacked message count">+{{ stackedCount }}</span>
       <button
+        v-if="notice.closable"
         class="aheart-message-notice__close"
         :class="getCloseClass(notice)"
         :style="getCloseStyle(notice)"
@@ -27,7 +28,7 @@
         aria-label="Close"
         @click.stop="$emit('close', notice.key)"
       >
-        ×
+        <ARenderNode :node="notice.closeIcon ?? '×'" />
       </button>
     </div>
   </div>

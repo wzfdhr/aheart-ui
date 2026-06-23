@@ -157,13 +157,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               }, null, 8, ["node"])
             ], 6),
             isStacked.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, "+" + vue.toDisplayString(stackedCount.value), 1)) : vue.createCommentVNode("", true),
-            vue.createElementVNode("button", {
+            notice.closable ? (vue.openBlock(), vue.createElementBlock("button", {
+              key: 1,
               class: vue.normalizeClass(["aheart-message-notice__close", getCloseClass(notice)]),
               style: vue.normalizeStyle(getCloseStyle(notice)),
               type: "button",
               "aria-label": "Close",
               onClick: vue.withModifiers(($event) => _ctx.$emit("close", notice.key), ["stop"])
-            }, " × ", 14, _hoisted_3)
+            }, [
+              vue.createVNode(vue.unref(ARenderNode), {
+                node: notice.closeIcon ?? "×"
+              }, null, 8, ["node"])
+            ], 14, _hoisted_3)) : vue.createCommentVNode("", true)
           ], 46, _hoisted_1);
         }), 128))
       ], 6);

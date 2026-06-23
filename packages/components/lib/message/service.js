@@ -174,6 +174,8 @@ const open = (contentOrConfig, duration, onClose) => {
     className: config2.className,
     style: config2.style,
     icon: config2.icon,
+    closable: config2.closable,
+    closeIcon: config2.closeIcon,
     onClick: config2.onClick,
     onClose: config2.onClose,
     pauseOnHover: config2.pauseOnHover ?? state.pauseOnHover,

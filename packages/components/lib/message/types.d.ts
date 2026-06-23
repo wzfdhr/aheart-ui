@@ -16,6 +16,8 @@ export interface MessageNotice {
     className?: string;
     style?: StyleValue;
     icon?: MessageContentNode;
+    closable?: boolean;
+    closeIcon?: MessageContentNode;
     onClick?: () => void;
     onClose?: () => void;
     pauseOnHover?: boolean;
@@ -30,6 +32,8 @@ export interface MessageOpenConfig {
     className?: string;
     style?: StyleValue;
     icon?: MessageContentNode;
+    closable?: boolean;
+    closeIcon?: MessageContentNode;
     onClick?: () => void;
     onClose?: () => void;
     pauseOnHover?: boolean;

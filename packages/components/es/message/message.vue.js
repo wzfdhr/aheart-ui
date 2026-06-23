@@ -155,13 +155,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               }, null, 8, ["node"])
             ], 6),
             isStacked.value ? (openBlock(), createElementBlock("span", _hoisted_2, "+" + toDisplayString(stackedCount.value), 1)) : createCommentVNode("", true),
-            createElementVNode("button", {
+            notice.closable ? (openBlock(), createElementBlock("button", {
+              key: 1,
               class: normalizeClass(["aheart-message-notice__close", getCloseClass(notice)]),
               style: normalizeStyle(getCloseStyle(notice)),
               type: "button",
               "aria-label": "Close",
               onClick: withModifiers(($event) => _ctx.$emit("close", notice.key), ["stop"])
-            }, " × ", 14, _hoisted_3)
+            }, [
+              createVNode(unref(ARenderNode), {
+                node: notice.closeIcon ?? "×"
+              }, null, 8, ["node"])
+            ], 14, _hoisted_3)) : createCommentVNode("", true)
           ], 46, _hoisted_1);
         }), 128))
       ], 6);
