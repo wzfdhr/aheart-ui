@@ -5,10 +5,14 @@
     </div>
     <div v-if="hasHeader" :class="headerClass" :style="headerStyle">
       <div :class="titleClass" :style="titleStyle">
-        <slot name="title">{{ title }}</slot>
+        <slot name="title">
+          <ARenderNode :node="title" />
+        </slot>
       </div>
       <div v-if="hasExtra" :class="extraClass" :style="extraStyle">
-        <slot name="extra">{{ extra }}</slot>
+        <slot name="extra">
+          <ARenderNode :node="extra" />
+        </slot>
       </div>
     </div>
     <div v-if="hasTabs" :class="tabRootClass" :style="tabRootStyle">
@@ -58,7 +62,7 @@
     <div v-if="showActions" :class="actionsClass" :style="actionsStyle">
       <slot name="actions">
         <span v-for="(action, index) in actions" :key="index" class="aheart-card__action">
-          {{ action }}
+          <ARenderNode :node="action" />
         </span>
       </slot>
     </div>
@@ -93,10 +97,10 @@ const ARenderNode = defineComponent({
   }
 })
 
-const hasRenderable = (value: VNodeChild | undefined) => value !== undefined && value !== null && value !== false
+const hasRenderable = (value: VNodeChild | undefined) => value !== undefined && value !== null && value !== false && value !== ''
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
-const hasHeader = computed(() => Boolean(props.title || slots.title || props.extra || slots.extra))
-const hasExtra = computed(() => Boolean(props.extra || slots.extra))
+const hasHeader = computed(() => Boolean(slots.title) || hasRenderable(props.title) || Boolean(slots.extra) || hasRenderable(props.extra))
+const hasExtra = computed(() => Boolean(slots.extra) || hasRenderable(props.extra))
 const isBorderless = computed(() => {
   if (props.variant) {
     return props.variant === 'borderless'

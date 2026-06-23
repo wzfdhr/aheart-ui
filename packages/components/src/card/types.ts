@@ -6,7 +6,8 @@ export const cardTypes = ['inner'] as const
 
 export type CardVariant = (typeof cardVariants)[number]
 export type CardType = (typeof cardTypes)[number]
-export type CardAction = string | number
+export type CardRenderable = VNodeChild
+export type CardAction = CardRenderable
 export interface CardTab {
   key: string
   tab: VNodeChild
@@ -34,9 +35,11 @@ export type CardGridSemanticPart = 'root' | 'content'
 export type CardGridClassNames = Partial<Record<CardGridSemanticPart, string>>
 export type CardGridStyles = Partial<Record<CardGridSemanticPart, StyleValue>>
 
+const renderableProp = [String, Number, Boolean, Object, Array] as PropType<CardRenderable>
+
 export const cardProps = {
-  title: String,
-  extra: String,
+  title: renderableProp,
+  extra: renderableProp,
   bordered: {
     type: Boolean,
     default: true

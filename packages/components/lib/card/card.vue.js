@@ -36,10 +36,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return () => renderProps.node;
       }
     });
-    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
-    const hasHeader = vue.computed(() => Boolean(props.title || slots.title || props.extra || slots.extra));
-    const hasExtra = vue.computed(() => Boolean(props.extra || slots.extra));
+    const hasHeader = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title) || Boolean(slots.extra) || hasRenderable(props.extra));
+    const hasExtra = vue.computed(() => Boolean(slots.extra) || hasRenderable(props.extra));
     const isBorderless = vue.computed(() => {
       if (props.variant) {
         return props.variant === "borderless";
@@ -241,7 +241,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(titleStyle.value)
           }, [
             vue.renderSlot(_ctx.$slots, "title", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
+              vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
             ])
           ], 6),
           hasExtra.value ? (vue.openBlock(), vue.createElementBlock("div", {
@@ -250,7 +250,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(extraStyle.value)
           }, [
             vue.renderSlot(_ctx.$slots, "extra", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(_ctx.extra), 1)
+              vue.createVNode(vue.unref(ARenderNode), { node: _ctx.extra }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true)
         ], 6)) : vue.createCommentVNode("", true),
@@ -325,7 +325,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               return vue.openBlock(), vue.createElementBlock("span", {
                 key: index,
                 class: "aheart-card__action"
-              }, vue.toDisplayString(action), 1);
+              }, [
+                vue.createVNode(vue.unref(ARenderNode), { node: action }, null, 8, ["node"])
+              ]);
             }), 128))
           ])
         ], 6)) : vue.createCommentVNode("", true)

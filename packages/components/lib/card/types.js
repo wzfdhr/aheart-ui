@@ -2,9 +2,10 @@
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const cardVariants = ["outlined", "borderless"];
 const cardTypes = ["inner"];
+const renderableProp = [String, Number, Boolean, Object, Array];
 const cardProps = {
-  title: String,
-  extra: String,
+  title: renderableProp,
+  extra: renderableProp,
   bordered: {
     type: Boolean,
     default: true

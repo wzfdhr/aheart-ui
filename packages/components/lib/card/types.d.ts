@@ -4,7 +4,8 @@ export declare const cardVariants: readonly ["outlined", "borderless"];
 export declare const cardTypes: readonly ["inner"];
 export type CardVariant = (typeof cardVariants)[number];
 export type CardType = (typeof cardTypes)[number];
-export type CardAction = string | number;
+export type CardRenderable = VNodeChild;
+export type CardAction = CardRenderable;
 export interface CardTab {
     key: string;
     tab: VNodeChild;
@@ -32,8 +33,8 @@ export type CardGridSemanticPart = 'root' | 'content';
 export type CardGridClassNames = Partial<Record<CardGridSemanticPart, string>>;
 export type CardGridStyles = Partial<Record<CardGridSemanticPart, StyleValue>>;
 export declare const cardProps: {
-    readonly title: StringConstructor;
-    readonly extra: StringConstructor;
+    readonly title: PropType<VNodeChild>;
+    readonly extra: PropType<VNodeChild>;
     readonly bordered: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -49,7 +50,7 @@ export declare const cardProps: {
     readonly hoverable: BooleanConstructor;
     readonly loading: BooleanConstructor;
     readonly size: PropType<AheartSize>;
-    readonly actions: PropType<CardAction[]>;
+    readonly actions: PropType<VNodeChild[]>;
     readonly tabList: PropType<CardTab[]>;
     readonly activeTabKey: StringConstructor;
     readonly defaultActiveTabKey: StringConstructor;

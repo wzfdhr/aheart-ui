@@ -2,6 +2,17 @@
 
 Card groups related content in a bordered container with optional header, cover, actions, and loading state.
 
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderableCardTitle = h('span', { style: { fontWeight: 700 } }, 'Node title')
+const renderableCardExtra = h('a', { href: '#card-renderable-demo' }, 'Details')
+const renderableCardActions = [
+  h('button', { type: 'button', class: 'aheart-button aheart-button--small' }, 'Open'),
+  h('button', { type: 'button', class: 'aheart-button aheart-button--small aheart-button--primary' }, 'Share')
+]
+</script>
+
 ## 基础用法
 
 <div class="aheart-demo-panel">
@@ -14,6 +25,41 @@ Card groups related content in a bordered container with optional header, cover,
 <template>
   <ACard title="Project" extra="More">
     Card body content.
+  </ACard>
+</template>
+```
+
+## 可渲染标题与操作
+
+<div id="card-renderable-demo" class="aheart-demo-panel">
+  <ACard
+    :title="renderableCardTitle"
+    :extra="renderableCardExtra"
+    :actions="renderableCardActions"
+  >
+    Card title, extra, and actions can receive Vue nodes. Named slots keep priority when both are provided.
+  </ACard>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const renderableCardTitle = h('span', { style: { fontWeight: 700 } }, 'Node title')
+const renderableCardExtra = h('a', { href: '#card-renderable-demo' }, 'Details')
+const renderableCardActions = [
+  h('button', { type: 'button' }, 'Open'),
+  h('button', { type: 'button' }, 'Share')
+]
+</script>
+
+<template>
+  <ACard
+    :title="renderableCardTitle"
+    :extra="renderableCardExtra"
+    :actions="renderableCardActions"
+  >
+    Card title, extra, and actions can receive Vue nodes.
   </ACard>
 </template>
 ```
@@ -264,15 +310,15 @@ Card groups related content in a bordered container with optional header, cover,
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| title | 卡片标题 | `string` | - |
-| extra | 右侧额外内容 | `string` | - |
+| title | 卡片标题；`title` 插槽优先，空字符串不创建头部 | `VNodeChild` | - |
+| extra | 右侧额外内容；`extra` 插槽优先，空字符串不创建额外区域 | `VNodeChild` | - |
 | bordered | 是否显示边框 | `boolean` | `true` |
 | variant | 卡片变体，优先于 `bordered` | `outlined` \| `borderless` | - |
 | type | 卡片类型 | `inner` | - |
 | hoverable | 是否有 hover 阴影 | `boolean` | `false` |
 | loading | 是否显示加载占位 | `boolean` | `false` |
 | size | 卡片尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
-| actions | 底部操作项，`actions` 插槽优先 | `(string \| number)[]` | - |
+| actions | 底部操作项，`actions` 插槽优先 | `VNodeChild[]` | - |
 | tabList | 页签列表 | `CardTab[]` | - |
 | activeTabKey | 当前激活页签，受控模式 | `string` | - |
 | defaultActiveTabKey | 默认激活页签，非受控模式 | `string` | 首个可用页签 |

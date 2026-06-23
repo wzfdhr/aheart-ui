@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createCommentVNode, createElementVNode, createTextVNode, toDisplayString, Fragment, renderList, createVNode, unref, createBlock } from "vue";
+import { defineComponent, useSlots, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createCommentVNode, createElementVNode, createVNode, unref, Fragment, renderList, createBlock } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { cardProps, cardEmits } from "./types.js";
 import "./style.css.js";
@@ -34,10 +34,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return () => renderProps.node;
       }
     });
-    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false;
+    const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
-    const hasHeader = computed(() => Boolean(props.title || slots.title || props.extra || slots.extra));
-    const hasExtra = computed(() => Boolean(props.extra || slots.extra));
+    const hasHeader = computed(() => Boolean(slots.title) || hasRenderable(props.title) || Boolean(slots.extra) || hasRenderable(props.extra));
+    const hasExtra = computed(() => Boolean(slots.extra) || hasRenderable(props.extra));
     const isBorderless = computed(() => {
       if (props.variant) {
         return props.variant === "borderless";
@@ -239,7 +239,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(titleStyle.value)
           }, [
             renderSlot(_ctx.$slots, "title", {}, () => [
-              createTextVNode(toDisplayString(_ctx.title), 1)
+              createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
             ])
           ], 6),
           hasExtra.value ? (openBlock(), createElementBlock("div", {
@@ -248,7 +248,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             style: normalizeStyle(extraStyle.value)
           }, [
             renderSlot(_ctx.$slots, "extra", {}, () => [
-              createTextVNode(toDisplayString(_ctx.extra), 1)
+              createVNode(unref(ARenderNode), { node: _ctx.extra }, null, 8, ["node"])
             ])
           ], 6)) : createCommentVNode("", true)
         ], 6)) : createCommentVNode("", true),
@@ -323,7 +323,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               return openBlock(), createElementBlock("span", {
                 key: index,
                 class: "aheart-card__action"
-              }, toDisplayString(action), 1);
+              }, [
+                createVNode(unref(ARenderNode), { node: action }, null, 8, ["node"])
+              ]);
             }), 128))
           ])
         ], 6)) : createCommentVNode("", true)

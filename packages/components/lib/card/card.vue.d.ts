@@ -1,8 +1,8 @@
 import { type PropType, type VNodeChild } from 'vue';
 import { type CardTab } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly extra: StringConstructor;
+    readonly title: PropType<VNodeChild>;
+    readonly extra: PropType<VNodeChild>;
     readonly bordered: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -18,7 +18,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly hoverable: BooleanConstructor;
     readonly loading: BooleanConstructor;
     readonly size: PropType<import("../config").AheartSize>;
-    readonly actions: PropType<import("./types").CardAction[]>;
+    readonly actions: PropType<VNodeChild[]>;
     readonly tabList: PropType<CardTab[]>;
     readonly activeTabKey: StringConstructor;
     readonly defaultActiveTabKey: StringConstructor;
@@ -35,8 +35,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     "update:activeTabKey": (key: string) => void;
     tabChange: (key: string) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly title: StringConstructor;
-    readonly extra: StringConstructor;
+    readonly title: PropType<VNodeChild>;
+    readonly extra: PropType<VNodeChild>;
     readonly bordered: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -52,7 +52,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly hoverable: BooleanConstructor;
     readonly loading: BooleanConstructor;
     readonly size: PropType<import("../config").AheartSize>;
-    readonly actions: PropType<import("./types").CardAction[]>;
+    readonly actions: PropType<VNodeChild[]>;
     readonly tabList: PropType<CardTab[]>;
     readonly activeTabKey: StringConstructor;
     readonly defaultActiveTabKey: StringConstructor;

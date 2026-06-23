@@ -79,6 +79,69 @@ describe('Card', () => {
     expect(actions[1].text()).toBe('Delete')
   })
 
+  it('renders vnode title extra and actions props', () => {
+    const wrapper = mount(Card, {
+      props: {
+        title: h('span', { class: 'card-title-node' }, 'Node title'),
+        extra: h('a', { class: 'card-extra-node' }, 'More'),
+        actions: [h('button', { class: 'card-action-node' }, 'Open')]
+      },
+      slots: {
+        default: 'Body'
+      }
+    })
+
+    expect(wrapper.find('.card-title-node').text()).toBe('Node title')
+    expect(wrapper.find('.card-extra-node').text()).toBe('More')
+    expect(wrapper.find('.card-action-node').text()).toBe('Open')
+  })
+
+  it('renders numeric zero title and extra as header content', () => {
+    const wrapper = mount(Card, {
+      props: {
+        title: 0,
+        extra: 0
+      }
+    })
+
+    expect(wrapper.find('.aheart-card__header').exists()).toBe(true)
+    expect(wrapper.find('.aheart-card__title').text()).toBe('0')
+    expect(wrapper.find('.aheart-card__extra').text()).toBe('0')
+  })
+
+  it('lets title extra and actions slots override renderable prop fallbacks', () => {
+    const wrapper = mount(Card, {
+      props: {
+        title: h('span', { class: 'prop-title-node' }, 'Prop title'),
+        extra: h('span', { class: 'prop-extra-node' }, 'Prop extra'),
+        actions: [h('button', { class: 'prop-action-node' }, 'Prop action')]
+      },
+      slots: {
+        title: '<span class="slot-title-node">Slot title</span>',
+        extra: '<span class="slot-extra-node">Slot extra</span>',
+        actions: '<button class="slot-action-node">Slot action</button>'
+      }
+    })
+
+    expect(wrapper.find('.slot-title-node').text()).toBe('Slot title')
+    expect(wrapper.find('.slot-extra-node').text()).toBe('Slot extra')
+    expect(wrapper.find('.slot-action-node').text()).toBe('Slot action')
+    expect(wrapper.find('.prop-title-node').exists()).toBe(false)
+    expect(wrapper.find('.prop-extra-node').exists()).toBe(false)
+    expect(wrapper.find('.prop-action-node').exists()).toBe(false)
+  })
+
+  it('does not render header for empty string title and extra props', () => {
+    const wrapper = mount(Card, {
+      props: {
+        title: '',
+        extra: ''
+      }
+    })
+
+    expect(wrapper.find('.aheart-card__header').exists()).toBe(false)
+  })
+
   it('lets actions slot override actions prop', () => {
     const wrapper = mount(Card, {
       props: {
