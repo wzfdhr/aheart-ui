@@ -44,6 +44,10 @@ const drawerProps = {
   },
   loading: Boolean,
   footer: Boolean,
+  getContainer: {
+    type: [String, Object, Function, Boolean],
+    default: void 0
+  },
   className: String,
   rootClassName: String,
   style: Object,

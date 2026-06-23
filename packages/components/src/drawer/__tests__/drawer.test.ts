@@ -1,10 +1,23 @@
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import Drawer from '../drawer.vue'
 
+const mountDrawer = (options: Record<string, any> = {}) =>
+  mount(Drawer, {
+    ...options,
+    global: {
+      ...options.global,
+      stubs: {
+        ...options.global?.stubs,
+        Teleport: true
+      }
+    }
+  })
+
 describe('Drawer', () => {
   it('renders title content extra placement and width when open', () => {
-    const wrapper = mount(Drawer, {
+    const wrapper = mountDrawer({
       props: { open: true, title: 'Filters', placement: 'left', width: 320 },
       slots: {
         default: 'Filter form',
@@ -21,7 +34,7 @@ describe('Drawer', () => {
   })
 
   it('uses height for top and bottom placements', () => {
-    const wrapper = mount(Drawer, {
+    const wrapper = mountDrawer({
       props: { open: true, placement: 'bottom', height: '42vh' }
     })
 
@@ -30,18 +43,18 @@ describe('Drawer', () => {
   })
 
   it('resolves preset and custom size while preserving width and height overrides', () => {
-    const large = mount(Drawer, { props: { open: true, size: 'large' } })
+    const large = mountDrawer({ props: { open: true, size: 'large' } })
     expect(large.find('.aheart-drawer__panel').attributes('style')).toContain('width: 736px')
 
-    const customBottom = mount(Drawer, { props: { open: true, placement: 'bottom', size: '48vh' } })
+    const customBottom = mountDrawer({ props: { open: true, placement: 'bottom', size: '48vh' } })
     expect(customBottom.find('.aheart-drawer__panel').attributes('style')).toContain('height: 48vh')
 
-    const widthOverride = mount(Drawer, { props: { open: true, size: 'large', width: 320 } })
+    const widthOverride = mountDrawer({ props: { open: true, size: 'large', width: 320 } })
     expect(widthOverride.find('.aheart-drawer__panel').attributes('style')).toContain('width: 320px')
   })
 
   it('renders a loading skeleton in the body and hides default content', () => {
-    const wrapper = mount(Drawer, {
+    const wrapper = mountDrawer({
       props: { open: true, loading: true },
       slots: { default: 'Loaded content' }
     })
@@ -51,7 +64,7 @@ describe('Drawer', () => {
   })
 
   it('renders extra prop when no extra slot is provided', () => {
-    const wrapper = mount(Drawer, {
+    const wrapper = mountDrawer({
       props: { open: true, title: 'Members', extra: 'Refresh' }
     })
 
@@ -59,7 +72,7 @@ describe('Drawer', () => {
   })
 
   it('applies root panel semantic classes styles and z-index', () => {
-    const wrapper = mount(Drawer, {
+    const wrapper = mountDrawer({
       props: {
         open: true,
         title: 'Styled drawer',
@@ -103,7 +116,7 @@ describe('Drawer', () => {
   })
 
   it('supports afterOpenChange forceRender and destroyOnHidden', async () => {
-    const persistent = mount(Drawer, {
+    const persistent = mountDrawer({
       props: { open: false, forceRender: true, title: 'Pre-rendered' }
     })
 
@@ -117,7 +130,7 @@ describe('Drawer', () => {
     expect(persistent.emitted('afterOpenChange')?.[1]).toEqual([false])
     expect(persistent.find('.aheart-drawer').exists()).toBe(true)
 
-    const destroyable = mount(Drawer, {
+    const destroyable = mountDrawer({
       props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
     })
 
@@ -128,7 +141,7 @@ describe('Drawer', () => {
   })
 
   it('emits close and update events from the close button', async () => {
-    const wrapper = mount(Drawer, { props: { open: true, title: 'Details' } })
+    const wrapper = mountDrawer({ props: { open: true, title: 'Details' } })
 
     await wrapper.find('.aheart-drawer__close').trigger('click')
 
@@ -136,28 +149,98 @@ describe('Drawer', () => {
     expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
   })
 
+  it('teleports to document body by default', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Drawer, {
+      attachTo: host,
+      props: { open: true, title: 'Body drawer' }
+    })
+
+    await nextTick()
+
+    expect(document.body.querySelector('.aheart-drawer')).toBeTruthy()
+    expect(host.querySelector('.aheart-drawer')).toBeNull()
+
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('renders inline when getContainer is false', () => {
+    const wrapper = mount(Drawer, {
+      props: { open: true, title: 'Inline drawer', getContainer: false }
+    })
+
+    expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Inline drawer')
+  })
+
+  it('teleports to a getContainer function target', async () => {
+    const container = document.createElement('section')
+    document.body.appendChild(container)
+
+    const wrapper = mount(Drawer, {
+      props: {
+        open: true,
+        title: 'Function container',
+        getContainer: () => container
+      }
+    })
+
+    await nextTick()
+
+    expect(container.querySelector('.aheart-drawer')).toBeTruthy()
+    expect(container.textContent).toContain('Function container')
+
+    wrapper.unmount()
+    container.remove()
+  })
+
+  it('teleports to a selector container target', async () => {
+    const container = document.createElement('section')
+    container.id = 'drawer-selector-root'
+    document.body.appendChild(container)
+
+    const wrapper = mount(Drawer, {
+      props: {
+        open: true,
+        title: 'Selector container',
+        getContainer: '#drawer-selector-root'
+      }
+    })
+
+    await nextTick()
+
+    expect(container.querySelector('.aheart-drawer')).toBeTruthy()
+    expect(container.textContent).toContain('Selector container')
+
+    wrapper.unmount()
+    container.remove()
+  })
+
   it('closes from the mask only when maskClosable is true', async () => {
-    const closable = mount(Drawer, { props: { open: true } })
+    const closable = mountDrawer({ props: { open: true } })
     await closable.find('.aheart-drawer__mask').trigger('click')
     expect(closable.emitted('update:open')?.[0]).toEqual([false])
 
-    const locked = mount(Drawer, { props: { open: true, maskClosable: false } })
+    const locked = mountDrawer({ props: { open: true, maskClosable: false } })
     await locked.find('.aheart-drawer__mask').trigger('click')
     expect(locked.emitted('update:open')).toBeUndefined()
   })
 
   it('closes from Escape only when keyboard is true', async () => {
-    const closable = mount(Drawer, { props: { open: true } })
+    const closable = mountDrawer({ props: { open: true } })
     await closable.find('.aheart-drawer').trigger('keydown', { key: 'Escape' })
     expect(closable.emitted('update:open')?.[0]).toEqual([false])
 
-    const locked = mount(Drawer, { props: { open: true, keyboard: false } })
+    const locked = mountDrawer({ props: { open: true, keyboard: false } })
     await locked.find('.aheart-drawer').trigger('keydown', { key: 'Escape' })
     expect(locked.emitted('update:open')).toBeUndefined()
   })
 
   it('does not render overlay nodes when closed', () => {
-    const wrapper = mount(Drawer, { props: { open: false, title: 'Hidden' } })
+    const wrapper = mountDrawer({ props: { open: false, title: 'Hidden' } })
 
     expect(wrapper.find('.aheart-drawer').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('Hidden')

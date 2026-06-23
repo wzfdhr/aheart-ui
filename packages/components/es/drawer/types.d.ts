@@ -8,6 +8,7 @@ export type DrawerSize = DrawerSizePreset | number | string;
 export type DrawerSemanticPart = (typeof drawerSemanticParts)[number];
 export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>;
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>;
+export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false;
 export declare const drawerProps: {
     readonly open: BooleanConstructor;
     readonly title: StringConstructor;
@@ -51,12 +52,16 @@ export declare const drawerProps: {
     };
     readonly loading: BooleanConstructor;
     readonly footer: BooleanConstructor;
+    readonly getContainer: {
+        readonly type: PropType<DrawerGetContainer>;
+        readonly default: undefined;
+    };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
-    readonly classNames: PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
-    readonly styles: PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", CSSProperties>>>;
+    readonly classNames: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
+    readonly styles: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;

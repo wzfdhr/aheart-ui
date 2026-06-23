@@ -156,6 +156,7 @@ const open = ref(false)
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 是否显示页脚区域 | `boolean` | `false` |
+| getContainer | 指定 Drawer 挂载容器；传入 `false` 时保持内联渲染 | `HTMLElement` \| `string` \| `() => HTMLElement` \| `false` | `document.body` |
 | className | 面板自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
 | style | 面板自定义样式 | `CSSProperties` | - |
@@ -169,6 +170,12 @@ const open = ref(false)
 ### DrawerSemanticPart
 
 `root`、`mask`、`section`、`header`、`title`、`extra`、`body`、`footer`、`close`
+
+### DrawerGetContainer
+
+```ts
+type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
+```
 
 ## Events
 

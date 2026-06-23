@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createTextVNode, toDisplayString, createBlock, unref, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createTextVNode, toDisplayString, unref, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
@@ -15,6 +15,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const slots = useSlots();
     const hasRendered = ref(props.open || props.forceRender);
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const getDefaultContainer = () => typeof document === "undefined" ? false : document.body;
+    const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer());
+    const teleportTarget = computed(() => {
+      const container = resolvedContainer.value;
+      return typeof container === "function" ? container() : container;
+    });
+    const shouldTeleport = computed(() => teleportTarget.value !== false);
+    const teleportTo = computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
     const isVertical = computed(() => props.placement === "top" || props.placement === "bottom");
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
@@ -103,79 +111,84 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     return (_ctx, _cache) => {
-      return shouldRender.value ? withDirectives((openBlock(), createElementBlock("div", {
-        key: 0,
-        class: normalizeClass(rootClass.value),
-        style: normalizeStyle(rootStyle.value),
-        role: "presentation",
-        tabindex: "-1",
-        onKeydown: handleKeydown
+      return openBlock(), createBlock(Teleport, {
+        to: teleportTo.value,
+        disabled: !shouldTeleport.value
       }, [
-        _ctx.mask ? (openBlock(), createElementBlock("div", {
+        shouldRender.value ? withDirectives((openBlock(), createElementBlock("div", {
           key: 0,
-          class: normalizeClass(maskClass.value),
-          style: normalizeStyle(maskStyle.value),
-          onClick: handleMaskClick
-        }, null, 6)) : createCommentVNode("", true),
-        createElementVNode("section", {
-          class: normalizeClass(panelClass.value),
-          style: normalizeStyle(panelStyle.value),
-          role: "dialog",
-          "aria-modal": "true"
+          class: normalizeClass(rootClass.value),
+          style: normalizeStyle(rootStyle.value),
+          role: "presentation",
+          tabindex: "-1",
+          onKeydown: handleKeydown
         }, [
-          hasHeader.value ? (openBlock(), createElementBlock("header", {
+          _ctx.mask ? (openBlock(), createElementBlock("div", {
             key: 0,
-            class: normalizeClass(headerClass.value),
-            style: normalizeStyle(semanticStyle("header"))
+            class: normalizeClass(maskClass.value),
+            style: normalizeStyle(maskStyle.value),
+            onClick: handleMaskClick
+          }, null, 6)) : createCommentVNode("", true),
+          createElementVNode("section", {
+            class: normalizeClass(panelClass.value),
+            style: normalizeStyle(panelStyle.value),
+            role: "dialog",
+            "aria-modal": "true"
           }, [
-            _ctx.closable ? (openBlock(), createElementBlock("button", {
+            hasHeader.value ? (openBlock(), createElementBlock("header", {
               key: 0,
-              class: normalizeClass(closeClass.value),
-              style: normalizeStyle(semanticStyle("close")),
-              type: "button",
-              "aria-label": "Close",
-              onClick: close
-            }, " × ", 6)) : createCommentVNode("", true),
-            _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("div", {
-              key: 1,
-              class: normalizeClass(titleClass.value),
-              style: normalizeStyle(semanticStyle("title"))
+              class: normalizeClass(headerClass.value),
+              style: normalizeStyle(semanticStyle("header"))
             }, [
-              renderSlot(_ctx.$slots, "title", {}, () => [
-                createTextVNode(toDisplayString(_ctx.title), 1)
-              ])
+              _ctx.closable ? (openBlock(), createElementBlock("button", {
+                key: 0,
+                class: normalizeClass(closeClass.value),
+                style: normalizeStyle(semanticStyle("close")),
+                type: "button",
+                "aria-label": "Close",
+                onClick: close
+              }, " × ", 6)) : createCommentVNode("", true),
+              _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("div", {
+                key: 1,
+                class: normalizeClass(titleClass.value),
+                style: normalizeStyle(semanticStyle("title"))
+              }, [
+                renderSlot(_ctx.$slots, "title", {}, () => [
+                  createTextVNode(toDisplayString(_ctx.title), 1)
+                ])
+              ], 6)) : createCommentVNode("", true),
+              hasExtra.value ? (openBlock(), createElementBlock("div", {
+                key: 2,
+                class: normalizeClass(extraClass.value),
+                style: normalizeStyle(semanticStyle("extra"))
+              }, [
+                renderSlot(_ctx.$slots, "extra", {}, () => [
+                  createTextVNode(toDisplayString(_ctx.extra), 1)
+                ])
+              ], 6)) : createCommentVNode("", true)
             ], 6)) : createCommentVNode("", true),
-            hasExtra.value ? (openBlock(), createElementBlock("div", {
-              key: 2,
-              class: normalizeClass(extraClass.value),
-              style: normalizeStyle(semanticStyle("extra"))
+            createElementVNode("div", {
+              class: normalizeClass(bodyClass.value),
+              style: normalizeStyle(semanticStyle("body"))
             }, [
-              renderSlot(_ctx.$slots, "extra", {}, () => [
-                createTextVNode(toDisplayString(_ctx.extra), 1)
-              ])
+              _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
+                key: 0,
+                active: "",
+                paragraph: { rows: 4 }
+              })) : renderSlot(_ctx.$slots, "default", { key: 1 })
+            ], 6),
+            hasFooter.value ? (openBlock(), createElementBlock("footer", {
+              key: 1,
+              class: normalizeClass(footerClass.value),
+              style: normalizeStyle(semanticStyle("footer"))
+            }, [
+              renderSlot(_ctx.$slots, "footer")
             ], 6)) : createCommentVNode("", true)
-          ], 6)) : createCommentVNode("", true),
-          createElementVNode("div", {
-            class: normalizeClass(bodyClass.value),
-            style: normalizeStyle(semanticStyle("body"))
-          }, [
-            _ctx.loading ? (openBlock(), createBlock(unref(Skeleton), {
-              key: 0,
-              active: "",
-              paragraph: { rows: 4 }
-            })) : renderSlot(_ctx.$slots, "default", { key: 1 })
-          ], 6),
-          hasFooter.value ? (openBlock(), createElementBlock("footer", {
-            key: 1,
-            class: normalizeClass(footerClass.value),
-            style: normalizeStyle(semanticStyle("footer"))
-          }, [
-            renderSlot(_ctx.$slots, "footer")
-          ], 6)) : createCommentVNode("", true)
-        ], 6)
-      ], 38)), [
-        [vShow, _ctx.open]
-      ]) : createCommentVNode("", true);
+          ], 6)
+        ], 38)), [
+          [vShow, _ctx.open]
+        ]) : createCommentVNode("", true)
+      ], 8, ["to", "disabled"]);
     };
   }
 });

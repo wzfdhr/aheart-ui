@@ -10,6 +10,7 @@ export type DrawerSize = DrawerSizePreset | number | string
 export type DrawerSemanticPart = (typeof drawerSemanticParts)[number]
 export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>
+export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
 
 export const drawerProps = {
   open: Boolean,
@@ -54,6 +55,10 @@ export const drawerProps = {
   },
   loading: Boolean,
   footer: Boolean,
+  getContainer: {
+    type: [String, Object, Function, Boolean] as PropType<DrawerGetContainer>,
+    default: undefined
+  },
   className: String,
   rootClassName: String,
   style: Object as PropType<CSSProperties>,

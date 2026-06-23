@@ -42,12 +42,16 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly loading: BooleanConstructor;
     readonly footer: BooleanConstructor;
+    readonly getContainer: {
+        readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
+        readonly default: undefined;
+    };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<CSSProperties>;
     readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -98,12 +102,16 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly loading: BooleanConstructor;
     readonly footer: BooleanConstructor;
+    readonly getContainer: {
+        readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
+        readonly default: undefined;
+    };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<CSSProperties>;
     readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "title" | "close" | "body" | "footer" | "header" | "section" | "mask" | "extra", CSSProperties>>>;
+    readonly classNames: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
+    readonly styles: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -117,13 +125,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly open: boolean;
     readonly footer: boolean;
     readonly mask: boolean;
-    readonly loading: boolean;
-    readonly width: string | number;
     readonly height: string | number;
-    readonly placement: "left" | "right" | "bottom" | "top";
+    readonly width: string | number;
     readonly zIndex: number;
+    readonly placement: "left" | "right" | "bottom" | "top";
+    readonly loading: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
+    readonly getContainer: import("./types").DrawerGetContainer;
     readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;

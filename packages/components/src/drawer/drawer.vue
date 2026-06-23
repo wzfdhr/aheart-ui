@@ -1,40 +1,42 @@
 <template>
-  <div
-    v-if="shouldRender"
-    v-show="open"
-    :class="rootClass"
-    :style="rootStyle"
-    role="presentation"
-    tabindex="-1"
-    @keydown="handleKeydown"
-  >
-    <div v-if="mask" :class="maskClass" :style="maskStyle" @click="handleMaskClick" />
-    <section
-      :class="panelClass"
-      :style="panelStyle"
-      role="dialog"
-      aria-modal="true"
+  <Teleport :to="teleportTo" :disabled="!shouldTeleport">
+    <div
+      v-if="shouldRender"
+      v-show="open"
+      :class="rootClass"
+      :style="rootStyle"
+      role="presentation"
+      tabindex="-1"
+      @keydown="handleKeydown"
     >
-      <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
-        <button v-if="closable" :class="closeClass" :style="semanticStyle('close')" type="button" aria-label="Close" @click="close">
-          ×
-        </button>
-        <div v-if="title || $slots.title" :class="titleClass" :style="semanticStyle('title')">
-          <slot name="title">{{ title }}</slot>
+      <div v-if="mask" :class="maskClass" :style="maskStyle" @click="handleMaskClick" />
+      <section
+        :class="panelClass"
+        :style="panelStyle"
+        role="dialog"
+        aria-modal="true"
+      >
+        <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
+          <button v-if="closable" :class="closeClass" :style="semanticStyle('close')" type="button" aria-label="Close" @click="close">
+            ×
+          </button>
+          <div v-if="title || $slots.title" :class="titleClass" :style="semanticStyle('title')">
+            <slot name="title">{{ title }}</slot>
+          </div>
+          <div v-if="hasExtra" :class="extraClass" :style="semanticStyle('extra')">
+            <slot name="extra">{{ extra }}</slot>
+          </div>
+        </header>
+        <div :class="bodyClass" :style="semanticStyle('body')">
+          <ASkeleton v-if="loading" active :paragraph="{ rows: 4 }" />
+          <slot v-else />
         </div>
-        <div v-if="hasExtra" :class="extraClass" :style="semanticStyle('extra')">
-          <slot name="extra">{{ extra }}</slot>
-        </div>
-      </header>
-      <div :class="bodyClass" :style="semanticStyle('body')">
-        <ASkeleton v-if="loading" active :paragraph="{ rows: 4 }" />
-        <slot v-else />
-      </div>
-      <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
-        <slot name="footer" />
-      </footer>
-    </section>
-  </div>
+        <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
+          <slot name="footer" />
+        </footer>
+      </section>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -53,6 +55,15 @@ const slots = useSlots()
 const hasRendered = ref(props.open || props.forceRender)
 
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
+const getDefaultContainer = () => (typeof document === 'undefined' ? false : document.body)
+const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer())
+const teleportTarget = computed(() => {
+  const container = resolvedContainer.value
+
+  return typeof container === 'function' ? container() : container
+})
+const shouldTeleport = computed(() => teleportTarget.value !== false)
+const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : teleportTarget.value))
 
 const isVertical = computed(() => props.placement === 'top' || props.placement === 'bottom')
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose)
