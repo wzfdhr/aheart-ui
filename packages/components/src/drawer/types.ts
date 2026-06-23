@@ -23,6 +23,12 @@ export type DrawerTitle = DrawerRenderable
 export type DrawerExtra = DrawerRenderable
 export type DrawerFooter = boolean | DrawerRenderable
 
+export interface DrawerPushConfig {
+  distance?: number | string
+}
+
+export type DrawerPush = boolean | DrawerPushConfig
+
 export interface DrawerMaskConfig {
   enabled?: boolean
   blur?: boolean
@@ -106,6 +112,10 @@ export const drawerProps = {
   },
   getContainer: {
     type: [String, Object, Function, Boolean] as PropType<DrawerGetContainer>,
+    default: undefined
+  },
+  push: {
+    type: [Boolean, Object] as PropType<DrawerPush>,
     default: undefined
   },
   drawerRender: Function as PropType<DrawerRender>,

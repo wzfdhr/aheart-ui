@@ -305,6 +305,77 @@ describe('Drawer', () => {
     expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('max-width: 90vw')
   })
 
+  it('pushes a parent drawer when a nested drawer opens', async () => {
+    const wrapper = mountDrawer({
+      props: { open: true, title: 'Parent drawer' },
+      slots: {
+        default: () =>
+          h(Drawer, { open: true, title: 'Child drawer', getContainer: false }, { default: () => 'Child body' })
+      }
+    })
+
+    await nextTick()
+
+    const panels = wrapper.findAll('.aheart-drawer__panel')
+
+    expect(panels[0].attributes('style')).toContain('transform: translateX(-180px)')
+    expect(panels[1].attributes('style')).not.toContain('translateX(-180px)')
+  })
+
+  it('does not push a parent drawer when push is false', async () => {
+    const wrapper = mountDrawer({
+      props: { open: true, title: 'Static parent', push: false },
+      slots: {
+        default: () =>
+          h(Drawer, { open: true, title: 'Child drawer', getContainer: false }, { default: () => 'Child body' })
+      }
+    })
+
+    await nextTick()
+
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).not.toContain('transform:')
+  })
+
+  it('uses push distance with parent placement direction', async () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Left parent',
+        placement: 'left',
+        push: { distance: 96 }
+      },
+      slots: {
+        default: () =>
+          h(Drawer, { open: true, title: 'Child drawer', getContainer: false }, { default: () => 'Child body' })
+      }
+    })
+
+    await nextTick()
+
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('transform: translateX(96px)')
+  })
+
+  it('preserves custom panel transforms before the push transform', async () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Transformed parent',
+        style: { transform: 'scale(0.98)' },
+        push: { distance: '12vw' }
+      },
+      slots: {
+        default: () =>
+          h(Drawer, { open: true, title: 'Child drawer', getContainer: false }, { default: () => 'Child body' })
+      }
+    })
+
+    await nextTick()
+
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain(
+      'transform: scale(0.98) translateX(calc(0px - 12vw))'
+    )
+  })
+
   it('supports afterOpenChange forceRender and destroyOnHidden', async () => {
     const persistent = mountDrawer({
       props: { open: false, forceRender: true, title: 'Pre-rendered' }

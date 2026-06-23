@@ -19,6 +19,10 @@ export type DrawerRender = (node: DrawerRenderable) => DrawerRenderable;
 export type DrawerTitle = DrawerRenderable;
 export type DrawerExtra = DrawerRenderable;
 export type DrawerFooter = boolean | DrawerRenderable;
+export interface DrawerPushConfig {
+    distance?: number | string;
+}
+export type DrawerPush = boolean | DrawerPushConfig;
 export interface DrawerMaskConfig {
     enabled?: boolean;
     blur?: boolean;
@@ -96,6 +100,10 @@ export declare const drawerProps: {
     };
     readonly getContainer: {
         readonly type: PropType<DrawerGetContainer>;
+        readonly default: undefined;
+    };
+    readonly push: {
+        readonly type: PropType<DrawerPush>;
         readonly default: undefined;
     };
     readonly drawerRender: PropType<DrawerRender>;

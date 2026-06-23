@@ -1,9 +1,10 @@
-import { defineComponent, useSlots, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, withCtx, createElementVNode, renderSlot, vShow } from "vue";
+import { defineComponent, useSlots, ref, inject, provide, computed, watch, nextTick, onBeforeUnmount, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, withCtx, createElementVNode, renderSlot, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["disabled"];
 const _hoisted_2 = ["disabled"];
+const DRAWER_PUSH_CONTEXT = Symbol("ADrawerPushContext");
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ADrawer"
@@ -56,7 +57,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasRendered = ref(props.open || props.forceRender);
     const triggerElement = ref(null);
     const panelRef = ref(null);
+    const parentPushContext = inject(DRAWER_PUSH_CONTEXT, null);
+    const drawerId = Symbol("ADrawer");
+    const openChildDrawers = ref(/* @__PURE__ */ new Map());
+    const setChildOpen = (id, open) => {
+      const nextOpenChildren = new Map(openChildDrawers.value);
+      if (open) {
+        nextOpenChildren.set(id, true);
+      } else {
+        nextOpenChildren.delete(id);
+      }
+      openChildDrawers.value = nextOpenChildren;
+    };
+    provide(DRAWER_PUSH_CONTEXT, { setChildOpen });
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const formatPushDistance = (distance, negative) => {
+      if (typeof distance === "number") {
+        return `${negative ? "-" : ""}${distance}px`;
+      }
+      return negative ? `calc(0px - ${distance})` : distance;
+    };
     const getDefaultContainer = () => typeof document === "undefined" ? false : document.body;
     const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer());
     const teleportTarget = computed(() => {
@@ -66,6 +86,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const shouldTeleport = computed(() => teleportTarget.value !== false);
     const teleportTo = computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
     const isVertical = computed(() => props.placement === "top" || props.placement === "bottom");
+    const hasOpenChildDrawer = computed(() => openChildDrawers.value.size > 0);
+    const pushConfig = computed(() => typeof props.push === "object" && props.push !== null ? props.push : void 0);
+    const isPushEnabled = computed(() => props.push !== false);
+    const resolvedPushDistance = computed(() => {
+      var _a;
+      return ((_a = pushConfig.value) == null ? void 0 : _a.distance) ?? 180;
+    });
+    const pushTransform = computed(() => {
+      if (!hasOpenChildDrawer.value || !isPushEnabled.value) {
+        return void 0;
+      }
+      switch (props.placement) {
+        case "left":
+          return `translateX(${formatPushDistance(resolvedPushDistance.value, false)})`;
+        case "top":
+          return `translateY(${formatPushDistance(resolvedPushDistance.value, false)})`;
+        case "bottom":
+          return `translateY(${formatPushDistance(resolvedPushDistance.value, true)})`;
+        case "right":
+        default:
+          return `translateX(${formatPushDistance(resolvedPushDistance.value, true)})`;
+      }
+    });
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
@@ -129,8 +172,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return props.size;
     });
-    const panelStyle = computed(
-      () => isVertical.value ? {
+    const panelStyle = computed(() => {
+      const style = isVertical.value ? {
         ...props.style,
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
@@ -142,8 +185,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ...props.contentWrapperStyle,
         ...semanticStyle("section"),
         width: normalizeSize(props.width ?? resolvedSize.value)
+      };
+      if (!pushTransform.value) {
+        return style;
       }
-    );
+      return {
+        ...style,
+        transform: [style.transform ? String(style.transform) : void 0, pushTransform.value].filter(Boolean).join(" ")
+      };
+    });
     const rootStyle = computed(() => ({
       ...props.rootStyle,
       ...semanticStyle("root"),
@@ -217,6 +267,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     );
+    watch(
+      () => props.open,
+      (open) => {
+        parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, open);
+      },
+      { immediate: true }
+    );
+    onBeforeUnmount(() => {
+      parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, false);
+    });
     const resolveSemanticConfig = (config, part) => {
       const resolved = typeof config === "function" ? config({ props }) : config;
       return resolved == null ? void 0 : resolved[part];

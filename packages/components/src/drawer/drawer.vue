@@ -68,11 +68,24 @@
   </Teleport>
 </template>
 
+<script lang="ts">
+import type { InjectionKey } from 'vue'
+
+interface DrawerPushContext {
+  setChildOpen: (id: symbol, open: boolean) => void
+}
+
+const DRAWER_PUSH_CONTEXT: InjectionKey<DrawerPushContext> = Symbol('ADrawerPushContext')
+</script>
+
 <script setup lang="ts">
 import {
   computed,
   defineComponent,
+  inject,
   nextTick,
+  onBeforeUnmount,
+  provide,
   ref,
   useSlots,
   watch,
@@ -143,7 +156,32 @@ const hasRendered = ref(props.open || props.forceRender)
 const triggerElement = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 
+const parentPushContext = inject<DrawerPushContext | null>(DRAWER_PUSH_CONTEXT, null)
+const drawerId = Symbol('ADrawer')
+const openChildDrawers = ref(new Map<symbol, true>())
+
+const setChildOpen = (id: symbol, open: boolean) => {
+  const nextOpenChildren = new Map(openChildDrawers.value)
+
+  if (open) {
+    nextOpenChildren.set(id, true)
+  } else {
+    nextOpenChildren.delete(id)
+  }
+
+  openChildDrawers.value = nextOpenChildren
+}
+
+provide(DRAWER_PUSH_CONTEXT, { setChildOpen })
+
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
+const formatPushDistance = (distance: number | string, negative: boolean) => {
+  if (typeof distance === 'number') {
+    return `${negative ? '-' : ''}${distance}px`
+  }
+
+  return negative ? `calc(0px - ${distance})` : distance
+}
 const getDefaultContainer = () => (typeof document === 'undefined' ? false : document.body)
 const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer())
 const teleportTarget = computed(() => {
@@ -155,6 +193,27 @@ const shouldTeleport = computed(() => teleportTarget.value !== false)
 const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : teleportTarget.value))
 
 const isVertical = computed(() => props.placement === 'top' || props.placement === 'bottom')
+const hasOpenChildDrawer = computed(() => openChildDrawers.value.size > 0)
+const pushConfig = computed(() => (typeof props.push === 'object' && props.push !== null ? props.push : undefined))
+const isPushEnabled = computed(() => props.push !== false)
+const resolvedPushDistance = computed(() => pushConfig.value?.distance ?? 180)
+const pushTransform = computed(() => {
+  if (!hasOpenChildDrawer.value || !isPushEnabled.value) {
+    return undefined
+  }
+
+  switch (props.placement) {
+    case 'left':
+      return `translateX(${formatPushDistance(resolvedPushDistance.value, false)})`
+    case 'top':
+      return `translateY(${formatPushDistance(resolvedPushDistance.value, false)})`
+    case 'bottom':
+      return `translateY(${formatPushDistance(resolvedPushDistance.value, true)})`
+    case 'right':
+    default:
+      return `translateX(${formatPushDistance(resolvedPushDistance.value, true)})`
+  }
+})
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel)
 const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
 const isRenderableNode = (value: VNodeChild) =>
@@ -206,8 +265,8 @@ const resolvedSize = computed(() => {
   return props.size
 })
 
-const panelStyle = computed(() =>
-  isVertical.value
+const panelStyle = computed(() => {
+  const style: CSSProperties = isVertical.value
     ? {
         ...props.style,
         ...props.drawerStyle,
@@ -222,7 +281,16 @@ const panelStyle = computed(() =>
         ...semanticStyle('section'),
         width: normalizeSize(props.width ?? resolvedSize.value)
       }
-)
+
+  if (!pushTransform.value) {
+    return style
+  }
+
+  return {
+    ...style,
+    transform: [style.transform ? String(style.transform) : undefined, pushTransform.value].filter(Boolean).join(' ')
+  }
+})
 
 const rootStyle = computed(() => ({
   ...props.rootStyle,
@@ -304,6 +372,18 @@ watch(
     }
   }
 )
+
+watch(
+  () => props.open,
+  (open) => {
+    parentPushContext?.setChildOpen(drawerId, open)
+  },
+  { immediate: true }
+)
+
+onBeforeUnmount(() => {
+  parentPushContext?.setChildOpen(drawerId, false)
+})
 
 const resolveSemanticConfig = <T,>(
   config: DrawerSemanticConfig<T> | undefined,

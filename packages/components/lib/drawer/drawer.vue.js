@@ -6,6 +6,7 @@ const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["disabled"];
 const _hoisted_2 = ["disabled"];
+const DRAWER_PUSH_CONTEXT = Symbol("ADrawerPushContext");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ADrawer"
@@ -58,7 +59,26 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasRendered = vue.ref(props.open || props.forceRender);
     const triggerElement = vue.ref(null);
     const panelRef = vue.ref(null);
+    const parentPushContext = vue.inject(DRAWER_PUSH_CONTEXT, null);
+    const drawerId = Symbol("ADrawer");
+    const openChildDrawers = vue.ref(/* @__PURE__ */ new Map());
+    const setChildOpen = (id, open) => {
+      const nextOpenChildren = new Map(openChildDrawers.value);
+      if (open) {
+        nextOpenChildren.set(id, true);
+      } else {
+        nextOpenChildren.delete(id);
+      }
+      openChildDrawers.value = nextOpenChildren;
+    };
+    vue.provide(DRAWER_PUSH_CONTEXT, { setChildOpen });
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const formatPushDistance = (distance, negative) => {
+      if (typeof distance === "number") {
+        return `${negative ? "-" : ""}${distance}px`;
+      }
+      return negative ? `calc(0px - ${distance})` : distance;
+    };
     const getDefaultContainer = () => typeof document === "undefined" ? false : document.body;
     const resolvedContainer = vue.computed(() => props.getContainer ?? getDefaultContainer());
     const teleportTarget = vue.computed(() => {
@@ -68,6 +88,29 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const shouldTeleport = vue.computed(() => teleportTarget.value !== false);
     const teleportTo = vue.computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
     const isVertical = vue.computed(() => props.placement === "top" || props.placement === "bottom");
+    const hasOpenChildDrawer = vue.computed(() => openChildDrawers.value.size > 0);
+    const pushConfig = vue.computed(() => typeof props.push === "object" && props.push !== null ? props.push : void 0);
+    const isPushEnabled = vue.computed(() => props.push !== false);
+    const resolvedPushDistance = vue.computed(() => {
+      var _a;
+      return ((_a = pushConfig.value) == null ? void 0 : _a.distance) ?? 180;
+    });
+    const pushTransform = vue.computed(() => {
+      if (!hasOpenChildDrawer.value || !isPushEnabled.value) {
+        return void 0;
+      }
+      switch (props.placement) {
+        case "left":
+          return `translateX(${formatPushDistance(resolvedPushDistance.value, false)})`;
+        case "top":
+          return `translateY(${formatPushDistance(resolvedPushDistance.value, false)})`;
+        case "bottom":
+          return `translateY(${formatPushDistance(resolvedPushDistance.value, true)})`;
+        case "right":
+        default:
+          return `translateX(${formatPushDistance(resolvedPushDistance.value, true)})`;
+      }
+    });
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
@@ -131,8 +174,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return props.size;
     });
-    const panelStyle = vue.computed(
-      () => isVertical.value ? {
+    const panelStyle = vue.computed(() => {
+      const style = isVertical.value ? {
         ...props.style,
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
@@ -144,8 +187,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ...props.contentWrapperStyle,
         ...semanticStyle("section"),
         width: normalizeSize(props.width ?? resolvedSize.value)
+      };
+      if (!pushTransform.value) {
+        return style;
       }
-    );
+      return {
+        ...style,
+        transform: [style.transform ? String(style.transform) : void 0, pushTransform.value].filter(Boolean).join(" ")
+      };
+    });
     const rootStyle = vue.computed(() => ({
       ...props.rootStyle,
       ...semanticStyle("root"),
@@ -219,6 +269,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
     );
+    vue.watch(
+      () => props.open,
+      (open) => {
+        parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, open);
+      },
+      { immediate: true }
+    );
+    vue.onBeforeUnmount(() => {
+      parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, false);
+    });
     const resolveSemanticConfig = (config, part) => {
       const resolved = typeof config === "function" ? config({ props }) : config;
       return resolved == null ? void 0 : resolved[part];

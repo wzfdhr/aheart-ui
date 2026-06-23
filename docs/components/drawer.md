@@ -312,6 +312,7 @@ const open = ref(false)
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 页脚内容；`true` 可只显示 footer slot，`false` 或 `null` 隐藏页脚 | `boolean` \| `DrawerRenderable` | - |
 | getContainer | 指定 Drawer 挂载容器；传入 `false` 时保持内联渲染 | `HTMLElement` \| `string` \| `() => HTMLElement` \| `false` | `document.body` |
+| push | 嵌套抽屉打开时是否推动父级抽屉 | `boolean` \| `DrawerPushConfig` | `{ distance: 180 }` |
 | drawerRender | 自定义渲染抽屉面板内容 | `(node: VNodeChild) => VNodeChild` | - |
 | className | 面板自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
@@ -346,6 +347,14 @@ interface DrawerSemanticInfo {
 
 ```ts
 type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
+```
+
+### DrawerPushConfig
+
+```ts
+interface DrawerPushConfig {
+  distance?: number | string
+}
 ```
 
 ### DrawerRenderable

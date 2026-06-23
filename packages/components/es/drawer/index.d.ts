@@ -60,6 +60,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
             readonly default: undefined;
         };
+        readonly push: {
+            readonly type: import("vue").PropType<import("./types").DrawerPush>;
+            readonly default: undefined;
+        };
         readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -89,6 +93,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").DrawerClosable;
         readonly closeIcon: import("vue").VNodeChild;
+        readonly push: import("./types").DrawerPush;
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
         readonly footer: import("./types").DrawerFooter;
@@ -174,6 +179,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
             readonly default: undefined;
         };
+        readonly push: {
+            readonly type: import("vue").PropType<import("./types").DrawerPush>;
+            readonly default: undefined;
+        };
         readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -199,6 +208,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").DrawerClosable;
         readonly closeIcon: import("vue").VNodeChild;
+        readonly push: import("./types").DrawerPush;
         readonly size: import("./types").DrawerSize;
         readonly open: boolean;
         readonly footer: import("./types").DrawerFooter;
@@ -281,6 +291,10 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
+    readonly push: {
+        readonly type: import("vue").PropType<import("./types").DrawerPush>;
+        readonly default: undefined;
+    };
     readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -310,6 +324,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly title: import("vue").VNodeChild;
     readonly closable: import("./types").DrawerClosable;
     readonly closeIcon: import("vue").VNodeChild;
+    readonly push: import("./types").DrawerPush;
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
     readonly footer: import("./types").DrawerFooter;

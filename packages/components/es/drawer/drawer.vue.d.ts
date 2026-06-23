@@ -61,6 +61,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
+    readonly push: {
+        readonly type: PropType<import("./types").DrawerPush>;
+        readonly default: undefined;
+    };
     readonly drawerRender: PropType<DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -143,6 +147,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
+    readonly push: {
+        readonly type: PropType<import("./types").DrawerPush>;
+        readonly default: undefined;
+    };
     readonly drawerRender: PropType<DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -168,6 +176,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly title: VNodeChild;
     readonly closable: import("./types").DrawerClosable;
     readonly closeIcon: VNodeChild;
+    readonly push: import("./types").DrawerPush;
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
     readonly footer: import("./types").DrawerFooter;
