@@ -330,6 +330,41 @@ describe('Drawer', () => {
     expect(destroyable.find('.aheart-drawer').exists()).toBe(false)
   })
 
+  it('treats destroyInactivePanel as a destroyOnHidden alias', async () => {
+    const wrapper = mountDrawer({
+      props: { open: true, destroyInactivePanel: true, title: 'Legacy destroy' },
+      slots: {
+        default: '<button class="legacy-destroy-control">Legacy control</button>'
+      }
+    })
+
+    expect(wrapper.find('.legacy-destroy-control').exists()).toBe(true)
+
+    await wrapper.setProps({ open: false })
+
+    expect(wrapper.find('.aheart-drawer').exists()).toBe(false)
+    expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
+  })
+
+  it('keeps forceRender ahead of destroyInactivePanel', async () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        forceRender: true,
+        destroyInactivePanel: true,
+        title: 'Forced legacy destroy'
+      },
+      slots: {
+        default: '<button class="forced-legacy-control">Forced control</button>'
+      }
+    })
+
+    await wrapper.setProps({ open: false })
+
+    expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
+    expect(wrapper.find('.forced-legacy-control').exists()).toBe(true)
+  })
+
   it('restores focus to the trigger after close by default', async () => {
     const trigger = document.createElement('button')
     const outside = document.createElement('button')

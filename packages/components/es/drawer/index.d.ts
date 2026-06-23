@@ -76,6 +76,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
+        readonly destroyInactivePanel: BooleanConstructor;
     }>> & Readonly<{
         onClose?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
@@ -104,6 +105,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly forceRender: boolean;
         readonly destroyOnClose: boolean;
         readonly destroyOnHidden: boolean;
+        readonly destroyInactivePanel: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -188,6 +190,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly forceRender: BooleanConstructor;
         readonly destroyOnClose: BooleanConstructor;
         readonly destroyOnHidden: BooleanConstructor;
+        readonly destroyInactivePanel: BooleanConstructor;
     }>> & Readonly<{
         onClose?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
@@ -212,6 +215,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly forceRender: boolean;
         readonly destroyOnClose: boolean;
         readonly destroyOnHidden: boolean;
+        readonly destroyInactivePanel: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -293,6 +297,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyInactivePanel: BooleanConstructor;
 }>> & Readonly<{
     onClose?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
@@ -321,6 +326,7 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;
+    readonly destroyInactivePanel: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         title?(_: {}): any;

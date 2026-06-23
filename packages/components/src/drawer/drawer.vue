@@ -155,7 +155,7 @@ const shouldTeleport = computed(() => teleportTarget.value !== false)
 const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : teleportTarget.value))
 
 const isVertical = computed(() => props.placement === 'top' || props.placement === 'bottom')
-const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose)
+const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel)
 const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
 const isRenderableNode = (value: VNodeChild) =>
   value !== undefined && value !== null && value !== false && value !== true && value !== ''

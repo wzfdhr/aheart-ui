@@ -123,7 +123,8 @@ export const drawerProps = {
   styles: [Object, Function] as PropType<DrawerStyles>,
   forceRender: Boolean,
   destroyOnClose: Boolean,
-  destroyOnHidden: Boolean
+  destroyOnHidden: Boolean,
+  destroyInactivePanel: Boolean
 } as const
 
 export const drawerEmits = {

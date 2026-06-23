@@ -114,6 +114,7 @@ export declare const drawerProps: {
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyInactivePanel: BooleanConstructor;
 };
 export declare const drawerEmits: {
     'update:open': (open: boolean) => boolean;

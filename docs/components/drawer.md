@@ -328,6 +328,7 @@ const open = ref(false)
 | forceRender | 关闭时也预渲染抽屉结构 | `boolean` | `false` |
 | destroyOnClose | 关闭后销毁内容；兼容旧命名 | `boolean` | `false` |
 | destroyOnHidden | 关闭后销毁内容 | `boolean` | `false` |
+| destroyInactivePanel | 关闭后销毁内容；废弃兼容别名，优先使用 `destroyOnHidden` | `boolean` | `false` |
 
 ### DrawerSemanticPart
 

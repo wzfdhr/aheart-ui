@@ -77,6 +77,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyInactivePanel: BooleanConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     close: () => void;
     "update:open": (open: boolean) => void;
@@ -158,6 +159,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyInactivePanel: BooleanConstructor;
 }>> & Readonly<{
     onClose?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
@@ -182,6 +184,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;
+    readonly destroyInactivePanel: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;
     extra?(_: {}): any;

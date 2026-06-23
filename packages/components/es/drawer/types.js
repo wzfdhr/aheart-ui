@@ -75,7 +75,8 @@ const drawerProps = {
   styles: [Object, Function],
   forceRender: Boolean,
   destroyOnClose: Boolean,
-  destroyOnHidden: Boolean
+  destroyOnHidden: Boolean,
+  destroyInactivePanel: Boolean
 };
 const drawerEmits = {
   "update:open": (open) => typeof open === "boolean",

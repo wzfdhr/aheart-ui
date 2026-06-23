@@ -68,7 +68,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const shouldTeleport = vue.computed(() => teleportTarget.value !== false);
     const teleportTo = vue.computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
     const isVertical = vue.computed(() => props.placement === "top" || props.placement === "bottom");
-    const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
+    const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
     const isMaskConfig = (value) => typeof value === "object" && value !== null;
