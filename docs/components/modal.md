@@ -284,7 +284,7 @@ const open = ref(false)
     :ok-button-props="{ danger: true }"
     :cancel-button-props="{ type: 'dashed' }"
   >
-    Sync details appear after the request finishes.
+    Sync details appear after the request finishes; footer actions return with the content.
   </AModal>
 </div>
 
@@ -299,7 +299,7 @@ const open = ref(false)
     :ok-button-props="{ danger: true }"
     :cancel-button-props="{ type: 'dashed' }"
   >
-    Sync details appear after the request finishes.
+    Sync details appear after the request finishes; footer actions return with the content.
   </AModal>
 </template>
 ```
@@ -377,7 +377,7 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 | okButtonProps | OK 按钮属性 | `Partial<ButtonProps>` | - |
 | cancelButtonProps | Cancel 按钮属性 | `Partial<ButtonProps>` | - |
 | zIndex | 根节点层级 | `number` | `1000` |
-| loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
+| loading | 是否在内容区显示骨架屏，并暂时隐藏页脚操作 | `boolean` | `false` |
 | footer | 页脚内容，`false` 或 `null` 时隐藏默认页脚 | `boolean` \| `VNodeChild` \| `ModalFooterRender` | `true` |
 | focusable | 焦点管理配置 | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
 | focusTriggerAfterClose | 关闭后是否聚焦触发元素；兼容旧命名，优先使用 `focusable.focusTriggerAfterClose` | `boolean` | `true` |

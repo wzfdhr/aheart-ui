@@ -80,7 +80,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     }));
     const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
     const hasHeader = computed(() => hasTitle.value || showCloseButton.value);
-    const hasFooter = computed(() => Boolean(slots.footer) || props.footer !== false && props.footer !== null);
+    const hasFooter = computed(
+      () => !props.loading && (Boolean(slots.footer) || props.footer !== false && props.footer !== null)
+    );
     const rootClass = computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
     const maskConfig = computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
     const isMaskVisible = computed(() => {

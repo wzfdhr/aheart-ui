@@ -33,7 +33,7 @@ describe('Modal', () => {
     expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
   })
 
-  it('renders a loading skeleton in the body and hides default content', () => {
+  it('renders a loading skeleton in the body and hides content and footer actions', () => {
     const wrapper = mount(Modal, {
       props: { open: true, loading: true },
       slots: { default: 'Loaded content' }
@@ -41,6 +41,23 @@ describe('Modal', () => {
 
     expect(wrapper.find('.aheart-skeleton').exists()).toBe(true)
     expect(wrapper.text()).not.toContain('Loaded content')
+    expect(wrapper.find('.aheart-modal__footer').exists()).toBe(false)
+    expect(wrapper.find('.aheart-modal__ok').exists()).toBe(false)
+    expect(wrapper.find('.aheart-modal__cancel').exists()).toBe(false)
+  })
+
+  it('hides custom footer content while loading', () => {
+    const wrapper = mount(Modal, {
+      props: { open: true, loading: true },
+      slots: {
+        default: 'Loaded content',
+        footer: '<button class="custom-loading-footer">Publish</button>'
+      }
+    })
+
+    expect(wrapper.find('.aheart-skeleton').exists()).toBe(true)
+    expect(wrapper.find('.custom-loading-footer').exists()).toBe(false)
+    expect(wrapper.find('.aheart-modal__footer').exists()).toBe(false)
   })
 
   it('passes okButtonProps and cancelButtonProps to default footer buttons', () => {

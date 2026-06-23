@@ -82,7 +82,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     }));
     const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
     const hasHeader = vue.computed(() => hasTitle.value || showCloseButton.value);
-    const hasFooter = vue.computed(() => Boolean(slots.footer) || props.footer !== false && props.footer !== null);
+    const hasFooter = vue.computed(
+      () => !props.loading && (Boolean(slots.footer) || props.footer !== false && props.footer !== null)
+    );
     const rootClass = vue.computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
     const maskConfig = vue.computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
     const isMaskVisible = vue.computed(() => {
