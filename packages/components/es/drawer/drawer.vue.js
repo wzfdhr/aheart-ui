@@ -1,7 +1,9 @@
-import { defineComponent, useSlots, ref, computed, watch, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createTextVNode, toDisplayString, unref, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, renderSlot, createTextVNode, toDisplayString, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
+const _hoisted_1 = ["disabled"];
+const _hoisted_2 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ADrawer"
@@ -10,6 +12,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   props: drawerProps,
   emits: drawerEmits,
   setup(__props, { emit: __emit }) {
+    const ADrawerRenderNode = defineComponent({
+      name: "ADrawerRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const slots = useSlots();
@@ -26,8 +40,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isVertical = computed(() => props.placement === "top" || props.placement === "bottom");
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
+    const isClosableConfig = (value) => typeof value === "object" && value !== null;
+    const closableConfig = computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
+    const resolvedCloseIcon = computed(() => {
+      var _a;
+      if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
+        return closableConfig.value.closeIcon;
+      }
+      if (props.closeIcon !== void 0) {
+        return props.closeIcon;
+      }
+      return "×";
+    });
+    const showCloseButton = computed(
+      () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
+    );
+    const isCloseButtonDisabled = computed(() => {
+      var _a;
+      return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
+    });
+    const closePlacement = computed(() => {
+      var _a;
+      return ((_a = closableConfig.value) == null ? void 0 : _a.placement) ?? "start";
+    });
+    const isCloseAtEnd = computed(() => closePlacement.value === "end");
     const hasExtra = computed(() => Boolean(slots.extra) || props.extra !== void 0);
-    const hasHeader = computed(() => Boolean(props.title || slots.title || hasExtra.value || props.closable));
+    const hasHeader = computed(() => Boolean(props.title || slots.title || hasExtra.value || showCloseButton.value));
     const resolvedSize = computed(() => {
       if (props.size === "large") {
         return 736;
@@ -68,7 +106,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const extraClass = computed(() => ["aheart-drawer__extra", semanticClass("extra")]);
     const bodyClass = computed(() => ["aheart-drawer__body", { "is-loading": props.loading }, semanticClass("body")]);
     const footerClass = computed(() => ["aheart-drawer__footer", semanticClass("footer")]);
-    const closeClass = computed(() => ["aheart-drawer__close", semanticClass("close")]);
+    const closeClass = computed(() => [
+      "aheart-drawer__close",
+      { "is-end": isCloseAtEnd.value },
+      semanticClass("close")
+    ]);
     watch(
       () => props.open,
       (open) => {
@@ -99,6 +141,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const close = () => {
       emit("update:open", false);
       emit("close");
+    };
+    const handleCloseButtonClick = () => {
+      if (isCloseButtonDisabled.value) {
+        return;
+      }
+      close();
     };
     const handleMaskClick = () => {
       if (props.maskClosable) {
@@ -140,14 +188,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               class: normalizeClass(headerClass.value),
               style: normalizeStyle(semanticStyle("header"))
             }, [
-              _ctx.closable ? (openBlock(), createElementBlock("button", {
+              showCloseButton.value && !isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
                 key: 0,
                 class: normalizeClass(closeClass.value),
                 style: normalizeStyle(semanticStyle("close")),
+                disabled: isCloseButtonDisabled.value,
                 type: "button",
                 "aria-label": "Close",
-                onClick: close
-              }, " × ", 6)) : createCommentVNode("", true),
+                onClick: handleCloseButtonClick
+              }, [
+                createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+              ], 14, _hoisted_1)) : createCommentVNode("", true),
               _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("div", {
                 key: 1,
                 class: normalizeClass(titleClass.value),
@@ -165,7 +216,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 renderSlot(_ctx.$slots, "extra", {}, () => [
                   createTextVNode(toDisplayString(_ctx.extra), 1)
                 ])
-              ], 6)) : createCommentVNode("", true)
+              ], 6)) : createCommentVNode("", true),
+              showCloseButton.value && isCloseAtEnd.value ? (openBlock(), createElementBlock("button", {
+                key: 3,
+                class: normalizeClass(closeClass.value),
+                style: normalizeStyle(semanticStyle("close")),
+                disabled: isCloseButtonDisabled.value,
+                type: "button",
+                "aria-label": "Close",
+                onClick: handleCloseButtonClick
+              }, [
+                createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+              ], 14, _hoisted_2)) : createCommentVNode("", true)
             ], 6)) : createCommentVNode("", true),
             createElementVNode("div", {
               class: normalizeClass(bodyClass.value),

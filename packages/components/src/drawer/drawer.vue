@@ -17,8 +17,16 @@
         aria-modal="true"
       >
         <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
-          <button v-if="closable" :class="closeClass" :style="semanticStyle('close')" type="button" aria-label="Close" @click="close">
-            ×
+          <button
+            v-if="showCloseButton && !isCloseAtEnd"
+            :class="closeClass"
+            :style="semanticStyle('close')"
+            :disabled="isCloseButtonDisabled"
+            type="button"
+            aria-label="Close"
+            @click="handleCloseButtonClick"
+          >
+            <ADrawerRenderNode :node="resolvedCloseIcon" />
           </button>
           <div v-if="title || $slots.title" :class="titleClass" :style="semanticStyle('title')">
             <slot name="title">{{ title }}</slot>
@@ -26,6 +34,17 @@
           <div v-if="hasExtra" :class="extraClass" :style="semanticStyle('extra')">
             <slot name="extra">{{ extra }}</slot>
           </div>
+          <button
+            v-if="showCloseButton && isCloseAtEnd"
+            :class="closeClass"
+            :style="semanticStyle('close')"
+            :disabled="isCloseButtonDisabled"
+            type="button"
+            aria-label="Close"
+            @click="handleCloseButtonClick"
+          >
+            <ADrawerRenderNode :node="resolvedCloseIcon" />
+          </button>
         </header>
         <div :class="bodyClass" :style="semanticStyle('body')">
           <ASkeleton v-if="loading" active :paragraph="{ rows: 4 }" />
@@ -40,13 +59,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots, watch, type CSSProperties } from 'vue'
+import { computed, defineComponent, ref, useSlots, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
 import ASkeleton from '../skeleton'
-import { drawerEmits, drawerProps, type DrawerSemanticPart } from './types'
+import { drawerEmits, drawerProps, type DrawerClosableConfig, type DrawerSemanticPart } from './types'
 import './style.css'
 
 defineOptions({
   name: 'ADrawer'
+})
+
+const ADrawerRenderNode = defineComponent({
+  name: 'ADrawerRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
 })
 
 const props = defineProps(drawerProps)
@@ -68,8 +100,28 @@ const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : tel
 const isVertical = computed(() => props.placement === 'top' || props.placement === 'bottom')
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose)
 const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
+const isClosableConfig = (value: typeof props.closable): value is DrawerClosableConfig =>
+  typeof value === 'object' && value !== null
+const closableConfig = computed(() => (isClosableConfig(props.closable) ? props.closable : undefined))
+const resolvedCloseIcon = computed(() => {
+  if (closableConfig.value?.closeIcon !== undefined) {
+    return closableConfig.value.closeIcon
+  }
+
+  if (props.closeIcon !== undefined) {
+    return props.closeIcon
+  }
+
+  return '×'
+})
+const showCloseButton = computed(
+  () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
+)
+const isCloseButtonDisabled = computed(() => closableConfig.value?.disabled === true)
+const closePlacement = computed(() => closableConfig.value?.placement ?? 'start')
+const isCloseAtEnd = computed(() => closePlacement.value === 'end')
 const hasExtra = computed(() => Boolean(slots.extra) || props.extra !== undefined)
-const hasHeader = computed(() => Boolean(props.title || slots.title || hasExtra.value || props.closable))
+const hasHeader = computed(() => Boolean(props.title || slots.title || hasExtra.value || showCloseButton.value))
 
 const resolvedSize = computed(() => {
   if (props.size === 'large') {
@@ -119,7 +171,11 @@ const titleClass = computed(() => ['aheart-drawer__title', semanticClass('title'
 const extraClass = computed(() => ['aheart-drawer__extra', semanticClass('extra')])
 const bodyClass = computed(() => ['aheart-drawer__body', { 'is-loading': props.loading }, semanticClass('body')])
 const footerClass = computed(() => ['aheart-drawer__footer', semanticClass('footer')])
-const closeClass = computed(() => ['aheart-drawer__close', semanticClass('close')])
+const closeClass = computed(() => [
+  'aheart-drawer__close',
+  { 'is-end': isCloseAtEnd.value },
+  semanticClass('close')
+])
 
 watch(
   () => props.open,
@@ -149,6 +205,14 @@ const semanticStyle = (part: DrawerSemanticPart): CSSProperties | undefined => p
 const close = () => {
   emit('update:open', false)
   emit('close')
+}
+
+const handleCloseButtonClick = () => {
+  if (isCloseButtonDisabled.value) {
+    return
+  }
+
+  close()
 }
 
 const handleMaskClick = () => {

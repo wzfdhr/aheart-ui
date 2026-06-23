@@ -1,23 +1,23 @@
-import { type CSSProperties } from 'vue';
+import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: StringConstructor;
-    readonly extra: import("vue").PropType<string | number>;
+    readonly extra: PropType<string | number>;
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: import("vue").PropType<import("./types").DrawerSize>;
+        readonly type: PropType<import("./types").DrawerSize>;
         readonly default: "default";
     };
     readonly width: {
-        readonly type: import("vue").PropType<string | number>;
+        readonly type: PropType<string | number>;
         readonly default: undefined;
     };
     readonly height: {
-        readonly type: import("vue").PropType<string | number>;
+        readonly type: PropType<string | number>;
         readonly default: undefined;
     };
     readonly zIndex: {
@@ -25,8 +25,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: 1000;
     };
     readonly closable: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").DrawerClosable>;
         readonly default: true;
+    };
+    readonly closeIcon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
     };
     readonly mask: {
         readonly type: BooleanConstructor;
@@ -43,15 +47,15 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly loading: BooleanConstructor;
     readonly footer: BooleanConstructor;
     readonly getContainer: {
-        readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
+        readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<CSSProperties>;
-    readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
+    readonly style: PropType<CSSProperties>;
+    readonly rootStyle: PropType<CSSProperties>;
+    readonly classNames: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
+    readonly styles: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -62,22 +66,22 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: StringConstructor;
-    readonly extra: import("vue").PropType<string | number>;
+    readonly extra: PropType<string | number>;
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top">;
         readonly default: "right";
         readonly validator: (value: string) => boolean;
     };
     readonly size: {
-        readonly type: import("vue").PropType<import("./types").DrawerSize>;
+        readonly type: PropType<import("./types").DrawerSize>;
         readonly default: "default";
     };
     readonly width: {
-        readonly type: import("vue").PropType<string | number>;
+        readonly type: PropType<string | number>;
         readonly default: undefined;
     };
     readonly height: {
-        readonly type: import("vue").PropType<string | number>;
+        readonly type: PropType<string | number>;
         readonly default: undefined;
     };
     readonly zIndex: {
@@ -85,8 +89,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: 1000;
     };
     readonly closable: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").DrawerClosable>;
         readonly default: true;
+    };
+    readonly closeIcon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
     };
     readonly mask: {
         readonly type: BooleanConstructor;
@@ -103,15 +111,15 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly loading: BooleanConstructor;
     readonly footer: BooleanConstructor;
     readonly getContainer: {
-        readonly type: import("vue").PropType<import("./types").DrawerGetContainer>;
+        readonly type: PropType<import("./types").DrawerGetContainer>;
         readonly default: undefined;
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<CSSProperties>;
-    readonly rootStyle: import("vue").PropType<CSSProperties>;
-    readonly classNames: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
+    readonly style: PropType<CSSProperties>;
+    readonly rootStyle: PropType<CSSProperties>;
+    readonly classNames: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", string>>>;
+    readonly styles: PropType<Partial<Record<"root" | "section" | "title" | "close" | "body" | "footer" | "header" | "mask" | "extra", CSSProperties>>>;
     readonly forceRender: BooleanConstructor;
     readonly destroyOnClose: BooleanConstructor;
     readonly destroyOnHidden: BooleanConstructor;
@@ -120,7 +128,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
-    readonly closable: boolean;
+    readonly closable: import("./types").DrawerClosable;
+    readonly closeIcon: VNodeChild;
     readonly size: import("./types").DrawerSize;
     readonly open: boolean;
     readonly footer: boolean;

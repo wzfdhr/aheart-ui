@@ -5,6 +5,7 @@ const basicOpen = ref(false)
 const leftOpen = ref(false)
 const bottomOpen = ref(false)
 const loadingOpen = ref(false)
+const closeControlsOpen = ref(false)
 const styledOpen = ref(false)
 </script>
 
@@ -101,6 +102,31 @@ const open = ref(false)
 
 `size="default"` uses the standard drawer width or height, while `size="large"` gives workflows more room. A number or CSS length can be passed to `size`; `width` and `height` still override the resolved size for compatibility.
 
+## 关闭按钮
+
+<div class="aheart-demo-panel">
+  <AButton @click="closeControlsOpen = true">Custom close control</AButton>
+  <ADrawer
+    v-model:open="closeControlsOpen"
+    title="Close controls"
+    :closable="{ closeIcon: 'Close', placement: 'end' }"
+  >
+    The close button can use custom content and move to the end of the header.
+  </ADrawer>
+</div>
+
+```vue
+<template>
+  <ADrawer
+    v-model:open="open"
+    title="Close controls"
+    :closable="{ closeIcon: 'Close', placement: 'end' }"
+  >
+    The close button can use custom content and move to the end of the header.
+  </ADrawer>
+</template>
+```
+
 ## 语义化样式
 
 <div class="aheart-demo-panel">
@@ -150,7 +176,8 @@ const open = ref(false)
 | width | 左右方向抽屉宽度 | `number` \| `string` | `378` |
 | height | 上下方向抽屉高度 | `number` \| `string` | `378` |
 | zIndex | 根节点层级 | `number` | `1000` |
-| closable | 是否显示关闭按钮 | `boolean` | `true` |
+| closable | 是否显示关闭按钮；对象形式可配置图标、禁用状态和位置 | `boolean` \| `DrawerClosableConfig` | `true` |
+| closeIcon | 自定义关闭图标；传入 `false` 或 `null` 隐藏关闭按钮 | `VNodeChild` | `×` |
 | mask | 是否显示遮罩 | `boolean` | `true` |
 | maskClosable | 点击遮罩是否关闭 | `boolean` | `true` |
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |
@@ -175,6 +202,19 @@ const open = ref(false)
 
 ```ts
 type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
+```
+
+### DrawerClosableConfig
+
+```ts
+type DrawerClosePlacement = 'start' | 'end'
+type DrawerCloseIcon = VNodeChild
+
+interface DrawerClosableConfig {
+  closeIcon?: DrawerCloseIcon
+  disabled?: boolean
+  placement?: DrawerClosePlacement
+}
 ```
 
 ## Events

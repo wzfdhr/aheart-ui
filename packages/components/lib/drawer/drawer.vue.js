@@ -4,6 +4,8 @@ const vue = require("vue");
 const index = require("../skeleton/index.js");
 const types = require("./types.js");
 require("./style.css.js");
+const _hoisted_1 = ["disabled"];
+const _hoisted_2 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ADrawer"
@@ -12,6 +14,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.drawerProps,
   emits: types.drawerEmits,
   setup(__props, { emit: __emit }) {
+    const ADrawerRenderNode = vue.defineComponent({
+      name: "ADrawerRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
@@ -28,8 +42,32 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isVertical = vue.computed(() => props.placement === "top" || props.placement === "bottom");
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
+    const isClosableConfig = (value) => typeof value === "object" && value !== null;
+    const closableConfig = vue.computed(() => isClosableConfig(props.closable) ? props.closable : void 0);
+    const resolvedCloseIcon = vue.computed(() => {
+      var _a;
+      if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
+        return closableConfig.value.closeIcon;
+      }
+      if (props.closeIcon !== void 0) {
+        return props.closeIcon;
+      }
+      return "×";
+    });
+    const showCloseButton = vue.computed(
+      () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
+    );
+    const isCloseButtonDisabled = vue.computed(() => {
+      var _a;
+      return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
+    });
+    const closePlacement = vue.computed(() => {
+      var _a;
+      return ((_a = closableConfig.value) == null ? void 0 : _a.placement) ?? "start";
+    });
+    const isCloseAtEnd = vue.computed(() => closePlacement.value === "end");
     const hasExtra = vue.computed(() => Boolean(slots.extra) || props.extra !== void 0);
-    const hasHeader = vue.computed(() => Boolean(props.title || slots.title || hasExtra.value || props.closable));
+    const hasHeader = vue.computed(() => Boolean(props.title || slots.title || hasExtra.value || showCloseButton.value));
     const resolvedSize = vue.computed(() => {
       if (props.size === "large") {
         return 736;
@@ -70,7 +108,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const extraClass = vue.computed(() => ["aheart-drawer__extra", semanticClass("extra")]);
     const bodyClass = vue.computed(() => ["aheart-drawer__body", { "is-loading": props.loading }, semanticClass("body")]);
     const footerClass = vue.computed(() => ["aheart-drawer__footer", semanticClass("footer")]);
-    const closeClass = vue.computed(() => ["aheart-drawer__close", semanticClass("close")]);
+    const closeClass = vue.computed(() => [
+      "aheart-drawer__close",
+      { "is-end": isCloseAtEnd.value },
+      semanticClass("close")
+    ]);
     vue.watch(
       () => props.open,
       (open) => {
@@ -101,6 +143,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const close = () => {
       emit("update:open", false);
       emit("close");
+    };
+    const handleCloseButtonClick = () => {
+      if (isCloseButtonDisabled.value) {
+        return;
+      }
+      close();
     };
     const handleMaskClick = () => {
       if (props.maskClosable) {
@@ -142,14 +190,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               class: vue.normalizeClass(headerClass.value),
               style: vue.normalizeStyle(semanticStyle("header"))
             }, [
-              _ctx.closable ? (vue.openBlock(), vue.createElementBlock("button", {
+              showCloseButton.value && !isCloseAtEnd.value ? (vue.openBlock(), vue.createElementBlock("button", {
                 key: 0,
                 class: vue.normalizeClass(closeClass.value),
                 style: vue.normalizeStyle(semanticStyle("close")),
+                disabled: isCloseButtonDisabled.value,
                 type: "button",
                 "aria-label": "Close",
-                onClick: close
-              }, " × ", 6)) : vue.createCommentVNode("", true),
+                onClick: handleCloseButtonClick
+              }, [
+                vue.createVNode(vue.unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+              ], 14, _hoisted_1)) : vue.createCommentVNode("", true),
               _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("div", {
                 key: 1,
                 class: vue.normalizeClass(titleClass.value),
@@ -167,7 +218,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 vue.renderSlot(_ctx.$slots, "extra", {}, () => [
                   vue.createTextVNode(vue.toDisplayString(_ctx.extra), 1)
                 ])
-              ], 6)) : vue.createCommentVNode("", true)
+              ], 6)) : vue.createCommentVNode("", true),
+              showCloseButton.value && isCloseAtEnd.value ? (vue.openBlock(), vue.createElementBlock("button", {
+                key: 3,
+                class: vue.normalizeClass(closeClass.value),
+                style: vue.normalizeStyle(semanticStyle("close")),
+                disabled: isCloseButtonDisabled.value,
+                type: "button",
+                "aria-label": "Close",
+                onClick: handleCloseButtonClick
+              }, [
+                vue.createVNode(vue.unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+              ], 14, _hoisted_2)) : vue.createCommentVNode("", true)
             ], 6)) : vue.createCommentVNode("", true),
             vue.createElementVNode("div", {
               class: vue.normalizeClass(bodyClass.value),

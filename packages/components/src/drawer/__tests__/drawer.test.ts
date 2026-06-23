@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import Drawer from '../drawer.vue'
 
@@ -147,6 +147,74 @@ describe('Drawer', () => {
 
     expect(wrapper.emitted('close')).toHaveLength(1)
     expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
+  })
+
+  it('renders a custom top-level closeIcon', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Custom close',
+        closeIcon: h('span', { class: 'custom-close-icon' }, 'Close panel')
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer__close').exists()).toBe(true)
+    expect(wrapper.find('.custom-close-icon').text()).toBe('Close panel')
+  })
+
+  it('hides the close button when closeIcon is false', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Hidden close',
+        closeIcon: false
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer__close').exists()).toBe(false)
+  })
+
+  it('lets closable config override closeIcon and place the button at the end', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Config close',
+        extra: 'Actions',
+        closeIcon: h('span', { class: 'top-level-close-icon' }, 'Top close'),
+        closable: {
+          closeIcon: h('span', { class: 'config-close-icon' }, 'Config close'),
+          placement: 'end'
+        }
+      }
+    })
+
+    const closeButton = wrapper.find('.aheart-drawer__close')
+    expect(closeButton.exists()).toBe(true)
+    expect(closeButton.classes()).toContain('is-end')
+    expect(wrapper.find('.config-close-icon').text()).toBe('Config close')
+    expect(wrapper.find('.top-level-close-icon').exists()).toBe(false)
+    expect(wrapper.find('.aheart-drawer__header').element.lastElementChild).toBe(closeButton.element)
+  })
+
+  it('does not emit close events from a disabled closable config button', async () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Disabled close',
+        closable: {
+          disabled: true,
+          closeIcon: h('span', { class: 'disabled-close-icon' }, 'Locked')
+        }
+      }
+    })
+
+    const closeButton = wrapper.find('.aheart-drawer__close')
+    expect(closeButton.attributes('disabled')).toBeDefined()
+
+    await closeButton.trigger('click')
+
+    expect(wrapper.emitted('close')).toBeUndefined()
+    expect(wrapper.emitted('update:open')).toBeUndefined()
   })
 
   it('teleports to document body by default', async () => {

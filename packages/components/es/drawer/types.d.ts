@@ -1,4 +1,4 @@
-import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
+import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue';
 export declare const drawerPlacements: readonly ["top", "right", "bottom", "left"];
 export declare const drawerSizePresets: readonly ["default", "large"];
 export declare const drawerSemanticParts: readonly ["root", "mask", "section", "header", "title", "extra", "body", "footer", "close"];
@@ -9,6 +9,14 @@ export type DrawerSemanticPart = (typeof drawerSemanticParts)[number];
 export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>;
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>;
 export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false;
+export type DrawerClosePlacement = 'start' | 'end';
+export type DrawerCloseIcon = VNodeChild;
+export interface DrawerClosableConfig {
+    closeIcon?: DrawerCloseIcon;
+    disabled?: boolean;
+    placement?: DrawerClosePlacement;
+}
+export type DrawerClosable = boolean | DrawerClosableConfig;
 export declare const drawerProps: {
     readonly open: BooleanConstructor;
     readonly title: StringConstructor;
@@ -35,8 +43,12 @@ export declare const drawerProps: {
         readonly default: 1000;
     };
     readonly closable: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<DrawerClosable>;
         readonly default: true;
+    };
+    readonly closeIcon: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
     };
     readonly mask: {
         readonly type: BooleanConstructor;

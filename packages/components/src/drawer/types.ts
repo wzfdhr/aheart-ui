@@ -1,4 +1,4 @@
-import type { CSSProperties, ExtractPropTypes, PropType } from 'vue'
+import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue'
 
 export const drawerPlacements = ['top', 'right', 'bottom', 'left'] as const
 export const drawerSizePresets = ['default', 'large'] as const
@@ -11,6 +11,16 @@ export type DrawerSemanticPart = (typeof drawerSemanticParts)[number]
 export type DrawerClassNames = Partial<Record<DrawerSemanticPart, string>>
 export type DrawerStyles = Partial<Record<DrawerSemanticPart, CSSProperties>>
 export type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
+export type DrawerClosePlacement = 'start' | 'end'
+export type DrawerCloseIcon = VNodeChild
+
+export interface DrawerClosableConfig {
+  closeIcon?: DrawerCloseIcon
+  disabled?: boolean
+  placement?: DrawerClosePlacement
+}
+
+export type DrawerClosable = boolean | DrawerClosableConfig
 
 export const drawerProps = {
   open: Boolean,
@@ -38,8 +48,12 @@ export const drawerProps = {
     default: 1000
   },
   closable: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<DrawerClosable>,
     default: true
+  },
+  closeIcon: {
+    type: null as unknown as PropType<DrawerCloseIcon>,
+    default: undefined
   },
   mask: {
     type: Boolean,
