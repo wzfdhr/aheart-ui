@@ -130,6 +130,39 @@ describe('Modal', () => {
     expect(destroyable.find('.aheart-modal').exists()).toBe(false)
   })
 
+  it('emits afterClose when open changes to false', async () => {
+    const wrapper = mount(Modal, {
+      props: { open: true, title: 'Closable' }
+    })
+
+    await wrapper.setProps({ open: false })
+
+    expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
+    expect(wrapper.emitted('afterClose')).toHaveLength(1)
+  })
+
+  it('does not emit afterClose when open changes to true', async () => {
+    const wrapper = mount(Modal, {
+      props: { open: false, forceRender: true, title: 'Opening' }
+    })
+
+    await wrapper.setProps({ open: true })
+
+    expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([true])
+    expect(wrapper.emitted('afterClose')).toBeUndefined()
+  })
+
+  it('emits afterClose when destroyOnHidden removes the modal', async () => {
+    const wrapper = mount(Modal, {
+      props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
+    })
+
+    await wrapper.setProps({ open: false })
+
+    expect(wrapper.find('.aheart-modal').exists()).toBe(false)
+    expect(wrapper.emitted('afterClose')).toHaveLength(1)
+  })
+
   it('closes from the mask only when maskClosable is true', async () => {
     const closable = mount(Modal, { props: { open: true } })
     await closable.find('.aheart-modal__mask').trigger('click')

@@ -137,6 +137,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           hasRendered.value = false;
         }
         emit("afterOpenChange", open);
+        if (!open) {
+          emit("afterClose");
+        }
       }
     );
     watch(

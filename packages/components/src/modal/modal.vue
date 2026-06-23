@@ -208,6 +208,10 @@ watch(
     }
 
     emit('afterOpenChange', open)
+
+    if (!open) {
+      emit('afterClose')
+    }
   }
 )
 

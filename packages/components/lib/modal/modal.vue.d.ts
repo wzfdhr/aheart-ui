@@ -66,6 +66,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     close: () => void;
     cancel: () => void;
+    afterClose: () => void;
     "update:open": (open: boolean) => void;
     afterOpenChange: (open: boolean) => void;
     ok: () => void;
@@ -136,6 +137,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>> & Readonly<{
     onClose?: (() => any) | undefined;
     onCancel?: (() => any) | undefined;
+    onAfterClose?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
     onOk?: (() => any) | undefined;

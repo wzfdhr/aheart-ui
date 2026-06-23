@@ -70,7 +70,8 @@ const modalEmits = {
   ok: () => true,
   cancel: () => true,
   close: () => true,
-  afterOpenChange: (open) => typeof open === "boolean"
+  afterOpenChange: (open) => typeof open === "boolean",
+  afterClose: () => true
 };
 exports.modalEmits = modalEmits;
 exports.modalProps = modalProps;

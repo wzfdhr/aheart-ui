@@ -295,6 +295,7 @@ type ModalFooterRender = (
 | cancel | 点击 Cancel 按钮时触发 | `() => void` |
 | close | 点击关闭按钮、遮罩、Cancel 或 Escape 时触发 | `() => void` |
 | afterOpenChange | 显隐状态变化后触发 | `(open: boolean) => void` |
+| afterClose | 对话框完全关闭后触发 | `() => void` |
 
 ## Slots
 

@@ -66,12 +66,14 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{
         onClose?: (() => any) | undefined;
         onCancel?: (() => any) | undefined;
+        onAfterClose?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
         onOk?: (() => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         close: () => void;
         cancel: () => void;
+        afterClose: () => void;
         "update:open": (open: boolean) => void;
         afterOpenChange: (open: boolean) => void;
         ok: () => void;
@@ -169,6 +171,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{
         onClose?: (() => any) | undefined;
         onCancel?: (() => any) | undefined;
+        onAfterClose?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
         onOk?: (() => any) | undefined;
@@ -263,12 +266,14 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
 }>> & Readonly<{
     onClose?: (() => any) | undefined;
     onCancel?: (() => any) | undefined;
+    onAfterClose?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
     onOk?: (() => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     close: () => void;
     cancel: () => void;
+    afterClose: () => void;
     "update:open": (open: boolean) => void;
     afterOpenChange: (open: boolean) => void;
     ok: () => void;

@@ -97,7 +97,8 @@ export const modalEmits = {
   ok: () => true,
   cancel: () => true,
   close: () => true,
-  afterOpenChange: (open: boolean) => typeof open === 'boolean'
+  afterOpenChange: (open: boolean) => typeof open === 'boolean',
+  afterClose: () => true
 }
 
 export type ModalProps = ExtractPropTypes<typeof modalProps>
