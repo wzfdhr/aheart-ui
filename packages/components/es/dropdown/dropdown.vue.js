@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, h, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, h, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import Menu from "../menu/index.js";
 import { dropdownProps, dropdownEmits } from "./types.js";
@@ -27,6 +27,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const innerOpen = ref(props.defaultOpen);
     const hasRenderedOverlay = ref(Boolean(props.defaultOpen || props.open));
+    const rootRef = ref(null);
+    const triggerRef = ref(null);
+    const overlayRef = ref(null);
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
@@ -40,6 +43,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const shouldRenderOverlay = computed(
       () => hasOverlayContent.value && (mergedOpen.value || !shouldDestroyOnHidden.value && hasRenderedOverlay.value)
     );
+    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
+    const popupContainer = computed(() => {
+      if (props.getPopupContainer && triggerRef.value) {
+        return props.getPopupContainer(triggerRef.value);
+      }
+      return getDefaultPopupContainer();
+    });
+    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const dropdownClass = computed(() => {
       var _a;
       return [
@@ -164,6 +176,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         emit("openChange", open, { source });
       }
     };
+    const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
+    const isHoveringTriggerOrOverlay = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, overlayRef.value);
     const handleTriggerClick = () => {
       if (!triggerSet.value.has("click")) {
         return;
@@ -175,8 +189,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         setOpen(true, { source: "trigger" });
       }
     };
-    const handleMouseLeave = () => {
-      if (triggerSet.value.has("hover")) {
+    const handleMouseLeave = (event) => {
+      if (triggerSet.value.has("hover") && !isHoveringTriggerOrOverlay(event)) {
         setOpen(false, { source: "trigger" });
       }
     };
@@ -196,12 +210,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: normalizeClass(["aheart-dropdown", dropdownClass.value]),
         style: normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
         onMouseleave: handleMouseLeave
       }, [
         createElementVNode("span", {
+          ref_key: "triggerRef",
+          ref: triggerRef,
           class: normalizeClass(["aheart-dropdown__trigger", triggerClass.value]),
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": isDisabled.value ? "true" : void 0,
@@ -213,24 +231,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           renderSlot(_ctx.$slots, "default")
         ], 46, _hoisted_1),
-        shouldRenderOverlay.value ? withDirectives((openBlock(), createElementBlock("div", {
-          key: 0,
-          class: normalizeClass(["aheart-dropdown__overlay", overlayClass.value]),
-          style: normalizeStyle(overlayStyle.value),
-          role: "presentation"
+        (openBlock(), createBlock(Teleport, {
+          to: teleportTo.value,
+          disabled: !shouldTeleport.value
         }, [
-          showArrow.value ? (openBlock(), createElementBlock("span", {
+          shouldRenderOverlay.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,
-            class: normalizeClass(["aheart-dropdown__arrow", arrowClass.value]),
-            style: normalizeStyle(arrowStyle.value),
-            "aria-hidden": "true"
-          }, null, 6)) : createCommentVNode("", true),
-          renderSlot(_ctx.$slots, "popup", {}, () => [
-            createVNode(unref(ARenderNode), { node: popupContent.value }, null, 8, ["node"])
-          ])
-        ], 6)), [
-          [vShow, mergedOpen.value]
-        ]) : createCommentVNode("", true)
+            ref_key: "overlayRef",
+            ref: overlayRef,
+            class: normalizeClass(["aheart-dropdown__overlay", overlayClass.value]),
+            style: normalizeStyle(overlayStyle.value),
+            role: "presentation",
+            onMouseenter: handleMouseEnter,
+            onMouseleave: handleMouseLeave
+          }, [
+            showArrow.value ? (openBlock(), createElementBlock("span", {
+              key: 0,
+              class: normalizeClass(["aheart-dropdown__arrow", arrowClass.value]),
+              style: normalizeStyle(arrowStyle.value),
+              "aria-hidden": "true"
+            }, null, 6)) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "popup", {}, () => [
+              createVNode(unref(ARenderNode), { node: popupContent.value }, null, 8, ["node"])
+            ])
+          ], 38)), [
+            [vShow, mergedOpen.value]
+          ]) : createCommentVNode("", true)
+        ], 8, ["to", "disabled"]))
       ], 38);
     };
   }

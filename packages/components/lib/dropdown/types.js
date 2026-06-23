@@ -10,6 +10,7 @@ const dropdownProps = {
     type: String,
     default: "bottomLeft"
   },
+  getPopupContainer: Function,
   open: {
     type: Boolean,
     default: void 0

@@ -13,6 +13,7 @@ export type DropdownSemanticPart = 'root' | 'trigger' | 'popup' | 'menu' | 'arro
 export type DropdownClassNames = Partial<Record<DropdownSemanticPart, string>>
 export type DropdownStyles = Partial<Record<DropdownSemanticPart, StyleValue>>
 export type DropdownRender = (menus: VNodeChild) => VNodeChild
+export type DropdownGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
 export type DropdownOpenChangeSource = 'trigger' | 'menu'
 
 export interface DropdownOpenChangeInfo {
@@ -39,6 +40,7 @@ export const dropdownProps = {
     type: String as PropType<DropdownPlacement>,
     default: 'bottomLeft'
   },
+  getPopupContainer: Function as PropType<DropdownGetPopupContainer>,
   open: {
     type: Boolean,
     default: undefined

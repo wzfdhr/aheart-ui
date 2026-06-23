@@ -10,6 +10,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("./types").DropdownPlacement>;
         readonly default: "bottomLeft";
     };
+    readonly getPopupContainer: import("vue").PropType<import("./types").DropdownGetPopupContainer>;
     readonly open: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -48,6 +49,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("./types").DropdownPlacement>;
         readonly default: "bottomLeft";
     };
+    readonly getPopupContainer: import("vue").PropType<import("./types").DropdownGetPopupContainer>;
     readonly open: {
         readonly type: BooleanConstructor;
         readonly default: undefined;

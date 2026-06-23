@@ -29,6 +29,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const innerOpen = vue.ref(props.defaultOpen);
     const hasRenderedOverlay = vue.ref(Boolean(props.defaultOpen || props.open));
+    const rootRef = vue.ref(null);
+    const triggerRef = vue.ref(null);
+    const overlayRef = vue.ref(null);
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
@@ -42,6 +45,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const shouldRenderOverlay = vue.computed(
       () => hasOverlayContent.value && (mergedOpen.value || !shouldDestroyOnHidden.value && hasRenderedOverlay.value)
     );
+    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
+    const popupContainer = vue.computed(() => {
+      if (props.getPopupContainer && triggerRef.value) {
+        return props.getPopupContainer(triggerRef.value);
+      }
+      return getDefaultPopupContainer();
+    });
+    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const dropdownClass = vue.computed(() => {
       var _a;
       return [
@@ -166,6 +178,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         emit("openChange", open, { source });
       }
     };
+    const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
+    const isHoveringTriggerOrOverlay = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, overlayRef.value);
     const handleTriggerClick = () => {
       if (!triggerSet.value.has("click")) {
         return;
@@ -177,8 +191,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         setOpen(true, { source: "trigger" });
       }
     };
-    const handleMouseLeave = () => {
-      if (triggerSet.value.has("hover")) {
+    const handleMouseLeave = (event) => {
+      if (triggerSet.value.has("hover") && !isHoveringTriggerOrOverlay(event)) {
         setOpen(false, { source: "trigger" });
       }
     };
@@ -198,12 +212,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: vue.normalizeClass(["aheart-dropdown", dropdownClass.value]),
         style: vue.normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
         onMouseleave: handleMouseLeave
       }, [
         vue.createElementVNode("span", {
+          ref_key: "triggerRef",
+          ref: triggerRef,
           class: vue.normalizeClass(["aheart-dropdown__trigger", triggerClass.value]),
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": isDisabled.value ? "true" : void 0,
@@ -215,24 +233,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           vue.renderSlot(_ctx.$slots, "default")
         ], 46, _hoisted_1),
-        shouldRenderOverlay.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
-          key: 0,
-          class: vue.normalizeClass(["aheart-dropdown__overlay", overlayClass.value]),
-          style: vue.normalizeStyle(overlayStyle.value),
-          role: "presentation"
+        (vue.openBlock(), vue.createBlock(vue.Teleport, {
+          to: teleportTo.value,
+          disabled: !shouldTeleport.value
         }, [
-          showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
+          shouldRenderOverlay.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,
-            class: vue.normalizeClass(["aheart-dropdown__arrow", arrowClass.value]),
-            style: vue.normalizeStyle(arrowStyle.value),
-            "aria-hidden": "true"
-          }, null, 6)) : vue.createCommentVNode("", true),
-          vue.renderSlot(_ctx.$slots, "popup", {}, () => [
-            vue.createVNode(vue.unref(ARenderNode), { node: popupContent.value }, null, 8, ["node"])
-          ])
-        ], 6)), [
-          [vue.vShow, mergedOpen.value]
-        ]) : vue.createCommentVNode("", true)
+            ref_key: "overlayRef",
+            ref: overlayRef,
+            class: vue.normalizeClass(["aheart-dropdown__overlay", overlayClass.value]),
+            style: vue.normalizeStyle(overlayStyle.value),
+            role: "presentation",
+            onMouseenter: handleMouseEnter,
+            onMouseleave: handleMouseLeave
+          }, [
+            showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
+              key: 0,
+              class: vue.normalizeClass(["aheart-dropdown__arrow", arrowClass.value]),
+              style: vue.normalizeStyle(arrowStyle.value),
+              "aria-hidden": "true"
+            }, null, 6)) : vue.createCommentVNode("", true),
+            vue.renderSlot(_ctx.$slots, "popup", {}, () => [
+              vue.createVNode(vue.unref(ARenderNode), { node: popupContent.value }, null, 8, ["node"])
+            ])
+          ], 38)), [
+            [vue.vShow, mergedOpen.value]
+          ]) : vue.createCommentVNode("", true)
+        ], 8, ["to", "disabled"]))
       ], 38);
     };
   }

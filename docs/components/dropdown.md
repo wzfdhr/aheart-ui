@@ -256,6 +256,7 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | menu | 菜单配置 | `DropdownMenuConfig` | - |
 | trigger | 触发方式 | `Array<'click' \| 'hover' \| 'contextMenu'>` | `['hover']` |
 | placement | 弹出位置 | `bottomLeft` \| `bottom` \| `bottomRight` \| `topLeft` \| `top` \| `topRight` | `bottomLeft` |
+| getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | open | 是否展开，受控 | `boolean` | - |
 | defaultOpen | 默认是否展开 | `boolean` | `false` |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |

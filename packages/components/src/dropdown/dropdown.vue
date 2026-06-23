@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="rootRef"
     class="aheart-dropdown"
     :class="dropdownClass"
     :style="rootStyle"
@@ -7,6 +8,7 @@
     @mouseleave="handleMouseLeave"
   >
     <span
+      ref="triggerRef"
       class="aheart-dropdown__trigger"
       :aria-expanded="mergedOpen ? 'true' : 'false'"
       :aria-disabled="isDisabled ? 'true' : undefined"
@@ -19,25 +21,30 @@
     >
       <slot />
     </span>
-    <div
-      v-if="shouldRenderOverlay"
-      v-show="mergedOpen"
-      class="aheart-dropdown__overlay"
-      :class="overlayClass"
-      :style="overlayStyle"
-      role="presentation"
-    >
-      <span
-        v-if="showArrow"
-        class="aheart-dropdown__arrow"
-        :class="arrowClass"
-        :style="arrowStyle"
-        aria-hidden="true"
-      />
-      <slot name="popup">
-        <ARenderNode :node="popupContent" />
-      </slot>
-    </div>
+    <Teleport :to="teleportTo" :disabled="!shouldTeleport">
+      <div
+        v-if="shouldRenderOverlay"
+        v-show="mergedOpen"
+        ref="overlayRef"
+        class="aheart-dropdown__overlay"
+        :class="overlayClass"
+        :style="overlayStyle"
+        role="presentation"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
+      >
+        <span
+          v-if="showArrow"
+          class="aheart-dropdown__arrow"
+          :class="arrowClass"
+          :style="arrowStyle"
+          aria-hidden="true"
+        />
+        <slot name="popup">
+          <ARenderNode :node="popupContent" />
+        </slot>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -69,6 +76,9 @@ const ARenderNode = defineComponent({
 
 const innerOpen = ref(props.defaultOpen)
 const hasRenderedOverlay = ref(Boolean(props.defaultOpen || props.open))
+const rootRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLElement | null>(null)
+const overlayRef = ref<HTMLElement | null>(null)
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -79,6 +89,16 @@ const hasOverlayContent = computed(() => hasMenu.value || Boolean(slots.popup ||
 const shouldRenderOverlay = computed(
   () => hasOverlayContent.value && (mergedOpen.value || (!shouldDestroyOnHidden.value && hasRenderedOverlay.value))
 )
+const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
+const popupContainer = computed(() => {
+  if (props.getPopupContainer && triggerRef.value) {
+    return props.getPopupContainer(triggerRef.value)
+  }
+
+  return getDefaultPopupContainer()
+})
+const shouldTeleport = computed(() => popupContainer.value !== false)
+const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
 
 const dropdownClass = computed(() => [
   props.className,
@@ -186,6 +206,12 @@ const setOpen = (
   }
 }
 
+const containsRelatedTarget = (event: MouseEvent, element: HTMLElement | null) =>
+  event.relatedTarget instanceof Node && Boolean(element?.contains(event.relatedTarget))
+
+const isHoveringTriggerOrOverlay = (event: MouseEvent) =>
+  containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, overlayRef.value)
+
 const handleTriggerClick = () => {
   if (!triggerSet.value.has('click')) {
     return
@@ -200,8 +226,8 @@ const handleMouseEnter = () => {
   }
 }
 
-const handleMouseLeave = () => {
-  if (triggerSet.value.has('hover')) {
+const handleMouseLeave = (event: MouseEvent) => {
+  if (triggerSet.value.has('hover') && !isHoveringTriggerOrOverlay(event)) {
     setOpen(false, { source: 'trigger' })
   }
 }

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Dropdown from '../dropdown.vue'
@@ -11,9 +11,21 @@ const menu = {
   ]
 }
 
+const mountDropdown = (options: Record<string, any> = {}) =>
+  mount(Dropdown, {
+    ...options,
+    global: {
+      ...options.global,
+      stubs: {
+        ...options.global?.stubs,
+        Teleport: true
+      }
+    }
+  })
+
 describe('Dropdown', () => {
   it('renders trigger slot and opens on click', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu, trigger: ['click'] },
       slots: { default: '<button>Actions</button>' }
     })
@@ -29,7 +41,7 @@ describe('Dropdown', () => {
   })
 
   it('uses hover as the default trigger', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu },
       slots: { default: '<button>Actions</button>' }
     })
@@ -43,7 +55,7 @@ describe('Dropdown', () => {
   })
 
   it('opens on hover when trigger includes hover', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu, trigger: ['hover'] },
       slots: { default: '<button>More</button>' }
     })
@@ -54,7 +66,7 @@ describe('Dropdown', () => {
   })
 
   it('supports controlled open state', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu, open: false, trigger: ['click'] },
       slots: { default: '<button>Actions</button>' }
     })
@@ -66,7 +78,7 @@ describe('Dropdown', () => {
   })
 
   it('opens from contextMenu trigger and prevents the native menu', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu, trigger: ['contextMenu'] },
       slots: { default: '<button>Actions</button>' }
     })
@@ -81,7 +93,7 @@ describe('Dropdown', () => {
   })
 
   it('emits menu click and closes after item click', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu, defaultOpen: true },
       slots: { default: '<button>Actions</button>' }
     })
@@ -93,7 +105,7 @@ describe('Dropdown', () => {
   })
 
   it('applies root semantic and overlay class and style hooks', () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: {
         open: true,
         menu,
@@ -151,7 +163,7 @@ describe('Dropdown', () => {
   })
 
   it('preserves or destroys hidden overlay according to destroy props', async () => {
-    const preserved = mount(Dropdown, {
+    const preserved = mountDropdown({
       props: { menu, trigger: ['click'] },
       slots: { default: '<button>Actions</button>' }
     })
@@ -164,7 +176,7 @@ describe('Dropdown', () => {
     expect(preservedOverlay.exists()).toBe(true)
     expect(preservedOverlay.attributes('style')).toContain('display: none')
 
-    const destroyOnHidden = mount(Dropdown, {
+    const destroyOnHidden = mountDropdown({
       props: { menu, trigger: ['click'], destroyOnHidden: true },
       slots: { default: '<button>Actions</button>' }
     })
@@ -175,7 +187,7 @@ describe('Dropdown', () => {
     await destroyOnHidden.find('.aheart-dropdown__trigger').trigger('click')
     expect(destroyOnHidden.find('.aheart-dropdown__overlay').exists()).toBe(false)
 
-    const destroyPopupOnHide = mount(Dropdown, {
+    const destroyPopupOnHide = mountDropdown({
       props: { menu, trigger: ['click'], destroyPopupOnHide: true },
       slots: { default: '<button>Actions</button>' }
     })
@@ -188,7 +200,7 @@ describe('Dropdown', () => {
   })
 
   it('menu click closes by default without openChange close event', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu, defaultOpen: true },
       slots: { default: '<button>Actions</button>' }
     })
@@ -202,7 +214,7 @@ describe('Dropdown', () => {
   })
 
   it('can keep dropdown open after menu click', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mountDropdown({
       props: { menu: { ...menu, closeOnClick: false }, defaultOpen: true },
       slots: { default: '<button>Actions</button>' }
     })
@@ -215,7 +227,7 @@ describe('Dropdown', () => {
   })
 
   it('customizes popup content with slot and popupRender', () => {
-    const slotWrapper = mount(Dropdown, {
+    const slotWrapper = mountDropdown({
       props: { open: true, menu },
       slots: {
         default: '<button>Actions</button>',
@@ -226,7 +238,7 @@ describe('Dropdown', () => {
     expect(slotWrapper.find('.slot-popup').exists()).toBe(true)
     expect(slotWrapper.text()).toContain('Slot popup')
 
-    const renderWrapper = mount(Dropdown, {
+    const renderWrapper = mountDropdown({
       props: {
         open: true,
         menu,
@@ -237,6 +249,92 @@ describe('Dropdown', () => {
 
     expect(renderWrapper.find('.custom-popup').exists()).toBe(true)
     expect(renderWrapper.text()).toContain('Wrapped')
+  })
+
+  it('teleports overlay to document body by default', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Dropdown, {
+      attachTo: host,
+      props: {
+        open: true,
+        menu
+      },
+      slots: {
+        default: '<button>Actions</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(document.body.querySelector('.aheart-dropdown__overlay')).toBeTruthy()
+    expect(host.querySelector('.aheart-dropdown__overlay')).toBeNull()
+
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('teleports overlay to getPopupContainer target', async () => {
+    const container = document.createElement('section')
+    let triggerNode: HTMLElement | undefined
+    document.body.appendChild(container)
+
+    const wrapper = mount(Dropdown, {
+      props: {
+        open: true,
+        menu,
+        getPopupContainer: (node: HTMLElement) => {
+          triggerNode = node
+          return container
+        }
+      },
+      slots: {
+        default: '<button>Actions</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(triggerNode?.classList.contains('aheart-dropdown__trigger')).toBe(true)
+    expect(container.querySelector('.aheart-dropdown__overlay')).toBeTruthy()
+    expect(container.textContent).toContain('Edit')
+    expect(container.textContent).toContain('Archive')
+
+    wrapper.unmount()
+    container.remove()
+  })
+
+  it('keeps hover dropdown open when moving from trigger to overlay', async () => {
+    const container = document.createElement('section')
+    document.body.appendChild(container)
+
+    const wrapper = mount(Dropdown, {
+      props: {
+        menu,
+        getPopupContainer: () => container
+      },
+      slots: {
+        default: '<button>Actions</button>'
+      }
+    })
+
+    await wrapper.find('.aheart-dropdown__trigger').trigger('mouseenter')
+    await nextTick()
+
+    const overlay = container.querySelector('.aheart-dropdown__overlay') as HTMLElement
+    expect(overlay).toBeTruthy()
+
+    await wrapper.find('.aheart-dropdown__trigger').trigger('mouseleave', { relatedTarget: overlay })
+    expect(container.querySelector('.aheart-dropdown__overlay')).toBeTruthy()
+
+    overlay.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget: document.body }))
+    await nextTick()
+
+    expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false, { source: 'trigger' }])
+
+    wrapper.unmount()
+    container.remove()
   })
 
   it('uses ConfigProvider disabled fallback', async () => {
