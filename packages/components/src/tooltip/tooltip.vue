@@ -1,5 +1,6 @@
 <template>
   <span
+    ref="rootRef"
     class="aheart-tooltip"
     :class="tooltipClass"
     :style="rootStyle"
@@ -24,6 +25,7 @@
       <span
         v-if="shouldRenderPopup"
         v-show="visible"
+        ref="popupRef"
         class="aheart-tooltip__popup"
         :class="popupClass"
         :style="popupStyle"
@@ -83,7 +85,9 @@ const slots = useSlots()
 
 const innerOpen = ref(props.defaultOpen)
 const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open))
+const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
+const popupRef = ref<HTMLElement | null>(null)
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
@@ -192,8 +196,14 @@ const handleMouseEnter = () => {
   }
 }
 
-const handleMouseLeave = () => {
-  if (normalizedTriggers.value.has('hover')) {
+const containsRelatedTarget = (event: MouseEvent, element: HTMLElement | null) =>
+  event.relatedTarget instanceof Node && Boolean(element?.contains(event.relatedTarget))
+
+const isHoveringTriggerOrPopup = (event: MouseEvent) =>
+  containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value)
+
+const handleMouseLeave = (event: MouseEvent) => {
+  if (normalizedTriggers.value.has('hover') && !isHoveringTriggerOrPopup(event)) {
     requestOpenWithDelay(false, props.mouseLeaveDelay)
   }
 }

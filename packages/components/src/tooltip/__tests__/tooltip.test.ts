@@ -340,6 +340,41 @@ describe('Tooltip', () => {
     container.remove()
   })
 
+  it('keeps hover tooltip open when moving from trigger to popup', async () => {
+    const container = document.createElement('section')
+    document.body.appendChild(container)
+
+    const wrapper = mount(Tooltip, {
+      props: {
+        title: 'Hover tooltip',
+        mouseEnterDelay: 0,
+        mouseLeaveDelay: 0,
+        getPopupContainer: () => container
+      },
+      slots: {
+        default: '<button>Help</button>'
+      }
+    })
+
+    await wrapper.find('.aheart-tooltip__trigger').trigger('mouseenter')
+    await nextTick()
+
+    const popup = container.querySelector('.aheart-tooltip__popup') as HTMLElement
+    expect(popup).toBeTruthy()
+
+    await wrapper.find('.aheart-tooltip__trigger').trigger('mouseleave', { relatedTarget: popup })
+    expect(container.querySelector('.aheart-tooltip__popup')).toBeTruthy()
+    expect((container.querySelector('.aheart-tooltip__popup') as HTMLElement).style.display).not.toBe('none')
+
+    popup.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget: document.body }))
+    await nextTick()
+
+    expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false])
+
+    wrapper.unmount()
+    container.remove()
+  })
+
   it('renders object arrow point at center class', () => {
     const wrapper = mountTooltip({
       props: { open: true, title: 'Arrow', arrow: { pointAtCenter: true } },
