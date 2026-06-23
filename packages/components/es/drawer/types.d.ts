@@ -1,7 +1,7 @@
 import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue';
 export declare const drawerPlacements: readonly ["top", "right", "bottom", "left"];
 export declare const drawerSizePresets: readonly ["default", "large"];
-export declare const drawerSemanticParts: readonly ["root", "mask", "section", "header", "title", "extra", "body", "footer", "close"];
+export declare const drawerSemanticParts: readonly ["root", "mask", "section", "header", "title", "extra", "body", "footer", "dragger", "close"];
 export type DrawerPlacement = (typeof drawerPlacements)[number];
 export type DrawerSizePreset = (typeof drawerSizePresets)[number];
 export type DrawerSize = DrawerSizePreset | number | string;
@@ -23,6 +23,12 @@ export interface DrawerPushConfig {
     distance?: number | string;
 }
 export type DrawerPush = boolean | DrawerPushConfig;
+export interface DrawerResizableConfig {
+    onResizeStart?: () => void;
+    onResize?: (size: number) => void;
+    onResizeEnd?: () => void;
+}
+export type DrawerResizable = boolean | DrawerResizableConfig;
 export interface DrawerMaskConfig {
     enabled?: boolean;
     blur?: boolean;
@@ -104,6 +110,14 @@ export declare const drawerProps: {
     };
     readonly push: {
         readonly type: PropType<DrawerPush>;
+        readonly default: undefined;
+    };
+    readonly resizable: {
+        readonly type: PropType<DrawerResizable>;
+        readonly default: false;
+    };
+    readonly maxSize: {
+        readonly type: NumberConstructor;
         readonly default: undefined;
     };
     readonly drawerRender: PropType<DrawerRender>;

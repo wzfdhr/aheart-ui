@@ -2,7 +2,18 @@ import type { CSSProperties, ExtractPropTypes, PropType, VNodeChild } from 'vue'
 
 export const drawerPlacements = ['top', 'right', 'bottom', 'left'] as const
 export const drawerSizePresets = ['default', 'large'] as const
-export const drawerSemanticParts = ['root', 'mask', 'section', 'header', 'title', 'extra', 'body', 'footer', 'close'] as const
+export const drawerSemanticParts = [
+  'root',
+  'mask',
+  'section',
+  'header',
+  'title',
+  'extra',
+  'body',
+  'footer',
+  'dragger',
+  'close'
+] as const
 
 export type DrawerPlacement = (typeof drawerPlacements)[number]
 export type DrawerSizePreset = (typeof drawerSizePresets)[number]
@@ -28,6 +39,14 @@ export interface DrawerPushConfig {
 }
 
 export type DrawerPush = boolean | DrawerPushConfig
+
+export interface DrawerResizableConfig {
+  onResizeStart?: () => void
+  onResize?: (size: number) => void
+  onResizeEnd?: () => void
+}
+
+export type DrawerResizable = boolean | DrawerResizableConfig
 
 export interface DrawerMaskConfig {
   enabled?: boolean
@@ -116,6 +135,14 @@ export const drawerProps = {
   },
   push: {
     type: [Boolean, Object] as PropType<DrawerPush>,
+    default: undefined
+  },
+  resizable: {
+    type: [Boolean, Object] as PropType<DrawerResizable>,
+    default: false
+  },
+  maxSize: {
+    type: Number,
     default: undefined
   },
   drawerRender: Function as PropType<DrawerRender>,

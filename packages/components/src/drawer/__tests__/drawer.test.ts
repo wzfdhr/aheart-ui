@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import Drawer from '../drawer.vue'
 
 const mountDrawer = (options: Record<string, any> = {}) =>
@@ -374,6 +374,79 @@ describe('Drawer', () => {
     expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain(
       'transform: scale(0.98) translateX(calc(0px - 12vw))'
     )
+  })
+
+  it('resizes a right drawer with callbacks and maxSize', async () => {
+    const onResizeStart = vi.fn()
+    const onResize = vi.fn()
+    const onResizeEnd = vi.fn()
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Resizable drawer',
+        width: 320,
+        maxSize: 360,
+        resizable: {
+          onResizeStart,
+          onResize,
+          onResizeEnd
+        },
+        classNames: {
+          dragger: 'custom-dragger'
+        },
+        styles: {
+          dragger: { backgroundColor: 'rgb(1, 2, 3)' }
+        }
+      }
+    })
+
+    const dragger = wrapper.find('.aheart-drawer__dragger')
+
+    expect(dragger.exists()).toBe(true)
+    expect(dragger.classes()).toEqual(expect.arrayContaining(['aheart-drawer__dragger--right', 'custom-dragger']))
+    expect(dragger.attributes('style')).toContain('background-color: rgb(1, 2, 3)')
+
+    await dragger.trigger('pointerdown', { clientX: 100, clientY: 0 })
+    document.dispatchEvent(new MouseEvent('pointermove', { clientX: 20, clientY: 0 }))
+    document.dispatchEvent(new MouseEvent('pointerup', { clientX: 20, clientY: 0 }))
+    await nextTick()
+
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('width: 360px')
+    expect(onResizeStart).toHaveBeenCalledTimes(1)
+    expect(onResize).toHaveBeenCalledWith(360)
+    expect(onResizeEnd).toHaveBeenCalledTimes(1)
+  })
+
+  it('resizes a bottom drawer by dragging upward', async () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Bottom resizable drawer',
+        placement: 'bottom',
+        height: 200,
+        resizable: true
+      }
+    })
+
+    const dragger = wrapper.find('.aheart-drawer__dragger')
+
+    await dragger.trigger('pointerdown', { clientX: 0, clientY: 100 })
+    document.dispatchEvent(new MouseEvent('pointermove', { clientX: 0, clientY: 40 }))
+    document.dispatchEvent(new MouseEvent('pointerup', { clientX: 0, clientY: 40 }))
+    await nextTick()
+
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('height: 260px')
+  })
+
+  it('does not render a resize dragger when resizable is disabled', () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Static drawer'
+      }
+    })
+
+    expect(wrapper.find('.aheart-drawer__dragger').exists()).toBe(false)
   })
 
   it('supports afterOpenChange forceRender and destroyOnHidden', async () => {

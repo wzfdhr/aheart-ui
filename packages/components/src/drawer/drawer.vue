@@ -62,6 +62,14 @@
               <ADrawerRenderNode v-if="shouldRenderFooterProp" :node="footer" />
             </slot>
           </footer>
+          <button
+            v-if="isResizable"
+            :class="draggerClass"
+            :style="semanticStyle('dragger')"
+            type="button"
+            aria-label="Resize drawer"
+            @pointerdown="handleResizeStart"
+          />
         </section>
       </ADrawerRenderWrapper>
     </div>
@@ -155,6 +163,8 @@ const FOCUSABLE_SELECTOR = [
 const hasRendered = ref(props.open || props.forceRender)
 const triggerElement = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
+const resizedSize = ref<number>()
+const resizeStart = ref<{ size: number; clientX: number; clientY: number } | null>(null)
 
 const parentPushContext = inject<DrawerPushContext | null>(DRAWER_PUSH_CONTEXT, null)
 const drawerId = Symbol('ADrawer')
@@ -175,6 +185,18 @@ const setChildOpen = (id: symbol, open: boolean) => {
 provide(DRAWER_PUSH_CONTEXT, { setChildOpen })
 
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
+const parseNumericSize = (size: number | string | undefined) => {
+  if (typeof size === 'number') {
+    return size
+  }
+
+  const match = typeof size === 'string' ? size.trim().match(/^(\d+(?:\.\d+)?)(?:px)?$/) : null
+  return match ? Number(match[1]) : undefined
+}
+const clampResizeSize = (size: number) => {
+  const cappedSize = props.maxSize === undefined ? size : Math.min(size, props.maxSize)
+  return Math.max(0, cappedSize)
+}
 const formatPushDistance = (distance: number | string, negative: boolean) => {
   if (typeof distance === 'number') {
     return `${negative ? '-' : ''}${distance}px`
@@ -214,6 +236,10 @@ const pushTransform = computed(() => {
       return `translateX(${formatPushDistance(resolvedPushDistance.value, true)})`
   }
 })
+const resizableConfig = computed(() =>
+  typeof props.resizable === 'object' && props.resizable !== null ? props.resizable : undefined
+)
+const isResizable = computed(() => props.resizable === true || resizableConfig.value !== undefined)
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel)
 const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
 const isRenderableNode = (value: VNodeChild) =>
@@ -264,6 +290,16 @@ const resolvedSize = computed(() => {
 
   return props.size
 })
+const configuredPanelSize = computed(() =>
+  isVertical.value ? props.height ?? resolvedSize.value : props.width ?? resolvedSize.value
+)
+const currentBaseSize = computed(
+  () => parseNumericSize(configuredPanelSize.value) ?? parseNumericSize(resolvedSize.value) ?? 378
+)
+const activePanelSize = computed(() => resizedSize.value ?? currentBaseSize.value)
+const normalizedPanelSize = computed(() =>
+  resizedSize.value === undefined ? normalizeSize(configuredPanelSize.value) : `${resizedSize.value}px`
+)
 
 const panelStyle = computed(() => {
   const style: CSSProperties = isVertical.value
@@ -272,14 +308,14 @@ const panelStyle = computed(() => {
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
         ...semanticStyle('section'),
-        height: normalizeSize(props.height ?? resolvedSize.value)
+        height: normalizedPanelSize.value
       }
     : {
         ...props.style,
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
         ...semanticStyle('section'),
-        width: normalizeSize(props.width ?? resolvedSize.value)
+        width: normalizedPanelSize.value
       }
 
   if (!pushTransform.value) {
@@ -337,6 +373,12 @@ const titleClass = computed(() => ['aheart-drawer__title', semanticClass('title'
 const extraClass = computed(() => ['aheart-drawer__extra', semanticClass('extra')])
 const bodyClass = computed(() => ['aheart-drawer__body', { 'is-loading': props.loading }, semanticClass('body')])
 const footerClass = computed(() => ['aheart-drawer__footer', semanticClass('footer')])
+const draggerClass = computed(() => [
+  'aheart-drawer__dragger',
+  `aheart-drawer__dragger--${props.placement}`,
+  { 'is-resizing': resizeStart.value !== null },
+  semanticClass('dragger')
+])
 const closeClass = computed(() => [
   'aheart-drawer__close',
   { 'is-end': isCloseAtEnd.value },
@@ -383,6 +425,7 @@ watch(
 
 onBeforeUnmount(() => {
   parentPushContext?.setChildOpen(drawerId, false)
+  stopResize()
 })
 
 const resolveSemanticConfig = <T,>(
@@ -456,6 +499,68 @@ const handleTrapTab = (event: KeyboardEvent) => {
     event.preventDefault()
     firstElement.focus()
   }
+}
+
+function getNextResizeSize(event: PointerEvent | MouseEvent) {
+  const start = resizeStart.value
+
+  if (!start) {
+    return activePanelSize.value
+  }
+
+  switch (props.placement) {
+    case 'left':
+      return clampResizeSize(start.size + event.clientX - start.clientX)
+    case 'top':
+      return clampResizeSize(start.size + event.clientY - start.clientY)
+    case 'bottom':
+      return clampResizeSize(start.size + start.clientY - event.clientY)
+    case 'right':
+    default:
+      return clampResizeSize(start.size + start.clientX - event.clientX)
+  }
+}
+
+function handleResizeMove(event: Event) {
+  if (!resizeStart.value) {
+    return
+  }
+
+  event.preventDefault()
+  const nextSize = getNextResizeSize(event as PointerEvent | MouseEvent)
+  resizedSize.value = nextSize
+  resizableConfig.value?.onResize?.(nextSize)
+}
+
+function handleResizeEnd() {
+  if (!resizeStart.value) {
+    return
+  }
+
+  stopResize()
+  resizeStart.value = null
+  resizableConfig.value?.onResizeEnd?.()
+}
+
+function stopResize() {
+  document.removeEventListener('pointermove', handleResizeMove)
+  document.removeEventListener('pointerup', handleResizeEnd)
+}
+
+function handleResizeStart(event: PointerEvent) {
+  if (!isResizable.value) {
+    return
+  }
+
+  event.preventDefault()
+  resizeStart.value = {
+    size: activePanelSize.value,
+    clientX: event.clientX,
+    clientY: event.clientY
+  }
+  resizableConfig.value?.onResizeStart?.()
+  document.addEventListener('pointermove', handleResizeMove)
+  document.addEventListener('pointerup', handleResizeEnd)
 }
 
 const close = () => {

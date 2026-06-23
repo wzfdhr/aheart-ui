@@ -57,6 +57,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasRendered = ref(props.open || props.forceRender);
     const triggerElement = ref(null);
     const panelRef = ref(null);
+    const resizedSize = ref();
+    const resizeStart = ref(null);
     const parentPushContext = inject(DRAWER_PUSH_CONTEXT, null);
     const drawerId = Symbol("ADrawer");
     const openChildDrawers = ref(/* @__PURE__ */ new Map());
@@ -71,6 +73,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     provide(DRAWER_PUSH_CONTEXT, { setChildOpen });
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const parseNumericSize = (size) => {
+      if (typeof size === "number") {
+        return size;
+      }
+      const match = typeof size === "string" ? size.trim().match(/^(\d+(?:\.\d+)?)(?:px)?$/) : null;
+      return match ? Number(match[1]) : void 0;
+    };
+    const clampResizeSize = (size) => {
+      const cappedSize = props.maxSize === void 0 ? size : Math.min(size, props.maxSize);
+      return Math.max(0, cappedSize);
+    };
     const formatPushDistance = (distance, negative) => {
       if (typeof distance === "number") {
         return `${negative ? "-" : ""}${distance}px`;
@@ -109,6 +122,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           return `translateX(${formatPushDistance(resolvedPushDistance.value, true)})`;
       }
     });
+    const resizableConfig = computed(
+      () => typeof props.resizable === "object" && props.resizable !== null ? props.resizable : void 0
+    );
+    const isResizable = computed(() => props.resizable === true || resizableConfig.value !== void 0);
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
@@ -172,19 +189,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return props.size;
     });
+    const configuredPanelSize = computed(
+      () => isVertical.value ? props.height ?? resolvedSize.value : props.width ?? resolvedSize.value
+    );
+    const currentBaseSize = computed(
+      () => parseNumericSize(configuredPanelSize.value) ?? parseNumericSize(resolvedSize.value) ?? 378
+    );
+    const activePanelSize = computed(() => resizedSize.value ?? currentBaseSize.value);
+    const normalizedPanelSize = computed(
+      () => resizedSize.value === void 0 ? normalizeSize(configuredPanelSize.value) : `${resizedSize.value}px`
+    );
     const panelStyle = computed(() => {
       const style = isVertical.value ? {
         ...props.style,
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
         ...semanticStyle("section"),
-        height: normalizeSize(props.height ?? resolvedSize.value)
+        height: normalizedPanelSize.value
       } : {
         ...props.style,
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
         ...semanticStyle("section"),
-        width: normalizeSize(props.width ?? resolvedSize.value)
+        width: normalizedPanelSize.value
       };
       if (!pushTransform.value) {
         return style;
@@ -237,6 +264,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const extraClass = computed(() => ["aheart-drawer__extra", semanticClass("extra")]);
     const bodyClass = computed(() => ["aheart-drawer__body", { "is-loading": props.loading }, semanticClass("body")]);
     const footerClass = computed(() => ["aheart-drawer__footer", semanticClass("footer")]);
+    const draggerClass = computed(() => [
+      "aheart-drawer__dragger",
+      `aheart-drawer__dragger--${props.placement}`,
+      { "is-resizing": resizeStart.value !== null },
+      semanticClass("dragger")
+    ]);
     const closeClass = computed(() => [
       "aheart-drawer__close",
       { "is-end": isCloseAtEnd.value },
@@ -276,6 +309,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     );
     onBeforeUnmount(() => {
       parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, false);
+      stopResize();
     });
     const resolveSemanticConfig = (config, part) => {
       const resolved = typeof config === "function" ? config({ props }) : config;
@@ -325,6 +359,61 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         firstElement.focus();
       }
     };
+    function getNextResizeSize(event) {
+      const start = resizeStart.value;
+      if (!start) {
+        return activePanelSize.value;
+      }
+      switch (props.placement) {
+        case "left":
+          return clampResizeSize(start.size + event.clientX - start.clientX);
+        case "top":
+          return clampResizeSize(start.size + event.clientY - start.clientY);
+        case "bottom":
+          return clampResizeSize(start.size + start.clientY - event.clientY);
+        case "right":
+        default:
+          return clampResizeSize(start.size + start.clientX - event.clientX);
+      }
+    }
+    function handleResizeMove(event) {
+      var _a, _b;
+      if (!resizeStart.value) {
+        return;
+      }
+      event.preventDefault();
+      const nextSize = getNextResizeSize(event);
+      resizedSize.value = nextSize;
+      (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResize) == null ? void 0 : _b.call(_a, nextSize);
+    }
+    function handleResizeEnd() {
+      var _a, _b;
+      if (!resizeStart.value) {
+        return;
+      }
+      stopResize();
+      resizeStart.value = null;
+      (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResizeEnd) == null ? void 0 : _b.call(_a);
+    }
+    function stopResize() {
+      document.removeEventListener("pointermove", handleResizeMove);
+      document.removeEventListener("pointerup", handleResizeEnd);
+    }
+    function handleResizeStart(event) {
+      var _a, _b;
+      if (!isResizable.value) {
+        return;
+      }
+      event.preventDefault();
+      resizeStart.value = {
+        size: activePanelSize.value,
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+      (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResizeStart) == null ? void 0 : _b.call(_a);
+      document.addEventListener("pointermove", handleResizeMove);
+      document.addEventListener("pointerup", handleResizeEnd);
+    }
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -443,7 +532,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       node: _ctx.footer
                     }, null, 8, ["node"])) : createCommentVNode("", true)
                   ])
-                ], 6)) : createCommentVNode("", true)
+                ], 6)) : createCommentVNode("", true),
+                isResizable.value ? (openBlock(), createElementBlock("button", {
+                  key: 2,
+                  class: normalizeClass(draggerClass.value),
+                  style: normalizeStyle(semanticStyle("dragger")),
+                  type: "button",
+                  "aria-label": "Resize drawer",
+                  onPointerdown: handleResizeStart
+                }, null, 38)) : createCommentVNode("", true)
               ], 6)
             ]),
             _: 3

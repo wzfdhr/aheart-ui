@@ -64,6 +64,14 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").DrawerPush>;
             readonly default: undefined;
         };
+        readonly resizable: {
+            readonly type: import("vue").PropType<import("./types").DrawerResizable>;
+            readonly default: false;
+        };
+        readonly maxSize: {
+            readonly type: NumberConstructor;
+            readonly default: undefined;
+        };
         readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -107,6 +115,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly getContainer: import("./types").DrawerGetContainer;
+        readonly resizable: import("./types").DrawerResizable;
+        readonly maxSize: number;
         readonly forceRender: boolean;
         readonly destroyOnClose: boolean;
         readonly destroyOnHidden: boolean;
@@ -183,6 +193,14 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").DrawerPush>;
             readonly default: undefined;
         };
+        readonly resizable: {
+            readonly type: import("vue").PropType<import("./types").DrawerResizable>;
+            readonly default: false;
+        };
+        readonly maxSize: {
+            readonly type: NumberConstructor;
+            readonly default: undefined;
+        };
         readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -222,6 +240,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly getContainer: import("./types").DrawerGetContainer;
+        readonly resizable: import("./types").DrawerResizable;
+        readonly maxSize: number;
         readonly forceRender: boolean;
         readonly destroyOnClose: boolean;
         readonly destroyOnHidden: boolean;
@@ -295,6 +315,14 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").DrawerPush>;
         readonly default: undefined;
     };
+    readonly resizable: {
+        readonly type: import("vue").PropType<import("./types").DrawerResizable>;
+        readonly default: false;
+    };
+    readonly maxSize: {
+        readonly type: NumberConstructor;
+        readonly default: undefined;
+    };
     readonly drawerRender: import("vue").PropType<import("./types").DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -338,6 +366,8 @@ declare const Drawer: import("../utils/install").SFCWithInstall<{
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly getContainer: import("./types").DrawerGetContainer;
+    readonly resizable: import("./types").DrawerResizable;
+    readonly maxSize: number;
     readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;

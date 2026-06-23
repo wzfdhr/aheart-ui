@@ -65,6 +65,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").DrawerPush>;
         readonly default: undefined;
     };
+    readonly resizable: {
+        readonly type: PropType<import("./types").DrawerResizable>;
+        readonly default: false;
+    };
+    readonly maxSize: {
+        readonly type: NumberConstructor;
+        readonly default: undefined;
+    };
     readonly drawerRender: PropType<DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -151,6 +159,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").DrawerPush>;
         readonly default: undefined;
     };
+    readonly resizable: {
+        readonly type: PropType<import("./types").DrawerResizable>;
+        readonly default: false;
+    };
+    readonly maxSize: {
+        readonly type: NumberConstructor;
+        readonly default: undefined;
+    };
     readonly drawerRender: PropType<DrawerRender>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -190,6 +206,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly getContainer: import("./types").DrawerGetContainer;
+    readonly resizable: import("./types").DrawerResizable;
+    readonly maxSize: number;
     readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;

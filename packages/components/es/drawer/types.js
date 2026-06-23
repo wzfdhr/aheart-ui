@@ -64,6 +64,14 @@ const drawerProps = {
     type: [Boolean, Object],
     default: void 0
   },
+  resizable: {
+    type: [Boolean, Object],
+    default: false
+  },
+  maxSize: {
+    type: Number,
+    default: void 0
+  },
   drawerRender: Function,
   className: String,
   rootClassName: String,

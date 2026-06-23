@@ -59,6 +59,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasRendered = vue.ref(props.open || props.forceRender);
     const triggerElement = vue.ref(null);
     const panelRef = vue.ref(null);
+    const resizedSize = vue.ref();
+    const resizeStart = vue.ref(null);
     const parentPushContext = vue.inject(DRAWER_PUSH_CONTEXT, null);
     const drawerId = Symbol("ADrawer");
     const openChildDrawers = vue.ref(/* @__PURE__ */ new Map());
@@ -73,6 +75,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     vue.provide(DRAWER_PUSH_CONTEXT, { setChildOpen });
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
+    const parseNumericSize = (size) => {
+      if (typeof size === "number") {
+        return size;
+      }
+      const match = typeof size === "string" ? size.trim().match(/^(\d+(?:\.\d+)?)(?:px)?$/) : null;
+      return match ? Number(match[1]) : void 0;
+    };
+    const clampResizeSize = (size) => {
+      const cappedSize = props.maxSize === void 0 ? size : Math.min(size, props.maxSize);
+      return Math.max(0, cappedSize);
+    };
     const formatPushDistance = (distance, negative) => {
       if (typeof distance === "number") {
         return `${negative ? "-" : ""}${distance}px`;
@@ -111,6 +124,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           return `translateX(${formatPushDistance(resolvedPushDistance.value, true)})`;
       }
     });
+    const resizableConfig = vue.computed(
+      () => typeof props.resizable === "object" && props.resizable !== null ? props.resizable : void 0
+    );
+    const isResizable = vue.computed(() => props.resizable === true || resizableConfig.value !== void 0);
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
@@ -174,19 +191,29 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return props.size;
     });
+    const configuredPanelSize = vue.computed(
+      () => isVertical.value ? props.height ?? resolvedSize.value : props.width ?? resolvedSize.value
+    );
+    const currentBaseSize = vue.computed(
+      () => parseNumericSize(configuredPanelSize.value) ?? parseNumericSize(resolvedSize.value) ?? 378
+    );
+    const activePanelSize = vue.computed(() => resizedSize.value ?? currentBaseSize.value);
+    const normalizedPanelSize = vue.computed(
+      () => resizedSize.value === void 0 ? normalizeSize(configuredPanelSize.value) : `${resizedSize.value}px`
+    );
     const panelStyle = vue.computed(() => {
       const style = isVertical.value ? {
         ...props.style,
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
         ...semanticStyle("section"),
-        height: normalizeSize(props.height ?? resolvedSize.value)
+        height: normalizedPanelSize.value
       } : {
         ...props.style,
         ...props.drawerStyle,
         ...props.contentWrapperStyle,
         ...semanticStyle("section"),
-        width: normalizeSize(props.width ?? resolvedSize.value)
+        width: normalizedPanelSize.value
       };
       if (!pushTransform.value) {
         return style;
@@ -239,6 +266,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const extraClass = vue.computed(() => ["aheart-drawer__extra", semanticClass("extra")]);
     const bodyClass = vue.computed(() => ["aheart-drawer__body", { "is-loading": props.loading }, semanticClass("body")]);
     const footerClass = vue.computed(() => ["aheart-drawer__footer", semanticClass("footer")]);
+    const draggerClass = vue.computed(() => [
+      "aheart-drawer__dragger",
+      `aheart-drawer__dragger--${props.placement}`,
+      { "is-resizing": resizeStart.value !== null },
+      semanticClass("dragger")
+    ]);
     const closeClass = vue.computed(() => [
       "aheart-drawer__close",
       { "is-end": isCloseAtEnd.value },
@@ -278,6 +311,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     );
     vue.onBeforeUnmount(() => {
       parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, false);
+      stopResize();
     });
     const resolveSemanticConfig = (config, part) => {
       const resolved = typeof config === "function" ? config({ props }) : config;
@@ -327,6 +361,61 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         firstElement.focus();
       }
     };
+    function getNextResizeSize(event) {
+      const start = resizeStart.value;
+      if (!start) {
+        return activePanelSize.value;
+      }
+      switch (props.placement) {
+        case "left":
+          return clampResizeSize(start.size + event.clientX - start.clientX);
+        case "top":
+          return clampResizeSize(start.size + event.clientY - start.clientY);
+        case "bottom":
+          return clampResizeSize(start.size + start.clientY - event.clientY);
+        case "right":
+        default:
+          return clampResizeSize(start.size + start.clientX - event.clientX);
+      }
+    }
+    function handleResizeMove(event) {
+      var _a, _b;
+      if (!resizeStart.value) {
+        return;
+      }
+      event.preventDefault();
+      const nextSize = getNextResizeSize(event);
+      resizedSize.value = nextSize;
+      (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResize) == null ? void 0 : _b.call(_a, nextSize);
+    }
+    function handleResizeEnd() {
+      var _a, _b;
+      if (!resizeStart.value) {
+        return;
+      }
+      stopResize();
+      resizeStart.value = null;
+      (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResizeEnd) == null ? void 0 : _b.call(_a);
+    }
+    function stopResize() {
+      document.removeEventListener("pointermove", handleResizeMove);
+      document.removeEventListener("pointerup", handleResizeEnd);
+    }
+    function handleResizeStart(event) {
+      var _a, _b;
+      if (!isResizable.value) {
+        return;
+      }
+      event.preventDefault();
+      resizeStart.value = {
+        size: activePanelSize.value,
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+      (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResizeStart) == null ? void 0 : _b.call(_a);
+      document.addEventListener("pointermove", handleResizeMove);
+      document.addEventListener("pointerup", handleResizeEnd);
+    }
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -445,7 +534,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       node: _ctx.footer
                     }, null, 8, ["node"])) : vue.createCommentVNode("", true)
                   ])
-                ], 6)) : vue.createCommentVNode("", true)
+                ], 6)) : vue.createCommentVNode("", true),
+                isResizable.value ? (vue.openBlock(), vue.createElementBlock("button", {
+                  key: 2,
+                  class: vue.normalizeClass(draggerClass.value),
+                  style: vue.normalizeStyle(semanticStyle("dragger")),
+                  type: "button",
+                  "aria-label": "Resize drawer",
+                  onPointerdown: handleResizeStart
+                }, null, 38)) : vue.createCommentVNode("", true)
               ], 6)
             ]),
             _: 3

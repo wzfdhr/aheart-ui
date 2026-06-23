@@ -53,6 +53,55 @@
   max-height: 100vh;
 }
 
+.aheart-drawer__dragger {
+  --aheart-drawer-dragger-size: 4px;
+  position: absolute;
+  z-index: 1;
+  border: 0;
+  padding: 0;
+  appearance: none;
+  background: transparent;
+  touch-action: none;
+  transition: background-color 0.2s ease;
+}
+
+.aheart-drawer__dragger:hover,
+.aheart-drawer__dragger.is-resizing {
+  background: var(--aheart-color-primary, rgba(22, 119, 255, 0.35));
+}
+
+.aheart-drawer__dragger--right {
+  top: 0;
+  bottom: 0;
+  left: calc(var(--aheart-drawer-dragger-size) / -2);
+  width: var(--aheart-drawer-dragger-size);
+  cursor: ew-resize;
+}
+
+.aheart-drawer__dragger--left {
+  top: 0;
+  right: calc(var(--aheart-drawer-dragger-size) / -2);
+  bottom: 0;
+  width: var(--aheart-drawer-dragger-size);
+  cursor: ew-resize;
+}
+
+.aheart-drawer__dragger--top {
+  right: 0;
+  bottom: calc(var(--aheart-drawer-dragger-size) / -2);
+  left: 0;
+  height: var(--aheart-drawer-dragger-size);
+  cursor: ns-resize;
+}
+
+.aheart-drawer__dragger--bottom {
+  top: calc(var(--aheart-drawer-dragger-size) / -2);
+  right: 0;
+  left: 0;
+  height: var(--aheart-drawer-dragger-size);
+  cursor: ns-resize;
+}
+
 .aheart-drawer__header {
   display: flex;
   gap: var(--aheart-spacing-md);

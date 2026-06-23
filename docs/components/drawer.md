@@ -313,6 +313,8 @@ const open = ref(false)
 | footer | 页脚内容；`true` 可只显示 footer slot，`false` 或 `null` 隐藏页脚 | `boolean` \| `DrawerRenderable` | - |
 | getContainer | 指定 Drawer 挂载容器；传入 `false` 时保持内联渲染 | `HTMLElement` \| `string` \| `() => HTMLElement` \| `false` | `document.body` |
 | push | 嵌套抽屉打开时是否推动父级抽屉 | `boolean` \| `DrawerPushConfig` | `{ distance: 180 }` |
+| resizable | 是否允许拖拽调整抽屉尺寸 | `boolean` \| `DrawerResizableConfig` | `false` |
+| maxSize | 可拖拽调整的最大宽度或高度 | `number` | - |
 | drawerRender | 自定义渲染抽屉面板内容 | `(node: VNodeChild) => VNodeChild` | - |
 | className | 面板自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
@@ -333,7 +335,7 @@ const open = ref(false)
 
 ### DrawerSemanticPart
 
-`root`、`mask`、`section`、`header`、`title`、`extra`、`body`、`footer`、`close`
+`root`、`mask`、`section`、`header`、`title`、`extra`、`body`、`footer`、`dragger`、`close`
 
 ### DrawerSemanticInfo
 
@@ -354,6 +356,16 @@ type DrawerGetContainer = HTMLElement | string | (() => HTMLElement) | false
 ```ts
 interface DrawerPushConfig {
   distance?: number | string
+}
+```
+
+### DrawerResizableConfig
+
+```ts
+interface DrawerResizableConfig {
+  onResizeStart?: () => void
+  onResize?: (size: number) => void
+  onResizeEnd?: () => void
 }
 ```
 
