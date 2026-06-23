@@ -197,16 +197,16 @@ const open = ref(false)
 </template>
 ```
 
-## 焦点恢复
+## 焦点管理
 
 <div class="aheart-demo-panel">
-  <AButton @click="focusOpen = true">Focus restore</AButton>
+  <AButton @click="focusOpen = true">Focus management</AButton>
   <AModal
     v-model:open="focusOpen"
-    title="Focus restore"
-    :focusable="{ focusTriggerAfterClose: true }"
+    title="Focus management"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
   >
-    Closing this modal restores focus to the button that opened it.
+    This modal keeps Tab focus inside the dialog and restores focus to the opener after close.
   </AModal>
 </div>
 
@@ -218,13 +218,13 @@ const open = ref(false)
 </script>
 
 <template>
-  <AButton @click="open = true">Focus restore</AButton>
+  <AButton @click="open = true">Focus management</AButton>
   <AModal
     v-model:open="open"
-    title="Focus restore"
-    :focusable="{ focusTriggerAfterClose: true }"
+    title="Focus management"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
   >
-    Closing this modal restores focus to the button that opened it.
+    This modal keeps Tab focus inside the dialog and restores focus to the opener after close.
   </AModal>
 </template>
 ```
@@ -379,7 +379,7 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 | zIndex | 根节点层级 | `number` | `1000` |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
 | footer | 页脚内容，`false` 或 `null` 时隐藏默认页脚 | `boolean` \| `VNodeChild` \| `ModalFooterRender` | `true` |
-| focusable | 焦点管理配置 | `{ focusTriggerAfterClose?: boolean }` | - |
+| focusable | 焦点管理配置 | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
 | focusTriggerAfterClose | 关闭后是否聚焦触发元素；兼容旧命名，优先使用 `focusable.focusTriggerAfterClose` | `boolean` | `true` |
 | modalRender | 自定义渲染对话框内容 | `(node: VNodeChild) => VNodeChild` | - |
 | className | 对话框自定义类名 | `string` | - |
@@ -407,6 +407,7 @@ interface ModalMaskConfig {
 
 ```ts
 interface ModalFocusableConfig {
+  trap?: boolean
   focusTriggerAfterClose?: boolean
 }
 ```

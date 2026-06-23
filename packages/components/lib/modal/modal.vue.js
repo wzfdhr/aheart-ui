@@ -17,8 +17,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
+    const FOCUSABLE_SELECTOR = [
+      "a[href]",
+      "area[href]",
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "iframe",
+      "object",
+      "embed",
+      '[contenteditable="true"]',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(",");
     const hasRendered = vue.ref(props.open || props.forceRender);
     const triggerElement = vue.ref(null);
+    const dialogRef = vue.ref(null);
     const AModalRenderNode = vue.defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -112,6 +126,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return ((_a = focusableConfig.value) == null ? void 0 : _a.focusTriggerAfterClose) ?? props.focusTriggerAfterClose ?? true;
       }
     );
+    const shouldTrapFocus = vue.computed(() => {
+      var _a;
+      return ((_a = focusableConfig.value) == null ? void 0 : _a.trap) ?? isMaskVisible.value;
+    });
     const resolvedCloseIcon = vue.computed(() => {
       var _a;
       if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
@@ -214,6 +232,38 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       target.focus();
     };
+    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element instanceof HTMLInputElement && element.type === "hidden");
+    const getFocusableElements = () => {
+      const dialog = dialogRef.value;
+      if (!dialog) {
+        return [];
+      }
+      return Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
+    };
+    const handleTrapTab = (event) => {
+      if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
+        return;
+      }
+      const dialog = dialogRef.value;
+      if (!dialog) {
+        return;
+      }
+      const focusableElements = getFocusableElements();
+      const firstElement = focusableElements[0] ?? dialog;
+      const lastElement = focusableElements[focusableElements.length - 1] ?? dialog;
+      const activeElement = document.activeElement;
+      if (event.shiftKey) {
+        if (activeElement === firstElement || !dialog.contains(activeElement)) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+        return;
+      }
+      if (activeElement === lastElement || !dialog.contains(activeElement)) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -237,6 +287,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     const handleKeydown = (event) => {
+      handleTrapTab(event);
       if (props.keyboard && event.key === "Escape") {
         close();
       }
@@ -263,10 +314,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           vue.createVNode(vue.unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
             default: vue.withCtx(() => [
               vue.createElementVNode("section", {
+                ref_key: "dialogRef",
+                ref: dialogRef,
                 class: vue.normalizeClass(dialogClass.value),
                 style: vue.normalizeStyle(dialogStyle.value),
                 role: "dialog",
-                "aria-modal": "true"
+                "aria-modal": "true",
+                tabindex: "-1"
               }, [
                 hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
                   key: 0,

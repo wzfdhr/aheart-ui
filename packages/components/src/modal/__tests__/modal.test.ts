@@ -324,6 +324,139 @@ describe('Modal', () => {
     outside.remove()
   })
 
+  it('traps tab focus inside masked modals by default', async () => {
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: true,
+        title: 'Trapped modal',
+        closable: false,
+        footer: false
+      },
+      slots: {
+        default: '<button class="first-field">First</button><button class="last-field">Last</button>'
+      }
+    })
+
+    const first = wrapper.find('.first-field').element as HTMLElement
+    const last = wrapper.find('.last-field').element as HTMLElement
+
+    last.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+
+    expect(document.activeElement).toBe(first)
+
+    wrapper.unmount()
+  })
+
+  it('traps shift tab focus back to the last dialog control', async () => {
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: true,
+        title: 'Reverse trap',
+        closable: false,
+        footer: false
+      },
+      slots: {
+        default: '<button class="first-field">First</button><button class="last-field">Last</button>'
+      }
+    })
+
+    const first = wrapper.find('.first-field').element as HTMLElement
+    const last = wrapper.find('.last-field').element as HTMLElement
+
+    first.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab', shiftKey: true })
+
+    expect(document.activeElement).toBe(last)
+
+    wrapper.unmount()
+  })
+
+  it('lets focusable trap config override the mask default', async () => {
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: true,
+        title: 'Trap disabled',
+        closable: false,
+        footer: false,
+        focusable: {
+          trap: false
+        }
+      },
+      slots: {
+        default: '<button class="first-field">First</button><button class="last-field">Last</button>'
+      }
+    })
+
+    const last = wrapper.find('.last-field').element as HTMLElement
+
+    last.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+
+    expect(document.activeElement).toBe(last)
+
+    wrapper.unmount()
+  })
+
+  it('does not trap focus by default when the mask is disabled', async () => {
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: true,
+        title: 'No default trap',
+        closable: false,
+        footer: false,
+        mask: {
+          enabled: false
+        }
+      },
+      slots: {
+        default: '<button class="first-field">First</button><button class="last-field">Last</button>'
+      }
+    })
+
+    const last = wrapper.find('.last-field').element as HTMLElement
+
+    last.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+
+    expect(document.activeElement).toBe(last)
+
+    wrapper.unmount()
+  })
+
+  it('can trap focus without a mask when focusable trap is true', async () => {
+    const wrapper = mount(Modal, {
+      attachTo: document.body,
+      props: {
+        open: true,
+        title: 'Trap without mask',
+        closable: false,
+        footer: false,
+        mask: false,
+        focusable: {
+          trap: true
+        }
+      },
+      slots: {
+        default: '<button class="first-field">First</button><button class="last-field">Last</button>'
+      }
+    })
+
+    const first = wrapper.find('.first-field').element as HTMLElement
+    const last = wrapper.find('.last-field').element as HTMLElement
+
+    last.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+
+    expect(document.activeElement).toBe(first)
+
+    wrapper.unmount()
+  })
+
   it('closes from the mask only when maskClosable is true', async () => {
     const closable = mount(Modal, { props: { open: true } })
     await closable.find('.aheart-modal__mask').trigger('click')

@@ -19,6 +19,7 @@ export interface ModalMaskConfig {
 }
 export type ModalMask = boolean | ModalMaskConfig;
 export interface ModalFocusableConfig {
+    trap?: boolean;
     focusTriggerAfterClose?: boolean;
 }
 export interface ModalFooterRenderExtra {

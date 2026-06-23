@@ -15,8 +15,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = useSlots();
+    const FOCUSABLE_SELECTOR = [
+      "a[href]",
+      "area[href]",
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "iframe",
+      "object",
+      "embed",
+      '[contenteditable="true"]',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(",");
     const hasRendered = ref(props.open || props.forceRender);
     const triggerElement = ref(null);
+    const dialogRef = ref(null);
     const AModalRenderNode = defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -110,6 +124,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return ((_a = focusableConfig.value) == null ? void 0 : _a.focusTriggerAfterClose) ?? props.focusTriggerAfterClose ?? true;
       }
     );
+    const shouldTrapFocus = computed(() => {
+      var _a;
+      return ((_a = focusableConfig.value) == null ? void 0 : _a.trap) ?? isMaskVisible.value;
+    });
     const resolvedCloseIcon = computed(() => {
       var _a;
       if (((_a = closableConfig.value) == null ? void 0 : _a.closeIcon) !== void 0) {
@@ -212,6 +230,38 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       target.focus();
     };
+    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element instanceof HTMLInputElement && element.type === "hidden");
+    const getFocusableElements = () => {
+      const dialog = dialogRef.value;
+      if (!dialog) {
+        return [];
+      }
+      return Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
+    };
+    const handleTrapTab = (event) => {
+      if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
+        return;
+      }
+      const dialog = dialogRef.value;
+      if (!dialog) {
+        return;
+      }
+      const focusableElements = getFocusableElements();
+      const firstElement = focusableElements[0] ?? dialog;
+      const lastElement = focusableElements[focusableElements.length - 1] ?? dialog;
+      const activeElement = document.activeElement;
+      if (event.shiftKey) {
+        if (activeElement === firstElement || !dialog.contains(activeElement)) {
+          event.preventDefault();
+          lastElement.focus();
+        }
+        return;
+      }
+      if (activeElement === lastElement || !dialog.contains(activeElement)) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
     const close = () => {
       emit("update:open", false);
       emit("close");
@@ -235,6 +285,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     const handleKeydown = (event) => {
+      handleTrapTab(event);
       if (props.keyboard && event.key === "Escape") {
         close();
       }
@@ -261,10 +312,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           createVNode(unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
             default: withCtx(() => [
               createElementVNode("section", {
+                ref_key: "dialogRef",
+                ref: dialogRef,
                 class: normalizeClass(dialogClass.value),
                 style: normalizeStyle(dialogStyle.value),
                 role: "dialog",
-                "aria-modal": "true"
+                "aria-modal": "true",
+                tabindex: "-1"
               }, [
                 hasHeader.value ? (openBlock(), createElementBlock("header", {
                   key: 0,
