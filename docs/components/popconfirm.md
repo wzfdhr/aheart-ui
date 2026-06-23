@@ -261,6 +261,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | color | 自定义弹层背景色 | `string` | - |
 | arrow | 是否显示箭头 | `boolean` | `true` |
 | zIndex | 自定义层级 | `number` | - |
+| getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | className | 根元素 class | `string` | - |
 | rootClassName | 根元素 class | `string` | - |
 | style | 根元素样式 | `StyleValue` | - |

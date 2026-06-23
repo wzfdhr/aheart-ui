@@ -11,6 +11,7 @@ export type PopconfirmButtonProps = Partial<ButtonProps>
 export type PopconfirmRenderable = VNodeChild
 export type PopconfirmRenderableFactory = () => VNodeChild
 export type PopconfirmContent = PopconfirmRenderable | PopconfirmRenderableFactory
+export type PopconfirmGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
 export type PopconfirmSemanticPart =
   | 'root'
   | 'trigger'
@@ -81,6 +82,7 @@ export const popconfirmProps = {
     default: true
   },
   zIndex: Number,
+  getPopupContainer: Function as PropType<PopconfirmGetPopupContainer>,
   className: String,
   rootClassName: String,
   style: [String, Object, Array] as PropType<StyleValue>,

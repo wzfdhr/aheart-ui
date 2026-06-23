@@ -5,6 +5,7 @@ export type PopconfirmButtonProps = Partial<ButtonProps>;
 export type PopconfirmRenderable = VNodeChild;
 export type PopconfirmRenderableFactory = () => VNodeChild;
 export type PopconfirmContent = PopconfirmRenderable | PopconfirmRenderableFactory;
+export type PopconfirmGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
 export type PopconfirmSemanticPart = 'root' | 'trigger' | 'popup' | 'arrow' | 'message' | 'icon' | 'text' | 'title' | 'description' | 'actions' | 'cancelButton' | 'okButton';
 export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>;
 export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>;
@@ -61,6 +62,7 @@ export declare const popconfirmProps: {
         readonly default: true;
     };
     readonly zIndex: NumberConstructor;
+    readonly getPopupContainer: PropType<PopconfirmGetPopupContainer>;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;

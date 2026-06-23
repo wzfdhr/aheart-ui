@@ -51,6 +51,7 @@ const popconfirmProps = {
     default: true
   },
   zIndex: Number,
+  getPopupContainer: Function,
   className: String,
   rootClassName: String,
   style: [String, Object, Array],

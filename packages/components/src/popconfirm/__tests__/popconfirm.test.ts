@@ -1,11 +1,23 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import Popconfirm from '../popconfirm.vue'
 
+const mountPopconfirm = (options: Record<string, any> = {}) =>
+  mount(Popconfirm, {
+    ...options,
+    global: {
+      ...options.global,
+      stubs: {
+        ...options.global?.stubs,
+        Teleport: true
+      }
+    }
+  })
+
 describe('Popconfirm', () => {
   it('opens from click trigger with title description icon and buttons', async () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: { title: 'Delete item?', description: 'This cannot be undone.' },
       slots: { default: '<button>Delete</button>' }
     })
@@ -21,7 +33,7 @@ describe('Popconfirm', () => {
   })
 
   it('renders vnode and function title description and icon props', () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: {
         defaultOpen: true,
         title: () => h('span', { class: 'title-node' }, 'Delete node?'),
@@ -37,7 +49,7 @@ describe('Popconfirm', () => {
   })
 
   it('renders numeric renderables without treating zero as empty', () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: {
         defaultOpen: true,
         title: 0,
@@ -53,7 +65,7 @@ describe('Popconfirm', () => {
   })
 
   it('hides icon when icon is false', () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: {
         defaultOpen: true,
         title: 'No icon',
@@ -67,7 +79,7 @@ describe('Popconfirm', () => {
   })
 
   it('lets content slots override renderable prop fallbacks', () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: {
         defaultOpen: true,
         title: h('span', { class: 'prop-title-node' }, 'Prop title'),
@@ -91,7 +103,7 @@ describe('Popconfirm', () => {
   })
 
   it('emits confirm and closes from OK', async () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: { defaultOpen: true, title: 'Delete item?' },
       slots: { default: '<button>Delete</button>' }
     })
@@ -105,7 +117,7 @@ describe('Popconfirm', () => {
   })
 
   it('emits cancel and closes from Cancel', async () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: { defaultOpen: true, title: 'Delete item?' },
       slots: { default: '<button>Delete</button>' }
     })
@@ -118,7 +130,7 @@ describe('Popconfirm', () => {
   })
 
   it('respects disabled and showCancel options', async () => {
-    const disabled = mount(Popconfirm, {
+    const disabled = mountPopconfirm({
       props: { disabled: true, title: 'Delete item?' },
       slots: { default: '<button>Delete</button>' }
     })
@@ -126,7 +138,7 @@ describe('Popconfirm', () => {
     await disabled.find('.aheart-popconfirm__trigger').trigger('click')
     expect(disabled.find('.aheart-popconfirm__popup').exists()).toBe(false)
 
-    const withoutCancel = mount(Popconfirm, {
+    const withoutCancel = mountPopconfirm({
       props: { defaultOpen: true, title: 'Delete item?', showCancel: false },
       slots: { default: '<button>Delete</button>' }
     })
@@ -136,7 +148,7 @@ describe('Popconfirm', () => {
   })
 
   it('renders icon color and action button prop bags', () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: {
         defaultOpen: true,
         title: 'Archive item?',
@@ -167,7 +179,7 @@ describe('Popconfirm', () => {
   })
 
   it('applies root and semantic class and style hooks', () => {
-    const wrapper = mount(Popconfirm, {
+    const wrapper = mountPopconfirm({
       props: {
         defaultOpen: true,
         title: 'Archive item?',
@@ -227,8 +239,96 @@ describe('Popconfirm', () => {
     expect(wrapper.find('.aheart-popconfirm__ok').attributes('style')).toContain('margin-left: 2px')
   })
 
-  it('emits popupClick without closing', async () => {
+  it('teleports popup to document body by default', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
     const wrapper = mount(Popconfirm, {
+      attachTo: host,
+      props: {
+        open: true,
+        title: 'Body confirm'
+      },
+      slots: {
+        default: '<button>Delete</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(document.body.querySelector('.aheart-popconfirm__popup')).toBeTruthy()
+    expect(host.querySelector('.aheart-popconfirm__popup')).toBeNull()
+
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('teleports popup to getPopupContainer target', async () => {
+    const container = document.createElement('section')
+    let triggerNode: HTMLElement | undefined
+    document.body.appendChild(container)
+
+    const wrapper = mount(Popconfirm, {
+      props: {
+        open: true,
+        title: 'Target title',
+        description: 'Target description',
+        getPopupContainer: (node: HTMLElement) => {
+          triggerNode = node
+          return container
+        }
+      },
+      slots: {
+        default: '<button>Delete</button>'
+      }
+    })
+
+    await nextTick()
+
+    expect(triggerNode?.classList.contains('aheart-popconfirm__trigger')).toBe(true)
+    expect(container.querySelector('.aheart-popconfirm__popup')).toBeTruthy()
+    expect(container.textContent).toContain('Target title')
+    expect(container.textContent).toContain('Target description')
+
+    wrapper.unmount()
+    container.remove()
+  })
+
+  it('keeps hover popconfirm open when moving from trigger to popup', async () => {
+    const container = document.createElement('section')
+    document.body.appendChild(container)
+
+    const wrapper = mount(Popconfirm, {
+      props: {
+        trigger: 'hover',
+        title: 'Hover confirm',
+        getPopupContainer: () => container
+      },
+      slots: {
+        default: '<button>Delete</button>'
+      }
+    })
+
+    await wrapper.find('.aheart-popconfirm__trigger').trigger('mouseenter')
+    await nextTick()
+
+    const popup = container.querySelector('.aheart-popconfirm__popup') as HTMLElement
+    expect(popup).toBeTruthy()
+
+    await wrapper.find('.aheart-popconfirm__trigger').trigger('mouseleave', { relatedTarget: popup })
+    expect(container.querySelector('.aheart-popconfirm__popup')).toBeTruthy()
+
+    popup.dispatchEvent(new MouseEvent('mouseleave', { relatedTarget: document.body }))
+    await nextTick()
+
+    expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false])
+
+    wrapper.unmount()
+    container.remove()
+  })
+
+  it('emits popupClick without closing', async () => {
+    const wrapper = mountPopconfirm({
       props: { defaultOpen: true, title: 'Archive item?' },
       slots: { default: '<button>Archive</button>' }
     })

@@ -31,10 +31,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const innerOpen = vue.ref(props.defaultOpen);
+    const rootRef = vue.ref(null);
+    const triggerRef = vue.ref(null);
+    const popupRef = vue.ref(null);
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
     const visible = vue.computed(() => !props.disabled && mergedOpen.value);
+    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
+    const popupContainer = vue.computed(() => {
+      if (props.getPopupContainer && triggerRef.value) {
+        return props.getPopupContainer(triggerRef.value);
+      }
+      return getDefaultPopupContainer();
+    });
+    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const resolvedIcon = vue.computed(() => props.icon === void 0 ? "!" : props.icon);
     const hasIcon = vue.computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value));
     const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
@@ -175,8 +187,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         requestOpen(true);
       }
     };
-    const handleMouseLeave = () => {
-      if (normalizedTriggers.value.has("hover")) {
+    const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
+    const isHoveringTriggerOrPopup = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value);
+    const handleMouseLeave = (event) => {
+      if (normalizedTriggers.value.has("hover") && !isHoveringTriggerOrPopup(event)) {
         requestOpen(false);
       }
     };
@@ -214,12 +228,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: vue.normalizeClass(["aheart-popconfirm", popconfirmClass.value]),
         style: vue.normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
         onMouseleave: handleMouseLeave
       }, [
         vue.createElementVNode("span", {
+          ref_key: "triggerRef",
+          ref: triggerRef,
           class: vue.normalizeClass(["aheart-popconfirm__trigger", triggerClass.value]),
           style: vue.normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
@@ -231,83 +249,92 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           vue.renderSlot(_ctx.$slots, "default")
         ], 38),
-        visible.value ? (vue.openBlock(), vue.createElementBlock("span", {
-          key: 0,
-          class: vue.normalizeClass(["aheart-popconfirm__popup", popupClass.value]),
-          style: vue.normalizeStyle(popupStyle.value),
-          role: "dialog",
-          onClick: handlePopupClick
+        (vue.openBlock(), vue.createBlock(vue.Teleport, {
+          to: teleportTo.value,
+          disabled: !shouldTeleport.value
         }, [
-          _ctx.arrow ? (vue.openBlock(), vue.createElementBlock("span", {
+          visible.value ? (vue.openBlock(), vue.createElementBlock("span", {
             key: 0,
-            class: vue.normalizeClass(["aheart-floating__arrow aheart-popconfirm__arrow", arrowClass.value]),
-            style: vue.normalizeStyle(arrowStyle.value),
-            "aria-hidden": "true"
-          }, null, 6)) : vue.createCommentVNode("", true),
-          vue.createElementVNode("span", {
-            class: vue.normalizeClass(["aheart-popconfirm__message", messageClass.value]),
-            style: vue.normalizeStyle(messageStyle.value)
+            ref_key: "popupRef",
+            ref: popupRef,
+            class: vue.normalizeClass(["aheart-popconfirm__popup", popupClass.value]),
+            style: vue.normalizeStyle(popupStyle.value),
+            role: "dialog",
+            onMouseenter: handleMouseEnter,
+            onMouseleave: handleMouseLeave,
+            onClick: handlePopupClick
           }, [
-            hasIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {
+            _ctx.arrow ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 0,
-              class: vue.normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
-              style: vue.normalizeStyle(iconStyle.value),
+              class: vue.normalizeClass(["aheart-floating__arrow aheart-popconfirm__arrow", arrowClass.value]),
+              style: vue.normalizeStyle(arrowStyle.value),
               "aria-hidden": "true"
-            }, [
-              vue.renderSlot(_ctx.$slots, "icon", {}, () => [
-                vue.createVNode(vue.unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
-              ])
-            ], 6)) : vue.createCommentVNode("", true),
+            }, null, 6)) : vue.createCommentVNode("", true),
             vue.createElementVNode("span", {
-              class: vue.normalizeClass(["aheart-popconfirm__text", textClass.value]),
-              style: vue.normalizeStyle(textStyle.value)
+              class: vue.normalizeClass(["aheart-popconfirm__message", messageClass.value]),
+              style: vue.normalizeStyle(messageStyle.value)
             }, [
-              hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
+              hasIcon.value ? (vue.openBlock(), vue.createElementBlock("span", {
                 key: 0,
-                class: vue.normalizeClass(["aheart-popconfirm__title", titleClass.value]),
-                style: vue.normalizeStyle(titleStyle.value)
+                class: vue.normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
+                style: vue.normalizeStyle(iconStyle.value),
+                "aria-hidden": "true"
               }, [
-                vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                  vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                vue.renderSlot(_ctx.$slots, "icon", {}, () => [
+                  vue.createVNode(vue.unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
                 ])
               ], 6)) : vue.createCommentVNode("", true),
-              hasDescription.value ? (vue.openBlock(), vue.createElementBlock("span", {
-                key: 1,
-                class: vue.normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
-                style: vue.normalizeStyle(descriptionStyle.value)
+              vue.createElementVNode("span", {
+                class: vue.normalizeClass(["aheart-popconfirm__text", textClass.value]),
+                style: vue.normalizeStyle(textStyle.value)
               }, [
-                vue.renderSlot(_ctx.$slots, "description", {}, () => [
-                  vue.createVNode(vue.unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
-                ])
-              ], 6)) : vue.createCommentVNode("", true)
+                hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
+                  key: 0,
+                  class: vue.normalizeClass(["aheart-popconfirm__title", titleClass.value]),
+                  style: vue.normalizeStyle(titleStyle.value)
+                }, [
+                  vue.renderSlot(_ctx.$slots, "title", {}, () => [
+                    vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                  ])
+                ], 6)) : vue.createCommentVNode("", true),
+                hasDescription.value ? (vue.openBlock(), vue.createElementBlock("span", {
+                  key: 1,
+                  class: vue.normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
+                  style: vue.normalizeStyle(descriptionStyle.value)
+                }, [
+                  vue.renderSlot(_ctx.$slots, "description", {}, () => [
+                    vue.createVNode(vue.unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
+                  ])
+                ], 6)) : vue.createCommentVNode("", true)
+              ], 6)
+            ], 6),
+            vue.createElementVNode("span", {
+              class: vue.normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
+              style: vue.normalizeStyle(actionsStyle.value)
+            }, [
+              _ctx.showCancel ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), vue.mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
+                class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
+                style: cancelButtonStyle.value,
+                onClick: handleCancel
+              }), {
+                default: vue.withCtx(() => [
+                  vue.createTextVNode(vue.toDisplayString(_ctx.cancelText), 1)
+                ]),
+                _: 1
+              }, 16, ["class", "style"])) : vue.createCommentVNode("", true),
+              vue.createVNode(vue.unref(index.default), vue.mergeProps(resolvedOkButtonProps.value, {
+                class: ["aheart-popconfirm__ok", okButtonClass.value],
+                style: okButtonStyle.value,
+                onClick: handleConfirm
+              }), {
+                default: vue.withCtx(() => [
+                  vue.createTextVNode(vue.toDisplayString(_ctx.okText), 1)
+                ]),
+                _: 1
+              }, 16, ["class", "style"])
             ], 6)
-          ], 6),
-          vue.createElementVNode("span", {
-            class: vue.normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
-            style: vue.normalizeStyle(actionsStyle.value)
-          }, [
-            _ctx.showCancel ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), vue.mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
-              class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
-              style: cancelButtonStyle.value,
-              onClick: handleCancel
-            }), {
-              default: vue.withCtx(() => [
-                vue.createTextVNode(vue.toDisplayString(_ctx.cancelText), 1)
-              ]),
-              _: 1
-            }, 16, ["class", "style"])) : vue.createCommentVNode("", true),
-            vue.createVNode(vue.unref(index.default), vue.mergeProps(resolvedOkButtonProps.value, {
-              class: ["aheart-popconfirm__ok", okButtonClass.value],
-              style: okButtonStyle.value,
-              onClick: handleConfirm
-            }), {
-              default: vue.withCtx(() => [
-                vue.createTextVNode(vue.toDisplayString(_ctx.okText), 1)
-              ]),
-              _: 1
-            }, 16, ["class", "style"])
-          ], 6)
-        ], 6)) : vue.createCommentVNode("", true)
+          ], 38)) : vue.createCommentVNode("", true)
+        ], 8, ["to", "disabled"]))
       ], 38);
     };
   }

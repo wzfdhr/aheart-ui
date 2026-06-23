@@ -1,5 +1,6 @@
 <template>
   <span
+    ref="rootRef"
     class="aheart-popconfirm"
     :class="popconfirmClass"
     :style="rootStyle"
@@ -7,6 +8,7 @@
     @mouseleave="handleMouseLeave"
   >
     <span
+      ref="triggerRef"
       class="aheart-popconfirm__trigger"
       :class="triggerClass"
       :style="triggerStyle"
@@ -19,67 +21,78 @@
     >
       <slot />
     </span>
-    <span
-      v-if="visible"
-      class="aheart-popconfirm__popup"
-      :class="popupClass"
-      :style="popupStyle"
-      role="dialog"
-      @click="handlePopupClick"
-    >
+    <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <span
-        v-if="arrow"
-        class="aheart-floating__arrow aheart-popconfirm__arrow"
-        :class="arrowClass"
-        :style="arrowStyle"
-        aria-hidden="true"
-      />
-      <span class="aheart-popconfirm__message" :class="messageClass" :style="messageStyle">
-        <span v-if="hasIcon" class="aheart-popconfirm__icon" :class="iconClass" :style="iconStyle" aria-hidden="true">
-          <slot name="icon">
-            <ARenderNode :node="resolvedIcon" />
-          </slot>
-        </span>
-        <span class="aheart-popconfirm__text" :class="textClass" :style="textStyle">
-          <span v-if="hasTitle" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
-            <slot name="title">
-              <ARenderNode :node="title" />
-            </slot>
-          </span>
+        v-if="visible"
+        ref="popupRef"
+        class="aheart-popconfirm__popup"
+        :class="popupClass"
+        :style="popupStyle"
+        role="dialog"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
+        @click="handlePopupClick"
+      >
+        <span
+          v-if="arrow"
+          class="aheart-floating__arrow aheart-popconfirm__arrow"
+          :class="arrowClass"
+          :style="arrowStyle"
+          aria-hidden="true"
+        />
+        <span class="aheart-popconfirm__message" :class="messageClass" :style="messageStyle">
           <span
-            v-if="hasDescription"
-            class="aheart-popconfirm__description"
-            :class="descriptionClass"
-            :style="descriptionStyle"
+            v-if="hasIcon"
+            class="aheart-popconfirm__icon"
+            :class="iconClass"
+            :style="iconStyle"
+            aria-hidden="true"
           >
-            <slot name="description">
-              <ARenderNode :node="description" />
+            <slot name="icon">
+              <ARenderNode :node="resolvedIcon" />
             </slot>
           </span>
+          <span class="aheart-popconfirm__text" :class="textClass" :style="textStyle">
+            <span v-if="hasTitle" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
+              <slot name="title">
+                <ARenderNode :node="title" />
+              </slot>
+            </span>
+            <span
+              v-if="hasDescription"
+              class="aheart-popconfirm__description"
+              :class="descriptionClass"
+              :style="descriptionStyle"
+            >
+              <slot name="description">
+                <ARenderNode :node="description" />
+              </slot>
+            </span>
+          </span>
+        </span>
+        <span class="aheart-popconfirm__actions" :class="actionsClass" :style="actionsStyle">
+          <AButton
+            v-if="showCancel"
+            v-bind="resolvedCancelButtonProps"
+            class="aheart-popconfirm__cancel"
+            :class="cancelButtonClass"
+            :style="cancelButtonStyle"
+            @click="handleCancel"
+          >
+            {{ cancelText }}
+          </AButton>
+          <AButton
+            v-bind="resolvedOkButtonProps"
+            class="aheart-popconfirm__ok"
+            :class="okButtonClass"
+            :style="okButtonStyle"
+            @click="handleConfirm"
+          >
+            {{ okText }}
+          </AButton>
         </span>
       </span>
-      <span class="aheart-popconfirm__actions" :class="actionsClass" :style="actionsStyle">
-        <AButton
-          v-if="showCancel"
-          v-bind="resolvedCancelButtonProps"
-          class="aheart-popconfirm__cancel"
-          :class="cancelButtonClass"
-          :style="cancelButtonStyle"
-          @click="handleCancel"
-        >
-          {{ cancelText }}
-        </AButton>
-        <AButton
-          v-bind="resolvedOkButtonProps"
-          class="aheart-popconfirm__ok"
-          :class="okButtonClass"
-          :style="okButtonStyle"
-          @click="handleConfirm"
-        >
-          {{ okText }}
-        </AButton>
-      </span>
-    </span>
+    </Teleport>
   </span>
 </template>
 
@@ -115,10 +128,23 @@ const emit = defineEmits(popconfirmEmits)
 const slots = useSlots()
 
 const innerOpen = ref(props.defaultOpen)
+const rootRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLElement | null>(null)
+const popupRef = ref<HTMLElement | null>(null)
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
 const visible = computed(() => !props.disabled && mergedOpen.value)
+const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
+const popupContainer = computed(() => {
+  if (props.getPopupContainer && triggerRef.value) {
+    return props.getPopupContainer(triggerRef.value)
+  }
+
+  return getDefaultPopupContainer()
+})
+const shouldTeleport = computed(() => popupContainer.value !== false)
+const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
 const resolvedIcon = computed<PopconfirmContent>(() => (props.icon === undefined ? '!' : props.icon))
 const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value))
 const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title))
@@ -193,8 +219,14 @@ const handleMouseEnter = () => {
   }
 }
 
-const handleMouseLeave = () => {
-  if (normalizedTriggers.value.has('hover')) {
+const containsRelatedTarget = (event: MouseEvent, element: HTMLElement | null) =>
+  event.relatedTarget instanceof Node && Boolean(element?.contains(event.relatedTarget))
+
+const isHoveringTriggerOrPopup = (event: MouseEvent) =>
+  containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value)
+
+const handleMouseLeave = (event: MouseEvent) => {
+  if (normalizedTriggers.value.has('hover') && !isHoveringTriggerOrPopup(event)) {
     requestOpen(false)
   }
 }

@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createCommentVNode, createVNode, unref, createBlock, mergeProps, withCtx, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, createCommentVNode, createVNode, unref, mergeProps, withCtx, createTextVNode, toDisplayString } from "vue";
 import Button from "../button/index.js";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
@@ -29,10 +29,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const innerOpen = ref(props.defaultOpen);
+    const rootRef = ref(null);
+    const triggerRef = ref(null);
+    const popupRef = ref(null);
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const visible = computed(() => !props.disabled && mergedOpen.value);
+    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
+    const popupContainer = computed(() => {
+      if (props.getPopupContainer && triggerRef.value) {
+        return props.getPopupContainer(triggerRef.value);
+      }
+      return getDefaultPopupContainer();
+    });
+    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const resolvedIcon = computed(() => props.icon === void 0 ? "!" : props.icon);
     const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value));
     const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
@@ -173,8 +185,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpen(true);
       }
     };
-    const handleMouseLeave = () => {
-      if (normalizedTriggers.value.has("hover")) {
+    const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
+    const isHoveringTriggerOrPopup = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, popupRef.value);
+    const handleMouseLeave = (event) => {
+      if (normalizedTriggers.value.has("hover") && !isHoveringTriggerOrPopup(event)) {
         requestOpen(false);
       }
     };
@@ -212,12 +226,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: normalizeClass(["aheart-popconfirm", popconfirmClass.value]),
         style: normalizeStyle(rootStyle.value),
         onMouseenter: handleMouseEnter,
         onMouseleave: handleMouseLeave
       }, [
         createElementVNode("span", {
+          ref_key: "triggerRef",
+          ref: triggerRef,
           class: normalizeClass(["aheart-popconfirm__trigger", triggerClass.value]),
           style: normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
@@ -229,83 +247,92 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           renderSlot(_ctx.$slots, "default")
         ], 38),
-        visible.value ? (openBlock(), createElementBlock("span", {
-          key: 0,
-          class: normalizeClass(["aheart-popconfirm__popup", popupClass.value]),
-          style: normalizeStyle(popupStyle.value),
-          role: "dialog",
-          onClick: handlePopupClick
+        (openBlock(), createBlock(Teleport, {
+          to: teleportTo.value,
+          disabled: !shouldTeleport.value
         }, [
-          _ctx.arrow ? (openBlock(), createElementBlock("span", {
+          visible.value ? (openBlock(), createElementBlock("span", {
             key: 0,
-            class: normalizeClass(["aheart-floating__arrow aheart-popconfirm__arrow", arrowClass.value]),
-            style: normalizeStyle(arrowStyle.value),
-            "aria-hidden": "true"
-          }, null, 6)) : createCommentVNode("", true),
-          createElementVNode("span", {
-            class: normalizeClass(["aheart-popconfirm__message", messageClass.value]),
-            style: normalizeStyle(messageStyle.value)
+            ref_key: "popupRef",
+            ref: popupRef,
+            class: normalizeClass(["aheart-popconfirm__popup", popupClass.value]),
+            style: normalizeStyle(popupStyle.value),
+            role: "dialog",
+            onMouseenter: handleMouseEnter,
+            onMouseleave: handleMouseLeave,
+            onClick: handlePopupClick
           }, [
-            hasIcon.value ? (openBlock(), createElementBlock("span", {
+            _ctx.arrow ? (openBlock(), createElementBlock("span", {
               key: 0,
-              class: normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
-              style: normalizeStyle(iconStyle.value),
+              class: normalizeClass(["aheart-floating__arrow aheart-popconfirm__arrow", arrowClass.value]),
+              style: normalizeStyle(arrowStyle.value),
               "aria-hidden": "true"
-            }, [
-              renderSlot(_ctx.$slots, "icon", {}, () => [
-                createVNode(unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
-              ])
-            ], 6)) : createCommentVNode("", true),
+            }, null, 6)) : createCommentVNode("", true),
             createElementVNode("span", {
-              class: normalizeClass(["aheart-popconfirm__text", textClass.value]),
-              style: normalizeStyle(textStyle.value)
+              class: normalizeClass(["aheart-popconfirm__message", messageClass.value]),
+              style: normalizeStyle(messageStyle.value)
             }, [
-              hasTitle.value ? (openBlock(), createElementBlock("span", {
+              hasIcon.value ? (openBlock(), createElementBlock("span", {
                 key: 0,
-                class: normalizeClass(["aheart-popconfirm__title", titleClass.value]),
-                style: normalizeStyle(titleStyle.value)
+                class: normalizeClass(["aheart-popconfirm__icon", iconClass.value]),
+                style: normalizeStyle(iconStyle.value),
+                "aria-hidden": "true"
               }, [
-                renderSlot(_ctx.$slots, "title", {}, () => [
-                  createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                renderSlot(_ctx.$slots, "icon", {}, () => [
+                  createVNode(unref(ARenderNode), { node: resolvedIcon.value }, null, 8, ["node"])
                 ])
               ], 6)) : createCommentVNode("", true),
-              hasDescription.value ? (openBlock(), createElementBlock("span", {
-                key: 1,
-                class: normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
-                style: normalizeStyle(descriptionStyle.value)
+              createElementVNode("span", {
+                class: normalizeClass(["aheart-popconfirm__text", textClass.value]),
+                style: normalizeStyle(textStyle.value)
               }, [
-                renderSlot(_ctx.$slots, "description", {}, () => [
-                  createVNode(unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
-                ])
-              ], 6)) : createCommentVNode("", true)
+                hasTitle.value ? (openBlock(), createElementBlock("span", {
+                  key: 0,
+                  class: normalizeClass(["aheart-popconfirm__title", titleClass.value]),
+                  style: normalizeStyle(titleStyle.value)
+                }, [
+                  renderSlot(_ctx.$slots, "title", {}, () => [
+                    createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
+                  ])
+                ], 6)) : createCommentVNode("", true),
+                hasDescription.value ? (openBlock(), createElementBlock("span", {
+                  key: 1,
+                  class: normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
+                  style: normalizeStyle(descriptionStyle.value)
+                }, [
+                  renderSlot(_ctx.$slots, "description", {}, () => [
+                    createVNode(unref(ARenderNode), { node: _ctx.description }, null, 8, ["node"])
+                  ])
+                ], 6)) : createCommentVNode("", true)
+              ], 6)
+            ], 6),
+            createElementVNode("span", {
+              class: normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
+              style: normalizeStyle(actionsStyle.value)
+            }, [
+              _ctx.showCancel ? (openBlock(), createBlock(unref(Button), mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
+                class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
+                style: cancelButtonStyle.value,
+                onClick: handleCancel
+              }), {
+                default: withCtx(() => [
+                  createTextVNode(toDisplayString(_ctx.cancelText), 1)
+                ]),
+                _: 1
+              }, 16, ["class", "style"])) : createCommentVNode("", true),
+              createVNode(unref(Button), mergeProps(resolvedOkButtonProps.value, {
+                class: ["aheart-popconfirm__ok", okButtonClass.value],
+                style: okButtonStyle.value,
+                onClick: handleConfirm
+              }), {
+                default: withCtx(() => [
+                  createTextVNode(toDisplayString(_ctx.okText), 1)
+                ]),
+                _: 1
+              }, 16, ["class", "style"])
             ], 6)
-          ], 6),
-          createElementVNode("span", {
-            class: normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
-            style: normalizeStyle(actionsStyle.value)
-          }, [
-            _ctx.showCancel ? (openBlock(), createBlock(unref(Button), mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
-              class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
-              style: cancelButtonStyle.value,
-              onClick: handleCancel
-            }), {
-              default: withCtx(() => [
-                createTextVNode(toDisplayString(_ctx.cancelText), 1)
-              ]),
-              _: 1
-            }, 16, ["class", "style"])) : createCommentVNode("", true),
-            createVNode(unref(Button), mergeProps(resolvedOkButtonProps.value, {
-              class: ["aheart-popconfirm__ok", okButtonClass.value],
-              style: okButtonStyle.value,
-              onClick: handleConfirm
-            }), {
-              default: withCtx(() => [
-                createTextVNode(toDisplayString(_ctx.okText), 1)
-              ]),
-              _: 1
-            }, 16, ["class", "style"])
-          ], 6)
-        ], 6)) : createCommentVNode("", true)
+          ], 38)) : createCommentVNode("", true)
+        ], 8, ["to", "disabled"]))
       ], 38);
     };
   }
