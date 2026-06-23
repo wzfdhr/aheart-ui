@@ -1,55 +1,57 @@
 <template>
-  <div
-    v-if="shouldRender"
-    v-show="open"
-    :class="rootClass"
-    :style="rootStyle"
-    role="presentation"
-    tabindex="-1"
-    @keydown="handleKeydown"
-  >
-    <div v-if="isMaskVisible" :class="maskClass" :style="semanticStyle('mask')" @click="handleMaskClick" />
-    <div :class="wrapClass" :style="wrapStyle">
-      <AModalRenderWrapper :renderer="modalRender">
-        <section
-          ref="dialogRef"
-          :class="dialogClass"
-          :style="dialogStyle"
-          role="dialog"
-          aria-modal="true"
-          tabindex="-1"
-        >
-          <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
-            <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
-              <slot name="title">
-                <AModalRenderNode :node="title" />
-              </slot>
+  <Teleport :to="teleportTo" :disabled="!shouldTeleport">
+    <div
+      v-if="shouldRender"
+      v-show="open"
+      :class="rootClass"
+      :style="rootStyle"
+      role="presentation"
+      tabindex="-1"
+      @keydown="handleKeydown"
+    >
+      <div v-if="isMaskVisible" :class="maskClass" :style="semanticStyle('mask')" @click="handleMaskClick" />
+      <div :class="wrapClass" :style="wrapStyle">
+        <AModalRenderWrapper :renderer="modalRender">
+          <section
+            ref="dialogRef"
+            :class="dialogClass"
+            :style="dialogStyle"
+            role="dialog"
+            aria-modal="true"
+            tabindex="-1"
+          >
+            <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
+              <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
+                <slot name="title">
+                  <AModalRenderNode :node="title" />
+                </slot>
+              </div>
+              <button
+                v-if="showCloseButton"
+                :class="closeClass"
+                :style="semanticStyle('close')"
+                :disabled="isCloseButtonDisabled"
+                type="button"
+                aria-label="Close"
+                @click="handleCloseButtonClick"
+              >
+                <AModalRenderNode :node="resolvedCloseIcon" />
+              </button>
+            </header>
+            <div :class="bodyClass" :style="semanticStyle('body')">
+              <ASkeleton v-if="loading" active :paragraph="{ rows: 3 }" />
+              <slot v-else />
             </div>
-            <button
-              v-if="showCloseButton"
-              :class="closeClass"
-              :style="semanticStyle('close')"
-              :disabled="isCloseButtonDisabled"
-              type="button"
-              aria-label="Close"
-              @click="handleCloseButtonClick"
-            >
-              <AModalRenderNode :node="resolvedCloseIcon" />
-            </button>
-          </header>
-          <div :class="bodyClass" :style="semanticStyle('body')">
-            <ASkeleton v-if="loading" active :paragraph="{ rows: 3 }" />
-            <slot v-else />
-          </div>
-          <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
-            <slot name="footer">
-              <AModalRenderNode :node="footerContent" />
-            </slot>
-          </footer>
-        </section>
-      </AModalRenderWrapper>
+            <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
+              <slot name="footer">
+                <AModalRenderNode :node="footerContent" />
+              </slot>
+            </footer>
+          </section>
+        </AModalRenderWrapper>
+      </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -155,6 +157,15 @@ const hasRenderable = (value: unknown) => {
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
 const isResponsiveWidth = (value: ModalWidth): value is ModalResponsiveWidth =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
+const getDefaultContainer = () => (typeof document === 'undefined' ? false : document.body)
+const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer())
+const teleportTarget = computed(() => {
+  const container = resolvedContainer.value
+
+  return typeof container === 'function' ? container() : container
+})
+const shouldTeleport = computed(() => teleportTarget.value !== false)
+const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : teleportTarget.value))
 const fixedDialogWidth = computed(() => {
   const width = props.width
 

@@ -59,6 +59,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly wrapClassName: StringConstructor;
     readonly modalRender: PropType<ModalRender>;
+    readonly getContainer: {
+        readonly type: PropType<import("./types").ModalGetContainer>;
+        readonly default: undefined;
+    };
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<import("./types").ModalClassNames>;
@@ -137,6 +141,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly rootClassName: StringConstructor;
     readonly wrapClassName: StringConstructor;
     readonly modalRender: PropType<ModalRender>;
+    readonly getContainer: {
+        readonly type: PropType<import("./types").ModalGetContainer>;
+        readonly default: undefined;
+    };
     readonly style: PropType<CSSProperties>;
     readonly rootStyle: PropType<CSSProperties>;
     readonly classNames: PropType<import("./types").ModalClassNames>;
@@ -176,6 +184,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly okText: VNodeChild;
     readonly cancelText: VNodeChild;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
+    readonly getContainer: import("./types").ModalGetContainer;
     readonly focusTriggerAfterClose: boolean | undefined;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;

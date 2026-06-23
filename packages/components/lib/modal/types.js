@@ -59,6 +59,10 @@ const modalProps = {
   rootClassName: String,
   wrapClassName: String,
   modalRender: Function,
+  getContainer: {
+    type: [String, Object, Function, Boolean],
+    default: void 0
+  },
   style: Object,
   rootStyle: Object,
   classNames: [Object, Function],

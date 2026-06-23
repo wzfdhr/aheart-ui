@@ -30,6 +30,7 @@ export type ModalRenderable = VNodeChild
 export type ModalRender = (node: ModalRenderable) => ModalRenderable
 export type ModalResponsiveWidth = Partial<Record<GridBreakpoint, number | string>>
 export type ModalWidth = number | string | ModalResponsiveWidth
+export type ModalGetContainer = HTMLElement | string | (() => HTMLElement) | false
 
 export interface ModalMaskConfig {
   enabled?: boolean
@@ -122,6 +123,10 @@ export const modalProps = {
   rootClassName: String,
   wrapClassName: String,
   modalRender: Function as PropType<ModalRender>,
+  getContainer: {
+    type: [String, Object, Function, Boolean] as PropType<ModalGetContainer>,
+    default: undefined
+  },
   style: Object as PropType<CSSProperties>,
   rootStyle: Object as PropType<CSSProperties>,
   classNames: [Object, Function] as PropType<ModalClassNames>,

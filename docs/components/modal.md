@@ -411,6 +411,7 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 | focusable | 焦点管理配置 | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
 | focusTriggerAfterClose | 关闭后是否聚焦触发元素；兼容旧命名，优先使用 `focusable.focusTriggerAfterClose` | `boolean` | `true` |
 | modalRender | 自定义渲染对话框内容 | `(node: VNodeChild) => VNodeChild` | - |
+| getContainer | 指定 Modal 挂载容器；传入 `false` 时保持内联渲染 | `HTMLElement` \| `string` \| `() => HTMLElement` \| `false` | `document.body` |
 | className | 对话框自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
 | wrapClassName | 对话框外层容器自定义类名 | `string` | - |
@@ -482,6 +483,12 @@ type ModalFooterRender = (
     CancelBtn: () => VNodeChild
   }
 ) => VNodeChild
+```
+
+### ModalGetContainer
+
+```ts
+type ModalGetContainer = HTMLElement | string | (() => HTMLElement) | false
 ```
 
 ## Events

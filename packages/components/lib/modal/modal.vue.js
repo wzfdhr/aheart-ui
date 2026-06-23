@@ -70,6 +70,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const isResponsiveWidth = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+    const getDefaultContainer = () => typeof document === "undefined" ? false : document.body;
+    const resolvedContainer = vue.computed(() => props.getContainer ?? getDefaultContainer());
+    const teleportTarget = vue.computed(() => {
+      const container = resolvedContainer.value;
+      return typeof container === "function" ? container() : container;
+    });
+    const shouldTeleport = vue.computed(() => teleportTarget.value !== false);
+    const teleportTo = vue.computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
     const fixedDialogWidth = vue.computed(() => {
       const width = props.width;
       return isResponsiveWidth(width) ? void 0 : normalizeSize(width);
@@ -335,88 +343,93 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     return (_ctx, _cache) => {
-      return shouldRender.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
-        key: 0,
-        class: vue.normalizeClass(rootClass.value),
-        style: vue.normalizeStyle(rootStyle.value),
-        role: "presentation",
-        tabindex: "-1",
-        onKeydown: handleKeydown
+      return vue.openBlock(), vue.createBlock(vue.Teleport, {
+        to: teleportTo.value,
+        disabled: !shouldTeleport.value
       }, [
-        isMaskVisible.value ? (vue.openBlock(), vue.createElementBlock("div", {
+        shouldRender.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
           key: 0,
-          class: vue.normalizeClass(maskClass.value),
-          style: vue.normalizeStyle(semanticStyle("mask")),
-          onClick: handleMaskClick
-        }, null, 6)) : vue.createCommentVNode("", true),
-        vue.createElementVNode("div", {
-          class: vue.normalizeClass(wrapClass.value),
-          style: vue.normalizeStyle(wrapStyle.value)
+          class: vue.normalizeClass(rootClass.value),
+          style: vue.normalizeStyle(rootStyle.value),
+          role: "presentation",
+          tabindex: "-1",
+          onKeydown: handleKeydown
         }, [
-          vue.createVNode(vue.unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
-            default: vue.withCtx(() => [
-              vue.createElementVNode("section", {
-                ref_key: "dialogRef",
-                ref: dialogRef,
-                class: vue.normalizeClass(dialogClass.value),
-                style: vue.normalizeStyle(dialogStyle.value),
-                role: "dialog",
-                "aria-modal": "true",
-                tabindex: "-1"
-              }, [
-                hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
-                  key: 0,
-                  class: vue.normalizeClass(headerClass.value),
-                  style: vue.normalizeStyle(semanticStyle("header"))
+          isMaskVisible.value ? (vue.openBlock(), vue.createElementBlock("div", {
+            key: 0,
+            class: vue.normalizeClass(maskClass.value),
+            style: vue.normalizeStyle(semanticStyle("mask")),
+            onClick: handleMaskClick
+          }, null, 6)) : vue.createCommentVNode("", true),
+          vue.createElementVNode("div", {
+            class: vue.normalizeClass(wrapClass.value),
+            style: vue.normalizeStyle(wrapStyle.value)
+          }, [
+            vue.createVNode(vue.unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
+              default: vue.withCtx(() => [
+                vue.createElementVNode("section", {
+                  ref_key: "dialogRef",
+                  ref: dialogRef,
+                  class: vue.normalizeClass(dialogClass.value),
+                  style: vue.normalizeStyle(dialogStyle.value),
+                  role: "dialog",
+                  "aria-modal": "true",
+                  tabindex: "-1"
                 }, [
-                  hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
+                  hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
                     key: 0,
-                    class: vue.normalizeClass(titleClass.value),
-                    style: vue.normalizeStyle(semanticStyle("title"))
+                    class: vue.normalizeClass(headerClass.value),
+                    style: vue.normalizeStyle(semanticStyle("header"))
                   }, [
-                    vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                      vue.createVNode(vue.unref(AModalRenderNode), { node: _ctx.title }, null, 8, ["node"])
-                    ])
+                    hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
+                      key: 0,
+                      class: vue.normalizeClass(titleClass.value),
+                      style: vue.normalizeStyle(semanticStyle("title"))
+                    }, [
+                      vue.renderSlot(_ctx.$slots, "title", {}, () => [
+                        vue.createVNode(vue.unref(AModalRenderNode), { node: _ctx.title }, null, 8, ["node"])
+                      ])
+                    ], 6)) : vue.createCommentVNode("", true),
+                    showCloseButton.value ? (vue.openBlock(), vue.createElementBlock("button", {
+                      key: 1,
+                      class: vue.normalizeClass(closeClass.value),
+                      style: vue.normalizeStyle(semanticStyle("close")),
+                      disabled: isCloseButtonDisabled.value,
+                      type: "button",
+                      "aria-label": "Close",
+                      onClick: handleCloseButtonClick
+                    }, [
+                      vue.createVNode(vue.unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
+                    ], 14, _hoisted_1)) : vue.createCommentVNode("", true)
                   ], 6)) : vue.createCommentVNode("", true),
-                  showCloseButton.value ? (vue.openBlock(), vue.createElementBlock("button", {
-                    key: 1,
-                    class: vue.normalizeClass(closeClass.value),
-                    style: vue.normalizeStyle(semanticStyle("close")),
-                    disabled: isCloseButtonDisabled.value,
-                    type: "button",
-                    "aria-label": "Close",
-                    onClick: handleCloseButtonClick
+                  vue.createElementVNode("div", {
+                    class: vue.normalizeClass(bodyClass.value),
+                    style: vue.normalizeStyle(semanticStyle("body"))
                   }, [
-                    vue.createVNode(vue.unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_1)) : vue.createCommentVNode("", true)
-                ], 6)) : vue.createCommentVNode("", true),
-                vue.createElementVNode("div", {
-                  class: vue.normalizeClass(bodyClass.value),
-                  style: vue.normalizeStyle(semanticStyle("body"))
-                }, [
-                  _ctx.loading ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), {
-                    key: 0,
-                    active: "",
-                    paragraph: { rows: 3 }
-                  })) : vue.renderSlot(_ctx.$slots, "default", { key: 1 })
-                ], 6),
-                hasFooter.value ? (vue.openBlock(), vue.createElementBlock("footer", {
-                  key: 1,
-                  class: vue.normalizeClass(footerClass.value),
-                  style: vue.normalizeStyle(semanticStyle("footer"))
-                }, [
-                  vue.renderSlot(_ctx.$slots, "footer", {}, () => [
-                    vue.createVNode(vue.unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
-                  ])
-                ], 6)) : vue.createCommentVNode("", true)
-              ], 6)
-            ]),
-            _: 3
-          }, 8, ["renderer"])
-        ], 6)
-      ], 38)), [
-        [vue.vShow, _ctx.open]
-      ]) : vue.createCommentVNode("", true);
+                    _ctx.loading ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), {
+                      key: 0,
+                      active: "",
+                      paragraph: { rows: 3 }
+                    })) : vue.renderSlot(_ctx.$slots, "default", { key: 1 })
+                  ], 6),
+                  hasFooter.value ? (vue.openBlock(), vue.createElementBlock("footer", {
+                    key: 1,
+                    class: vue.normalizeClass(footerClass.value),
+                    style: vue.normalizeStyle(semanticStyle("footer"))
+                  }, [
+                    vue.renderSlot(_ctx.$slots, "footer", {}, () => [
+                      vue.createVNode(vue.unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
+                    ])
+                  ], 6)) : vue.createCommentVNode("", true)
+                ], 6)
+              ]),
+              _: 3
+            }, 8, ["renderer"])
+          ], 6)
+        ], 38)), [
+          [vue.vShow, _ctx.open]
+        ]) : vue.createCommentVNode("", true)
+      ], 8, ["to", "disabled"]);
     };
   }
 });
