@@ -6,6 +6,14 @@ export type ModalClassNames = Partial<Record<ModalSemanticPart, string>>;
 export type ModalStyles = Partial<Record<ModalSemanticPart, CSSProperties>>;
 export type ModalButtonProps = Partial<ButtonProps>;
 export type ModalRenderable = VNodeChild;
+export interface ModalFooterRenderExtra {
+    okButton: ModalRenderable;
+    cancelButton: ModalRenderable;
+    OkBtn: () => ModalRenderable;
+    CancelBtn: () => ModalRenderable;
+}
+export type ModalFooterRender = (originNode: ModalRenderable, extra: ModalFooterRenderExtra) => ModalRenderable;
+export type ModalFooter = boolean | ModalRenderable | ModalFooterRender;
 export interface ModalClosableConfig {
     closeIcon?: ModalRenderable;
     disabled?: boolean;
@@ -13,7 +21,10 @@ export interface ModalClosableConfig {
 export type ModalClosable = boolean | ModalClosableConfig;
 export declare const modalProps: {
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
+    readonly title: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly width: {
         readonly type: PropType<string | number>;
         readonly default: 520;
@@ -41,11 +52,11 @@ export declare const modalProps: {
     };
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
-        readonly type: StringConstructor;
+        readonly type: PropType<VNodeChild>;
         readonly default: "OK";
     };
     readonly cancelText: {
-        readonly type: StringConstructor;
+        readonly type: PropType<VNodeChild>;
         readonly default: "Cancel";
     };
     readonly okType: {
@@ -60,7 +71,7 @@ export declare const modalProps: {
     };
     readonly loading: BooleanConstructor;
     readonly footer: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<ModalFooter>;
         readonly default: true;
     };
     readonly className: StringConstructor;

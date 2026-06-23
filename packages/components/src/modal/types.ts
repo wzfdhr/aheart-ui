@@ -9,6 +9,16 @@ export type ModalStyles = Partial<Record<ModalSemanticPart, CSSProperties>>
 export type ModalButtonProps = Partial<ButtonProps>
 export type ModalRenderable = VNodeChild
 
+export interface ModalFooterRenderExtra {
+  okButton: ModalRenderable
+  cancelButton: ModalRenderable
+  OkBtn: () => ModalRenderable
+  CancelBtn: () => ModalRenderable
+}
+
+export type ModalFooterRender = (originNode: ModalRenderable, extra: ModalFooterRenderExtra) => ModalRenderable
+export type ModalFooter = boolean | ModalRenderable | ModalFooterRender
+
 export interface ModalClosableConfig {
   closeIcon?: ModalRenderable
   disabled?: boolean
@@ -18,7 +28,10 @@ export type ModalClosable = boolean | ModalClosableConfig
 
 export const modalProps = {
   open: Boolean,
-  title: String,
+  title: {
+    type: null as unknown as PropType<ModalRenderable>,
+    default: undefined
+  },
   width: {
     type: [Number, String] as PropType<number | string>,
     default: 520
@@ -46,11 +59,11 @@ export const modalProps = {
   },
   confirmLoading: Boolean,
   okText: {
-    type: String,
+    type: null as unknown as PropType<ModalRenderable>,
     default: 'OK'
   },
   cancelText: {
-    type: String,
+    type: null as unknown as PropType<ModalRenderable>,
     default: 'Cancel'
   },
   okType: {
@@ -65,7 +78,7 @@ export const modalProps = {
   },
   loading: Boolean,
   footer: {
-    type: Boolean,
+    type: [Boolean, String, Number, Object, Array, Function] as PropType<ModalFooter>,
     default: true
   },
   className: String,

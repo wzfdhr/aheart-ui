@@ -16,9 +16,11 @@
         role="dialog"
         aria-modal="true"
       >
-        <header v-if="title || $slots.title || showCloseButton" :class="headerClass" :style="semanticStyle('header')">
-          <div v-if="title || $slots.title" :class="titleClass" :style="semanticStyle('title')">
-            <slot name="title">{{ title }}</slot>
+        <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
+          <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
+            <slot name="title">
+              <AModalRenderNode :node="title" />
+            </slot>
           </div>
           <button
             v-if="showCloseButton"
@@ -38,14 +40,7 @@
         </div>
         <footer v-if="hasFooter" :class="footerClass" :style="semanticStyle('footer')">
           <slot name="footer">
-            <AButton class="aheart-modal__cancel" v-bind="resolvedCancelButtonProps" @click="handleCancel">{{ cancelText }}</AButton>
-            <AButton
-              class="aheart-modal__ok"
-              v-bind="resolvedOkButtonProps"
-              @click="handleOk"
-            >
-              {{ okText }}
-            </AButton>
+            <AModalRenderNode :node="footerContent" />
           </slot>
         </footer>
       </section>
@@ -54,10 +49,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, useSlots, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, ref, useSlots, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
 import AButton from '../button'
 import ASkeleton from '../skeleton'
-import { modalEmits, modalProps, type ModalClosableConfig, type ModalSemanticPart } from './types'
+import {
+  modalEmits,
+  modalProps,
+  type ModalButtonProps,
+  type ModalClosableConfig,
+  type ModalFooterRenderExtra,
+  type ModalSemanticPart
+} from './types'
 import './style.css'
 
 defineOptions({
@@ -85,6 +87,14 @@ const AModalRenderNode = defineComponent({
 const isClosableConfig = (value: typeof props.closable): value is ModalClosableConfig =>
   typeof value === 'object' && value !== null
 
+const hasRenderable = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.length > 0
+  }
+
+  return value !== undefined && value !== null && value !== false && value !== true && value !== ''
+}
+
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
 
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose)
@@ -102,7 +112,9 @@ const rootStyle = computed(() => ({
   zIndex: props.zIndex
 }))
 
-const hasFooter = computed(() => props.footer || Boolean(slots.footer))
+const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title))
+const hasHeader = computed(() => hasTitle.value || showCloseButton.value)
+const hasFooter = computed(() => Boolean(slots.footer) || (props.footer !== false && props.footer !== null))
 
 const rootClass = computed(() => ['aheart-modal', props.rootClassName, semanticClass('root')])
 const maskClass = computed(() => ['aheart-modal__mask', semanticClass('mask')])
@@ -143,6 +155,48 @@ const resolvedOkButtonProps = computed(() => ({
   type: props.okButtonProps?.type ?? props.okType,
   loading: props.confirmLoading || Boolean(props.okButtonProps?.loading)
 }))
+const createFooterButton = (
+  className: string,
+  buttonProps: ModalButtonProps,
+  onClick: () => void,
+  content: VNodeChild
+) => {
+  const { class: customClass, ...restButtonProps } = buttonProps as ModalButtonProps & { class?: unknown }
+
+  return h(
+    AButton,
+    {
+      ...restButtonProps,
+      class: [className, customClass],
+      onClick
+    },
+    () => content
+  )
+}
+const cancelButtonNode = computed(() =>
+  createFooterButton('aheart-modal__cancel', resolvedCancelButtonProps.value, handleCancel, props.cancelText)
+)
+const okButtonNode = computed(() =>
+  createFooterButton('aheart-modal__ok', resolvedOkButtonProps.value, handleOk, props.okText)
+)
+const defaultFooterNode = computed(() => [cancelButtonNode.value, okButtonNode.value])
+const footerRenderExtra = computed<ModalFooterRenderExtra>(() => ({
+  okButton: okButtonNode.value,
+  cancelButton: cancelButtonNode.value,
+  OkBtn: () => okButtonNode.value,
+  CancelBtn: () => cancelButtonNode.value
+}))
+const footerContent = computed(() => {
+  if (typeof props.footer === 'function') {
+    return props.footer(defaultFooterNode.value, footerRenderExtra.value)
+  }
+
+  if (props.footer === true) {
+    return defaultFooterNode.value
+  }
+
+  return props.footer
+})
 
 watch(
   () => props.open,

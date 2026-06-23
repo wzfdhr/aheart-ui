@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { h, ref } from 'vue'
+import { h, ref, type VNodeChild } from 'vue'
 
 const basicOpen = ref(false)
 const closeControlsOpen = ref(false)
+const renderableOpen = ref(false)
 const footerOpen = ref(false)
 const centeredOpen = ref(false)
 const loadingOpen = ref(false)
 const styledOpen = ref(false)
 const customCloseIcon = h('span', { class: 'docs-modal-close-icon' }, 'X')
+const renderableTitle = h('span', { class: 'docs-modal-title-node' }, 'Renderable title')
+const renderableOkText = h('span', { class: 'docs-modal-ok-node' }, 'Confirm')
+const renderableCancelText = h('span', { class: 'docs-modal-cancel-node' }, 'Dismiss')
+const renderableFooter = (
+  _originNode: VNodeChild,
+  { cancelButton, okButton }: { cancelButton: VNodeChild; okButton: VNodeChild }
+) => h('div', { class: 'docs-modal-footer-render' }, [
+  h('strong', null, 'Review actions'),
+  cancelButton,
+  okButton
+])
 </script>
 
 # Modal 对话框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -66,6 +78,48 @@ const customCloseIcon = h('span', { class: 'modal-close-icon' }, 'X')
     :closable="{ closeIcon: customCloseIcon }"
   >
     The close button can render custom content.
+  </AModal>
+</template>
+```
+
+## 可渲染内容
+
+<div class="aheart-demo-panel">
+  <AButton @click="renderableOpen = true">Renderable modal</AButton>
+  <AModal
+    v-model:open="renderableOpen"
+    :title="renderableTitle"
+    :ok-text="renderableOkText"
+    :cancel-text="renderableCancelText"
+    :footer="renderableFooter"
+  >
+    Modal title, action labels, and footer can all render custom node content.
+  </AModal>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+
+const open = ref(false)
+const title = h('span', { class: 'modal-title-node' }, 'Renderable title')
+const okText = h('span', { class: 'modal-ok-node' }, 'Confirm')
+const cancelText = h('span', { class: 'modal-cancel-node' }, 'Dismiss')
+const footer = (
+  _originNode: VNodeChild,
+  { cancelButton, okButton }: { cancelButton: VNodeChild; okButton: VNodeChild }
+) => h('div', { class: 'modal-footer-render' }, [cancelButton, okButton])
+</script>
+
+<template>
+  <AModal
+    v-model:open="open"
+    :title="title"
+    :ok-text="okText"
+    :cancel-text="cancelText"
+    :footer="footer"
+  >
+    Modal title, action labels, and footer can render custom node content.
   </AModal>
 </template>
 ```
@@ -187,7 +241,7 @@ const customCloseIcon = h('span', { class: 'modal-close-icon' }, 'X')
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | open | 是否显示对话框 | `boolean` | `false` |
-| title | 标题内容 | `string` | - |
+| title | 标题内容 | `VNodeChild` | - |
 | width | 对话框宽度 | `number` \| `string` | `520` |
 | centered | 是否垂直居中 | `boolean` | `false` |
 | closable | 是否显示右上角关闭按钮，可配置关闭图标或禁用关闭按钮 | `boolean` \| `{ closeIcon?: VNodeChild; disabled?: boolean }` | `true` |
@@ -196,14 +250,14 @@ const customCloseIcon = h('span', { class: 'modal-close-icon' }, 'X')
 | maskClosable | 点击遮罩是否关闭 | `boolean` | `true` |
 | keyboard | 按下 Escape 是否关闭 | `boolean` | `true` |
 | confirmLoading | OK 按钮是否显示加载态 | `boolean` | `false` |
-| okText | OK 按钮文本 | `string` | `OK` |
-| cancelText | Cancel 按钮文本 | `string` | `Cancel` |
+| okText | OK 按钮文本 | `VNodeChild` | `OK` |
+| cancelText | Cancel 按钮文本 | `VNodeChild` | `Cancel` |
 | okType | OK 按钮类型 | `ButtonType` | `primary` |
 | okButtonProps | OK 按钮属性 | `Partial<ButtonProps>` | - |
 | cancelButtonProps | Cancel 按钮属性 | `Partial<ButtonProps>` | - |
 | zIndex | 根节点层级 | `number` | `1000` |
 | loading | 是否在内容区显示骨架屏 | `boolean` | `false` |
-| footer | 是否显示默认页脚 | `boolean` | `true` |
+| footer | 页脚内容，`false` 或 `null` 时隐藏默认页脚 | `boolean` \| `VNodeChild` \| `ModalFooterRender` | `true` |
 | className | 对话框自定义类名 | `string` | - |
 | rootClassName | 根节点自定义类名 | `string` | - |
 | style | 对话框自定义样式 | `CSSProperties` | - |
@@ -217,6 +271,20 @@ const customCloseIcon = h('span', { class: 'modal-close-icon' }, 'X')
 ### ModalSemanticPart
 
 `root`、`mask`、`wrap`、`dialog`、`header`、`title`、`body`、`footer`、`close`
+
+### ModalFooterRender
+
+```ts
+type ModalFooterRender = (
+  originNode: VNodeChild,
+  extra: {
+    okButton: VNodeChild
+    cancelButton: VNodeChild
+    OkBtn: () => VNodeChild
+    CancelBtn: () => VNodeChild
+  }
+) => VNodeChild
+```
 
 ## Events
 

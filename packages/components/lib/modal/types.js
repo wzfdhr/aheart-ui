@@ -2,7 +2,10 @@
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const modalProps = {
   open: Boolean,
-  title: String,
+  title: {
+    type: null,
+    default: void 0
+  },
   width: {
     type: [Number, String],
     default: 520
@@ -30,11 +33,11 @@ const modalProps = {
   },
   confirmLoading: Boolean,
   okText: {
-    type: String,
+    type: null,
     default: "OK"
   },
   cancelText: {
-    type: String,
+    type: null,
     default: "Cancel"
   },
   okType: {
@@ -49,7 +52,7 @@ const modalProps = {
   },
   loading: Boolean,
   footer: {
-    type: Boolean,
+    type: [Boolean, String, Number, Object, Array, Function],
     default: true
   },
   className: String,

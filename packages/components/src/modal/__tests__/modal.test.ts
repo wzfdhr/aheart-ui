@@ -191,6 +191,99 @@ describe('Modal', () => {
     expect(wrapper.emitted('close')).toBeUndefined()
   })
 
+  it('renders vnode title and action text props', async () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        title: h('span', { class: 'title-node' }, 'Rich title'),
+        okText: h('span', { class: 'ok-node' }, 'Confirm'),
+        cancelText: h('span', { class: 'cancel-node' }, 'Dismiss')
+      }
+    })
+
+    expect(wrapper.find('.title-node').text()).toBe('Rich title')
+    expect(wrapper.find('.ok-node').text()).toBe('Confirm')
+    expect(wrapper.find('.cancel-node').text()).toBe('Dismiss')
+
+    await wrapper.find('.aheart-modal__ok').trigger('click')
+    await wrapper.find('.aheart-modal__cancel').trigger('click')
+
+    expect(wrapper.emitted('ok')).toHaveLength(1)
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+  })
+
+  it('renders numeric zero title and action text props', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        title: 0,
+        okText: 0,
+        cancelText: 0
+      }
+    })
+
+    expect(wrapper.find('.aheart-modal__title').text()).toBe('0')
+    expect(wrapper.find('.aheart-modal__ok').text()).toBe('0')
+    expect(wrapper.find('.aheart-modal__cancel').text()).toBe('0')
+  })
+
+  it('keeps title slot above renderable title prop', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        title: h('span', { class: 'title-prop' }, 'Prop title')
+      },
+      slots: {
+        title: '<span class="title-slot">Slot title</span>'
+      }
+    })
+
+    expect(wrapper.find('.title-slot').text()).toBe('Slot title')
+    expect(wrapper.find('.title-prop').exists()).toBe(false)
+  })
+
+  it('renders footer prop content instead of default buttons', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        footer: h('div', { class: 'footer-node' }, 'Custom footer')
+      }
+    })
+
+    expect(wrapper.find('.footer-node').text()).toBe('Custom footer')
+    expect(wrapper.find('.aheart-modal__ok').exists()).toBe(false)
+    expect(wrapper.find('.aheart-modal__cancel').exists()).toBe(false)
+  })
+
+  it('lets footer render function compose default action buttons', async () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        footer: (_originNode: unknown, { cancelButton, okButton }: { cancelButton: unknown; okButton: unknown }) =>
+          h('div', { class: 'footer-render' }, [cancelButton, okButton])
+      }
+    })
+
+    expect(wrapper.find('.footer-render').exists()).toBe(true)
+
+    await wrapper.find('.aheart-modal__ok').trigger('click')
+    await wrapper.find('.aheart-modal__cancel').trigger('click')
+
+    expect(wrapper.emitted('ok')).toHaveLength(1)
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+  })
+
+  it('hides the default footer when footer is null', () => {
+    const wrapper = mount(Modal, {
+      props: {
+        open: true,
+        footer: null
+      }
+    })
+
+    expect(wrapper.find('.aheart-modal__footer').exists()).toBe(false)
+  })
+
   it('does not render overlay nodes when closed', () => {
     const wrapper = mount(Modal, { props: { open: false, title: 'Hidden' } })
 

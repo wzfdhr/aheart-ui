@@ -1,7 +1,10 @@
 import { type CSSProperties, type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
+    readonly title: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly width: {
         readonly type: PropType<string | number>;
         readonly default: 520;
@@ -29,11 +32,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
-        readonly type: StringConstructor;
+        readonly type: PropType<VNodeChild>;
         readonly default: "OK";
     };
     readonly cancelText: {
-        readonly type: StringConstructor;
+        readonly type: PropType<VNodeChild>;
         readonly default: "Cancel";
     };
     readonly okType: {
@@ -48,7 +51,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly loading: BooleanConstructor;
     readonly footer: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").ModalFooter>;
         readonly default: true;
     };
     readonly className: StringConstructor;
@@ -68,7 +71,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     ok: () => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
+    readonly title: {
+        readonly type: PropType<VNodeChild>;
+        readonly default: undefined;
+    };
     readonly width: {
         readonly type: PropType<string | number>;
         readonly default: 520;
@@ -96,11 +102,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
-        readonly type: StringConstructor;
+        readonly type: PropType<VNodeChild>;
         readonly default: "OK";
     };
     readonly cancelText: {
-        readonly type: StringConstructor;
+        readonly type: PropType<VNodeChild>;
         readonly default: "Cancel";
     };
     readonly okType: {
@@ -115,7 +121,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly loading: BooleanConstructor;
     readonly footer: {
-        readonly type: BooleanConstructor;
+        readonly type: PropType<import("./types").ModalFooter>;
         readonly default: true;
     };
     readonly className: StringConstructor;
@@ -134,10 +140,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
     onOk?: (() => any) | undefined;
 }>, {
+    readonly title: VNodeChild;
     readonly closable: import("./types").ModalClosable;
     readonly closeIcon: VNodeChild;
     readonly open: boolean;
-    readonly footer: boolean;
+    readonly footer: import("./types").ModalFooter;
     readonly mask: boolean;
     readonly width: string | number;
     readonly zIndex: number;
@@ -149,8 +156,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly destroyOnHidden: boolean;
     readonly centered: boolean;
     readonly confirmLoading: boolean;
-    readonly okText: string;
-    readonly cancelText: string;
+    readonly okText: VNodeChild;
+    readonly cancelText: VNodeChild;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;

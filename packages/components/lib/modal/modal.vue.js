@@ -31,6 +31,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
+    const hasRenderable = (value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
+    };
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
@@ -44,7 +50,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       ...semanticStyle("root"),
       zIndex: props.zIndex
     }));
-    const hasFooter = vue.computed(() => props.footer || Boolean(slots.footer));
+    const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    const hasHeader = vue.computed(() => hasTitle.value || showCloseButton.value);
+    const hasFooter = vue.computed(() => Boolean(slots.footer) || props.footer !== false && props.footer !== null);
     const rootClass = vue.computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
     const maskClass = vue.computed(() => ["aheart-modal__mask", semanticClass("mask")]);
     const wrapClass = vue.computed(() => ["aheart-modal__wrap", semanticClass("wrap")]);
@@ -87,6 +95,40 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         type: ((_a = props.okButtonProps) == null ? void 0 : _a.type) ?? props.okType,
         loading: props.confirmLoading || Boolean((_b = props.okButtonProps) == null ? void 0 : _b.loading)
       };
+    });
+    const createFooterButton = (className, buttonProps, onClick, content) => {
+      const { class: customClass, ...restButtonProps } = buttonProps;
+      return vue.h(
+        index$1.default,
+        {
+          ...restButtonProps,
+          class: [className, customClass],
+          onClick
+        },
+        () => content
+      );
+    };
+    const cancelButtonNode = vue.computed(
+      () => createFooterButton("aheart-modal__cancel", resolvedCancelButtonProps.value, handleCancel, props.cancelText)
+    );
+    const okButtonNode = vue.computed(
+      () => createFooterButton("aheart-modal__ok", resolvedOkButtonProps.value, handleOk, props.okText)
+    );
+    const defaultFooterNode = vue.computed(() => [cancelButtonNode.value, okButtonNode.value]);
+    const footerRenderExtra = vue.computed(() => ({
+      okButton: okButtonNode.value,
+      cancelButton: cancelButtonNode.value,
+      OkBtn: () => okButtonNode.value,
+      CancelBtn: () => cancelButtonNode.value
+    }));
+    const footerContent = vue.computed(() => {
+      if (typeof props.footer === "function") {
+        return props.footer(defaultFooterNode.value, footerRenderExtra.value);
+      }
+      if (props.footer === true) {
+        return defaultFooterNode.value;
+      }
+      return props.footer;
     });
     vue.watch(
       () => props.open,
@@ -167,18 +209,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             role: "dialog",
             "aria-modal": "true"
           }, [
-            _ctx.title || _ctx.$slots.title || showCloseButton.value ? (vue.openBlock(), vue.createElementBlock("header", {
+            hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
               key: 0,
               class: vue.normalizeClass(headerClass.value),
               style: vue.normalizeStyle(semanticStyle("header"))
             }, [
-              _ctx.title || _ctx.$slots.title ? (vue.openBlock(), vue.createElementBlock("div", {
+              hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
                 key: 0,
                 class: vue.normalizeClass(titleClass.value),
                 style: vue.normalizeStyle(semanticStyle("title"))
               }, [
                 vue.renderSlot(_ctx.$slots, "title", {}, () => [
-                  vue.createTextVNode(vue.toDisplayString(_ctx.title), 1)
+                  vue.createVNode(vue.unref(AModalRenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
               ], 6)) : vue.createCommentVNode("", true),
               showCloseButton.value ? (vue.openBlock(), vue.createElementBlock("button", {
@@ -209,18 +251,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               style: vue.normalizeStyle(semanticStyle("footer"))
             }, [
               vue.renderSlot(_ctx.$slots, "footer", {}, () => [
-                vue.createVNode(vue.unref(index$1.default), vue.mergeProps({ class: "aheart-modal__cancel" }, resolvedCancelButtonProps.value, { onClick: handleCancel }), {
-                  default: vue.withCtx(() => [
-                    vue.createTextVNode(vue.toDisplayString(_ctx.cancelText), 1)
-                  ]),
-                  _: 1
-                }, 16),
-                vue.createVNode(vue.unref(index$1.default), vue.mergeProps({ class: "aheart-modal__ok" }, resolvedOkButtonProps.value, { onClick: handleOk }), {
-                  default: vue.withCtx(() => [
-                    vue.createTextVNode(vue.toDisplayString(_ctx.okText), 1)
-                  ]),
-                  _: 1
-                }, 16)
+                vue.createVNode(vue.unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
               ])
             ], 6)) : vue.createCommentVNode("", true)
           ], 6)

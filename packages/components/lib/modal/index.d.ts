@@ -1,7 +1,10 @@
 declare const Modal: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly open: BooleanConstructor;
-        readonly title: StringConstructor;
+        readonly title: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
         readonly width: {
             readonly type: import("vue").PropType<string | number>;
             readonly default: 520;
@@ -29,11 +32,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly confirmLoading: BooleanConstructor;
         readonly okText: {
-            readonly type: StringConstructor;
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
             readonly default: "OK";
         };
         readonly cancelText: {
-            readonly type: StringConstructor;
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
             readonly default: "Cancel";
         };
         readonly okType: {
@@ -48,7 +51,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly loading: BooleanConstructor;
         readonly footer: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").ModalFooter>;
             readonly default: true;
         };
         readonly className: StringConstructor;
@@ -73,10 +76,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         afterOpenChange: (open: boolean) => void;
         ok: () => void;
     }, import("vue").PublicProps, {
+        readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").ModalClosable;
         readonly closeIcon: import("vue").VNodeChild;
         readonly open: boolean;
-        readonly footer: boolean;
+        readonly footer: import("./types").ModalFooter;
         readonly mask: boolean;
         readonly width: string | number;
         readonly zIndex: number;
@@ -88,8 +92,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly destroyOnHidden: boolean;
         readonly centered: boolean;
         readonly confirmLoading: boolean;
-        readonly okText: string;
-        readonly cancelText: string;
+        readonly okText: import("vue").VNodeChild;
+        readonly cancelText: import("vue").VNodeChild;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -100,7 +104,10 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly open: BooleanConstructor;
-        readonly title: StringConstructor;
+        readonly title: {
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
+            readonly default: undefined;
+        };
         readonly width: {
             readonly type: import("vue").PropType<string | number>;
             readonly default: 520;
@@ -128,11 +135,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly confirmLoading: BooleanConstructor;
         readonly okText: {
-            readonly type: StringConstructor;
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
             readonly default: "OK";
         };
         readonly cancelText: {
-            readonly type: StringConstructor;
+            readonly type: import("vue").PropType<import("vue").VNodeChild>;
             readonly default: "Cancel";
         };
         readonly okType: {
@@ -147,7 +154,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         };
         readonly loading: BooleanConstructor;
         readonly footer: {
-            readonly type: BooleanConstructor;
+            readonly type: import("vue").PropType<import("./types").ModalFooter>;
             readonly default: true;
         };
         readonly className: StringConstructor;
@@ -166,10 +173,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
         onOk?: (() => any) | undefined;
     }>, {}, {}, {}, {}, {
+        readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").ModalClosable;
         readonly closeIcon: import("vue").VNodeChild;
         readonly open: boolean;
-        readonly footer: boolean;
+        readonly footer: import("./types").ModalFooter;
         readonly mask: boolean;
         readonly width: string | number;
         readonly zIndex: number;
@@ -181,8 +189,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly destroyOnHidden: boolean;
         readonly centered: boolean;
         readonly confirmLoading: boolean;
-        readonly okText: string;
-        readonly cancelText: string;
+        readonly okText: import("vue").VNodeChild;
+        readonly cancelText: import("vue").VNodeChild;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     }>;
     __isFragment?: undefined;
@@ -190,7 +198,10 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
-    readonly title: StringConstructor;
+    readonly title: {
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
+        readonly default: undefined;
+    };
     readonly width: {
         readonly type: import("vue").PropType<string | number>;
         readonly default: 520;
@@ -218,11 +229,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     };
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
-        readonly type: StringConstructor;
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
         readonly default: "OK";
     };
     readonly cancelText: {
-        readonly type: StringConstructor;
+        readonly type: import("vue").PropType<import("vue").VNodeChild>;
         readonly default: "Cancel";
     };
     readonly okType: {
@@ -237,7 +248,7 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     };
     readonly loading: BooleanConstructor;
     readonly footer: {
-        readonly type: BooleanConstructor;
+        readonly type: import("vue").PropType<import("./types").ModalFooter>;
         readonly default: true;
     };
     readonly className: StringConstructor;
@@ -262,10 +273,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     afterOpenChange: (open: boolean) => void;
     ok: () => void;
 }, string, {
+    readonly title: import("vue").VNodeChild;
     readonly closable: import("./types").ModalClosable;
     readonly closeIcon: import("vue").VNodeChild;
     readonly open: boolean;
-    readonly footer: boolean;
+    readonly footer: import("./types").ModalFooter;
     readonly mask: boolean;
     readonly width: string | number;
     readonly zIndex: number;
@@ -277,8 +289,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly destroyOnHidden: boolean;
     readonly centered: boolean;
     readonly confirmLoading: boolean;
-    readonly okText: string;
-    readonly cancelText: string;
+    readonly okText: import("vue").VNodeChild;
+    readonly cancelText: import("vue").VNodeChild;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

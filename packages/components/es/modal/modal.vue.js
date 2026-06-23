@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createTextVNode, toDisplayString, createVNode, unref, createBlock, mergeProps, withCtx, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, withDirectives, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, renderSlot, createVNode, unref, createBlock, vShow, h } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { modalProps, modalEmits } from "./types.js";
@@ -29,6 +29,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     const isClosableConfig = (value) => typeof value === "object" && value !== null;
+    const hasRenderable = (value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== void 0 && value !== null && value !== false && value !== true && value !== "";
+    };
     const normalizeSize = (size) => typeof size === "number" ? `${size}px` : size;
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
     const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
@@ -42,7 +48,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       ...semanticStyle("root"),
       zIndex: props.zIndex
     }));
-    const hasFooter = computed(() => props.footer || Boolean(slots.footer));
+    const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    const hasHeader = computed(() => hasTitle.value || showCloseButton.value);
+    const hasFooter = computed(() => Boolean(slots.footer) || props.footer !== false && props.footer !== null);
     const rootClass = computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
     const maskClass = computed(() => ["aheart-modal__mask", semanticClass("mask")]);
     const wrapClass = computed(() => ["aheart-modal__wrap", semanticClass("wrap")]);
@@ -85,6 +93,40 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         type: ((_a = props.okButtonProps) == null ? void 0 : _a.type) ?? props.okType,
         loading: props.confirmLoading || Boolean((_b = props.okButtonProps) == null ? void 0 : _b.loading)
       };
+    });
+    const createFooterButton = (className, buttonProps, onClick, content) => {
+      const { class: customClass, ...restButtonProps } = buttonProps;
+      return h(
+        Button,
+        {
+          ...restButtonProps,
+          class: [className, customClass],
+          onClick
+        },
+        () => content
+      );
+    };
+    const cancelButtonNode = computed(
+      () => createFooterButton("aheart-modal__cancel", resolvedCancelButtonProps.value, handleCancel, props.cancelText)
+    );
+    const okButtonNode = computed(
+      () => createFooterButton("aheart-modal__ok", resolvedOkButtonProps.value, handleOk, props.okText)
+    );
+    const defaultFooterNode = computed(() => [cancelButtonNode.value, okButtonNode.value]);
+    const footerRenderExtra = computed(() => ({
+      okButton: okButtonNode.value,
+      cancelButton: cancelButtonNode.value,
+      OkBtn: () => okButtonNode.value,
+      CancelBtn: () => cancelButtonNode.value
+    }));
+    const footerContent = computed(() => {
+      if (typeof props.footer === "function") {
+        return props.footer(defaultFooterNode.value, footerRenderExtra.value);
+      }
+      if (props.footer === true) {
+        return defaultFooterNode.value;
+      }
+      return props.footer;
     });
     watch(
       () => props.open,
@@ -165,18 +207,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             role: "dialog",
             "aria-modal": "true"
           }, [
-            _ctx.title || _ctx.$slots.title || showCloseButton.value ? (openBlock(), createElementBlock("header", {
+            hasHeader.value ? (openBlock(), createElementBlock("header", {
               key: 0,
               class: normalizeClass(headerClass.value),
               style: normalizeStyle(semanticStyle("header"))
             }, [
-              _ctx.title || _ctx.$slots.title ? (openBlock(), createElementBlock("div", {
+              hasTitle.value ? (openBlock(), createElementBlock("div", {
                 key: 0,
                 class: normalizeClass(titleClass.value),
                 style: normalizeStyle(semanticStyle("title"))
               }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
-                  createTextVNode(toDisplayString(_ctx.title), 1)
+                  createVNode(unref(AModalRenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
               ], 6)) : createCommentVNode("", true),
               showCloseButton.value ? (openBlock(), createElementBlock("button", {
@@ -207,18 +249,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               style: normalizeStyle(semanticStyle("footer"))
             }, [
               renderSlot(_ctx.$slots, "footer", {}, () => [
-                createVNode(unref(Button), mergeProps({ class: "aheart-modal__cancel" }, resolvedCancelButtonProps.value, { onClick: handleCancel }), {
-                  default: withCtx(() => [
-                    createTextVNode(toDisplayString(_ctx.cancelText), 1)
-                  ]),
-                  _: 1
-                }, 16),
-                createVNode(unref(Button), mergeProps({ class: "aheart-modal__ok" }, resolvedOkButtonProps.value, { onClick: handleOk }), {
-                  default: withCtx(() => [
-                    createTextVNode(toDisplayString(_ctx.okText), 1)
-                  ]),
-                  _: 1
-                }, 16)
+                createVNode(unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
               ])
             ], 6)) : createCommentVNode("", true)
           ], 6)
