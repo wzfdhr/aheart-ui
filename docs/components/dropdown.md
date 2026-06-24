@@ -307,14 +307,14 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | style | 根节点样式 | `StyleValue` | - |
 | overlayClassName | 弹层 class 兼容属性 | `string` | - |
 | overlayStyle | 弹层样式兼容属性 | `StyleValue` | - |
-| classNames | 语义化结构 class | `Partial<Record<DropdownSemanticPart, string>>` | - |
-| styles | 语义化结构样式 | `Partial<Record<DropdownSemanticPart, StyleValue>>` | - |
+| classNames | 语义化结构 class，支持对象或函数 | `DropdownSemanticClassNames \| (info: DropdownSemanticInfo) => DropdownSemanticClassNames` | - |
+| styles | 语义化结构样式，支持对象或函数 | `DropdownSemanticStyles \| (info: DropdownSemanticInfo) => DropdownSemanticStyles` | - |
 | popupRender | 自定义弹层渲染函数 | `(menus: VNodeChild) => VNodeChild` | - |
 | dropdownRender | 自定义弹层渲染函数兼容别名 | `(menus: VNodeChild) => VNodeChild` | - |
 
 ## Dropdown.Button API
 
-`ADropdownButton` 组合了一个主按钮和一个下拉触发按钮。下拉相关属性继承 `ADropdown` 的菜单、触发、挂载、弹层样式和渲染函数能力。
+`ADropdownButton` 组合了一个主按钮和一个下拉触发按钮。下拉相关属性继承 `ADropdown` 的菜单、触发、挂载、弹层样式、语义函数和渲染函数能力。
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
@@ -344,8 +344,8 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | style | 根节点样式 | `StyleValue` | - |
 | overlayClassName | 弹层 class 兼容属性 | `string` | - |
 | overlayStyle | 弹层样式兼容属性 | `StyleValue` | - |
-| classNames | 下拉弹层语义化结构 class | `Partial<Record<DropdownSemanticPart, string>>` | - |
-| styles | 下拉弹层语义化结构样式 | `Partial<Record<DropdownSemanticPart, StyleValue>>` | - |
+| classNames | 下拉弹层语义化结构 class，支持对象或函数 | `DropdownSemanticClassNames \| (info: DropdownSemanticInfo) => DropdownSemanticClassNames` | - |
+| styles | 下拉弹层语义化结构样式，支持对象或函数 | `DropdownSemanticStyles \| (info: DropdownSemanticInfo) => DropdownSemanticStyles` | - |
 | popupRender | 自定义弹层渲染函数 | `(menus: VNodeChild) => VNodeChild` | - |
 | dropdownRender | 自定义弹层渲染函数兼容别名 | `(menus: VNodeChild) => VNodeChild` | - |
 
@@ -368,6 +368,13 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | popup | 弹层节点 |
 | menu | 默认菜单包装节点 |
 | arrow | 箭头 |
+
+### DropdownSemanticInfo
+
+| 字段 | 说明 | 类型 |
+| --- | --- | --- |
+| open | 当前展开状态 | `boolean` |
+| placement | 当前弹出位置 | `DropdownPlacement` |
 
 ## Events
 

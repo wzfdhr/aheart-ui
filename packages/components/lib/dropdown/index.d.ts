@@ -28,8 +28,8 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly destroyPopupOnHide: BooleanConstructor;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").DropdownClassNames>;
+    readonly styles: import("vue").PropType<import("./types").DropdownStyles>;
     readonly popupRender: import("vue").PropType<import("./types").DropdownRender>;
     readonly dropdownRender: import("vue").PropType<import("./types").DropdownRender>;
     readonly type: {
@@ -99,8 +99,8 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly destroyPopupOnHide: BooleanConstructor;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").DropdownClassNames>;
+    readonly styles: import("vue").PropType<import("./types").DropdownStyles>;
     readonly popupRender: import("vue").PropType<import("./types").DropdownRender>;
     readonly dropdownRender: import("vue").PropType<import("./types").DropdownRender>;
     readonly type: {

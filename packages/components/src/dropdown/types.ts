@@ -20,8 +20,14 @@ export interface DropdownArrowConfig {
 
 export type DropdownArrow = boolean | DropdownArrowConfig
 export type DropdownSemanticPart = 'root' | 'trigger' | 'popup' | 'menu' | 'arrow'
-export type DropdownClassNames = Partial<Record<DropdownSemanticPart, string>>
-export type DropdownStyles = Partial<Record<DropdownSemanticPart, StyleValue>>
+export interface DropdownSemanticInfo {
+  open: boolean
+  placement: DropdownPlacement
+}
+export type DropdownSemanticClassNames = Partial<Record<DropdownSemanticPart, string>>
+export type DropdownSemanticStyles = Partial<Record<DropdownSemanticPart, StyleValue>>
+export type DropdownClassNames = DropdownSemanticClassNames | ((info: DropdownSemanticInfo) => DropdownSemanticClassNames)
+export type DropdownStyles = DropdownSemanticStyles | ((info: DropdownSemanticInfo) => DropdownSemanticStyles)
 export type DropdownRender = (menus: VNodeChild) => VNodeChild
 export type DropdownGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
 export type DropdownOpenChangeSource = 'trigger' | 'menu'
@@ -72,8 +78,8 @@ export const dropdownProps = {
   style: [String, Object, Array] as PropType<StyleValue>,
   overlayClassName: String,
   overlayStyle: [String, Object, Array] as PropType<StyleValue>,
-  classNames: Object as PropType<DropdownClassNames>,
-  styles: Object as PropType<DropdownStyles>,
+  classNames: [Object, Function] as PropType<DropdownClassNames>,
+  styles: [Object, Function] as PropType<DropdownStyles>,
   popupRender: Function as PropType<DropdownRender>,
   dropdownRender: Function as PropType<DropdownRender>
 } as const

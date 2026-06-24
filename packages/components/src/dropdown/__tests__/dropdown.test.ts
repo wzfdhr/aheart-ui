@@ -267,6 +267,75 @@ describe('Dropdown', () => {
     expect(arrow.attributes('style')).toContain('background-color: yellow')
   })
 
+  it('resolves semantic class and style functions with dropdown state info', () => {
+    const seenClassInfos: Array<{ open: boolean; placement: string }> = []
+    const seenStyleInfos: Array<{ open: boolean; placement: string }> = []
+    const wrapper = mountDropdown({
+      props: {
+        open: true,
+        menu,
+        placement: 'topRight',
+        arrow: true,
+        classNames: (info: { open: boolean; placement: string }) => {
+          seenClassInfos.push(info)
+          return {
+            root: 'fn-root',
+            trigger: 'fn-trigger',
+            popup: 'fn-popup',
+            menu: 'fn-menu',
+            arrow: 'fn-arrow'
+          }
+        },
+        styles: (info: { open: boolean; placement: string }) => {
+          seenStyleInfos.push(info)
+          return {
+            root: { color: 'red' },
+            trigger: { outlineColor: 'blue' },
+            popup: { minWidth: '240px' },
+            menu: { padding: '6px' },
+            arrow: { backgroundColor: 'white' }
+          }
+        }
+      },
+      slots: { default: '<button>Actions</button>' }
+    })
+
+    expect(seenClassInfos[0]).toMatchObject({ open: true, placement: 'topRight' })
+    expect(seenStyleInfos[0]).toMatchObject({ open: true, placement: 'topRight' })
+
+    expect(wrapper.find('.aheart-dropdown').classes()).toContain('fn-root')
+    expect(wrapper.find('.aheart-dropdown').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-dropdown__trigger').classes()).toContain('fn-trigger')
+    expect(wrapper.find('.aheart-dropdown__trigger').attributes('style')).toContain('outline-color: blue')
+    expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('fn-popup')
+    expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('min-width: 240px')
+    expect(wrapper.find('.aheart-dropdown__menu').classes()).toContain('fn-menu')
+    expect(wrapper.find('.aheart-dropdown__menu').attributes('style')).toContain('padding: 6px')
+    expect(wrapper.find('.aheart-dropdown__arrow').classes()).toContain('fn-arrow')
+    expect(wrapper.find('.aheart-dropdown__arrow').attributes('style')).toContain('background-color: white')
+  })
+
+  it('forwards semantic class and style functions through Dropdown.Button', async () => {
+    const wrapper = mountDropdownButton({
+      props: {
+        menu,
+        trigger: ['click'],
+        classNames: (info: { open: boolean }) => ({
+          popup: info.open ? 'button-popup-open' : 'button-popup-closed'
+        }),
+        styles: () => ({
+          popup: { maxWidth: '300px' }
+        })
+      },
+      slots: { default: 'Actions' }
+    })
+
+    await wrapper.find('.aheart-dropdown-button__toggle').trigger('click')
+
+    expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('button-popup-open')
+    expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('max-width: 300px')
+  })
+
   it('preserves or destroys hidden overlay according to destroy props', async () => {
     const preserved = mountDropdown({
       props: { menu, trigger: ['click'] },

@@ -52,7 +52,14 @@
 import { computed, defineComponent, h, ref, useSlots, watch, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AMenu, { type MenuClickInfo } from '../menu'
-import { dropdownEmits, dropdownProps, type DropdownOpenChangeInfo } from './types'
+import {
+  dropdownEmits,
+  dropdownProps,
+  type DropdownOpenChangeInfo,
+  type DropdownSemanticClassNames,
+  type DropdownSemanticInfo,
+  type DropdownSemanticStyles
+} from './types'
 import './style.css'
 
 defineOptions({
@@ -100,36 +107,46 @@ const popupContainer = computed(() => {
 const shouldTeleport = computed(() => popupContainer.value !== false)
 const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
 
+const semanticInfo = computed<DropdownSemanticInfo>(() => ({
+  open: mergedOpen.value,
+  placement: props.placement
+}))
+const resolvedClassNames = computed<DropdownSemanticClassNames>(() =>
+  typeof props.classNames === 'function' ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+)
+const resolvedStyles = computed<DropdownSemanticStyles>(() =>
+  typeof props.styles === 'function' ? props.styles(semanticInfo.value) : props.styles ?? {}
+)
 const dropdownClass = computed(() => [
   props.className,
   props.rootClassName,
-  props.classNames?.root,
+  resolvedClassNames.value.root,
   {
     'is-open': mergedOpen.value,
     'is-disabled': isDisabled.value
   }
 ])
 
-const rootStyle = computed(() => [props.style, props.styles?.root])
-const triggerClass = computed(() => props.classNames?.trigger)
-const triggerStyle = computed(() => props.styles?.trigger)
+const rootStyle = computed(() => [props.style, resolvedStyles.value.root])
+const triggerClass = computed(() => resolvedClassNames.value.trigger)
+const triggerStyle = computed(() => resolvedStyles.value.trigger)
 const overlayClass = computed(() => [
   `aheart-dropdown__overlay--${props.placement}`,
   props.overlayClassName,
-  props.classNames?.popup
+  resolvedClassNames.value.popup
 ])
-const overlayStyle = computed(() => [props.overlayStyle, props.styles?.popup])
-const menuClass = computed(() => props.classNames?.menu)
-const menuStyle = computed(() => props.styles?.menu)
+const overlayStyle = computed(() => [props.overlayStyle, resolvedStyles.value.popup])
+const menuClass = computed(() => resolvedClassNames.value.menu)
+const menuStyle = computed(() => resolvedStyles.value.menu)
 const showArrow = computed(() => props.arrow !== false)
 const arrowPointsAtCenter = computed(() => typeof props.arrow === 'object' && props.arrow?.pointAtCenter === true)
 const arrowClass = computed(() => [
-  props.classNames?.arrow,
+  resolvedClassNames.value.arrow,
   {
     'aheart-dropdown__arrow--point-at-center': arrowPointsAtCenter.value
   }
 ])
-const arrowStyle = computed(() => props.styles?.arrow)
+const arrowStyle = computed(() => resolvedStyles.value.arrow)
 const defaultMenuNode = computed(() => {
   if (!hasMenu.value) {
     return null

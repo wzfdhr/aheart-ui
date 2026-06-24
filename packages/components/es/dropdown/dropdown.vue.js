@@ -52,68 +52,48 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const shouldTeleport = computed(() => popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const dropdownClass = computed(() => {
-      var _a;
-      return [
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          "is-open": mergedOpen.value,
-          "is-disabled": isDisabled.value
-        }
-      ];
-    });
-    const rootStyle = computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const triggerClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.trigger;
-    });
-    const triggerStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.trigger;
-    });
-    const overlayClass = computed(() => {
-      var _a;
-      return [
-        `aheart-dropdown__overlay--${props.placement}`,
-        props.overlayClassName,
-        (_a = props.classNames) == null ? void 0 : _a.popup
-      ];
-    });
-    const overlayStyle = computed(() => {
-      var _a;
-      return [props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
-    });
-    const menuClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.menu;
-    });
-    const menuStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.menu;
-    });
+    const semanticInfo = computed(() => ({
+      open: mergedOpen.value,
+      placement: props.placement
+    }));
+    const resolvedClassNames = computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
+    const dropdownClass = computed(() => [
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        "is-open": mergedOpen.value,
+        "is-disabled": isDisabled.value
+      }
+    ]);
+    const rootStyle = computed(() => [props.style, resolvedStyles.value.root]);
+    const triggerClass = computed(() => resolvedClassNames.value.trigger);
+    const triggerStyle = computed(() => resolvedStyles.value.trigger);
+    const overlayClass = computed(() => [
+      `aheart-dropdown__overlay--${props.placement}`,
+      props.overlayClassName,
+      resolvedClassNames.value.popup
+    ]);
+    const overlayStyle = computed(() => [props.overlayStyle, resolvedStyles.value.popup]);
+    const menuClass = computed(() => resolvedClassNames.value.menu);
+    const menuStyle = computed(() => resolvedStyles.value.menu);
     const showArrow = computed(() => props.arrow !== false);
     const arrowPointsAtCenter = computed(() => {
       var _a;
       return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
     });
-    const arrowClass = computed(() => {
-      var _a;
-      return [
-        (_a = props.classNames) == null ? void 0 : _a.arrow,
-        {
-          "aheart-dropdown__arrow--point-at-center": arrowPointsAtCenter.value
-        }
-      ];
-    });
-    const arrowStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.arrow;
-    });
+    const arrowClass = computed(() => [
+      resolvedClassNames.value.arrow,
+      {
+        "aheart-dropdown__arrow--point-at-center": arrowPointsAtCenter.value
+      }
+    ]);
+    const arrowStyle = computed(() => resolvedStyles.value.arrow);
     const defaultMenuNode = computed(() => {
       var _a, _b, _c, _d;
       if (!hasMenu.value) {

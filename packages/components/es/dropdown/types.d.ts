@@ -8,8 +8,14 @@ export interface DropdownArrowConfig {
 }
 export type DropdownArrow = boolean | DropdownArrowConfig;
 export type DropdownSemanticPart = 'root' | 'trigger' | 'popup' | 'menu' | 'arrow';
-export type DropdownClassNames = Partial<Record<DropdownSemanticPart, string>>;
-export type DropdownStyles = Partial<Record<DropdownSemanticPart, StyleValue>>;
+export interface DropdownSemanticInfo {
+    open: boolean;
+    placement: DropdownPlacement;
+}
+export type DropdownSemanticClassNames = Partial<Record<DropdownSemanticPart, string>>;
+export type DropdownSemanticStyles = Partial<Record<DropdownSemanticPart, StyleValue>>;
+export type DropdownClassNames = DropdownSemanticClassNames | ((info: DropdownSemanticInfo) => DropdownSemanticClassNames);
+export type DropdownStyles = DropdownSemanticStyles | ((info: DropdownSemanticInfo) => DropdownSemanticStyles);
 export type DropdownRender = (menus: VNodeChild) => VNodeChild;
 export type DropdownGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
 export type DropdownOpenChangeSource = 'trigger' | 'menu';
@@ -56,8 +62,8 @@ export declare const dropdownProps: {
     readonly style: PropType<StyleValue>;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<StyleValue>;
-    readonly classNames: PropType<Partial<Record<DropdownSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<DropdownSemanticPart, StyleValue>>>;
+    readonly classNames: PropType<DropdownClassNames>;
+    readonly styles: PropType<DropdownStyles>;
     readonly popupRender: PropType<DropdownRender>;
     readonly dropdownRender: PropType<DropdownRender>;
 };
@@ -95,8 +101,8 @@ export declare const dropdownButtonProps: {
     readonly destroyPopupOnHide: BooleanConstructor;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<StyleValue>;
-    readonly classNames: PropType<Partial<Record<DropdownSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<DropdownSemanticPart, StyleValue>>>;
+    readonly classNames: PropType<DropdownClassNames>;
+    readonly styles: PropType<DropdownStyles>;
     readonly popupRender: PropType<DropdownRender>;
     readonly dropdownRender: PropType<DropdownRender>;
     readonly type: {

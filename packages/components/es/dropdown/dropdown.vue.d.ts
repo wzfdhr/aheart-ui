@@ -31,8 +31,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly style: import("vue").PropType<import("vue").StyleValue>;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").DropdownClassNames>;
+    readonly styles: import("vue").PropType<import("./types").DropdownStyles>;
     readonly popupRender: import("vue").PropType<import("./types").DropdownRender>;
     readonly dropdownRender: import("vue").PropType<import("./types").DropdownRender>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
@@ -70,8 +70,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly style: import("vue").PropType<import("vue").StyleValue>;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").DropdownSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").DropdownClassNames>;
+    readonly styles: import("vue").PropType<import("./types").DropdownStyles>;
     readonly popupRender: import("vue").PropType<import("./types").DropdownRender>;
     readonly dropdownRender: import("vue").PropType<import("./types").DropdownRender>;
 }>> & Readonly<{

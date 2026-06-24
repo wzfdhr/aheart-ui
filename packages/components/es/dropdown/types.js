@@ -30,8 +30,8 @@ const dropdownProps = {
   style: [String, Object, Array],
   overlayClassName: String,
   overlayStyle: [String, Object, Array],
-  classNames: Object,
-  styles: Object,
+  classNames: [Object, Function],
+  styles: [Object, Function],
   popupRender: Function,
   dropdownRender: Function
 };

@@ -28,8 +28,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly destroyPopupOnHide: BooleanConstructor;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").DropdownSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").DropdownSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").DropdownClassNames>;
+    readonly styles: PropType<import("./types").DropdownStyles>;
     readonly popupRender: PropType<import("./types").DropdownRender>;
     readonly dropdownRender: PropType<import("./types").DropdownRender>;
     readonly type: {
@@ -99,8 +99,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly destroyPopupOnHide: BooleanConstructor;
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").DropdownSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").DropdownSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").DropdownClassNames>;
+    readonly styles: PropType<import("./types").DropdownStyles>;
     readonly popupRender: PropType<import("./types").DropdownRender>;
     readonly dropdownRender: PropType<import("./types").DropdownRender>;
     readonly type: {

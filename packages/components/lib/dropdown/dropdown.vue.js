@@ -54,68 +54,48 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const shouldTeleport = vue.computed(() => popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const dropdownClass = vue.computed(() => {
-      var _a;
-      return [
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          "is-open": mergedOpen.value,
-          "is-disabled": isDisabled.value
-        }
-      ];
-    });
-    const rootStyle = vue.computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const triggerClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.trigger;
-    });
-    const triggerStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.trigger;
-    });
-    const overlayClass = vue.computed(() => {
-      var _a;
-      return [
-        `aheart-dropdown__overlay--${props.placement}`,
-        props.overlayClassName,
-        (_a = props.classNames) == null ? void 0 : _a.popup
-      ];
-    });
-    const overlayStyle = vue.computed(() => {
-      var _a;
-      return [props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
-    });
-    const menuClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.menu;
-    });
-    const menuStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.menu;
-    });
+    const semanticInfo = vue.computed(() => ({
+      open: mergedOpen.value,
+      placement: props.placement
+    }));
+    const resolvedClassNames = vue.computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = vue.computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
+    const dropdownClass = vue.computed(() => [
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        "is-open": mergedOpen.value,
+        "is-disabled": isDisabled.value
+      }
+    ]);
+    const rootStyle = vue.computed(() => [props.style, resolvedStyles.value.root]);
+    const triggerClass = vue.computed(() => resolvedClassNames.value.trigger);
+    const triggerStyle = vue.computed(() => resolvedStyles.value.trigger);
+    const overlayClass = vue.computed(() => [
+      `aheart-dropdown__overlay--${props.placement}`,
+      props.overlayClassName,
+      resolvedClassNames.value.popup
+    ]);
+    const overlayStyle = vue.computed(() => [props.overlayStyle, resolvedStyles.value.popup]);
+    const menuClass = vue.computed(() => resolvedClassNames.value.menu);
+    const menuStyle = vue.computed(() => resolvedStyles.value.menu);
     const showArrow = vue.computed(() => props.arrow !== false);
     const arrowPointsAtCenter = vue.computed(() => {
       var _a;
       return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
     });
-    const arrowClass = vue.computed(() => {
-      var _a;
-      return [
-        (_a = props.classNames) == null ? void 0 : _a.arrow,
-        {
-          "aheart-dropdown__arrow--point-at-center": arrowPointsAtCenter.value
-        }
-      ];
-    });
-    const arrowStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.arrow;
-    });
+    const arrowClass = vue.computed(() => [
+      resolvedClassNames.value.arrow,
+      {
+        "aheart-dropdown__arrow--point-at-center": arrowPointsAtCenter.value
+      }
+    ]);
+    const arrowStyle = vue.computed(() => resolvedStyles.value.arrow);
     const defaultMenuNode = vue.computed(() => {
       var _a, _b, _c, _d;
       if (!hasMenu.value) {
