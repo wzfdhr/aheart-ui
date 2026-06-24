@@ -57,6 +57,7 @@ export declare const tooltipProps: {
         readonly default: 0.1;
     };
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyTooltipOnHide: BooleanConstructor;
     readonly fresh: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;

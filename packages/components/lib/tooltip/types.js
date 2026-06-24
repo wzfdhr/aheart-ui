@@ -42,6 +42,7 @@ const tooltipProps = {
     default: 0.1
   },
   destroyOnHidden: Boolean,
+  destroyTooltipOnHide: Boolean,
   fresh: Boolean,
   className: String,
   rootClassName: String,

@@ -39,6 +39,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
             readonly default: 0.1;
         };
         readonly destroyOnHidden: BooleanConstructor;
+        readonly destroyTooltipOnHide: BooleanConstructor;
         readonly fresh: BooleanConstructor;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -65,6 +66,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly defaultOpen: boolean;
+        readonly destroyTooltipOnHide: boolean;
         readonly fresh: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -113,6 +115,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
             readonly default: 0.1;
         };
         readonly destroyOnHidden: BooleanConstructor;
+        readonly destroyTooltipOnHide: BooleanConstructor;
         readonly fresh: BooleanConstructor;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -136,6 +139,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly defaultOpen: boolean;
+        readonly destroyTooltipOnHide: boolean;
         readonly fresh: boolean;
     }>;
     __isFragment?: undefined;
@@ -181,6 +185,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly default: 0.1;
     };
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyTooltipOnHide: BooleanConstructor;
     readonly fresh: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -207,6 +212,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly defaultOpen: boolean;
+    readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

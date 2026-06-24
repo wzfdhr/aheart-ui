@@ -38,7 +38,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const hasTitle = computed(() => Boolean(slots.title) || hasTitleContent(props.title));
     const visible = computed(() => hasTitle.value && mergedOpen.value);
-    const shouldRenderPopup = computed(() => hasTitle.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
+    const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
+    const shouldRenderPopup = computed(() => hasTitle.value && (visible.value || !shouldDestroyOnHidden.value && hasRenderedPopup.value));
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = computed(() => {
       if (props.getPopupContainer && triggerRef.value) {

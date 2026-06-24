@@ -206,6 +206,7 @@ const renderableTooltipTitle = () => h('span', [
 | mouseEnterDelay | hover 打开延迟，单位秒 | `number` | `0.1` |
 | mouseLeaveDelay | hover 关闭延迟，单位秒 | `number` | `0.1` |
 | destroyOnHidden | 关闭后是否销毁浮层 DOM | `boolean` | `false` |
+| destroyTooltipOnHide | 旧版关闭后销毁别名，等同 `destroyOnHidden` | `boolean` | `false` |
 | fresh | 保留兼容 API；Vue 挂载内容会保持响应式更新 | `boolean` | `false` |
 | className | 根节点兼容 class | `string` | - |
 | rootClassName | 根节点 class | `string` | - |
