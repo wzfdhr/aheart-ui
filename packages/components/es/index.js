@@ -8,7 +8,7 @@ import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
 import Divider from "./divider/index.js";
 import Drawer from "./drawer/index.js";
-import Dropdown from "./dropdown/index.js";
+import Dropdown, { DropdownButton } from "./dropdown/index.js";
 import Empty from "./empty/index.js";
 import { PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE } from "./empty/index.js";
 import Flex from "./flex/index.js";
@@ -69,6 +69,7 @@ const components = [
   Empty,
   Breadcrumb,
   Dropdown,
+  DropdownButton,
   Menu,
   Tabs,
   Steps,
@@ -98,6 +99,7 @@ const AheartUI = {
   }
 };
 export {
+  DropdownButton as ADropdownButton,
   Alert,
   BadgeWithRibbon as Badge,
   BadgeRibbon,
@@ -115,6 +117,7 @@ export {
   Divider,
   Drawer,
   Dropdown,
+  DropdownButton,
   Empty,
   Flex,
   Form,

@@ -69,6 +69,7 @@ const components = [
   index$j.default,
   index$k.default,
   index$l.default,
+  index$l.DropdownButton,
   index$m.default,
   index$n.default,
   index$o.default,
@@ -111,7 +112,9 @@ exports.ConfigProvider = index$1.default;
 exports.Descriptions = index$w.default;
 exports.Divider = index$3.default;
 exports.Drawer = index$d.default;
+exports.ADropdownButton = index$l.DropdownButton;
 exports.Dropdown = index$l.default;
+exports.DropdownButton = index$l.DropdownButton;
 exports.Empty = index$j.default;
 exports.PRESENTED_IMAGE_DEFAULT = index$j.PRESENTED_IMAGE_DEFAULT;
 exports.PRESENTED_IMAGE_SIMPLE = index$j.PRESENTED_IMAGE_SIMPLE;

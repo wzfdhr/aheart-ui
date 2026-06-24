@@ -1,4 +1,14 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
+import {
+  buttonSizes,
+  buttonTypes,
+  nativeButtonTypes,
+  type ButtonIcon,
+  type ButtonLoading,
+  type ButtonSize,
+  type ButtonType,
+  type NativeButtonType
+} from '../button/types'
 import type { MenuItem, MenuClickInfo } from '../menu'
 
 export type DropdownTrigger = 'click' | 'hover' | 'contextMenu'
@@ -15,6 +25,7 @@ export type DropdownStyles = Partial<Record<DropdownSemanticPart, StyleValue>>
 export type DropdownRender = (menus: VNodeChild) => VNodeChild
 export type DropdownGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
 export type DropdownOpenChangeSource = 'trigger' | 'menu'
+export type DropdownButtonRender = (buttons: VNodeChild[]) => VNodeChild[]
 
 export interface DropdownOpenChangeInfo {
   source: DropdownOpenChangeSource
@@ -75,3 +86,68 @@ export const dropdownEmits = {
 }
 
 export type DropdownProps = ExtractPropTypes<typeof dropdownProps>
+
+export const dropdownButtonProps = {
+  menu: dropdownProps.menu,
+  trigger: dropdownProps.trigger,
+  placement: {
+    type: String as PropType<DropdownPlacement>,
+    default: 'bottomRight'
+  },
+  getPopupContainer: dropdownProps.getPopupContainer,
+  open: dropdownProps.open,
+  defaultOpen: dropdownProps.defaultOpen,
+  disabled: dropdownProps.disabled,
+  arrow: dropdownProps.arrow,
+  destroyOnHidden: dropdownProps.destroyOnHidden,
+  destroyPopupOnHide: dropdownProps.destroyPopupOnHide,
+  overlayClassName: dropdownProps.overlayClassName,
+  overlayStyle: dropdownProps.overlayStyle,
+  classNames: dropdownProps.classNames,
+  styles: dropdownProps.styles,
+  popupRender: dropdownProps.popupRender,
+  dropdownRender: dropdownProps.dropdownRender,
+  type: {
+    type: String as PropType<ButtonType>,
+    default: 'default',
+    validator: (value: string) => buttonTypes.includes(value as ButtonType)
+  },
+  size: {
+    type: String as PropType<ButtonSize>,
+    validator: (value: string) => buttonSizes.includes(value as ButtonSize)
+  },
+  nativeType: {
+    type: String as PropType<NativeButtonType>,
+    default: 'button',
+    validator: (value: string) => nativeButtonTypes.includes(value as NativeButtonType)
+  },
+  htmlType: {
+    type: String as PropType<NativeButtonType>,
+    validator: (value: string) => nativeButtonTypes.includes(value as NativeButtonType)
+  },
+  danger: Boolean,
+  loading: {
+    type: [Boolean, Object] as PropType<ButtonLoading>,
+    default: false
+  },
+  icon: {
+    type: null as unknown as PropType<ButtonIcon>,
+    default: undefined
+  },
+  href: String,
+  target: String,
+  title: String,
+  className: String,
+  rootClassName: String,
+  style: [String, Object, Array] as PropType<StyleValue>,
+  buttonsRender: Function as PropType<DropdownButtonRender>
+} as const
+
+export const dropdownButtonEmits = {
+  'update:open': dropdownEmits['update:open'],
+  openChange: dropdownEmits.openChange,
+  click: (event: MouseEvent) => event instanceof MouseEvent,
+  menuClick: (_info: DropdownClickInfo) => true
+}
+
+export type DropdownButtonProps = ExtractPropTypes<typeof dropdownButtonProps>

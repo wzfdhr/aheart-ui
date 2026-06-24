@@ -52,6 +52,45 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 </template>
 ```
 
+## 按钮式下拉
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <ADropdownButton
+      type="primary"
+      :trigger="['click']"
+      :menu="{
+        items: [
+          { key: 'create', label: 'Create item' },
+          { key: 'import', label: 'Import data' }
+        ]
+      }"
+      @click="() => undefined"
+    >
+      New item
+    </ADropdownButton>
+    <ADropdownButton
+      loading
+      :menu="{ items: [{ key: 'retry', label: 'Retry later' }] }"
+    >
+      Processing
+    </ADropdownButton>
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <ADropdownButton type="primary" :trigger="['click']" :menu="{ items }" @click="create">
+    New item
+  </ADropdownButton>
+  <ADropdownButton loading :menu="{ items: retryItems }">
+    Processing
+  </ADropdownButton>
+</template>
+```
+
+`ADropdownButton` is also available as `Dropdown.Button` when using the component object directly.
+
 ## 右键菜单
 
 <div class="aheart-demo-panel">
@@ -273,6 +312,43 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | popupRender | 自定义弹层渲染函数 | `(menus: VNodeChild) => VNodeChild` | - |
 | dropdownRender | 自定义弹层渲染函数兼容别名 | `(menus: VNodeChild) => VNodeChild` | - |
 
+## Dropdown.Button API
+
+`ADropdownButton` 组合了一个主按钮和一个下拉触发按钮。下拉相关属性继承 `ADropdown` 的菜单、触发、挂载、弹层样式和渲染函数能力。
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| menu | 菜单配置 | `DropdownMenuConfig` | - |
+| trigger | 触发方式 | `Array<'click' \| 'hover' \| 'contextMenu'>` | `['hover']` |
+| placement | 弹出位置 | `bottomLeft` \| `bottom` \| `bottomRight` \| `topLeft` \| `top` \| `topRight` | `bottomRight` |
+| open | 是否展开，受控 | `boolean` | - |
+| defaultOpen | 默认是否展开 | `boolean` | `false` |
+| disabled | 禁用主按钮和下拉触发按钮 | `boolean` | ConfigProvider disabled |
+| loading | 主按钮 loading；同时禁用下拉触发按钮 | `boolean` \| `{ delay?: number; icon?: VNodeChild }` | `false` |
+| type | 主按钮和触发按钮类型 | `ButtonType` | `default` |
+| danger | 危险按钮样式 | `boolean` | `false` |
+| size | 按钮尺寸 | `ButtonSize` | ConfigProvider size |
+| htmlType | 主按钮原生 `type` 兼容属性 | `button` \| `submit` \| `reset` | - |
+| nativeType | 主按钮原生 `type` | `button` \| `submit` \| `reset` | `button` |
+| href | 主按钮链接地址 | `string` | - |
+| target | 主按钮链接打开方式 | `string` | - |
+| title | 主按钮与触发按钮 title | `string` | - |
+| icon | 自定义下拉触发按钮图标 | `VNodeChild` | `v` |
+| buttonsRender | 自定义渲染 `[主按钮, 下拉按钮]` | `(buttons: VNodeChild[]) => VNodeChild[]` | - |
+| getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| arrow | 是否显示箭头，或配置箭头指向中心 | `boolean \| { pointAtCenter?: boolean }` | `false` |
+| destroyOnHidden | 关闭后是否销毁弹层 DOM | `boolean` | `false` |
+| destroyPopupOnHide | 关闭后销毁弹层 DOM 的兼容别名 | `boolean` | `false` |
+| className | 根节点兼容 class | `string` | - |
+| rootClassName | 根节点 class | `string` | - |
+| style | 根节点样式 | `StyleValue` | - |
+| overlayClassName | 弹层 class 兼容属性 | `string` | - |
+| overlayStyle | 弹层样式兼容属性 | `StyleValue` | - |
+| classNames | 下拉弹层语义化结构 class | `Partial<Record<DropdownSemanticPart, string>>` | - |
+| styles | 下拉弹层语义化结构样式 | `Partial<Record<DropdownSemanticPart, StyleValue>>` | - |
+| popupRender | 自定义弹层渲染函数 | `(menus: VNodeChild) => VNodeChild` | - |
+| dropdownRender | 自定义弹层渲染函数兼容别名 | `(menus: VNodeChild) => VNodeChild` | - |
+
 ### DropdownMenuConfig
 
 | 字段 | 说明 | 类型 | 默认值 |
@@ -300,6 +376,8 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | update:open | 展开状态变化时触发 | `(open: boolean) => void` |
 | openChange | 由触发器交互导致展开状态变化时触发 | `(open: boolean, info: { source: 'trigger' \| 'menu' }) => void` |
 | click | 点击菜单项时触发 | `(info: MenuClickInfo) => void` |
+| DropdownButton click | 点击按钮式下拉的主按钮时触发 | `(event: MouseEvent) => void` |
+| DropdownButton menuClick | 点击按钮式下拉的菜单项时触发 | `(info: MenuClickInfo) => void` |
 
 ## Slots
 

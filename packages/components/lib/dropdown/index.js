@@ -1,6 +1,11 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const dropdown_vue_vue_type_script_setup_true_lang = require("./dropdown.vue.js");
+const dropdownButton_vue_vue_type_script_setup_true_lang = require("./dropdown-button.vue.js");
 const install = require("../utils/install.js");
+const DropdownButton = install.withInstall(dropdownButton_vue_vue_type_script_setup_true_lang.default, "ADropdownButton");
 const Dropdown = install.withInstall(dropdown_vue_vue_type_script_setup_true_lang.default, "ADropdown");
+Dropdown.Button = DropdownButton;
+exports.ADropdownButton = DropdownButton;
+exports.DropdownButton = DropdownButton;
 exports.default = Dropdown;

@@ -2,7 +2,8 @@ import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
-import Dropdown from '../dropdown.vue'
+import Dropdown, { DropdownButton } from '../index'
+import DropdownBase from '../dropdown.vue'
 
 const menu = {
   items: [
@@ -12,7 +13,19 @@ const menu = {
 }
 
 const mountDropdown = (options: Record<string, any> = {}) =>
-  mount(Dropdown, {
+  mount(DropdownBase, {
+    ...options,
+    global: {
+      ...options.global,
+      stubs: {
+        ...options.global?.stubs,
+        Teleport: true
+      }
+    }
+  })
+
+const mountDropdownButton = (options: Record<string, any> = {}) =>
+  mount(DropdownButton, {
     ...options,
     global: {
       ...options.global,
@@ -24,6 +37,98 @@ const mountDropdown = (options: Record<string, any> = {}) =>
   })
 
 describe('Dropdown', () => {
+  it('exports the Dropdown.Button split button component', () => {
+    expect((Dropdown as any).Button).toBe(DropdownButton)
+  })
+
+  it('renders Dropdown.Button as a split button and forwards dropdown overlay props', async () => {
+    const wrapper = mountDropdownButton({
+      props: {
+        menu,
+        trigger: ['click'],
+        type: 'primary',
+        overlayClassName: 'split-overlay',
+        overlayStyle: { minWidth: '240px' },
+        classNames: { popup: 'semantic-popup' },
+        styles: { popup: { maxWidth: '280px' } }
+      },
+      slots: { default: 'Actions' }
+    })
+
+    expect(wrapper.find('.aheart-dropdown-button').exists()).toBe(true)
+    expect(wrapper.find('.aheart-dropdown-button__main').text()).toContain('Actions')
+    expect(wrapper.find('.aheart-dropdown-button__main').classes()).toContain('aheart-button--primary')
+    expect(wrapper.find('.aheart-dropdown-button__toggle').exists()).toBe(true)
+
+    await wrapper.find('.aheart-dropdown-button__main').trigger('click')
+    expect(wrapper.emitted('click')?.[0]?.[0]).toBeInstanceOf(MouseEvent)
+
+    await wrapper.find('.aheart-dropdown-button__toggle').trigger('click')
+
+    const overlay = wrapper.find('.aheart-dropdown__overlay')
+    expect(overlay.exists()).toBe(true)
+    expect(overlay.classes()).toEqual(expect.arrayContaining(['split-overlay', 'semantic-popup']))
+    expect(overlay.attributes('style')).toContain('min-width: 240px')
+    expect(overlay.attributes('style')).toContain('max-width: 280px')
+    expect(wrapper.text()).toContain('Edit')
+  })
+
+  it('keeps Dropdown.Button popup closed while loading disables the toggle', async () => {
+    const wrapper = mountDropdownButton({
+      props: {
+        menu,
+        trigger: ['click'],
+        loading: true
+      },
+      slots: { default: 'Loading actions' }
+    })
+
+    await wrapper.find('.aheart-dropdown__trigger').trigger('click')
+
+    expect(wrapper.find('.aheart-dropdown-button__main').classes()).toContain('is-loading')
+    expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(false)
+  })
+
+  it('honors ConfigProvider disabled for Dropdown.Button', async () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { disabled: true },
+      slots: {
+        default: h(DropdownButton, { menu, trigger: ['click'] }, { default: () => 'Disabled actions' })
+      },
+      global: {
+        stubs: {
+          Teleport: true
+        }
+      }
+    })
+
+    await wrapper.find('.aheart-dropdown__trigger').trigger('click')
+
+    expect(wrapper.find('.aheart-dropdown-button__main').attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(false)
+  })
+
+  it('lets Dropdown.Button buttonsRender transform the two button nodes', () => {
+    let receivedButtonCount = 0
+    const wrapper = mountDropdownButton({
+      props: {
+        menu,
+        buttonsRender: (buttons: any[]) => {
+          receivedButtonCount = buttons.length
+          return [
+            h('span', { class: 'rendered-toggle' }, [buttons[1]]),
+            h('span', { class: 'rendered-main' }, [buttons[0]])
+          ]
+        }
+      },
+      slots: { default: 'Rendered actions' }
+    })
+
+    expect(receivedButtonCount).toBe(2)
+    expect(wrapper.find('.rendered-toggle .aheart-dropdown-button__toggle').exists()).toBe(true)
+    expect(wrapper.find('.rendered-main .aheart-dropdown-button__main').exists()).toBe(true)
+  })
+
   it('renders trigger slot and opens on click', async () => {
     const wrapper = mountDropdown({
       props: { menu, trigger: ['click'] },
@@ -255,7 +360,7 @@ describe('Dropdown', () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
 
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(DropdownBase, {
       attachTo: host,
       props: {
         open: true,
@@ -280,7 +385,7 @@ describe('Dropdown', () => {
     let triggerNode: HTMLElement | undefined
     document.body.appendChild(container)
 
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(DropdownBase, {
       props: {
         open: true,
         menu,
