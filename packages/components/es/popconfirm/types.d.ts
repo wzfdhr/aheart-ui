@@ -1,6 +1,6 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { ButtonProps } from '../button/types';
-import { type FloatingTriggerProp } from '../utils/floating';
+import { type FloatingPlacement, type FloatingTriggerProp } from '../utils/floating';
 export type PopconfirmButtonProps = Partial<ButtonProps>;
 export type PopconfirmRenderable = VNodeChild;
 export type PopconfirmRenderableFactory = () => VNodeChild;
@@ -11,8 +11,14 @@ export interface PopconfirmArrowConfig {
 }
 export type PopconfirmArrow = boolean | PopconfirmArrowConfig;
 export type PopconfirmSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'arrow' | 'message' | 'icon' | 'text' | 'title' | 'description' | 'actions' | 'cancelButton' | 'okButton';
-export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>;
-export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>;
+export interface PopconfirmSemanticInfo {
+    open: boolean;
+    placement: FloatingPlacement;
+}
+export type PopconfirmSemanticClassNames = Partial<Record<PopconfirmSemanticPart, string>>;
+export type PopconfirmSemanticStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>;
+export type PopconfirmClassNames = PopconfirmSemanticClassNames | ((info: PopconfirmSemanticInfo) => PopconfirmSemanticClassNames);
+export type PopconfirmStyles = PopconfirmSemanticStyles | ((info: PopconfirmSemanticInfo) => PopconfirmSemanticStyles);
 export declare const popconfirmProps: {
     readonly title: {
         type: PropType<PopconfirmContent>;
@@ -88,8 +94,8 @@ export declare const popconfirmProps: {
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<StyleValue>;
     readonly overlayInnerStyle: PropType<StyleValue>;
-    readonly classNames: PropType<Partial<Record<PopconfirmSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<PopconfirmSemanticPart, StyleValue>>>;
+    readonly classNames: PropType<PopconfirmClassNames>;
+    readonly styles: PropType<PopconfirmStyles>;
 };
 export declare const popconfirmEmits: {
     'update:open': (open: boolean) => boolean;

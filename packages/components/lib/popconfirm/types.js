@@ -75,8 +75,8 @@ const popconfirmProps = {
   overlayClassName: String,
   overlayStyle: [String, Object, Array],
   overlayInnerStyle: [String, Object, Array],
-  classNames: Object,
-  styles: Object
+  classNames: [Object, Function],
+  styles: [Object, Function]
 };
 const popconfirmEmits = {
   "update:open": (open) => typeof open === "boolean",

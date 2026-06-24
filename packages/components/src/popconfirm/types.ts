@@ -30,8 +30,16 @@ export type PopconfirmSemanticPart =
   | 'actions'
   | 'cancelButton'
   | 'okButton'
-export type PopconfirmClassNames = Partial<Record<PopconfirmSemanticPart, string>>
-export type PopconfirmStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>
+export interface PopconfirmSemanticInfo {
+  open: boolean
+  placement: FloatingPlacement
+}
+export type PopconfirmSemanticClassNames = Partial<Record<PopconfirmSemanticPart, string>>
+export type PopconfirmSemanticStyles = Partial<Record<PopconfirmSemanticPart, StyleValue>>
+export type PopconfirmClassNames =
+  | PopconfirmSemanticClassNames
+  | ((info: PopconfirmSemanticInfo) => PopconfirmSemanticClassNames)
+export type PopconfirmStyles = PopconfirmSemanticStyles | ((info: PopconfirmSemanticInfo) => PopconfirmSemanticStyles)
 
 const renderableProp = {
   type: null as unknown as PropType<PopconfirmContent>,
@@ -109,8 +117,8 @@ export const popconfirmProps = {
   overlayClassName: String,
   overlayStyle: [String, Object, Array] as PropType<StyleValue>,
   overlayInnerStyle: [String, Object, Array] as PropType<StyleValue>,
-  classNames: Object as PropType<PopconfirmClassNames>,
-  styles: Object as PropType<PopconfirmStyles>
+  classNames: [Object, Function] as PropType<PopconfirmClassNames>,
+  styles: [Object, Function] as PropType<PopconfirmStyles>
 } as const
 
 export const popconfirmEmits = {

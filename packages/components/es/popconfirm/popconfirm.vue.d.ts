@@ -75,8 +75,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").PopconfirmClassNames>;
+    readonly styles: PropType<import("./types").PopconfirmStyles>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     cancel: () => void;
     "update:open": (open: boolean) => void;
@@ -158,8 +158,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").PopconfirmClassNames>;
+    readonly styles: PropType<import("./types").PopconfirmStyles>;
 }>> & Readonly<{
     onCancel?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;

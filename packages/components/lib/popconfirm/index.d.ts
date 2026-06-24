@@ -74,8 +74,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly overlayClassName: StringConstructor;
         readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").PopconfirmClassNames>;
+        readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
     }>> & Readonly<{
         onCancel?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
@@ -190,8 +190,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly overlayClassName: StringConstructor;
         readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").PopconfirmClassNames>;
+        readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
     }>> & Readonly<{
         onCancel?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
@@ -297,8 +297,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PopconfirmSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").PopconfirmClassNames>;
+    readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
 }>> & Readonly<{
     onCancel?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;

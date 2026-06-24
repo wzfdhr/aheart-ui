@@ -55,128 +55,64 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value));
     const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
     const hasDescription = computed(() => Boolean(slots.description) || hasRenderable(props.description));
-    const popconfirmClass = computed(() => {
-      var _a;
-      return [
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          "is-open": visible.value,
-          "is-disabled": props.disabled
-        }
-      ];
-    });
-    const rootStyle = computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const triggerClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.trigger;
-    });
-    const triggerStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.trigger;
-    });
-    const popupClass = computed(() => {
-      var _a;
-      return [`aheart-floating--${effectivePlacement.value}`, props.overlayClassName, (_a = props.classNames) == null ? void 0 : _a.popup];
-    });
-    const popupStyle = computed(() => {
-      var _a;
-      return [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
-    });
-    const containerClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.container;
-    });
-    const containerStyle = computed(() => {
-      var _a;
-      return [props.overlayInnerStyle, (_a = props.styles) == null ? void 0 : _a.container];
-    });
+    const semanticInfo = computed(() => ({
+      open: visible.value,
+      placement: effectivePlacement.value
+    }));
+    const resolvedClassNames = computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
+    const popconfirmClass = computed(() => [
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        "is-open": visible.value,
+        "is-disabled": props.disabled
+      }
+    ]);
+    const rootStyle = computed(() => [props.style, resolvedStyles.value.root]);
+    const triggerClass = computed(() => resolvedClassNames.value.trigger);
+    const triggerStyle = computed(() => resolvedStyles.value.trigger);
+    const popupClass = computed(() => [
+      `aheart-floating--${effectivePlacement.value}`,
+      props.overlayClassName,
+      resolvedClassNames.value.popup
+    ]);
+    const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup]);
+    const containerClass = computed(() => resolvedClassNames.value.container);
+    const containerStyle = computed(() => [props.overlayInnerStyle, resolvedStyles.value.container]);
     const showArrow = computed(() => props.arrow !== false);
     const arrowPointsAtCenter = computed(() => {
       var _a;
       return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
     });
-    const arrowClass = computed(() => {
-      var _a;
-      return [
-        (_a = props.classNames) == null ? void 0 : _a.arrow,
-        {
-          "aheart-popconfirm__arrow--point-at-center": arrowPointsAtCenter.value
-        }
-      ];
-    });
-    const arrowStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.arrow;
-    });
-    const messageClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.message;
-    });
-    const messageStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.message;
-    });
-    const iconClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.icon;
-    });
-    const iconStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.icon;
-    });
-    const textClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.text;
-    });
-    const textStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.text;
-    });
-    const titleClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.title;
-    });
-    const titleStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.title;
-    });
-    const descriptionClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.description;
-    });
-    const descriptionStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.description;
-    });
-    const actionsClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.actions;
-    });
-    const actionsStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.actions;
-    });
-    const cancelButtonClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.cancelButton;
-    });
-    const cancelButtonStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.cancelButton;
-    });
-    const okButtonClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.okButton;
-    });
-    const okButtonStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.okButton;
-    });
+    const arrowClass = computed(() => [
+      resolvedClassNames.value.arrow,
+      {
+        "aheart-popconfirm__arrow--point-at-center": arrowPointsAtCenter.value
+      }
+    ]);
+    const arrowStyle = computed(() => resolvedStyles.value.arrow);
+    const messageClass = computed(() => resolvedClassNames.value.message);
+    const messageStyle = computed(() => resolvedStyles.value.message);
+    const iconClass = computed(() => resolvedClassNames.value.icon);
+    const iconStyle = computed(() => resolvedStyles.value.icon);
+    const textClass = computed(() => resolvedClassNames.value.text);
+    const textStyle = computed(() => resolvedStyles.value.text);
+    const titleClass = computed(() => resolvedClassNames.value.title);
+    const titleStyle = computed(() => resolvedStyles.value.title);
+    const descriptionClass = computed(() => resolvedClassNames.value.description);
+    const descriptionStyle = computed(() => resolvedStyles.value.description);
+    const actionsClass = computed(() => resolvedClassNames.value.actions);
+    const actionsStyle = computed(() => resolvedStyles.value.actions);
+    const cancelButtonClass = computed(() => resolvedClassNames.value.cancelButton);
+    const cancelButtonStyle = computed(() => resolvedStyles.value.cancelButton);
+    const okButtonClass = computed(() => resolvedClassNames.value.okButton);
+    const okButtonStyle = computed(() => resolvedStyles.value.okButton);
     const resolvedCancelButtonProps = computed(() => ({
       size: "small",
       ...props.cancelButtonProps

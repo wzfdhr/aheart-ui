@@ -57,128 +57,64 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasIcon = vue.computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value));
     const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
     const hasDescription = vue.computed(() => Boolean(slots.description) || hasRenderable(props.description));
-    const popconfirmClass = vue.computed(() => {
-      var _a;
-      return [
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          "is-open": visible.value,
-          "is-disabled": props.disabled
-        }
-      ];
-    });
-    const rootStyle = vue.computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const triggerClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.trigger;
-    });
-    const triggerStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.trigger;
-    });
-    const popupClass = vue.computed(() => {
-      var _a;
-      return [`aheart-floating--${effectivePlacement.value}`, props.overlayClassName, (_a = props.classNames) == null ? void 0 : _a.popup];
-    });
-    const popupStyle = vue.computed(() => {
-      var _a;
-      return [floating.getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
-    });
-    const containerClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.container;
-    });
-    const containerStyle = vue.computed(() => {
-      var _a;
-      return [props.overlayInnerStyle, (_a = props.styles) == null ? void 0 : _a.container];
-    });
+    const semanticInfo = vue.computed(() => ({
+      open: visible.value,
+      placement: effectivePlacement.value
+    }));
+    const resolvedClassNames = vue.computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = vue.computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
+    const popconfirmClass = vue.computed(() => [
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        "is-open": visible.value,
+        "is-disabled": props.disabled
+      }
+    ]);
+    const rootStyle = vue.computed(() => [props.style, resolvedStyles.value.root]);
+    const triggerClass = vue.computed(() => resolvedClassNames.value.trigger);
+    const triggerStyle = vue.computed(() => resolvedStyles.value.trigger);
+    const popupClass = vue.computed(() => [
+      `aheart-floating--${effectivePlacement.value}`,
+      props.overlayClassName,
+      resolvedClassNames.value.popup
+    ]);
+    const popupStyle = vue.computed(() => [floating.getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup]);
+    const containerClass = vue.computed(() => resolvedClassNames.value.container);
+    const containerStyle = vue.computed(() => [props.overlayInnerStyle, resolvedStyles.value.container]);
     const showArrow = vue.computed(() => props.arrow !== false);
     const arrowPointsAtCenter = vue.computed(() => {
       var _a;
       return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
     });
-    const arrowClass = vue.computed(() => {
-      var _a;
-      return [
-        (_a = props.classNames) == null ? void 0 : _a.arrow,
-        {
-          "aheart-popconfirm__arrow--point-at-center": arrowPointsAtCenter.value
-        }
-      ];
-    });
-    const arrowStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.arrow;
-    });
-    const messageClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.message;
-    });
-    const messageStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.message;
-    });
-    const iconClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.icon;
-    });
-    const iconStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.icon;
-    });
-    const textClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.text;
-    });
-    const textStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.text;
-    });
-    const titleClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.title;
-    });
-    const titleStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.title;
-    });
-    const descriptionClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.description;
-    });
-    const descriptionStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.description;
-    });
-    const actionsClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.actions;
-    });
-    const actionsStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.actions;
-    });
-    const cancelButtonClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.cancelButton;
-    });
-    const cancelButtonStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.cancelButton;
-    });
-    const okButtonClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.okButton;
-    });
-    const okButtonStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.okButton;
-    });
+    const arrowClass = vue.computed(() => [
+      resolvedClassNames.value.arrow,
+      {
+        "aheart-popconfirm__arrow--point-at-center": arrowPointsAtCenter.value
+      }
+    ]);
+    const arrowStyle = vue.computed(() => resolvedStyles.value.arrow);
+    const messageClass = vue.computed(() => resolvedClassNames.value.message);
+    const messageStyle = vue.computed(() => resolvedStyles.value.message);
+    const iconClass = vue.computed(() => resolvedClassNames.value.icon);
+    const iconStyle = vue.computed(() => resolvedStyles.value.icon);
+    const textClass = vue.computed(() => resolvedClassNames.value.text);
+    const textStyle = vue.computed(() => resolvedStyles.value.text);
+    const titleClass = vue.computed(() => resolvedClassNames.value.title);
+    const titleStyle = vue.computed(() => resolvedStyles.value.title);
+    const descriptionClass = vue.computed(() => resolvedClassNames.value.description);
+    const descriptionStyle = vue.computed(() => resolvedStyles.value.description);
+    const actionsClass = vue.computed(() => resolvedClassNames.value.actions);
+    const actionsStyle = vue.computed(() => resolvedStyles.value.actions);
+    const cancelButtonClass = vue.computed(() => resolvedClassNames.value.cancelButton);
+    const cancelButtonStyle = vue.computed(() => resolvedStyles.value.cancelButton);
+    const okButtonClass = vue.computed(() => resolvedClassNames.value.okButton);
+    const okButtonStyle = vue.computed(() => resolvedStyles.value.okButton);
     const resolvedCancelButtonProps = vue.computed(() => ({
       size: "small",
       ...props.cancelButtonProps

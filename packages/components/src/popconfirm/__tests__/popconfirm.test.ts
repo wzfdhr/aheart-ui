@@ -357,6 +357,102 @@ describe('Popconfirm', () => {
     expect(wrapper.find('.aheart-popconfirm__ok').attributes('style')).toContain('margin-left: 2px')
   })
 
+  it('resolves function semantic hooks with open state and effective placement', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockPopconfirmRects({
+      trigger: createRect({ left: 120, top: 8, width: 96, height: 24 }),
+      popup: createRect({ left: 90, top: -132, width: 180, height: 140 })
+    })
+    const classInfos: Array<{ open: boolean; placement: string }> = []
+    const styleInfos: Array<{ open: boolean; placement: string }> = []
+
+    try {
+      const wrapper = mountPopconfirm({
+        props: {
+          title: 'Function title',
+          description: 'Function description',
+          trigger: 'click',
+          placement: 'top',
+          classNames: (info: { open: boolean; placement: string }) => {
+            classInfos.push(info)
+            return {
+              root: info.open ? 'function-root-open' : 'function-root-closed',
+              trigger: `function-trigger-${info.placement}`,
+              popup: `function-popup-${info.placement}`,
+              container: 'function-container',
+              arrow: 'function-arrow',
+              message: 'function-message',
+              icon: 'function-icon',
+              text: 'function-text',
+              title: 'function-title',
+              description: 'function-description',
+              actions: 'function-actions',
+              cancelButton: 'function-cancel',
+              okButton: 'function-ok'
+            }
+          },
+          styles: (info: { open: boolean; placement: string }) => {
+            styleInfos.push(info)
+            return {
+              root: { outlineColor: info.open ? 'green' : 'gray' },
+              popup: { borderColor: info.placement === 'bottom' ? 'blue' : 'orange' },
+              container: { maxWidth: '280px' },
+              arrow: { backgroundColor: 'pink' },
+              message: { columnGap: '10px' },
+              icon: { color: 'purple' },
+              text: { lineHeight: '22px' },
+              title: { fontWeight: '600' },
+              description: { marginTop: '6px' },
+              actions: { paddingTop: '6px' },
+              cancelButton: { marginRight: '4px' },
+              okButton: { marginLeft: '4px' }
+            }
+          }
+        },
+        slots: { default: '<button>Archive</button>' }
+      })
+
+      await wrapper.find('.aheart-popconfirm__trigger').trigger('click')
+      await nextTick()
+
+      expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+
+      expect(wrapper.classes()).toContain('function-root-open')
+      expect(wrapper.attributes('style')).toContain('outline-color: green')
+      expect(wrapper.find('.aheart-popconfirm__trigger').classes()).toContain('function-trigger-bottom')
+
+      const popup = wrapper.find('.aheart-popconfirm__popup')
+      expect(popup.classes()).toEqual(
+        expect.arrayContaining(['aheart-floating--bottom', 'function-popup-bottom'])
+      )
+      expect(popup.attributes('style')).toContain('border-color: blue')
+
+      expect(wrapper.find('.aheart-popconfirm__container').classes()).toContain('function-container')
+      expect(wrapper.find('.aheart-popconfirm__container').attributes('style')).toContain('max-width: 280px')
+      expect(wrapper.find('.aheart-popconfirm__arrow').classes()).toContain('function-arrow')
+      expect(wrapper.find('.aheart-popconfirm__arrow').attributes('style')).toContain('background-color: pink')
+      expect(wrapper.find('.aheart-popconfirm__message').classes()).toContain('function-message')
+      expect(wrapper.find('.aheart-popconfirm__message').attributes('style')).toContain('column-gap: 10px')
+      expect(wrapper.find('.aheart-popconfirm__icon').classes()).toContain('function-icon')
+      expect(wrapper.find('.aheart-popconfirm__icon').attributes('style')).toContain('color: purple')
+      expect(wrapper.find('.aheart-popconfirm__text').classes()).toContain('function-text')
+      expect(wrapper.find('.aheart-popconfirm__text').attributes('style')).toContain('line-height: 22px')
+      expect(wrapper.find('.aheart-popconfirm__title').classes()).toContain('function-title')
+      expect(wrapper.find('.aheart-popconfirm__title').attributes('style')).toContain('font-weight: 600')
+      expect(wrapper.find('.aheart-popconfirm__description').classes()).toContain('function-description')
+      expect(wrapper.find('.aheart-popconfirm__description').attributes('style')).toContain('margin-top: 6px')
+      expect(wrapper.find('.aheart-popconfirm__actions').classes()).toContain('function-actions')
+      expect(wrapper.find('.aheart-popconfirm__actions').attributes('style')).toContain('padding-top: 6px')
+      expect(wrapper.find('.aheart-popconfirm__cancel').classes()).toContain('function-cancel')
+      expect(wrapper.find('.aheart-popconfirm__cancel').attributes('style')).toContain('margin-right: 4px')
+      expect(wrapper.find('.aheart-popconfirm__ok').classes()).toContain('function-ok')
+      expect(wrapper.find('.aheart-popconfirm__ok').attributes('style')).toContain('margin-left: 4px')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
   it('teleports popup to document body by default', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)

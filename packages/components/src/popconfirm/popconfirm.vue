@@ -104,7 +104,14 @@ import { computed, defineComponent, nextTick, onBeforeUnmount, ref, useSlots, wa
 import AButton from '../button'
 import { getFloatingPopupStyle, normalizeFloatingTriggers, type FloatingPlacement } from '../utils/floating'
 import '../utils/floating.css'
-import { popconfirmEmits, popconfirmProps, type PopconfirmContent } from './types'
+import {
+  popconfirmEmits,
+  popconfirmProps,
+  type PopconfirmContent,
+  type PopconfirmSemanticClassNames,
+  type PopconfirmSemanticInfo,
+  type PopconfirmSemanticStyles
+} from './types'
 import './style.css'
 
 defineOptions({
@@ -158,47 +165,61 @@ const resolvedIcon = computed<PopconfirmContent>(() => (props.icon === undefined
 const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value))
 const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title))
 const hasDescription = computed(() => Boolean(slots.description) || hasRenderable(props.description))
+const semanticInfo = computed<PopconfirmSemanticInfo>(() => ({
+  open: visible.value,
+  placement: effectivePlacement.value
+}))
+const resolvedClassNames = computed<PopconfirmSemanticClassNames>(() =>
+  typeof props.classNames === 'function' ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+)
+const resolvedStyles = computed<PopconfirmSemanticStyles>(() =>
+  typeof props.styles === 'function' ? props.styles(semanticInfo.value) : props.styles ?? {}
+)
 const popconfirmClass = computed(() => [
   props.className,
   props.rootClassName,
-  props.classNames?.root,
+  resolvedClassNames.value.root,
   {
     'is-open': visible.value,
     'is-disabled': props.disabled
   }
 ])
-const rootStyle = computed(() => [props.style, props.styles?.root])
-const triggerClass = computed(() => props.classNames?.trigger)
-const triggerStyle = computed(() => props.styles?.trigger)
-const popupClass = computed(() => [`aheart-floating--${effectivePlacement.value}`, props.overlayClassName, props.classNames?.popup])
-const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, props.styles?.popup])
-const containerClass = computed(() => props.classNames?.container)
-const containerStyle = computed(() => [props.overlayInnerStyle, props.styles?.container])
+const rootStyle = computed(() => [props.style, resolvedStyles.value.root])
+const triggerClass = computed(() => resolvedClassNames.value.trigger)
+const triggerStyle = computed(() => resolvedStyles.value.trigger)
+const popupClass = computed(() => [
+  `aheart-floating--${effectivePlacement.value}`,
+  props.overlayClassName,
+  resolvedClassNames.value.popup
+])
+const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup])
+const containerClass = computed(() => resolvedClassNames.value.container)
+const containerStyle = computed(() => [props.overlayInnerStyle, resolvedStyles.value.container])
 const showArrow = computed(() => props.arrow !== false)
 const arrowPointsAtCenter = computed(() => typeof props.arrow === 'object' && props.arrow?.pointAtCenter === true)
 const arrowClass = computed(() => [
-  props.classNames?.arrow,
+  resolvedClassNames.value.arrow,
   {
     'aheart-popconfirm__arrow--point-at-center': arrowPointsAtCenter.value
   }
 ])
-const arrowStyle = computed(() => props.styles?.arrow)
-const messageClass = computed(() => props.classNames?.message)
-const messageStyle = computed(() => props.styles?.message)
-const iconClass = computed(() => props.classNames?.icon)
-const iconStyle = computed(() => props.styles?.icon)
-const textClass = computed(() => props.classNames?.text)
-const textStyle = computed(() => props.styles?.text)
-const titleClass = computed(() => props.classNames?.title)
-const titleStyle = computed(() => props.styles?.title)
-const descriptionClass = computed(() => props.classNames?.description)
-const descriptionStyle = computed(() => props.styles?.description)
-const actionsClass = computed(() => props.classNames?.actions)
-const actionsStyle = computed(() => props.styles?.actions)
-const cancelButtonClass = computed(() => props.classNames?.cancelButton)
-const cancelButtonStyle = computed(() => props.styles?.cancelButton)
-const okButtonClass = computed(() => props.classNames?.okButton)
-const okButtonStyle = computed(() => props.styles?.okButton)
+const arrowStyle = computed(() => resolvedStyles.value.arrow)
+const messageClass = computed(() => resolvedClassNames.value.message)
+const messageStyle = computed(() => resolvedStyles.value.message)
+const iconClass = computed(() => resolvedClassNames.value.icon)
+const iconStyle = computed(() => resolvedStyles.value.icon)
+const textClass = computed(() => resolvedClassNames.value.text)
+const textStyle = computed(() => resolvedStyles.value.text)
+const titleClass = computed(() => resolvedClassNames.value.title)
+const titleStyle = computed(() => resolvedStyles.value.title)
+const descriptionClass = computed(() => resolvedClassNames.value.description)
+const descriptionStyle = computed(() => resolvedStyles.value.description)
+const actionsClass = computed(() => resolvedClassNames.value.actions)
+const actionsStyle = computed(() => resolvedStyles.value.actions)
+const cancelButtonClass = computed(() => resolvedClassNames.value.cancelButton)
+const cancelButtonStyle = computed(() => resolvedStyles.value.cancelButton)
+const okButtonClass = computed(() => resolvedClassNames.value.okButton)
+const okButtonStyle = computed(() => resolvedStyles.value.okButton)
 const resolvedCancelButtonProps = computed(() => ({
   size: 'small' as const,
   ...props.cancelButtonProps

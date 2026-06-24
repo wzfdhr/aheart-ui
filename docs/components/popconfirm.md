@@ -320,8 +320,8 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | overlayClassName | 弹层 class，兼容旧版浮层样式 API | `string` | - |
 | overlayStyle | 弹层样式，兼容旧版浮层样式 API | `StyleValue` | - |
 | overlayInnerStyle | 弹层内部容器样式，兼容旧版浮层样式 API | `StyleValue` | - |
-| classNames | 语义 DOM class 映射 | `Partial<Record<PopconfirmSemanticPart, string>>` | - |
-| styles | 语义 DOM style 映射 | `Partial<Record<PopconfirmSemanticPart, StyleValue>>` | - |
+| classNames | 语义 DOM class 映射，支持对象或函数 | `PopconfirmSemanticClassNames \| (info: PopconfirmSemanticInfo) => PopconfirmSemanticClassNames` | - |
+| styles | 语义 DOM style 映射，支持对象或函数 | `PopconfirmSemanticStyles \| (info: PopconfirmSemanticInfo) => PopconfirmSemanticStyles` | - |
 
 ### PopconfirmSemanticPart
 
@@ -340,6 +340,13 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | actions | 操作按钮区域 |
 | cancelButton | 取消按钮 |
 | okButton | 确认按钮 |
+
+### PopconfirmSemanticInfo
+
+| 字段 | 说明 |
+| --- | --- |
+| open | 当前浮层是否显示 |
+| placement | 当前生效位置；开启 `autoAdjustOverflow` 后可能是调整后的值 |
 
 ## Events
 
