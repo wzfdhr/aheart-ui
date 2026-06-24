@@ -84,6 +84,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           menu: props.menu,
           trigger: props.trigger,
           placement: props.placement,
+          autoAdjustOverflow: props.autoAdjustOverflow,
           getPopupContainer: props.getPopupContainer,
           mouseEnterDelay: props.mouseEnterDelay,
           mouseLeaveDelay: props.mouseLeaveDelay,

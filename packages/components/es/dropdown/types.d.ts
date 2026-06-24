@@ -41,6 +41,10 @@ export declare const dropdownProps: {
         readonly type: PropType<DropdownPlacement>;
         readonly default: "bottomLeft";
     };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly getPopupContainer: PropType<DropdownGetPopupContainer>;
     readonly mouseEnterDelay: {
         readonly type: NumberConstructor;
@@ -90,6 +94,10 @@ export declare const dropdownButtonProps: {
     readonly placement: {
         readonly type: PropType<DropdownPlacement>;
         readonly default: "bottomRight";
+    };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
     };
     readonly getPopupContainer: PropType<DropdownGetPopupContainer>;
     readonly mouseEnterDelay: {

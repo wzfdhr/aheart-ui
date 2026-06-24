@@ -95,6 +95,7 @@ const dropdownNode = computed(() =>
       menu: props.menu,
       trigger: props.trigger,
       placement: props.placement,
+      autoAdjustOverflow: props.autoAdjustOverflow,
       getPopupContainer: props.getPopupContainer,
       mouseEnterDelay: props.mouseEnterDelay,
       mouseLeaveDelay: props.mouseLeaveDelay,

@@ -295,6 +295,7 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | menu | 菜单配置 | `DropdownMenuConfig` | - |
 | trigger | 触发方式 | `Array<'click' \| 'hover' \| 'contextMenu'>` | `['hover']` |
 | placement | 弹出位置 | `bottomLeft` \| `bottom` \| `bottomRight` \| `topLeft` \| `top` \| `topRight` | `bottomLeft` |
+| autoAdjustOverflow | 弹层超出视窗时自动调整弹出方向或左右对齐 | `boolean` | `true` |
 | getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | mouseEnterDelay | hover 触发打开延迟，单位秒 | `number` | `0.1` |
 | mouseLeaveDelay | hover 触发关闭延迟，单位秒 | `number` | `0.1` |
@@ -323,6 +324,7 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | menu | 菜单配置 | `DropdownMenuConfig` | - |
 | trigger | 触发方式 | `Array<'click' \| 'hover' \| 'contextMenu'>` | `['hover']` |
 | placement | 弹出位置 | `bottomLeft` \| `bottom` \| `bottomRight` \| `topLeft` \| `top` \| `topRight` | `bottomRight` |
+| autoAdjustOverflow | 弹层超出视窗时自动调整弹出方向或左右对齐 | `boolean` | `true` |
 | open | 是否展开，受控 | `boolean` | - |
 | defaultOpen | 默认是否展开 | `boolean` | `false` |
 | disabled | 禁用主按钮和下拉触发按钮 | `boolean` | ConfigProvider disabled |

@@ -12,6 +12,45 @@ const menu = {
   ]
 }
 
+const createRect = ({ left, top, width, height }: { left: number; top: number; width: number; height: number }) =>
+  ({
+    x: left,
+    y: top,
+    left,
+    top,
+    width,
+    height,
+    right: left + width,
+    bottom: top + height,
+    toJSON: () => ({})
+  }) as DOMRect
+
+const setViewportSize = (width: number, height: number) => {
+  Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
+  Object.defineProperty(window, 'innerHeight', { configurable: true, value: height })
+}
+
+const mockDropdownRects = ({
+  trigger,
+  overlay
+}: {
+  trigger: DOMRect
+  overlay: DOMRect
+}) =>
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function getDropdownRect() {
+    const element = this as HTMLElement
+
+    if (element.classList.contains('aheart-dropdown__trigger')) {
+      return trigger
+    }
+
+    if (element.classList.contains('aheart-dropdown__overlay')) {
+      return overlay
+    }
+
+    return createRect({ left: 0, top: 0, width: 0, height: 0 })
+  })
+
 const mountDropdown = (options: Record<string, any> = {}) =>
   mount(DropdownBase, {
     ...options,
@@ -297,6 +336,72 @@ describe('Dropdown', () => {
     expect(event.defaultPrevented).toBe(true)
     expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(true)
     expect(wrapper.emitted('openChange')?.[0]).toEqual([true, { source: 'trigger' }])
+  })
+
+  it('auto adjusts bottom placement to top when the popup would overflow below', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockDropdownRects({
+      trigger: createRect({ left: 120, top: 760, width: 96, height: 24 }),
+      overlay: createRect({ left: 120, top: 784, width: 180, height: 140 })
+    })
+
+    try {
+      const wrapper = mountDropdown({
+        props: { menu, trigger: ['click'], placement: 'bottomLeft' },
+        slots: { default: '<button>Actions</button>' }
+      })
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--topLeft')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
+  it('keeps configured placement when overflow adjustment is disabled', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockDropdownRects({
+      trigger: createRect({ left: 120, top: 760, width: 96, height: 24 }),
+      overlay: createRect({ left: 120, top: 784, width: 180, height: 140 })
+    })
+
+    try {
+      const wrapper = mountDropdown({
+        props: { menu, trigger: ['click'], placement: 'bottomLeft', autoAdjustOverflow: false },
+        slots: { default: '<button>Actions</button>' }
+      })
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--bottomLeft')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
+  it('forwards overflow adjustment through Dropdown.Button', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockDropdownRects({
+      trigger: createRect({ left: 120, top: 760, width: 96, height: 24 }),
+      overlay: createRect({ left: 120, top: 784, width: 180, height: 140 })
+    })
+
+    try {
+      const wrapper = mountDropdownButton({
+        props: { menu, trigger: ['click'], placement: 'bottomRight' },
+        slots: { default: 'Actions' }
+      })
+
+      await wrapper.find('.aheart-dropdown-button__toggle').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--topRight')
+    } finally {
+      rectSpy.mockRestore()
+    }
   })
 
   it('emits menu click and closes after item click', async () => {

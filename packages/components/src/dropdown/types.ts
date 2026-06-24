@@ -57,6 +57,10 @@ export const dropdownProps = {
     type: String as PropType<DropdownPlacement>,
     default: 'bottomLeft'
   },
+  autoAdjustOverflow: {
+    type: Boolean,
+    default: true
+  },
   getPopupContainer: Function as PropType<DropdownGetPopupContainer>,
   mouseEnterDelay: {
     type: Number,
@@ -108,6 +112,7 @@ export const dropdownButtonProps = {
     type: String as PropType<DropdownPlacement>,
     default: 'bottomRight'
   },
+  autoAdjustOverflow: dropdownProps.autoAdjustOverflow,
   getPopupContainer: dropdownProps.getPopupContainer,
   mouseEnterDelay: dropdownProps.mouseEnterDelay,
   mouseLeaveDelay: dropdownProps.mouseLeaveDelay,

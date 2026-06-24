@@ -9,6 +9,10 @@ const dropdownProps = {
     type: String,
     default: "bottomLeft"
   },
+  autoAdjustOverflow: {
+    type: Boolean,
+    default: true
+  },
   getPopupContainer: Function,
   mouseEnterDelay: {
     type: Number,
@@ -55,6 +59,7 @@ const dropdownButtonProps = {
     type: String,
     default: "bottomRight"
   },
+  autoAdjustOverflow: dropdownProps.autoAdjustOverflow,
   getPopupContainer: dropdownProps.getPopupContainer,
   mouseEnterDelay: dropdownProps.mouseEnterDelay,
   mouseLeaveDelay: dropdownProps.mouseLeaveDelay,

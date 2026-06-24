@@ -10,6 +10,10 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
         readonly type: import("vue").PropType<import("./types").DropdownPlacement>;
         readonly default: "bottomRight";
     };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly getPopupContainer: import("vue").PropType<import("./types").DropdownGetPopupContainer>;
     readonly mouseEnterDelay: {
         readonly type: NumberConstructor;
@@ -88,6 +92,10 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly placement: {
         readonly type: import("vue").PropType<import("./types").DropdownPlacement>;
         readonly default: "bottomRight";
+    };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
     };
     readonly getPopupContainer: import("vue").PropType<import("./types").DropdownGetPopupContainer>;
     readonly mouseEnterDelay: {
@@ -170,6 +178,7 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
     readonly arrow: import("./types").DropdownArrow;
+    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly defaultOpen: boolean;

@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, h, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, h, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow, nextTick } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import Menu from "../menu/index.js";
 import { dropdownProps, dropdownEmits } from "./types.js";
@@ -30,6 +30,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const overlayRef = ref(null);
+    const effectivePlacement = ref(props.placement);
     let mouseEnterTimer;
     let mouseLeaveTimer;
     const isControlled = computed(() => props.open !== void 0);
@@ -56,7 +57,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const semanticInfo = computed(() => ({
       open: mergedOpen.value,
-      placement: props.placement
+      placement: effectivePlacement.value
     }));
     const resolvedClassNames = computed(
       () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
@@ -77,7 +78,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const triggerClass = computed(() => resolvedClassNames.value.trigger);
     const triggerStyle = computed(() => resolvedStyles.value.trigger);
     const overlayClass = computed(() => [
-      `aheart-dropdown__overlay--${props.placement}`,
+      `aheart-dropdown__overlay--${effectivePlacement.value}`,
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
@@ -136,14 +137,91 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     );
+    const getPlacementSide = (placement) => placement.startsWith("top") ? "top" : "bottom";
+    const getPlacementAlign = (placement) => {
+      if (placement.endsWith("Left")) {
+        return "Left";
+      }
+      if (placement.endsWith("Right")) {
+        return "Right";
+      }
+      return "";
+    };
+    const createPlacement = (side, align) => `${side}${align}`;
+    const getViewportSize = () => {
+      if (typeof window === "undefined") {
+        return { width: 0, height: 0 };
+      }
+      return {
+        width: window.innerWidth || document.documentElement.clientWidth || 0,
+        height: window.innerHeight || document.documentElement.clientHeight || 0
+      };
+    };
+    const resolveAdjustedPlacement = () => {
+      if (!props.autoAdjustOverflow || !triggerRef.value || !overlayRef.value) {
+        return props.placement;
+      }
+      const triggerRect = triggerRef.value.getBoundingClientRect();
+      const overlayRect = overlayRef.value.getBoundingClientRect();
+      const viewport = getViewportSize();
+      let side = getPlacementSide(props.placement);
+      let align = getPlacementAlign(props.placement);
+      const overlayHeight = overlayRect.height;
+      const overlayWidth = overlayRect.width;
+      if (overlayHeight > 0 && viewport.height > 0) {
+        const spaceAbove = triggerRect.top;
+        const spaceBelow = viewport.height - triggerRect.bottom;
+        if (side === "bottom" && overlayHeight > spaceBelow && spaceAbove > spaceBelow) {
+          side = "top";
+        } else if (side === "top" && overlayHeight > spaceAbove && spaceBelow > spaceAbove) {
+          side = "bottom";
+        }
+      }
+      if (overlayWidth > 0 && viewport.width > 0) {
+        const leftAlignedRight = triggerRect.left + overlayWidth;
+        const rightAlignedLeft = triggerRect.right - overlayWidth;
+        const centerLeft = triggerRect.left + triggerRect.width / 2 - overlayWidth / 2;
+        const centerRight = centerLeft + overlayWidth;
+        if (align === "Left" && leftAlignedRight > viewport.width && rightAlignedLeft >= 0) {
+          align = "Right";
+        } else if (align === "Right" && rightAlignedLeft < 0 && leftAlignedRight <= viewport.width) {
+          align = "Left";
+        } else if (align === "" && centerLeft < 0 && leftAlignedRight <= viewport.width) {
+          align = "Left";
+        } else if (align === "" && centerRight > viewport.width && rightAlignedLeft >= 0) {
+          align = "Right";
+        }
+      }
+      return createPlacement(side, align);
+    };
+    const updateEffectivePlacement = () => {
+      effectivePlacement.value = resolveAdjustedPlacement();
+    };
+    const schedulePlacementUpdate = () => {
+      if (!mergedOpen.value) {
+        effectivePlacement.value = props.placement;
+        return;
+      }
+      void nextTick(updateEffectivePlacement);
+    };
     watch(
       mergedOpen,
       (open) => {
         if (open) {
           hasRenderedOverlay.value = true;
+          schedulePlacementUpdate();
+          return;
         }
+        effectivePlacement.value = props.placement;
       },
       { immediate: true }
+    );
+    watch(
+      [() => props.placement, () => props.autoAdjustOverflow],
+      () => {
+        effectivePlacement.value = props.placement;
+        schedulePlacementUpdate();
+      }
     );
     const setOpen = (open, options = {}) => {
       if (isDisabled.value) {

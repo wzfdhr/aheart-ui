@@ -1,5 +1,5 @@
 import { type MenuClickInfo } from '../menu';
-import { type DropdownOpenChangeInfo } from './types';
+import { type DropdownPlacement, type DropdownOpenChangeInfo } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly menu: import("vue").PropType<import("./types").DropdownMenuConfig>;
     readonly trigger: {
@@ -7,8 +7,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: () => string[];
     };
     readonly placement: {
-        readonly type: import("vue").PropType<import("./types").DropdownPlacement>;
+        readonly type: import("vue").PropType<DropdownPlacement>;
         readonly default: "bottomLeft";
+    };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
     };
     readonly getPopupContainer: import("vue").PropType<import("./types").DropdownGetPopupContainer>;
     readonly mouseEnterDelay: {
@@ -54,8 +58,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: () => string[];
     };
     readonly placement: {
-        readonly type: import("vue").PropType<import("./types").DropdownPlacement>;
+        readonly type: import("vue").PropType<DropdownPlacement>;
         readonly default: "bottomLeft";
+    };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
     };
     readonly getPopupContainer: import("vue").PropType<import("./types").DropdownGetPopupContainer>;
     readonly mouseEnterDelay: {
@@ -97,10 +105,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>, {
     readonly open: boolean;
     readonly disabled: boolean;
-    readonly placement: import("./types").DropdownPlacement;
+    readonly placement: DropdownPlacement;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
     readonly arrow: import("./types").DropdownArrow;
+    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly defaultOpen: boolean;
