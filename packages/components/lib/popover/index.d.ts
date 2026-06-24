@@ -13,6 +13,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
             readonly default: "top";
             readonly validator: (value: string) => boolean;
         };
+        readonly autoAdjustOverflow: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
         readonly trigger: {
             readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
             readonly default: "hover";
@@ -62,9 +66,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly arrow: import("./types").PopoverArrow;
-        readonly defaultOpen: boolean;
+        readonly autoAdjustOverflow: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
+        readonly defaultOpen: boolean;
         readonly fresh: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -86,6 +91,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
             readonly validator: (value: string) => boolean;
+        };
+        readonly autoAdjustOverflow: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
         };
         readonly trigger: {
             readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
@@ -133,9 +142,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly arrow: import("./types").PopoverArrow;
-        readonly defaultOpen: boolean;
+        readonly autoAdjustOverflow: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
+        readonly defaultOpen: boolean;
         readonly fresh: boolean;
     }>;
     __isFragment?: undefined;
@@ -154,6 +164,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
+    };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
     };
     readonly trigger: {
         readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
@@ -204,9 +218,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
     readonly arrow: import("./types").PopoverArrow;
-    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
+    readonly defaultOpen: boolean;
     readonly fresh: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

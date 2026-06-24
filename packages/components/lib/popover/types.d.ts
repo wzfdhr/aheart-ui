@@ -25,6 +25,10 @@ export declare const popoverProps: {
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly trigger: {
         readonly type: PropType<FloatingTriggerProp>;
         readonly default: "hover";

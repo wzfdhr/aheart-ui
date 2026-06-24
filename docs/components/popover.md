@@ -240,6 +240,7 @@ const renderablePopoverContent = h('span', [
 | title | 卡片标题，`title` 插槽优先级更高 | `VNodeChild` \| `() => VNodeChild` | - |
 | content | 卡片内容，`content` 插槽优先级更高 | `VNodeChild` \| `() => VNodeChild` | - |
 | placement | 气泡位置 | `FloatingPlacement` | `top` |
+| autoAdjustOverflow | 浮层超出视窗时自动调整方向或边缘对齐 | `boolean` | `true` |
 | trigger | 触发方式 | `hover` \| `focus` \| `click` \| `contextMenu` \| `FloatingTrigger[]` | `hover` |
 | open | 受控显示状态 | `boolean` | - |
 | defaultOpen | 默认显示状态 | `boolean` | `false` |
