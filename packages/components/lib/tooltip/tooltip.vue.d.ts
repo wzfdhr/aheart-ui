@@ -10,6 +10,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly trigger: {
         readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "hover";
@@ -58,6 +62,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly trigger: {
         readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
         readonly default: "hover";
@@ -103,9 +111,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
     readonly arrow: import("./types").TooltipArrow;
-    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
+    readonly defaultOpen: boolean;
     readonly fresh: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

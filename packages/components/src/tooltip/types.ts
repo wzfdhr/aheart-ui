@@ -31,6 +31,10 @@ export const tooltipProps = {
     default: 'top',
     validator: (value: string) => floatingPlacements.includes(value as FloatingPlacement)
   },
+  autoAdjustOverflow: {
+    type: Boolean,
+    default: true
+  },
   trigger: {
     type: [String, Array] as PropType<FloatingTriggerProp>,
     default: 'hover',

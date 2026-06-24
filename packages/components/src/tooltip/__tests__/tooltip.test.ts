@@ -3,6 +3,45 @@ import { h, nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Tooltip from '../tooltip.vue'
 
+const createRect = ({ left, top, width, height }: { left: number; top: number; width: number; height: number }) =>
+  ({
+    x: left,
+    y: top,
+    left,
+    top,
+    width,
+    height,
+    right: left + width,
+    bottom: top + height,
+    toJSON: () => ({})
+  }) as DOMRect
+
+const setViewportSize = (width: number, height: number) => {
+  Object.defineProperty(window, 'innerWidth', { configurable: true, value: width })
+  Object.defineProperty(window, 'innerHeight', { configurable: true, value: height })
+}
+
+const mockTooltipRects = ({
+  trigger,
+  popup
+}: {
+  trigger: DOMRect
+  popup: DOMRect
+}) =>
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function getTooltipRect() {
+    const element = this as HTMLElement
+
+    if (element.classList.contains('aheart-tooltip__trigger')) {
+      return trigger
+    }
+
+    if (element.classList.contains('aheart-tooltip__popup')) {
+      return popup
+    }
+
+    return createRect({ left: 0, top: 0, width: 0, height: 0 })
+  })
+
 const mountTooltip = (options: Record<string, any> = {}) =>
   mount(Tooltip, {
     ...options,
@@ -95,6 +134,72 @@ describe('Tooltip', () => {
     expect(popup.attributes('style')).toContain('background: rgb(17, 24, 39)')
     expect(popup.attributes('style')).toContain('z-index: 2000')
     expect(wrapper.find('.aheart-tooltip__arrow').exists()).toBe(true)
+  })
+
+  it('auto adjusts top placement to bottom when the popup would overflow above', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockTooltipRects({
+      trigger: createRect({ left: 120, top: 8, width: 96, height: 24 }),
+      popup: createRect({ left: 90, top: -132, width: 180, height: 140 })
+    })
+
+    try {
+      const wrapper = mountTooltip({
+        props: { title: 'Adjusted', trigger: 'click', placement: 'top' },
+        slots: { default: '<button>Help</button>' }
+      })
+
+      await wrapper.find('.aheart-tooltip__trigger').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--bottom')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
+  it('keeps configured placement when overflow adjustment is disabled', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockTooltipRects({
+      trigger: createRect({ left: 120, top: 8, width: 96, height: 24 }),
+      popup: createRect({ left: 90, top: -132, width: 180, height: 140 })
+    })
+
+    try {
+      const wrapper = mountTooltip({
+        props: { title: 'Fixed', trigger: 'click', placement: 'top', autoAdjustOverflow: false },
+        slots: { default: '<button>Help</button>' }
+      })
+
+      await wrapper.find('.aheart-tooltip__trigger').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--top')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
+  it('auto adjusts left placement to right when the popup would overflow left', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockTooltipRects({
+      trigger: createRect({ left: 6, top: 180, width: 96, height: 24 }),
+      popup: createRect({ left: -194, top: 120, width: 180, height: 120 })
+    })
+
+    try {
+      const wrapper = mountTooltip({
+        props: { title: 'Adjusted side', trigger: 'click', placement: 'left' },
+        slots: { default: '<button>Help</button>' }
+      })
+
+      await wrapper.find('.aheart-tooltip__trigger').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--right')
+    } finally {
+      rectSpy.mockRestore()
+    }
   })
 
   it('toggles from click trigger and emits open events', async () => {
