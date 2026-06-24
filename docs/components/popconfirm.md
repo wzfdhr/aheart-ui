@@ -294,6 +294,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 | description | 辅助说明，`description` 插槽优先级更高 | `VNodeChild` \| `() => VNodeChild` | - |
 | icon | 提示图标内容，`icon` 插槽优先级更高；传 `false` 或 `null` 时隐藏 | `VNodeChild` | `!` |
 | placement | 气泡位置 | `FloatingPlacement` | `top` |
+| autoAdjustOverflow | 浮层超出视窗时自动调整方向或边缘对齐 | `boolean` | `true` |
 | trigger | 触发方式 | `hover` \| `focus` \| `click` \| `contextMenu` \| `FloatingTrigger[]` | `click` |
 | open | 受控显示状态 | `boolean` | - |
 | defaultOpen | 默认显示状态 | `boolean` | `false` |

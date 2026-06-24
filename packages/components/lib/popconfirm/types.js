@@ -18,6 +18,10 @@ const popconfirmProps = {
     default: "top",
     validator: (value) => floating.floatingPlacements.includes(value)
   },
+  autoAdjustOverflow: {
+    type: Boolean,
+    default: true
+  },
   trigger: {
     type: [String, Array],
     default: "click",
