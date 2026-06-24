@@ -11,6 +11,14 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly default: "bottomRight";
     };
     readonly getPopupContainer: PropType<import("./types").DropdownGetPopupContainer>;
+    readonly mouseEnterDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
+    readonly mouseLeaveDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
     readonly open: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -82,6 +90,14 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly default: "bottomRight";
     };
     readonly getPopupContainer: PropType<import("./types").DropdownGetPopupContainer>;
+    readonly mouseEnterDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
+    readonly mouseLeaveDelay: {
+        readonly type: NumberConstructor;
+        readonly default: 0.1;
+    };
     readonly open: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -154,6 +170,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
     readonly arrow: import("./types").DropdownArrow;
+    readonly mouseEnterDelay: number;
+    readonly mouseLeaveDelay: number;
     readonly defaultOpen: boolean;
     readonly destroyPopupOnHide: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;

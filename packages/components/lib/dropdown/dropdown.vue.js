@@ -32,6 +32,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const overlayRef = vue.ref(null);
+    let mouseEnterTimer;
+    let mouseLeaveTimer;
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
@@ -160,6 +162,43 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
     const isHoveringTriggerOrOverlay = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, overlayRef.value);
+    const clearMouseEnterTimer = () => {
+      if (mouseEnterTimer) {
+        clearTimeout(mouseEnterTimer);
+        mouseEnterTimer = void 0;
+      }
+    };
+    const clearMouseLeaveTimer = () => {
+      if (mouseLeaveTimer) {
+        clearTimeout(mouseLeaveTimer);
+        mouseLeaveTimer = void 0;
+      }
+    };
+    const clearHoverTimers = () => {
+      clearMouseEnterTimer();
+      clearMouseLeaveTimer();
+    };
+    const delayToMs = (delay) => Math.max(0, delay * 1e3);
+    const setOpenWithHoverDelay = (open, delay) => {
+      const timerDelay = delayToMs(delay);
+      if (timerDelay === 0) {
+        setOpen(open, { source: "trigger" });
+        return;
+      }
+      const timer = setTimeout(() => {
+        if (open) {
+          mouseEnterTimer = void 0;
+        } else {
+          mouseLeaveTimer = void 0;
+        }
+        setOpen(open, { source: "trigger" });
+      }, timerDelay);
+      if (open) {
+        mouseEnterTimer = timer;
+      } else {
+        mouseLeaveTimer = timer;
+      }
+    };
     const handleTriggerClick = () => {
       if (!triggerSet.value.has("click")) {
         return;
@@ -168,12 +207,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleMouseEnter = () => {
       if (triggerSet.value.has("hover")) {
-        setOpen(true, { source: "trigger" });
+        clearMouseLeaveTimer();
+        clearMouseEnterTimer();
+        setOpenWithHoverDelay(true, props.mouseEnterDelay);
       }
     };
     const handleMouseLeave = (event) => {
       if (triggerSet.value.has("hover") && !isHoveringTriggerOrOverlay(event)) {
-        setOpen(false, { source: "trigger" });
+        clearMouseEnterTimer();
+        clearMouseLeaveTimer();
+        setOpenWithHoverDelay(false, props.mouseLeaveDelay);
       }
     };
     const handleContextmenu = (event) => {
@@ -190,6 +233,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       setOpen(false, { source: "menu", emitOpenChange: false });
     };
+    vue.onBeforeUnmount(clearHoverTimers);
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
         ref_key: "rootRef",

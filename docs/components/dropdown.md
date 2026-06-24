@@ -296,6 +296,8 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | trigger | 触发方式 | `Array<'click' \| 'hover' \| 'contextMenu'>` | `['hover']` |
 | placement | 弹出位置 | `bottomLeft` \| `bottom` \| `bottomRight` \| `topLeft` \| `top` \| `topRight` | `bottomLeft` |
 | getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| mouseEnterDelay | hover 触发打开延迟，单位秒 | `number` | `0.1` |
+| mouseLeaveDelay | hover 触发关闭延迟，单位秒 | `number` | `0.1` |
 | open | 是否展开，受控 | `boolean` | - |
 | defaultOpen | 默认是否展开 | `boolean` | `false` |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
@@ -336,6 +338,8 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | icon | 自定义下拉触发按钮图标 | `VNodeChild` | `v` |
 | buttonsRender | 自定义渲染 `[主按钮, 下拉按钮]` | `(buttons: VNodeChild[]) => VNodeChild[]` | - |
 | getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| mouseEnterDelay | hover 触发打开延迟，单位秒 | `number` | `0.1` |
+| mouseLeaveDelay | hover 触发关闭延迟，单位秒 | `number` | `0.1` |
 | arrow | 是否显示箭头，或配置箭头指向中心 | `boolean \| { pointAtCenter?: boolean }` | `false` |
 | destroyOnHidden | 关闭后是否销毁弹层 DOM | `boolean` | `false` |
 | destroyPopupOnHide | 关闭后销毁弹层 DOM 的兼容别名 | `boolean` | `false` |

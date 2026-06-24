@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Dropdown, { DropdownButton } from '../index'
 import DropdownBase from '../dropdown.vue'
@@ -147,7 +147,7 @@ describe('Dropdown', () => {
 
   it('uses hover as the default trigger', async () => {
     const wrapper = mountDropdown({
-      props: { menu },
+      props: { menu, mouseEnterDelay: 0 },
       slots: { default: '<button>Actions</button>' }
     })
 
@@ -161,13 +161,115 @@ describe('Dropdown', () => {
 
   it('opens on hover when trigger includes hover', async () => {
     const wrapper = mountDropdown({
-      props: { menu, trigger: ['hover'] },
+      props: { menu, trigger: ['hover'], mouseEnterDelay: 0 },
       slots: { default: '<button>More</button>' }
     })
 
     await wrapper.find('.aheart-dropdown__trigger').trigger('mouseenter')
 
     expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(true)
+  })
+
+  it('respects hover open and close delays', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const wrapper = mountDropdown({
+        props: {
+          menu,
+          mouseEnterDelay: 0.2,
+          mouseLeaveDelay: 0.3
+        },
+        slots: { default: '<button>Actions</button>' }
+      })
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('mouseenter')
+      expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(false)
+
+      await vi.advanceTimersByTimeAsync(199)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(false)
+
+      await vi.advanceTimersByTimeAsync(1)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(true)
+      expect(wrapper.emitted('openChange')?.[0]).toEqual([true, { source: 'trigger' }])
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('mouseleave', { relatedTarget: document.body })
+      await vi.advanceTimersByTimeAsync(299)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').attributes('style') ?? '').not.toContain('display: none')
+
+      await vi.advanceTimersByTimeAsync(1)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('display: none')
+      expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false, { source: 'trigger' }])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('cancels a delayed hover close when the pointer returns', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const wrapper = mountDropdown({
+        props: {
+          menu,
+          mouseEnterDelay: 0,
+          mouseLeaveDelay: 0.3
+        },
+        slots: { default: '<button>Actions</button>' }
+      })
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('mouseenter')
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(true)
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('mouseleave', { relatedTarget: document.body })
+      await vi.advanceTimersByTimeAsync(150)
+      await wrapper.find('.aheart-dropdown__trigger').trigger('mouseenter')
+      await vi.advanceTimersByTimeAsync(200)
+      await nextTick()
+
+      expect(wrapper.find('.aheart-dropdown__overlay').attributes('style') ?? '').not.toContain('display: none')
+      expect(wrapper.emitted('openChange')).toEqual([[true, { source: 'trigger' }], [true, { source: 'trigger' }]])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('forwards hover delays through Dropdown.Button', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const wrapper = mountDropdownButton({
+        props: {
+          menu,
+          mouseEnterDelay: 0.2,
+          mouseLeaveDelay: 0.2
+        },
+        slots: { default: 'Actions' }
+      })
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('mouseenter')
+      expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(false)
+
+      await vi.advanceTimersByTimeAsync(200)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(true)
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('mouseleave', { relatedTarget: document.body })
+      await vi.advanceTimersByTimeAsync(199)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').attributes('style') ?? '').not.toContain('display: none')
+
+      await vi.advanceTimersByTimeAsync(1)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('display: none')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('supports controlled open state', async () => {
@@ -486,6 +588,8 @@ describe('Dropdown', () => {
     const wrapper = mount(Dropdown, {
       props: {
         menu,
+        mouseEnterDelay: 0,
+        mouseLeaveDelay: 0,
         getPopupContainer: () => container
       },
       slots: {

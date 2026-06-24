@@ -58,6 +58,14 @@ export const dropdownProps = {
     default: 'bottomLeft'
   },
   getPopupContainer: Function as PropType<DropdownGetPopupContainer>,
+  mouseEnterDelay: {
+    type: Number,
+    default: 0.1
+  },
+  mouseLeaveDelay: {
+    type: Number,
+    default: 0.1
+  },
   open: {
     type: Boolean,
     default: undefined
@@ -101,6 +109,8 @@ export const dropdownButtonProps = {
     default: 'bottomRight'
   },
   getPopupContainer: dropdownProps.getPopupContainer,
+  mouseEnterDelay: dropdownProps.mouseEnterDelay,
+  mouseLeaveDelay: dropdownProps.mouseLeaveDelay,
   open: dropdownProps.open,
   defaultOpen: dropdownProps.defaultOpen,
   disabled: dropdownProps.disabled,

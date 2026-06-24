@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, ref, useSlots, watch, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, onBeforeUnmount, ref, useSlots, watch, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AMenu, { type MenuClickInfo } from '../menu'
 import {
@@ -86,6 +86,8 @@ const hasRenderedOverlay = ref(Boolean(props.defaultOpen || props.open))
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const overlayRef = ref<HTMLElement | null>(null)
+let mouseEnterTimer: ReturnType<typeof setTimeout> | undefined
+let mouseLeaveTimer: ReturnType<typeof setTimeout> | undefined
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -229,6 +231,52 @@ const containsRelatedTarget = (event: MouseEvent, element: HTMLElement | null) =
 const isHoveringTriggerOrOverlay = (event: MouseEvent) =>
   containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, overlayRef.value)
 
+const clearMouseEnterTimer = () => {
+  if (mouseEnterTimer) {
+    clearTimeout(mouseEnterTimer)
+    mouseEnterTimer = undefined
+  }
+}
+
+const clearMouseLeaveTimer = () => {
+  if (mouseLeaveTimer) {
+    clearTimeout(mouseLeaveTimer)
+    mouseLeaveTimer = undefined
+  }
+}
+
+const clearHoverTimers = () => {
+  clearMouseEnterTimer()
+  clearMouseLeaveTimer()
+}
+
+const delayToMs = (delay: number) => Math.max(0, delay * 1000)
+
+const setOpenWithHoverDelay = (open: boolean, delay: number) => {
+  const timerDelay = delayToMs(delay)
+
+  if (timerDelay === 0) {
+    setOpen(open, { source: 'trigger' })
+    return
+  }
+
+  const timer = setTimeout(() => {
+    if (open) {
+      mouseEnterTimer = undefined
+    } else {
+      mouseLeaveTimer = undefined
+    }
+
+    setOpen(open, { source: 'trigger' })
+  }, timerDelay)
+
+  if (open) {
+    mouseEnterTimer = timer
+  } else {
+    mouseLeaveTimer = timer
+  }
+}
+
 const handleTriggerClick = () => {
   if (!triggerSet.value.has('click')) {
     return
@@ -239,13 +287,17 @@ const handleTriggerClick = () => {
 
 const handleMouseEnter = () => {
   if (triggerSet.value.has('hover')) {
-    setOpen(true, { source: 'trigger' })
+    clearMouseLeaveTimer()
+    clearMouseEnterTimer()
+    setOpenWithHoverDelay(true, props.mouseEnterDelay)
   }
 }
 
 const handleMouseLeave = (event: MouseEvent) => {
   if (triggerSet.value.has('hover') && !isHoveringTriggerOrOverlay(event)) {
-    setOpen(false, { source: 'trigger' })
+    clearMouseEnterTimer()
+    clearMouseLeaveTimer()
+    setOpenWithHoverDelay(false, props.mouseLeaveDelay)
   }
 }
 
@@ -265,4 +317,6 @@ const handleMenuClick = (info: MenuClickInfo) => {
 
   setOpen(false, { source: 'menu', emitOpenChange: false })
 }
+
+onBeforeUnmount(clearHoverTimers)
 </script>

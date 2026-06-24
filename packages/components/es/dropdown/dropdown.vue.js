@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, h, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, h, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import Menu from "../menu/index.js";
 import { dropdownProps, dropdownEmits } from "./types.js";
@@ -30,6 +30,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const overlayRef = ref(null);
+    let mouseEnterTimer;
+    let mouseLeaveTimer;
     const isControlled = computed(() => props.open !== void 0);
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
@@ -158,6 +160,43 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const containsRelatedTarget = (event, element) => event.relatedTarget instanceof Node && Boolean(element == null ? void 0 : element.contains(event.relatedTarget));
     const isHoveringTriggerOrOverlay = (event) => containsRelatedTarget(event, rootRef.value) || containsRelatedTarget(event, overlayRef.value);
+    const clearMouseEnterTimer = () => {
+      if (mouseEnterTimer) {
+        clearTimeout(mouseEnterTimer);
+        mouseEnterTimer = void 0;
+      }
+    };
+    const clearMouseLeaveTimer = () => {
+      if (mouseLeaveTimer) {
+        clearTimeout(mouseLeaveTimer);
+        mouseLeaveTimer = void 0;
+      }
+    };
+    const clearHoverTimers = () => {
+      clearMouseEnterTimer();
+      clearMouseLeaveTimer();
+    };
+    const delayToMs = (delay) => Math.max(0, delay * 1e3);
+    const setOpenWithHoverDelay = (open, delay) => {
+      const timerDelay = delayToMs(delay);
+      if (timerDelay === 0) {
+        setOpen(open, { source: "trigger" });
+        return;
+      }
+      const timer = setTimeout(() => {
+        if (open) {
+          mouseEnterTimer = void 0;
+        } else {
+          mouseLeaveTimer = void 0;
+        }
+        setOpen(open, { source: "trigger" });
+      }, timerDelay);
+      if (open) {
+        mouseEnterTimer = timer;
+      } else {
+        mouseLeaveTimer = timer;
+      }
+    };
     const handleTriggerClick = () => {
       if (!triggerSet.value.has("click")) {
         return;
@@ -166,12 +205,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleMouseEnter = () => {
       if (triggerSet.value.has("hover")) {
-        setOpen(true, { source: "trigger" });
+        clearMouseLeaveTimer();
+        clearMouseEnterTimer();
+        setOpenWithHoverDelay(true, props.mouseEnterDelay);
       }
     };
     const handleMouseLeave = (event) => {
       if (triggerSet.value.has("hover") && !isHoveringTriggerOrOverlay(event)) {
-        setOpen(false, { source: "trigger" });
+        clearMouseEnterTimer();
+        clearMouseLeaveTimer();
+        setOpenWithHoverDelay(false, props.mouseLeaveDelay);
       }
     };
     const handleContextmenu = (event) => {
@@ -188,6 +231,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       setOpen(false, { source: "menu", emitOpenChange: false });
     };
+    onBeforeUnmount(clearHoverTimers);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         ref_key: "rootRef",
