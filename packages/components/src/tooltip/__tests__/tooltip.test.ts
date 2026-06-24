@@ -302,6 +302,81 @@ describe('Tooltip', () => {
     expect(arrow.attributes('style')).toContain('background-color: yellow')
   })
 
+  it('resolves function semantic hooks with open state and effective placement', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockTooltipRects({
+      trigger: createRect({ left: 120, top: 8, width: 96, height: 24 }),
+      popup: createRect({ left: 90, top: -132, width: 180, height: 140 })
+    })
+    const classInfos: Array<{ open: boolean; placement: string }> = []
+    const styleInfos: Array<{ open: boolean; placement: string }> = []
+
+    try {
+      const wrapper = mountTooltip({
+        props: {
+          title: 'Function hooks',
+          trigger: 'click',
+          placement: 'top',
+          classNames: (info: { open: boolean; placement: string }) => {
+            classInfos.push(info)
+            return {
+              root: info.open ? 'function-root-open' : 'function-root-closed',
+              trigger: `function-trigger-${info.placement}`,
+              popup: `function-popup-${info.placement}`,
+              container: 'function-container',
+              content: 'function-content',
+              arrow: 'function-arrow'
+            }
+          },
+          styles: (info: { open: boolean; placement: string }) => {
+            styleInfos.push(info)
+            return {
+              root: { outlineColor: info.open ? 'green' : 'gray' },
+              popup: { borderColor: info.placement === 'bottom' ? 'blue' : 'orange' },
+              container: { maxWidth: '280px' },
+              content: { fontWeight: '600' },
+              arrow: { backgroundColor: 'pink' }
+            }
+          }
+        },
+        slots: { default: '<button>Help</button>' }
+      })
+
+      await wrapper.find('.aheart-tooltip__trigger').trigger('click')
+      await nextTick()
+
+      expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+
+      const root = wrapper.find('.aheart-tooltip')
+      expect(root.classes()).toContain('function-root-open')
+      expect(root.attributes('style')).toContain('outline-color: green')
+
+      const trigger = wrapper.find('.aheart-tooltip__trigger')
+      expect(trigger.classes()).toContain('function-trigger-bottom')
+
+      const popup = wrapper.find('.aheart-tooltip__popup')
+      expect(popup.classes()).toEqual(
+        expect.arrayContaining(['aheart-floating--bottom', 'function-popup-bottom'])
+      )
+      expect(popup.attributes('style')).toContain('border-color: blue')
+
+      const container = wrapper.find('.aheart-tooltip__container')
+      expect(container.classes()).toContain('function-container')
+      expect(container.attributes('style')).toContain('max-width: 280px')
+
+      const content = wrapper.find('.aheart-tooltip__content')
+      expect(content.classes()).toContain('function-content')
+      expect(content.attributes('style')).toContain('font-weight: 600')
+
+      const arrow = wrapper.find('.aheart-tooltip__arrow')
+      expect(arrow.classes()).toContain('function-arrow')
+      expect(arrow.attributes('style')).toContain('background-color: pink')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
   it('uses Ant-style default hover delays', async () => {
     vi.useFakeTimers()
 

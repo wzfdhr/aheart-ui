@@ -47,8 +47,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").TooltipClassNames>;
+    readonly styles: PropType<import("./types").TooltipStyles>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
@@ -99,8 +99,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").TooltipClassNames>;
+    readonly styles: PropType<import("./types").TooltipStyles>;
 }>> & Readonly<{
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;

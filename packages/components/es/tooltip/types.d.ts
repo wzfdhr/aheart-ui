@@ -1,5 +1,5 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
-import { type FloatingTriggerProp } from '../utils/floating';
+import { type FloatingPlacement, type FloatingTriggerProp } from '../utils/floating';
 export interface TooltipArrowConfig {
     pointAtCenter?: boolean;
 }
@@ -9,8 +9,14 @@ export type TooltipRenderableFactory = () => VNodeChild;
 export type TooltipTitle = TooltipRenderable | TooltipRenderableFactory;
 export type TooltipGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
 export type TooltipSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'content' | 'arrow';
-export type TooltipClassNames = Partial<Record<TooltipSemanticPart, string>>;
-export type TooltipStyles = Partial<Record<TooltipSemanticPart, StyleValue>>;
+export interface TooltipSemanticInfo {
+    open: boolean;
+    placement: FloatingPlacement;
+}
+export type TooltipSemanticClassNames = Partial<Record<TooltipSemanticPart, string>>;
+export type TooltipSemanticStyles = Partial<Record<TooltipSemanticPart, StyleValue>>;
+export type TooltipClassNames = TooltipSemanticClassNames | ((info: TooltipSemanticInfo) => TooltipSemanticClassNames);
+export type TooltipStyles = TooltipSemanticStyles | ((info: TooltipSemanticInfo) => TooltipSemanticStyles);
 export declare const tooltipProps: {
     readonly title: {
         type: PropType<TooltipTitle>;
@@ -58,8 +64,8 @@ export declare const tooltipProps: {
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<StyleValue>;
     readonly overlayInnerStyle: PropType<StyleValue>;
-    readonly classNames: PropType<Partial<Record<TooltipSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<TooltipSemanticPart, StyleValue>>>;
+    readonly classNames: PropType<TooltipClassNames>;
+    readonly styles: PropType<TooltipStyles>;
 };
 export declare const tooltipEmits: {
     'update:open': (open: boolean) => boolean;

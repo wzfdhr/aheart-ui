@@ -46,8 +46,8 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly overlayClassName: StringConstructor;
         readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").TooltipClassNames>;
+        readonly styles: import("vue").PropType<import("./types").TooltipStyles>;
     }>> & Readonly<{
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
@@ -120,8 +120,8 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         readonly overlayClassName: StringConstructor;
         readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").TooltipClassNames>;
+        readonly styles: import("vue").PropType<import("./types").TooltipStyles>;
     }>> & Readonly<{
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
@@ -188,8 +188,8 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").TooltipSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").TooltipClassNames>;
+    readonly styles: import("vue").PropType<import("./types").TooltipStyles>;
 }>> & Readonly<{
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;

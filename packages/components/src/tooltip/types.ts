@@ -16,8 +16,14 @@ export type TooltipRenderableFactory = () => VNodeChild
 export type TooltipTitle = TooltipRenderable | TooltipRenderableFactory
 export type TooltipGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
 export type TooltipSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'content' | 'arrow'
-export type TooltipClassNames = Partial<Record<TooltipSemanticPart, string>>
-export type TooltipStyles = Partial<Record<TooltipSemanticPart, StyleValue>>
+export interface TooltipSemanticInfo {
+  open: boolean
+  placement: FloatingPlacement
+}
+export type TooltipSemanticClassNames = Partial<Record<TooltipSemanticPart, string>>
+export type TooltipSemanticStyles = Partial<Record<TooltipSemanticPart, StyleValue>>
+export type TooltipClassNames = TooltipSemanticClassNames | ((info: TooltipSemanticInfo) => TooltipSemanticClassNames)
+export type TooltipStyles = TooltipSemanticStyles | ((info: TooltipSemanticInfo) => TooltipSemanticStyles)
 
 const titleProp = {
   type: null as unknown as PropType<TooltipTitle>,
@@ -68,8 +74,8 @@ export const tooltipProps = {
   overlayClassName: String,
   overlayStyle: [String, Object, Array] as PropType<StyleValue>,
   overlayInnerStyle: [String, Object, Array] as PropType<StyleValue>,
-  classNames: Object as PropType<TooltipClassNames>,
-  styles: Object as PropType<TooltipStyles>
+  classNames: [Object, Function] as PropType<TooltipClassNames>,
+  styles: [Object, Function] as PropType<TooltipStyles>
 } as const
 
 export const tooltipEmits = {

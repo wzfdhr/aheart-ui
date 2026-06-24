@@ -213,8 +213,8 @@ const renderableTooltipTitle = () => h('span', [
 | overlayClassName | 浮层 class 兼容属性 | `string` | - |
 | overlayStyle | 浮层样式兼容属性 | `StyleValue` | - |
 | overlayInnerStyle | 浮层内部容器样式兼容属性 | `StyleValue` | - |
-| classNames | 语义化结构 class | `Partial<Record<TooltipSemanticPart, string>>` | - |
-| styles | 语义化结构样式 | `Partial<Record<TooltipSemanticPart, StyleValue>>` | - |
+| classNames | 语义化结构 class，支持对象或函数 | `TooltipSemanticClassNames \| (info: TooltipSemanticInfo) => TooltipSemanticClassNames` | - |
+| styles | 语义化结构样式，支持对象或函数 | `TooltipSemanticStyles \| (info: TooltipSemanticInfo) => TooltipSemanticStyles` | - |
 
 ### FloatingPlacement
 
@@ -230,6 +230,13 @@ const renderableTooltipTitle = () => h('span', [
 | container | 浮层内部容器 |
 | content | 提示内容 |
 | arrow | 箭头 |
+
+### TooltipSemanticInfo
+
+| 字段 | 说明 |
+| --- | --- |
+| open | 当前浮层是否显示 |
+| placement | 当前生效位置；开启 `autoAdjustOverflow` 后可能是调整后的值 |
 
 ## Events
 

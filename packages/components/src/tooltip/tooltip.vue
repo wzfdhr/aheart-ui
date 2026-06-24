@@ -56,7 +56,14 @@
 import { computed, defineComponent, nextTick, onBeforeUnmount, ref, useSlots, watch, type PropType } from 'vue'
 import { getFloatingPopupStyle, normalizeFloatingTriggers, type FloatingPlacement } from '../utils/floating'
 import '../utils/floating.css'
-import { tooltipEmits, tooltipProps, type TooltipTitle } from './types'
+import {
+  tooltipEmits,
+  tooltipProps,
+  type TooltipSemanticClassNames,
+  type TooltipSemanticInfo,
+  type TooltipSemanticStyles,
+  type TooltipTitle
+} from './types'
 import './style.css'
 
 defineOptions({
@@ -105,32 +112,46 @@ const popupContainer = computed(() => {
 })
 const shouldTeleport = computed(() => popupContainer.value !== false)
 const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
+const semanticInfo = computed<TooltipSemanticInfo>(() => ({
+  open: visible.value,
+  placement: effectivePlacement.value
+}))
+const resolvedClassNames = computed<TooltipSemanticClassNames>(() =>
+  typeof props.classNames === 'function' ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+)
+const resolvedStyles = computed<TooltipSemanticStyles>(() =>
+  typeof props.styles === 'function' ? props.styles(semanticInfo.value) : props.styles ?? {}
+)
 const tooltipClass = computed(() => [
   props.className,
   props.rootClassName,
-  props.classNames?.root,
+  resolvedClassNames.value.root,
   {
     'is-open': visible.value
   }
 ])
-const rootStyle = computed(() => [props.style, props.styles?.root])
-const triggerClass = computed(() => props.classNames?.trigger)
-const triggerStyle = computed(() => props.styles?.trigger)
-const popupClass = computed(() => [`aheart-floating--${effectivePlacement.value}`, props.overlayClassName, props.classNames?.popup])
-const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, props.styles?.popup])
-const containerClass = computed(() => props.classNames?.container)
-const containerStyle = computed(() => [props.overlayInnerStyle, props.styles?.container])
-const contentClass = computed(() => props.classNames?.content)
-const contentStyle = computed(() => props.styles?.content)
+const rootStyle = computed(() => [props.style, resolvedStyles.value.root])
+const triggerClass = computed(() => resolvedClassNames.value.trigger)
+const triggerStyle = computed(() => resolvedStyles.value.trigger)
+const popupClass = computed(() => [
+  `aheart-floating--${effectivePlacement.value}`,
+  props.overlayClassName,
+  resolvedClassNames.value.popup
+])
+const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup])
+const containerClass = computed(() => resolvedClassNames.value.container)
+const containerStyle = computed(() => [props.overlayInnerStyle, resolvedStyles.value.container])
+const contentClass = computed(() => resolvedClassNames.value.content)
+const contentStyle = computed(() => resolvedStyles.value.content)
 const showArrow = computed(() => props.arrow !== false)
 const arrowPointsAtCenter = computed(() => typeof props.arrow === 'object' && props.arrow?.pointAtCenter === true)
 const arrowClass = computed(() => [
-  props.classNames?.arrow,
+  resolvedClassNames.value.arrow,
   {
     'aheart-tooltip__arrow--point-at-center': arrowPointsAtCenter.value
   }
 ])
-const arrowStyle = computed(() => props.styles?.arrow)
+const arrowStyle = computed(() => resolvedStyles.value.arrow)
 
 let enterTimer: ReturnType<typeof setTimeout> | undefined
 let leaveTimer: ReturnType<typeof setTimeout> | undefined
