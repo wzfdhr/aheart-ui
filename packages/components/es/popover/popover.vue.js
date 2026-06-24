@@ -52,79 +52,51 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const shouldTeleport = computed(() => popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const popoverClass = computed(() => {
-      var _a;
-      return [
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          "is-open": visible.value
-        }
-      ];
-    });
-    const rootStyle = computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const triggerClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.trigger;
-    });
-    const triggerStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.trigger;
-    });
-    const popupClass = computed(() => {
-      var _a;
-      return [`aheart-floating--${effectivePlacement.value}`, props.overlayClassName, (_a = props.classNames) == null ? void 0 : _a.popup];
-    });
-    const popupStyle = computed(() => {
-      var _a;
-      return [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
-    });
-    const containerClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.container;
-    });
-    const containerStyle = computed(() => {
-      var _a;
-      return [props.overlayInnerStyle, (_a = props.styles) == null ? void 0 : _a.container];
-    });
-    const titleClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.title;
-    });
-    const titleStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.title;
-    });
-    const contentClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.content;
-    });
-    const contentStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.content;
-    });
+    const semanticInfo = computed(() => ({
+      open: visible.value,
+      placement: effectivePlacement.value
+    }));
+    const resolvedClassNames = computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
+    const popoverClass = computed(() => [
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        "is-open": visible.value
+      }
+    ]);
+    const rootStyle = computed(() => [props.style, resolvedStyles.value.root]);
+    const triggerClass = computed(() => resolvedClassNames.value.trigger);
+    const triggerStyle = computed(() => resolvedStyles.value.trigger);
+    const popupClass = computed(() => [
+      `aheart-floating--${effectivePlacement.value}`,
+      props.overlayClassName,
+      resolvedClassNames.value.popup
+    ]);
+    const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup]);
+    const containerClass = computed(() => resolvedClassNames.value.container);
+    const containerStyle = computed(() => [props.overlayInnerStyle, resolvedStyles.value.container]);
+    const titleClass = computed(() => resolvedClassNames.value.title);
+    const titleStyle = computed(() => resolvedStyles.value.title);
+    const contentClass = computed(() => resolvedClassNames.value.content);
+    const contentStyle = computed(() => resolvedStyles.value.content);
     const showArrow = computed(() => props.arrow !== false);
     const arrowPointsAtCenter = computed(() => {
       var _a;
       return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
     });
-    const arrowClass = computed(() => {
-      var _a;
-      return [
-        (_a = props.classNames) == null ? void 0 : _a.arrow,
-        {
-          "aheart-popover__arrow--point-at-center": arrowPointsAtCenter.value
-        }
-      ];
-    });
-    const arrowStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.arrow;
-    });
+    const arrowClass = computed(() => [
+      resolvedClassNames.value.arrow,
+      {
+        "aheart-popover__arrow--point-at-center": arrowPointsAtCenter.value
+      }
+    ]);
+    const arrowStyle = computed(() => resolvedStyles.value.arrow);
     watch(
       () => props.defaultOpen,
       (open) => {

@@ -50,8 +50,8 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly overlayClassName: StringConstructor;
         readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").PopoverClassNames>;
+        readonly styles: import("vue").PropType<import("./types").PopoverStyles>;
     }>> & Readonly<{
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
@@ -129,8 +129,8 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly overlayClassName: StringConstructor;
         readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
         readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").PopoverClassNames>;
+        readonly styles: import("vue").PropType<import("./types").PopoverStyles>;
     }>> & Readonly<{
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
@@ -202,8 +202,8 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: import("vue").PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").PopoverClassNames>;
+    readonly styles: import("vue").PropType<import("./types").PopoverStyles>;
 }>> & Readonly<{
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;

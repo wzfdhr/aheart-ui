@@ -258,8 +258,8 @@ const renderablePopoverContent = h('span', [
 | overlayClassName | 弹层 class，兼容旧 API | `string` | - |
 | overlayStyle | 弹层样式，兼容旧 API | `StyleValue` | - |
 | overlayInnerStyle | 弹层内部容器样式，兼容旧 API | `StyleValue` | - |
-| classNames | 语义 DOM class 映射 | `Partial<Record<PopoverSemanticPart, string>>` | - |
-| styles | 语义 DOM style 映射 | `Partial<Record<PopoverSemanticPart, StyleValue>>` | - |
+| classNames | 语义 DOM class 映射，支持对象或函数 | `PopoverSemanticClassNames \| (info: PopoverSemanticInfo) => PopoverSemanticClassNames` | - |
+| styles | 语义 DOM style 映射，支持对象或函数 | `PopoverSemanticStyles \| (info: PopoverSemanticInfo) => PopoverSemanticStyles` | - |
 
 ### PopoverSemanticPart
 
@@ -272,6 +272,13 @@ const renderablePopoverContent = h('span', [
 | title | 标题 |
 | content | 内容 |
 | arrow | 箭头 |
+
+### PopoverSemanticInfo
+
+| 字段 | 说明 |
+| --- | --- |
+| open | 当前浮层是否显示 |
+| placement | 当前生效位置；开启 `autoAdjustOverflow` 后可能是调整后的值 |
 
 ## Events
 

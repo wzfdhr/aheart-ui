@@ -16,8 +16,14 @@ export type PopoverRenderableFactory = () => VNodeChild
 export type PopoverContent = PopoverRenderable | PopoverRenderableFactory
 export type PopoverGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
 export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow'
-export type PopoverClassNames = Partial<Record<PopoverSemanticPart, string>>
-export type PopoverStyles = Partial<Record<PopoverSemanticPart, StyleValue>>
+export interface PopoverSemanticInfo {
+  open: boolean
+  placement: FloatingPlacement
+}
+export type PopoverSemanticClassNames = Partial<Record<PopoverSemanticPart, string>>
+export type PopoverSemanticStyles = Partial<Record<PopoverSemanticPart, StyleValue>>
+export type PopoverClassNames = PopoverSemanticClassNames | ((info: PopoverSemanticInfo) => PopoverSemanticClassNames)
+export type PopoverStyles = PopoverSemanticStyles | ((info: PopoverSemanticInfo) => PopoverSemanticStyles)
 
 const renderableProp = {
   type: null as unknown as PropType<PopoverContent>,
@@ -69,8 +75,8 @@ export const popoverProps = {
   overlayClassName: String,
   overlayStyle: [String, Object, Array] as PropType<StyleValue>,
   overlayInnerStyle: [String, Object, Array] as PropType<StyleValue>,
-  classNames: Object as PropType<PopoverClassNames>,
-  styles: Object as PropType<PopoverStyles>
+  classNames: [Object, Function] as PropType<PopoverClassNames>,
+  styles: [Object, Function] as PropType<PopoverStyles>
 } as const
 
 export const popoverEmits = {

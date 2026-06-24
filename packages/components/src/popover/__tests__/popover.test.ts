@@ -261,6 +261,85 @@ describe('Popover', () => {
     expect(wrapper.find('.aheart-popover__arrow').attributes('style')).toContain('background-color: yellow')
   })
 
+  it('resolves function semantic hooks with open state and effective placement', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockPopoverRects({
+      trigger: createRect({ left: 120, top: 8, width: 96, height: 24 }),
+      popup: createRect({ left: 90, top: -132, width: 180, height: 140 })
+    })
+    const classInfos: Array<{ open: boolean; placement: string }> = []
+    const styleInfos: Array<{ open: boolean; placement: string }> = []
+
+    try {
+      const wrapper = mountPopover({
+        props: {
+          title: 'Function title',
+          content: 'Function content',
+          trigger: 'click',
+          placement: 'top',
+          classNames: (info: { open: boolean; placement: string }) => {
+            classInfos.push(info)
+            return {
+              root: info.open ? 'function-root-open' : 'function-root-closed',
+              trigger: `function-trigger-${info.placement}`,
+              popup: `function-popup-${info.placement}`,
+              container: 'function-container',
+              title: 'function-title',
+              content: 'function-content',
+              arrow: 'function-arrow'
+            }
+          },
+          styles: (info: { open: boolean; placement: string }) => {
+            styleInfos.push(info)
+            return {
+              root: { outlineColor: info.open ? 'green' : 'gray' },
+              popup: { borderColor: info.placement === 'bottom' ? 'blue' : 'orange' },
+              container: { maxWidth: '280px' },
+              title: { fontWeight: '600' },
+              content: { lineHeight: '22px' },
+              arrow: { backgroundColor: 'pink' }
+            }
+          }
+        },
+        slots: { default: '<button>Details</button>' }
+      })
+
+      await wrapper.find('.aheart-popover__trigger').trigger('click')
+      await nextTick()
+
+      expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+
+      expect(wrapper.classes()).toContain('function-root-open')
+      expect(wrapper.attributes('style')).toContain('outline-color: green')
+      expect(wrapper.find('.aheart-popover__trigger').classes()).toContain('function-trigger-bottom')
+
+      const popup = wrapper.find('.aheart-popover__popup')
+      expect(popup.classes()).toEqual(
+        expect.arrayContaining(['aheart-floating--bottom', 'function-popup-bottom'])
+      )
+      expect(popup.attributes('style')).toContain('border-color: blue')
+
+      const container = wrapper.find('.aheart-popover__container')
+      expect(container.classes()).toContain('function-container')
+      expect(container.attributes('style')).toContain('max-width: 280px')
+
+      const title = wrapper.find('.aheart-popover__title')
+      expect(title.classes()).toContain('function-title')
+      expect(title.attributes('style')).toContain('font-weight: 600')
+
+      const content = wrapper.find('.aheart-popover__content')
+      expect(content.classes()).toContain('function-content')
+      expect(content.attributes('style')).toContain('line-height: 22px')
+
+      const arrow = wrapper.find('.aheart-popover__arrow')
+      expect(arrow.classes()).toContain('function-arrow')
+      expect(arrow.attributes('style')).toContain('background-color: pink')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
   it('respects hover enter and leave delays', async () => {
     vi.useFakeTimers()
 

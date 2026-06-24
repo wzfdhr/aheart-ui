@@ -48,8 +48,8 @@ const popoverProps = {
   overlayClassName: String,
   overlayStyle: [String, Object, Array],
   overlayInnerStyle: [String, Object, Array],
-  classNames: Object,
-  styles: Object
+  classNames: [Object, Function],
+  styles: [Object, Function]
 };
 const popoverEmits = {
   "update:open": (open) => typeof open === "boolean",

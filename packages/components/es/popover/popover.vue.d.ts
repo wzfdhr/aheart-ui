@@ -51,8 +51,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").PopoverClassNames>;
+    readonly styles: PropType<import("./types").PopoverStyles>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
@@ -107,8 +107,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly overlayClassName: StringConstructor;
     readonly overlayStyle: PropType<import("vue").StyleValue>;
     readonly overlayInnerStyle: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").PopoverSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").PopoverSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: PropType<import("./types").PopoverClassNames>;
+    readonly styles: PropType<import("./types").PopoverStyles>;
 }>> & Readonly<{
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;

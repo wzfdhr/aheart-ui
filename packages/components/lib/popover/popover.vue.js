@@ -54,79 +54,51 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const shouldTeleport = vue.computed(() => popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const popoverClass = vue.computed(() => {
-      var _a;
-      return [
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          "is-open": visible.value
-        }
-      ];
-    });
-    const rootStyle = vue.computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const triggerClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.trigger;
-    });
-    const triggerStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.trigger;
-    });
-    const popupClass = vue.computed(() => {
-      var _a;
-      return [`aheart-floating--${effectivePlacement.value}`, props.overlayClassName, (_a = props.classNames) == null ? void 0 : _a.popup];
-    });
-    const popupStyle = vue.computed(() => {
-      var _a;
-      return [floating.getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, (_a = props.styles) == null ? void 0 : _a.popup];
-    });
-    const containerClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.container;
-    });
-    const containerStyle = vue.computed(() => {
-      var _a;
-      return [props.overlayInnerStyle, (_a = props.styles) == null ? void 0 : _a.container];
-    });
-    const titleClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.title;
-    });
-    const titleStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.title;
-    });
-    const contentClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.content;
-    });
-    const contentStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.content;
-    });
+    const semanticInfo = vue.computed(() => ({
+      open: visible.value,
+      placement: effectivePlacement.value
+    }));
+    const resolvedClassNames = vue.computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = vue.computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
+    const popoverClass = vue.computed(() => [
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        "is-open": visible.value
+      }
+    ]);
+    const rootStyle = vue.computed(() => [props.style, resolvedStyles.value.root]);
+    const triggerClass = vue.computed(() => resolvedClassNames.value.trigger);
+    const triggerStyle = vue.computed(() => resolvedStyles.value.trigger);
+    const popupClass = vue.computed(() => [
+      `aheart-floating--${effectivePlacement.value}`,
+      props.overlayClassName,
+      resolvedClassNames.value.popup
+    ]);
+    const popupStyle = vue.computed(() => [floating.getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup]);
+    const containerClass = vue.computed(() => resolvedClassNames.value.container);
+    const containerStyle = vue.computed(() => [props.overlayInnerStyle, resolvedStyles.value.container]);
+    const titleClass = vue.computed(() => resolvedClassNames.value.title);
+    const titleStyle = vue.computed(() => resolvedStyles.value.title);
+    const contentClass = vue.computed(() => resolvedClassNames.value.content);
+    const contentStyle = vue.computed(() => resolvedStyles.value.content);
     const showArrow = vue.computed(() => props.arrow !== false);
     const arrowPointsAtCenter = vue.computed(() => {
       var _a;
       return typeof props.arrow === "object" && ((_a = props.arrow) == null ? void 0 : _a.pointAtCenter) === true;
     });
-    const arrowClass = vue.computed(() => {
-      var _a;
-      return [
-        (_a = props.classNames) == null ? void 0 : _a.arrow,
-        {
-          "aheart-popover__arrow--point-at-center": arrowPointsAtCenter.value
-        }
-      ];
-    });
-    const arrowStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.arrow;
-    });
+    const arrowClass = vue.computed(() => [
+      resolvedClassNames.value.arrow,
+      {
+        "aheart-popover__arrow--point-at-center": arrowPointsAtCenter.value
+      }
+    ]);
+    const arrowStyle = vue.computed(() => resolvedStyles.value.arrow);
     vue.watch(
       () => props.defaultOpen,
       (open) => {
