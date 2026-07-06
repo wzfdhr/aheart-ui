@@ -42,6 +42,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         values: FormModel;
         errorFields: FormValidationError[];
     };
+    validateFields: (names?: string[] | undefined) => {
+        values: FormModel;
+        errorFields: FormValidationError[];
+    };
     clearValidate: (names?: string[] | undefined) => void;
     getFieldValue: (name: string) => unknown;
     getFieldsValue: (names?: true | string[] | undefined) => FormModel;

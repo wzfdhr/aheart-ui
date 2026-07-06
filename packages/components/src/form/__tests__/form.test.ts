@@ -733,6 +733,56 @@ describe('Form', () => {
     ])
   })
 
+  it('exposes validateFields for targeted and full field validation', () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { email: '', password: '' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(
+                FormItem,
+                { label: 'Email', name: 'email', rules: [{ required: true, message: 'Email is required' }] },
+                () => h(Input, { modelValue: '' })
+              ),
+              h(
+                FormItem,
+                { label: 'Password', name: 'password', rules: [{ required: true, message: 'Password is required' }] },
+                () => h(Input, { modelValue: '' })
+              )
+            ])
+          }
+        }
+      }
+    })
+    const form = wrapper.vm as unknown as {
+      validateFields?: (names?: string[]) => {
+        values: Record<string, unknown>
+        errorFields: { name: string; errors: string[] }[]
+      }
+      getFieldError?: (name: string) => string[]
+    }
+
+    expect(form.validateFields).toBeTypeOf('function')
+
+    expect(form.validateFields?.(['password'])).toEqual({
+      values: { email: '', password: '' },
+      errorFields: [{ name: 'password', errors: ['Password is required'] }]
+    })
+    expect(wrapper.emitted('validate')).toEqual([['password', false, ['Password is required']]])
+    expect(form.getFieldError?.('email')).toEqual([])
+
+    expect(form.validateFields?.()).toEqual({
+      values: { email: '', password: '' },
+      errorFields: [
+        { name: 'email', errors: ['Email is required'] },
+        { name: 'password', errors: ['Password is required'] }
+      ]
+    })
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {

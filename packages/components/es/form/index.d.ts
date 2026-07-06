@@ -47,6 +47,10 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         };
+        validateFields: (names?: string[] | undefined) => {
+            values: import("./types").FormModel;
+            errorFields: import("./types").FormValidationError[];
+        };
         clearValidate: (names?: string[] | undefined) => void;
         getFieldValue: (name: string) => unknown;
         getFieldsValue: (names?: true | string[] | undefined) => import("./types").FormModel;
@@ -126,6 +130,10 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         };
+        validateFields: (names?: string[] | undefined) => {
+            values: import("./types").FormModel;
+            errorFields: import("./types").FormValidationError[];
+        };
         clearValidate: (names?: string[] | undefined) => void;
         getFieldValue: (name: string) => unknown;
         getFieldsValue: (names?: true | string[] | undefined) => import("./types").FormModel;
@@ -194,6 +202,10 @@ declare const Form: import("../utils/install").SFCWithInstall<{
     onValidate?: ((name: string, status: boolean, errors: string[]) => any) | undefined;
 }>, {
     validate: () => {
+        values: import("./types").FormModel;
+        errorFields: import("./types").FormValidationError[];
+    };
+    validateFields: (names?: string[] | undefined) => {
         values: import("./types").FormModel;
         errorFields: import("./types").FormValidationError[];
     };

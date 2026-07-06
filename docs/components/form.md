@@ -460,6 +460,7 @@ const passwordTooltipIcon = h('span', 'i')
 | 名称 | 说明 | 类型 |
 | --- | --- | --- |
 | validate | 触发表单同步校验 | `() => { values: FormModel; errorFields: FormValidationError[] }` |
+| validateFields | 触发指定字段或全部字段的同步校验 | `(names?: string[]) => { values: FormModel; errorFields: FormValidationError[] }` |
 | clearValidate | 清除字段错误 | `(names?: string[]) => void` |
 | getFieldError | 读取指定字段当前错误 | `(name: string) => string[]` |
 | getFieldsError | 读取当前字段错误集合 | `(names?: string[]) => FormValidationError[]` |

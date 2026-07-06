@@ -187,8 +187,8 @@ const validateField = (name: string): FormValidationError | undefined => {
 
 const getFieldNames = () => Array.from(new Set([...Object.keys(props.rules), ...Object.keys(fieldStates)]))
 
-const validate = () => {
-  const errorFields = getFieldNames()
+const validateFields = (names?: string[]) => {
+  const errorFields = (names ?? getFieldNames())
     .map((name) => validateField(name))
     .filter((error): error is FormValidationError => Boolean(error))
 
@@ -197,6 +197,8 @@ const validate = () => {
     errorFields
   }
 }
+
+const validate = () => validateFields()
 
 const clearValidate = (names?: string[]) => {
   const targetNames = names ?? Object.keys(fieldStates)
@@ -295,6 +297,7 @@ const handleSubmit = (event: Event) => {
 
 defineExpose({
   validate,
+  validateFields,
   clearValidate,
   getFieldValue,
   getFieldsValue,

@@ -138,13 +138,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return errors.length > 0 ? { name, errors } : void 0;
     };
     const getFieldNames = () => Array.from(/* @__PURE__ */ new Set([...Object.keys(props.rules), ...Object.keys(fieldStates)]));
-    const validate = () => {
-      const errorFields = getFieldNames().map((name) => validateField(name)).filter((error) => Boolean(error));
+    const validateFields = (names) => {
+      const errorFields = (names ?? getFieldNames()).map((name) => validateField(name)).filter((error) => Boolean(error));
       return {
         values: cloneValues(),
         errorFields
       };
     };
+    const validate = () => validateFields();
     const clearValidate = (names) => {
       const targetNames = names ?? Object.keys(fieldStates);
       targetNames.forEach((name) => {
@@ -228,6 +229,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     __expose({
       validate,
+      validateFields,
       clearValidate,
       getFieldValue,
       getFieldsValue,
