@@ -251,6 +251,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const actionsStyle = vue.computed(() => resolvedStyles.value.actions);
     const actionClass = vue.computed(() => resolvedClassNames.value.action);
     const actionStyle = vue.computed(() => resolvedStyles.value.action);
+    const rootMouseEventAttrs = /* @__PURE__ */ new Set([
+      "onClick",
+      "onMousedown",
+      "onMouseDown",
+      "onMouseup",
+      "onMouseUp",
+      "onMouseenter",
+      "onMouseEnter",
+      "onMousemove",
+      "onMouseMove",
+      "onMouseleave",
+      "onMouseLeave",
+      "onMouseout",
+      "onMouseOut"
+    ]);
+    const isRootMouseEventAttr = (key) => rootMouseEventAttrs.has(key);
     const rootAttrs = vue.computed(() => {
       const result = {};
       if (attrs.class !== void 0) {
@@ -259,6 +275,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (attrs.style !== void 0) {
         result.style = attrs.style;
       }
+      Object.entries(attrs).forEach(([key, value]) => {
+        if (isRootMouseEventAttr(key)) {
+          result[key] = value;
+        }
+      });
       return result;
     });
     const inputType = vue.computed(
@@ -270,7 +291,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const inputAttrs = vue.computed(
       () => Object.fromEntries(
-        Object.entries(attrs).filter(([key]) => !["class", "style", "type", "inputmode", "inputMode"].includes(key))
+        Object.entries(attrs).filter(
+          ([key]) => !["class", "style", "type", "inputmode", "inputMode"].includes(key) && !isRootMouseEventAttr(key)
+        )
       )
     );
     const applyPrecision = (value) => {

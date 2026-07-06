@@ -299,7 +299,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | classNames | 语义化结构 class，支持对象或函数形式 | `InputNumberSemanticRecord<string> \| ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<string>)` | - |
 | styles | 语义化结构样式，支持对象或函数形式 | `InputNumberSemanticRecord<StyleValue> \| ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<StyleValue>)` | - |
 
-除组件已声明的属性外，原生 `<input>` 属性与监听器会透传到内部输入框，例如 `name`、`autocomplete`、`pattern`、`aria-*`、`@blur`；组件上的 `class` 和 `style` 仍保留在根节点。`@input` 为组件事件，返回当前原始输入文本。
+除组件已声明的属性外，原生 `<input>` 属性与监听器会透传到内部输入框，例如 `name`、`autocomplete`、`pattern`、`aria-*`、`@blur`；组件上的 `class`、`style` 和鼠标事件（如 `@click`、`@mousedown`、`@mousemove`）保留在根节点。`@input` 为组件事件，返回当前原始输入文本。
 
 ## Events
 

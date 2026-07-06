@@ -351,6 +351,22 @@ const actionsClass = computed(() => ['aheart-input-number__controls', resolvedCl
 const actionsStyle = computed(() => resolvedStyles.value.actions)
 const actionClass = computed(() => resolvedClassNames.value.action)
 const actionStyle = computed(() => resolvedStyles.value.action)
+const rootMouseEventAttrs = new Set([
+  'onClick',
+  'onMousedown',
+  'onMouseDown',
+  'onMouseup',
+  'onMouseUp',
+  'onMouseenter',
+  'onMouseEnter',
+  'onMousemove',
+  'onMouseMove',
+  'onMouseleave',
+  'onMouseLeave',
+  'onMouseout',
+  'onMouseOut'
+])
+const isRootMouseEventAttr = (key: string) => rootMouseEventAttrs.has(key)
 const rootAttrs = computed(() => {
   const result: Record<string, unknown> = {}
 
@@ -361,6 +377,12 @@ const rootAttrs = computed(() => {
   if (attrs.style !== undefined) {
     result.style = attrs.style
   }
+
+  Object.entries(attrs).forEach(([key, value]) => {
+    if (isRootMouseEventAttr(key)) {
+      result[key] = value
+    }
+  })
 
   return result
 })
@@ -374,7 +396,9 @@ const inputMode = computed<InputHTMLAttributes['inputmode']>(() => {
 })
 const inputAttrs = computed(() =>
   Object.fromEntries(
-    Object.entries(attrs).filter(([key]) => !['class', 'style', 'type', 'inputmode', 'inputMode'].includes(key))
+    Object.entries(attrs).filter(
+      ([key]) => !['class', 'style', 'type', 'inputmode', 'inputMode'].includes(key) && !isRootMouseEventAttr(key)
+    )
   )
 )
 

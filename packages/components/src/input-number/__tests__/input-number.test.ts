@@ -49,6 +49,31 @@ describe('InputNumber', () => {
     expect(handleBlur).toHaveBeenCalledTimes(1)
   })
 
+  it('routes Ant-compatible mouse listeners to the root element', async () => {
+    const handleClick = vi.fn()
+    const handleMouseDown = vi.fn()
+    const handleMouseMove = vi.fn()
+    const handleFocus = vi.fn()
+    const wrapper = mount(InputNumber, {
+      attrs: {
+        onClick: handleClick,
+        onMousedown: handleMouseDown,
+        onMousemove: handleMouseMove,
+        onFocus: handleFocus
+      }
+    })
+
+    await wrapper.trigger('click')
+    await wrapper.trigger('mousedown')
+    await wrapper.trigger('mousemove')
+    await wrapper.find('input').trigger('focus')
+
+    expect(handleClick).toHaveBeenCalledTimes(1)
+    expect(handleMouseDown).toHaveBeenCalledTimes(1)
+    expect(handleMouseMove).toHaveBeenCalledTimes(1)
+    expect(handleFocus).toHaveBeenCalledTimes(1)
+  })
+
   it('uses defaultValue as uncontrolled initial value', async () => {
     const wrapper = mount(InputNumber, {
       props: { defaultValue: 4, step: 2 }
