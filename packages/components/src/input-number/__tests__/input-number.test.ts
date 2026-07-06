@@ -299,6 +299,30 @@ describe('InputNumber', () => {
     expect(withoutControls.find('.aheart-input-number__controls').exists()).toBe(false)
   })
 
+  it('supports spinner mode defaults and custom control overrides', () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 2, mode: 'spinner' }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-input-number--mode-spinner')
+    expect(wrapper.find('.aheart-input-number__increase').text()).toBe('+')
+    expect(wrapper.find('.aheart-input-number__decrease').text()).toBe('-')
+
+    const custom = mount(InputNumber, {
+      props: {
+        modelValue: 2,
+        mode: 'spinner',
+        controls: {
+          upIcon: 'more',
+          downIcon: 'less'
+        }
+      }
+    })
+
+    expect(custom.find('.aheart-input-number__increase').text()).toBe('more')
+    expect(custom.find('.aheart-input-number__decrease').text()).toBe('less')
+  })
+
   it('renders vnode prefix suffix and controls icon content', () => {
     const wrapper = mount(InputNumber, {
       props: {

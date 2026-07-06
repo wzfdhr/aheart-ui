@@ -59,11 +59,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const showControls = computed(() => props.controls !== false);
     const increaseIcon = computed(() => {
       var _a;
-      return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? "+";
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? (props.mode === "spinner" ? "+" : "↑");
     });
     const decreaseIcon = computed(() => {
       var _a;
-      return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? "−";
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? (props.mode === "spinner" ? "-" : "↓");
     });
     const resolvedStep = computed(() => {
       const value = Number(props.step);
@@ -218,6 +218,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const inputNumberClass = computed(() => [
       `aheart-input-number--${resolvedSize.value}`,
       `aheart-input-number--${resolvedVariant.value}`,
+      `aheart-input-number--mode-${props.mode}`,
       props.className,
       props.rootClassName,
       resolvedClassNames.value.root,

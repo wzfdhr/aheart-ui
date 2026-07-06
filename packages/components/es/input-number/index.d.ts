@@ -15,6 +15,10 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
             default: undefined;
         };
         readonly size: import("vue").PropType<import("../config").AheartSize>;
+        readonly mode: {
+            readonly type: import("vue").PropType<import("./types").InputNumberMode>;
+            readonly default: "input";
+        };
         readonly disabled: {
             readonly type: BooleanConstructor;
             readonly default: undefined;
@@ -75,6 +79,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     }, import("vue").PublicProps, {
         readonly variant: import("./types").InputNumberVariant;
         readonly disabled: boolean;
+        readonly mode: import("./types").InputNumberMode;
         readonly step: string | number;
         readonly bordered: boolean;
         readonly keyboard: boolean;
@@ -109,6 +114,10 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
             default: undefined;
         };
         readonly size: import("vue").PropType<import("../config").AheartSize>;
+        readonly mode: {
+            readonly type: import("vue").PropType<import("./types").InputNumberMode>;
+            readonly default: "input";
+        };
         readonly disabled: {
             readonly type: BooleanConstructor;
             readonly default: undefined;
@@ -164,6 +173,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     }, {}, {}, {}, {
         readonly variant: import("./types").InputNumberVariant;
         readonly disabled: boolean;
+        readonly mode: import("./types").InputNumberMode;
         readonly step: string | number;
         readonly bordered: boolean;
         readonly keyboard: boolean;
@@ -195,6 +205,10 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         default: undefined;
     };
     readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly mode: {
+        readonly type: import("vue").PropType<import("./types").InputNumberMode>;
+        readonly default: "input";
+    };
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -255,6 +269,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
 }, string, {
     readonly variant: import("./types").InputNumberVariant;
     readonly disabled: boolean;
+    readonly mode: import("./types").InputNumberMode;
     readonly step: string | number;
     readonly bordered: boolean;
     readonly keyboard: boolean;

@@ -3,6 +3,7 @@ import type { AheartSize } from '../config'
 
 export type InputNumberStatus = 'error' | 'warning'
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
+export type InputNumberMode = 'input' | 'spinner'
 export type InputNumberStepType = 'up' | 'down'
 export type InputNumberStepEmitter = 'handler' | 'keydown' | 'wheel'
 export type InputNumberFocusCursor = 'start' | 'end' | 'all'
@@ -57,6 +58,10 @@ export const inputNumberProps = {
   prefix: renderableProp,
   suffix: renderableProp,
   size: String as PropType<AheartSize>,
+  mode: {
+    type: String as PropType<InputNumberMode>,
+    default: 'input'
+  },
   disabled: {
     type: Boolean,
     default: undefined

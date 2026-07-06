@@ -14,6 +14,10 @@ const inputNumberProps = {
   prefix: renderableProp,
   suffix: renderableProp,
   size: String,
+  mode: {
+    type: String,
+    default: "input"
+  },
   disabled: {
     type: Boolean,
     default: void 0

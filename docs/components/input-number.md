@@ -273,6 +273,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | prefix | 输入框前缀内容 | `VNodeChild` | - |
 | suffix | 输入框后缀内容 | `VNodeChild` | - |
 | size | 输入框尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
+| mode | 展示模式，`spinner` 模式使用加减控制按钮并居中输入内容 | `input` \| `spinner` | `input` |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
 | readOnly | 是否只读 | `boolean` | `false` |
 | status | 校验状态 | `error` \| `warning` | - |

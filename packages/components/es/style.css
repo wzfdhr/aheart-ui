@@ -3649,6 +3649,17 @@ kbd.aheart-typography-text {
   flex-direction: column;
 }
 
+.aheart-input-number--mode-spinner .aheart-input-number__control {
+  text-align: center;
+}
+
+.aheart-input-number--mode-spinner .aheart-input-number__controls {
+  width: auto;
+  border-left: 1px solid var(--aheart-color-border);
+  flex-direction: row;
+  order: -1;
+}
+
 .aheart-input-number__increase,
 .aheart-input-number__decrease {
   min-height: 0;
@@ -3663,6 +3674,17 @@ kbd.aheart-typography-text {
 
 .aheart-input-number__increase {
   border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-input-number--mode-spinner .aheart-input-number__increase {
+  border-right: 1px solid var(--aheart-color-border);
+  border-bottom: 0;
+}
+
+.aheart-input-number--mode-spinner .aheart-input-number__increase,
+.aheart-input-number--mode-spinner .aheart-input-number__decrease {
+  min-width: 28px;
+  padding: 0 var(--aheart-spacing-xs);
 }
 
 .aheart-input-number__increase:disabled,

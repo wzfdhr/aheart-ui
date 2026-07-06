@@ -16,6 +16,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         default: undefined;
     };
     readonly size: PropType<import("../config").AheartSize>;
+    readonly mode: {
+        readonly type: PropType<import("./types").InputNumberMode>;
+        readonly default: "input";
+    };
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -84,6 +88,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         default: undefined;
     };
     readonly size: PropType<import("../config").AheartSize>;
+    readonly mode: {
+        readonly type: PropType<import("./types").InputNumberMode>;
+        readonly default: "input";
+    };
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -135,6 +143,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>, {
     readonly variant: import("./types").InputNumberVariant;
     readonly disabled: boolean;
+    readonly mode: import("./types").InputNumberMode;
     readonly step: string | number;
     readonly bordered: boolean;
     readonly keyboard: boolean;

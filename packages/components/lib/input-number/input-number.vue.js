@@ -61,11 +61,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const showControls = vue.computed(() => props.controls !== false);
     const increaseIcon = vue.computed(() => {
       var _a;
-      return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? "+";
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? (props.mode === "spinner" ? "+" : "↑");
     });
     const decreaseIcon = vue.computed(() => {
       var _a;
-      return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? "−";
+      return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? (props.mode === "spinner" ? "-" : "↓");
     });
     const resolvedStep = vue.computed(() => {
       const value = Number(props.step);
@@ -220,6 +220,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const inputNumberClass = vue.computed(() => [
       `aheart-input-number--${resolvedSize.value}`,
       `aheart-input-number--${resolvedVariant.value}`,
+      `aheart-input-number--mode-${props.mode}`,
       props.className,
       props.rootClassName,
       resolvedClassNames.value.root,

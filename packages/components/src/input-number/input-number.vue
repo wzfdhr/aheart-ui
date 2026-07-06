@@ -122,8 +122,8 @@ const controlsConfig = computed(() =>
   typeof props.controls === 'object' && props.controls !== null ? props.controls : undefined
 )
 const showControls = computed(() => props.controls !== false)
-const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? '+')
-const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? '−')
+const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? (props.mode === 'spinner' ? '+' : '↑'))
+const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? (props.mode === 'spinner' ? '-' : '↓'))
 const resolvedStep = computed(() => {
   const value = Number(props.step)
   return Number.isFinite(value) ? value : 1
@@ -322,6 +322,7 @@ const displayValue = computed(() => {
 const inputNumberClass = computed(() => [
   `aheart-input-number--${resolvedSize.value}`,
   `aheart-input-number--${resolvedVariant.value}`,
+  `aheart-input-number--mode-${props.mode}`,
   props.className,
   props.rootClassName,
   resolvedClassNames.value.root,

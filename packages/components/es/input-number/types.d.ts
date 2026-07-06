@@ -2,6 +2,7 @@ import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
 export type InputNumberStatus = 'error' | 'warning';
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined';
+export type InputNumberMode = 'input' | 'spinner';
 export type InputNumberStepType = 'up' | 'down';
 export type InputNumberStepEmitter = 'handler' | 'keydown' | 'wheel';
 export type InputNumberFocusCursor = 'start' | 'end' | 'all';
@@ -48,6 +49,10 @@ export declare const inputNumberProps: {
         default: undefined;
     };
     readonly size: PropType<AheartSize>;
+    readonly mode: {
+        readonly type: PropType<InputNumberMode>;
+        readonly default: "input";
+    };
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
