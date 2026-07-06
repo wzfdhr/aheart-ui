@@ -2,10 +2,7 @@ import { defineComponent, inject, computed, watch, onBeforeUnmount, openBlock, c
 import { formItemProps, formContextKey } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["data-name"];
-const _hoisted_2 = {
-  key: 0,
-  class: "aheart-form-item__label"
-};
+const _hoisted_2 = ["for"];
 const _hoisted_3 = {
   key: 0,
   class: "aheart-form-item__required",
@@ -88,6 +85,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const formItemClass = computed(() => ({
       [`aheart-form-item--${effectiveValidateStatus.value}`]: effectiveValidateStatus.value,
+      [`aheart-form-item--${props.layout}`]: props.layout,
+      [`aheart-form-item--label-${props.labelAlign}`]: props.labelAlign,
+      "aheart-form-item--colon": props.colon === true,
+      "aheart-form-item--no-colon": props.colon === false,
       "is-required": isRequired.value,
       "is-optional": showOptionalMark.value,
       "has-feedback": props.hasFeedback
@@ -106,13 +107,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [
-        _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (openBlock(), createElementBlock("label", _hoisted_2, [
+        _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (openBlock(), createElementBlock("label", {
+          key: 0,
+          class: "aheart-form-item__label",
+          for: _ctx.htmlFor
+        }, [
           showRequiredMark.value ? (openBlock(), createElementBlock("span", _hoisted_3, "*")) : createCommentVNode("", true),
           renderSlot(_ctx.$slots, "label", {}, () => [
             createVNode(unref(AFormItemRenderNode), { node: _ctx.label }, null, 8, ["node"])
           ]),
           showOptionalMark.value ? (openBlock(), createElementBlock("span", _hoisted_4, "optional")) : createCommentVNode("", true)
-        ])) : createCommentVNode("", true),
+        ], 8, _hoisted_2)) : createCommentVNode("", true),
         createElementVNode("div", _hoisted_5, [
           createElementVNode("div", _hoisted_6, [
             renderSlot(_ctx.$slots, "default"),

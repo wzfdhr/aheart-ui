@@ -91,6 +91,56 @@ describe('Form', () => {
     expect(wrapper.find('.aheart-form-item__extra').text()).toBe('0')
   })
 
+  it('applies FormItem colon overrides and htmlFor to the label', () => {
+    const wrapper = mount(Form, {
+      props: { colon: false },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(FormItem, { label: 'Email', htmlFor: 'email-input', colon: true }, () =>
+                h(Input, { id: 'email-input', modelValue: '' })
+              ),
+              h(FormItem, { label: 'Name', colon: false }, () => h(Input, { id: 'name-input', modelValue: '' }))
+            ])
+          }
+        }
+      }
+    })
+    const items = wrapper.findAllComponents(FormItem)
+
+    expect(items[0].classes()).toContain('aheart-form-item--colon')
+    expect(items[0].classes()).not.toContain('aheart-form-item--no-colon')
+    expect(items[0].find('label').attributes('for')).toBe('email-input')
+    expect(items[1].classes()).toContain('aheart-form-item--no-colon')
+  })
+
+  it('applies FormItem labelAlign and layout classes', () => {
+    const wrapper = mount(Form, {
+      props: { layout: 'vertical', labelAlign: 'right' },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(FormItem, { label: 'Horizontal', labelAlign: 'left', layout: 'horizontal' }, () =>
+                h(Input, { modelValue: '' })
+              ),
+              h(FormItem, { label: 'Vertical', labelAlign: 'right', layout: 'vertical' }, () =>
+                h(Input, { modelValue: '' })
+              )
+            ])
+          }
+        }
+      }
+    })
+    const items = wrapper.findAllComponents(FormItem)
+
+    expect(items[0].classes()).toContain('aheart-form-item--horizontal')
+    expect(items[0].classes()).toContain('aheart-form-item--label-left')
+    expect(items[1].classes()).toContain('aheart-form-item--vertical')
+    expect(items[1].classes()).toContain('aheart-form-item--label-right')
+  })
+
   it('provides size and disabled state to nested controls', () => {
     const wrapper = mount(Form, {
       props: { size: 'large', disabled: true },

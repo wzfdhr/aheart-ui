@@ -4,10 +4,7 @@ const vue = require("vue");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["data-name"];
-const _hoisted_2 = {
-  key: 0,
-  class: "aheart-form-item__label"
-};
+const _hoisted_2 = ["for"];
 const _hoisted_3 = {
   key: 0,
   class: "aheart-form-item__required",
@@ -90,6 +87,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const formItemClass = vue.computed(() => ({
       [`aheart-form-item--${effectiveValidateStatus.value}`]: effectiveValidateStatus.value,
+      [`aheart-form-item--${props.layout}`]: props.layout,
+      [`aheart-form-item--label-${props.labelAlign}`]: props.labelAlign,
+      "aheart-form-item--colon": props.colon === true,
+      "aheart-form-item--no-colon": props.colon === false,
       "is-required": isRequired.value,
       "is-optional": showOptionalMark.value,
       "has-feedback": props.hasFeedback
@@ -108,13 +109,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         class: vue.normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [
-        _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (vue.openBlock(), vue.createElementBlock("label", _hoisted_2, [
+        _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (vue.openBlock(), vue.createElementBlock("label", {
+          key: 0,
+          class: "aheart-form-item__label",
+          for: _ctx.htmlFor
+        }, [
           showRequiredMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, "*")) : vue.createCommentVNode("", true),
           vue.renderSlot(_ctx.$slots, "label", {}, () => [
             vue.createVNode(vue.unref(AFormItemRenderNode), { node: _ctx.label }, null, 8, ["node"])
           ]),
           showOptionalMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, "optional")) : vue.createCommentVNode("", true)
-        ])) : vue.createCommentVNode("", true),
+        ], 8, _hoisted_2)) : vue.createCommentVNode("", true),
         vue.createElementVNode("div", _hoisted_5, [
           vue.createElementVNode("div", _hoisted_6, [
             vue.renderSlot(_ctx.$slots, "default"),

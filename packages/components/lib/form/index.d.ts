@@ -191,6 +191,13 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly label: import("vue").PropType<import("vue").VNodeChild>;
         readonly name: StringConstructor;
+        readonly colon: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
+        readonly htmlFor: StringConstructor;
+        readonly labelAlign: import("vue").PropType<import("./types").FormLabelAlign>;
+        readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -206,6 +213,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly help: import("vue").VNodeChild;
         readonly extra: import("vue").VNodeChild;
+        readonly colon: boolean;
         readonly required: boolean;
         readonly hasFeedback: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -218,6 +226,13 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly label: import("vue").PropType<import("vue").VNodeChild>;
         readonly name: StringConstructor;
+        readonly colon: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
+        readonly htmlFor: StringConstructor;
+        readonly labelAlign: import("vue").PropType<import("./types").FormLabelAlign>;
+        readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -233,6 +248,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly help: import("vue").VNodeChild;
         readonly extra: import("vue").VNodeChild;
+        readonly colon: boolean;
         readonly required: boolean;
         readonly hasFeedback: boolean;
     }>;
@@ -242,6 +258,13 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly label: import("vue").PropType<import("vue").VNodeChild>;
     readonly name: StringConstructor;
+    readonly colon: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly htmlFor: StringConstructor;
+    readonly labelAlign: import("vue").PropType<import("./types").FormLabelAlign>;
+    readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
     readonly required: BooleanConstructor;
     readonly rules: import("vue").PropType<import("./types").FormRule[]>;
     readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -257,6 +280,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly help: import("vue").VNodeChild;
     readonly extra: import("vue").VNodeChild;
+    readonly colon: boolean;
     readonly required: boolean;
     readonly hasFeedback: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

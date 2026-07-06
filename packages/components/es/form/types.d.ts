@@ -1,6 +1,7 @@
 import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, VNodeChild } from 'vue';
 import type { AheartSize, AheartVariant } from '../config';
 export type FormLayout = 'horizontal' | 'vertical' | 'inline';
+export type FormItemLayout = Exclude<FormLayout, 'inline'>;
 export type FormLabelAlign = 'left' | 'right';
 export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating';
 export type FormRequiredMark = boolean | 'optional';
@@ -83,6 +84,13 @@ export declare const formEmits: {
 export declare const formItemProps: {
     readonly label: PropType<VNodeChild>;
     readonly name: StringConstructor;
+    readonly colon: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly htmlFor: StringConstructor;
+    readonly labelAlign: PropType<FormLabelAlign>;
+    readonly layout: PropType<FormItemLayout>;
     readonly required: BooleanConstructor;
     readonly rules: PropType<FormRule[]>;
     readonly validateStatus: PropType<FormValidateStatus>;

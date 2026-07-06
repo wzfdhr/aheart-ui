@@ -1,6 +1,10 @@
 <template>
   <div class="aheart-form-item" :class="formItemClass" :data-name="name">
-    <label v-if="$slots.label || (label !== undefined && label !== null)" class="aheart-form-item__label">
+    <label
+      v-if="$slots.label || (label !== undefined && label !== null)"
+      class="aheart-form-item__label"
+      :for="htmlFor"
+    >
       <span v-if="showRequiredMark" class="aheart-form-item__required" aria-hidden="true">*</span>
       <slot name="label">
         <AFormItemRenderNode :node="label" />
@@ -95,6 +99,10 @@ onBeforeUnmount(() => {
 
 const formItemClass = computed(() => ({
   [`aheart-form-item--${effectiveValidateStatus.value}`]: effectiveValidateStatus.value,
+  [`aheart-form-item--${props.layout}`]: props.layout,
+  [`aheart-form-item--label-${props.labelAlign}`]: props.labelAlign,
+  'aheart-form-item--colon': props.colon === true,
+  'aheart-form-item--no-colon': props.colon === false,
   'is-required': isRequired.value,
   'is-optional': showOptionalMark.value,
   'has-feedback': props.hasFeedback

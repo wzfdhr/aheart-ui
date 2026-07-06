@@ -2,6 +2,13 @@ import { type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly label: PropType<VNodeChild>;
     readonly name: StringConstructor;
+    readonly colon: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly htmlFor: StringConstructor;
+    readonly labelAlign: PropType<import("./types").FormLabelAlign>;
+    readonly layout: PropType<import("./types").FormItemLayout>;
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -17,6 +24,13 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly label: PropType<VNodeChild>;
     readonly name: StringConstructor;
+    readonly colon: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly htmlFor: StringConstructor;
+    readonly labelAlign: PropType<import("./types").FormLabelAlign>;
+    readonly layout: PropType<import("./types").FormItemLayout>;
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -32,6 +46,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>> & Readonly<{}>, {
     readonly help: VNodeChild;
     readonly extra: VNodeChild;
+    readonly colon: boolean;
     readonly required: boolean;
     readonly hasFeedback: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

@@ -47,6 +47,13 @@ const renderableProp = {
 const formItemProps = {
   label: [String, Number, Object, Array],
   name: String,
+  colon: {
+    type: Boolean,
+    default: void 0
+  },
+  htmlFor: String,
+  labelAlign: String,
+  layout: String,
   required: Boolean,
   rules: Array,
   validateStatus: String,

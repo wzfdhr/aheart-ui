@@ -2,6 +2,7 @@ import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, VNodeChild 
 import type { AheartSize, AheartVariant } from '../config'
 
 export type FormLayout = 'horizontal' | 'vertical' | 'inline'
+export type FormItemLayout = Exclude<FormLayout, 'inline'>
 export type FormLabelAlign = 'left' | 'right'
 export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating'
 export type FormRequiredMark = boolean | 'optional'
@@ -100,6 +101,13 @@ const renderableProp = {
 export const formItemProps = {
   label: [String, Number, Object, Array] as PropType<FormRenderable>,
   name: String,
+  colon: {
+    type: Boolean,
+    default: undefined
+  },
+  htmlFor: String,
+  labelAlign: String as PropType<FormLabelAlign>,
+  layout: String as PropType<FormItemLayout>,
   required: Boolean,
   rules: Array as PropType<FormRule[]>,
   validateStatus: String as PropType<FormValidateStatus>,

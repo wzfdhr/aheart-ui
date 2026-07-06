@@ -100,6 +100,32 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
 </template>
 ```
 
+## 表单项标签控制
+
+<div class="aheart-demo-panel">
+  <AForm :colon="false" label-align="right" layout="vertical">
+    <AFormItem label="Email" html-for="label-control-email" :colon="true" label-align="left" layout="horizontal">
+      <AInput id="label-control-email" model-value="ada@example.com" />
+    </AFormItem>
+    <AFormItem label="Nickname" :colon="false" label-align="right">
+      <AInput model-value="Ada" />
+    </AFormItem>
+  </AForm>
+</div>
+
+```vue
+<template>
+  <AForm :colon="false" label-align="right" layout="vertical">
+    <AFormItem label="Email" html-for="label-control-email" :colon="true" label-align="left" layout="horizontal">
+      <AInput id="label-control-email" v-model="email" />
+    </AFormItem>
+    <AFormItem label="Nickname" :colon="false" label-align="right">
+      <AInput v-model="nickname" />
+    </AFormItem>
+  </AForm>
+</template>
+```
+
 ## 行内布局
 
 <div class="aheart-demo-panel">
@@ -181,6 +207,10 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
 | --- | --- | --- | --- |
 | label | 标签内容；`label` 插槽优先级更高 | `VNodeChild` | - |
 | name | 字段名 | `string` | - |
+| colon | 是否在当前表单项 label 后显示冒号，优先于 Form `colon` | `boolean` | Form colon |
+| htmlFor | 设置 label 的 `for` 属性 | `string` | - |
+| labelAlign | 当前表单项标签对齐方式，优先于 Form `labelAlign` | `left` \| `right` | Form labelAlign |
+| layout | 当前表单项布局 | `horizontal` \| `vertical` | Form layout |
 | required | 是否显示必填标记 | `boolean` | `false` |
 | rules | 表单项校验规则 | `FormRule[]` | - |
 | validateStatus | 校验状态 | `success` \| `warning` \| `error` \| `validating` | - |
