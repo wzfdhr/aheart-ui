@@ -207,7 +207,7 @@ const clearValidate = (names?: string[]) => {
   })
 }
 
-const scrollToField = (name: string) => {
+const scrollToField = (name: string, options?: ScrollIntoViewOptions) => {
   const target = Array.from(formElement.value?.querySelectorAll<HTMLElement>('[data-name]') ?? []).find(
     (element) => element.dataset.name === name
   )
@@ -216,12 +216,12 @@ const scrollToField = (name: string) => {
     return
   }
 
-  if (props.scrollToFirstError === true) {
+  if (options === undefined) {
     target.scrollIntoView()
     return
   }
 
-  target.scrollIntoView(props.scrollToFirstError)
+  target.scrollIntoView(options)
 }
 
 const scrollToFirstError = (errorFields: FormValidationError[]) => {
@@ -229,7 +229,7 @@ const scrollToFirstError = (errorFields: FormValidationError[]) => {
     return
   }
 
-  scrollToField(errorFields[0].name)
+  scrollToField(errorFields[0].name, props.scrollToFirstError === true ? undefined : props.scrollToFirstError)
 }
 
 const formContext: FormContext = {
@@ -271,6 +271,7 @@ const handleSubmit = (event: Event) => {
 
 defineExpose({
   validate,
-  clearValidate
+  clearValidate,
+  scrollToField
 })
 </script>

@@ -48,6 +48,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             errorFields: import("./types").FormValidationError[];
         };
         clearValidate: (names?: string[] | undefined) => void;
+        scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
     }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         submit: (event: Event) => void;
         finish: (values: import("./types").FormModel) => void;
@@ -119,6 +120,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             errorFields: import("./types").FormValidationError[];
         };
         clearValidate: (names?: string[] | undefined) => void;
+        scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
     }, {}, {}, {}, {
         readonly variant: import("../config").AheartVariant;
         readonly layout: import("./types").FormLayout;
@@ -182,6 +184,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         errorFields: import("./types").FormValidationError[];
     };
     clearValidate: (names?: string[] | undefined) => void;
+    scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     submit: (event: Event) => void;
     finish: (values: import("./types").FormModel) => void;

@@ -43,6 +43,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         errorFields: FormValidationError[];
     };
     clearValidate: (names?: string[] | undefined) => void;
+    scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     submit: (event: Event) => void;
     finish: (values: FormModel) => void;

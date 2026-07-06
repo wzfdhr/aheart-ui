@@ -153,7 +153,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       });
     };
-    const scrollToField = (name) => {
+    const scrollToField = (name, options) => {
       var _a;
       const target = Array.from(((_a = formElement.value) == null ? void 0 : _a.querySelectorAll("[data-name]")) ?? []).find(
         (element) => element.dataset.name === name
@@ -161,17 +161,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!target) {
         return;
       }
-      if (props.scrollToFirstError === true) {
+      if (options === void 0) {
         target.scrollIntoView();
         return;
       }
-      target.scrollIntoView(props.scrollToFirstError);
+      target.scrollIntoView(options);
     };
     const scrollToFirstError = (errorFields) => {
       if (!props.scrollToFirstError || errorFields.length === 0) {
         return;
       }
-      scrollToField(errorFields[0].name);
+      scrollToField(errorFields[0].name, props.scrollToFirstError === true ? void 0 : props.scrollToFirstError);
     };
     const formContext = {
       requiredMark: computed(() => props.requiredMark),
@@ -209,7 +209,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     __expose({
       validate,
-      clearValidate
+      clearValidate,
+      scrollToField
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("form", {

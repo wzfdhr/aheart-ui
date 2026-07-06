@@ -591,6 +591,58 @@ describe('Form', () => {
     }
   })
 
+  it('exposes scrollToField for named FormItems', () => {
+    let scrolledElement: HTMLElement | undefined
+    const scrollOptions: ScrollIntoViewOptions = { block: 'center', behavior: 'smooth' }
+    const scrollIntoView = vi.fn(function (this: HTMLElement) {
+      scrolledElement = this
+    })
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoView
+    })
+
+    try {
+      const wrapper = mount(Form, {
+        props: {
+          model: { email: '', password: '' }
+        },
+        slots: {
+          default: {
+            render() {
+              return h('div', [
+                h(FormItem, { label: 'Email', name: 'email' }, () => h(Input, { modelValue: '' })),
+                h(FormItem, { label: 'Password', name: 'password' }, () => h(Input, { modelValue: '' }))
+              ])
+            }
+          }
+        }
+      })
+      const form = wrapper.vm as unknown as {
+        scrollToField?: (name: string, options?: ScrollIntoViewOptions) => void
+      }
+
+      expect(form.scrollToField).toBeTypeOf('function')
+
+      form.scrollToField?.('password', scrollOptions)
+
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+      expect(scrollIntoView).toHaveBeenCalledWith(scrollOptions)
+      expect(scrolledElement?.dataset.name).toBe('password')
+    } finally {
+      if (originalScrollIntoView) {
+        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+          configurable: true,
+          value: originalScrollIntoView
+        })
+      } else {
+        Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
+      }
+    }
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {

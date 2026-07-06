@@ -461,6 +461,7 @@ const passwordTooltipIcon = h('span', 'i')
 | --- | --- | --- |
 | validate | 触发表单同步校验 | `() => { values: FormModel; errorFields: FormValidationError[] }` |
 | clearValidate | 清除字段错误 | `(names?: string[]) => void` |
+| scrollToField | 滚动到指定字段 | `(name: string, options?: ScrollIntoViewOptions) => void` |
 
 ## Slots
 
