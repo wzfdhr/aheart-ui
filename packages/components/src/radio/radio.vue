@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { radioEmits, radioProps } from './types'
 import './style.css'
@@ -75,6 +75,12 @@ const focus = () => {
 const blur = () => {
   inputRef.value?.blur()
 }
+
+onMounted(() => {
+  if (props.autoFocus) {
+    nextTick(focus)
+  }
+})
 
 defineExpose({
   focus,

@@ -20,6 +20,7 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
+        readonly autoFocus: BooleanConstructor;
         readonly label: StringConstructor;
         readonly name: StringConstructor;
         readonly title: StringConstructor;
@@ -45,6 +46,7 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
         readonly modelValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
+        readonly autoFocus: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -73,6 +75,7 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
+        readonly autoFocus: BooleanConstructor;
         readonly label: StringConstructor;
         readonly name: StringConstructor;
         readonly title: StringConstructor;
@@ -94,6 +97,7 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
         readonly modelValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
+        readonly autoFocus: boolean;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -119,6 +123,7 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
+    readonly autoFocus: BooleanConstructor;
     readonly label: StringConstructor;
     readonly name: StringConstructor;
     readonly title: StringConstructor;
@@ -144,6 +149,7 @@ declare const Radio: import("../utils/install").SFCWithInstall<{
     readonly modelValue: boolean;
     readonly checked: boolean;
     readonly defaultChecked: boolean;
+    readonly autoFocus: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;

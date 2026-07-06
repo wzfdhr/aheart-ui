@@ -37,6 +37,7 @@ export declare const radioProps: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
+    readonly autoFocus: BooleanConstructor;
     readonly label: StringConstructor;
     readonly name: StringConstructor;
     readonly title: StringConstructor;

@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { radioProps, radioEmits } from "./types.js";
 import "./style.css.js";
@@ -72,6 +72,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       (_a = inputRef.value) == null ? void 0 : _a.blur();
     };
+    onMounted(() => {
+      if (props.autoFocus) {
+        nextTick(focus);
+      }
+    });
     __expose({
       focus,
       blur

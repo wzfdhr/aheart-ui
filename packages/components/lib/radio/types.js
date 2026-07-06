@@ -21,6 +21,7 @@ const radioProps = {
     type: Boolean,
     default: void 0
   },
+  autoFocus: Boolean,
   label: String,
   name: String,
   title: String,

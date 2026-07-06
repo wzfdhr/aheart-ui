@@ -40,6 +40,7 @@ export const radioProps = {
     type: Boolean,
     default: undefined
   },
+  autoFocus: Boolean,
   label: String,
   name: String,
   title: String,

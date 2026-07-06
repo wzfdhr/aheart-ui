@@ -55,7 +55,7 @@ Radio captures a single boolean selection or one value from a grouped option set
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ARadio ref="radioRef" label="Focusable radio" />
+    <ARadio ref="radioRef" auto-focus label="Focusable radio" />
     <AButton size="small" @click="radioRef?.focus()">Focus</AButton>
     <AButton size="small" @click="radioRef?.blur()">Blur</AButton>
   </ASpace>
@@ -69,7 +69,7 @@ const radioRef = ref<{ focus: () => void; blur: () => void }>()
 </script>
 
 <template>
-  <ARadio ref="radioRef" label="Focusable radio" />
+  <ARadio ref="radioRef" auto-focus label="Focusable radio" />
   <AButton @click="radioRef?.focus()">Focus</AButton>
   <AButton @click="radioRef?.blur()">Blur</AButton>
 </template>
@@ -206,6 +206,7 @@ const radioRef = ref<{ focus: () => void; blur: () => void }>()
 | defaultChecked | 非受控初始选中状态 | `boolean` | - |
 | value | 原生 value 属性 | `string` \| `number` \| `boolean` | - |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
+| autoFocus | 挂载后自动聚焦原生 radio 输入框 | `boolean` | `false` |
 | label | 标签文本 | `string` | - |
 | name | 原生 name 属性 | `string` | - |
 | title | 根节点 title 属性 | `string` | - |
