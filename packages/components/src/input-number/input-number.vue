@@ -24,6 +24,10 @@
       :id="id"
       :type="inputType"
       :inputmode="inputMode"
+      role="spinbutton"
+      :aria-valuemin="min"
+      :aria-valuemax="max"
+      :aria-valuenow="ariaValueNow"
       :value="displayValue"
       :placeholder="placeholder"
       :disabled="isDisabled"
@@ -505,6 +509,13 @@ const inputMode = computed<InputHTMLAttributes['inputmode']>(() => {
   const value = attrs.inputmode ?? attrs.inputMode
 
   return typeof value === 'string' ? (value as InputHTMLAttributes['inputmode']) : 'decimal'
+})
+const ariaValueNow = computed(() => {
+  if (mergedValue.value === undefined || mergedValue.value === '') {
+    return undefined
+  }
+
+  return String(mergedValue.value)
 })
 const inputAttrs = computed(() =>
   Object.fromEntries(

@@ -15,6 +15,26 @@ describe('InputNumber', () => {
     expect(wrapper.find('input').element.value).toBe('4')
   })
 
+  it('exposes spinbutton ARIA metadata on the inner input', () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 4, min: 1, max: 10 }
+    })
+    const input = wrapper.find('input')
+
+    expect(input.attributes('role')).toBe('spinbutton')
+    expect(input.attributes('aria-valuemin')).toBe('1')
+    expect(input.attributes('aria-valuemax')).toBe('10')
+    expect(input.attributes('aria-valuenow')).toBe('4')
+  })
+
+  it('omits aria-valuenow when the current value is empty', () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: '', stringMode: true }
+    })
+
+    expect(wrapper.find('input').attributes('aria-valuenow')).toBeUndefined()
+  })
+
   it('passes native input attributes and listeners to the inner input', async () => {
     const handleInput = vi.fn()
     const handleBlur = vi.fn()
