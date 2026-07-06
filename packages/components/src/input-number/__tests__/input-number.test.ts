@@ -35,6 +35,18 @@ describe('InputNumber', () => {
     expect(wrapper.find('input').attributes('aria-valuenow')).toBeUndefined()
   })
 
+  it('defaults autocomplete off while preserving explicit native overrides', () => {
+    const wrapper = mount(InputNumber)
+    const explicit = mount(InputNumber, {
+      attrs: {
+        autocomplete: 'on'
+      }
+    })
+
+    expect(wrapper.find('input').attributes('autocomplete')).toBe('off')
+    expect(explicit.find('input').attributes('autocomplete')).toBe('on')
+  })
+
   it('passes native input attributes and listeners to the inner input', async () => {
     const handleInput = vi.fn()
     const handleBlur = vi.fn()

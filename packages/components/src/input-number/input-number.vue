@@ -24,6 +24,7 @@
       :id="id"
       :type="inputType"
       :inputmode="inputMode"
+      :autocomplete="inputAutoComplete"
       role="spinbutton"
       :aria-valuemin="min"
       :aria-valuemax="max"
@@ -510,6 +511,11 @@ const inputMode = computed<InputHTMLAttributes['inputmode']>(() => {
 
   return typeof value === 'string' ? (value as InputHTMLAttributes['inputmode']) : 'decimal'
 })
+const inputAutoComplete = computed(() => {
+  const value = attrs.autocomplete ?? attrs.autoComplete
+
+  return typeof value === 'string' ? value : 'off'
+})
 const ariaValueNow = computed(() => {
   if (mergedValue.value === undefined || mergedValue.value === '') {
     return undefined
@@ -520,7 +526,9 @@ const ariaValueNow = computed(() => {
 const inputAttrs = computed(() =>
   Object.fromEntries(
     Object.entries(attrs).filter(
-      ([key]) => !['class', 'style', 'type', 'inputmode', 'inputMode'].includes(key) && !isRootMouseEventAttr(key)
+      ([key]) =>
+        !['class', 'style', 'type', 'inputmode', 'inputMode', 'autocomplete', 'autoComplete'].includes(key) &&
+        !isRootMouseEventAttr(key)
     )
   )
 )

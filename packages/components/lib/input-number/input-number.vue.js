@@ -8,7 +8,7 @@ const _hoisted_1 = {
   key: 0,
   class: "aheart-input-number__addon aheart-input-number__addon-before"
 };
-const _hoisted_2 = ["id", "type", "inputmode", "aria-valuemin", "aria-valuemax", "aria-valuenow", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
+const _hoisted_2 = ["id", "type", "inputmode", "autocomplete", "aria-valuemin", "aria-valuemax", "aria-valuenow", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
 const _hoisted_3 = ["disabled"];
 const _hoisted_4 = ["disabled"];
 const _hoisted_5 = {
@@ -360,6 +360,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const value = attrs.inputmode ?? attrs.inputMode;
       return typeof value === "string" ? value : "decimal";
     });
+    const inputAutoComplete = vue.computed(() => {
+      const value = attrs.autocomplete ?? attrs.autoComplete;
+      return typeof value === "string" ? value : "off";
+    });
     const ariaValueNow = vue.computed(() => {
       if (mergedValue.value === void 0 || mergedValue.value === "") {
         return void 0;
@@ -369,7 +373,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const inputAttrs = vue.computed(
       () => Object.fromEntries(
         Object.entries(attrs).filter(
-          ([key]) => !["class", "style", "type", "inputmode", "inputMode"].includes(key) && !isRootMouseEventAttr(key)
+          ([key]) => !["class", "style", "type", "inputmode", "inputMode", "autocomplete", "autoComplete"].includes(key) && !isRootMouseEventAttr(key)
         )
       )
     );
@@ -665,6 +669,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           id: _ctx.id,
           type: inputType.value,
           inputmode: inputMode.value,
+          autocomplete: inputAutoComplete.value,
           role: "spinbutton",
           "aria-valuemin": _ctx.min,
           "aria-valuemax": _ctx.max,
