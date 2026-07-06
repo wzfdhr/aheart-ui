@@ -209,9 +209,14 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
             type: import("vue").PropType<import("vue").VNodeChild>;
             default: undefined;
         };
+        readonly tooltip: {
+            type: import("vue").PropType<import("./types").FormItemTooltip>;
+            default: undefined;
+        };
         readonly hasFeedback: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly help: import("vue").VNodeChild;
+        readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
         readonly colon: boolean;
         readonly required: boolean;
@@ -244,9 +249,14 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
             type: import("vue").PropType<import("vue").VNodeChild>;
             default: undefined;
         };
+        readonly tooltip: {
+            type: import("vue").PropType<import("./types").FormItemTooltip>;
+            default: undefined;
+        };
         readonly hasFeedback: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly help: import("vue").VNodeChild;
+        readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
         readonly colon: boolean;
         readonly required: boolean;
@@ -276,9 +286,14 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         type: import("vue").PropType<import("vue").VNodeChild>;
         default: undefined;
     };
+    readonly tooltip: {
+        type: import("vue").PropType<import("./types").FormItemTooltip>;
+        default: undefined;
+    };
     readonly hasFeedback: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly help: import("vue").VNodeChild;
+    readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: import("vue").VNodeChild;
     readonly colon: boolean;
     readonly required: boolean;

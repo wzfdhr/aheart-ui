@@ -1,5 +1,6 @@
 import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, VNodeChild } from 'vue'
 import type { AheartSize, AheartVariant } from '../config'
+import type { TooltipProps } from '../tooltip'
 
 export type FormLayout = 'horizontal' | 'vertical' | 'inline'
 export type FormItemLayout = Exclude<FormLayout, 'inline'>
@@ -8,6 +9,12 @@ export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating'
 export type FormRequiredMark = boolean | 'optional'
 export type FormVariant = AheartVariant
 export type FormRenderable = VNodeChild
+export type FormTooltipTitle = FormRenderable | (() => FormRenderable)
+export type FormItemTooltipConfig = Partial<Omit<TooltipProps, 'title'>> & {
+  title?: FormTooltipTitle
+  icon?: FormRenderable
+}
+export type FormItemTooltip = FormTooltipTitle | FormItemTooltipConfig
 export type FormRuleType = 'string' | 'number' | 'email' | 'array'
 export type FormModel = Record<string, unknown>
 
@@ -98,6 +105,11 @@ const renderableProp = {
   default: undefined
 }
 
+const tooltipProp = {
+  type: [String, Number, Boolean, Object, Array, Function] as PropType<FormItemTooltip>,
+  default: undefined
+}
+
 export const formItemProps = {
   label: [String, Number, Object, Array] as PropType<FormRenderable>,
   name: String,
@@ -113,6 +125,7 @@ export const formItemProps = {
   validateStatus: String as PropType<FormValidateStatus>,
   help: renderableProp,
   extra: renderableProp,
+  tooltip: tooltipProp,
   hasFeedback: Boolean
 } as const
 

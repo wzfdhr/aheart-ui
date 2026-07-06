@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import Input from '../../input/input.vue'
 import Form, { FormItem } from '../index'
 
@@ -139,6 +139,81 @@ describe('Form', () => {
     expect(items[0].classes()).toContain('aheart-form-item--label-left')
     expect(items[1].classes()).toContain('aheart-form-item--vertical')
     expect(items[1].classes()).toContain('aheart-form-item--label-right')
+  })
+
+  it('renders FormItem tooltip text next to the label', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const wrapper = mount(FormItem, {
+        props: {
+          label: 'Email',
+          tooltip: 'Use your work email'
+        },
+        slots: { default: '<input />' },
+        global: {
+          stubs: {
+            Teleport: true
+          }
+        }
+      })
+
+      expect(wrapper.find('.aheart-form-item__tooltip').exists()).toBe(true)
+
+      await wrapper.find('.aheart-tooltip__trigger').trigger('mouseenter')
+      await vi.advanceTimersByTimeAsync(100)
+
+      expect(wrapper.find('.aheart-tooltip__content').text()).toBe('Use your work email')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('renders FormItem tooltip config title and custom icon', () => {
+    const wrapper = mount(FormItem, {
+      props: {
+        label: 'Password',
+        tooltip: {
+          title: h('span', { class: 'form-tooltip-node' }, 'At least 8 characters'),
+          icon: h('span', { class: 'form-tooltip-icon' }, 'i'),
+          open: true
+        }
+      },
+      slots: { default: '<input />' },
+      global: {
+        stubs: {
+          Teleport: true
+        }
+      }
+    })
+
+    expect(wrapper.find('.form-tooltip-icon').text()).toBe('i')
+    expect(wrapper.find('.form-tooltip-node').text()).toBe('At least 8 characters')
+  })
+
+  it('renders zero FormItem tooltip content and suppresses empty tooltip content', () => {
+    const zero = mount(FormItem, {
+      props: {
+        label: 'Count',
+        tooltip: 0
+      },
+      slots: { default: '<input />' },
+      global: {
+        stubs: {
+          Teleport: true
+        }
+      }
+    })
+    const empty = mount(FormItem, {
+      props: {
+        label: 'Name',
+        tooltip: ''
+      },
+      slots: { default: '<input />' }
+    })
+
+    expect(zero.find('.aheart-form-item__tooltip').exists()).toBe(true)
+    expect(empty.find('.aheart-form-item__tooltip').exists()).toBe(false)
   })
 
   it('provides size and disabled state to nested controls', () => {

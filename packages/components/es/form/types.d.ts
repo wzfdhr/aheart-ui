@@ -1,5 +1,6 @@
 import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, VNodeChild } from 'vue';
 import type { AheartSize, AheartVariant } from '../config';
+import type { TooltipProps } from '../tooltip';
 export type FormLayout = 'horizontal' | 'vertical' | 'inline';
 export type FormItemLayout = Exclude<FormLayout, 'inline'>;
 export type FormLabelAlign = 'left' | 'right';
@@ -7,6 +8,12 @@ export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating';
 export type FormRequiredMark = boolean | 'optional';
 export type FormVariant = AheartVariant;
 export type FormRenderable = VNodeChild;
+export type FormTooltipTitle = FormRenderable | (() => FormRenderable);
+export type FormItemTooltipConfig = Partial<Omit<TooltipProps, 'title'>> & {
+    title?: FormTooltipTitle;
+    icon?: FormRenderable;
+};
+export type FormItemTooltip = FormTooltipTitle | FormItemTooltipConfig;
 export type FormRuleType = 'string' | 'number' | 'email' | 'array';
 export type FormModel = Record<string, unknown>;
 export interface FormRule {
@@ -100,6 +107,10 @@ export declare const formItemProps: {
     };
     readonly extra: {
         type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly tooltip: {
+        type: PropType<FormItemTooltip>;
         default: undefined;
     };
     readonly hasFeedback: BooleanConstructor;

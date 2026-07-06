@@ -44,6 +44,10 @@ const renderableProp = {
   type: [String, Number, Boolean, Object, Array],
   default: void 0
 };
+const tooltipProp = {
+  type: [String, Number, Boolean, Object, Array, Function],
+  default: void 0
+};
 const formItemProps = {
   label: [String, Number, Object, Array],
   name: String,
@@ -59,6 +63,7 @@ const formItemProps = {
   validateStatus: String,
   help: renderableProp,
   extra: renderableProp,
+  tooltip: tooltipProp,
   hasFeedback: Boolean
 };
 export {

@@ -10,6 +10,13 @@
         <AFormItemRenderNode :node="label" />
       </slot>
       <span v-if="showOptionalMark" class="aheart-form-item__optional">optional</span>
+      <span v-if="hasTooltip" class="aheart-form-item__tooltip">
+        <ATooltip v-bind="resolvedTooltipProps">
+          <span class="aheart-form-item__tooltip-icon" aria-hidden="true">
+            <AFormItemRenderNode :node="tooltipIcon" />
+          </span>
+        </ATooltip>
+      </span>
     </label>
     <div class="aheart-form-item__control">
       <div class="aheart-form-item__content">
@@ -31,8 +38,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, inject, onBeforeUnmount, watch, type PropType, type VNodeChild } from 'vue'
-import { formContextKey, formItemProps } from './types'
+import { computed, defineComponent, inject, isVNode, onBeforeUnmount, watch, type PropType, type VNodeChild } from 'vue'
+import Tooltip from '../tooltip/tooltip.vue'
+import { formContextKey, formItemProps, type FormItemTooltipConfig, type FormTooltipTitle } from './types'
 import './style.css'
 
 defineOptions({
@@ -41,6 +49,7 @@ defineOptions({
 
 const props = defineProps(formItemProps)
 const formContext = inject(formContextKey, undefined)
+const ATooltip = Tooltip
 
 const AFormItemRenderNode = defineComponent({
   name: 'AFormItemRenderNode',
@@ -55,13 +64,47 @@ const AFormItemRenderNode = defineComponent({
   }
 })
 
-const hasRenderableContent = (value: VNodeChild | undefined) => {
+const hasRenderableContent = (value: FormTooltipTitle | VNodeChild | undefined) => {
   if (Array.isArray(value)) {
     return value.length > 0
   }
 
+  if (typeof value === 'function') {
+    return true
+  }
+
   return value !== undefined && value !== null && value !== false && value !== ''
 }
+
+const isTooltipConfig = (value: typeof props.tooltip): value is FormItemTooltipConfig =>
+  typeof value === 'object' && value !== null && !Array.isArray(value) && !isVNode(value)
+
+const tooltipTitle = computed<FormTooltipTitle | undefined>(() => {
+  if (isTooltipConfig(props.tooltip)) {
+    return props.tooltip.title
+  }
+
+  return props.tooltip
+})
+
+const tooltipIcon = computed<VNodeChild>(() =>
+  isTooltipConfig(props.tooltip) && props.tooltip.icon !== undefined ? props.tooltip.icon : '?'
+)
+
+const resolvedTooltipProps = computed(() => {
+  if (isTooltipConfig(props.tooltip)) {
+    const { icon: _icon, title: _title, ...tooltipProps } = props.tooltip
+
+    return {
+      ...tooltipProps,
+      title: tooltipTitle.value
+    }
+  }
+
+  return {
+    title: tooltipTitle.value
+  }
+})
 
 const effectiveRules = computed(() => props.rules ?? [])
 const fieldErrors = computed(() => (props.name ? (formContext?.getFieldErrors(props.name) ?? []) : []))
@@ -74,6 +117,7 @@ const effectiveValidateStatus = computed(() => props.validateStatus ?? (fieldErr
 const effectiveHelp = computed(() => (props.help !== undefined ? props.help : (fieldErrors.value[0] ?? '')))
 const hasHelp = computed(() => hasRenderableContent(effectiveHelp.value))
 const hasExtra = computed(() => hasRenderableContent(props.extra))
+const hasTooltip = computed(() => hasRenderableContent(tooltipTitle.value))
 
 watch(
   () => [props.name, effectiveRules.value] as const,

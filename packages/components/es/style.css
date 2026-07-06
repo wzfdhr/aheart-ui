@@ -4864,6 +4864,26 @@ kbd.aheart-typography-text {
   font-weight: 400;
 }
 
+.aheart-form-item__tooltip {
+  display: inline-flex;
+  margin-inline-start: var(--aheart-spacing-xs);
+}
+
+.aheart-form-item__tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--aheart-color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: help;
+}
+
 .aheart-form--required-hidden .aheart-form-item__required {
   display: none;
 }

@@ -20,6 +20,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         type: PropType<VNodeChild>;
         default: undefined;
     };
+    readonly tooltip: {
+        type: PropType<import("./types").FormItemTooltip>;
+        default: undefined;
+    };
     readonly hasFeedback: BooleanConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly label: PropType<VNodeChild>;
@@ -42,9 +46,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         type: PropType<VNodeChild>;
         default: undefined;
     };
+    readonly tooltip: {
+        type: PropType<import("./types").FormItemTooltip>;
+        default: undefined;
+    };
     readonly hasFeedback: BooleanConstructor;
 }>> & Readonly<{}>, {
     readonly help: VNodeChild;
+    readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: VNodeChild;
     readonly colon: boolean;
     readonly required: boolean;

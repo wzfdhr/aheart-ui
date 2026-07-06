@@ -4,6 +4,8 @@ import { h } from 'vue'
 const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
 const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
 const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
+const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
+const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </script>
 
 # Form 表单 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -126,6 +128,39 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
 </template>
 ```
 
+## 标签提示
+
+<div class="aheart-demo-panel">
+  <AForm layout="vertical">
+    <AFormItem label="Email" tooltip="Use your work email">
+      <AInput model-value="ada@example.com" />
+    </AFormItem>
+    <AFormItem label="Password" :tooltip="{ title: formTooltipNode, icon: formTooltipIcon, placement: 'right' }">
+      <AInput model-value="secret" />
+    </AFormItem>
+  </AForm>
+</div>
+
+```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const passwordTooltip = h('span', 'Password must be at least 8 characters')
+const passwordTooltipIcon = h('span', 'i')
+</script>
+
+<template>
+  <AForm layout="vertical">
+    <AFormItem label="Email" tooltip="Use your work email">
+      <AInput v-model="email" />
+    </AFormItem>
+    <AFormItem label="Password" :tooltip="{ title: passwordTooltip, icon: passwordTooltipIcon, placement: 'right' }">
+      <AInput v-model="password" />
+    </AFormItem>
+  </AForm>
+</template>
+```
+
 ## 行内布局
 
 <div class="aheart-demo-panel">
@@ -216,7 +251,15 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
 | validateStatus | 校验状态 | `success` \| `warning` \| `error` \| `validating` | - |
 | help | 帮助或错误内容；`help` 插槽优先级更高 | `VNodeChild` | - |
 | extra | 额外提示内容；`extra` 插槽优先级更高 | `VNodeChild` | - |
+| tooltip | 标签旁提示内容或 Tooltip 配置 | `FormItemTooltip` | - |
 | hasFeedback | 是否显示反馈图标 | `boolean` | `false` |
+
+## FormItemTooltip
+
+| 类型 | 说明 |
+| --- | --- |
+| `VNodeChild \| (() => VNodeChild)` | 直接作为 Tooltip `title` 渲染 |
+| `{ title?: VNodeChild \| (() => VNodeChild); icon?: VNodeChild } & Partial<TooltipProps>` | 配置 Tooltip 标题、触发图标和位置等 Tooltip 参数 |
 
 ## FormRule
 

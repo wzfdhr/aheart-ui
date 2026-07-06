@@ -1,4 +1,5 @@
-import { defineComponent, inject, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createCommentVNode, renderSlot, createVNode, unref, createElementVNode, toDisplayString } from "vue";
+import { defineComponent, inject, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createCommentVNode, renderSlot, createVNode, unref, normalizeProps, guardReactiveProps, withCtx, createElementVNode, toDisplayString, isVNode } from "vue";
+import _sfc_main$1 from "../tooltip/tooltip.vue.js";
 import { formItemProps, formContextKey } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["data-name"];
@@ -12,18 +13,26 @@ const _hoisted_4 = {
   key: 1,
   class: "aheart-form-item__optional"
 };
-const _hoisted_5 = { class: "aheart-form-item__control" };
-const _hoisted_6 = { class: "aheart-form-item__content" };
-const _hoisted_7 = {
+const _hoisted_5 = {
+  key: 2,
+  class: "aheart-form-item__tooltip"
+};
+const _hoisted_6 = {
+  class: "aheart-form-item__tooltip-icon",
+  "aria-hidden": "true"
+};
+const _hoisted_7 = { class: "aheart-form-item__control" };
+const _hoisted_8 = { class: "aheart-form-item__content" };
+const _hoisted_9 = {
   key: 0,
   class: "aheart-form-item__feedback",
   "aria-hidden": "true"
 };
-const _hoisted_8 = {
+const _hoisted_10 = {
   key: 0,
   class: "aheart-form-item__help"
 };
-const _hoisted_9 = {
+const _hoisted_11 = {
   key: 1,
   class: "aheart-form-item__extra"
 };
@@ -36,6 +45,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const formContext = inject(formContextKey, void 0);
+    const ATooltip = _sfc_main$1;
     const AFormItemRenderNode = defineComponent({
       name: "AFormItemRenderNode",
       props: {
@@ -52,8 +62,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (Array.isArray(value)) {
         return value.length > 0;
       }
+      if (typeof value === "function") {
+        return true;
+      }
       return value !== void 0 && value !== null && value !== false && value !== "";
     };
+    const isTooltipConfig = (value) => typeof value === "object" && value !== null && !Array.isArray(value) && !isVNode(value);
+    const tooltipTitle = computed(() => {
+      if (isTooltipConfig(props.tooltip)) {
+        return props.tooltip.title;
+      }
+      return props.tooltip;
+    });
+    const tooltipIcon = computed(
+      () => isTooltipConfig(props.tooltip) && props.tooltip.icon !== void 0 ? props.tooltip.icon : "?"
+    );
+    const resolvedTooltipProps = computed(() => {
+      if (isTooltipConfig(props.tooltip)) {
+        const { icon: _icon, title: _title, ...tooltipProps } = props.tooltip;
+        return {
+          ...tooltipProps,
+          title: tooltipTitle.value
+        };
+      }
+      return {
+        title: tooltipTitle.value
+      };
+    });
     const effectiveRules = computed(() => props.rules ?? []);
     const fieldErrors = computed(() => props.name ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
     const isRequired = computed(() => Boolean(props.required || props.name && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
@@ -65,6 +100,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const effectiveHelp = computed(() => props.help !== void 0 ? props.help : fieldErrors.value[0] ?? "");
     const hasHelp = computed(() => hasRenderableContent(effectiveHelp.value));
     const hasExtra = computed(() => hasRenderableContent(props.extra));
+    const hasTooltip = computed(() => hasRenderableContent(tooltipTitle.value));
     watch(
       () => [props.name, effectiveRules.value],
       ([name, rules], previous) => {
@@ -116,19 +152,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           renderSlot(_ctx.$slots, "label", {}, () => [
             createVNode(unref(AFormItemRenderNode), { node: _ctx.label }, null, 8, ["node"])
           ]),
-          showOptionalMark.value ? (openBlock(), createElementBlock("span", _hoisted_4, "optional")) : createCommentVNode("", true)
+          showOptionalMark.value ? (openBlock(), createElementBlock("span", _hoisted_4, "optional")) : createCommentVNode("", true),
+          hasTooltip.value ? (openBlock(), createElementBlock("span", _hoisted_5, [
+            createVNode(unref(ATooltip), normalizeProps(guardReactiveProps(resolvedTooltipProps.value)), {
+              default: withCtx(() => [
+                createElementVNode("span", _hoisted_6, [
+                  createVNode(unref(AFormItemRenderNode), { node: tooltipIcon.value }, null, 8, ["node"])
+                ])
+              ]),
+              _: 1
+            }, 16)
+          ])) : createCommentVNode("", true)
         ], 8, _hoisted_2)) : createCommentVNode("", true),
-        createElementVNode("div", _hoisted_5, [
-          createElementVNode("div", _hoisted_6, [
+        createElementVNode("div", _hoisted_7, [
+          createElementVNode("div", _hoisted_8, [
             renderSlot(_ctx.$slots, "default"),
-            _ctx.hasFeedback ? (openBlock(), createElementBlock("span", _hoisted_7, toDisplayString(feedbackIcon.value), 1)) : createCommentVNode("", true)
+            _ctx.hasFeedback ? (openBlock(), createElementBlock("span", _hoisted_9, toDisplayString(feedbackIcon.value), 1)) : createCommentVNode("", true)
           ]),
-          hasHelp.value || _ctx.$slots.help ? (openBlock(), createElementBlock("div", _hoisted_8, [
+          hasHelp.value || _ctx.$slots.help ? (openBlock(), createElementBlock("div", _hoisted_10, [
             renderSlot(_ctx.$slots, "help", {}, () => [
               createVNode(unref(AFormItemRenderNode), { node: effectiveHelp.value }, null, 8, ["node"])
             ])
           ])) : createCommentVNode("", true),
-          hasExtra.value || _ctx.$slots.extra ? (openBlock(), createElementBlock("div", _hoisted_9, [
+          hasExtra.value || _ctx.$slots.extra ? (openBlock(), createElementBlock("div", _hoisted_11, [
             renderSlot(_ctx.$slots, "extra", {}, () => [
               createVNode(unref(AFormItemRenderNode), { node: _ctx.extra }, null, 8, ["node"])
             ])

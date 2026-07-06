@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const tooltip_vue_vue_type_script_setup_true_lang = require("../tooltip/tooltip.vue.js");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["data-name"];
@@ -14,18 +15,26 @@ const _hoisted_4 = {
   key: 1,
   class: "aheart-form-item__optional"
 };
-const _hoisted_5 = { class: "aheart-form-item__control" };
-const _hoisted_6 = { class: "aheart-form-item__content" };
-const _hoisted_7 = {
+const _hoisted_5 = {
+  key: 2,
+  class: "aheart-form-item__tooltip"
+};
+const _hoisted_6 = {
+  class: "aheart-form-item__tooltip-icon",
+  "aria-hidden": "true"
+};
+const _hoisted_7 = { class: "aheart-form-item__control" };
+const _hoisted_8 = { class: "aheart-form-item__content" };
+const _hoisted_9 = {
   key: 0,
   class: "aheart-form-item__feedback",
   "aria-hidden": "true"
 };
-const _hoisted_8 = {
+const _hoisted_10 = {
   key: 0,
   class: "aheart-form-item__help"
 };
-const _hoisted_9 = {
+const _hoisted_11 = {
   key: 1,
   class: "aheart-form-item__extra"
 };
@@ -38,6 +47,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props) {
     const props = __props;
     const formContext = vue.inject(types.formContextKey, void 0);
+    const ATooltip = tooltip_vue_vue_type_script_setup_true_lang.default;
     const AFormItemRenderNode = vue.defineComponent({
       name: "AFormItemRenderNode",
       props: {
@@ -54,8 +64,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (Array.isArray(value)) {
         return value.length > 0;
       }
+      if (typeof value === "function") {
+        return true;
+      }
       return value !== void 0 && value !== null && value !== false && value !== "";
     };
+    const isTooltipConfig = (value) => typeof value === "object" && value !== null && !Array.isArray(value) && !vue.isVNode(value);
+    const tooltipTitle = vue.computed(() => {
+      if (isTooltipConfig(props.tooltip)) {
+        return props.tooltip.title;
+      }
+      return props.tooltip;
+    });
+    const tooltipIcon = vue.computed(
+      () => isTooltipConfig(props.tooltip) && props.tooltip.icon !== void 0 ? props.tooltip.icon : "?"
+    );
+    const resolvedTooltipProps = vue.computed(() => {
+      if (isTooltipConfig(props.tooltip)) {
+        const { icon: _icon, title: _title, ...tooltipProps } = props.tooltip;
+        return {
+          ...tooltipProps,
+          title: tooltipTitle.value
+        };
+      }
+      return {
+        title: tooltipTitle.value
+      };
+    });
     const effectiveRules = vue.computed(() => props.rules ?? []);
     const fieldErrors = vue.computed(() => props.name ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
     const isRequired = vue.computed(() => Boolean(props.required || props.name && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
@@ -67,6 +102,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const effectiveHelp = vue.computed(() => props.help !== void 0 ? props.help : fieldErrors.value[0] ?? "");
     const hasHelp = vue.computed(() => hasRenderableContent(effectiveHelp.value));
     const hasExtra = vue.computed(() => hasRenderableContent(props.extra));
+    const hasTooltip = vue.computed(() => hasRenderableContent(tooltipTitle.value));
     vue.watch(
       () => [props.name, effectiveRules.value],
       ([name, rules], previous) => {
@@ -118,19 +154,29 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           vue.renderSlot(_ctx.$slots, "label", {}, () => [
             vue.createVNode(vue.unref(AFormItemRenderNode), { node: _ctx.label }, null, 8, ["node"])
           ]),
-          showOptionalMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, "optional")) : vue.createCommentVNode("", true)
+          showOptionalMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, "optional")) : vue.createCommentVNode("", true),
+          hasTooltip.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_5, [
+            vue.createVNode(vue.unref(ATooltip), vue.normalizeProps(vue.guardReactiveProps(resolvedTooltipProps.value)), {
+              default: vue.withCtx(() => [
+                vue.createElementVNode("span", _hoisted_6, [
+                  vue.createVNode(vue.unref(AFormItemRenderNode), { node: tooltipIcon.value }, null, 8, ["node"])
+                ])
+              ]),
+              _: 1
+            }, 16)
+          ])) : vue.createCommentVNode("", true)
         ], 8, _hoisted_2)) : vue.createCommentVNode("", true),
-        vue.createElementVNode("div", _hoisted_5, [
-          vue.createElementVNode("div", _hoisted_6, [
+        vue.createElementVNode("div", _hoisted_7, [
+          vue.createElementVNode("div", _hoisted_8, [
             vue.renderSlot(_ctx.$slots, "default"),
-            _ctx.hasFeedback ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_7, vue.toDisplayString(feedbackIcon.value), 1)) : vue.createCommentVNode("", true)
+            _ctx.hasFeedback ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_9, vue.toDisplayString(feedbackIcon.value), 1)) : vue.createCommentVNode("", true)
           ]),
-          hasHelp.value || _ctx.$slots.help ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_8, [
+          hasHelp.value || _ctx.$slots.help ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_10, [
             vue.renderSlot(_ctx.$slots, "help", {}, () => [
               vue.createVNode(vue.unref(AFormItemRenderNode), { node: effectiveHelp.value }, null, 8, ["node"])
             ])
           ])) : vue.createCommentVNode("", true),
-          hasExtra.value || _ctx.$slots.extra ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_9, [
+          hasExtra.value || _ctx.$slots.extra ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_11, [
             vue.renderSlot(_ctx.$slots, "extra", {}, () => [
               vue.createVNode(vue.unref(AFormItemRenderNode), { node: _ctx.extra }, null, 8, ["node"])
             ])
