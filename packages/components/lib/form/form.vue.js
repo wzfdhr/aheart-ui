@@ -156,6 +156,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       });
     };
+    const setFieldValue = (name, value) => {
+      props.model[name] = value;
+      clearValidate([name]);
+    };
+    const setFieldsValue = (values) => {
+      Object.entries(values).forEach(([name, value]) => {
+        props.model[name] = value;
+      });
+      clearValidate(Object.keys(values));
+    };
     const getFieldValue = (name) => props.model[name];
     const pickValues = (names) => names.reduce((values, name) => {
       values[name] = props.model[name];
@@ -233,6 +243,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       validate,
       validateFields,
       clearValidate,
+      setFieldValue,
+      setFieldsValue,
       getFieldValue,
       getFieldsValue,
       getFieldError,

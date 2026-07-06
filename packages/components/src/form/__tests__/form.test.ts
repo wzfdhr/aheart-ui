@@ -681,6 +681,80 @@ describe('Form', () => {
     expect(form.getFieldsValue?.(true)).not.toBe(model)
   })
 
+  it('exposes value setters and clears changed field errors', () => {
+    const model: Record<string, unknown> = { email: '', password: '' }
+    const wrapper = mount(Form, {
+      props: {
+        model
+      },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(
+                FormItem,
+                { label: 'Email', name: 'email', rules: [{ required: true, message: 'Email is required' }] },
+                () => h(Input, { modelValue: model.email })
+              ),
+              h(
+                FormItem,
+                { label: 'Password', name: 'password', rules: [{ required: true, message: 'Password is required' }] },
+                () => h(Input, { modelValue: model.password })
+              )
+            ])
+          }
+        }
+      }
+    })
+    const form = wrapper.vm as unknown as {
+      validateFields?: (names?: string[]) => {
+        values: Record<string, unknown>
+        errorFields: { name: string; errors: string[] }[]
+      }
+      setFieldValue?: (name: string, value: unknown) => void
+      setFieldsValue?: (values: Record<string, unknown>) => void
+      getFieldValue?: (name: string) => unknown
+      getFieldsValue?: (names?: string[] | true) => Record<string, unknown>
+      getFieldError?: (name: string) => string[]
+      getFieldsError?: (names?: string[]) => { name: string; errors: string[] }[]
+    }
+
+    expect(form.setFieldValue).toBeTypeOf('function')
+    expect(form.setFieldsValue).toBeTypeOf('function')
+
+    expect(form.validateFields?.()).toEqual({
+      values: { email: '', password: '' },
+      errorFields: [
+        { name: 'email', errors: ['Email is required'] },
+        { name: 'password', errors: ['Password is required'] }
+      ]
+    })
+
+    form.setFieldValue?.('email', 'ada@example.com')
+
+    expect(model.email).toBe('ada@example.com')
+    expect(form.getFieldValue?.('email')).toBe('ada@example.com')
+    expect(form.getFieldError?.('email')).toEqual([])
+    expect(form.getFieldError?.('password')).toEqual(['Password is required'])
+    expect(wrapper.emitted('validate')).toEqual([
+      ['email', false, ['Email is required']],
+      ['password', false, ['Password is required']]
+    ])
+
+    form.setFieldsValue?.({ password: 'secret', admin: true })
+
+    expect(model).toEqual({ email: 'ada@example.com', password: 'secret', admin: true })
+    expect(form.getFieldsValue?.(true)).toEqual({ email: 'ada@example.com', password: 'secret', admin: true })
+    expect(form.getFieldsError?.()).toEqual([
+      { name: 'email', errors: [] },
+      { name: 'password', errors: [] }
+    ])
+    expect(wrapper.emitted('validate')).toEqual([
+      ['email', false, ['Email is required']],
+      ['password', false, ['Password is required']]
+    ])
+  })
+
   it('exposes error readers for current validation state', async () => {
     const wrapper = mount(Form, {
       props: {

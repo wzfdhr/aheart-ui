@@ -209,6 +209,18 @@ const clearValidate = (names?: string[]) => {
   })
 }
 
+const setFieldValue = (name: string, value: unknown) => {
+  props.model[name] = value
+  clearValidate([name])
+}
+
+const setFieldsValue = (values: FormModel) => {
+  Object.entries(values).forEach(([name, value]) => {
+    props.model[name] = value
+  })
+  clearValidate(Object.keys(values))
+}
+
 const getFieldValue = (name: string) => props.model[name]
 
 const pickValues = (names: string[]) =>
@@ -299,6 +311,8 @@ defineExpose({
   validate,
   validateFields,
   clearValidate,
+  setFieldValue,
+  setFieldsValue,
   getFieldValue,
   getFieldsValue,
   getFieldError,
