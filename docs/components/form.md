@@ -128,7 +128,7 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
       :message-variables="{ domain: 'company' }"
       :rules="[
         { type: 'email', message: '${label} must be a valid ${domain} email' },
-        { min: 8, message: '${name} needs at least ${min} characters' }
+        { min: 8, message: '${name} needs at least ${min} characters, \\${label} stays literal' }
       ]"
     >
       <AInput model-value="abc" />
@@ -148,7 +148,7 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
       :message-variables="{ domain: 'company' }"
       :rules="[
         { type: 'email', message: '${label} must be a valid ${domain} email' },
-        { min: 8, message: '${name} needs at least ${min} characters' }
+        { min: 8, message: '${name} needs at least ${min} characters, \\${label} stays literal' }
       ]"
     >
       <AInput v-model="formState.email" />
@@ -159,6 +159,8 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
   </AForm>
 </template>
 ```
+
+使用 `\\${label}` 可以输出字面 `${label}`，不会触发消息变量替换。
 
 ## 必填标记与变体
 

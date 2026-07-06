@@ -494,6 +494,41 @@ describe('Form', () => {
     ])
   })
 
+  it('preserves escaped FormItem message variable placeholders', async () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { email: '' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h(
+              FormItem,
+              {
+                label: 'Email',
+                name: 'email',
+                rules: [{ required: true, message: '${label} is converted, \\${label} is preserved' }]
+              },
+              () => h(Input, { modelValue: '' })
+            )
+          }
+        }
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(wrapper.emitted('finishFailed')?.[0][0]).toEqual({
+      values: { email: '' },
+      errorFields: [{ name: 'email', errors: ['Email is converted, ${label} is preserved'] }]
+    })
+    expect(wrapper.emitted('validate')?.[0]).toEqual([
+      'email',
+      false,
+      ['Email is converted, ${label} is preserved']
+    ])
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {

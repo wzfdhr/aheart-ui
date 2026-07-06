@@ -97,7 +97,9 @@ const getDefaultMessage = (name: string, rule: FormRule) => {
 const stringifyMessageVariable = (value: unknown) => (value === undefined || value === null ? '' : String(value))
 
 const interpolateMessage = (message: string, variables: Record<string, unknown>) =>
-  message.replace(/\$\{([^}]+)\}/g, (_match, key: string) => stringifyMessageVariable(variables[key.trim()]))
+  message.replace(/\\?\$\{([^}]+)\}/g, (match, key: string) =>
+    match.startsWith('\\') ? match.slice(1) : stringifyMessageVariable(variables[key.trim()])
+  )
 
 const getRuleMessageVariables = (name: string, rule: FormRule) => ({
   name,

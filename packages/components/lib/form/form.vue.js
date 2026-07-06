@@ -68,7 +68,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return `${name} is invalid`;
     };
     const stringifyMessageVariable = (value) => value === void 0 || value === null ? "" : String(value);
-    const interpolateMessage = (message, variables) => message.replace(/\$\{([^}]+)\}/g, (_match, key) => stringifyMessageVariable(variables[key.trim()]));
+    const interpolateMessage = (message, variables) => message.replace(
+      /\\?\$\{([^}]+)\}/g,
+      (match, key) => match.startsWith("\\") ? match.slice(1) : stringifyMessageVariable(variables[key.trim()])
+    );
     const getRuleMessageVariables = (name, rule) => {
       var _a;
       return {
