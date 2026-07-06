@@ -24,6 +24,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isControlled = vue.computed(() => props.value !== void 0 || props.modelValue !== void 0);
     const mergedValue = vue.computed(() => props.value ?? props.modelValue ?? internalValue.value);
+    const resolvedDirection = vue.computed(
+      () => props.orientation ?? (props.vertical ? "vertical" : props.direction)
+    );
     const normalizedOptions = vue.computed(
       () => props.options.map(
         (option) => typeof option === "object" && option !== null ? option : {
@@ -33,7 +36,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       )
     );
     const radioGroupClass = vue.computed(() => [
-      `aheart-radio-group--${props.direction}`,
+      `aheart-radio-group--${resolvedDirection.value}`,
       `aheart-radio-group--${resolvedSize.value}`,
       props.className,
       props.rootClassName,

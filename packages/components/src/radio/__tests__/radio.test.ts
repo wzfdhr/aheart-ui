@@ -137,6 +137,35 @@ describe('Radio', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['banana'])
   })
 
+  it('supports RadioGroup orientation and vertical layout aliases', () => {
+    const oriented = mount(RadioGroup, {
+      props: {
+        options: radioOptions,
+        direction: 'horizontal',
+        orientation: 'vertical'
+      }
+    })
+    const verticalShortcut = mount(RadioGroup, {
+      props: {
+        options: radioOptions,
+        direction: 'horizontal',
+        vertical: true
+      }
+    })
+    const orientationWins = mount(RadioGroup, {
+      props: {
+        options: radioOptions,
+        direction: 'vertical',
+        vertical: true,
+        orientation: 'horizontal'
+      }
+    })
+
+    expect(oriented.classes()).toContain('aheart-radio-group--vertical')
+    expect(verticalShortcut.classes()).toContain('aheart-radio-group--vertical')
+    expect(orientationWins.classes()).toContain('aheart-radio-group--horizontal')
+  })
+
   it('RadioGroup inherits disabled from ConfigProvider', () => {
     const wrapper = mount(ConfigProvider, {
       props: { disabled: true },

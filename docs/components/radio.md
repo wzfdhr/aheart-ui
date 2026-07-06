@@ -226,6 +226,8 @@ const radioRef = ref<{ focus: () => void; blur: () => void }>()
 | options | 选项列表，支持字符串、数字或对象选项 | `(string \| number \| RadioOption)[]` | `[]` |
 | disabled | 是否禁用整组 | `boolean` | ConfigProvider disabled |
 | name | 传递给组内所有原生 radio 的 name 属性 | `string` | - |
+| orientation | Ant 风格排列方向别名，优先级高于 `vertical` 和 `direction` | `horizontal` \| `vertical` | - |
+| vertical | 是否垂直排列，优先级高于 `direction` | `boolean` | `false` |
 | direction | 排列方向 | `horizontal` \| `vertical` | `horizontal` |
 | optionType | 选项展示类型 | `default` \| `button` | `default` |
 | buttonStyle | 按钮样式 | `outline` \| `solid` | `outline` |

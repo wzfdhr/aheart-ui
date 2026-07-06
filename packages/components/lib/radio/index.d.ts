@@ -181,6 +181,8 @@ export declare const RadioGroup: import("../utils/install").SFCWithInstall<impor
         readonly type: import("vue").PropType<import("./types").RadioGroupDirection>;
         readonly default: "horizontal";
     };
+    readonly orientation: import("vue").PropType<import("./types").RadioGroupDirection>;
+    readonly vertical: BooleanConstructor;
     readonly optionType: {
         readonly type: import("vue").PropType<import("./types").RadioOptionType>;
         readonly default: "default";
@@ -224,6 +226,8 @@ export declare const RadioGroup: import("../utils/install").SFCWithInstall<impor
         readonly type: import("vue").PropType<import("./types").RadioGroupDirection>;
         readonly default: "horizontal";
     };
+    readonly orientation: import("vue").PropType<import("./types").RadioGroupDirection>;
+    readonly vertical: BooleanConstructor;
     readonly optionType: {
         readonly type: import("vue").PropType<import("./types").RadioOptionType>;
         readonly default: "default";
@@ -243,6 +247,7 @@ export declare const RadioGroup: import("../utils/install").SFCWithInstall<impor
     "onUpdate:value"?: ((value: import("./types").RadioValue) => any) | undefined;
 }>, {
     readonly block: boolean;
+    readonly vertical: boolean;
     readonly disabled: boolean;
     readonly direction: import("./types").RadioGroupDirection;
     readonly value: import("./types").RadioValue;

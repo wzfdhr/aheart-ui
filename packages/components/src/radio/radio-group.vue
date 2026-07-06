@@ -43,7 +43,13 @@
 import { computed, ref } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import Radio from './radio.vue'
-import { radioGroupEmits, radioGroupProps, type RadioOption, type RadioValue } from './types'
+import {
+  radioGroupEmits,
+  radioGroupProps,
+  type RadioGroupDirection,
+  type RadioOption,
+  type RadioValue
+} from './types'
 import './style.css'
 
 defineOptions({
@@ -59,6 +65,9 @@ const isDisabled = computed(() => resolveConfigValue(props.disabled, config.valu
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isControlled = computed(() => props.value !== undefined || props.modelValue !== undefined)
 const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value)
+const resolvedDirection = computed<RadioGroupDirection>(() =>
+  props.orientation ?? (props.vertical ? 'vertical' : props.direction)
+)
 const normalizedOptions = computed<RadioOption[]>(() =>
   props.options.map((option) =>
     typeof option === 'object' && option !== null
@@ -71,7 +80,7 @@ const normalizedOptions = computed<RadioOption[]>(() =>
 )
 
 const radioGroupClass = computed(() => [
-  `aheart-radio-group--${props.direction}`,
+  `aheart-radio-group--${resolvedDirection.value}`,
   `aheart-radio-group--${resolvedSize.value}`,
   props.className,
   props.rootClassName,

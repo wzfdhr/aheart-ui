@@ -3,6 +3,7 @@ import type { AheartSize } from '../config'
 
 export type RadioValue = string | number | boolean
 export type RadioGroupDirection = 'horizontal' | 'vertical'
+export type RadioGroupOrientation = RadioGroupDirection
 export type RadioOptionType = 'default' | 'button'
 export type RadioButtonStyle = 'outline' | 'solid'
 export type RadioSemanticPart = 'root' | 'icon' | 'label'
@@ -83,6 +84,8 @@ export const radioGroupProps = {
     type: String as PropType<RadioGroupDirection>,
     default: 'horizontal'
   },
+  orientation: String as PropType<RadioGroupOrientation>,
+  vertical: Boolean,
   optionType: {
     type: String as PropType<RadioOptionType>,
     default: 'default'

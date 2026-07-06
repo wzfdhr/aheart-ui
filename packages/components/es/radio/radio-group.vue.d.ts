@@ -1,4 +1,4 @@
-import { type RadioValue } from './types';
+import { type RadioGroupDirection, type RadioValue } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly modelValue: {
         readonly type: import("vue").PropType<RadioValue>;
@@ -22,9 +22,11 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly name: StringConstructor;
     readonly direction: {
-        readonly type: import("vue").PropType<import("./types").RadioGroupDirection>;
+        readonly type: import("vue").PropType<RadioGroupDirection>;
         readonly default: "horizontal";
     };
+    readonly orientation: import("vue").PropType<RadioGroupDirection>;
+    readonly vertical: BooleanConstructor;
     readonly optionType: {
         readonly type: import("vue").PropType<import("./types").RadioOptionType>;
         readonly default: "default";
@@ -65,9 +67,11 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly name: StringConstructor;
     readonly direction: {
-        readonly type: import("vue").PropType<import("./types").RadioGroupDirection>;
+        readonly type: import("vue").PropType<RadioGroupDirection>;
         readonly default: "horizontal";
     };
+    readonly orientation: import("vue").PropType<RadioGroupDirection>;
+    readonly vertical: BooleanConstructor;
     readonly optionType: {
         readonly type: import("vue").PropType<import("./types").RadioOptionType>;
         readonly default: "default";
@@ -87,8 +91,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "onUpdate:value"?: ((value: RadioValue) => any) | undefined;
 }>, {
     readonly block: boolean;
+    readonly vertical: boolean;
     readonly disabled: boolean;
-    readonly direction: import("./types").RadioGroupDirection;
+    readonly direction: RadioGroupDirection;
     readonly value: RadioValue;
     readonly modelValue: RadioValue;
     readonly defaultValue: RadioValue;

@@ -22,6 +22,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isControlled = computed(() => props.value !== void 0 || props.modelValue !== void 0);
     const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value);
+    const resolvedDirection = computed(
+      () => props.orientation ?? (props.vertical ? "vertical" : props.direction)
+    );
     const normalizedOptions = computed(
       () => props.options.map(
         (option) => typeof option === "object" && option !== null ? option : {
@@ -31,7 +34,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       )
     );
     const radioGroupClass = computed(() => [
-      `aheart-radio-group--${props.direction}`,
+      `aheart-radio-group--${resolvedDirection.value}`,
       `aheart-radio-group--${resolvedSize.value}`,
       props.className,
       props.rootClassName,

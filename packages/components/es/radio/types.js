@@ -60,6 +60,8 @@ const radioGroupProps = {
     type: String,
     default: "horizontal"
   },
+  orientation: String,
+  vertical: Boolean,
   optionType: {
     type: String,
     default: "default"

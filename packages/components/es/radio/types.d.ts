@@ -2,6 +2,7 @@ import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
 import type { AheartSize } from '../config';
 export type RadioValue = string | number | boolean;
 export type RadioGroupDirection = 'horizontal' | 'vertical';
+export type RadioGroupOrientation = RadioGroupDirection;
 export type RadioOptionType = 'default' | 'button';
 export type RadioButtonStyle = 'outline' | 'solid';
 export type RadioSemanticPart = 'root' | 'icon' | 'label';
@@ -78,6 +79,8 @@ export declare const radioGroupProps: {
         readonly type: PropType<RadioGroupDirection>;
         readonly default: "horizontal";
     };
+    readonly orientation: PropType<RadioGroupDirection>;
+    readonly vertical: BooleanConstructor;
     readonly optionType: {
         readonly type: PropType<RadioOptionType>;
         readonly default: "default";
