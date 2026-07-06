@@ -531,6 +531,52 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'keyboard' }])
   })
 
+  it('repeats control stepping while a control is held', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const wrapper = mount(InputNumber, {
+        props: { defaultValue: 2, step: 2 }
+      })
+      const input = wrapper.find('input')
+      const increase = wrapper.find('.aheart-input-number__increase')
+
+      await increase.trigger('mousedown')
+      await nextTick()
+
+      expect(input.element.value).toBe('4')
+      expect(wrapper.emitted('step')).toHaveLength(1)
+      expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'handler' }])
+
+      await vi.advanceTimersByTimeAsync(599)
+      await nextTick()
+
+      expect(input.element.value).toBe('4')
+      expect(wrapper.emitted('step')).toHaveLength(1)
+
+      await vi.advanceTimersByTimeAsync(1)
+      await nextTick()
+
+      expect(input.element.value).toBe('6')
+      expect(wrapper.emitted('step')).toHaveLength(2)
+
+      await vi.advanceTimersByTimeAsync(200)
+      await nextTick()
+
+      expect(input.element.value).toBe('8')
+      expect(wrapper.emitted('step')).toHaveLength(3)
+
+      await increase.trigger('mouseup')
+      await vi.advanceTimersByTimeAsync(400)
+      await nextTick()
+
+      expect(input.element.value).toBe('8')
+      expect(wrapper.emitted('step')).toHaveLength(3)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('exposes focus blur and nativeElement methods', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)

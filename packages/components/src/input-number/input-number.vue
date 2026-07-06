@@ -42,7 +42,10 @@
         type="button"
         aria-label="Increase"
         :disabled="isInteractiveDisabled"
-        @click="handleStep(resolvedStep, 'up', 'handler')"
+        @mousedown="handleControlStepMouseDown($event, 'up')"
+        @mouseup="handleControlStepMouseUp"
+        @mouseleave="handleControlStepCancel"
+        @click="handleControlStepClick('up')"
       >
         <slot name="increaseIcon">
           <AInputNumberRenderNode :node="increaseIcon" />
@@ -55,7 +58,10 @@
         type="button"
         aria-label="Decrease"
         :disabled="isInteractiveDisabled"
-        @click="handleStep(-resolvedStep, 'down', 'handler')"
+        @mousedown="handleControlStepMouseDown($event, 'down')"
+        @mouseup="handleControlStepMouseUp"
+        @mouseleave="handleControlStepCancel"
+        @click="handleControlStepClick('down')"
       >
         <slot name="decreaseIcon">
           <AInputNumberRenderNode :node="decreaseIcon" />
@@ -69,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref, useAttrs, useSlots } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, useAttrs, useSlots } from 'vue'
 import type { InputHTMLAttributes, PropType, StyleValue, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputNumberEmits, inputNumberProps } from './types'
@@ -92,6 +98,10 @@ const uncontrolledValue = ref<InputNumberValue | undefined>(props.defaultValue)
 const pendingInputText = ref<string | undefined>(undefined)
 const pendingInputValue = ref<InputNumberValue | undefined>(undefined)
 const hasPendingInputValue = ref(false)
+const skipNextControlStepClick = ref(false)
+const controlStepDelay = 600
+const controlStepInterval = 200
+let controlStepTimer: ReturnType<typeof setTimeout> | undefined
 
 const AInputNumberRenderNode = defineComponent({
   name: 'AInputNumberRenderNode',
@@ -558,6 +568,56 @@ const handleStep = (
   emit('step', nextValue, { offset, type, emitter })
 }
 
+const clearControlStepTimer = () => {
+  if (controlStepTimer === undefined) {
+    return
+  }
+
+  clearTimeout(controlStepTimer)
+  controlStepTimer = undefined
+}
+
+const runControlStep = (type: 'up' | 'down') => {
+  handleStep(type === 'up' ? resolvedStep.value : -resolvedStep.value, type, 'handler')
+}
+
+const scheduleControlStepRepeat = (type: 'up' | 'down') => {
+  controlStepTimer = setTimeout(() => {
+    runControlStep(type)
+    scheduleControlStepRepeat(type)
+  }, controlStepInterval)
+}
+
+const handleControlStepMouseDown = (event: MouseEvent, type: 'up' | 'down') => {
+  event.preventDefault()
+  skipNextControlStepClick.value = true
+  clearControlStepTimer()
+  runControlStep(type)
+
+  controlStepTimer = setTimeout(() => {
+    runControlStep(type)
+    scheduleControlStepRepeat(type)
+  }, controlStepDelay)
+}
+
+const handleControlStepMouseUp = () => {
+  clearControlStepTimer()
+}
+
+const handleControlStepCancel = () => {
+  clearControlStepTimer()
+  skipNextControlStepClick.value = false
+}
+
+const handleControlStepClick = (type: 'up' | 'down') => {
+  if (skipNextControlStepClick.value) {
+    skipNextControlStepClick.value = false
+    return
+  }
+
+  runControlStep(type)
+}
+
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter') {
     commitPendingInput()
@@ -634,6 +694,10 @@ onMounted(() => {
   if (props.autoFocus) {
     focus()
   }
+})
+
+onBeforeUnmount(() => {
+  clearControlStepTimer()
 })
 
 defineExpose({

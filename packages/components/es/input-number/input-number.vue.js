@@ -1,4 +1,4 @@
-import { defineComponent, useAttrs, useSlots, ref, computed, onMounted, openBlock, createElementBlock, mergeProps, createVNode, unref, createCommentVNode, normalizeClass, normalizeStyle, renderSlot, createElementVNode } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, onMounted, onBeforeUnmount, openBlock, createElementBlock, mergeProps, createVNode, unref, createCommentVNode, normalizeClass, normalizeStyle, renderSlot, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
@@ -13,6 +13,8 @@ const _hoisted_5 = {
   key: 4,
   class: "aheart-input-number__addon aheart-input-number__addon-after"
 };
+const controlStepDelay = 600;
+const controlStepInterval = 200;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AInputNumber",
@@ -33,6 +35,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const pendingInputText = ref(void 0);
     const pendingInputValue = ref(void 0);
     const hasPendingInputValue = ref(false);
+    const skipNextControlStepClick = ref(false);
+    let controlStepTimer;
     const AInputNumberRenderNode = defineComponent({
       name: "AInputNumberRenderNode",
       props: {
@@ -402,6 +406,46 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emitValue(nextValue);
       emit("step", nextValue, { offset, type, emitter });
     };
+    const clearControlStepTimer = () => {
+      if (controlStepTimer === void 0) {
+        return;
+      }
+      clearTimeout(controlStepTimer);
+      controlStepTimer = void 0;
+    };
+    const runControlStep = (type) => {
+      handleStep(type === "up" ? resolvedStep.value : -resolvedStep.value, type, "handler");
+    };
+    const scheduleControlStepRepeat = (type) => {
+      controlStepTimer = setTimeout(() => {
+        runControlStep(type);
+        scheduleControlStepRepeat(type);
+      }, controlStepInterval);
+    };
+    const handleControlStepMouseDown = (event, type) => {
+      event.preventDefault();
+      skipNextControlStepClick.value = true;
+      clearControlStepTimer();
+      runControlStep(type);
+      controlStepTimer = setTimeout(() => {
+        runControlStep(type);
+        scheduleControlStepRepeat(type);
+      }, controlStepDelay);
+    };
+    const handleControlStepMouseUp = () => {
+      clearControlStepTimer();
+    };
+    const handleControlStepCancel = () => {
+      clearControlStepTimer();
+      skipNextControlStepClick.value = false;
+    };
+    const handleControlStepClick = (type) => {
+      if (skipNextControlStepClick.value) {
+        skipNextControlStepClick.value = false;
+        return;
+      }
+      runControlStep(type);
+    };
     const handleKeydown = (event) => {
       if (event.key === "Enter") {
         commitPendingInput();
@@ -465,6 +509,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (props.autoFocus) {
         focus();
       }
+    });
+    onBeforeUnmount(() => {
+      clearControlStepTimer();
     });
     __expose({
       focus,
@@ -530,24 +577,30 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             type: "button",
             "aria-label": "Increase",
             disabled: isInteractiveDisabled.value,
-            onClick: _cache[0] || (_cache[0] = ($event) => handleStep(resolvedStep.value, "up", "handler"))
+            onMousedown: _cache[0] || (_cache[0] = ($event) => handleControlStepMouseDown($event, "up")),
+            onMouseup: handleControlStepMouseUp,
+            onMouseleave: handleControlStepCancel,
+            onClick: _cache[1] || (_cache[1] = ($event) => handleControlStepClick("up"))
           }, [
             renderSlot(_ctx.$slots, "increaseIcon", {}, () => [
               createVNode(unref(AInputNumberRenderNode), { node: increaseIcon.value }, null, 8, ["node"])
             ])
-          ], 14, _hoisted_3),
+          ], 46, _hoisted_3),
           createElementVNode("button", {
             class: normalizeClass(["aheart-input-number__decrease", actionClass.value]),
             style: normalizeStyle(actionStyle.value),
             type: "button",
             "aria-label": "Decrease",
             disabled: isInteractiveDisabled.value,
-            onClick: _cache[1] || (_cache[1] = ($event) => handleStep(-resolvedStep.value, "down", "handler"))
+            onMousedown: _cache[2] || (_cache[2] = ($event) => handleControlStepMouseDown($event, "down")),
+            onMouseup: handleControlStepMouseUp,
+            onMouseleave: handleControlStepCancel,
+            onClick: _cache[3] || (_cache[3] = ($event) => handleControlStepClick("down"))
           }, [
             renderSlot(_ctx.$slots, "decreaseIcon", {}, () => [
               createVNode(unref(AInputNumberRenderNode), { node: decreaseIcon.value }, null, 8, ["node"])
             ])
-          ], 14, _hoisted_4)
+          ], 46, _hoisted_4)
         ], 6)) : createCommentVNode("", true),
         hasAddonAfter.value ? (openBlock(), createElementBlock("span", _hoisted_5, [
           createVNode(unref(AInputNumberRenderNode), { node: _ctx.addonAfter }, null, 8, ["node"])
