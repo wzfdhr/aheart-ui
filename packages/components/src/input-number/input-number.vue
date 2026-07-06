@@ -151,10 +151,6 @@ const controlsConfig = computed(() =>
 const showControls = computed(() => props.controls !== false && !isDisabled.value && !props.readOnly)
 const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? (props.mode === 'spinner' ? '+' : '↑'))
 const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? (props.mode === 'spinner' ? '-' : '↓'))
-const resolvedStep = computed(() => {
-  const value = Number(props.step)
-  return Number.isFinite(value) ? value : 1
-})
 const isValueAtOrAboveMax = computed(
   () =>
     props.max !== undefined &&
@@ -645,7 +641,7 @@ const isKeyboardStepUp = (key: string) => key === 'ArrowUp' || key === 'Up'
 const isKeyboardStepDown = (key: string) => key === 'ArrowDown' || key === 'Down'
 
 const handleStep = (
-  offset: number,
+  offset: number | string,
   type: 'up' | 'down',
   emitter: 'handler' | 'keyboard' | 'wheel',
   stepValue: number | string = props.step
@@ -672,7 +668,7 @@ const clearControlStepTimer = () => {
 }
 
 const runControlStep = (type: 'up' | 'down') => {
-  handleStep(type === 'up' ? resolvedStep.value : -resolvedStep.value, type, 'handler')
+  handleStep(props.step, type, 'handler')
 }
 
 const scheduleControlStepRepeat = (type: 'up' | 'down') => {
@@ -732,18 +728,16 @@ const handleKeydown = (event: KeyboardEvent) => {
     return
   }
 
-  const keyboardStepMultiplier = event.shiftKey ? 10 : 1
-  const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier
   const keyboardStepValue = event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step
 
   if (isKeyboardStepUp(event.key)) {
     event.preventDefault()
-    handleStep(keyboardStepOffset, 'up', 'keyboard', keyboardStepValue)
+    handleStep(keyboardStepValue, 'up', 'keyboard', keyboardStepValue)
   }
 
   if (isKeyboardStepDown(event.key)) {
     event.preventDefault()
-    handleStep(-keyboardStepOffset, 'down', 'keyboard', keyboardStepValue)
+    handleStep(keyboardStepValue, 'down', 'keyboard', keyboardStepValue)
   }
 }
 
@@ -790,7 +784,7 @@ const handleWheel = (event: WheelEvent) => {
   }
 
   handleStep(
-    wheelDelta.value < 0 ? resolvedStep.value : -resolvedStep.value,
+    props.step,
     wheelDelta.value < 0 ? 'up' : 'down',
     'wheel'
   )

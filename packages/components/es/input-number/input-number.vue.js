@@ -85,10 +85,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? (props.mode === "spinner" ? "-" : "↓");
     });
-    const resolvedStep = computed(() => {
-      const value = Number(props.step);
-      return Number.isFinite(value) ? value : 1;
-    });
     const isValueAtOrAboveMax = computed(
       () => props.max !== void 0 && mergedValue.value !== void 0 && compareDecimalStrings(String(mergedValue.value), String(props.max)) >= 0
     );
@@ -479,7 +475,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       controlStepTimer = void 0;
     };
     const runControlStep = (type) => {
-      handleStep(type === "up" ? resolvedStep.value : -resolvedStep.value, type, "handler");
+      handleStep(props.step, type, "handler");
     };
     const scheduleControlStepRepeat = (type) => {
       controlStepTimer = setTimeout(() => {
@@ -528,16 +524,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!props.keyboard || isComposing.value) {
         return;
       }
-      const keyboardStepMultiplier = event.shiftKey ? 10 : 1;
-      const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier;
       const keyboardStepValue = event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step;
       if (isKeyboardStepUp(event.key)) {
         event.preventDefault();
-        handleStep(keyboardStepOffset, "up", "keyboard", keyboardStepValue);
+        handleStep(keyboardStepValue, "up", "keyboard", keyboardStepValue);
       }
       if (isKeyboardStepDown(event.key)) {
         event.preventDefault();
-        handleStep(-keyboardStepOffset, "down", "keyboard", keyboardStepValue);
+        handleStep(keyboardStepValue, "down", "keyboard", keyboardStepValue);
       }
     };
     const handleFocus = () => {
@@ -571,7 +565,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       }
       handleStep(
-        wheelDelta.value < 0 ? resolvedStep.value : -resolvedStep.value,
+        props.step,
         wheelDelta.value < 0 ? "up" : "down",
         "wheel"
       );

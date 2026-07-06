@@ -29,7 +29,7 @@ export type InputNumberSemanticConfig<T> = InputNumberSemanticRecord<T> | ((info
 export type InputNumberClassNames = InputNumberSemanticConfig<string>;
 export type InputNumberStyles = InputNumberSemanticConfig<StyleValue>;
 export interface InputNumberStepInfo {
-    offset: number;
+    offset: number | string;
     type: InputNumberStepType;
     emitter: InputNumberStepEmitter;
 }

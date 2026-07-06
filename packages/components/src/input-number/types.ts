@@ -38,7 +38,7 @@ export type InputNumberClassNames = InputNumberSemanticConfig<string>
 export type InputNumberStyles = InputNumberSemanticConfig<StyleValue>
 
 export interface InputNumberStepInfo {
-  offset: number
+  offset: number | string
   type: InputNumberStepType
   emitter: InputNumberStepEmitter
 }
@@ -118,7 +118,7 @@ export const inputNumberEmits = {
   pressEnter: (event: KeyboardEvent) => event instanceof KeyboardEvent,
   step: (value: InputNumberValue, info: InputNumberStepInfo) =>
     (typeof value === 'number' || typeof value === 'string') &&
-    typeof info.offset === 'number' &&
+    (typeof info.offset === 'number' || typeof info.offset === 'string') &&
     (info.type === 'up' || info.type === 'down') &&
     (info.emitter === 'handler' || info.emitter === 'keyboard' || info.emitter === 'wheel')
 }

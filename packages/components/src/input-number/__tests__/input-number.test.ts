@@ -127,7 +127,7 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('change')?.[1]).toEqual(['1.000000000000000002'])
     expect(wrapper.emitted('step')?.[0]).toEqual([
       '1.000000000000000002',
-      { offset: 0.000000000000000001, type: 'up', emitter: 'handler' }
+      { offset: '0.000000000000000001', type: 'up', emitter: 'handler' }
     ])
   })
 
@@ -250,8 +250,8 @@ describe('InputNumber', () => {
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([1.5])
     expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0.5])
-    expect(wrapper.emitted('step')?.[0]).toEqual([1.5, { offset: 0.5, type: 'up', emitter: 'handler' }])
-    expect(wrapper.emitted('step')?.[1]).toEqual([0.5, { offset: -0.5, type: 'down', emitter: 'handler' }])
+    expect(wrapper.emitted('step')?.[0]).toEqual([1.5, { offset: '0.5', type: 'up', emitter: 'handler' }])
+    expect(wrapper.emitted('step')?.[1]).toEqual([0.5, { offset: '0.5', type: 'down', emitter: 'handler' }])
   })
 
   it('uses decimal arithmetic for numeric step values', async () => {
@@ -638,7 +638,7 @@ describe('InputNumber', () => {
     await input.trigger('wheel', { deltaY: 100 })
 
     expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keyboard' }])
-    expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'wheel' }])
+    expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: 2, type: 'down', emitter: 'wheel' }])
   })
 
   it('uses a decuple step when Shift is held for keyboard stepping', async () => {
@@ -649,7 +649,7 @@ describe('InputNumber', () => {
     await wrapper.find('input').trigger('keydown', { key: 'ArrowUp', shiftKey: true })
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([22])
-    expect(wrapper.emitted('step')?.[0]).toEqual([22, { offset: 20, type: 'up', emitter: 'keyboard' }])
+    expect(wrapper.emitted('step')?.[0]).toEqual([22, { offset: '20', type: 'up', emitter: 'keyboard' }])
   })
 
   it('supports legacy Up and Down key names for keyboard stepping', async () => {
@@ -663,7 +663,7 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([4])
     expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0])
     expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keyboard' }])
-    expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'keyboard' }])
+    expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: 2, type: 'down', emitter: 'keyboard' }])
   })
 
   it('skips keyboard stepping while composition input is active', async () => {
