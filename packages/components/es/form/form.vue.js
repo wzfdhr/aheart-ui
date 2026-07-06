@@ -153,6 +153,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       });
     };
+    const getFieldValue = (name) => props.model[name];
+    const pickValues = (names) => names.reduce((values, name) => {
+      values[name] = props.model[name];
+      return values;
+    }, {});
+    const getFieldsValue = (names) => {
+      if (names === true) {
+        return cloneValues();
+      }
+      return pickValues(names ?? getFieldNames());
+    };
     const scrollToField = (name, options) => {
       var _a;
       const target = Array.from(((_a = formElement.value) == null ? void 0 : _a.querySelectorAll("[data-name]")) ?? []).find(
@@ -210,6 +221,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     __expose({
       validate,
       clearValidate,
+      getFieldValue,
+      getFieldsValue,
       scrollToField
     });
     return (_ctx, _cache) => {

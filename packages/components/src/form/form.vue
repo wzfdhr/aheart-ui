@@ -207,6 +207,22 @@ const clearValidate = (names?: string[]) => {
   })
 }
 
+const getFieldValue = (name: string) => props.model[name]
+
+const pickValues = (names: string[]) =>
+  names.reduce<FormModel>((values, name) => {
+    values[name] = props.model[name]
+    return values
+  }, {})
+
+const getFieldsValue = (names?: string[] | true) => {
+  if (names === true) {
+    return cloneValues()
+  }
+
+  return pickValues(names ?? getFieldNames())
+}
+
 const scrollToField = (name: string, options?: ScrollIntoViewOptions) => {
   const target = Array.from(formElement.value?.querySelectorAll<HTMLElement>('[data-name]') ?? []).find(
     (element) => element.dataset.name === name
@@ -272,6 +288,8 @@ const handleSubmit = (event: Event) => {
 defineExpose({
   validate,
   clearValidate,
+  getFieldValue,
+  getFieldsValue,
   scrollToField
 })
 </script>

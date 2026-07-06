@@ -643,6 +643,44 @@ describe('Form', () => {
     }
   })
 
+  it('exposes value readers for current model fields', () => {
+    const model = { email: 'ada@example.com', password: 'secret', admin: true }
+    const wrapper = mount(Form, {
+      props: {
+        model
+      },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(FormItem, { label: 'Email', name: 'email' }, () => h(Input, { modelValue: model.email })),
+              h(FormItem, { label: 'Password', name: 'password' }, () => h(Input, { modelValue: model.password }))
+            ])
+          }
+        }
+      }
+    })
+    const form = wrapper.vm as unknown as {
+      getFieldValue?: (name: string) => unknown
+      getFieldsValue?: (names?: string[] | true) => Record<string, unknown>
+    }
+
+    expect(form.getFieldValue).toBeTypeOf('function')
+    expect(form.getFieldsValue).toBeTypeOf('function')
+
+    expect(form.getFieldValue?.('email')).toBe('ada@example.com')
+    expect(form.getFieldsValue?.()).toEqual({
+      email: 'ada@example.com',
+      password: 'secret'
+    })
+    expect(form.getFieldsValue?.(['password', 'missing'])).toEqual({
+      password: 'secret',
+      missing: undefined
+    })
+    expect(form.getFieldsValue?.(true)).toEqual(model)
+    expect(form.getFieldsValue?.(true)).not.toBe(model)
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {
