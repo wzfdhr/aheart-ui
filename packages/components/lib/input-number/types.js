@@ -46,6 +46,10 @@ const inputNumberProps = {
     type: [Boolean, Object],
     default: true
   },
+  changeOnBlur: {
+    type: Boolean,
+    default: true
+  },
   changeOnWheel: Boolean,
   className: String,
   rootClassName: String,

@@ -47,6 +47,10 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").InputNumberControls>;
             readonly default: true;
         };
+        readonly changeOnBlur: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
         readonly changeOnWheel: BooleanConstructor;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -78,6 +82,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly readOnly: boolean;
         readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
+        readonly changeOnBlur: boolean;
         readonly changeOnWheel: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -134,6 +139,10 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").InputNumberControls>;
             readonly default: true;
         };
+        readonly changeOnBlur: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
         readonly changeOnWheel: BooleanConstructor;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -160,6 +169,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly readOnly: boolean;
         readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
+        readonly changeOnBlur: boolean;
         readonly changeOnWheel: boolean;
     }>;
     __isFragment?: undefined;
@@ -213,6 +223,10 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").InputNumberControls>;
         readonly default: true;
     };
+    readonly changeOnBlur: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -244,6 +258,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly readOnly: boolean;
     readonly stringMode: boolean;
     readonly controls: import("./types").InputNumberControls;
+    readonly changeOnBlur: boolean;
     readonly changeOnWheel: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

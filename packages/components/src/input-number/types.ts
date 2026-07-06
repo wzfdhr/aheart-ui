@@ -89,6 +89,10 @@ export const inputNumberProps = {
     type: [Boolean, Object] as PropType<InputNumberControls>,
     default: true
   },
+  changeOnBlur: {
+    type: Boolean,
+    default: true
+  },
   changeOnWheel: Boolean,
   className: String,
   rootClassName: String,

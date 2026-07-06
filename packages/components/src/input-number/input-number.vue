@@ -22,6 +22,7 @@
       :step="step"
       @input="handleInput"
       @keydown="handleKeydown"
+      @blur="handleBlur"
       @wheel="handleWheel"
     />
     <span v-if="hasSuffix" :class="suffixClass" :style="suffixStyle">
@@ -79,6 +80,9 @@ const slots = useSlots()
 const rootRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
 const uncontrolledValue = ref<InputNumberValue | undefined>(props.defaultValue)
+const pendingInputText = ref<string | undefined>(undefined)
+const pendingInputValue = ref<InputNumberValue | undefined>(undefined)
+const hasPendingInputValue = ref(false)
 
 const AInputNumberRenderNode = defineComponent({
   name: 'AInputNumberRenderNode',
@@ -289,6 +293,17 @@ const compareDecimalStrings = (left: string, right: string) => {
 const isValidValueString = (value: string) => isPlainDecimalString(value) && Number.isFinite(Number(value))
 
 const displayValue = computed(() => {
+  if (props.changeOnBlur && pendingInputText.value !== undefined) {
+    if (props.formatter) {
+      return props.formatter(hasPendingInputValue.value ? pendingInputValue.value : mergedValue.value, {
+        userTyping: true,
+        input: pendingInputText.value
+      })
+    }
+
+    return pendingInputText.value
+  }
+
   const input = mergedValue.value === undefined ? '' : String(mergedValue.value)
 
   if (props.formatter) {
@@ -373,12 +388,9 @@ const emitValue = (value: InputNumberValue | undefined) => {
   emit('change', nextValue)
 }
 
-const handleInput = (event: Event) => {
-  const rawValue = (event.target as HTMLInputElement).value
-
+const parseInputValue = (rawValue: string): { valid: boolean; value?: InputNumberValue } => {
   if (rawValue === '') {
-    emitValue(undefined)
-    return
+    return { valid: true, value: undefined }
   }
 
   const parsedValue = props.parser
@@ -388,23 +400,59 @@ const handleInput = (event: Event) => {
       : Number(parseDecimalSeparator(rawValue))
 
   if (parsedValue === undefined) {
-    return
+    return { valid: false }
   }
 
   if (props.stringMode) {
     const stringValue = String(parsedValue)
 
     if (isValidValueString(stringValue)) {
-      emitValue(clampValue(stringValue))
+      return { valid: true, value: clampValue(stringValue) }
     }
 
-    return
+    return { valid: false }
   }
 
   const numericValue = Number(parsedValue)
 
   if (!Number.isNaN(numericValue)) {
-    emitValue(clampValue(numericValue))
+    return { valid: true, value: clampValue(numericValue) }
+  }
+
+  return { valid: false }
+}
+
+const resetPendingInput = () => {
+  pendingInputText.value = undefined
+  pendingInputValue.value = undefined
+  hasPendingInputValue.value = false
+}
+
+const commitPendingInput = () => {
+  if (pendingInputText.value === undefined) {
+    return
+  }
+
+  if (hasPendingInputValue.value) {
+    emitValue(pendingInputValue.value)
+  }
+
+  resetPendingInput()
+}
+
+const handleInput = (event: Event) => {
+  const rawValue = (event.target as HTMLInputElement).value
+  const parsedInput = parseInputValue(rawValue)
+
+  if (props.changeOnBlur) {
+    pendingInputText.value = rawValue
+    pendingInputValue.value = parsedInput.valid ? parsedInput.value : undefined
+    hasPendingInputValue.value = parsedInput.valid
+    return
+  }
+
+  if (parsedInput.valid) {
+    emitValue(parsedInput.value)
   }
 }
 
@@ -413,20 +461,23 @@ const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'k
     return
   }
 
+  const baseValue = hasPendingInputValue.value ? pendingInputValue.value : mergedValue.value
   const nextValue = props.stringMode
     ? clampValue(
         addDecimalStrings(
-          String(mergedValue.value ?? 0),
+          String(baseValue ?? 0),
           type === 'up' ? String(props.step) : negateDecimalString(String(props.step))
         )
       )
-    : clampValue(Number(mergedValue.value ?? 0) + offset)
+    : clampValue(Number(baseValue ?? 0) + offset)
+  resetPendingInput()
   emitValue(nextValue)
   emit('step', nextValue, { offset, type, emitter })
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter') {
+    commitPendingInput()
     emit('pressEnter', event)
     return
   }
@@ -444,6 +495,10 @@ const handleKeydown = (event: KeyboardEvent) => {
     event.preventDefault()
     handleStep(-resolvedStep.value, 'down', 'keydown')
   }
+}
+
+const handleBlur = () => {
+  commitPendingInput()
 }
 
 const handleWheel = (event: WheelEvent) => {

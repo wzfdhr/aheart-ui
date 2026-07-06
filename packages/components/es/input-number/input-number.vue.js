@@ -20,6 +20,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref();
     const inputRef = ref();
     const uncontrolledValue = ref(props.defaultValue);
+    const pendingInputText = ref(void 0);
+    const pendingInputValue = ref(void 0);
+    const hasPendingInputValue = ref(false);
     const AInputNumberRenderNode = defineComponent({
       name: "AInputNumberRenderNode",
       props: {
@@ -192,6 +195,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const isValidValueString = (value) => isPlainDecimalString(value) && Number.isFinite(Number(value));
     const displayValue = computed(() => {
+      if (props.changeOnBlur && pendingInputText.value !== void 0) {
+        if (props.formatter) {
+          return props.formatter(hasPendingInputValue.value ? pendingInputValue.value : mergedValue.value, {
+            userTyping: true,
+            input: pendingInputText.value
+          });
+        }
+        return pendingInputText.value;
+      }
       const input = mergedValue.value === void 0 ? "" : String(mergedValue.value);
       if (props.formatter) {
         return props.formatter(mergedValue.value, {
@@ -258,43 +270,72 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("update:modelValue", nextValue);
       emit("change", nextValue);
     };
-    const handleInput = (event) => {
-      const rawValue = event.target.value;
+    const parseInputValue = (rawValue) => {
       if (rawValue === "") {
-        emitValue(void 0);
-        return;
+        return { valid: true, value: void 0 };
       }
       const parsedValue = props.parser ? props.parser(rawValue) : props.stringMode ? parseDecimalSeparator(rawValue) : Number(parseDecimalSeparator(rawValue));
       if (parsedValue === void 0) {
-        return;
+        return { valid: false };
       }
       if (props.stringMode) {
         const stringValue = String(parsedValue);
         if (isValidValueString(stringValue)) {
-          emitValue(clampValue(stringValue));
+          return { valid: true, value: clampValue(stringValue) };
         }
-        return;
+        return { valid: false };
       }
       const numericValue = Number(parsedValue);
       if (!Number.isNaN(numericValue)) {
-        emitValue(clampValue(numericValue));
+        return { valid: true, value: clampValue(numericValue) };
+      }
+      return { valid: false };
+    };
+    const resetPendingInput = () => {
+      pendingInputText.value = void 0;
+      pendingInputValue.value = void 0;
+      hasPendingInputValue.value = false;
+    };
+    const commitPendingInput = () => {
+      if (pendingInputText.value === void 0) {
+        return;
+      }
+      if (hasPendingInputValue.value) {
+        emitValue(pendingInputValue.value);
+      }
+      resetPendingInput();
+    };
+    const handleInput = (event) => {
+      const rawValue = event.target.value;
+      const parsedInput = parseInputValue(rawValue);
+      if (props.changeOnBlur) {
+        pendingInputText.value = rawValue;
+        pendingInputValue.value = parsedInput.valid ? parsedInput.value : void 0;
+        hasPendingInputValue.value = parsedInput.valid;
+        return;
+      }
+      if (parsedInput.valid) {
+        emitValue(parsedInput.value);
       }
     };
     const handleStep = (offset, type, emitter) => {
       if (isInteractiveDisabled.value) {
         return;
       }
+      const baseValue = hasPendingInputValue.value ? pendingInputValue.value : mergedValue.value;
       const nextValue = props.stringMode ? clampValue(
         addDecimalStrings(
-          String(mergedValue.value ?? 0),
+          String(baseValue ?? 0),
           type === "up" ? String(props.step) : negateDecimalString(String(props.step))
         )
-      ) : clampValue(Number(mergedValue.value ?? 0) + offset);
+      ) : clampValue(Number(baseValue ?? 0) + offset);
+      resetPendingInput();
       emitValue(nextValue);
       emit("step", nextValue, { offset, type, emitter });
     };
     const handleKeydown = (event) => {
       if (event.key === "Enter") {
+        commitPendingInput();
         emit("pressEnter", event);
         return;
       }
@@ -309,6 +350,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         event.preventDefault();
         handleStep(-resolvedStep.value, "down", "keydown");
       }
+    };
+    const handleBlur = () => {
+      commitPendingInput();
     };
     const handleWheel = (event) => {
       if (!props.changeOnWheel || event.deltaY === 0) {
@@ -383,6 +427,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           step: _ctx.step,
           onInput: handleInput,
           onKeydown: handleKeydown,
+          onBlur: handleBlur,
           onWheel: handleWheel
         }, null, 46, _hoisted_1),
         hasSuffix.value ? (openBlock(), createElementBlock("span", {

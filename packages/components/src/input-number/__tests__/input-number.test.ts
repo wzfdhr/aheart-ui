@@ -49,6 +49,7 @@ describe('InputNumber', () => {
     const wrapper = mount(InputNumber, {
       props: {
         stringMode: true,
+        changeOnBlur: false,
         modelValue: '1.000000000000000001',
         step: '0.000000000000000001'
       }
@@ -90,9 +91,39 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual(['3.000000000000000002'])
   })
 
+  it('defers typed changes until blur by default', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { defaultValue: 1 }
+    })
+    const input = wrapper.find('input')
+
+    await input.setValue('5')
+
+    expect(input.element.value).toBe('5')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    await input.trigger('blur')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([5])
+    expect(wrapper.emitted('change')?.[0]).toEqual([5])
+    expect(input.element.value).toBe('5')
+  })
+
+  it('emits typed changes immediately when changeOnBlur is false', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { defaultValue: 1, changeOnBlur: false }
+    })
+
+    await wrapper.find('input').setValue('5')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([5])
+    expect(wrapper.emitted('change')?.[0]).toEqual([5])
+  })
+
   it('clamps typed values to min and max', async () => {
     const wrapper = mount(InputNumber, {
-      props: { min: 1, max: 10 }
+      props: { min: 1, max: 10, changeOnBlur: false }
     })
 
     await wrapper.find('input').setValue('20')
@@ -186,7 +217,8 @@ describe('InputNumber', () => {
     const wrapper = mount(InputNumber, {
       props: {
         modelValue: 12.5,
-        decimalSeparator: ','
+        decimalSeparator: ',',
+        changeOnBlur: false
       }
     })
 

@@ -48,6 +48,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").InputNumberControls>;
         readonly default: true;
     };
+    readonly changeOnBlur: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -111,6 +115,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").InputNumberControls>;
         readonly default: true;
     };
+    readonly changeOnBlur: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -133,6 +141,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly readOnly: boolean;
     readonly stringMode: boolean;
     readonly controls: import("./types").InputNumberControls;
+    readonly changeOnBlur: boolean;
     readonly changeOnWheel: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     prefix?(_: {}): any;

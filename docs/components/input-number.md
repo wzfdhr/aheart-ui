@@ -18,7 +18,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 
 # InputNumber 数字输入框 <span class="aheart-status aheart-status--ready">Ready</span>
 
-InputNumber captures numeric values with min, max, step, controls, precision, formatter/parser hooks, variants, status, and size inheritance.
+InputNumber captures numeric values with min, max, step, controls, precision, formatter/parser hooks, blur-time commit control, variants, status, and size inheritance.
 
 ## 基础用法
 
@@ -111,6 +111,22 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 ```vue
 <template>
   <AInputNumber v-model="value" decimal-separator="," />
+</template>
+```
+
+## 提交时机
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <AInputNumber :default-value="4" />
+    <AInputNumber :default-value="4" :change-on-blur="false" />
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <AInputNumber v-model="blurValue" />
+  <AInputNumber v-model="instantValue" :change-on-blur="false" />
 </template>
 ```
 
@@ -271,6 +287,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | parser | 展示值解析函数 | `(displayValue: string) => number \| string \| undefined` | - |
 | keyboard | 是否启用方向键步进 | `boolean` | `true` |
 | controls | 是否显示控制按钮，支持自定义上下按钮内容 | `boolean` \| `{ upIcon?: VNodeChild; downIcon?: VNodeChild }` | `true` |
+| changeOnBlur | 输入框失焦时提交输入变化；设为 `false` 时输入即提交 | `boolean` | `true` |
 | changeOnWheel | 是否启用鼠标滚轮步进 | `boolean` | `false` |
 | className | 数字输入框根节点兼容 class | `string` | - |
 | rootClassName | 数字输入框根节点 class | `string` | - |

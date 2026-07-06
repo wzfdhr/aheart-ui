@@ -80,6 +80,10 @@ export declare const inputNumberProps: {
         readonly type: PropType<InputNumberControls>;
         readonly default: true;
     };
+    readonly changeOnBlur: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
