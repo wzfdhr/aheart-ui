@@ -366,7 +366,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (mergedValue.value === void 0 || mergedValue.value === "") {
         return void 0;
       }
-      return String(mergedValue.value);
+      const value = String(mergedValue.value);
+      return isValidValueString(value) ? value : void 0;
     });
     const inputAttrs = computed(
       () => Object.fromEntries(

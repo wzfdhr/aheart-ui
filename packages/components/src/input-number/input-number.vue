@@ -521,7 +521,9 @@ const ariaValueNow = computed(() => {
     return undefined
   }
 
-  return String(mergedValue.value)
+  const value = String(mergedValue.value)
+
+  return isValidValueString(value) ? value : undefined
 })
 const inputAttrs = computed(() =>
   Object.fromEntries(

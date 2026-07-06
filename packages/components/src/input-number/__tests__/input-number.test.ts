@@ -35,6 +35,21 @@ describe('InputNumber', () => {
     expect(wrapper.find('input').attributes('aria-valuenow')).toBeUndefined()
   })
 
+  it('omits aria-valuenow for invalid current values', () => {
+    const invalid = mount(InputNumber, {
+      props: { modelValue: 'abc' }
+    })
+    const validString = mount(InputNumber, {
+      props: {
+        modelValue: '1.000000000000000001',
+        stringMode: true
+      }
+    })
+
+    expect(invalid.find('input').attributes('aria-valuenow')).toBeUndefined()
+    expect(validString.find('input').attributes('aria-valuenow')).toBe('1.000000000000000001')
+  })
+
   it('defaults autocomplete off while preserving explicit native overrides', () => {
     const wrapper = mount(InputNumber)
     const explicit = mount(InputNumber, {
