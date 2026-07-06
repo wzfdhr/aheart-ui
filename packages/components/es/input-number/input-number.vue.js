@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
+import { defineComponent, useSlots, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
@@ -12,11 +12,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "input-number",
   props: inputNumberProps,
   emits: inputNumberEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
     const slots = useSlots();
+    const rootRef = ref();
+    const inputRef = ref();
     const AInputNumberRenderNode = defineComponent({
       name: "AInputNumberRenderNode",
       props: {
@@ -198,8 +200,39 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         "wheel"
       );
     };
+    const setCursor = (cursor) => {
+      if (!inputRef.value || !cursor) {
+        return;
+      }
+      const length = inputRef.value.value.length;
+      if (cursor === "start") {
+        inputRef.value.setSelectionRange(0, 0);
+        return;
+      }
+      if (cursor === "end") {
+        inputRef.value.setSelectionRange(length, length);
+        return;
+      }
+      inputRef.value.setSelectionRange(0, length);
+    };
+    const focus = (options) => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.focus({ preventScroll: options == null ? void 0 : options.preventScroll });
+      setCursor(options == null ? void 0 : options.cursor);
+    };
+    const blur = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.blur();
+    };
+    __expose({
+      focus,
+      blur,
+      nativeElement: rootRef
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: normalizeClass(["aheart-input-number", inputNumberClass.value]),
         style: normalizeStyle(rootStyle.value)
       }, [
@@ -214,6 +247,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ], 6)) : createCommentVNode("", true),
         createElementVNode("input", {
           class: normalizeClass(["aheart-input-number__control", controlClass.value]),
+          ref_key: "inputRef",
+          ref: inputRef,
           style: normalizeStyle(controlStyle.value),
           id: _ctx.id,
           type: "text",

@@ -14,11 +14,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   __name: "input-number",
   props: types.inputNumberProps,
   emits: types.inputNumberEmits,
-  setup(__props, { emit: __emit }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
     const slots = vue.useSlots();
+    const rootRef = vue.ref();
+    const inputRef = vue.ref();
     const AInputNumberRenderNode = vue.defineComponent({
       name: "AInputNumberRenderNode",
       props: {
@@ -200,8 +202,39 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         "wheel"
       );
     };
+    const setCursor = (cursor) => {
+      if (!inputRef.value || !cursor) {
+        return;
+      }
+      const length = inputRef.value.value.length;
+      if (cursor === "start") {
+        inputRef.value.setSelectionRange(0, 0);
+        return;
+      }
+      if (cursor === "end") {
+        inputRef.value.setSelectionRange(length, length);
+        return;
+      }
+      inputRef.value.setSelectionRange(0, length);
+    };
+    const focus = (options) => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.focus({ preventScroll: options == null ? void 0 : options.preventScroll });
+      setCursor(options == null ? void 0 : options.cursor);
+    };
+    const blur = () => {
+      var _a;
+      (_a = inputRef.value) == null ? void 0 : _a.blur();
+    };
+    __expose({
+      focus,
+      blur,
+      nativeElement: rootRef
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: vue.normalizeClass(["aheart-input-number", inputNumberClass.value]),
         style: vue.normalizeStyle(rootStyle.value)
       }, [
@@ -216,6 +249,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ], 6)) : vue.createCommentVNode("", true),
         vue.createElementVNode("input", {
           class: vue.normalizeClass(["aheart-input-number__control", controlClass.value]),
+          ref_key: "inputRef",
+          ref: inputRef,
           style: vue.normalizeStyle(controlStyle.value),
           id: _ctx.id,
           type: "text",

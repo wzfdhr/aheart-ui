@@ -55,7 +55,11 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
         "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
-    }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    }>, {
+        focus: (options?: import("./types").InputNumberFocusOptions | undefined) => void;
+        blur: () => void;
+        nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
+    }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         change: (value: number | undefined) => void;
         step: (value: number, info: import("./types").InputNumberStepInfo) => void;
         "update:modelValue": (value: number | undefined) => void;
@@ -134,7 +138,11 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
         "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
-    }>, {}, {}, {}, {}, {
+    }>, {
+        focus: (options?: import("./types").InputNumberFocusOptions | undefined) => void;
+        blur: () => void;
+        nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
+    }, {}, {}, {}, {
         readonly variant: import("./types").InputNumberVariant;
         readonly disabled: boolean;
         readonly step: string | number;
@@ -205,7 +213,11 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
     "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: (options?: import("./types").InputNumberFocusOptions | undefined) => void;
+    blur: () => void;
+    nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: number | undefined) => void;
     step: (value: number, info: import("./types").InputNumberStepInfo) => void;
     "update:modelValue": (value: number | undefined) => void;

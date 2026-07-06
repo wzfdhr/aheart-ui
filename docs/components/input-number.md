@@ -226,6 +226,14 @@ import { h } from 'vue'
 | pressEnter | 按下回车时触发 | `(event: KeyboardEvent) => void` |
 | step | 控制按钮、键盘或滚轮步进时触发 | `(value: number, info: { offset: number; type: 'up' \| 'down'; emitter: 'handler' \| 'keydown' \| 'wheel' }) => void` |
 
+## Methods
+
+| 名称 | 说明 | 类型 |
+| --- | --- | --- |
+| focus | 聚焦输入框，支持控制光标位置 | `(option?: { preventScroll?: boolean; cursor?: 'start' \| 'end' \| 'all' }) => void` |
+| blur | 移除输入框焦点 | `() => void` |
+| nativeElement | 数字输入框根 DOM 元素 | `HTMLElement \| undefined` |
+
 ## Slots
 
 | 名称 | 说明 |

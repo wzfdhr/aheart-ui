@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import InputNumber from '../input-number.vue'
@@ -248,6 +248,44 @@ describe('InputNumber', () => {
 
     expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keydown' }])
     expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'wheel' }])
+  })
+
+  it('exposes focus blur and nativeElement methods', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(InputNumber, {
+      attachTo: host,
+      props: { modelValue: 1234 }
+    })
+    const inputNumberVm = wrapper.vm as unknown as {
+      focus: (options?: { preventScroll?: boolean; cursor?: 'start' | 'end' | 'all' }) => void
+      blur: () => void
+      nativeElement?: HTMLElement
+    }
+    const input = wrapper.find('input').element
+
+    expect(inputNumberVm.focus).toBeTypeOf('function')
+    expect(inputNumberVm.blur).toBeTypeOf('function')
+    expect(inputNumberVm.nativeElement).toBe(wrapper.element)
+
+    inputNumberVm.focus({ cursor: 'all' })
+    await nextTick()
+    expect(document.activeElement).toBe(input)
+    expect(input.selectionStart).toBe(0)
+    expect(input.selectionEnd).toBe(input.value.length)
+
+    inputNumberVm.focus({ cursor: 'end' })
+    await nextTick()
+    expect(input.selectionStart).toBe(input.value.length)
+    expect(input.selectionEnd).toBe(input.value.length)
+
+    inputNumberVm.blur()
+    await nextTick()
+    expect(document.activeElement).not.toBe(input)
+
+    wrapper.unmount()
+    host.remove()
   })
 
   it('passes formatter info to formatter', () => {

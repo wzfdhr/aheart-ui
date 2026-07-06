@@ -1,5 +1,5 @@
 <template>
-  <span class="aheart-input-number" :class="inputNumberClass" :style="rootStyle">
+  <span ref="rootRef" class="aheart-input-number" :class="inputNumberClass" :style="rootStyle">
     <span v-if="hasPrefix" :class="prefixClass" :style="prefixStyle">
       <slot name="prefix">
         <AInputNumberRenderNode :node="prefix" />
@@ -7,6 +7,7 @@
     </span>
     <input
       class="aheart-input-number__control"
+      ref="inputRef"
       :class="controlClass"
       :style="controlStyle"
       :id="id"
@@ -60,10 +61,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, useSlots } from 'vue'
+import { computed, defineComponent, ref, useSlots } from 'vue'
 import type { PropType, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputNumberEmits, inputNumberProps } from './types'
+import type { InputNumberFocusOptions } from './types'
 import './style.css'
 
 defineOptions({
@@ -74,6 +76,8 @@ const props = defineProps(inputNumberProps)
 const emit = defineEmits(inputNumberEmits)
 const config = useAheartConfig()
 const slots = useSlots()
+const rootRef = ref<HTMLElement>()
+const inputRef = ref<HTMLInputElement>()
 
 const AInputNumberRenderNode = defineComponent({
   name: 'AInputNumberRenderNode',
@@ -241,4 +245,39 @@ const handleWheel = (event: WheelEvent) => {
     'wheel'
   )
 }
+
+const setCursor = (cursor: InputNumberFocusOptions['cursor']) => {
+  if (!inputRef.value || !cursor) {
+    return
+  }
+
+  const length = inputRef.value.value.length
+
+  if (cursor === 'start') {
+    inputRef.value.setSelectionRange(0, 0)
+    return
+  }
+
+  if (cursor === 'end') {
+    inputRef.value.setSelectionRange(length, length)
+    return
+  }
+
+  inputRef.value.setSelectionRange(0, length)
+}
+
+const focus = (options?: InputNumberFocusOptions) => {
+  inputRef.value?.focus({ preventScroll: options?.preventScroll })
+  setCursor(options?.cursor)
+}
+
+const blur = () => {
+  inputRef.value?.blur()
+}
+
+defineExpose({
+  focus,
+  blur,
+  nativeElement: rootRef
+})
 </script>

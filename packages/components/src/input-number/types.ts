@@ -5,7 +5,12 @@ export type InputNumberStatus = 'error' | 'warning'
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
 export type InputNumberStepType = 'up' | 'down'
 export type InputNumberStepEmitter = 'handler' | 'keydown' | 'wheel'
+export type InputNumberFocusCursor = 'start' | 'end' | 'all'
 export type InputNumberRenderable = VNodeChild
+
+export interface InputNumberFocusOptions extends FocusOptions {
+  cursor?: InputNumberFocusCursor
+}
 
 export interface InputNumberFormatterInfo {
   userTyping: boolean

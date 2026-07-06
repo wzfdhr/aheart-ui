@@ -1,4 +1,5 @@
 import type { PropType, VNodeChild } from 'vue';
+import type { InputNumberFocusOptions } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
@@ -50,7 +51,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly style: PropType<import("vue").StyleValue>;
     readonly classNames: PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
     readonly styles: PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+}>, {
+    focus: (options?: InputNumberFocusOptions | undefined) => void;
+    blur: () => void;
+    nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: number | undefined) => void;
     step: (value: number, info: import("./types").InputNumberStepInfo) => void;
     "update:modelValue": (value: number | undefined) => void;
