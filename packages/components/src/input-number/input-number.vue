@@ -1,5 +1,12 @@
 <template>
-  <span ref="rootRef" class="aheart-input-number" :class="inputNumberClass" :style="rootStyle" v-bind="rootAttrs">
+  <span
+    ref="rootRef"
+    class="aheart-input-number"
+    :class="inputNumberClass"
+    :style="rootStyle"
+    v-bind="rootAttrs"
+    @mousedown="handleRootMouseDown"
+  >
     <span v-if="hasAddonBefore" class="aheart-input-number__addon aheart-input-number__addon-before">
       <AInputNumberRenderNode :node="addonBefore" />
     </span>
@@ -494,6 +501,12 @@ const inputAttrs = computed(() =>
     )
   )
 )
+
+const handleRootMouseDown = (event: MouseEvent) => {
+  if (inputRef.value && event.target !== inputRef.value) {
+    inputRef.value.focus()
+  }
+}
 
 const applyPrecision = (value: number) => {
   if (props.precision === undefined) {

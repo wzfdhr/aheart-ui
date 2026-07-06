@@ -354,6 +354,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         )
       )
     );
+    const handleRootMouseDown = (event) => {
+      if (inputRef.value && event.target !== inputRef.value) {
+        inputRef.value.focus();
+      }
+    };
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;
@@ -616,7 +621,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ref: rootRef,
         class: ["aheart-input-number", inputNumberClass.value],
         style: rootStyle.value
-      }, rootAttrs.value), [
+      }, rootAttrs.value, { onMousedown: handleRootMouseDown }), [
         hasAddonBefore.value ? (openBlock(), createElementBlock("span", _hoisted_1, [
           createVNode(unref(AInputNumberRenderNode), { node: _ctx.addonBefore }, null, 8, ["node"])
         ])) : createCommentVNode("", true),

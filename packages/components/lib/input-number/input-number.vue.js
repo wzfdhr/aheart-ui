@@ -356,6 +356,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         )
       )
     );
+    const handleRootMouseDown = (event) => {
+      if (inputRef.value && event.target !== inputRef.value) {
+        inputRef.value.focus();
+      }
+    };
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;
@@ -618,7 +623,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ref: rootRef,
         class: ["aheart-input-number", inputNumberClass.value],
         style: rootStyle.value
-      }, rootAttrs.value), [
+      }, rootAttrs.value, { onMousedown: handleRootMouseDown }), [
         hasAddonBefore.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, [
           vue.createVNode(vue.unref(AInputNumberRenderNode), { node: _ctx.addonBefore }, null, 8, ["node"])
         ])) : vue.createCommentVNode("", true),

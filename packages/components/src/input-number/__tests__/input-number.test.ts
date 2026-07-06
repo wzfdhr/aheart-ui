@@ -74,6 +74,28 @@ describe('InputNumber', () => {
     expect(handleFocus).toHaveBeenCalledTimes(1)
   })
 
+  it('focuses the inner input when the root receives mousedown', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const handleMouseDown = vi.fn()
+
+    const wrapper = mount(InputNumber, {
+      attachTo: host,
+      attrs: {
+        onMousedown: handleMouseDown
+      }
+    })
+    const input = wrapper.find('input').element
+
+    await wrapper.trigger('mousedown')
+
+    expect(document.activeElement).toBe(input)
+    expect(handleMouseDown).toHaveBeenCalledTimes(1)
+
+    wrapper.unmount()
+    host.remove()
+  })
+
   it('uses defaultValue as uncontrolled initial value', async () => {
     const wrapper = mount(InputNumber, {
       props: { defaultValue: 4, step: 2 }
