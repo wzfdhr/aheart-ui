@@ -15,6 +15,10 @@ const _hoisted_5 = {
 };
 const controlStepDelay = 600;
 const controlStepInterval = 200;
+const wheelStepDistance = 100;
+const wheelLineHeight = 40;
+const wheelPageHeight = 800;
+const wheelDeltaResetInterval = 200;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AInputNumber",
@@ -36,6 +40,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const pendingInputValue = ref(void 0);
     const hasPendingInputValue = ref(false);
     const skipNextControlStepClick = ref(false);
+    const wheelDelta = ref(0);
+    const wheelTimestamp = ref(0);
     let controlStepTimer;
     const AInputNumberRenderNode = defineComponent({
       name: "AInputNumberRenderNode",
@@ -97,6 +103,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
     const normalizeDefaultInputText = (value) => parseDecimalSeparator(value).replace(/[^\w.-]+/g, "");
     const plainDecimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
+    const getWheelDeltaY = (event) => {
+      if (event.deltaMode === 1) {
+        return event.deltaY * wheelLineHeight;
+      }
+      if (event.deltaMode === 2) {
+        return event.deltaY * wheelPageHeight;
+      }
+      return event.deltaY;
+    };
     const isPlainDecimalString = (value) => plainDecimalPattern.test(value.trim());
     const stripLeadingZeros = (value) => value.replace(/^0+(?=\d)/, "") || "0";
     const stripTrailingZeros = (value) => value.replace(/0+$/, "");
@@ -470,17 +485,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleBlur = () => {
       commitPendingInput();
+      wheelDelta.value = 0;
+      wheelTimestamp.value = 0;
     };
     const handleWheel = (event) => {
-      if (!props.changeOnWheel || event.deltaY === 0) {
+      if (!props.changeOnWheel) {
+        return;
+      }
+      const nextWheelDelta = getWheelDeltaY(event);
+      if (!nextWheelDelta) {
         return;
       }
       event.preventDefault();
+      const eventTimestamp = event.timeStamp || Date.now();
+      if (eventTimestamp - wheelTimestamp.value > wheelDeltaResetInterval) {
+        wheelDelta.value = 0;
+      }
+      wheelTimestamp.value = eventTimestamp;
+      if (wheelDelta.value && Math.sign(wheelDelta.value) !== Math.sign(nextWheelDelta)) {
+        wheelDelta.value = 0;
+      }
+      wheelDelta.value += nextWheelDelta;
+      if (Math.abs(wheelDelta.value) < wheelStepDistance) {
+        return;
+      }
       handleStep(
-        event.deltaY < 0 ? resolvedStep.value : -resolvedStep.value,
-        event.deltaY < 0 ? "up" : "down",
+        wheelDelta.value < 0 ? resolvedStep.value : -resolvedStep.value,
+        wheelDelta.value < 0 ? "up" : "down",
         "wheel"
       );
+      wheelDelta.value -= Math.sign(wheelDelta.value) * wheelStepDistance;
     };
     const setCursor = (cursor) => {
       if (!inputRef.value || !cursor) {
@@ -513,6 +547,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     onBeforeUnmount(() => {
       clearControlStepTimer();
+      wheelDelta.value = 0;
+      wheelTimestamp.value = 0;
     });
     __expose({
       focus,

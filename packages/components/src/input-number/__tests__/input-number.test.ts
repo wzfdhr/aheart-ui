@@ -491,8 +491,11 @@ describe('InputNumber', () => {
       props: { modelValue: 2, step: 2, changeOnWheel: true }
     })
 
+    await wrapper.find('input').trigger('wheel', { deltaY: -99 })
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+
     await wrapper.find('input').trigger('wheel', { deltaY: -1 })
-    await wrapper.find('input').trigger('wheel', { deltaY: 1 })
+    await wrapper.find('input').trigger('wheel', { deltaY: 100 })
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([4])
     expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0])
@@ -511,7 +514,7 @@ describe('InputNumber', () => {
     })
 
     await wrapper.find('input').trigger('keydown', { key: 'ArrowUp' })
-    await wrapper.find('input').trigger('wheel', { deltaY: 1 })
+    await wrapper.find('input').trigger('wheel', { deltaY: 100 })
 
     expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keyboard' }])
     expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'wheel' }])

@@ -99,8 +99,14 @@ const pendingInputText = ref<string | undefined>(undefined)
 const pendingInputValue = ref<InputNumberValue | undefined>(undefined)
 const hasPendingInputValue = ref(false)
 const skipNextControlStepClick = ref(false)
+const wheelDelta = ref(0)
+const wheelTimestamp = ref(0)
 const controlStepDelay = 600
 const controlStepInterval = 200
+const wheelStepDistance = 100
+const wheelLineHeight = 40
+const wheelPageHeight = 800
+const wheelDeltaResetInterval = 200
 let controlStepTimer: ReturnType<typeof setTimeout> | undefined
 
 const AInputNumberRenderNode = defineComponent({
@@ -162,6 +168,18 @@ const parseDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator as string).join('.') : value
 const normalizeDefaultInputText = (value: string) => parseDecimalSeparator(value).replace(/[^\w.-]+/g, '')
 const plainDecimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/
+
+const getWheelDeltaY = (event: WheelEvent) => {
+  if (event.deltaMode === 1) {
+    return event.deltaY * wheelLineHeight
+  }
+
+  if (event.deltaMode === 2) {
+    return event.deltaY * wheelPageHeight
+  }
+
+  return event.deltaY
+}
 
 const isPlainDecimalString = (value: string) => plainDecimalPattern.test(value.trim())
 const stripLeadingZeros = (value: string) => value.replace(/^0+(?=\d)/, '') || '0'
@@ -647,19 +665,47 @@ const handleKeydown = (event: KeyboardEvent) => {
 
 const handleBlur = () => {
   commitPendingInput()
+  wheelDelta.value = 0
+  wheelTimestamp.value = 0
 }
 
 const handleWheel = (event: WheelEvent) => {
-  if (!props.changeOnWheel || event.deltaY === 0) {
+  if (!props.changeOnWheel) {
+    return
+  }
+
+  const nextWheelDelta = getWheelDeltaY(event)
+
+  if (!nextWheelDelta) {
     return
   }
 
   event.preventDefault()
+
+  const eventTimestamp = event.timeStamp || Date.now()
+
+  if (eventTimestamp - wheelTimestamp.value > wheelDeltaResetInterval) {
+    wheelDelta.value = 0
+  }
+
+  wheelTimestamp.value = eventTimestamp
+
+  if (wheelDelta.value && Math.sign(wheelDelta.value) !== Math.sign(nextWheelDelta)) {
+    wheelDelta.value = 0
+  }
+
+  wheelDelta.value += nextWheelDelta
+
+  if (Math.abs(wheelDelta.value) < wheelStepDistance) {
+    return
+  }
+
   handleStep(
-    event.deltaY < 0 ? resolvedStep.value : -resolvedStep.value,
-    event.deltaY < 0 ? 'up' : 'down',
+    wheelDelta.value < 0 ? resolvedStep.value : -resolvedStep.value,
+    wheelDelta.value < 0 ? 'up' : 'down',
     'wheel'
   )
+  wheelDelta.value -= Math.sign(wheelDelta.value) * wheelStepDistance
 }
 
 const setCursor = (cursor: InputNumberFocusOptions['cursor']) => {
@@ -699,6 +745,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   clearControlStepTimer()
+  wheelDelta.value = 0
+  wheelTimestamp.value = 0
 })
 
 defineExpose({

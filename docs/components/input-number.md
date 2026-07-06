@@ -196,7 +196,7 @@ import { h } from 'vue'
 </template>
 ```
 
-长按上下控制按钮会连续步进。键盘方向键步进支持 `ArrowUp`/`ArrowDown` 和 `Up`/`Down` key 值；按住 <kbd>Shift</kbd> 会使用 10 倍步长。
+滚轮会累计移动距离，达到步进阈值后触发一次变化。长按上下控制按钮会连续步进。键盘方向键步进支持 `ArrowUp`/`ArrowDown` 和 `Up`/`Down` key 值；按住 <kbd>Shift</kbd> 会使用 10 倍步长。
 
 ## 语义化样式
 
