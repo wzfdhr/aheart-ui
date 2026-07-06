@@ -30,22 +30,6 @@ importers:
         specifier: ^3.5.38
         version: 3.5.38(typescript@5.3.3)
 
-  examples:
-    dependencies:
-      aheart-ui:
-        specifier: workspace:^
-        version: link:../packages/components
-      vue:
-        specifier: ^3.5.38
-        version: 3.5.38(typescript@5.3.3)
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.3
-        version: 5.0.3(vite@5.0.12)(vue@3.5.38(typescript@5.3.3))
-      vite:
-        specifier: ^5.0.12
-        version: 5.0.12
-
   packages/components:
     dependencies:
       '@aheart-ui/utils':

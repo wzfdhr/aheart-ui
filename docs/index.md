@@ -33,6 +33,7 @@ const plannedCount = components.filter((component) => component.status === 'Plan
         <AButton>默认按钮</AButton>
         <AButton type="primary">主要按钮</AButton>
         <AButton type="success">成功按钮</AButton>
+        <AButton type="warning">警告按钮</AButton>
         <AButton type="danger" loading>加载中</AButton>
       </div>
     </div>

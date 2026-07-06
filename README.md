@@ -1,8 +1,8 @@
 # aheart-ui
 
-`aheart-ui` 是一个基于 Vue 3 + TypeScript + Vite 的组件库练习项目，采用 pnpm workspace 管理示例工程、组件包和工具包。
+`aheart-ui` 是一个基于 Vue 3 + TypeScript + Vite 的组件库练习项目，采用 pnpm workspace 管理文档演示站、组件包和工具包。
 
-当前项目已经搭好组件库的基础目录、Vite 打包配置和本地示例应用；现有可用组件为 `Button`。
+当前项目已经搭好组件库的基础目录、Vite 打包配置和 VitePress 文档演示站。组件演示统一放在 `docs` 中，不再保留单独的 `examples` playground。
 
 ## 技术栈
 
@@ -16,10 +16,10 @@
 
 ```text
 aheart-ui/
-├─ examples/                  # 本地演示应用
-│  ├─ app.vue                  # 示例页面，演示 Button 组件
-│  ├─ main.ts                  # Vue 应用入口
-│  └─ vite.config.ts           # 示例应用 Vite 配置
+├─ docs/                      # VitePress 文档与组件演示站
+│  ├─ components/             # 组件文档与交互示例
+│  ├─ guide/                  # 使用指南
+│  └─ .vitepress/             # 文档站配置与主题
 ├─ packages/
 │  ├─ components/              # 组件库主包，包名为 aheart-ui
 │  │  ├─ src/
@@ -68,10 +68,16 @@ pnpm install
 
 ## 本地开发
 
-启动示例应用：
+启动文档演示站：
 
 ```bash
-pnpm --filter ./examples dev
+pnpm dev
+```
+
+如果本机 pnpm 版本或 Corepack 状态异常，也可以直接执行：
+
+```bash
+npm run dev
 ```
 
 启动后访问终端输出的本地地址，通常是：
@@ -80,18 +86,12 @@ pnpm --filter ./examples dev
 http://localhost:5173/
 ```
 
-示例应用当前在 `examples/app.vue` 中直接引入组件库：
+文档演示站会通过 VitePress 主题全量注册组件库，组件页面和首页预览都可以直接使用 Aheart UI 组件：
 
 ```vue
 <template>
-  <div>
-    <Button />
-  </div>
+  <AButton type="primary">主要按钮</AButton>
 </template>
-
-<script lang="ts" setup>
-import { Button } from 'aheart-ui'
-</script>
 ```
 
 ## 构建组件库
@@ -99,7 +99,7 @@ import { Button } from 'aheart-ui'
 构建 `packages/components`：
 
 ```bash
-pnpm --filter ./packages/components build:prod
+pnpm build
 ```
 
 构建后会生成：
@@ -190,7 +190,7 @@ export const ButtonSize = ['large', 'normal', 'small', 'mini']
 1. 在 `packages/components/src/input` 下创建组件源码。
 2. 在组件目录中提供 `index.ts`，复用 `Button` 当前的 `withInstall` 模式，为组件挂载 `install` 方法。
 3. 在 `packages/components/src/index.ts` 中导出新组件。
-4. 在 `examples/app.vue` 中引入并验证组件渲染。
+4. 在 `docs/components` 中补充组件文档和演示，并通过 `pnpm dev` 验证渲染。
 5. 运行组件库构建命令，确认 `es`、`lib` 和类型声明正常生成。
 
 推荐目录形式：
@@ -207,16 +207,13 @@ packages/components/src/input/
 发布组件包前建议检查：
 
 - `packages/components/package.json` 的 `name`、`version`、`main`、`module`、`files` 是否符合发布目标。
-- `pnpm --filter ./packages/components build:prod` 是否可以成功执行。
+- `pnpm build` 是否可以成功执行。
 - `packages/components/es` 和 `packages/components/lib` 是否包含最新构建产物。
-- 示例应用是否可以正常引入构建前源码或 workspace 包。
+- 文档演示站是否可以正常引入 workspace 包。
 
 ## 当前注意事项
 
-- 根目录 `package.json` 和 `packages/components/package.json` 当前都使用了 `aheart-ui` 作为包名。开发命令推荐使用路径过滤器，例如 `pnpm --filter ./packages/components build:prod`，避免包名过滤产生歧义。
-- 根目录暂未配置统一的 `dev`、`build`、`test` 脚本。
-- 项目暂未接入测试框架，`test` 脚本仍是占位命令。
-- `Button` 的 props 类型已初步定义，但组件实现还没有使用这些 props。
+- 根目录 `dev` 启动 `docs` 文档演示站，组件级测试和构建仍由 `packages/components` 负责。
 - `packages/components/index.ts` 当前是用于测试 `@aheart-ui/utils` 的入口文件，组件库实际导出入口在 `packages/components/src/index.ts`。
 
 ## License

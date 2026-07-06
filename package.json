@@ -5,13 +5,13 @@
   "description": "Vue 3 component library workspace for aheart-ui.",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "pnpm --filter ./examples dev",
+    "dev": "vitepress dev docs",
     "build": "pnpm --filter ./packages/components build",
     "build:components": "pnpm --filter ./packages/components build",
     "typecheck": "pnpm --filter ./packages/components typecheck",
     "test": "pnpm --filter ./packages/components test",
-    "docs:dev": "pnpm --filter ./docs dev",
-    "docs:build": "pnpm --filter ./docs build"
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs"
   },
   "keywords": [
     "aheart-ui",
