@@ -466,7 +466,19 @@ const rootMouseEventAttrs = new Set([
   'onMouseout',
   'onMouseOut'
 ])
+const rootMouseDownEventAttrs = new Set(['onMousedown', 'onMouseDown'])
 const isRootMouseEventAttr = (key: string) => rootMouseEventAttrs.has(key)
+const isRootMouseDownEventAttr = (key: string) => rootMouseDownEventAttrs.has(key)
+const callMouseEventHandler = (handler: unknown, event: MouseEvent) => {
+  if (Array.isArray(handler)) {
+    handler.forEach((item) => callMouseEventHandler(item, event))
+    return
+  }
+
+  if (typeof handler === 'function') {
+    ;(handler as (event: MouseEvent) => void)(event)
+  }
+}
 const rootAttrs = computed(() => {
   const result: Record<string, unknown> = {}
 
@@ -479,7 +491,7 @@ const rootAttrs = computed(() => {
   }
 
   Object.entries(attrs).forEach(([key, value]) => {
-    if (isRootMouseEventAttr(key)) {
+    if (isRootMouseEventAttr(key) && !isRootMouseDownEventAttr(key)) {
       result[key] = value
     }
   })
@@ -505,7 +517,12 @@ const inputAttrs = computed(() =>
 const handleRootMouseDown = (event: MouseEvent) => {
   if (inputRef.value && event.target !== inputRef.value) {
     inputRef.value.focus()
+    event.preventDefault()
   }
+
+  rootMouseDownEventAttrs.forEach((key) => {
+    callMouseEventHandler(attrs[key], event)
+  })
 }
 
 const applyPrecision = (value: number) => {

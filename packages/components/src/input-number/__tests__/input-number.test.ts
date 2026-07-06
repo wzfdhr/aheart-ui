@@ -96,6 +96,21 @@ describe('InputNumber', () => {
     host.remove()
   })
 
+  it('prevents default before root mousedown listeners run', async () => {
+    const defaultPreventedStates: boolean[] = []
+    const wrapper = mount(InputNumber, {
+      attrs: {
+        onMousedown: (event: MouseEvent) => {
+          defaultPreventedStates.push(event.defaultPrevented)
+        }
+      }
+    })
+
+    await wrapper.trigger('mousedown')
+
+    expect(defaultPreventedStates).toEqual([true])
+  })
+
   it('uses defaultValue as uncontrolled initial value', async () => {
     const wrapper = mount(InputNumber, {
       props: { defaultValue: 4, step: 2 }

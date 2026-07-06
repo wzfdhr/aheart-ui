@@ -324,7 +324,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       "onMouseout",
       "onMouseOut"
     ]);
+    const rootMouseDownEventAttrs = /* @__PURE__ */ new Set(["onMousedown", "onMouseDown"]);
     const isRootMouseEventAttr = (key) => rootMouseEventAttrs.has(key);
+    const isRootMouseDownEventAttr = (key) => rootMouseDownEventAttrs.has(key);
+    const callMouseEventHandler = (handler, event) => {
+      if (Array.isArray(handler)) {
+        handler.forEach((item) => callMouseEventHandler(item, event));
+        return;
+      }
+      if (typeof handler === "function") {
+        handler(event);
+      }
+    };
     const rootAttrs = computed(() => {
       const result = {};
       if (attrs.class !== void 0) {
@@ -334,7 +345,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         result.style = attrs.style;
       }
       Object.entries(attrs).forEach(([key, value]) => {
-        if (isRootMouseEventAttr(key)) {
+        if (isRootMouseEventAttr(key) && !isRootMouseDownEventAttr(key)) {
           result[key] = value;
         }
       });
@@ -357,7 +368,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const handleRootMouseDown = (event) => {
       if (inputRef.value && event.target !== inputRef.value) {
         inputRef.value.focus();
+        event.preventDefault();
       }
+      rootMouseDownEventAttrs.forEach((key) => {
+        callMouseEventHandler(attrs[key], event);
+      });
     };
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
