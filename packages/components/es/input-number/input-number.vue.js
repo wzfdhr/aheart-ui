@@ -86,10 +86,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? (props.mode === "spinner" ? "-" : "↓");
     });
     const isValueAtOrAboveMax = computed(
-      () => props.max !== void 0 && mergedValue.value !== void 0 && compareDecimalStrings(String(mergedValue.value), String(props.max)) >= 0
+      () => props.max !== void 0 && mergedValue.value !== void 0 && mergedValue.value !== "" && isValidValueString(String(mergedValue.value)) && compareDecimalStrings(String(mergedValue.value), String(props.max)) >= 0
     );
     const isValueAtOrBelowMin = computed(
-      () => props.min !== void 0 && mergedValue.value !== void 0 && compareDecimalStrings(String(mergedValue.value), String(props.min)) <= 0
+      () => props.min !== void 0 && mergedValue.value !== void 0 && mergedValue.value !== "" && isValidValueString(String(mergedValue.value)) && compareDecimalStrings(String(mergedValue.value), String(props.min)) <= 0
     );
     const isIncreaseDisabled = computed(() => isInteractiveDisabled.value || isValueAtOrAboveMax.value);
     const isDecreaseDisabled = computed(() => isInteractiveDisabled.value || isValueAtOrBelowMin.value);

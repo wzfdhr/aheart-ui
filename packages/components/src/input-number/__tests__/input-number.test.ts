@@ -93,6 +93,23 @@ describe('InputNumber', () => {
     expect(invalid.classes()).not.toContain('is-out-of-range')
   })
 
+  it('does not disable boundary controls for invalid current values', () => {
+    const invalid = mount(InputNumber, {
+      props: { modelValue: 'abc', min: 1, max: 10 }
+    })
+    const atMax = mount(InputNumber, {
+      props: { modelValue: 10, min: 1, max: 10 }
+    })
+    const atMin = mount(InputNumber, {
+      props: { modelValue: 1, min: 1, max: 10 }
+    })
+
+    expect(invalid.find('.aheart-input-number__increase').attributes()).not.toHaveProperty('disabled')
+    expect(invalid.find('.aheart-input-number__decrease').attributes()).not.toHaveProperty('disabled')
+    expect(atMax.find('.aheart-input-number__increase').attributes()).toHaveProperty('disabled')
+    expect(atMin.find('.aheart-input-number__decrease').attributes()).toHaveProperty('disabled')
+  })
+
   it('defaults autocomplete off while preserving explicit native overrides', () => {
     const wrapper = mount(InputNumber)
     const explicit = mount(InputNumber, {

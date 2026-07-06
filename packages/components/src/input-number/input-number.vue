@@ -167,12 +167,16 @@ const isValueAtOrAboveMax = computed(
   () =>
     props.max !== undefined &&
     mergedValue.value !== undefined &&
+    mergedValue.value !== '' &&
+    isValidValueString(String(mergedValue.value)) &&
     compareDecimalStrings(String(mergedValue.value), String(props.max)) >= 0
 )
 const isValueAtOrBelowMin = computed(
   () =>
     props.min !== undefined &&
     mergedValue.value !== undefined &&
+    mergedValue.value !== '' &&
+    isValidValueString(String(mergedValue.value)) &&
     compareDecimalStrings(String(mergedValue.value), String(props.min)) <= 0
 )
 const isIncreaseDisabled = computed(() => isInteractiveDisabled.value || isValueAtOrAboveMax.value)
