@@ -160,6 +160,7 @@ const formatDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.replace('.', props.decimalSeparator as string) : value
 const parseDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator as string).join('.') : value
+const normalizeDefaultInputText = (value: string) => parseDecimalSeparator(value).replace(/[^\w.-]+/g, '')
 const plainDecimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/
 
 const isPlainDecimalString = (value: string) => plainDecimalPattern.test(value.trim())
@@ -468,8 +469,8 @@ const parseInputValue = (rawValue: string): { valid: boolean; value?: InputNumbe
   const parsedValue = props.parser
     ? props.parser(rawValue)
     : props.stringMode
-      ? parseDecimalSeparator(rawValue)
-      : Number(parseDecimalSeparator(rawValue))
+      ? normalizeDefaultInputText(rawValue)
+      : Number(normalizeDefaultInputText(rawValue))
 
   if (parsedValue === undefined) {
     return { valid: false }

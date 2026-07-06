@@ -102,6 +102,8 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 </template>
 ```
 
+未提供 `parser` 时，默认解析会移除货币符号、千分位分隔符等格式字符。
+
 ## 小数分隔符
 
 <div class="aheart-demo-panel">

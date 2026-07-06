@@ -305,6 +305,17 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([3.75])
   })
 
+  it('strips formatted characters with the default parser', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { changeOnBlur: false }
+    })
+
+    await wrapper.find('input').setValue('$ 1,234.50')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([1234.5])
+    expect(wrapper.emitted('change')?.[0]).toEqual([1234.5])
+  })
+
   it('supports keyboard suppression and step events', async () => {
     const wrapper = mount(InputNumber, {
       props: { modelValue: 2, keyboard: false }

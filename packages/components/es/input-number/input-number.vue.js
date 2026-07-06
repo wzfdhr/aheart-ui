@@ -95,6 +95,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const shouldUseDecimalSeparator = computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== "."));
     const formatDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.replace(".", props.decimalSeparator) : value;
     const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
+    const normalizeDefaultInputText = (value) => parseDecimalSeparator(value).replace(/[^\w.-]+/g, "");
     const plainDecimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
     const isPlainDecimalString = (value) => plainDecimalPattern.test(value.trim());
     const stripLeadingZeros = (value) => value.replace(/^0+(?=\d)/, "") || "0";
@@ -336,7 +337,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (rawValue === "") {
         return { valid: true, value: void 0 };
       }
-      const parsedValue = props.parser ? props.parser(rawValue) : props.stringMode ? parseDecimalSeparator(rawValue) : Number(parseDecimalSeparator(rawValue));
+      const parsedValue = props.parser ? props.parser(rawValue) : props.stringMode ? normalizeDefaultInputText(rawValue) : Number(normalizeDefaultInputText(rawValue));
       if (parsedValue === void 0) {
         return { valid: false };
       }
