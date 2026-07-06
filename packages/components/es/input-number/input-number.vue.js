@@ -102,7 +102,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const shouldUseDecimalSeparator = computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== "."));
     const formatDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.replace(".", props.decimalSeparator) : value;
     const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
-    const normalizeDefaultInputText = (value) => parseDecimalSeparator(value).replace(/[^\w.-]+/g, "");
+    const normalizeChineseDecimalPoint = (value) => value.replace(/。/g, ".");
+    const normalizeDefaultInputText = (value) => normalizeChineseDecimalPoint(parseDecimalSeparator(value)).replace(/[^\w.-]+/g, "");
     const plainDecimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/;
     const getWheelDeltaY = (event) => {
       if (event.deltaMode === 1) {

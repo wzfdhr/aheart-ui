@@ -169,7 +169,9 @@ const formatDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.replace('.', props.decimalSeparator as string) : value
 const parseDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator as string).join('.') : value
-const normalizeDefaultInputText = (value: string) => parseDecimalSeparator(value).replace(/[^\w.-]+/g, '')
+const normalizeChineseDecimalPoint = (value: string) => value.replace(/。/g, '.')
+const normalizeDefaultInputText = (value: string) =>
+  normalizeChineseDecimalPoint(parseDecimalSeparator(value)).replace(/[^\w.-]+/g, '')
 const plainDecimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/
 
 const getWheelDeltaY = (event: WheelEvent) => {
