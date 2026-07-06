@@ -260,6 +260,54 @@ describe('Form', () => {
     })
   })
 
+  it('renders no-style FormItem as default slot content only', () => {
+    const wrapper = mount(FormItem, {
+      props: {
+        label: 'Token',
+        help: 'Hidden help',
+        extra: 'Hidden extra',
+        noStyle: true
+      },
+      slots: { default: '<input class="token-input" />' }
+    })
+
+    expect(wrapper.find('.token-input').exists()).toBe(true)
+    expect(wrapper.find('.aheart-form-item').exists()).toBe(false)
+    expect(wrapper.find('.aheart-form-item__label').exists()).toBe(false)
+    expect(wrapper.find('.aheart-form-item__help').exists()).toBe(false)
+    expect(wrapper.find('.aheart-form-item__extra').exists()).toBe(false)
+  })
+
+  it('validates no-style named FormItems on submit', async () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { token: '' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(
+                FormItem,
+                { name: 'token', noStyle: true, rules: [{ required: true, message: 'Token required' }] },
+                () => h(Input, { modelValue: '' })
+              ),
+              h('button', { type: 'submit' }, 'Submit')
+            ])
+          }
+        }
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(wrapper.find('.aheart-form-item').exists()).toBe(false)
+    expect(wrapper.emitted('finishFailed')?.[0][0]).toEqual({
+      values: { token: '' },
+      errorFields: [{ name: 'token', errors: ['Token required'] }]
+    })
+  })
+
   it('provides size and disabled state to nested controls', () => {
     const wrapper = mount(Form, {
       props: { size: 'large', disabled: true },

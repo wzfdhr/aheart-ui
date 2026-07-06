@@ -1,5 +1,6 @@
 <template>
-  <div v-show="!hidden" class="aheart-form-item" :class="formItemClass" :data-name="name">
+  <slot v-if="noStyle" />
+  <div v-else v-show="!hidden" class="aheart-form-item" :class="formItemClass" :data-name="name">
     <label
       v-if="$slots.label || (label !== undefined && label !== null)"
       class="aheart-form-item__label"

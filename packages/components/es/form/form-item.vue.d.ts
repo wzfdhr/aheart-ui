@@ -10,6 +10,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly labelAlign: PropType<import("./types").FormLabelAlign>;
     readonly layout: PropType<import("./types").FormItemLayout>;
     readonly hidden: BooleanConstructor;
+    readonly noStyle: BooleanConstructor;
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -37,6 +38,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly labelAlign: PropType<import("./types").FormLabelAlign>;
     readonly layout: PropType<import("./types").FormItemLayout>;
     readonly hidden: BooleanConstructor;
+    readonly noStyle: BooleanConstructor;
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -60,10 +62,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly extra: VNodeChild;
     readonly colon: boolean;
     readonly required: boolean;
+    readonly noStyle: boolean;
     readonly hasFeedback: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
-    label?(_: {}): any;
     default?(_: {}): any;
+    label?(_: {}): any;
     help?(_: {}): any;
     extra?(_: {}): any;
 }>;

@@ -142,7 +142,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return effectiveValidateStatus.value ? iconMap[effectiveValidateStatus.value] : "";
     });
     return (_ctx, _cache) => {
-      return vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
+      return _ctx.noStyle ? vue.renderSlot(_ctx.$slots, "default", { key: 0 }) : vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
+        key: 1,
         class: vue.normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [

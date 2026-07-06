@@ -1,4 +1,4 @@
-import { defineComponent, inject, computed, watch, onBeforeUnmount, withDirectives, openBlock, createElementBlock, normalizeClass, createCommentVNode, renderSlot, createVNode, unref, normalizeProps, guardReactiveProps, withCtx, createElementVNode, toDisplayString, vShow, isVNode } from "vue";
+import { defineComponent, inject, computed, watch, onBeforeUnmount, renderSlot, withDirectives, openBlock, createElementBlock, normalizeClass, createCommentVNode, createVNode, unref, normalizeProps, guardReactiveProps, withCtx, createElementVNode, toDisplayString, vShow, isVNode } from "vue";
 import _sfc_main$1 from "../tooltip/tooltip.vue.js";
 import { formItemProps, formContextKey } from "./types.js";
 import "./style.css.js";
@@ -140,7 +140,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return effectiveValidateStatus.value ? iconMap[effectiveValidateStatus.value] : "";
     });
     return (_ctx, _cache) => {
-      return withDirectives((openBlock(), createElementBlock("div", {
+      return _ctx.noStyle ? renderSlot(_ctx.$slots, "default", { key: 0 }) : withDirectives((openBlock(), createElementBlock("div", {
+        key: 1,
         class: normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [

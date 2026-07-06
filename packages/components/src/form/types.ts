@@ -121,6 +121,7 @@ export const formItemProps = {
   labelAlign: String as PropType<FormLabelAlign>,
   layout: String as PropType<FormItemLayout>,
   hidden: Boolean,
+  noStyle: Boolean,
   required: Boolean,
   rules: Array as PropType<FormRule[]>,
   validateStatus: String as PropType<FormValidateStatus>,

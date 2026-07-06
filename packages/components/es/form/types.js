@@ -59,6 +59,7 @@ const formItemProps = {
   labelAlign: String,
   layout: String,
   hidden: Boolean,
+  noStyle: Boolean,
   required: Boolean,
   rules: Array,
   validateStatus: String,
