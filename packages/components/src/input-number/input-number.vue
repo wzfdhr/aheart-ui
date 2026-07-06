@@ -441,6 +441,7 @@ const inputNumberClass = computed(() => [
   resolvedClassNames.value.root,
   {
     [`aheart-input-number--${props.status}`]: props.status,
+    'is-focused': isFocused.value,
     'is-disabled': isDisabled.value,
     'is-readonly': props.readOnly
   }

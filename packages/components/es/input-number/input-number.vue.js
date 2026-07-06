@@ -294,6 +294,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       resolvedClassNames.value.root,
       {
         [`aheart-input-number--${props.status}`]: props.status,
+        "is-focused": isFocused.value,
         "is-disabled": isDisabled.value,
         "is-readonly": props.readOnly
       }

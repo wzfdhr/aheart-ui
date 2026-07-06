@@ -158,6 +158,19 @@ describe('InputNumber', () => {
     expect(defaultPreventedStates).toEqual([true])
   })
 
+  it('exposes a focused root state class while the inner input is focused', async () => {
+    const wrapper = mount(InputNumber)
+    const input = wrapper.find('input')
+
+    expect(wrapper.classes()).not.toContain('is-focused')
+
+    await input.trigger('focus')
+    expect(wrapper.classes()).toContain('is-focused')
+
+    await input.trigger('blur')
+    expect(wrapper.classes()).not.toContain('is-focused')
+  })
+
   it('uses defaultValue as uncontrolled initial value', async () => {
     const wrapper = mount(InputNumber, {
       props: { defaultValue: 4, step: 2 }
