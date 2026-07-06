@@ -422,6 +422,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return result;
     };
+    const getSteppedValue = (baseValue, stepValue, type) => addDecimalStrings(String(baseValue ?? 0), type === "up" ? String(stepValue) : negateDecimalString(String(stepValue)));
     const isKeyboardStepUp = (key) => key === "ArrowUp" || key === "Up";
     const isKeyboardStepDown = (key) => key === "ArrowDown" || key === "Down";
     const handleStep = (offset, type, emitter, stepValue = props.step) => {
@@ -429,12 +430,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       }
       const baseValue = hasPendingInputValue.value ? pendingInputValue.value : mergedValue.value;
-      const nextValue = props.stringMode ? clampValue(
-        addDecimalStrings(
-          String(baseValue ?? 0),
-          type === "up" ? String(stepValue) : negateDecimalString(String(stepValue))
-        )
-      ) : clampValue(Number(baseValue ?? 0) + offset);
+      const nextValue = clampValue(getSteppedValue(baseValue, stepValue, type));
       resetPendingInput();
       emitValue(nextValue);
       emit("step", nextValue, { offset, type, emitter });
@@ -498,7 +494,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       const keyboardStepMultiplier = event.shiftKey ? 10 : 1;
       const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier;
-      const keyboardStepValue = props.stringMode && event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step;
+      const keyboardStepValue = event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step;
       if (isKeyboardStepUp(event.key)) {
         event.preventDefault();
         handleStep(keyboardStepOffset, "up", "keyboard", keyboardStepValue);

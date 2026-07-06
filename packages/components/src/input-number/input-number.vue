@@ -587,6 +587,9 @@ const multiplyDecimalStringByTen = (value: string) => {
   return result
 }
 
+const getSteppedValue = (baseValue: InputNumberValue | undefined, stepValue: number | string, type: 'up' | 'down') =>
+  addDecimalStrings(String(baseValue ?? 0), type === 'up' ? String(stepValue) : negateDecimalString(String(stepValue)))
+
 const isKeyboardStepUp = (key: string) => key === 'ArrowUp' || key === 'Up'
 const isKeyboardStepDown = (key: string) => key === 'ArrowDown' || key === 'Down'
 
@@ -601,14 +604,7 @@ const handleStep = (
   }
 
   const baseValue = hasPendingInputValue.value ? pendingInputValue.value : mergedValue.value
-  const nextValue = props.stringMode
-    ? clampValue(
-        addDecimalStrings(
-          String(baseValue ?? 0),
-          type === 'up' ? String(stepValue) : negateDecimalString(String(stepValue))
-        )
-      )
-    : clampValue(Number(baseValue ?? 0) + offset)
+  const nextValue = clampValue(getSteppedValue(baseValue, stepValue, type))
   resetPendingInput()
   emitValue(nextValue)
   emit('step', nextValue, { offset, type, emitter })
@@ -686,7 +682,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   const keyboardStepMultiplier = event.shiftKey ? 10 : 1
   const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier
-  const keyboardStepValue = props.stringMode && event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step
+  const keyboardStepValue = event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step
 
   if (isKeyboardStepUp(event.key)) {
     event.preventDefault()

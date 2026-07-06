@@ -68,6 +68,8 @@ import { h } from 'vue'
 </template>
 ```
 
+小数步进会使用十进制计算，避免 `0.2 + 0.1` 这类常见浮点误差影响控件事件值。
+
 ## 变体与状态
 
 <div class="aheart-demo-panel">

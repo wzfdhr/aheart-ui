@@ -254,6 +254,17 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('step')?.[1]).toEqual([0.5, { offset: -0.5, type: 'down', emitter: 'handler' }])
   })
 
+  it('uses decimal arithmetic for numeric step values', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 0.2, step: 0.1 }
+    })
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([0.3])
+    expect(wrapper.emitted('step')?.[0]).toEqual([0.3, { offset: 0.1, type: 'up', emitter: 'handler' }])
+  })
+
   it('uses ConfigProvider size and disabled fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { size: 'large', disabled: true },
