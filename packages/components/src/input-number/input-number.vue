@@ -28,6 +28,7 @@
       @keydown="handleKeydown"
       @compositionstart="handleCompositionStart"
       @compositionend="handleCompositionEnd"
+      @focus="handleFocus"
       @blur="handleBlur"
       @wheel="handleWheel"
     />
@@ -102,6 +103,7 @@ const pendingInputValue = ref<InputNumberValue | undefined>(undefined)
 const hasPendingInputValue = ref(false)
 const skipNextControlStepClick = ref(false)
 const isComposing = ref(false)
+const isFocused = ref(false)
 const wheelDelta = ref(0)
 const wheelTimestamp = ref(0)
 const controlStepDelay = 600
@@ -697,14 +699,19 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
+const handleFocus = () => {
+  isFocused.value = true
+}
+
 const handleBlur = () => {
+  isFocused.value = false
   commitPendingInput()
   wheelDelta.value = 0
   wheelTimestamp.value = 0
 }
 
 const handleWheel = (event: WheelEvent) => {
-  if (!props.changeOnWheel) {
+  if (!props.changeOnWheel || !isFocused.value) {
     return
   }
 

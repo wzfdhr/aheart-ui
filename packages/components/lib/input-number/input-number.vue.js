@@ -43,6 +43,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasPendingInputValue = vue.ref(false);
     const skipNextControlStepClick = vue.ref(false);
     const isComposing = vue.ref(false);
+    const isFocused = vue.ref(false);
     const wheelDelta = vue.ref(0);
     const wheelTimestamp = vue.ref(0);
     let controlStepTimer;
@@ -509,13 +510,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         handleStep(-keyboardStepOffset, "down", "keyboard", keyboardStepValue);
       }
     };
+    const handleFocus = () => {
+      isFocused.value = true;
+    };
     const handleBlur = () => {
+      isFocused.value = false;
       commitPendingInput();
       wheelDelta.value = 0;
       wheelTimestamp.value = 0;
     };
     const handleWheel = (event) => {
-      if (!props.changeOnWheel) {
+      if (!props.changeOnWheel || !isFocused.value) {
         return;
       }
       const nextWheelDelta = getWheelDeltaY(event);
@@ -619,6 +624,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onKeydown: handleKeydown,
           onCompositionstart: handleCompositionStart,
           onCompositionend: handleCompositionEnd,
+          onFocus: handleFocus,
           onBlur: handleBlur,
           onWheel: handleWheel
         }), null, 16, _hoisted_2),
