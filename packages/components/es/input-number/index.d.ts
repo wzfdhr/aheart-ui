@@ -6,6 +6,14 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
         readonly autoFocus: BooleanConstructor;
         readonly placeholder: StringConstructor;
+        readonly addonBefore: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly addonAfter: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
             default: undefined;
@@ -87,6 +95,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly keyboard: boolean;
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
+        readonly addonBefore: import("vue").VNodeChild;
+        readonly addonAfter: import("vue").VNodeChild;
         readonly readOnly: boolean;
         readonly autoFocus: boolean;
         readonly stringMode: boolean;
@@ -107,6 +117,14 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
         readonly autoFocus: BooleanConstructor;
         readonly placeholder: StringConstructor;
+        readonly addonBefore: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly addonAfter: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
             default: undefined;
@@ -182,6 +200,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly keyboard: boolean;
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
+        readonly addonBefore: import("vue").VNodeChild;
+        readonly addonAfter: import("vue").VNodeChild;
         readonly readOnly: boolean;
         readonly autoFocus: boolean;
         readonly stringMode: boolean;
@@ -199,6 +219,14 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
     readonly autoFocus: BooleanConstructor;
     readonly placeholder: StringConstructor;
+    readonly addonBefore: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
+    readonly addonAfter: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
     readonly prefix: {
         type: import("vue").PropType<import("vue").VNodeChild>;
         default: undefined;
@@ -280,6 +308,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly keyboard: boolean;
     readonly prefix: import("vue").VNodeChild;
     readonly suffix: import("vue").VNodeChild;
+    readonly addonBefore: import("vue").VNodeChild;
+    readonly addonAfter: import("vue").VNodeChild;
     readonly readOnly: boolean;
     readonly autoFocus: boolean;
     readonly stringMode: boolean;

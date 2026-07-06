@@ -1,5 +1,8 @@
 <template>
   <span ref="rootRef" class="aheart-input-number" :class="inputNumberClass" :style="rootStyle" v-bind="rootAttrs">
+    <span v-if="hasAddonBefore" class="aheart-input-number__addon aheart-input-number__addon-before">
+      <AInputNumberRenderNode :node="addonBefore" />
+    </span>
     <span v-if="hasPrefix" :class="prefixClass" :style="prefixStyle">
       <slot name="prefix">
         <AInputNumberRenderNode :node="prefix" />
@@ -58,6 +61,9 @@
           <AInputNumberRenderNode :node="decreaseIcon" />
         </slot>
       </button>
+    </span>
+    <span v-if="hasAddonAfter" class="aheart-input-number__addon aheart-input-number__addon-after">
+      <AInputNumberRenderNode :node="addonAfter" />
     </span>
   </span>
 </template>
@@ -130,6 +136,8 @@ const resolvedStep = computed(() => {
 })
 const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix))
 const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix))
+const hasAddonBefore = computed(() => hasRenderable(props.addonBefore))
+const hasAddonAfter = computed(() => hasRenderable(props.addonAfter))
 const semanticInfo = computed<InputNumberSemanticInfo>(() => ({ props }))
 const resolvedClassNames = computed<InputNumberSemanticRecord<string>>(() =>
   typeof props.classNames === 'function' ? props.classNames(semanticInfo.value) : props.classNames ?? {}

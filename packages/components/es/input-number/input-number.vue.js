@@ -1,10 +1,18 @@
-import { defineComponent, useAttrs, useSlots, ref, computed, onMounted, openBlock, createElementBlock, mergeProps, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, onMounted, openBlock, createElementBlock, mergeProps, createVNode, unref, createCommentVNode, normalizeClass, normalizeStyle, renderSlot, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["id", "type", "inputmode", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
-const _hoisted_2 = ["disabled"];
+const _hoisted_1 = {
+  key: 0,
+  class: "aheart-input-number__addon aheart-input-number__addon-before"
+};
+const _hoisted_2 = ["id", "type", "inputmode", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
 const _hoisted_3 = ["disabled"];
+const _hoisted_4 = ["disabled"];
+const _hoisted_5 = {
+  key: 4,
+  class: "aheart-input-number__addon aheart-input-number__addon-after"
+};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AInputNumber",
@@ -71,6 +79,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
     const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
+    const hasAddonBefore = computed(() => hasRenderable(props.addonBefore));
+    const hasAddonAfter = computed(() => hasRenderable(props.addonAfter));
     const semanticInfo = computed(() => ({ props }));
     const resolvedClassNames = computed(
       () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
@@ -433,8 +443,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         class: ["aheart-input-number", inputNumberClass.value],
         style: rootStyle.value
       }, rootAttrs.value), [
+        hasAddonBefore.value ? (openBlock(), createElementBlock("span", _hoisted_1, [
+          createVNode(unref(AInputNumberRenderNode), { node: _ctx.addonBefore }, null, 8, ["node"])
+        ])) : createCommentVNode("", true),
         hasPrefix.value ? (openBlock(), createElementBlock("span", {
-          key: 0,
+          key: 1,
           class: normalizeClass(prefixClass.value),
           style: normalizeStyle(prefixStyle.value)
         }, [
@@ -461,9 +474,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onKeydown: handleKeydown,
           onBlur: handleBlur,
           onWheel: handleWheel
-        }), null, 16, _hoisted_1),
+        }), null, 16, _hoisted_2),
         hasSuffix.value ? (openBlock(), createElementBlock("span", {
-          key: 1,
+          key: 2,
           class: normalizeClass(suffixClass.value),
           style: normalizeStyle(suffixStyle.value)
         }, [
@@ -472,7 +485,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ])
         ], 6)) : createCommentVNode("", true),
         showControls.value ? (openBlock(), createElementBlock("span", {
-          key: 2,
+          key: 3,
           class: normalizeClass(actionsClass.value),
           style: normalizeStyle(actionsStyle.value)
         }, [
@@ -487,7 +500,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             renderSlot(_ctx.$slots, "increaseIcon", {}, () => [
               createVNode(unref(AInputNumberRenderNode), { node: increaseIcon.value }, null, 8, ["node"])
             ])
-          ], 14, _hoisted_2),
+          ], 14, _hoisted_3),
           createElementVNode("button", {
             class: normalizeClass(["aheart-input-number__decrease", actionClass.value]),
             style: normalizeStyle(actionStyle.value),
@@ -499,8 +512,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             renderSlot(_ctx.$slots, "decreaseIcon", {}, () => [
               createVNode(unref(AInputNumberRenderNode), { node: decreaseIcon.value }, null, 8, ["node"])
             ])
-          ], 14, _hoisted_3)
-        ], 6)) : createCommentVNode("", true)
+          ], 14, _hoisted_4)
+        ], 6)) : createCommentVNode("", true),
+        hasAddonAfter.value ? (openBlock(), createElementBlock("span", _hoisted_5, [
+          createVNode(unref(AInputNumberRenderNode), { node: _ctx.addonAfter }, null, 8, ["node"])
+        ])) : createCommentVNode("", true)
       ], 16);
     };
   }

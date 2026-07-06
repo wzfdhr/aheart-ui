@@ -11,6 +11,8 @@ const inputNumberProps = {
   defaultValue: [Number, String],
   autoFocus: Boolean,
   placeholder: String,
+  addonBefore: renderableProp,
+  addonAfter: renderableProp,
   prefix: renderableProp,
   suffix: renderableProp,
   size: String,

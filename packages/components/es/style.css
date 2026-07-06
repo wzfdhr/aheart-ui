@@ -3626,6 +3626,29 @@ kbd.aheart-typography-text {
   cursor: default;
 }
 
+.aheart-input-number__addon {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 0 var(--aheart-spacing-sm);
+  background: var(--aheart-color-fill);
+  color: var(--aheart-color-text-secondary);
+  white-space: nowrap;
+}
+
+.aheart-input-number__addon-before {
+  border-right: 1px solid var(--aheart-color-border);
+}
+
+.aheart-input-number__addon-after {
+  border-left: 1px solid var(--aheart-color-border);
+}
+
+.aheart-input-number.is-disabled .aheart-input-number__addon {
+  background: transparent;
+  cursor: not-allowed;
+}
+
 .aheart-input-number__prefix,
 .aheart-input-number__suffix {
   display: inline-flex;

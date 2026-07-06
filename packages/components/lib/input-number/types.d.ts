@@ -40,6 +40,14 @@ export declare const inputNumberProps: {
     readonly defaultValue: PropType<InputNumberValue>;
     readonly autoFocus: BooleanConstructor;
     readonly placeholder: StringConstructor;
+    readonly addonBefore: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly addonAfter: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly prefix: {
         type: PropType<VNodeChild>;
         default: undefined;

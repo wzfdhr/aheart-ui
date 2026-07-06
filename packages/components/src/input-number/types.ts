@@ -55,6 +55,8 @@ export const inputNumberProps = {
   defaultValue: [Number, String] as PropType<InputNumberValue>,
   autoFocus: Boolean,
   placeholder: String,
+  addonBefore: renderableProp,
+  addonAfter: renderableProp,
   prefix: renderableProp,
   suffix: renderableProp,
   size: String as PropType<AheartSize>,

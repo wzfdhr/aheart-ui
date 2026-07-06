@@ -358,6 +358,37 @@ describe('InputNumber', () => {
     expect(wrapper.find('.down-node').text()).toBe('minus')
   })
 
+  it('renders addon content before and after the input control', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 8,
+        addonBefore: h('span', { class: 'addon-before-node' }, '$'),
+        addonAfter: 'USD'
+      }
+    })
+    const before = wrapper.find('.aheart-input-number__addon-before')
+    const after = wrapper.find('.aheart-input-number__addon-after')
+    const input = wrapper.find('input')
+
+    expect(before.find('.addon-before-node').text()).toBe('$')
+    expect(after.text()).toBe('USD')
+    expect(before.element.compareDocumentPosition(input.element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(input.element.compareDocumentPosition(after.element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('renders numeric zero addon content', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 8,
+        addonBefore: 0,
+        addonAfter: 0
+      }
+    })
+
+    expect(wrapper.find('.aheart-input-number__addon-before').text()).toBe('0')
+    expect(wrapper.find('.aheart-input-number__addon-after').text()).toBe('0')
+  })
+
   it('lets slots override renderable prefix suffix and controls icons', () => {
     const wrapper = mount(InputNumber, {
       props: {

@@ -7,6 +7,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly defaultValue: PropType<InputNumberValue>;
     readonly autoFocus: BooleanConstructor;
     readonly placeholder: StringConstructor;
+    readonly addonBefore: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly addonAfter: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly prefix: {
         type: PropType<VNodeChild>;
         default: undefined;
@@ -80,6 +88,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly defaultValue: PropType<InputNumberValue>;
     readonly autoFocus: BooleanConstructor;
     readonly placeholder: StringConstructor;
+    readonly addonBefore: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly addonAfter: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly prefix: {
         type: PropType<VNodeChild>;
         default: undefined;
@@ -151,6 +167,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly keyboard: boolean;
     readonly prefix: VNodeChild;
     readonly suffix: VNodeChild;
+    readonly addonBefore: VNodeChild;
+    readonly addonAfter: VNodeChild;
     readonly readOnly: boolean;
     readonly autoFocus: boolean;
     readonly stringMode: boolean;

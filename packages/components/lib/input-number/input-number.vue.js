@@ -4,9 +4,17 @@ const vue = require("vue");
 const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["id", "type", "inputmode", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
-const _hoisted_2 = ["disabled"];
+const _hoisted_1 = {
+  key: 0,
+  class: "aheart-input-number__addon aheart-input-number__addon-before"
+};
+const _hoisted_2 = ["id", "type", "inputmode", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
 const _hoisted_3 = ["disabled"];
+const _hoisted_4 = ["disabled"];
+const _hoisted_5 = {
+  key: 4,
+  class: "aheart-input-number__addon aheart-input-number__addon-after"
+};
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AInputNumber",
@@ -73,6 +81,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const hasPrefix = vue.computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
     const hasSuffix = vue.computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
+    const hasAddonBefore = vue.computed(() => hasRenderable(props.addonBefore));
+    const hasAddonAfter = vue.computed(() => hasRenderable(props.addonAfter));
     const semanticInfo = vue.computed(() => ({ props }));
     const resolvedClassNames = vue.computed(
       () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
@@ -435,8 +445,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         class: ["aheart-input-number", inputNumberClass.value],
         style: rootStyle.value
       }, rootAttrs.value), [
+        hasAddonBefore.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, [
+          vue.createVNode(vue.unref(AInputNumberRenderNode), { node: _ctx.addonBefore }, null, 8, ["node"])
+        ])) : vue.createCommentVNode("", true),
         hasPrefix.value ? (vue.openBlock(), vue.createElementBlock("span", {
-          key: 0,
+          key: 1,
           class: vue.normalizeClass(prefixClass.value),
           style: vue.normalizeStyle(prefixStyle.value)
         }, [
@@ -463,9 +476,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onKeydown: handleKeydown,
           onBlur: handleBlur,
           onWheel: handleWheel
-        }), null, 16, _hoisted_1),
+        }), null, 16, _hoisted_2),
         hasSuffix.value ? (vue.openBlock(), vue.createElementBlock("span", {
-          key: 1,
+          key: 2,
           class: vue.normalizeClass(suffixClass.value),
           style: vue.normalizeStyle(suffixStyle.value)
         }, [
@@ -474,7 +487,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ])
         ], 6)) : vue.createCommentVNode("", true),
         showControls.value ? (vue.openBlock(), vue.createElementBlock("span", {
-          key: 2,
+          key: 3,
           class: vue.normalizeClass(actionsClass.value),
           style: vue.normalizeStyle(actionsStyle.value)
         }, [
@@ -489,7 +502,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.renderSlot(_ctx.$slots, "increaseIcon", {}, () => [
               vue.createVNode(vue.unref(AInputNumberRenderNode), { node: increaseIcon.value }, null, 8, ["node"])
             ])
-          ], 14, _hoisted_2),
+          ], 14, _hoisted_3),
           vue.createElementVNode("button", {
             class: vue.normalizeClass(["aheart-input-number__decrease", actionClass.value]),
             style: vue.normalizeStyle(actionStyle.value),
@@ -501,8 +514,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.renderSlot(_ctx.$slots, "decreaseIcon", {}, () => [
               vue.createVNode(vue.unref(AInputNumberRenderNode), { node: decreaseIcon.value }, null, 8, ["node"])
             ])
-          ], 14, _hoisted_3)
-        ], 6)) : vue.createCommentVNode("", true)
+          ], 14, _hoisted_4)
+        ], 6)) : vue.createCommentVNode("", true),
+        hasAddonAfter.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_5, [
+          vue.createVNode(vue.unref(AInputNumberRenderNode), { node: _ctx.addonAfter }, null, 8, ["node"])
+        ])) : vue.createCommentVNode("", true)
       ], 16);
     };
   }

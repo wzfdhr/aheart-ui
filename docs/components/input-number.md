@@ -270,6 +270,8 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | autoFocus | 挂载后自动聚焦输入框 | `boolean` | `false` |
 | id | 原生输入框 id | `string` | - |
 | placeholder | 占位提示 | `string` | - |
+| addonBefore | 输入框前置标签内容，兼容 Ant Design deprecated API | `VNodeChild` | - |
+| addonAfter | 输入框后置标签内容，兼容 Ant Design deprecated API | `VNodeChild` | - |
 | prefix | 输入框前缀内容 | `VNodeChild` | - |
 | suffix | 输入框后缀内容 | `VNodeChild` | - |
 | size | 输入框尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
