@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import InputNumber from '../input-number.vue'
 
@@ -13,6 +13,40 @@ describe('InputNumber', () => {
     expect(wrapper.classes()).toContain('aheart-input-number')
     expect(wrapper.classes()).toContain('aheart-input-number--small')
     expect(wrapper.find('input').element.value).toBe('4')
+  })
+
+  it('passes native input attributes and listeners to the inner input', async () => {
+    const handleInput = vi.fn()
+    const handleBlur = vi.fn()
+    const wrapper = mount(InputNumber, {
+      attrs: {
+        class: 'custom-root',
+        name: 'amount',
+        autocomplete: 'off',
+        pattern: '[0-9]*',
+        type: 'number',
+        inputmode: 'numeric',
+        'aria-label': 'Amount',
+        onInput: handleInput,
+        onBlur: handleBlur
+      }
+    })
+    const input = wrapper.find('input')
+
+    expect(wrapper.classes()).toContain('custom-root')
+    expect(wrapper.attributes('name')).toBeUndefined()
+    expect(input.attributes('name')).toBe('amount')
+    expect(input.attributes('autocomplete')).toBe('off')
+    expect(input.attributes('pattern')).toBe('[0-9]*')
+    expect(input.attributes('type')).toBe('number')
+    expect(input.attributes('inputmode')).toBe('numeric')
+    expect(input.attributes('aria-label')).toBe('Amount')
+
+    await input.setValue('12')
+    await input.trigger('blur')
+
+    expect(handleInput).toHaveBeenCalledTimes(1)
+    expect(handleBlur).toHaveBeenCalledTimes(1)
   })
 
   it('uses defaultValue as uncontrolled initial value', async () => {

@@ -1,13 +1,14 @@
-import { defineComponent, useSlots, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, openBlock, createElementBlock, mergeProps, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["id", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
+const _hoisted_1 = ["id", "type", "inputmode", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
 const _hoisted_2 = ["disabled"];
 const _hoisted_3 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
-    name: "AInputNumber"
+    name: "AInputNumber",
+    inheritAttrs: false
   },
   __name: "input-number",
   props: inputNumberProps,
@@ -16,6 +17,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
+    const attrs = useAttrs();
     const slots = useSlots();
     const rootRef = ref();
     const inputRef = ref();
@@ -236,6 +238,28 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const actionsStyle = computed(() => resolvedStyles.value.actions);
     const actionClass = computed(() => resolvedClassNames.value.action);
     const actionStyle = computed(() => resolvedStyles.value.action);
+    const rootAttrs = computed(() => {
+      const result = {};
+      if (attrs.class !== void 0) {
+        result.class = attrs.class;
+      }
+      if (attrs.style !== void 0) {
+        result.style = attrs.style;
+      }
+      return result;
+    });
+    const inputType = computed(
+      () => typeof attrs.type === "string" ? attrs.type : "text"
+    );
+    const inputMode = computed(() => {
+      const value = attrs.inputmode ?? attrs.inputMode;
+      return typeof value === "string" ? value : "decimal";
+    });
+    const inputAttrs = computed(
+      () => Object.fromEntries(
+        Object.entries(attrs).filter(([key]) => !["class", "style", "type", "inputmode", "inputMode"].includes(key))
+      )
+    );
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;
@@ -395,12 +419,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       nativeElement: rootRef
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("span", {
+      return openBlock(), createElementBlock("span", mergeProps({
         ref_key: "rootRef",
         ref: rootRef,
-        class: normalizeClass(["aheart-input-number", inputNumberClass.value]),
-        style: normalizeStyle(rootStyle.value)
-      }, [
+        class: ["aheart-input-number", inputNumberClass.value],
+        style: rootStyle.value
+      }, rootAttrs.value), [
         hasPrefix.value ? (openBlock(), createElementBlock("span", {
           key: 0,
           class: normalizeClass(prefixClass.value),
@@ -410,14 +434,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createVNode(unref(AInputNumberRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
           ])
         ], 6)) : createCommentVNode("", true),
-        createElementVNode("input", {
-          class: normalizeClass(["aheart-input-number__control", controlClass.value]),
+        createElementVNode("input", mergeProps(inputAttrs.value, {
+          class: ["aheart-input-number__control", controlClass.value],
           ref_key: "inputRef",
           ref: inputRef,
-          style: normalizeStyle(controlStyle.value),
+          style: controlStyle.value,
           id: _ctx.id,
-          type: "text",
-          inputmode: "decimal",
+          type: inputType.value,
+          inputmode: inputMode.value,
           value: displayValue.value,
           placeholder: _ctx.placeholder,
           disabled: isDisabled.value,
@@ -429,7 +453,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onKeydown: handleKeydown,
           onBlur: handleBlur,
           onWheel: handleWheel
-        }, null, 46, _hoisted_1),
+        }), null, 16, _hoisted_1),
         hasSuffix.value ? (openBlock(), createElementBlock("span", {
           key: 1,
           class: normalizeClass(suffixClass.value),
@@ -469,7 +493,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ])
           ], 14, _hoisted_3)
         ], 6)) : createCommentVNode("", true)
-      ], 6);
+      ], 16);
     };
   }
 });

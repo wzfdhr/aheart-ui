@@ -4,12 +4,13 @@ const vue = require("vue");
 const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["id", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
+const _hoisted_1 = ["id", "type", "inputmode", "value", "placeholder", "disabled", "readonly", "min", "max", "step"];
 const _hoisted_2 = ["disabled"];
 const _hoisted_3 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
-    name: "AInputNumber"
+    name: "AInputNumber",
+    inheritAttrs: false
   },
   __name: "input-number",
   props: types.inputNumberProps,
@@ -18,6 +19,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
+    const attrs = vue.useAttrs();
     const slots = vue.useSlots();
     const rootRef = vue.ref();
     const inputRef = vue.ref();
@@ -238,6 +240,28 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const actionsStyle = vue.computed(() => resolvedStyles.value.actions);
     const actionClass = vue.computed(() => resolvedClassNames.value.action);
     const actionStyle = vue.computed(() => resolvedStyles.value.action);
+    const rootAttrs = vue.computed(() => {
+      const result = {};
+      if (attrs.class !== void 0) {
+        result.class = attrs.class;
+      }
+      if (attrs.style !== void 0) {
+        result.style = attrs.style;
+      }
+      return result;
+    });
+    const inputType = vue.computed(
+      () => typeof attrs.type === "string" ? attrs.type : "text"
+    );
+    const inputMode = vue.computed(() => {
+      const value = attrs.inputmode ?? attrs.inputMode;
+      return typeof value === "string" ? value : "decimal";
+    });
+    const inputAttrs = vue.computed(
+      () => Object.fromEntries(
+        Object.entries(attrs).filter(([key]) => !["class", "style", "type", "inputmode", "inputMode"].includes(key))
+      )
+    );
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;
@@ -397,12 +421,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       nativeElement: rootRef
     });
     return (_ctx, _cache) => {
-      return vue.openBlock(), vue.createElementBlock("span", {
+      return vue.openBlock(), vue.createElementBlock("span", vue.mergeProps({
         ref_key: "rootRef",
         ref: rootRef,
-        class: vue.normalizeClass(["aheart-input-number", inputNumberClass.value]),
-        style: vue.normalizeStyle(rootStyle.value)
-      }, [
+        class: ["aheart-input-number", inputNumberClass.value],
+        style: rootStyle.value
+      }, rootAttrs.value), [
         hasPrefix.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 0,
           class: vue.normalizeClass(prefixClass.value),
@@ -412,14 +436,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.createVNode(vue.unref(AInputNumberRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true),
-        vue.createElementVNode("input", {
-          class: vue.normalizeClass(["aheart-input-number__control", controlClass.value]),
+        vue.createElementVNode("input", vue.mergeProps(inputAttrs.value, {
+          class: ["aheart-input-number__control", controlClass.value],
           ref_key: "inputRef",
           ref: inputRef,
-          style: vue.normalizeStyle(controlStyle.value),
+          style: controlStyle.value,
           id: _ctx.id,
-          type: "text",
-          inputmode: "decimal",
+          type: inputType.value,
+          inputmode: inputMode.value,
           value: displayValue.value,
           placeholder: _ctx.placeholder,
           disabled: isDisabled.value,
@@ -431,7 +455,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onKeydown: handleKeydown,
           onBlur: handleBlur,
           onWheel: handleWheel
-        }, null, 46, _hoisted_1),
+        }), null, 16, _hoisted_1),
         hasSuffix.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 1,
           class: vue.normalizeClass(suffixClass.value),
@@ -471,7 +495,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             ])
           ], 14, _hoisted_3)
         ], 6)) : vue.createCommentVNode("", true)
-      ], 6);
+      ], 16);
     };
   }
 });

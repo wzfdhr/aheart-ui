@@ -1,18 +1,19 @@
 <template>
-  <span ref="rootRef" class="aheart-input-number" :class="inputNumberClass" :style="rootStyle">
+  <span ref="rootRef" class="aheart-input-number" :class="inputNumberClass" :style="rootStyle" v-bind="rootAttrs">
     <span v-if="hasPrefix" :class="prefixClass" :style="prefixStyle">
       <slot name="prefix">
         <AInputNumberRenderNode :node="prefix" />
       </slot>
     </span>
     <input
+      v-bind="inputAttrs"
       class="aheart-input-number__control"
       ref="inputRef"
       :class="controlClass"
       :style="controlStyle"
       :id="id"
-      type="text"
-      inputmode="decimal"
+      :type="inputType"
+      :inputmode="inputMode"
       :value="displayValue"
       :placeholder="placeholder"
       :disabled="isDisabled"
@@ -62,20 +63,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, useSlots } from 'vue'
-import type { PropType, StyleValue, VNodeChild } from 'vue'
+import { computed, defineComponent, ref, useAttrs, useSlots } from 'vue'
+import type { InputHTMLAttributes, PropType, StyleValue, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputNumberEmits, inputNumberProps } from './types'
 import type { InputNumberFocusOptions, InputNumberSemanticInfo, InputNumberSemanticRecord, InputNumberValue } from './types'
 import './style.css'
 
 defineOptions({
-  name: 'AInputNumber'
+  name: 'AInputNumber',
+  inheritAttrs: false
 })
 
 const props = defineProps(inputNumberProps)
 const emit = defineEmits(inputNumberEmits)
 const config = useAheartConfig()
+const attrs = useAttrs()
 const slots = useSlots()
 const rootRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
@@ -339,6 +342,32 @@ const actionsClass = computed(() => ['aheart-input-number__controls', resolvedCl
 const actionsStyle = computed(() => resolvedStyles.value.actions)
 const actionClass = computed(() => resolvedClassNames.value.action)
 const actionStyle = computed(() => resolvedStyles.value.action)
+const rootAttrs = computed(() => {
+  const result: Record<string, unknown> = {}
+
+  if (attrs.class !== undefined) {
+    result.class = attrs.class
+  }
+
+  if (attrs.style !== undefined) {
+    result.style = attrs.style
+  }
+
+  return result
+})
+const inputType = computed<InputHTMLAttributes['type']>(() =>
+  typeof attrs.type === 'string' ? (attrs.type as InputHTMLAttributes['type']) : 'text'
+)
+const inputMode = computed<InputHTMLAttributes['inputmode']>(() => {
+  const value = attrs.inputmode ?? attrs.inputMode
+
+  return typeof value === 'string' ? (value as InputHTMLAttributes['inputmode']) : 'decimal'
+})
+const inputAttrs = computed(() =>
+  Object.fromEntries(
+    Object.entries(attrs).filter(([key]) => !['class', 'style', 'type', 'inputmode', 'inputMode'].includes(key))
+  )
+)
 
 const applyPrecision = (value: number) => {
   if (props.precision === undefined) {
