@@ -326,6 +326,18 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([3.75])
   })
 
+  it('uses precision for default display formatting', () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 12.5, precision: 2 }
+    })
+    const commaWrapper = mount(InputNumber, {
+      props: { modelValue: 12.5, precision: 2, decimalSeparator: ',' }
+    })
+
+    expect(wrapper.find('input').element.value).toBe('12.50')
+    expect(commaWrapper.find('input').element.value).toBe('12,50')
+  })
+
   it('strips formatted characters with the default parser', async () => {
     const wrapper = mount(InputNumber, {
       props: { changeOnBlur: false }

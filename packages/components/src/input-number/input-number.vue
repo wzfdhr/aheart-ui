@@ -337,6 +337,16 @@ const compareDecimalStrings = (left: string, right: string) => {
 
 const isValidValueString = (value: string) => isPlainDecimalString(value) && Number.isFinite(Number(value))
 
+const formatPrecisionDisplay = (value: string) => {
+  if (props.precision === undefined || props.precision < 0 || !isValidValueString(value)) {
+    return value
+  }
+
+  return Number(value).toFixed(props.precision)
+}
+
+const formatDefaultDisplay = (value: string) => formatDecimalSeparator(formatPrecisionDisplay(value))
+
 const displayValue = computed(() => {
   if (props.changeOnBlur && pendingInputText.value !== undefined) {
     if (props.formatter) {
@@ -358,7 +368,7 @@ const displayValue = computed(() => {
     })
   }
 
-  return formatDecimalSeparator(input)
+  return formatDefaultDisplay(input)
 })
 
 const inputNumberClass = computed(() => [

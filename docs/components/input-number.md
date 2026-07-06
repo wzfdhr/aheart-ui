@@ -288,7 +288,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | min | 最小值 | `number` | - |
 | max | 最大值 | `number` | - |
 | step | 每次改变步数 | `number` \| `string` | `1` |
-| precision | 数值精度 | `number` | - |
+| precision | 数值精度，也会影响默认显示的小数位补齐 | `number` | - |
 | decimalSeparator | 默认显示和解析使用的小数分隔符 | `string` | `.` |
 | stringMode | 使用字符串值处理高精度小数 | `boolean` | `false` |
 | formatter | 展示值格式化函数 | `(value?: number \| string, info: { userTyping: boolean; input: string }) => string` | - |

@@ -230,6 +230,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return leftParts.sign < 0 ? -comparison : comparison;
     };
     const isValidValueString = (value) => isPlainDecimalString(value) && Number.isFinite(Number(value));
+    const formatPrecisionDisplay = (value) => {
+      if (props.precision === void 0 || props.precision < 0 || !isValidValueString(value)) {
+        return value;
+      }
+      return Number(value).toFixed(props.precision);
+    };
+    const formatDefaultDisplay = (value) => formatDecimalSeparator(formatPrecisionDisplay(value));
     const displayValue = vue.computed(() => {
       if (props.changeOnBlur && pendingInputText.value !== void 0) {
         if (props.formatter) {
@@ -247,7 +254,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           input
         });
       }
-      return formatDecimalSeparator(input);
+      return formatDefaultDisplay(input);
     });
     const inputNumberClass = vue.computed(() => [
       `aheart-input-number--${resolvedSize.value}`,
