@@ -216,12 +216,17 @@ describe('Switch', () => {
 
     expect(document.activeElement).toBe(wrapper.element)
 
-    const switchVm = wrapper.vm as unknown as { focus: () => void; blur: () => void }
+    const switchVm = wrapper.vm as unknown as {
+      focus: () => void
+      blur: () => void
+      nativeElement?: HTMLButtonElement
+    }
     switchVm.blur()
     expect(document.activeElement).not.toBe(wrapper.element)
 
     switchVm.focus()
     expect(document.activeElement).toBe(wrapper.element)
+    expect(switchVm.nativeElement).toBe(wrapper.element)
 
     wrapper.unmount()
     host.remove()

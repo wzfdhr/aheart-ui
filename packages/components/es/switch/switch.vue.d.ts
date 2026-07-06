@@ -43,6 +43,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>, {
     focus: () => void;
     blur: () => void;
+    nativeElement: import("vue").Ref<HTMLButtonElement | undefined, HTMLButtonElement | undefined>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (checked: boolean, event: MouseEvent) => void;
     click: (checked: boolean, event: MouseEvent) => void;

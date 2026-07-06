@@ -94,7 +94,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     __expose({
       focus,
-      blur
+      blur,
+      nativeElement: switchRef
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("button", {

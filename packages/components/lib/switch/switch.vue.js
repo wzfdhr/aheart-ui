@@ -96,7 +96,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     __expose({
       focus,
-      blur
+      blur,
+      nativeElement: switchRef
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("button", {

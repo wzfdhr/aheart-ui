@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, ref } from 'vue'
 
-const switchRef = ref<{ focus: () => void; blur: () => void }>()
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
 const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
 const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </script>
@@ -118,7 +118,7 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const switchRef = ref<{ focus: () => void; blur: () => void }>()
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
 </script>
 
 <template>
@@ -199,6 +199,7 @@ const switchRef = ref<{ focus: () => void; blur: () => void }>()
 | --- | --- |
 | focus() | 聚焦根按钮元素 |
 | blur() | 移除根按钮元素焦点 |
+| nativeElement | 根按钮元素 |
 
 ## Events
 

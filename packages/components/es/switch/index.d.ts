@@ -49,6 +49,7 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     }>, {
         focus: () => void;
         blur: () => void;
+        nativeElement: import("vue").Ref<HTMLButtonElement | undefined, HTMLButtonElement | undefined>;
     }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         change: (checked: boolean, event: MouseEvent) => void;
         click: (checked: boolean, event: MouseEvent) => void;
@@ -123,6 +124,7 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     }>, {
         focus: () => void;
         blur: () => void;
+        nativeElement: import("vue").Ref<HTMLButtonElement | undefined, HTMLButtonElement | undefined>;
     }, {}, {}, {}, {
         readonly disabled: boolean;
         readonly value: boolean;
@@ -188,6 +190,7 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
 }>, {
     focus: () => void;
     blur: () => void;
+    nativeElement: import("vue").Ref<HTMLButtonElement | undefined, HTMLButtonElement | undefined>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (checked: boolean, event: MouseEvent) => void;
     click: (checked: boolean, event: MouseEvent) => void;

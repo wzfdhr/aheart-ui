@@ -107,6 +107,7 @@ onMounted(() => {
 
 defineExpose({
   focus,
-  blur
+  blur,
+  nativeElement: switchRef
 })
 </script>
