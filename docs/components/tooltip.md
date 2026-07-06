@@ -195,6 +195,7 @@ const renderableTooltipTitle = () => h('span', [
 | --- | --- | --- | --- |
 | title | 提示内容，`title` 插槽优先级更高；为空字符串、`null` 或 `false` 时不显示 | `VNodeChild` \| `() => VNodeChild` | - |
 | placement | 气泡位置 | `FloatingPlacement` | `top` |
+| align | 浮层对齐配置；当前支持 `align.offset` 偏移 | `{ offset?: [number, number] }` | - |
 | autoAdjustOverflow | 浮层超出视窗时自动调整方向或边缘对齐 | `boolean` | `true` |
 | trigger | 触发方式 | `hover` \| `focus` \| `click` \| `contextMenu` \| `FloatingTrigger[]` | `hover` |
 | open | 受控显示状态 | `boolean` | - |

@@ -8,6 +8,10 @@ export type TooltipRenderable = VNodeChild;
 export type TooltipRenderableFactory = () => VNodeChild;
 export type TooltipTitle = TooltipRenderable | TooltipRenderableFactory;
 export type TooltipGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
+export interface TooltipAlignConfig {
+    offset?: [number, number];
+    [key: string]: unknown;
+}
 export type TooltipSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'content' | 'arrow';
 export interface TooltipSemanticInfo {
     open: boolean;
@@ -42,6 +46,7 @@ export declare const tooltipProps: {
     };
     readonly defaultOpen: BooleanConstructor;
     readonly color: StringConstructor;
+    readonly align: PropType<TooltipAlignConfig>;
     readonly arrow: {
         readonly type: PropType<TooltipArrow>;
         readonly default: true;

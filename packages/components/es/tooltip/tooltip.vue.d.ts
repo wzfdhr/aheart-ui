@@ -25,6 +25,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly defaultOpen: BooleanConstructor;
     readonly color: StringConstructor;
+    readonly align: PropType<import("./types").TooltipAlignConfig>;
     readonly arrow: {
         readonly type: PropType<import("./types").TooltipArrow>;
         readonly default: true;
@@ -78,6 +79,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly defaultOpen: BooleanConstructor;
     readonly color: StringConstructor;
+    readonly align: PropType<import("./types").TooltipAlignConfig>;
     readonly arrow: {
         readonly type: PropType<import("./types").TooltipArrow>;
         readonly default: true;

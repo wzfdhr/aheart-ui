@@ -25,6 +25,7 @@ const tooltipProps = {
   },
   defaultOpen: Boolean,
   color: String,
+  align: Object,
   arrow: {
     type: [Boolean, Object],
     default: true

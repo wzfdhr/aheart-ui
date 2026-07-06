@@ -302,6 +302,22 @@ describe('Tooltip', () => {
     expect(arrow.attributes('style')).toContain('background-color: yellow')
   })
 
+  it('applies align offset variables to the popup', () => {
+    const wrapper = mountTooltip({
+      props: {
+        open: true,
+        title: 'Offset help',
+        align: { offset: [8, -4] }
+      },
+      slots: { default: '<button>Help</button>' }
+    })
+
+    const popupStyle = wrapper.find('.aheart-tooltip__popup').attributes('style') ?? ''
+    expect(popupStyle).toContain('--aheart-floating-align-x: 8px')
+    expect(popupStyle).toContain('--aheart-floating-align-y: -4px')
+    expect(wrapper.attributes('align')).toBeUndefined()
+  })
+
   it('resolves function semantic hooks with open state and effective placement', async () => {
     setViewportSize(1024, 800)
     const rectSpy = mockTooltipRects({

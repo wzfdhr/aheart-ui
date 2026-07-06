@@ -1712,65 +1712,73 @@ kbd.aheart-typography-text {
 .aheart-floating--top {
   bottom: calc(100% + var(--aheart-spacing-sm));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(calc(-50% + var(--aheart-floating-align-x, 0px)), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--topLeft {
   bottom: calc(100% + var(--aheart-spacing-sm));
   left: 0;
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--topRight {
   right: 0;
   bottom: calc(100% + var(--aheart-spacing-sm));
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--bottom {
   top: calc(100% + var(--aheart-spacing-sm));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(calc(-50% + var(--aheart-floating-align-x, 0px)), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--bottomLeft {
   top: calc(100% + var(--aheart-spacing-sm));
   left: 0;
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--bottomRight {
   top: calc(100% + var(--aheart-spacing-sm));
   right: 0;
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--left {
   top: 50%;
   right: calc(100% + var(--aheart-spacing-sm));
-  transform: translateY(-50%);
+  transform: translate(var(--aheart-floating-align-x, 0px), calc(-50% + var(--aheart-floating-align-y, 0px)));
 }
 
 .aheart-floating--leftTop {
   top: 0;
   right: calc(100% + var(--aheart-spacing-sm));
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--leftBottom {
   right: calc(100% + var(--aheart-spacing-sm));
   bottom: 0;
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--right {
   top: 50%;
   left: calc(100% + var(--aheart-spacing-sm));
-  transform: translateY(-50%);
+  transform: translate(var(--aheart-floating-align-x, 0px), calc(-50% + var(--aheart-floating-align-y, 0px)));
 }
 
 .aheart-floating--rightTop {
   top: 0;
   left: calc(100% + var(--aheart-spacing-sm));
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating--rightBottom {
   bottom: 0;
   left: calc(100% + var(--aheart-spacing-sm));
+  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
 }
 
 .aheart-floating__arrow {

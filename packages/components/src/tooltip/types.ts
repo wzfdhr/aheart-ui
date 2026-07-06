@@ -15,6 +15,10 @@ export type TooltipRenderable = VNodeChild
 export type TooltipRenderableFactory = () => VNodeChild
 export type TooltipTitle = TooltipRenderable | TooltipRenderableFactory
 export type TooltipGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
+export interface TooltipAlignConfig {
+  offset?: [number, number]
+  [key: string]: unknown
+}
 export type TooltipSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'content' | 'arrow'
 export interface TooltipSemanticInfo {
   open: boolean
@@ -52,6 +56,7 @@ export const tooltipProps = {
   },
   defaultOpen: Boolean,
   color: String,
+  align: Object as PropType<TooltipAlignConfig>,
   arrow: {
     type: [Boolean, Object] as PropType<TooltipArrow>,
     default: true

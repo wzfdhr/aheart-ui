@@ -24,6 +24,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         };
         readonly defaultOpen: BooleanConstructor;
         readonly color: StringConstructor;
+        readonly align: import("vue").PropType<import("./types").TooltipAlignConfig>;
         readonly arrow: {
             readonly type: import("vue").PropType<import("./types").TooltipArrow>;
             readonly default: true;
@@ -100,6 +101,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
         };
         readonly defaultOpen: BooleanConstructor;
         readonly color: StringConstructor;
+        readonly align: import("vue").PropType<import("./types").TooltipAlignConfig>;
         readonly arrow: {
             readonly type: import("vue").PropType<import("./types").TooltipArrow>;
             readonly default: true;
@@ -170,6 +172,7 @@ declare const Tooltip: import("../utils/install").SFCWithInstall<{
     };
     readonly defaultOpen: BooleanConstructor;
     readonly color: StringConstructor;
+    readonly align: import("vue").PropType<import("./types").TooltipAlignConfig>;
     readonly arrow: {
         readonly type: import("vue").PropType<import("./types").TooltipArrow>;
         readonly default: true;
