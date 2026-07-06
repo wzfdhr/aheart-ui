@@ -296,6 +296,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         [`aheart-input-number--${props.status}`]: props.status,
         "is-focused": isFocused.value,
         "is-not-a-number": isNotANumber.value,
+        "is-out-of-range": isOutOfRange.value,
         "is-disabled": isDisabled.value,
         "is-readonly": props.readOnly
       }
@@ -376,6 +377,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return false;
       }
       return !isValidValueString(String(mergedValue.value));
+    });
+    const isOutOfRange = computed(() => {
+      if (mergedValue.value === void 0 || mergedValue.value === "") {
+        return false;
+      }
+      const value = String(mergedValue.value);
+      if (!isValidValueString(value)) {
+        return false;
+      }
+      return props.min !== void 0 && compareDecimalStrings(value, String(props.min)) < 0 || props.max !== void 0 && compareDecimalStrings(value, String(props.max)) > 0;
     });
     const inputAttrs = computed(
       () => Object.fromEntries(

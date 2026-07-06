@@ -443,6 +443,7 @@ const inputNumberClass = computed(() => [
     [`aheart-input-number--${props.status}`]: props.status,
     'is-focused': isFocused.value,
     'is-not-a-number': isNotANumber.value,
+    'is-out-of-range': isOutOfRange.value,
     'is-disabled': isDisabled.value,
     'is-readonly': props.readOnly
   }
@@ -533,6 +534,22 @@ const isNotANumber = computed(() => {
   }
 
   return !isValidValueString(String(mergedValue.value))
+})
+const isOutOfRange = computed(() => {
+  if (mergedValue.value === undefined || mergedValue.value === '') {
+    return false
+  }
+
+  const value = String(mergedValue.value)
+
+  if (!isValidValueString(value)) {
+    return false
+  }
+
+  return (
+    (props.min !== undefined && compareDecimalStrings(value, String(props.min)) < 0) ||
+    (props.max !== undefined && compareDecimalStrings(value, String(props.max)) > 0)
+  )
 })
 const inputAttrs = computed(() =>
   Object.fromEntries(

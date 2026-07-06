@@ -69,6 +69,30 @@ describe('InputNumber', () => {
     expect(validString.classes()).not.toContain('is-not-a-number')
   })
 
+  it('exposes an out-of-range root state class for valid current values outside limits', () => {
+    const above = mount(InputNumber, {
+      props: { modelValue: 11, max: 10 }
+    })
+    const below = mount(InputNumber, {
+      props: {
+        modelValue: '0.5',
+        min: 1,
+        stringMode: true
+      }
+    })
+    const boundary = mount(InputNumber, {
+      props: { modelValue: 10, max: 10 }
+    })
+    const invalid = mount(InputNumber, {
+      props: { modelValue: 'abc', max: 10 }
+    })
+
+    expect(above.classes()).toContain('is-out-of-range')
+    expect(below.classes()).toContain('is-out-of-range')
+    expect(boundary.classes()).not.toContain('is-out-of-range')
+    expect(invalid.classes()).not.toContain('is-out-of-range')
+  })
+
   it('defaults autocomplete off while preserving explicit native overrides', () => {
     const wrapper = mount(InputNumber)
     const explicit = mount(InputNumber, {
