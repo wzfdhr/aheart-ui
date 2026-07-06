@@ -121,8 +121,8 @@ const hasExtra = computed(() => hasRenderableContent(props.extra))
 const hasTooltip = computed(() => hasRenderableContent(tooltipTitle.value))
 
 watch(
-  () => [props.name, effectiveRules.value] as const,
-  ([name, rules], previous) => {
+  () => [props.name, effectiveRules.value, props.validateFirst] as const,
+  ([name, rules, validateFirst], previous) => {
     const previousName = previous?.[0]
 
     if (previousName && previousName !== name) {
@@ -130,7 +130,7 @@ watch(
     }
 
     if (name) {
-      formContext?.registerField(name, rules)
+      formContext?.registerField(name, rules, validateFirst)
     }
   },
   { immediate: true, deep: true }

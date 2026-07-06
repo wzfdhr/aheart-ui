@@ -103,9 +103,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return void 0;
     };
     const validateField = (name) => {
-      const errors = getRules(name).map((rule) => validateRule(name, props.model[name], rule)).filter((error) => Boolean(error));
+      var _a;
+      const validateFirst = Boolean((_a = fieldStates[name]) == null ? void 0 : _a.validateFirst);
+      const errors = [];
+      for (const rule of getRules(name)) {
+        const error = validateRule(name, props.model[name], rule);
+        if (error) {
+          errors.push(error);
+          if (validateFirst) {
+            break;
+          }
+        }
+      }
       if (!fieldStates[name]) {
-        fieldStates[name] = { errors: [], rules: [] };
+        fieldStates[name] = { errors: [], rules: [], validateFirst: false };
       }
       fieldStates[name].errors = errors;
       emit("validate", name, errors.length === 0, errors);
@@ -130,11 +141,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const formContext = {
       requiredMark: vue.computed(() => props.requiredMark),
       colon: vue.computed(() => props.colon),
-      registerField(name, rules) {
+      registerField(name, rules, validateFirst) {
         var _a;
         fieldStates[name] = {
           errors: ((_a = fieldStates[name]) == null ? void 0 : _a.errors) ?? [],
-          rules
+          rules,
+          validateFirst
         };
       },
       unregisterField(name) {

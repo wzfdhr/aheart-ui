@@ -15,6 +15,7 @@ import {
   type FormFieldState,
   type FormModel,
   type FormRule,
+  type FormValidateFirst,
   type FormValidationError
 } from './types'
 import './style.css'
@@ -141,12 +142,23 @@ const validateRule = (name: string, value: unknown, rule: FormRule) => {
 }
 
 const validateField = (name: string): FormValidationError | undefined => {
-  const errors = getRules(name)
-    .map((rule) => validateRule(name, props.model[name], rule))
-    .filter((error): error is string => Boolean(error))
+  const validateFirst = Boolean(fieldStates[name]?.validateFirst)
+  const errors: string[] = []
+
+  for (const rule of getRules(name)) {
+    const error = validateRule(name, props.model[name], rule)
+
+    if (error) {
+      errors.push(error)
+
+      if (validateFirst) {
+        break
+      }
+    }
+  }
 
   if (!fieldStates[name]) {
-    fieldStates[name] = { errors: [], rules: [] }
+    fieldStates[name] = { errors: [], rules: [], validateFirst: false }
   }
 
   fieldStates[name].errors = errors
@@ -180,10 +192,11 @@ const clearValidate = (names?: string[]) => {
 const formContext: FormContext = {
   requiredMark: computed(() => props.requiredMark),
   colon: computed(() => props.colon),
-  registerField(name, rules) {
+  registerField(name, rules, validateFirst: FormValidateFirst) {
     fieldStates[name] = {
       errors: fieldStates[name]?.errors ?? [],
-      rules
+      rules,
+      validateFirst
     }
   },
   unregisterField(name) {

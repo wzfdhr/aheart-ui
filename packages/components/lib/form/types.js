@@ -62,6 +62,10 @@ const formItemProps = {
   layout: String,
   hidden: Boolean,
   noStyle: Boolean,
+  validateFirst: {
+    type: [Boolean, String],
+    default: false
+  },
   required: Boolean,
   rules: Array,
   validateStatus: String,

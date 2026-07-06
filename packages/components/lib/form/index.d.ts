@@ -200,6 +200,10 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
         readonly hidden: BooleanConstructor;
         readonly noStyle: BooleanConstructor;
+        readonly validateFirst: {
+            readonly type: import("vue").PropType<import("./types").FormValidateFirst>;
+            readonly default: false;
+        };
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -224,6 +228,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly colon: boolean;
         readonly required: boolean;
         readonly noStyle: boolean;
+        readonly validateFirst: import("./types").FormValidateFirst;
         readonly hasFeedback: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -244,6 +249,10 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
         readonly hidden: BooleanConstructor;
         readonly noStyle: BooleanConstructor;
+        readonly validateFirst: {
+            readonly type: import("vue").PropType<import("./types").FormValidateFirst>;
+            readonly default: false;
+        };
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -268,6 +277,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly colon: boolean;
         readonly required: boolean;
         readonly noStyle: boolean;
+        readonly validateFirst: import("./types").FormValidateFirst;
         readonly hasFeedback: boolean;
     }>;
     __isFragment?: undefined;
@@ -285,6 +295,10 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
     readonly hidden: BooleanConstructor;
     readonly noStyle: BooleanConstructor;
+    readonly validateFirst: {
+        readonly type: import("vue").PropType<import("./types").FormValidateFirst>;
+        readonly default: false;
+    };
     readonly required: BooleanConstructor;
     readonly rules: import("vue").PropType<import("./types").FormRule[]>;
     readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -309,6 +323,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     readonly colon: boolean;
     readonly required: boolean;
     readonly noStyle: boolean;
+    readonly validateFirst: import("./types").FormValidateFirst;
     readonly hasFeedback: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

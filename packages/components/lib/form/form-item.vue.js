@@ -104,14 +104,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasExtra = vue.computed(() => hasRenderableContent(props.extra));
     const hasTooltip = vue.computed(() => hasRenderableContent(tooltipTitle.value));
     vue.watch(
-      () => [props.name, effectiveRules.value],
-      ([name, rules], previous) => {
+      () => [props.name, effectiveRules.value, props.validateFirst],
+      ([name, rules, validateFirst], previous) => {
         const previousName = previous == null ? void 0 : previous[0];
         if (previousName && previousName !== name) {
           formContext == null ? void 0 : formContext.unregisterField(previousName);
         }
         if (name) {
-          formContext == null ? void 0 : formContext.registerField(name, rules);
+          formContext == null ? void 0 : formContext.registerField(name, rules, validateFirst);
         }
       },
       { immediate: true, deep: true }

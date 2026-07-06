@@ -377,6 +377,79 @@ describe('Form', () => {
     expect(item.text()).toContain('Email is required')
   })
 
+  it('collects all synchronous rule errors by default', async () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { email: 'abc' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h(
+              FormItem,
+              {
+                label: 'Email',
+                name: 'email',
+                rules: [
+                  { type: 'email', message: 'Use a valid email' },
+                  { min: 8, message: 'Use at least 8 characters' }
+                ]
+              },
+              () => h(Input, { modelValue: 'abc' })
+            )
+          }
+        }
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(wrapper.emitted('finishFailed')?.[0][0]).toEqual({
+      values: { email: 'abc' },
+      errorFields: [{ name: 'email', errors: ['Use a valid email', 'Use at least 8 characters'] }]
+    })
+    expect(wrapper.emitted('validate')?.[0]).toEqual([
+      'email',
+      false,
+      ['Use a valid email', 'Use at least 8 characters']
+    ])
+  })
+
+  it('stops FormItem validation at the first rule error when validateFirst is true', async () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { email: 'abc' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h(
+              FormItem,
+              {
+                label: 'Email',
+                name: 'email',
+                validateFirst: true,
+                rules: [
+                  { type: 'email', message: 'Use a valid email' },
+                  { min: 8, message: 'Use at least 8 characters' }
+                ]
+              },
+              () => h(Input, { modelValue: 'abc' })
+            )
+          }
+        }
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(wrapper.emitted('finishFailed')?.[0][0]).toEqual({
+      values: { email: 'abc' },
+      errorFields: [{ name: 'email', errors: ['Use a valid email'] }]
+    })
+    expect(wrapper.emitted('validate')?.[0]).toEqual(['email', false, ['Use a valid email']])
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {

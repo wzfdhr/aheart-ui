@@ -6,6 +6,7 @@ export type FormItemLayout = Exclude<FormLayout, 'inline'>;
 export type FormLabelAlign = 'left' | 'right';
 export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating';
 export type FormRequiredMark = boolean | 'optional';
+export type FormValidateFirst = boolean | 'parallel';
 export type FormVariant = AheartVariant;
 export type FormRenderable = VNodeChild;
 export type FormTooltipTitle = FormRenderable | (() => FormRenderable);
@@ -37,11 +38,12 @@ export interface FormFinishFailedInfo {
 export interface FormFieldState {
     errors: string[];
     rules: FormRule[];
+    validateFirst: FormValidateFirst;
 }
 export interface FormContext {
     requiredMark: ComputedRef<FormRequiredMark>;
     colon: ComputedRef<boolean>;
-    registerField: (name: string, rules: FormRule[]) => void;
+    registerField: (name: string, rules: FormRule[], validateFirst: FormValidateFirst) => void;
     unregisterField: (name: string) => void;
     getFieldErrors: (name: string) => string[];
     isFieldRequired: (name: string) => boolean;
@@ -100,6 +102,10 @@ export declare const formItemProps: {
     readonly layout: PropType<FormItemLayout>;
     readonly hidden: BooleanConstructor;
     readonly noStyle: BooleanConstructor;
+    readonly validateFirst: {
+        readonly type: PropType<FormValidateFirst>;
+        readonly default: false;
+    };
     readonly required: BooleanConstructor;
     readonly rules: PropType<FormRule[]>;
     readonly validateStatus: PropType<FormValidateStatus>;

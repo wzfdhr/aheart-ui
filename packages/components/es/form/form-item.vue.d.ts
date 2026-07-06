@@ -11,6 +11,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly layout: PropType<import("./types").FormItemLayout>;
     readonly hidden: BooleanConstructor;
     readonly noStyle: BooleanConstructor;
+    readonly validateFirst: {
+        readonly type: PropType<import("./types").FormValidateFirst>;
+        readonly default: false;
+    };
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -39,6 +43,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly layout: PropType<import("./types").FormItemLayout>;
     readonly hidden: BooleanConstructor;
     readonly noStyle: BooleanConstructor;
+    readonly validateFirst: {
+        readonly type: PropType<import("./types").FormValidateFirst>;
+        readonly default: false;
+    };
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -63,6 +71,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly colon: boolean;
     readonly required: boolean;
     readonly noStyle: boolean;
+    readonly validateFirst: import("./types").FormValidateFirst;
     readonly hasFeedback: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

@@ -76,6 +76,48 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
 </template>
 ```
 
+## 首个错误
+
+<div class="aheart-demo-panel">
+  <AForm :model="{ email: 'abc' }" layout="vertical">
+    <AFormItem
+      label="Email"
+      name="email"
+      validate-first
+      :rules="[
+        { type: 'email', message: 'Use a valid email' },
+        { min: 8, message: 'Use at least 8 characters' }
+      ]"
+    >
+      <AInput model-value="abc" />
+    </AFormItem>
+    <AFormItem>
+      <AButton native-type="submit">Submit first error</AButton>
+    </AFormItem>
+  </AForm>
+</div>
+
+```vue
+<template>
+  <AForm :model="formState" layout="vertical">
+    <AFormItem
+      label="Email"
+      name="email"
+      validate-first
+      :rules="[
+        { type: 'email', message: 'Use a valid email' },
+        { min: 8, message: 'Use at least 8 characters' }
+      ]"
+    >
+      <AInput v-model="formState.email" />
+    </AFormItem>
+    <AFormItem>
+      <AButton native-type="submit">Submit first error</AButton>
+    </AFormItem>
+  </AForm>
+</template>
+```
+
 ## 必填标记与变体
 
 <div class="aheart-demo-panel">
@@ -302,6 +344,7 @@ const passwordTooltipIcon = h('span', 'i')
 | noStyle | 是否不渲染表单项样式结构；开启后仍参与校验 | `boolean` | `false` |
 | required | 是否显示必填标记 | `boolean` | `false` |
 | rules | 表单项校验规则 | `FormRule[]` | - |
+| validateFirst | 是否在当前字段首个规则失败后停止报告后续错误 | `boolean` \| `parallel` | `false` |
 | validateStatus | 校验状态 | `success` \| `warning` \| `error` \| `validating` | - |
 | help | 帮助或错误内容；`help` 插槽优先级更高 | `VNodeChild` | - |
 | extra | 额外提示内容；`extra` 插槽优先级更高 | `VNodeChild` | - |
