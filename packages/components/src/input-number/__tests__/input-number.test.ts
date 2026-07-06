@@ -196,6 +196,27 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([5])
   })
 
+  it('defers typed value parsing until composition input ends', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { defaultValue: 1, changeOnBlur: false }
+    })
+    const input = wrapper.find('input')
+
+    await input.trigger('compositionstart')
+    input.element.value = '5'
+    await input.trigger('input')
+
+    expect(wrapper.emitted('input')?.[0]).toEqual(['5'])
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    await input.trigger('compositionend')
+
+    expect(wrapper.emitted('input')?.[1]).toEqual(['5'])
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([5])
+    expect(wrapper.emitted('change')?.[0]).toEqual([5])
+  })
+
   it('clamps typed values to min and max', async () => {
     const wrapper = mount(InputNumber, {
       props: { min: 1, max: 10, changeOnBlur: false }

@@ -384,8 +384,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       resetPendingInput();
     };
-    const handleInput = (event) => {
-      const rawValue = event.target.value;
+    const collectInputValue = (rawValue) => {
       const parsedInput = parseInputValue(rawValue);
       if (props.changeOnBlur) {
         pendingInputText.value = rawValue;
@@ -398,6 +397,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         emitValue(parsedInput.value);
       }
       emit("input", rawValue);
+    };
+    const handleInput = (event) => {
+      const rawValue = event.target.value;
+      if (isComposing.value) {
+        emit("input", rawValue);
+        return;
+      }
+      collectInputValue(rawValue);
     };
     const multiplyDecimalStringByTen = (value) => {
       let result = "0";
@@ -466,8 +473,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const handleCompositionStart = () => {
       isComposing.value = true;
     };
-    const handleCompositionEnd = () => {
+    const handleCompositionEnd = (event) => {
+      var _a, _b;
       isComposing.value = false;
+      collectInputValue(((_a = event.target) == null ? void 0 : _a.value) ?? ((_b = inputRef.value) == null ? void 0 : _b.value) ?? "");
     };
     const handleKeydown = (event) => {
       if (event.key === "Enter") {

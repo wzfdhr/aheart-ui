@@ -534,8 +534,7 @@ const commitPendingInput = () => {
   resetPendingInput()
 }
 
-const handleInput = (event: Event) => {
-  const rawValue = (event.target as HTMLInputElement).value
+const collectInputValue = (rawValue: string) => {
   const parsedInput = parseInputValue(rawValue)
 
   if (props.changeOnBlur) {
@@ -551,6 +550,17 @@ const handleInput = (event: Event) => {
   }
 
   emit('input', rawValue)
+}
+
+const handleInput = (event: Event) => {
+  const rawValue = (event.target as HTMLInputElement).value
+
+  if (isComposing.value) {
+    emit('input', rawValue)
+    return
+  }
+
+  collectInputValue(rawValue)
 }
 
 const multiplyDecimalStringByTen = (value: string) => {
@@ -644,8 +654,9 @@ const handleCompositionStart = () => {
   isComposing.value = true
 }
 
-const handleCompositionEnd = () => {
+const handleCompositionEnd = (event: CompositionEvent) => {
   isComposing.value = false
+  collectInputValue((event.target as HTMLInputElement | null)?.value ?? inputRef.value?.value ?? '')
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
