@@ -35,6 +35,7 @@ const popoverProps = {
     default: 0.1
   },
   destroyOnHidden: Boolean,
+  destroyTooltipOnHide: Boolean,
   fresh: Boolean,
   arrow: {
     type: [Boolean, Object],

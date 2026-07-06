@@ -38,6 +38,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: 0.1;
     };
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyTooltipOnHide: BooleanConstructor;
     readonly fresh: BooleanConstructor;
     readonly arrow: {
         readonly type: PropType<import("./types").PopoverArrow>;
@@ -94,6 +95,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: 0.1;
     };
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyTooltipOnHide: BooleanConstructor;
     readonly fresh: BooleanConstructor;
     readonly arrow: {
         readonly type: PropType<import("./types").PopoverArrow>;
@@ -124,6 +126,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly defaultOpen: boolean;
+    readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

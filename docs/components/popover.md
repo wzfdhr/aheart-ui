@@ -248,6 +248,7 @@ const renderablePopoverContent = h('span', [
 | mouseEnterDelay | 鼠标移入后延迟显示，单位秒 | `number` | `0.1` |
 | mouseLeaveDelay | 鼠标移出后延迟隐藏，单位秒 | `number` | `0.1` |
 | destroyOnHidden | 关闭后是否销毁弹层 DOM | `boolean` | `false` |
+| destroyTooltipOnHide | 旧版关闭后销毁别名，等同 `destroyOnHidden` | `boolean` | `false` |
 | fresh | 保持与 Ant API 兼容；Vue 挂载内容会自然响应更新 | `boolean` | `false` |
 | arrow | 是否显示箭头，或配置箭头指向触发器中心 | `boolean` \| `{ pointAtCenter?: boolean }` | `true` |
 | zIndex | 自定义层级 | `number` | - |

@@ -393,6 +393,20 @@ describe('Popover', () => {
     expect(destroyed.find('.aheart-popover__popup').exists()).toBe(false)
   })
 
+  it('supports destroyTooltipOnHide as a hidden destroy alias', async () => {
+    const wrapper = mountPopover({
+      props: { content: 'Alias destroyed', trigger: 'click', destroyTooltipOnHide: true },
+      slots: { default: '<button>Details</button>' }
+    })
+
+    await wrapper.find('.aheart-popover__trigger').trigger('click')
+    expect(wrapper.find('.aheart-popover__popup').exists()).toBe(true)
+
+    await wrapper.find('.aheart-popover__trigger').trigger('click')
+    expect(wrapper.find('.aheart-popover__popup').exists()).toBe(false)
+    expect(wrapper.attributes('destroytooltiponhide')).toBeUndefined()
+  })
+
   it('teleports popup to document body by default', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)

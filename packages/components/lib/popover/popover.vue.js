@@ -44,7 +44,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasContent = vue.computed(() => Boolean(slots.content) || hasRenderable(props.content));
     const hasPopupContent = vue.computed(() => hasTitle.value || hasContent.value);
     const visible = vue.computed(() => hasPopupContent.value && mergedOpen.value);
-    const shouldRenderPopup = vue.computed(() => hasPopupContent.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
+    const shouldDestroyOnHidden = vue.computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
+    const shouldRenderPopup = vue.computed(() => hasPopupContent.value && (visible.value || !shouldDestroyOnHidden.value && hasRenderedPopup.value));
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = vue.computed(() => {
       if (props.getPopupContainer && triggerRef.value) {

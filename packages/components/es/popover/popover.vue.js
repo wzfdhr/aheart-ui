@@ -42,7 +42,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasContent = computed(() => Boolean(slots.content) || hasRenderable(props.content));
     const hasPopupContent = computed(() => hasTitle.value || hasContent.value);
     const visible = computed(() => hasPopupContent.value && mergedOpen.value);
-    const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || !props.destroyOnHidden && hasRenderedPopup.value));
+    const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
+    const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || !shouldDestroyOnHidden.value && hasRenderedPopup.value));
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = computed(() => {
       if (props.getPopupContainer && triggerRef.value) {

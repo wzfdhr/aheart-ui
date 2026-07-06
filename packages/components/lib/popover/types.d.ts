@@ -55,6 +55,7 @@ export declare const popoverProps: {
         readonly default: 0.1;
     };
     readonly destroyOnHidden: BooleanConstructor;
+    readonly destroyTooltipOnHide: BooleanConstructor;
     readonly fresh: BooleanConstructor;
     readonly arrow: {
         readonly type: PropType<PopoverArrow>;
