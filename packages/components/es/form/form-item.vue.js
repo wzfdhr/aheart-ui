@@ -90,6 +90,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       };
     });
     const effectiveRules = computed(() => props.rules ?? []);
+    const labelMessageVariable = computed(
+      () => typeof props.label === "string" || typeof props.label === "number" ? String(props.label) : void 0
+    );
+    const effectiveMessageVariables = computed(() => ({
+      name: props.name ?? "",
+      ...labelMessageVariable.value !== void 0 ? { label: labelMessageVariable.value } : {},
+      ...props.messageVariables
+    }));
     const fieldErrors = computed(() => props.name ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
     const isRequired = computed(() => Boolean(props.required || props.name && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
     const showRequiredMark = computed(() => isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) !== false);
@@ -102,14 +110,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasExtra = computed(() => hasRenderableContent(props.extra));
     const hasTooltip = computed(() => hasRenderableContent(tooltipTitle.value));
     watch(
-      () => [props.name, effectiveRules.value, props.validateFirst],
-      ([name, rules, validateFirst], previous) => {
+      () => [props.name, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value],
+      ([name, rules, validateFirst, messageVariables], previous) => {
         const previousName = previous == null ? void 0 : previous[0];
         if (previousName && previousName !== name) {
           formContext == null ? void 0 : formContext.unregisterField(previousName);
         }
         if (name) {
-          formContext == null ? void 0 : formContext.registerField(name, rules, validateFirst);
+          formContext == null ? void 0 : formContext.registerField(name, rules, validateFirst, messageVariables);
         }
       },
       { immediate: true, deep: true }

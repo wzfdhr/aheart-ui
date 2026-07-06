@@ -13,6 +13,7 @@ import {
   formProps,
   type FormContext,
   type FormFieldState,
+  type FormMessageVariables,
   type FormModel,
   type FormRule,
   type FormValidateFirst,
@@ -93,8 +94,22 @@ const getDefaultMessage = (name: string, rule: FormRule) => {
   return `${name} is invalid`
 }
 
+const stringifyMessageVariable = (value: unknown) => (value === undefined || value === null ? '' : String(value))
+
+const interpolateMessage = (message: string, variables: Record<string, unknown>) =>
+  message.replace(/\$\{([^}]+)\}/g, (_match, key: string) => stringifyMessageVariable(variables[key.trim()]))
+
+const getRuleMessageVariables = (name: string, rule: FormRule) => ({
+  name,
+  ...(fieldStates[name]?.messageVariables ?? {}),
+  ...(rule.type !== undefined ? { type: rule.type } : {}),
+  ...(rule.len !== undefined ? { len: rule.len } : {}),
+  ...(rule.min !== undefined ? { min: rule.min } : {}),
+  ...(rule.max !== undefined ? { max: rule.max } : {})
+})
+
 const validateRule = (name: string, value: unknown, rule: FormRule) => {
-  const message = rule.message ?? getDefaultMessage(name, rule)
+  const message = interpolateMessage(rule.message ?? getDefaultMessage(name, rule), getRuleMessageVariables(name, rule))
 
   if (rule.required && isEmptyValue(value)) {
     return message
@@ -158,7 +173,7 @@ const validateField = (name: string): FormValidationError | undefined => {
   }
 
   if (!fieldStates[name]) {
-    fieldStates[name] = { errors: [], rules: [], validateFirst: false }
+    fieldStates[name] = { errors: [], rules: [], validateFirst: false, messageVariables: {} }
   }
 
   fieldStates[name].errors = errors
@@ -192,11 +207,12 @@ const clearValidate = (names?: string[]) => {
 const formContext: FormContext = {
   requiredMark: computed(() => props.requiredMark),
   colon: computed(() => props.colon),
-  registerField(name, rules, validateFirst: FormValidateFirst) {
+  registerField(name, rules, validateFirst: FormValidateFirst, messageVariables: FormMessageVariables) {
     fieldStates[name] = {
       errors: fieldStates[name]?.errors ?? [],
       rules,
-      validateFirst
+      validateFirst,
+      messageVariables
     }
   },
   unregisterField(name) {

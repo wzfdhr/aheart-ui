@@ -41,7 +41,13 @@
 <script setup lang="ts">
 import { computed, defineComponent, inject, isVNode, onBeforeUnmount, watch, type PropType, type VNodeChild } from 'vue'
 import Tooltip from '../tooltip/tooltip.vue'
-import { formContextKey, formItemProps, type FormItemTooltipConfig, type FormTooltipTitle } from './types'
+import {
+  formContextKey,
+  formItemProps,
+  type FormItemTooltipConfig,
+  type FormMessageVariables,
+  type FormTooltipTitle
+} from './types'
 import './style.css'
 
 defineOptions({
@@ -108,6 +114,14 @@ const resolvedTooltipProps = computed(() => {
 })
 
 const effectiveRules = computed(() => props.rules ?? [])
+const labelMessageVariable = computed(() =>
+  typeof props.label === 'string' || typeof props.label === 'number' ? String(props.label) : undefined
+)
+const effectiveMessageVariables = computed<FormMessageVariables>(() => ({
+  name: props.name ?? '',
+  ...(labelMessageVariable.value !== undefined ? { label: labelMessageVariable.value } : {}),
+  ...props.messageVariables
+}))
 const fieldErrors = computed(() => (props.name ? (formContext?.getFieldErrors(props.name) ?? []) : []))
 const isRequired = computed(() => Boolean(props.required || (props.name && formContext?.isFieldRequired(props.name))))
 const showRequiredMark = computed(() => isRequired.value && formContext?.requiredMark.value !== false)
@@ -121,8 +135,8 @@ const hasExtra = computed(() => hasRenderableContent(props.extra))
 const hasTooltip = computed(() => hasRenderableContent(tooltipTitle.value))
 
 watch(
-  () => [props.name, effectiveRules.value, props.validateFirst] as const,
-  ([name, rules, validateFirst], previous) => {
+  () => [props.name, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value] as const,
+  ([name, rules, validateFirst, messageVariables], previous) => {
     const previousName = previous?.[0]
 
     if (previousName && previousName !== name) {
@@ -130,7 +144,7 @@ watch(
     }
 
     if (name) {
-      formContext?.registerField(name, rules, validateFirst)
+      formContext?.registerField(name, rules, validateFirst, messageVariables)
     }
   },
   { immediate: true, deep: true }

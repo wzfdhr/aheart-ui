@@ -450,6 +450,50 @@ describe('Form', () => {
     expect(wrapper.emitted('validate')?.[0]).toEqual(['email', false, ['Use a valid email']])
   })
 
+  it('interpolates FormItem message variables in rule messages', async () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { email: 'abc' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h(
+              FormItem,
+              {
+                label: 'Work email',
+                name: 'email',
+                messageVariables: { domain: 'company' },
+                rules: [
+                  { type: 'email', message: '${label} must be a valid ${domain} email' },
+                  { min: 8, message: '${name} needs at least ${min} characters' }
+                ]
+              },
+              () => h(Input, { modelValue: 'abc' })
+            )
+          }
+        }
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(wrapper.emitted('finishFailed')?.[0][0]).toEqual({
+      values: { email: 'abc' },
+      errorFields: [
+        {
+          name: 'email',
+          errors: ['Work email must be a valid company email', 'email needs at least 8 characters']
+        }
+      ]
+    })
+    expect(wrapper.emitted('validate')?.[0]).toEqual([
+      'email',
+      false,
+      ['Work email must be a valid company email', 'email needs at least 8 characters']
+    ])
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {

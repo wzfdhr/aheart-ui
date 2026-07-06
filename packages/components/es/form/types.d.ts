@@ -9,6 +9,7 @@ export type FormRequiredMark = boolean | 'optional';
 export type FormValidateFirst = boolean | 'parallel';
 export type FormVariant = AheartVariant;
 export type FormRenderable = VNodeChild;
+export type FormMessageVariables = Record<string, string | number>;
 export type FormTooltipTitle = FormRenderable | (() => FormRenderable);
 export type FormItemTooltipConfig = Partial<Omit<TooltipProps, 'title'>> & {
     title?: FormTooltipTitle;
@@ -39,11 +40,12 @@ export interface FormFieldState {
     errors: string[];
     rules: FormRule[];
     validateFirst: FormValidateFirst;
+    messageVariables: FormMessageVariables;
 }
 export interface FormContext {
     requiredMark: ComputedRef<FormRequiredMark>;
     colon: ComputedRef<boolean>;
-    registerField: (name: string, rules: FormRule[], validateFirst: FormValidateFirst) => void;
+    registerField: (name: string, rules: FormRule[], validateFirst: FormValidateFirst, messageVariables: FormMessageVariables) => void;
     unregisterField: (name: string) => void;
     getFieldErrors: (name: string) => string[];
     isFieldRequired: (name: string) => boolean;
@@ -105,6 +107,10 @@ export declare const formItemProps: {
     readonly validateFirst: {
         readonly type: PropType<FormValidateFirst>;
         readonly default: false;
+    };
+    readonly messageVariables: {
+        readonly type: PropType<FormMessageVariables>;
+        readonly default: () => {};
     };
     readonly required: BooleanConstructor;
     readonly rules: PropType<FormRule[]>;

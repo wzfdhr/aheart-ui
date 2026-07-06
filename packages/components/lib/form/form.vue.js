@@ -67,8 +67,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return `${name} is invalid`;
     };
+    const stringifyMessageVariable = (value) => value === void 0 || value === null ? "" : String(value);
+    const interpolateMessage = (message, variables) => message.replace(/\$\{([^}]+)\}/g, (_match, key) => stringifyMessageVariable(variables[key.trim()]));
+    const getRuleMessageVariables = (name, rule) => {
+      var _a;
+      return {
+        name,
+        ...((_a = fieldStates[name]) == null ? void 0 : _a.messageVariables) ?? {},
+        ...rule.type !== void 0 ? { type: rule.type } : {},
+        ...rule.len !== void 0 ? { len: rule.len } : {},
+        ...rule.min !== void 0 ? { min: rule.min } : {},
+        ...rule.max !== void 0 ? { max: rule.max } : {}
+      };
+    };
     const validateRule = (name, value, rule) => {
-      const message = rule.message ?? getDefaultMessage(name, rule);
+      const message = interpolateMessage(rule.message ?? getDefaultMessage(name, rule), getRuleMessageVariables(name, rule));
       if (rule.required && isEmptyValue(value)) {
         return message;
       }
@@ -116,7 +129,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
       if (!fieldStates[name]) {
-        fieldStates[name] = { errors: [], rules: [], validateFirst: false };
+        fieldStates[name] = { errors: [], rules: [], validateFirst: false, messageVariables: {} };
       }
       fieldStates[name].errors = errors;
       emit("validate", name, errors.length === 0, errors);
@@ -141,12 +154,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const formContext = {
       requiredMark: vue.computed(() => props.requiredMark),
       colon: vue.computed(() => props.colon),
-      registerField(name, rules, validateFirst) {
+      registerField(name, rules, validateFirst, messageVariables) {
         var _a;
         fieldStates[name] = {
           errors: ((_a = fieldStates[name]) == null ? void 0 : _a.errors) ?? [],
           rules,
-          validateFirst
+          validateFirst,
+          messageVariables
         };
       },
       unregisterField(name) {

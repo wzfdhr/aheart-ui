@@ -1,4 +1,5 @@
 import { type PropType, type VNodeChild } from 'vue';
+import { type FormMessageVariables } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly label: PropType<VNodeChild>;
     readonly name: StringConstructor;
@@ -14,6 +15,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly validateFirst: {
         readonly type: PropType<import("./types").FormValidateFirst>;
         readonly default: false;
+    };
+    readonly messageVariables: {
+        readonly type: PropType<FormMessageVariables>;
+        readonly default: () => {};
     };
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
@@ -47,6 +52,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<import("./types").FormValidateFirst>;
         readonly default: false;
     };
+    readonly messageVariables: {
+        readonly type: PropType<FormMessageVariables>;
+        readonly default: () => {};
+    };
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -72,6 +81,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly required: boolean;
     readonly noStyle: boolean;
     readonly validateFirst: import("./types").FormValidateFirst;
+    readonly messageVariables: FormMessageVariables;
     readonly hasFeedback: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

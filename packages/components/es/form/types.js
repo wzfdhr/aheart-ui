@@ -64,6 +64,10 @@ const formItemProps = {
     type: [Boolean, String],
     default: false
   },
+  messageVariables: {
+    type: Object,
+    default: () => ({})
+  },
   required: Boolean,
   rules: Array,
   validateStatus: String,
