@@ -5,8 +5,14 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
-    readonly help: StringConstructor;
-    readonly extra: StringConstructor;
+    readonly help: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly extra: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly hasFeedback: BooleanConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly label: PropType<VNodeChild>;
@@ -14,10 +20,18 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
-    readonly help: StringConstructor;
-    readonly extra: StringConstructor;
+    readonly help: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly extra: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly hasFeedback: BooleanConstructor;
 }>> & Readonly<{}>, {
+    readonly help: VNodeChild;
+    readonly extra: VNodeChild;
     readonly required: boolean;
     readonly hasFeedback: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

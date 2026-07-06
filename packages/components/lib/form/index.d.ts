@@ -194,10 +194,18 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
-        readonly help: StringConstructor;
-        readonly extra: StringConstructor;
+        readonly help: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly extra: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly hasFeedback: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
+        readonly help: import("vue").VNodeChild;
+        readonly extra: import("vue").VNodeChild;
         readonly required: boolean;
         readonly hasFeedback: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -213,10 +221,18 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
-        readonly help: StringConstructor;
-        readonly extra: StringConstructor;
+        readonly help: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
+        readonly extra: {
+            type: import("vue").PropType<import("vue").VNodeChild>;
+            default: undefined;
+        };
         readonly hasFeedback: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
+        readonly help: import("vue").VNodeChild;
+        readonly extra: import("vue").VNodeChild;
         readonly required: boolean;
         readonly hasFeedback: boolean;
     }>;
@@ -229,10 +245,18 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     readonly required: BooleanConstructor;
     readonly rules: import("vue").PropType<import("./types").FormRule[]>;
     readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
-    readonly help: StringConstructor;
-    readonly extra: StringConstructor;
+    readonly help: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
+    readonly extra: {
+        type: import("vue").PropType<import("vue").VNodeChild>;
+        default: undefined;
+    };
     readonly hasFeedback: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
+    readonly help: import("vue").VNodeChild;
+    readonly extra: import("vue").VNodeChild;
     readonly required: boolean;
     readonly hasFeedback: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

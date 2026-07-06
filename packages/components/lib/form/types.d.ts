@@ -86,8 +86,14 @@ export declare const formItemProps: {
     readonly required: BooleanConstructor;
     readonly rules: PropType<FormRule[]>;
     readonly validateStatus: PropType<FormValidateStatus>;
-    readonly help: StringConstructor;
-    readonly extra: StringConstructor;
+    readonly help: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
+    readonly extra: {
+        type: PropType<VNodeChild>;
+        default: undefined;
+    };
     readonly hasFeedback: BooleanConstructor;
 };
 export type FormProps = ExtractPropTypes<typeof formProps>;

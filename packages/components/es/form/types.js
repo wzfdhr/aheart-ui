@@ -40,14 +40,18 @@ const formEmits = {
   finishFailed: (info) => Array.isArray(info.errorFields),
   validate: (name, status, errors) => typeof name === "string" && typeof status === "boolean" && Array.isArray(errors)
 };
+const renderableProp = {
+  type: [String, Number, Boolean, Object, Array],
+  default: void 0
+};
 const formItemProps = {
   label: [String, Number, Object, Array],
   name: String,
   required: Boolean,
   rules: Array,
   validateStatus: String,
-  help: String,
-  extra: String,
+  help: renderableProp,
+  extra: renderableProp,
   hasFeedback: Boolean
 };
 export {

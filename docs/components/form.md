@@ -2,6 +2,8 @@
 import { h } from 'vue'
 
 const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
+const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
+const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
 </script>
 
 # Form 表单 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -15,7 +17,7 @@ Form manages field layout, model validation, submit success/failure events, and 
     <AFormItem :label="formLabelNode" required>
       <AInput model-value="Ada" />
     </AFormItem>
-    <AFormItem label="Email" validate-status="error" help="Email is required">
+    <AFormItem label="Email" validate-status="error" :help="formHelpNode" :extra="formExtraNode">
       <AInput status="error" />
     </AFormItem>
   </AForm>
@@ -26,6 +28,8 @@ Form manages field layout, model validation, submit success/failure events, and 
 import { h } from 'vue'
 
 const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
+const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
+const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
 </script>
 
 <template>
@@ -33,7 +37,7 @@ const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
     <AFormItem :label="formLabelNode" required>
       <AInput v-model="name" />
     </AFormItem>
-    <AFormItem label="Email" validate-status="error" help="Email is required">
+    <AFormItem label="Email" validate-status="error" :help="formHelpNode" :extra="formExtraNode">
       <AInput v-model="email" status="error" />
     </AFormItem>
   </AForm>
@@ -180,8 +184,8 @@ const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
 | required | 是否显示必填标记 | `boolean` | `false` |
 | rules | 表单项校验规则 | `FormRule[]` | - |
 | validateStatus | 校验状态 | `success` \| `warning` \| `error` \| `validating` | - |
-| help | 帮助或错误文案 | `string` | - |
-| extra | 额外提示 | `string` | - |
+| help | 帮助或错误内容；`help` 插槽优先级更高 | `VNodeChild` | - |
+| extra | 额外提示内容；`extra` 插槽优先级更高 | `VNodeChild` | - |
 | hasFeedback | 是否显示反馈图标 | `boolean` | `false` |
 
 ## FormRule

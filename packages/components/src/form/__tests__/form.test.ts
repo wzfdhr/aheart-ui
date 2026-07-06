@@ -65,6 +65,32 @@ describe('Form', () => {
     expect(wrapper.find('.aheart-form-item__label').text()).toBe('0')
   })
 
+  it('renders FormItem help and extra props as renderable nodes', () => {
+    const wrapper = mount(FormItem, {
+      props: {
+        help: h('span', { class: 'form-help-node' }, 'Help node'),
+        extra: h('span', { class: 'form-extra-node' }, 'Extra node')
+      },
+      slots: { default: '<input />' }
+    })
+
+    expect(wrapper.find('.form-help-node').text()).toBe('Help node')
+    expect(wrapper.find('.form-extra-node').text()).toBe('Extra node')
+  })
+
+  it('renders zero as FormItem help and extra content', () => {
+    const wrapper = mount(FormItem, {
+      props: {
+        help: 0,
+        extra: 0
+      },
+      slots: { default: '<input />' }
+    })
+
+    expect(wrapper.find('.aheart-form-item__help').text()).toBe('0')
+    expect(wrapper.find('.aheart-form-item__extra').text()).toBe('0')
+  })
+
   it('provides size and disabled state to nested controls', () => {
     const wrapper = mount(Form, {
       props: { size: 'large', disabled: true },

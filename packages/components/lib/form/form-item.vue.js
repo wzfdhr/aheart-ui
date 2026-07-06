@@ -53,6 +53,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return () => renderProps.node;
       }
     });
+    const hasRenderableContent = (value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== void 0 && value !== null && value !== false && value !== "";
+    };
     const effectiveRules = vue.computed(() => props.rules ?? []);
     const fieldErrors = vue.computed(() => props.name ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
     const isRequired = vue.computed(() => Boolean(props.required || props.name && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
@@ -61,8 +67,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       () => Boolean(props.label || props.name) && !isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) === "optional"
     );
     const effectiveValidateStatus = vue.computed(() => props.validateStatus ?? (fieldErrors.value.length > 0 ? "error" : void 0));
-    const effectiveHelp = vue.computed(() => props.help ?? fieldErrors.value[0] ?? "");
-    const hasHelp = vue.computed(() => Boolean(effectiveHelp.value));
+    const effectiveHelp = vue.computed(() => props.help !== void 0 ? props.help : fieldErrors.value[0] ?? "");
+    const hasHelp = vue.computed(() => hasRenderableContent(effectiveHelp.value));
+    const hasExtra = vue.computed(() => hasRenderableContent(props.extra));
     vue.watch(
       () => [props.name, effectiveRules.value],
       ([name, rules], previous) => {
@@ -115,12 +122,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ]),
           hasHelp.value || _ctx.$slots.help ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_8, [
             vue.renderSlot(_ctx.$slots, "help", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(effectiveHelp.value), 1)
+              vue.createVNode(vue.unref(AFormItemRenderNode), { node: effectiveHelp.value }, null, 8, ["node"])
             ])
           ])) : vue.createCommentVNode("", true),
-          _ctx.extra || _ctx.$slots.extra ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_9, [
+          hasExtra.value || _ctx.$slots.extra ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_9, [
             vue.renderSlot(_ctx.$slots, "extra", {}, () => [
-              vue.createTextVNode(vue.toDisplayString(_ctx.extra), 1)
+              vue.createVNode(vue.unref(AFormItemRenderNode), { node: _ctx.extra }, null, 8, ["node"])
             ])
           ])) : vue.createCommentVNode("", true)
         ])

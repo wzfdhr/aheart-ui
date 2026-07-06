@@ -13,10 +13,14 @@
         <span v-if="hasFeedback" class="aheart-form-item__feedback" aria-hidden="true">{{ feedbackIcon }}</span>
       </div>
       <div v-if="hasHelp || $slots.help" class="aheart-form-item__help">
-        <slot name="help">{{ effectiveHelp }}</slot>
+        <slot name="help">
+          <AFormItemRenderNode :node="effectiveHelp" />
+        </slot>
       </div>
-      <div v-if="extra || $slots.extra" class="aheart-form-item__extra">
-        <slot name="extra">{{ extra }}</slot>
+      <div v-if="hasExtra || $slots.extra" class="aheart-form-item__extra">
+        <slot name="extra">
+          <AFormItemRenderNode :node="extra" />
+        </slot>
       </div>
     </div>
   </div>
@@ -47,6 +51,14 @@ const AFormItemRenderNode = defineComponent({
   }
 })
 
+const hasRenderableContent = (value: VNodeChild | undefined) => {
+  if (Array.isArray(value)) {
+    return value.length > 0
+  }
+
+  return value !== undefined && value !== null && value !== false && value !== ''
+}
+
 const effectiveRules = computed(() => props.rules ?? [])
 const fieldErrors = computed(() => (props.name ? (formContext?.getFieldErrors(props.name) ?? []) : []))
 const isRequired = computed(() => Boolean(props.required || (props.name && formContext?.isFieldRequired(props.name))))
@@ -55,8 +67,9 @@ const showOptionalMark = computed(
   () => Boolean(props.label || props.name) && !isRequired.value && formContext?.requiredMark.value === 'optional'
 )
 const effectiveValidateStatus = computed(() => props.validateStatus ?? (fieldErrors.value.length > 0 ? 'error' : undefined))
-const effectiveHelp = computed(() => props.help ?? fieldErrors.value[0] ?? '')
-const hasHelp = computed(() => Boolean(effectiveHelp.value))
+const effectiveHelp = computed(() => (props.help !== undefined ? props.help : (fieldErrors.value[0] ?? '')))
+const hasHelp = computed(() => hasRenderableContent(effectiveHelp.value))
+const hasExtra = computed(() => hasRenderableContent(props.extra))
 
 watch(
   () => [props.name, effectiveRules.value] as const,

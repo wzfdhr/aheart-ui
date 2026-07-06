@@ -92,14 +92,19 @@ export const formEmits = {
     typeof name === 'string' && typeof status === 'boolean' && Array.isArray(errors)
 }
 
+const renderableProp = {
+  type: [String, Number, Boolean, Object, Array] as PropType<FormRenderable>,
+  default: undefined
+}
+
 export const formItemProps = {
   label: [String, Number, Object, Array] as PropType<FormRenderable>,
   name: String,
   required: Boolean,
   rules: Array as PropType<FormRule[]>,
   validateStatus: String as PropType<FormValidateStatus>,
-  help: String,
-  extra: String,
+  help: renderableProp,
+  extra: renderableProp,
   hasFeedback: Boolean
 } as const
 
