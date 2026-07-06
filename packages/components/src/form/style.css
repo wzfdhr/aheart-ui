@@ -37,6 +37,10 @@
   margin-right: var(--aheart-spacing-md);
 }
 
+.aheart-form-item--hidden {
+  display: none;
+}
+
 .aheart-form-item__label {
   display: inline-flex;
   align-items: center;

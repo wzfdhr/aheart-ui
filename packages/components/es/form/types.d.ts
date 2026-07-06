@@ -98,6 +98,7 @@ export declare const formItemProps: {
     readonly htmlFor: StringConstructor;
     readonly labelAlign: PropType<FormLabelAlign>;
     readonly layout: PropType<FormItemLayout>;
+    readonly hidden: BooleanConstructor;
     readonly required: BooleanConstructor;
     readonly rules: PropType<FormRule[]>;
     readonly validateStatus: PropType<FormValidateStatus>;

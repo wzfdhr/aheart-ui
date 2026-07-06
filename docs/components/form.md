@@ -161,6 +161,32 @@ const passwordTooltipIcon = h('span', 'i')
 </template>
 ```
 
+## 隐藏字段
+
+<div class="aheart-demo-panel">
+  <AForm :model="{ token: '' }" layout="vertical">
+    <AFormItem label="Token" name="token" hidden :rules="[{ required: true, message: 'Token required' }]">
+      <AInput model-value="" />
+    </AFormItem>
+    <AFormItem>
+      <AButton native-type="submit">Submit hidden field</AButton>
+    </AFormItem>
+  </AForm>
+</div>
+
+```vue
+<template>
+  <AForm :model="formState" layout="vertical">
+    <AFormItem label="Token" name="token" hidden :rules="[{ required: true, message: 'Token required' }]">
+      <AInput v-model="formState.token" />
+    </AFormItem>
+    <AFormItem>
+      <AButton native-type="submit">Submit hidden field</AButton>
+    </AFormItem>
+  </AForm>
+</template>
+```
+
 ## 行内布局
 
 <div class="aheart-demo-panel">
@@ -246,6 +272,7 @@ const passwordTooltipIcon = h('span', 'i')
 | htmlFor | 设置 label 的 `for` 属性 | `string` | - |
 | labelAlign | 当前表单项标签对齐方式，优先于 Form `labelAlign` | `left` \| `right` | Form labelAlign |
 | layout | 当前表单项布局 | `horizontal` \| `vertical` | Form layout |
+| hidden | 是否隐藏当前表单项；隐藏后仍参与校验 | `boolean` | `false` |
 | required | 是否显示必填标记 | `boolean` | `false` |
 | rules | 表单项校验规则 | `FormRule[]` | - |
 | validateStatus | 校验状态 | `success` \| `warning` \| `error` \| `validating` | - |

@@ -127,6 +127,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       [`aheart-form-item--label-${props.labelAlign}`]: props.labelAlign,
       "aheart-form-item--colon": props.colon === true,
       "aheart-form-item--no-colon": props.colon === false,
+      "aheart-form-item--hidden": props.hidden,
       "is-required": isRequired.value,
       "is-optional": showOptionalMark.value,
       "has-feedback": props.hasFeedback
@@ -141,7 +142,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return effectiveValidateStatus.value ? iconMap[effectiveValidateStatus.value] : "";
     });
     return (_ctx, _cache) => {
-      return vue.openBlock(), vue.createElementBlock("div", {
+      return vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
         class: vue.normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [
@@ -182,7 +183,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             ])
           ])) : vue.createCommentVNode("", true)
         ])
-      ], 10, _hoisted_1);
+      ], 10, _hoisted_1)), [
+        [vue.vShow, !_ctx.hidden]
+      ]);
     };
   }
 });

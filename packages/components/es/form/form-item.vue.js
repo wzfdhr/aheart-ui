@@ -1,4 +1,4 @@
-import { defineComponent, inject, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createCommentVNode, renderSlot, createVNode, unref, normalizeProps, guardReactiveProps, withCtx, createElementVNode, toDisplayString, isVNode } from "vue";
+import { defineComponent, inject, computed, watch, onBeforeUnmount, withDirectives, openBlock, createElementBlock, normalizeClass, createCommentVNode, renderSlot, createVNode, unref, normalizeProps, guardReactiveProps, withCtx, createElementVNode, toDisplayString, vShow, isVNode } from "vue";
 import _sfc_main$1 from "../tooltip/tooltip.vue.js";
 import { formItemProps, formContextKey } from "./types.js";
 import "./style.css.js";
@@ -125,6 +125,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       [`aheart-form-item--label-${props.labelAlign}`]: props.labelAlign,
       "aheart-form-item--colon": props.colon === true,
       "aheart-form-item--no-colon": props.colon === false,
+      "aheart-form-item--hidden": props.hidden,
       "is-required": isRequired.value,
       "is-optional": showOptionalMark.value,
       "has-feedback": props.hasFeedback
@@ -139,7 +140,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return effectiveValidateStatus.value ? iconMap[effectiveValidateStatus.value] : "";
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
+      return withDirectives((openBlock(), createElementBlock("div", {
         class: normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [
@@ -180,7 +181,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ])
           ])) : createCommentVNode("", true)
         ])
-      ], 10, _hoisted_1);
+      ], 10, _hoisted_1)), [
+        [vShow, !_ctx.hidden]
+      ]);
     };
   }
 });

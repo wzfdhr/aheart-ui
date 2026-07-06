@@ -60,6 +60,7 @@ const formItemProps = {
   htmlFor: String,
   labelAlign: String,
   layout: String,
+  hidden: Boolean,
   required: Boolean,
   rules: Array,
   validateStatus: String,

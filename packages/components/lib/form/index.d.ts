@@ -198,6 +198,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly htmlFor: StringConstructor;
         readonly labelAlign: import("vue").PropType<import("./types").FormLabelAlign>;
         readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
+        readonly hidden: BooleanConstructor;
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -215,6 +216,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         };
         readonly hasFeedback: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
+        readonly hidden: boolean;
         readonly help: import("vue").VNodeChild;
         readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
@@ -238,6 +240,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly htmlFor: StringConstructor;
         readonly labelAlign: import("vue").PropType<import("./types").FormLabelAlign>;
         readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
+        readonly hidden: BooleanConstructor;
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
         readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -255,6 +258,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         };
         readonly hasFeedback: BooleanConstructor;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
+        readonly hidden: boolean;
         readonly help: import("vue").VNodeChild;
         readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
@@ -275,6 +279,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     readonly htmlFor: StringConstructor;
     readonly labelAlign: import("vue").PropType<import("./types").FormLabelAlign>;
     readonly layout: import("vue").PropType<import("./types").FormItemLayout>;
+    readonly hidden: BooleanConstructor;
     readonly required: BooleanConstructor;
     readonly rules: import("vue").PropType<import("./types").FormRule[]>;
     readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
@@ -292,6 +297,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     };
     readonly hasFeedback: BooleanConstructor;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
+    readonly hidden: boolean;
     readonly help: import("vue").VNodeChild;
     readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: import("vue").VNodeChild;

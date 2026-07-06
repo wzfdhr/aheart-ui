@@ -9,6 +9,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly htmlFor: StringConstructor;
     readonly labelAlign: PropType<import("./types").FormLabelAlign>;
     readonly layout: PropType<import("./types").FormItemLayout>;
+    readonly hidden: BooleanConstructor;
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -35,6 +36,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly htmlFor: StringConstructor;
     readonly labelAlign: PropType<import("./types").FormLabelAlign>;
     readonly layout: PropType<import("./types").FormItemLayout>;
+    readonly hidden: BooleanConstructor;
     readonly required: BooleanConstructor;
     readonly rules: PropType<import("./types").FormRule[]>;
     readonly validateStatus: PropType<import("./types").FormValidateStatus>;
@@ -52,6 +54,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly hasFeedback: BooleanConstructor;
 }>> & Readonly<{}>, {
+    readonly hidden: boolean;
     readonly help: VNodeChild;
     readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: VNodeChild;

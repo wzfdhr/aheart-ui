@@ -216,6 +216,50 @@ describe('Form', () => {
     expect(empty.find('.aheart-form-item__tooltip').exists()).toBe(false)
   })
 
+  it('hides FormItem visually while keeping it mounted', () => {
+    const wrapper = mount(FormItem, {
+      props: {
+        label: 'Secret',
+        hidden: true
+      },
+      slots: { default: '<input />' }
+    })
+
+    expect(wrapper.classes()).toContain('aheart-form-item--hidden')
+    expect(wrapper.attributes('style')).toContain('display: none')
+    expect(wrapper.find('input').exists()).toBe(true)
+  })
+
+  it('validates hidden named FormItems on submit', async () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { secret: '' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(
+                FormItem,
+                { label: 'Secret', name: 'secret', hidden: true, rules: [{ required: true, message: 'Secret required' }] },
+                () => h(Input, { modelValue: '' })
+              ),
+              h('button', { type: 'submit' }, 'Submit')
+            ])
+          }
+        }
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(wrapper.findComponent(FormItem).classes()).toContain('aheart-form-item--hidden')
+    expect(wrapper.emitted('finishFailed')?.[0][0]).toEqual({
+      values: { secret: '' },
+      errorFields: [{ name: 'secret', errors: ['Secret required'] }]
+    })
+  })
+
   it('provides size and disabled state to nested controls', () => {
     const wrapper = mount(Form, {
       props: { size: 'large', disabled: true },

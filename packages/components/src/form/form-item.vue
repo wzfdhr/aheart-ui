@@ -1,5 +1,5 @@
 <template>
-  <div class="aheart-form-item" :class="formItemClass" :data-name="name">
+  <div v-show="!hidden" class="aheart-form-item" :class="formItemClass" :data-name="name">
     <label
       v-if="$slots.label || (label !== undefined && label !== null)"
       class="aheart-form-item__label"
@@ -147,6 +147,7 @@ const formItemClass = computed(() => ({
   [`aheart-form-item--label-${props.labelAlign}`]: props.labelAlign,
   'aheart-form-item--colon': props.colon === true,
   'aheart-form-item--no-colon': props.colon === false,
+  'aheart-form-item--hidden': props.hidden,
   'is-required': isRequired.value,
   'is-optional': showOptionalMark.value,
   'has-feedback': props.hasFeedback
