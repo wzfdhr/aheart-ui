@@ -531,6 +531,9 @@ const multiplyDecimalStringByTen = (value: string) => {
   return result
 }
 
+const isKeyboardStepUp = (key: string) => key === 'ArrowUp' || key === 'Up'
+const isKeyboardStepDown = (key: string) => key === 'ArrowDown' || key === 'Down'
+
 const handleStep = (
   offset: number,
   type: 'up' | 'down',
@@ -570,12 +573,12 @@ const handleKeydown = (event: KeyboardEvent) => {
   const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier
   const keyboardStepValue = props.stringMode && event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step
 
-  if (event.key === 'ArrowUp') {
+  if (isKeyboardStepUp(event.key)) {
     event.preventDefault()
     handleStep(keyboardStepOffset, 'up', 'keyboard', keyboardStepValue)
   }
 
-  if (event.key === 'ArrowDown') {
+  if (isKeyboardStepDown(event.key)) {
     event.preventDefault()
     handleStep(-keyboardStepOffset, 'down', 'keyboard', keyboardStepValue)
   }

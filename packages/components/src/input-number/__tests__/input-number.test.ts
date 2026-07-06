@@ -517,6 +517,20 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('step')?.[0]).toEqual([22, { offset: 20, type: 'up', emitter: 'keyboard' }])
   })
 
+  it('supports legacy Up and Down key names for keyboard stepping', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 2, step: 2 }
+    })
+
+    await wrapper.find('input').trigger('keydown', { key: 'Up' })
+    await wrapper.find('input').trigger('keydown', { key: 'Down' })
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([4])
+    expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0])
+    expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keyboard' }])
+    expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'keyboard' }])
+  })
+
   it('exposes focus blur and nativeElement methods', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)

@@ -387,6 +387,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return result;
     };
+    const isKeyboardStepUp = (key) => key === "ArrowUp" || key === "Up";
+    const isKeyboardStepDown = (key) => key === "ArrowDown" || key === "Down";
     const handleStep = (offset, type, emitter, stepValue = props.step) => {
       if (isInteractiveDisabled.value) {
         return;
@@ -414,11 +416,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const keyboardStepMultiplier = event.shiftKey ? 10 : 1;
       const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier;
       const keyboardStepValue = props.stringMode && event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step;
-      if (event.key === "ArrowUp") {
+      if (isKeyboardStepUp(event.key)) {
         event.preventDefault();
         handleStep(keyboardStepOffset, "up", "keyboard", keyboardStepValue);
       }
-      if (event.key === "ArrowDown") {
+      if (isKeyboardStepDown(event.key)) {
         event.preventDefault();
         handleStep(-keyboardStepOffset, "down", "keyboard", keyboardStepValue);
       }

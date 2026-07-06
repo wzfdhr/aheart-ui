@@ -194,7 +194,7 @@ import { h } from 'vue'
 </template>
 ```
 
-键盘方向键步进时，按住 <kbd>Shift</kbd> 会使用 10 倍步长。
+键盘方向键步进支持 `ArrowUp`/`ArrowDown` 和 `Up`/`Down` key 值；按住 <kbd>Shift</kbd> 会使用 10 倍步长。
 
 ## 语义化样式
 
