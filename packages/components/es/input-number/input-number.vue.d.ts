@@ -3,6 +3,7 @@ import type { InputNumberFocusOptions } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
+    readonly defaultValue: NumberConstructor;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: PropType<VNodeChild>;
@@ -63,6 +64,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
+    readonly defaultValue: NumberConstructor;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: PropType<VNodeChild>;

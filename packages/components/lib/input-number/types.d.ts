@@ -29,6 +29,7 @@ export interface InputNumberStepInfo {
 export declare const inputNumberProps: {
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
+    readonly defaultValue: NumberConstructor;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: PropType<VNodeChild>;

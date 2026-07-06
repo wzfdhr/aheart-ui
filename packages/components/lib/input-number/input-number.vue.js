@@ -21,6 +21,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const slots = vue.useSlots();
     const rootRef = vue.ref();
     const inputRef = vue.ref();
+    const uncontrolledValue = vue.ref(props.defaultValue);
     const AInputNumberRenderNode = vue.defineComponent({
       name: "AInputNumberRenderNode",
       props: {
@@ -41,6 +42,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
+    const isControlled = vue.computed(() => props.modelValue !== void 0);
+    const mergedValue = vue.computed(() => isControlled.value ? props.modelValue : uncontrolledValue.value);
     const resolvedVariant = vue.computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
@@ -67,9 +70,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const formatDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.replace(".", props.decimalSeparator) : value;
     const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
     const displayValue = vue.computed(() => {
-      const input = props.modelValue === void 0 ? "" : String(props.modelValue);
+      const input = mergedValue.value === void 0 ? "" : String(mergedValue.value);
       if (props.formatter) {
-        return props.formatter(props.modelValue, {
+        return props.formatter(mergedValue.value, {
           userTyping: false,
           input
         });
@@ -152,6 +155,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return preciseValue;
     };
     const emitValue = (value) => {
+      if (!isControlled.value) {
+        uncontrolledValue.value = value;
+      }
       emit("update:modelValue", value);
       emit("change", value);
     };
@@ -170,7 +176,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (isInteractiveDisabled.value) {
         return;
       }
-      const nextValue = clampValue((props.modelValue ?? 0) + offset);
+      const nextValue = clampValue((mergedValue.value ?? 0) + offset);
       emitValue(nextValue);
       emit("step", nextValue, { offset, type, emitter });
     };

@@ -78,6 +78,7 @@ const config = useAheartConfig()
 const slots = useSlots()
 const rootRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
+const uncontrolledValue = ref<number | undefined>(props.defaultValue)
 
 const AInputNumberRenderNode = defineComponent({
   name: 'AInputNumberRenderNode',
@@ -102,6 +103,8 @@ const hasRenderable = (value: unknown) => {
 
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
+const isControlled = computed(() => props.modelValue !== undefined)
+const mergedValue = computed(() => (isControlled.value ? props.modelValue : uncontrolledValue.value))
 const resolvedVariant = computed(() =>
   props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined')
 )
@@ -124,10 +127,10 @@ const formatDecimalSeparator = (value: string) =>
 const parseDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator as string).join('.') : value
 const displayValue = computed(() => {
-  const input = props.modelValue === undefined ? '' : String(props.modelValue)
+  const input = mergedValue.value === undefined ? '' : String(mergedValue.value)
 
   if (props.formatter) {
-    return props.formatter(props.modelValue, {
+    return props.formatter(mergedValue.value, {
       userTyping: false,
       input
     })
@@ -183,6 +186,10 @@ const clampValue = (value: number) => {
 }
 
 const emitValue = (value: number | undefined) => {
+  if (!isControlled.value) {
+    uncontrolledValue.value = value
+  }
+
   emit('update:modelValue', value)
   emit('change', value)
 }
@@ -207,7 +214,7 @@ const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'k
     return
   }
 
-  const nextValue = clampValue((props.modelValue ?? 0) + offset)
+  const nextValue = clampValue((mergedValue.value ?? 0) + offset)
   emitValue(nextValue)
   emit('step', nextValue, { offset, type, emitter })
 }

@@ -2,6 +2,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly id: StringConstructor;
         readonly modelValue: NumberConstructor;
+        readonly defaultValue: NumberConstructor;
         readonly placeholder: StringConstructor;
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
@@ -85,6 +86,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly id: StringConstructor;
         readonly modelValue: NumberConstructor;
+        readonly defaultValue: NumberConstructor;
         readonly placeholder: StringConstructor;
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
@@ -160,6 +162,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
     readonly modelValue: NumberConstructor;
+    readonly defaultValue: NumberConstructor;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: import("vue").PropType<import("vue").VNodeChild>;

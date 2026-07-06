@@ -15,6 +15,22 @@ describe('InputNumber', () => {
     expect(wrapper.find('input').element.value).toBe('4')
   })
 
+  it('uses defaultValue as uncontrolled initial value', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { defaultValue: 4, step: 2 }
+    })
+
+    const input = wrapper.find('input')
+
+    expect(input.element.value).toBe('4')
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+
+    expect(input.element.value).toBe('6')
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([6])
+    expect(wrapper.emitted('change')?.[0]).toEqual([6])
+  })
+
   it('clamps typed values to min and max', async () => {
     const wrapper = mount(InputNumber, {
       props: { min: 1, max: 10 }

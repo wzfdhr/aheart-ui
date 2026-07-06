@@ -19,6 +19,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const slots = useSlots();
     const rootRef = ref();
     const inputRef = ref();
+    const uncontrolledValue = ref(props.defaultValue);
     const AInputNumberRenderNode = defineComponent({
       name: "AInputNumberRenderNode",
       props: {
@@ -39,6 +40,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
+    const isControlled = computed(() => props.modelValue !== void 0);
+    const mergedValue = computed(() => isControlled.value ? props.modelValue : uncontrolledValue.value);
     const resolvedVariant = computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
@@ -65,9 +68,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const formatDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.replace(".", props.decimalSeparator) : value;
     const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
     const displayValue = computed(() => {
-      const input = props.modelValue === void 0 ? "" : String(props.modelValue);
+      const input = mergedValue.value === void 0 ? "" : String(mergedValue.value);
       if (props.formatter) {
-        return props.formatter(props.modelValue, {
+        return props.formatter(mergedValue.value, {
           userTyping: false,
           input
         });
@@ -150,6 +153,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return preciseValue;
     };
     const emitValue = (value) => {
+      if (!isControlled.value) {
+        uncontrolledValue.value = value;
+      }
       emit("update:modelValue", value);
       emit("change", value);
     };
@@ -168,7 +174,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (isInteractiveDisabled.value) {
         return;
       }
-      const nextValue = clampValue((props.modelValue ?? 0) + offset);
+      const nextValue = clampValue((mergedValue.value ?? 0) + offset);
       emitValue(nextValue);
       emit("step", nextValue, { offset, type, emitter });
     };

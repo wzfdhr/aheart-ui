@@ -9,12 +9,16 @@ InputNumber captures numeric values with min, max, step, controls, precision, fo
 ## 基础用法
 
 <div class="aheart-demo-panel">
-  <AInputNumber :model-value="4" :min="1" :max="10" />
+  <ASpace>
+    <AInputNumber :model-value="4" :min="1" :max="10" />
+    <AInputNumber :default-value="6" />
+  </ASpace>
 </div>
 
 ```vue
 <template>
   <AInputNumber v-model="value" :min="1" :max="10" />
+  <AInputNumber :default-value="6" />
 </template>
 ```
 
@@ -191,6 +195,7 @@ import { h } from 'vue'
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | modelValue | 数字值 | `number` | - |
+| defaultValue | 非受控初始值 | `number` | - |
 | id | 原生输入框 id | `string` | - |
 | placeholder | 占位提示 | `string` | - |
 | prefix | 输入框前缀内容 | `VNodeChild` | - |
