@@ -5,7 +5,7 @@ export type InputNumberStatus = 'error' | 'warning'
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
 export type InputNumberMode = 'input' | 'spinner'
 export type InputNumberStepType = 'up' | 'down'
-export type InputNumberStepEmitter = 'handler' | 'keydown' | 'wheel'
+export type InputNumberStepEmitter = 'handler' | 'keyboard' | 'wheel'
 export type InputNumberFocusCursor = 'start' | 'end' | 'all'
 export type InputNumberRenderable = VNodeChild
 export type InputNumberValue = number | string
@@ -120,7 +120,7 @@ export const inputNumberEmits = {
     (typeof value === 'number' || typeof value === 'string') &&
     typeof info.offset === 'number' &&
     (info.type === 'up' || info.type === 'down') &&
-    (info.emitter === 'handler' || info.emitter === 'keydown' || info.emitter === 'wheel')
+    (info.emitter === 'handler' || info.emitter === 'keyboard' || info.emitter === 'wheel')
 }
 
 export type InputNumberProps = ExtractPropTypes<typeof inputNumberProps>

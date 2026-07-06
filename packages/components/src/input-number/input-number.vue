@@ -521,7 +521,7 @@ const handleInput = (event: Event) => {
   emit('input', rawValue)
 }
 
-const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'keydown' | 'wheel') => {
+const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'keyboard' | 'wheel') => {
   if (isInteractiveDisabled.value) {
     return
   }
@@ -553,12 +553,12 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   if (event.key === 'ArrowUp') {
     event.preventDefault()
-    handleStep(resolvedStep.value, 'up', 'keydown')
+    handleStep(resolvedStep.value, 'up', 'keyboard')
   }
 
   if (event.key === 'ArrowDown') {
     event.preventDefault()
-    handleStep(-resolvedStep.value, 'down', 'keydown')
+    handleStep(-resolvedStep.value, 'down', 'keyboard')
   }
 }
 

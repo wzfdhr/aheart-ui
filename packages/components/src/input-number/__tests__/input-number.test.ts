@@ -502,7 +502,7 @@ describe('InputNumber', () => {
     await wrapper.find('input').trigger('keydown', { key: 'ArrowUp' })
     await wrapper.find('input').trigger('wheel', { deltaY: 1 })
 
-    expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keydown' }])
+    expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keyboard' }])
     expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'wheel' }])
   })
 

@@ -309,7 +309,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | change | 数字值变化时触发，`stringMode` 下返回字符串 | `(value: number \| string \| undefined) => void` |
 | pressEnter | 按下回车时触发 | `(event: KeyboardEvent) => void` |
 | input | 输入框内容变化时触发，返回当前原始输入文本 | `(value: string) => void` |
-| step | 控制按钮、键盘或滚轮步进时触发，`stringMode` 下 value 返回字符串 | `(value: number \| string, info: { offset: number; type: 'up' \| 'down'; emitter: 'handler' \| 'keydown' \| 'wheel' }) => void` |
+| step | 控制按钮、键盘或滚轮步进时触发，`stringMode` 下 value 返回字符串 | `(value: number \| string, info: { offset: number; type: 'up' \| 'down'; emitter: 'handler' \| 'keyboard' \| 'wheel' }) => void` |
 
 ## Methods
 

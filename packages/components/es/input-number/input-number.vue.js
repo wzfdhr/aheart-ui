@@ -404,11 +404,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       if (event.key === "ArrowUp") {
         event.preventDefault();
-        handleStep(resolvedStep.value, "up", "keydown");
+        handleStep(resolvedStep.value, "up", "keyboard");
       }
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        handleStep(-resolvedStep.value, "down", "keydown");
+        handleStep(-resolvedStep.value, "down", "keyboard");
       }
     };
     const handleBlur = () => {
