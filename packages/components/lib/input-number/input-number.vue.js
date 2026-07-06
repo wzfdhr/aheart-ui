@@ -297,6 +297,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       {
         [`aheart-input-number--${props.status}`]: props.status,
         "is-focused": isFocused.value,
+        "is-not-a-number": isNotANumber.value,
         "is-disabled": isDisabled.value,
         "is-readonly": props.readOnly
       }
@@ -371,6 +372,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       const value = String(mergedValue.value);
       return isValidValueString(value) ? value : void 0;
+    });
+    const isNotANumber = vue.computed(() => {
+      if (mergedValue.value === void 0 || mergedValue.value === "") {
+        return false;
+      }
+      return !isValidValueString(String(mergedValue.value));
     });
     const inputAttrs = vue.computed(
       () => Object.fromEntries(

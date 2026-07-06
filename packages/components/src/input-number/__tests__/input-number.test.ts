@@ -50,6 +50,25 @@ describe('InputNumber', () => {
     expect(validString.find('input').attributes('aria-valuenow')).toBe('1.000000000000000001')
   })
 
+  it('exposes a not-a-number root state class for invalid current values', () => {
+    const invalid = mount(InputNumber, {
+      props: { modelValue: 'abc' }
+    })
+    const empty = mount(InputNumber, {
+      props: { modelValue: '', stringMode: true }
+    })
+    const validString = mount(InputNumber, {
+      props: {
+        modelValue: '1.000000000000000001',
+        stringMode: true
+      }
+    })
+
+    expect(invalid.classes()).toContain('is-not-a-number')
+    expect(empty.classes()).not.toContain('is-not-a-number')
+    expect(validString.classes()).not.toContain('is-not-a-number')
+  })
+
   it('defaults autocomplete off while preserving explicit native overrides', () => {
     const wrapper = mount(InputNumber)
     const explicit = mount(InputNumber, {

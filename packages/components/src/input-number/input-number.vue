@@ -442,6 +442,7 @@ const inputNumberClass = computed(() => [
   {
     [`aheart-input-number--${props.status}`]: props.status,
     'is-focused': isFocused.value,
+    'is-not-a-number': isNotANumber.value,
     'is-disabled': isDisabled.value,
     'is-readonly': props.readOnly
   }
@@ -525,6 +526,13 @@ const ariaValueNow = computed(() => {
   const value = String(mergedValue.value)
 
   return isValidValueString(value) ? value : undefined
+})
+const isNotANumber = computed(() => {
+  if (mergedValue.value === undefined || mergedValue.value === '') {
+    return false
+  }
+
+  return !isValidValueString(String(mergedValue.value))
 })
 const inputAttrs = computed(() =>
   Object.fromEntries(
