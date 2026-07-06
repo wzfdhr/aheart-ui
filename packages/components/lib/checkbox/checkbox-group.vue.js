@@ -17,6 +17,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const config = context.useAheartConfig();
     const internalValue = vue.ref(props.defaultValue ? [...props.defaultValue] : []);
+    const ACheckboxGroupRenderNode = vue.defineComponent({
+      name: "ACheckboxGroupRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const isControlled = vue.computed(() => props.value !== void 0 || props.modelValue !== void 0);
     const mergedValue = vue.computed(() => props.value ?? props.modelValue ?? internalValue.value);
@@ -58,13 +70,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "model-value": isChecked(option.value),
             value: option.value,
             name: _ctx.name,
-            label: option.label,
             disabled: isDisabled.value || option.disabled,
             "class-name": option.className,
             style: vue.normalizeStyle(option.style),
             title: option.title,
             onChange: (checked) => handleOptionChange(option.value, checked)
-          }, null, 8, ["model-value", "value", "name", "label", "disabled", "class-name", "style", "title", "onChange"]);
+          }, {
+            default: vue.withCtx(() => [
+              vue.createVNode(vue.unref(ACheckboxGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
+            ]),
+            _: 2
+          }, 1032, ["model-value", "value", "name", "disabled", "class-name", "style", "title", "onChange"]);
         }), 128))
       ], 6);
     };

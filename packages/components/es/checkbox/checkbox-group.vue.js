@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createBlock } from "vue";
+import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createBlock, withCtx, createVNode, unref } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import _sfc_main$1 from "./checkbox.vue.js";
 import { checkboxGroupProps, checkboxGroupEmits } from "./types.js";
@@ -15,6 +15,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const config = useAheartConfig();
     const internalValue = ref(props.defaultValue ? [...props.defaultValue] : []);
+    const ACheckboxGroupRenderNode = defineComponent({
+      name: "ACheckboxGroupRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const isControlled = computed(() => props.value !== void 0 || props.modelValue !== void 0);
     const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value);
@@ -56,13 +68,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "model-value": isChecked(option.value),
             value: option.value,
             name: _ctx.name,
-            label: option.label,
             disabled: isDisabled.value || option.disabled,
             "class-name": option.className,
             style: normalizeStyle(option.style),
             title: option.title,
             onChange: (checked) => handleOptionChange(option.value, checked)
-          }, null, 8, ["model-value", "value", "name", "label", "disabled", "class-name", "style", "title", "onChange"]);
+          }, {
+            default: withCtx(() => [
+              createVNode(unref(ACheckboxGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
+            ]),
+            _: 2
+          }, 1032, ["model-value", "value", "name", "disabled", "class-name", "style", "title", "onChange"]);
         }), 128))
       ], 6);
     };

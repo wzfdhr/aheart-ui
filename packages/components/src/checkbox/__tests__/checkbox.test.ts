@@ -258,4 +258,21 @@ describe('Checkbox', () => {
     expect(checkboxes[2].attributes('style')).toContain('color: green')
     expect(checkboxes[2].attributes('title')).toBe('Styled title')
   })
+
+  it('renders CheckboxGroup option labels as renderable nodes', () => {
+    const wrapper = mount(CheckboxGroup, {
+      props: {
+        defaultValue: ['custom'],
+        options: [
+          {
+            label: h('span', { class: 'checkbox-option-node' }, 'Custom label'),
+            value: 'custom'
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.checkbox-option-node').text()).toBe('Custom label')
+    expect(wrapper.find('input').element.checked).toBe(true)
+  })
 })

@@ -1,12 +1,13 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 export type CheckboxValue = string | number | boolean;
+export type CheckboxRenderable = VNodeChild;
 export type CheckboxGroupDirection = 'horizontal' | 'vertical';
 export type CheckboxSemanticPart = 'root' | 'icon' | 'label';
 export type CheckboxClassNames = Partial<Record<CheckboxSemanticPart, string>>;
 export type CheckboxStyles = Partial<Record<CheckboxSemanticPart, StyleValue>>;
 export type CheckboxRawOption = CheckboxValue | CheckboxOption;
 export interface CheckboxOption {
-    label: string;
+    label: CheckboxRenderable;
     value: CheckboxValue;
     disabled?: boolean;
     className?: string;

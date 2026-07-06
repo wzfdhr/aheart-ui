@@ -6,18 +6,19 @@
       :model-value="isChecked(option.value)"
       :value="option.value"
       :name="name"
-      :label="option.label"
       :disabled="isDisabled || option.disabled"
       :class-name="option.className"
       :style="option.style"
       :title="option.title"
       @change="(checked) => handleOptionChange(option.value, checked)"
-    />
+    >
+      <ACheckboxGroupRenderNode :node="option.label" />
+    </Checkbox>
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineComponent, ref, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import Checkbox from './checkbox.vue'
 import { checkboxGroupEmits, checkboxGroupProps, type CheckboxOption, type CheckboxValue } from './types'
@@ -31,6 +32,19 @@ const props = defineProps(checkboxGroupProps)
 const emit = defineEmits(checkboxGroupEmits)
 const config = useAheartConfig()
 const internalValue = ref<CheckboxValue[]>(props.defaultValue ? [...props.defaultValue] : [])
+
+const ACheckboxGroupRenderNode = defineComponent({
+  name: 'ACheckboxGroupRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const isControlled = computed(() => props.value !== undefined || props.modelValue !== undefined)

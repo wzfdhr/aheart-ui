@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
 </script>
 
 # Checkbox 多选框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -103,19 +104,27 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
     :options="[
       'Plain',
       2,
-      { label: 'Styled', value: 'styled', className: 'demo-checkbox-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' }
+      { label: 'Styled', value: 'styled', className: 'demo-checkbox-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' },
+      { label: checkboxNodeLabel, value: 'node' }
     ]"
   />
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
   <ACheckboxGroup
     :default-value="['Plain', 2]"
     :options="[
       'Plain',
       2,
-      { label: 'Styled', value: 'styled', className: 'demo-checkbox-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' }
+      { label: 'Styled', value: 'styled', className: 'demo-checkbox-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' },
+      { label: checkboxNodeLabel, value: 'node' }
     ]"
   />
 </template>
@@ -214,7 +223,7 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
 | modelValue | 已选值数组 | `CheckboxValue[]` | `[]` |
 | value | 已选值数组，Ant 风格受控别名，优先级高于 `modelValue` | `CheckboxValue[]` | - |
 | defaultValue | 非受控初始选中值数组 | `CheckboxValue[]` | - |
-| options | 选项列表，支持字符串、数字或对象选项 | `(string \| number \| CheckboxOption)[]` | `[]` |
+| options | 选项列表，支持字符串、数字或对象选项；对象选项的 `label` 可传渲染节点 | `(string \| number \| CheckboxOption)[]` | `[]` |
 | disabled | 是否禁用整组 | `boolean` | ConfigProvider disabled |
 | name | 传递给组内所有原生 checkbox 的 name 属性 | `string` | - |
 | direction | 排列方向 | `horizontal` \| `vertical` | `horizontal` |
@@ -226,7 +235,7 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| label | 选项文本 | `string` | - |
+| label | 选项内容 | `VNodeChild` | - |
 | value | 选项值 | `string` \| `number` \| `boolean` | - |
 | disabled | 是否禁用该选项 | `boolean` | `false` |
 | className | 选项根节点 class | `string` | - |

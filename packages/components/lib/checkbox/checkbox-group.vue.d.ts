@@ -1,19 +1,20 @@
+import { type PropType } from 'vue';
 import { type CheckboxValue } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly modelValue: {
-        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly type: PropType<CheckboxValue[]>;
         readonly default: undefined;
     };
     readonly value: {
-        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly type: PropType<CheckboxValue[]>;
         readonly default: undefined;
     };
     readonly defaultValue: {
-        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly type: PropType<CheckboxValue[]>;
         readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").CheckboxRawOption[]>;
+        readonly type: PropType<import("./types").CheckboxRawOption[]>;
         readonly default: () => never[];
     };
     readonly disabled: {
@@ -22,31 +23,31 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly name: StringConstructor;
     readonly direction: {
-        readonly type: import("vue").PropType<import("./types").CheckboxGroupDirection>;
+        readonly type: PropType<import("./types").CheckboxGroupDirection>;
         readonly default: "horizontal";
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: CheckboxValue[]) => void;
     "update:modelValue": (value: CheckboxValue[]) => void;
     "update:value": (value: CheckboxValue[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly modelValue: {
-        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly type: PropType<CheckboxValue[]>;
         readonly default: undefined;
     };
     readonly value: {
-        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly type: PropType<CheckboxValue[]>;
         readonly default: undefined;
     };
     readonly defaultValue: {
-        readonly type: import("vue").PropType<CheckboxValue[]>;
+        readonly type: PropType<CheckboxValue[]>;
         readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").CheckboxRawOption[]>;
+        readonly type: PropType<import("./types").CheckboxRawOption[]>;
         readonly default: () => never[];
     };
     readonly disabled: {
@@ -55,12 +56,12 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly name: StringConstructor;
     readonly direction: {
-        readonly type: import("vue").PropType<import("./types").CheckboxGroupDirection>;
+        readonly type: PropType<import("./types").CheckboxGroupDirection>;
         readonly default: "horizontal";
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
 }>> & Readonly<{
     onChange?: ((value: CheckboxValue[]) => any) | undefined;
     "onUpdate:modelValue"?: ((value: CheckboxValue[]) => any) | undefined;
