@@ -357,6 +357,23 @@ describe('Popconfirm', () => {
     expect(wrapper.find('.aheart-popconfirm__ok').attributes('style')).toContain('margin-left: 2px')
   })
 
+  it('applies align offset variables to the popup', () => {
+    const wrapper = mountPopconfirm({
+      props: {
+        defaultOpen: true,
+        title: 'Offset confirm',
+        align: { offset: [8, -4] }
+      },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    const popupStyle = wrapper.find('.aheart-popconfirm__popup').attributes('style') ?? ''
+
+    expect(popupStyle).toContain('--aheart-floating-align-x: 8px')
+    expect(popupStyle).toContain('--aheart-floating-align-y: -4px')
+    expect(wrapper.attributes('align')).toBeUndefined()
+  })
+
   it('resolves function semantic hooks with open state and effective placement', async () => {
     setViewportSize(1024, 800)
     const rectSpy = mockPopconfirmRects({

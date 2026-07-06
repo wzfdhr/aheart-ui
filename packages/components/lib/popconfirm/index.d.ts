@@ -62,6 +62,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly type: NumberConstructor;
             readonly default: 0.1;
         };
+        readonly align: import("vue").PropType<import("./types").PopconfirmAlignConfig>;
         readonly arrow: {
             readonly type: import("vue").PropType<import("./types").PopconfirmArrow>;
             readonly default: true;
@@ -178,6 +179,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly type: NumberConstructor;
             readonly default: 0.1;
         };
+        readonly align: import("vue").PropType<import("./types").PopconfirmAlignConfig>;
         readonly arrow: {
             readonly type: import("vue").PropType<import("./types").PopconfirmArrow>;
             readonly default: true;
@@ -285,6 +287,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly type: NumberConstructor;
         readonly default: 0.1;
     };
+    readonly align: import("vue").PropType<import("./types").PopconfirmAlignConfig>;
     readonly arrow: {
         readonly type: import("vue").PropType<import("./types").PopconfirmArrow>;
         readonly default: true;

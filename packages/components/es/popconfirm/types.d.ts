@@ -6,6 +6,10 @@ export type PopconfirmRenderable = VNodeChild;
 export type PopconfirmRenderableFactory = () => VNodeChild;
 export type PopconfirmContent = PopconfirmRenderable | PopconfirmRenderableFactory;
 export type PopconfirmGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
+export interface PopconfirmAlignConfig {
+    offset?: [number, number];
+    [key: string]: unknown;
+}
 export interface PopconfirmArrowConfig {
     pointAtCenter?: boolean;
 }
@@ -82,6 +86,7 @@ export declare const popconfirmProps: {
         readonly type: NumberConstructor;
         readonly default: 0.1;
     };
+    readonly align: PropType<PopconfirmAlignConfig>;
     readonly arrow: {
         readonly type: PropType<PopconfirmArrow>;
         readonly default: true;

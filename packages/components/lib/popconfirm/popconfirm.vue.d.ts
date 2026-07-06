@@ -63,6 +63,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: NumberConstructor;
         readonly default: 0.1;
     };
+    readonly align: PropType<import("./types").PopconfirmAlignConfig>;
     readonly arrow: {
         readonly type: PropType<import("./types").PopconfirmArrow>;
         readonly default: true;
@@ -146,6 +147,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: NumberConstructor;
         readonly default: 0.1;
     };
+    readonly align: PropType<import("./types").PopconfirmAlignConfig>;
     readonly arrow: {
         readonly type: PropType<import("./types").PopconfirmArrow>;
         readonly default: true;

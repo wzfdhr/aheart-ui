@@ -63,6 +63,7 @@ const popconfirmProps = {
     type: Number,
     default: 0.1
   },
+  align: Object,
   arrow: {
     type: [Boolean, Object],
     default: true

@@ -84,7 +84,24 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
-    const popupStyle = vue.computed(() => [floating.getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup]);
+    const alignOffsetStyle = vue.computed(() => {
+      var _a;
+      const offset = (_a = props.align) == null ? void 0 : _a.offset;
+      if (!Array.isArray(offset) || offset.length < 2) {
+        return {};
+      }
+      const [x, y] = offset;
+      return {
+        "--aheart-floating-align-x": `${Number.isFinite(x) ? x : 0}px`,
+        "--aheart-floating-align-y": `${Number.isFinite(y) ? y : 0}px`
+      };
+    });
+    const popupStyle = vue.computed(() => [
+      floating.getFloatingPopupStyle(props.color, props.zIndex),
+      alignOffsetStyle.value,
+      props.overlayStyle,
+      resolvedStyles.value.popup
+    ]);
     const containerClass = vue.computed(() => resolvedClassNames.value.container);
     const containerStyle = vue.computed(() => [props.overlayInnerStyle, resolvedStyles.value.container]);
     const showArrow = vue.computed(() => props.arrow !== false);
