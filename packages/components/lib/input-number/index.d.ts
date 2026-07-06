@@ -1,9 +1,9 @@
 declare const InputNumber: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly id: StringConstructor;
-        readonly modelValue: NumberConstructor;
-        readonly value: NumberConstructor;
-        readonly defaultValue: NumberConstructor;
+        readonly modelValue: import("vue").PropType<import("./types").InputNumberValue>;
+        readonly value: import("vue").PropType<import("./types").InputNumberValue>;
+        readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
         readonly placeholder: StringConstructor;
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
@@ -36,8 +36,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         };
         readonly precision: NumberConstructor;
         readonly decimalSeparator: StringConstructor;
-        readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
-        readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
+        readonly stringMode: BooleanConstructor;
+        readonly formatter: import("vue").PropType<(value: import("./types").InputNumberValue | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
+        readonly parser: import("vue").PropType<(displayValue: string) => import("./types").InputNumberValue | undefined>;
         readonly keyboard: {
             readonly type: BooleanConstructor;
             readonly default: true;
@@ -53,18 +54,18 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly classNames: import("vue").PropType<import("./types").InputNumberClassNames>;
         readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
     }>> & Readonly<{
-        onChange?: ((value: number | undefined) => any) | undefined;
-        onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
-        "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
+        onChange?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
+        onStep?: ((value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
+        "onUpdate:modelValue"?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
     }>, {
         focus: (options?: import("./types").InputNumberFocusOptions | undefined) => void;
         blur: () => void;
         nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
     }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-        change: (value: number | undefined) => void;
-        step: (value: number, info: import("./types").InputNumberStepInfo) => void;
-        "update:modelValue": (value: number | undefined) => void;
+        change: (value: import("./types").InputNumberValue | undefined) => void;
+        step: (value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => void;
+        "update:modelValue": (value: import("./types").InputNumberValue | undefined) => void;
         pressEnter: (event: KeyboardEvent) => void;
     }, import("vue").PublicProps, {
         readonly variant: import("./types").InputNumberVariant;
@@ -75,6 +76,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly readOnly: boolean;
+        readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
         readonly changeOnWheel: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -86,9 +88,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly id: StringConstructor;
-        readonly modelValue: NumberConstructor;
-        readonly value: NumberConstructor;
-        readonly defaultValue: NumberConstructor;
+        readonly modelValue: import("vue").PropType<import("./types").InputNumberValue>;
+        readonly value: import("vue").PropType<import("./types").InputNumberValue>;
+        readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
         readonly placeholder: StringConstructor;
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
@@ -121,8 +123,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         };
         readonly precision: NumberConstructor;
         readonly decimalSeparator: StringConstructor;
-        readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
-        readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
+        readonly stringMode: BooleanConstructor;
+        readonly formatter: import("vue").PropType<(value: import("./types").InputNumberValue | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
+        readonly parser: import("vue").PropType<(displayValue: string) => import("./types").InputNumberValue | undefined>;
         readonly keyboard: {
             readonly type: BooleanConstructor;
             readonly default: true;
@@ -138,9 +141,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly classNames: import("vue").PropType<import("./types").InputNumberClassNames>;
         readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
     }>> & Readonly<{
-        onChange?: ((value: number | undefined) => any) | undefined;
-        onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
-        "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
+        onChange?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
+        onStep?: ((value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
+        "onUpdate:modelValue"?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
     }>, {
         focus: (options?: import("./types").InputNumberFocusOptions | undefined) => void;
@@ -155,6 +158,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly readOnly: boolean;
+        readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
         readonly changeOnWheel: boolean;
     }>;
@@ -163,9 +167,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
-    readonly modelValue: NumberConstructor;
-    readonly value: NumberConstructor;
-    readonly defaultValue: NumberConstructor;
+    readonly modelValue: import("vue").PropType<import("./types").InputNumberValue>;
+    readonly value: import("vue").PropType<import("./types").InputNumberValue>;
+    readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: import("vue").PropType<import("vue").VNodeChild>;
@@ -198,8 +202,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     };
     readonly precision: NumberConstructor;
     readonly decimalSeparator: StringConstructor;
-    readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
-    readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
+    readonly stringMode: BooleanConstructor;
+    readonly formatter: import("vue").PropType<(value: import("./types").InputNumberValue | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
+    readonly parser: import("vue").PropType<(displayValue: string) => import("./types").InputNumberValue | undefined>;
     readonly keyboard: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -215,18 +220,18 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly classNames: import("vue").PropType<import("./types").InputNumberClassNames>;
     readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
 }>> & Readonly<{
-    onChange?: ((value: number | undefined) => any) | undefined;
-    onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
-    "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
+    onChange?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
+    onStep?: ((value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
+    "onUpdate:modelValue"?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
     focus: (options?: import("./types").InputNumberFocusOptions | undefined) => void;
     blur: () => void;
     nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    change: (value: number | undefined) => void;
-    step: (value: number, info: import("./types").InputNumberStepInfo) => void;
-    "update:modelValue": (value: number | undefined) => void;
+    change: (value: import("./types").InputNumberValue | undefined) => void;
+    step: (value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => void;
+    "update:modelValue": (value: import("./types").InputNumberValue | undefined) => void;
     pressEnter: (event: KeyboardEvent) => void;
 }, string, {
     readonly variant: import("./types").InputNumberVariant;
@@ -237,6 +242,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly prefix: import("vue").VNodeChild;
     readonly suffix: import("vue").VNodeChild;
     readonly readOnly: boolean;
+    readonly stringMode: boolean;
     readonly controls: import("./types").InputNumberControls;
     readonly changeOnWheel: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

@@ -45,6 +45,51 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('step')?.[0]).toEqual([7, { offset: 2, type: 'up', emitter: 'handler' }])
   })
 
+  it('emits string values when stringMode is enabled', async () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        stringMode: true,
+        modelValue: '1.000000000000000001',
+        step: '0.000000000000000001'
+      }
+    })
+
+    expect(wrapper.find('input').element.value).toBe('1.000000000000000001')
+
+    await wrapper.find('input').setValue('2.000000000000000001')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['2.000000000000000001'])
+    expect(wrapper.emitted('change')?.[0]).toEqual(['2.000000000000000001'])
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[1]).toEqual(['1.000000000000000002'])
+    expect(wrapper.emitted('change')?.[1]).toEqual(['1.000000000000000002'])
+    expect(wrapper.emitted('step')?.[0]).toEqual([
+      '1.000000000000000002',
+      { offset: 0.000000000000000001, type: 'up', emitter: 'handler' }
+    ])
+  })
+
+  it('uses string defaultValue as uncontrolled initial value', async () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        stringMode: true,
+        defaultValue: '3.000000000000000001',
+        step: '0.000000000000000001'
+      }
+    })
+    const input = wrapper.find('input')
+
+    expect(input.element.value).toBe('3.000000000000000001')
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+
+    expect(input.element.value).toBe('3.000000000000000002')
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['3.000000000000000002'])
+    expect(wrapper.emitted('change')?.[0]).toEqual(['3.000000000000000002'])
+  })
+
   it('clamps typed values to min and max', async () => {
     const wrapper = mount(InputNumber, {
       props: { min: 1, max: 10 }

@@ -1,10 +1,10 @@
 import type { PropType, StyleValue, VNodeChild } from 'vue';
-import type { InputNumberFocusOptions } from './types';
+import type { InputNumberFocusOptions, InputNumberValue } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
-    readonly modelValue: NumberConstructor;
-    readonly value: NumberConstructor;
-    readonly defaultValue: NumberConstructor;
+    readonly modelValue: PropType<InputNumberValue>;
+    readonly value: PropType<InputNumberValue>;
+    readonly defaultValue: PropType<InputNumberValue>;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: PropType<VNodeChild>;
@@ -37,8 +37,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly precision: NumberConstructor;
     readonly decimalSeparator: StringConstructor;
-    readonly formatter: PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
-    readonly parser: PropType<(displayValue: string) => number | undefined>;
+    readonly stringMode: BooleanConstructor;
+    readonly formatter: PropType<(value: InputNumberValue | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
+    readonly parser: PropType<(displayValue: string) => InputNumberValue | undefined>;
     readonly keyboard: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -58,15 +59,15 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     blur: () => void;
     nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    change: (value: number | undefined) => void;
-    step: (value: number, info: import("./types").InputNumberStepInfo) => void;
-    "update:modelValue": (value: number | undefined) => void;
+    change: (value: InputNumberValue | undefined) => void;
+    step: (value: InputNumberValue, info: import("./types").InputNumberStepInfo) => void;
+    "update:modelValue": (value: InputNumberValue | undefined) => void;
     pressEnter: (event: KeyboardEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
-    readonly modelValue: NumberConstructor;
-    readonly value: NumberConstructor;
-    readonly defaultValue: NumberConstructor;
+    readonly modelValue: PropType<InputNumberValue>;
+    readonly value: PropType<InputNumberValue>;
+    readonly defaultValue: PropType<InputNumberValue>;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: PropType<VNodeChild>;
@@ -99,8 +100,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     };
     readonly precision: NumberConstructor;
     readonly decimalSeparator: StringConstructor;
-    readonly formatter: PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
-    readonly parser: PropType<(displayValue: string) => number | undefined>;
+    readonly stringMode: BooleanConstructor;
+    readonly formatter: PropType<(value: InputNumberValue | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
+    readonly parser: PropType<(displayValue: string) => InputNumberValue | undefined>;
     readonly keyboard: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -116,9 +118,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly classNames: PropType<import("./types").InputNumberClassNames>;
     readonly styles: PropType<import("./types").InputNumberStyles>;
 }>> & Readonly<{
-    onChange?: ((value: number | undefined) => any) | undefined;
-    onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
-    "onUpdate:modelValue"?: ((value: number | undefined) => any) | undefined;
+    onChange?: ((value: InputNumberValue | undefined) => any) | undefined;
+    onStep?: ((value: InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
+    "onUpdate:modelValue"?: ((value: InputNumberValue | undefined) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
 }>, {
     readonly variant: import("./types").InputNumberVariant;
@@ -129,6 +131,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly prefix: VNodeChild;
     readonly suffix: VNodeChild;
     readonly readOnly: boolean;
+    readonly stringMode: boolean;
     readonly controls: import("./types").InputNumberControls;
     readonly changeOnWheel: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

@@ -65,7 +65,7 @@ import { computed, defineComponent, ref, useSlots } from 'vue'
 import type { PropType, StyleValue, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputNumberEmits, inputNumberProps } from './types'
-import type { InputNumberFocusOptions, InputNumberSemanticInfo, InputNumberSemanticRecord } from './types'
+import type { InputNumberFocusOptions, InputNumberSemanticInfo, InputNumberSemanticRecord, InputNumberValue } from './types'
 import './style.css'
 
 defineOptions({
@@ -78,7 +78,7 @@ const config = useAheartConfig()
 const slots = useSlots()
 const rootRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
-const uncontrolledValue = ref<number | undefined>(props.defaultValue)
+const uncontrolledValue = ref<InputNumberValue | undefined>(props.defaultValue)
 
 const AInputNumberRenderNode = defineComponent({
   name: 'AInputNumberRenderNode',
@@ -135,6 +135,159 @@ const formatDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.replace('.', props.decimalSeparator as string) : value
 const parseDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator as string).join('.') : value
+const plainDecimalPattern = /^[+-]?(?:\d+\.?\d*|\.\d+)$/
+
+const isPlainDecimalString = (value: string) => plainDecimalPattern.test(value.trim())
+const stripLeadingZeros = (value: string) => value.replace(/^0+(?=\d)/, '') || '0'
+const stripTrailingZeros = (value: string) => value.replace(/0+$/, '')
+
+const splitDecimal = (value: string) => {
+  const trimmedValue = value.trim()
+  const sign = trimmedValue.startsWith('-') ? -1 : 1
+  const unsignedValue = trimmedValue.replace(/^[+-]/, '')
+  const [integer = '0', fraction = ''] = unsignedValue.split('.')
+
+  return {
+    sign,
+    integer: stripLeadingZeros(integer || '0'),
+    fraction
+  }
+}
+
+const padRight = (value: string, length: number) => value + '0'.repeat(Math.max(0, length - value.length))
+const compareDigits = (left: string, right: string) => {
+  const normalizedLeft = stripLeadingZeros(left)
+  const normalizedRight = stripLeadingZeros(right)
+
+  if (normalizedLeft.length !== normalizedRight.length) {
+    return normalizedLeft.length > normalizedRight.length ? 1 : -1
+  }
+
+  return normalizedLeft === normalizedRight ? 0 : normalizedLeft > normalizedRight ? 1 : -1
+}
+
+const addDigits = (left: string, right: string) => {
+  let carry = 0
+  let result = ''
+  let leftIndex = left.length - 1
+  let rightIndex = right.length - 1
+
+  while (leftIndex >= 0 || rightIndex >= 0 || carry > 0) {
+    const sum = Number(left[leftIndex] ?? 0) + Number(right[rightIndex] ?? 0) + carry
+    result = String(sum % 10) + result
+    carry = Math.floor(sum / 10)
+    leftIndex -= 1
+    rightIndex -= 1
+  }
+
+  return stripLeadingZeros(result)
+}
+
+const subtractDigits = (left: string, right: string) => {
+  let borrow = 0
+  let result = ''
+  let leftIndex = left.length - 1
+  let rightIndex = right.length - 1
+
+  while (leftIndex >= 0) {
+    let digit = Number(left[leftIndex]) - borrow - Number(right[rightIndex] ?? 0)
+    borrow = 0
+
+    if (digit < 0) {
+      digit += 10
+      borrow = 1
+    }
+
+    result = String(digit) + result
+    leftIndex -= 1
+    rightIndex -= 1
+  }
+
+  return stripLeadingZeros(result)
+}
+
+const toScaledDecimal = (value: string, scale: number) => {
+  const decimal = splitDecimal(value)
+
+  return {
+    sign: decimal.sign,
+    digits: stripLeadingZeros(`${decimal.integer}${padRight(decimal.fraction, scale)}`)
+  }
+}
+
+const formatScaledDecimal = (sign: number, digits: string, scale: number) => {
+  const normalizedDigits = stripLeadingZeros(digits)
+
+  if (/^0+$/.test(normalizedDigits)) {
+    return '0'
+  }
+
+  const paddedDigits = normalizedDigits.padStart(scale + 1, '0')
+  const integer = scale > 0 ? paddedDigits.slice(0, -scale) : paddedDigits
+  const fraction = scale > 0 ? stripTrailingZeros(paddedDigits.slice(-scale)) : ''
+  const signPrefix = sign < 0 ? '-' : ''
+
+  return `${signPrefix}${stripLeadingZeros(integer)}${fraction ? `.${fraction}` : ''}`
+}
+
+const addDecimalStrings = (left: string, right: string) => {
+  if (!isPlainDecimalString(left) || !isPlainDecimalString(right)) {
+    return String(Number(left) + Number(right))
+  }
+
+  const leftParts = splitDecimal(left)
+  const rightParts = splitDecimal(right)
+  const scale = Math.max(leftParts.fraction.length, rightParts.fraction.length)
+  const scaledLeft = toScaledDecimal(left, scale)
+  const scaledRight = toScaledDecimal(right, scale)
+
+  if (scaledLeft.sign === scaledRight.sign) {
+    return formatScaledDecimal(scaledLeft.sign, addDigits(scaledLeft.digits, scaledRight.digits), scale)
+  }
+
+  const comparison = compareDigits(scaledLeft.digits, scaledRight.digits)
+
+  if (comparison === 0) {
+    return '0'
+  }
+
+  return comparison > 0
+    ? formatScaledDecimal(scaledLeft.sign, subtractDigits(scaledLeft.digits, scaledRight.digits), scale)
+    : formatScaledDecimal(scaledRight.sign, subtractDigits(scaledRight.digits, scaledLeft.digits), scale)
+}
+
+const negateDecimalString = (value: string) => {
+  const trimmedValue = value.trim()
+
+  if (Number(trimmedValue) === 0) {
+    return '0'
+  }
+
+  return trimmedValue.startsWith('-') ? trimmedValue.slice(1) : `-${trimmedValue}`
+}
+
+const compareDecimalStrings = (left: string, right: string) => {
+  if (!isPlainDecimalString(left) || !isPlainDecimalString(right)) {
+    const leftNumber = Number(left)
+    const rightNumber = Number(right)
+    return leftNumber === rightNumber ? 0 : leftNumber > rightNumber ? 1 : -1
+  }
+
+  const leftParts = splitDecimal(left)
+  const rightParts = splitDecimal(right)
+
+  if (leftParts.sign !== rightParts.sign) {
+    return leftParts.sign > rightParts.sign ? 1 : -1
+  }
+
+  const scale = Math.max(leftParts.fraction.length, rightParts.fraction.length)
+  const comparison = compareDigits(toScaledDecimal(left, scale).digits, toScaledDecimal(right, scale).digits)
+
+  return leftParts.sign < 0 ? -comparison : comparison
+}
+
+const isValidValueString = (value: string) => isPlainDecimalString(value) && Number.isFinite(Number(value))
+
 const displayValue = computed(() => {
   const input = mergedValue.value === undefined ? '' : String(mergedValue.value)
 
@@ -180,7 +333,7 @@ const applyPrecision = (value: number) => {
   return Number(value.toFixed(props.precision))
 }
 
-const clampValue = (value: number) => {
+const clampNumberValue = (value: number) => {
   const preciseValue = applyPrecision(value)
 
   if (props.min !== undefined && preciseValue < props.min) {
@@ -194,13 +347,30 @@ const clampValue = (value: number) => {
   return preciseValue
 }
 
-const emitValue = (value: number | undefined) => {
-  if (!isControlled.value) {
-    uncontrolledValue.value = value
+const clampStringValue = (value: string) => {
+  if (props.min !== undefined && compareDecimalStrings(value, String(props.min)) < 0) {
+    return String(props.min)
   }
 
-  emit('update:modelValue', value)
-  emit('change', value)
+  if (props.max !== undefined && compareDecimalStrings(value, String(props.max)) > 0) {
+    return String(props.max)
+  }
+
+  return value
+}
+
+const clampValue = (value: InputNumberValue) =>
+  props.stringMode ? clampStringValue(String(value)) : clampNumberValue(Number(value))
+
+const emitValue = (value: InputNumberValue | undefined) => {
+  const nextValue = props.stringMode && value !== undefined ? String(value) : value
+
+  if (!isControlled.value) {
+    uncontrolledValue.value = nextValue
+  }
+
+  emit('update:modelValue', nextValue)
+  emit('change', nextValue)
 }
 
 const handleInput = (event: Event) => {
@@ -211,10 +381,30 @@ const handleInput = (event: Event) => {
     return
   }
 
-  const parsedValue = props.parser ? props.parser(rawValue) : Number(parseDecimalSeparator(rawValue))
+  const parsedValue = props.parser
+    ? props.parser(rawValue)
+    : props.stringMode
+      ? parseDecimalSeparator(rawValue)
+      : Number(parseDecimalSeparator(rawValue))
 
-  if (parsedValue !== undefined && !Number.isNaN(parsedValue)) {
-    emitValue(clampValue(parsedValue))
+  if (parsedValue === undefined) {
+    return
+  }
+
+  if (props.stringMode) {
+    const stringValue = String(parsedValue)
+
+    if (isValidValueString(stringValue)) {
+      emitValue(clampValue(stringValue))
+    }
+
+    return
+  }
+
+  const numericValue = Number(parsedValue)
+
+  if (!Number.isNaN(numericValue)) {
+    emitValue(clampValue(numericValue))
   }
 }
 
@@ -223,7 +413,14 @@ const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'k
     return
   }
 
-  const nextValue = clampValue((mergedValue.value ?? 0) + offset)
+  const nextValue = props.stringMode
+    ? clampValue(
+        addDecimalStrings(
+          String(mergedValue.value ?? 0),
+          type === 'up' ? String(props.step) : negateDecimalString(String(props.step))
+        )
+      )
+    : clampValue(Number(mergedValue.value ?? 0) + offset)
   emitValue(nextValue)
   emit('step', nextValue, { offset, type, emitter })
 }

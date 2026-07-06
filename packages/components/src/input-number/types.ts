@@ -7,6 +7,7 @@ export type InputNumberStepType = 'up' | 'down'
 export type InputNumberStepEmitter = 'handler' | 'keydown' | 'wheel'
 export type InputNumberFocusCursor = 'start' | 'end' | 'all'
 export type InputNumberRenderable = VNodeChild
+export type InputNumberValue = number | string
 
 export interface InputNumberFocusOptions extends FocusOptions {
   cursor?: InputNumberFocusCursor
@@ -48,9 +49,9 @@ const renderableProp = {
 
 export const inputNumberProps = {
   id: String,
-  modelValue: Number,
-  value: Number,
-  defaultValue: Number,
+  modelValue: [Number, String] as PropType<InputNumberValue>,
+  value: [Number, String] as PropType<InputNumberValue>,
+  defaultValue: [Number, String] as PropType<InputNumberValue>,
   placeholder: String,
   prefix: renderableProp,
   suffix: renderableProp,
@@ -77,8 +78,9 @@ export const inputNumberProps = {
   },
   precision: Number,
   decimalSeparator: String,
-  formatter: Function as PropType<(value: number | undefined, info: InputNumberFormatterInfo) => string>,
-  parser: Function as PropType<(displayValue: string) => number | undefined>,
+  stringMode: Boolean,
+  formatter: Function as PropType<(value: InputNumberValue | undefined, info: InputNumberFormatterInfo) => string>,
+  parser: Function as PropType<(displayValue: string) => InputNumberValue | undefined>,
   keyboard: {
     type: Boolean,
     default: true
@@ -96,11 +98,13 @@ export const inputNumberProps = {
 } as const
 
 export const inputNumberEmits = {
-  'update:modelValue': (value: number | undefined) => typeof value === 'number' || value === undefined,
-  change: (value: number | undefined) => typeof value === 'number' || value === undefined,
+  'update:modelValue': (value: InputNumberValue | undefined) =>
+    typeof value === 'number' || typeof value === 'string' || value === undefined,
+  change: (value: InputNumberValue | undefined) =>
+    typeof value === 'number' || typeof value === 'string' || value === undefined,
   pressEnter: (event: KeyboardEvent) => event instanceof KeyboardEvent,
-  step: (value: number, info: InputNumberStepInfo) =>
-    typeof value === 'number' &&
+  step: (value: InputNumberValue, info: InputNumberStepInfo) =>
+    (typeof value === 'number' || typeof value === 'string') &&
     typeof info.offset === 'number' &&
     (info.type === 'up' || info.type === 'down') &&
     (info.emitter === 'handler' || info.emitter === 'keydown' || info.emitter === 'wheel')

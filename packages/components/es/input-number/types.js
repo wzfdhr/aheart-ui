@@ -4,9 +4,9 @@ const renderableProp = {
 };
 const inputNumberProps = {
   id: String,
-  modelValue: Number,
-  value: Number,
-  defaultValue: Number,
+  modelValue: [Number, String],
+  value: [Number, String],
+  defaultValue: [Number, String],
   placeholder: String,
   prefix: renderableProp,
   suffix: renderableProp,
@@ -33,6 +33,7 @@ const inputNumberProps = {
   },
   precision: Number,
   decimalSeparator: String,
+  stringMode: Boolean,
   formatter: Function,
   parser: Function,
   keyboard: {
@@ -51,10 +52,10 @@ const inputNumberProps = {
   styles: [Object, Function]
 };
 const inputNumberEmits = {
-  "update:modelValue": (value) => typeof value === "number" || value === void 0,
-  change: (value) => typeof value === "number" || value === void 0,
+  "update:modelValue": (value) => typeof value === "number" || typeof value === "string" || value === void 0,
+  change: (value) => typeof value === "number" || typeof value === "string" || value === void 0,
   pressEnter: (event) => event instanceof KeyboardEvent,
-  step: (value, info) => typeof value === "number" && typeof info.offset === "number" && (info.type === "up" || info.type === "down") && (info.emitter === "handler" || info.emitter === "keydown" || info.emitter === "wheel")
+  step: (value, info) => (typeof value === "number" || typeof value === "string") && typeof info.offset === "number" && (info.type === "up" || info.type === "down") && (info.emitter === "handler" || info.emitter === "keydown" || info.emitter === "wheel")
 };
 export {
   inputNumberEmits,

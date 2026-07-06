@@ -6,6 +6,7 @@ export type InputNumberStepType = 'up' | 'down';
 export type InputNumberStepEmitter = 'handler' | 'keydown' | 'wheel';
 export type InputNumberFocusCursor = 'start' | 'end' | 'all';
 export type InputNumberRenderable = VNodeChild;
+export type InputNumberValue = number | string;
 export interface InputNumberFocusOptions extends FocusOptions {
     cursor?: InputNumberFocusCursor;
 }
@@ -33,9 +34,9 @@ export interface InputNumberStepInfo {
 }
 export declare const inputNumberProps: {
     readonly id: StringConstructor;
-    readonly modelValue: NumberConstructor;
-    readonly value: NumberConstructor;
-    readonly defaultValue: NumberConstructor;
+    readonly modelValue: PropType<InputNumberValue>;
+    readonly value: PropType<InputNumberValue>;
+    readonly defaultValue: PropType<InputNumberValue>;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: PropType<VNodeChild>;
@@ -68,8 +69,9 @@ export declare const inputNumberProps: {
     };
     readonly precision: NumberConstructor;
     readonly decimalSeparator: StringConstructor;
-    readonly formatter: PropType<(value: number | undefined, info: InputNumberFormatterInfo) => string>;
-    readonly parser: PropType<(displayValue: string) => number | undefined>;
+    readonly stringMode: BooleanConstructor;
+    readonly formatter: PropType<(value: InputNumberValue | undefined, info: InputNumberFormatterInfo) => string>;
+    readonly parser: PropType<(displayValue: string) => InputNumberValue | undefined>;
     readonly keyboard: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -86,9 +88,9 @@ export declare const inputNumberProps: {
     readonly styles: PropType<InputNumberStyles>;
 };
 export declare const inputNumberEmits: {
-    'update:modelValue': (value: number | undefined) => boolean;
-    change: (value: number | undefined) => boolean;
+    'update:modelValue': (value: InputNumberValue | undefined) => boolean;
+    change: (value: InputNumberValue | undefined) => boolean;
     pressEnter: (event: KeyboardEvent) => boolean;
-    step: (value: number, info: InputNumberStepInfo) => boolean;
+    step: (value: InputNumberValue, info: InputNumberStepInfo) => boolean;
 };
 export type InputNumberProps = ExtractPropTypes<typeof inputNumberProps>;

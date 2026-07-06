@@ -114,6 +114,26 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 </template>
 ```
 
+## 高精度字符串
+
+<div class="aheart-demo-panel">
+  <AInputNumber
+    string-mode
+    model-value="1.000000000000000001"
+    step="0.000000000000000001"
+  />
+</div>
+
+```vue
+<template>
+  <AInputNumber
+    v-model="value"
+    string-mode
+    step="0.000000000000000001"
+  />
+</template>
+```
+
 ## 自定义控制按钮
 
 <div class="aheart-demo-panel">
@@ -228,9 +248,9 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| modelValue | 数字值 | `number` | - |
-| value | 受控数字值，兼容 Ant Design API；与 `modelValue` 同时传入时 `modelValue` 优先 | `number` | - |
-| defaultValue | 非受控初始值 | `number` | - |
+| modelValue | 数字值，`stringMode` 下支持字符串 | `number` \| `string` | - |
+| value | 受控数字值，兼容 Ant Design API；与 `modelValue` 同时传入时 `modelValue` 优先 | `number` \| `string` | - |
+| defaultValue | 非受控初始值，`stringMode` 下支持字符串 | `number` \| `string` | - |
 | id | 原生输入框 id | `string` | - |
 | placeholder | 占位提示 | `string` | - |
 | prefix | 输入框前缀内容 | `VNodeChild` | - |
@@ -246,8 +266,9 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | step | 每次改变步数 | `number` \| `string` | `1` |
 | precision | 数值精度 | `number` | - |
 | decimalSeparator | 默认显示和解析使用的小数分隔符 | `string` | `.` |
-| formatter | 展示值格式化函数 | `(value?: number, info: { userTyping: boolean; input: string }) => string` | - |
-| parser | 展示值解析函数 | `(displayValue: string) => number \| undefined` | - |
+| stringMode | 使用字符串值处理高精度小数 | `boolean` | `false` |
+| formatter | 展示值格式化函数 | `(value?: number \| string, info: { userTyping: boolean; input: string }) => string` | - |
+| parser | 展示值解析函数 | `(displayValue: string) => number \| string \| undefined` | - |
 | keyboard | 是否启用方向键步进 | `boolean` | `true` |
 | controls | 是否显示控制按钮，支持自定义上下按钮内容 | `boolean` \| `{ upIcon?: VNodeChild; downIcon?: VNodeChild }` | `true` |
 | changeOnWheel | 是否启用鼠标滚轮步进 | `boolean` | `false` |
@@ -261,10 +282,10 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| update:modelValue | 数字值变化时触发 | `(value: number \| undefined) => void` |
-| change | 数字值变化时触发 | `(value: number \| undefined) => void` |
+| update:modelValue | 数字值变化时触发，`stringMode` 下返回字符串 | `(value: number \| string \| undefined) => void` |
+| change | 数字值变化时触发，`stringMode` 下返回字符串 | `(value: number \| string \| undefined) => void` |
 | pressEnter | 按下回车时触发 | `(event: KeyboardEvent) => void` |
-| step | 控制按钮、键盘或滚轮步进时触发 | `(value: number, info: { offset: number; type: 'up' \| 'down'; emitter: 'handler' \| 'keydown' \| 'wheel' }) => void` |
+| step | 控制按钮、键盘或滚轮步进时触发，`stringMode` 下 value 返回字符串 | `(value: number \| string, info: { offset: number; type: 'up' \| 'down'; emitter: 'handler' \| 'keydown' \| 'wheel' }) => void` |
 
 ## Methods
 
