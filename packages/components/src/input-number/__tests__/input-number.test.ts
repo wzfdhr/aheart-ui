@@ -48,8 +48,8 @@ describe('InputNumber', () => {
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([1.5])
     expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0.5])
-    expect(wrapper.emitted('step')?.[0]).toEqual([1.5, { offset: 0.5, type: 'up' }])
-    expect(wrapper.emitted('step')?.[1]).toEqual([0.5, { offset: -0.5, type: 'down' }])
+    expect(wrapper.emitted('step')?.[0]).toEqual([1.5, { offset: 0.5, type: 'up', emitter: 'handler' }])
+    expect(wrapper.emitted('step')?.[1]).toEqual([0.5, { offset: -0.5, type: 'down', emitter: 'handler' }])
   })
 
   it('uses ConfigProvider size and disabled fallback', () => {
@@ -134,7 +134,7 @@ describe('InputNumber', () => {
     await wrapper.find('.aheart-input-number__increase').trigger('click')
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([3])
-    expect(wrapper.emitted('step')?.[0]).toEqual([3, { offset: 1, type: 'up' }])
+    expect(wrapper.emitted('step')?.[0]).toEqual([3, { offset: 1, type: 'up', emitter: 'handler' }])
   })
 
   it('renders custom controls icon content and hides controls when disabled', () => {
@@ -236,6 +236,18 @@ describe('InputNumber', () => {
 
     await disabledWheel.find('input').trigger('wheel', { deltaY: -1 })
     expect(disabledWheel.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it('includes the step emitter source for keyboard and wheel interactions', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 2, step: 2, changeOnWheel: true }
+    })
+
+    await wrapper.find('input').trigger('keydown', { key: 'ArrowUp' })
+    await wrapper.find('input').trigger('wheel', { deltaY: 1 })
+
+    expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keydown' }])
+    expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'wheel' }])
   })
 
   it('passes formatter info to formatter', () => {

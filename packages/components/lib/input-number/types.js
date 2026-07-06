@@ -54,7 +54,7 @@ const inputNumberEmits = {
   "update:modelValue": (value) => typeof value === "number" || value === void 0,
   change: (value) => typeof value === "number" || value === void 0,
   pressEnter: (event) => event instanceof KeyboardEvent,
-  step: (value, info) => typeof value === "number" && typeof info.offset === "number" && (info.type === "up" || info.type === "down")
+  step: (value, info) => typeof value === "number" && typeof info.offset === "number" && (info.type === "up" || info.type === "down") && (info.emitter === "handler" || info.emitter === "keydown" || info.emitter === "wheel")
 };
 exports.inputNumberEmits = inputNumberEmits;
 exports.inputNumberProps = inputNumberProps;

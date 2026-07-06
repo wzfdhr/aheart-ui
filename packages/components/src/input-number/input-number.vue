@@ -36,7 +36,7 @@
         type="button"
         aria-label="Increase"
         :disabled="isInteractiveDisabled"
-        @click="handleStep(resolvedStep, 'up')"
+        @click="handleStep(resolvedStep, 'up', 'handler')"
       >
         <slot name="increaseIcon">
           <AInputNumberRenderNode :node="increaseIcon" />
@@ -49,7 +49,7 @@
         type="button"
         aria-label="Decrease"
         :disabled="isInteractiveDisabled"
-        @click="handleStep(-resolvedStep, 'down')"
+        @click="handleStep(-resolvedStep, 'down', 'handler')"
       >
         <slot name="decreaseIcon">
           <AInputNumberRenderNode :node="decreaseIcon" />
@@ -198,14 +198,14 @@ const handleInput = (event: Event) => {
   }
 }
 
-const handleStep = (offset: number, type: 'up' | 'down') => {
+const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'keydown' | 'wheel') => {
   if (isInteractiveDisabled.value) {
     return
   }
 
   const nextValue = clampValue((props.modelValue ?? 0) + offset)
   emitValue(nextValue)
-  emit('step', nextValue, { offset, type })
+  emit('step', nextValue, { offset, type, emitter })
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
@@ -220,12 +220,12 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   if (event.key === 'ArrowUp') {
     event.preventDefault()
-    handleStep(resolvedStep.value, 'up')
+    handleStep(resolvedStep.value, 'up', 'keydown')
   }
 
   if (event.key === 'ArrowDown') {
     event.preventDefault()
-    handleStep(-resolvedStep.value, 'down')
+    handleStep(-resolvedStep.value, 'down', 'keydown')
   }
 }
 
@@ -235,6 +235,10 @@ const handleWheel = (event: WheelEvent) => {
   }
 
   event.preventDefault()
-  handleStep(event.deltaY < 0 ? resolvedStep.value : -resolvedStep.value, event.deltaY < 0 ? 'up' : 'down')
+  handleStep(
+    event.deltaY < 0 ? resolvedStep.value : -resolvedStep.value,
+    event.deltaY < 0 ? 'up' : 'down',
+    'wheel'
+  )
 }
 </script>

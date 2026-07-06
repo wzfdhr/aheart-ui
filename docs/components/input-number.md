@@ -224,7 +224,7 @@ import { h } from 'vue'
 | update:modelValue | 数字值变化时触发 | `(value: number \| undefined) => void` |
 | change | 数字值变化时触发 | `(value: number \| undefined) => void` |
 | pressEnter | 按下回车时触发 | `(event: KeyboardEvent) => void` |
-| step | 点击控制按钮或键盘步进时触发 | `(value: number, info: { offset: number; type: 'up' \| 'down' }) => void` |
+| step | 控制按钮、键盘或滚轮步进时触发 | `(value: number, info: { offset: number; type: 'up' \| 'down'; emitter: 'handler' \| 'keydown' \| 'wheel' }) => void` |
 
 ## Slots
 

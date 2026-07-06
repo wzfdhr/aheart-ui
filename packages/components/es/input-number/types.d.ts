@@ -3,6 +3,7 @@ import type { AheartSize } from '../config';
 export type InputNumberStatus = 'error' | 'warning';
 export type InputNumberVariant = 'outlined' | 'borderless' | 'filled' | 'underlined';
 export type InputNumberStepType = 'up' | 'down';
+export type InputNumberStepEmitter = 'handler' | 'keydown' | 'wheel';
 export type InputNumberRenderable = VNodeChild;
 export interface InputNumberFormatterInfo {
     userTyping: boolean;
@@ -19,6 +20,7 @@ export type InputNumberStyles = Partial<Record<InputNumberSemanticPart, StyleVal
 export interface InputNumberStepInfo {
     offset: number;
     type: InputNumberStepType;
+    emitter: InputNumberStepEmitter;
 }
 export declare const inputNumberProps: {
     readonly id: StringConstructor;
