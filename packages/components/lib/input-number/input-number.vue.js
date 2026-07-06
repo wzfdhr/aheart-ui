@@ -57,6 +57,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const hasPrefix = vue.computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
     const hasSuffix = vue.computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
+    const shouldUseDecimalSeparator = vue.computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== "."));
+    const formatDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.replace(".", props.decimalSeparator) : value;
+    const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
     const displayValue = vue.computed(() => {
       const input = props.modelValue === void 0 ? "" : String(props.modelValue);
       if (props.formatter) {
@@ -65,7 +68,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           input
         });
       }
-      return input;
+      return formatDecimalSeparator(input);
     });
     const inputNumberClass = vue.computed(() => {
       var _a;
@@ -152,7 +155,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         emitValue(void 0);
         return;
       }
-      const parsedValue = props.parser ? props.parser(rawValue) : Number(rawValue);
+      const parsedValue = props.parser ? props.parser(rawValue) : Number(parseDecimalSeparator(rawValue));
       if (parsedValue !== void 0 && !Number.isNaN(parsedValue)) {
         emitValue(clampValue(parsedValue));
       }

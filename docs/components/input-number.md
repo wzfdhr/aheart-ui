@@ -82,6 +82,18 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 </template>
 ```
 
+## 小数分隔符
+
+<div class="aheart-demo-panel">
+  <AInputNumber :model-value="12.5" decimal-separator="," />
+</div>
+
+```vue
+<template>
+  <AInputNumber v-model="value" decimal-separator="," />
+</template>
+```
+
 ## 自定义控制按钮
 
 <div class="aheart-demo-panel">
@@ -191,6 +203,7 @@ import { h } from 'vue'
 | max | 最大值 | `number` | - |
 | step | 每次改变步数 | `number` | `1` |
 | precision | 数值精度 | `number` | - |
+| decimalSeparator | 默认显示和解析使用的小数分隔符 | `string` | `.` |
 | formatter | 展示值格式化函数 | `(value?: number, info: { userTyping: boolean; input: string }) => string` | - |
 | parser | 展示值解析函数 | `(displayValue: string) => number \| undefined` | - |
 | keyboard | 是否启用方向键步进 | `boolean` | `true` |

@@ -93,6 +93,22 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('pressEnter')).toHaveLength(1)
   })
 
+  it('uses decimalSeparator for default display and parsing', async () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 12.5,
+        decimalSeparator: ','
+      }
+    })
+
+    expect(wrapper.find('input').element.value).toBe('12,5')
+
+    await wrapper.find('input').setValue('3,75')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([3.75])
+    expect(wrapper.emitted('change')?.[0]).toEqual([3.75])
+  })
+
   it('supports keyboard suppression and step events', async () => {
     const wrapper = mount(InputNumber, {
       props: { modelValue: 2, keyboard: false }

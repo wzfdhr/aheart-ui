@@ -33,6 +33,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
             readonly default: 1;
         };
         readonly precision: NumberConstructor;
+        readonly decimalSeparator: StringConstructor;
         readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
         readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
         readonly keyboard: {
@@ -111,6 +112,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
             readonly default: 1;
         };
         readonly precision: NumberConstructor;
+        readonly decimalSeparator: StringConstructor;
         readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
         readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
         readonly keyboard: {
@@ -181,6 +183,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
+    readonly decimalSeparator: StringConstructor;
     readonly formatter: import("vue").PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
     readonly parser: import("vue").PropType<(displayValue: string) => number | undefined>;
     readonly keyboard: {

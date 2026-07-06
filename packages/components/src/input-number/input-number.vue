@@ -110,6 +110,11 @@ const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? '+')
 const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? '−')
 const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix))
 const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix))
+const shouldUseDecimalSeparator = computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== '.'))
+const formatDecimalSeparator = (value: string) =>
+  shouldUseDecimalSeparator.value ? value.replace('.', props.decimalSeparator as string) : value
+const parseDecimalSeparator = (value: string) =>
+  shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator as string).join('.') : value
 const displayValue = computed(() => {
   const input = props.modelValue === undefined ? '' : String(props.modelValue)
 
@@ -120,7 +125,7 @@ const displayValue = computed(() => {
     })
   }
 
-  return input
+  return formatDecimalSeparator(input)
 })
 
 const inputNumberClass = computed(() => [
@@ -182,7 +187,7 @@ const handleInput = (event: Event) => {
     return
   }
 
-  const parsedValue = props.parser ? props.parser(rawValue) : Number(rawValue)
+  const parsedValue = props.parser ? props.parser(rawValue) : Number(parseDecimalSeparator(rawValue))
 
   if (parsedValue !== undefined && !Number.isNaN(parsedValue)) {
     emitValue(clampValue(parsedValue))

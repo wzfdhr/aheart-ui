@@ -30,6 +30,7 @@ const inputNumberProps = {
     default: 1
   },
   precision: Number,
+  decimalSeparator: String,
   formatter: Function,
   parser: Function,
   keyboard: {

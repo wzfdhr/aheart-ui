@@ -54,6 +54,7 @@ export declare const inputNumberProps: {
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
+    readonly decimalSeparator: StringConstructor;
     readonly formatter: PropType<(value: number | undefined, info: InputNumberFormatterInfo) => string>;
     readonly parser: PropType<(displayValue: string) => number | undefined>;
     readonly keyboard: {

@@ -59,6 +59,7 @@ export const inputNumberProps = {
     default: 1
   },
   precision: Number,
+  decimalSeparator: String,
   formatter: Function as PropType<(value: number | undefined, info: InputNumberFormatterInfo) => string>,
   parser: Function as PropType<(displayValue: string) => number | undefined>,
   keyboard: {

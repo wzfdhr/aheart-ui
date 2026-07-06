@@ -33,6 +33,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
+    readonly decimalSeparator: StringConstructor;
     readonly formatter: PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
     readonly parser: PropType<(displayValue: string) => number | undefined>;
     readonly keyboard: {
@@ -88,6 +89,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
+    readonly decimalSeparator: StringConstructor;
     readonly formatter: PropType<(value: number | undefined, info: import("./types").InputNumberFormatterInfo) => string>;
     readonly parser: PropType<(displayValue: string) => number | undefined>;
     readonly keyboard: {
