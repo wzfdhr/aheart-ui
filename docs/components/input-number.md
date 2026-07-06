@@ -290,7 +290,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | formatter | 展示值格式化函数 | `(value?: number \| string, info: { userTyping: boolean; input: string }) => string` | - |
 | parser | 展示值解析函数 | `(displayValue: string) => number \| string \| undefined` | - |
 | keyboard | 是否启用方向键步进 | `boolean` | `true` |
-| controls | 是否显示控制按钮，支持自定义上下按钮内容 | `boolean` \| `{ upIcon?: VNodeChild; downIcon?: VNodeChild }` | `true` |
+| controls | 是否显示控制按钮，支持自定义上下按钮内容；禁用或只读时不显示 | `boolean` \| `{ upIcon?: VNodeChild; downIcon?: VNodeChild }` | `true` |
 | changeOnBlur | 输入框失焦时提交输入变化；设为 `false` 时输入即提交 | `boolean` | `true` |
 | changeOnWheel | 是否启用鼠标滚轮步进 | `boolean` | `false` |
 | className | 数字输入框根节点兼容 class | `string` | - |

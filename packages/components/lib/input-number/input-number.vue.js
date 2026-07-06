@@ -66,7 +66,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const controlsConfig = vue.computed(
       () => typeof props.controls === "object" && props.controls !== null ? props.controls : void 0
     );
-    const showControls = vue.computed(() => props.controls !== false);
+    const showControls = vue.computed(() => props.controls !== false && !isDisabled.value && !props.readOnly);
     const increaseIcon = vue.computed(() => {
       var _a;
       return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? (props.mode === "spinner" ? "+" : "↑");

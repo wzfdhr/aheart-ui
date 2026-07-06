@@ -64,7 +64,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const controlsConfig = computed(
       () => typeof props.controls === "object" && props.controls !== null ? props.controls : void 0
     );
-    const showControls = computed(() => props.controls !== false);
+    const showControls = computed(() => props.controls !== false && !isDisabled.value && !props.readOnly);
     const increaseIcon = computed(() => {
       var _a;
       return ((_a = controlsConfig.value) == null ? void 0 : _a.upIcon) ?? (props.mode === "spinner" ? "+" : "↑");

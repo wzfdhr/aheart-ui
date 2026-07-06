@@ -294,7 +294,7 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('step')?.[0]).toEqual([3, { offset: 1, type: 'up', emitter: 'handler' }])
   })
 
-  it('renders custom controls icon content and hides controls when disabled', () => {
+  it('renders custom controls icon content and hides controls when controls is false', () => {
     const wrapper = mount(InputNumber, {
       props: {
         modelValue: 2,
@@ -313,6 +313,25 @@ describe('InputNumber', () => {
     })
 
     expect(withoutControls.find('.aheart-input-number__controls').exists()).toBe(false)
+  })
+
+  it('hides controls when disabled or readonly', () => {
+    const disabled = mount(InputNumber, {
+      props: { modelValue: 2, disabled: true }
+    })
+    const readonly = mount(InputNumber, {
+      props: { modelValue: 2, readOnly: true }
+    })
+    const inheritedDisabled = mount(ConfigProvider, {
+      props: { disabled: true },
+      slots: {
+        default: () => h(InputNumber, { modelValue: 2 })
+      }
+    })
+
+    expect(disabled.find('.aheart-input-number__controls').exists()).toBe(false)
+    expect(readonly.find('.aheart-input-number__controls').exists()).toBe(false)
+    expect(inheritedDisabled.find('.aheart-input-number__controls').exists()).toBe(false)
   })
 
   it('supports spinner mode defaults and custom control overrides', () => {
@@ -598,7 +617,6 @@ describe('InputNumber', () => {
       props: {
         modelValue: 2,
         status: 'warning',
-        readOnly: true,
         prefix: '$',
         suffix: 'USD',
         classNames: ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
@@ -630,9 +648,9 @@ describe('InputNumber', () => {
     expect(wrapper.find('.aheart-input-number__suffix').attributes('style')).toContain('color: green')
     expect(wrapper.find('.aheart-input-number__controls').classes()).toContain('semantic-fn-actions')
     expect(wrapper.find('.aheart-input-number__controls').attributes('style')).toContain('color: purple')
-    expect(wrapper.find('.aheart-input-number__increase').classes()).toContain('semantic-fn-action-readonly')
-    expect(wrapper.find('.aheart-input-number__increase').attributes('style')).toContain('color: gray')
-    expect(wrapper.find('.aheart-input-number__decrease').classes()).toContain('semantic-fn-action-readonly')
-    expect(wrapper.find('.aheart-input-number__decrease').attributes('style')).toContain('color: gray')
+    expect(wrapper.find('.aheart-input-number__increase').classes()).toContain('semantic-fn-action')
+    expect(wrapper.find('.aheart-input-number__increase').attributes('style')).toContain('color: orange')
+    expect(wrapper.find('.aheart-input-number__decrease').classes()).toContain('semantic-fn-action')
+    expect(wrapper.find('.aheart-input-number__decrease').attributes('style')).toContain('color: orange')
   })
 })

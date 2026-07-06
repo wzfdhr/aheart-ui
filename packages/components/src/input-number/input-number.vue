@@ -127,7 +127,7 @@ const isInteractiveDisabled = computed(() => isDisabled.value || props.readOnly)
 const controlsConfig = computed(() =>
   typeof props.controls === 'object' && props.controls !== null ? props.controls : undefined
 )
-const showControls = computed(() => props.controls !== false)
+const showControls = computed(() => props.controls !== false && !isDisabled.value && !props.readOnly)
 const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? (props.mode === 'spinner' ? '+' : '↑'))
 const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? (props.mode === 'spinner' ? '-' : '↓'))
 const resolvedStep = computed(() => {
