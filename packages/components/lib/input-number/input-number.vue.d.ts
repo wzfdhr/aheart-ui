@@ -69,6 +69,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: InputNumberValue | undefined) => void;
+    input: (value: string) => void;
     step: (value: InputNumberValue, info: import("./types").InputNumberStepInfo) => void;
     "update:modelValue": (value: InputNumberValue | undefined) => void;
     pressEnter: (event: KeyboardEvent) => void;
@@ -137,6 +138,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly styles: PropType<import("./types").InputNumberStyles>;
 }>> & Readonly<{
     onChange?: ((value: InputNumberValue | undefined) => any) | undefined;
+    onInput?: ((value: string) => any) | undefined;
     onStep?: ((value: InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
     "onUpdate:modelValue"?: ((value: InputNumberValue | undefined) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;

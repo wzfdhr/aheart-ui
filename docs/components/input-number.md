@@ -297,7 +297,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | classNames | 语义化结构 class，支持对象或函数形式 | `InputNumberSemanticRecord<string> \| ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<string>)` | - |
 | styles | 语义化结构样式，支持对象或函数形式 | `InputNumberSemanticRecord<StyleValue> \| ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<StyleValue>)` | - |
 
-除组件已声明的属性外，原生 `<input>` 属性与监听器会透传到内部输入框，例如 `name`、`autocomplete`、`pattern`、`aria-*`、`@input`、`@blur`；组件上的 `class` 和 `style` 仍保留在根节点。
+除组件已声明的属性外，原生 `<input>` 属性与监听器会透传到内部输入框，例如 `name`、`autocomplete`、`pattern`、`aria-*`、`@blur`；组件上的 `class` 和 `style` 仍保留在根节点。`@input` 为组件事件，返回当前原始输入文本。
 
 ## Events
 
@@ -306,6 +306,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | update:modelValue | 数字值变化时触发，`stringMode` 下返回字符串 | `(value: number \| string \| undefined) => void` |
 | change | 数字值变化时触发，`stringMode` 下返回字符串 | `(value: number \| string \| undefined) => void` |
 | pressEnter | 按下回车时触发 | `(event: KeyboardEvent) => void` |
+| input | 输入框内容变化时触发，返回当前原始输入文本 | `(value: string) => void` |
 | step | 控制按钮、键盘或滚轮步进时触发，`stringMode` 下 value 返回字符串 | `(value: number \| string, info: { offset: number; type: 'up' \| 'down'; emitter: 'handler' \| 'keydown' \| 'wheel' }) => void` |
 
 ## Methods

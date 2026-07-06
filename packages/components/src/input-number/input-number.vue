@@ -478,12 +478,15 @@ const handleInput = (event: Event) => {
     pendingInputText.value = rawValue
     pendingInputValue.value = parsedInput.valid ? parsedInput.value : undefined
     hasPendingInputValue.value = parsedInput.valid
+    emit('input', rawValue)
     return
   }
 
   if (parsedInput.valid) {
     emitValue(parsedInput.value)
   }
+
+  emit('input', rawValue)
 }
 
 const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'keydown' | 'wheel') => {

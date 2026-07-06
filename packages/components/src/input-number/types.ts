@@ -112,6 +112,7 @@ export const inputNumberEmits = {
     typeof value === 'number' || typeof value === 'string' || value === undefined,
   change: (value: InputNumberValue | undefined) =>
     typeof value === 'number' || typeof value === 'string' || value === undefined,
+  input: (value: string) => typeof value === 'string',
   pressEnter: (event: KeyboardEvent) => event instanceof KeyboardEvent,
   step: (value: InputNumberValue, info: InputNumberStepInfo) =>
     (typeof value === 'number' || typeof value === 'string') &&

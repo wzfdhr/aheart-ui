@@ -100,6 +100,7 @@ export declare const inputNumberProps: {
 export declare const inputNumberEmits: {
     'update:modelValue': (value: InputNumberValue | undefined) => boolean;
     change: (value: InputNumberValue | undefined) => boolean;
+    input: (value: string) => boolean;
     pressEnter: (event: KeyboardEvent) => boolean;
     step: (value: InputNumberValue, info: InputNumberStepInfo) => boolean;
 };

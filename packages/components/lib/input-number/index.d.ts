@@ -64,6 +64,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
     }>> & Readonly<{
         onChange?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
+        onInput?: ((value: string) => any) | undefined;
         onStep?: ((value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
@@ -73,6 +74,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
     }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         change: (value: import("./types").InputNumberValue | undefined) => void;
+        input: (value: string) => void;
         step: (value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => void;
         "update:modelValue": (value: import("./types").InputNumberValue | undefined) => void;
         pressEnter: (event: KeyboardEvent) => void;
@@ -163,6 +165,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
     }>> & Readonly<{
         onChange?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
+        onInput?: ((value: string) => any) | undefined;
         onStep?: ((value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
         onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
@@ -254,6 +257,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
 }>> & Readonly<{
     onChange?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
+    onInput?: ((value: string) => any) | undefined;
     onStep?: ((value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => any) | undefined;
     "onUpdate:modelValue"?: ((value: import("./types").InputNumberValue | undefined) => any) | undefined;
     onPressEnter?: ((event: KeyboardEvent) => any) | undefined;
@@ -263,6 +267,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     nativeElement: import("vue").Ref<HTMLElement | undefined, HTMLElement | undefined>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: import("./types").InputNumberValue | undefined) => void;
+    input: (value: string) => void;
     step: (value: import("./types").InputNumberValue, info: import("./types").InputNumberStepInfo) => void;
     "update:modelValue": (value: import("./types").InputNumberValue | undefined) => void;
     pressEnter: (event: KeyboardEvent) => void;

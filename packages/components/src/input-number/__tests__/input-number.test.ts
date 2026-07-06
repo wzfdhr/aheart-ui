@@ -144,6 +144,22 @@ describe('InputNumber', () => {
     expect(input.element.value).toBe('5')
   })
 
+  it('emits raw input text while typed changes are deferred', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { defaultValue: 1 }
+    })
+    const input = wrapper.find('input')
+
+    await input.setValue('5.5')
+
+    expect(wrapper.emitted('input')?.[0]).toEqual(['5.5'])
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    await input.trigger('blur')
+
+    expect(wrapper.emitted('change')?.[0]).toEqual([5.5])
+  })
+
   it('emits typed changes immediately when changeOnBlur is false', async () => {
     const wrapper = mount(InputNumber, {
       props: { defaultValue: 1, changeOnBlur: false }

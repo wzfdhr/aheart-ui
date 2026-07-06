@@ -339,11 +339,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         pendingInputText.value = rawValue;
         pendingInputValue.value = parsedInput.valid ? parsedInput.value : void 0;
         hasPendingInputValue.value = parsedInput.valid;
+        emit("input", rawValue);
         return;
       }
       if (parsedInput.valid) {
         emitValue(parsedInput.value);
       }
+      emit("input", rawValue);
     };
     const handleStep = (offset, type, emitter) => {
       if (isInteractiveDisabled.value) {
