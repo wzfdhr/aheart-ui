@@ -194,6 +194,8 @@ import { h } from 'vue'
 </template>
 ```
 
+键盘方向键步进时，按住 <kbd>Shift</kbd> 会使用 10 倍步长。
+
 ## 语义化样式
 
 <div class="aheart-demo-panel">

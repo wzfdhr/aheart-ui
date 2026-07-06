@@ -521,7 +521,22 @@ const handleInput = (event: Event) => {
   emit('input', rawValue)
 }
 
-const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'keyboard' | 'wheel') => {
+const multiplyDecimalStringByTen = (value: string) => {
+  let result = '0'
+
+  for (let index = 0; index < 10; index += 1) {
+    result = addDecimalStrings(result, value)
+  }
+
+  return result
+}
+
+const handleStep = (
+  offset: number,
+  type: 'up' | 'down',
+  emitter: 'handler' | 'keyboard' | 'wheel',
+  stepValue: number | string = props.step
+) => {
   if (isInteractiveDisabled.value) {
     return
   }
@@ -531,7 +546,7 @@ const handleStep = (offset: number, type: 'up' | 'down', emitter: 'handler' | 'k
     ? clampValue(
         addDecimalStrings(
           String(baseValue ?? 0),
-          type === 'up' ? String(props.step) : negateDecimalString(String(props.step))
+          type === 'up' ? String(stepValue) : negateDecimalString(String(stepValue))
         )
       )
     : clampValue(Number(baseValue ?? 0) + offset)
@@ -551,14 +566,18 @@ const handleKeydown = (event: KeyboardEvent) => {
     return
   }
 
+  const keyboardStepMultiplier = event.shiftKey ? 10 : 1
+  const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier
+  const keyboardStepValue = props.stringMode && event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step
+
   if (event.key === 'ArrowUp') {
     event.preventDefault()
-    handleStep(resolvedStep.value, 'up', 'keyboard')
+    handleStep(keyboardStepOffset, 'up', 'keyboard', keyboardStepValue)
   }
 
   if (event.key === 'ArrowDown') {
     event.preventDefault()
-    handleStep(-resolvedStep.value, 'down', 'keyboard')
+    handleStep(-keyboardStepOffset, 'down', 'keyboard', keyboardStepValue)
   }
 }
 

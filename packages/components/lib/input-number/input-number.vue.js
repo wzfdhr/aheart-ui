@@ -380,7 +380,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       emit("input", rawValue);
     };
-    const handleStep = (offset, type, emitter) => {
+    const multiplyDecimalStringByTen = (value) => {
+      let result = "0";
+      for (let index = 0; index < 10; index += 1) {
+        result = addDecimalStrings(result, value);
+      }
+      return result;
+    };
+    const handleStep = (offset, type, emitter, stepValue = props.step) => {
       if (isInteractiveDisabled.value) {
         return;
       }
@@ -388,7 +395,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const nextValue = props.stringMode ? clampValue(
         addDecimalStrings(
           String(baseValue ?? 0),
-          type === "up" ? String(props.step) : negateDecimalString(String(props.step))
+          type === "up" ? String(stepValue) : negateDecimalString(String(stepValue))
         )
       ) : clampValue(Number(baseValue ?? 0) + offset);
       resetPendingInput();
@@ -404,13 +411,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (!props.keyboard) {
         return;
       }
+      const keyboardStepMultiplier = event.shiftKey ? 10 : 1;
+      const keyboardStepOffset = resolvedStep.value * keyboardStepMultiplier;
+      const keyboardStepValue = props.stringMode && event.shiftKey ? multiplyDecimalStringByTen(String(props.step)) : props.step;
       if (event.key === "ArrowUp") {
         event.preventDefault();
-        handleStep(resolvedStep.value, "up", "keyboard");
+        handleStep(keyboardStepOffset, "up", "keyboard", keyboardStepValue);
       }
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        handleStep(-resolvedStep.value, "down", "keyboard");
+        handleStep(-keyboardStepOffset, "down", "keyboard", keyboardStepValue);
       }
     };
     const handleBlur = () => {
