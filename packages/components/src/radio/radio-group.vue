@@ -18,7 +18,9 @@
           :disabled="isDisabled || option.disabled"
           @change="handleOptionChange(option)"
         />
-        <span class="aheart-radio-button__label">{{ option.label }}</span>
+        <span class="aheart-radio-button__label">
+          <ARadioGroupRenderNode :node="option.label" />
+        </span>
       </label>
     </template>
     <template v-else>
@@ -28,19 +30,20 @@
         :model-value="isSelected(option.value)"
         :value="option.value"
         :name="name"
-        :label="option.label"
         :disabled="isDisabled || option.disabled"
         :class-name="option.className"
         :style="option.style"
         :title="option.title"
         @change="() => handleOptionChange(option)"
-      />
+      >
+        <ARadioGroupRenderNode :node="option.label" />
+      </Radio>
     </template>
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineComponent, ref, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import Radio from './radio.vue'
 import {
@@ -60,6 +63,19 @@ const props = defineProps(radioGroupProps)
 const emit = defineEmits(radioGroupEmits)
 const config = useAheartConfig()
 const internalValue = ref<RadioValue | undefined>(props.defaultValue)
+
+const ARadioGroupRenderNode = defineComponent({
+  name: 'ARadioGroupRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))

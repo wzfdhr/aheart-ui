@@ -316,4 +316,39 @@ describe('Radio', () => {
     expect(option.attributes('title')).toBe('Button title')
     expect(option.classes()).toContain('is-checked')
   })
+
+  it('renders RadioGroup option labels as renderable nodes', () => {
+    const wrapper = mount(RadioGroup, {
+      props: {
+        defaultValue: 'custom',
+        options: [
+          {
+            label: h('span', { class: 'radio-option-node' }, 'Custom label'),
+            value: 'custom'
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.radio-option-node').text()).toBe('Custom label')
+    expect(wrapper.find('input').element.checked).toBe(true)
+  })
+
+  it('renders RadioGroup button option labels as renderable nodes', () => {
+    const wrapper = mount(RadioGroup, {
+      props: {
+        defaultValue: 'button',
+        optionType: 'button',
+        options: [
+          {
+            label: h('span', { class: 'radio-button-option-node' }, 'Button label'),
+            value: 'button'
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.radio-button-option-node').text()).toBe('Button label')
+    expect(wrapper.find('.aheart-radio-button').classes()).toContain('is-checked')
+  })
 })

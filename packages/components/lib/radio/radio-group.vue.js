@@ -20,6 +20,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const config = context.useAheartConfig();
     const internalValue = vue.ref(props.defaultValue);
+    const ARadioGroupRenderNode = vue.defineComponent({
+      name: "ARadioGroupRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isControlled = vue.computed(() => props.value !== void 0 || props.modelValue !== void 0);
@@ -88,7 +100,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               disabled: isDisabled.value || option.disabled,
               onChange: ($event) => handleOptionChange(option)
             }, null, 40, _hoisted_2),
-            vue.createElementVNode("span", _hoisted_3, vue.toDisplayString(option.label), 1)
+            vue.createElementVNode("span", _hoisted_3, [
+              vue.createVNode(vue.unref(ARadioGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
+            ])
           ], 14, _hoisted_1);
         }), 128)) : (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 1 }, vue.renderList(normalizedOptions.value, (option) => {
           return vue.openBlock(), vue.createBlock(radio_vue_vue_type_script_setup_true_lang.default, {
@@ -96,13 +112,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "model-value": isSelected(option.value),
             value: option.value,
             name: _ctx.name,
-            label: option.label,
             disabled: isDisabled.value || option.disabled,
             "class-name": option.className,
             style: vue.normalizeStyle(option.style),
             title: option.title,
             onChange: () => handleOptionChange(option)
-          }, null, 8, ["model-value", "value", "name", "label", "disabled", "class-name", "style", "title", "onChange"]);
+          }, {
+            default: vue.withCtx(() => [
+              vue.createVNode(vue.unref(ARadioGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
+            ]),
+            _: 2
+          }, 1032, ["model-value", "value", "name", "disabled", "class-name", "style", "title", "onChange"]);
         }), 128))
       ], 6);
     };

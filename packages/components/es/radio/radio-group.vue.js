@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, toDisplayString, createBlock } from "vue";
+import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createVNode, unref, createBlock, withCtx } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import _sfc_main$1 from "./radio.vue.js";
 import { radioGroupProps, radioGroupEmits } from "./types.js";
@@ -18,6 +18,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const config = useAheartConfig();
     const internalValue = ref(props.defaultValue);
+    const ARadioGroupRenderNode = defineComponent({
+      name: "ARadioGroupRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isControlled = computed(() => props.value !== void 0 || props.modelValue !== void 0);
@@ -86,7 +98,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               disabled: isDisabled.value || option.disabled,
               onChange: ($event) => handleOptionChange(option)
             }, null, 40, _hoisted_2),
-            createElementVNode("span", _hoisted_3, toDisplayString(option.label), 1)
+            createElementVNode("span", _hoisted_3, [
+              createVNode(unref(ARadioGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
+            ])
           ], 14, _hoisted_1);
         }), 128)) : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList(normalizedOptions.value, (option) => {
           return openBlock(), createBlock(_sfc_main$1, {
@@ -94,13 +110,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "model-value": isSelected(option.value),
             value: option.value,
             name: _ctx.name,
-            label: option.label,
             disabled: isDisabled.value || option.disabled,
             "class-name": option.className,
             style: normalizeStyle(option.style),
             title: option.title,
             onChange: () => handleOptionChange(option)
-          }, null, 8, ["model-value", "value", "name", "label", "disabled", "class-name", "style", "title", "onChange"]);
+          }, {
+            default: withCtx(() => [
+              createVNode(unref(ARadioGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
+            ]),
+            _: 2
+          }, 1032, ["model-value", "value", "name", "disabled", "class-name", "style", "title", "onChange"]);
         }), 128))
       ], 6);
     };

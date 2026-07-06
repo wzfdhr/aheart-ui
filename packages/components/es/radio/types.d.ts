@@ -1,6 +1,7 @@
-import type { ExtractPropTypes, PropType, StyleValue } from 'vue';
+import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
 export type RadioValue = string | number | boolean;
+export type RadioRenderable = VNodeChild;
 export type RadioGroupDirection = 'horizontal' | 'vertical';
 export type RadioGroupOrientation = RadioGroupDirection;
 export type RadioOptionType = 'default' | 'button';
@@ -10,7 +11,7 @@ export type RadioClassNames = Partial<Record<RadioSemanticPart, string>>;
 export type RadioStyles = Partial<Record<RadioSemanticPart, StyleValue>>;
 export type RadioRawOption = string | number | RadioOption;
 export interface RadioOption {
-    label: string;
+    label: RadioRenderable;
     value: RadioValue;
     disabled?: boolean;
     className?: string;

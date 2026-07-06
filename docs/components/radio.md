@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 const radioRef = ref<{ focus: () => void; blur: () => void }>()
+const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
 </script>
 
 # Radio 单选框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -103,19 +104,27 @@ const radioRef = ref<{ focus: () => void; blur: () => void }>()
     :options="[
       'Plain',
       2,
-      { label: 'Styled', value: 'styled', className: 'demo-radio-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' }
+      { label: 'Styled', value: 'styled', className: 'demo-radio-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' },
+      { label: radioNodeLabel, value: 'node' }
     ]"
   />
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
+</script>
+
 <template>
   <ARadioGroup
     :default-value="2"
     :options="[
       'Plain',
       2,
-      { label: 'Styled', value: 'styled', className: 'demo-radio-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' }
+      { label: 'Styled', value: 'styled', className: 'demo-radio-option', style: { color: 'var(--aheart-color-primary)' }, title: 'Styled option' },
+      { label: radioNodeLabel, value: 'node' }
     ]"
   />
 </template>
@@ -223,7 +232,7 @@ const radioRef = ref<{ focus: () => void; blur: () => void }>()
 | modelValue | 当前选中值 | `RadioValue` | - |
 | value | 当前选中值，Ant 风格受控别名，优先级高于 `modelValue` | `RadioValue` | - |
 | defaultValue | 非受控初始选中值 | `RadioValue` | - |
-| options | 选项列表，支持字符串、数字或对象选项 | `(string \| number \| RadioOption)[]` | `[]` |
+| options | 选项列表，支持字符串、数字或对象选项；对象选项的 `label` 可传渲染节点，默认和按钮模式均支持 | `(string \| number \| RadioOption)[]` | `[]` |
 | disabled | 是否禁用整组 | `boolean` | ConfigProvider disabled |
 | name | 传递给组内所有原生 radio 的 name 属性 | `string` | - |
 | orientation | Ant 风格排列方向别名，优先级高于 `vertical` 和 `direction` | `horizontal` \| `vertical` | - |
@@ -241,7 +250,7 @@ const radioRef = ref<{ focus: () => void; blur: () => void }>()
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| label | 选项文本 | `string` | - |
+| label | 选项内容 | `VNodeChild` | - |
 | value | 选项值 | `string` \| `number` \| `boolean` | - |
 | disabled | 是否禁用该选项 | `boolean` | `false` |
 | className | 选项根节点 class | `string` | - |

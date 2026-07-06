@@ -1,19 +1,20 @@
+import { type PropType } from 'vue';
 import { type RadioGroupDirection, type RadioValue } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly modelValue: {
-        readonly type: import("vue").PropType<RadioValue>;
+        readonly type: PropType<RadioValue>;
         readonly default: undefined;
     };
     readonly value: {
-        readonly type: import("vue").PropType<RadioValue>;
+        readonly type: PropType<RadioValue>;
         readonly default: undefined;
     };
     readonly defaultValue: {
-        readonly type: import("vue").PropType<RadioValue>;
+        readonly type: PropType<RadioValue>;
         readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").RadioRawOption[]>;
+        readonly type: PropType<import("./types").RadioRawOption[]>;
         readonly default: () => never[];
     };
     readonly disabled: {
@@ -22,43 +23,43 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly name: StringConstructor;
     readonly direction: {
-        readonly type: import("vue").PropType<RadioGroupDirection>;
+        readonly type: PropType<RadioGroupDirection>;
         readonly default: "horizontal";
     };
-    readonly orientation: import("vue").PropType<RadioGroupDirection>;
+    readonly orientation: PropType<RadioGroupDirection>;
     readonly vertical: BooleanConstructor;
     readonly optionType: {
-        readonly type: import("vue").PropType<import("./types").RadioOptionType>;
+        readonly type: PropType<import("./types").RadioOptionType>;
         readonly default: "default";
     };
     readonly buttonStyle: {
-        readonly type: import("vue").PropType<import("./types").RadioButtonStyle>;
+        readonly type: PropType<import("./types").RadioButtonStyle>;
         readonly default: "outline";
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly block: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: RadioValue) => void;
     "update:modelValue": (value: RadioValue) => void;
     "update:value": (value: RadioValue) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly modelValue: {
-        readonly type: import("vue").PropType<RadioValue>;
+        readonly type: PropType<RadioValue>;
         readonly default: undefined;
     };
     readonly value: {
-        readonly type: import("vue").PropType<RadioValue>;
+        readonly type: PropType<RadioValue>;
         readonly default: undefined;
     };
     readonly defaultValue: {
-        readonly type: import("vue").PropType<RadioValue>;
+        readonly type: PropType<RadioValue>;
         readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").RadioRawOption[]>;
+        readonly type: PropType<import("./types").RadioRawOption[]>;
         readonly default: () => never[];
     };
     readonly disabled: {
@@ -67,24 +68,24 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly name: StringConstructor;
     readonly direction: {
-        readonly type: import("vue").PropType<RadioGroupDirection>;
+        readonly type: PropType<RadioGroupDirection>;
         readonly default: "horizontal";
     };
-    readonly orientation: import("vue").PropType<RadioGroupDirection>;
+    readonly orientation: PropType<RadioGroupDirection>;
     readonly vertical: BooleanConstructor;
     readonly optionType: {
-        readonly type: import("vue").PropType<import("./types").RadioOptionType>;
+        readonly type: PropType<import("./types").RadioOptionType>;
         readonly default: "default";
     };
     readonly buttonStyle: {
-        readonly type: import("vue").PropType<import("./types").RadioButtonStyle>;
+        readonly type: PropType<import("./types").RadioButtonStyle>;
         readonly default: "outline";
     };
-    readonly size: import("vue").PropType<import("../config").AheartSize>;
+    readonly size: PropType<import("../config").AheartSize>;
     readonly block: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
 }>> & Readonly<{
     onChange?: ((value: RadioValue) => any) | undefined;
     "onUpdate:modelValue"?: ((value: RadioValue) => any) | undefined;
