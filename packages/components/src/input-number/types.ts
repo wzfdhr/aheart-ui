@@ -41,6 +41,7 @@ const renderableProp = {
 export const inputNumberProps = {
   id: String,
   modelValue: Number,
+  value: Number,
   defaultValue: Number,
   placeholder: String,
   prefix: renderableProp,

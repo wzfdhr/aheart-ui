@@ -40,8 +40,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = computed(() => props.modelValue !== void 0);
-    const mergedValue = computed(() => isControlled.value ? props.modelValue : uncontrolledValue.value);
+    const isControlled = computed(() => props.modelValue !== void 0 || props.value !== void 0);
+    const mergedValue = computed(
+      () => props.modelValue !== void 0 ? props.modelValue : props.value !== void 0 ? props.value : uncontrolledValue.value
+    );
     const resolvedVariant = computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );

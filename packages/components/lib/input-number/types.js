@@ -7,6 +7,7 @@ const renderableProp = {
 const inputNumberProps = {
   id: String,
   modelValue: Number,
+  value: Number,
   defaultValue: Number,
   placeholder: String,
   prefix: renderableProp,

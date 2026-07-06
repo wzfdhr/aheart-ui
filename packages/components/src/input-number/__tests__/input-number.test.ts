@@ -31,6 +31,20 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([6])
   })
 
+  it('uses value as a controlled value alias', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { value: 5, step: 2 }
+    })
+
+    expect(wrapper.find('input').element.value).toBe('5')
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([7])
+    expect(wrapper.emitted('change')?.[0]).toEqual([7])
+    expect(wrapper.emitted('step')?.[0]).toEqual([7, { offset: 2, type: 'up', emitter: 'handler' }])
+  })
+
   it('clamps typed values to min and max', async () => {
     const wrapper = mount(InputNumber, {
       props: { min: 1, max: 10 }

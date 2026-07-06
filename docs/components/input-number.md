@@ -195,6 +195,7 @@ import { h } from 'vue'
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | modelValue | 数字值 | `number` | - |
+| value | 受控数字值，兼容 Ant Design API；与 `modelValue` 同时传入时 `modelValue` 优先 | `number` | - |
 | defaultValue | 非受控初始值 | `number` | - |
 | id | 原生输入框 id | `string` | - |
 | placeholder | 占位提示 | `string` | - |

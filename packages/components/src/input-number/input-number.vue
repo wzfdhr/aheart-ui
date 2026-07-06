@@ -103,8 +103,10 @@ const hasRenderable = (value: unknown) => {
 
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
-const isControlled = computed(() => props.modelValue !== undefined)
-const mergedValue = computed(() => (isControlled.value ? props.modelValue : uncontrolledValue.value))
+const isControlled = computed(() => props.modelValue !== undefined || props.value !== undefined)
+const mergedValue = computed(() =>
+  props.modelValue !== undefined ? props.modelValue : props.value !== undefined ? props.value : uncontrolledValue.value
+)
 const resolvedVariant = computed(() =>
   props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined')
 )
