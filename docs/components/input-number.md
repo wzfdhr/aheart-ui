@@ -23,6 +23,7 @@ InputNumber captures numeric values with min, max, step, controls, precision, fo
 <div class="aheart-demo-panel">
   <ASpace>
     <AInputNumber :model-value="2" :step="2" />
+    <AInputNumber :model-value="1" step="0.5" />
     <AInputNumber :model-value="12.345" :precision="2" prefix="$" suffix="USD" />
     <AInputNumber
       :model-value="88"
@@ -39,6 +40,7 @@ import { h } from 'vue'
 
 <template>
   <AInputNumber v-model="value" :step="2" />
+  <AInputNumber v-model="decimalValue" step="0.5" />
   <AInputNumber v-model="amount" :precision="2" prefix="$" suffix="USD" />
   <AInputNumber
     v-model="nodeAmount"
@@ -201,7 +203,7 @@ import { h } from 'vue'
 | bordered | 是否显示边框，设为 `false` 时等同 `borderless` | `boolean` | `true` |
 | min | 最小值 | `number` | - |
 | max | 最大值 | `number` | - |
-| step | 每次改变步数 | `number` | `1` |
+| step | 每次改变步数 | `number` \| `string` | `1` |
 | precision | 数值精度 | `number` | - |
 | decimalSeparator | 默认显示和解析使用的小数分隔符 | `string` | `.` |
 | formatter | 展示值格式化函数 | `(value?: number, info: { userTyping: boolean; input: string }) => string` | - |

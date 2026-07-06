@@ -29,7 +29,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly min: NumberConstructor;
     readonly max: NumberConstructor;
     readonly step: {
-        readonly type: NumberConstructor;
+        readonly type: PropType<string | number>;
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
@@ -85,7 +85,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly min: NumberConstructor;
     readonly max: NumberConstructor;
     readonly step: {
-        readonly type: NumberConstructor;
+        readonly type: PropType<string | number>;
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
@@ -114,7 +114,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }>, {
     readonly variant: import("./types").InputNumberVariant;
     readonly disabled: boolean;
-    readonly step: number;
+    readonly step: string | number;
     readonly bordered: boolean;
     readonly keyboard: boolean;
     readonly prefix: VNodeChild;

@@ -53,6 +53,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return ((_a = controlsConfig.value) == null ? void 0 : _a.downIcon) ?? "−";
     });
+    const resolvedStep = computed(() => {
+      const value = Number(props.step);
+      return Number.isFinite(value) ? value : 1;
+    });
     const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
     const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
     const shouldUseDecimalSeparator = computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== "."));
@@ -176,11 +180,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       if (event.key === "ArrowUp") {
         event.preventDefault();
-        handleStep(props.step, "up");
+        handleStep(resolvedStep.value, "up");
       }
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        handleStep(-props.step, "down");
+        handleStep(-resolvedStep.value, "down");
       }
     };
     const handleWheel = (event) => {
@@ -188,7 +192,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       }
       event.preventDefault();
-      handleStep(event.deltaY < 0 ? props.step : -props.step, event.deltaY < 0 ? "up" : "down");
+      handleStep(event.deltaY < 0 ? resolvedStep.value : -resolvedStep.value, event.deltaY < 0 ? "up" : "down");
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
@@ -241,7 +245,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             type: "button",
             "aria-label": "Increase",
             disabled: isInteractiveDisabled.value,
-            onClick: _cache[0] || (_cache[0] = ($event) => handleStep(_ctx.step, "up"))
+            onClick: _cache[0] || (_cache[0] = ($event) => handleStep(resolvedStep.value, "up"))
           }, [
             renderSlot(_ctx.$slots, "increaseIcon", {}, () => [
               createVNode(unref(AInputNumberRenderNode), { node: increaseIcon.value }, null, 8, ["node"])
@@ -253,7 +257,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             type: "button",
             "aria-label": "Decrease",
             disabled: isInteractiveDisabled.value,
-            onClick: _cache[1] || (_cache[1] = ($event) => handleStep(-_ctx.step, "down"))
+            onClick: _cache[1] || (_cache[1] = ($event) => handleStep(-resolvedStep.value, "down"))
           }, [
             renderSlot(_ctx.$slots, "decreaseIcon", {}, () => [
               createVNode(unref(AInputNumberRenderNode), { node: decreaseIcon.value }, null, 8, ["node"])

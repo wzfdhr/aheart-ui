@@ -26,7 +26,7 @@ const inputNumberProps = {
   min: Number,
   max: Number,
   step: {
-    type: Number,
+    type: [Number, String],
     default: 1
   },
   precision: Number,

@@ -36,7 +36,7 @@
         type="button"
         aria-label="Increase"
         :disabled="isInteractiveDisabled"
-        @click="handleStep(step, 'up')"
+        @click="handleStep(resolvedStep, 'up')"
       >
         <slot name="increaseIcon">
           <AInputNumberRenderNode :node="increaseIcon" />
@@ -49,7 +49,7 @@
         type="button"
         aria-label="Decrease"
         :disabled="isInteractiveDisabled"
-        @click="handleStep(-step, 'down')"
+        @click="handleStep(-resolvedStep, 'down')"
       >
         <slot name="decreaseIcon">
           <AInputNumberRenderNode :node="decreaseIcon" />
@@ -108,6 +108,10 @@ const controlsConfig = computed(() =>
 const showControls = computed(() => props.controls !== false)
 const increaseIcon = computed(() => controlsConfig.value?.upIcon ?? '+')
 const decreaseIcon = computed(() => controlsConfig.value?.downIcon ?? '−')
+const resolvedStep = computed(() => {
+  const value = Number(props.step)
+  return Number.isFinite(value) ? value : 1
+})
 const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix))
 const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix))
 const shouldUseDecimalSeparator = computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== '.'))
@@ -216,12 +220,12 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   if (event.key === 'ArrowUp') {
     event.preventDefault()
-    handleStep(props.step, 'up')
+    handleStep(resolvedStep.value, 'up')
   }
 
   if (event.key === 'ArrowDown') {
     event.preventDefault()
-    handleStep(-props.step, 'down')
+    handleStep(-resolvedStep.value, 'down')
   }
 }
 
@@ -231,6 +235,6 @@ const handleWheel = (event: WheelEvent) => {
   }
 
   event.preventDefault()
-  handleStep(event.deltaY < 0 ? props.step : -props.step, event.deltaY < 0 ? 'up' : 'down')
+  handleStep(event.deltaY < 0 ? resolvedStep.value : -resolvedStep.value, event.deltaY < 0 ? 'up' : 'down')
 }
 </script>

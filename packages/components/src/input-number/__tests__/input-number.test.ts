@@ -38,6 +38,20 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0])
   })
 
+  it('treats string step values as numeric offsets', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 1, step: '0.5' }
+    })
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+    await wrapper.find('.aheart-input-number__decrease').trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([1.5])
+    expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([0.5])
+    expect(wrapper.emitted('step')?.[0]).toEqual([1.5, { offset: 0.5, type: 'up' }])
+    expect(wrapper.emitted('step')?.[1]).toEqual([0.5, { offset: -0.5, type: 'down' }])
+  })
+
   it('uses ConfigProvider size and disabled fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { size: 'large', disabled: true },

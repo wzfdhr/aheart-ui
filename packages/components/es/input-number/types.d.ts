@@ -50,7 +50,7 @@ export declare const inputNumberProps: {
     readonly min: NumberConstructor;
     readonly max: NumberConstructor;
     readonly step: {
-        readonly type: NumberConstructor;
+        readonly type: PropType<string | number>;
         readonly default: 1;
     };
     readonly precision: NumberConstructor;

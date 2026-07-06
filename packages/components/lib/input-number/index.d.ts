@@ -29,7 +29,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly min: NumberConstructor;
         readonly max: NumberConstructor;
         readonly step: {
-            readonly type: NumberConstructor;
+            readonly type: import("vue").PropType<string | number>;
             readonly default: 1;
         };
         readonly precision: NumberConstructor;
@@ -63,7 +63,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     }, import("vue").PublicProps, {
         readonly variant: import("./types").InputNumberVariant;
         readonly disabled: boolean;
-        readonly step: number;
+        readonly step: string | number;
         readonly bordered: boolean;
         readonly keyboard: boolean;
         readonly prefix: import("vue").VNodeChild;
@@ -108,7 +108,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly min: NumberConstructor;
         readonly max: NumberConstructor;
         readonly step: {
-            readonly type: NumberConstructor;
+            readonly type: import("vue").PropType<string | number>;
             readonly default: 1;
         };
         readonly precision: NumberConstructor;
@@ -137,7 +137,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     }>, {}, {}, {}, {}, {
         readonly variant: import("./types").InputNumberVariant;
         readonly disabled: boolean;
-        readonly step: number;
+        readonly step: string | number;
         readonly bordered: boolean;
         readonly keyboard: boolean;
         readonly prefix: import("vue").VNodeChild;
@@ -179,7 +179,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly min: NumberConstructor;
     readonly max: NumberConstructor;
     readonly step: {
-        readonly type: NumberConstructor;
+        readonly type: import("vue").PropType<string | number>;
         readonly default: 1;
     };
     readonly precision: NumberConstructor;
@@ -213,7 +213,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
 }, string, {
     readonly variant: import("./types").InputNumberVariant;
     readonly disabled: boolean;
-    readonly step: number;
+    readonly step: string | number;
     readonly bordered: boolean;
     readonly keyboard: boolean;
     readonly prefix: import("vue").VNodeChild;

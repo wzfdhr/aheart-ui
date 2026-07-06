@@ -55,7 +55,7 @@ export const inputNumberProps = {
   min: Number,
   max: Number,
   step: {
-    type: Number,
+    type: [Number, String] as PropType<number | string>,
     default: 1
   },
   precision: Number,
