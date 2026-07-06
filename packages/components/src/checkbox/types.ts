@@ -35,6 +35,7 @@ export const checkboxProps = {
     type: Boolean,
     default: undefined
   },
+  autoFocus: Boolean,
   indeterminate: Boolean,
   label: String,
   title: String,

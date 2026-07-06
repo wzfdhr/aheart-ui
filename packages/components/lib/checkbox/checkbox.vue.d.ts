@@ -17,6 +17,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
+    readonly autoFocus: BooleanConstructor;
     readonly indeterminate: BooleanConstructor;
     readonly label: StringConstructor;
     readonly title: StringConstructor;
@@ -54,6 +55,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
+    readonly autoFocus: BooleanConstructor;
     readonly indeterminate: BooleanConstructor;
     readonly label: StringConstructor;
     readonly title: StringConstructor;
@@ -73,6 +75,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly modelValue: boolean;
     readonly checked: boolean;
     readonly defaultChecked: boolean;
+    readonly autoFocus: boolean;
     readonly indeterminate: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

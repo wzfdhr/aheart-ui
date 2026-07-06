@@ -18,6 +18,7 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
+        readonly autoFocus: BooleanConstructor;
         readonly indeterminate: BooleanConstructor;
         readonly label: StringConstructor;
         readonly title: StringConstructor;
@@ -47,6 +48,7 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
         readonly modelValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
+        readonly autoFocus: boolean;
         readonly indeterminate: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -74,6 +76,7 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
+        readonly autoFocus: BooleanConstructor;
         readonly indeterminate: BooleanConstructor;
         readonly label: StringConstructor;
         readonly title: StringConstructor;
@@ -97,6 +100,7 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
         readonly modelValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
+        readonly autoFocus: boolean;
         readonly indeterminate: boolean;
     }>;
     __isFragment?: undefined;
@@ -121,6 +125,7 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
+    readonly autoFocus: BooleanConstructor;
     readonly indeterminate: BooleanConstructor;
     readonly label: StringConstructor;
     readonly title: StringConstructor;
@@ -150,6 +155,7 @@ declare const Checkbox: import("../utils/install").SFCWithInstall<{
     readonly modelValue: boolean;
     readonly checked: boolean;
     readonly defaultChecked: boolean;
+    readonly autoFocus: boolean;
     readonly indeterminate: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

@@ -80,6 +80,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       (_a = inputRef.value) == null ? void 0 : _a.blur();
     };
+    vue.onMounted(() => {
+      if (props.autoFocus) {
+        vue.nextTick(focus);
+      }
+    });
     __expose({
       focus,
       blur,

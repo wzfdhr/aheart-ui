@@ -19,6 +19,7 @@ const checkboxProps = {
     type: Boolean,
     default: void 0
   },
+  autoFocus: Boolean,
   indeterminate: Boolean,
   label: String,
   title: String,

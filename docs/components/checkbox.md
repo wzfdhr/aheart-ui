@@ -55,7 +55,7 @@ Checkbox captures a boolean choice or a grouped set of choices with checked, dis
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ACheckbox ref="checkboxRef" label="Focusable checkbox" />
+    <ACheckbox ref="checkboxRef" auto-focus label="Focusable checkbox" />
     <AButton size="small" @click="checkboxRef?.focus()">Focus</AButton>
     <AButton size="small" @click="checkboxRef?.blur()">Blur</AButton>
   </ASpace>
@@ -69,7 +69,7 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
 </script>
 
 <template>
-  <ACheckbox ref="checkboxRef" label="Focusable checkbox" />
+  <ACheckbox ref="checkboxRef" auto-focus label="Focusable checkbox" />
   <AButton @click="checkboxRef?.focus()">Focus</AButton>
   <AButton @click="checkboxRef?.blur()">Blur</AButton>
 </template>
@@ -197,6 +197,7 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
 | value | 原生 value 属性 | `string` \| `number` \| `boolean` | - |
 | name | 原生 name 属性 | `string` | - |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
+| autoFocus | 挂载后自动聚焦原生 checkbox 输入框 | `boolean` | `false` |
 | indeterminate | 是否半选 | `boolean` | `false` |
 | label | 标签文本 | `string` | - |
 | title | 根节点 title 属性 | `string` | - |

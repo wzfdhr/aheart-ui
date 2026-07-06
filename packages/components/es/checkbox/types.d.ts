@@ -32,6 +32,7 @@ export declare const checkboxProps: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
+    readonly autoFocus: BooleanConstructor;
     readonly indeterminate: BooleanConstructor;
     readonly label: StringConstructor;
     readonly title: StringConstructor;

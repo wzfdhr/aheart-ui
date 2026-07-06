@@ -75,6 +75,23 @@ describe('Checkbox', () => {
     host.remove()
   })
 
+  it('focuses the native input when autoFocus is enabled', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(Checkbox, {
+      attachTo: host,
+      props: { autoFocus: true }
+    })
+
+    await nextTick()
+
+    expect(document.activeElement).toBe(wrapper.find('input').element)
+
+    wrapper.unmount()
+    host.remove()
+  })
+
   it('uses ConfigProvider disabled fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { disabled: true },
