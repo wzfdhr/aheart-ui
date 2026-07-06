@@ -1,4 +1,4 @@
-import { defineComponent, reactive, computed, provide, openBlock, createElementBlock, normalizeClass, withModifiers, renderSlot } from "vue";
+import { defineComponent, reactive, ref, computed, provide, openBlock, createElementBlock, normalizeClass, withModifiers, renderSlot } from "vue";
 import { provideAheartConfig } from "../config/context.js";
 import { formProps, formEmits, formContextKey } from "./types.js";
 import "./style.css.js";
@@ -13,6 +13,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const fieldStates = reactive({});
+    const formElement = ref();
     provideAheartConfig(
       computed(() => ({
         size: props.size,
@@ -152,6 +153,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       });
     };
+    const scrollToField = (name) => {
+      var _a;
+      const target = Array.from(((_a = formElement.value) == null ? void 0 : _a.querySelectorAll("[data-name]")) ?? []).find(
+        (element) => element.dataset.name === name
+      );
+      if (!target) {
+        return;
+      }
+      if (props.scrollToFirstError === true) {
+        target.scrollIntoView();
+        return;
+      }
+      target.scrollIntoView(props.scrollToFirstError);
+    };
+    const scrollToFirstError = (errorFields) => {
+      if (!props.scrollToFirstError || errorFields.length === 0) {
+        return;
+      }
+      scrollToField(errorFields[0].name);
+    };
     const formContext = {
       requiredMark: computed(() => props.requiredMark),
       colon: computed(() => props.colon),
@@ -181,6 +202,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const validationResult = validate();
       if (validationResult.errorFields.length > 0) {
         emit("finishFailed", validationResult);
+        scrollToFirstError(validationResult.errorFields);
         return;
       }
       emit("finish", validationResult.values);
@@ -191,6 +213,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("form", {
+        ref_key: "formElement",
+        ref: formElement,
         class: normalizeClass(["aheart-form", formClass.value]),
         onSubmit: withModifiers(handleSubmit, ["prevent"])
       }, [

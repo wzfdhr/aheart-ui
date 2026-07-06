@@ -1,11 +1,11 @@
 <template>
-  <form class="aheart-form" :class="formClass" @submit.prevent="handleSubmit">
+  <form ref="formElement" class="aheart-form" :class="formClass" @submit.prevent="handleSubmit">
     <slot />
   </form>
 </template>
 
 <script setup lang="ts">
-import { computed, provide, reactive } from 'vue'
+import { computed, provide, reactive, ref } from 'vue'
 import { provideAheartConfig } from '../config'
 import {
   formContextKey,
@@ -28,6 +28,7 @@ defineOptions({
 const props = defineProps(formProps)
 const emit = defineEmits(formEmits)
 const fieldStates = reactive<Record<string, FormFieldState>>({})
+const formElement = ref<HTMLFormElement>()
 
 provideAheartConfig(
   computed(() => ({
@@ -206,6 +207,31 @@ const clearValidate = (names?: string[]) => {
   })
 }
 
+const scrollToField = (name: string) => {
+  const target = Array.from(formElement.value?.querySelectorAll<HTMLElement>('[data-name]') ?? []).find(
+    (element) => element.dataset.name === name
+  )
+
+  if (!target) {
+    return
+  }
+
+  if (props.scrollToFirstError === true) {
+    target.scrollIntoView()
+    return
+  }
+
+  target.scrollIntoView(props.scrollToFirstError)
+}
+
+const scrollToFirstError = (errorFields: FormValidationError[]) => {
+  if (!props.scrollToFirstError || errorFields.length === 0) {
+    return
+  }
+
+  scrollToField(errorFields[0].name)
+}
+
 const formContext: FormContext = {
   requiredMark: computed(() => props.requiredMark),
   colon: computed(() => props.colon),
@@ -236,6 +262,7 @@ const handleSubmit = (event: Event) => {
 
   if (validationResult.errorFields.length > 0) {
     emit('finishFailed', validationResult)
+    scrollToFirstError(validationResult.errorFields)
     return
   }
 

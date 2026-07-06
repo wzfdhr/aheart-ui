@@ -33,6 +33,10 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("../config").AheartVariant>;
             readonly default: undefined;
         };
+        readonly scrollToFirstError: {
+            readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
+            readonly default: false;
+        };
     }>> & Readonly<{
         onSubmit?: ((event: Event) => any) | undefined;
         onFinish?: ((values: import("./types").FormModel) => any) | undefined;
@@ -58,6 +62,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly labelAlign: import("./types").FormLabelAlign;
         readonly requiredMark: import("./types").FormRequiredMark;
         readonly colon: boolean;
+        readonly scrollToFirstError: import("./types").FormScrollToFirstError;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -99,6 +104,10 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("../config").AheartVariant>;
             readonly default: undefined;
         };
+        readonly scrollToFirstError: {
+            readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
+            readonly default: false;
+        };
     }>> & Readonly<{
         onSubmit?: ((event: Event) => any) | undefined;
         onFinish?: ((values: import("./types").FormModel) => any) | undefined;
@@ -119,6 +128,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly labelAlign: import("./types").FormLabelAlign;
         readonly requiredMark: import("./types").FormRequiredMark;
         readonly colon: boolean;
+        readonly scrollToFirstError: import("./types").FormScrollToFirstError;
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -157,6 +167,10 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("../config").AheartVariant>;
         readonly default: undefined;
     };
+    readonly scrollToFirstError: {
+        readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
+        readonly default: false;
+    };
 }>> & Readonly<{
     onSubmit?: ((event: Event) => any) | undefined;
     onFinish?: ((values: import("./types").FormModel) => any) | undefined;
@@ -182,6 +196,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
     readonly labelAlign: import("./types").FormLabelAlign;
     readonly requiredMark: import("./types").FormRequiredMark;
     readonly colon: boolean;
+    readonly scrollToFirstError: import("./types").FormScrollToFirstError;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;

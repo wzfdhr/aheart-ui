@@ -76,6 +76,38 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
 </template>
 ```
 
+## 滚动到首个错误
+
+<div class="aheart-demo-panel">
+  <AForm :model="{ email: '', password: '' }" layout="vertical" scroll-to-first-error>
+    <AFormItem label="Email" name="email" :rules="[{ required: true, message: 'Email is required' }]">
+      <AInput model-value="" />
+    </AFormItem>
+    <AFormItem label="Password" name="password" :rules="[{ required: true, message: 'Password is required' }]">
+      <AInput model-value="" />
+    </AFormItem>
+    <AFormItem>
+      <AButton native-type="submit">Submit and scroll</AButton>
+    </AFormItem>
+  </AForm>
+</div>
+
+```vue
+<template>
+  <AForm :model="formState" layout="vertical" scroll-to-first-error>
+    <AFormItem label="Email" name="email" :rules="[{ required: true, message: 'Email is required' }]">
+      <AInput v-model="formState.email" />
+    </AFormItem>
+    <AFormItem label="Password" name="password" :rules="[{ required: true, message: 'Password is required' }]">
+      <AInput v-model="formState.password" />
+    </AFormItem>
+    <AFormItem>
+      <AButton native-type="submit">Submit and scroll</AButton>
+    </AFormItem>
+  </AForm>
+</template>
+```
+
 ## 首个错误
 
 <div class="aheart-demo-panel">
@@ -364,6 +396,7 @@ const passwordTooltipIcon = h('span', 'i')
 | requiredMark | 必填标记展示方式 | `boolean` \| `optional` | `true` |
 | colon | 是否在 label 后显示冒号 | `boolean` | `true` |
 | variant | 内部控件默认变体 | `outlined` \| `borderless` \| `filled` \| `underlined` | - |
+| scrollToFirstError | 提交失败后滚动到首个错误字段 | `boolean` \| `ScrollIntoViewOptions` | `false` |
 
 ## Form Events
 

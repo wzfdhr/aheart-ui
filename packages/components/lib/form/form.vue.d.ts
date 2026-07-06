@@ -33,6 +33,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("../config").AheartVariant>;
         readonly default: undefined;
     };
+    readonly scrollToFirstError: {
+        readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
+        readonly default: false;
+    };
 }>, {
     validate: () => {
         values: FormModel;
@@ -78,6 +82,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("../config").AheartVariant>;
         readonly default: undefined;
     };
+    readonly scrollToFirstError: {
+        readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
+        readonly default: false;
+    };
 }>> & Readonly<{
     onSubmit?: ((event: Event) => any) | undefined;
     onFinish?: ((values: FormModel) => any) | undefined;
@@ -92,6 +100,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly labelAlign: import("./types").FormLabelAlign;
     readonly requiredMark: import("./types").FormRequiredMark;
     readonly colon: boolean;
+    readonly scrollToFirstError: import("./types").FormScrollToFirstError;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
 }>;

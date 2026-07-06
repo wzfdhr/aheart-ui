@@ -11,6 +11,7 @@ export type FormValidateFirst = boolean | 'parallel'
 export type FormVariant = AheartVariant
 export type FormRenderable = VNodeChild
 export type FormMessageVariables = Record<string, string | number>
+export type FormScrollToFirstError = boolean | ScrollIntoViewOptions
 export type FormTooltipTitle = FormRenderable | (() => FormRenderable)
 export type FormItemTooltipConfig = Partial<Omit<TooltipProps, 'title'>> & {
   title?: FormTooltipTitle
@@ -98,6 +99,10 @@ export const formProps = {
   variant: {
     type: String as PropType<FormVariant>,
     default: undefined
+  },
+  scrollToFirstError: {
+    type: [Boolean, Object] as PropType<FormScrollToFirstError>,
+    default: false
   }
 } as const
 

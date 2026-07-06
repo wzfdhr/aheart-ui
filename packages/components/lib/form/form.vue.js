@@ -15,6 +15,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const fieldStates = vue.reactive({});
+    const formElement = vue.ref();
     context.provideAheartConfig(
       vue.computed(() => ({
         size: props.size,
@@ -154,6 +155,26 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       });
     };
+    const scrollToField = (name) => {
+      var _a;
+      const target = Array.from(((_a = formElement.value) == null ? void 0 : _a.querySelectorAll("[data-name]")) ?? []).find(
+        (element) => element.dataset.name === name
+      );
+      if (!target) {
+        return;
+      }
+      if (props.scrollToFirstError === true) {
+        target.scrollIntoView();
+        return;
+      }
+      target.scrollIntoView(props.scrollToFirstError);
+    };
+    const scrollToFirstError = (errorFields) => {
+      if (!props.scrollToFirstError || errorFields.length === 0) {
+        return;
+      }
+      scrollToField(errorFields[0].name);
+    };
     const formContext = {
       requiredMark: vue.computed(() => props.requiredMark),
       colon: vue.computed(() => props.colon),
@@ -183,6 +204,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const validationResult = validate();
       if (validationResult.errorFields.length > 0) {
         emit("finishFailed", validationResult);
+        scrollToFirstError(validationResult.errorFields);
         return;
       }
       emit("finish", validationResult.values);
@@ -193,6 +215,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("form", {
+        ref_key: "formElement",
+        ref: formElement,
         class: vue.normalizeClass(["aheart-form", formClass.value]),
         onSubmit: vue.withModifiers(handleSubmit, ["prevent"])
       }, [

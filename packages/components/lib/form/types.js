@@ -34,6 +34,10 @@ const formProps = {
   variant: {
     type: String,
     default: void 0
+  },
+  scrollToFirstError: {
+    type: [Boolean, Object],
+    default: false
   }
 };
 const formEmits = {

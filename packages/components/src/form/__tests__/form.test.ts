@@ -529,6 +529,68 @@ describe('Form', () => {
     ])
   })
 
+  it('scrolls the first invalid FormItem on failed submit when scrollToFirstError is enabled', async () => {
+    let scrolledElement: HTMLElement | undefined
+    const scrollIntoView = vi.fn(function (this: HTMLElement) {
+      scrolledElement = this
+    })
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoView
+    })
+
+    try {
+      const wrapper = mount(Form, {
+        props: {
+          model: { email: '', password: '' },
+          scrollToFirstError: true
+        },
+        slots: {
+          default: {
+            render() {
+              return h('div', [
+                h(
+                  FormItem,
+                  { label: 'Email', name: 'email', rules: [{ required: true, message: 'Email is required' }] },
+                  () => h(Input, { modelValue: '' })
+                ),
+                h(
+                  FormItem,
+                  { label: 'Password', name: 'password', rules: [{ required: true, message: 'Password is required' }] },
+                  () => h(Input, { modelValue: '' })
+                ),
+                h('button', { type: 'submit' }, 'Submit')
+              ])
+            }
+          }
+        }
+      })
+
+      await wrapper.find('form').trigger('submit')
+
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+      expect(scrolledElement?.dataset.name).toBe('email')
+      expect(wrapper.emitted('finishFailed')?.[0][0]).toEqual({
+        values: { email: '', password: '' },
+        errorFields: [
+          { name: 'email', errors: ['Email is required'] },
+          { name: 'password', errors: ['Password is required'] }
+        ]
+      })
+    } finally {
+      if (originalScrollIntoView) {
+        Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+          configurable: true,
+          value: originalScrollIntoView
+        })
+      } else {
+        Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView')
+      }
+    }
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {
