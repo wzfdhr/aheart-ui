@@ -43,7 +43,7 @@ const formEmits = {
   validate: (name, status, errors) => typeof name === "string" && typeof status === "boolean" && Array.isArray(errors)
 };
 const formItemProps = {
-  label: String,
+  label: [String, Number, Object, Array],
   name: String,
   required: Boolean,
   rules: Array,

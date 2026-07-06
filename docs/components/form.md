@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { h } from 'vue'
+
+const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
+</script>
+
 # Form 表单 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Form manages field layout, model validation, submit success/failure events, and configuration inheritance.
@@ -6,7 +12,7 @@ Form manages field layout, model validation, submit success/failure events, and 
 
 <div class="aheart-demo-panel">
   <AForm layout="vertical">
-    <AFormItem label="Name" required>
+    <AFormItem :label="formLabelNode" required>
       <AInput model-value="Ada" />
     </AFormItem>
     <AFormItem label="Email" validate-status="error" help="Email is required">
@@ -16,9 +22,15 @@ Form manages field layout, model validation, submit success/failure events, and 
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
+</script>
+
 <template>
   <AForm layout="vertical" @submit="handleSubmit">
-    <AFormItem label="Name" required>
+    <AFormItem :label="formLabelNode" required>
       <AInput v-model="name" />
     </AFormItem>
     <AFormItem label="Email" validate-status="error" help="Email is required">
@@ -163,7 +175,7 @@ Form manages field layout, model validation, submit success/failure events, and 
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| label | 标签文本 | `string` | - |
+| label | 标签内容；`label` 插槽优先级更高 | `VNodeChild` | - |
 | name | 字段名 | `string` | - |
 | required | 是否显示必填标记 | `boolean` | `false` |
 | rules | 表单项校验规则 | `FormRule[]` | - |

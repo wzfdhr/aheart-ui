@@ -1,4 +1,4 @@
-import { defineComponent, inject, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createCommentVNode, renderSlot, createTextVNode, toDisplayString, createElementVNode } from "vue";
+import { defineComponent, inject, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createCommentVNode, renderSlot, createVNode, unref, createElementVNode, toDisplayString, createTextVNode } from "vue";
 import { formItemProps, formContextKey } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["data-name"];
@@ -39,6 +39,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const formContext = inject(formContextKey, void 0);
+    const AFormItemRenderNode = defineComponent({
+      name: "AFormItemRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const effectiveRules = computed(() => props.rules ?? []);
     const fieldErrors = computed(() => props.name ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
     const isRequired = computed(() => Boolean(props.required || props.name && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
@@ -87,10 +99,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [
-        _ctx.label || _ctx.$slots.label ? (openBlock(), createElementBlock("label", _hoisted_2, [
+        _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (openBlock(), createElementBlock("label", _hoisted_2, [
           showRequiredMark.value ? (openBlock(), createElementBlock("span", _hoisted_3, "*")) : createCommentVNode("", true),
           renderSlot(_ctx.$slots, "label", {}, () => [
-            createTextVNode(toDisplayString(_ctx.label), 1)
+            createVNode(unref(AFormItemRenderNode), { node: _ctx.label }, null, 8, ["node"])
           ]),
           showOptionalMark.value ? (openBlock(), createElementBlock("span", _hoisted_4, "optional")) : createCommentVNode("", true)
         ])) : createCommentVNode("", true),

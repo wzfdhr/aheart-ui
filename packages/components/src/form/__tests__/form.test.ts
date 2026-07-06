@@ -43,6 +43,28 @@ describe('Form', () => {
     expect(wrapper.text()).toContain('Use your work email')
   })
 
+  it('renders FormItem label prop as a renderable node', () => {
+    const wrapper = mount(FormItem, {
+      props: {
+        label: h('span', { class: 'form-label-node' }, 'Custom label'),
+        required: true
+      },
+      slots: { default: '<input />' }
+    })
+
+    expect(wrapper.find('.form-label-node').text()).toBe('Custom label')
+    expect(wrapper.find('.aheart-form-item__required').exists()).toBe(true)
+  })
+
+  it('renders zero as a FormItem label', () => {
+    const wrapper = mount(FormItem, {
+      props: { label: 0 },
+      slots: { default: '<input />' }
+    })
+
+    expect(wrapper.find('.aheart-form-item__label').text()).toBe('0')
+  })
+
   it('provides size and disabled state to nested controls', () => {
     const wrapper = mount(Form, {
       props: { size: 'large', disabled: true },

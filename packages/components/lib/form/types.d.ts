@@ -1,10 +1,11 @@
-import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType } from 'vue';
+import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, VNodeChild } from 'vue';
 import type { AheartSize, AheartVariant } from '../config';
 export type FormLayout = 'horizontal' | 'vertical' | 'inline';
 export type FormLabelAlign = 'left' | 'right';
 export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating';
 export type FormRequiredMark = boolean | 'optional';
 export type FormVariant = AheartVariant;
+export type FormRenderable = VNodeChild;
 export type FormRuleType = 'string' | 'number' | 'email' | 'array';
 export type FormModel = Record<string, unknown>;
 export interface FormRule {
@@ -80,7 +81,7 @@ export declare const formEmits: {
     validate: (name: string, status: boolean, errors: string[]) => boolean;
 };
 export declare const formItemProps: {
-    readonly label: StringConstructor;
+    readonly label: PropType<VNodeChild>;
     readonly name: StringConstructor;
     readonly required: BooleanConstructor;
     readonly rules: PropType<FormRule[]>;

@@ -1,18 +1,19 @@
+import { type PropType, type VNodeChild } from 'vue';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly label: StringConstructor;
+    readonly label: PropType<VNodeChild>;
     readonly name: StringConstructor;
     readonly required: BooleanConstructor;
-    readonly rules: import("vue").PropType<import("./types").FormRule[]>;
-    readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
+    readonly rules: PropType<import("./types").FormRule[]>;
+    readonly validateStatus: PropType<import("./types").FormValidateStatus>;
     readonly help: StringConstructor;
     readonly extra: StringConstructor;
     readonly hasFeedback: BooleanConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly label: StringConstructor;
+    readonly label: PropType<VNodeChild>;
     readonly name: StringConstructor;
     readonly required: BooleanConstructor;
-    readonly rules: import("vue").PropType<import("./types").FormRule[]>;
-    readonly validateStatus: import("vue").PropType<import("./types").FormValidateStatus>;
+    readonly rules: PropType<import("./types").FormRule[]>;
+    readonly validateStatus: PropType<import("./types").FormValidateStatus>;
     readonly help: StringConstructor;
     readonly extra: StringConstructor;
     readonly hasFeedback: BooleanConstructor;

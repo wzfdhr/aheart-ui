@@ -1,4 +1,4 @@
-import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType } from 'vue'
+import type { ComputedRef, ExtractPropTypes, InjectionKey, PropType, VNodeChild } from 'vue'
 import type { AheartSize, AheartVariant } from '../config'
 
 export type FormLayout = 'horizontal' | 'vertical' | 'inline'
@@ -6,6 +6,7 @@ export type FormLabelAlign = 'left' | 'right'
 export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating'
 export type FormRequiredMark = boolean | 'optional'
 export type FormVariant = AheartVariant
+export type FormRenderable = VNodeChild
 export type FormRuleType = 'string' | 'number' | 'email' | 'array'
 export type FormModel = Record<string, unknown>
 
@@ -92,7 +93,7 @@ export const formEmits = {
 }
 
 export const formItemProps = {
-  label: String,
+  label: [String, Number, Object, Array] as PropType<FormRenderable>,
   name: String,
   required: Boolean,
   rules: Array as PropType<FormRule[]>,

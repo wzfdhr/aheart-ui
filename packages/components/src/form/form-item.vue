@@ -1,8 +1,10 @@
 <template>
   <div class="aheart-form-item" :class="formItemClass" :data-name="name">
-    <label v-if="label || $slots.label" class="aheart-form-item__label">
+    <label v-if="$slots.label || (label !== undefined && label !== null)" class="aheart-form-item__label">
       <span v-if="showRequiredMark" class="aheart-form-item__required" aria-hidden="true">*</span>
-      <slot name="label">{{ label }}</slot>
+      <slot name="label">
+        <AFormItemRenderNode :node="label" />
+      </slot>
       <span v-if="showOptionalMark" class="aheart-form-item__optional">optional</span>
     </label>
     <div class="aheart-form-item__control">
@@ -21,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onBeforeUnmount, watch } from 'vue'
+import { computed, defineComponent, inject, onBeforeUnmount, watch, type PropType, type VNodeChild } from 'vue'
 import { formContextKey, formItemProps } from './types'
 import './style.css'
 
@@ -31,6 +33,19 @@ defineOptions({
 
 const props = defineProps(formItemProps)
 const formContext = inject(formContextKey, undefined)
+
+const AFormItemRenderNode = defineComponent({
+  name: 'AFormItemRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
 
 const effectiveRules = computed(() => props.rules ?? [])
 const fieldErrors = computed(() => (props.name ? (formContext?.getFieldErrors(props.name) ?? []) : []))

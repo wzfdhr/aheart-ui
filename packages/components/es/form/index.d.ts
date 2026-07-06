@@ -189,7 +189,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
 })>;
 export declare const FormItem: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
-        readonly label: StringConstructor;
+        readonly label: import("vue").PropType<import("vue").VNodeChild>;
         readonly name: StringConstructor;
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
@@ -208,7 +208,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         M: {};
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
-        readonly label: StringConstructor;
+        readonly label: import("vue").PropType<import("vue").VNodeChild>;
         readonly name: StringConstructor;
         readonly required: BooleanConstructor;
         readonly rules: import("vue").PropType<import("./types").FormRule[]>;
@@ -224,7 +224,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     __isTeleport?: undefined;
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
-    readonly label: StringConstructor;
+    readonly label: import("vue").PropType<import("vue").VNodeChild>;
     readonly name: StringConstructor;
     readonly required: BooleanConstructor;
     readonly rules: import("vue").PropType<import("./types").FormRule[]>;

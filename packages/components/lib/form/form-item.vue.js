@@ -41,6 +41,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props) {
     const props = __props;
     const formContext = vue.inject(types.formContextKey, void 0);
+    const AFormItemRenderNode = vue.defineComponent({
+      name: "AFormItemRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const effectiveRules = vue.computed(() => props.rules ?? []);
     const fieldErrors = vue.computed(() => props.name ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
     const isRequired = vue.computed(() => Boolean(props.required || props.name && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
@@ -89,10 +101,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         class: vue.normalizeClass(["aheart-form-item", formItemClass.value]),
         "data-name": _ctx.name
       }, [
-        _ctx.label || _ctx.$slots.label ? (vue.openBlock(), vue.createElementBlock("label", _hoisted_2, [
+        _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (vue.openBlock(), vue.createElementBlock("label", _hoisted_2, [
           showRequiredMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, "*")) : vue.createCommentVNode("", true),
           vue.renderSlot(_ctx.$slots, "label", {}, () => [
-            vue.createTextVNode(vue.toDisplayString(_ctx.label), 1)
+            vue.createVNode(vue.unref(AFormItemRenderNode), { node: _ctx.label }, null, 8, ["node"])
           ]),
           showOptionalMark.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, "optional")) : vue.createCommentVNode("", true)
         ])) : vue.createCommentVNode("", true),
