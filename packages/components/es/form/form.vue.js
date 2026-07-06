@@ -164,6 +164,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return pickValues(names ?? getFieldNames());
     };
+    const getFieldError = (name) => {
+      var _a;
+      return [...((_a = fieldStates[name]) == null ? void 0 : _a.errors) ?? []];
+    };
+    const getFieldsError = (names) => (names ?? getFieldNames()).map((name) => ({
+      name,
+      errors: getFieldError(name)
+    }));
     const scrollToField = (name, options) => {
       var _a;
       const target = Array.from(((_a = formElement.value) == null ? void 0 : _a.querySelectorAll("[data-name]")) ?? []).find(
@@ -223,6 +231,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       clearValidate,
       getFieldValue,
       getFieldsValue,
+      getFieldError,
+      getFieldsError,
       scrollToField
     });
     return (_ctx, _cache) => {

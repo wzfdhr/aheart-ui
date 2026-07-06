@@ -461,6 +461,8 @@ const passwordTooltipIcon = h('span', 'i')
 | --- | --- | --- |
 | validate | 触发表单同步校验 | `() => { values: FormModel; errorFields: FormValidationError[] }` |
 | clearValidate | 清除字段错误 | `(names?: string[]) => void` |
+| getFieldError | 读取指定字段当前错误 | `(name: string) => string[]` |
+| getFieldsError | 读取当前字段错误集合 | `(names?: string[]) => FormValidationError[]` |
 | getFieldValue | 读取指定字段的当前值 | `(name: string) => unknown` |
 | getFieldsValue | 读取当前字段值集合，传入 `true` 时返回完整 model 浅拷贝 | `(names?: string[] \| true) => FormModel` |
 | scrollToField | 滚动到指定字段 | `(name: string, options?: ScrollIntoViewOptions) => void` |

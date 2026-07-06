@@ -223,6 +223,14 @@ const getFieldsValue = (names?: string[] | true) => {
   return pickValues(names ?? getFieldNames())
 }
 
+const getFieldError = (name: string) => [...(fieldStates[name]?.errors ?? [])]
+
+const getFieldsError = (names?: string[]) =>
+  (names ?? getFieldNames()).map((name) => ({
+    name,
+    errors: getFieldError(name)
+  }))
+
 const scrollToField = (name: string, options?: ScrollIntoViewOptions) => {
   const target = Array.from(formElement.value?.querySelectorAll<HTMLElement>('[data-name]') ?? []).find(
     (element) => element.dataset.name === name
@@ -290,6 +298,8 @@ defineExpose({
   clearValidate,
   getFieldValue,
   getFieldsValue,
+  getFieldError,
+  getFieldsError,
   scrollToField
 })
 </script>

@@ -681,6 +681,58 @@ describe('Form', () => {
     expect(form.getFieldsValue?.(true)).not.toBe(model)
   })
 
+  it('exposes error readers for current validation state', async () => {
+    const wrapper = mount(Form, {
+      props: {
+        model: { email: '', password: 'secret' }
+      },
+      slots: {
+        default: {
+          render() {
+            return h('div', [
+              h(
+                FormItem,
+                { label: 'Email', name: 'email', rules: [{ required: true, message: 'Email is required' }] },
+                () => h(Input, { modelValue: '' })
+              ),
+              h(
+                FormItem,
+                { label: 'Password', name: 'password', rules: [{ required: true, message: 'Password is required' }] },
+                () => h(Input, { modelValue: 'secret' })
+              ),
+              h('button', { type: 'submit' }, 'Submit')
+            ])
+          }
+        }
+      }
+    })
+    const form = wrapper.vm as unknown as {
+      getFieldError?: (name: string) => string[]
+      getFieldsError?: (names?: string[]) => { name: string; errors: string[] }[]
+    }
+
+    expect(form.getFieldError).toBeTypeOf('function')
+    expect(form.getFieldsError).toBeTypeOf('function')
+    expect(form.getFieldError?.('email')).toEqual([])
+    expect(form.getFieldsError?.()).toEqual([
+      { name: 'email', errors: [] },
+      { name: 'password', errors: [] }
+    ])
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(form.getFieldError?.('email')).toEqual(['Email is required'])
+    expect(form.getFieldError?.('password')).toEqual([])
+    expect(form.getFieldsError?.()).toEqual([
+      { name: 'email', errors: ['Email is required'] },
+      { name: 'password', errors: [] }
+    ])
+    expect(form.getFieldsError?.(['password', 'missing'])).toEqual([
+      { name: 'password', errors: [] },
+      { name: 'missing', errors: [] }
+    ])
+  })
+
   it('emits finish when model passes rules', async () => {
     const wrapper = mount(Form, {
       props: {
