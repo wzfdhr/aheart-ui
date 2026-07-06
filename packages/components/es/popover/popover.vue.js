@@ -79,7 +79,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
-    const popupStyle = computed(() => [getFloatingPopupStyle(props.color, props.zIndex), props.overlayStyle, resolvedStyles.value.popup]);
+    const alignOffsetStyle = computed(() => {
+      var _a;
+      const offset = (_a = props.align) == null ? void 0 : _a.offset;
+      if (!Array.isArray(offset) || offset.length < 2) {
+        return {};
+      }
+      const [x, y] = offset;
+      return {
+        "--aheart-floating-align-x": `${Number.isFinite(x) ? x : 0}px`,
+        "--aheart-floating-align-y": `${Number.isFinite(y) ? y : 0}px`
+      };
+    });
+    const popupStyle = computed(() => [
+      getFloatingPopupStyle(props.color, props.zIndex),
+      alignOffsetStyle.value,
+      props.overlayStyle,
+      resolvedStyles.value.popup
+    ]);
     const containerClass = computed(() => resolvedClassNames.value.container);
     const containerStyle = computed(() => [props.overlayInnerStyle, resolvedStyles.value.container]);
     const titleClass = computed(() => resolvedClassNames.value.title);

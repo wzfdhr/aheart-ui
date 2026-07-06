@@ -250,6 +250,7 @@ const renderablePopoverContent = h('span', [
 | destroyOnHidden | 关闭后是否销毁弹层 DOM | `boolean` | `false` |
 | destroyTooltipOnHide | 旧版关闭后销毁别名，等同 `destroyOnHidden` | `boolean` | `false` |
 | fresh | 保持与 Ant API 兼容；Vue 挂载内容会自然响应更新 | `boolean` | `false` |
+| align | 浮层对齐配置；当前支持 `align.offset` 偏移 | `{ offset?: [number, number] }` | - |
 | arrow | 是否显示箭头，或配置箭头指向触发器中心 | `boolean` \| `{ pointAtCenter?: boolean }` | `true` |
 | zIndex | 自定义层级 | `number` | - |
 | getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |

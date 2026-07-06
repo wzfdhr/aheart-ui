@@ -39,6 +39,7 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly destroyOnHidden: BooleanConstructor;
         readonly destroyTooltipOnHide: BooleanConstructor;
         readonly fresh: BooleanConstructor;
+        readonly align: import("vue").PropType<import("./types").PopoverAlignConfig>;
         readonly arrow: {
             readonly type: import("vue").PropType<import("./types").PopoverArrow>;
             readonly default: true;
@@ -120,6 +121,7 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly destroyOnHidden: BooleanConstructor;
         readonly destroyTooltipOnHide: BooleanConstructor;
         readonly fresh: BooleanConstructor;
+        readonly align: import("vue").PropType<import("./types").PopoverAlignConfig>;
         readonly arrow: {
             readonly type: import("vue").PropType<import("./types").PopoverArrow>;
             readonly default: true;
@@ -195,6 +197,7 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
     readonly destroyOnHidden: BooleanConstructor;
     readonly destroyTooltipOnHide: BooleanConstructor;
     readonly fresh: BooleanConstructor;
+    readonly align: import("vue").PropType<import("./types").PopoverAlignConfig>;
     readonly arrow: {
         readonly type: import("vue").PropType<import("./types").PopoverArrow>;
         readonly default: true;

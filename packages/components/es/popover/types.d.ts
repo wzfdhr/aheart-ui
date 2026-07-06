@@ -8,6 +8,10 @@ export type PopoverRenderable = VNodeChild;
 export type PopoverRenderableFactory = () => VNodeChild;
 export type PopoverContent = PopoverRenderable | PopoverRenderableFactory;
 export type PopoverGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement;
+export interface PopoverAlignConfig {
+    offset?: [number, number];
+    [key: string]: unknown;
+}
 export type PopoverSemanticPart = 'root' | 'trigger' | 'popup' | 'container' | 'title' | 'content' | 'arrow';
 export interface PopoverSemanticInfo {
     open: boolean;
@@ -57,6 +61,7 @@ export declare const popoverProps: {
     readonly destroyOnHidden: BooleanConstructor;
     readonly destroyTooltipOnHide: BooleanConstructor;
     readonly fresh: BooleanConstructor;
+    readonly align: PropType<PopoverAlignConfig>;
     readonly arrow: {
         readonly type: PropType<PopoverArrow>;
         readonly default: true;
