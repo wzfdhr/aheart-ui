@@ -91,6 +91,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const value = Number(props.step);
       return Number.isFinite(value) ? value : 1;
     });
+    const isValueAtOrAboveMax = vue.computed(
+      () => props.max !== void 0 && mergedValue.value !== void 0 && compareDecimalStrings(String(mergedValue.value), String(props.max)) >= 0
+    );
+    const isValueAtOrBelowMin = vue.computed(
+      () => props.min !== void 0 && mergedValue.value !== void 0 && compareDecimalStrings(String(mergedValue.value), String(props.min)) <= 0
+    );
+    const isIncreaseDisabled = vue.computed(() => isInteractiveDisabled.value || isValueAtOrAboveMax.value);
+    const isDecreaseDisabled = vue.computed(() => isInteractiveDisabled.value || isValueAtOrBelowMin.value);
     const hasPrefix = vue.computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
     const hasSuffix = vue.computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
     const hasAddonBefore = vue.computed(() => hasRenderable(props.addonBefore));
@@ -455,7 +463,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isKeyboardStepDown = (key) => key === "ArrowDown" || key === "Down";
     const handleStep = (offset, type, emitter, stepValue = props.step) => {
       var _a;
-      if (isInteractiveDisabled.value) {
+      if (type === "up" ? isIncreaseDisabled.value : isDecreaseDisabled.value) {
         return;
       }
       const baseValue = hasPendingInputValue.value ? pendingInputValue.value : mergedValue.value;
@@ -671,7 +679,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(actionStyle.value),
             type: "button",
             "aria-label": "Increase",
-            disabled: isInteractiveDisabled.value,
+            disabled: isIncreaseDisabled.value,
             onMousedown: _cache[0] || (_cache[0] = ($event) => handleControlStepMouseDown($event, "up")),
             onMouseup: handleControlStepMouseUp,
             onMouseleave: handleControlStepCancel,
@@ -686,7 +694,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             style: vue.normalizeStyle(actionStyle.value),
             type: "button",
             "aria-label": "Decrease",
-            disabled: isInteractiveDisabled.value,
+            disabled: isDecreaseDisabled.value,
             onMousedown: _cache[2] || (_cache[2] = ($event) => handleControlStepMouseDown($event, "down")),
             onMouseup: handleControlStepMouseUp,
             onMouseleave: handleControlStepCancel,

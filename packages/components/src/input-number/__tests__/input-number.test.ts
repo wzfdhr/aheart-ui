@@ -284,6 +284,28 @@ describe('InputNumber', () => {
     host.remove()
   })
 
+  it('disables and ignores boundary steps', async () => {
+    const maxWrapper = mount(InputNumber, {
+      props: { modelValue: 10, min: 0, max: 10, step: 1 }
+    })
+    const minWrapper = mount(InputNumber, {
+      props: { modelValue: 0, min: 0, max: 10, step: 1 }
+    })
+
+    expect(maxWrapper.find('.aheart-input-number__increase').attributes()).toHaveProperty('disabled')
+    expect(maxWrapper.find('.aheart-input-number__decrease').attributes()).not.toHaveProperty('disabled')
+    expect(minWrapper.find('.aheart-input-number__decrease').attributes()).toHaveProperty('disabled')
+    expect(minWrapper.find('.aheart-input-number__increase').attributes()).not.toHaveProperty('disabled')
+
+    await maxWrapper.find('input').trigger('keydown', { key: 'ArrowUp' })
+    await minWrapper.find('input').trigger('keydown', { key: 'ArrowDown' })
+
+    expect(maxWrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(maxWrapper.emitted('step')).toBeUndefined()
+    expect(minWrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(minWrapper.emitted('step')).toBeUndefined()
+  })
+
   it('uses ConfigProvider size and disabled fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { size: 'large', disabled: true },

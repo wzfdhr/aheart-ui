@@ -44,7 +44,7 @@
         :style="actionStyle"
         type="button"
         aria-label="Increase"
-        :disabled="isInteractiveDisabled"
+        :disabled="isIncreaseDisabled"
         @mousedown="handleControlStepMouseDown($event, 'up')"
         @mouseup="handleControlStepMouseUp"
         @mouseleave="handleControlStepCancel"
@@ -60,7 +60,7 @@
         :style="actionStyle"
         type="button"
         aria-label="Decrease"
-        :disabled="isInteractiveDisabled"
+        :disabled="isDecreaseDisabled"
         @mousedown="handleControlStepMouseDown($event, 'down')"
         @mouseup="handleControlStepMouseUp"
         @mouseleave="handleControlStepCancel"
@@ -155,6 +155,20 @@ const resolvedStep = computed(() => {
   const value = Number(props.step)
   return Number.isFinite(value) ? value : 1
 })
+const isValueAtOrAboveMax = computed(
+  () =>
+    props.max !== undefined &&
+    mergedValue.value !== undefined &&
+    compareDecimalStrings(String(mergedValue.value), String(props.max)) >= 0
+)
+const isValueAtOrBelowMin = computed(
+  () =>
+    props.min !== undefined &&
+    mergedValue.value !== undefined &&
+    compareDecimalStrings(String(mergedValue.value), String(props.min)) <= 0
+)
+const isIncreaseDisabled = computed(() => isInteractiveDisabled.value || isValueAtOrAboveMax.value)
+const isDecreaseDisabled = computed(() => isInteractiveDisabled.value || isValueAtOrBelowMin.value)
 const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix))
 const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix))
 const hasAddonBefore = computed(() => hasRenderable(props.addonBefore))
@@ -636,7 +650,7 @@ const handleStep = (
   emitter: 'handler' | 'keyboard' | 'wheel',
   stepValue: number | string = props.step
 ) => {
-  if (isInteractiveDisabled.value) {
+  if (type === 'up' ? isIncreaseDisabled.value : isDecreaseDisabled.value) {
     return
   }
 
