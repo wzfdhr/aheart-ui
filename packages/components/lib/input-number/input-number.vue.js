@@ -231,11 +231,37 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return leftParts.sign < 0 ? -comparison : comparison;
     };
     const isValidValueString = (value) => isPlainDecimalString(value) && Number.isFinite(Number(value));
+    const getDecimalPrecision = (value) => {
+      var _a;
+      const normalizedValue = String(value ?? "").trim().toLowerCase();
+      if (normalizedValue === "" || !Number.isFinite(Number(normalizedValue))) {
+        return 0;
+      }
+      const [coefficient, exponentText] = normalizedValue.split("e");
+      const exponent = exponentText === void 0 ? 0 : Number(exponentText);
+      const fractionLength = coefficient.includes(".") ? ((_a = coefficient.split(".")[1]) == null ? void 0 : _a.length) ?? 0 : 0;
+      return Math.max(0, fractionLength - exponent);
+    };
+    const getMergedDisplayPrecision = (value) => {
+      if (props.precision !== void 0 && props.precision >= 0) {
+        return props.precision;
+      }
+      return Math.max(getDecimalPrecision(value), getDecimalPrecision(props.step));
+    };
+    const padDecimalStringToPrecision = (value, precision) => {
+      const decimal = splitDecimal(value);
+      const signPrefix = decimal.sign < 0 ? "-" : "";
+      if (precision <= 0) {
+        return `${signPrefix}${decimal.integer}`;
+      }
+      return `${signPrefix}${decimal.integer}.${padRight(decimal.fraction, precision).slice(0, precision)}`;
+    };
     const formatPrecisionDisplay = (value) => {
-      if (props.precision === void 0 || props.precision < 0 || !isValidValueString(value)) {
+      if (!isValidValueString(value)) {
         return value;
       }
-      return Number(value).toFixed(props.precision);
+      const precision = getMergedDisplayPrecision(value);
+      return props.precision !== void 0 && props.precision >= 0 ? Number(value).toFixed(precision) : padDecimalStringToPrecision(value, precision);
     };
     const formatDefaultDisplay = (value) => formatDecimalSeparator(formatPrecisionDisplay(value));
     const displayValue = vue.computed(() => {

@@ -349,6 +349,18 @@ describe('InputNumber', () => {
     expect(commaWrapper.find('input').element.value).toBe('12,50')
   })
 
+  it('infers default display precision from step', () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 1, step: 0.01 }
+    })
+    const stringStepWrapper = mount(InputNumber, {
+      props: { modelValue: 1.2, step: '0.01' }
+    })
+
+    expect(wrapper.find('input').element.value).toBe('1.00')
+    expect(stringStepWrapper.find('input').element.value).toBe('1.20')
+  })
+
   it('strips formatted characters with the default parser', async () => {
     const wrapper = mount(InputNumber, {
       props: { changeOnBlur: false }

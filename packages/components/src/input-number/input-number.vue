@@ -339,12 +339,49 @@ const compareDecimalStrings = (left: string, right: string) => {
 
 const isValidValueString = (value: string) => isPlainDecimalString(value) && Number.isFinite(Number(value))
 
+const getDecimalPrecision = (value: number | string | undefined) => {
+  const normalizedValue = String(value ?? '').trim().toLowerCase()
+
+  if (normalizedValue === '' || !Number.isFinite(Number(normalizedValue))) {
+    return 0
+  }
+
+  const [coefficient, exponentText] = normalizedValue.split('e')
+  const exponent = exponentText === undefined ? 0 : Number(exponentText)
+  const fractionLength = coefficient.includes('.') ? coefficient.split('.')[1]?.length ?? 0 : 0
+
+  return Math.max(0, fractionLength - exponent)
+}
+
+const getMergedDisplayPrecision = (value: string) => {
+  if (props.precision !== undefined && props.precision >= 0) {
+    return props.precision
+  }
+
+  return Math.max(getDecimalPrecision(value), getDecimalPrecision(props.step))
+}
+
+const padDecimalStringToPrecision = (value: string, precision: number) => {
+  const decimal = splitDecimal(value)
+  const signPrefix = decimal.sign < 0 ? '-' : ''
+
+  if (precision <= 0) {
+    return `${signPrefix}${decimal.integer}`
+  }
+
+  return `${signPrefix}${decimal.integer}.${padRight(decimal.fraction, precision).slice(0, precision)}`
+}
+
 const formatPrecisionDisplay = (value: string) => {
-  if (props.precision === undefined || props.precision < 0 || !isValidValueString(value)) {
+  if (!isValidValueString(value)) {
     return value
   }
 
-  return Number(value).toFixed(props.precision)
+  const precision = getMergedDisplayPrecision(value)
+
+  return props.precision !== undefined && props.precision >= 0
+    ? Number(value).toFixed(precision)
+    : padDecimalStringToPrecision(value, precision)
 }
 
 const formatDefaultDisplay = (value: string) => formatDecimalSeparator(formatPrecisionDisplay(value))
