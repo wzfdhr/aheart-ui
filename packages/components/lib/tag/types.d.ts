@@ -2,7 +2,8 @@ import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 export type TagColor = 'default' | 'primary' | 'success' | 'processing' | 'warning' | 'danger' | 'error' | string;
 export type TagVariant = 'filled' | 'solid' | 'outlined';
 export type TagValue = string | number;
-export type TagIcon = VNodeChild;
+export type TagRenderable = VNodeChild;
+export type TagIcon = TagRenderable;
 export type TagSemanticPart = 'root' | 'icon' | 'content' | 'close';
 export type TagGroupSemanticPart = 'root' | 'item' | 'activeItem';
 export type TagClassNames = Partial<Record<TagSemanticPart, string>>;
@@ -12,7 +13,7 @@ export type TagGroupStyles = Partial<Record<TagGroupSemanticPart, StyleValue>>;
 export type TagGroupValue = TagValue | TagValue[] | null;
 export type TagRawOption = TagValue | TagOption;
 export interface TagOption {
-    label: string;
+    label: TagRenderable;
     value: TagValue;
     disabled?: boolean;
     icon?: TagIcon;

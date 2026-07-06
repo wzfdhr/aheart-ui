@@ -15,6 +15,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const internalValue = vue.ref(props.defaultValue ?? (props.multiple ? [] : null));
+    const ATagGroupRenderNode = vue.defineComponent({
+      name: "ATagGroupRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const isControlled = vue.computed(() => props.value !== void 0 || props.modelValue !== void 0);
     const mergedValue = vue.computed(() => props.value ?? props.modelValue ?? internalValue.value);
     const normalizedOptions = vue.computed(
@@ -85,7 +97,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onChange: (checked) => handleOptionChange(option.value, checked)
           }, {
             default: vue.withCtx(() => [
-              vue.createTextVNode(vue.toDisplayString(option.label), 1)
+              vue.createVNode(vue.unref(ATagGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
             ]),
             _: 2
           }, 1032, ["checked", "disabled", "icon", "title", "class-name", "style", "class-names", "onChange"]);

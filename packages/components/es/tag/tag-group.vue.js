@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createBlock, withCtx, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createBlock, withCtx, createVNode, unref } from "vue";
 import _sfc_main$1 from "./checkable-tag.vue.js";
 import { tagGroupProps, tagGroupEmits } from "./types.js";
 import "./style.css.js";
@@ -13,6 +13,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const internalValue = ref(props.defaultValue ?? (props.multiple ? [] : null));
+    const ATagGroupRenderNode = defineComponent({
+      name: "ATagGroupRenderNode",
+      props: {
+        node: {
+          type: null,
+          default: void 0
+        }
+      },
+      setup(renderProps) {
+        return () => renderProps.node;
+      }
+    });
     const isControlled = computed(() => props.value !== void 0 || props.modelValue !== void 0);
     const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value);
     const normalizedOptions = computed(
@@ -83,7 +95,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onChange: (checked) => handleOptionChange(option.value, checked)
           }, {
             default: withCtx(() => [
-              createTextVNode(toDisplayString(option.label), 1)
+              createVNode(unref(ATagGroupRenderNode), {
+                node: option.label
+              }, null, 8, ["node"])
             ]),
             _: 2
           }, 1032, ["checked", "disabled", "icon", "title", "class-name", "style", "class-names", "onChange"]);

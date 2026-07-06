@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { h } from 'vue'
+
+const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
+</script>
+
 # Tag 标签 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Tag labels content with compact status, category, link, close, and checkable selection affordances.
@@ -119,7 +125,8 @@ Tag labels content with compact status, category, link, close, and checkable sel
       :options="[
         'draft',
         { label: 'Review', value: 'review', title: 'Current stage' },
-        { label: 'Done', value: 'done', disabled: true }
+        { label: 'Done', value: 'done', disabled: true },
+        { label: tagNodeLabel, value: 'node' }
       ]"
     />
     <ATagGroup
@@ -135,13 +142,20 @@ Tag labels content with compact status, category, link, close, and checkable sel
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+
+const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
+</script>
+
 <template>
   <ATagGroup
     default-value="review"
     :options="[
       'draft',
       { label: 'Review', value: 'review', title: 'Current stage' },
-      { label: 'Done', value: 'done', disabled: true }
+      { label: 'Done', value: 'done', disabled: true },
+      { label: tagNodeLabel, value: 'node' }
     ]"
   />
   <ATagGroup
@@ -267,7 +281,7 @@ Tag labels content with compact status, category, link, close, and checkable sel
 | modelValue | 当前选中值，Vue 受控值 | `string` \| `number` \| `(string \| number)[]` \| `null` | - |
 | value | 当前选中值，Ant 风格受控别名，优先级高于 `modelValue` | `string` \| `number` \| `(string \| number)[]` \| `null` | - |
 | defaultValue | 非受控初始选中值 | `string` \| `number` \| `(string \| number)[]` \| `null` | - |
-| options | 选项列表 | `TagRawOption[]` | `[]` |
+| options | 选项列表；对象选项的 `label` 可传渲染节点 | `TagRawOption[]` | `[]` |
 | multiple | 是否多选 | `boolean` | `false` |
 | disabled | 是否禁用全部选项 | `boolean` | `false` |
 | className | 根节点 class | `string` | - |
@@ -280,7 +294,7 @@ Tag labels content with compact status, category, link, close, and checkable sel
 
 | 字段 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| label | 选项内容 | `string` | - |
+| label | 选项内容 | `VNodeChild` | - |
 | value | 选项值 | `string` \| `number` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
 | icon | 选项图标 | `VNodeChild` | - |

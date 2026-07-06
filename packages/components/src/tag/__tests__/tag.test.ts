@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
 import CheckableTag from '../checkable-tag.vue'
 import Tag from '../tag.vue'
@@ -203,5 +204,22 @@ describe('Tag', () => {
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['a', 'b']])
     expect(wrapper.emitted('update:value')?.[0]).toEqual([['a', 'b']])
     expect(wrapper.emitted('change')?.[0]).toEqual([['a', 'b']])
+  })
+
+  it('renders TagGroup option labels as renderable nodes', () => {
+    const wrapper = mount(TagGroup, {
+      props: {
+        defaultValue: 'custom',
+        options: [
+          {
+            label: h('span', { class: 'tag-option-node' }, 'Custom tag'),
+            value: 'custom'
+          }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.tag-option-node').text()).toBe('Custom tag')
+    expect(wrapper.findComponent(CheckableTag).classes()).toContain('is-checked')
   })
 })

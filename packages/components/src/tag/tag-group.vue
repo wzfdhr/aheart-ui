@@ -12,13 +12,13 @@
       :class-names="{ root: getOptionSemanticClass(option.value) }"
       @change="(checked) => handleOptionChange(option.value, checked)"
     >
-      {{ option.label }}
+      <ATagGroupRenderNode :node="option.label" />
     </CheckableTag>
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineComponent, ref, type PropType, type VNodeChild } from 'vue'
 import CheckableTag from './checkable-tag.vue'
 import { tagGroupEmits, tagGroupProps, type TagGroupValue, type TagOption, type TagValue } from './types'
 import './style.css'
@@ -30,6 +30,19 @@ defineOptions({
 const props = defineProps(tagGroupProps)
 const emit = defineEmits(tagGroupEmits)
 const internalValue = ref<TagGroupValue>(props.defaultValue ?? (props.multiple ? [] : null))
+
+const ATagGroupRenderNode = defineComponent({
+  name: 'ATagGroupRenderNode',
+  props: {
+    node: {
+      type: null as unknown as PropType<VNodeChild>,
+      default: undefined
+    }
+  },
+  setup(renderProps) {
+    return () => renderProps.node
+  }
+})
 
 const isControlled = computed(() => props.value !== undefined || props.modelValue !== undefined)
 const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value)

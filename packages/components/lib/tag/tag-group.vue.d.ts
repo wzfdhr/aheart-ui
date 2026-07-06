@@ -1,19 +1,20 @@
+import { type PropType } from 'vue';
 import { type TagGroupValue } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly modelValue: {
-        readonly type: import("vue").PropType<TagGroupValue>;
+        readonly type: PropType<TagGroupValue>;
         readonly default: undefined;
     };
     readonly value: {
-        readonly type: import("vue").PropType<TagGroupValue>;
+        readonly type: PropType<TagGroupValue>;
         readonly default: undefined;
     };
     readonly defaultValue: {
-        readonly type: import("vue").PropType<TagGroupValue>;
+        readonly type: PropType<TagGroupValue>;
         readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").TagRawOption[]>;
+        readonly type: PropType<import("./types").TagRawOption[]>;
         readonly default: () => never[];
     };
     readonly multiple: BooleanConstructor;
@@ -23,13 +24,13 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly classNames: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").TagGroupSemanticPart, string>>>;
+        readonly type: PropType<Partial<Record<import("./types").TagGroupSemanticPart, string>>>;
         readonly default: () => {};
     };
     readonly styles: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").TagGroupSemanticPart, import("vue").StyleValue>>>;
+        readonly type: PropType<Partial<Record<import("./types").TagGroupSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
@@ -38,19 +39,19 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "update:value": (value: unknown) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly modelValue: {
-        readonly type: import("vue").PropType<TagGroupValue>;
+        readonly type: PropType<TagGroupValue>;
         readonly default: undefined;
     };
     readonly value: {
-        readonly type: import("vue").PropType<TagGroupValue>;
+        readonly type: PropType<TagGroupValue>;
         readonly default: undefined;
     };
     readonly defaultValue: {
-        readonly type: import("vue").PropType<TagGroupValue>;
+        readonly type: PropType<TagGroupValue>;
         readonly default: undefined;
     };
     readonly options: {
-        readonly type: import("vue").PropType<import("./types").TagRawOption[]>;
+        readonly type: PropType<import("./types").TagRawOption[]>;
         readonly default: () => never[];
     };
     readonly multiple: BooleanConstructor;
@@ -60,13 +61,13 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: import("vue").PropType<import("vue").StyleValue>;
+    readonly style: PropType<import("vue").StyleValue>;
     readonly classNames: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").TagGroupSemanticPart, string>>>;
+        readonly type: PropType<Partial<Record<import("./types").TagGroupSemanticPart, string>>>;
         readonly default: () => {};
     };
     readonly styles: {
-        readonly type: import("vue").PropType<Partial<Record<import("./types").TagGroupSemanticPart, import("vue").StyleValue>>>;
+        readonly type: PropType<Partial<Record<import("./types").TagGroupSemanticPart, import("vue").StyleValue>>>;
         readonly default: () => {};
     };
 }>> & Readonly<{
