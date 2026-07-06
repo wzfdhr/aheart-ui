@@ -68,6 +68,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const hasPrefix = vue.computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
     const hasSuffix = vue.computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
+    const semanticInfo = vue.computed(() => ({ props }));
+    const resolvedClassNames = vue.computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = vue.computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
     const shouldUseDecimalSeparator = vue.computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== "."));
     const formatDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.replace(".", props.decimalSeparator) : value;
     const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
@@ -81,65 +88,29 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return formatDecimalSeparator(input);
     });
-    const inputNumberClass = vue.computed(() => {
-      var _a;
-      return [
-        `aheart-input-number--${resolvedSize.value}`,
-        `aheart-input-number--${resolvedVariant.value}`,
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          [`aheart-input-number--${props.status}`]: props.status,
-          "is-disabled": isDisabled.value,
-          "is-readonly": props.readOnly
-        }
-      ];
-    });
-    const rootStyle = vue.computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const controlClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.input;
-    });
-    const controlStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.input;
-    });
-    const prefixClass = vue.computed(() => {
-      var _a;
-      return ["aheart-input-number__prefix", (_a = props.classNames) == null ? void 0 : _a.prefix];
-    });
-    const prefixStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.prefix;
-    });
-    const suffixClass = vue.computed(() => {
-      var _a;
-      return ["aheart-input-number__suffix", (_a = props.classNames) == null ? void 0 : _a.suffix];
-    });
-    const suffixStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.suffix;
-    });
-    const actionsClass = vue.computed(() => {
-      var _a;
-      return ["aheart-input-number__controls", (_a = props.classNames) == null ? void 0 : _a.actions];
-    });
-    const actionsStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.actions;
-    });
-    const actionClass = vue.computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.action;
-    });
-    const actionStyle = vue.computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.action;
-    });
+    const inputNumberClass = vue.computed(() => [
+      `aheart-input-number--${resolvedSize.value}`,
+      `aheart-input-number--${resolvedVariant.value}`,
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        [`aheart-input-number--${props.status}`]: props.status,
+        "is-disabled": isDisabled.value,
+        "is-readonly": props.readOnly
+      }
+    ]);
+    const rootStyle = vue.computed(() => [props.style, resolvedStyles.value.root]);
+    const controlClass = vue.computed(() => resolvedClassNames.value.input);
+    const controlStyle = vue.computed(() => resolvedStyles.value.input);
+    const prefixClass = vue.computed(() => ["aheart-input-number__prefix", resolvedClassNames.value.prefix]);
+    const prefixStyle = vue.computed(() => resolvedStyles.value.prefix);
+    const suffixClass = vue.computed(() => ["aheart-input-number__suffix", resolvedClassNames.value.suffix]);
+    const suffixStyle = vue.computed(() => resolvedStyles.value.suffix);
+    const actionsClass = vue.computed(() => ["aheart-input-number__controls", resolvedClassNames.value.actions]);
+    const actionsStyle = vue.computed(() => resolvedStyles.value.actions);
+    const actionClass = vue.computed(() => resolvedClassNames.value.action);
+    const actionStyle = vue.computed(() => resolvedStyles.value.action);
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;

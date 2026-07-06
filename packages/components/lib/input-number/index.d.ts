@@ -50,8 +50,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").InputNumberClassNames>;
+        readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
     }>> & Readonly<{
         onChange?: ((value: number | undefined) => any) | undefined;
         onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
@@ -135,8 +135,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
         readonly style: import("vue").PropType<import("vue").StyleValue>;
-        readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
-        readonly styles: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
+        readonly classNames: import("vue").PropType<import("./types").InputNumberClassNames>;
+        readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
     }>> & Readonly<{
         onChange?: ((value: number | undefined) => any) | undefined;
         onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
@@ -212,8 +212,8 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: import("vue").PropType<import("vue").StyleValue>;
-    readonly classNames: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
-    readonly styles: import("vue").PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
+    readonly classNames: import("vue").PropType<import("./types").InputNumberClassNames>;
+    readonly styles: import("vue").PropType<import("./types").InputNumberStyles>;
 }>> & Readonly<{
     onChange?: ((value: number | undefined) => any) | undefined;
     onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;

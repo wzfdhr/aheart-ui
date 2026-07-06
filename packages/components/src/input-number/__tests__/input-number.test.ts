@@ -392,4 +392,47 @@ describe('InputNumber', () => {
     expect(wrapper.find('.aheart-input-number__decrease').classes()).toContain('semantic-action')
     expect(wrapper.find('.aheart-input-number__decrease').attributes('style')).toContain('color: orange')
   })
+
+  it('supports semantic classNames and styles functions', () => {
+    const wrapper = mount(InputNumber, {
+      props: {
+        modelValue: 2,
+        status: 'warning',
+        readOnly: true,
+        prefix: '$',
+        suffix: 'USD',
+        classNames: ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+          root: props.status === 'warning' ? 'semantic-fn-warning-root' : 'semantic-fn-root',
+          input: 'semantic-fn-input',
+          prefix: 'semantic-fn-prefix',
+          suffix: 'semantic-fn-suffix',
+          actions: 'semantic-fn-actions',
+          action: props.readOnly ? 'semantic-fn-action-readonly' : 'semantic-fn-action'
+        }),
+        styles: ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+          root: { marginTop: props.status === 'warning' ? '8px' : '4px' },
+          input: { color: 'red' },
+          prefix: { color: 'blue' },
+          suffix: { color: 'green' },
+          actions: { color: 'purple' },
+          action: { color: props.readOnly ? 'gray' : 'orange' }
+        })
+      }
+    })
+
+    expect(wrapper.classes()).toContain('semantic-fn-warning-root')
+    expect(wrapper.attributes('style')).toContain('margin-top: 8px')
+    expect(wrapper.find('input').classes()).toContain('semantic-fn-input')
+    expect(wrapper.find('input').attributes('style')).toContain('color: red')
+    expect(wrapper.find('.aheart-input-number__prefix').classes()).toContain('semantic-fn-prefix')
+    expect(wrapper.find('.aheart-input-number__prefix').attributes('style')).toContain('color: blue')
+    expect(wrapper.find('.aheart-input-number__suffix').classes()).toContain('semantic-fn-suffix')
+    expect(wrapper.find('.aheart-input-number__suffix').attributes('style')).toContain('color: green')
+    expect(wrapper.find('.aheart-input-number__controls').classes()).toContain('semantic-fn-actions')
+    expect(wrapper.find('.aheart-input-number__controls').attributes('style')).toContain('color: purple')
+    expect(wrapper.find('.aheart-input-number__increase').classes()).toContain('semantic-fn-action-readonly')
+    expect(wrapper.find('.aheart-input-number__increase').attributes('style')).toContain('color: gray')
+    expect(wrapper.find('.aheart-input-number__decrease').classes()).toContain('semantic-fn-action-readonly')
+    expect(wrapper.find('.aheart-input-number__decrease').attributes('style')).toContain('color: gray')
+  })
 })

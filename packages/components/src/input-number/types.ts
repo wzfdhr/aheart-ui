@@ -24,8 +24,16 @@ export interface InputNumberControlsConfig {
 
 export type InputNumberControls = boolean | InputNumberControlsConfig
 export type InputNumberSemanticPart = 'root' | 'input' | 'prefix' | 'suffix' | 'actions' | 'action'
-export type InputNumberClassNames = Partial<Record<InputNumberSemanticPart, string>>
-export type InputNumberStyles = Partial<Record<InputNumberSemanticPart, StyleValue>>
+export interface InputNumberSemanticInfo {
+  props: Readonly<Record<string, unknown>>
+}
+
+export type InputNumberSemanticRecord<T> = Partial<Record<InputNumberSemanticPart, T>>
+export type InputNumberSemanticConfig<T> =
+  | InputNumberSemanticRecord<T>
+  | ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<T>)
+export type InputNumberClassNames = InputNumberSemanticConfig<string>
+export type InputNumberStyles = InputNumberSemanticConfig<StyleValue>
 
 export interface InputNumberStepInfo {
   offset: number
@@ -83,8 +91,8 @@ export const inputNumberProps = {
   className: String,
   rootClassName: String,
   style: [String, Object, Array] as PropType<StyleValue>,
-  classNames: Object as PropType<InputNumberClassNames>,
-  styles: Object as PropType<InputNumberStyles>
+  classNames: [Object, Function] as PropType<InputNumberClassNames>,
+  styles: [Object, Function] as PropType<InputNumberStyles>
 } as const
 
 export const inputNumberEmits = {

@@ -62,10 +62,10 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, ref, useSlots } from 'vue'
-import type { PropType, VNodeChild } from 'vue'
+import type { PropType, StyleValue, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputNumberEmits, inputNumberProps } from './types'
-import type { InputNumberFocusOptions } from './types'
+import type { InputNumberFocusOptions, InputNumberSemanticInfo, InputNumberSemanticRecord } from './types'
 import './style.css'
 
 defineOptions({
@@ -123,6 +123,13 @@ const resolvedStep = computed(() => {
 })
 const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix))
 const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix))
+const semanticInfo = computed<InputNumberSemanticInfo>(() => ({ props }))
+const resolvedClassNames = computed<InputNumberSemanticRecord<string>>(() =>
+  typeof props.classNames === 'function' ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+)
+const resolvedStyles = computed<InputNumberSemanticRecord<StyleValue>>(() =>
+  typeof props.styles === 'function' ? props.styles(semanticInfo.value) : props.styles ?? {}
+)
 const shouldUseDecimalSeparator = computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== '.'))
 const formatDecimalSeparator = (value: string) =>
   shouldUseDecimalSeparator.value ? value.replace('.', props.decimalSeparator as string) : value
@@ -146,24 +153,24 @@ const inputNumberClass = computed(() => [
   `aheart-input-number--${resolvedVariant.value}`,
   props.className,
   props.rootClassName,
-  props.classNames?.root,
+  resolvedClassNames.value.root,
   {
     [`aheart-input-number--${props.status}`]: props.status,
     'is-disabled': isDisabled.value,
     'is-readonly': props.readOnly
   }
 ])
-const rootStyle = computed(() => [props.style, props.styles?.root])
-const controlClass = computed(() => props.classNames?.input)
-const controlStyle = computed(() => props.styles?.input)
-const prefixClass = computed(() => ['aheart-input-number__prefix', props.classNames?.prefix])
-const prefixStyle = computed(() => props.styles?.prefix)
-const suffixClass = computed(() => ['aheart-input-number__suffix', props.classNames?.suffix])
-const suffixStyle = computed(() => props.styles?.suffix)
-const actionsClass = computed(() => ['aheart-input-number__controls', props.classNames?.actions])
-const actionsStyle = computed(() => props.styles?.actions)
-const actionClass = computed(() => props.classNames?.action)
-const actionStyle = computed(() => props.styles?.action)
+const rootStyle = computed(() => [props.style, resolvedStyles.value.root])
+const controlClass = computed(() => resolvedClassNames.value.input)
+const controlStyle = computed(() => resolvedStyles.value.input)
+const prefixClass = computed(() => ['aheart-input-number__prefix', resolvedClassNames.value.prefix])
+const prefixStyle = computed(() => resolvedStyles.value.prefix)
+const suffixClass = computed(() => ['aheart-input-number__suffix', resolvedClassNames.value.suffix])
+const suffixStyle = computed(() => resolvedStyles.value.suffix)
+const actionsClass = computed(() => ['aheart-input-number__controls', resolvedClassNames.value.actions])
+const actionsStyle = computed(() => resolvedStyles.value.actions)
+const actionClass = computed(() => resolvedClassNames.value.action)
+const actionStyle = computed(() => resolvedStyles.value.action)
 
 const applyPrecision = (value: number) => {
   if (props.precision === undefined) {

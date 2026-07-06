@@ -19,8 +19,13 @@ export interface InputNumberControlsConfig {
 }
 export type InputNumberControls = boolean | InputNumberControlsConfig;
 export type InputNumberSemanticPart = 'root' | 'input' | 'prefix' | 'suffix' | 'actions' | 'action';
-export type InputNumberClassNames = Partial<Record<InputNumberSemanticPart, string>>;
-export type InputNumberStyles = Partial<Record<InputNumberSemanticPart, StyleValue>>;
+export interface InputNumberSemanticInfo {
+    props: Readonly<Record<string, unknown>>;
+}
+export type InputNumberSemanticRecord<T> = Partial<Record<InputNumberSemanticPart, T>>;
+export type InputNumberSemanticConfig<T> = InputNumberSemanticRecord<T> | ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<T>);
+export type InputNumberClassNames = InputNumberSemanticConfig<string>;
+export type InputNumberStyles = InputNumberSemanticConfig<StyleValue>;
 export interface InputNumberStepInfo {
     offset: number;
     type: InputNumberStepType;
@@ -77,8 +82,8 @@ export declare const inputNumberProps: {
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
     readonly style: PropType<StyleValue>;
-    readonly classNames: PropType<Partial<Record<InputNumberSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<InputNumberSemanticPart, StyleValue>>>;
+    readonly classNames: PropType<InputNumberClassNames>;
+    readonly styles: PropType<InputNumberStyles>;
 };
 export declare const inputNumberEmits: {
     'update:modelValue': (value: number | undefined) => boolean;

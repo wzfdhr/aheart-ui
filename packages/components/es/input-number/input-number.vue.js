@@ -66,6 +66,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const hasPrefix = computed(() => Boolean(slots.prefix) || hasRenderable(props.prefix));
     const hasSuffix = computed(() => Boolean(slots.suffix) || hasRenderable(props.suffix));
+    const semanticInfo = computed(() => ({ props }));
+    const resolvedClassNames = computed(
+      () => typeof props.classNames === "function" ? props.classNames(semanticInfo.value) : props.classNames ?? {}
+    );
+    const resolvedStyles = computed(
+      () => typeof props.styles === "function" ? props.styles(semanticInfo.value) : props.styles ?? {}
+    );
     const shouldUseDecimalSeparator = computed(() => Boolean(props.decimalSeparator && props.decimalSeparator !== "."));
     const formatDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.replace(".", props.decimalSeparator) : value;
     const parseDecimalSeparator = (value) => shouldUseDecimalSeparator.value ? value.split(props.decimalSeparator).join(".") : value;
@@ -79,65 +86,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return formatDecimalSeparator(input);
     });
-    const inputNumberClass = computed(() => {
-      var _a;
-      return [
-        `aheart-input-number--${resolvedSize.value}`,
-        `aheart-input-number--${resolvedVariant.value}`,
-        props.className,
-        props.rootClassName,
-        (_a = props.classNames) == null ? void 0 : _a.root,
-        {
-          [`aheart-input-number--${props.status}`]: props.status,
-          "is-disabled": isDisabled.value,
-          "is-readonly": props.readOnly
-        }
-      ];
-    });
-    const rootStyle = computed(() => {
-      var _a;
-      return [props.style, (_a = props.styles) == null ? void 0 : _a.root];
-    });
-    const controlClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.input;
-    });
-    const controlStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.input;
-    });
-    const prefixClass = computed(() => {
-      var _a;
-      return ["aheart-input-number__prefix", (_a = props.classNames) == null ? void 0 : _a.prefix];
-    });
-    const prefixStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.prefix;
-    });
-    const suffixClass = computed(() => {
-      var _a;
-      return ["aheart-input-number__suffix", (_a = props.classNames) == null ? void 0 : _a.suffix];
-    });
-    const suffixStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.suffix;
-    });
-    const actionsClass = computed(() => {
-      var _a;
-      return ["aheart-input-number__controls", (_a = props.classNames) == null ? void 0 : _a.actions];
-    });
-    const actionsStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.actions;
-    });
-    const actionClass = computed(() => {
-      var _a;
-      return (_a = props.classNames) == null ? void 0 : _a.action;
-    });
-    const actionStyle = computed(() => {
-      var _a;
-      return (_a = props.styles) == null ? void 0 : _a.action;
-    });
+    const inputNumberClass = computed(() => [
+      `aheart-input-number--${resolvedSize.value}`,
+      `aheart-input-number--${resolvedVariant.value}`,
+      props.className,
+      props.rootClassName,
+      resolvedClassNames.value.root,
+      {
+        [`aheart-input-number--${props.status}`]: props.status,
+        "is-disabled": isDisabled.value,
+        "is-readonly": props.readOnly
+      }
+    ]);
+    const rootStyle = computed(() => [props.style, resolvedStyles.value.root]);
+    const controlClass = computed(() => resolvedClassNames.value.input);
+    const controlStyle = computed(() => resolvedStyles.value.input);
+    const prefixClass = computed(() => ["aheart-input-number__prefix", resolvedClassNames.value.prefix]);
+    const prefixStyle = computed(() => resolvedStyles.value.prefix);
+    const suffixClass = computed(() => ["aheart-input-number__suffix", resolvedClassNames.value.suffix]);
+    const suffixStyle = computed(() => resolvedStyles.value.suffix);
+    const actionsClass = computed(() => ["aheart-input-number__controls", resolvedClassNames.value.actions]);
+    const actionsStyle = computed(() => resolvedStyles.value.actions);
+    const actionClass = computed(() => resolvedClassNames.value.action);
+    const actionStyle = computed(() => resolvedStyles.value.action);
     const applyPrecision = (value) => {
       if (props.precision === void 0) {
         return value;

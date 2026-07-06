@@ -47,8 +47,8 @@ const inputNumberProps = {
   className: String,
   rootClassName: String,
   style: [String, Object, Array],
-  classNames: Object,
-  styles: Object
+  classNames: [Object, Function],
+  styles: [Object, Function]
 };
 const inputNumberEmits = {
   "update:modelValue": (value) => typeof value === "number" || value === void 0,

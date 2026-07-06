@@ -1,5 +1,19 @@
 <script setup lang="ts">
 import { h } from 'vue'
+
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
 </script>
 
 # InputNumber 数字输入框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -151,25 +165,45 @@ import { h } from 'vue'
     :model-value="1200"
     prefix="$"
     suffix="USD"
+    status="warning"
+    read-only
     class-name="demo-input-number-class"
     root-class-name="demo-input-number-root"
     :style="{ maxWidth: '420px' }"
-    :class-names="{ root: 'demo-input-number-semantic-root', input: 'demo-input-number-control', prefix: 'demo-input-number-prefix', suffix: 'demo-input-number-suffix', actions: 'demo-input-number-actions', action: 'demo-input-number-action' }"
-    :styles="{ prefix: { color: 'var(--aheart-color-primary)' }, action: { color: 'var(--aheart-color-warning)' } }"
+    :class-names="inputNumberClassNames"
+    :styles="inputNumberStyles"
   />
 </div>
 
 ```vue
+<script setup lang="ts">
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
   <AInputNumber
     v-model="amount"
     prefix="$"
     suffix="USD"
+    status="warning"
+    read-only
     class-name="demo-input-number-class"
     root-class-name="demo-input-number-root"
     :style="{ maxWidth: '420px' }"
-    :class-names="{ root: 'demo-input-number-semantic-root', input: 'demo-input-number-control', prefix: 'demo-input-number-prefix', suffix: 'demo-input-number-suffix', actions: 'demo-input-number-actions', action: 'demo-input-number-action' }"
-    :styles="{ prefix: { color: 'var(--aheart-color-primary)' }, action: { color: 'var(--aheart-color-warning)' } }"
+    :class-names="inputNumberClassNames"
+    :styles="inputNumberStyles"
   />
 </template>
 ```
@@ -220,8 +254,8 @@ import { h } from 'vue'
 | className | 数字输入框根节点兼容 class | `string` | - |
 | rootClassName | 数字输入框根节点 class | `string` | - |
 | style | 数字输入框根节点样式 | `StyleValue` | - |
-| classNames | 语义化结构 class | `Partial<Record<'root' \| 'input' \| 'prefix' \| 'suffix' \| 'actions' \| 'action', string>>` | - |
-| styles | 语义化结构样式 | `Partial<Record<'root' \| 'input' \| 'prefix' \| 'suffix' \| 'actions' \| 'action', StyleValue>>` | - |
+| classNames | 语义化结构 class，支持对象或函数形式 | `InputNumberSemanticRecord<string> \| ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<string>)` | - |
+| styles | 语义化结构样式，支持对象或函数形式 | `InputNumberSemanticRecord<StyleValue> \| ((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<StyleValue>)` | - |
 
 ## Events
 
@@ -259,6 +293,12 @@ import { h } from 'vue'
 | suffix | 后缀容器 |
 | actions | 步进按钮组容器 |
 | action | 单个步进按钮 |
+
+## InputNumberSemanticInfo
+
+| 名称 | 说明 | 类型 |
+| --- | --- | --- |
+| props | 当前 InputNumber props，只读传入语义化函数 | `Readonly<Record<string, unknown>>` |
 
 ## Theme Tokens
 

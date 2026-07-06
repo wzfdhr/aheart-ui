@@ -1,4 +1,4 @@
-import type { PropType, VNodeChild } from 'vue';
+import type { PropType, StyleValue, VNodeChild } from 'vue';
 import type { InputNumberFocusOptions } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
@@ -50,9 +50,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<import("./types").InputNumberClassNames>;
+    readonly styles: PropType<import("./types").InputNumberStyles>;
 }>, {
     focus: (options?: InputNumberFocusOptions | undefined) => void;
     blur: () => void;
@@ -112,9 +112,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly changeOnWheel: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
-    readonly style: PropType<import("vue").StyleValue>;
-    readonly classNames: PropType<Partial<Record<import("./types").InputNumberSemanticPart, string>>>;
-    readonly styles: PropType<Partial<Record<import("./types").InputNumberSemanticPart, import("vue").StyleValue>>>;
+    readonly style: PropType<StyleValue>;
+    readonly classNames: PropType<import("./types").InputNumberClassNames>;
+    readonly styles: PropType<import("./types").InputNumberStyles>;
 }>> & Readonly<{
     onChange?: ((value: number | undefined) => any) | undefined;
     onStep?: ((value: number, info: import("./types").InputNumberStepInfo) => any) | undefined;
