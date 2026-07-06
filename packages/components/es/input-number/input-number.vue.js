@@ -452,6 +452,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isKeyboardStepUp = (key) => key === "ArrowUp" || key === "Up";
     const isKeyboardStepDown = (key) => key === "ArrowDown" || key === "Down";
     const handleStep = (offset, type, emitter, stepValue = props.step) => {
+      var _a;
       if (isInteractiveDisabled.value) {
         return;
       }
@@ -460,6 +461,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       resetPendingInput();
       emitValue(nextValue);
       emit("step", nextValue, { offset, type, emitter });
+      (_a = inputRef.value) == null ? void 0 : _a.focus();
     };
     const clearControlStepTimer = () => {
       if (controlStepTimer === void 0) {

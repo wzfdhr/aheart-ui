@@ -645,6 +645,7 @@ const handleStep = (
   resetPendingInput()
   emitValue(nextValue)
   emit('step', nextValue, { offset, type, emitter })
+  inputRef.value?.focus()
 }
 
 const clearControlStepTimer = () => {

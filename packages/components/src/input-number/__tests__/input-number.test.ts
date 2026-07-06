@@ -265,6 +265,25 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('step')?.[0]).toEqual([0.3, { offset: 0.1, type: 'up', emitter: 'handler' }])
   })
 
+  it('focuses the inner input after control stepping', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(InputNumber, {
+      attachTo: host,
+      props: { modelValue: 2, step: 1 }
+    })
+    const input = wrapper.find('input').element
+
+    await wrapper.find('.aheart-input-number__increase').trigger('click')
+    await nextTick()
+
+    expect(document.activeElement).toBe(input)
+
+    wrapper.unmount()
+    host.remove()
+  })
+
   it('uses ConfigProvider size and disabled fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { size: 'large', disabled: true },
