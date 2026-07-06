@@ -429,6 +429,24 @@ describe('InputNumber', () => {
     host.remove()
   })
 
+  it('focuses the inner input on mount when autoFocus is true', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(InputNumber, {
+      attachTo: host,
+      props: { modelValue: 8, autoFocus: true }
+    })
+    const input = wrapper.find('input').element
+
+    await nextTick()
+
+    expect(document.activeElement).toBe(input)
+
+    wrapper.unmount()
+    host.remove()
+  })
+
   it('passes formatter info to formatter', () => {
     const calls: Array<{ value: number | undefined; userTyping?: boolean; input?: string }> = []
     const wrapper = mount(InputNumber, {

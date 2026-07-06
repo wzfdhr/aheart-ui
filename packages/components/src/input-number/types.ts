@@ -52,6 +52,7 @@ export const inputNumberProps = {
   modelValue: [Number, String] as PropType<InputNumberValue>,
   value: [Number, String] as PropType<InputNumberValue>,
   defaultValue: [Number, String] as PropType<InputNumberValue>,
+  autoFocus: Boolean,
   placeholder: String,
   prefix: renderableProp,
   suffix: renderableProp,

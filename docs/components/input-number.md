@@ -267,6 +267,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 | modelValue | 数字值，`stringMode` 下支持字符串 | `number` \| `string` | - |
 | value | 受控数字值，兼容 Ant Design API；与 `modelValue` 同时传入时 `modelValue` 优先 | `number` \| `string` | - |
 | defaultValue | 非受控初始值，`stringMode` 下支持字符串 | `number` \| `string` | - |
+| autoFocus | 挂载后自动聚焦输入框 | `boolean` | `false` |
 | id | 原生输入框 id | `string` | - |
 | placeholder | 占位提示 | `string` | - |
 | prefix | 输入框前缀内容 | `VNodeChild` | - |

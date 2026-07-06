@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, useAttrs, useSlots } from 'vue'
+import { computed, defineComponent, onMounted, ref, useAttrs, useSlots } from 'vue'
 import type { InputHTMLAttributes, PropType, StyleValue, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputNumberEmits, inputNumberProps } from './types'
@@ -571,6 +571,12 @@ const focus = (options?: InputNumberFocusOptions) => {
 const blur = () => {
   inputRef.value?.blur()
 }
+
+onMounted(() => {
+  if (props.autoFocus) {
+    focus()
+  }
+})
 
 defineExpose({
   focus,

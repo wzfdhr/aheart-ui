@@ -1,4 +1,4 @@
-import { defineComponent, useAttrs, useSlots, ref, computed, openBlock, createElementBlock, mergeProps, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, onMounted, openBlock, createElementBlock, mergeProps, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
@@ -413,6 +413,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       (_a = inputRef.value) == null ? void 0 : _a.blur();
     };
+    onMounted(() => {
+      if (props.autoFocus) {
+        focus();
+      }
+    });
     __expose({
       focus,
       blur,

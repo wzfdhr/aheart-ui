@@ -37,6 +37,7 @@ export declare const inputNumberProps: {
     readonly modelValue: PropType<InputNumberValue>;
     readonly value: PropType<InputNumberValue>;
     readonly defaultValue: PropType<InputNumberValue>;
+    readonly autoFocus: BooleanConstructor;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: PropType<VNodeChild>;

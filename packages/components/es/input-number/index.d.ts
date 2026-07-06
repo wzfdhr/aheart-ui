@@ -4,6 +4,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly modelValue: import("vue").PropType<import("./types").InputNumberValue>;
         readonly value: import("vue").PropType<import("./types").InputNumberValue>;
         readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
+        readonly autoFocus: BooleanConstructor;
         readonly placeholder: StringConstructor;
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
@@ -80,6 +81,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly readOnly: boolean;
+        readonly autoFocus: boolean;
         readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
         readonly changeOnBlur: boolean;
@@ -96,6 +98,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly modelValue: import("vue").PropType<import("./types").InputNumberValue>;
         readonly value: import("vue").PropType<import("./types").InputNumberValue>;
         readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
+        readonly autoFocus: BooleanConstructor;
         readonly placeholder: StringConstructor;
         readonly prefix: {
             type: import("vue").PropType<import("vue").VNodeChild>;
@@ -167,6 +170,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly readOnly: boolean;
+        readonly autoFocus: boolean;
         readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
         readonly changeOnBlur: boolean;
@@ -180,6 +184,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly modelValue: import("vue").PropType<import("./types").InputNumberValue>;
     readonly value: import("vue").PropType<import("./types").InputNumberValue>;
     readonly defaultValue: import("vue").PropType<import("./types").InputNumberValue>;
+    readonly autoFocus: BooleanConstructor;
     readonly placeholder: StringConstructor;
     readonly prefix: {
         type: import("vue").PropType<import("vue").VNodeChild>;
@@ -256,6 +261,7 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly prefix: import("vue").VNodeChild;
     readonly suffix: import("vue").VNodeChild;
     readonly readOnly: boolean;
+    readonly autoFocus: boolean;
     readonly stringMode: boolean;
     readonly controls: import("./types").InputNumberControls;
     readonly changeOnBlur: boolean;

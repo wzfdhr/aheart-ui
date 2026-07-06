@@ -7,6 +7,7 @@ const inputNumberProps = {
   modelValue: [Number, String],
   value: [Number, String],
   defaultValue: [Number, String],
+  autoFocus: Boolean,
   placeholder: String,
   prefix: renderableProp,
   suffix: renderableProp,
