@@ -42,6 +42,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const pendingInputValue = vue.ref(void 0);
     const hasPendingInputValue = vue.ref(false);
     const skipNextControlStepClick = vue.ref(false);
+    const isComposing = vue.ref(false);
     const wheelDelta = vue.ref(0);
     const wheelTimestamp = vue.ref(0);
     let controlStepTimer;
@@ -464,13 +465,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       runControlStep(type);
     };
+    const handleCompositionStart = () => {
+      isComposing.value = true;
+    };
+    const handleCompositionEnd = () => {
+      isComposing.value = false;
+    };
     const handleKeydown = (event) => {
       if (event.key === "Enter") {
         commitPendingInput();
         emit("pressEnter", event);
         return;
       }
-      if (!props.keyboard) {
+      if (!props.keyboard || isComposing.value) {
         return;
       }
       const keyboardStepMultiplier = event.shiftKey ? 10 : 1;
@@ -593,6 +600,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           step: _ctx.step,
           onInput: handleInput,
           onKeydown: handleKeydown,
+          onCompositionstart: handleCompositionStart,
+          onCompositionend: handleCompositionEnd,
           onBlur: handleBlur,
           onWheel: handleWheel
         }), null, 16, _hoisted_2),

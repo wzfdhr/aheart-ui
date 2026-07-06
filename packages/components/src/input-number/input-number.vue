@@ -26,6 +26,8 @@
       :step="step"
       @input="handleInput"
       @keydown="handleKeydown"
+      @compositionstart="handleCompositionStart"
+      @compositionend="handleCompositionEnd"
       @blur="handleBlur"
       @wheel="handleWheel"
     />
@@ -99,6 +101,7 @@ const pendingInputText = ref<string | undefined>(undefined)
 const pendingInputValue = ref<InputNumberValue | undefined>(undefined)
 const hasPendingInputValue = ref(false)
 const skipNextControlStepClick = ref(false)
+const isComposing = ref(false)
 const wheelDelta = ref(0)
 const wheelTimestamp = ref(0)
 const controlStepDelay = 600
@@ -637,6 +640,14 @@ const handleControlStepClick = (type: 'up' | 'down') => {
   runControlStep(type)
 }
 
+const handleCompositionStart = () => {
+  isComposing.value = true
+}
+
+const handleCompositionEnd = () => {
+  isComposing.value = false
+}
+
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Enter') {
     commitPendingInput()
@@ -644,7 +655,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     return
   }
 
-  if (!props.keyboard) {
+  if (!props.keyboard || isComposing.value) {
     return
   }
 

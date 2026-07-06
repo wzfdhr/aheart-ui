@@ -40,6 +40,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const pendingInputValue = ref(void 0);
     const hasPendingInputValue = ref(false);
     const skipNextControlStepClick = ref(false);
+    const isComposing = ref(false);
     const wheelDelta = ref(0);
     const wheelTimestamp = ref(0);
     let controlStepTimer;
@@ -462,13 +463,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       runControlStep(type);
     };
+    const handleCompositionStart = () => {
+      isComposing.value = true;
+    };
+    const handleCompositionEnd = () => {
+      isComposing.value = false;
+    };
     const handleKeydown = (event) => {
       if (event.key === "Enter") {
         commitPendingInput();
         emit("pressEnter", event);
         return;
       }
-      if (!props.keyboard) {
+      if (!props.keyboard || isComposing.value) {
         return;
       }
       const keyboardStepMultiplier = event.shiftKey ? 10 : 1;
@@ -591,6 +598,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           step: _ctx.step,
           onInput: handleInput,
           onKeydown: handleKeydown,
+          onCompositionstart: handleCompositionStart,
+          onCompositionend: handleCompositionEnd,
           onBlur: handleBlur,
           onWheel: handleWheel
         }), null, 16, _hoisted_2),

@@ -545,6 +545,25 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('step')?.[1]).toEqual([0, { offset: -2, type: 'down', emitter: 'keyboard' }])
   })
 
+  it('skips keyboard stepping while composition input is active', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: 2, step: 2 }
+    })
+    const input = wrapper.find('input')
+
+    await input.trigger('compositionstart')
+    await input.trigger('keydown', { key: 'ArrowUp' })
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(wrapper.emitted('step')).toBeUndefined()
+
+    await input.trigger('compositionend')
+    await input.trigger('keydown', { key: 'ArrowUp' })
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([4])
+    expect(wrapper.emitted('step')?.[0]).toEqual([4, { offset: 2, type: 'up', emitter: 'keyboard' }])
+  })
+
   it('repeats control stepping while a control is held', async () => {
     vi.useFakeTimers()
 
