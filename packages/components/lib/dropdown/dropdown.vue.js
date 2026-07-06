@@ -139,13 +139,30 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
     );
-    const getPlacementSide = (placement) => placement.startsWith("top") ? "top" : "bottom";
+    const getPlacementSide = (placement) => {
+      if (placement.startsWith("top")) {
+        return "top";
+      }
+      if (placement.startsWith("bottom")) {
+        return "bottom";
+      }
+      if (placement.startsWith("left")) {
+        return "left";
+      }
+      return "right";
+    };
     const getPlacementAlign = (placement) => {
       if (placement.endsWith("Left")) {
         return "Left";
       }
       if (placement.endsWith("Right")) {
         return "Right";
+      }
+      if (placement.endsWith("Top")) {
+        return "Top";
+      }
+      if (placement.endsWith("Bottom")) {
+        return "Bottom";
       }
       return "";
     };
@@ -180,6 +197,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
       if (overlayWidth > 0 && viewport.width > 0) {
+        const spaceLeft = triggerRect.left;
+        const spaceRight = viewport.width - triggerRect.right;
+        if (side === "left" && overlayWidth > spaceLeft && spaceRight > spaceLeft) {
+          side = "right";
+        } else if (side === "right" && overlayWidth > spaceRight && spaceLeft > spaceRight) {
+          side = "left";
+        }
+      }
+      if ((side === "top" || side === "bottom") && overlayWidth > 0 && viewport.width > 0) {
         const leftAlignedRight = triggerRect.left + overlayWidth;
         const rightAlignedLeft = triggerRect.right - overlayWidth;
         const centerLeft = triggerRect.left + triggerRect.width / 2 - overlayWidth / 2;
@@ -192,6 +218,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           align = "Left";
         } else if (align === "" && centerRight > viewport.width && rightAlignedLeft >= 0) {
           align = "Right";
+        }
+      }
+      if ((side === "left" || side === "right") && overlayHeight > 0 && viewport.height > 0) {
+        const topAlignedBottom = triggerRect.top + overlayHeight;
+        const bottomAlignedTop = triggerRect.bottom - overlayHeight;
+        const centerTop = triggerRect.top + triggerRect.height / 2 - overlayHeight / 2;
+        const centerBottom = centerTop + overlayHeight;
+        if (align === "Top" && topAlignedBottom > viewport.height && bottomAlignedTop >= 0) {
+          align = "Bottom";
+        } else if (align === "Bottom" && bottomAlignedTop < 0 && topAlignedBottom <= viewport.height) {
+          align = "Top";
+        } else if (align === "" && centerTop < 0 && topAlignedBottom <= viewport.height) {
+          align = "Top";
+        } else if (align === "" && centerBottom > viewport.height && bottomAlignedTop >= 0) {
+          align = "Bottom";
         }
       }
       return createPlacement(side, align);

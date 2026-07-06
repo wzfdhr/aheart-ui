@@ -382,6 +382,50 @@ describe('Dropdown', () => {
     }
   })
 
+  it('keeps side placement when it fits the viewport', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockDropdownRects({
+      trigger: createRect({ left: 260, top: 180, width: 96, height: 24 }),
+      overlay: createRect({ left: 80, top: 180, width: 160, height: 120 })
+    })
+
+    try {
+      const wrapper = mountDropdown({
+        props: { menu, trigger: ['click'], placement: 'leftTop' },
+        slots: { default: '<button>Actions</button>' }
+      })
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--leftTop')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
+  it('auto adjusts left placement to right when the popup would overflow left', async () => {
+    setViewportSize(1024, 800)
+    const rectSpy = mockDropdownRects({
+      trigger: createRect({ left: 6, top: 180, width: 96, height: 24 }),
+      overlay: createRect({ left: -174, top: 130, width: 160, height: 120 })
+    })
+
+    try {
+      const wrapper = mountDropdown({
+        props: { menu, trigger: ['click'], placement: 'left' },
+        slots: { default: '<button>Actions</button>' }
+      })
+
+      await wrapper.find('.aheart-dropdown__trigger').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--right')
+    } finally {
+      rectSpy.mockRestore()
+    }
+  })
+
   it('forwards overflow adjustment through Dropdown.Button', async () => {
     setViewportSize(1024, 800)
     const rectSpy = mockDropdownRects({

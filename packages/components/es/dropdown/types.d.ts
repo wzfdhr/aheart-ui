@@ -2,7 +2,7 @@ import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import { type ButtonLoading } from '../button/types';
 import type { MenuItem, MenuClickInfo } from '../menu';
 export type DropdownTrigger = 'click' | 'hover' | 'contextMenu';
-export type DropdownPlacement = 'bottomLeft' | 'bottom' | 'bottomRight' | 'topLeft' | 'top' | 'topRight';
+export type DropdownPlacement = 'bottomLeft' | 'bottom' | 'bottomRight' | 'topLeft' | 'top' | 'topRight' | 'left' | 'leftTop' | 'leftBottom' | 'right' | 'rightTop' | 'rightBottom';
 export interface DropdownArrowConfig {
     pointAtCenter?: boolean;
 }

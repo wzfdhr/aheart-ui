@@ -140,6 +140,38 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 </template>
 ```
 
+## 侧向位置
+
+<div class="aheart-demo-panel">
+  <ASpace>
+    <ADropdown
+      :trigger="['click']"
+      placement="leftTop"
+      :menu="{ items: [{ key: 'copy', label: 'Copy' }, { key: 'rename', label: 'Rename' }] }"
+    >
+      <AButton>Left top</AButton>
+    </ADropdown>
+    <ADropdown
+      :trigger="['click']"
+      placement="rightBottom"
+      :menu="{ items: [{ key: 'copy', label: 'Copy' }, { key: 'rename', label: 'Rename' }] }"
+    >
+      <AButton>Right bottom</AButton>
+    </ADropdown>
+  </ASpace>
+</div>
+
+```vue
+<template>
+  <ADropdown :trigger="['click']" placement="leftTop" :menu="{ items }">
+    <AButton>Left top</AButton>
+  </ADropdown>
+  <ADropdown :trigger="['click']" placement="rightBottom" :menu="{ items }">
+    <AButton>Right bottom</AButton>
+  </ADropdown>
+</template>
+```
+
 ## 受控展开
 
 <div class="aheart-demo-panel">
@@ -294,7 +326,7 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | --- | --- | --- | --- |
 | menu | 菜单配置 | `DropdownMenuConfig` | - |
 | trigger | 触发方式 | `Array<'click' \| 'hover' \| 'contextMenu'>` | `['hover']` |
-| placement | 弹出位置 | `bottomLeft` \| `bottom` \| `bottomRight` \| `topLeft` \| `top` \| `topRight` | `bottomLeft` |
+| placement | 弹出位置 | `top` \| `topLeft` \| `topRight` \| `bottom` \| `bottomLeft` \| `bottomRight` \| `left` \| `leftTop` \| `leftBottom` \| `right` \| `rightTop` \| `rightBottom` | `bottomLeft` |
 | autoAdjustOverflow | 弹层超出视窗时自动调整弹出方向或左右对齐 | `boolean` | `true` |
 | getPopupContainer | 指定浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | mouseEnterDelay | hover 触发打开延迟，单位秒 | `number` | `0.1` |
@@ -323,7 +355,7 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | --- | --- | --- | --- |
 | menu | 菜单配置 | `DropdownMenuConfig` | - |
 | trigger | 触发方式 | `Array<'click' \| 'hover' \| 'contextMenu'>` | `['hover']` |
-| placement | 弹出位置 | `bottomLeft` \| `bottom` \| `bottomRight` \| `topLeft` \| `top` \| `topRight` | `bottomRight` |
+| placement | 弹出位置 | `top` \| `topLeft` \| `topRight` \| `bottom` \| `bottomLeft` \| `bottomRight` \| `left` \| `leftTop` \| `leftBottom` \| `right` \| `rightTop` \| `rightBottom` | `bottomRight` |
 | autoAdjustOverflow | 弹层超出视窗时自动调整弹出方向或左右对齐 | `boolean` | `true` |
 | open | 是否展开，受控 | `boolean` | - |
 | defaultOpen | 默认是否展开 | `boolean` | `false` |
