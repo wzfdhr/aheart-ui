@@ -1,8 +1,8 @@
 import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createVNode, unref, createBlock, withCtx } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import _sfc_main$1 from "./radio.vue.js";
 import { radioGroupProps, radioGroupEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["title"];
 const _hoisted_2 = ["name", "value", "checked", "disabled", "onChange"];
 const _hoisted_3 = { class: "aheart-radio-button__label" };

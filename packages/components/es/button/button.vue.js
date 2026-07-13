@@ -1,8 +1,8 @@
 import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, createElementBlock, renderSlot, unref, createCommentVNode, createElementVNode, createVNode, Comment, Text } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { buttonProps, buttonEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = {
   key: 0,
   class: "aheart-button__loading",

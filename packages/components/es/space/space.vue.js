@@ -1,7 +1,7 @@
 import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createBlock, resolveDynamicComponent, createVNode, unref, createCommentVNode, Comment } from "vue";
-import { useAheartConfig } from "../config/context.js";
 import { spaceProps } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig } from "../config/context.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ASpace"

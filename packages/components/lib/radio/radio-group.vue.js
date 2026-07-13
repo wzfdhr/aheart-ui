@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const context = require("../config/context.js");
 const radio_vue_vue_type_script_setup_true_lang = require("./radio.vue.js");
 const types = require("./types.js");
 require("./style.css.js");
+const context = require("../config/context.js");
 const _hoisted_1 = ["title"];
 const _hoisted_2 = ["name", "value", "checked", "disabled", "onChange"];
 const _hoisted_3 = { class: "aheart-radio-button__label" };

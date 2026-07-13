@@ -9,10 +9,11 @@ const Title = withInstall(_sfc_main$1, "ATitle");
 const Text = withInstall(_sfc_main$2, "AText");
 const Paragraph = withInstall(_sfc_main$3, "AParagraph");
 const Link = withInstall(_sfc_main$4, "ALink");
+const Typography$1 = Typography;
 export {
   Link,
   Paragraph,
   Text,
   Title,
-  Typography as default
+  Typography$1 as default
 };

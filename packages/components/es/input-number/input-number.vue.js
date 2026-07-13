@@ -1,7 +1,7 @@
 import { defineComponent, useAttrs, useSlots, ref, computed, onMounted, onBeforeUnmount, openBlock, createElementBlock, mergeProps, createVNode, unref, createCommentVNode, normalizeClass, normalizeStyle, renderSlot, createElementVNode } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = {
   key: 0,
   class: "aheart-input-number__addon aheart-input-number__addon-before"

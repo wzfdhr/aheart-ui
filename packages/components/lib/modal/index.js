@@ -3,4 +3,5 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const modal_vue_vue_type_script_setup_true_lang = require("./modal.vue.js");
 const install = require("../utils/install.js");
 const Modal = install.withInstall(modal_vue_vue_type_script_setup_true_lang.default, "AModal");
-exports.default = Modal;
+const Modal$1 = Modal;
+exports.default = Modal$1;

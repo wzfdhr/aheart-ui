@@ -1,7 +1,7 @@
 import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, toDisplayString, createCommentVNode, createElementVNode, Fragment, renderList, withDirectives, withKeys, vModelText, createVNode, unref } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { paginationProps, paginationEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["disabled"];
 const _hoisted_2 = {
   key: 1,

@@ -104,8 +104,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly modelValue: boolean;
     readonly checked: boolean;
     readonly defaultChecked: boolean;
-    readonly defaultValue: boolean;
     readonly autoFocus: boolean;
+    readonly defaultValue: boolean;
     readonly checkedChildren: VNodeChild;
     readonly unCheckedChildren: VNodeChild;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

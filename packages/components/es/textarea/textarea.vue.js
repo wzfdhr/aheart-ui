@@ -1,7 +1,7 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { textareaProps, textareaEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["id", "value", "placeholder", "rows", "disabled", "readonly", "maxlength"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

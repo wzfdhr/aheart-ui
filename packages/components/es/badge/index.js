@@ -5,8 +5,9 @@ const Badge = withInstall(_sfc_main, "ABadge");
 const BadgeRibbon = withInstall(_sfc_main$1, "ABadgeRibbon");
 const BadgeWithRibbon = Badge;
 BadgeWithRibbon.Ribbon = BadgeRibbon;
+const Badge$1 = BadgeWithRibbon;
 export {
   BadgeRibbon as ABadgeRibbon,
   BadgeRibbon,
-  BadgeWithRibbon as default
+  Badge$1 as default
 };

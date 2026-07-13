@@ -63,8 +63,8 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly modelValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
-        readonly defaultValue: boolean;
         readonly autoFocus: boolean;
+        readonly defaultValue: boolean;
         readonly checkedChildren: import("vue").VNodeChild;
         readonly unCheckedChildren: import("vue").VNodeChild;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -132,8 +132,8 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly modelValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
-        readonly defaultValue: boolean;
         readonly autoFocus: boolean;
+        readonly defaultValue: boolean;
         readonly checkedChildren: import("vue").VNodeChild;
         readonly unCheckedChildren: import("vue").VNodeChild;
     }>;
@@ -204,8 +204,8 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     readonly modelValue: boolean;
     readonly checked: boolean;
     readonly defaultChecked: boolean;
-    readonly defaultValue: boolean;
     readonly autoFocus: boolean;
+    readonly defaultValue: boolean;
     readonly checkedChildren: import("vue").VNodeChild;
     readonly unCheckedChildren: import("vue").VNodeChild;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

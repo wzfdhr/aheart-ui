@@ -182,11 +182,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly defaultOpen: boolean;
+    readonly destroyTooltipOnHide: boolean;
+    readonly fresh: boolean;
     readonly okText: string;
     readonly cancelText: string;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
-    readonly destroyTooltipOnHide: boolean;
-    readonly fresh: boolean;
     readonly showCancel: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

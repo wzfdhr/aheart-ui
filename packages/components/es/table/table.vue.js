@@ -1,8 +1,8 @@
 import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, createCommentVNode, Fragment, renderList, normalizeStyle, createVNode, unref, toDisplayString, createBlock } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import Pagination from "../pagination/index.js";
 import { tableProps, tableEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = { class: "aheart-table__container" };
 const _hoisted_2 = { key: 0 };
 const _hoisted_3 = {

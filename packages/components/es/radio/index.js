@@ -3,8 +3,9 @@ import _sfc_main$1 from "./radio-group.vue.js";
 import { withInstall } from "../utils/install.js";
 const Radio = withInstall(_sfc_main, "ARadio");
 const RadioGroup = withInstall(_sfc_main$1, "ARadioGroup");
+const Radio$1 = Radio;
 export {
   RadioGroup as ARadioGroup,
   RadioGroup,
-  Radio as default
+  Radio$1 as default
 };

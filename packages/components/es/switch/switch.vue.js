@@ -1,7 +1,7 @@
 import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { switchProps, switchEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-checked", "aria-busy", "disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

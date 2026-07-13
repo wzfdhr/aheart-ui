@@ -3,4 +3,5 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const spin_vue_vue_type_script_setup_true_lang = require("./spin.vue.js");
 const install = require("../utils/install.js");
 const Spin = install.withInstall(spin_vue_vue_type_script_setup_true_lang.default, "ASpin");
-exports.default = Spin;
+const Spin$1 = Spin;
+exports.default = Spin$1;

@@ -3,4 +3,5 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const configProvider_vue_vue_type_script_setup_true_lang = require("./config-provider.vue.js");
 const install = require("../utils/install.js");
 const ConfigProvider = install.withInstall(configProvider_vue_vue_type_script_setup_true_lang.default, "AConfigProvider");
-exports.default = ConfigProvider;
+const ConfigProvider$1 = ConfigProvider;
+exports.default = ConfigProvider$1;

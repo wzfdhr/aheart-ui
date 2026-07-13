@@ -1,7 +1,7 @@
 import { defineComponent, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { tabsProps, tabsEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick"];
 const _hoisted_2 = ["id", "aria-labelledby"];
 const _sfc_main = /* @__PURE__ */ defineComponent({

@@ -7,10 +7,11 @@ const CardGrid = withInstall(_sfc_main$1, "ACardGrid");
 const Card = withInstall(_sfc_main$2, "ACard");
 Card.Meta = CardMeta;
 Card.Grid = CardGrid;
+const Card$1 = Card;
 export {
   CardGrid as ACardGrid,
   CardMeta as ACardMeta,
   CardGrid,
   CardMeta,
-  Card as default
+  Card$1 as default
 };

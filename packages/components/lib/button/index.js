@@ -3,4 +3,5 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const button_vue_vue_type_script_setup_true_lang = require("./button.vue.js");
 const install = require("../utils/install.js");
 const Button = install.withInstall(button_vue_vue_type_script_setup_true_lang.default, "AButton");
-exports.default = Button;
+const Button$1 = Button;
+exports.default = Button$1;

@@ -11,8 +11,9 @@ const Grid = {
     app.use(Col);
   }
 };
+const Grid$1 = Grid;
 exports.ACol = Col;
 exports.ARow = Row;
 exports.Col = Col;
 exports.Row = Row;
-exports.default = Grid;
+exports.default = Grid$1;

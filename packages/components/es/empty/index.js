@@ -6,8 +6,9 @@ const PRESENTED_IMAGE_SIMPLE = EMPTY_PRESENTED_IMAGE_SIMPLE;
 const Empty = withInstall(_sfc_main, "AEmpty");
 Empty.PRESENTED_IMAGE_DEFAULT = PRESENTED_IMAGE_DEFAULT;
 Empty.PRESENTED_IMAGE_SIMPLE = PRESENTED_IMAGE_SIMPLE;
+const Empty$1 = Empty;
 export {
   PRESENTED_IMAGE_DEFAULT,
   PRESENTED_IMAGE_SIMPLE,
-  Empty as default
+  Empty$1 as default
 };

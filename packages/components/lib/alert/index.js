@@ -3,4 +3,5 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const alert_vue_vue_type_script_setup_true_lang = require("./alert.vue.js");
 const install = require("../utils/install.js");
 const Alert = install.withInstall(alert_vue_vue_type_script_setup_true_lang.default, "AAlert");
-exports.default = Alert;
+const Alert$1 = Alert;
+exports.default = Alert$1;

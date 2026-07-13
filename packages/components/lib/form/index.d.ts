@@ -71,11 +71,11 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly variant: import("../config").AheartVariant;
         readonly layout: import("./types").FormLayout;
         readonly disabled: boolean;
+        readonly colon: boolean;
         readonly model: import("./types").FormModel;
         readonly rules: import("./types").FormRules;
         readonly labelAlign: import("./types").FormLabelAlign;
         readonly requiredMark: import("./types").FormRequiredMark;
-        readonly colon: boolean;
         readonly scrollToFirstError: import("./types").FormScrollToFirstError;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -151,11 +151,11 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly variant: import("../config").AheartVariant;
         readonly layout: import("./types").FormLayout;
         readonly disabled: boolean;
+        readonly colon: boolean;
         readonly model: import("./types").FormModel;
         readonly rules: import("./types").FormRules;
         readonly labelAlign: import("./types").FormLabelAlign;
         readonly requiredMark: import("./types").FormRequiredMark;
-        readonly colon: boolean;
         readonly scrollToFirstError: import("./types").FormScrollToFirstError;
     }>;
     __isFragment?: undefined;
@@ -233,11 +233,11 @@ declare const Form: import("../utils/install").SFCWithInstall<{
     readonly variant: import("../config").AheartVariant;
     readonly layout: import("./types").FormLayout;
     readonly disabled: boolean;
+    readonly colon: boolean;
     readonly model: import("./types").FormModel;
     readonly rules: import("./types").FormRules;
     readonly labelAlign: import("./types").FormLabelAlign;
     readonly requiredMark: import("./types").FormRequiredMark;
-    readonly colon: boolean;
     readonly scrollToFirstError: import("./types").FormScrollToFirstError;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

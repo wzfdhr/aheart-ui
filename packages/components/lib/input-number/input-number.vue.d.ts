@@ -164,13 +164,13 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly mode: import("./types").InputNumberMode;
     readonly step: string | number;
     readonly bordered: boolean;
+    readonly autoFocus: boolean;
     readonly keyboard: boolean;
     readonly prefix: VNodeChild;
     readonly suffix: VNodeChild;
     readonly addonBefore: VNodeChild;
     readonly addonAfter: VNodeChild;
     readonly readOnly: boolean;
-    readonly autoFocus: boolean;
     readonly stringMode: boolean;
     readonly controls: import("./types").InputNumberControls;
     readonly changeOnBlur: boolean;

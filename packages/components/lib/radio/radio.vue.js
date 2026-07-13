@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const context = require("../config/context.js");
 const types = require("./types.js");
 require("./style.css.js");
+const context = require("../config/context.js");
 const _hoisted_1 = ["title"];
 const _hoisted_2 = { class: "aheart-radio__box" };
 const _hoisted_3 = ["name", "value", "checked", "disabled"];

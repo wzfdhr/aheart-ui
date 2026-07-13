@@ -1,7 +1,7 @@
 import { defineComponent, reactive, ref, computed, provide, openBlock, createElementBlock, normalizeClass, withModifiers, renderSlot } from "vue";
-import { provideAheartConfig } from "../config/context.js";
 import { formProps, formEmits, formContextKey } from "./types.js";
 import "./style.css.js";
+import { provideAheartConfig } from "../config/context.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AForm"

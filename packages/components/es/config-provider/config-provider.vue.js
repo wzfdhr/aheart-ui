@@ -1,7 +1,7 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeStyle, renderSlot } from "vue";
-import { provideAheartConfig } from "../config/context.js";
 import { configProviderProps } from "./types.js";
 import "./style.css.js";
+import { provideAheartConfig } from "../config/context.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AConfigProvider"

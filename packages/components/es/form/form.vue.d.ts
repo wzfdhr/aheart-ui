@@ -109,11 +109,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly variant: import("../config").AheartVariant;
     readonly layout: import("./types").FormLayout;
     readonly disabled: boolean;
+    readonly colon: boolean;
     readonly model: FormModel;
     readonly rules: import("./types").FormRules;
     readonly labelAlign: import("./types").FormLabelAlign;
     readonly requiredMark: import("./types").FormRequiredMark;
-    readonly colon: boolean;
     readonly scrollToFirstError: import("./types").FormScrollToFirstError;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

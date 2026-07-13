@@ -3,4 +3,5 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const popover_vue_vue_type_script_setup_true_lang = require("./popover.vue.js");
 const install = require("../utils/install.js");
 const Popover = install.withInstall(popover_vue_vue_type_script_setup_true_lang.default, "APopover");
-exports.default = Popover;
+const Popover$1 = Popover;
+exports.default = Popover$1;

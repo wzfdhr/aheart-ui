@@ -1,8 +1,8 @@
 import { defineComponent, useSlots, ref, computed, h, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow, nextTick } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import Menu from "../menu/index.js";
 import { dropdownProps, dropdownEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-expanded", "aria-disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

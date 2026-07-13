@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const context = require("../config/context.js");
 const index = require("../menu/index.js");
 const types = require("./types.js");
 require("./style.css.js");
+const context = require("../config/context.js");
 const _hoisted_1 = ["aria-expanded", "aria-disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{

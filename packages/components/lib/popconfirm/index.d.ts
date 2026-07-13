@@ -103,11 +103,11 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly defaultOpen: boolean;
+        readonly destroyTooltipOnHide: boolean;
+        readonly fresh: boolean;
         readonly okText: string;
         readonly cancelText: string;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
-        readonly destroyTooltipOnHide: boolean;
-        readonly fresh: boolean;
         readonly showCancel: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -214,11 +214,11 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly defaultOpen: boolean;
+        readonly destroyTooltipOnHide: boolean;
+        readonly fresh: boolean;
         readonly okText: string;
         readonly cancelText: string;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
-        readonly destroyTooltipOnHide: boolean;
-        readonly fresh: boolean;
         readonly showCancel: boolean;
     }>;
     __isFragment?: undefined;
@@ -328,11 +328,11 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly defaultOpen: boolean;
+    readonly destroyTooltipOnHide: boolean;
+    readonly fresh: boolean;
     readonly okText: string;
     readonly cancelText: string;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
-    readonly destroyTooltipOnHide: boolean;
-    readonly fresh: boolean;
     readonly showCancel: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

@@ -1,7 +1,7 @@
 import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
-import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 import { checkboxProps, checkboxEmits } from "./types.js";
 import "./style.css.js";
+import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["title"];
 const _hoisted_2 = { class: "aheart-checkbox__box" };
 const _hoisted_3 = ["name", "value", "checked", "disabled", "aria-checked"];

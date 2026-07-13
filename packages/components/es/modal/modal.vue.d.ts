@@ -176,6 +176,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly loading: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
+    readonly getContainer: import("./types").ModalGetContainer;
     readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;
@@ -184,7 +185,6 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly okText: VNodeChild;
     readonly cancelText: VNodeChild;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
-    readonly getContainer: import("./types").ModalGetContainer;
     readonly focusTriggerAfterClose: boolean | undefined;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     title?(_: {}): any;
