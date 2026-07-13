@@ -11,7 +11,9 @@
     "typecheck": "pnpm --filter ./packages/components typecheck",
     "test": "pnpm --filter ./packages/components test",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs"
+    "docs:build": "vitepress build docs",
+    "check:generated": "git diff --exit-code -- packages/components/es packages/components/lib",
+    "release:check": "pnpm test && pnpm typecheck && pnpm build && pnpm docs:build && pnpm check:generated && git diff --check"
   },
   "keywords": [
     "aheart-ui",

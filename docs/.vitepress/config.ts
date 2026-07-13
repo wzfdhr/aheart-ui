@@ -117,7 +117,8 @@ export default defineConfig({
                 { text: '介绍', link: '/guide/introduction' },
                 { text: '安装', link: '/guide/installation' },
                 { text: '使用', link: '/guide/usage' },
-                { text: '主题 Token', link: '/guide/theme' }
+                { text: '主题 Token', link: '/guide/theme' },
+                { text: '发布', link: '/guide/releasing' }
               ]
             }
           ],
@@ -158,7 +159,8 @@ export default defineConfig({
                 { text: 'Introduction', link: '/en/guide/introduction' },
                 { text: 'Installation', link: '/en/guide/installation' },
                 { text: 'Usage', link: '/en/guide/usage' },
-                { text: 'Theme Tokens', link: '/en/guide/theme' }
+                { text: 'Theme Tokens', link: '/en/guide/theme' },
+                { text: 'Release', link: '/en/guide/releasing' }
               ]
             }
           ],
