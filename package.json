@@ -13,7 +13,7 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "check:generated": "git diff --exit-code -- packages/components/es packages/components/lib",
-    "release:check": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter ./packages/components build && corepack pnpm docs:build && corepack pnpm check:generated && git diff --check"
+    "release:check": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter ./packages/components build && corepack pnpm --dir docs build && corepack pnpm check:generated && git diff --check"
   },
   "keywords": [
     "aheart-ui",
