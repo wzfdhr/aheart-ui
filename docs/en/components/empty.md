@@ -75,7 +75,7 @@ Empty presents an intentional empty state with optional custom image and action 
 <template>
   <AEmpty description="Nothing matched your filters">
     <template #image>
-      <span class="empty-search">⌕</span>
+      <span style="font-size: 40px; line-height: 1;">⌕</span>
     </template>
     <AButton>Reset filters</AButton>
   </AEmpty>
@@ -132,7 +132,7 @@ const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 <script setup lang="ts">
 import { h } from 'vue'
 
-const richDescription = h('span', [
+const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' } }, [
   'No archived ',
   h('strong', 'records'),
   ' are available.'
@@ -220,29 +220,29 @@ const richDescription = h('span', [
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| description | Configures `description`. | `VNodeChild` \|`false` | ConfigProvider locale |
-| image | Configures `image`. | `string` \|`VNodeChild` \|`Empty.PRESENTED_IMAGE_DEFAULT` \|`Empty.PRESENTED_IMAGE_SIMPLE` \|`false` | `Empty.PRESENTED_IMAGE_DEFAULT` |
-| imageStyle | Configures `imageStyle`. | `StyleValue` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'image' \| 'description' \| 'footer', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'image' \| 'description' \| 'footer', StyleValue>>` | - |
+| description | Empty-state description; set to `false` to hide it. | `VNodeChild` \| `false` | ConfigProvider locale |
+| image | Custom image URL, node, or built-in preset; set to `false` to hide the image area. | `string` \| `VNodeChild` \| `Empty.PRESENTED_IMAGE_DEFAULT` \| `Empty.PRESENTED_IMAGE_SIMPLE` \| `false` | `Empty.PRESENTED_IMAGE_DEFAULT` |
+| imageStyle | Style for the image area. | `StyleValue` | - |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `Partial<Record<'root' \| 'image' \| 'description' \| 'footer', string>>` | - |
+| styles | Styles for semantic parts. | `Partial<Record<'root' \| 'image' \| 'description' \| 'footer', StyleValue>>` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| image | Provides the `image` entry. |
-| description | Provides the `description` entry. |
-| default | Provides the `default` entry. |
+| image | Custom image area. |
+| description | Custom description area. |
+| default | Footer action area. |
 
 ## Static Constants
 
 | Name | Description |
 | --- | --- |
-| Empty.PRESENTED_IMAGE_DEFAULT | Provides the `Empty.PRESENTED_IMAGE_DEFAULT` entry. |
-| Empty.PRESENTED_IMAGE_SIMPLE | Provides the `Empty.PRESENTED_IMAGE_SIMPLE` entry. |
+| Empty.PRESENTED_IMAGE_DEFAULT | Default empty-state image preset. |
+| Empty.PRESENTED_IMAGE_SIMPLE | Simplified empty-state image preset. |
 
 ## Theme Tokens
 

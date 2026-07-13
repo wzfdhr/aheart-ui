@@ -28,7 +28,7 @@ Space sets consistent spacing between inline or vertical elements, with Ant-styl
 </template>
 ```
 
-## verticalcontentcolumn
+## Vertical Layout
 
 <div class="aheart-demo-panel">
   <ASpace orientation="vertical" size="small">
@@ -46,7 +46,7 @@ Space sets consistent spacing between inline or vertical elements, with Ant-styl
 </template>
 ```
 
-## separator
+## Separator
 
 <div class="aheart-demo-panel">
   <ASpace separator="|">
@@ -66,7 +66,7 @@ Space sets consistent spacing between inline or vertical elements, with Ant-styl
 </template>
 ```
 
-## nodeseparator
+## Node Separator
 
 <div class="aheart-demo-panel">
   <ASpace :separator="slashSeparator">
@@ -130,33 +130,33 @@ const slashSeparator = h('strong', '/')
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| size | Configures `size`. | `large` \| `middle` \| `small` \| `number` \| `[number, number]` | ConfigProvider size |
-| direction | Configures `direction`. | `horizontal` \|`vertical` | `horizontal` |
-| orientation | Configures `orientation`. | `horizontal` \|`vertical` | - |
-| vertical | Configures `vertical`. | `boolean` | `false` |
-| align | Configures `align`. | `start` \|`end` \|`center` \|`baseline` | - |
-| wrap | Configures `wrap`. | `boolean` | `false` |
-| separator | Configures `separator`. | `VNodeChild` | - |
-| split | Configures `split`. | `VNodeChild` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `SpaceClassNames` | - |
-| styles | Configures `styles`. | `SpaceStyles` | - |
+| size | Spacing size. | `large` \| `middle` \| `small` \| `number` \| `[number, number]` | ConfigProvider size |
+| direction | Layout direction; retained as a compatibility alias. | `horizontal` \| `vertical` | `horizontal` |
+| orientation | Ant-style layout direction; takes precedence over `direction`. | `horizontal` \| `vertical` | - |
+| vertical | Shortcut for a vertical layout. | `boolean` | `false` |
+| align | Alignment. | `start` \| `end` \| `center` \| `baseline` | - |
+| wrap | Whether to wrap automatically. | `boolean` | `false` |
+| separator | Separator between child elements. | `VNodeChild` | - |
+| split | Compatibility alias for the separator; `separator` is recommended. | `VNodeChild` | - |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts; accepts an object or function. | `SpaceClassNames` | - |
+| styles | Styles for semantic parts; accepts an object or function. | `SpaceStyles` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Content to which spacing is applied. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| item | Provides the `item` entry. |
-| separator | Provides the `separator` entry. |
+| root | Root spacing container. |
+| item | Wrapper for each child node. |
+| separator | Separator between child nodes. |
 
 ## Theme Tokens
 

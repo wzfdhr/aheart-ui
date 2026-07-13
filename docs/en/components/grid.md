@@ -17,14 +17,14 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 ```vue
 <template>
   <ARow>
-    <ACol :span="8">col-8</ACol>
-    <ACol :span="8">col-8</ACol>
-    <ACol :span="8">col-8</ACol>
+    <ACol :span="8"><div class="aheart-grid-demo-cell">col-8</div></ACol>
+    <ACol :span="8"><div class="aheart-grid-demo-cell">col-8</div></ACol>
+    <ACol :span="8"><div class="aheart-grid-demo-cell">col-8</div></ACol>
   </ARow>
 </template>
 ```
 
-## Section Gutter
+## Gutter
 
 <div class="aheart-demo-panel">
   <ARow :gutter="[16, 16]">
@@ -38,8 +38,10 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 ```vue
 <template>
   <ARow :gutter="[16, 16]">
-    <ACol :span="12">col-12</ACol>
-    <ACol :span="12">col-12</ACol>
+    <ACol :span="12"><div class="aheart-grid-demo-cell">col-12</div></ACol>
+    <ACol :span="12"><div class="aheart-grid-demo-cell">col-12</div></ACol>
+    <ACol :span="12"><div class="aheart-grid-demo-cell">col-12</div></ACol>
+    <ACol :span="12"><div class="aheart-grid-demo-cell">col-12</div></ACol>
   </ARow>
 </template>
 ```
@@ -56,8 +58,8 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 ```vue
 <template>
   <ARow justify="center" align="middle" :gutter="12">
-    <ACol :span="6" :order="2">order-2</ACol>
-    <ACol :span="6" :order="1" :offset="2">offset-2</ACol>
+    <ACol :span="6" :order="2"><div class="aheart-grid-demo-cell">order-2</div></ACol>
+    <ACol :span="6" :order="1" :offset="2"><div class="aheart-grid-demo-cell">offset-2</div></ACol>
   </ARow>
 </template>
 ```
@@ -74,8 +76,8 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 ```vue
 <template>
   <ARow :gutter="12">
-    <ACol :flex="120">120px</ACol>
-    <ACol flex="auto">auto</ACol>
+    <ACol :flex="120"><div class="aheart-grid-demo-cell">120px</div></ACol>
+    <ACol flex="auto"><div class="aheart-grid-demo-cell">auto</div></ACol>
   </ARow>
 </template>
 ```
@@ -96,50 +98,52 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 ```vue
 <template>
   <ARow :gutter="{ xs: 8, md: 16, xl: 24 }">
-    <ACol :xs="24" :md="{ span: 12 }" :xl="{ span: 8 }">responsive</ACol>
-    <ACol :xs="24" :md="{ span: 12 }" :xl="{ span: 8, offset: 4 }">responsive</ACol>
+    <ACol :xs="24" :md="{ span: 12 }" :xl="{ span: 8 }">
+      <div class="aheart-grid-demo-cell">responsive</div>
+    </ACol>
+    <ACol :xs="24" :md="{ span: 12 }" :xl="{ span: 8, offset: 4 }">
+      <div class="aheart-grid-demo-cell">responsive</div>
+    </ACol>
   </ARow>
 </template>
 ```
-
-## API
 
 ## Row API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| gutter | Configures `gutter`. | `number` \|`[GridGutter, GridGutter]` \|`GridResponsiveGutter` | `0` |
-| justify | Configures `justify`. | `start` \|`end` \|`center` \|`space-around` \|`space-between` \|`space-evenly` | - |
-| align | Configures `align`. | `top` \|`middle` \|`bottom` \|`stretch` | - |
-| wrap | Configures `wrap`. | `boolean` | `true` |
+| gutter | Grid gutter. | `number` \| `[GridGutter, GridGutter]` \| `GridResponsiveGutter` | `0` |
+| justify | Horizontal alignment. | `start` \| `end` \| `center` \| `space-around` \| `space-between` \| `space-evenly` | - |
+| align | Vertical alignment. | `top` \| `middle` \| `bottom` \| `stretch` | - |
+| wrap | Whether rows wrap automatically. | `boolean` | `true` |
 
 ## Col API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| span | Configures `span`. | `number` | - |
-| offset | Configures `offset`. | `number` | - |
-| order | Configures `order`. | `number` | - |
-| pull | Configures `pull`. | `number` | - |
-| push | Configures `push`. | `number` | - |
-| flex | Configures `flex`. | `string` \|`number` | - |
-| xs | Configures `xs`. | `number` \|`ColSpanConfig` | - |
-| sm | Configures `sm`. | `number` \|`ColSpanConfig` | - |
-| md | Configures `md`. | `number` \|`ColSpanConfig` | - |
-| lg | Configures `lg`. | `number` \|`ColSpanConfig` | - |
-| xl | Configures `xl`. | `number` \|`ColSpanConfig` | - |
-| xxl | Configures `xxl`. | `number` \|`ColSpanConfig` | - |
+| span | Number of grid units to occupy. | `number` | - |
+| offset | Number of grid units to leave on the left. | `number` | - |
+| order | Grid order. | `number` | - |
+| pull | Number of grid units to move left. | `number` | - |
+| push | Number of grid units to move right. | `number` | - |
+| flex | Flex fill. | `string` \| `number` | - |
+| xs | Responsive configuration below `576px`. | `number` \| `ColSpanConfig` | - |
+| sm | Responsive configuration from `576px`. | `number` \| `ColSpanConfig` | - |
+| md | Responsive configuration from `768px`. | `number` \| `ColSpanConfig` | - |
+| lg | Responsive configuration from `992px`. | `number` \| `ColSpanConfig` | - |
+| xl | Responsive configuration from `1200px`. | `number` \| `ColSpanConfig` | - |
+| xxl | Responsive configuration from `1600px`. | `number` \| `ColSpanConfig` | - |
 
 ### ColSpanConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| span | Configures `span`. | `number` | - |
-| offset | Configures `offset`. | `number` | - |
-| order | Configures `order`. | `number` | - |
-| pull | Configures `pull`. | `number` | - |
-| push | Configures `push`. | `number` | - |
-| flex | Configures `flex`. | `string` \|`number` | - |
+| span | Number of grid units to occupy. | `number` | - |
+| offset | Number of grid units to leave on the left. | `number` | - |
+| order | Grid order. | `number` | - |
+| pull | Number of grid units to move left. | `number` | - |
+| push | Number of grid units to move right. | `number` | - |
+| flex | Flex fill. | `string` \| `number` | - |
 
 ## Theme Tokens
 

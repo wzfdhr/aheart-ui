@@ -43,7 +43,15 @@ Flex provides a small layout helper for one-dimensional alignment and spacing.
 ## Custom Element and Flex
 
 <div class="aheart-demo-panel">
-  <AFlex component="section" orientation="horizontal" wrap="wrap-reverse" justify="space-between" align="flex-start" gap="2rem" flex="1 1 auto">
+  <AFlex
+    component="section"
+    orientation="horizontal"
+    wrap="wrap-reverse"
+    justify="space-between"
+    align="flex-start"
+    gap="2rem"
+    flex="1 1 auto"
+  >
     <AButton>One</AButton>
     <AButton type="primary">Two</AButton>
   </AFlex>
@@ -102,23 +110,23 @@ Flex provides a small layout helper for one-dimensional alignment and spacing.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| vertical | Configures `vertical`. | `boolean` | `false` |
-| orientation | Configures `orientation`. | `horizontal` \|`vertical` | `horizontal` |
-| wrap | Configures `wrap`. | `boolean` \|`nowrap` \|`wrap` \|`wrap-reverse` \|`reverse` \|`string` | `false` |
-| justify | Configures `justify`. | `string` | - |
-| align | Configures `align`. | `string` | - |
-| gap | Configures `gap`. | `large` \|`middle` \|`medium` \|`small` \|`number` \|`string` | - |
-| flex | Configures `flex`. | `string` \|`number` | - |
-| component | Configures `component`. | `string` \| `Component` | `div` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
+| vertical | Whether to use a vertical layout. | `boolean` | `false` |
+| orientation | Ant-style layout direction; takes precedence over `vertical`. | `horizontal` \| `vertical` | `horizontal` |
+| wrap | Wrapping behavior. | `boolean` \| `nowrap` \| `wrap` \| `wrap-reverse` \| `reverse` \| `string` | `false` |
+| justify | Main-axis alignment; supports CSS `justify-content` values and local aliases. | `string` | - |
+| align | Cross-axis alignment; supports CSS `align-items` values and local aliases. | `string` | - |
+| gap | Spacing; `medium` and the local `middle` both map to the md token. | `large` \| `middle` \| `medium` \| `small` \| `number` \| `string` | - |
+| flex | CSS `flex` shorthand. | `string` \| `number` | - |
+| component | Custom root element. | `string` \| `Component` | `div` |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Flex content. |
 
 ## Theme Tokens
 

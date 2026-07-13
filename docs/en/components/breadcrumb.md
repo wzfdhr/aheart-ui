@@ -152,13 +152,17 @@ Each `path` is joined with the preceding path segment to generate links such as 
 ```vue
 <template>
   <ABreadcrumb
-    :items="items"
+    :items="[
+      { title: 'Workspace', href: '/' },
+      { title: 'Members', href: '/members' },
+      { title: 'Ada Lovelace' }
+    ]"
     :item-render="(item, params, items, paths, index) => index + 1 + '. ' + item.title"
   />
 </template>
 ```
 
-## contentstyle
+## Semantic Styling
 
 <div class="aheart-demo-panel">
   <ABreadcrumb
@@ -177,9 +181,13 @@ Each `path` is joined with the preceding path segment to generate links such as 
 <template>
   <ABreadcrumb
     class-name="docs-breadcrumb"
-    :class-names="{ root: 'docs-breadcrumb-root', item: 'docs-breadcrumb-item' }"
+    :class-names="{ root: 'docs-breadcrumb-root', item: 'docs-breadcrumb-item', separator: 'docs-breadcrumb-separator' }"
     :styles="{ root: { padding: '4px 0' }, separator: { marginInline: '10px' } }"
-    :items="items"
+    :items="[
+      { title: 'Home', href: '/' },
+      { title: 'Components', href: '/components/overview' },
+      { title: 'Breadcrumb' }
+    ]"
   />
 </template>
 ```
@@ -188,14 +196,14 @@ Each `path` is joined with the preceding path segment to generate links such as 
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Configures `items`. | `BreadcrumbItem[]` | `[]` |
-| params | Configures `params`. | `Record<string, string \|number>` | `{}` |
-| separator | Configures `separator`. | `VNodeChild` | `/` |
-| itemRender | Configures `itemRender`. | `BreadcrumbItemRender` | - |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `BreadcrumbClassNames` | `{}` |
-| styles | Configures `styles`. | `BreadcrumbStyles` | `{}` |
+| items | Breadcrumb items. | `BreadcrumbItem[]` | `[]` |
+| params | Path parameters. | `Record<string, string \| number>` | `{}` |
+| separator | Separator. | `VNodeChild` | `/` |
+| itemRender | Custom item renderer. | `BreadcrumbItemRender` | - |
+| className | Additional class for the root node. | `string` | - |
+| style | Additional style for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM classes. | `BreadcrumbClassNames` | `{}` |
+| styles | Semantic DOM styles. | `BreadcrumbStyles` | `{}` |
 
 ### BreadcrumbItem
 
@@ -207,36 +215,36 @@ Each `path` is joined with the preceding path segment to generate links such as 
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| key | Configures `key`. | `string` \|`number` | - |
-| type | Configures `type`. | `'item'` | - |
-| title | Configures `title`. | `VNodeChild` | - |
-| href | Configures `href`. | `string` | - |
-| path | Configures `path`. | `string` | - |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| onClick | Configures `onClick`. | `(event, item, index) => void` | - |
+| key | Stable key. | `string` \| `number` | - |
+| type | Item type. | `'item'` | - |
+| title | Content to display. | `VNodeChild` | - |
+| href | Link URL; takes precedence over `path`. | `string` | - |
+| path | Path segment that can replace `params` and join preceding items. | `string` | - |
+| className | Additional item class. | `string` | - |
+| style | Additional item style. | `StyleValue` | - |
+| disabled | Whether to disable the link. | `boolean` | `false` |
+| onClick | Click callback. | `(event, item, index) => void` | - |
 
 ### BreadcrumbSeparatorItem
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| key | Configures `key`. | `string` \|`number` | - |
-| type | Configures `type`. | `'separator'` | - |
-| separator | Configures `separator`. | `VNodeChild` | `separator` prop |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
+| key | Stable key. | `string` \| `number` | - |
+| type | Item type. | `'separator'` | - |
+| separator | Separator content. | `VNodeChild` | `separator` prop |
+| className | Additional item class. | `string` | - |
+| style | Additional item style. | `StyleValue` | - |
 
 ### Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| list | Provides the `list` entry. |
-| item | Provides the `item` entry. |
-| link | Provides the `link` entry. |
-| text | Provides the `text` entry. |
-| separator | Provides the `separator` entry. |
+| root | Root navigation container. |
+| list | Ordered list. |
+| item | Breadcrumb item. |
+| link | Link node. |
+| text | Text node. |
+| separator | Separator node. |
 
 ## Theme Tokens
 

@@ -18,8 +18,10 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 ```vue
 <template>
   <AConfigProvider size="large">
-    <AButton>Default</AButton>
-    <AButton type="primary">Primary</AButton>
+    <div class="aheart-demo-row">
+      <AButton>Default</AButton>
+      <AButton type="primary">Primary</AButton>
+    </div>
   </AConfigProvider>
 </template>
 ```
@@ -38,8 +40,10 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 ```vue
 <template>
   <AConfigProvider disabled>
-    <AButton>Disabled</AButton>
-    <AButton type="primary">Disabled Primary</AButton>
+    <div class="aheart-demo-row">
+      <AButton>Disabled</AButton>
+      <AButton type="primary">Disabled Primary</AButton>
+    </div>
   </AConfigProvider>
 </template>
 ```
@@ -64,16 +68,16 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| size | Configures `size`. | `large` \|`middle` \|`small` | `middle` |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| locale | Configures `locale`. | `AheartLocale` | `{ empty: { description: 'No Data' } }` |
-| theme | Configures `theme`. | `AheartTheme` | `{}` |
+| size | Global component size. | `large` \| `middle` \| `small` | `middle` |
+| disabled | Global disabled state. | `boolean` | `false` |
+| locale | Built-in component copy. | `AheartLocale` | `{ empty: { description: 'No Data' } }` |
+| theme | Local theme-token overrides. | `AheartTheme` | `{}` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Component content that receives the configuration. |
 
 ## Theme Token Fields
 

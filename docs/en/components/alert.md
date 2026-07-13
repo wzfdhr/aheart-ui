@@ -39,6 +39,7 @@ const handleClose = () => undefined
     description="This change affects billing settings and should be reviewed before publishing."
     show-icon
     closable
+    @close="handleClose"
   />
 </div>
 
@@ -193,64 +194,64 @@ const handleClose = () => undefined
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| type | Configures `type`. | `success` \| `info` \| `warning` \| `error` | `info` |
-| title | Configures `title`. | `VNodeChild` | - |
-| message | Configures `message`. | `VNodeChild` | - |
-| description | Configures `description`. | `VNodeChild` | - |
-| showIcon | Configures `showIcon`. | `boolean` | `false` |
-| closable | Configures `closable`. | `boolean` \|`AlertClosableConfig` | `false` |
-| banner | Configures `banner`. | `boolean` | `false` |
-| variant | Configures `variant`. | `outlined` \|`filled` | `outlined` |
-| action | Configures `action`. | `VNodeChild` | - |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| closeIcon | Configures `closeIcon`. | `VNodeChild` | - |
-| role | Configures `role`. | `string` | `alert` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `AlertClassNames` | - |
-| styles | Configures `styles`. | `AlertStyles` | - |
+| type | Alert severity. | `success` \| `info` \| `warning` \| `error` | `info` |
+| title | Title content; takes precedence over `message`. | `VNodeChild` | - |
+| message | Title content. | `VNodeChild` | - |
+| description | Supporting description. | `VNodeChild` | - |
+| showIcon | Whether to show the severity icon. | `boolean` | `false` |
+| closable | Whether to show a close button; accepts an object to configure it. | `boolean` \| `AlertClosableConfig` | `false` |
+| banner | Whether to display as a top banner; shows the warning icon by default. | `boolean` | `false` |
+| variant | Visual variant. | `outlined` \| `filled` | `outlined` |
+| action | Content for the action area on the right. | `VNodeChild` | - |
+| icon | Custom icon content. | `VNodeChild` | - |
+| closeIcon | Custom close-button content. | `VNodeChild` | - |
+| role | ARIA role for the root element. | `string` | `alert` |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `AlertClassNames` | - |
+| styles | Styles for semantic parts. | `AlertStyles` | - |
 
 ## AlertClosableConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| closeIcon | Configures `closeIcon`. | `VNodeChild` | - |
-| ariaLabel | Configures `ariaLabel`. | `string` | `Close` |
-| ariaLabelledby | Configures `ariaLabelledby`. | `string` | - |
-| ariaDescribedby | Configures `ariaDescribedby`. | `string` | - |
-| onClose | Configures `onClose`. | `(event: MouseEvent) => void` | - |
-| afterClose | Configures `afterClose`. | `() => void` | - |
+| closeIcon | Close-button content; takes precedence over the `closeIcon` prop. | `VNodeChild` | - |
+| ariaLabel | `aria-label` for the close button. | `string` | `Close` |
+| ariaLabelledby | `aria-labelledby` for the close button. | `string` | - |
+| ariaDescribedby | `aria-describedby` for the close button. | `string` | - |
+| onClose | Callback after the close button is clicked. | `(event: MouseEvent) => void` | - |
+| afterClose | Callback after the alert is hidden. | `() => void` | - |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| close | Emitted when `close` occurs. | `(event: MouseEvent) => void` |
-| afterClose | Emitted when `afterClose` occurs. | `() => void` |
+| close | Emitted when the close button is clicked. | `(event: MouseEvent) => void` |
+| afterClose | Emitted after the alert is hidden. | `() => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| action | Provides the `action` entry. |
-| icon | Provides the `icon` entry. |
-| closeIcon | Provides the `closeIcon` entry. |
+| default | Custom description content. |
+| action | Custom action area on the right. |
+| icon | Custom icon area. |
+| closeIcon | Custom close area. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| icon | Provides the `icon` entry. |
-| section | Provides the `section` entry. |
-| content | Provides the `content` entry. |
-| title | Provides the `title` entry. |
-| description | Provides the `description` entry. |
-| actions | Provides the `actions` entry. |
-| action | Provides the `action` entry. |
-| close | Provides the `close` entry. |
+| root | Root container. |
+| icon | Icon area. |
+| section | Content wrapper; Ant semantic alias. |
+| content | Content wrapper; compatibility alias. |
+| title | Title area. |
+| description | Description area. |
+| actions | Action area; Ant semantic alias. |
+| action | Action area; compatibility alias. |
+| close | Close button. |
 
 ## Theme Tokens
 

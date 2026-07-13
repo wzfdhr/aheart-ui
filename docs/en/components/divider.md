@@ -45,8 +45,11 @@ Divider separates content groups with horizontal or vertical rules, title placem
 
 ```vue
 <template>
+  <span>Solid</span>
   <ADivider />
+  <span>Dotted</span>
   <ADivider variant="dotted" size="large" />
+  <span>Dashed</span>
   <ADivider variant="dashed" />
 </template>
 ```
@@ -74,6 +77,7 @@ Divider separates content groups with horizontal or vertical rules, title placem
     orientation-margin="32px"
     class-name="demo-divider"
     root-class-name="demo-divider-root"
+    :style="{ marginTop: '8px' }"
     :class-names="{ root: 'demo-divider-semantic-root', line: 'demo-divider-line', text: 'demo-divider-text' }"
     :styles="{ line: { borderColor: '#1677ff' }, text: { fontWeight: 600 } }"
   >
@@ -86,34 +90,34 @@ Divider separates content groups with horizontal or vertical rules, title placem
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| type | Configures `type`. | `horizontal` \|`vertical` | `horizontal` |
-| vertical | Configures `vertical`. | `boolean` | `false` |
-| orientation | Configures `orientation`. | `left` \|`center` \|`right` | `center` |
-| titlePlacement | Configures `titlePlacement`. | `left` \|`center` \|`right` \|`start` \|`end` | - |
-| orientationMargin | Configures `orientationMargin`. | `number` \|`string` | - |
-| variant | Configures `variant`. | `solid` \|`dashed` \|`dotted` | `solid` |
-| size | Configures `size`. | `small` \|`middle` \|`large` | `middle` |
-| dashed | Configures `dashed`. | `boolean` | `false` |
-| plain | Configures `plain`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'line' \| 'text', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'line' \| 'text', StyleValue>>` | - |
+| type | Divider orientation. | `horizontal` \| `vertical` | `horizontal` |
+| vertical | Shortcut for a vertical divider. | `boolean` | `false` |
+| orientation | Text position; retained as a compatibility alias. | `left` \| `center` \| `right` | `center` |
+| titlePlacement | Ant-style text position; takes precedence over `orientation`. | `left` \| `center` \| `right` \| `start` \| `end` | - |
+| orientationMargin | Distance between the title and edge; supports the legacy form. | `number` \| `string` | - |
+| variant | Line style. | `solid` \| `dashed` \| `dotted` | `solid` |
+| size | Line thickness. | `small` \| `middle` \| `large` | `middle` |
+| dashed | Whether to use a dashed line; equivalent to `variant="dashed"`. | `boolean` | `false` |
+| plain | Whether title text uses plain styling. | `boolean` | `false` |
+| className | Class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `Partial<Record<'root' \| 'line' \| 'text', string>>` | - |
+| styles | Styles for semantic parts. | `Partial<Record<'root' \| 'line' \| 'text', StyleValue>>` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Title content for a horizontal divider. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| line | Provides the `line` entry. |
-| text | Provides the `text` entry. |
+| root | Root divider container. |
+| line | Divider line; both sides receive the style when a title is present. |
+| text | Title-text container; rendered only for a horizontal divider with default-slot content. |
 
 ## Theme Tokens
 

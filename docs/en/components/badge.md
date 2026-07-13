@@ -121,7 +121,7 @@ Badge shows counts, dots, and status markers around nearby content.
 <template>
   <ABadge :count="120" :overflow-count="99">
     <template #count>
-      <span class="custom-count">new</span>
+      <span style="font-size: 10px;">new</span>
     </template>
     <AButton>Deployments</AButton>
   </ABadge>
@@ -205,7 +205,7 @@ Badge shows counts, dots, and status markers around nearby content.
     :class-names="{ root: 'demo-ribbon-root', indicator: 'demo-ribbon-indicator', content: 'demo-ribbon-content' }"
     :styles="{ indicator: { boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }, content: { fontWeight: 700 } }"
   >
-    <ACard title="Badge.Ribbon" size="small">
+    <ACard title="Badge.Ribbon" size="small" style="width: 280px">
       This card is wrapped by a ribbon.
     </ACard>
   </ABadgeRibbon>
@@ -238,41 +238,41 @@ Badge shows counts, dots, and status markers around nearby content.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| count | Configures `count`. | `VNodeChild` | - |
-| dot | Configures `dot`. | `boolean` | `false` |
-| status | Configures `status`. | `success` \|`processing` \|`default` \|`error` \|`warning` | - |
-| text | Configures `text`. | `VNodeChild` | - |
-| overflowCount | Configures `overflowCount`. | `number` | `99` |
-| showZero | Configures `showZero`. | `boolean` | `false` |
-| size | Configures `size`. | `default` \|`medium` \|`small` | `medium` |
-| offset | Configures `offset`. | `[number, number]` | - |
-| color | Configures `color`. | `string` | - |
-| title | Configures `title`. | `string` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'indicator', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'indicator', StyleValue>>` | - |
+| count | Number, text, or renderable node to display. | `VNodeChild` | - |
+| dot | Whether to show a dot. | `boolean` | `false` |
+| status | Status-dot type. | `success` \| `processing` \| `default` \| `error` \| `warning` | - |
+| text | Status-dot text or renderable node. | `VNodeChild` | - |
+| overflowCount | Maximum displayed count. | `number` | `99` |
+| showZero | Whether to display the badge when `count` is `0`. | `boolean` | `false` |
+| size | Numeric badge size. | `default` \| `medium` \| `small` | `medium` |
+| offset | Badge offset. | `[number, number]` | - |
+| color | Custom badge or status-dot color. | `string` | - |
+| title | Native `title` for a numeric badge or dot. | `string` | - |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `Partial<Record<'root' \| 'indicator', string>>` | - |
+| styles | Styles for semantic parts. | `Partial<Record<'root' \| 'indicator', StyleValue>>` | - |
 
 ## BadgeRibbon API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| text | Configures `text`. | `VNodeChild` | - |
-| color | Configures `color`. | `string` | - |
-| placement | Configures `placement`. | `start` \|`end` | `end` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'indicator' \| 'content', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'indicator' \| 'content', StyleValue>>` | - |
+| text | Ribbon content. | `VNodeChild` | - |
+| color | Ribbon color. | `string` | - |
+| placement | Ribbon placement. | `start` \| `end` | `end` |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `Partial<Record<'root' \| 'indicator' \| 'content', string>>` | - |
+| styles | Styles for semantic parts. | `Partial<Record<'root' \| 'indicator' \| 'content', StyleValue>>` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| count | Provides the `count` entry. |
+| default | Content wrapped by the badge. |
+| count | Custom numeric badge content. |
 
 ## Semantic DOM
 
@@ -280,16 +280,16 @@ Badge shows counts, dots, and status markers around nearby content.
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| indicator | Provides the `indicator` entry. |
+| root | Root container. |
+| indicator | Numeric badge, dot, or status dot. |
 
 ### BadgeRibbon
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| indicator | Provides the `indicator` entry. |
-| content | Provides the `content` entry. |
+| root | Ribbon wrapper container. |
+| indicator | Ribbon body. |
+| content | Ribbon content. |
 
 ## Theme Tokens
 

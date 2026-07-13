@@ -16,13 +16,15 @@ Icon renders inline symbols and custom SVG content.
 
 ```vue
 <template>
-  <AIcon name="search" />
-  <AIcon name="setting" color="#1677ff" />
-  <AIcon name="loading" spin />
+  <ASpace>
+    <AIcon name="search" />
+    <AIcon name="setting" color="#1677ff" />
+    <AIcon name="loading" spin />
+  </ASpace>
 </template>
 ```
 
-## custom SVG
+## Custom SVG
 
 <div class="aheart-demo-panel">
   <AIcon :size="20" color="#52c41a">
@@ -46,13 +48,13 @@ Icon renders inline symbols and custom SVG content.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| name | Configures `name`. | `string` | - |
-| size | Configures `size`. | `number` \| `string` | `1em` |
-| color | Configures `color`. | `string` | `currentColor` |
-| spin | Configures `spin`. | `boolean` | `false` |
+| name | Icon name to display when no slot is provided. | `string` | - |
+| size | Icon size. | `number` \| `string` | `1em` |
+| color | Icon color. | `string` | `currentColor` |
+| spin | Whether the icon rotates. | `boolean` | `false` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Custom icon content, typically an SVG. |

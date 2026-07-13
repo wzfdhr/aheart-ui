@@ -85,7 +85,7 @@ const renderableCardActions = [
 <template>
   <ACard title="Report" hoverable>
     <template #cover>
-      <div class="cover">Cover area</div>
+      <div style="padding: 16px; background: var(--aheart-color-fill);">Cover area</div>
     </template>
     Conversion summary and business notes.
     <template #actions>
@@ -240,17 +240,19 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard title="Outlined" variant="outlined">
-    Default outlined card.
-  </ACard>
-  <ACard title="Borderless" variant="borderless">
-    Borderless card.
-  </ACard>
-  <ACard title="Parent">
-    <ACard title="Inner" type="inner" size="small">
-      Nested content.
+  <div style="display: grid; gap: 12px;">
+    <ACard title="Outlined" variant="outlined">
+      Default outlined card.
     </ACard>
-  </ACard>
+    <ACard title="Borderless" variant="borderless">
+      Borderless card.
+    </ACard>
+    <ACard title="Parent">
+      <ACard title="Inner" type="inner" size="small">
+        Nested content.
+      </ACard>
+    </ACard>
+  </div>
 </template>
 ```
 
@@ -312,67 +314,67 @@ const renderableCardActions = [
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| title | Configures `title`. | `VNodeChild` | - |
-| extra | Configures `extra`. | `VNodeChild` | - |
-| bordered | Configures `bordered`. | `boolean` | `true` |
-| variant | Configures `variant`. | `outlined` \|`borderless` | - |
-| type | Configures `type`. | `inner` | - |
-| hoverable | Configures `hoverable`. | `boolean` | `false` |
-| loading | Configures `loading`. | `boolean` | `false` |
-| size | Configures `size`. | `large` \|`middle` \|`small` | ConfigProvider size |
-| actions | Configures `actions`. | `VNodeChild[]` | - |
-| tabList | Configures `tabList`. | `CardTab[]` | - |
-| activeTabKey | Configures `activeTabKey`. | `string` | - |
-| defaultActiveTabKey | Configures `defaultActiveTabKey`. | `string` | first available tab |
-| tabBarExtraContent | Configures `tabBarExtraContent`. | `VNodeChild` | - |
-| tabProps | Configures `tabProps`. | `CardTabProps` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| headStyle | Configures `headStyle`. | `StyleValue` | - |
-| bodyStyle | Configures `bodyStyle`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', StyleValue>>` | - |
+| title | Card title; the `title` slot takes precedence, and an empty string does not create a header. | `VNodeChild` | - |
+| extra | Extra content on the right; the `extra` slot takes precedence, and an empty string does not create an extra area. | `VNodeChild` | - |
+| bordered | Whether to show a border. | `boolean` | `true` |
+| variant | Card variant; takes precedence over `bordered`. | `outlined` \| `borderless` | - |
+| type | Card type. | `inner` | - |
+| hoverable | Whether to show a shadow on hover. | `boolean` | `false` |
+| loading | Whether to show the loading placeholder. | `boolean` | `false` |
+| size | Card size. | `large` \| `middle` \| `small` | ConfigProvider size |
+| actions | Bottom action items; the `actions` slot takes precedence. | `VNodeChild[]` | - |
+| tabList | Tab list. | `CardTab[]` | - |
+| activeTabKey | Active tab in controlled mode. | `string` | - |
+| defaultActiveTabKey | Initially active tab in uncontrolled mode. | `string` | first available tab |
+| tabBarExtraContent | Content on the right of the tab bar; the `tabBarExtraContent` slot takes precedence. | `VNodeChild` | - |
+| tabProps | Tab-bar class, style, and spacing configuration. | `CardTabProps` | - |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| headStyle | Compatible style prop for the header. | `StyleValue` | - |
+| bodyStyle | Compatible style prop for the body. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', string>>` | - |
+| styles | Styles for semantic parts. | `Partial<Record<'root' \| 'header' \| 'title' \| 'extra' \| 'cover' \| 'body' \| 'actions', StyleValue>>` | - |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:activeTabKey | Emitted when `update:activeTabKey` occurs. | `(key: string) => void` |
-| tabChange | Emitted when `tabChange` occurs. | `(key: string) => void` |
+| update:activeTabKey | Emitted when an enabled inactive tab is clicked. | `(key: string) => void` |
+| tabChange | Emitted when an enabled inactive tab is clicked. | `(key: string) => void` |
 
 ## CardTab API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| key | Configures `key`. | `string` | - |
-| tab | Configures `tab`. | `VNodeChild` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| children | Configures `children`. | `VNodeChild` | - |
+| key | Unique tab key. | `string` | - |
+| tab | Tab title content. | `VNodeChild` | - |
+| disabled | Whether to disable the tab. | `boolean` | `false` |
+| children | Tab content; has lower precedence than the `tab-{key}` slot. | `VNodeChild` | - |
 
 ## CardTabProps API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| tabBarGutter | Configures `tabBarGutter`. | `number` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \|'list' \|'tab' \|'activeTab' \|'tabLabel' \|'extra', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \|'list' \|'tab' \|'activeTab' \|'tabLabel' \|'extra', StyleValue>>` | - |
+| className | Compatible class for the tab-bar root element. | `string` | - |
+| rootClassName | Class for the tab-bar root element. | `string` | - |
+| style | Style for the tab-bar root element. | `StyleValue` | - |
+| tabBarGutter | Spacing between tabs. | `number` | - |
+| classNames | Classes for tab-bar semantic parts. | `Partial<Record<'root' \| 'list' \| 'tab' \| 'activeTab' \| 'tabLabel' \| 'extra', string>>` | - |
+| styles | Styles for tab-bar semantic parts. | `Partial<Record<'root' \| 'list' \| 'tab' \| 'activeTab' \| 'tabLabel' \| 'extra', StyleValue>>` | - |
 
 ## CardMeta API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| avatar | Configures `avatar`. | `VNodeChild` | - |
-| title | Configures `title`. | `VNodeChild` | - |
-| description | Configures `description`. | `VNodeChild` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', StyleValue>>` | - |
+| avatar | Avatar-area content. | `VNodeChild` | - |
+| title | Title content. | `VNodeChild` | - |
+| description | Description content. | `VNodeChild` | - |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', string>>` | - |
+| styles | Styles for semantic parts. | `Partial<Record<'root' \| 'section' \| 'avatar' \| 'title' \| 'description', StyleValue>>` | - |
 
 ## CardGrid API
 
@@ -380,57 +382,57 @@ const renderableCardActions = [
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| hoverable | Configures `hoverable`. | `boolean` | `true` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'content', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'content', StyleValue>>` | - |
+| hoverable | Whether to show a shadow on hover. | `boolean` | `true` |
+| className | Compatible class for the root element. | `string` | - |
+| rootClassName | Class for the root element. | `string` | - |
+| style | Style for the root element. | `StyleValue` | - |
+| classNames | Classes for semantic parts. | `Partial<Record<'root' \| 'content', string>>` | - |
+| styles | Styles for semantic parts. | `Partial<Record<'root' \| 'content', StyleValue>>` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| title | Provides the `title` entry. |
-| extra | Provides the `extra` entry. |
-| cover | Provides the `cover` entry. |
-| actions | Provides the `actions` entry. |
-| tab-{key} | Provides the `tab-{key}` entry. |
-| tabBarExtraContent | Provides the `tabBarExtraContent` entry. |
+| default | Card body content. |
+| title | Custom title. |
+| extra | Custom extra content. |
+| cover | Cover area. |
+| actions | Bottom action area. |
+| tab-{key} | Tab content for the corresponding `tabList` key. |
+| tabBarExtraContent | Custom content on the right of the tab bar; takes precedence over the prop. |
 
 ## CardMeta Slots
 
 | Name | Description |
 | --- | --- |
-| avatar | Provides the `avatar` entry. |
-| title | Provides the `title` entry. |
-| description | Provides the `description` entry. |
-| default | Provides the `default` entry. |
+| avatar | Custom avatar area; takes precedence over the `avatar` prop. |
+| title | Custom title; takes precedence over the `title` prop. |
+| description | Custom description; takes precedence over the `description` prop. |
+| default | Fallback content when neither `title` nor `description` is provided. |
 
 ## CardGrid Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Grid-card content. |
 
 ## CardGrid Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| content | Provides the `content` entry. |
+| root | Grid-card root element. |
+| content | Grid-card content container. |
 
 ## CardTab Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| list | Provides the `list` entry. |
-| tab | Provides the `tab` entry. |
-| activeTab | Provides the `activeTab` entry. |
-| tabLabel | Provides the `tabLabel` entry. |
-| extra | Provides the `extra` entry. |
+| root | Tab-bar root element. |
+| list | Tab-button list. |
+| tab | Tab button. |
+| activeTab | Active tab button. |
+| tabLabel | Tab-title container. |
+| extra | Container for content on the right of the tab bar. |
 
 ## Theme Tokens
 

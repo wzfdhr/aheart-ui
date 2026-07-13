@@ -186,7 +186,10 @@ const renderableDescriptionItems = [
       label: { fontWeight: 600 },
       content: { color: 'var(--aheart-color-primary)' }
     }"
-    :items="items"
+    :items="[
+      { label: 'Owner', content: 'Design System' },
+      { label: 'State', content: 'Ready', contentStyle: { fontWeight: 600 } }
+    ]"
   />
 </template>
 ```
@@ -207,7 +210,12 @@ const renderableDescriptionItems = [
 ```vue
 <template>
   <AConfigProvider size="large">
-    <ADescriptions :items="items" />
+    <ADescriptions
+      :items="[
+        { label: 'Owner', content: 'Design System' },
+        { label: 'State', content: 'Ready' }
+      ]"
+    />
   </AConfigProvider>
 </template>
 ```
@@ -216,56 +224,56 @@ const renderableDescriptionItems = [
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| title | Configures `title`. | `VNodeChild` | - |
-| extra | Configures `extra`. | `VNodeChild` | - |
-| items | Configures `items`. | `DescriptionItem[]` | `[]` |
-| bordered | Configures `bordered`. | `boolean` | `false` |
-| column | Configures `column`. | `number` | `3` |
-| layout | Configures `layout`. | `horizontal` \|`vertical` | `horizontal` |
-| size | Configures `size`. | `large` \| `middle` \| `small` | ConfigProvider size |
-| colon | Configures `colon`. | `boolean` | `true` |
-| labelStyle | Configures `labelStyle`. | `StyleValue` | - |
-| contentStyle | Configures `contentStyle`. | `StyleValue` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<DescriptionsSemanticPart, string>>` | `{}` |
-| styles | Configures `styles`. | `Partial<Record<DescriptionsSemanticPart, StyleValue>>` | `{}` |
+| title | Title; the `title` slot takes precedence. | `VNodeChild` | - |
+| extra | Extra content on the right; the `extra` slot takes precedence. | `VNodeChild` | - |
+| items | Description items. | `DescriptionItem[]` | `[]` |
+| bordered | Whether to show borders. | `boolean` | `false` |
+| column | Number of columns per row. | `number` | `3` |
+| layout | Layout direction. | `horizontal` \| `vertical` | `horizontal` |
+| size | Descriptions size. | `large` \| `middle` \| `small` | ConfigProvider size |
+| colon | Whether to show a colon after labels. | `boolean` | `true` |
+| labelStyle | Global label style; compatible with the legacy Ant API. | `StyleValue` | - |
+| contentStyle | Global content style; compatible with the legacy Ant API. | `StyleValue` | - |
+| className | Root element class. | `string` | - |
+| rootClassName | Root element class. | `string` | - |
+| style | Root element style. | `StyleValue` | - |
+| classNames | Semantic DOM classes. | `Partial<Record<DescriptionsSemanticPart, string>>` | `{}` |
+| styles | Semantic DOM styles. | `Partial<Record<DescriptionsSemanticPart, StyleValue>>` | `{}` |
 
 ### DescriptionItem
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| key | Configures `key`. | `string` \|`number` | `label + index` |
-| label | Configures `label`. | `VNodeChild` | - |
-| content | Configures `content`. | `VNodeChild` | - |
-| children | Configures `children`. | `VNodeChild` | - |
-| span | Configures `span`. | `number` \|`filled` | `1` |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| labelStyle | Configures `labelStyle`. | `StyleValue` | - |
-| contentStyle | Configures `contentStyle`. | `StyleValue` | - |
+| key | Description-item key. | `string` \| `number` | `label + index` |
+| label | Label. | `VNodeChild` | - |
+| content | Content; takes precedence over `children`. | `VNodeChild` | - |
+| children | Fallback content field. | `VNodeChild` | - |
+| span | Number of columns to occupy; `filled` fills the remaining columns in the current row. | `number` \| `filled` | `1` |
+| className | Description-item class. | `string` | - |
+| style | Description-item style. | `StyleValue` | - |
+| labelStyle | Style for the current item's label. | `StyleValue` | - |
+| contentStyle | Style for the current item's content. | `StyleValue` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| title | Provides the `title` entry. |
-| extra | Provides the `extra` entry. |
+| title | Custom title; takes precedence over the `title` prop. |
+| extra | Custom extra content; takes precedence over the `extra` prop. |
 
 ### Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| header | Provides the `header` entry. |
-| title | Provides the `title` entry. |
-| extra | Provides the `extra` entry. |
-| table | Provides the `table` entry. |
-| row | Provides the `row` entry. |
-| item | Provides the `item` entry. |
-| label | Provides the `label` entry. |
-| content | Provides the `content` entry. |
+| root | Root element. |
+| header | Container for the title and extra content. |
+| title | Title. |
+| extra | Extra content. |
+| table | Descriptions table container. |
+| row | Each row. |
+| item | Each description item. |
+| label | Description-item label. |
+| content | Description-item content. |
 
 ## Theme Tokens
 
