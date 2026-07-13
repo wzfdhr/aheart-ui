@@ -43,6 +43,47 @@ const zhComponentItems = [
   { text: 'Form 表单', link: '/components/form' }
 ]
 
+const enComponentItems = [
+  { text: 'Overview', link: '/en/components/overview' },
+  { text: 'Button', link: '/en/components/button' },
+  { text: 'ConfigProvider', link: '/en/components/config-provider' },
+  { text: 'Icon', link: '/en/components/icon' },
+  { text: 'Typography', link: '/en/components/typography' },
+  { text: 'Space', link: '/en/components/space' },
+  { text: 'Divider', link: '/en/components/divider' },
+  { text: 'Flex', link: '/en/components/flex' },
+  { text: 'Grid', link: '/en/components/grid' },
+  { text: 'Tag', link: '/en/components/tag' },
+  { text: 'Badge', link: '/en/components/badge' },
+  { text: 'Alert', link: '/en/components/alert' },
+  { text: 'Message', link: '/en/components/message' },
+  { text: 'Modal', link: '/en/components/modal' },
+  { text: 'Drawer', link: '/en/components/drawer' },
+  { text: 'Tooltip', link: '/en/components/tooltip' },
+  { text: 'Popover', link: '/en/components/popover' },
+  { text: 'Popconfirm', link: '/en/components/popconfirm' },
+  { text: 'Spin', link: '/en/components/spin' },
+  { text: 'Skeleton', link: '/en/components/skeleton' },
+  { text: 'Empty', link: '/en/components/empty' },
+  { text: 'Tabs', link: '/en/components/tabs' },
+  { text: 'Breadcrumb', link: '/en/components/breadcrumb' },
+  { text: 'Dropdown', link: '/en/components/dropdown' },
+  { text: 'Menu', link: '/en/components/menu' },
+  { text: 'Steps', link: '/en/components/steps' },
+  { text: 'Input', link: '/en/components/input' },
+  { text: 'Textarea', link: '/en/components/textarea' },
+  { text: 'InputNumber', link: '/en/components/input-number' },
+  { text: 'Checkbox', link: '/en/components/checkbox' },
+  { text: 'Radio', link: '/en/components/radio' },
+  { text: 'Switch', link: '/en/components/switch' },
+  { text: 'Card', link: '/en/components/card' },
+  { text: 'Descriptions', link: '/en/components/descriptions' },
+  { text: 'Table', link: '/en/components/table' },
+  { text: 'Pagination', link: '/en/components/pagination' },
+  { text: 'Select', link: '/en/components/select' },
+  { text: 'Form', link: '/en/components/form' }
+]
+
 export default defineConfig({
   title: 'Aheart UI',
   description: '面向产品界面的 Vue 3 组件库',
@@ -124,10 +165,7 @@ export default defineConfig({
           '/en/components/': [
             {
               text: 'Components',
-              items: [
-                { text: 'Overview', link: '/en/components/overview' },
-                { text: 'Button', link: '/en/components/button' }
-              ]
+              items: enComponentItems
             }
           ]
         },

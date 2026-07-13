@@ -80,7 +80,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Configure global theme, size, locale, and disabled state.'
         },
         status: 'Ready',
-        link: { zh: zhLink('config-provider') }
+        link: { zh: zhLink('config-provider'), en: '/en/components/config-provider' }
       },
       {
         key: 'icon',
@@ -91,7 +91,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Display semantic symbols and visual cues.'
         },
         status: 'Ready',
-        link: { zh: zhLink('icon') }
+        link: { zh: zhLink('icon'), en: '/en/components/icon' }
       },
       {
         key: 'typography',
@@ -102,7 +102,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Organize text, title, and link styles.'
         },
         status: 'Ready',
-        link: { zh: zhLink('typography') }
+        link: { zh: zhLink('typography'), en: '/en/components/typography' }
       }
     ]
   },
@@ -126,7 +126,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Set consistent inline or block spacing.'
         },
         status: 'Ready',
-        link: { zh: zhLink('space') }
+        link: { zh: zhLink('space'), en: '/en/components/space' }
       },
       {
         key: 'divider',
@@ -137,7 +137,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Separate content groups and establish visual rhythm.'
         },
         status: 'Ready',
-        link: { zh: zhLink('divider') }
+        link: { zh: zhLink('divider'), en: '/en/components/divider' }
       },
       {
         key: 'flex',
@@ -148,7 +148,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Compose flexible one-dimensional layouts.'
         },
         status: 'Ready',
-        link: { zh: zhLink('flex') }
+        link: { zh: zhLink('flex'), en: '/en/components/flex' }
       },
       {
         key: 'grid',
@@ -159,7 +159,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Build responsive grids and page skeletons.'
         },
         status: 'Ready',
-        link: { zh: zhLink('grid') }
+        link: { zh: zhLink('grid'), en: '/en/components/grid' }
       }
     ]
   },
@@ -183,7 +183,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Switch between related panels at the same level.'
         },
         status: 'Ready',
-        link: { zh: zhLink('tabs') }
+        link: { zh: zhLink('tabs'), en: '/en/components/tabs' }
       },
       {
         key: 'breadcrumb',
@@ -194,7 +194,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show the current location and page hierarchy.'
         },
         status: 'Ready',
-        link: { zh: zhLink('breadcrumb') }
+        link: { zh: zhLink('breadcrumb'), en: '/en/components/breadcrumb' }
       },
       {
         key: 'dropdown',
@@ -205,7 +205,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Expose secondary actions in a menu.'
         },
         status: 'Ready',
-        link: { zh: zhLink('dropdown') }
+        link: { zh: zhLink('dropdown'), en: '/en/components/dropdown' }
       },
       {
         key: 'menu',
@@ -216,7 +216,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Navigate primary application sections.'
         },
         status: 'Ready',
-        link: { zh: zhLink('menu') }
+        link: { zh: zhLink('menu'), en: '/en/components/menu' }
       },
       {
         key: 'steps',
@@ -227,7 +227,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show workflow progress and the current step.'
         },
         status: 'Ready',
-        link: { zh: zhLink('steps') }
+        link: { zh: zhLink('steps'), en: '/en/components/steps' }
       }
     ]
   },
@@ -251,7 +251,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Enter single-line text.'
         },
         status: 'Ready',
-        link: { zh: zhLink('input') }
+        link: { zh: zhLink('input'), en: '/en/components/input' }
       },
       {
         key: 'textarea',
@@ -262,7 +262,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Enter multi-line text.'
         },
         status: 'Ready',
-        link: { zh: zhLink('textarea') }
+        link: { zh: zhLink('textarea'), en: '/en/components/textarea' }
       },
       {
         key: 'input-number',
@@ -273,7 +273,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Enter and adjust numeric values.'
         },
         status: 'Ready',
-        link: { zh: zhLink('input-number') }
+        link: { zh: zhLink('input-number'), en: '/en/components/input-number' }
       },
       {
         key: 'checkbox',
@@ -284,7 +284,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Choose multiple values from a set.'
         },
         status: 'Ready',
-        link: { zh: zhLink('checkbox') }
+        link: { zh: zhLink('checkbox'), en: '/en/components/checkbox' }
       },
       {
         key: 'radio',
@@ -295,7 +295,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Choose one value from a set.'
         },
         status: 'Ready',
-        link: { zh: zhLink('radio') }
+        link: { zh: zhLink('radio'), en: '/en/components/radio' }
       },
       {
         key: 'switch',
@@ -306,7 +306,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Toggle an on or off state.'
         },
         status: 'Ready',
-        link: { zh: zhLink('switch') }
+        link: { zh: zhLink('switch'), en: '/en/components/switch' }
       },
       {
         key: 'select',
@@ -317,7 +317,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Select one or more values from options.'
         },
         status: 'Ready',
-        link: { zh: zhLink('select') }
+        link: { zh: zhLink('select'), en: '/en/components/select' }
       },
       {
         key: 'form',
@@ -328,7 +328,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Manage form layout, validation, and submit state.'
         },
         status: 'Ready',
-        link: { zh: zhLink('form') }
+        link: { zh: zhLink('form'), en: '/en/components/form' }
       }
     ]
   },
@@ -352,7 +352,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Label content, attributes, or states.'
         },
         status: 'Ready',
-        link: { zh: zhLink('tag') }
+        link: { zh: zhLink('tag'), en: '/en/components/tag' }
       },
       {
         key: 'badge',
@@ -363,7 +363,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show counts, notifications, and status dots.'
         },
         status: 'Ready',
-        link: { zh: zhLink('badge') }
+        link: { zh: zhLink('badge'), en: '/en/components/badge' }
       },
       {
         key: 'card',
@@ -374,7 +374,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Group related information and actions.'
         },
         status: 'Ready',
-        link: { zh: zhLink('card') }
+        link: { zh: zhLink('card'), en: '/en/components/card' }
       },
       {
         key: 'empty',
@@ -385,7 +385,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show empty data or no-result states.'
         },
         status: 'Ready',
-        link: { zh: zhLink('empty') }
+        link: { zh: zhLink('empty'), en: '/en/components/empty' }
       },
       {
         key: 'descriptions',
@@ -396,7 +396,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Display field details for an object or record.'
         },
         status: 'Ready',
-        link: { zh: zhLink('descriptions') }
+        link: { zh: zhLink('descriptions'), en: '/en/components/descriptions' }
       },
       {
         key: 'table',
@@ -407,7 +407,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Display scannable and actionable tabular data.'
         },
         status: 'Ready',
-        link: { zh: zhLink('table') }
+        link: { zh: zhLink('table'), en: '/en/components/table' }
       },
       {
         key: 'pagination',
@@ -418,7 +418,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Navigate paged data.'
         },
         status: 'Ready',
-        link: { zh: zhLink('pagination') }
+        link: { zh: zhLink('pagination'), en: '/en/components/pagination' }
       }
     ]
   },
@@ -442,7 +442,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show contextual information that deserves attention.'
         },
         status: 'Ready',
-        link: { zh: zhLink('alert') }
+        link: { zh: zhLink('alert'), en: '/en/components/alert' }
       },
       {
         key: 'message',
@@ -453,7 +453,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show lightweight global feedback.'
         },
         status: 'Ready',
-        link: { zh: zhLink('message') }
+        link: { zh: zhLink('message'), en: '/en/components/message' }
       },
       {
         key: 'modal',
@@ -464,7 +464,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Focus confirmation, editing, or viewing tasks in a modal layer.'
         },
         status: 'Ready',
-        link: { zh: zhLink('modal') }
+        link: { zh: zhLink('modal'), en: '/en/components/modal' }
       },
       {
         key: 'drawer',
@@ -475,7 +475,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show supplementary content or forms from the screen edge.'
         },
         status: 'Ready',
-        link: { zh: zhLink('drawer') }
+        link: { zh: zhLink('drawer'), en: '/en/components/drawer' }
       },
       {
         key: 'tooltip',
@@ -486,7 +486,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Explain compact controls or truncated content.'
         },
         status: 'Ready',
-        link: { zh: zhLink('tooltip') }
+        link: { zh: zhLink('tooltip'), en: '/en/components/tooltip' }
       },
       {
         key: 'popover',
@@ -497,7 +497,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show lightweight floating content.'
         },
         status: 'Ready',
-        link: { zh: zhLink('popover') }
+        link: { zh: zhLink('popover'), en: '/en/components/popover' }
       },
       {
         key: 'popconfirm',
@@ -508,7 +508,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Confirm risky actions in an inline floating layer.'
         },
         status: 'Ready',
-        link: { zh: zhLink('popconfirm') }
+        link: { zh: zhLink('popconfirm'), en: '/en/components/popconfirm' }
       },
       {
         key: 'spin',
@@ -519,7 +519,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Show local or page-level loading state.'
         },
         status: 'Ready',
-        link: { zh: zhLink('spin') }
+        link: { zh: zhLink('spin'), en: '/en/components/spin' }
       },
       {
         key: 'skeleton',
@@ -530,7 +530,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
           en: 'Reserve layout structure before content loads.'
         },
         status: 'Ready',
-        link: { zh: zhLink('skeleton') }
+        link: { zh: zhLink('skeleton'), en: '/en/components/skeleton' }
       }
     ]
   }
