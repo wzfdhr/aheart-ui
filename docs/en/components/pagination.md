@@ -16,7 +16,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
-## content
+## Simple Mode
 
 <div class="aheart-demo-panel">
   <APagination :total="20" :current="1" :page-size="10" simple />
@@ -28,7 +28,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
-## contentandcontent
+## Alignment and Fewer Page Numbers
 
 <div class="aheart-demo-panel">
   <APagination :total="200" :current="10" :page-size="10" align="center" show-less-items />
@@ -40,7 +40,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
-## content
+## Page Size
 
 <div class="aheart-demo-panel">
   <APagination :total="95" :current="2" :page-size="10" :page-size-options="[10, 20, 50]" />
@@ -57,7 +57,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
-## content
+## Quick Jumper
 
 <div class="aheart-demo-panel">
   <APagination :total="95" :current="1" :page-size="10" show-quick-jumper />
@@ -69,7 +69,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
-## customcontent
+## Custom Jump Button
 
 <div class="aheart-demo-panel">
   <APagination :total="95" :current="1" :page-size="10" :show-quick-jumper="{ goButton: 'Jump' }" />
@@ -81,7 +81,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
-## customcontentanditemrender
+## Custom Total and Item Rendering
 
 <div class="aheart-demo-panel">
   <APagination
@@ -139,7 +139,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
-## globaldisableandsize
+## Global Disabled State and Size
 
 <div class="aheart-demo-panel">
   <AConfigProvider size="small" disabled>
@@ -159,37 +159,37 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| total | Configures `total`. | `number` | `0` |
-| current | Configures `current`. | `number` | - |
-| defaultCurrent | Configures `defaultCurrent`. | `number` | `1` |
-| pageSize | Configures `pageSize`. | `number` | - |
-| defaultPageSize | Configures `defaultPageSize`. | `number` | `10` |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| size | Configures `size`. | `large` \| `middle` \| `small` | ConfigProvider size |
-| simple | Configures `simple`. | `boolean` | `false` |
-| hideOnSinglePage | Configures `hideOnSinglePage`. | `boolean` | `false` |
-| showTotal | Configures `showTotal`. | `boolean` \|`(total: number, range: [number, number]) => string \|number` | `false` |
-| align | Configures `align`. | `start` \|`center` \|`end` | - |
-| showLessItems | Configures `showLessItems`. | `boolean` | `false` |
-| showSizeChanger | Configures `showSizeChanger`. | `boolean` | `total > 50` |
-| totalBoundaryShowSizeChanger | Configures `totalBoundaryShowSizeChanger`. | `number` | `50` |
-| pageSizeOptions | Configures `pageSizeOptions`. | `Array<number \|string>` | `[10, 20, 50, 100]` |
-| showQuickJumper | Configures `showQuickJumper`. | `boolean` \|`{ goButton?: VNodeChild }` | `false` |
-| itemRender | Configures `itemRender`. | `(page: number, type: 'page' \|'prev' \|'next', originalElement: string) => string \|number` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Record<'root' \|'total' \|'prev' \|'next' \|'page' \|'activePage' \|'sizeChanger' \|'quickJumper', string>` | - |
-| styles | Configures `styles`. | `Record<'root' \|'total' \|'prev' \|'next' \|'page' \|'activePage' \|'sizeChanger' \|'quickJumper', StyleValue>` | - |
+| total | Total number of items. | `number` | `0` |
+| current | Current page in controlled mode. | `number` | - |
+| defaultCurrent | Initial current page. | `number` | `1` |
+| pageSize | Items per page. | `number` | - |
+| defaultPageSize | Initial items per page. | `number` | `10` |
+| disabled | Whether interaction is disabled. | `boolean` | ConfigProvider disabled |
+| size | Component size. | `large` \| `middle` \| `small` | ConfigProvider size |
+| simple | Whether to use simple mode. | `boolean` | `false` |
+| hideOnSinglePage | Whether to hide when there is only one page. | `boolean` | `false` |
+| showTotal | Whether to show the total, or a renderer for total text. | `boolean` \|`(total: number, range: [number, number]) => string \|number` | `false` |
+| align | Alignment. | `start` \|`center` \|`end` | - |
+| showLessItems | Whether to show fewer page numbers. | `boolean` | `false` |
+| showSizeChanger | Whether to show the page-size selector. | `boolean` | `total > 50` |
+| totalBoundaryShowSizeChanger | Total threshold for automatically showing the page-size selector. | `number` | `50` |
+| pageSizeOptions | Available page-size options. | `Array<number \|string>` | `[10, 20, 50, 100]` |
+| showQuickJumper | Whether to show quick navigation, optionally with a custom button. | `boolean` \|`{ goButton?: VNodeChild }` | `false` |
+| itemRender | Custom renderer for previous, next, and page labels. | `(page: number, type: 'page' \|'prev' \|'next', originalElement: string) => string \|number` | - |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `Record<'root' \|'total' \|'prev' \|'next' \|'page' \|'activePage' \|'sizeChanger' \|'quickJumper', string>` | - |
+| styles | Semantic DOM styles, as an object or function. | `Record<'root' \|'total' \|'prev' \|'next' \|'page' \|'activePage' \|'sizeChanger' \|'quickJumper', StyleValue>` | - |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:current | Emitted when `update:current` occurs. | `(current: number) => void` |
-| update:pageSize | Emitted when `update:pageSize` occurs. | `(pageSize: number) => void` |
-| change | Emitted when `change` occurs. | `(current: number, pageSize: number) => void` |
-| showSizeChange | Emitted when `showSizeChange` occurs. | `(current: number, pageSize: number) => void` |
+| update:current | Fired when `update:current` is triggered. | `(current: number) => void` |
+| update:pageSize | Fired when `update:pageSize` is triggered. | `(pageSize: number) => void` |
+| change | Fired when `change` is triggered. | `(current: number, pageSize: number) => void` |
+| showSizeChange | Fired when `showSizeChange` is triggered. | `(current: number, pageSize: number) => void` |
 
 ## Theme Tokens
 

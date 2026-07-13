@@ -28,7 +28,10 @@ import { message } from 'aheart-ui'
 </script>
 
 <template>
-  <AButton @click="message.success('Saved')">Success</AButton>
+  <ASpace>
+    <AButton @click="message.success('Saved')">Success</AButton>
+    <AButton @click="message.error('Failed')">Error</AButton>
+  </ASpace>
 </template>
 ```
 
@@ -201,13 +204,20 @@ message.config({
 </div>
 
 ```vue
+<script setup lang="ts">
+const notices = [
+  { key: 'saved', type: 'success', content: 'Saved', icon: '✓' },
+  { key: 'warning', type: 'warning', content: 'Check settings', className: 'demo-warning' }
+]
+</script>
+
 <template>
   <AMessage
+    style="position: absolute;"
     prefix-cls="demo-message-host"
     :class-names="{ notice: 'demo-message-notice' }"
     :styles="{ root: { top: '12px' } }"
     :notices="notices"
-    @close="removeNotice"
   />
 </template>
 ```
@@ -218,14 +228,14 @@ message.config({
 
 | Method | Description |
 | --- | --- |
-| message.open | Provides the `message.open` entry. |
-| message.success | Provides the `message.success` entry. |
-| message.info | Provides the `message.info` entry. |
-| message.warning | Provides the `message.warning` entry. |
-| message.error | Provides the `message.error` entry. |
-| message.loading | Provides the `message.loading` entry. |
-| message.destroy | Provides the `message.destroy` entry. |
-| message.config | Provides the `message.config` entry. |
+| message.open | Opens a default informational message. |
+| message.success | Opens a success message. |
+| message.info | Opens an informational message. |
+| message.warning | Opens a warning message. |
+| message.error | Opens an error message. |
+| message.loading | Opens a loading message. |
+| message.destroy | Closes one message or all messages. |
+| message.config | Sets global `top`, `duration`, `maxCount`, `stack`, `getContainer`, `prefixCls`, `rtl`, and `pauseOnHover` options. |
 
 Every message-opening method returns a `MessageHandle`. Call `close()` to dismiss it manually, or use `.then()` to continue after it closes.
 
@@ -233,71 +243,71 @@ Every message-opening method returns a `MessageHandle`. Call `close()` to dismis
 
 | Field | Description | Type |
 | --- | --- | --- |
-| key | Describes `key`. | `string \|number` |
-| close | Describes `close`. | `() => void` |
-| then | Describes `then`. | `Promise<void>['then']` |
+| key | Unique message identifier. | `string \|number` |
+| close | Closes this message manually. | `() => void` |
+| then | Thenable interface that runs after the message closes. | `Promise<void>['then']` |
 
 ### MessageOpenConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| key | Configures `key`. | `string \|number` | auto-generated |
-| type | Configures `type`. | `success` \|`info` \|`warning` \|`error` \|`loading` | `info` |
-| content | Configures `content`. | `VNodeChild` | - |
-| duration | Configures `duration`. | `number` | `3` |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| closable | Configures `closable`. | `boolean` | `false` |
-| closeIcon | Configures `closeIcon`. | `VNodeChild` | `×` |
-| onClick | Configures `onClick`. | `() => void` | - |
-| onClose | Configures `onClose`. | `() => void` | - |
-| pauseOnHover | Configures `pauseOnHover`. | `boolean` | global configuration |
-| classNames | Configures `classNames`. | `MessageClassNames` | - |
-| styles | Configures `styles`. | `MessageStyles` | - |
+| key | Unique identifier. Opening with the same key updates the existing message. | `string \|number` | auto-generated |
+| type | Message type. | `success` \|`info` \|`warning` \|`error` \|`loading` | `info` |
+| content | Message content. | `VNodeChild` | - |
+| duration | Time before automatic close, in seconds. `0` disables automatic closing. | `number` | `3` |
+| className | Class name for the message node. | `string` | - |
+| style | Styles for the message node. | `StyleValue` | - |
+| icon | Custom icon. | `VNodeChild` | - |
+| closable | Whether to show a close button. | `boolean` | `false` |
+| closeIcon | Custom close-button content. | `VNodeChild` | `×` |
+| onClick | Callback when the message is clicked. | `() => void` | - |
+| onClose | Callback after the message closes. | `() => void` | - |
+| pauseOnHover | Whether hovering pauses the close timer. | `boolean` | global configuration |
+| classNames | Semantic DOM class names. | `MessageClassNames` | - |
+| styles | Semantic DOM styles. | `MessageStyles` | - |
 
 ### MessageGlobalConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| top | Configures `top`. | `number \|string` | `8` |
-| duration | Configures `duration`. | `number` | `3` |
-| maxCount | Configures `maxCount`. | `number` | - |
-| stack | Configures `stack`. | `boolean \|{ threshold: number }` | `false` |
-| getContainer | Configures `getContainer`. | `() => HTMLElement` | `document.body` |
-| prefixCls | Configures `prefixCls`. | `string` | - |
-| rtl | Configures `rtl`. | `boolean` | `false` |
-| pauseOnHover | Configures `pauseOnHover`. | `boolean` | `true` |
+| top | Top offset. | `number \|string` | `8` |
+| duration | Duration before automatic close, in seconds. | `number` | `3` |
+| maxCount | Maximum visible count. | `number` | - |
+| stack | Whether to stack messages beyond a threshold. | `boolean \|{ threshold: number }` | `false` |
+| getContainer | Mount container; pass `false` to render inline. | `() => HTMLElement` | `document.body` |
+| prefixCls | Custom class-name prefix. | `string` | - |
+| rtl | Whether to enable the RTL class state. | `boolean` | `false` |
+| pauseOnHover | Whether hovering pauses the close timer. | `boolean` | `true` |
 
 ## AMessage API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| notices | Configures `notices`. | `MessageNotice[]` | `[]` |
-| top | Configures `top`. | `number` \|`string` | `8` |
-| prefixCls | Configures `prefixCls`. | `string` | - |
-| rtl | Configures `rtl`. | `boolean` | `false` |
-| classNames | Configures `classNames`. | `MessageClassNames` | `{}` |
-| styles | Configures `styles`. | `MessageStyles` | `{}` |
-| stack | Configures `stack`. | `boolean \|{ threshold: number }` | `false` |
+| notices | Message list. | `MessageNotice[]` | `[]` |
+| top | Top offset. | `number` \|`string` | `8` |
+| prefixCls | Custom class-name prefix. | `string` | - |
+| rtl | Whether to enable the RTL class state. | `boolean` | `false` |
+| classNames | Semantic DOM class names, as an object or function. | `MessageClassNames` | `{}` |
+| styles | Semantic DOM styles, as an object or function. | `MessageStyles` | `{}` |
+| stack | Whether to stack messages beyond a threshold. | `boolean \|{ threshold: number }` | `false` |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| close | Emitted when `close` occurs. | `(key: string \| number) => void` |
-| noticeMouseEnter | Emitted when `noticeMouseEnter` occurs. | `(key: string \|number) => void` |
-| noticeMouseLeave | Emitted when `noticeMouseLeave` occurs. | `(key: string \|number) => void` |
+| close | Fired when `close` is triggered. | `(key: string \| number) => void` |
+| noticeMouseEnter | Fired when `noticeMouseEnter` is triggered. | `(key: string \|number) => void` |
+| noticeMouseLeave | Fired when `noticeMouseLeave` is triggered. | `(key: string \|number) => void` |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| notice | Provides the `notice` entry. |
-| icon | Provides the `icon` entry. |
-| content | Provides the `content` entry. |
-| close | Provides the `close` entry. |
+| root | The `root` semantic DOM element. |
+| notice | The `notice` semantic DOM element. |
+| icon | The `icon` semantic DOM element. |
+| content | The `content` semantic DOM element. |
+| close | The `close` semantic DOM element. |
 
 ## Theme Tokens
 

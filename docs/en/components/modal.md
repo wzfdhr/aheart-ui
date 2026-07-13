@@ -391,38 +391,38 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| open | Configures `open`. | `boolean` | `false` |
-| title | Configures `title`. | `VNodeChild` | - |
-| width | Configures `width`. | `number` \|`string` \|`ModalResponsiveWidth` | `520` |
-| centered | Configures `centered`. | `boolean` | `false` |
-| closable | Configures `closable`. | `boolean` \|`ModalClosableConfig` | `true` |
-| closeIcon | Configures `closeIcon`. | `VNodeChild` | `×` |
-| mask | Configures `mask`. | `boolean` \|`{ enabled?: boolean; blur?: boolean; closable?: boolean }` | `true` |
-| maskClosable | Configures `maskClosable`. | `boolean` | `true` |
-| keyboard | Configures `keyboard`. | `boolean` | `true` |
-| confirmLoading | Configures `confirmLoading`. | `boolean` | `false` |
-| okText | Configures `okText`. | `VNodeChild` | `OK` |
-| cancelText | Configures `cancelText`. | `VNodeChild` | `Cancel` |
-| okType | Configures `okType`. | `ButtonType` | `primary` |
-| okButtonProps | Configures `okButtonProps`. | `Partial<ButtonProps>` | - |
-| cancelButtonProps | Configures `cancelButtonProps`. | `Partial<ButtonProps>` | - |
-| zIndex | Configures `zIndex`. | `number` | `1000` |
-| loading | Configures `loading`. | `boolean` | `false` |
-| footer | Configures `footer`. | `boolean` \|`VNodeChild` \|`ModalFooterRender` | `true` |
-| focusable | Configures `focusable`. | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
-| focusTriggerAfterClose | Configures `focusTriggerAfterClose`. | `boolean` | `true` |
-| modalRender | Configures `modalRender`. | `(node: VNodeChild) => VNodeChild` | - |
-| getContainer | Configures `getContainer`. | `HTMLElement` \|`string` \|`() => HTMLElement` \|`false` | `document.body` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| wrapClassName | Configures `wrapClassName`. | `string` | - |
-| style | Configures `style`. | `CSSProperties` | - |
-| rootStyle | Configures `rootStyle`. | `CSSProperties` | - |
-| classNames | Configures `classNames`. | `Partial<Record<ModalSemanticPart, string>>` \| `(info: ModalSemanticInfo) => Partial<Record<ModalSemanticPart, string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<ModalSemanticPart, CSSProperties>>` \| `(info: ModalSemanticInfo) => Partial<Record<ModalSemanticPart, CSSProperties>>` | - |
-| forceRender | Configures `forceRender`. | `boolean` | `false` |
-| destroyOnClose | Configures `destroyOnClose`. | `boolean` | `false` |
-| destroyOnHidden | Configures `destroyOnHidden`. | `boolean` | `false` |
+| open | Whether the dialog is visible. | `boolean` | `false` |
+| title | Dialog title content. | `VNodeChild` | - |
+| width | Dialog width; supports a breakpoint object. | `number` \|`string` \|`ModalResponsiveWidth` | `520` |
+| centered | Whether to center the dialog vertically. | `boolean` | `false` |
+| closable | Whether to show the top-right close control; the object form configures its icon, disabled state, and close callbacks. | `boolean` \|`ModalClosableConfig` | `true` |
+| closeIcon | Custom close icon. Pass `false` or `null` to hide the close control. | `VNodeChild` | `×` |
+| mask | Mask configuration. | `boolean` \|`{ enabled?: boolean; blur?: boolean; closable?: boolean }` | `true` |
+| maskClosable | Whether clicking the mask closes the dialog. `mask.closable` takes precedence. | `boolean` | `true` |
+| keyboard | Whether pressing Escape closes the dialog. | `boolean` | `true` |
+| confirmLoading | Whether the OK button displays a loading state. | `boolean` | `false` |
+| okText | Content of the OK button. | `VNodeChild` | `OK` |
+| cancelText | Content of the Cancel button. | `VNodeChild` | `Cancel` |
+| okType | Type of the OK button. | `ButtonType` | `primary` |
+| okButtonProps | Props for the OK button. | `Partial<ButtonProps>` | - |
+| cancelButtonProps | Props for the Cancel button. | `Partial<ButtonProps>` | - |
+| zIndex | Stacking order of the root node. | `number` | `1000` |
+| loading | Whether to show a skeleton in the content area and temporarily hide footer actions. | `boolean` | `false` |
+| footer | Footer content. `false` or `null` hides the default footer. | `boolean` \|`VNodeChild` \|`ModalFooterRender` | `true` |
+| focusable | Focus-management configuration. | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
+| focusTriggerAfterClose | Whether to focus the trigger after closing. Compatibility name; prefer `focusable.focusTriggerAfterClose`. | `boolean` | `true` |
+| modalRender | Custom renderer for dialog content. | `(node: VNodeChild) => VNodeChild` | - |
+| getContainer | Mount container for the Modal. Pass `false` to render inline. | `HTMLElement` \|`string` \|`() => HTMLElement` \|`false` | `document.body` |
+| className | Custom class name for the dialog. | `string` | - |
+| rootClassName | Custom class name for the root node. | `string` | - |
+| wrapClassName | Custom class name for the dialog wrapper. | `string` | - |
+| style | Custom dialog styles. | `CSSProperties` | - |
+| rootStyle | Custom root-node styles. | `CSSProperties` | - |
+| classNames | Semantic-structure class names. | `Partial<Record<ModalSemanticPart, string>>` \| `(info: ModalSemanticInfo) => Partial<Record<ModalSemanticPart, string>>` | - |
+| styles | Semantic-structure styles. | `Partial<Record<ModalSemanticPart, CSSProperties>>` \| `(info: ModalSemanticInfo) => Partial<Record<ModalSemanticPart, CSSProperties>>` | - |
+| forceRender | Pre-render the dialog structure even while it is closed. | `boolean` | `false` |
+| destroyOnClose | Destroy content after closing; compatibility name. | `boolean` | `false` |
+| destroyOnHidden | Destroy content after closing. | `boolean` | `false` |
 
 ### ModalMaskConfig
 
@@ -496,20 +496,20 @@ type ModalGetContainer = HTMLElement | string | (() => HTMLElement) | false
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:open | Emitted when `update:open` occurs. | `(open: boolean) => void` |
-| ok | Emitted when `ok` occurs. | `() => void` |
-| cancel | Emitted when `cancel` occurs. | `() => void` |
-| close | Emitted when `close` occurs. | `() => void` |
-| afterOpenChange | Emitted when `afterOpenChange` occurs. | `(open: boolean) => void` |
-| afterClose | Emitted when `afterClose` occurs. | `() => void` |
+| update:open | Fired when visibility changes. | `(open: boolean) => void` |
+| ok | Fired when the OK button is clicked. | `() => void` |
+| cancel | Fired when the Cancel button is clicked. | `() => void` |
+| close | Fired after the close button, mask, Cancel button, or Escape is used. | `() => void` |
+| afterOpenChange | Fired after the visibility state has changed. | `(open: boolean) => void` |
+| afterClose | Fired after the dialog has fully closed. | `() => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| title | Provides the `title` entry. |
-| footer | Provides the `footer` entry. |
+| default | Dialog content. |
+| title | Custom title. |
+| footer | Custom footer. |
 
 ## Theme Tokens
 

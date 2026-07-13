@@ -138,7 +138,7 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 </template>
 ```
 
-## contentstyle
+## Semantic Styling
 
 <div class="aheart-demo-panel">
   <AMenu
@@ -191,70 +191,70 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Configures `items`. | `MenuItem[]` | `[]` |
-| mode | Configures `mode`. | `vertical` \|`horizontal` \|`inline` | `vertical` |
-| theme | Configures `theme`. | `light` \|`dark` | `light` |
-| selectedKeys | Configures `selectedKeys`. | `string[]` | - |
-| defaultSelectedKeys | Configures `defaultSelectedKeys`. | `string[]` | `[]` |
-| openKeys | Configures `openKeys`. | `string[]` | - |
-| defaultOpenKeys | Configures `defaultOpenKeys`. | `string[]` | `[]` |
-| multiple | Configures `multiple`. | `boolean` | `false` |
-| selectable | Configures `selectable`. | `boolean` | `true` |
-| inlineCollapsed | Configures `inlineCollapsed`. | `boolean` | `false` |
-| inlineIndent | Configures `inlineIndent`. | `number` | `24` |
-| forceSubMenuRender | Configures `forceSubMenuRender`. | `boolean` | `false` |
-| triggerSubMenuAction | Configures `triggerSubMenuAction`. | `hover` \|`click` | `click` |
-| expandIcon | Configures `expandIcon`. | `VNodeChild` \|`(info) => VNodeChild` | - |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `MenuClassNames` | `{}` |
-| styles | Configures `styles`. | `MenuStyles` | `{}` |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
+| items | Component item configuration. | `MenuItem[]` | `[]` |
+| mode | Menu display mode. | `vertical` \|`horizontal` \|`inline` | `vertical` |
+| theme | Menu theme. | `light` \|`dark` | `light` |
+| selectedKeys | Currently selected keys. | `string[]` | - |
+| defaultSelectedKeys | Initially selected keys. | `string[]` | `[]` |
+| openKeys | Currently open keys in controlled mode. | `string[]` | - |
+| defaultOpenKeys | Initially open keys. | `string[]` | `[]` |
+| multiple | Whether multiple selection is allowed. | `boolean` | `false` |
+| selectable | Whether items can be selected. | `boolean` | `true` |
+| inlineCollapsed | Whether an inline menu is collapsed. | `boolean` | `false` |
+| inlineIndent | Indent width for inline nesting. | `number` | `24` |
+| forceSubMenuRender | Whether submenu DOM is always rendered. | `boolean` | `false` |
+| triggerSubMenuAction | How a submenu is triggered. | `hover` \|`click` | `click` |
+| expandIcon | Custom submenu expand icon. | `VNodeChild` \|`(info) => VNodeChild` | - |
+| className | Compatibility class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `MenuClassNames` | `{}` |
+| styles | Semantic DOM styles, as an object or function. | `MenuStyles` | `{}` |
+| disabled | Whether interaction is disabled. | `boolean` | ConfigProvider disabled |
 
 ### MenuItem
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| key | Configures `key`. | `string` | - |
-| label | Configures `label`. | `VNodeChild` | - |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| extra | Configures `extra`. | `VNodeChild` | - |
-| title | Configures `title`. | `string` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| danger | Configures `danger`. | `boolean` | `false` |
-| dashed | Configures `dashed`. | `boolean` | `false` |
-| type | Configures `type`. | `item` \| `group` \| `divider` | `item` |
-| children | Configures `children`. | `MenuItem[]` | - |
+| key | Unique identifier. | `string` | - |
+| label | Item label content. | `VNodeChild` | - |
+| icon | Custom icon. | `VNodeChild` | - |
+| extra | Additional content. | `VNodeChild` | - |
+| title | Title content. | `string` | - |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
+| danger | Whether to use danger styling. | `boolean` | `false` |
+| dashed | Whether a divider is dashed. | `boolean` | `false` |
+| type | Component type or visual style. | `item` \| `group` \| `divider` | `item` |
+| children | Child items or content. | `MenuItem[]` | - |
 
 ### Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| list | Provides the `list` entry. |
-| item | Provides the `item` entry. |
-| itemButton | Provides the `itemButton` entry. |
-| submenu | Provides the `submenu` entry. |
-| submenuTitle | Provides the `submenuTitle` entry. |
-| submenuList | Provides the `submenuList` entry. |
-| group | Provides the `group` entry. |
-| groupTitle | Provides the `groupTitle` entry. |
-| divider | Provides the `divider` entry. |
-| icon | Provides the `icon` entry. |
-| label | Provides the `label` entry. |
-| extra | Provides the `extra` entry. |
-| expandIcon | Provides the `expandIcon` entry. |
+| root | The `root` semantic DOM element. |
+| list | The `list` semantic DOM element. |
+| item | The `item` semantic DOM element. |
+| itemButton | The `itemButton` semantic DOM element. |
+| submenu | The `submenu` semantic DOM element. |
+| submenuTitle | The `submenuTitle` semantic DOM element. |
+| submenuList | The `submenuList` semantic DOM element. |
+| group | The `group` semantic DOM element. |
+| groupTitle | The `groupTitle` semantic DOM element. |
+| divider | The `divider` semantic DOM element. |
+| icon | The `icon` semantic DOM element. |
+| label | The `label` semantic DOM element. |
+| extra | The `extra` semantic DOM element. |
+| expandIcon | The `expandIcon` semantic DOM element. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| click | Emitted when `click` occurs. | `(info: MenuClickInfo) => void` |
-| select | Emitted when `select` occurs. | `(info: MenuSelectInfo) => void` |
-| deselect | Emitted when `deselect` occurs. | `(info: MenuSelectInfo) => void` |
-| openChange | Emitted when `openChange` occurs. | `(openKeys: string[]) => void` |
-| update:selectedKeys | Emitted when `update:selectedKeys` occurs. | `(keys: string[]) => void` |
-| update:openKeys | Emitted when `update:openKeys` occurs. | `(keys: string[]) => void` |
+| click | Fired when `click` is triggered. | `(info: MenuClickInfo) => void` |
+| select | Fired when `select` is triggered. | `(info: MenuSelectInfo) => void` |
+| deselect | Fired when `deselect` is triggered. | `(info: MenuSelectInfo) => void` |
+| openChange | Fired when `openChange` is triggered. | `(openKeys: string[]) => void` |
+| update:selectedKeys | Fired when `update:selectedKeys` is triggered. | `(keys: string[]) => void` |
+| update:openKeys | Fired when `update:openKeys` is triggered. | `(keys: string[]) => void` |
 
 ## Theme Tokens
 

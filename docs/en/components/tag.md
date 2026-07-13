@@ -245,83 +245,83 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| color | Configures `color`. | `default` \|`primary` \|`success` \|`processing` \|`warning` \|`danger` \|`error` \|`string` | `default` |
-| variant | Configures `variant`. | `filled` \|`solid` \|`outlined` | `filled` |
-| bordered | Configures `bordered`. | `boolean` | `true` |
-| closable | Configures `closable`. | `boolean` | `false` |
-| closeIcon | Configures `closeIcon`. | `VNodeChild` \| `false` \| `null` | `×` |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| href | Configures `href`. | `string` | - |
-| target | Configures `target`. | `string` | - |
-| rel | Configures `rel`. | `string` | - |
-| title | Configures `title`. | `string` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'icon' \| 'content' \| 'close', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'icon' \| 'content' \| 'close', StyleValue>>` | - |
+| color | Custom color. | `default` \|`primary` \|`success` \|`processing` \|`warning` \|`danger` \|`error` \|`string` | `default` |
+| variant | Tag visual variant. | `filled` \|`solid` \|`outlined` | `filled` |
+| bordered | Whether to show a border; a compatibility option, so prefer `variant` in new code. | `boolean` | `true` |
+| closable | Whether to show the close control. | `boolean` | `false` |
+| closeIcon | Custom close icon or close-button content. | `VNodeChild` \| `false` \| `null` | `×` |
+| icon | Custom icon. | `VNodeChild` | - |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
+| href | Link address. | `string` | - |
+| target | Link target. | `string` | - |
+| rel | Link relationship attribute. | `string` | - |
+| title | Title content. | `string` | - |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `Partial<Record<'root' \| 'icon' \| 'content' \| 'close', string>>` | - |
+| styles | Semantic DOM styles, as an object or function. | `Partial<Record<'root' \| 'icon' \| 'content' \| 'close', StyleValue>>` | - |
 
 ### CheckableTag
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| checked | Configures `checked`. | `boolean` | `false` |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| title | Configures `title`. | `string` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'icon' \| 'content', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'icon' \| 'content', StyleValue>>` | - |
+| checked | Controlled checked state. | `boolean` | `false` |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
+| icon | Custom icon. | `VNodeChild` | - |
+| title | Title content. | `string` | - |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `Partial<Record<'root' \| 'icon' \| 'content', string>>` | - |
+| styles | Semantic DOM styles, as an object or function. | `Partial<Record<'root' \| 'icon' \| 'content', StyleValue>>` | - |
 
 ### TagGroup
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `string` \| `number` \| `(string \| number)[]` \| `null` | - |
-| value | Configures `value`. | `string` \|`number` \|`(string \|number)[]` \|`null` | - |
-| defaultValue | Configures `defaultValue`. | `string` \| `number` \| `(string \| number)[]` \| `null` | - |
-| options | Configures `options`. | `TagRawOption[]` | `[]` |
-| multiple | Configures `multiple`. | `boolean` | `false` |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'item' \| 'activeItem', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'item' \| 'activeItem', StyleValue>>` | - |
+| modelValue | Current selected value in Vue controlled mode. | `string` \| `number` \| `(string \| number)[]` \| `null` | - |
+| value | Ant-style controlled selected-value alias, which takes precedence over `modelValue`. | `string` \|`number` \|`(string \|number)[]` \|`null` | - |
+| defaultValue | Initial value in uncontrolled mode. | `string` \| `number` \| `(string \| number)[]` \| `null` | - |
+| options | Option list. | `TagRawOption[]` | `[]` |
+| multiple | Whether multiple selection is allowed. | `boolean` | `false` |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `Partial<Record<'root' \| 'item' \| 'activeItem', string>>` | - |
+| styles | Semantic DOM styles, as an object or function. | `Partial<Record<'root' \| 'item' \| 'activeItem', StyleValue>>` | - |
 
 ### TagOption
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| label | Configures `label`. | `VNodeChild` | - |
-| value | Configures `value`. | `string` \| `number` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| title | Configures `title`. | `string` | - |
+| label | Item label content. | `VNodeChild` | - |
+| value | Ant-style controlled selected-value alias, which takes precedence over `modelValue`. | `string` \| `number` | - |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
+| icon | Custom icon. | `VNodeChild` | - |
+| className | Compatibility class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| title | Title content. | `string` | - |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| close | Emitted when `close` occurs. | `(event: MouseEvent) => void` |
-| update:checked | Emitted when `update:checked` occurs. | `(checked: boolean) => void` |
-| change | Emitted when `change` occurs. | `(checked: boolean, event: MouseEvent) => void` |
-| update:modelValue | Emitted when `update:modelValue` occurs. | `(value: TagGroupValue) => void` |
-| update:value | Emitted when `update:value` occurs. | `(value: TagGroupValue) => void` |
-| change | Emitted when `change` occurs. | `(value: TagGroupValue) => void` |
+| close | Fired when `close` is triggered. | `(event: MouseEvent) => void` |
+| update:checked | Fired when `update:checked` is triggered. | `(checked: boolean) => void` |
+| change | Fired when `change` is triggered. | `(checked: boolean, event: MouseEvent) => void` |
+| update:modelValue | Fired when `update:modelValue` is triggered. | `(value: TagGroupValue) => void` |
+| update:value | Fired when `update:value` is triggered. | `(value: TagGroupValue) => void` |
+| change | Fired when `change` is triggered. | `(value: TagGroupValue) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| icon | Provides the `icon` entry. |
-| closeIcon | Provides the `closeIcon` entry. |
+| default | The `default` semantic DOM element. |
+| icon | The `icon` semantic DOM element. |
+| closeIcon | The `closeIcon` semantic DOM element. |
 
 ## Semantic DOM
 
@@ -329,18 +329,18 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| icon | Provides the `icon` entry. |
-| content | Provides the `content` entry. |
-| close | Provides the `close` entry. |
+| root | The `root` semantic DOM element. |
+| icon | The `icon` semantic DOM element. |
+| content | The `content` semantic DOM element. |
+| close | The `close` semantic DOM element. |
 
 ### TagGroup
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| item | Provides the `item` entry. |
-| activeItem | Provides the `activeItem` entry. |
+| root | The `root` semantic DOM element. |
+| item | The `item` semantic DOM element. |
+| activeItem | The `activeItem` semantic DOM element. |
 
 ## Theme Tokens
 

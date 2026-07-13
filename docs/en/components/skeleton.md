@@ -84,7 +84,7 @@ Skeleton displays loading placeholders before content is ready.
 </template>
 ```
 
-## contentstyle
+## Semantic Styling
 
 <div class="aheart-demo-panel">
   <ASkeleton
@@ -110,98 +110,98 @@ Skeleton displays loading placeholders before content is ready.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| loading | Configures `loading`. | `boolean` | `true` |
-| active | Configures `active`. | `boolean` | `false` |
-| avatar | Configures `avatar`. | `boolean` \|`SkeletonAvatarConfig` | `false` |
-| title | Configures `title`. | `boolean` \|`SkeletonTitleConfig` | `true` |
-| paragraph | Configures `paragraph`. | `boolean` \|`SkeletonParagraphConfig` | `true` |
-| button | Configures `button`. | `boolean` \|`SkeletonButtonConfig` | `false` |
-| input | Configures `input`. | `boolean` \|`SkeletonInputConfig` | `false` |
-| image | Configures `image`. | `boolean` \|`SkeletonImageConfig` | `false` |
-| node | Configures `node`. | `boolean` \|`SkeletonNodeConfig` | `false` |
-| round | Configures `round`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `SkeletonClassNames` | `{}` |
-| styles | Configures `styles`. | `SkeletonStyles` | `{}` |
+| loading | Loading state. | `boolean` | `true` |
+| active | Whether to show animation. | `boolean` | `false` |
+| avatar | Whether to show an avatar placeholder. | `boolean` \|`SkeletonAvatarConfig` | `false` |
+| title | Title content. | `boolean` \|`SkeletonTitleConfig` | `true` |
+| paragraph | Whether to show a paragraph placeholder. | `boolean` \|`SkeletonParagraphConfig` | `true` |
+| button | Whether to show a button placeholder. | `boolean` \|`SkeletonButtonConfig` | `false` |
+| input | Whether to show an input placeholder. | `boolean` \|`SkeletonInputConfig` | `false` |
+| image | Whether to show an image placeholder. | `boolean` \|`SkeletonImageConfig` | `false` |
+| node | Whether to show a custom node placeholder. | `boolean` \|`SkeletonNodeConfig` | `false` |
+| round | Whether to use rounded placeholder lines. | `boolean` | `false` |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `SkeletonClassNames` | `{}` |
+| styles | Semantic DOM styles, as an object or function. | `SkeletonStyles` | `{}` |
 
 ### SkeletonAvatarConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| size | Configures `size`. | `number` \|`string` | `32` |
-| shape | Configures `shape`. | `circle` \|`square` | `circle` |
+| size | Component size. | `number` \|`string` | `32` |
+| shape | Shape. | `circle` \|`square` | `circle` |
 
 ### SkeletonTitleConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| width | Configures `width`. | `number` \| `string` | `38%` |
+| width | Width. | `number` \| `string` | `38%` |
 
 ### SkeletonParagraphConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| rows | Configures `rows`. | `number` | `3` |
-| width | Configures `width`. | `number` \|`string` \|`(number \|string)[]` | last row `61%` |
+| rows | Number of paragraph rows. | `number` | `3` |
+| width | Width. | `number` \|`string` \|`(number \|string)[]` | last row `61%` |
 
 ### SkeletonButtonConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| active | Configures `active`. | `boolean` | `false` |
-| block | Configures `block`. | `boolean` | `false` |
-| shape | Configures `shape`. | `default` \|`round` \|`circle` | `default` |
-| size | Configures `size`. | `small` \| `default` \| `large` | `default` |
-| width | Configures `width`. | `number` \| `string` | - |
+| active | Whether to show animation. | `boolean` | `false` |
+| block | Whether to fill a row. | `boolean` | `false` |
+| shape | Shape. | `default` \|`round` \|`circle` | `default` |
+| size | Component size. | `small` \| `default` \| `large` | `default` |
+| width | Width. | `number` \| `string` | - |
 
 ### SkeletonInputConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| active | Configures `active`. | `boolean` | `false` |
-| block | Configures `block`. | `boolean` | `false` |
-| size | Configures `size`. | `small` \| `default` \| `large` | `default` |
-| width | Configures `width`. | `number` \| `string` | - |
+| active | Whether to show animation. | `boolean` | `false` |
+| block | Whether to fill a row. | `boolean` | `false` |
+| size | Component size. | `small` \| `default` \| `large` | `default` |
+| width | Width. | `number` \| `string` | - |
 
 ### SkeletonImageConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| active | Configures `active`. | `boolean` | `false` |
-| width | Configures `width`. | `number` \| `string` | `96` |
-| height | Configures `height`. | `number` \| `string` | `96` |
+| active | Whether to show animation. | `boolean` | `false` |
+| width | Width. | `number` \| `string` | `96` |
+| height | Height. | `number` \| `string` | `96` |
 
 ### SkeletonNodeConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| active | Configures `active`. | `boolean` | `false` |
-| width | Configures `width`. | `number` \| `string` | `48` |
-| height | Configures `height`. | `number` \| `string` | `48` |
-| children | Configures `children`. | `VNodeChild` | - |
+| active | Whether to show animation. | `boolean` | `false` |
+| width | Width. | `number` \| `string` | `48` |
+| height | Height. | `number` \| `string` | `48` |
+| children | Child items or content. | `VNodeChild` | - |
 
 ### Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| avatar | Provides the `avatar` entry. |
-| content | Provides the `content` entry. |
-| title | Provides the `title` entry. |
-| paragraph | Provides the `paragraph` entry. |
-| paragraphRow | Provides the `paragraphRow` entry. |
-| button | Provides the `button` entry. |
-| input | Provides the `input` entry. |
-| image | Provides the `image` entry. |
-| node | Provides the `node` entry. |
+| root | The `root` semantic DOM element. |
+| avatar | The `avatar` semantic DOM element. |
+| content | The `content` semantic DOM element. |
+| title | The `title` semantic DOM element. |
+| paragraph | The `paragraph` semantic DOM element. |
+| paragraphRow | The `paragraphRow` semantic DOM element. |
+| button | The `button` semantic DOM element. |
+| input | The `input` semantic DOM element. |
+| image | The `image` semantic DOM element. |
+| node | The `node` semantic DOM element. |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | The `default` semantic DOM element. |
 
 ## Theme Tokens
 

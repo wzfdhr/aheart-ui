@@ -46,7 +46,7 @@ const open = ref(false)
 </template>
 ```
 
-## extraaction
+## Extra Actions
 
 <div class="aheart-demo-panel">
   <AButton @click="leftOpen = true">Open from left</AButton>
@@ -296,43 +296,43 @@ const open = ref(false)
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| open | Configures `open`. | `boolean` | `false` |
-| title | Configures `title`. | `DrawerRenderable` | - |
-| extra | Configures `extra`. | `DrawerRenderable` | - |
-| placement | Configures `placement`. | `top` \|`right` \|`bottom` \|`left` | `right` |
-| size | Configures `size`. | `default` \|`large` \|`number` \|`string` | `default` |
-| width | Configures `width`. | `number` \|`string` | `378` |
-| height | Configures `height`. | `number` \|`string` | `378` |
-| zIndex | Configures `zIndex`. | `number` | `1000` |
-| closable | Configures `closable`. | `boolean` \|`DrawerClosableConfig` | `true` |
-| closeIcon | Configures `closeIcon`. | `VNodeChild` | `×` |
-| mask | Configures `mask`. | `boolean` \|`DrawerMaskConfig` | `true` |
-| maskClosable | Configures `maskClosable`. | `boolean` | `true` |
-| keyboard | Configures `keyboard`. | `boolean` | `true` |
-| focusable | Configures `focusable`. | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
-| loading | Configures `loading`. | `boolean` | `false` |
-| footer | Configures `footer`. | `boolean` \|`DrawerRenderable` | - |
-| getContainer | Configures `getContainer`. | `HTMLElement` \|`string` \|`() => HTMLElement` \|`false` | `document.body` |
-| push | Configures `push`. | `boolean` \|`DrawerPushConfig` | `{ distance: 180 }` |
-| resizable | Configures `resizable`. | `boolean` \|`DrawerResizableConfig` | `false` |
-| maxSize | Configures `maxSize`. | `number` | - |
-| drawerRender | Configures `drawerRender`. | `(node: VNodeChild) => VNodeChild` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `CSSProperties` | - |
-| rootStyle | Configures `rootStyle`. | `CSSProperties` | - |
-| bodyStyle | Configures `bodyStyle`. | `CSSProperties` | - |
-| headerStyle | Configures `headerStyle`. | `CSSProperties` | - |
-| footerStyle | Configures `footerStyle`. | `CSSProperties` | - |
-| maskStyle | Configures `maskStyle`. | `CSSProperties` | - |
-| drawerStyle | Configures `drawerStyle`. | `CSSProperties` | - |
-| contentWrapperStyle | Configures `contentWrapperStyle`. | `CSSProperties` | - |
-| classNames | Configures `classNames`. | `Partial<Record<DrawerSemanticPart, string>>` \|`(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<DrawerSemanticPart, CSSProperties>>` \|`(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, CSSProperties>>` | - |
-| forceRender | Configures `forceRender`. | `boolean` | `false` |
-| destroyOnClose | Configures `destroyOnClose`. | `boolean` | `false` |
-| destroyOnHidden | Configures `destroyOnHidden`. | `boolean` | `false` |
-| destroyInactivePanel | Configures `destroyInactivePanel`. | `boolean` | `false` |
+| open | Whether the drawer is visible. | `boolean` | `false` |
+| title | Drawer title content. | `DrawerRenderable` | - |
+| extra | Extra content on the right side of the header; use the `extra` slot for complex content. | `DrawerRenderable` | - |
+| placement | Edge from which the drawer appears. | `top` \|`right` \|`bottom` \|`left` | `right` |
+| size | Preset or custom drawer size. | `default` \|`large` \|`number` \|`string` | `default` |
+| width | Width for left- and right-positioned drawers. | `number` \|`string` | `378` |
+| height | Height for top- and bottom-positioned drawers. | `number` \|`string` | `378` |
+| zIndex | Stacking order of the root node. | `number` | `1000` |
+| closable | Whether to show the close control; the object form configures its icon, disabled state, and placement. | `boolean` \|`DrawerClosableConfig` | `true` |
+| closeIcon | Custom close icon. Pass `false` or `null` to hide the close control. | `VNodeChild` | `×` |
+| mask | Whether to show a mask; the object form configures visibility, blur, and click-to-close behavior. | `boolean` \|`DrawerMaskConfig` | `true` |
+| maskClosable | Whether clicking the mask closes the drawer. | `boolean` | `true` |
+| keyboard | Whether pressing Escape closes the drawer. | `boolean` | `true` |
+| focusable | Focus-management configuration. | `{ trap?: boolean; focusTriggerAfterClose?: boolean }` | - |
+| loading | Whether to show a skeleton in the content area. | `boolean` | `false` |
+| footer | Footer content. `true` shows only the `footer` slot; `false` or `null` hides the footer. | `boolean` \|`DrawerRenderable` | - |
+| getContainer | Mount container for the Drawer. Pass `false` to render inline. | `HTMLElement` \|`string` \|`() => HTMLElement` \|`false` | `document.body` |
+| push | Whether opening a nested drawer pushes its parent drawer. | `boolean` \|`DrawerPushConfig` | `{ distance: 180 }` |
+| resizable | Whether the drawer can be resized by dragging. | `boolean` \|`DrawerResizableConfig` | `false` |
+| maxSize | Maximum width or height when resizing. | `number` | - |
+| drawerRender | Custom renderer for the drawer panel. | `(node: VNodeChild) => VNodeChild` | - |
+| className | Custom class name for the panel. | `string` | - |
+| rootClassName | Custom class name for the root node. | `string` | - |
+| style | Custom panel styles. | `CSSProperties` | - |
+| rootStyle | Custom root-node styles. | `CSSProperties` | - |
+| bodyStyle | Compatibility alias for content styles; prefer `styles.body` in new code. | `CSSProperties` | - |
+| headerStyle | Compatibility alias for header styles; prefer `styles.header` in new code. | `CSSProperties` | - |
+| footerStyle | Compatibility alias for footer styles; prefer `styles.footer` in new code. | `CSSProperties` | - |
+| maskStyle | Compatibility alias for mask styles; prefer `styles.mask` in new code. | `CSSProperties` | - |
+| drawerStyle | Compatibility alias for panel styles; prefer `styles.section` in new code. | `CSSProperties` | - |
+| contentWrapperStyle | Compatibility alias for the panel wrapper style; currently maps to `styles.section`. | `CSSProperties` | - |
+| classNames | Semantic-structure class names, as an object or function. | `Partial<Record<DrawerSemanticPart, string>>` \|`(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, string>>` | - |
+| styles | Semantic-structure styles, as an object or function. | `Partial<Record<DrawerSemanticPart, CSSProperties>>` \|`(info: DrawerSemanticInfo) => Partial<Record<DrawerSemanticPart, CSSProperties>>` | - |
+| forceRender | Pre-render the drawer structure even while it is closed. | `boolean` | `false` |
+| destroyOnClose | Destroy content after closing; compatibility name. | `boolean` | `false` |
+| destroyOnHidden | Destroy content after closing. | `boolean` | `false` |
+| destroyInactivePanel | Deprecated compatibility alias for destroying content after close; prefer `destroyOnHidden`. | `boolean` | `false` |
 
 ### DrawerSemanticPart
 
@@ -412,18 +412,18 @@ interface DrawerClosableConfig {
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:open | Emitted when `update:open` occurs. | `(open: boolean) => void` |
-| close | Emitted when `close` occurs. | `() => void` |
-| afterOpenChange | Emitted when `afterOpenChange` occurs. | `(open: boolean) => void` |
+| update:open | Fired when visibility changes. | `(open: boolean) => void` |
+| close | Fired after the close button, mask, or Escape is used. | `() => void` |
+| afterOpenChange | Fired after the visibility state has changed. | `(open: boolean) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| title | Provides the `title` entry. |
-| extra | Provides the `extra` entry. |
-| footer | Provides the `footer` entry. |
+| default | Drawer content. |
+| title | Custom title. |
+| extra | Extra action on the right side of the header. |
+| footer | Footer content. |
 
 ## Theme Tokens
 

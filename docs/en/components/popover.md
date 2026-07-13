@@ -193,7 +193,7 @@ const renderablePopoverContent = h('span', [
 </template>
 ```
 
-## contentstyle
+## Semantic Styling
 
 <div class="aheart-demo-panel">
   <APopover
@@ -239,65 +239,65 @@ const renderablePopoverContent = h('span', [
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| title | Configures `title`. | `VNodeChild` \|`() => VNodeChild` | - |
-| content | Configures `content`. | `VNodeChild` \|`() => VNodeChild` | - |
-| placement | Configures `placement`. | `FloatingPlacement` | `top` |
-| autoAdjustOverflow | Configures `autoAdjustOverflow`. | `boolean` | `true` |
-| trigger | Configures `trigger`. | `hover` \|`focus` \|`click` \|`contextMenu` \|`FloatingTrigger[]` | `hover` |
-| open | Configures `open`. | `boolean` | - |
-| defaultOpen | Configures `defaultOpen`. | `boolean` | `false` |
-| color | Configures `color`. | `string` | - |
-| mouseEnterDelay | Configures `mouseEnterDelay`. | `number` | `0.1` |
-| mouseLeaveDelay | Configures `mouseLeaveDelay`. | `number` | `0.1` |
-| destroyOnHidden | Configures `destroyOnHidden`. | `boolean` | `false` |
-| destroyTooltipOnHide | Configures `destroyTooltipOnHide`. | `boolean` | `false` |
-| fresh | Configures `fresh`. | `boolean` | `false` |
-| align | Configures `align`. | `{ offset?: [number, number] }` | - |
-| arrow | Configures `arrow`. | `boolean` \|`{ pointAtCenter?: boolean }` | `true` |
-| zIndex | Configures `zIndex`. | `number` | - |
-| getPopupContainer | Configures `getPopupContainer`. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| overlayClassName | Configures `overlayClassName`. | `string` | - |
-| overlayStyle | Configures `overlayStyle`. | `StyleValue` | - |
-| overlayInnerStyle | Configures `overlayInnerStyle`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `PopoverSemanticClassNames \|(info: PopoverSemanticInfo) => PopoverSemanticClassNames` | - |
-| styles | Configures `styles`. | `PopoverSemanticStyles \|(info: PopoverSemanticInfo) => PopoverSemanticStyles` | - |
+| title | Card title. The `title` slot takes precedence. | `VNodeChild` \|`() => VNodeChild` | - |
+| content | Card content. The `content` slot takes precedence. | `VNodeChild` \|`() => VNodeChild` | - |
+| placement | Popup placement. | `FloatingPlacement` | `top` |
+| autoAdjustOverflow | Automatically adjusts placement or edge alignment when the popup overflows the viewport. | `boolean` | `true` |
+| trigger | Trigger method. | `hover` \|`focus` \|`click` \|`contextMenu` \|`FloatingTrigger[]` | `hover` |
+| open | Controlled visibility state. | `boolean` | - |
+| defaultOpen | Initial visibility state. | `boolean` | `false` |
+| color | Custom background color. | `string` | - |
+| mouseEnterDelay | Delay before showing after pointer entry, in seconds. | `number` | `0.1` |
+| mouseLeaveDelay | Delay before hiding after pointer exit, in seconds. | `number` | `0.1` |
+| destroyOnHidden | Whether to destroy popup DOM after it closes. | `boolean` | `false` |
+| destroyTooltipOnHide | Legacy alias for `destroyOnHidden`. | `boolean` | `false` |
+| fresh | Ant API compatibility flag; mounted Vue content naturally responds to updates. | `boolean` | `false` |
+| align | Alignment. | `{ offset?: [number, number] }` | - |
+| arrow | Whether to show an arrow, or configure it to point at the center. | `boolean` \|`{ pointAtCenter?: boolean }` | `true` |
+| zIndex | Custom stacking order. | `number` | - |
+| getPopupContainer | Container in which to mount the popup. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| overlayClassName | Compatibility class name for the popup. | `string` | - |
+| overlayStyle | Compatibility styles for the popup. | `StyleValue` | - |
+| overlayInnerStyle | Compatibility styles for the popup inner container. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `PopoverSemanticClassNames \|(info: PopoverSemanticInfo) => PopoverSemanticClassNames` | - |
+| styles | Semantic DOM styles, as an object or function. | `PopoverSemanticStyles \|(info: PopoverSemanticInfo) => PopoverSemanticStyles` | - |
 
 ### PopoverSemanticPart
 
 | value | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| trigger | Provides the `trigger` entry. |
-| popup | Provides the `popup` entry. |
-| container | Provides the `container` entry. |
-| title | Provides the `title` entry. |
-| content | Provides the `content` entry. |
-| arrow | Provides the `arrow` entry. |
+| root | The `root` semantic DOM element. |
+| trigger | The `trigger` semantic DOM element. |
+| popup | The `popup` semantic DOM element. |
+| container | The `container` semantic DOM element. |
+| title | The `title` semantic DOM element. |
+| content | The `content` semantic DOM element. |
+| arrow | The `arrow` semantic DOM element. |
 
 ### PopoverSemanticInfo
 
 | Field | Description |
 | --- | --- |
-| open | Provides the `open` entry. |
-| placement | Provides the `placement` entry. |
+| open | The `open` semantic DOM element. |
+| placement | The `placement` semantic DOM element. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:open | Emitted when `update:open` occurs. | `(open: boolean) => void` |
-| openChange | Emitted when `openChange` occurs. | `(open: boolean) => void` |
+| update:open | Fired when visibility changes. | `(open: boolean) => void` |
+| openChange | Fired when visibility changes. | `(open: boolean) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| title | Provides the `title` entry. |
-| content | Provides the `content` entry. |
+| default | Trigger element. |
+| title | Custom title. |
+| content | Custom content. |
 
 ## Theme Tokens
 

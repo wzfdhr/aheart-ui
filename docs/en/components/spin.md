@@ -24,7 +24,7 @@ Spin communicates loading state for standalone areas or nested content.
 </template>
 ```
 
-## content
+## Description
 
 <div class="aheart-demo-panel">
   <ASpin description="Loading" />
@@ -36,7 +36,7 @@ Spin communicates loading state for standalone areas or nested content.
 </template>
 ```
 
-## contentdisplay
+## Delayed Display
 
 <div class="aheart-demo-panel">
   <ASpin description="Loading" :delay="300" />
@@ -48,7 +48,7 @@ Spin communicates loading state for standalone areas or nested content.
 </template>
 ```
 
-## customcontentandcontent
+## Custom Indicator and Progress
 
 <div class="aheart-demo-panel">
   <ASpace>
@@ -68,7 +68,7 @@ Spin communicates loading state for standalone areas or nested content.
 </template>
 ```
 
-## content
+## Wrapping Content
 
 <div class="aheart-demo-panel">
   <ASpin description="Saving" :spinning="true">
@@ -120,7 +120,7 @@ Spin communicates loading state for standalone areas or nested content.
 </template>
 ```
 
-## contentloading
+## Fullscreen Loading
 
 ```vue
 <template>
@@ -132,40 +132,40 @@ Spin communicates loading state for standalone areas or nested content.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| spinning | Configures `spinning`. | `boolean` | `true` |
-| size | Configures `size`. | `large` \| `middle` \| `small` | `middle` |
-| description | Configures `description`. | `VNodeChild` | - |
-| tip | Configures `tip`. | `VNodeChild` | - |
-| delay | Configures `delay`. | `number` | - |
-| indicator | Configures `indicator`. | `VNodeChild \|() => VNodeChild` | - |
-| percent | Configures `percent`. | `number \|'auto'` | - |
-| fullscreen | Configures `fullscreen`. | `boolean` | `false` |
-| wrapperClassName | Configures `wrapperClassName`. | `string` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `SpinClassNames` | `{}` |
-| styles | Configures `styles`. | `SpinStyles` | `{}` |
+| spinning | Whether loading is active. | `boolean` | `true` |
+| size | Component size. | `large` \| `middle` \| `small` | `middle` |
+| description | Custom description content. | `VNodeChild` | - |
+| tip | Legacy description content with lower precedence than `description`. | `VNodeChild` | - |
+| delay | Delay before showing loading, in milliseconds. | `number` | - |
+| indicator | Custom loading indicator. | `VNodeChild \|() => VNodeChild` | - |
+| percent | Progress text or percentage. | `number \|'auto'` | - |
+| fullscreen | Whether to show loading fullscreen. | `boolean` | `false` |
+| wrapperClassName | Class name for the wrapper around content. | `string` | - |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `SpinClassNames` | `{}` |
+| styles | Semantic DOM styles, as an object or function. | `SpinStyles` | `{}` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| description | Provides the `description` entry. |
+| default | The `default` semantic DOM element. |
+| description | The `description` semantic DOM element. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| section | Provides the `section` entry. |
-| indicator | Provides the `indicator` entry. |
-| dot | Provides the `dot` entry. |
-| description | Provides the `description` entry. |
-| tip | Provides the `tip` entry. |
-| percent | Provides the `percent` entry. |
-| container | Provides the `container` entry. |
+| root | The `root` semantic DOM element. |
+| section | The `section` semantic DOM element. |
+| indicator | The `indicator` semantic DOM element. |
+| dot | The `dot` semantic DOM element. |
+| description | The `description` semantic DOM element. |
+| tip | The `tip` semantic DOM element. |
+| percent | The `percent` semantic DOM element. |
+| container | The `container` semantic DOM element. |
 
 ## Theme Tokens
 

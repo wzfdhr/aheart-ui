@@ -326,112 +326,112 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| menu | Configures `menu`. | `DropdownMenuConfig` | - |
-| trigger | Configures `trigger`. | `Array<'click' \|'hover' \|'contextMenu'>` | `['hover']` |
-| placement | Configures `placement`. | `top` \|`topLeft` \|`topRight` \|`bottom` \|`bottomLeft` \|`bottomRight` \|`left` \|`leftTop` \|`leftBottom` \|`right` \|`rightTop` \|`rightBottom` | `bottomLeft` |
-| autoAdjustOverflow | Configures `autoAdjustOverflow`. | `boolean` | `true` |
-| getPopupContainer | Configures `getPopupContainer`. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
-| mouseEnterDelay | Configures `mouseEnterDelay`. | `number` | `0.1` |
-| mouseLeaveDelay | Configures `mouseLeaveDelay`. | `number` | `0.1` |
-| open | Configures `open`. | `boolean` | - |
-| defaultOpen | Configures `defaultOpen`. | `boolean` | `false` |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| arrow | Configures `arrow`. | `boolean \|{ pointAtCenter?: boolean }` | `false` |
-| destroyOnHidden | Configures `destroyOnHidden`. | `boolean` | `false` |
-| destroyPopupOnHide | Configures `destroyPopupOnHide`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| overlayClassName | Configures `overlayClassName`. | `string` | - |
-| overlayStyle | Configures `overlayStyle`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `DropdownSemanticClassNames \|(info: DropdownSemanticInfo) => DropdownSemanticClassNames` | - |
-| styles | Configures `styles`. | `DropdownSemanticStyles \|(info: DropdownSemanticInfo) => DropdownSemanticStyles` | - |
-| popupRender | Configures `popupRender`. | `(menus: VNodeChild) => VNodeChild` | - |
-| dropdownRender | Configures `dropdownRender`. | `(menus: VNodeChild) => VNodeChild` | - |
+| menu | Menu configuration. | `DropdownMenuConfig` | - |
+| trigger | Trigger method. | `Array<'click' \|'hover' \|'contextMenu'>` | `['hover']` |
+| placement | Popup placement. | `top` \|`topLeft` \|`topRight` \|`bottom` \|`bottomLeft` \|`bottomRight` \|`left` \|`leftTop` \|`leftBottom` \|`right` \|`rightTop` \|`rightBottom` | `bottomLeft` |
+| autoAdjustOverflow | Automatically adjusts placement or edge alignment when the popup overflows the viewport. | `boolean` | `true` |
+| getPopupContainer | Container in which to mount the popup. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| mouseEnterDelay | Delay before opening on hover, in seconds. | `number` | `0.1` |
+| mouseLeaveDelay | Delay before closing on hover, in seconds. | `number` | `0.1` |
+| open | Controlled visibility state. | `boolean` | - |
+| defaultOpen | Initial visibility state. | `boolean` | `false` |
+| disabled | Whether interaction is disabled. | `boolean` | ConfigProvider disabled |
+| arrow | Whether to show an arrow, or configure it to point at the center. | `boolean \|{ pointAtCenter?: boolean }` | `false` |
+| destroyOnHidden | Whether to destroy popup DOM after it closes. | `boolean` | `false` |
+| destroyPopupOnHide | Compatibility alias for destroying popup DOM after close. | `boolean` | `false` |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| overlayClassName | Compatibility class name for the popup. | `string` | - |
+| overlayStyle | Compatibility styles for the popup. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `DropdownSemanticClassNames \|(info: DropdownSemanticInfo) => DropdownSemanticClassNames` | - |
+| styles | Semantic DOM styles, as an object or function. | `DropdownSemanticStyles \|(info: DropdownSemanticInfo) => DropdownSemanticStyles` | - |
+| popupRender | Custom popup render function. | `(menus: VNodeChild) => VNodeChild` | - |
+| dropdownRender | Compatibility alias for the custom popup render function. | `(menus: VNodeChild) => VNodeChild` | - |
 
 ## Dropdown.Button API
 
-`ADropdownButton` groupcontentandcontenttriggercontent。contentpropertycontent `ADropdown`  menu、trigger、content、contentstyle、contentandrendercontent。
+`ADropdownButton` combines a primary button with a dropdown trigger. Its dropdown-related props inherit `ADropdown` support for menu configuration, triggers, mounting, popup styles, semantic hooks, and render functions.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| menu | Configures `menu`. | `DropdownMenuConfig` | - |
-| trigger | Configures `trigger`. | `Array<'click' \|'hover' \|'contextMenu'>` | `['hover']` |
-| placement | Configures `placement`. | `top` \|`topLeft` \|`topRight` \|`bottom` \|`bottomLeft` \|`bottomRight` \|`left` \|`leftTop` \|`leftBottom` \|`right` \|`rightTop` \|`rightBottom` | `bottomRight` |
-| autoAdjustOverflow | Configures `autoAdjustOverflow`. | `boolean` | `true` |
-| open | Configures `open`. | `boolean` | - |
-| defaultOpen | Configures `defaultOpen`. | `boolean` | `false` |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| loading | Configures `loading`. | `boolean` \|`{ delay?: number; icon?: VNodeChild }` | `false` |
-| type | Configures `type`. | `ButtonType` | `default` |
-| danger | Configures `danger`. | `boolean` | `false` |
-| size | Configures `size`. | `ButtonSize` | ConfigProvider size |
-| htmlType | Configures `htmlType`. | `button` \|`submit` \|`reset` | - |
-| nativeType | Configures `nativeType`. | `button` \|`submit` \|`reset` | `button` |
-| href | Configures `href`. | `string` | - |
-| target | Configures `target`. | `string` | - |
-| title | Configures `title`. | `string` | - |
-| icon | Configures `icon`. | `VNodeChild` | `v` |
-| buttonsRender | Configures `buttonsRender`. | `(buttons: VNodeChild[]) => VNodeChild[]` | - |
-| getPopupContainer | Configures `getPopupContainer`. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
-| mouseEnterDelay | Configures `mouseEnterDelay`. | `number` | `0.1` |
-| mouseLeaveDelay | Configures `mouseLeaveDelay`. | `number` | `0.1` |
-| arrow | Configures `arrow`. | `boolean \|{ pointAtCenter?: boolean }` | `false` |
-| destroyOnHidden | Configures `destroyOnHidden`. | `boolean` | `false` |
-| destroyPopupOnHide | Configures `destroyPopupOnHide`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| overlayClassName | Configures `overlayClassName`. | `string` | - |
-| overlayStyle | Configures `overlayStyle`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `DropdownSemanticClassNames \|(info: DropdownSemanticInfo) => DropdownSemanticClassNames` | - |
-| styles | Configures `styles`. | `DropdownSemanticStyles \|(info: DropdownSemanticInfo) => DropdownSemanticStyles` | - |
-| popupRender | Configures `popupRender`. | `(menus: VNodeChild) => VNodeChild` | - |
-| dropdownRender | Configures `dropdownRender`. | `(menus: VNodeChild) => VNodeChild` | - |
+| menu | Menu configuration. | `DropdownMenuConfig` | - |
+| trigger | Trigger method. | `Array<'click' \|'hover' \|'contextMenu'>` | `['hover']` |
+| placement | Popup placement. | `top` \|`topLeft` \|`topRight` \|`bottom` \|`bottomLeft` \|`bottomRight` \|`left` \|`leftTop` \|`leftBottom` \|`right` \|`rightTop` \|`rightBottom` | `bottomRight` |
+| autoAdjustOverflow | Automatically adjusts placement or edge alignment when the popup overflows the viewport. | `boolean` | `true` |
+| open | Controlled visibility state. | `boolean` | - |
+| defaultOpen | Initial visibility state. | `boolean` | `false` |
+| disabled | Whether interaction is disabled. | `boolean` | ConfigProvider disabled |
+| loading | Loading state. | `boolean` \|`{ delay?: number; icon?: VNodeChild }` | `false` |
+| type | Component type or visual style. | `ButtonType` | `default` |
+| danger | Whether to use danger styling. | `boolean` | `false` |
+| size | Component size. | `ButtonSize` | ConfigProvider size |
+| htmlType | Compatibility native `type` for the primary button. | `button` \|`submit` \|`reset` | - |
+| nativeType | Native `type` for the primary button. | `button` \|`submit` \|`reset` | `button` |
+| href | Link address. | `string` | - |
+| target | Link target. | `string` | - |
+| title | Title content. | `string` | - |
+| icon | Custom icon. | `VNodeChild` | `v` |
+| buttonsRender | Custom renderer for the primary and dropdown buttons. | `(buttons: VNodeChild[]) => VNodeChild[]` | - |
+| getPopupContainer | Container in which to mount the popup. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| mouseEnterDelay | Delay before opening on hover, in seconds. | `number` | `0.1` |
+| mouseLeaveDelay | Delay before closing on hover, in seconds. | `number` | `0.1` |
+| arrow | Whether to show an arrow, or configure it to point at the center. | `boolean \|{ pointAtCenter?: boolean }` | `false` |
+| destroyOnHidden | Whether to destroy popup DOM after it closes. | `boolean` | `false` |
+| destroyPopupOnHide | Compatibility alias for destroying popup DOM after close. | `boolean` | `false` |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| overlayClassName | Compatibility class name for the popup. | `string` | - |
+| overlayStyle | Compatibility styles for the popup. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `DropdownSemanticClassNames \|(info: DropdownSemanticInfo) => DropdownSemanticClassNames` | - |
+| styles | Semantic DOM styles, as an object or function. | `DropdownSemanticStyles \|(info: DropdownSemanticInfo) => DropdownSemanticStyles` | - |
+| popupRender | Custom popup render function. | `(menus: VNodeChild) => VNodeChild` | - |
+| dropdownRender | Compatibility alias for the custom popup render function. | `(menus: VNodeChild) => VNodeChild` | - |
 
 ### DropdownMenuConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Configures `items`. | `MenuItem[]` | `[]` |
-| selectable | Configures `selectable`. | `boolean` | `false` |
-| selectedKeys | Configures `selectedKeys`. | `string[]` | - |
-| defaultSelectedKeys | Configures `defaultSelectedKeys`. | `string[]` | `[]` |
-| closeOnClick | Configures `closeOnClick`. | `boolean` | `true` |
+| items | Component item configuration. | `MenuItem[]` | `[]` |
+| selectable | Whether items can be selected. | `boolean` | `false` |
+| selectedKeys | Currently selected keys. | `string[]` | - |
+| defaultSelectedKeys | Initially selected keys. | `string[]` | `[]` |
+| closeOnClick | Whether clicking a menu item closes the popup. | `boolean` | `true` |
 
 ### DropdownSemanticPart
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| trigger | Provides the `trigger` entry. |
-| popup | Provides the `popup` entry. |
-| menu | Provides the `menu` entry. |
-| arrow | Provides the `arrow` entry. |
+| root | The `root` semantic DOM element. |
+| trigger | The `trigger` semantic DOM element. |
+| popup | The `popup` semantic DOM element. |
+| menu | The `menu` semantic DOM element. |
+| arrow | The `arrow` semantic DOM element. |
 
 ### DropdownSemanticInfo
 
 | Field | Description | Type |
 | --- | --- | --- |
-| open | Describes `open`. | `boolean` |
-| placement | Describes `placement`. | `DropdownPlacement` |
+| open | Details `open`. | `boolean` |
+| placement | Details `placement`. | `DropdownPlacement` |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:open | Emitted when `update:open` occurs. | `(open: boolean) => void` |
-| openChange | Emitted when `openChange` occurs. | `(open: boolean, info: { source: 'trigger' \|'menu' }) => void` |
-| click | Emitted when `click` occurs. | `(info: MenuClickInfo) => void` |
-| DropdownButton click | Emitted when `DropdownButton click` occurs. | `(event: MouseEvent) => void` |
-| DropdownButton menuClick | Emitted when `DropdownButton menuClick` occurs. | `(info: MenuClickInfo) => void` |
+| update:open | Fired when `update:open` is triggered. | `(open: boolean) => void` |
+| openChange | Fired when `openChange` is triggered. | `(open: boolean, info: { source: 'trigger' \|'menu' }) => void` |
+| click | Fired when `click` is triggered. | `(info: MenuClickInfo) => void` |
+| DropdownButton click | Fired when `DropdownButton click` is triggered. | `(event: MouseEvent) => void` |
+| DropdownButton menuClick | Fired when `DropdownButton menuClick` is triggered. | `(info: MenuClickInfo) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| popup | Provides the `popup` entry. |
+| default | The `default` semantic DOM element. |
+| popup | The `popup` semantic DOM element. |
 
 ## Theme Tokens
 

@@ -289,50 +289,50 @@ const renderableTabsExtraContent = {
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Configures `items`. | `TabItem[]` | `[]` |
-| activeKey | Configures `activeKey`. | `string` | - |
-| defaultActiveKey | Configures `defaultActiveKey`. | `string` | first available item |
-| type | Configures `type`. | `line` \|`card` | `line` |
-| size | Configures `size`. | `large` \|`middle` \|`small` | ConfigProvider size |
-| centered | Configures `centered`. | `boolean` | `false` |
-| tabPlacement | Configures `tabPlacement`. | `top` \| `bottom` \| `start` \| `end` | `top` |
-| tabPosition | Configures `tabPosition`. | `top` \|`bottom` \|`left` \|`right` | - |
-| tabBarExtraContent | Configures `tabBarExtraContent`. | `VNodeChild` \|`{ left?: VNodeChild; right?: VNodeChild }` | - |
-| tabBarGutter | Configures `tabBarGutter`. | `number` | - |
-| tabBarStyle | Configures `tabBarStyle`. | `StyleValue` | - |
-| indicator | Configures `indicator`. | `{ size?: number; align?: 'start' \|'center' \|'end' }` | - |
-| animated | Configures `animated`. | `boolean` \|`{ inkBar?: boolean; tabPane?: boolean }` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Record<'root' \|'nav' \|'navList' \|'tab' \|'activeTab' \|'tabIcon' \|'tabLabel' \|'panel' \|'extra' \|'extraLeft' \|'extraRight', string>` | - |
-| styles | Configures `styles`. | `Record<'root' \|'nav' \|'navList' \|'tab' \|'activeTab' \|'tabIcon' \|'tabLabel' \|'panel' \|'extra' \|'extraLeft' \|'extraRight', StyleValue>` | - |
+| items | Component item configuration. | `TabItem[]` | `[]` |
+| activeKey | Active item in controlled mode. | `string` | - |
+| defaultActiveKey | Initial active item in uncontrolled mode. | `string` | first available item |
+| type | Component type or visual style. | `line` \|`card` | `line` |
+| size | Component size. | `large` \|`middle` \|`small` | ConfigProvider size |
+| centered | Whether tabs are centered. | `boolean` | `false` |
+| tabPlacement | Tab placement. | `top` \| `bottom` \| `start` \| `end` | `top` |
+| tabPosition | Ant-compatible placement alias. | `top` \|`bottom` \|`left` \|`right` | - |
+| tabBarExtraContent | Extra content in the tab bar. | `VNodeChild` \|`{ left?: VNodeChild; right?: VNodeChild }` | - |
+| tabBarGutter | Spacing between tabs. | `number` | - |
+| tabBarStyle | Styles for the tab bar. | `StyleValue` | - |
+| indicator | Custom loading indicator. | `{ size?: number; align?: 'start' \|'center' \|'end' }` | - |
+| animated | Whether to enable animation. | `boolean` \|`{ inkBar?: boolean; tabPane?: boolean }` | `false` |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `Record<'root' \|'nav' \|'navList' \|'tab' \|'activeTab' \|'tabIcon' \|'tabLabel' \|'panel' \|'extra' \|'extraLeft' \|'extraRight', string>` | - |
+| styles | Semantic DOM styles, as an object or function. | `Record<'root' \|'nav' \|'navList' \|'tab' \|'activeTab' \|'tabIcon' \|'tabLabel' \|'panel' \|'extra' \|'extraLeft' \|'extraRight', StyleValue>` | - |
 
 ### TabItem
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| key | Configures `key`. | `string` | - |
-| label | Configures `label`. | `VNodeChild` | - |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| children | Configures `children`. | `VNodeChild` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
+| key | Unique identifier. | `string` | - |
+| label | Item label content. | `VNodeChild` | - |
+| icon | Custom icon. | `VNodeChild` | - |
+| children | Child items or content. | `VNodeChild` | - |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:activeKey | Emitted when `update:activeKey` occurs. | `(key: string) => void` |
-| change | Emitted when `change` occurs. | `(key: string) => void` |
-| tabClick | Emitted when `tabClick` occurs. | `(key: string, event: MouseEvent) => void` |
+| update:activeKey | Fired when `update:activeKey` is triggered. | `(key: string) => void` |
+| change | Fired when `change` is triggered. | `(key: string) => void` |
+| tabClick | Fired when `tabClick` is triggered. | `(key: string, event: MouseEvent) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| tab-{key} | Provides the `tab-{key}` entry. |
-| extraLeft | Provides the `extraLeft` entry. |
-| extraRight | Provides the `extraRight` entry. |
+| tab-{key} | The `tab-{key}` semantic DOM element. |
+| extraLeft | The `extraLeft` semantic DOM element. |
+| extraRight | The `extraRight` semantic DOM element. |
 
 ## Theme Tokens
 

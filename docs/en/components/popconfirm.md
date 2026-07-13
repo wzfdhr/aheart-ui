@@ -89,6 +89,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 
 <template>
   <APopconfirm
+    default-open
     :title="renderablePopconfirmTitle"
     :description="renderablePopconfirmDescription"
     :icon="renderablePopconfirmIcon"
@@ -116,7 +117,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
     <AButton>Notice</AButton>
     <template #icon>i</template>
     <template #title>Heads up</template>
-    <template #description>Only the OK action is shown.</template>
+    <template #description>Only the OK action is shown in this compact confirmation.</template>
   </APopconfirm>
 </template>
 ```
@@ -192,6 +193,10 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
+<script setup lang="ts">
+const handlePopupClick = () => undefined
+</script>
+
 <template>
   <APopconfirm
     title="Open details?"
@@ -233,7 +238,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 </template>
 ```
 
-## contentstyle
+## Semantic Styling
 
 <div class="aheart-demo-panel">
   <APopconfirm
@@ -292,83 +297,83 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| title | Configures `title`. | `VNodeChild` \|`() => VNodeChild` | - |
-| description | Configures `description`. | `VNodeChild` \|`() => VNodeChild` | - |
-| icon | Configures `icon`. | `VNodeChild` | `!` |
-| placement | Configures `placement`. | `FloatingPlacement` | `top` |
-| autoAdjustOverflow | Configures `autoAdjustOverflow`. | `boolean` | `true` |
-| trigger | Configures `trigger`. | `hover` \|`focus` \|`click` \|`contextMenu` \|`FloatingTrigger[]` | `click` |
-| open | Configures `open`. | `boolean` | - |
-| defaultOpen | Configures `defaultOpen`. | `boolean` | `false` |
-| destroyOnHidden | Configures `destroyOnHidden`. | `boolean` | `false` |
-| destroyTooltipOnHide | Configures `destroyTooltipOnHide`. | `boolean` | `false` |
-| fresh | Configures `fresh`. | `boolean` | `false` |
-| okText | Configures `okText`. | `string` | `OK` |
-| cancelText | Configures `cancelText`. | `string` | `Cancel` |
-| okType | Configures `okType`. | `ButtonType` | `primary` |
-| okButtonProps | Configures `okButtonProps`. | `Partial<ButtonProps>` | - |
-| cancelButtonProps | Configures `cancelButtonProps`. | `Partial<ButtonProps>` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| showCancel | Configures `showCancel`. | `boolean` | `true` |
-| color | Configures `color`. | `string` | - |
-| mouseEnterDelay | Configures `mouseEnterDelay`. | `number` | `0.1` |
-| mouseLeaveDelay | Configures `mouseLeaveDelay`. | `number` | `0.1` |
-| align | Configures `align`. | `{ offset?: [number, number] }` | - |
-| arrow | Configures `arrow`. | `boolean` \|`{ pointAtCenter?: boolean }` | `true` |
-| zIndex | Configures `zIndex`. | `number` | - |
-| getPopupContainer | Configures `getPopupContainer`. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| overlayClassName | Configures `overlayClassName`. | `string` | - |
-| overlayStyle | Configures `overlayStyle`. | `StyleValue` | - |
-| overlayInnerStyle | Configures `overlayInnerStyle`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `PopconfirmSemanticClassNames \|(info: PopconfirmSemanticInfo) => PopconfirmSemanticClassNames` | - |
-| styles | Configures `styles`. | `PopconfirmSemanticStyles \|(info: PopconfirmSemanticInfo) => PopconfirmSemanticStyles` | - |
+| title | Confirmation title. The `title` slot takes precedence. | `VNodeChild` \|`() => VNodeChild` | - |
+| description | Supporting text. The `description` slot takes precedence. | `VNodeChild` \|`() => VNodeChild` | - |
+| icon | Prompt icon. The `icon` slot takes precedence; pass `false` or `null` to hide it. | `VNodeChild` | `!` |
+| placement | Popup placement. | `FloatingPlacement` | `top` |
+| autoAdjustOverflow | Automatically adjusts placement or edge alignment when the popup overflows the viewport. | `boolean` | `true` |
+| trigger | Trigger method. | `hover` \|`focus` \|`click` \|`contextMenu` \|`FloatingTrigger[]` | `click` |
+| open | Controlled visibility state. | `boolean` | - |
+| defaultOpen | Initial visibility state. | `boolean` | `false` |
+| destroyOnHidden | Whether to destroy popup DOM after it closes. | `boolean` | `false` |
+| destroyTooltipOnHide | Legacy alias for `destroyOnHidden`. | `boolean` | `false` |
+| fresh | Ant Design compatibility flag for content refresh; Vue reactive content updates by default. | `boolean` | `false` |
+| okText | OK button text. | `string` | `OK` |
+| cancelText | Cancel button text. | `string` | `Cancel` |
+| okType | OK button type. | `ButtonType` | `primary` |
+| okButtonProps | Props for the OK button. | `Partial<ButtonProps>` | - |
+| cancelButtonProps | Props for the Cancel button. | `Partial<ButtonProps>` | - |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
+| showCancel | Configuration for `showCancel`. | `boolean` | `true` |
+| color | Custom color. | `string` | - |
+| mouseEnterDelay | Delay before opening on hover, in seconds. | `number` | `0.1` |
+| mouseLeaveDelay | Delay before closing on hover, in seconds. | `number` | `0.1` |
+| align | Alignment. | `{ offset?: [number, number] }` | - |
+| arrow | Whether to show an arrow, or configure it to point at the center. | `boolean` \|`{ pointAtCenter?: boolean }` | `true` |
+| zIndex | Custom stacking order. | `number` | - |
+| getPopupContainer | Container in which to mount the popup. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| overlayClassName | Compatibility class name for the popup. | `string` | - |
+| overlayStyle | Compatibility styles for the popup. | `StyleValue` | - |
+| overlayInnerStyle | Compatibility styles for the popup inner container. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `PopconfirmSemanticClassNames \|(info: PopconfirmSemanticInfo) => PopconfirmSemanticClassNames` | - |
+| styles | Semantic DOM styles, as an object or function. | `PopconfirmSemanticStyles \|(info: PopconfirmSemanticInfo) => PopconfirmSemanticStyles` | - |
 
 ### PopconfirmSemanticPart
 
 | value | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| trigger | Provides the `trigger` entry. |
-| popup | Provides the `popup` entry. |
-| container | Provides the `container` entry. |
-| arrow | Provides the `arrow` entry. |
-| message | Provides the `message` entry. |
-| icon | Provides the `icon` entry. |
-| text | Provides the `text` entry. |
-| title | Provides the `title` entry. |
-| description | Provides the `description` entry. |
-| actions | Provides the `actions` entry. |
-| cancelButton | Provides the `cancelButton` entry. |
-| okButton | Provides the `okButton` entry. |
+| root | The `root` semantic DOM element. |
+| trigger | The `trigger` semantic DOM element. |
+| popup | The `popup` semantic DOM element. |
+| container | The `container` semantic DOM element. |
+| arrow | The `arrow` semantic DOM element. |
+| message | The `message` semantic DOM element. |
+| icon | The `icon` semantic DOM element. |
+| text | The `text` semantic DOM element. |
+| title | The `title` semantic DOM element. |
+| description | The `description` semantic DOM element. |
+| actions | The `actions` semantic DOM element. |
+| cancelButton | The `cancelButton` semantic DOM element. |
+| okButton | The `okButton` semantic DOM element. |
 
 ### PopconfirmSemanticInfo
 
 | Field | Description |
 | --- | --- |
-| open | Provides the `open` entry. |
-| placement | Provides the `placement` entry. |
+| open | The `open` semantic DOM element. |
+| placement | The `placement` semantic DOM element. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:open | Emitted when `update:open` occurs. | `(open: boolean) => void` |
-| openChange | Emitted when `openChange` occurs. | `(open: boolean) => void` |
-| confirm | Emitted when `confirm` occurs. | `() => void` |
-| cancel | Emitted when `cancel` occurs. | `() => void` |
-| popupClick | Emitted when `popupClick` occurs. | `(event: MouseEvent) => void` |
+| update:open | Fired when visibility changes. | `(open: boolean) => void` |
+| openChange | Fired when visibility changes. | `(open: boolean) => void` |
+| confirm | Fired when the confirmation button is clicked. | `() => void` |
+| cancel | Fired when the cancel button is clicked. | `() => void` |
+| popupClick | Fired when the popup is clicked. | `(event: MouseEvent) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
-| title | Provides the `title` entry. |
-| description | Provides the `description` entry. |
-| icon | Provides the `icon` entry. |
+| default | Trigger element. |
+| title | Custom title. |
+| description | Custom supporting text. |
+| icon | Custom prompt icon. |
 
 ## Theme Tokens
 

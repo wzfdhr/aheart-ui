@@ -30,7 +30,7 @@ Steps communicates progress through a multi-step workflow.
 </template>
 ```
 
-## verticaldirection
+## Vertical Direction
 
 <div class="aheart-demo-panel">
   <ASteps
@@ -60,7 +60,7 @@ Steps communicates progress through a multi-step workflow.
 </template>
 ```
 
-## errorstatus
+## Error Status
 
 <div class="aheart-demo-panel">
   <ASteps
@@ -86,7 +86,7 @@ Steps communicates progress through a multi-step workflow.
 </template>
 ```
 
-## typecontent
+## Type Variants
 
 <div class="aheart-demo-panel aheart-demo-stack">
   <ASteps
@@ -126,7 +126,7 @@ Steps communicates progress through a multi-step workflow.
 </template>
 ```
 
-## titleplacement
+## Title Placement
 
 <div class="aheart-demo-panel">
   <ASteps
@@ -156,7 +156,7 @@ Steps communicates progress through a multi-step workflow.
 </template>
 ```
 
-## contentandcontent
+## Progress and Content
 
 <div class="aheart-demo-panel">
   <ASteps
@@ -186,7 +186,7 @@ Steps communicates progress through a multi-step workflow.
 
 `StepItem` title, description, icon, subtitle, and extra content accept `VNodeChild`, so rendered nodes can be passed for richer labels, buttons, or icons.
 
-## contentstyle
+## Semantic Styling
 
 <div class="aheart-demo-panel">
   <ASteps
@@ -223,55 +223,55 @@ Steps communicates progress through a multi-step workflow.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Configures `items`. | `StepItem[]` | `[]` |
-| current | Configures `current`. | `number` | `0` |
-| status | Configures `status`. | `wait` \| `process` \| `finish` \| `error` | `process` |
-| direction | Configures `direction`. | `horizontal` \|`vertical` | `horizontal` |
-| orientation | Configures `orientation`. | `horizontal` \|`vertical` | - |
-| size | Configures `size`. | `large` \| `middle` \| `small` | ConfigProvider size |
-| type | Configures `type`. | `default` \| `dot` \| `navigation` \| `panel` \| `inline` | `default` |
-| titlePlacement | Configures `titlePlacement`. | `horizontal` \| `vertical` | `horizontal` |
-| initial | Configures `initial`. | `number` | `1` |
-| percent | Configures `percent`. | `number` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<StepsSemanticPart, string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<StepsSemanticPart, StyleValue>>` | - |
+| items | Component item configuration. | `StepItem[]` | `[]` |
+| current | Current page in controlled mode. | `number` | `0` |
+| status | Current status. | `wait` \| `process` \| `finish` \| `error` | `process` |
+| direction | Layout direction. | `horizontal` \|`vertical` | `horizontal` |
+| orientation | Ant-compatible direction alias, which takes precedence over `direction` when provided. | `horizontal` \|`vertical` | - |
+| size | Component size. | `large` \| `middle` \| `small` | ConfigProvider size |
+| type | Component type or visual style. | `default` \| `dot` \| `navigation` \| `panel` \| `inline` | `default` |
+| titlePlacement | Title placement. | `horizontal` \| `vertical` | `horizontal` |
+| initial | Starting value for generated number indicators; it does not affect `current` and is hidden for dot steps. | `number` | `1` |
+| percent | Progress text or percentage. | `number` | - |
+| className | Compatibility class name for the root node. | `string` | - |
+| rootClassName | Class name for the root node. | `string` | - |
+| style | Styles for the root node. | `StyleValue` | - |
+| classNames | Semantic DOM class names, as an object or function. | `Partial<Record<StepsSemanticPart, string>>` | - |
+| styles | Semantic DOM styles, as an object or function. | `Partial<Record<StepsSemanticPart, StyleValue>>` | - |
 
 ### StepItem
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| title | Configures `title`. | `VNodeChild` | - |
-| description | Configures `description`. | `VNodeChild` | - |
-| status | Configures `status`. | `wait` \| `process` \| `finish` \| `error` | content |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| icon | Configures `icon`. | `VNodeChild` | - |
-| subTitle | Configures `subTitle`. | `VNodeChild` | - |
-| content | Configures `content`. | `VNodeChild` | - |
+| title | Title content. | `VNodeChild` | - |
+| description | Custom description content. | `VNodeChild` | - |
+| status | Current status. | `wait` \| `process` \| `finish` \| `error` | content |
+| disabled | Whether interaction is disabled. | `boolean` | `false` |
+| icon | Custom icon. | `VNodeChild` | - |
+| subTitle | Configuration for `subTitle`. | `VNodeChild` | - |
+| content | Content to render. | `VNodeChild` | - |
 
 ### StepsSemanticPart
 
 | value | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| item | Provides the `item` entry. |
-| activeItem | Provides the `activeItem` entry. |
-| button | Provides the `button` entry. |
-| indicator | Provides the `indicator` entry. |
-| icon | Provides the `icon` entry. |
-| content | Provides the `content` entry. |
-| title | Provides the `title` entry. |
-| subTitle | Provides the `subTitle` entry. |
-| description | Provides the `description` entry. |
-| connector | Provides the `connector` entry. |
+| root | The `root` semantic DOM element. |
+| item | The `item` semantic DOM element. |
+| activeItem | The `activeItem` semantic DOM element. |
+| button | The `button` semantic DOM element. |
+| indicator | The `indicator` semantic DOM element. |
+| icon | The `icon` semantic DOM element. |
+| content | The `content` semantic DOM element. |
+| title | The `title` semantic DOM element. |
+| subTitle | The `subTitle` semantic DOM element. |
+| description | The `description` semantic DOM element. |
+| connector | The `connector` semantic DOM element. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| change | Emitted when `change` occurs. | `(current: number) => void` |
+| change | Fired when `change` is triggered. | `(current: number) => void` |
 
 ## Theme Tokens
 
