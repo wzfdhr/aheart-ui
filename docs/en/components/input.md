@@ -15,8 +15,12 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <AInput v-model="value" placeholder="Enter text" />
+  <AInput model-value="Aheart UI" placeholder="Enter text" />
 </template>
 ```
 
@@ -45,24 +49,20 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <AInput v-model="value" allow-clear :maxlength="20" show-count>
-    <template #prefix>⌕</template>
-    <template #suffix>.com</template>
-  </AInput>
-  <AInput
-    v-model="site"
-    prefix="https://"
-    suffix=".dev"
-    addon-before="URL"
-    addon-after="open"
-  />
-  <AInput
-    v-model="nodeValue"
-    :prefix="h('span', { class: 'demo-input-node' }, '@')"
-    :suffix="h('span', { class: 'demo-input-node' }, 'verified')"
-    :addon-before="h('strong', null, 'Account')"
-    :addon-after="h('span', null, 'OK')"
-  />
+  <ASpace direction="vertical" style="width: 100%">
+    <AInput model-value="search keyword" allow-clear :maxlength="20" show-count>
+      <template #prefix>⌕</template>
+      <template #suffix>.com</template>
+    </AInput>
+    <AInput model-value="aheart" prefix="https://" suffix=".dev" addon-before="URL" addon-after="open" />
+    <AInput
+      model-value="render node"
+      :prefix="h('span', { class: 'demo-input-node' }, '@')"
+      :suffix="h('span', { class: 'demo-input-node' }, 'verified')"
+      :addon-before="h('strong', null, 'Account')"
+      :addon-after="h('span', null, 'OK')"
+    />
+  </ASpace>
 </template>
 ```
 
@@ -78,11 +78,17 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <AInput v-model="value" variant="outlined" />
-  <AInput v-model="value" variant="filled" />
-  <AInput v-model="value" variant="underlined" />
-  <AInput v-model="value" :bordered="false" />
+  <ASpace direction="vertical" style="width: 100%">
+    <AInput model-value="Outlined" variant="outlined" />
+    <AInput model-value="Filled" variant="filled" />
+    <AInput model-value="Underlined" variant="underlined" />
+    <AInput model-value="Borderless" :bordered="false" />
+  </ASpace>
 </template>
 ```
 
@@ -98,11 +104,17 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <AInput status="warning" v-model="warningValue" />
-  <AConfigProvider size="large" disabled>
-    <AInput model-value="Disabled by ConfigProvider" />
-  </AConfigProvider>
+  <ASpace direction="vertical" style="width: 100%">
+    <AInput status="warning" model-value="Warning" />
+    <AConfigProvider size="large" disabled>
+      <AInput model-value="Disabled by ConfigProvider" />
+    </AConfigProvider>
+  </ASpace>
 </template>
 ```
 
@@ -124,11 +136,13 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <AInput v-model="value" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
-  <AInput v-model="disabledClearValue" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
-  <AInput v-model="slotValue" allow-clear>
-    <template #clearIcon>x</template>
-  </AInput>
+  <ASpace direction="vertical" style="width: 100%">
+    <AInput model-value="Clear me" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
+    <AInput model-value="Clear disabled" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
+    <AInput model-value="Slot clear" allow-clear>
+      <template #clearIcon>x</template>
+    </AInput>
+  </ASpace>
 </template>
 ```
 
@@ -166,27 +180,29 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <AInput
-    v-model="value"
-    :maxlength="20"
-    :show-count="{ formatter: ({ count, maxLength }) => h('strong', null, `${count}/${maxLength}`) }"
-  />
-  <AInput
-    v-model="strategyValue"
-    :count="{
-      max: 10,
-      strategy: (value) => value.split('').filter((char) => char === 'l').length,
-      show: ({ count, maxLength }) => `${count} of ${maxLength}`
-    }"
-  />
-  <AInput
-    v-model="clippedValue"
-    :count="{
-      max: 8,
-      exceedFormatter: (value, { max }) => value.slice(0, max),
-      show: ({ count, maxLength }) => h('span', null, `${count}/${maxLength}`)
-    }"
-  />
+  <ASpace direction="vertical" style="width: 100%">
+    <AInput
+      model-value="Aheart"
+      :maxlength="20"
+      :show-count="{ formatter: ({ count, maxLength }) => h('strong', null, `${count}/${maxLength}`) }"
+    />
+    <AInput
+      model-value="hello"
+      :count="{
+        max: 10,
+        strategy: (value) => value.split('').filter((char) => char === 'l').length,
+        show: ({ count, maxLength }) => `${count} of ${maxLength}`
+      }"
+    />
+    <AInput
+      model-value="clipped value"
+      :count="{
+        max: 8,
+        exceedFormatter: (value, { max }) => value.slice(0, max),
+        show: ({ count, maxLength }) => h('span', null, `${count}/${maxLength}`)
+      }"
+    />
+  </ASpace>
 </template>
 ```
 
@@ -210,9 +226,13 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
   <AInput
-    v-model="value"
+    model-value="Styled input"
     prefix="pre"
     suffix="suf"
     addon-before="Before"
@@ -232,63 +252,63 @@ import { h } from 'vue'
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `string` | - |
-| id | Configures `id`. | `string` | - |
-| placeholder | Configures `placeholder`. | `string` | - |
-| prefix | Configures `prefix`. | `VNodeChild` | - |
-| suffix | Configures `suffix`. | `VNodeChild` | - |
-| addonBefore | Configures `addonBefore`. | `VNodeChild` | - |
-| addonAfter | Configures `addonAfter`. | `VNodeChild` | - |
-| size | Configures `size`. | `large` \| `middle` \| `small` | ConfigProvider size |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| readOnly | Configures `readOnly`. | `boolean` | `false` |
-| status | Configures `status`. | `error` \| `warning` | - |
-| variant | Configures `variant`. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
-| bordered | Configures `bordered`. | `boolean` | `true` |
-| allowClear | Configures `allowClear`. | `boolean` \|`{ clearIcon?: VNodeChild; disabled?: boolean }` | `false` |
-| maxlength | Configures `maxlength`. | `number` | - |
-| showCount | Configures `showCount`. | `boolean` \|`{ formatter?: (info: CountInfo) => VNodeChild }` | `false` |
-| count | Configures `count`. | `{ max?: number; strategy?: (value: string) => number; show?: boolean \|((info: CountInfo) => VNodeChild); exceedFormatter?: (value: string, config: { max: number }) => string }` | - |
-| type | Configures `type`. | `string` | `text` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'group' \| 'input' \| 'prefix' \| 'suffix' \| 'clear' \| 'count' \| 'addonBefore' \| 'addonAfter', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'group' \| 'input' \| 'prefix' \| 'suffix' \| 'clear' \| 'count' \| 'addonBefore' \| 'addonAfter', StyleValue>>` | - |
+| modelValue | The current value. | `string` | - |
+| id | The native control id. | `string` | - |
+| placeholder | Placeholder text. | `string` | - |
+| prefix | Prefix content. | `VNodeChild` | - |
+| suffix | Suffix content. | `VNodeChild` | - |
+| addonBefore | Content before the input group. | `VNodeChild` | - |
+| addonAfter | Content after the input group. | `VNodeChild` | - |
+| size | The component size. | `large` \| `middle` \| `small` | ConfigProvider size |
+| disabled | Whether the component is disabled. | `boolean` | ConfigProvider disabled |
+| readOnly | Whether the control is read-only. | `boolean` | `false` |
+| status | The validation status. | `error` \| `warning` | - |
+| variant | The visual variant. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
+| bordered | Whether a border is shown; `false` is equivalent to `borderless`. | `boolean` | `true` |
+| allowClear | Whether to show a clear control, with optional custom icon configuration. | `boolean` \|`{ clearIcon?: VNodeChild; disabled?: boolean }` | `false` |
+| maxlength | The maximum character count. | `number` | - |
+| showCount | Whether to show the count, with optional formatting. | `boolean` \|`{ formatter?: (info: CountInfo) => VNodeChild }` | `false` |
+| count | Count configuration, including max, counting strategy, display, and overflow formatting. | `{ max?: number; strategy?: (value: string) => number; show?: boolean \|((info: CountInfo) => VNodeChild); exceedFormatter?: (value: string, config: { max: number }) => string }` | - |
+| type | The value type. | `string` | `text` |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `Partial<Record<'root' \| 'group' \| 'input' \| 'prefix' \| 'suffix' \| 'clear' \| 'count' \| 'addonBefore' \| 'addonAfter', string>>` | - |
+| styles | Styles for semantic DOM parts. | `Partial<Record<'root' \| 'group' \| 'input' \| 'prefix' \| 'suffix' \| 'clear' \| 'count' \| 'addonBefore' \| 'addonAfter', StyleValue>>` | - |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:modelValue | Emitted when `update:modelValue` occurs. | `(value: string) => void` |
-| input | Emitted when `input` occurs. | `(value: string) => void` |
-| change | Emitted when `change` occurs. | `(value: string) => void` |
-| clear | Emitted when `clear` occurs. | `() => void` |
-| pressEnter | Emitted when `pressEnter` occurs. | `(event: KeyboardEvent) => void` |
+| update:modelValue | Fires when the component value changes. | `(value: string) => void` |
+| input | Fires when input text changes. | `(value: string) => void` |
+| change | Fires when the component value changes. | `(value: string) => void` |
+| clear | Fires when the clear control is clicked. | `() => void` |
+| pressEnter | Fires when Enter is pressed. | `(event: KeyboardEvent) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| prefix | Provides the `prefix` entry. |
-| suffix | Provides the `suffix` entry. |
-| clearIcon | Provides the `clearIcon` entry. |
-| addonBefore | Provides the `addonBefore` entry. |
-| addonAfter | Provides the `addonAfter` entry. |
+| prefix | Custom prefix content. |
+| suffix | Custom suffix content. |
+| clearIcon | Custom clear-control content. |
+| addonBefore | Content before the input group. |
+| addonAfter | Content after the input group. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| group | Provides the `group` entry. |
-| input | Provides the `input` entry. |
-| prefix | Provides the `prefix` entry. |
-| suffix | Provides the `suffix` entry. |
-| clear | Provides the `clear` entry. |
-| count | Provides the `count` entry. |
-| addonBefore | Provides the `addonBefore` entry. |
-| addonAfter | Provides the `addonAfter` entry. |
+| root | The root element. |
+| group | The input-group container when addons are present. |
+| input | The native input control. |
+| prefix | Custom prefix content. |
+| suffix | Custom suffix content. |
+| clear | The clear control. |
+| count | The count-text container. |
+| addonBefore | Content before the input group. |
+| addonAfter | Content after the input group. |
 
 ## Theme Tokens
 

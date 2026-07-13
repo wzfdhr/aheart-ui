@@ -15,8 +15,12 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <ATextarea v-model="value" placeholder="Enter description" />
+  <ATextarea model-value="A longer description can live here." placeholder="Enter description" />
 </template>
 ```
 
@@ -34,9 +38,13 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
   <ATextarea
-    v-model="value"
+    model-value="Line one"
     :rows="4"
     :maxlength="120"
     show-count
@@ -58,15 +66,21 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <ATextarea v-model="value" variant="outlined" />
-  <ATextarea v-model="value" variant="filled" />
-  <ATextarea v-model="value" variant="underlined" />
-  <ATextarea v-model="value" :bordered="false" />
+  <ASpace direction="vertical" style="width: 100%">
+    <ATextarea model-value="Outlined" variant="outlined" />
+    <ATextarea model-value="Filled" variant="filled" />
+    <ATextarea model-value="Underlined" variant="underlined" />
+    <ATextarea model-value="Borderless" :bordered="false" />
+  </ASpace>
 </template>
 ```
 
-## status
+## Status
 
 <div class="aheart-demo-panel">
   <ASpace direction="vertical" style="width: 100%">
@@ -78,11 +92,17 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
-  <ATextarea status="error" v-model="value" />
-  <AConfigProvider disabled>
-    <ATextarea model-value="Disabled by ConfigProvider" />
-  </AConfigProvider>
+  <ASpace direction="vertical" style="width: 100%">
+    <ATextarea status="error" model-value="This field needs attention." />
+    <AConfigProvider disabled>
+      <ATextarea model-value="Disabled by ConfigProvider" />
+    </AConfigProvider>
+  </ASpace>
 </template>
 ```
 
@@ -104,11 +124,13 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <ATextarea v-model="value" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
-  <ATextarea v-model="disabledClearValue" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
-  <ATextarea v-model="slotValue" allow-clear>
-    <template #clearIcon>x</template>
-  </ATextarea>
+  <ASpace direction="vertical" style="width: 100%">
+    <ATextarea model-value="Clear me" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
+    <ATextarea model-value="Clear disabled" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
+    <ATextarea model-value="Slot clear" allow-clear>
+      <template #clearIcon>x</template>
+    </ATextarea>
+  </ASpace>
 </template>
 ```
 
@@ -146,27 +168,29 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <ATextarea
-    v-model="value"
-    :maxlength="20"
-    :show-count="{ formatter: ({ count, maxLength }) => h('strong', null, `${count}/${maxLength}`) }"
-  />
-  <ATextarea
-    v-model="strategyValue"
-    :count="{
-      max: 10,
-      strategy: (value) => value.split('').filter((char) => char === 'l').length,
-      show: ({ count, maxLength }) => `${count} of ${maxLength}`
-    }"
-  />
-  <ATextarea
-    v-model="clippedValue"
-    :count="{
-      max: 8,
-      exceedFormatter: (value, { max }) => value.slice(0, max),
-      show: ({ count, maxLength }) => h('span', null, `${count}/${maxLength}`)
-    }"
-  />
+  <ASpace direction="vertical" style="width: 100%">
+    <ATextarea
+      model-value="Aheart"
+      :maxlength="20"
+      :show-count="{ formatter: ({ count, maxLength }) => h('strong', null, `${count}/${maxLength}`) }"
+    />
+    <ATextarea
+      model-value="hello"
+      :count="{
+        max: 10,
+        strategy: (value) => value.split('').filter((char) => char === 'l').length,
+        show: ({ count, maxLength }) => `${count} of ${maxLength}`
+      }"
+    />
+    <ATextarea
+      model-value="clipped textarea"
+      :count="{
+        max: 8,
+        exceedFormatter: (value, { max }) => value.slice(0, max),
+        show: ({ count, maxLength }) => h('span', null, `${count}/${maxLength}`)
+      }"
+    />
+  </ASpace>
 </template>
 ```
 
@@ -187,9 +211,13 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+</script>
+
 <template>
   <ATextarea
-    v-model="value"
+    model-value="Styled textarea"
     allow-clear
     show-count
     class-name="demo-textarea-class"
@@ -206,51 +234,51 @@ import { h } from 'vue'
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `string` | - |
-| id | Configures `id`. | `string` | - |
-| placeholder | Configures `placeholder`. | `string` | - |
-| rows | Configures `rows`. | `number` | `3` |
-| size | Configures `size`. | `large` \|`middle` \|`small` | ConfigProvider size |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| readOnly | Configures `readOnly`. | `boolean` | `false` |
-| status | Configures `status`. | `error` \| `warning` | - |
-| variant | Configures `variant`. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
-| bordered | Configures `bordered`. | `boolean` | `true` |
-| allowClear | Configures `allowClear`. | `boolean` \|`{ clearIcon?: VNodeChild; disabled?: boolean }` | `false` |
-| maxlength | Configures `maxlength`. | `number` | - |
-| showCount | Configures `showCount`. | `boolean` \|`{ formatter?: (info: CountInfo) => VNodeChild }` | `false` |
-| count | Configures `count`. | `{ max?: number; strategy?: (value: string) => number; show?: boolean \|((info: CountInfo) => VNodeChild); exceedFormatter?: (value: string, config: { max: number }) => string }` | - |
-| autoSize | Configures `autoSize`. | `boolean` \|`{ minRows?: number; maxRows?: number }` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'textarea' \| 'clear' \| 'count', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'textarea' \| 'clear' \| 'count', StyleValue>>` | - |
+| modelValue | The current value. | `string` | - |
+| id | The native control id. | `string` | - |
+| placeholder | Placeholder text. | `string` | - |
+| rows | The number of visible rows. | `number` | `3` |
+| size | The component size. | `large` \|`middle` \|`small` | ConfigProvider size |
+| disabled | Whether the component is disabled. | `boolean` | ConfigProvider disabled |
+| readOnly | Whether the control is read-only. | `boolean` | `false` |
+| status | The validation status. | `error` \| `warning` | - |
+| variant | The visual variant. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
+| bordered | Whether a border is shown; `false` is equivalent to `borderless`. | `boolean` | `true` |
+| allowClear | Whether to show a clear control, with optional custom icon configuration. | `boolean` \|`{ clearIcon?: VNodeChild; disabled?: boolean }` | `false` |
+| maxlength | The maximum character count. | `number` | - |
+| showCount | Whether to show the count, with optional formatting. | `boolean` \|`{ formatter?: (info: CountInfo) => VNodeChild }` | `false` |
+| count | Count configuration, including max, counting strategy, display, and overflow formatting. | `{ max?: number; strategy?: (value: string) => number; show?: boolean \|((info: CountInfo) => VNodeChild); exceedFormatter?: (value: string, config: { max: number }) => string }` | - |
+| autoSize | Whether to disable manual resizing or configure minimum and maximum rows. | `boolean` \|`{ minRows?: number; maxRows?: number }` | `false` |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `Partial<Record<'root' \| 'textarea' \| 'clear' \| 'count', string>>` | - |
+| styles | Styles for semantic DOM parts. | `Partial<Record<'root' \| 'textarea' \| 'clear' \| 'count', StyleValue>>` | - |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:modelValue | Emitted when `update:modelValue` occurs. | `(value: string) => void` |
-| input | Emitted when `input` occurs. | `(value: string) => void` |
-| change | Emitted when `change` occurs. | `(value: string) => void` |
-| clear | Emitted when `clear` occurs. | `() => void` |
-| pressEnter | Emitted when `pressEnter` occurs. | `(event: KeyboardEvent) => void` |
+| update:modelValue | Fires when the component value changes. | `(value: string) => void` |
+| input | Fires when input text changes. | `(value: string) => void` |
+| change | Fires when the component value changes. | `(value: string) => void` |
+| clear | Fires when the clear control is clicked. | `() => void` |
+| pressEnter | Fires when Enter is pressed. | `(event: KeyboardEvent) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| clearIcon | Provides the `clearIcon` entry. |
+| clearIcon | Custom clear-control content. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| textarea | Provides the `textarea` entry. |
-| clear | Provides the `clear` entry. |
-| count | Provides the `count` entry. |
+| root | The root element. |
+| textarea | The native textarea control. |
+| clear | The clear control. |
+| count | The count-text container. |
 
 ## Theme Tokens
 

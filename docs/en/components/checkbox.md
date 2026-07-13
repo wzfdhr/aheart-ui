@@ -20,8 +20,17 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
-  <ACheckbox v-model="checked" label="Selected" />
+  <ASpace>
+    <ACheckbox :model-value="true" label="Selected" />
+    <ACheckbox label="Unchecked" />
+  </ASpace>
 </template>
 ```
 
@@ -32,8 +41,14 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
-  <ACheckbox v-model="checked" indeterminate label="Partially selected" />
+  <ACheckbox :model-value="true" indeterminate label="Partially selected" />
 </template>
 ```
 
@@ -47,9 +62,17 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
-  <ACheckbox :checked="checked" label="Checked alias" />
-  <ACheckbox default-checked label="Default checked" />
+  <ASpace>
+    <ACheckbox :checked="true" label="Checked alias" />
+    <ACheckbox default-checked label="Default checked" />
+  </ASpace>
 </template>
 ```
 
@@ -65,15 +88,17 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
+import { h, ref } from 'vue'
 const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
 </script>
 
 <template>
-  <ACheckbox ref="checkboxRef" auto-focus label="Focusable checkbox" />
-  <AButton @click="checkboxRef?.focus()">Focus</AButton>
-  <AButton @click="checkboxRef?.blur()">Blur</AButton>
+  <ASpace>
+    <ACheckbox ref="checkboxRef" auto-focus label="Focusable checkbox" />
+    <AButton size="small" @click="checkboxRef?.focus()">Focus</AButton>
+    <AButton size="small" @click="checkboxRef?.blur()">Blur</AButton>
+  </ASpace>
 </template>
 ```
 
@@ -92,8 +117,22 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
-  <ACheckboxGroup v-model="fruits" name="fruit" :options="options" />
+  <ACheckboxGroup
+    :model-value="['apple']"
+    name="fruit"
+    :options="[
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Cherry', value: 'cherry', disabled: true }
+    ]"
+  />
 </template>
 ```
 
@@ -113,8 +152,8 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
 
 ```vue
 <script setup lang="ts">
-import { h } from 'vue'
-
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
 const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
 </script>
 
@@ -146,8 +185,22 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
-  <ACheckboxGroup v-model="permissions" direction="vertical" :options="options" />
+  <ACheckboxGroup
+    direction="vertical"
+    :model-value="['read']"
+    :options="[
+      { label: 'Read', value: 'read' },
+      { label: 'Write', value: 'write' },
+      { label: 'Publish', value: 'publish' }
+    ]"
+  />
 </template>
 ```
 
@@ -166,9 +219,15 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
   <ACheckbox
-    v-model="checked"
+    checked
     label="Styled checkbox"
     class-name="demo-checkbox-class"
     root-class-name="demo-checkbox-root"
@@ -188,6 +247,12 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
+const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+</script>
+
 <template>
   <AConfigProvider disabled>
     <ACheckbox label="Disabled by ConfigProvider" />
@@ -201,82 +266,82 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `boolean` | `false` |
-| checked | Configures `checked`. | `boolean` | - |
-| defaultChecked | Configures `defaultChecked`. | `boolean` | - |
-| value | Configures `value`. | `string` \| `number` \| `boolean` | - |
-| name | Configures `name`. | `string` | - |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| autoFocus | Configures `autoFocus`. | `boolean` | `false` |
-| indeterminate | Configures `indeterminate`. | `boolean` | `false` |
-| label | Configures `label`. | `string` | - |
-| title | Configures `title`. | `string` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'icon' \| 'label', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'icon' \| 'label', StyleValue>>` | - |
+| modelValue | The current value. | `boolean` | `false` |
+| checked | The controlled checked state. | `boolean` | - |
+| defaultChecked | The initial uncontrolled checked state. | `boolean` | - |
+| value | The value. | `string` \| `number` \| `boolean` | - |
+| name | The native control name. | `string` | - |
+| disabled | Whether the component is disabled. | `boolean` | ConfigProvider disabled |
+| autoFocus | Whether to focus the native control after mounting. | `boolean` | `false` |
+| indeterminate | Whether the checkbox is indeterminate. | `boolean` | `false` |
+| label | The label content. | `string` | - |
+| title | The root element `title` attribute. | `string` | - |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `Partial<Record<'root' \| 'icon' \| 'label', string>>` | - |
+| styles | Styles for semantic DOM parts. | `Partial<Record<'root' \| 'icon' \| 'label', StyleValue>>` | - |
 
 ### CheckboxGroup
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `CheckboxValue[]` | `[]` |
-| value | Configures `value`. | `CheckboxValue[]` | - |
-| defaultValue | Configures `defaultValue`. | `CheckboxValue[]` | - |
-| options | Configures `options`. | `(string \|number \|CheckboxOption)[]` | `[]` |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| name | Configures `name`. | `string` | - |
-| direction | Configures `direction`. | `horizontal` \|`vertical` | `horizontal` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
+| modelValue | The current value. | `CheckboxValue[]` | `[]` |
+| value | The value. | `CheckboxValue[]` | - |
+| defaultValue | The initial uncontrolled value. | `CheckboxValue[]` | - |
+| options | The available options. | `(string \|number \|CheckboxOption)[]` | `[]` |
+| disabled | Whether the component is disabled. | `boolean` | ConfigProvider disabled |
+| name | The native control name. | `string` | - |
+| direction | The layout direction. | `horizontal` \|`vertical` | `horizontal` |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
 
 ### CheckboxOption
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| label | Configures `label`. | `VNodeChild` | - |
-| value | Configures `value`. | `string` \| `number` \| `boolean` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| title | Configures `title`. | `string` | - |
+| label | The label content. | `VNodeChild` | - |
+| value | The value. | `string` \| `number` \| `boolean` | - |
+| disabled | Whether the component is disabled. | `boolean` | `false` |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| title | The root element `title` attribute. | `string` | - |
 
 ## Methods
 
 | Name | Description |
 | --- | --- |
-| focus() | Provides the `focus()` entry. |
-| blur() | Provides the `blur()` entry. |
-| nativeElement | Provides the `nativeElement` entry. |
+| focus() | Focuses the native control. |
+| blur() | Removes focus from the native control. |
+| nativeElement | The root native element. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:modelValue | Emitted when `update:modelValue` occurs. | `(checked: boolean) => void` |
-| update:checked | Emitted when `update:checked` occurs. | `(checked: boolean) => void` |
-| change | Emitted when `change` occurs. | `(checked: boolean, event: Event) => void` |
-| focus | Emitted when `focus` occurs. | `(event: FocusEvent) => void` |
-| blur | Emitted when `blur` occurs. | `(event: FocusEvent) => void` |
-| CheckboxGroup update:modelValue | Emitted when `CheckboxGroup update:modelValue` occurs. | `(value: CheckboxValue[]) => void` |
-| CheckboxGroup update:value | Emitted when `CheckboxGroup update:value` occurs. | `(value: CheckboxValue[]) => void` |
-| CheckboxGroup change | Emitted when `CheckboxGroup change` occurs. | `(value: CheckboxValue[]) => void` |
+| update:modelValue | Fires when the component value changes. | `(checked: boolean) => void` |
+| update:checked | Fires when the corresponding value or interaction changes. | `(checked: boolean) => void` |
+| change | Fires when the component value changes. | `(checked: boolean, event: Event) => void` |
+| focus | Fires when the native control receives focus. | `(event: FocusEvent) => void` |
+| blur | Fires when the native control loses focus. | `(event: FocusEvent) => void` |
+| CheckboxGroup update:modelValue | Fires when the corresponding value or interaction changes. | `(value: CheckboxValue[]) => void` |
+| CheckboxGroup update:value | Fires when the corresponding value or interaction changes. | `(value: CheckboxValue[]) => void` |
+| CheckboxGroup change | Fires when the corresponding value or interaction changes. | `(value: CheckboxValue[]) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Custom component content. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| icon | Provides the `icon` entry. |
-| label | Provides the `label` entry. |
+| root | The root element. |
+| icon | The visible selection control. |
+| label | The label content. |
 
 ## Theme Tokens
 

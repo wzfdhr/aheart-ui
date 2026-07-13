@@ -24,9 +24,14 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
   <ASelect
-    v-model="value"
+    model-value="banana"
     placeholder="Choose fruit"
     :options="[
       { label: 'Apple', value: 'apple' },
@@ -37,7 +42,7 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </template>
 ```
 
-## contentandcontent
+## Multiple Selection and Clear
 
 <div class="aheart-demo-panel">
   <ASelect
@@ -53,12 +58,21 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
   <ASelect
-    v-model="values"
     mode="multiple"
+    :model-value="['apple', 'banana']"
     allow-clear
-    :options="options"
+    :options="[
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Cherry', value: 'cherry' }
+    ]"
   />
 </template>
 ```
@@ -83,18 +97,26 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-
 const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </script>
 
 <template>
-  <ASelect ref="selectRef" placeholder="Focusable select" :options="options" />
-  <AButton @click="selectRef?.focus()">Focus</AButton>
-  <AButton @click="selectRef?.blur()">Blur</AButton>
+  <ASpace>
+    <ASelect
+      ref="selectRef"
+      placeholder="Focusable select"
+      :options="[
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' }
+      ]"
+    />
+    <AButton size="small" @click="selectRef?.focus()">Focus</AButton>
+    <AButton size="small" @click="selectRef?.blur()">Blur</AButton>
+  </ASpace>
 </template>
 ```
 
-## content
+## Search
 
 <div class="aheart-demo-panel">
   <ASelect
@@ -110,19 +132,26 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
   <ASelect
-    v-model="value"
     show-search
     placeholder="Search fruit"
     not-found-content="No fruit"
-    :options="options"
-    @search="handleSearch"
+    :options="[
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Cherry', value: 'cherry' }
+    ]"
   />
 </template>
 ```
 
-## fieldcontentandsort
+## Field Mapping and Sorting
 
 <div class="aheart-demo-panel">
   <ASelect
@@ -139,18 +168,27 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
   <ASelect
     show-search
     option-filter-prop="code"
     :field-names="{ label: 'name', value: 'id', disabled: 'locked' }"
-    :filter-sort="sortOptions"
-    :options="remoteOptions"
+    :filter-sort="(a, b, info) => `${a.label}-${info.searchValue}`.localeCompare(`${b.label}-${info.searchValue}`)"
+    :options="[
+      { name: 'Beta', id: 2, code: 'fruit', locked: false },
+      { name: 'Alpha', id: 1, code: 'fruit', locked: true },
+      { name: 'Gamma', id: 3, code: 'team', locked: false }
+    ]"
   />
 </template>
 ```
 
-## beforeaftercontentandcontent
+## Prefixes, Suffixes, and Variants
 
 <div class="aheart-demo-panel">
   <ASpace direction="vertical" style="width: 100%">
@@ -184,14 +222,44 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
-  <ASelect v-model="level" prefix="Level" suffix-icon="⌄" variant="filled" :options="levels" />
-  <ASelect v-model="value" variant="underlined" :options="options" />
-  <ASelect v-model="value" :bordered="false" :options="options" />
+  <ASpace direction="vertical" style="width: 100%">
+    <ASelect
+      model-value="2"
+      prefix="Level"
+      suffix-icon="⌄"
+      variant="filled"
+      :options="[
+        { label: 'One', value: 1 },
+        { label: 'Two', value: 2 }
+      ]"
+    />
+    <ASelect
+      model-value="apple"
+      variant="underlined"
+      :options="[
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' }
+      ]"
+    />
+    <ASelect
+      model-value="apple"
+      :bordered="false"
+      :options="[
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' }
+      ]"
+    />
+  </ASpace>
 </template>
 ```
 
-## defaultandloading
+## Default Value and Loading
 
 <div class="aheart-demo-panel">
   <ASpace direction="vertical" style="width: 100%">
@@ -215,13 +283,34 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
-  <ASelect default-value="banana" :options="options" />
-  <ASelect loading loading-icon="Loading" placeholder="Loading options" :options="options" />
+  <ASpace direction="vertical" style="width: 100%">
+    <ASelect
+      default-value="banana"
+      :options="[
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' }
+      ]"
+    />
+    <ASelect
+      loading
+      loading-icon="Loading"
+      placeholder="Loading options"
+      :options="[
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' }
+      ]"
+    />
+  </ASpace>
 </template>
 ```
 
-## customcontentandcontentstyle
+## Custom Clear and Semantic Styling
 
 <div class="aheart-demo-panel">
   <ASelect
@@ -238,19 +327,27 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
   <ASelect
-    v-model="value"
+    model-value="apple"
     :allow-clear="{ clearIcon: 'clear' }"
     class-name="demo-select"
     :class-names="{ selector: 'demo-select-control', clear: 'demo-select-clear' }"
-    :styles="{ root: { maxWidth: '320px' } }"
-    :options="options"
+    :styles="{ root: { maxWidth: '320px' }, selector: { borderColor: 'var(--aheart-color-primary)' } }"
+    :options="[
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' }
+    ]"
   />
 </template>
 ```
 
-## Tags andcountcontent
+## Tags and Count Limit
 
 <div class="aheart-demo-panel">
   <ASelect
@@ -266,12 +363,26 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
-  <ASelect v-model="values" mode="tags" :max-count="2" :options="options" />
+  <ASelect
+    mode="tags"
+    :model-value="['apple']"
+    :max-count="2"
+    :options="[
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Cherry', value: 'cherry' }
+    ]"
+  />
 </template>
 ```
 
-## statusandglobal configuration
+## Status and Global Configuration
 
 <div class="aheart-demo-panel">
   <AConfigProvider size="large" disabled>
@@ -287,9 +398,21 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const selectRef = ref<{ focus: () => void; blur: () => void }>()
+</script>
+
 <template>
   <AConfigProvider size="large" disabled>
-    <ASelect status="warning" placeholder="Disabled" :options="options" />
+    <ASelect
+      status="warning"
+      placeholder="Disabled"
+      :options="[
+        { label: 'Ready', value: 'ready' },
+        { label: 'Paused', value: 'paused' }
+      ]"
+    />
   </AConfigProvider>
 </template>
 ```
@@ -298,99 +421,99 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `string` \| `number` \| `(string \| number)[]` | - |
-| id | Configures `id`. | `string` | - |
-| name | Configures `name`. | `string` | - |
-| defaultValue | Configures `defaultValue`. | `string` \| `number` \| `(string \| number)[]` | - |
-| options | Configures `options`. | `SelectOption[]` | `[]` |
-| placeholder | Configures `placeholder`. | `string` | - |
-| prefix | Configures `prefix`. | `string` | - |
-| suffixIcon | Configures `suffixIcon`. | `string` | - |
-| loadingIcon | Configures `loadingIcon`. | `VNodeChild` | - |
-| size | Configures `size`. | `large` \|`middle` \|`small` | ConfigProvider size |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| status | Configures `status`. | `error` \| `warning` | - |
-| variant | Configures `variant`. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
-| bordered | Configures `bordered`. | `boolean` | `true` |
-| allowClear | Configures `allowClear`. | `boolean \|{ clearIcon?: VNodeChild }` | `false` |
-| mode | Configures `mode`. | `multiple` \|`tags` | - |
-| showSearch | Configures `showSearch`. | `boolean` | `false` |
-| searchValue | Configures `searchValue`. | `string` | - |
-| optionFilterProp | Configures `optionFilterProp`. | `string` | `label` |
-| filterOption | Configures `filterOption`. | `boolean` \|`(inputValue: string, option: SelectOption) => boolean` | `true` |
-| filterSort | Configures `filterSort`. | `(optionA, optionB, info) => number` | - |
-| fieldNames | Configures `fieldNames`. | `SelectFieldNames` | `{ label: 'label', value: 'value', disabled: 'disabled' }` |
-| notFoundContent | Configures `notFoundContent`. | `string` | `Not Found` |
-| maxCount | Configures `maxCount`. | `number` | - |
-| loading | Configures `loading`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `SelectClassNames` | `{}` |
-| styles | Configures `styles`. | `SelectStyles` | `{}` |
+| modelValue | The current selected value or values. | `string` \| `number` \| `(string \| number)[]` | - |
+| id | The native control id. | `string` | - |
+| name | The native control name. | `string` | - |
+| defaultValue | The initial uncontrolled value. | `string` \| `number` \| `(string \| number)[]` | - |
+| options | The available options. | `SelectOption[]` | `[]` |
+| placeholder | Placeholder text. | `string` | - |
+| prefix | Prefix content. | `string` | - |
+| suffixIcon | The selector suffix icon content. | `string` | - |
+| loadingIcon | Custom loading-icon content. | `VNodeChild` | - |
+| size | The component size. | `large` \|`middle` \|`small` | ConfigProvider size |
+| disabled | Whether the component is disabled. | `boolean` | ConfigProvider disabled |
+| status | The validation status. | `error` \| `warning` | - |
+| variant | The visual variant. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
+| bordered | Whether a border is shown; `false` is equivalent to `borderless`. | `boolean` | `true` |
+| allowClear | Whether to show a clear control, with optional custom icon configuration. | `boolean \|{ clearIcon?: VNodeChild }` | `false` |
+| mode | The selection mode. | `multiple` \|`tags` | - |
+| showSearch | Whether to show a search input. | `boolean` | `false` |
+| searchValue | The controlled search text. | `string` | - |
+| optionFilterProp | The option field matched by the default search filter. | `string` | `label` |
+| filterOption | Custom filter logic; `false` disables local filtering. | `boolean` \|`(inputValue: string, option: SelectOption) => boolean` | `true` |
+| filterSort | Custom ordering after filtering. | `(optionA, optionB, info) => number` | - |
+| fieldNames | Maps the option label, value, and disabled field names. | `SelectFieldNames` | `{ label: 'label', value: 'value', disabled: 'disabled' }` |
+| notFoundContent | Content shown when no option matches. | `string` | `Not Found` |
+| maxCount | The maximum number of submitted values in multiple or tags mode. | `number` | - |
+| loading | Whether to show a loading state. | `boolean` | `false` |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `SelectClassNames` | `{}` |
+| styles | Styles for semantic DOM parts. | `SelectStyles` | `{}` |
 
 ### SelectOption
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| label | Configures `label`. | `string` | - |
-| value | Configures `value`. | `string` \| `number` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
+| label | The option text. | `string` | - |
+| value | The option value. | `string` \| `number` | - |
+| disabled | Whether this option is disabled. | `boolean` | `false` |
 
 ### SelectFieldNames
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| label | Configures `label`. | `string` | `label` |
-| value | Configures `value`. | `string` | `value` |
-| disabled | Configures `disabled`. | `string` | `disabled` |
+| label | The option-text field name. | `string` | `label` |
+| value | The option-value field name. | `string` | `value` |
+| disabled | The disabled-state field name. | `string` | `disabled` |
 
 ### SelectFilterSortInfo
 
 | Field | Description | Type |
 | --- | --- | --- |
-| searchValue | Describes `searchValue`. | `string` |
+| searchValue | The current search text. | `string` |
 
 ## Methods
 
 | Name | Description |
 | --- | --- |
-| focus() | Provides the `focus()` entry. |
-| blur() | Provides the `blur()` entry. |
+| focus() | Focuses the selector, or its search input when `showSearch` is enabled. |
+| blur() | Removes focus from the selector. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:modelValue | Emitted when `update:modelValue` occurs. | `(value: SelectValue) => void` |
-| change | Emitted when `change` occurs. | `(value: SelectValue) => void` |
-| clear | Emitted when `clear` occurs. | `() => void` |
-| search | Emitted when `search` occurs. | `(value: string) => void` |
-| focus | Emitted when `focus` occurs. | `(event: FocusEvent) => void` |
-| blur | Emitted when `blur` occurs. | `(event: FocusEvent) => void` |
+| update:modelValue | Fires when the component value changes. | `(value: SelectValue) => void` |
+| change | Fires when the component value changes. | `(value: SelectValue) => void` |
+| clear | Fires when the clear control is clicked. | `() => void` |
+| search | Fires when the search text changes. | `(value: string) => void` |
+| focus | Fires when the selector or search input receives focus. | `(event: FocusEvent) => void` |
+| blur | Fires when the selector or search input loses focus. | `(event: FocusEvent) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| prefix | Provides the `prefix` entry. |
-| suffixIcon | Provides the `suffixIcon` entry. |
-| loadingIcon | Provides the `loadingIcon` entry. |
-| clearIcon | Provides the `clearIcon` entry. |
+| prefix | Custom prefix content. |
+| suffixIcon | Custom suffix-icon content. |
+| loadingIcon | Custom loading-icon content. |
+| clearIcon | Custom clear-control content. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| prefix | Provides the `prefix` entry. |
-| search | Provides the `search` entry. |
-| selector | Provides the `selector` entry. |
-| option | Provides the `option` entry. |
-| notFound | Provides the `notFound` entry. |
-| clear | Provides the `clear` entry. |
-| suffix | Provides the `suffix` entry. |
-| loading | Provides the `loading` entry. |
+| root | The root element. |
+| prefix | Custom prefix content. |
+| search | The search input. |
+| selector | The native select control. |
+| option | An option node. |
+| notFound | The empty-results option. |
+| clear | The clear control. |
+| suffix | Custom suffix content. |
+| loading | The loading-icon region. |
 
 ## Theme Tokens
 

@@ -33,10 +33,12 @@ Typography provides text, title, paragraph, and link primitives for product inte
 
 ```vue
 <template>
-  <AText>Default</AText>
-  <AText type="success" strong>Success</AText>
-  <AText type="warning">Warning</AText>
-  <AText code>code</AText>
+  <ASpace>
+    <AText>Default</AText>
+    <AText type="success" strong>Success</AText>
+    <AText type="warning">Warning</AText>
+    <AText code>code</AText>
+  </ASpace>
 </template>
 ```
 
@@ -142,112 +144,112 @@ Typography provides text, title, paragraph, and link primitives for product inte
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `TypographyClassNames` | - |
-| styles | Configures `styles`. | `TypographyStyles` | - |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `TypographyClassNames` | - |
+| styles | Styles for semantic DOM parts. | `TypographyStyles` | - |
 
 ### Title
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| level | Configures `level`. | `1` \|`2` \|`3` \|`4` \|`5` | `1` |
-| type | Configures `type`. | `secondary` \| `success` \| `warning` \| `danger` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| mark | Configures `mark`. | `boolean` | `false` |
-| copyable | Configures `copyable`. | `boolean` \|`TypographyCopyableConfig` | `false` |
-| actions | Configures `actions`. | `TypographyActionsConfig` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `TypographyClassNames` | - |
-| styles | Configures `styles`. | `TypographyStyles` | - |
+| level | The heading level. | `1` \|`2` \|`3` \|`4` \|`5` | `1` |
+| type | The value type. | `secondary` \| `success` \| `warning` \| `danger` | - |
+| disabled | Whether the component is disabled. | `boolean` | `false` |
+| mark | Whether text is highlighted. | `boolean` | `false` |
+| copyable | Whether to show copy actions, or their text, icons, tooltips, and callback configuration. | `boolean` \|`TypographyCopyableConfig` | `false` |
+| actions | Action-area configuration, including copy-button placement. | `TypographyActionsConfig` | - |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `TypographyClassNames` | - |
+| styles | Styles for semantic DOM parts. | `TypographyStyles` | - |
 
 ### Text
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| type | Configures `type`. | `secondary` \|`success` \|`warning` \|`danger` | - |
-| strong | Configures `strong`. | `boolean` | `false` |
-| italic | Configures `italic`. | `boolean` | `false` |
-| code | Configures `code`. | `boolean` | `false` |
-| keyboard | Configures `keyboard`. | `boolean` | `false` |
-| delete | Configures `delete`. | `boolean` | `false` |
-| underline | Configures `underline`. | `boolean` | `false` |
-| mark | Configures `mark`. | `boolean` | `false` |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| copyable | Configures `copyable`. | `boolean` \|`TypographyCopyableConfig` | `false` |
-| actions | Configures `actions`. | `TypographyActionsConfig` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `TypographyClassNames` | - |
-| styles | Configures `styles`. | `TypographyStyles` | - |
+| type | The value type. | `secondary` \|`success` \|`warning` \|`danger` | - |
+| strong | Whether text is bold. | `boolean` | `false` |
+| italic | Whether text is italic. | `boolean` | `false` |
+| code | Whether text is rendered as code. | `boolean` | `false` |
+| keyboard | Whether keyboard-style text is rendered. | `boolean` | `false` |
+| delete | Whether text is struck through. | `boolean` | `false` |
+| underline | Whether text is underlined. | `boolean` | `false` |
+| mark | Whether text is highlighted. | `boolean` | `false` |
+| disabled | Whether the component is disabled. | `boolean` | `false` |
+| copyable | Whether to show copy actions, or their text, icons, tooltips, and callback configuration. | `boolean` \|`TypographyCopyableConfig` | `false` |
+| actions | Action-area configuration, including copy-button placement. | `TypographyActionsConfig` | - |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `TypographyClassNames` | - |
+| styles | Styles for semantic DOM parts. | `TypographyStyles` | - |
 
 ### Paragraph
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| type | Configures `type`. | `secondary` \|`success` \|`warning` \|`danger` | - |
-| strong | Configures `strong`. | `boolean` | `false` |
-| italic | Configures `italic`. | `boolean` | `false` |
-| ellipsis | Configures `ellipsis`. | `boolean` \|`TypographyEllipsisConfig` | `false` |
-| mark | Configures `mark`. | `boolean` | `false` |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| copyable | Configures `copyable`. | `boolean` \|`TypographyCopyableConfig` | `false` |
-| actions | Configures `actions`. | `TypographyActionsConfig` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `TypographyClassNames` | - |
-| styles | Configures `styles`. | `TypographyStyles` | - |
+| type | The value type. | `secondary` \|`success` \|`warning` \|`danger` | - |
+| strong | Whether text is bold. | `boolean` | `false` |
+| italic | Whether text is italic. | `boolean` | `false` |
+| ellipsis | Whether text is truncated with an ellipsis. | `boolean` \|`TypographyEllipsisConfig` | `false` |
+| mark | Whether text is highlighted. | `boolean` | `false` |
+| disabled | Whether the component is disabled. | `boolean` | `false` |
+| copyable | Whether to show copy actions, or their text, icons, tooltips, and callback configuration. | `boolean` \|`TypographyCopyableConfig` | `false` |
+| actions | Action-area configuration, including copy-button placement. | `TypographyActionsConfig` | - |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `TypographyClassNames` | - |
+| styles | Styles for semantic DOM parts. | `TypographyStyles` | - |
 
 ### TypographyEllipsisConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| rows | Configures `rows`. | `number` | `1` |
+| rows | The number of visible rows. | `number` | `1` |
 
 ### TypographyCopyableConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| text | Configures `text`. | `string` \|`() => string \|Promise<string>` | rendered text |
-| icon | Configures `icon`. | `VNodeChild` \|`[VNodeChild, VNodeChild]` | `copy` / `copied` |
-| tooltips | Configures `tooltips`. | `false` \|`[VNodeChild, VNodeChild]` | `Copy` / `Copied` |
-| format | Configures `format`. | `text/plain` \|`text/html` | `text/plain` |
-| tabIndex | Configures `tabIndex`. | `number` | `0` |
-| onCopy | Configures `onCopy`. | `(event: MouseEvent) => void` | - |
+| text | The copied text. | `string` \|`() => string \|Promise<string>` | rendered text |
+| icon | The copy and copied icons. | `VNodeChild` \|`[VNodeChild, VNodeChild]` | `copy` / `copied` |
+| tooltips | Copy and copied tooltips, or `false` to disable them. | `false` \|`[VNodeChild, VNodeChild]` | `Copy` / `Copied` |
+| format | The copied content format. | `text/plain` \|`text/html` | `text/plain` |
+| tabIndex | The copy action tab index. | `number` | `0` |
+| onCopy | The callback invoked after copying. | `(event: MouseEvent) => void` | - |
 
 ### TypographyActionsConfig
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| placement | Configures `placement`. | `start` \|`end` | `end` |
+| placement | The action-area placement. | `start` \|`end` | `end` |
 
 ### Link
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| href | Configures `href`. | `string` | - |
-| target | Configures `target`. | `string` | - |
-| disabled | Configures `disabled`. | `boolean` | `false` |
-| underline | Configures `underline`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `TypographyClassNames` | - |
-| styles | Configures `styles`. | `TypographyStyles` | - |
+| href | The link target URL. | `string` | - |
+| target | The link target browsing context. | `string` | - |
+| disabled | Whether the component is disabled. | `boolean` | `false` |
+| underline | Whether text is underlined. | `boolean` | `false` |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `TypographyClassNames` | - |
+| styles | Styles for semantic DOM parts. | `TypographyStyles` | - |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | Provides the `default` entry. |
+| default | Custom component content. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
+| root | The root element. |

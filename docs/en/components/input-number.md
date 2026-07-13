@@ -30,9 +30,27 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
-  <AInputNumber v-model="value" :min="1" :max="10" />
-  <AInputNumber :default-value="6" />
+  <ASpace>
+    <AInputNumber :model-value="4" :min="1" :max="10" />
+    <AInputNumber :default-value="6" />
+  </ASpace>
 </template>
 ```
 
@@ -54,17 +72,31 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
 </script>
 
 <template>
-  <AInputNumber v-model="value" :step="2" />
-  <AInputNumber v-model="decimalValue" step="0.5" />
-  <AInputNumber v-model="amount" :precision="2" prefix="$" suffix="USD" />
-  <AInputNumber
-    v-model="nodeAmount"
-    :prefix="h('strong', { class: 'demo-input-number-node' }, '$')"
-    :suffix="h('span', { class: 'demo-input-number-node' }, 'USD')"
-  />
+  <ASpace>
+    <AInputNumber :model-value="2" :step="2" />
+    <AInputNumber :model-value="1" step="0.5" />
+    <AInputNumber :model-value="12.345" :precision="2" prefix="$" suffix="USD" />
+    <AInputNumber
+      :model-value="88"
+      :prefix="h('strong', { class: 'demo-input-number-node' }, '$')"
+      :suffix="h('span', { class: 'demo-input-number-node' }, 'USD')"
+    />
+  </ASpace>
 </template>
 ```
 
@@ -85,11 +117,29 @@ When the current value reaches `max` or `min`, stepping in that direction is dis
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
-  <AInputNumber v-model="value" status="warning" />
-  <AInputNumber v-model="value" variant="filled" />
-  <AInputNumber v-model="value" variant="underlined" />
-  <AInputNumber v-model="value" :bordered="false" />
+  <ASpace direction="vertical" style="width: 100%">
+    <AInputNumber :model-value="8" status="warning" />
+    <AInputNumber :model-value="8" variant="filled" />
+    <AInputNumber :model-value="8" variant="underlined" />
+    <AInputNumber :model-value="8" :bordered="false" />
+  </ASpace>
 </template>
 ```
 
@@ -116,8 +166,24 @@ Without a `parser`, the default parser removes currency symbols, grouping separa
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
-  <AInputNumber v-model="value" decimal-separator="," />
+  <AInputNumber :model-value="12.5" decimal-separator="," />
 </template>
 ```
 
@@ -131,9 +197,27 @@ Without a `parser`, the default parser removes currency symbols, grouping separa
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
-  <AInputNumber v-model="blurValue" />
-  <AInputNumber v-model="instantValue" :change-on-blur="false" />
+  <ASpace>
+    <AInputNumber :default-value="4" />
+    <AInputNumber :default-value="4" :change-on-blur="false" />
+  </ASpace>
 </template>
 ```
 
@@ -148,10 +232,26 @@ Without a `parser`, the default parser removes currency symbols, grouping separa
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
   <AInputNumber
-    v-model="value"
     string-mode
+    model-value="1.000000000000000001"
     step="0.000000000000000001"
   />
 </template>
@@ -175,17 +275,31 @@ Without a `parser`, the default parser removes currency symbols, grouping separa
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
 </script>
 
 <template>
-  <AInputNumber
-    v-model="value"
-    :controls="{
-      upIcon: h('span', { class: 'demo-input-number-node' }, 'up'),
-      downIcon: h('span', { class: 'demo-input-number-node' }, 'down')
-    }"
-  />
-  <AInputNumber v-model="plainValue" :controls="false" />
+  <ASpace>
+    <AInputNumber
+      :model-value="8"
+      :controls="{
+        upIcon: h('span', { class: 'demo-input-number-node' }, 'up'),
+        downIcon: h('span', { class: 'demo-input-number-node' }, 'down')
+      }"
+    />
+    <AInputNumber :model-value="8" :controls="false" />
+  </ASpace>
 </template>
 ```
 
@@ -196,8 +310,24 @@ import { h } from 'vue'
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
-  <AInputNumber v-model="value" :step="2" change-on-wheel />
+  <AInputNumber :model-value="4" :step="2" change-on-wheel />
 </template>
 ```
 
@@ -222,6 +352,7 @@ After the input receives focus, the wheel accumulates movement and emits a chang
 
 ```vue
 <script setup lang="ts">
+import { h } from 'vue'
 const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
   root: 'demo-input-number-semantic-root',
   input: 'demo-input-number-control',
@@ -230,7 +361,6 @@ const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unkno
   actions: 'demo-input-number-actions',
   action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
 })
-
 const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
   prefix: { color: 'var(--aheart-color-primary)' },
   action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
@@ -239,7 +369,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 
 <template>
   <AInputNumber
-    v-model="amount"
+    :model-value="1200"
     prefix="$"
     suffix="USD"
     status="warning"
@@ -262,6 +392,22 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  root: 'demo-input-number-semantic-root',
+  input: 'demo-input-number-control',
+  prefix: 'demo-input-number-prefix',
+  suffix: 'demo-input-number-suffix',
+  actions: 'demo-input-number-actions',
+  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
+})
+const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
+  prefix: { color: 'var(--aheart-color-primary)' },
+  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
+})
+</script>
+
 <template>
   <AConfigProvider size="large" disabled>
     <AInputNumber :model-value="8" />
@@ -273,40 +419,40 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `number` \|`string` | - |
-| value | Configures `value`. | `number` \|`string` | - |
-| defaultValue | Configures `defaultValue`. | `number` \|`string` | - |
-| autoFocus | Configures `autoFocus`. | `boolean` | `false` |
-| id | Configures `id`. | `string` | - |
-| placeholder | Configures `placeholder`. | `string` | - |
-| addonBefore | Configures `addonBefore`. | `VNodeChild` | - |
-| addonAfter | Configures `addonAfter`. | `VNodeChild` | - |
-| prefix | Configures `prefix`. | `VNodeChild` | - |
-| suffix | Configures `suffix`. | `VNodeChild` | - |
-| size | Configures `size`. | `large` \| `middle` \| `small` | ConfigProvider size |
-| mode | Configures `mode`. | `input` \|`spinner` | `input` |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| readOnly | Configures `readOnly`. | `boolean` | `false` |
-| status | Configures `status`. | `error` \| `warning` | - |
-| variant | Configures `variant`. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
-| bordered | Configures `bordered`. | `boolean` | `true` |
-| min | Configures `min`. | `number` | - |
-| max | Configures `max`. | `number` | - |
-| step | Configures `step`. | `number` \|`string` | `1` |
-| precision | Configures `precision`. | `number` | - |
-| decimalSeparator | Configures `decimalSeparator`. | `string` | `.` |
-| stringMode | Configures `stringMode`. | `boolean` | `false` |
-| formatter | Configures `formatter`. | `(value?: number \|string, info: { userTyping: boolean; input: string }) => string` | - |
-| parser | Configures `parser`. | `(displayValue: string) => number \|string \|undefined` | - |
-| keyboard | Configures `keyboard`. | `boolean` | `true` |
-| controls | Configures `controls`. | `boolean` \|`{ upIcon?: VNodeChild; downIcon?: VNodeChild }` | `true` |
-| changeOnBlur | Configures `changeOnBlur`. | `boolean` | `true` |
-| changeOnWheel | Configures `changeOnWheel`. | `boolean` | `false` |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `InputNumberSemanticRecord<string> \|((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<string>)` | - |
-| styles | Configures `styles`. | `InputNumberSemanticRecord<StyleValue> \|((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<StyleValue>)` | - |
+| modelValue | The numeric value; strings are supported in `stringMode`. | `number` \|`string` | - |
+| value | Ant Design-compatible controlled numeric value; `modelValue` takes precedence when both are provided. | `number` \|`string` | - |
+| defaultValue | The initial uncontrolled value. | `number` \|`string` | - |
+| autoFocus | Whether to focus the native control after mounting. | `boolean` | `false` |
+| id | The native control id. | `string` | - |
+| placeholder | Placeholder text. | `string` | - |
+| addonBefore | Content before the input group. | `VNodeChild` | - |
+| addonAfter | Content after the input group. | `VNodeChild` | - |
+| prefix | Prefix content. | `VNodeChild` | - |
+| suffix | Suffix content. | `VNodeChild` | - |
+| size | The component size. | `large` \| `middle` \| `small` | ConfigProvider size |
+| mode | Display mode; `spinner` uses increment/decrement controls and centers the input. | `input` \|`spinner` | `input` |
+| disabled | Whether the component is disabled. | `boolean` | ConfigProvider disabled |
+| readOnly | Whether the control is read-only. | `boolean` | `false` |
+| status | The validation status. | `error` \| `warning` | - |
+| variant | The visual variant. | `outlined` \|`borderless` \|`filled` \|`underlined` | `outlined` |
+| bordered | Whether a border is shown; `false` is equivalent to `borderless`. | `boolean` | `true` |
+| min | The minimum value or character/array length. | `number` | - |
+| max | The maximum value or character/array length. | `number` | - |
+| step | The amount changed per step. | `number` \|`string` | `1` |
+| precision | Numeric precision; also pads the default display decimal places. | `number` | - |
+| decimalSeparator | The decimal separator used for default display and parsing. | `string` | `.` |
+| stringMode | Whether to use strings for high-precision decimal values. | `boolean` | `false` |
+| formatter | Formats the displayed value. | `(value?: number \|string, info: { userTyping: boolean; input: string }) => string` | - |
+| parser | Parses the displayed value into the model value. | `(displayValue: string) => number \|string \|undefined` | - |
+| keyboard | Whether arrow-key stepping is enabled. | `boolean` | `true` |
+| controls | Whether to show step controls, with optional custom icons. Controls are hidden when disabled or read-only. | `boolean` \|`{ upIcon?: VNodeChild; downIcon?: VNodeChild }` | `true` |
+| changeOnBlur | Commits input changes on blur; set `false` to commit while typing. | `boolean` | `true` |
+| changeOnWheel | Whether mouse-wheel stepping is enabled. | `boolean` | `false` |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `InputNumberSemanticRecord<string> \|((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<string>)` | - |
+| styles | Styles for semantic DOM parts. | `InputNumberSemanticRecord<StyleValue> \|((info: InputNumberSemanticInfo) => InputNumberSemanticRecord<StyleValue>)` | - |
 
 In addition to declared props, native `<input>` attributes and listeners such as `name`, `autocomplete`, `pattern`, `aria-*`, and `@blur` pass through to the internal input. The internal input defaults to `autocomplete="off"`, which an explicit value overrides. It exposes `spinbutton` ARIA semantics and range metadata, including `aria-valuenow` only for valid numeric values. Component `class`, `style`, and mouse events such as `@click`, `@mousedown`, and `@mousemove` remain on the root. The root receives `is-focused`, `is-not-a-number`, and `is-out-of-range` state classes as applicable. Step controls disable only at valid `min`/`max` boundaries; root `mousedown` focuses the input and prevents the default mouse-down behavior. The component `@input` event returns the current raw input text.
 
@@ -314,45 +460,45 @@ In addition to declared props, native `<input>` attributes and listeners such as
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:modelValue | Emitted when `update:modelValue` occurs. | `(value: number \|string \|undefined) => void` |
-| change | Emitted when `change` occurs. | `(value: number \|string \|undefined) => void` |
-| pressEnter | Emitted when `pressEnter` occurs. | `(event: KeyboardEvent) => void` |
-| input | Emitted when `input` occurs. | `(value: string) => void` |
-| step | Emitted when `step` occurs. | `(value: number \|string, info: { offset: number \|string; type: 'up' \|'down'; emitter: 'handler' \|'keyboard' \|'wheel' }) => void` |
+| update:modelValue | Fires when the component value changes. | `(value: number \|string \|undefined) => void` |
+| change | Fires when the component value changes. | `(value: number \|string \|undefined) => void` |
+| pressEnter | Fires when Enter is pressed. | `(event: KeyboardEvent) => void` |
+| input | Fires when input text changes and returns the current raw input text. | `(value: string) => void` |
+| step | Fires after control, keyboard, or wheel stepping. In `stringMode`, `value` is a string; `info.offset` is the step and `info.type` is the direction. | `(value: number \|string, info: { offset: number \|string; type: 'up' \|'down'; emitter: 'handler' \|'keyboard' \|'wheel' }) => void` |
 
 ## Methods
 
 | Name | Description | Type |
 | --- | --- | --- |
-| focus | Exposes the `focus` method. | `(option?: { preventScroll?: boolean; cursor?: 'start' \|'end' \|'all' }) => void` |
-| blur | Exposes the `blur` method. | `() => void` |
-| nativeElement | Exposes the `nativeElement` method. | `HTMLElement \|undefined` |
+| focus | Focuses the control. | `(option?: { preventScroll?: boolean; cursor?: 'start' \|'end' \|'all' }) => void` |
+| blur | Removes focus from the control. | `() => void` |
+| nativeElement | The `nativeElement` method. | `HTMLElement \|undefined` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| prefix | Provides the `prefix` entry. |
-| suffix | Provides the `suffix` entry. |
-| increaseIcon | Provides the `increaseIcon` entry. |
-| decreaseIcon | Provides the `decreaseIcon` entry. |
+| prefix | Custom prefix content. |
+| suffix | Custom suffix content. |
+| increaseIcon | Custom increment-control content. |
+| decreaseIcon | Custom decrement-control content. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| input | Provides the `input` entry. |
-| prefix | Provides the `prefix` entry. |
-| suffix | Provides the `suffix` entry. |
-| actions | Provides the `actions` entry. |
-| action | Provides the `action` entry. |
+| root | The root element. |
+| input | The native input control. |
+| prefix | Custom prefix content. |
+| suffix | Custom suffix content. |
+| actions | The step-control container. |
+| action | An individual step control. |
 
 ## InputNumberSemanticInfo
 
 | Name | Description | Type |
 | --- | --- | --- |
-| props | Describes `props`. | `Readonly<Record<string, unknown>>` |
+| props | Current read-only InputNumber props passed to a semantic function. | `Readonly<Record<string, unknown>>` |
 
 ## Theme Tokens
 

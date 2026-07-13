@@ -21,12 +21,22 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
 <template>
-  <ASwitch v-model="checked" />
+  <ASpace>
+    <ASwitch :model-value="true" />
+    <ASwitch />
+  </ASpace>
 </template>
 ```
 
-## contentandloading
+## Labels and Loading
 
 <div class="aheart-demo-panel">
   <ASpace>
@@ -36,9 +46,18 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
 <template>
-  <ASwitch v-model="checked" checked-children="On" un-checked-children="Off" />
-  <ASwitch loading />
+  <ASpace>
+    <ASwitch :model-value="true" checked-children="On" un-checked-children="Off" />
+    <ASwitch loading />
+  </ASpace>
 </template>
 ```
 
@@ -53,10 +72,19 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
 <template>
-  <ASwitch :checked="checked" />
-  <ASwitch :value="enabled" />
-  <ASwitch default-checked />
+  <ASpace>
+    <ASwitch :checked="true" checked-children="Checked" un-checked-children="Unchecked" />
+    <ASwitch :value="true" checked-children="Value" />
+    <ASwitch default-checked checked-children="Default" un-checked-children="Off" />
+  </ASpace>
 </template>
 ```
 
@@ -70,8 +98,15 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
 <template>
-  <ASwitch v-model="checked">
+  <ASwitch default-checked>
     <template #checkedChildren>1</template>
     <template #unCheckedChildren>0</template>
   </ASwitch>
@@ -90,15 +125,15 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 
 ```vue
 <script setup lang="ts">
-import { h } from 'vue'
-
+import { h, ref } from 'vue'
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
 const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
 const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </script>
 
 <template>
   <ASwitch
-    v-model="checked"
+    default-checked
     :checked-children="checkedNode"
     :un-checked-children="uncheckedNode"
   />
@@ -117,15 +152,18 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
+import { h, ref } from 'vue'
 const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </script>
 
 <template>
-  <ASwitch ref="switchRef" auto-focus />
-  <AButton @click="switchRef?.focus()">Focus</AButton>
-  <AButton @click="switchRef?.blur()">Blur</AButton>
+  <ASpace>
+    <ASwitch ref="switchRef" auto-focus />
+    <AButton size="small" @click="switchRef?.focus()">Focus</AButton>
+    <AButton size="small" @click="switchRef?.blur()">Blur</AButton>
+  </ASpace>
 </template>
 ```
 
@@ -145,14 +183,23 @@ const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTM
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
 <template>
   <ASwitch
-    v-model="checked"
+    default-checked
     class-name="demo-switch"
     root-class-name="demo-switch-root"
     :style="{ width: '72px' }"
     :class-names="{ root: 'demo-switch-semantic-root', indicator: 'demo-switch-indicator', content: 'demo-switch-content' }"
     :styles="{ indicator: { boxShadow: '0 0 0 2px rgba(22, 119, 255, 0.2)' }, content: { fontWeight: 600 } }"
+    checked-children="On"
+    un-checked-children="Off"
   />
 </template>
 ```
@@ -166,6 +213,13 @@ const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTM
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref } from 'vue'
+const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
+const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
+const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+</script>
+
 <template>
   <AConfigProvider size="small" disabled>
     <ASwitch />
@@ -177,55 +231,55 @@ const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTM
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| modelValue | Configures `modelValue`. | `boolean` | `false` |
-| checked | Configures `checked`. | `boolean` | - |
-| value | Configures `value`. | `boolean` | - |
-| defaultChecked | Configures `defaultChecked`. | `boolean` | - |
-| defaultValue | Configures `defaultValue`. | `boolean` | - |
-| disabled | Configures `disabled`. | `boolean` | ConfigProvider disabled |
-| loading | Configures `loading`. | `boolean` | `false` |
-| size | Configures `size`. | `large` \|`middle` \|`small` | ConfigProvider size |
-| autoFocus | Configures `autoFocus`. | `boolean` | `false` |
-| checkedChildren | Configures `checkedChildren`. | `VNodeChild` | - |
-| unCheckedChildren | Configures `unCheckedChildren`. | `VNodeChild` | - |
-| className | Configures `className`. | `string` | - |
-| rootClassName | Configures `rootClassName`. | `string` | - |
-| style | Configures `style`. | `StyleValue` | - |
-| classNames | Configures `classNames`. | `Partial<Record<'root' \| 'content' \| 'indicator', string>>` | - |
-| styles | Configures `styles`. | `Partial<Record<'root' \| 'content' \| 'indicator', StyleValue>>` | - |
+| modelValue | The current value. | `boolean` | `false` |
+| checked | The controlled checked state. | `boolean` | - |
+| value | The value. | `boolean` | - |
+| defaultChecked | The initial uncontrolled checked state. | `boolean` | - |
+| defaultValue | The initial uncontrolled value. | `boolean` | - |
+| disabled | Whether the component is disabled. | `boolean` | ConfigProvider disabled |
+| loading | Whether to show a loading state. | `boolean` | `false` |
+| size | The component size. | `large` \|`middle` \|`small` | ConfigProvider size |
+| autoFocus | Whether to focus the native control after mounting. | `boolean` | `false` |
+| checkedChildren | Content shown while the switch is on. | `VNodeChild` | - |
+| unCheckedChildren | Content shown while the switch is off. | `VNodeChild` | - |
+| className | A compatibility CSS class for the root element. | `string` | - |
+| rootClassName | The root element CSS class. | `string` | - |
+| style | Styles for the root element. | `StyleValue` | - |
+| classNames | CSS classes for semantic DOM parts. | `Partial<Record<'root' \| 'content' \| 'indicator', string>>` | - |
+| styles | Styles for semantic DOM parts. | `Partial<Record<'root' \| 'content' \| 'indicator', StyleValue>>` | - |
 
 ## Methods
 
 | Name | Description |
 | --- | --- |
-| focus() | Provides the `focus()` entry. |
-| blur() | Provides the `blur()` entry. |
-| nativeElement | Provides the `nativeElement` entry. |
+| focus() | Focuses the native control. |
+| blur() | Removes focus from the native control. |
+| nativeElement | The root native element. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:modelValue | Emitted when `update:modelValue` occurs. | `(checked: boolean) => void` |
-| update:checked | Emitted when `update:checked` occurs. | `(checked: boolean) => void` |
-| update:value | Emitted when `update:value` occurs. | `(checked: boolean) => void` |
-| change | Emitted when `change` occurs. | `(checked: boolean, event: MouseEvent) => void` |
-| click | Emitted when `click` occurs. | `(checked: boolean, event: MouseEvent) => void` |
+| update:modelValue | Fires when the component value changes. | `(checked: boolean) => void` |
+| update:checked | Fires when the corresponding value or interaction changes. | `(checked: boolean) => void` |
+| update:value | Fires when the corresponding value or interaction changes. | `(checked: boolean) => void` |
+| change | Fires when the component value changes. | `(checked: boolean, event: MouseEvent) => void` |
+| click | Fires when the corresponding value or interaction changes. | `(checked: boolean, event: MouseEvent) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| checkedChildren | Provides the `checkedChildren` entry. |
-| unCheckedChildren | Provides the `unCheckedChildren` entry. |
+| checkedChildren | Custom on-state content. |
+| unCheckedChildren | Custom off-state content. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | Provides the `root` entry. |
-| indicator | Provides the `indicator` entry. |
-| content | Provides the `content` entry. |
+| root | The root element. |
+| indicator | The switch indicator. |
+| content | The on/off content. |
 
 ## Theme Tokens
 
