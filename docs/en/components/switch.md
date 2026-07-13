@@ -21,15 +21,8 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
-const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
-const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <ASwitch :model-value="true" />
     <ASwitch />
   </ASpace>
@@ -46,15 +39,8 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
-const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
-const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <ASwitch :model-value="true" checked-children="On" un-checked-children="Off" />
     <ASwitch loading />
   </ASpace>
@@ -72,15 +58,8 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
-const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
-const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <ASwitch :checked="true" checked-children="Checked" un-checked-children="Unchecked" />
     <ASwitch :value="true" checked-children="Value" />
     <ASwitch default-checked checked-children="Default" un-checked-children="Off" />
@@ -98,15 +77,8 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
-const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
-const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
-</script>
-
 <template>
-  <ASwitch default-checked>
+<ASwitch default-checked>
     <template #checkedChildren>1</template>
     <template #unCheckedChildren>0</template>
   </ASwitch>
@@ -126,13 +98,12 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 ```vue
 <script setup lang="ts">
 import { h, ref } from 'vue'
-const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
 const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
 const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </script>
 
 <template>
-  <ASwitch
+<ASwitch
     default-checked
     :checked-children="checkedNode"
     :un-checked-children="uncheckedNode"
@@ -154,12 +125,10 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 <script setup lang="ts">
 import { h, ref } from 'vue'
 const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
-const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
-const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </script>
 
 <template>
-  <ASpace>
+<ASpace>
     <ASwitch ref="switchRef" auto-focus />
     <AButton size="small" @click="switchRef?.focus()">Focus</AButton>
     <AButton size="small" @click="switchRef?.blur()">Blur</AButton>
@@ -183,15 +152,8 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
-const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
-const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
-</script>
-
 <template>
-  <ASwitch
+<ASwitch
     default-checked
     class-name="demo-switch"
     root-class-name="demo-switch-root"
@@ -213,15 +175,8 @@ const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
-const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
-const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
-</script>
-
 <template>
-  <AConfigProvider size="small" disabled>
+<AConfigProvider size="small" disabled>
     <ASwitch />
   </AConfigProvider>
 </template>

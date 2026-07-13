@@ -32,12 +32,10 @@ import { h } from 'vue'
 const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
 const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
 const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </script>
 
 <template>
-  <AForm layout="vertical">
+<AForm layout="vertical">
     <AFormItem :label="formLabelNode" required>
       <AInput model-value="Ada" />
     </AFormItem>
@@ -66,17 +64,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm
+<AForm
     :model="{ email: '' }"
     :rules="{ email: [{ required: true, message: 'Email is required' }] }"
     layout="vertical"
@@ -108,17 +97,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm :model="{ email: '', password: '' }" layout="vertical" scroll-to-first-error>
+<AForm :model="{ email: '', password: '' }" layout="vertical" scroll-to-first-error>
     <AFormItem label="Email" name="email" :rules="[{ required: true, message: 'Email is required' }]">
       <AInput model-value="" />
     </AFormItem>
@@ -154,17 +134,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm :model="{ email: 'abc' }" layout="vertical">
+<AForm :model="{ email: 'abc' }" layout="vertical">
     <AFormItem
       label="Email"
       name="email"
@@ -205,17 +176,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm :model="{ email: 'abc' }" layout="vertical">
+<AForm :model="{ email: 'abc' }" layout="vertical">
     <AFormItem
       label="Work email"
       name="email"
@@ -253,17 +215,8 @@ Use `\\${label}` to render a literal `${label}` without triggering message-varia
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm
+<AForm
     :model="{ age: 12 }"
     required-mark="optional"
     :colon="false"
@@ -291,17 +244,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm :colon="false" label-align="right" layout="vertical">
+<AForm :colon="false" label-align="right" layout="vertical">
     <AFormItem label="Email" html-for="label-control-email" :colon="true" label-align="left" layout="horizontal">
       <AInput id="label-control-email" model-value="ada@example.com" />
     </AFormItem>
@@ -328,15 +272,12 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
 const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
 const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </script>
 
 <template>
-  <AForm layout="vertical">
+<AForm layout="vertical">
     <AFormItem label="Email" tooltip="Use your work email">
       <AInput model-value="ada@example.com" />
     </AFormItem>
@@ -361,17 +302,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm :model="{ token: '' }" layout="vertical">
+<AForm :model="{ token: '' }" layout="vertical">
     <AFormItem label="Token" name="token" hidden :rules="[{ required: true, message: 'Token required' }]">
       <AInput model-value="" />
     </AFormItem>
@@ -396,17 +328,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm :model="{ token: '' }" layout="vertical">
+<AForm :model="{ token: '' }" layout="vertical">
     <AFormItem name="token" no-style :rules="[{ required: true, message: 'Token required' }]">
       <AInput model-value="" />
     </AFormItem>
@@ -437,17 +360,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm layout="inline">
+<AForm layout="inline">
     <AFormItem label="Status">
       <ASelect
         model-value="ready"
@@ -475,17 +389,8 @@ const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
-const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
-const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
-const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
-const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
-</script>
-
 <template>
-  <AForm size="large" disabled>
+<AForm size="large" disabled>
     <AFormItem label="Disabled">
       <AInput model-value="Inherited disabled" />
     </AFormItem>

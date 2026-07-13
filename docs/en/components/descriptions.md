@@ -35,7 +35,7 @@ const renderableDescriptionItems = [
 
 ```vue
 <template>
-  <ADescriptions
+<ADescriptions
     title="Profile"
     extra="Updated"
     :items="[
@@ -61,9 +61,8 @@ const renderableDescriptionItems = [
 </div>
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { h } from 'vue'
-
 const renderableDescriptionItems = [
   {
     label: h('span', { style: { color: 'var(--aheart-color-primary)' } }, 'Owner'),
@@ -77,7 +76,7 @@ const renderableDescriptionItems = [
 </script>
 
 <template>
-  <ADescriptions :items="renderableDescriptionItems">
+<ADescriptions :items="renderableDescriptionItems">
     <template #title>
       <span>Profile <AIcon name="info" /></span>
     </template>
@@ -105,7 +104,7 @@ const renderableDescriptionItems = [
 
 ```vue
 <template>
-  <ADescriptions
+<ADescriptions
     bordered
     layout="vertical"
     :column="2"
@@ -133,7 +132,7 @@ const renderableDescriptionItems = [
 
 ```vue
 <template>
-  <ADescriptions
+<ADescriptions
     :column="3"
     :colon="false"
     :items="[
@@ -171,7 +170,7 @@ const renderableDescriptionItems = [
 
 ```vue
 <template>
-  <ADescriptions
+<ADescriptions
     title="Semantic profile"
     extra="Custom"
     class-name="profile-descriptions"
@@ -209,7 +208,7 @@ const renderableDescriptionItems = [
 
 ```vue
 <template>
-  <AConfigProvider size="large">
+<AConfigProvider size="large">
     <ADescriptions
       :items="[
         { label: 'Owner', content: 'Design System' },

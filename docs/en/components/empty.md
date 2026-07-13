@@ -24,7 +24,7 @@ Empty presents an intentional empty state with optional custom image and action 
 
 ```vue
 <template>
-  <AEmpty />
+<AEmpty />
 </template>
 ```
 
@@ -38,7 +38,7 @@ Empty presents an intentional empty state with optional custom image and action 
 
 ```vue
 <template>
-  <AEmpty description="No projects yet">
+<AEmpty description="No projects yet">
     <AButton type="primary">Create project</AButton>
   </AEmpty>
 </template>
@@ -54,7 +54,7 @@ Empty presents an intentional empty state with optional custom image and action 
 
 ```vue
 <template>
-  <AConfigProvider :locale="{ empty: { description: 'No content' } }">
+<AConfigProvider :locale="{ empty: { description: 'No content' } }">
     <AEmpty />
   </AConfigProvider>
 </template>
@@ -73,7 +73,7 @@ Empty presents an intentional empty state with optional custom image and action 
 
 ```vue
 <template>
-  <AEmpty description="Nothing matched your filters">
+<AEmpty description="Nothing matched your filters">
     <template #image>
       <span style="font-size: 40px; line-height: 1;">⌕</span>
     </template>
@@ -92,7 +92,7 @@ Empty presents an intentional empty state with optional custom image and action 
 
 ```vue
 <template>
-  <AEmpty image="/logo.svg" description="No matching records">
+<AEmpty image="/logo.svg" description="No matching records">
     <AButton>Refresh</AButton>
   </AEmpty>
 </template>
@@ -109,12 +109,11 @@ Empty presents an intentional empty state with optional custom image and action 
 ```vue
 <script setup lang="ts">
 import { Empty } from 'aheart-ui'
-
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 </script>
 
 <template>
-  <AEmpty :image="simpleImage" description="No lightweight records">
+<AEmpty :image="simpleImage" description="No lightweight records">
     <AButton>Import records</AButton>
   </AEmpty>
 </template>
@@ -131,7 +130,6 @@ const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-
 const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' } }, [
   'No archived ',
   h('strong', 'records'),
@@ -140,7 +138,7 @@ const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' }
 </script>
 
 <template>
-  <AEmpty :description="richDescription">
+<AEmpty :description="richDescription">
     <AButton>View archive settings</AButton>
   </AEmpty>
 </template>
@@ -159,7 +157,7 @@ const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' }
 
 ```vue
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AEmpty :image="false" description="No illustration" />
     <AEmpty :description="false">
       <AButton>Only action</AButton>
@@ -181,7 +179,7 @@ const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' }
 
 ```vue
 <template>
-  <AEmpty>
+<AEmpty>
     <template #description>
       <span>No deployments have run in this environment.</span>
     </template>
@@ -205,7 +203,7 @@ const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' }
 
 ```vue
 <template>
-  <AEmpty
+<AEmpty
     description="Styled empty state"
     :image-style="{ width: '80px' }"
     :class-names="{ root: 'demo-empty-root', image: 'demo-empty-image', footer: 'demo-empty-footer' }"

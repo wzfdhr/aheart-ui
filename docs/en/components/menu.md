@@ -19,7 +19,7 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ```vue
 <template>
-  <AMenu
+<AMenu
     :items="[
       { key: 'dashboard', label: 'Dashboard' },
       { key: 'workspace', label: 'Workspace' },
@@ -54,7 +54,23 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ```vue
 <template>
-  <AMenu :items="items" :default-open-keys="['workspace']" />
+<AMenu
+    :default-open-keys="['workspace']"
+    :items="[
+      { key: 'dashboard', label: 'Dashboard' },
+      {
+        key: 'workspace',
+        label: 'Workspace',
+        children: [
+          { key: 'projects', label: 'Projects' },
+          { key: 'reports', label: 'Reports', disabled: true }
+        ]
+      },
+      { type: 'group', key: 'manage', label: 'Manage', children: [{ key: 'users', label: 'Users' }] },
+      { type: 'divider', key: 'divider' },
+      { key: 'danger', label: 'Delete', danger: true }
+    ]"
+  />
 </template>
 ```
 
@@ -75,7 +91,16 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ```vue
 <template>
-  <AMenu mode="horizontal" theme="dark" :items="items" />
+<AMenu
+    mode="horizontal"
+    theme="dark"
+    :default-selected-keys="['analytics']"
+    :items="[
+      { key: 'overview', label: 'Overview' },
+      { key: 'analytics', label: 'Analytics' },
+      { key: 'exports', label: 'Exports' }
+    ]"
+  />
 </template>
 ```
 
@@ -94,7 +119,7 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ```vue
 <template>
-  <AMenu
+<AMenu
     :items="[
       { key: 'dashboard', icon: 'D', label: 'Dashboard', extra: 'New', title: 'Open dashboard' },
       { key: 'command', icon: 'K', label: 'Command palette', extra: 'Ctrl K' },
@@ -128,12 +153,21 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ```vue
 <template>
-  <AMenu
+<AMenu
     force-sub-menu-render
     trigger-sub-menu-action="hover"
     expand-icon="+"
     :inline-indent="32"
-    :items="items"
+    :items="[
+      {
+        key: 'workspace',
+        label: 'Workspace',
+        children: [
+          { key: 'projects', label: 'Projects' },
+          { key: 'reports', label: 'Reports' }
+        ]
+      }
+    ]"
   />
 </template>
 ```
@@ -154,11 +188,14 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ```vue
 <template>
-  <AMenu
+<AMenu
     class-name="docs-menu"
-    :class-names="{ root: 'docs-menu-root', itemButton: 'docs-menu-button' }"
+    :class-names="{ root: 'docs-menu-root', itemButton: 'docs-menu-button', extra: 'docs-menu-extra' }"
     :styles="{ root: { maxWidth: '320px' }, itemButton: { borderRadius: '8px' } }"
-    :items="items"
+    :items="[
+      { key: 'inbox', label: 'Inbox', extra: '12' },
+      { key: 'archive', label: 'Archive' }
+    ]"
   />
 </template>
 ```
@@ -181,8 +218,16 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ```vue
 <template>
-  <AConfigProvider disabled>
-    <AMenu multiple :default-selected-keys="['read', 'write']" :items="items" />
+<AConfigProvider disabled>
+    <AMenu
+      multiple
+      :default-selected-keys="['read', 'write']"
+      :items="[
+        { key: 'read', label: 'Read' },
+        { key: 'write', label: 'Write' },
+        { key: 'admin', label: 'Admin' }
+      ]"
+    />
   </AConfigProvider>
 </template>
 ```
@@ -191,7 +236,7 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Component item configuration. | `MenuItem[]` | `[]` |
+| items | Menu item configuration. | `MenuItem[]` | `[]` |
 | mode | Menu display mode. | `vertical` \|`horizontal` \|`inline` | `vertical` |
 | theme | Menu theme. | `light` \|`dark` | `light` |
 | selectedKeys | Currently selected keys. | `string[]` | - |
@@ -219,7 +264,7 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 | label | Item label content. | `VNodeChild` | - |
 | icon | Custom icon. | `VNodeChild` | - |
 | extra | Additional content. | `VNodeChild` | - |
-| title | Title content. | `string` | - |
+| title | Native title tooltip for the interactive item. | `string` | - |
 | disabled | Whether interaction is disabled. | `boolean` | `false` |
 | danger | Whether to use danger styling. | `boolean` | `false` |
 | dashed | Whether a divider is dashed. | `boolean` | `false` |
@@ -230,31 +275,31 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| list | The `list` semantic DOM element. |
-| item | The `item` semantic DOM element. |
-| itemButton | The `itemButton` semantic DOM element. |
-| submenu | The `submenu` semantic DOM element. |
-| submenuTitle | The `submenuTitle` semantic DOM element. |
-| submenuList | The `submenuList` semantic DOM element. |
-| group | The `group` semantic DOM element. |
-| groupTitle | The `groupTitle` semantic DOM element. |
-| divider | The `divider` semantic DOM element. |
-| icon | The `icon` semantic DOM element. |
-| label | The `label` semantic DOM element. |
-| extra | The `extra` semantic DOM element. |
-| expandIcon | The `expandIcon` semantic DOM element. |
+| root | Root navigation container. |
+| list | Root menu list. |
+| item | Standard menu-item container. |
+| itemButton | Standard menu-item button. |
+| submenu | Submenu container. |
+| submenuTitle | Submenu title button. |
+| submenuList | Submenu list. |
+| group | Item-group container. |
+| groupTitle | Item-group title. |
+| divider | Divider. |
+| icon | Icon area. |
+| label | Text area. |
+| extra | Additional-content area. |
+| expandIcon | Expand-icon area. |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| click | Fired when `click` is triggered. | `(info: MenuClickInfo) => void` |
-| select | Fired when `select` is triggered. | `(info: MenuSelectInfo) => void` |
-| deselect | Fired when `deselect` is triggered. | `(info: MenuSelectInfo) => void` |
-| openChange | Fired when `openChange` is triggered. | `(openKeys: string[]) => void` |
-| update:selectedKeys | Fired when `update:selectedKeys` is triggered. | `(keys: string[]) => void` |
-| update:openKeys | Fired when `update:openKeys` is triggered. | `(keys: string[]) => void` |
+| click | Fired when a menu item is clicked. | `(info: MenuClickInfo) => void` |
+| select | Fired when a menu item is selected. | `(info: MenuSelectInfo) => void` |
+| deselect | Fired when a selected item is deselected in multiple-selection mode. | `(info: MenuSelectInfo) => void` |
+| openChange | Fired when the expanded submenu keys change. | `(openKeys: string[]) => void` |
+| update:selectedKeys | Fired when the selected keys change. | `(keys: string[]) => void` |
+| update:openKeys | Fired when the expanded submenu keys change. | `(keys: string[]) => void` |
 
 ## Theme Tokens
 

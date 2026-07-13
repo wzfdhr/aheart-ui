@@ -28,7 +28,7 @@ import { message } from 'aheart-ui'
 </script>
 
 <template>
-  <ASpace>
+<ASpace>
     <AButton @click="message.success('Saved')">Success</AButton>
     <AButton @click="message.error('Failed')">Error</AButton>
   </ASpace>
@@ -205,20 +205,13 @@ message.config({
 
 ```vue
 <script setup lang="ts">
-const notices = [
-  { key: 'saved', type: 'success', content: 'Saved', icon: '✓' },
-  { key: 'warning', type: 'warning', content: 'Check settings', className: 'demo-warning' }
-]
+import { message } from 'aheart-ui'
 </script>
 
 <template>
-  <AMessage
-    style="position: absolute;"
-    prefix-cls="demo-message-host"
-    :class-names="{ notice: 'demo-message-notice' }"
-    :styles="{ root: { top: '12px' } }"
-    :notices="notices"
-  />
+<AButton @click="message.loading({ key: 'sync', content: 'Syncing', duration: 0 })">
+    Persistent loading
+  </AButton>
 </template>
 ```
 
@@ -295,19 +288,19 @@ Every message-opening method returns a `MessageHandle`. Call `close()` to dismis
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| close | Fired when `close` is triggered. | `(key: string \| number) => void` |
-| noticeMouseEnter | Fired when `noticeMouseEnter` is triggered. | `(key: string \|number) => void` |
-| noticeMouseLeave | Fired when `noticeMouseLeave` is triggered. | `(key: string \|number) => void` |
+| close | Fired when a notice's close button is clicked. | `(key: string \| number) => void` |
+| noticeMouseEnter | Fired when the pointer enters a notice. | `(key: string \|number) => void` |
+| noticeMouseLeave | Fired when the pointer leaves a notice. | `(key: string \|number) => void` |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| notice | The `notice` semantic DOM element. |
-| icon | The `icon` semantic DOM element. |
-| content | The `content` semantic DOM element. |
-| close | The `close` semantic DOM element. |
+| root | Root message host. |
+| notice | Individual message notice. |
+| icon | Notice icon. |
+| content | Notice content. |
+| close | Close button, rendered only when `closable` is enabled. |
 
 ## Theme Tokens
 

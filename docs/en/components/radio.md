@@ -20,14 +20,8 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <ARadio :model-value="true" name="choice" label="Option A" />
     <ARadio name="choice" label="Option B" />
   </ASpace>
@@ -41,14 +35,8 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ARadio :model-value="true">Custom radio label</ARadio>
+<ARadio :model-value="true">Custom radio label</ARadio>
 </template>
 ```
 
@@ -62,14 +50,8 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <ARadio :checked="true" label="Checked alias" />
     <ARadio default-checked label="Default checked" />
   </ASpace>
@@ -90,11 +72,10 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 <script setup lang="ts">
 import { h, ref } from 'vue'
 const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
 </script>
 
 <template>
-  <ASpace>
+<ASpace>
     <ARadio ref="radioRef" auto-focus label="Focusable radio" />
     <AButton size="small" @click="radioRef?.focus()">Focus</AButton>
     <AButton size="small" @click="radioRef?.blur()">Blur</AButton>
@@ -117,14 +98,8 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ARadioGroup
+<ARadioGroup
     model-value="apple"
     name="fruit"
     :options="[
@@ -153,12 +128,11 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 ```vue
 <script setup lang="ts">
 import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
 const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
 </script>
 
 <template>
-  <ARadioGroup
+<ARadioGroup
     :default-value="2"
     :options="[
       'Plain',
@@ -188,14 +162,8 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ARadioGroup
+<ARadioGroup
     model-value="weekly"
     option-type="button"
     button-style="solid"
@@ -225,14 +193,8 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ARadio
+<ARadio
     checked
     label="Styled radio"
     class-name="demo-radio-class"
@@ -253,14 +215,8 @@ const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderabl
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const radioRef = ref<{ focus: () => void; blur: () => void }>()
-const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <AConfigProvider disabled>
+<AConfigProvider disabled>
     <ARadio label="Disabled by ConfigProvider" />
   </AConfigProvider>
 </template>

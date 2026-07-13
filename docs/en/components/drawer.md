@@ -33,14 +33,13 @@ const drawerRender = (node: VNodeChild) => h('div', { class: 'docs-drawer-render
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const open = ref(false)
+import { h, ref, type VNodeChild } from 'vue'
+const basicOpen = ref(false)
 </script>
 
 <template>
-  <AButton type="primary" @click="open = true">Open drawer</AButton>
-  <ADrawer v-model:open="open" title="Account details">
+<AButton type="primary" @click="basicOpen = true">Open drawer</AButton>
+  <ADrawer v-model:open="basicOpen" title="Account details">
     Review account metadata, ownership, and recent activity.
   </ADrawer>
 </template>
@@ -59,8 +58,14 @@ const open = ref(false)
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+const leftOpen = ref(false)
+</script>
+
 <template>
-  <ADrawer v-model:open="open" title="Filters" placement="left" :width="320">
+<AButton @click="leftOpen = true">Open from left</AButton>
+  <ADrawer v-model:open="leftOpen" title="Filters" placement="left" :width="320">
     <template #extra>
       <AButton size="small">Reset</AButton>
     </template>
@@ -82,11 +87,17 @@ const open = ref(false)
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+const bottomOpen = ref(false)
+</script>
+
 <template>
-  <ADrawer v-model:open="open" title="Activity timeline" placement="bottom" height="42vh" footer>
+<AButton @click="bottomOpen = true">Open from bottom</AButton>
+  <ADrawer v-model:open="bottomOpen" title="Activity timeline" placement="bottom" height="42vh" footer>
     Recent events and audit notes appear here.
     <template #footer>
-      <AButton type="primary" @click="open = false">Done</AButton>
+      <AButton type="primary" @click="bottomOpen = false">Done</AButton>
     </template>
   </ADrawer>
 </template>
@@ -102,8 +113,14 @@ const open = ref(false)
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+const loadingOpen = ref(false)
+</script>
+
 <template>
-  <ADrawer v-model:open="open" title="Import history" size="large" loading extra="Preview">
+<AButton @click="loadingOpen = true">Large loading drawer</AButton>
+  <ADrawer v-model:open="loadingOpen" title="Import history" size="large" loading extra="Preview">
     Loaded drawer content appears after data is ready.
   </ADrawer>
 </template>
@@ -127,16 +144,21 @@ const open = ref(false)
 
 ```vue
 <script setup lang="ts">
-import { h, ref } from 'vue'
-
-const open = ref(false)
-const title = h('span', { class: 'workspace-title' }, 'Review profile')
-const extra = h('span', { class: 'workspace-extra' }, 'Synced')
-const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come from props.')
+import { h, ref, type VNodeChild } from 'vue'
+const renderableOpen = ref(false)
+const renderableTitle = h('span', { class: 'docs-drawer-renderable-title' }, 'Review profile')
+const renderableExtra = h('span', { class: 'docs-drawer-renderable-extra' }, 'Synced')
+const renderableFooter = h('div', { class: 'docs-drawer-renderable-footer' }, 'Footer content can come from props.')
 </script>
 
 <template>
-  <ADrawer v-model:open="open" :title="title" :extra="extra" :footer="footer">
+<AButton @click="renderableOpen = true">Renderable drawer</AButton>
+  <ADrawer
+    v-model:open="renderableOpen"
+    :title="renderableTitle"
+    :extra="renderableExtra"
+    :footer="renderableFooter"
+  >
     Title, extra, and footer can come from renderable props or slots.
   </ADrawer>
 </template>
@@ -158,14 +180,17 @@ const footer = h('div', { class: 'workspace-footer' }, 'Footer content can come 
 ```vue
 <script setup lang="ts">
 import { h, ref, type VNodeChild } from 'vue'
-
-const open = ref(false)
-const drawerRender = (node: VNodeChild) =>
-  h('div', { class: 'workspace-drawer-shell' }, [node])
+const drawerRenderOpen = ref(false)
+const drawerRender = (node: VNodeChild) => h('div', { class: 'docs-drawer-render-shell' }, [node])
 </script>
 
 <template>
-  <ADrawer v-model:open="open" title="Rendered shell" :drawer-render="drawerRender">
+<AButton @click="drawerRenderOpen = true">Rendered drawer shell</AButton>
+  <ADrawer
+    v-model:open="drawerRenderOpen"
+    title="Rendered shell"
+    :drawer-render="drawerRender"
+  >
     drawerRender can wrap the default drawer panel while preserving close and focus behavior.
   </ADrawer>
 </template>
@@ -185,9 +210,15 @@ const drawerRender = (node: VNodeChild) =>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+const closeControlsOpen = ref(false)
+</script>
+
 <template>
+<AButton @click="closeControlsOpen = true">Custom close control</AButton>
   <ADrawer
-    v-model:open="open"
+    v-model:open="closeControlsOpen"
     title="Close controls"
     :closable="{ closeIcon: 'Close', placement: 'end' }"
   >
@@ -210,9 +241,15 @@ const drawerRender = (node: VNodeChild) =>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+const maskConfigOpen = ref(false)
+</script>
+
 <template>
+<AButton @click="maskConfigOpen = true">Blurred mask drawer</AButton>
   <ADrawer
-    v-model:open="open"
+    v-model:open="maskConfigOpen"
     title="Mask config"
     :mask="{ blur: true, closable: false }"
   >
@@ -237,15 +274,14 @@ const drawerRender = (node: VNodeChild) =>
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const open = ref(false)
+import { h, ref, type VNodeChild } from 'vue'
+const focusOpen = ref(false)
 </script>
 
 <template>
-  <AButton @click="open = true">Focus management</AButton>
+<AButton @click="focusOpen = true">Focus management</AButton>
   <ADrawer
-    v-model:open="open"
+    v-model:open="focusOpen"
     title="Focus management"
     :focusable="{ trap: true, focusTriggerAfterClose: true }"
   >
@@ -275,16 +311,22 @@ const open = ref(false)
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type VNodeChild } from 'vue'
+const styledOpen = ref(false)
+</script>
+
 <template>
+<AButton @click="styledOpen = true">Styled drawer</AButton>
   <ADrawer
-    v-model:open="open"
+    v-model:open="styledOpen"
     title="Styled drawer"
-    root-class-name="workspace-drawer-root"
-    class-name="workspace-drawer-panel"
+    root-class-name="docs-drawer-root"
+    class-name="docs-drawer-panel"
     :z-index="1200"
     :root-style="{ color: 'var(--aheart-color-text)' }"
     :style="{ maxWidth: '92vw' }"
-    :class-names="{ body: 'workspace-drawer-body' }"
+    :class-names="{ body: 'docs-drawer-body' }"
     :styles="{ body: { padding: '24px' } }"
   >
     Semantic class and style hooks make app-specific shell styling easier.

@@ -21,7 +21,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AAlert type="success" message="Saved successfully" show-icon />
     <AAlert type="info" message="New version is available" show-icon />
     <AAlert type="warning" message="Storage is almost full" show-icon />
@@ -44,8 +44,12 @@ const handleClose = () => undefined
 </div>
 
 ```vue
+<script setup lang="ts">
+const handleClose = () => undefined
+</script>
+
 <template>
-  <AAlert
+<AAlert
     type="warning"
     message="Review required"
     description="This change affects billing settings and should be reviewed before publishing."
@@ -66,7 +70,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <AAlert type="info" message="Maintenance window">
+<AAlert type="info" message="Maintenance window">
     Scheduled maintenance starts at 22:00 and should finish within 30 minutes.
   </AAlert>
 </template>
@@ -80,7 +84,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <AAlert banner title="Scheduled maintenance starts at 22:00" />
+<AAlert banner title="Scheduled maintenance starts at 22:00" />
 </template>
 ```
 
@@ -95,7 +99,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AAlert type="info" title="Outlined alert" variant="outlined" show-icon />
     <AAlert type="success" title="Filled alert" variant="filled" show-icon />
   </ASpace>
@@ -110,7 +114,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <AAlert type="warning" title="Update available" show-icon action="Restart now" />
+<AAlert type="warning" title="Update available" show-icon action="Restart now" />
 </template>
 ```
 
@@ -130,7 +134,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <AAlert
+<AAlert
     type="info"
     title="Custom controls"
     description="Use icon and closeIcon for compact inline customization."
@@ -155,7 +159,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <AAlert
+<AAlert
     type="info"
     message="Closable configuration"
     description="Use object closable to configure close icon and ARIA labels."
@@ -179,7 +183,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <AAlert
+<AAlert
     title="Semantic alert"
     description="Style individual Alert parts without depending on internal selectors."
     show-icon
@@ -195,8 +199,8 @@ const handleClose = () => undefined
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
 | type | Alert severity. | `success` \| `info` \| `warning` \| `error` | `info` |
-| title | Title content; takes precedence over `message`. | `VNodeChild` | - |
-| message | Title content. | `VNodeChild` | - |
+| title | Content displayed as the alert heading; takes precedence over `message`. | `VNodeChild` | - |
+| message | Primary alert heading content. | `VNodeChild` | - |
 | description | Supporting description. | `VNodeChild` | - |
 | showIcon | Whether to show the severity icon. | `boolean` | `false` |
 | closable | Whether to show a close button; accepts an object to configure it. | `boolean` \| `AlertClosableConfig` | `false` |

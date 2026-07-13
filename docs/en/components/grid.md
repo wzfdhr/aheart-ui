@@ -16,7 +16,7 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 
 ```vue
 <template>
-  <ARow>
+<ARow>
     <ACol :span="8"><div class="aheart-grid-demo-cell">col-8</div></ACol>
     <ACol :span="8"><div class="aheart-grid-demo-cell">col-8</div></ACol>
     <ACol :span="8"><div class="aheart-grid-demo-cell">col-8</div></ACol>
@@ -37,7 +37,7 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 
 ```vue
 <template>
-  <ARow :gutter="[16, 16]">
+<ARow :gutter="[16, 16]">
     <ACol :span="12"><div class="aheart-grid-demo-cell">col-12</div></ACol>
     <ACol :span="12"><div class="aheart-grid-demo-cell">col-12</div></ACol>
     <ACol :span="12"><div class="aheart-grid-demo-cell">col-12</div></ACol>
@@ -57,7 +57,7 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 
 ```vue
 <template>
-  <ARow justify="center" align="middle" :gutter="12">
+<ARow justify="center" align="middle" :gutter="12">
     <ACol :span="6" :order="2"><div class="aheart-grid-demo-cell">order-2</div></ACol>
     <ACol :span="6" :order="1" :offset="2"><div class="aheart-grid-demo-cell">offset-2</div></ACol>
   </ARow>
@@ -75,7 +75,7 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 
 ```vue
 <template>
-  <ARow :gutter="12">
+<ARow :gutter="12">
     <ACol :flex="120"><div class="aheart-grid-demo-cell">120px</div></ACol>
     <ACol flex="auto"><div class="aheart-grid-demo-cell">auto</div></ACol>
   </ARow>
@@ -97,7 +97,7 @@ Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 
 ```vue
 <template>
-  <ARow :gutter="{ xs: 8, md: 16, xl: 24 }">
+<ARow :gutter="{ xs: 8, md: 16, xl: 24 }">
     <ACol :xs="24" :md="{ span: 12 }" :xl="{ span: 8 }">
       <div class="aheart-grid-demo-cell">responsive</div>
     </ACol>

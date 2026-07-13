@@ -16,7 +16,7 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpace>
+<ASpace>
     <ASpin size="small" />
     <ASpin />
     <ASpin size="large" />
@@ -32,7 +32,7 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpin description="Loading" />
+<ASpin description="Loading" />
 </template>
 ```
 
@@ -44,7 +44,7 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpin description="Loading" :delay="300" />
+<ASpin description="Loading" :delay="300" />
 </template>
 ```
 
@@ -60,7 +60,7 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpace>
+<ASpace>
     <ASpin indicator="Loading" description="Custom" />
     <ASpin description="Uploading" :percent="45" />
     <ASpin description="Syncing" percent="auto" />
@@ -80,8 +80,8 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpin description="Saving" :spinning="true">
-    <div class="panel-content">
+<ASpin description="Saving" :spinning="true">
+    <div style="padding: 16px; border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-border-radius-md);">
       Content is visible while the loading indicator stays above it.
     </div>
   </ASpin>
@@ -106,14 +106,14 @@ Spin communicates loading state for standalone areas or nested content.
 
 ```vue
 <template>
-  <ASpin
+<ASpin
     description="Styled"
     :percent="66"
     wrapper-class-name="demo-spin-wrapper"
     :class-names="{ indicator: 'demo-spin-indicator', description: 'demo-spin-description', percent: 'demo-spin-percent' }"
     :styles="{ description: { color: 'var(--aheart-color-primary)' } }"
   >
-    <div class="panel-content">
+    <div style="padding: 16px; border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-border-radius-md);">
       Semantic hooks can style precise Spin parts.
     </div>
   </ASpin>
@@ -151,21 +151,21 @@ Spin communicates loading state for standalone areas or nested content.
 
 | Name | Description |
 | --- | --- |
-| default | The `default` semantic DOM element. |
-| description | The `description` semantic DOM element. |
+| default | Content wrapped by the loading state. |
+| description | Custom description content; takes precedence over the `description` and `tip` props. |
 
 ## Semantic DOM
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| section | The `section` semantic DOM element. |
-| indicator | The `indicator` semantic DOM element. |
-| dot | The `dot` semantic DOM element. |
-| description | The `description` semantic DOM element. |
-| tip | The `tip` semantic DOM element. |
-| percent | The `percent` semantic DOM element. |
-| container | The `container` semantic DOM element. |
+| root | Outer root element. |
+| section | Inner positioning layer used when content is wrapped. |
+| indicator | Loading indicator element. |
+| dot | Default rotating dot. |
+| description | Description content. |
+| tip | Compatibility alias for the description content. |
+| percent | Progress text. |
+| container | Wrapped-content container. |
 
 ## Theme Tokens
 

@@ -30,24 +30,8 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <AInputNumber :model-value="4" :min="1" :max="10" />
     <AInputNumber :default-value="6" />
   </ASpace>
@@ -72,22 +56,10 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
 </script>
 
 <template>
-  <ASpace>
+<ASpace>
     <AInputNumber :model-value="2" :step="2" />
     <AInputNumber :model-value="1" step="0.5" />
     <AInputNumber :model-value="12.345" :precision="2" prefix="$" suffix="USD" />
@@ -117,24 +89,8 @@ When the current value reaches `max` or `min`, stepping in that direction is dis
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
-</script>
-
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AInputNumber :model-value="8" status="warning" />
     <AInputNumber :model-value="8" variant="filled" />
     <AInputNumber :model-value="8" variant="underlined" />
@@ -147,6 +103,9 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 
 ```vue
 <script setup lang="ts">
+import { ref } from 'vue'
+
+const amount = ref(0)
 const formatter = (value?: number, info?: { userTyping: boolean; input: string }) =>
   value === undefined ? '' : `$ ${info?.input ?? value}`
 const parser = (value: string) => Number(value.replace('$', '').trim())
@@ -166,24 +125,8 @@ Without a `parser`, the default parser removes currency symbols, grouping separa
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
-</script>
-
 <template>
-  <AInputNumber :model-value="12.5" decimal-separator="," />
+<AInputNumber :model-value="12.5" decimal-separator="," />
 </template>
 ```
 
@@ -197,24 +140,8 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <AInputNumber :default-value="4" />
     <AInputNumber :default-value="4" :change-on-blur="false" />
   </ASpace>
@@ -232,24 +159,8 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
-</script>
-
 <template>
-  <AInputNumber
+<AInputNumber
     string-mode
     model-value="1.000000000000000001"
     step="0.000000000000000001"
@@ -275,22 +186,10 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
 </script>
 
 <template>
-  <ASpace>
+<ASpace>
     <AInputNumber
       :model-value="8"
       :controls="{
@@ -310,24 +209,8 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
-</script>
-
 <template>
-  <AInputNumber :model-value="4" :step="2" change-on-wheel />
+<AInputNumber :model-value="4" :step="2" change-on-wheel />
 </template>
 ```
 
@@ -352,7 +235,6 @@ After the input receives focus, the wheel accumulates movement and emits a chang
 
 ```vue
 <script setup lang="ts">
-import { h } from 'vue'
 const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
   root: 'demo-input-number-semantic-root',
   input: 'demo-input-number-control',
@@ -368,7 +250,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </script>
 
 <template>
-  <AInputNumber
+<AInputNumber
     :model-value="1200"
     prefix="$"
     suffix="USD"
@@ -392,24 +274,8 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  root: 'demo-input-number-semantic-root',
-  input: 'demo-input-number-control',
-  prefix: 'demo-input-number-prefix',
-  suffix: 'demo-input-number-suffix',
-  actions: 'demo-input-number-actions',
-  action: props.readOnly ? 'demo-input-number-action-readonly' : 'demo-input-number-action'
-})
-const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
-  prefix: { color: 'var(--aheart-color-primary)' },
-  action: { color: props.readOnly ? 'var(--aheart-color-text-secondary)' : 'var(--aheart-color-warning)' }
-})
-</script>
-
 <template>
-  <AConfigProvider size="large" disabled>
+<AConfigProvider size="large" disabled>
     <AInputNumber :model-value="8" />
   </AConfigProvider>
 </template>

@@ -25,7 +25,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <ASpace wrap>
+<ASpace wrap>
     <ATag>Default</ATag>
     <ATag color="primary">Primary</ATag>
     <ATag color="success">Success</ATag>
@@ -49,7 +49,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <ASpace wrap>
+<ASpace wrap>
     <ATag variant="filled" color="primary">Filled</ATag>
     <ATag variant="outlined" color="primary">Outlined</ATag>
     <ATag variant="solid" color="primary">Solid</ATag>
@@ -70,7 +70,7 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <ASpace wrap>
+<ASpace wrap>
     <ATag icon="✓" color="success">Ready</ATag>
     <ATag href="https://example.com" target="_blank" rel="noreferrer" color="primary">Link tag</ATag>
     <ATag disabled href="https://example.com">Disabled link</ATag>
@@ -90,8 +90,8 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <ASpace wrap>
-    <ATag closable color="primary" @close="handleClose">Default close</ATag>
+<ASpace wrap>
+    <ATag closable color="primary">Default close</ATag>
     <ATag closable close-icon="close" color="warning">Custom close</ATag>
     <ATag closable :close-icon="false" color="success">No close icon</ATag>
   </ASpace>
@@ -110,9 +110,9 @@ const handleClose = () => undefined
 
 ```vue
 <template>
-  <ASpace wrap>
-    <ACheckableTag :checked="checked" @change="checked = $event">Checked</ACheckableTag>
-    <ACheckableTag :checked="false">Unchecked</ACheckableTag>
+<ASpace wrap>
+    <ACheckableTag checked icon="✓">Checked</ACheckableTag>
+    <ACheckableTag>Unchecked</ACheckableTag>
     <ACheckableTag disabled>Disabled</ACheckableTag>
   </ASpace>
 </template>
@@ -146,29 +146,30 @@ const handleClose = () => undefined
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-
 const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 </script>
 
 <template>
-  <ATagGroup
-    default-value="review"
-    :options="[
-      'draft',
-      { label: 'Review', value: 'review', title: 'Current stage' },
-      { label: 'Done', value: 'done', disabled: true },
-      { label: tagNodeLabel, value: 'node' }
-    ]"
-  />
-  <ATagGroup
-    multiple
-    :default-value="['vue', 'docs']"
-    :options="[
-      { label: 'Vue', value: 'vue', icon: 'V' },
-      { label: 'Docs', value: 'docs', className: 'demo-tag-option' },
-      'Tests'
-    ]"
-  />
+<ASpace direction="vertical">
+    <ATagGroup
+      default-value="review"
+      :options="[
+        'draft',
+        { label: 'Review', value: 'review', title: 'Current stage' },
+        { label: 'Done', value: 'done', disabled: true },
+        { label: tagNodeLabel, value: 'node' }
+      ]"
+    />
+    <ATagGroup
+      multiple
+      :default-value="['vue', 'docs']"
+      :options="[
+        { label: 'Vue', value: 'vue', icon: 'V' },
+        { label: 'Docs', value: 'docs', className: 'demo-tag-option' },
+        'Tests'
+      ]"
+    />
+  </ASpace>
 </template>
 ```
 
@@ -184,7 +185,7 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 
 ```vue
 <template>
-  <ASpace wrap>
+<ASpace wrap>
     <ATag color="#722ed1">Purple</ATag>
     <ATag color="#13c2c2" variant="outlined">Cyan</ATag>
     <ATag color="#eb2f96" variant="solid">Magenta</ATag>
@@ -219,23 +220,26 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 
 ```vue
 <template>
-  <ATag
-    icon="!"
-    closable
-    close-icon="×"
-    class-name="demo-tag"
-    root-class-name="demo-tag-root"
-    :class-names="{ root: 'demo-tag-semantic-root', icon: 'demo-tag-icon', content: 'demo-tag-content', close: 'demo-tag-close' }"
-    :styles="{ content: { fontWeight: 600 }, close: { color: '#1677ff' } }"
-  >
-    Semantic tag
-  </ATag>
-  <ATagGroup
-    default-value="a"
-    :options="['a', 'b']"
-    :class-names="{ root: 'demo-tag-group', item: 'demo-tag-item', activeItem: 'demo-tag-active' }"
-    :styles="{ activeItem: { fontWeight: 600 } }"
-  />
+<ASpace direction="vertical">
+    <ATag
+      icon="!"
+      closable
+      close-icon="×"
+      class-name="demo-tag"
+      root-class-name="demo-tag-root"
+      :style="{ marginTop: '2px' }"
+      :class-names="{ root: 'demo-tag-semantic-root', icon: 'demo-tag-icon', content: 'demo-tag-content', close: 'demo-tag-close' }"
+      :styles="{ content: { fontWeight: 600 }, close: { color: '#1677ff' } }"
+    >
+      Semantic tag
+    </ATag>
+    <ATagGroup
+      default-value="a"
+      :options="['a', 'b']"
+      :class-names="{ root: 'demo-tag-group', item: 'demo-tag-item', activeItem: 'demo-tag-active' }"
+      :styles="{ activeItem: { fontWeight: 600 } }"
+    />
+  </ASpace>
 </template>
 ```
 
@@ -255,7 +259,7 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 | href | Link address. | `string` | - |
 | target | Link target. | `string` | - |
 | rel | Link relationship attribute. | `string` | - |
-| title | Title content. | `string` | - |
+| title | Native title tooltip. | `string` | - |
 | className | Compatibility class name for the root node. | `string` | - |
 | rootClassName | Class name for the root node. | `string` | - |
 | style | Styles for the root node. | `StyleValue` | - |
@@ -269,7 +273,7 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 | checked | Controlled checked state. | `boolean` | `false` |
 | disabled | Whether interaction is disabled. | `boolean` | `false` |
 | icon | Custom icon. | `VNodeChild` | - |
-| title | Title content. | `string` | - |
+| title | Native title tooltip. | `string` | - |
 | className | Compatibility class name for the root node. | `string` | - |
 | rootClassName | Class name for the root node. | `string` | - |
 | style | Styles for the root node. | `StyleValue` | - |
@@ -302,26 +306,26 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 | icon | Custom icon. | `VNodeChild` | - |
 | className | Compatibility class name for the root node. | `string` | - |
 | style | Styles for the root node. | `StyleValue` | - |
-| title | Title content. | `string` | - |
+| title | Native title tooltip. | `string` | - |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| close | Fired when `close` is triggered. | `(event: MouseEvent) => void` |
-| update:checked | Fired when `update:checked` is triggered. | `(checked: boolean) => void` |
-| change | Fired when `change` is triggered. | `(checked: boolean, event: MouseEvent) => void` |
-| update:modelValue | Fired when `update:modelValue` is triggered. | `(value: TagGroupValue) => void` |
-| update:value | Fired when `update:value` is triggered. | `(value: TagGroupValue) => void` |
-| change | Fired when `change` is triggered. | `(value: TagGroupValue) => void` |
+| close | Fired when the close button is clicked. | `(event: MouseEvent) => void` |
+| update:checked | Fired when `ACheckableTag` updates its selected state. | `(checked: boolean) => void` |
+| change | Fired when `ACheckableTag` selection changes. | `(checked: boolean, event: MouseEvent) => void` |
+| update:modelValue | Fired when `ATagGroup` updates its Vue-controlled selected value. | `(value: TagGroupValue) => void` |
+| update:value | Fired when `ATagGroup` updates its Ant-style controlled selected value. | `(value: TagGroupValue) => void` |
+| change | Fired when the `ATagGroup` selection changes. | `(value: TagGroupValue) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | The `default` semantic DOM element. |
-| icon | The `icon` semantic DOM element. |
-| closeIcon | The `closeIcon` semantic DOM element. |
+| default | Tag content. |
+| icon | Custom tag icon. |
+| closeIcon | Custom close icon. |
 
 ## Semantic DOM
 
@@ -329,18 +333,18 @@ const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| icon | The `icon` semantic DOM element. |
-| content | The `content` semantic DOM element. |
-| close | The `close` semantic DOM element. |
+| root | Root element. |
+| icon | Icon container. |
+| content | Content container. |
+| close | Close button, available only on `ATag`. |
 
 ### TagGroup
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| item | The `item` semantic DOM element. |
-| activeItem | The `activeItem` semantic DOM element. |
+| root | Group root element. |
+| item | Individual selectable tag. |
+| activeItem | Selected selectable tag. |
 
 ## Theme Tokens
 

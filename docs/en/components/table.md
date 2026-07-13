@@ -41,27 +41,8 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const tableRenderableColumns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    filters: [
-      {
-        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
-        value: 'Engineer'
-      }
-    ]
-  }
-]
-const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
-</script>
-
 <template>
-  <ATable
+<ATable
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
       { title: 'Age', dataIndex: 'age', key: 'age', align: 'right' },
@@ -95,27 +76,8 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const tableRenderableColumns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    filters: [
-      {
-        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
-        value: 'Engineer'
-      }
-    ]
-  }
-]
-const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
-</script>
-
 <template>
-  <ATable
+<ATable
     bordered
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -155,27 +117,8 @@ Use `defaultSortOrder` for initial sorting and `sortOrder` for controlled sortin
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const tableRenderableColumns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    filters: [
-      {
-        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
-        value: 'Engineer'
-      }
-    ]
-  }
-]
-const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
-</script>
-
 <template>
-  <ATable
+<ATable
     :columns="[
       {
         title: 'Name',
@@ -225,27 +168,8 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const tableRenderableColumns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    filters: [
-      {
-        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
-        value: 'Engineer'
-      }
-    ]
-  }
-]
-const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
-</script>
-
 <template>
-  <ATable
+<ATable
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
       {
@@ -304,7 +228,7 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 </script>
 
 <template>
-  <ATable
+<ATable
     :columns="tableRenderableColumns"
     :data-source="[]"
     :empty-text="tableRenderableEmptyText"
@@ -332,27 +256,8 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const tableRenderableColumns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    filters: [
-      {
-        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
-        value: 'Engineer'
-      }
-    ]
-  }
-]
-const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
-</script>
-
 <template>
-  <ATable
+<ATable
     :row-selection="{ defaultSelectedRowKeys: ['ada'] }"
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -384,27 +289,8 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const tableRenderableColumns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    filters: [
-      {
-        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
-        value: 'Engineer'
-      }
-    ]
-  }
-]
-const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
-</script>
-
 <template>
-  <ATable
+<ATable
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
       { title: 'Role', dataIndex: 'role', key: 'role' }
@@ -439,27 +325,8 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-const tableRenderableColumns = [
-  { title: 'Name', dataIndex: 'name', key: 'name' },
-  {
-    title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
-    filters: [
-      {
-        text: h('span', { style: { color: 'var(--aheart-color-primary)', fontWeight: 600 } }, 'Engineer filter'),
-        value: 'Engineer'
-      }
-    ]
-  }
-]
-const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
-</script>
-
 <template>
-  <AConfigProvider size="small">
+<AConfigProvider size="small">
     <ATable
       empty-text="No records"
       :pagination="{ current: 1, pageSize: 2, showTotal: true }"

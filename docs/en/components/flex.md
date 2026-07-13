@@ -15,7 +15,7 @@ Flex provides a small layout helper for one-dimensional alignment and spacing.
 
 ```vue
 <template>
-  <AFlex gap="middle" align="center">
+<AFlex gap="middle" align="center">
     <AButton>Left</AButton>
     <AButton type="primary">Right</AButton>
   </AFlex>
@@ -33,7 +33,7 @@ Flex provides a small layout helper for one-dimensional alignment and spacing.
 
 ```vue
 <template>
-  <AFlex justify="between" align="center" gap="small">
+<AFlex justify="between" align="center" gap="small">
     <span>Label</span>
     <AButton type="primary">Action</AButton>
   </AFlex>
@@ -59,7 +59,7 @@ Flex provides a small layout helper for one-dimensional alignment and spacing.
 
 ```vue
 <template>
-  <AFlex
+<AFlex
     component="section"
     orientation="horizontal"
     wrap="wrap-reverse"
@@ -92,7 +92,7 @@ Flex provides a small layout helper for one-dimensional alignment and spacing.
 
 ```vue
 <template>
-  <AFlex
+<AFlex
     class-name="demo-flex-class"
     root-class-name="demo-flex-root"
     :style="{ padding: '8px', border: '1px solid var(--aheart-color-border)' }"

@@ -12,7 +12,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination v-model:current="page" :total="42" :page-size="10" show-total />
+<APagination :total="42" :page-size="10" :current="2" show-total />
 </template>
 ```
 
@@ -24,7 +24,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination :total="20" :current="1" :page-size="10" simple />
+<APagination :total="20" :current="1" :page-size="10" simple />
 </template>
 ```
 
@@ -36,7 +36,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination :total="200" :current="10" :page-size="10" align="center" show-less-items />
+<APagination :total="200" :current="10" :page-size="10" align="center" show-less-items />
 </template>
 ```
 
@@ -48,12 +48,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination
-    v-model:current="page"
-    v-model:page-size="pageSize"
-    :total="95"
-    :page-size-options="[10, 20, 50]"
-  />
+<APagination :total="95" :current="2" :page-size="10" :page-size-options="[10, 20, 50]" />
 </template>
 ```
 
@@ -65,7 +60,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination :total="95" :page-size="10" show-quick-jumper />
+<APagination :total="95" :current="1" :page-size="10" show-quick-jumper />
 </template>
 ```
 
@@ -77,7 +72,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination :total="95" :page-size="10" :show-quick-jumper="{ goButton: 'Jump' }" />
+<APagination :total="95" :current="1" :page-size="10" :show-quick-jumper="{ goButton: 'Jump' }" />
 </template>
 ```
 
@@ -95,7 +90,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination
+<APagination
     :total="96"
     :current="3"
     :page-size="10"
@@ -124,7 +119,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <APagination
+<APagination
     :total="48"
     :current="2"
     :page-size="10"
@@ -149,7 +144,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ```vue
 <template>
-  <AConfigProvider size="small" disabled>
+<AConfigProvider size="small" disabled>
     <APagination :total="30" :current="1" :page-size="10" />
   </AConfigProvider>
 </template>
@@ -186,10 +181,10 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:current | Fired when `update:current` is triggered. | `(current: number) => void` |
-| update:pageSize | Fired when `update:pageSize` is triggered. | `(pageSize: number) => void` |
-| change | Fired when `change` is triggered. | `(current: number, pageSize: number) => void` |
-| showSizeChange | Fired when `showSizeChange` is triggered. | `(current: number, pageSize: number) => void` |
+| update:current | Fired when the current page changes. | `(current: number) => void` |
+| update:pageSize | Fired when the page size changes. | `(pageSize: number) => void` |
+| change | Fired when the current page changes. | `(current: number, pageSize: number) => void` |
+| showSizeChange | Fired when the page size changes. | `(current: number, pageSize: number) => void` |
 
 ## Theme Tokens
 

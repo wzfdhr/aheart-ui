@@ -15,12 +15,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <AInput model-value="Aheart UI" placeholder="Enter text" />
+<AInput model-value="Aheart UI" placeholder="Enter text" />
 </template>
 ```
 
@@ -49,7 +45,7 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AInput model-value="search keyword" allow-clear :maxlength="20" show-count>
       <template #prefix>⌕</template>
       <template #suffix>.com</template>
@@ -78,12 +74,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AInput model-value="Outlined" variant="outlined" />
     <AInput model-value="Filled" variant="filled" />
     <AInput model-value="Underlined" variant="underlined" />
@@ -104,12 +96,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AInput status="warning" model-value="Warning" />
     <AConfigProvider size="large" disabled>
       <AInput model-value="Disabled by ConfigProvider" />
@@ -136,7 +124,7 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AInput model-value="Clear me" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
     <AInput model-value="Clear disabled" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
     <AInput model-value="Slot clear" allow-clear>
@@ -180,7 +168,7 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AInput
       model-value="Aheart"
       :maxlength="20"
@@ -226,12 +214,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <AInput
+<AInput
     model-value="Styled input"
     prefix="pre"
     suffix="suf"

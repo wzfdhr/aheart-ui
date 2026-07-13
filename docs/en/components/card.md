@@ -25,7 +25,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard title="Project" extra="More">
+<ACard title="Project" extra="More">
     Card body content.
   </ACard>
 </template>
@@ -83,7 +83,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard title="Report" hoverable>
+<ACard title="Report" hoverable>
     <template #cover>
       <div style="padding: 16px; background: var(--aheart-color-fill);">Cover area</div>
     </template>
@@ -110,7 +110,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard hoverable>
+<ACard hoverable>
     <ACardMeta title="Europe Street beat" description="www.instagram.com">
       <template #avatar>
         <AIcon name="user" />
@@ -139,7 +139,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard title="Project modules">
+<ACard title="Project modules">
     <ACardGrid>Overview</ACardGrid>
     <ACardGrid>Reports</ACardGrid>
     <ACardGrid :hoverable="false">Read only</ACardGrid>
@@ -179,7 +179,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard
+<ACard
     title="Project"
     default-active-tab-key="overview"
     tab-bar-extra-content="More"
@@ -212,7 +212,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <AConfigProvider size="small">
+<AConfigProvider size="small">
     <ACard title="Loading" loading>
       Hidden while loading.
     </ACard>
@@ -240,7 +240,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <div style="display: grid; gap: 12px;">
+<div style="display: grid; gap: 12px;">
     <ACard title="Outlined" variant="outlined">
       Default outlined card.
     </ACard>
@@ -266,7 +266,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard title="Ticket" :actions="['Assign', 'Close']">
+<ACard title="Ticket" :actions="['Assign', 'Close']">
     A simple card with action items.
   </ACard>
 </template>
@@ -293,7 +293,7 @@ const renderableCardActions = [
 
 ```vue
 <template>
-  <ACard
+<ACard
     title="Styled Card"
     extra="More"
     :actions="['Open']"
@@ -368,7 +368,7 @@ const renderableCardActions = [
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
 | avatar | Avatar-area content. | `VNodeChild` | - |
-| title | Title content. | `VNodeChild` | - |
+| title | Main heading displayed in the metadata block. | `VNodeChild` | - |
 | description | Description content. | `VNodeChild` | - |
 | className | Compatible class for the root element. | `string` | - |
 | rootClassName | Class for the root element. | `string` | - |

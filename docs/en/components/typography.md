@@ -15,7 +15,7 @@ Typography provides text, title, paragraph, and link primitives for product inte
 
 ```vue
 <template>
-  <ATitle :level="3">Aheart UI</ATitle>
+<ATitle :level="3">Aheart UI</ATitle>
   <AParagraph>Calm and consistent product interface typography.</AParagraph>
 </template>
 ```
@@ -33,7 +33,7 @@ Typography provides text, title, paragraph, and link primitives for product inte
 
 ```vue
 <template>
-  <ASpace>
+<ASpace>
     <AText>Default</AText>
     <AText type="success" strong>Success</AText>
     <AText type="warning">Warning</AText>
@@ -53,7 +53,7 @@ Typography provides text, title, paragraph, and link primitives for product inte
 
 ```vue
 <template>
-  <AText mark strong>Important</AText>
+<AText mark strong>Important</AText>
   <AParagraph :ellipsis="{ rows: 2 }" style="max-width: 280px">
     A long paragraph can be constrained to multiple lines while keeping the same Typography API surface.
   </AParagraph>
@@ -81,7 +81,7 @@ Typography provides text, title, paragraph, and link primitives for product inte
 
 ```vue
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <AText copyable>Copy this text</AText>
     <AParagraph
       :copyable="{
@@ -120,7 +120,7 @@ Typography provides text, title, paragraph, and link primitives for product inte
 
 ```vue
 <template>
-  <ATypography
+<ATypography
     root-class-name="demo-typography-root"
     :styles="{ root: { padding: '8px', border: '1px solid var(--aheart-color-border)' } }"
   >

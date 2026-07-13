@@ -20,14 +20,8 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <ACheckbox :model-value="true" label="Selected" />
     <ACheckbox label="Unchecked" />
   </ASpace>
@@ -41,14 +35,8 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ACheckbox :model-value="true" indeterminate label="Partially selected" />
+<ACheckbox :model-value="true" indeterminate label="Partially selected" />
 </template>
 ```
 
@@ -62,14 +50,8 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ASpace>
+<ASpace>
     <ACheckbox :checked="true" label="Checked alias" />
     <ACheckbox default-checked label="Default checked" />
   </ASpace>
@@ -90,11 +72,10 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 <script setup lang="ts">
 import { h, ref } from 'vue'
 const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
 </script>
 
 <template>
-  <ASpace>
+<ASpace>
     <ACheckbox ref="checkboxRef" auto-focus label="Focusable checkbox" />
     <AButton size="small" @click="checkboxRef?.focus()">Focus</AButton>
     <AButton size="small" @click="checkboxRef?.blur()">Blur</AButton>
@@ -117,14 +98,8 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ACheckboxGroup
+<ACheckboxGroup
     :model-value="['apple']"
     name="fruit"
     :options="[
@@ -153,12 +128,11 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 ```vue
 <script setup lang="ts">
 import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
 const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
 </script>
 
 <template>
-  <ACheckboxGroup
+<ACheckboxGroup
     :default-value="['Plain', 2]"
     :options="[
       'Plain',
@@ -185,14 +159,8 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ACheckboxGroup
+<ACheckboxGroup
     direction="vertical"
     :model-value="['read']"
     :options="[
@@ -219,14 +187,8 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <ACheckbox
+<ACheckbox
     checked
     label="Styled checkbox"
     class-name="demo-checkbox-class"
@@ -247,14 +209,8 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h, ref } from 'vue'
-const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
-const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
-</script>
-
 <template>
-  <AConfigProvider disabled>
+<AConfigProvider disabled>
     <ACheckbox label="Disabled by ConfigProvider" />
   </AConfigProvider>
 </template>

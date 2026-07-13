@@ -53,14 +53,13 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const open = ref(false)
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const basicOpen = ref(false)
 </script>
 
 <template>
-  <AButton type="primary" @click="open = true">Open modal</AButton>
-  <AModal v-model:open="open" title="Edit profile">
+<AButton type="primary" @click="basicOpen = true">Open modal</AButton>
+  <AModal v-model:open="basicOpen" title="Edit profile">
     Profile settings can be reviewed before saving.
   </AModal>
 </template>
@@ -81,19 +80,19 @@ const open = ref(false)
 
 ```vue
 <script setup lang="ts">
-import { h, ref } from 'vue'
-
-const open = ref(false)
-const customCloseIcon = h('span', { class: 'modal-close-icon' }, 'X')
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const closeControlsOpen = ref(false)
+const customCloseIcon = h('span', { class: 'docs-modal-close-icon' }, 'X')
 </script>
 
 <template>
+<AButton @click="closeControlsOpen = true">Custom close</AButton>
   <AModal
-    v-model:open="open"
+    v-model:open="closeControlsOpen"
     title="Custom close"
     :closable="{ closeIcon: customCloseIcon }"
   >
-    The close button can render custom content.
+    The close button can render custom content through `closeIcon` or object-form `closable`.
   </AModal>
 </template>
 ```
@@ -115,27 +114,31 @@ const customCloseIcon = h('span', { class: 'modal-close-icon' }, 'X')
 
 ```vue
 <script setup lang="ts">
-import { h, ref, type VNodeChild } from 'vue'
-
-const open = ref(false)
-const title = h('span', { class: 'modal-title-node' }, 'Renderable title')
-const okText = h('span', { class: 'modal-ok-node' }, 'Confirm')
-const cancelText = h('span', { class: 'modal-cancel-node' }, 'Dismiss')
-const footer = (
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const renderableOpen = ref(false)
+const renderableTitle = h('span', { class: 'docs-modal-title-node' }, 'Renderable title')
+const renderableOkText = h('span', { class: 'docs-modal-ok-node' }, 'Confirm')
+const renderableCancelText = h('span', { class: 'docs-modal-cancel-node' }, 'Dismiss')
+const renderableFooter = (
   _originNode: VNodeChild,
   { cancelButton, okButton }: { cancelButton: VNodeChild; okButton: VNodeChild }
-) => h('div', { class: 'modal-footer-render' }, [cancelButton, okButton])
+) => h('div', { class: 'docs-modal-footer-render' }, [
+  h('strong', null, 'Review actions'),
+  cancelButton,
+  okButton
+])
 </script>
 
 <template>
+<AButton @click="renderableOpen = true">Renderable modal</AButton>
   <AModal
-    v-model:open="open"
-    :title="title"
-    :ok-text="okText"
-    :cancel-text="cancelText"
-    :footer="footer"
+    v-model:open="renderableOpen"
+    :title="renderableTitle"
+    :ok-text="renderableOkText"
+    :cancel-text="renderableCancelText"
+    :footer="renderableFooter"
   >
-    Modal title, action labels, and footer can render custom node content.
+    Modal title, action labels, and footer can all render custom node content.
   </AModal>
 </template>
 ```
@@ -155,15 +158,18 @@ const footer = (
 
 ```vue
 <script setup lang="ts">
-import { h, ref, type VNodeChild } from 'vue'
-
-const open = ref(false)
-const modalRender = (node: VNodeChild) =>
-  h('div', { class: 'modal-render-shell' }, [node])
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const renderWrapperOpen = ref(false)
+const modalRender = (node: VNodeChild) => h('div', { class: 'docs-modal-render-shell' }, [node])
 </script>
 
 <template>
-  <AModal v-model:open="open" title="Rendered shell" :modal-render="modalRender">
+<AButton @click="renderWrapperOpen = true">Rendered shell</AButton>
+  <AModal
+    v-model:open="renderWrapperOpen"
+    title="Rendered shell"
+    :modal-render="modalRender"
+  >
     modalRender can wrap the default dialog node while preserving actions.
   </AModal>
 </template>
@@ -184,14 +190,14 @@ const modalRender = (node: VNodeChild) =>
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const open = ref(false)
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const maskConfigOpen = ref(false)
 </script>
 
 <template>
+<AButton @click="maskConfigOpen = true">Mask config</AButton>
   <AModal
-    v-model:open="open"
+    v-model:open="maskConfigOpen"
     title="Mask config"
     :mask="{ blur: true, closable: false }"
   >
@@ -215,15 +221,14 @@ const open = ref(false)
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const open = ref(false)
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const focusOpen = ref(false)
 </script>
 
 <template>
-  <AButton @click="open = true">Focus management</AButton>
+<AButton @click="focusOpen = true">Focus management</AButton>
   <AModal
-    v-model:open="open"
+    v-model:open="focusOpen"
     title="Focus management"
     :focusable="{ trap: true, focusTriggerAfterClose: true }"
   >
@@ -246,12 +251,18 @@ const open = ref(false)
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const footerOpen = ref(false)
+</script>
+
 <template>
-  <AModal v-model:open="open" title="Publish changes" :footer="false">
+<AButton @click="footerOpen = true">Custom footer</AButton>
+  <AModal v-model:open="footerOpen" title="Publish changes" :footer="false">
     This action publishes the current draft to production.
     <template #footer>
-      <AButton @click="open = false">Keep editing</AButton>
-      <AButton type="primary" @click="open = false">Publish</AButton>
+      <AButton @click="footerOpen = false">Keep editing</AButton>
+      <AButton type="primary" @click="footerOpen = false">Publish</AButton>
     </template>
   </AModal>
 </template>
@@ -267,8 +278,14 @@ const open = ref(false)
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const centeredOpen = ref(false)
+</script>
+
 <template>
-  <AModal v-model:open="open" title="Invite members" centered :width="480">
+<AButton @click="centeredOpen = true">Centered modal</AButton>
+  <AModal v-model:open="centeredOpen" title="Invite members" centered :width="480">
     Send invitations after reviewing roles and access.
   </AModal>
 </template>
@@ -289,14 +306,17 @@ const open = ref(false)
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const open = ref(false)
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const responsiveWidthOpen = ref(false)
 </script>
 
 <template>
-  <AButton type="primary" @click="open = true">Responsive width</AButton>
-  <AModal v-model:open="open" title="Responsive modal" :width="{ xs: 320, md: 640, xl: '72vw' }">
+<AButton @click="responsiveWidthOpen = true">Responsive width</AButton>
+  <AModal
+    v-model:open="responsiveWidthOpen"
+    title="Responsive modal"
+    :width="{ xs: 320, md: 640, xl: '72vw' }"
+  >
     The dialog width follows configured breakpoints.
   </AModal>
 </template>
@@ -320,9 +340,15 @@ const open = ref(false)
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const loadingOpen = ref(false)
+</script>
+
 <template>
+<AButton @click="loadingOpen = true">Loading modal</AButton>
   <AModal
-    v-model:open="open"
+    v-model:open="loadingOpen"
     title="Sync workspace"
     loading
     ok-text="Sync"
@@ -356,13 +382,12 @@ const open = ref(false)
 
 ```vue
 <script setup lang="ts">
-import { ref, type CSSProperties } from 'vue'
-
-const open = ref(false)
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+const styledOpen = ref(false)
 const semanticClassNames = ({ props }: { props: { open?: boolean } }) => ({
-  container: props.open ? 'workspace-modal-dialog' : '',
-  wrapper: 'workspace-modal-wrap',
-  body: 'workspace-modal-body'
+  container: props.open ? 'docs-modal-dialog' : '',
+  wrapper: 'docs-modal-wrap',
+  body: 'docs-modal-body'
 })
 const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string, CSSProperties> => ({
   body: {
@@ -372,10 +397,12 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 </script>
 
 <template>
+<AButton @click="styledOpen = true">Styled modal</AButton>
   <AModal
-    v-model:open="open"
+    v-model:open="styledOpen"
     title="Styled modal"
-    root-class-name="workspace-modal-root"
+    root-class-name="docs-modal-root"
+    class-name="docs-modal-dialog"
     :z-index="1210"
     :root-style="{ color: 'var(--aheart-color-text)' }"
     :style="{ maxWidth: '92vw' }"

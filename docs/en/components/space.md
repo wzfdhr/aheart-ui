@@ -21,7 +21,7 @@ Space sets consistent spacing between inline or vertical elements, with Ant-styl
 
 ```vue
 <template>
-  <ASpace>
+<ASpace>
     <AButton>Cancel</AButton>
     <AButton type="primary">Submit</AButton>
   </ASpace>
@@ -39,7 +39,7 @@ Space sets consistent spacing between inline or vertical elements, with Ant-styl
 
 ```vue
 <template>
-  <ASpace orientation="vertical" size="small">
+<ASpace orientation="vertical" size="small">
     <AButton>First</AButton>
     <AButton>Second</AButton>
   </ASpace>
@@ -58,7 +58,7 @@ Space sets consistent spacing between inline or vertical elements, with Ant-styl
 
 ```vue
 <template>
-  <ASpace separator="|">
+<ASpace separator="|">
     <span>Profile</span>
     <span>Billing</span>
     <span>Security</span>
@@ -77,19 +77,18 @@ Space sets consistent spacing between inline or vertical elements, with Ant-styl
 </div>
 
 ```vue
+<script setup lang="ts">
+import { h } from 'vue'
+const slashSeparator = h('strong', '/')
+</script>
+
 <template>
-  <ASpace :separator="slashSeparator">
+<ASpace :separator="slashSeparator">
     <span>Profile</span>
     <span>Billing</span>
     <span>Security</span>
   </ASpace>
 </template>
-
-<script setup lang="ts">
-import { h } from 'vue'
-
-const slashSeparator = h('strong', '/')
-</script>
 ```
 
 ## Semantic Styling
@@ -111,7 +110,7 @@ const slashSeparator = h('strong', '/')
 
 ```vue
 <template>
-  <ASpace
+<ASpace
     separator="•"
     class-name="demo-space-class"
     root-class-name="demo-space-root"

@@ -12,7 +12,7 @@ Skeleton displays loading placeholders before content is ready.
 
 ```vue
 <template>
-  <ASkeleton />
+<ASkeleton />
 </template>
 ```
 
@@ -30,7 +30,7 @@ Skeleton displays loading placeholders before content is ready.
 
 ```vue
 <template>
-  <ASkeleton
+<ASkeleton
     active
     round
     :avatar="{ size: 40, shape: 'circle' }"
@@ -50,7 +50,7 @@ Skeleton displays loading placeholders before content is ready.
 
 ```vue
 <template>
-  <ASkeleton :loading="loaded === false">
+<ASkeleton :loading="false">
     <ACard title="Loaded">Content is ready.</ACard>
   </ASkeleton>
 </template>
@@ -72,7 +72,7 @@ Skeleton displays loading placeholders before content is ready.
 
 ```vue
 <template>
-  <ASkeleton
+<ASkeleton
     active
     :title="false"
     :paragraph="false"
@@ -97,10 +97,10 @@ Skeleton displays loading placeholders before content is ready.
 
 ```vue
 <template>
-  <ASkeleton
+<ASkeleton
     root-class-name="docs-skeleton"
     :avatar="true"
-    :class-names="{ root: 'docs-skeleton-root', avatar: 'docs-skeleton-avatar' }"
+    :class-names="{ root: 'docs-skeleton-root', avatar: 'docs-skeleton-avatar', title: 'docs-skeleton-title' }"
     :styles="{ root: { padding: '8px' }, title: { width: '44%' } }"
   />
 </template>
@@ -113,7 +113,7 @@ Skeleton displays loading placeholders before content is ready.
 | loading | Loading state. | `boolean` | `true` |
 | active | Whether to show animation. | `boolean` | `false` |
 | avatar | Whether to show an avatar placeholder. | `boolean` \|`SkeletonAvatarConfig` | `false` |
-| title | Title content. | `boolean` \|`SkeletonTitleConfig` | `true` |
+| title | Whether to show a title placeholder, or its configuration. | `boolean` \|`SkeletonTitleConfig` | `true` |
 | paragraph | Whether to show a paragraph placeholder. | `boolean` \|`SkeletonParagraphConfig` | `true` |
 | button | Whether to show a button placeholder. | `boolean` \|`SkeletonButtonConfig` | `false` |
 | input | Whether to show an input placeholder. | `boolean` \|`SkeletonInputConfig` | `false` |
@@ -186,22 +186,22 @@ Skeleton displays loading placeholders before content is ready.
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| avatar | The `avatar` semantic DOM element. |
-| content | The `content` semantic DOM element. |
-| title | The `title` semantic DOM element. |
-| paragraph | The `paragraph` semantic DOM element. |
-| paragraphRow | The `paragraphRow` semantic DOM element. |
-| button | The `button` semantic DOM element. |
-| input | The `input` semantic DOM element. |
-| image | The `image` semantic DOM element. |
-| node | The `node` semantic DOM element. |
+| root | Root container. |
+| avatar | Avatar placeholder. |
+| content | Container for title and paragraph placeholders. |
+| title | Title placeholder. |
+| paragraph | Paragraph container. |
+| paragraphRow | Paragraph row. |
+| button | Button placeholder. |
+| input | Input placeholder. |
+| image | Image placeholder. |
+| node | Custom-node placeholder. |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | The `default` semantic DOM element. |
+| default | Content rendered when `loading` is `false`. |
 
 ## Theme Tokens
 

@@ -15,12 +15,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <ATextarea model-value="A longer description can live here." placeholder="Enter description" />
+<ATextarea model-value="A longer description can live here." placeholder="Enter description" />
 </template>
 ```
 
@@ -38,12 +34,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <ATextarea
+<ATextarea
     model-value="Line one"
     :rows="4"
     :maxlength="120"
@@ -66,12 +58,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <ATextarea model-value="Outlined" variant="outlined" />
     <ATextarea model-value="Filled" variant="filled" />
     <ATextarea model-value="Underlined" variant="underlined" />
@@ -92,12 +80,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <ATextarea status="error" model-value="This field needs attention." />
     <AConfigProvider disabled>
       <ATextarea model-value="Disabled by ConfigProvider" />
@@ -124,7 +108,7 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <ATextarea model-value="Clear me" :allow-clear="{ clearIcon: h('span', { class: 'demo-clear-node' }, 'clear') }" />
     <ATextarea model-value="Clear disabled" :allow-clear="{ disabled: true, clearIcon: 'clear' }" />
     <ATextarea model-value="Slot clear" allow-clear>
@@ -168,7 +152,7 @@ import { h } from 'vue'
 </script>
 
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <ATextarea
       model-value="Aheart"
       :maxlength="20"
@@ -211,12 +195,8 @@ import { h } from 'vue'
 </div>
 
 ```vue
-<script setup lang="ts">
-import { h } from 'vue'
-</script>
-
 <template>
-  <ATextarea
+<ATextarea
     model-value="Styled textarea"
     allow-clear
     show-count

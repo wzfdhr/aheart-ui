@@ -16,7 +16,7 @@ Icon renders inline symbols and custom SVG content.
 
 ```vue
 <template>
-  <ASpace>
+<ASpace>
     <AIcon name="search" />
     <AIcon name="setting" color="#1677ff" />
     <AIcon name="loading" spin />
@@ -36,7 +36,7 @@ Icon renders inline symbols and custom SVG content.
 
 ```vue
 <template>
-  <AIcon :size="20" color="#52c41a">
+<AIcon :size="20" color="#52c41a">
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <path d="M6.5 11.2 3.3 8l1.1-1.1 2.1 2.1 5-5L12.6 5z" />
     </svg>

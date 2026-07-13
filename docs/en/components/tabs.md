@@ -42,7 +42,7 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <ATabs
+<ATabs
     :items="[
       { key: 'overview', label: 'Overview', children: 'Overview panel' },
       { key: 'settings', label: 'Settings', children: 'Settings panel' },
@@ -68,7 +68,7 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <ATabs
+<ATabs
     type="card"
     default-active-key="metrics"
     :items="[
@@ -95,7 +95,7 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <ATabs
+<ATabs
     tab-placement="start"
     :items="[
       { key: 'profile', label: 'Profile', children: 'Profile panel' },
@@ -121,7 +121,7 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <ATabs
+<ATabs
     :tab-bar-gutter="24"
     :tab-bar-extra-content="{ left: 'Project', right: 'Actions' }"
     :items="[
@@ -144,7 +144,6 @@ const renderableTabsExtraContent = {
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-
 const renderableTabsItems = [
   {
     key: 'profile',
@@ -159,7 +158,6 @@ const renderableTabsItems = [
     children: h('span', 'Activity content from a VNode child')
   }
 ]
-
 const renderableTabsExtraContent = {
   left: h('span', { style: { color: 'var(--aheart-color-text-secondary)' } }, 'Workspace'),
   right: h('button', { type: 'button', class: 'aheart-button aheart-button--small' }, 'Sync')
@@ -167,7 +165,7 @@ const renderableTabsExtraContent = {
 </script>
 
 <template>
-  <ATabs
+<ATabs
     :items="renderableTabsItems"
     :tab-bar-extra-content="renderableTabsExtraContent"
   />
@@ -191,7 +189,7 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <ATabs
+<ATabs
     active-key="usage"
     :animated="{ inkBar: true, tabPane: true }"
     :indicator="{ size: 28, align: 'center' }"
@@ -217,12 +215,11 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <ATabs
+<ATabs
     :items="[
       { key: 'overview', icon: 'O', label: 'Overview', children: 'Overview panel' },
       { key: 'settings', icon: 'S', label: 'Settings', children: 'Settings panel' }
     ]"
-    @tab-click="handleTabClick"
   />
 </template>
 ```
@@ -244,7 +241,7 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <ATabs
+<ATabs
     class-name="demo-tabs"
     root-class-name="demo-tabs-root"
     :class-names="{ activeTab: 'demo-tabs-active', panel: 'demo-tabs-panel' }"
@@ -273,7 +270,7 @@ const renderableTabsExtraContent = {
 
 ```vue
 <template>
-  <AConfigProvider size="large">
+<AConfigProvider size="large">
     <ATabs
       centered
       :items="[
@@ -289,7 +286,7 @@ const renderableTabsExtraContent = {
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Component item configuration. | `TabItem[]` | `[]` |
+| items | Tab items to display. | `TabItem[]` | `[]` |
 | activeKey | Active item in controlled mode. | `string` | - |
 | defaultActiveKey | Initial active item in uncontrolled mode. | `string` | first available item |
 | type | Component type or visual style. | `line` \|`card` | `line` |
@@ -322,17 +319,17 @@ const renderableTabsExtraContent = {
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:activeKey | Fired when `update:activeKey` is triggered. | `(key: string) => void` |
-| change | Fired when `change` is triggered. | `(key: string) => void` |
-| tabClick | Fired when `tabClick` is triggered. | `(key: string, event: MouseEvent) => void` |
+| update:activeKey | Fired when the active tab changes. | `(key: string) => void` |
+| change | Fired when the active tab changes. | `(key: string) => void` |
+| tabClick | Fired when an enabled tab is clicked. | `(key: string, event: MouseEvent) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| tab-{key} | The `tab-{key}` semantic DOM element. |
-| extraLeft | The `extraLeft` semantic DOM element. |
-| extraRight | The `extraRight` semantic DOM element. |
+| tab-{key} | Custom panel content for the specified key; takes precedence over `TabItem.children`. |
+| extraLeft | Custom content on the left side of the tab bar. |
+| extraRight | Custom content on the right side of the tab bar. |
 
 ## Theme Tokens
 

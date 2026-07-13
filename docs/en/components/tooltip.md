@@ -23,7 +23,7 @@ const renderableTooltipTitle = () => h('span', [
 
 ```vue
 <template>
-  <ATooltip title="Helpful text">
+<ATooltip title="Helpful text">
     <AButton>Hover me</AButton>
   </ATooltip>
 </template>
@@ -40,7 +40,6 @@ const renderableTooltipTitle = () => h('span', [
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-
 const renderableTooltipTitle = () => h('span', [
   'Latency: ',
   h('strong', '42ms')
@@ -48,7 +47,7 @@ const renderableTooltipTitle = () => h('span', [
 </script>
 
 <template>
-  <ATooltip :title="renderableTooltipTitle">
+<ATooltip default-open :title="renderableTooltipTitle">
     <AButton>Latency</AButton>
   </ATooltip>
 </template>
@@ -64,7 +63,7 @@ const renderableTooltipTitle = () => h('span', [
 
 ```vue
 <template>
-  <ATooltip title="Click trigger" trigger="click" placement="bottom">
+<ATooltip title="Click trigger" trigger="click" placement="bottom">
     <AButton>Click me</AButton>
   </ATooltip>
 </template>
@@ -85,9 +84,14 @@ const renderableTooltipTitle = () => h('span', [
 
 ```vue
 <template>
-  <ATooltip title="Top left" placement="topLeft" color="#111827">
-    <AButton>topLeft</AButton>
-  </ATooltip>
+<ASpace>
+    <ATooltip title="Top left" placement="topLeft" color="#111827">
+      <AButton>topLeft</AButton>
+    </ATooltip>
+    <ATooltip title="Bottom right" placement="bottomRight">
+      <AButton>bottomRight</AButton>
+    </ATooltip>
+  </ASpace>
 </template>
 ```
 
@@ -106,12 +110,14 @@ const renderableTooltipTitle = () => h('span', [
 
 ```vue
 <template>
-  <ATooltip title="Hide arrow" :arrow="false">
-    <AButton>No arrow</AButton>
-  </ATooltip>
-  <ATooltip title="Point arrow at center" :arrow="{ pointAtCenter: true }">
-    <AButton>Centered arrow</AButton>
-  </ATooltip>
+<ASpace>
+    <ATooltip title="Hide arrow" :arrow="false">
+      <AButton>No arrow</AButton>
+    </ATooltip>
+    <ATooltip title="Point arrow at center" :arrow="{ pointAtCenter: true }">
+      <AButton>Centered arrow</AButton>
+    </ATooltip>
+  </ASpace>
 </template>
 ```
 
@@ -125,7 +131,7 @@ const renderableTooltipTitle = () => h('span', [
 
 ```vue
 <template>
-  <ATooltip title="Opens after 0.4 seconds and closes after 0.2 seconds" :mouse-enter-delay="0.4" :mouse-leave-delay="0.2">
+<ATooltip title="Opens after 0.4 seconds and closes after 0.2 seconds" :mouse-enter-delay="0.4" :mouse-leave-delay="0.2">
     <AButton>Hover with delay</AButton>
   </ATooltip>
 </template>
@@ -146,12 +152,14 @@ const renderableTooltipTitle = () => h('span', [
 
 ```vue
 <template>
-  <ATooltip title="Keep DOM after closing" trigger="click">
-    <AButton>Keep</AButton>
-  </ATooltip>
-  <ATooltip title="Destroy DOM after closing" trigger="click" destroy-on-hidden>
-    <AButton>Destroy</AButton>
-  </ATooltip>
+<ASpace>
+    <ATooltip title="Keep DOM after closing" trigger="click">
+      <AButton>Keep</AButton>
+    </ATooltip>
+    <ATooltip title="Destroy DOM after closing" trigger="click" destroy-on-hidden>
+      <AButton>Destroy</AButton>
+    </ATooltip>
+  </ASpace>
 </template>
 ```
 
@@ -175,7 +183,7 @@ const renderableTooltipTitle = () => h('span', [
 
 ```vue
 <template>
-  <ATooltip
+<ATooltip
     title="Customize structure through semantic hooks"
     class-name="demo-tooltip-class"
     root-class-name="demo-tooltip-root"
@@ -228,19 +236,19 @@ const renderableTooltipTitle = () => h('span', [
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| trigger | The `trigger` semantic DOM element. |
-| popup | The `popup` semantic DOM element. |
-| container | The `container` semantic DOM element. |
-| content | The `content` semantic DOM element. |
-| arrow | The `arrow` semantic DOM element. |
+| root | Root wrapper. |
+| trigger | Trigger area. |
+| popup | Tooltip popup. |
+| container | Inner popup container. |
+| content | Tooltip content. |
+| arrow | Popup arrow. |
 
 ### TooltipSemanticInfo
 
 | Field | Description |
 | --- | --- |
-| open | The `open` semantic DOM element. |
-| placement | The `placement` semantic DOM element. |
+| open | Whether the popup is currently visible. |
+| placement | Effective placement; may differ from the requested placement when `autoAdjustOverflow` is enabled. |
 
 ## Events
 

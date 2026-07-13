@@ -25,7 +25,7 @@ const renderablePopoverContent = h('span', [
 
 ```vue
 <template>
-  <APopover title="Account" content="Owner, plan, and recent activity." trigger="click">
+<APopover title="Account" content="Owner, plan, and recent activity." trigger="click">
     <AButton>Open popover</AButton>
   </APopover>
 </template>
@@ -47,7 +47,6 @@ const renderablePopoverContent = h('span', [
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-
 const renderablePopoverTitle = () => h('span', { style: { fontWeight: 600 } }, 'Workspace details')
 const renderablePopoverContent = h('span', [
   'Owner: ',
@@ -57,7 +56,8 @@ const renderablePopoverContent = h('span', [
 </script>
 
 <template>
-  <APopover
+<APopover
+    default-open
     trigger="click"
     :title="renderablePopoverTitle"
     :content="renderablePopoverContent"
@@ -84,7 +84,7 @@ const renderablePopoverContent = h('span', [
 
 ```vue
 <template>
-  <APopover trigger="click" placement="rightTop">
+<APopover trigger="click" placement="rightTop">
     <AButton>Details</AButton>
     <template #title>Release status</template>
     <template #content>
@@ -115,9 +115,17 @@ const renderablePopoverContent = h('span', [
 
 ```vue
 <template>
-  <APopover content="Context content" trigger="contextMenu">
-    <AButton>Context menu</AButton>
-  </APopover>
+<ASpace>
+    <APopover content="Hover content">
+      <AButton>Hover</AButton>
+    </APopover>
+    <APopover content="Focus content" trigger="focus">
+      <AButton>Focus</AButton>
+    </APopover>
+    <APopover content="Context content" trigger="contextMenu">
+      <AButton>Context menu</AButton>
+    </APopover>
+  </ASpace>
 </template>
 ```
 
@@ -137,7 +145,7 @@ const renderablePopoverContent = h('span', [
 
 ```vue
 <template>
-  <APopover
+<APopover
     title="Centered arrow"
     content="The arrow can point at the center of the trigger."
     color="rgb(246, 255, 237)"
@@ -163,7 +171,11 @@ const renderablePopoverContent = h('span', [
 
 ```vue
 <template>
-  <APopover content="This popup waits before opening and closing." :mouse-enter-delay="0.2" :mouse-leave-delay="0.3">
+<APopover
+    content="This popup waits before opening and closing."
+    :mouse-enter-delay="0.2"
+    :mouse-leave-delay="0.3"
+  >
     <AButton>Delayed hover</AButton>
   </APopover>
 </template>
@@ -184,12 +196,14 @@ const renderablePopoverContent = h('span', [
 
 ```vue
 <template>
-  <APopover content="Hidden DOM is preserved after first open." trigger="click">
-    <AButton>Preserve</AButton>
-  </APopover>
-  <APopover content="Hidden DOM is removed." trigger="click" destroy-on-hidden>
-    <AButton>Destroy</AButton>
-  </APopover>
+<ASpace>
+    <APopover content="Hidden DOM is preserved after first open." trigger="click">
+      <AButton>Preserve</AButton>
+    </APopover>
+    <APopover content="Hidden DOM is removed." trigger="click" destroy-on-hidden>
+      <AButton>Destroy</AButton>
+    </APopover>
+  </ASpace>
 </template>
 ```
 
@@ -220,15 +234,23 @@ const renderablePopoverContent = h('span', [
 
 ```vue
 <template>
-  <APopover
+<APopover
     default-open
     title="Semantic hooks"
     content="Root, popup, container, title, content, and arrow can be styled directly."
     root-class-name="popover-semantic-demo"
     overlay-class-name="popover-semantic-demo__overlay"
     :overlay-inner-style="{ padding: '4px' }"
-    :class-names="{ popup: 'popover-semantic-demo__popup', container: 'popover-semantic-demo__container' }"
-    :styles="{ popup: { borderColor: 'var(--aheart-color-primary)' }, title: { letterSpacing: '1px' } }"
+    :class-names="{
+      popup: 'popover-semantic-demo__popup',
+      container: 'popover-semantic-demo__container',
+      arrow: 'popover-semantic-demo__arrow'
+    }"
+    :styles="{
+      popup: { borderColor: 'var(--aheart-color-primary)' },
+      title: { letterSpacing: '1px' },
+      content: { lineHeight: '20px' }
+    }"
   >
     <AButton>Styled popover</AButton>
   </APopover>
@@ -269,20 +291,20 @@ const renderablePopoverContent = h('span', [
 
 | value | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| trigger | The `trigger` semantic DOM element. |
-| popup | The `popup` semantic DOM element. |
-| container | The `container` semantic DOM element. |
-| title | The `title` semantic DOM element. |
-| content | The `content` semantic DOM element. |
-| arrow | The `arrow` semantic DOM element. |
+| root | Root element. |
+| trigger | Trigger-element wrapper. |
+| popup | Popover popup. |
+| container | Inner popup container. |
+| title | Popover title. |
+| content | Popover content. |
+| arrow | Popup arrow. |
 
 ### PopoverSemanticInfo
 
 | Field | Description |
 | --- | --- |
-| open | The `open` semantic DOM element. |
-| placement | The `placement` semantic DOM element. |
+| open | Whether the popup is currently visible. |
+| placement | Effective placement; may differ from the requested placement when `autoAdjustOverflow` is enabled. |
 
 ## Events
 

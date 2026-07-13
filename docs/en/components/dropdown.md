@@ -22,7 +22,15 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown :menu="{ items }">
+<ADropdown
+    :menu="{
+      items: [
+        { key: 'edit', label: 'Edit' },
+        { key: 'archive', label: 'Archive' },
+        { key: 'delete', label: 'Delete', danger: true }
+      ]
+    }"
+  >
     <AButton>Hover actions</AButton>
   </ADropdown>
 </template>
@@ -48,7 +56,17 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown :trigger="['click']" placement="bottom" arrow :menu="{ items }">
+<ADropdown
+    :trigger="['click']"
+    placement="bottom"
+    arrow
+    :menu="{
+      items: [
+        { key: 'profile', label: 'Profile' },
+        { key: 'billing', label: 'Billing' }
+      ]
+    }"
+  >
     <AButton>Click me</AButton>
   </ADropdown>
 </template>
@@ -82,12 +100,27 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdownButton type="primary" :trigger="['click']" :menu="{ items }" @click="create">
-    New item
-  </ADropdownButton>
-  <ADropdownButton loading :menu="{ items: retryItems }">
-    Processing
-  </ADropdownButton>
+<ASpace>
+    <ADropdownButton
+      type="primary"
+      :trigger="['click']"
+      :menu="{
+        items: [
+          { key: 'create', label: 'Create item' },
+          { key: 'import', label: 'Import data' }
+        ]
+      }"
+      @click="() => undefined"
+    >
+      New item
+    </ADropdownButton>
+    <ADropdownButton
+      loading
+      :menu="{ items: [{ key: 'retry', label: 'Retry later' }] }"
+    >
+      Processing
+    </ADropdownButton>
+  </ASpace>
 </template>
 ```
 
@@ -111,7 +144,15 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown :trigger="['contextMenu']" :menu="{ items }">
+<ADropdown
+    :trigger="['contextMenu']"
+    :menu="{
+      items: [
+        { key: 'copy', label: 'Copy' },
+        { key: 'paste', label: 'Paste' }
+      ]
+    }"
+  >
     <AButton>Right click</AButton>
   </ADropdown>
 </template>
@@ -136,7 +177,16 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown :arrow="{ pointAtCenter: true }" placement="bottom" :menu="{ items }">
+<ADropdown
+    :arrow="{ pointAtCenter: true }"
+    placement="bottom"
+    :menu="{
+      items: [
+        { key: 'settings', label: 'Settings' },
+        { key: 'logout', label: 'Logout' }
+      ]
+    }"
+  >
     <AButton>Centered arrow</AButton>
   </ADropdown>
 </template>
@@ -165,12 +215,22 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown :trigger="['click']" placement="leftTop" :menu="{ items }">
-    <AButton>Left top</AButton>
-  </ADropdown>
-  <ADropdown :trigger="['click']" placement="rightBottom" :menu="{ items }">
-    <AButton>Right bottom</AButton>
-  </ADropdown>
+<ASpace>
+    <ADropdown
+      :trigger="['click']"
+      placement="leftTop"
+      :menu="{ items: [{ key: 'copy', label: 'Copy' }, { key: 'rename', label: 'Rename' }] }"
+    >
+      <AButton>Left top</AButton>
+    </ADropdown>
+    <ADropdown
+      :trigger="['click']"
+      placement="rightBottom"
+      :menu="{ items: [{ key: 'copy', label: 'Copy' }, { key: 'rename', label: 'Rename' }] }"
+    >
+      <AButton>Right bottom</AButton>
+    </ADropdown>
+  </ASpace>
 </template>
 ```
 
@@ -193,7 +253,16 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown v-model:open="open" placement="bottomRight" :menu="{ items }">
+<ADropdown
+    :open="true"
+    placement="bottomRight"
+    :menu="{
+      items: [
+        { key: 'download', label: 'Download' },
+        { key: 'share', label: 'Share' }
+      ]
+    }"
+  >
     <AButton type="primary">Open</AButton>
   </ADropdown>
 </template>
@@ -221,12 +290,21 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown :trigger="['click']" :menu="{ items }">
-    <AButton>Keep overlay</AButton>
-  </ADropdown>
-  <ADropdown :trigger="['click']" destroy-on-hidden :menu="{ items }">
-    <AButton>Destroy overlay</AButton>
-  </ADropdown>
+<ASpace>
+    <ADropdown
+      :trigger="['click']"
+      :menu="{ items: [{ key: 'edit', label: 'Edit' }] }"
+    >
+      <AButton>Keep overlay</AButton>
+    </ADropdown>
+    <ADropdown
+      :trigger="['click']"
+      destroy-on-hidden
+      :menu="{ items: [{ key: 'edit', label: 'Edit' }] }"
+    >
+      <AButton>Destroy overlay</AButton>
+    </ADropdown>
+  </ASpace>
 </template>
 ```
 
@@ -246,10 +324,13 @@ Dropdown exposes contextual actions from a trigger element and renders a Menu ov
 
 ```vue
 <template>
-  <ADropdown :trigger="['click']" :menu="{ items }">
+<ADropdown :trigger="['click']" :menu="{ items: [{ key: 'edit', label: 'Edit' }] }">
     <AButton>Custom popup</AButton>
     <template #popup>
-      <div class="custom-popup">Custom content</div>
+      <div style="padding: 10px 12px; min-width: 180px">
+        <strong>Custom content</strong>
+        <p style="margin: 6px 0 0; color: var(--aheart-color-text-secondary)">Use the popup slot to replace the menu overlay.</p>
+      </div>
     </template>
   </ADropdown>
 </template>
@@ -286,14 +367,17 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 
 ```vue
 <template>
-  <ADropdown
+<ADropdown
+    :trigger="['click']"
     class-name="demo-dropdown-class"
     root-class-name="demo-dropdown-root"
     overlay-class-name="demo-dropdown-popup"
+    :style="{ color: 'var(--aheart-color-primary)' }"
+    :overlay-style="{ minWidth: '220px' }"
     :class-names="{ trigger: 'demo-dropdown-trigger', menu: 'demo-dropdown-menu', arrow: 'demo-dropdown-arrow' }"
     :styles="{ popup: { maxWidth: '260px' }, menu: { padding: '4px' }, arrow: { backgroundColor: '#fff' } }"
     :arrow="{ pointAtCenter: true }"
-    :menu="{ items }"
+    :menu="{ items: [{ key: 'edit', label: 'Edit' }, { key: 'archive', label: 'Archive' }] }"
   >
     <AButton>Semantic hooks</AButton>
   </ADropdown>
@@ -314,8 +398,10 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 
 ```vue
 <template>
-  <AConfigProvider disabled>
-    <ADropdown :menu="{ items }">
+<AConfigProvider disabled>
+    <ADropdown
+      :menu="{ items: [{ key: 'edit', label: 'Edit' }] }"
+    >
       <AButton>Disabled</AButton>
     </ADropdown>
   </AConfigProvider>
@@ -370,7 +456,7 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 | nativeType | Native `type` for the primary button. | `button` \|`submit` \|`reset` | `button` |
 | href | Link address. | `string` | - |
 | target | Link target. | `string` | - |
-| title | Title content. | `string` | - |
+| title | Native `title` applied to both the primary and dropdown trigger buttons. | `string` | - |
 | icon | Custom icon. | `VNodeChild` | `v` |
 | buttonsRender | Custom renderer for the primary and dropdown buttons. | `(buttons: VNodeChild[]) => VNodeChild[]` | - |
 | getPopupContainer | Container in which to mount the popup. | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
@@ -393,7 +479,7 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 
 | Field | Description | Type | Default |
 | --- | --- | --- | --- |
-| items | Component item configuration. | `MenuItem[]` | `[]` |
+| items | Menu items displayed in the dropdown. | `MenuItem[]` | `[]` |
 | selectable | Whether items can be selected. | `boolean` | `false` |
 | selectedKeys | Currently selected keys. | `string[]` | - |
 | defaultSelectedKeys | Initially selected keys. | `string[]` | `[]` |
@@ -403,35 +489,35 @@ const popupRender = (menus) => h('div', { class: 'custom-popup' }, [menus])
 
 | Name | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| trigger | The `trigger` semantic DOM element. |
-| popup | The `popup` semantic DOM element. |
-| menu | The `menu` semantic DOM element. |
-| arrow | The `arrow` semantic DOM element. |
+| root | Root wrapper. |
+| trigger | Trigger area. |
+| popup | Popup element. |
+| menu | Wrapper for the default menu. |
+| arrow | Popup arrow. |
 
 ### DropdownSemanticInfo
 
 | Field | Description | Type |
 | --- | --- | --- |
-| open | Details `open`. | `boolean` |
-| placement | Details `placement`. | `DropdownPlacement` |
+| open | Current open state. | `boolean` |
+| placement | Current popup placement. | `DropdownPlacement` |
 
 ## Events
 
 | Event | Description | Parameters |
 | --- | --- | --- |
-| update:open | Fired when `update:open` is triggered. | `(open: boolean) => void` |
-| openChange | Fired when `openChange` is triggered. | `(open: boolean, info: { source: 'trigger' \|'menu' }) => void` |
-| click | Fired when `click` is triggered. | `(info: MenuClickInfo) => void` |
-| DropdownButton click | Fired when `DropdownButton click` is triggered. | `(event: MouseEvent) => void` |
-| DropdownButton menuClick | Fired when `DropdownButton menuClick` is triggered. | `(info: MenuClickInfo) => void` |
+| update:open | Fired when the open state changes. | `(open: boolean) => void` |
+| openChange | Fired when trigger interaction changes the open state; `info.source` identifies the trigger or menu source. | `(open: boolean, info: { source: 'trigger' \|'menu' }) => void` |
+| click | Fired when a menu item is clicked. | `(info: MenuClickInfo) => void` |
+| DropdownButton click | Fired when the primary button in `ADropdownButton` is clicked. | `(event: MouseEvent) => void` |
+| DropdownButton menuClick | Fired when an `ADropdownButton` menu item is clicked. | `(info: MenuClickInfo) => void` |
 
 ## Slots
 
 | Name | Description |
 | --- | --- |
-| default | The `default` semantic DOM element. |
-| popup | The `popup` semantic DOM element. |
+| default | Trigger content. |
+| popup | Custom popup content; takes precedence over `popupRender`. |
 
 ## Theme Tokens
 

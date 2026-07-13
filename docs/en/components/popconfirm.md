@@ -26,7 +26,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 
 ```vue
 <template>
-  <APopconfirm title="Delete item?" description="This action cannot be undone." @confirm="remove">
+<APopconfirm title="Delete item?" description="This action cannot be undone.">
     <AButton type="danger">Delete</AButton>
   </APopconfirm>
 </template>
@@ -48,7 +48,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 
 ```vue
 <template>
-  <APopconfirm
+<APopconfirm
     title="Publish changes?"
     description="Customers will see this version immediately."
     ok-text="Publish"
@@ -77,7 +77,6 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
-
 const renderablePopconfirmTitle = () => h('span', { style: { fontWeight: 600 } }, 'Release candidate?')
 const renderablePopconfirmDescription = h('span', [
   'This will publish ',
@@ -88,7 +87,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 </script>
 
 <template>
-  <APopconfirm
+<APopconfirm
     default-open
     :title="renderablePopconfirmTitle"
     :description="renderablePopconfirmDescription"
@@ -113,7 +112,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 
 ```vue
 <template>
-  <APopconfirm :show-cancel="false" ok-text="Got it">
+<APopconfirm :show-cancel="false" ok-text="Got it">
     <AButton>Notice</AButton>
     <template #icon>i</template>
     <template #title>Heads up</template>
@@ -138,7 +137,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 
 ```vue
 <template>
-  <APopconfirm
+<APopconfirm
     title="Archive item?"
     description="You can restore it from the archive later."
     icon="?"
@@ -167,7 +166,7 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 
 ```vue
 <template>
-  <APopconfirm
+<APopconfirm
     title="Deploy now?"
     description="This starts a production deployment."
     ok-text="Deploy"
@@ -193,15 +192,11 @@ const renderablePopconfirmIcon = h('span', { style: { color: 'var(--aheart-color
 </div>
 
 ```vue
-<script setup lang="ts">
-const handlePopupClick = () => undefined
-</script>
-
 <template>
-  <APopconfirm
+<APopconfirm
     title="Open details?"
     description="Clicking inside the popup can be observed without closing it."
-    @popup-click="handlePopupClick"
+    @popup-click="() => undefined"
   >
     <AButton>Observe popup</AButton>
   </APopconfirm>
@@ -225,7 +220,7 @@ const handlePopupClick = () => undefined
 
 ```vue
 <template>
-  <APopconfirm
+<APopconfirm
     trigger="hover"
     title="Delayed confirm"
     description="Hover timing and centered arrow follow the shared floating API."
@@ -269,7 +264,7 @@ const handlePopupClick = () => undefined
 
 ```vue
 <template>
-  <APopconfirm
+<APopconfirm
     default-open
     title="Semantic hooks"
     description="Popup, container, text, and action parts can be styled directly."
@@ -280,11 +275,14 @@ const handlePopupClick = () => undefined
     :class-names="{
       popup: 'popconfirm-semantic-demo__popup',
       container: 'popconfirm-semantic-demo__container',
+      icon: 'popconfirm-semantic-demo__icon',
       okButton: 'popconfirm-semantic-demo__ok'
     }"
     :styles="{
+      root: { maxWidth: '360px' },
       popup: { borderColor: 'var(--aheart-color-primary)' },
       container: { maxWidth: '280px' },
+      icon: { backgroundColor: 'var(--aheart-color-primary)' },
       okButton: { marginLeft: '8px' }
     }"
   >
@@ -314,7 +312,7 @@ const handlePopupClick = () => undefined
 | okButtonProps | Props for the OK button. | `Partial<ButtonProps>` | - |
 | cancelButtonProps | Props for the Cancel button. | `Partial<ButtonProps>` | - |
 | disabled | Whether interaction is disabled. | `boolean` | `false` |
-| showCancel | Configuration for `showCancel`. | `boolean` | `true` |
+| showCancel | Whether to show the Cancel button. | `boolean` | `true` |
 | color | Custom color. | `string` | - |
 | mouseEnterDelay | Delay before opening on hover, in seconds. | `number` | `0.1` |
 | mouseLeaveDelay | Delay before closing on hover, in seconds. | `number` | `0.1` |
@@ -335,26 +333,26 @@ const handlePopupClick = () => undefined
 
 | value | Description |
 | --- | --- |
-| root | The `root` semantic DOM element. |
-| trigger | The `trigger` semantic DOM element. |
-| popup | The `popup` semantic DOM element. |
-| container | The `container` semantic DOM element. |
-| arrow | The `arrow` semantic DOM element. |
-| message | The `message` semantic DOM element. |
-| icon | The `icon` semantic DOM element. |
-| text | The `text` semantic DOM element. |
-| title | The `title` semantic DOM element. |
-| description | The `description` semantic DOM element. |
-| actions | The `actions` semantic DOM element. |
-| cancelButton | The `cancelButton` semantic DOM element. |
-| okButton | The `okButton` semantic DOM element. |
+| root | Root element. |
+| trigger | Trigger-element wrapper. |
+| popup | Confirmation popup. |
+| container | Inner popup content container. |
+| arrow | Popup arrow. |
+| message | Icon-and-text area. |
+| icon | Prompt icon. |
+| text | Title-and-description container. |
+| title | Confirmation title. |
+| description | Supporting description. |
+| actions | Action-button area. |
+| cancelButton | Cancel button. |
+| okButton | Confirm button. |
 
 ### PopconfirmSemanticInfo
 
 | Field | Description |
 | --- | --- |
-| open | The `open` semantic DOM element. |
-| placement | The `placement` semantic DOM element. |
+| open | Whether the popup is currently visible. |
+| placement | Effective placement; may differ from the requested placement when `autoAdjustOverflow` is enabled. |
 
 ## Events
 

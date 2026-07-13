@@ -21,7 +21,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ASpace size="large">
+<ASpace size="large">
     <ABadge :count="5">
       <AButton>Inbox</AButton>
     </ABadge>
@@ -42,7 +42,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ABadge dot>
+<ABadge dot>
     <AButton>Updates</AButton>
   </ABadge>
 </template>
@@ -66,7 +66,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ASpace size="large">
+<ASpace size="large">
     <ABadge :count="0">
       <AButton>Hidden zero</AButton>
     </ABadge>
@@ -95,7 +95,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ASpace size="large">
+<ASpace size="large">
     <ABadge dot color="#722ed1" title="Unread updates">
       <AButton>Custom dot</AButton>
     </ABadge>
@@ -119,7 +119,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ABadge :count="120" :overflow-count="99">
+<ABadge :count="120" :overflow-count="99">
     <template #count>
       <span style="font-size: 10px;">new</span>
     </template>
@@ -145,7 +145,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ABadge
+<ABadge
     count="hot"
     class-name="demo-badge-class"
     root-class-name="demo-badge-root"
@@ -171,7 +171,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ASpace direction="vertical">
+<ASpace direction="vertical">
     <ABadge status="success" text="Online" />
     <ABadge status="processing" text="Syncing" />
     <ABadge status="warning" text="Pending" />
@@ -198,7 +198,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ABadgeRibbon
+<ABadgeRibbon
     text="Limited"
     color="#722ed1"
     placement="end"
@@ -225,7 +225,7 @@ Badge shows counts, dots, and status markers around nearby content.
 
 ```vue
 <template>
-  <ABadge
+<ABadge
     status="processing"
     text="Syncing"
     :class-names="{ root: 'demo-badge-root', indicator: 'demo-badge-indicator' }"

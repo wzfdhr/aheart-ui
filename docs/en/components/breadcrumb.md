@@ -18,7 +18,7 @@ Breadcrumb shows the user's position in a page hierarchy.
 
 ```vue
 <template>
-  <ABreadcrumb
+<ABreadcrumb
     :items="[
       { title: 'Home', href: '/' },
       { title: 'Components', href: '/components/overview' },
@@ -43,7 +43,7 @@ Breadcrumb shows the user's position in a page hierarchy.
 
 ```vue
 <template>
-  <ABreadcrumb
+<ABreadcrumb
     separator=">"
     :items="[
       { title: 'Workspace', href: '/' },
@@ -69,7 +69,7 @@ Breadcrumb shows the user's position in a page hierarchy.
 
 ```vue
 <template>
-  <ABreadcrumb
+<ABreadcrumb
     :params="{ projectId: 'aheart' }"
     :items="[
       { title: 'Projects', path: 'projects' },
@@ -95,7 +95,7 @@ Breadcrumb shows the user's position in a page hierarchy.
 
 ```vue
 <template>
-  <ABreadcrumb
+<ABreadcrumb
     :items="[
       { title: 'Location', href: '/' },
       { type: 'separator', separator: ':' },
@@ -123,7 +123,7 @@ Breadcrumb shows the user's position in a page hierarchy.
 
 ```vue
 <template>
-  <ABreadcrumb
+<ABreadcrumb
     :params="{ projectId: 'aheart' }"
     :items="[
       { title: 'Projects', path: 'projects' },
@@ -151,7 +151,7 @@ Each `path` is joined with the preceding path segment to generate links such as 
 
 ```vue
 <template>
-  <ABreadcrumb
+<ABreadcrumb
     :items="[
       { title: 'Workspace', href: '/' },
       { title: 'Members', href: '/members' },
@@ -179,7 +179,7 @@ Each `path` is joined with the preceding path segment to generate links such as 
 
 ```vue
 <template>
-  <ABreadcrumb
+<ABreadcrumb
     class-name="docs-breadcrumb"
     :class-names="{ root: 'docs-breadcrumb-root', item: 'docs-breadcrumb-item', separator: 'docs-breadcrumb-separator' }"
     :styles="{ root: { padding: '4px 0' }, separator: { marginInline: '10px' } }"

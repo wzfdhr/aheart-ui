@@ -17,7 +17,7 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 
 ```vue
 <template>
-  <AConfigProvider size="large">
+<AConfigProvider size="large">
     <div class="aheart-demo-row">
       <AButton>Default</AButton>
       <AButton type="primary">Primary</AButton>
@@ -39,7 +39,7 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 
 ```vue
 <template>
-  <AConfigProvider disabled>
+<AConfigProvider disabled>
     <div class="aheart-demo-row">
       <AButton>Disabled</AButton>
       <AButton type="primary">Disabled Primary</AButton>
@@ -58,7 +58,7 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 
 ```vue
 <template>
-  <AConfigProvider :theme="{ primaryColor: '#0958d9', borderRadius: '4px' }">
+<AConfigProvider :theme="{ primaryColor: '#0958d9', borderRadius: '4px' }">
     <AButton type="primary">Custom Theme</AButton>
   </AConfigProvider>
 </template>

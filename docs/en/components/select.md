@@ -24,13 +24,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASelect
+<ASelect
     model-value="banana"
     placeholder="Choose fruit"
     :options="[
@@ -58,13 +53,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASelect
+<ASelect
     mode="multiple"
     :model-value="['apple', 'banana']"
     allow-clear
@@ -101,7 +91,7 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </script>
 
 <template>
-  <ASpace>
+<ASpace>
     <ASelect
       ref="selectRef"
       placeholder="Focusable select"
@@ -132,13 +122,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASelect
+<ASelect
     show-search
     placeholder="Search fruit"
     not-found-content="No fruit"
@@ -168,13 +153,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASelect
+<ASelect
     show-search
     option-filter-prop="code"
     :field-names="{ label: 'name', value: 'id', disabled: 'locked' }"
@@ -222,13 +202,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <ASelect
       model-value="2"
       prefix="Level"
@@ -283,13 +258,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASpace direction="vertical" style="width: 100%">
+<ASpace direction="vertical" style="width: 100%">
     <ASelect
       default-value="banana"
       :options="[
@@ -327,13 +297,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASelect
+<ASelect
     model-value="apple"
     :allow-clear="{ clearIcon: 'clear' }"
     class-name="demo-select"
@@ -363,13 +328,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <ASelect
+<ASelect
     mode="tags"
     :model-value="['apple']"
     :max-count="2"
@@ -398,13 +358,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </div>
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-const selectRef = ref<{ focus: () => void; blur: () => void }>()
-</script>
-
 <template>
-  <AConfigProvider size="large" disabled>
+<AConfigProvider size="large" disabled>
     <ASelect
       status="warning"
       placeholder="Disabled"

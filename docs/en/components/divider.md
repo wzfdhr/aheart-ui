@@ -14,7 +14,7 @@ Divider separates content groups with horizontal or vertical rules, title placem
 
 ```vue
 <template>
-  <span>Text</span>
+<span>Text</span>
   <ADivider />
   <span>More text</span>
 </template>
@@ -28,7 +28,7 @@ Divider separates content groups with horizontal or vertical rules, title placem
 
 ```vue
 <template>
-  <ADivider title-placement="start" orientation-margin="24px">Section</ADivider>
+<ADivider title-placement="start" orientation-margin="24px">Section</ADivider>
 </template>
 ```
 
@@ -45,7 +45,7 @@ Divider separates content groups with horizontal or vertical rules, title placem
 
 ```vue
 <template>
-  <span>Solid</span>
+<span>Solid</span>
   <ADivider />
   <span>Dotted</span>
   <ADivider variant="dotted" size="large" />
@@ -72,7 +72,7 @@ Divider separates content groups with horizontal or vertical rules, title placem
 
 ```vue
 <template>
-  <ADivider
+<ADivider
     title-placement="start"
     orientation-margin="32px"
     class-name="demo-divider"
@@ -109,7 +109,7 @@ Divider separates content groups with horizontal or vertical rules, title placem
 
 | Name | Description |
 | --- | --- |
-| default | Title content for a horizontal divider. |
+| default | Content rendered within a horizontal divider. |
 
 ## Semantic DOM
 
