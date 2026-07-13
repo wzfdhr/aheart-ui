@@ -196,22 +196,30 @@ message.config({
     prefix-cls="demo-message-host"
     :class-names="{ notice: 'demo-message-notice' }"
     :styles="{ root: { top: '12px' } }"
-    :notices="[
-      { key: 'saved', type: 'success', content: 'Saved', icon: '✓' },
-      { key: 'warning', type: 'warning', content: 'Check settings', className: 'demo-warning' }
-    ]"
+    :notices="notices"
+    @close="removeNotice"
   />
 </div>
 
 ```vue
 <script setup lang="ts">
 import { message } from 'aheart-ui'
+const notices = [
+  { key: 'saved', type: 'success', content: 'Saved', icon: '✓' },
+  { key: 'warning', type: 'warning', content: 'Check settings', className: 'demo-warning' }
+]
+const removeNotice = () => undefined
 </script>
 
 <template>
-<AButton @click="message.loading({ key: 'sync', content: 'Syncing', duration: 0 })">
-    Persistent loading
-  </AButton>
+  <AMessage
+    style="position: absolute;"
+    prefix-cls="demo-message-host"
+    :class-names="{ notice: 'demo-message-notice' }"
+    :styles="{ root: { top: '12px' } }"
+    :notices="notices"
+    @close="removeNotice"
+  />
 </template>
 ```
 
