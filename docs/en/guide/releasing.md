@@ -6,7 +6,7 @@ Before releasing `aheart-ui`, run the following checks from the repository root:
 corepack pnpm release:check
 rm -rf /tmp/aheart-ui-pack
 mkdir -p /tmp/aheart-ui-pack
-corepack pnpm --filter ./packages/components pack --json --pack-destination /tmp/aheart-ui-pack
+corepack pnpm --dir packages/components pack --json --pack-destination /tmp/aheart-ui-pack
 git status --short
 ```
 
