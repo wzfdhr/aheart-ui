@@ -43,8 +43,16 @@ import { message } from 'aheart-ui'
   </AButton>
 </div>
 
-```ts
-message.loading({ key: 'sync', content: 'Syncing', duration: 0 })
+```vue
+<script setup lang="ts">
+import { message } from 'aheart-ui'
+</script>
+
+<template>
+  <AButton @click="message.loading({ key: 'sync', content: 'Syncing', duration: 0 })">
+    Persistent loading
+  </AButton>
+</template>
 ```
 
 ## Update the Same Message
@@ -60,9 +68,21 @@ message.loading({ key: 'sync', content: 'Syncing', duration: 0 })
   </ASpace>
 </div>
 
-```ts
-message.loading({ key: 'upload', content: 'Uploading', duration: 0 })
-message.success({ key: 'upload', content: 'Uploaded', duration: 2 })
+```vue
+<script setup lang="ts">
+import { message } from 'aheart-ui'
+</script>
+
+<template>
+  <ASpace>
+    <AButton @click="message.loading({ key: 'upload', content: 'Uploading', duration: 0 })">
+      Start
+    </AButton>
+    <AButton type="primary" @click="message.success({ key: 'upload', content: 'Uploaded', duration: 2 })">
+      Finish
+    </AButton>
+  </ASpace>
+</template>
 ```
 
 ## Custom Style and Icon
@@ -83,14 +103,26 @@ message.success({ key: 'upload', content: 'Uploaded', duration: 2 })
   </AButton>
 </div>
 
-```ts
-message.info({
-  content: 'Styled message',
-  icon: '★',
-  className: 'demo-message',
-  style: { minWidth: '220px' },
-  duration: 2
-})
+```vue
+<script setup lang="ts">
+import { message } from 'aheart-ui'
+</script>
+
+<template>
+  <AButton
+    @click="
+      message.info({
+        content: 'Styled message',
+        icon: '★',
+        className: 'demo-message',
+        style: { minWidth: '220px' },
+        duration: 2
+      })
+    "
+  >
+    Custom message
+  </AButton>
+</template>
 ```
 
 ## Manual Close
@@ -110,13 +142,25 @@ message.info({
   </AButton>
 </div>
 
-```ts
-message.info({
-  content: 'Manual close',
-  duration: 0,
-  closable: true,
-  closeIcon: 'dismiss'
-})
+```vue
+<script setup lang="ts">
+import { message } from 'aheart-ui'
+</script>
+
+<template>
+  <AButton
+    @click="
+      message.info({
+        content: 'Manual close',
+        duration: 0,
+        closable: true,
+        closeIcon: 'dismiss'
+      })
+    "
+  >
+    Closable message
+  </AButton>
+</template>
 ```
 
 Messages hide the close button by default to keep Ant Message feedback lightweight. Set `closable: true` when a manual close control is needed, or call `close()` on the returned handle.
@@ -146,9 +190,21 @@ message
   </AButton>
 </div>
 
-```ts
-message.config({ top: 32, maxCount: 1 })
-message.info('Only one message')
+```vue
+<script setup lang="ts">
+import { message } from 'aheart-ui'
+
+const showConfiguredMessage = () => {
+  message.config({ top: 32, maxCount: 1 })
+  message.info('Only one message')
+}
+</script>
+
+<template>
+  <AButton @click="showConfiguredMessage">
+    Configured message
+  </AButton>
+</template>
 ```
 
 ## Stacked Messages
@@ -168,11 +224,23 @@ message.info('Only one message')
   </AButton>
 </div>
 
-```ts
-message.config({ stack: { threshold: 2 } })
-message.info('First stacked', 0)
-message.info('Second stacked', 0)
-message.info('Third stacked', 0)
+```vue
+<script setup lang="ts">
+import { message } from 'aheart-ui'
+
+const showStackedMessages = () => {
+  message.config({ stack: { threshold: 2 } })
+  message.info('First stacked', 0)
+  message.info('Second stacked', 0)
+  message.info('Third stacked', 0)
+}
+</script>
+
+<template>
+  <AButton @click="showStackedMessages">
+    Stacked message
+  </AButton>
+</template>
 ```
 
 With `stack` enabled, messages beyond the threshold collapse older notices and show the latest notice with the hidden count.
@@ -212,14 +280,16 @@ const removeNotice = () => undefined
 </script>
 
 <template>
-  <AMessage
-    style="position: absolute;"
-    prefix-cls="demo-message-host"
-    :class-names="{ notice: 'demo-message-notice' }"
-    :styles="{ root: { top: '12px' } }"
-    :notices="notices"
-    @close="removeNotice"
-  />
+  <div class="aheart-demo-panel" style="position: relative; min-height: 96px;">
+    <AMessage
+      style="position: absolute;"
+      prefix-cls="demo-message-host"
+      :class-names="{ notice: 'demo-message-notice' }"
+      :styles="{ root: { top: '12px' } }"
+      :notices="notices"
+      @close="removeNotice"
+    />
+  </div>
 </template>
 ```
 
