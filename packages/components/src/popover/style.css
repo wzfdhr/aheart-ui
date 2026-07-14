@@ -25,6 +25,8 @@
   color: var(--aheart-color-text);
   opacity: 0;
   scale: 0.98;
+  translate: var(--aheart-floating-motion-x, 0) var(--aheart-floating-motion-y, -4px);
+  transform-origin: var(--aheart-floating-transform-origin, top center);
   transition:
     opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
     scale var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
@@ -35,30 +37,6 @@
   opacity: 1;
   scale: 1;
   translate: 0 0;
-}
-
-.aheart-floating--bottom,
-.aheart-floating--bottomLeft,
-.aheart-floating--bottomRight {
-  translate: 0 -4px;
-}
-
-.aheart-floating--top,
-.aheart-floating--topLeft,
-.aheart-floating--topRight {
-  translate: 0 4px;
-}
-
-.aheart-floating--left,
-.aheart-floating--leftTop,
-.aheart-floating--leftBottom {
-  translate: 4px 0;
-}
-
-.aheart-floating--right,
-.aheart-floating--rightTop,
-.aheart-floating--rightBottom {
-  translate: -4px 0;
 }
 
 .aheart-popover__container {
@@ -85,4 +63,10 @@
 
 .aheart-popover__arrow--point-at-center {
   transform: rotate(45deg) scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aheart-popover__popup {
+    transition-duration: 0ms;
+  }
 }

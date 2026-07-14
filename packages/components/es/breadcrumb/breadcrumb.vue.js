@@ -1,7 +1,7 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, Fragment, renderList, createVNode, unref, createCommentVNode } from "vue";
 import { breadcrumbProps } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["aria-current"];
+const _hoisted_1 = ["aria-current", "aria-disabled"];
 const _hoisted_2 = ["onClick"];
 const _hoisted_3 = ["href", "onClick"];
 const _hoisted_4 = ["onClick"];
@@ -143,7 +143,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               key: getEntryKey(entry),
               class: normalizeClass(["aheart-breadcrumb__item", itemClass(entry)]),
               style: normalizeStyle(itemStyle(entry)),
-              "aria-current": entry.kind === "route" && isCurrent(entry.index) ? "page" : void 0
+              "aria-current": entry.kind === "route" && isCurrent(entry.index) ? "page" : void 0,
+              "aria-disabled": entry.kind === "route" && entry.item.disabled ? "true" : void 0
             }, [
               entry.kind === "separator" ? (openBlock(), createElementBlock("span", {
                 key: 0,

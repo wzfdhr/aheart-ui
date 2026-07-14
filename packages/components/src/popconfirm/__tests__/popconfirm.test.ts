@@ -54,6 +54,12 @@ const mountPopconfirm = (options: Record<string, any> = {}) =>
     }
   })
 
+const flushFloatingPosition = async () => {
+  await nextTick()
+  await Promise.resolve()
+  await nextTick()
+}
+
 describe('Popconfirm', () => {
   it('opens from click trigger with title description icon and buttons', async () => {
     const wrapper = mountPopconfirm({
@@ -117,9 +123,11 @@ describe('Popconfirm', () => {
       })
 
       await wrapper.find('.aheart-popconfirm__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('aheart-floating--bottom')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('aheart-floating--bottom')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -139,7 +147,7 @@ describe('Popconfirm', () => {
       })
 
       await wrapper.find('.aheart-popconfirm__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
       expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('aheart-floating--top')
     } finally {
@@ -161,9 +169,11 @@ describe('Popconfirm', () => {
       })
 
       await wrapper.find('.aheart-popconfirm__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('aheart-floating--right')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('aheart-floating--right')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -219,7 +229,7 @@ describe('Popconfirm', () => {
     expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
     expect(wrapper.emitted('openChange')?.[0]).toEqual([false])
     expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
-    expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
+    expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('is-leave')
   })
 
   it('emits cancel and closes from Cancel', async () => {
@@ -233,7 +243,7 @@ describe('Popconfirm', () => {
     expect(wrapper.emitted('cancel')).toHaveLength(1)
     expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
     expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
-    expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
+    expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('is-leave')
   })
 
   it('respects disabled and showCancel options', async () => {
@@ -357,7 +367,7 @@ describe('Popconfirm', () => {
     expect(wrapper.find('.aheart-popconfirm__ok').attributes('style')).toContain('margin-left: 2px')
   })
 
-  it('applies align offset variables to the popup', () => {
+  it('keeps align configuration out of rendered DOM attributes', () => {
     const wrapper = mountPopconfirm({
       props: {
         defaultOpen: true,
@@ -369,8 +379,7 @@ describe('Popconfirm', () => {
 
     const popupStyle = wrapper.find('.aheart-popconfirm__popup').attributes('style') ?? ''
 
-    expect(popupStyle).toContain('--aheart-floating-align-x: 8px')
-    expect(popupStyle).toContain('--aheart-floating-align-y: -4px')
+    expect(popupStyle).not.toContain('--aheart-floating-align-')
     expect(wrapper.attributes('align')).toBeUndefined()
   })
 
@@ -432,8 +441,10 @@ describe('Popconfirm', () => {
       await wrapper.find('.aheart-popconfirm__trigger').trigger('click')
       await nextTick()
 
-      expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
-      expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      await vi.waitFor(() => {
+        expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+        expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      })
 
       expect(wrapper.classes()).toContain('function-root-open')
       expect(wrapper.attributes('style')).toContain('outline-color: green')
@@ -605,7 +616,7 @@ describe('Popconfirm', () => {
       await vi.advanceTimersByTimeAsync(1)
       await nextTick()
       expect(wrapper.find('.aheart-popconfirm__popup').exists()).toBe(true)
-      expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
+      expect(wrapper.find('.aheart-popconfirm__popup').classes()).toContain('is-leave')
 
       wrapper.unmount()
     } finally {
@@ -625,36 +636,42 @@ describe('Popconfirm', () => {
   })
 
   it('preserves hidden popup by default and destroys it when requested', async () => {
-    const preserved = mountPopconfirm({
-      props: { title: 'Preserved popup' },
-      slots: { default: '<button>Delete</button>' }
-    })
+    vi.useFakeTimers()
+    try {
+      const preserved = mountPopconfirm({
+        props: { title: 'Preserved popup' },
+        slots: { default: '<button>Delete</button>' }
+      })
 
-    await preserved.find('.aheart-popconfirm__trigger').trigger('click')
-    await preserved.find('.aheart-popconfirm__trigger').trigger('click')
+      await preserved.find('.aheart-popconfirm__trigger').trigger('click')
+      await preserved.find('.aheart-popconfirm__trigger').trigger('click')
+      expect(preserved.find('.aheart-popconfirm__popup').classes()).toContain('is-leave')
+      await vi.advanceTimersByTimeAsync(120)
+      expect(preserved.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
 
-    expect(preserved.find('.aheart-popconfirm__popup').exists()).toBe(true)
-    expect(preserved.find('.aheart-popconfirm__popup').attributes('style')).toContain('display: none')
+      const destroyed = mountPopconfirm({
+        props: { title: 'Destroyed popup', destroyOnHidden: true },
+        slots: { default: '<button>Delete</button>' }
+      })
 
-    const destroyed = mountPopconfirm({
-      props: { title: 'Destroyed popup', destroyOnHidden: true },
-      slots: { default: '<button>Delete</button>' }
-    })
+      await destroyed.find('.aheart-popconfirm__trigger').trigger('click')
+      await destroyed.find('.aheart-popconfirm__trigger').trigger('click')
+      expect(destroyed.find('.aheart-popconfirm__popup').classes()).toContain('is-leave')
+      await vi.advanceTimersByTimeAsync(120)
+      expect(destroyed.find('.aheart-popconfirm__popup').exists()).toBe(false)
 
-    await destroyed.find('.aheart-popconfirm__trigger').trigger('click')
-    await destroyed.find('.aheart-popconfirm__trigger').trigger('click')
+      const aliasDestroyed = mountPopconfirm({
+        props: { title: 'Alias destroyed popup', destroyTooltipOnHide: true },
+        slots: { default: '<button>Delete</button>' }
+      })
 
-    expect(destroyed.find('.aheart-popconfirm__popup').exists()).toBe(false)
-
-    const aliasDestroyed = mountPopconfirm({
-      props: { title: 'Alias destroyed popup', destroyTooltipOnHide: true },
-      slots: { default: '<button>Delete</button>' }
-    })
-
-    await aliasDestroyed.find('.aheart-popconfirm__trigger').trigger('click')
-    await aliasDestroyed.find('.aheart-popconfirm__trigger').trigger('click')
-
-    expect(aliasDestroyed.find('.aheart-popconfirm__popup').exists()).toBe(false)
+      await aliasDestroyed.find('.aheart-popconfirm__trigger').trigger('click')
+      await aliasDestroyed.find('.aheart-popconfirm__trigger').trigger('click')
+      await vi.advanceTimersByTimeAsync(120)
+      expect(aliasDestroyed.find('.aheart-popconfirm__popup').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('accepts fresh without forwarding it as a DOM attribute', () => {
@@ -665,5 +682,23 @@ describe('Popconfirm', () => {
 
     expect(wrapper.attributes('fresh')).toBeUndefined()
     expect(wrapper.find('.aheart-popconfirm__title').text()).toBe('Fresh popup')
+  })
+
+  it('positions and dismisses the confirmation popup from an outside pointer', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    const wrapper = mountPopconfirm({
+      attachTo: document.body,
+      props: { title: 'Delete?' },
+      slots: { default: '<button>Delete</button>' }
+    })
+
+    await wrapper.find('.aheart-popconfirm__trigger').trigger('click')
+    expect(wrapper.find('.aheart-popconfirm__popup').attributes('style')).toContain('position: absolute')
+    outside.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    wrapper.unmount()
+    outside.remove()
   })
 })

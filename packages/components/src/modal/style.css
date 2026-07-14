@@ -7,8 +7,11 @@
   line-height: var(--aheart-line-height);
 }
 
-.aheart-modal.is-enter,
-.aheart-modal.is-leave {
+.aheart-modal.is-enter {
+  pointer-events: none;
+}
+
+.aheart-modal.is-leave .aheart-modal__dialog {
   pointer-events: none;
 }
 
@@ -17,6 +20,7 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   opacity: 0;
+  pointer-events: none;
   transition: opacity var(--aheart-motion-duration-base) var(--aheart-motion-ease-out);
 }
 

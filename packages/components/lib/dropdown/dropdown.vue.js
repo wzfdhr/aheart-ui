@@ -2,6 +2,8 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const index = require("../menu/index.js");
+const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
+const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
@@ -33,6 +35,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const overlayRef = vue.ref(null);
+    const arrowRef = vue.ref(null);
     const effectivePlacement = vue.ref(props.placement);
     let mouseEnterTimer;
     let mouseLeaveTimer;
@@ -57,6 +60,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const shouldTeleport = vue.computed(() => popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
+    const floatingPosition = useFloatingPosition.useFloatingPosition({
+      reference: triggerRef,
+      floating: overlayRef,
+      arrow: arrowRef,
+      open: () => shouldRenderOverlay.value && motion.phase.value !== "hidden",
+      placement: () => props.placement,
+      offset: 8,
+      autoAdjustOverflow: () => props.autoAdjustOverflow,
+      arrowSize: 8
+    });
     const semanticInfo = vue.computed(() => ({
       open: mergedOpen.value,
       placement: effectivePlacement.value
@@ -81,11 +94,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const triggerStyle = vue.computed(() => resolvedStyles.value.trigger);
     const overlayClass = vue.computed(() => [
       `aheart-dropdown__overlay--${effectivePlacement.value}`,
+      `aheart-floating--${effectivePlacement.value}`,
       `is-${motion.phase.value}`,
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
-    const overlayStyle = vue.computed(() => [props.overlayStyle, resolvedStyles.value.popup]);
+    const overlayStyle = vue.computed(() => [
+      floatingPosition.popupStyle.value,
+      props.overlayStyle,
+      resolvedStyles.value.popup
+    ]);
     const menuClass = vue.computed(() => resolvedClassNames.value.menu);
     const menuStyle = vue.computed(() => resolvedStyles.value.menu);
     const showArrow = vue.computed(() => props.arrow !== false);
@@ -99,7 +117,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         "aheart-dropdown__arrow--point-at-center": arrowPointsAtCenter.value
       }
     ]);
-    const arrowStyle = vue.computed(() => resolvedStyles.value.arrow);
+    const arrowStyle = vue.computed(() => [floatingPosition.arrowStyle.value, resolvedStyles.value.arrow]);
     const defaultMenuNode = vue.computed(() => {
       var _a, _b, _c, _d;
       if (!hasMenu.value) {
@@ -140,131 +158,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
     );
-    const getPlacementSide = (placement) => {
-      if (placement.startsWith("top")) {
-        return "top";
-      }
-      if (placement.startsWith("bottom")) {
-        return "bottom";
-      }
-      if (placement.startsWith("left")) {
-        return "left";
-      }
-      return "right";
-    };
-    const getPlacementAlign = (placement) => {
-      if (placement.endsWith("Left")) {
-        return "Left";
-      }
-      if (placement.endsWith("Right")) {
-        return "Right";
-      }
-      if (placement.endsWith("Top")) {
-        return "Top";
-      }
-      if (placement.endsWith("Bottom")) {
-        return "Bottom";
-      }
-      return "";
-    };
-    const createPlacement = (side, align) => `${side}${align}`;
-    const getViewportSize = () => {
-      if (typeof window === "undefined") {
-        return { width: 0, height: 0 };
-      }
-      return {
-        width: window.innerWidth || document.documentElement.clientWidth || 0,
-        height: window.innerHeight || document.documentElement.clientHeight || 0
-      };
-    };
-    const resolveAdjustedPlacement = () => {
-      if (!props.autoAdjustOverflow || !triggerRef.value || !overlayRef.value) {
-        return props.placement;
-      }
-      const triggerRect = triggerRef.value.getBoundingClientRect();
-      const overlayRect = overlayRef.value.getBoundingClientRect();
-      const viewport = getViewportSize();
-      let side = getPlacementSide(props.placement);
-      let align = getPlacementAlign(props.placement);
-      const overlayHeight = overlayRect.height;
-      const overlayWidth = overlayRect.width;
-      if (overlayHeight > 0 && viewport.height > 0) {
-        const spaceAbove = triggerRect.top;
-        const spaceBelow = viewport.height - triggerRect.bottom;
-        if (side === "bottom" && overlayHeight > spaceBelow && spaceAbove > spaceBelow) {
-          side = "top";
-        } else if (side === "top" && overlayHeight > spaceAbove && spaceBelow > spaceAbove) {
-          side = "bottom";
-        }
-      }
-      if (overlayWidth > 0 && viewport.width > 0) {
-        const spaceLeft = triggerRect.left;
-        const spaceRight = viewport.width - triggerRect.right;
-        if (side === "left" && overlayWidth > spaceLeft && spaceRight > spaceLeft) {
-          side = "right";
-        } else if (side === "right" && overlayWidth > spaceRight && spaceLeft > spaceRight) {
-          side = "left";
-        }
-      }
-      if ((side === "top" || side === "bottom") && overlayWidth > 0 && viewport.width > 0) {
-        const leftAlignedRight = triggerRect.left + overlayWidth;
-        const rightAlignedLeft = triggerRect.right - overlayWidth;
-        const centerLeft = triggerRect.left + triggerRect.width / 2 - overlayWidth / 2;
-        const centerRight = centerLeft + overlayWidth;
-        if (align === "Left" && leftAlignedRight > viewport.width && rightAlignedLeft >= 0) {
-          align = "Right";
-        } else if (align === "Right" && rightAlignedLeft < 0 && leftAlignedRight <= viewport.width) {
-          align = "Left";
-        } else if (align === "" && centerLeft < 0 && leftAlignedRight <= viewport.width) {
-          align = "Left";
-        } else if (align === "" && centerRight > viewport.width && rightAlignedLeft >= 0) {
-          align = "Right";
-        }
-      }
-      if ((side === "left" || side === "right") && overlayHeight > 0 && viewport.height > 0) {
-        const topAlignedBottom = triggerRect.top + overlayHeight;
-        const bottomAlignedTop = triggerRect.bottom - overlayHeight;
-        const centerTop = triggerRect.top + triggerRect.height / 2 - overlayHeight / 2;
-        const centerBottom = centerTop + overlayHeight;
-        if (align === "Top" && topAlignedBottom > viewport.height && bottomAlignedTop >= 0) {
-          align = "Bottom";
-        } else if (align === "Bottom" && bottomAlignedTop < 0 && topAlignedBottom <= viewport.height) {
-          align = "Top";
-        } else if (align === "" && centerTop < 0 && topAlignedBottom <= viewport.height) {
-          align = "Top";
-        } else if (align === "" && centerBottom > viewport.height && bottomAlignedTop >= 0) {
-          align = "Bottom";
-        }
-      }
-      return createPlacement(side, align);
-    };
-    const updateEffectivePlacement = () => {
-      effectivePlacement.value = resolveAdjustedPlacement();
-    };
-    const schedulePlacementUpdate = () => {
-      if (!mergedOpen.value) {
-        effectivePlacement.value = props.placement;
-        return;
-      }
-      void vue.nextTick(updateEffectivePlacement);
-    };
     vue.watch(
-      mergedOpen,
-      (open) => {
-        if (open) {
-          schedulePlacementUpdate();
-          return;
-        }
-        effectivePlacement.value = props.placement;
+      () => floatingPosition.placement.value,
+      (placement) => {
+        effectivePlacement.value = placement;
       },
       { immediate: true }
-    );
-    vue.watch(
-      [() => props.placement, () => props.autoAdjustOverflow],
-      () => {
-        effectivePlacement.value = props.placement;
-        schedulePlacementUpdate();
-      }
     );
     const setOpen = (open, options = {}) => {
       if (isDisabled.value) {
@@ -352,6 +251,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       setOpen(false, { source: "menu", emitOpenChange: false });
     };
+    useFloatingDismiss.useFloatingDismiss({
+      open: mergedOpen,
+      trigger: triggerRef,
+      floating: overlayRef,
+      onDismiss: () => setOpen(false, { source: "trigger" })
+    });
     vue.onBeforeUnmount(clearHoverTimers);
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
@@ -393,6 +298,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           }, [
             showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 0,
+              ref_key: "arrowRef",
+              ref: arrowRef,
               class: vue.normalizeClass(["aheart-dropdown__arrow", arrowClass.value]),
               style: vue.normalizeStyle(arrowStyle.value),
               "aria-hidden": "true"

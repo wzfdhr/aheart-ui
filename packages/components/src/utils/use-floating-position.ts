@@ -34,6 +34,7 @@ export interface UseFloatingPositionOptions {
   placement?: MaybeRefOrGetter<FloatingPlacement | undefined>
   strategy?: MaybeRefOrGetter<Strategy | undefined>
   offset?: MaybeRefOrGetter<number | undefined>
+  alignOffset?: MaybeRefOrGetter<readonly [number, number] | undefined>
   autoAdjustOverflow?: MaybeRefOrGetter<boolean | undefined>
   shift?: MaybeRefOrGetter<boolean | undefined>
   arrowSize?: MaybeRefOrGetter<number | undefined>
@@ -88,6 +89,91 @@ export const getFloatingArrowStaticSide = (placement: FloatingPlacement): Side =
 
 const px = (value: number) => `${Math.round(value * 100) / 100}px`
 
+type FloatingSide = 'top' | 'bottom' | 'left' | 'right'
+type FloatingAlign = '' | 'Left' | 'Right' | 'Top' | 'Bottom'
+
+const getPlacementSide = (placement: FloatingPlacement): FloatingSide => {
+  if (placement.startsWith('top')) return 'top'
+  if (placement.startsWith('bottom')) return 'bottom'
+  if (placement.startsWith('left')) return 'left'
+  return 'right'
+}
+
+const getPlacementAlign = (placement: FloatingPlacement): FloatingAlign => {
+  if (placement.endsWith('Left')) return 'Left'
+  if (placement.endsWith('Right')) return 'Right'
+  if (placement.endsWith('Top')) return 'Top'
+  if (placement.endsWith('Bottom')) return 'Bottom'
+  return ''
+}
+
+const resolveViewportPlacement = (
+  reference: HTMLElement,
+  floating: HTMLElement,
+  requestedPlacement: FloatingPlacement,
+  enabled: boolean
+): FloatingPlacement => {
+  if (!enabled || typeof window === 'undefined') return requestedPlacement
+
+  const referenceRect = reference.getBoundingClientRect()
+  const floatingRect = floating.getBoundingClientRect()
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0
+  let side = getPlacementSide(requestedPlacement)
+  let align = getPlacementAlign(requestedPlacement)
+
+  if (floatingRect.height > 0 && viewportHeight > 0) {
+    const spaceAbove = referenceRect.top
+    const spaceBelow = viewportHeight - referenceRect.bottom
+
+    if (side === 'top' && floatingRect.height > spaceAbove && spaceBelow > spaceAbove) side = 'bottom'
+    else if (side === 'bottom' && floatingRect.height > spaceBelow && spaceAbove > spaceBelow) side = 'top'
+  }
+
+  if (floatingRect.width > 0 && viewportWidth > 0) {
+    const spaceLeft = referenceRect.left
+    const spaceRight = viewportWidth - referenceRect.right
+
+    if (side === 'left' && floatingRect.width > spaceLeft && spaceRight > spaceLeft) side = 'right'
+    else if (side === 'right' && floatingRect.width > spaceRight && spaceLeft > spaceRight) side = 'left'
+  }
+
+  if ((side === 'top' || side === 'bottom') && floatingRect.width > 0 && viewportWidth > 0) {
+    const leftAlignedRight = referenceRect.left + floatingRect.width
+    const rightAlignedLeft = referenceRect.right - floatingRect.width
+    const centerLeft = referenceRect.left + referenceRect.width / 2 - floatingRect.width / 2
+    const centerRight = centerLeft + floatingRect.width
+
+    if (align === 'Left' && leftAlignedRight > viewportWidth && rightAlignedLeft >= 0) align = 'Right'
+    else if (align === 'Right' && rightAlignedLeft < 0 && leftAlignedRight <= viewportWidth) align = 'Left'
+    else if (align === '' && centerLeft < 0 && leftAlignedRight <= viewportWidth) align = 'Left'
+    else if (align === '' && centerRight > viewportWidth && rightAlignedLeft >= 0) align = 'Right'
+  }
+
+  if ((side === 'left' || side === 'right') && floatingRect.height > 0 && viewportHeight > 0) {
+    const topAlignedBottom = referenceRect.top + floatingRect.height
+    const bottomAlignedTop = referenceRect.bottom - floatingRect.height
+    const centerTop = referenceRect.top + referenceRect.height / 2 - floatingRect.height / 2
+    const centerBottom = centerTop + floatingRect.height
+
+    if (align === 'Top' && topAlignedBottom > viewportHeight && bottomAlignedTop >= 0) align = 'Bottom'
+    else if (align === 'Bottom' && bottomAlignedTop < 0 && topAlignedBottom <= viewportHeight) align = 'Top'
+    else if (align === '' && centerTop < 0 && topAlignedBottom <= viewportHeight) align = 'Top'
+    else if (align === '' && centerBottom > viewportHeight && bottomAlignedTop >= 0) align = 'Bottom'
+  }
+
+  return `${side}${align}` as FloatingPlacement
+}
+
+const isSameStyle = (current: CSSProperties, next: CSSProperties) => {
+  const currentKeys = Object.keys(current)
+  const nextKeys = Object.keys(next)
+
+  return currentKeys.length === nextKeys.length && nextKeys.every(
+    (key) => current[key as keyof CSSProperties] === next[key as keyof CSSProperties]
+  )
+}
+
 export function useFloatingPosition(options: UseFloatingPositionOptions): UseFloatingPositionReturn {
   const initialPlacement = toValue(options.placement) ?? 'bottomLeft'
   const placement = ref<FloatingPlacement>(initialPlacement)
@@ -115,9 +201,29 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
 
     const currentUpdateId = ++updateId
     const arrowElement = options.arrow ? toValue(options.arrow) : undefined
+    const configuredPlacement = toValue(options.placement) ?? 'bottomLeft'
+    const shouldAdjustOverflow = toValue(options.autoAdjustOverflow) !== false
+    const requestedPlacement = resolveViewportPlacement(
+      reference,
+      floating,
+      configuredPlacement,
+      shouldAdjustOverflow
+    )
     const middleware: Middleware[] = [floatingOffset(toValue(options.offset) ?? 8)]
 
-    if (toValue(options.autoAdjustOverflow) !== false) {
+    const alignOffset = toValue(options.alignOffset)
+    if (alignOffset) {
+      const [rawX, rawY] = alignOffset
+      const xOffset = Number.isFinite(rawX) ? rawX : 0
+      const yOffset = Number.isFinite(rawY) ? rawY : 0
+
+      middleware.push({
+        name: 'aheartAlignOffset',
+        fn: ({ x, y }) => ({ x: x + xOffset, y: y + yOffset })
+      })
+    }
+
+    if (shouldAdjustOverflow && requestedPlacement === configuredPlacement) {
       middleware.push(flip())
     }
 
@@ -130,7 +236,7 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
     }
 
     const result = await computePosition(reference, floating, {
-      placement: toFloatingUIPlacement(toValue(options.placement) ?? 'bottomLeft'),
+      placement: toFloatingUIPlacement(requestedPlacement),
       strategy: toValue(options.strategy) ?? 'absolute',
       middleware
     })
@@ -144,25 +250,39 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
       return
     }
 
-    placement.value = fromFloatingUIPlacement(result.placement)
-    popupStyle.value = {
+    const nextPlacement = fromFloatingUIPlacement(result.placement)
+    const nextPopupStyle: CSSProperties = {
       position: result.strategy,
       left: px(result.x),
       top: px(result.y)
     }
 
+    if (placement.value !== nextPlacement) {
+      placement.value = nextPlacement
+    }
+
+    if (!isSameStyle(popupStyle.value, nextPopupStyle)) {
+      popupStyle.value = nextPopupStyle
+    }
+
     const arrowData = result.middlewareData.arrow
     if (!arrowElement || !arrowData) {
-      arrowStyle.value = {}
+      if (Object.keys(arrowStyle.value).length > 0) {
+        arrowStyle.value = {}
+      }
       return
     }
 
     const staticSide = getFloatingArrowStaticSide(placement.value)
     const size = toValue(options.arrowSize) ?? 8
-    arrowStyle.value = {
+    const nextArrowStyle: CSSProperties = {
       ...(arrowData.x === undefined ? {} : { left: px(arrowData.x) }),
       ...(arrowData.y === undefined ? {} : { top: px(arrowData.y) }),
       [staticSide]: px(-size / 2)
+    }
+
+    if (!isSameStyle(arrowStyle.value, nextArrowStyle)) {
+      arrowStyle.value = nextArrowStyle
     }
   }
 
@@ -174,6 +294,7 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
     toValue(options.placement)
     toValue(options.strategy)
     toValue(options.offset)
+    toValue(options.alignOffset)
     toValue(options.autoAdjustOverflow)
     toValue(options.shift)
     toValue(options.arrowSize)
@@ -183,7 +304,12 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
       return
     }
 
-    const cleanup = autoUpdate(reference, floating, update, options.autoUpdateOptions)
+    const cleanup = autoUpdate(
+      reference,
+      floating,
+      update,
+      options.autoUpdateOptions
+    )
     onCleanup(() => {
       updateId += 1
       cleanup()

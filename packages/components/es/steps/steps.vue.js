@@ -14,7 +14,7 @@ const _hoisted_4 = {
 };
 const _hoisted_5 = { class: "aheart-steps__title-row" };
 const _hoisted_6 = {
-  key: 1,
+  key: 0,
   class: "aheart-steps__extra-content"
 };
 const _sfc_main = /* @__PURE__ */ defineComponent({
@@ -259,16 +259,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   createVNode(unref(ARenderNode), {
                     node: item.description
                   }, null, 8, ["node"])
-                ], 6)) : createCommentVNode("", true),
-                item.content ? (openBlock(), createElementBlock("span", _hoisted_6, [
-                  createVNode(unref(ARenderNode), {
-                    node: item.content
-                  }, null, 8, ["node"])
-                ])) : createCommentVNode("", true)
+                ], 6)) : createCommentVNode("", true)
               ], 6)
             ], 14, _hoisted_2),
+            item.content ? (openBlock(), createElementBlock("span", _hoisted_6, [
+              createVNode(unref(ARenderNode), {
+                node: item.content
+              }, null, 8, ["node"])
+            ])) : createCommentVNode("", true),
             index < normalizedItems.value.length - 1 ? (openBlock(), createElementBlock("span", {
-              key: 0,
+              key: 1,
               class: normalizeClass(["aheart-steps__connector", connectorClass.value]),
               style: normalizeStyle(connectorStyle.value),
               "aria-hidden": "true"

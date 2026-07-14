@@ -10,6 +10,7 @@ export interface UseFloatingPositionOptions {
     placement?: MaybeRefOrGetter<FloatingPlacement | undefined>;
     strategy?: MaybeRefOrGetter<Strategy | undefined>;
     offset?: MaybeRefOrGetter<number | undefined>;
+    alignOffset?: MaybeRefOrGetter<readonly [number, number] | undefined>;
     autoAdjustOverflow?: MaybeRefOrGetter<boolean | undefined>;
     shift?: MaybeRefOrGetter<boolean | undefined>;
     arrowSize?: MaybeRefOrGetter<number | undefined>;

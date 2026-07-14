@@ -1,73 +1,43 @@
-.aheart-floating--top {
-  bottom: calc(100% + var(--aheart-spacing-sm));
-  left: 50%;
-  transform: translate(calc(-50% + var(--aheart-floating-align-x, 0px)), var(--aheart-floating-align-y, 0px));
-}
-
-.aheart-floating--topLeft {
-  bottom: calc(100% + var(--aheart-spacing-sm));
-  left: 0;
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
-}
-
+.aheart-floating--top,
+.aheart-floating--topLeft,
 .aheart-floating--topRight {
-  right: 0;
-  bottom: calc(100% + var(--aheart-spacing-sm));
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
+  --aheart-floating-motion-x: 0;
+  --aheart-floating-motion-y: 4px;
+  --aheart-floating-transform-origin: bottom center;
 }
 
-.aheart-floating--bottom {
-  top: calc(100% + var(--aheart-spacing-sm));
-  left: 50%;
-  transform: translate(calc(-50% + var(--aheart-floating-align-x, 0px)), var(--aheart-floating-align-y, 0px));
-}
-
-.aheart-floating--bottomLeft {
-  top: calc(100% + var(--aheart-spacing-sm));
-  left: 0;
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
-}
-
+.aheart-floating--bottom,
+.aheart-floating--bottomLeft,
 .aheart-floating--bottomRight {
-  top: calc(100% + var(--aheart-spacing-sm));
-  right: 0;
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
+  --aheart-floating-motion-x: 0;
+  --aheart-floating-motion-y: -4px;
+  --aheart-floating-transform-origin: top center;
 }
 
-.aheart-floating--left {
-  top: 50%;
-  right: calc(100% + var(--aheart-spacing-sm));
-  transform: translate(var(--aheart-floating-align-x, 0px), calc(-50% + var(--aheart-floating-align-y, 0px)));
-}
-
-.aheart-floating--leftTop {
-  top: 0;
-  right: calc(100% + var(--aheart-spacing-sm));
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
-}
-
+.aheart-floating--left,
+.aheart-floating--leftTop,
 .aheart-floating--leftBottom {
-  right: calc(100% + var(--aheart-spacing-sm));
-  bottom: 0;
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
+  --aheart-floating-motion-x: 4px;
+  --aheart-floating-motion-y: 0;
+  --aheart-floating-transform-origin: center right;
 }
 
-.aheart-floating--right {
-  top: 50%;
-  left: calc(100% + var(--aheart-spacing-sm));
-  transform: translate(var(--aheart-floating-align-x, 0px), calc(-50% + var(--aheart-floating-align-y, 0px)));
-}
-
-.aheart-floating--rightTop {
-  top: 0;
-  left: calc(100% + var(--aheart-spacing-sm));
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
-}
-
+.aheart-floating--right,
+.aheart-floating--rightTop,
 .aheart-floating--rightBottom {
-  bottom: 0;
-  left: calc(100% + var(--aheart-spacing-sm));
-  transform: translate(var(--aheart-floating-align-x, 0px), var(--aheart-floating-align-y, 0px));
+  --aheart-floating-motion-x: -4px;
+  --aheart-floating-motion-y: 0;
+  --aheart-floating-transform-origin: center left;
+}
+
+.aheart-floating--topLeft,
+.aheart-floating--bottomLeft {
+  --aheart-floating-transform-origin: left center;
+}
+
+.aheart-floating--topRight,
+.aheart-floating--bottomRight {
+  --aheart-floating-transform-origin: right center;
 }
 
 .aheart-floating__arrow {
@@ -78,34 +48,20 @@
   transform: rotate(45deg);
 }
 
-.aheart-floating--top .aheart-floating__arrow,
-.aheart-floating--topLeft .aheart-floating__arrow,
-.aheart-floating--topRight .aheart-floating__arrow {
-  bottom: -4px;
-  left: 50%;
-  margin-left: -4px;
-}
-
-.aheart-floating--bottom .aheart-floating__arrow,
-.aheart-floating--bottomLeft .aheart-floating__arrow,
-.aheart-floating--bottomRight .aheart-floating__arrow {
-  top: -4px;
-  left: 50%;
-  margin-left: -4px;
-}
-
-.aheart-floating--left .aheart-floating__arrow,
-.aheart-floating--leftTop .aheart-floating__arrow,
-.aheart-floating--leftBottom .aheart-floating__arrow {
-  top: 50%;
-  right: -4px;
-  margin-top: -4px;
-}
-
-.aheart-floating--right .aheart-floating__arrow,
-.aheart-floating--rightTop .aheart-floating__arrow,
-.aheart-floating--rightBottom .aheart-floating__arrow {
-  top: 50%;
-  left: -4px;
-  margin-top: -4px;
+@media (prefers-reduced-motion: reduce) {
+  .aheart-floating--top,
+  .aheart-floating--topLeft,
+  .aheart-floating--topRight,
+  .aheart-floating--bottom,
+  .aheart-floating--bottomLeft,
+  .aheart-floating--bottomRight,
+  .aheart-floating--left,
+  .aheart-floating--leftTop,
+  .aheart-floating--leftBottom,
+  .aheart-floating--right,
+  .aheart-floating--rightTop,
+  .aheart-floating--rightBottom {
+    --aheart-floating-motion-x: 0;
+    --aheart-floating-motion-y: 0;
+  }
 }

@@ -18,6 +18,7 @@ export interface AheartLocale {
     total?: (total: number, range: [number, number]) => string
   }
   modal?: {
+    ariaLabel?: string
     okText?: string
     cancelText?: string
     close?: string
@@ -42,6 +43,7 @@ export const zhCN: AheartLocale = {
     total: (total) => `共 ${total} 条`
   },
   modal: {
+    ariaLabel: '对话框',
     okText: '确定',
     cancelText: '取消',
     close: '关闭'
@@ -66,6 +68,7 @@ export const enUS: AheartLocale = {
     total: (total) => `Total ${total} items`
   },
   modal: {
+    ariaLabel: 'Dialog',
     okText: 'OK',
     cancelText: 'Cancel',
     close: 'Close'

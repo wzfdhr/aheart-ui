@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, unref, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, withCtx, renderSlot, vShow, h } from "vue";
+import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, nextTick, onMounted, openBlock, createBlock, Teleport, unref, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, withModifiers, createVNode, withCtx, renderSlot, vShow, h } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
@@ -6,7 +6,8 @@ import { modalProps, modalEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = ["aria-hidden"];
-const _hoisted_2 = ["disabled", "aria-label"];
+const _hoisted_2 = ["aria-label", "aria-labelledby"];
+const _hoisted_3 = ["disabled", "aria-label"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AModal"
@@ -37,6 +38,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const triggerElement = ref(null);
     const dialogRef = ref(null);
     const leaveFocusElement = ref(null);
+    const titleId = `aheart-modal-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
+    let pendingCloseCompletion = false;
     const AModalRenderNode = defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -204,6 +207,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a, _b;
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.close) ?? "Close";
     });
+    const dialogAriaLabel = computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.ariaLabel) ?? "Dialog";
+    });
     const resolvedCancelButtonProps = computed(() => props.cancelButtonProps ?? {});
     const resolvedOkButtonProps = computed(() => {
       var _a, _b;
@@ -250,18 +257,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a, _b, _c;
+        var _a;
         if (open && !previousOpen) {
+          pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
             captureTriggerElement();
+          emit("afterOpenChange", true);
         }
-        emit("afterOpenChange", open);
         if (!open) {
+          pendingCloseCompletion = true;
           const activeElement = document.activeElement;
           leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
-          emit("afterClose");
-          (_c = (_b = closableConfig.value) == null ? void 0 : _b.afterClose) == null ? void 0 : _c.call(_b);
           void nextTick(() => {
             if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
               leaveFocusElement.value.focus();
@@ -274,7 +281,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(
       () => motion.phase.value,
       (phase) => {
-        if (phase === "hidden" && !props.open) {
+        var _a, _b;
+        if (phase === "entered" && props.open) {
+          void nextTick(() => focusDialog());
+          return;
+        }
+        if (phase === "hidden" && !props.open && pendingCloseCompletion) {
+          pendingCloseCompletion = false;
+          emit("afterOpenChange", false);
+          emit("afterClose");
+          (_b = (_a = closableConfig.value) == null ? void 0 : _a.afterClose) == null ? void 0 : _b.call(_a);
           void nextTick(() => restoreTriggerFocus());
           leaveFocusElement.value = null;
         }
@@ -315,6 +331,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
     };
+    const focusDialog = () => {
+      if (!props.open) {
+        return;
+      }
+      const dialog = dialogRef.value;
+      const target = getFocusableElements()[0] ?? dialog;
+      target == null ? void 0 : target.focus();
+    };
+    onMounted(() => {
+      if (!props.open) {
+        return;
+      }
+      captureTriggerElement();
+      focusDialog();
+    });
     const handleTrapTab = (event) => {
       if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
         return;
@@ -394,7 +425,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           }, null, 6)) : createCommentVNode("", true),
           createElementVNode("div", {
             class: normalizeClass(wrapClass.value),
-            style: normalizeStyle(wrapStyle.value)
+            style: normalizeStyle(wrapStyle.value),
+            onClick: withModifiers(handleMaskClick, ["self"])
           }, [
             createVNode(unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
               default: withCtx(() => [
@@ -405,6 +437,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   style: normalizeStyle(dialogStyle.value),
                   role: "dialog",
                   "aria-modal": "true",
+                  "aria-label": hasTitle.value ? void 0 : dialogAriaLabel.value,
+                  "aria-labelledby": hasTitle.value ? titleId : void 0,
                   tabindex: "-1"
                 }, [
                   hasHeader.value ? (openBlock(), createElementBlock("header", {
@@ -414,6 +448,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   }, [
                     hasTitle.value ? (openBlock(), createElementBlock("div", {
                       key: 0,
+                      id: titleId,
                       class: normalizeClass(titleClass.value),
                       style: normalizeStyle(semanticStyle("title"))
                     }, [
@@ -431,7 +466,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       onClick: handleCloseButtonClick
                     }, [
                       createVNode(unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                    ], 14, _hoisted_2)) : createCommentVNode("", true)
+                    ], 14, _hoisted_3)) : createCommentVNode("", true)
                   ], 6)) : createCommentVNode("", true),
                   createElementVNode("div", {
                     class: normalizeClass(bodyClass.value),
@@ -452,7 +487,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       createVNode(unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
                     ])
                   ], 6)) : createCommentVNode("", true)
-                ], 6)
+                ], 14, _hoisted_2)
               ]),
               _: 3
             }, 8, ["renderer"])

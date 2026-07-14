@@ -7,8 +7,11 @@
   line-height: var(--aheart-line-height);
 }
 
-.aheart-drawer.is-enter,
-.aheart-drawer.is-leave {
+.aheart-drawer.is-enter {
+  pointer-events: none;
+}
+
+.aheart-drawer.is-leave .aheart-drawer__panel {
   pointer-events: none;
 }
 

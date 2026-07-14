@@ -3,7 +3,7 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["aria-current"];
+const _hoisted_1 = ["aria-current", "aria-disabled"];
 const _hoisted_2 = ["onClick"];
 const _hoisted_3 = ["href", "onClick"];
 const _hoisted_4 = ["onClick"];
@@ -145,7 +145,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               key: getEntryKey(entry),
               class: vue.normalizeClass(["aheart-breadcrumb__item", itemClass(entry)]),
               style: vue.normalizeStyle(itemStyle(entry)),
-              "aria-current": entry.kind === "route" && isCurrent(entry.index) ? "page" : void 0
+              "aria-current": entry.kind === "route" && isCurrent(entry.index) ? "page" : void 0,
+              "aria-disabled": entry.kind === "route" && entry.item.disabled ? "true" : void 0
             }, [
               entry.kind === "separator" ? (vue.openBlock(), vue.createElementBlock("span", {
                 key: 0,

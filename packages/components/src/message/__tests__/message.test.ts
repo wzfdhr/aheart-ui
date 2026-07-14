@@ -289,4 +289,34 @@ describe('Message', () => {
     expect(document.body.textContent).toContain('Third stacked')
     expect(stackCount?.textContent).toBe('+2')
   })
+
+  it('destroys notices with zero and empty-string keys without clearing the host', async () => {
+    message.info({ key: 0, content: 'Numeric zero', duration: 0 })
+    message.info({ key: '', content: 'Empty string', duration: 0 })
+    message.info({ key: 'keep', content: 'Keep me', duration: 0 })
+    await nextTick()
+
+    message.destroy(0)
+    await nextTick()
+    expect(document.body.textContent).not.toContain('Numeric zero')
+    expect(document.body.textContent).toContain('Empty string')
+    expect(document.body.textContent).toContain('Keep me')
+
+    message.destroy('')
+    await nextTick()
+    expect(document.body.textContent).not.toContain('Empty string')
+    expect(document.body.textContent).toContain('Keep me')
+  })
+
+  it('keeps existing global config values when a later config call omits them', async () => {
+    message.config({ maxCount: 1, duration: 0 })
+    message.config({ top: 24 })
+    message.info('First', 0)
+    message.info('Second', 0)
+    await nextTick()
+
+    expect(document.body.querySelectorAll('.aheart-message-notice')).toHaveLength(1)
+    expect(document.body.textContent).not.toContain('First')
+    expect(document.body.textContent).toContain('Second')
+  })
 })

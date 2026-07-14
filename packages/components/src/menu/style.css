@@ -12,6 +12,12 @@
   list-style: none;
 }
 
+.aheart-menu__list > li::marker,
+.aheart-menu__submenu-list > li::marker,
+.aheart-menu__group-list > li::marker {
+  content: '';
+}
+
 .aheart-menu__list {
   display: flex;
   flex-direction: column;
@@ -21,6 +27,42 @@
 .aheart-menu--horizontal > .aheart-menu__list {
   flex-direction: row;
   align-items: center;
+  min-height: var(--aheart-control-height-lg);
+  border-bottom: 1px solid var(--aheart-color-border);
+}
+
+.aheart-menu--horizontal > .aheart-menu__list > .aheart-menu__item,
+.aheart-menu--horizontal > .aheart-menu__list > .aheart-menu__submenu {
+  position: relative;
+  align-self: stretch;
+}
+
+.aheart-menu--horizontal > .aheart-menu__list > .aheart-menu__item::after,
+.aheart-menu--horizontal > .aheart-menu__list > .aheart-menu__submenu::after {
+  position: absolute;
+  right: var(--aheart-spacing-sm);
+  bottom: -1px;
+  left: var(--aheart-spacing-sm);
+  height: 2px;
+  background: var(--aheart-color-primary);
+  content: '';
+  opacity: 0;
+  transform: scaleX(0.55);
+  transition:
+    opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    transform var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out);
+}
+
+.aheart-menu--horizontal > .aheart-menu__list > .is-selected::after,
+.aheart-menu--horizontal > .aheart-menu__list > .is-open::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.aheart-menu--horizontal > .aheart-menu__list > li > .aheart-menu__item-button,
+.aheart-menu--horizontal > .aheart-menu__list > li > .aheart-menu__submenu-title {
+  height: 100%;
+  border-radius: 0;
 }
 
 .aheart-menu__item-button,
@@ -110,6 +152,45 @@
   padding-left: 0;
 }
 
+.aheart-menu__submenu-list:not(.is-floating) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out);
+}
+
+.aheart-menu__submenu-list:not(.is-floating).is-entered {
+  max-height: var(--aheart-menu-submenu-height, 1000px);
+  opacity: 1;
+}
+
+.aheart-menu__submenu-list.is-floating {
+  z-index: var(--aheart-z-index-popup, 1050);
+  min-width: 168px;
+  padding: var(--aheart-spacing-xs);
+  color: var(--aheart-color-text);
+  background: var(--aheart-color-bg-elevated);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  box-shadow: var(--aheart-shadow);
+  opacity: 0;
+  transform: translate(
+    var(--aheart-floating-motion-x, 0),
+    var(--aheart-floating-motion-y, -4px)
+  ) scale(0.98);
+  transform-origin: var(--aheart-floating-transform-origin);
+  transition:
+    opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    transform var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out);
+}
+
+.aheart-menu__submenu-list.is-floating.is-entered {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+
 .aheart-menu__group-title {
   padding: var(--aheart-spacing-sm) var(--aheart-spacing-md) var(--aheart-spacing-xs);
   color: var(--aheart-color-text-secondary);
@@ -136,14 +217,34 @@
   border-radius: var(--aheart-radius);
 }
 
+.aheart-menu--dark.aheart-menu--horizontal {
+  padding: 0 var(--aheart-spacing-xs);
+}
+
+.aheart-menu--dark.aheart-menu--horizontal > .aheart-menu__list {
+  border-bottom-color: rgba(255, 255, 255, 0.18);
+}
+
+.aheart-menu--dark .aheart-menu__submenu-list.is-floating {
+  color: rgba(255, 255, 255, 0.88);
+  background: #001529;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
 .aheart-menu--dark .aheart-menu__item-button:hover:not(:disabled),
 .aheart-menu--dark .aheart-menu__submenu-title:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.95);
   background: rgba(255, 255, 255, 0.12);
 }
 
 .aheart-menu--dark .aheart-menu__item.is-selected > .aheart-menu__item-button {
   color: #fff;
   background: var(--aheart-color-primary);
+}
+
+.aheart-menu--dark.aheart-menu--horizontal .aheart-menu__item.is-selected > .aheart-menu__item-button {
+  background: #001529;
+  font-weight: 600;
 }
 
 .aheart-menu.is-disabled {

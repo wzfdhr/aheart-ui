@@ -8,6 +8,7 @@
         :class="itemClass(entry)"
         :style="itemStyle(entry)"
         :aria-current="entry.kind === 'route' && isCurrent(entry.index) ? 'page' : undefined"
+        :aria-disabled="entry.kind === 'route' && entry.item.disabled ? 'true' : undefined"
       >
         <template v-if="entry.kind === 'separator'">
           <span

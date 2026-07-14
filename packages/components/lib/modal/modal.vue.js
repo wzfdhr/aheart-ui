@@ -8,7 +8,8 @@ const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-hidden"];
-const _hoisted_2 = ["disabled", "aria-label"];
+const _hoisted_2 = ["aria-label", "aria-labelledby"];
+const _hoisted_3 = ["disabled", "aria-label"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AModal"
@@ -39,6 +40,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const triggerElement = vue.ref(null);
     const dialogRef = vue.ref(null);
     const leaveFocusElement = vue.ref(null);
+    const titleId = `aheart-modal-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
+    let pendingCloseCompletion = false;
     const AModalRenderNode = vue.defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -206,6 +209,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a, _b;
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.close) ?? "Close";
     });
+    const dialogAriaLabel = vue.computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.ariaLabel) ?? "Dialog";
+    });
     const resolvedCancelButtonProps = vue.computed(() => props.cancelButtonProps ?? {});
     const resolvedOkButtonProps = vue.computed(() => {
       var _a, _b;
@@ -252,18 +259,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a, _b, _c;
+        var _a;
         if (open && !previousOpen) {
+          pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
             captureTriggerElement();
+          emit("afterOpenChange", true);
         }
-        emit("afterOpenChange", open);
         if (!open) {
+          pendingCloseCompletion = true;
           const activeElement = document.activeElement;
           leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
-          emit("afterClose");
-          (_c = (_b = closableConfig.value) == null ? void 0 : _b.afterClose) == null ? void 0 : _c.call(_b);
           void vue.nextTick(() => {
             if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
               leaveFocusElement.value.focus();
@@ -276,7 +283,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => motion.phase.value,
       (phase) => {
-        if (phase === "hidden" && !props.open) {
+        var _a, _b;
+        if (phase === "entered" && props.open) {
+          void vue.nextTick(() => focusDialog());
+          return;
+        }
+        if (phase === "hidden" && !props.open && pendingCloseCompletion) {
+          pendingCloseCompletion = false;
+          emit("afterOpenChange", false);
+          emit("afterClose");
+          (_b = (_a = closableConfig.value) == null ? void 0 : _a.afterClose) == null ? void 0 : _b.call(_a);
           void vue.nextTick(() => restoreTriggerFocus());
           leaveFocusElement.value = null;
         }
@@ -317,6 +333,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
     };
+    const focusDialog = () => {
+      if (!props.open) {
+        return;
+      }
+      const dialog = dialogRef.value;
+      const target = getFocusableElements()[0] ?? dialog;
+      target == null ? void 0 : target.focus();
+    };
+    vue.onMounted(() => {
+      if (!props.open) {
+        return;
+      }
+      captureTriggerElement();
+      focusDialog();
+    });
     const handleTrapTab = (event) => {
       if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
         return;
@@ -396,7 +427,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           }, null, 6)) : vue.createCommentVNode("", true),
           vue.createElementVNode("div", {
             class: vue.normalizeClass(wrapClass.value),
-            style: vue.normalizeStyle(wrapStyle.value)
+            style: vue.normalizeStyle(wrapStyle.value),
+            onClick: vue.withModifiers(handleMaskClick, ["self"])
           }, [
             vue.createVNode(vue.unref(AModalRenderWrapper), { renderer: _ctx.modalRender }, {
               default: vue.withCtx(() => [
@@ -407,6 +439,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   style: vue.normalizeStyle(dialogStyle.value),
                   role: "dialog",
                   "aria-modal": "true",
+                  "aria-label": hasTitle.value ? void 0 : dialogAriaLabel.value,
+                  "aria-labelledby": hasTitle.value ? titleId : void 0,
                   tabindex: "-1"
                 }, [
                   hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
@@ -416,6 +450,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   }, [
                     hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
                       key: 0,
+                      id: titleId,
                       class: vue.normalizeClass(titleClass.value),
                       style: vue.normalizeStyle(semanticStyle("title"))
                     }, [
@@ -433,7 +468,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       onClick: handleCloseButtonClick
                     }, [
                       vue.createVNode(vue.unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                    ], 14, _hoisted_2)) : vue.createCommentVNode("", true)
+                    ], 14, _hoisted_3)) : vue.createCommentVNode("", true)
                   ], 6)) : vue.createCommentVNode("", true),
                   vue.createElementVNode("div", {
                     class: vue.normalizeClass(bodyClass.value),
@@ -454,7 +489,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       vue.createVNode(vue.unref(AModalRenderNode), { node: footerContent.value }, null, 8, ["node"])
                     ])
                   ], 6)) : vue.createCommentVNode("", true)
-                ], 6)
+                ], 14, _hoisted_2)
               ]),
               _: 3
             }, 8, ["renderer"])

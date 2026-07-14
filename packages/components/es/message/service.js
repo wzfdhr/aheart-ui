@@ -15,7 +15,7 @@ const timers = /* @__PURE__ */ new Map();
 const timerMeta = /* @__PURE__ */ new Map();
 const closeResolvers = /* @__PURE__ */ new Map();
 const normalizeTop = (top) => top ?? state.top;
-const stringifyKey = (key) => String(key);
+const stringifyKey = (key) => `${typeof key}:${String(key)}`;
 const getTargetContainer = () => {
   var _a;
   return ((_a = state.getContainer) == null ? void 0 : _a.call(state)) ?? document.body;
@@ -210,7 +210,7 @@ const typedOpen = (type) => (contentOrConfig, duration, onClose) => {
   return open(config2);
 };
 const destroy = (key) => {
-  if (key) {
+  if (key !== void 0) {
     closeNotice(key);
     return;
   }
@@ -235,7 +235,9 @@ const config = (options) => {
   if (options.duration !== void 0) {
     state.duration = options.duration;
   }
-  state.maxCount = options.maxCount;
+  if (options.maxCount !== void 0) {
+    state.maxCount = options.maxCount;
+  }
   if (options.stack !== void 0) {
     state.stack = options.stack;
   }

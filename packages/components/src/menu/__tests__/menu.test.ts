@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { h, nextTick } from 'vue'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Menu from '../menu.vue'
 import type { MenuItem } from '../types'
@@ -21,6 +21,10 @@ const items: MenuItem[] = [
 ]
 
 describe('Menu', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders items, groups, dividers, and submenu children', () => {
     const wrapper = mount(Menu, {
       props: { items, defaultOpenKeys: ['workspace'] }
@@ -187,7 +191,8 @@ describe('Menu', () => {
 
     await wrapper.find('.aheart-menu__submenu').trigger('mouseleave')
     expect(wrapper.emitted('openChange')?.[1]).toEqual([[]])
-    expect(wrapper.find('.aheart-menu__submenu-list').attributes('style')).toContain('display: none')
+    expect(wrapper.find('.aheart-menu__submenu-list').classes()).toContain('is-leave')
+    expect(wrapper.find('.aheart-menu__submenu-list').attributes('aria-hidden')).toBe('true')
   })
 
   it('renders custom expand icons with submenu state', async () => {
@@ -210,5 +215,56 @@ describe('Menu', () => {
     await wrapper.find('[data-submenu-key="workspace"]').trigger('click')
 
     expect(wrapper.find('.aheart-menu__expand-icon .custom-expand').text()).toBe('open')
+  })
+
+  it('moves focus and operates submenus from the keyboard', async () => {
+    const wrapper = mount(Menu, { props: { items }, attachTo: document.body })
+    const dashboard = wrapper.find<HTMLElement>('[data-menu-key="dashboard"]')
+
+    dashboard.element.focus()
+    await dashboard.trigger('keydown', { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(wrapper.find('[data-submenu-key="workspace"]').element)
+
+    await wrapper.find('[data-submenu-key="workspace"]').trigger('keydown', { key: 'Enter' })
+    await nextTick()
+    expect(wrapper.emitted('openChange')?.at(-1)).toEqual([['workspace']])
+
+    await wrapper.find('[data-submenu-key="workspace"]').trigger('keydown', { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(wrapper.find('[data-menu-key="projects"]').element)
+
+    await wrapper.find('[data-menu-key="projects"]').trigger('keydown', { key: 'Escape' })
+    expect(wrapper.emitted('openChange')?.at(-1)).toEqual([[]])
+    expect(document.activeElement).toBe(wrapper.find('[data-submenu-key="workspace"]').element)
+    wrapper.unmount()
+  })
+
+  it('keeps a closing submenu mounted for its leave transition', async () => {
+    vi.useFakeTimers()
+    const wrapper = mount(Menu, {
+      props: {
+        items: [{ key: 'parent', label: 'Parent', children: [{ key: 'child', label: 'Child' }] }],
+        defaultOpenKeys: ['parent']
+      }
+    })
+
+    await wrapper.find('[data-submenu-key="parent"]').trigger('click')
+    await nextTick()
+    expect(wrapper.find('.aheart-menu__submenu-list').classes()).toContain('is-leave')
+
+    await vi.advanceTimersByTimeAsync(120)
+    await nextTick()
+    expect(wrapper.find('.aheart-menu__submenu-list').exists()).toBe(false)
+  })
+
+  it('marks horizontal submenu popups as floating surfaces', () => {
+    const wrapper = mount(Menu, {
+      props: {
+        mode: 'horizontal',
+        defaultOpenKeys: ['workspace'],
+        items
+      }
+    })
+
+    expect(wrapper.find('.aheart-menu__submenu-list').classes()).toContain('is-floating')
   })
 })

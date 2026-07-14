@@ -113,9 +113,9 @@
   background: var(--aheart-color-fill);
 }
 
-.aheart-button.is-danger:not(.aheart-button--primary):not(.aheart-button--success):not(.aheart-button--warning) {
-  border-color: var(--aheart-color-danger);
-  color: var(--aheart-color-danger);
+.aheart-button.is-danger:not(.aheart-button--primary):not(.aheart-button--success):not(.aheart-button--warning):not(.aheart-button--danger) {
+  border-color: #cf1322;
+  color: #cf1322;
 }
 
 .aheart-button.is-danger.aheart-button--primary,
@@ -165,6 +165,30 @@
   border-color: transparent;
   color: #fff;
   opacity: 0.88;
+}
+
+.aheart-button--color-warning.aheart-button--variant-solid,
+.aheart-button--color-yellow.aheart-button--variant-solid,
+.aheart-button--color-gold.aheart-button--variant-solid,
+.aheart-button--color-warning.aheart-button--variant-solid:hover:not(:disabled),
+.aheart-button--color-yellow.aheart-button--variant-solid:hover:not(:disabled),
+.aheart-button--color-gold.aheart-button--variant-solid:hover:not(:disabled) {
+  color: #1f1f1f;
+}
+
+.aheart-button--color-danger.aheart-button--variant-solid,
+.aheart-button.is-danger.aheart-button--primary,
+.aheart-button.is-danger.aheart-button--danger {
+  background: #cf1322;
+  color: #fff;
+}
+
+.aheart-button--color-danger.aheart-button--variant-solid:hover:not(:disabled),
+.aheart-button.is-danger.aheart-button--primary:hover:not(:disabled),
+.aheart-button.is-danger.aheart-button--danger:hover:not(:disabled) {
+  background: #a8071a;
+  color: #fff;
+  opacity: 1;
 }
 
 .aheart-button--variant-filled:hover:not(:disabled) {

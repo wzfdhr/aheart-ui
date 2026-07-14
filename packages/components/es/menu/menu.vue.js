@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, Fragment, renderList, createBlock } from "vue";
+import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, Fragment, renderList, createBlock, nextTick } from "vue";
 import _sfc_main$1 from "./menu-node.vue.js";
 import { menuProps, menuEmits } from "./types.js";
 import "./style.css.js";
@@ -16,6 +16,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const config = useAheartConfig();
     const innerSelectedKeys = ref([...props.defaultSelectedKeys]);
     const innerOpenKeys = ref([...props.defaultOpenKeys]);
+    const rootRef = ref(null);
     const normalizedItems = computed(() => props.items ?? []);
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const mergedSelectedKeys = computed(() => props.selectedKeys ?? innerSelectedKeys.value);
@@ -95,17 +96,109 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       }
       const nextOpenKeys = shouldOpen ? [...mergedOpenKeys.value, key] : mergedOpenKeys.value.filter((currentKey) => currentKey !== key);
+      setOpenKeys(nextOpenKeys);
+    };
+    const setOpenKeys = (keys) => {
       if (!isOpenControlled.value) {
-        innerOpenKeys.value = nextOpenKeys;
+        innerOpenKeys.value = keys;
       }
-      emit("openChange", nextOpenKeys);
-      emit("update:openKeys", nextOpenKeys);
+      emit("openChange", keys);
+      emit("update:openKeys", keys);
+    };
+    const getKeyboardItems = () => {
+      if (!rootRef.value) {
+        return [];
+      }
+      return Array.from(
+        rootRef.value.querySelectorAll("[data-menu-key], [data-submenu-key]")
+      ).filter((button) => {
+        var _a;
+        if (button.disabled) {
+          return false;
+        }
+        return !Array.from(((_a = button.closest(".aheart-menu")) == null ? void 0 : _a.querySelectorAll('.aheart-menu__submenu-list[data-open="false"]')) ?? []).some((list) => list.contains(button));
+      });
+    };
+    const focusRelativeItem = (current, offset) => {
+      var _a;
+      const items = getKeyboardItems();
+      const currentIndex = items.indexOf(current);
+      if (currentIndex < 0 || items.length === 0) {
+        return;
+      }
+      (_a = items[(currentIndex + offset + items.length) % items.length]) == null ? void 0 : _a.focus();
+    };
+    const getSubmenuKey = (button) => button.dataset.submenuKey;
+    const focusFirstSubmenuItem = async (button) => {
+      var _a;
+      const key = getSubmenuKey(button);
+      if (!key)
+        return;
+      setOpenKey(key, true);
+      await nextTick();
+      const submenu = button.closest(".aheart-menu__submenu");
+      (_a = submenu == null ? void 0 : submenu.querySelector('.aheart-menu__submenu-list[data-open="true"] [data-menu-key], .aheart-menu__submenu-list[data-open="true"] [data-submenu-key]')) == null ? void 0 : _a.focus();
+    };
+    const closeCurrentSubmenu = (button) => {
+      const parentList = button.closest('.aheart-menu__submenu-list[data-open="true"]');
+      const parentSubmenu = parentList == null ? void 0 : parentList.closest(".aheart-menu__submenu");
+      const parentTrigger = parentSubmenu == null ? void 0 : parentSubmenu.querySelector(":scope > [data-submenu-key]");
+      const parentKey = parentTrigger && getSubmenuKey(parentTrigger);
+      if (parentTrigger && parentKey) {
+        setOpenKey(parentKey, false);
+        parentTrigger.focus();
+        return;
+      }
+      if (mergedOpenKeys.value.length) {
+        setOpenKeys([]);
+      }
+    };
+    const handleMenuKeydown = (event) => {
+      const current = event.target instanceof HTMLButtonElement ? event.target.closest("[data-menu-key], [data-submenu-key]") : null;
+      if (!current || current.disabled) {
+        return;
+      }
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        current.click();
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeCurrentSubmenu(current);
+        return;
+      }
+      const horizontal = props.mode === "horizontal";
+      if (horizontal && event.key === "ArrowRight" || !horizontal && event.key === "ArrowDown") {
+        event.preventDefault();
+        focusRelativeItem(current, 1);
+        return;
+      }
+      if (horizontal && event.key === "ArrowLeft" || !horizontal && event.key === "ArrowUp") {
+        event.preventDefault();
+        focusRelativeItem(current, -1);
+        return;
+      }
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+        if (getSubmenuKey(current)) {
+          event.preventDefault();
+          void focusFirstSubmenuItem(current);
+        }
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        closeCurrentSubmenu(current);
+      }
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("nav", {
+        ref_key: "rootRef",
+        ref: rootRef,
         class: normalizeClass(["aheart-menu", menuClass.value]),
         style: normalizeStyle(rootStyle.value),
-        "aria-label": "menu"
+        "aria-label": "menu",
+        onKeydown: handleMenuKeydown
       }, [
         createElementVNode("ul", {
           role: "menu",
@@ -131,7 +224,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             }, null, 8, ["item", "selected-keys", "open-keys", "disabled", "mode", "force-sub-menu-render", "trigger-sub-menu-action", "expand-icon", "class-names", "styles"]);
           }), 128))
         ], 6)
-      ], 6);
+      ], 38);
     };
   }
 });

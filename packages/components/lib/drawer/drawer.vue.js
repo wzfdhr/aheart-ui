@@ -7,7 +7,7 @@ const useMotionPresence = require("../utils/use-motion-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["aria-hidden"];
-const _hoisted_2 = ["aria-label"];
+const _hoisted_2 = ["aria-label", "aria-labelledby"];
 const _hoisted_3 = ["disabled"];
 const _hoisted_4 = ["disabled"];
 const DRAWER_PUSH_CONTEXT = Symbol("ADrawerPushContext");
@@ -47,6 +47,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
+    const instance = vue.getCurrentInstance();
     const FOCUSABLE_SELECTOR = [
       "a[href]",
       "area[href]",
@@ -64,6 +65,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const triggerElement = vue.ref(null);
     const panelRef = vue.ref(null);
     const leaveFocusElement = vue.ref(null);
+    const titleId = `aheart-drawer-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
+    let pendingCloseCompletion = false;
     const resizedSize = vue.ref();
     const resizeStart = vue.ref(null);
     const parentPushContext = vue.inject(DRAWER_PUSH_CONTEXT, null);
@@ -292,11 +295,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       (open, previousOpen) => {
         var _a;
         if (open && !previousOpen) {
+          pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
             captureTriggerElement();
+          emit("afterOpenChange", true);
         }
         if (!open) {
+          pendingCloseCompletion = true;
           const activeElement = document.activeElement;
           leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = panelRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
           void vue.nextTick(() => {
@@ -305,14 +311,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             }
           });
         }
-        emit("afterOpenChange", open);
       },
       { flush: "sync" }
     );
     vue.watch(
       () => motion.phase.value,
       (phase) => {
-        if (phase === "hidden" && !props.open) {
+        if (phase === "entered" && props.open) {
+          void vue.nextTick(() => focusPanel());
+          return;
+        }
+        if (phase === "hidden" && !props.open && pendingCloseCompletion) {
+          pendingCloseCompletion = false;
+          emit("afterOpenChange", false);
           void vue.nextTick(() => restoreTriggerFocus());
           leaveFocusElement.value = null;
         }
@@ -352,6 +363,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return Array.from(panel.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
     };
+    const focusPanel = () => {
+      if (!props.open) {
+        return;
+      }
+      const panel = panelRef.value;
+      const target = getFocusableElements()[0] ?? panel;
+      target == null ? void 0 : target.focus();
+    };
+    vue.onMounted(() => {
+      if (!props.open) {
+        return;
+      }
+      captureTriggerElement();
+      focusPanel();
+    });
     const handleTrapTab = (event) => {
       if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
         return;
@@ -488,7 +514,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 style: vue.normalizeStyle(panelStyle.value),
                 role: "dialog",
                 "aria-modal": "true",
-                "aria-label": dialogLabel.value,
+                "aria-label": hasTitle.value ? void 0 : dialogLabel.value,
+                "aria-labelledby": hasTitle.value ? titleId : void 0,
                 tabindex: "-1"
               }, [
                 hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
@@ -509,6 +536,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   ], 14, _hoisted_3)) : vue.createCommentVNode("", true),
                   hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
                     key: 1,
+                    id: titleId,
                     class: vue.normalizeClass(titleClass.value),
                     style: vue.normalizeStyle(semanticStyle("title"))
                   }, [

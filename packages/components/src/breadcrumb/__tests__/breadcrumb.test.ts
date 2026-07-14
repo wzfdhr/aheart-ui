@@ -202,4 +202,20 @@ describe('Breadcrumb', () => {
     await wrapper.find('.is-disabled').trigger('click')
     expect(disabledClick).not.toHaveBeenCalled()
   })
+
+  it('exposes disabled route items as unavailable to assistive technology', () => {
+    const wrapper = mount(Breadcrumb, {
+      props: {
+        items: [
+          { title: 'Home', href: '/' },
+          { title: 'Restricted', href: '/restricted', disabled: true },
+          { title: 'Current' }
+        ]
+      }
+    })
+
+    const disabledItem = wrapper.find('.aheart-breadcrumb__item.is-disabled')
+    expect(disabledItem.attributes('aria-disabled')).toBe('true')
+    expect(disabledItem.find('a').exists()).toBe(false)
+  })
 })

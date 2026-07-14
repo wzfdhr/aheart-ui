@@ -38,11 +38,11 @@
           <span v-if="item.description" class="aheart-steps__description" :class="descriptionClass" :style="descriptionStyle">
             <ARenderNode :node="item.description" />
           </span>
-          <span v-if="item.content" class="aheart-steps__extra-content">
-            <ARenderNode :node="item.content" />
-          </span>
         </span>
       </button>
+      <span v-if="item.content" class="aheart-steps__extra-content">
+        <ARenderNode :node="item.content" />
+      </span>
       <span
         v-if="index < normalizedItems.length - 1"
         class="aheart-steps__connector"

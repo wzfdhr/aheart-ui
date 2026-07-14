@@ -18,7 +18,8 @@
           :style="panelStyle"
           role="dialog"
           aria-modal="true"
-          :aria-label="dialogLabel"
+          :aria-label="hasTitle ? undefined : dialogLabel"
+          :aria-labelledby="hasTitle ? titleId : undefined"
           tabindex="-1"
         >
           <header v-if="hasHeader" :class="headerClass" :style="mergedHeaderStyle">
@@ -33,7 +34,7 @@
             >
               <ADrawerRenderNode :node="resolvedCloseIcon" />
             </button>
-            <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
+            <div v-if="hasTitle" :id="titleId" :class="titleClass" :style="semanticStyle('title')">
               <slot name="title">
                 <ADrawerRenderNode :node="title" />
               </slot>
@@ -92,9 +93,11 @@ const DRAWER_PUSH_CONTEXT: InjectionKey<DrawerPushContext> = Symbol('ADrawerPush
 import {
   computed,
   defineComponent,
+  getCurrentInstance,
   inject,
   nextTick,
   onBeforeUnmount,
+  onMounted,
   provide,
   ref,
   useSlots,
@@ -151,6 +154,7 @@ const ADrawerRenderWrapper = defineComponent({
 const props = defineProps(drawerProps)
 const emit = defineEmits(drawerEmits)
 const slots = useSlots()
+const instance = getCurrentInstance()
 const FOCUSABLE_SELECTOR = [
   'a[href]',
   'area[href]',
@@ -168,6 +172,8 @@ const dialogLabel = computed(() => typeof props.title === 'string' || typeof pro
 const triggerElement = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 const leaveFocusElement = ref<HTMLElement | null>(null)
+const titleId = `aheart-drawer-title-${instance?.uid ?? 'dialog'}`
+let pendingCloseCompletion = false
 const resizedSize = ref<number>()
 const resizeStart = ref<{ size: number; clientX: number; clientY: number } | null>(null)
 
@@ -399,11 +405,14 @@ watch(
   () => props.open,
   (open, previousOpen) => {
     if (open && !previousOpen) {
+      pendingCloseCompletion = false
       leaveFocusElement.value = null
       if (motion.phase.value === 'hidden') captureTriggerElement()
+      emit('afterOpenChange', true)
     }
 
     if (!open) {
+      pendingCloseCompletion = true
       const activeElement = document.activeElement
       leaveFocusElement.value =
         activeElement instanceof HTMLElement && panelRef.value?.contains(activeElement) ? activeElement : null
@@ -414,7 +423,6 @@ watch(
       })
     }
 
-    emit('afterOpenChange', open)
   },
   { flush: 'sync' }
 )
@@ -422,7 +430,14 @@ watch(
 watch(
   () => motion.phase.value,
   (phase) => {
-    if (phase === 'hidden' && !props.open) {
+    if (phase === 'entered' && props.open) {
+      void nextTick(() => focusPanel())
+      return
+    }
+
+    if (phase === 'hidden' && !props.open && pendingCloseCompletion) {
+      pendingCloseCompletion = false
+      emit('afterOpenChange', false)
       void nextTick(() => restoreTriggerFocus())
       leaveFocusElement.value = null
     }
@@ -482,6 +497,26 @@ const getFocusableElements = () => {
 
   return Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable)
 }
+
+const focusPanel = () => {
+  if (!props.open) {
+    return
+  }
+
+  const panel = panelRef.value
+  const target = getFocusableElements()[0] ?? panel
+
+  target?.focus()
+}
+
+onMounted(() => {
+  if (!props.open) {
+    return
+  }
+
+  captureTriggerElement()
+  focusPanel()
+})
 
 const handleTrapTab = (event: KeyboardEvent) => {
   if (!props.open || !shouldTrapFocus.value || event.key !== 'Tab') {

@@ -14,6 +14,7 @@ const zhCN = {
     total: (total) => `共 ${total} 条`
   },
   modal: {
+    ariaLabel: "对话框",
     okText: "确定",
     cancelText: "取消",
     close: "关闭"
@@ -37,6 +38,7 @@ const enUS = {
     total: (total) => `Total ${total} items`
   },
   modal: {
+    ariaLabel: "Dialog",
     okText: "OK",
     cancelText: "Cancel",
     close: "Close"

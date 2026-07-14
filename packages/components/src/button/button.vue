@@ -83,7 +83,7 @@ const getContentNode = () => {
   const nodes = slots.default?.()
 
   if (!nodes) {
-    return getAutoSpacedText('按钮')
+    return undefined
   }
 
   const meaningfulNodes = nodes.filter((node) => node.type !== Comment)

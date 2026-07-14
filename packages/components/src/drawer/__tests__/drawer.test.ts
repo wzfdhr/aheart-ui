@@ -487,22 +487,26 @@ describe('Drawer', () => {
     await persistent.setProps({ open: true })
     expect(persistent.emitted('afterOpenChange')?.[0]).toEqual([true])
 
-    await persistent.setProps({ open: false })
-    expect(persistent.emitted('afterOpenChange')?.[1]).toEqual([false])
-    expect(persistent.find('.aheart-drawer').exists()).toBe(true)
-
-    const destroyable = mountDrawer({
-      props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
-    })
-
     vi.useFakeTimers()
     try {
+      await persistent.setProps({ open: false })
+      expect(persistent.emitted('afterOpenChange')).toHaveLength(1)
+      expect(persistent.find('.aheart-drawer').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(241)
+      expect(persistent.emitted('afterOpenChange')?.[1]).toEqual([false])
+
+      const destroyable = mountDrawer({
+        props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
+      })
+
       await destroyable.setProps({ open: false })
 
-      expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
+      expect(destroyable.emitted('afterOpenChange')).toBeUndefined()
       expect(destroyable.find('.aheart-drawer').exists()).toBe(true)
 
       await vi.advanceTimersByTimeAsync(241)
+      expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
       expect(destroyable.find('.aheart-drawer').exists()).toBe(false)
     } finally {
       vi.useRealTimers()
@@ -524,9 +528,10 @@ describe('Drawer', () => {
       await wrapper.setProps({ open: false })
 
       expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
-      expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
+      expect(wrapper.emitted('afterOpenChange')).toBeUndefined()
 
       await vi.advanceTimersByTimeAsync(241)
+      expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
       expect(wrapper.find('.aheart-drawer').exists()).toBe(false)
     } finally {
       vi.useRealTimers()
@@ -574,6 +579,7 @@ describe('Drawer', () => {
       await vi.advanceTimersByTimeAsync(80)
       await wrapper.setProps({ open: true })
       await vi.advanceTimersByTimeAsync(1)
+      expect(wrapper.emitted('afterOpenChange')?.some(([open]) => open === false)).toBe(false)
       await wrapper.setProps({ open: false })
       await vi.advanceTimersByTimeAsync(241)
       await nextTick()
@@ -916,6 +922,30 @@ describe('Drawer', () => {
     const locked = mountDrawer({ props: { open: true, maskClosable: false } })
     await locked.find('.aheart-drawer__mask').trigger('click')
     expect(locked.emitted('update:open')).toBeUndefined()
+  })
+
+  it('labels the drawer from its title and moves focus inside after opening', async () => {
+    const trigger = document.createElement('button')
+    document.body.appendChild(trigger)
+    trigger.focus()
+
+    const wrapper = mountDrawer({
+      attachTo: document.body,
+      props: { open: false, title: 'Task details' },
+      slots: { default: '<input class="task-name" />' }
+    })
+
+    await wrapper.setProps({ open: true })
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(wrapper.find('.aheart-drawer__close').element)
+    })
+
+    const title = wrapper.find('.aheart-drawer__title')
+    expect(title.attributes('id')).toBeTruthy()
+    expect(wrapper.find('.aheart-drawer__panel').attributes('aria-labelledby')).toBe(title.attributes('id'))
+
+    wrapper.unmount()
+    trigger.remove()
   })
 
   it('supports mask config enabled and blur options', () => {

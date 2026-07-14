@@ -227,4 +227,22 @@ describe('Steps', () => {
     expect(wrapper.find('.aheart-steps__connector').classes()).toContain('semantic-connector')
     expect(wrapper.find('.aheart-steps__connector').attributes('style')).toContain('background-color: orange')
   })
+
+  it('does not nest interactive step content inside the step trigger', () => {
+    const wrapper = mount(Steps, {
+      props: {
+        current: 1,
+        items: [
+          {
+            title: 'Review',
+            content: h('button', { class: 'step-content-action', type: 'button' }, 'Details')
+          },
+          { title: 'Publish' }
+        ]
+      }
+    })
+
+    expect(wrapper.find('.aheart-steps__button .step-content-action').exists()).toBe(false)
+    expect(wrapper.find('.aheart-steps__extra-content .step-content-action').exists()).toBe(true)
+  })
 })

@@ -139,6 +139,60 @@ describe('useFloatingPosition', () => {
     scope.stop()
   })
 
+  it('applies align offsets to the computed viewport coordinates', async () => {
+    const reference = ref(document.createElement('button'))
+    const floating = ref(document.createElement('div'))
+
+    computePositionMock.mockResolvedValue({
+      x: 18,
+      y: 16,
+      placement: 'bottom-start',
+      strategy: 'absolute',
+      middlewareData: {}
+    })
+    autoUpdateMock.mockImplementation(() => vi.fn())
+
+    const scope = effectScope()
+    const result = scope.run(() =>
+      useFloatingPosition({
+        reference,
+        floating,
+        alignOffset: ref([8, -4] as const)
+      })
+    )!
+
+    await result.update()
+
+    const middleware = computePositionMock.mock.calls.at(-1)?.[2]?.middleware ?? []
+    const alignOffsetMiddleware = middleware.find((item) => item.name === 'aheartAlignOffset')
+    const aligned = await alignOffsetMiddleware?.fn({ x: 10, y: 20 } as never)
+
+    expect(aligned).toMatchObject({ x: 18, y: 16 })
+    scope.stop()
+  })
+
+  it('keeps identical positioning results referentially stable', async () => {
+    const reference = ref(document.createElement('button'))
+    const floating = ref(document.createElement('div'))
+    computePositionMock.mockResolvedValue({
+      x: 12,
+      y: 24,
+      placement: 'bottom-start',
+      strategy: 'absolute',
+      middlewareData: {}
+    })
+    autoUpdateMock.mockImplementation(() => vi.fn())
+
+    const scope = effectScope()
+    const result = scope.run(() => useFloatingPosition({ reference, floating }))!
+    await result.update()
+    const firstStyle = result.popupStyle.value
+    await result.update()
+
+    expect(result.popupStyle.value).toBe(firstStyle)
+    scope.stop()
+  })
+
   it('is inert while hidden or before refs are mounted', async () => {
     const open = ref(false)
     const reference = ref<HTMLElement | null>(null)

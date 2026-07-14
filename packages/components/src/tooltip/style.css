@@ -22,6 +22,20 @@
   font-size: var(--aheart-font-size-sm);
   overflow-wrap: break-word;
   white-space: normal;
+  opacity: 0;
+  scale: 0.98;
+  translate: var(--aheart-floating-motion-x, 0) var(--aheart-floating-motion-y, -4px);
+  transform-origin: var(--aheart-floating-transform-origin, bottom center);
+  transition:
+    opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    scale var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    translate var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out);
+}
+
+.aheart-tooltip__popup.is-entered {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
 }
 
 .aheart-tooltip__container {
@@ -37,4 +51,10 @@
 
 .aheart-tooltip__arrow--point-at-center {
   transform: rotate(45deg) scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aheart-tooltip__popup {
+    transition-duration: 0ms;
+  }
 }

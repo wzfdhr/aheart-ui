@@ -75,6 +75,12 @@ const mountDropdownButton = (options: Record<string, any> = {}) =>
     }
   })
 
+const flushFloatingPosition = async () => {
+  await nextTick()
+  await Promise.resolve()
+  await nextTick()
+}
+
 describe('Dropdown', () => {
   it('exports the Dropdown.Button split button component', () => {
     expect((Dropdown as any).Button).toBe(DropdownButton)
@@ -360,9 +366,11 @@ describe('Dropdown', () => {
       })
 
       await wrapper.find('.aheart-dropdown__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--topLeft')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--topLeft')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -382,7 +390,7 @@ describe('Dropdown', () => {
       })
 
       await wrapper.find('.aheart-dropdown__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
       expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--bottomLeft')
     } finally {
@@ -428,7 +436,9 @@ describe('Dropdown', () => {
       await wrapper.find('.aheart-dropdown__trigger').trigger('click')
       await nextTick()
 
-      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--right')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--right')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -448,9 +458,11 @@ describe('Dropdown', () => {
       })
 
       await wrapper.find('.aheart-dropdown-button__toggle').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--topRight')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('aheart-dropdown__overlay--topRight')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -811,5 +823,31 @@ describe('Dropdown', () => {
 
     expect(dropdown.classes()).toContain('is-disabled')
     expect(dropdown.find('.aheart-dropdown__overlay').exists()).toBe(false)
+  })
+
+  it('uses computed popup coordinates and dismisses click popups from outside or Escape', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    const wrapper = mountDropdown({
+      attachTo: document.body,
+      props: { menu, trigger: ['click'] },
+      slots: { default: '<button class="dropdown-focus-target">Actions</button>' }
+    })
+    const trigger = wrapper.find('.aheart-dropdown__trigger')
+
+    await trigger.trigger('click')
+    expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('position: absolute')
+    outside.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+
+    await trigger.trigger('click')
+    wrapper.find<HTMLElement>('.dropdown-focus-target').element.focus()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    expect(document.activeElement).toBe(wrapper.find('.dropdown-focus-target').element)
+    wrapper.unmount()
+    outside.remove()
   })
 })

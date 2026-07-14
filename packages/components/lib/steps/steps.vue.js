@@ -16,7 +16,7 @@ const _hoisted_4 = {
 };
 const _hoisted_5 = { class: "aheart-steps__title-row" };
 const _hoisted_6 = {
-  key: 1,
+  key: 0,
   class: "aheart-steps__extra-content"
 };
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
@@ -261,16 +261,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   vue.createVNode(vue.unref(ARenderNode), {
                     node: item.description
                   }, null, 8, ["node"])
-                ], 6)) : vue.createCommentVNode("", true),
-                item.content ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, [
-                  vue.createVNode(vue.unref(ARenderNode), {
-                    node: item.content
-                  }, null, 8, ["node"])
-                ])) : vue.createCommentVNode("", true)
+                ], 6)) : vue.createCommentVNode("", true)
               ], 6)
             ], 14, _hoisted_2),
+            item.content ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, [
+              vue.createVNode(vue.unref(ARenderNode), {
+                node: item.content
+              }, null, 8, ["node"])
+            ])) : vue.createCommentVNode("", true),
             index < normalizedItems.value.length - 1 ? (vue.openBlock(), vue.createElementBlock("span", {
-              key: 0,
+              key: 1,
               class: vue.normalizeClass(["aheart-steps__connector", connectorClass.value]),
               style: vue.normalizeStyle(connectorStyle.value),
               "aria-hidden": "true"

@@ -1,10 +1,13 @@
-import { defineComponent, computed, resolveComponent, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, createVNode, unref, Fragment, renderList, createBlock, createCommentVNode, withDirectives, vShow } from "vue";
+import { defineComponent, computed, ref, watch, nextTick, onMounted, onBeforeUnmount, resolveComponent, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, createVNode, unref, Fragment, renderList, createBlock, createCommentVNode, withDirectives, vShow } from "vue";
+import { useFloatingPosition } from "../utils/use-floating-position.js";
+import { useMotionPresence } from "../utils/use-motion-presence.js";
 const _hoisted_1 = {
   class: "aheart-menu__group-list",
   role: "group"
 };
 const _hoisted_2 = ["data-submenu-key", "disabled", "aria-expanded", "title"];
-const _hoisted_3 = ["data-menu-key", "disabled", "aria-current", "title"];
+const _hoisted_3 = ["data-open", "aria-hidden"];
+const _hoisted_4 = ["data-menu-key", "disabled", "aria-current", "title"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AMenuNode"
@@ -49,6 +52,65 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isDisabled = computed(() => props.disabled || Boolean(props.item.disabled));
     const currentKeyPath = computed(() => [...props.keyPath, props.item.key]);
     const nodeLevelStyle = computed(() => ({ "--aheart-menu-node-level": props.level }));
+    const titleRef = ref(null);
+    const submenuRef = ref(null);
+    const submenuHeight = ref(0);
+    const isFloatingSubmenu = computed(() => props.mode === "horizontal");
+    const motion = useMotionPresence(isOpen, {
+      forceRender: () => props.forceSubMenuRender,
+      destroyOnHidden: () => !props.forceSubMenuRender,
+      duration: 120
+    });
+    const floating = useFloatingPosition({
+      reference: titleRef,
+      floating: submenuRef,
+      open: () => isFloatingSubmenu.value && motion.phase.value !== "hidden",
+      placement: () => props.level === 0 ? "bottomLeft" : "rightTop",
+      offset: 4,
+      autoAdjustOverflow: true
+    });
+    const submenuListClass = computed(() => [
+      props.classNames.submenuList,
+      `is-${motion.phase.value}`,
+      `aheart-floating--${floating.placement.value}`,
+      { "is-floating": isFloatingSubmenu.value }
+    ]);
+    const submenuListStyle = computed(() => [
+      isFloatingSubmenu.value ? floating.popupStyle.value : { "--aheart-menu-submenu-height": `${submenuHeight.value}px` },
+      props.styles.submenuList
+    ]);
+    let resizeObserver;
+    const measureSubmenu = () => {
+      if (!submenuRef.value || isFloatingSubmenu.value)
+        return;
+      submenuHeight.value = submenuRef.value.scrollHeight;
+    };
+    watch(
+      [isOpen, () => {
+        var _a;
+        return (_a = props.item.children) == null ? void 0 : _a.length;
+      }],
+      () => {
+        void nextTick(measureSubmenu);
+      },
+      { immediate: true }
+    );
+    onMounted(() => {
+      if (typeof ResizeObserver === "undefined")
+        return;
+      resizeObserver = new ResizeObserver(measureSubmenu);
+      if (submenuRef.value)
+        resizeObserver.observe(submenuRef.value);
+    });
+    watch(submenuRef, (element, previousElement) => {
+      if (!resizeObserver)
+        return;
+      if (previousElement)
+        resizeObserver.unobserve(previousElement);
+      if (element)
+        resizeObserver.observe(element);
+    });
+    onBeforeUnmount(() => resizeObserver == null ? void 0 : resizeObserver.disconnect());
     const expandIconNode = computed(() => {
       if (typeof props.expandIcon === "function") {
         return props.expandIcon({
@@ -152,9 +214,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         onMouseleave: handleSubmenuMouseLeave
       }, [
         createElementVNode("button", {
+          ref_key: "titleRef",
+          ref: titleRef,
           class: normalizeClass(["aheart-menu__submenu-title", __props.classNames.submenuTitle]),
           style: normalizeStyle([nodeLevelStyle.value, __props.styles.submenuTitle]),
           type: "button",
+          role: "menuitem",
+          "aria-haspopup": "menu",
           "data-submenu-key": __props.item.key,
           disabled: isDisabled.value,
           "aria-expanded": isOpen.value ? "true" : "false",
@@ -195,11 +261,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createVNode(unref(ARenderNode), { node: expandIconNode.value }, null, 8, ["node"])
           ], 6)
         ], 14, _hoisted_2),
-        __props.forceSubMenuRender || isOpen.value ? withDirectives((openBlock(), createElementBlock("ul", {
+        unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("ul", {
           key: 0,
-          class: normalizeClass(["aheart-menu__submenu-list", __props.classNames.submenuList]),
-          style: normalizeStyle(__props.styles.submenuList),
-          role: "menu"
+          ref_key: "submenuRef",
+          ref: submenuRef,
+          class: normalizeClass(["aheart-menu__submenu-list", submenuListClass.value]),
+          style: normalizeStyle(submenuListStyle.value),
+          role: "menu",
+          "data-open": isOpen.value ? "true" : "false",
+          "aria-hidden": isOpen.value ? void 0 : "true"
         }, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.item.children ?? [], (child) => {
             return openBlock(), createBlock(_component_AMenuNode, {
@@ -221,8 +291,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               onSubmenuOpenChange: _cache[5] || (_cache[5] = ($event) => _ctx.$emit("submenuOpenChange", $event))
             }, null, 8, ["item", "level", "selected-keys", "open-keys", "disabled", "mode", "force-sub-menu-render", "trigger-sub-menu-action", "expand-icon", "class-names", "styles", "key-path"]);
           }), 128))
-        ], 6)), [
-          [vShow, isOpen.value]
+        ], 14, _hoisted_3)), [
+          [vShow, unref(motion).phase.value !== "hidden"]
         ]) : createCommentVNode("", true)
       ], 38)) : (openBlock(), createElementBlock("li", {
         key: 3,
@@ -267,7 +337,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               node: __props.item.extra
             }, null, 8, ["node"])
           ], 6)) : createCommentVNode("", true)
-        ], 14, _hoisted_3)
+        ], 14, _hoisted_4)
       ], 6));
     };
   }

@@ -54,6 +54,12 @@ const mountTooltip = (options: Record<string, any> = {}) =>
     }
   })
 
+const flushFloatingPosition = async () => {
+  await nextTick()
+  await Promise.resolve()
+  await nextTick()
+}
+
 describe('Tooltip', () => {
   it('renders title from hover trigger', async () => {
     const wrapper = mountTooltip({
@@ -150,9 +156,11 @@ describe('Tooltip', () => {
       })
 
       await wrapper.find('.aheart-tooltip__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--bottom')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--bottom')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -172,7 +180,7 @@ describe('Tooltip', () => {
       })
 
       await wrapper.find('.aheart-tooltip__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
       expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--top')
     } finally {
@@ -194,9 +202,11 @@ describe('Tooltip', () => {
       })
 
       await wrapper.find('.aheart-tooltip__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--right')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('aheart-floating--right')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -302,7 +312,7 @@ describe('Tooltip', () => {
     expect(arrow.attributes('style')).toContain('background-color: yellow')
   })
 
-  it('applies align offset variables to the popup', () => {
+  it('keeps align configuration out of rendered DOM attributes', () => {
     const wrapper = mountTooltip({
       props: {
         open: true,
@@ -313,8 +323,7 @@ describe('Tooltip', () => {
     })
 
     const popupStyle = wrapper.find('.aheart-tooltip__popup').attributes('style') ?? ''
-    expect(popupStyle).toContain('--aheart-floating-align-x: 8px')
-    expect(popupStyle).toContain('--aheart-floating-align-y: -4px')
+    expect(popupStyle).not.toContain('--aheart-floating-align-')
     expect(wrapper.attributes('align')).toBeUndefined()
   })
 
@@ -361,8 +370,10 @@ describe('Tooltip', () => {
       await wrapper.find('.aheart-tooltip__trigger').trigger('click')
       await nextTick()
 
-      expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
-      expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      await vi.waitFor(() => {
+        expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+        expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      })
 
       const root = wrapper.find('.aheart-tooltip')
       expect(root.classes()).toContain('function-root-open')
@@ -419,7 +430,7 @@ describe('Tooltip', () => {
       vi.advanceTimersByTime(1)
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false])
-      expect(wrapper.find('.aheart-tooltip__popup').attributes('style')).toContain('display: none')
+      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('is-leave')
     } finally {
       vi.useRealTimers()
     }
@@ -451,50 +462,58 @@ describe('Tooltip', () => {
       vi.advanceTimersByTime(1)
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false])
-      expect(wrapper.find('.aheart-tooltip__popup').attributes('style')).toContain('display: none')
+      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('is-leave')
     } finally {
       vi.useRealTimers()
     }
   })
 
   it('preserves or destroys hidden popup according to destroyOnHidden', async () => {
-    const preserved = mountTooltip({
-      props: { title: 'Preserved', trigger: 'click' },
-      slots: { default: '<button>Help</button>' }
-    })
+    vi.useFakeTimers()
+    try {
+      const preserved = mountTooltip({
+        props: { title: 'Preserved', trigger: 'click' },
+        slots: { default: '<button>Help</button>' }
+      })
 
-    await preserved.find('.aheart-tooltip__trigger').trigger('click')
-    expect(preserved.find('.aheart-tooltip__popup').exists()).toBe(true)
+      await preserved.find('.aheart-tooltip__trigger').trigger('click')
+      await preserved.find('.aheart-tooltip__trigger').trigger('click')
+      expect(preserved.find('.aheart-tooltip__popup').classes()).toContain('is-leave')
+      await vi.advanceTimersByTimeAsync(120)
+      expect(preserved.find('.aheart-tooltip__popup').attributes('style')).toContain('display: none')
 
-    await preserved.find('.aheart-tooltip__trigger').trigger('click')
-    const preservedPopup = preserved.find('.aheart-tooltip__popup')
-    expect(preservedPopup.exists()).toBe(true)
-    expect(preservedPopup.attributes('style')).toContain('display: none')
+      const destroyed = mountTooltip({
+        props: { title: 'Destroyed', trigger: 'click', destroyOnHidden: true },
+        slots: { default: '<button>Help</button>' }
+      })
 
-    const destroyed = mountTooltip({
-      props: { title: 'Destroyed', trigger: 'click', destroyOnHidden: true },
-      slots: { default: '<button>Help</button>' }
-    })
-
-    await destroyed.find('.aheart-tooltip__trigger').trigger('click')
-    expect(destroyed.find('.aheart-tooltip__popup').exists()).toBe(true)
-
-    await destroyed.find('.aheart-tooltip__trigger').trigger('click')
-    expect(destroyed.find('.aheart-tooltip__popup').exists()).toBe(false)
+      await destroyed.find('.aheart-tooltip__trigger').trigger('click')
+      await destroyed.find('.aheart-tooltip__trigger').trigger('click')
+      expect(destroyed.find('.aheart-tooltip__popup').classes()).toContain('is-leave')
+      await vi.advanceTimersByTimeAsync(120)
+      expect(destroyed.find('.aheart-tooltip__popup').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('supports destroyTooltipOnHide as a hidden destroy alias', async () => {
-    const wrapper = mountTooltip({
-      props: { title: 'Alias destroyed', trigger: 'click', destroyTooltipOnHide: true },
-      slots: { default: '<button>Help</button>' }
-    })
+    vi.useFakeTimers()
+    try {
+      const wrapper = mountTooltip({
+        props: { title: 'Alias destroyed', trigger: 'click', destroyTooltipOnHide: true },
+        slots: { default: '<button>Help</button>' }
+      })
 
-    await wrapper.find('.aheart-tooltip__trigger').trigger('click')
-    expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(true)
-
-    await wrapper.find('.aheart-tooltip__trigger').trigger('click')
-    expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(false)
-    expect(wrapper.attributes('destroytooltiponhide')).toBeUndefined()
+      await wrapper.find('.aheart-tooltip__trigger').trigger('click')
+      await wrapper.find('.aheart-tooltip__trigger').trigger('click')
+      expect(wrapper.find('.aheart-tooltip__popup').classes()).toContain('is-leave')
+      await vi.advanceTimersByTimeAsync(120)
+      expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(false)
+      expect(wrapper.attributes('destroytooltiponhide')).toBeUndefined()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('teleports popup to document body by default', async () => {
@@ -594,5 +613,30 @@ describe('Tooltip', () => {
     expect(wrapper.find('.aheart-tooltip__arrow').classes()).toContain(
       'aheart-tooltip__arrow--point-at-center'
     )
+  })
+
+  it('positions and dismisses a click tooltip with focus restoration', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    const wrapper = mountTooltip({
+      attachTo: document.body,
+      props: { title: 'Help', trigger: 'click' },
+      slots: { default: '<button class="tooltip-focus-target">Help</button>' }
+    })
+    const trigger = wrapper.find('.aheart-tooltip__trigger')
+
+    await trigger.trigger('click')
+    expect(wrapper.find('.aheart-tooltip__popup').attributes('style')).toContain('position: absolute')
+    outside.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+
+    await trigger.trigger('click')
+    wrapper.find<HTMLElement>('.tooltip-focus-target').element.focus()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(document.activeElement).toBe(wrapper.find('.tooltip-focus-target').element)
+    wrapper.unmount()
+    outside.remove()
   })
 })

@@ -46,6 +46,15 @@ describe('Modal', () => {
     expect(wrapper.find('.aheart-modal__close').attributes('aria-label')).toBe('Close')
   })
 
+  it('gives a titleless dialog an accessible name', () => {
+    const wrapper = mountModal({
+      props: { open: true },
+      slots: { default: 'Untitled content' }
+    })
+
+    expect(wrapper.find('.aheart-modal__dialog').attributes('aria-label')).toBe('对话框')
+  })
+
   it('maps responsive width object to breakpoint CSS variables', () => {
     const wrapper = mountModal({
       props: {
@@ -280,37 +289,51 @@ describe('Modal', () => {
     await persistent.setProps({ open: true })
     expect(persistent.emitted('afterOpenChange')?.[0]).toEqual([true])
 
-    await persistent.setProps({ open: false })
-    expect(persistent.emitted('afterOpenChange')?.[1]).toEqual([false])
-    expect(persistent.find('.aheart-modal').exists()).toBe(true)
-
-    const destroyable = mountModal({
-      props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
-    })
-
     vi.useFakeTimers()
     try {
+      await persistent.setProps({ open: false })
+      expect(persistent.emitted('afterOpenChange')).toHaveLength(1)
+      expect(persistent.find('.aheart-modal').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(181)
+      expect(persistent.emitted('afterOpenChange')?.[1]).toEqual([false])
+
+      const destroyable = mountModal({
+        props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
+      })
+
       await destroyable.setProps({ open: false })
 
-      expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
+      expect(destroyable.emitted('afterOpenChange')).toBeUndefined()
       expect(destroyable.find('.aheart-modal').exists()).toBe(true)
 
       await vi.advanceTimersByTimeAsync(181)
+      expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
       expect(destroyable.find('.aheart-modal').exists()).toBe(false)
     } finally {
       vi.useRealTimers()
     }
   })
 
-  it('emits afterClose when open changes to false', async () => {
+  it('emits close completion events after the leave motion finishes', async () => {
     const wrapper = mountModal({
       props: { open: true, title: 'Closable' }
     })
 
-    await wrapper.setProps({ open: false })
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
 
-    expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
-    expect(wrapper.emitted('afterClose')).toHaveLength(1)
+      expect(wrapper.emitted('afterOpenChange')).toBeUndefined()
+      expect(wrapper.emitted('afterClose')).toBeUndefined()
+
+      await vi.advanceTimersByTimeAsync(181)
+
+      expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
+      expect(wrapper.emitted('afterClose')).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('does not emit afterClose when open changes to true', async () => {
@@ -334,9 +357,10 @@ describe('Modal', () => {
       await wrapper.setProps({ open: false })
 
       expect(wrapper.find('.aheart-modal').exists()).toBe(true)
-      expect(wrapper.emitted('afterClose')).toHaveLength(1)
+      expect(wrapper.emitted('afterClose')).toBeUndefined()
 
       await vi.advanceTimersByTimeAsync(181)
+      expect(wrapper.emitted('afterClose')).toHaveLength(1)
       expect(wrapper.find('.aheart-modal').exists()).toBe(false)
     } finally {
       vi.useRealTimers()
@@ -358,6 +382,8 @@ describe('Modal', () => {
 
       expect(wrapper.find('.aheart-modal').exists()).toBe(true)
       expect(wrapper.find('.aheart-modal').isVisible()).toBe(true)
+      expect(wrapper.emitted('afterOpenChange')?.some(([open]) => open === false)).toBe(false)
+      expect(wrapper.emitted('afterClose')).toBeUndefined()
     } finally {
       vi.useRealTimers()
     }
@@ -719,6 +745,38 @@ describe('Modal', () => {
     expect(locked.emitted('update:open')).toBeUndefined()
   })
 
+  it('closes when the visible wrap receives a background click', async () => {
+    const wrapper = mountModal({ props: { open: true } })
+
+    await wrapper.find('.aheart-modal__wrap').trigger('click')
+
+    expect(wrapper.emitted('update:open')?.[0]).toEqual([false])
+  })
+
+  it('labels the dialog from its title and moves focus inside after opening', async () => {
+    const trigger = document.createElement('button')
+    document.body.appendChild(trigger)
+    trigger.focus()
+
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: false, title: 'Edit profile' },
+      slots: { default: '<input class="profile-name" />' }
+    })
+
+    await wrapper.setProps({ open: true })
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(wrapper.find('.aheart-modal__close').element)
+    })
+
+    const title = wrapper.find('.aheart-modal__title')
+    expect(title.attributes('id')).toBeTruthy()
+    expect(wrapper.find('.aheart-modal__dialog').attributes('aria-labelledby')).toBe(title.attributes('id'))
+
+    wrapper.unmount()
+    trigger.remove()
+  })
+
   it('supports object mask enabled and blur settings', () => {
     const blurred = mountModal({
       props: {
@@ -849,10 +907,20 @@ describe('Modal', () => {
       }
     })
 
-    await wrapper.setProps({ open: false })
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
 
-    expect(wrapper.emitted('afterClose')).toHaveLength(1)
-    expect(afterClose).toHaveBeenCalledTimes(1)
+      expect(wrapper.emitted('afterClose')).toBeUndefined()
+      expect(afterClose).not.toHaveBeenCalled()
+
+      await vi.advanceTimersByTimeAsync(181)
+
+      expect(wrapper.emitted('afterClose')).toHaveLength(1)
+      expect(afterClose).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('renders vnode title and action text props', async () => {

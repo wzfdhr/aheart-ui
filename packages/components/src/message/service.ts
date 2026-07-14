@@ -37,7 +37,7 @@ const closeResolvers = new Map<string, Array<() => void>>()
 
 const normalizeTop = (top: number | string | undefined) => top ?? state.top
 
-const stringifyKey = (key: MessageKey) => String(key)
+const stringifyKey = (key: MessageKey) => `${typeof key}:${String(key)}`
 const getTargetContainer = () => state.getContainer?.() ?? document.body
 
 const unmountHost = () => {
@@ -271,7 +271,7 @@ const typedOpen = (type: MessageType) => (contentOrConfig: MessageContent, durat
 }
 
 const destroy = (key?: MessageKey) => {
-  if (key) {
+  if (key !== undefined) {
     closeNotice(key)
     return
   }
@@ -301,7 +301,9 @@ const config = (options: MessageGlobalConfig) => {
     state.duration = options.duration
   }
 
-  state.maxCount = options.maxCount
+  if (options.maxCount !== undefined) {
+    state.maxCount = options.maxCount
+  }
 
   if (options.stack !== undefined) {
     state.stack = options.stack

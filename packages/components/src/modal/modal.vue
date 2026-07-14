@@ -11,7 +11,7 @@
       @keydown="handleKeydown"
     >
       <div v-if="isMaskVisible" :class="maskClass" :style="semanticStyle('mask')" @click="handleMaskClick" />
-      <div :class="wrapClass" :style="wrapStyle">
+      <div :class="wrapClass" :style="wrapStyle" @click.self="handleMaskClick">
         <AModalRenderWrapper :renderer="modalRender">
           <section
             ref="dialogRef"
@@ -19,10 +19,12 @@
             :style="dialogStyle"
             role="dialog"
             aria-modal="true"
+            :aria-label="hasTitle ? undefined : dialogAriaLabel"
+            :aria-labelledby="hasTitle ? titleId : undefined"
             tabindex="-1"
           >
             <header v-if="hasHeader" :class="headerClass" :style="semanticStyle('header')">
-              <div v-if="hasTitle" :class="titleClass" :style="semanticStyle('title')">
+              <div v-if="hasTitle" :id="titleId" :class="titleClass" :style="semanticStyle('title')">
                 <slot name="title">
                   <AModalRenderNode :node="title" />
                 </slot>
@@ -62,6 +64,7 @@ import {
   getCurrentInstance,
   h,
   nextTick,
+  onMounted,
   ref,
   useSlots,
   watch,
@@ -116,6 +119,8 @@ const modalWidthBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
 const triggerElement = ref<HTMLElement | null>(null)
 const dialogRef = ref<HTMLElement | null>(null)
 const leaveFocusElement = ref<HTMLElement | null>(null)
+const titleId = `aheart-modal-title-${instance?.uid ?? 'dialog'}`
+let pendingCloseCompletion = false
 
 const AModalRenderNode = defineComponent({
   name: 'AModalRenderNode',
@@ -280,6 +285,7 @@ const resolvedCancelText = computed<VNodeChild>(() =>
   hasExplicitProp('cancelText') ? props.cancelText : config.value.locale?.modal?.cancelText ?? 'Cancel'
 )
 const closeAriaLabel = computed(() => config.value.locale?.modal?.close ?? 'Close')
+const dialogAriaLabel = computed(() => config.value.locale?.modal?.ariaLabel ?? 'Dialog')
 
 const resolvedCancelButtonProps = computed(() => props.cancelButtonProps ?? {})
 const resolvedOkButtonProps = computed(() => ({
@@ -334,18 +340,17 @@ watch(
   () => props.open,
   (open, previousOpen) => {
     if (open && !previousOpen) {
+      pendingCloseCompletion = false
       leaveFocusElement.value = null
       if (motion.phase.value === 'hidden') captureTriggerElement()
+      emit('afterOpenChange', true)
     }
 
-    emit('afterOpenChange', open)
-
     if (!open) {
+      pendingCloseCompletion = true
       const activeElement = document.activeElement
       leaveFocusElement.value =
         activeElement instanceof HTMLElement && dialogRef.value?.contains(activeElement) ? activeElement : null
-      emit('afterClose')
-      closableConfig.value?.afterClose?.()
       void nextTick(() => {
         if (motion.phase.value === 'leave' && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
           leaveFocusElement.value.focus()
@@ -359,7 +364,16 @@ watch(
 watch(
   () => motion.phase.value,
   (phase) => {
-    if (phase === 'hidden' && !props.open) {
+    if (phase === 'entered' && props.open) {
+      void nextTick(() => focusDialog())
+      return
+    }
+
+    if (phase === 'hidden' && !props.open && pendingCloseCompletion) {
+      pendingCloseCompletion = false
+      emit('afterOpenChange', false)
+      emit('afterClose')
+      closableConfig.value?.afterClose?.()
       void nextTick(() => restoreTriggerFocus())
       leaveFocusElement.value = null
     }
@@ -419,6 +433,26 @@ const getFocusableElements = () => {
 
   return Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable)
 }
+
+const focusDialog = () => {
+  if (!props.open) {
+    return
+  }
+
+  const dialog = dialogRef.value
+  const target = getFocusableElements()[0] ?? dialog
+
+  target?.focus()
+}
+
+onMounted(() => {
+  if (!props.open) {
+    return
+  }
+
+  captureTriggerElement()
+  focusDialog()
+})
 
 const handleTrapTab = (event: KeyboardEvent) => {
   if (!props.open || !shouldTrapFocus.value || event.key !== 'Tab') {

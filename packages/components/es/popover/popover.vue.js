@@ -1,6 +1,8 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, unref, createCommentVNode, createVNode, vShow, nextTick } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, unref, createCommentVNode, createVNode, vShow } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
+import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
+import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { popoverProps, popoverEmits } from "./types.js";
 import "./style.css.js";
@@ -33,6 +35,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const popupRef = ref(null);
+    const arrowRef = ref(null);
     const effectivePlacement = ref(props.placement);
     let mouseEnterTimer;
     let mouseLeaveTimer;
@@ -55,6 +58,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const shouldTeleport = computed(() => popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
+    const floatingPosition = useFloatingPosition({
+      reference: triggerRef,
+      floating: popupRef,
+      arrow: arrowRef,
+      open: () => shouldRenderPopup.value && motion.phase.value !== "hidden",
+      placement: () => props.placement,
+      offset: 8,
+      alignOffset: () => {
+        var _a;
+        return (_a = props.align) == null ? void 0 : _a.offset;
+      },
+      autoAdjustOverflow: () => props.autoAdjustOverflow,
+      arrowSize: 8
+    });
     const semanticInfo = computed(() => ({
       open: visible.value,
       placement: effectivePlacement.value
@@ -82,21 +99,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
-    const alignOffsetStyle = computed(() => {
-      var _a;
-      const offset = (_a = props.align) == null ? void 0 : _a.offset;
-      if (!Array.isArray(offset) || offset.length < 2) {
-        return {};
-      }
-      const [x, y] = offset;
-      return {
-        "--aheart-floating-align-x": `${Number.isFinite(x) ? x : 0}px`,
-        "--aheart-floating-align-y": `${Number.isFinite(y) ? y : 0}px`
-      };
-    });
     const popupStyle = computed(() => [
+      floatingPosition.popupStyle.value,
       getFloatingPopupStyle(props.color, props.zIndex),
-      alignOffsetStyle.value,
       props.overlayStyle,
       resolvedStyles.value.popup
     ]);
@@ -117,7 +122,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         "aheart-popover__arrow--point-at-center": arrowPointsAtCenter.value
       }
     ]);
-    const arrowStyle = computed(() => resolvedStyles.value.arrow);
+    const arrowStyle = computed(() => [floatingPosition.arrowStyle.value, resolvedStyles.value.arrow]);
     watch(
       () => props.defaultOpen,
       (open) => {
@@ -126,131 +131,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     );
-    const getPlacementSide = (placement) => {
-      if (placement.startsWith("top")) {
-        return "top";
-      }
-      if (placement.startsWith("bottom")) {
-        return "bottom";
-      }
-      if (placement.startsWith("left")) {
-        return "left";
-      }
-      return "right";
-    };
-    const getPlacementAlign = (placement) => {
-      if (placement.endsWith("Left")) {
-        return "Left";
-      }
-      if (placement.endsWith("Right")) {
-        return "Right";
-      }
-      if (placement.endsWith("Top")) {
-        return "Top";
-      }
-      if (placement.endsWith("Bottom")) {
-        return "Bottom";
-      }
-      return "";
-    };
-    const createPlacement = (side, align) => `${side}${align}`;
-    const getViewportSize = () => {
-      if (typeof window === "undefined") {
-        return { width: 0, height: 0 };
-      }
-      return {
-        width: window.innerWidth || document.documentElement.clientWidth || 0,
-        height: window.innerHeight || document.documentElement.clientHeight || 0
-      };
-    };
-    const resolveAdjustedPlacement = () => {
-      if (!props.autoAdjustOverflow || !triggerRef.value || !popupRef.value) {
-        return props.placement;
-      }
-      const triggerRect = triggerRef.value.getBoundingClientRect();
-      const popupRect = popupRef.value.getBoundingClientRect();
-      const viewport = getViewportSize();
-      let side = getPlacementSide(props.placement);
-      let align = getPlacementAlign(props.placement);
-      const popupHeight = popupRect.height;
-      const popupWidth = popupRect.width;
-      if (popupHeight > 0 && viewport.height > 0) {
-        const spaceAbove = triggerRect.top;
-        const spaceBelow = viewport.height - triggerRect.bottom;
-        if (side === "top" && popupHeight > spaceAbove && spaceBelow > spaceAbove) {
-          side = "bottom";
-        } else if (side === "bottom" && popupHeight > spaceBelow && spaceAbove > spaceBelow) {
-          side = "top";
-        }
-      }
-      if (popupWidth > 0 && viewport.width > 0) {
-        const spaceLeft = triggerRect.left;
-        const spaceRight = viewport.width - triggerRect.right;
-        if (side === "left" && popupWidth > spaceLeft && spaceRight > spaceLeft) {
-          side = "right";
-        } else if (side === "right" && popupWidth > spaceRight && spaceLeft > spaceRight) {
-          side = "left";
-        }
-      }
-      if ((side === "top" || side === "bottom") && popupWidth > 0 && viewport.width > 0) {
-        const leftAlignedRight = triggerRect.left + popupWidth;
-        const rightAlignedLeft = triggerRect.right - popupWidth;
-        const centerLeft = triggerRect.left + triggerRect.width / 2 - popupWidth / 2;
-        const centerRight = centerLeft + popupWidth;
-        if (align === "Left" && leftAlignedRight > viewport.width && rightAlignedLeft >= 0) {
-          align = "Right";
-        } else if (align === "Right" && rightAlignedLeft < 0 && leftAlignedRight <= viewport.width) {
-          align = "Left";
-        } else if (align === "" && centerLeft < 0 && leftAlignedRight <= viewport.width) {
-          align = "Left";
-        } else if (align === "" && centerRight > viewport.width && rightAlignedLeft >= 0) {
-          align = "Right";
-        }
-      }
-      if ((side === "left" || side === "right") && popupHeight > 0 && viewport.height > 0) {
-        const topAlignedBottom = triggerRect.top + popupHeight;
-        const bottomAlignedTop = triggerRect.bottom - popupHeight;
-        const centerTop = triggerRect.top + triggerRect.height / 2 - popupHeight / 2;
-        const centerBottom = centerTop + popupHeight;
-        if (align === "Top" && topAlignedBottom > viewport.height && bottomAlignedTop >= 0) {
-          align = "Bottom";
-        } else if (align === "Bottom" && bottomAlignedTop < 0 && topAlignedBottom <= viewport.height) {
-          align = "Top";
-        } else if (align === "" && centerTop < 0 && topAlignedBottom <= viewport.height) {
-          align = "Top";
-        } else if (align === "" && centerBottom > viewport.height && bottomAlignedTop >= 0) {
-          align = "Bottom";
-        }
-      }
-      return createPlacement(side, align);
-    };
-    const updateEffectivePlacement = () => {
-      effectivePlacement.value = resolveAdjustedPlacement();
-    };
-    const schedulePlacementUpdate = () => {
-      if (!visible.value) {
-        effectivePlacement.value = props.placement;
-        return;
-      }
-      void nextTick(updateEffectivePlacement);
-    };
     watch(
-      visible,
-      (open) => {
-        if (open) {
-          schedulePlacementUpdate();
-          return;
-        }
-        effectivePlacement.value = props.placement;
+      () => floatingPosition.placement.value,
+      (placement) => {
+        effectivePlacement.value = placement;
       },
       { immediate: true }
-    );
-    watch(
-      [() => props.placement, () => props.autoAdjustOverflow, () => props.title, () => props.content],
-      () => {
-        effectivePlacement.value = props.placement;
-        schedulePlacementUpdate();
-      }
     );
     const requestOpen = (open) => {
       if (!isControlled.value) {
@@ -333,6 +219,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpen(true);
       }
     };
+    useFloatingDismiss({
+      open: visible,
+      trigger: triggerRef,
+      floating: popupRef,
+      onDismiss: () => requestOpen(false)
+    });
     onBeforeUnmount(() => {
       clearHoverTimers();
     });
@@ -376,6 +268,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           }, [
             showArrow.value ? (openBlock(), createElementBlock("span", {
               key: 0,
+              ref_key: "arrowRef",
+              ref: arrowRef,
               class: normalizeClass(["aheart-floating__arrow aheart-popover__arrow", arrowClass.value]),
               style: normalizeStyle(arrowStyle.value),
               "aria-hidden": "true"

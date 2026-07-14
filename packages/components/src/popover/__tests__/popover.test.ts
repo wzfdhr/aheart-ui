@@ -54,6 +54,12 @@ const mountPopover = (options: Record<string, any> = {}) =>
     }
   })
 
+const flushFloatingPosition = async () => {
+  await nextTick()
+  await Promise.resolve()
+  await nextTick()
+}
+
 describe('Popover', () => {
   it('renders title and content props when open', () => {
     const wrapper = mountPopover({
@@ -156,9 +162,11 @@ describe('Popover', () => {
       })
 
       await wrapper.find('.aheart-popover__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-popover__popup').classes()).toContain('aheart-floating--bottom')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-popover__popup').classes()).toContain('aheart-floating--bottom')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -178,7 +186,7 @@ describe('Popover', () => {
       })
 
       await wrapper.find('.aheart-popover__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
       expect(wrapper.find('.aheart-popover__popup').classes()).toContain('aheart-floating--top')
     } finally {
@@ -200,9 +208,11 @@ describe('Popover', () => {
       })
 
       await wrapper.find('.aheart-popover__trigger').trigger('click')
-      await nextTick()
+      await flushFloatingPosition()
 
-      expect(wrapper.find('.aheart-popover__popup').classes()).toContain('aheart-floating--right')
+      await vi.waitFor(() => {
+        expect(wrapper.find('.aheart-popover__popup').classes()).toContain('aheart-floating--right')
+      })
     } finally {
       rectSpy.mockRestore()
     }
@@ -261,7 +271,7 @@ describe('Popover', () => {
     expect(wrapper.find('.aheart-popover__arrow').attributes('style')).toContain('background-color: yellow')
   })
 
-  it('applies align offset variables to the popup', () => {
+  it('keeps align configuration out of rendered DOM attributes', () => {
     const wrapper = mountPopover({
       props: {
         open: true,
@@ -273,8 +283,7 @@ describe('Popover', () => {
 
     const popupStyle = wrapper.find('.aheart-popover__popup').attributes('style') ?? ''
 
-    expect(popupStyle).toContain('--aheart-floating-align-x: 8px')
-    expect(popupStyle).toContain('--aheart-floating-align-y: -4px')
+    expect(popupStyle).not.toContain('--aheart-floating-align-')
     expect(wrapper.attributes('align')).toBeUndefined()
   })
 
@@ -324,8 +333,10 @@ describe('Popover', () => {
       await wrapper.find('.aheart-popover__trigger').trigger('click')
       await nextTick()
 
-      expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
-      expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      await vi.waitFor(() => {
+        expect(classInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+        expect(styleInfos.at(-1)).toMatchObject({ open: true, placement: 'bottom' })
+      })
 
       expect(wrapper.classes()).toContain('function-root-open')
       expect(wrapper.attributes('style')).toContain('outline-color: green')
@@ -550,5 +561,23 @@ describe('Popover', () => {
     })
 
     expect(wrapper.find('.aheart-popover__arrow').classes()).toContain('aheart-popover__arrow--point-at-center')
+  })
+
+  it('positions and dismisses click popovers from an outside pointer', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    const wrapper = mountPopover({
+      attachTo: document.body,
+      props: { title: 'Title', content: 'Content', trigger: 'click' },
+      slots: { default: '<button>Open</button>' }
+    })
+
+    await wrapper.find('.aheart-popover__trigger').trigger('click')
+    expect(wrapper.find('.aheart-popover__popup').attributes('style')).toContain('position: absolute')
+    outside.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    await nextTick()
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    wrapper.unmount()
+    outside.remove()
   })
 })

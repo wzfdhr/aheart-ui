@@ -49,7 +49,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       const nodes = (_a = slots.default) == null ? void 0 : _a.call(slots);
       if (!nodes) {
-        return getAutoSpacedText("按钮");
+        return void 0;
       }
       const meaningfulNodes = nodes.filter((node2) => node2.type !== Comment);
       if (meaningfulNodes.length !== 1) {

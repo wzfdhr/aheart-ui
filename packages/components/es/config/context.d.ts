@@ -16,6 +16,7 @@ export interface AheartLocale {
         total?: (total: number, range: [number, number]) => string;
     };
     modal?: {
+        ariaLabel?: string;
         okText?: string;
         cancelText?: string;
         close?: string;

@@ -48,10 +48,13 @@
     @mouseleave="handleSubmenuMouseLeave"
   >
     <button
+      ref="titleRef"
       class="aheart-menu__submenu-title"
       :class="classNames.submenuTitle"
       :style="[nodeLevelStyle, styles.submenuTitle]"
       type="button"
+      role="menuitem"
+      aria-haspopup="menu"
       :data-submenu-key="item.key"
       :disabled="isDisabled"
       :aria-expanded="isOpen ? 'true' : 'false'"
@@ -77,12 +80,15 @@
       </span>
     </button>
     <ul
-      v-if="forceSubMenuRender || isOpen"
-      v-show="isOpen"
+      v-if="motion.isMounted.value"
+      v-show="motion.phase.value !== 'hidden'"
+      ref="submenuRef"
       class="aheart-menu__submenu-list"
-      :class="classNames.submenuList"
-      :style="styles.submenuList"
+      :class="submenuListClass"
+      :style="submenuListStyle"
       role="menu"
+      :data-open="isOpen ? 'true' : 'false'"
+      :aria-hidden="isOpen ? undefined : 'true'"
     >
       <AMenuNode
         v-for="child in item.children ?? []"
@@ -138,7 +144,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, type PropType, type StyleValue, type VNodeChild } from 'vue'
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  type PropType,
+  type StyleValue,
+  type VNodeChild
+} from 'vue'
+import { useFloatingPosition } from '../utils/use-floating-position'
+import { useMotionPresence } from '../utils/use-motion-presence'
 import type {
   MenuClassNames,
   MenuClickInfo,
@@ -205,6 +224,63 @@ const isSelected = computed(() => props.selectedKeys.includes(props.item.key))
 const isDisabled = computed(() => props.disabled || Boolean(props.item.disabled))
 const currentKeyPath = computed(() => [...props.keyPath, props.item.key])
 const nodeLevelStyle = computed<StyleValue>(() => ({ '--aheart-menu-node-level': props.level }))
+const titleRef = ref<HTMLElement | null>(null)
+const submenuRef = ref<HTMLElement | null>(null)
+const submenuHeight = ref(0)
+const isFloatingSubmenu = computed(() => props.mode === 'horizontal')
+const motion = useMotionPresence(isOpen, {
+  forceRender: () => props.forceSubMenuRender,
+  destroyOnHidden: () => !props.forceSubMenuRender,
+  duration: 120
+})
+const floating = useFloatingPosition({
+  reference: titleRef,
+  floating: submenuRef,
+  open: () => isFloatingSubmenu.value && motion.phase.value !== 'hidden',
+  placement: () => (props.level === 0 ? 'bottomLeft' : 'rightTop'),
+  offset: 4,
+  autoAdjustOverflow: true
+})
+const submenuListClass = computed(() => [
+  props.classNames.submenuList,
+  `is-${motion.phase.value}`,
+  `aheart-floating--${floating.placement.value}`,
+  { 'is-floating': isFloatingSubmenu.value }
+])
+const submenuListStyle = computed<StyleValue>(() => [
+  isFloatingSubmenu.value
+    ? floating.popupStyle.value
+    : { '--aheart-menu-submenu-height': `${submenuHeight.value}px` },
+  props.styles.submenuList
+])
+let resizeObserver: ResizeObserver | undefined
+
+const measureSubmenu = () => {
+  if (!submenuRef.value || isFloatingSubmenu.value) return
+  submenuHeight.value = submenuRef.value.scrollHeight
+}
+
+watch(
+  [isOpen, () => props.item.children?.length],
+  () => {
+    void nextTick(measureSubmenu)
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  if (typeof ResizeObserver === 'undefined') return
+  resizeObserver = new ResizeObserver(measureSubmenu)
+  if (submenuRef.value) resizeObserver.observe(submenuRef.value)
+})
+
+watch(submenuRef, (element, previousElement) => {
+  if (!resizeObserver) return
+  if (previousElement) resizeObserver.unobserve(previousElement)
+  if (element) resizeObserver.observe(element)
+})
+
+onBeforeUnmount(() => resizeObserver?.disconnect())
 const expandIconNode = computed(() => {
   if (typeof props.expandIcon === 'function') {
     return props.expandIcon({

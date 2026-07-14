@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const useFloatingPosition = require("../utils/use-floating-position.js");
+const useMotionPresence = require("../utils/use-motion-presence.js");
 const _hoisted_1 = {
   class: "aheart-menu__group-list",
   role: "group"
 };
 const _hoisted_2 = ["data-submenu-key", "disabled", "aria-expanded", "title"];
-const _hoisted_3 = ["data-menu-key", "disabled", "aria-current", "title"];
+const _hoisted_3 = ["data-open", "aria-hidden"];
+const _hoisted_4 = ["data-menu-key", "disabled", "aria-current", "title"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AMenuNode"
@@ -51,6 +54,65 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isDisabled = vue.computed(() => props.disabled || Boolean(props.item.disabled));
     const currentKeyPath = vue.computed(() => [...props.keyPath, props.item.key]);
     const nodeLevelStyle = vue.computed(() => ({ "--aheart-menu-node-level": props.level }));
+    const titleRef = vue.ref(null);
+    const submenuRef = vue.ref(null);
+    const submenuHeight = vue.ref(0);
+    const isFloatingSubmenu = vue.computed(() => props.mode === "horizontal");
+    const motion = useMotionPresence.useMotionPresence(isOpen, {
+      forceRender: () => props.forceSubMenuRender,
+      destroyOnHidden: () => !props.forceSubMenuRender,
+      duration: 120
+    });
+    const floating = useFloatingPosition.useFloatingPosition({
+      reference: titleRef,
+      floating: submenuRef,
+      open: () => isFloatingSubmenu.value && motion.phase.value !== "hidden",
+      placement: () => props.level === 0 ? "bottomLeft" : "rightTop",
+      offset: 4,
+      autoAdjustOverflow: true
+    });
+    const submenuListClass = vue.computed(() => [
+      props.classNames.submenuList,
+      `is-${motion.phase.value}`,
+      `aheart-floating--${floating.placement.value}`,
+      { "is-floating": isFloatingSubmenu.value }
+    ]);
+    const submenuListStyle = vue.computed(() => [
+      isFloatingSubmenu.value ? floating.popupStyle.value : { "--aheart-menu-submenu-height": `${submenuHeight.value}px` },
+      props.styles.submenuList
+    ]);
+    let resizeObserver;
+    const measureSubmenu = () => {
+      if (!submenuRef.value || isFloatingSubmenu.value)
+        return;
+      submenuHeight.value = submenuRef.value.scrollHeight;
+    };
+    vue.watch(
+      [isOpen, () => {
+        var _a;
+        return (_a = props.item.children) == null ? void 0 : _a.length;
+      }],
+      () => {
+        void vue.nextTick(measureSubmenu);
+      },
+      { immediate: true }
+    );
+    vue.onMounted(() => {
+      if (typeof ResizeObserver === "undefined")
+        return;
+      resizeObserver = new ResizeObserver(measureSubmenu);
+      if (submenuRef.value)
+        resizeObserver.observe(submenuRef.value);
+    });
+    vue.watch(submenuRef, (element, previousElement) => {
+      if (!resizeObserver)
+        return;
+      if (previousElement)
+        resizeObserver.unobserve(previousElement);
+      if (element)
+        resizeObserver.observe(element);
+    });
+    vue.onBeforeUnmount(() => resizeObserver == null ? void 0 : resizeObserver.disconnect());
     const expandIconNode = vue.computed(() => {
       if (typeof props.expandIcon === "function") {
         return props.expandIcon({
@@ -154,9 +216,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         onMouseleave: handleSubmenuMouseLeave
       }, [
         vue.createElementVNode("button", {
+          ref_key: "titleRef",
+          ref: titleRef,
           class: vue.normalizeClass(["aheart-menu__submenu-title", __props.classNames.submenuTitle]),
           style: vue.normalizeStyle([nodeLevelStyle.value, __props.styles.submenuTitle]),
           type: "button",
+          role: "menuitem",
+          "aria-haspopup": "menu",
           "data-submenu-key": __props.item.key,
           disabled: isDisabled.value,
           "aria-expanded": isOpen.value ? "true" : "false",
@@ -197,11 +263,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.createVNode(vue.unref(ARenderNode), { node: expandIconNode.value }, null, 8, ["node"])
           ], 6)
         ], 14, _hoisted_2),
-        __props.forceSubMenuRender || isOpen.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("ul", {
+        vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("ul", {
           key: 0,
-          class: vue.normalizeClass(["aheart-menu__submenu-list", __props.classNames.submenuList]),
-          style: vue.normalizeStyle(__props.styles.submenuList),
-          role: "menu"
+          ref_key: "submenuRef",
+          ref: submenuRef,
+          class: vue.normalizeClass(["aheart-menu__submenu-list", submenuListClass.value]),
+          style: vue.normalizeStyle(submenuListStyle.value),
+          role: "menu",
+          "data-open": isOpen.value ? "true" : "false",
+          "aria-hidden": isOpen.value ? void 0 : "true"
         }, [
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(__props.item.children ?? [], (child) => {
             return vue.openBlock(), vue.createBlock(_component_AMenuNode, {
@@ -223,8 +293,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onSubmenuOpenChange: _cache[5] || (_cache[5] = ($event) => _ctx.$emit("submenuOpenChange", $event))
             }, null, 8, ["item", "level", "selected-keys", "open-keys", "disabled", "mode", "force-sub-menu-render", "trigger-sub-menu-action", "expand-icon", "class-names", "styles", "key-path"]);
           }), 128))
-        ], 6)), [
-          [vue.vShow, isOpen.value]
+        ], 14, _hoisted_3)), [
+          [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
         ]) : vue.createCommentVNode("", true)
       ], 38)) : (vue.openBlock(), vue.createElementBlock("li", {
         key: 3,
@@ -269,7 +339,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               node: __props.item.extra
             }, null, 8, ["node"])
           ], 6)) : vue.createCommentVNode("", true)
-        ], 14, _hoisted_3)
+        ], 14, _hoisted_4)
       ], 6));
     };
   }

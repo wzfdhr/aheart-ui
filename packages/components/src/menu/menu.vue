@@ -1,5 +1,12 @@
 <template>
-  <nav class="aheart-menu" :class="menuClass" :style="rootStyle" aria-label="menu">
+  <nav
+    ref="rootRef"
+    class="aheart-menu"
+    :class="menuClass"
+    :style="rootStyle"
+    aria-label="menu"
+    @keydown="handleMenuKeydown"
+  >
     <ul role="menu" class="aheart-menu__list" :class="classNames.list" :style="styles.list">
       <AMenuNode
         v-for="item in normalizedItems"
@@ -23,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AMenuNode from './menu-node.vue'
 import { menuEmits, menuProps, type MenuClickInfo } from './types'
@@ -39,6 +46,7 @@ const config = useAheartConfig()
 
 const innerSelectedKeys = ref([...props.defaultSelectedKeys])
 const innerOpenKeys = ref([...props.defaultOpenKeys])
+const rootRef = ref<HTMLElement | null>(null)
 
 const normalizedItems = computed(() => props.items ?? [])
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -144,11 +152,121 @@ const setOpenKey = (key: string, open?: boolean) => {
     ? [...mergedOpenKeys.value, key]
     : mergedOpenKeys.value.filter((currentKey) => currentKey !== key)
 
+  setOpenKeys(nextOpenKeys)
+}
+
+const setOpenKeys = (keys: string[]) => {
   if (!isOpenControlled.value) {
-    innerOpenKeys.value = nextOpenKeys
+    innerOpenKeys.value = keys
   }
 
-  emit('openChange', nextOpenKeys)
-  emit('update:openKeys', nextOpenKeys)
+  emit('openChange', keys)
+  emit('update:openKeys', keys)
+}
+
+const getKeyboardItems = () => {
+  if (!rootRef.value) {
+    return []
+  }
+
+  return Array.from(
+    rootRef.value.querySelectorAll<HTMLButtonElement>('[data-menu-key], [data-submenu-key]')
+  ).filter((button) => {
+    if (button.disabled) {
+      return false
+    }
+
+    return !Array.from(button.closest('.aheart-menu')?.querySelectorAll('.aheart-menu__submenu-list[data-open="false"]') ?? [])
+      .some((list) => list.contains(button))
+  })
+}
+
+const focusRelativeItem = (current: HTMLButtonElement, offset: number) => {
+  const items = getKeyboardItems()
+  const currentIndex = items.indexOf(current)
+
+  if (currentIndex < 0 || items.length === 0) {
+    return
+  }
+
+  items[(currentIndex + offset + items.length) % items.length]?.focus()
+}
+
+const getSubmenuKey = (button: HTMLButtonElement) => button.dataset.submenuKey
+
+const focusFirstSubmenuItem = async (button: HTMLButtonElement) => {
+  const key = getSubmenuKey(button)
+  if (!key) return
+
+  setOpenKey(key, true)
+  await nextTick()
+  const submenu = button.closest('.aheart-menu__submenu')
+  submenu?.querySelector<HTMLButtonElement>('.aheart-menu__submenu-list[data-open="true"] [data-menu-key], .aheart-menu__submenu-list[data-open="true"] [data-submenu-key]')?.focus()
+}
+
+const closeCurrentSubmenu = (button: HTMLButtonElement) => {
+  const parentList = button.closest('.aheart-menu__submenu-list[data-open="true"]')
+  const parentSubmenu = parentList?.closest('.aheart-menu__submenu')
+  const parentTrigger = parentSubmenu?.querySelector<HTMLButtonElement>(':scope > [data-submenu-key]')
+  const parentKey = parentTrigger && getSubmenuKey(parentTrigger)
+
+  if (parentTrigger && parentKey) {
+    setOpenKey(parentKey, false)
+    parentTrigger.focus()
+    return
+  }
+
+  if (mergedOpenKeys.value.length) {
+    setOpenKeys([])
+  }
+}
+
+const handleMenuKeydown = (event: KeyboardEvent) => {
+  const current = event.target instanceof HTMLButtonElement
+    ? event.target.closest<HTMLButtonElement>('[data-menu-key], [data-submenu-key]')
+    : null
+
+  if (!current || current.disabled) {
+    return
+  }
+
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    current.click()
+    return
+  }
+
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeCurrentSubmenu(current)
+    return
+  }
+
+  const horizontal = props.mode === 'horizontal'
+
+  if ((horizontal && event.key === 'ArrowRight') || (!horizontal && event.key === 'ArrowDown')) {
+    event.preventDefault()
+    focusRelativeItem(current, 1)
+    return
+  }
+
+  if ((horizontal && event.key === 'ArrowLeft') || (!horizontal && event.key === 'ArrowUp')) {
+    event.preventDefault()
+    focusRelativeItem(current, -1)
+    return
+  }
+
+  if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+    if (getSubmenuKey(current)) {
+      event.preventDefault()
+      void focusFirstSubmenuItem(current)
+    }
+    return
+  }
+
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault()
+    closeCurrentSubmenu(current)
+  }
 }
 </script>

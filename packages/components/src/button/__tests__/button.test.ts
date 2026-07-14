@@ -411,4 +411,17 @@ describe('Button', () => {
     expect(wrapper.find('.slot-loading-icon').text()).toBe('slot')
     expect(wrapper.find('.object-loading-icon').exists()).toBe(false)
   })
+
+  it('does not invent visible text for empty or icon-only buttons', () => {
+    const empty = mount(Button)
+    const iconOnly = mount(Button, {
+      slots: {
+        icon: '<span class="icon-only-node">+</span>'
+      }
+    })
+
+    expect(empty.text()).toBe('')
+    expect(iconOnly.text()).toBe('+')
+    expect(iconOnly.find('.aheart-button__content').text()).toBe('')
+  })
 })
