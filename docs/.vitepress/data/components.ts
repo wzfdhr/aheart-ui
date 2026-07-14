@@ -621,6 +621,30 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('skeleton'), en: '/en/components/skeleton' }
       }
     ]
+  },
+  {
+    key: 'ai',
+    name: {
+      zh: '智能交互',
+      en: 'AI Interaction'
+    },
+    description: {
+      zh: '组织模型无关的 AI 对话、提示与执行反馈界面。',
+      en: 'Model-agnostic interfaces for AI chat, prompts, and execution feedback.'
+    },
+    components: [
+      {
+        key: 'ai',
+        name: 'AIChatPanel',
+        zhName: 'AI 智能对话',
+        description: {
+          zh: '组合流式对话、来源、执行进度与受控交互。',
+          en: 'Compose streaming chat, sources, execution progress, and controlled interactions.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('ai') }
+      }
+    ]
   }
 ]
 

@@ -1,0 +1,93 @@
+.aheart-ai-chat-panel {
+  color: var(--aheart-color-text, #1f1f1f);
+  display: grid;
+  gap: 12px;
+}
+
+.aheart-ai-chat-panel__messages {
+  display: grid;
+  gap: 8px;
+}
+
+.aheart-ai-bubble {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--aheart-color-border, #d9d9d9);
+  border-radius: 6px;
+}
+
+.aheart-ai-bubble.is-user {
+  background: var(--aheart-color-primary-bg, #e6f4ff);
+}
+
+.aheart-ai-bubble__content,
+.aheart-ai-bubble__error {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.aheart-ai-bubble__error {
+  color: var(--aheart-color-danger, #ff4d4f);
+}
+
+.aheart-ai-sender {
+  display: flex;
+  gap: 8px;
+}
+
+.aheart-ai-sender textarea {
+  flex: 1;
+  min-height: 64px;
+}
+
+.aheart-ai-welcome__title,
+.aheart-ai-welcome__description,
+.aheart-ai-sources h3,
+.aheart-ai-sources p,
+.aheart-ai-process h3 {
+  margin: 0;
+}
+
+.aheart-ai-welcome,
+.aheart-ai-prompts,
+.aheart-ai-conversations,
+.aheart-ai-actions,
+.aheart-ai-sources,
+.aheart-ai-process,
+.aheart-ai-attachments {
+  display: grid;
+  gap: 8px;
+}
+
+.aheart-ai-prompts button,
+.aheart-ai-conversations button,
+.aheart-ai-actions button,
+.aheart-ai-attachments button {
+  text-align: left;
+}
+
+.aheart-ai-prompts span,
+.aheart-ai-process small {
+  display: block;
+  color: var(--aheart-color-text-secondary, #8c8c8c);
+}
+
+.aheart-ai-conversations .is-active {
+  color: var(--aheart-color-primary, #1677ff);
+}
+
+.aheart-ai-process .is-error {
+  color: var(--aheart-color-danger, #ff4d4f);
+}
+
+.aheart-ai-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

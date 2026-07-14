@@ -6,14 +6,14 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "corepack pnpm --dir docs dev",
-    "build": "corepack pnpm --filter ./packages/components build",
+    "build": "corepack pnpm --filter ./packages/components build && corepack pnpm --filter @aheart-ui/dnd build && corepack pnpm --filter @aheart-ui/ai build",
     "build:components": "corepack pnpm --filter ./packages/components build",
-    "typecheck": "corepack pnpm --filter ./packages/components typecheck",
-    "test": "corepack pnpm --filter ./packages/components test",
+    "typecheck": "corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter @aheart-ui/dnd typecheck && corepack pnpm --filter @aheart-ui/ai typecheck",
+    "test": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test",
     "docs:dev": "corepack pnpm --dir docs dev",
     "docs:build": "corepack pnpm --dir docs build",
-    "check:generated": "git diff --exit-code -- packages/components/es packages/components/lib",
-    "release:check": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter ./packages/components build && corepack pnpm --dir docs build && corepack pnpm check:generated && git diff --check"
+    "check:generated": "git diff --exit-code -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib",
+    "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm build && corepack pnpm --dir docs build && corepack pnpm check:generated && git diff --check"
   },
   "keywords": [
     "aheart-ui",

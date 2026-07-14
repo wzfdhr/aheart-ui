@@ -8,6 +8,7 @@
     "build": "vitepress build ."
   },
   "dependencies": {
+    "@aheart-ui/ai": "workspace:^",
     "@aheart-ui/dnd": "workspace:^",
     "aheart-ui": "workspace:^",
     "vitepress": "^1.6.3",

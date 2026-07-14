@@ -1,0 +1,16 @@
+import AIChatPanel from './chat-panel.vue';
+import AIActions from './actions.vue';
+import AIAttachments from './attachments.vue';
+import AIBubble from './bubble.vue';
+import AIConversations from './conversations.vue';
+import AIProcess from './process.vue';
+import AIPrompts from './prompts.vue';
+import AISender from './sender.vue';
+import AISources from './sources.vue';
+import AIThoughtChain from './thought-chain.vue';
+import AIWelcome from './welcome.vue';
+export { AIActions, AIAttachments, AIBubble, AIChatPanel, AIConversations, AIProcess, AIPrompts, AISender, AISources, AIThoughtChain, AIWelcome };
+export * from './types';
+declare const AheartAI: Plugin;
+export default AheartAI;
+import type { Plugin } from 'vue';

@@ -17,6 +17,7 @@ const zhComponentItems = [
   { text: 'TreeSelect 树选择', link: '/components/tree-select' },
   { text: 'Cascader 级联选择', link: '/components/cascader' },
   { text: 'DnD 拖拽', link: '/components/dnd' },
+  { text: 'AI 智能对话', link: '/components/ai' },
   { text: 'Splitter 分割面板', link: '/components/splitter' },
   { text: 'Flex 弹性布局', link: '/components/flex' },
   { text: 'Grid 栅格', link: '/components/grid' },
@@ -63,7 +64,7 @@ export default defineConfig({
   ],
   vite: {
     ssr: {
-      noExternal: ['@aheart-ui/dnd', '@atlaskit/pragmatic-drag-and-drop']
+      noExternal: ['@aheart-ui/ai', '@aheart-ui/dnd', '@atlaskit/pragmatic-drag-and-drop']
     }
   },
   locales: {
