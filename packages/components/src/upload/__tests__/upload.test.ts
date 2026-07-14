@@ -57,6 +57,27 @@ describe('Upload', () => {
     expect(customRequest).toHaveBeenCalledOnce()
   })
 
+  it('preserves every file state when callback uploads finish independently', async () => {
+    const completeUploads: Array<() => void> = []
+    const wrapper = mount(Upload, {
+      props: {
+        multiple: true,
+        customRequest: ({ onSuccess }: { onSuccess: () => void }) => {
+          completeUploads.push(onSuccess)
+        }
+      }
+    })
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('first.txt'), createFile('second.txt')])
+    completeUploads[0]()
+    completeUploads[1]()
+
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([
+      { name: 'first.txt', status: 'done' },
+      { name: 'second.txt', status: 'done' }
+    ])
+  })
+
   it('enforces maxCount and supports removal', async () => {
     const wrapper = mount(Upload, { props: { maxCount: 1 } })
     await selectFiles(wrapper.find('input[type="file"]'), [createFile('one.txt'), createFile('two.txt')])

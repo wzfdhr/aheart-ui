@@ -287,6 +287,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('time-picker'), en: '/en/components/time-picker' }
       },
       {
+        key: 'upload',
+        name: 'Upload',
+        zhName: '上传',
+        description: {
+          zh: '选择文件并管理上传状态。',
+          en: 'Select files and manage their upload state.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('upload'), en: '/en/components/upload' }
+      },
+      {
         key: 'textarea',
         name: 'Textarea',
         zhName: '文本域',

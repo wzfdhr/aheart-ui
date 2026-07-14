@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { UploadFile, UploadRequest } from './types'
 import './style.css'
 
@@ -45,16 +45,22 @@ const emit = defineEmits<{
 const internalFileList = ref<UploadFile[]>([...props.defaultFileList])
 const mergedFileList = computed(() => props.fileList ?? internalFileList.value)
 const readyFiles = computed(() => mergedFileList.value.filter((file) => file.status === 'ready'))
+const latestFileList = ref<UploadFile[]>([...(props.fileList ?? props.defaultFileList)])
 let uid = 0
 const activeUploadUids = new Set<string>()
 
+watch(() => props.fileList, (fileList) => {
+  if (fileList !== undefined) latestFileList.value = [...fileList]
+}, { deep: true })
+
 const updateFileList = (files: UploadFile[]) => {
+  latestFileList.value = files
   if (props.fileList === undefined) internalFileList.value = files
   emit('update:fileList', files)
   emit('change', files)
 }
-const replaceFile = (file: UploadFile, files: UploadFile[]) => {
-  const nextFiles = files.map((current) => current.uid === file.uid ? file : current)
+const replaceFile = (file: UploadFile) => {
+  const nextFiles = latestFileList.value.map((current) => current.uid === file.uid ? file : current)
   updateFileList(nextFiles)
   return nextFiles
 }
@@ -70,18 +76,18 @@ const upload = async (file: UploadFile, files: UploadFile[]) => {
   if (!file.originFile || file.status === 'uploading' || activeUploadUids.has(file.uid)) return files
 
   activeUploadUids.add(file.uid)
-  let currentFiles = replaceFile({ ...file, status: 'uploading', percent: 0 }, files)
+  let currentFiles = replaceFile({ ...file, status: 'uploading', percent: 0 })
   const onProgress = (percent: number) => {
     if (!activeUploadUids.has(file.uid)) return
-    currentFiles = replaceFile({ ...file, status: 'uploading', percent: Math.max(0, Math.min(100, percent)) }, currentFiles)
+    currentFiles = replaceFile({ ...file, status: 'uploading', percent: Math.max(0, Math.min(100, percent)) })
   }
   const onSuccess = (response?: unknown) => {
     if (!activeUploadUids.delete(file.uid)) return
-    currentFiles = replaceFile({ ...file, status: 'done', percent: 100, response }, currentFiles)
+    currentFiles = replaceFile({ ...file, status: 'done', percent: 100, response })
   }
   const onError = (error: unknown) => {
     if (!activeUploadUids.delete(file.uid)) return
-    currentFiles = replaceFile({ ...file, status: 'error', error }, currentFiles)
+    currentFiles = replaceFile({ ...file, status: 'error', error })
   }
 
   try {
@@ -97,15 +103,15 @@ const upload = async (file: UploadFile, files: UploadFile[]) => {
   return currentFiles
 }
 const uploadReadyFiles = async () => {
-  let files = mergedFileList.value
+  let files = latestFileList.value
   for (const file of files.filter((current) => current.status === 'ready')) {
     files = await upload(file, files)
   }
 }
 const handleChange = async (event: Event) => {
   const files = Array.from((event.target as HTMLInputElement).files ?? [])
-  const remaining = Math.max(0, props.maxCount - mergedFileList.value.length)
-  let nextFiles = mergedFileList.value
+  const remaining = Math.max(0, props.maxCount - latestFileList.value.length)
+  let nextFiles = latestFileList.value
 
   for (const rawFile of files.slice(0, remaining)) {
     const uploadFile = toUploadFile(rawFile)

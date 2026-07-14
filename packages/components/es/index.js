@@ -40,6 +40,7 @@ import TimePicker from "./time-picker/index.js";
 import Textarea from "./textarea/index.js";
 import Tooltip from "./tooltip/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
+import Upload from "./upload/index.js";
 import "./theme/index.css.js";
 import { message } from "./message/service.js";
 import { enUS, zhCN } from "./config/context.js";
@@ -50,6 +51,7 @@ const components = [
   Divider,
   DatePicker,
   TimePicker,
+  Upload,
   Flex,
   Grid,
   Icon,
@@ -166,6 +168,7 @@ export {
   Title,
   Tooltip,
   Typography,
+  Upload,
   AheartUI as default,
   enUS,
   message,
