@@ -175,6 +175,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly okText: string;
+    readonly cancelText: string;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
     readonly arrow: import("./types").PopconfirmArrow;
@@ -184,8 +186,6 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly defaultOpen: boolean;
     readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
-    readonly okText: string;
-    readonly cancelText: string;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     readonly showCancel: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

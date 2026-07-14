@@ -58,6 +58,7 @@
 import {
   computed,
   defineComponent,
+  getCurrentInstance,
   h,
   nextTick,
   ref,
@@ -94,6 +95,7 @@ const props = defineProps(modalProps)
 const emit = defineEmits(modalEmits)
 const slots = useSlots()
 const config = useAheartConfig()
+const instance = getCurrentInstance()
 const FOCUSABLE_SELECTOR = [
   'a[href]',
   'area[href]',
@@ -263,8 +265,13 @@ const showCloseButton = computed(
   () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
 )
 const isCloseButtonDisabled = computed(() => closableConfig.value?.disabled === true)
-const resolvedOkText = computed<VNodeChild>(() => props.okText ?? config.value.locale?.modal?.okText ?? 'OK')
-const resolvedCancelText = computed<VNodeChild>(() => props.cancelText ?? config.value.locale?.modal?.cancelText ?? 'Cancel')
+const hasExplicitProp = (name: string) => Object.prototype.hasOwnProperty.call(instance?.vnode.props ?? {}, name)
+const resolvedOkText = computed<VNodeChild>(() =>
+  hasExplicitProp('okText') ? props.okText : config.value.locale?.modal?.okText ?? 'OK'
+)
+const resolvedCancelText = computed<VNodeChild>(() =>
+  hasExplicitProp('cancelText') ? props.cancelText : config.value.locale?.modal?.cancelText ?? 'Cancel'
+)
 const closeAriaLabel = computed(() => config.value.locale?.modal?.close ?? 'Close')
 
 const resolvedCancelButtonProps = computed(() => props.cancelButtonProps ?? {})

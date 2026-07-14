@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, withCtx, renderSlot, vShow, h } from "vue";
+import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, withCtx, renderSlot, vShow, h } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { modalProps, modalEmits } from "./types.js";
@@ -17,6 +17,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const config = useAheartConfig();
+    const instance = getCurrentInstance();
     const FOCUSABLE_SELECTOR = [
       "a[href]",
       "area[href]",
@@ -179,14 +180,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
     });
-    const resolvedOkText = computed(() => {
-      var _a, _b;
-      return props.okText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.okText) ?? "OK";
-    });
-    const resolvedCancelText = computed(() => {
-      var _a, _b;
-      return props.cancelText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.cancelText) ?? "Cancel";
-    });
+    const hasExplicitProp = (name) => Object.prototype.hasOwnProperty.call((instance == null ? void 0 : instance.vnode.props) ?? {}, name);
+    const resolvedOkText = computed(
+      () => {
+        var _a, _b;
+        return hasExplicitProp("okText") ? props.okText : ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.okText) ?? "OK";
+      }
+    );
+    const resolvedCancelText = computed(
+      () => {
+        var _a, _b;
+        return hasExplicitProp("cancelText") ? props.cancelText : ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.cancelText) ?? "Cancel";
+      }
+    );
     const closeAriaLabel = computed(() => {
       var _a, _b;
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.close) ?? "Close";

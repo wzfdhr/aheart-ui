@@ -19,6 +19,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const instance = vue.getCurrentInstance();
     const FOCUSABLE_SELECTOR = [
       "a[href]",
       "area[href]",
@@ -181,14 +182,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
     });
-    const resolvedOkText = vue.computed(() => {
-      var _a, _b;
-      return props.okText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.okText) ?? "OK";
-    });
-    const resolvedCancelText = vue.computed(() => {
-      var _a, _b;
-      return props.cancelText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.cancelText) ?? "Cancel";
-    });
+    const hasExplicitProp = (name) => Object.prototype.hasOwnProperty.call((instance == null ? void 0 : instance.vnode.props) ?? {}, name);
+    const resolvedOkText = vue.computed(
+      () => {
+        var _a, _b;
+        return hasExplicitProp("okText") ? props.okText : ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.okText) ?? "OK";
+      }
+    );
+    const resolvedCancelText = vue.computed(
+      () => {
+        var _a, _b;
+        return hasExplicitProp("cancelText") ? props.cancelText : ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.cancelText) ?? "Cancel";
+      }
+    );
     const closeAriaLabel = vue.computed(() => {
       var _a, _b;
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.close) ?? "Close";

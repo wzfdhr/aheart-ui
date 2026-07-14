@@ -96,6 +96,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly disabled: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly okText: string;
+        readonly cancelText: string;
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly arrow: import("./types").PopconfirmArrow;
@@ -105,8 +107,6 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly defaultOpen: boolean;
         readonly destroyTooltipOnHide: boolean;
         readonly fresh: boolean;
-        readonly okText: string;
-        readonly cancelText: string;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
         readonly showCancel: boolean;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -207,6 +207,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly disabled: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly okText: string;
+        readonly cancelText: string;
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
         readonly arrow: import("./types").PopconfirmArrow;
@@ -216,8 +218,6 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly defaultOpen: boolean;
         readonly destroyTooltipOnHide: boolean;
         readonly fresh: boolean;
-        readonly okText: string;
-        readonly cancelText: string;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
         readonly showCancel: boolean;
     }>;
@@ -321,6 +321,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly okText: string;
+    readonly cancelText: string;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
     readonly arrow: import("./types").PopconfirmArrow;
@@ -330,8 +332,6 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly defaultOpen: boolean;
     readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
-    readonly okText: string;
-    readonly cancelText: string;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     readonly showCancel: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

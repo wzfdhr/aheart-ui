@@ -33,11 +33,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly confirmLoading: BooleanConstructor;
         readonly okText: {
             readonly type: import("vue").PropType<import("vue").VNodeChild>;
-            readonly default: undefined;
+            readonly default: "OK";
         };
         readonly cancelText: {
             readonly type: import("vue").PropType<import("vue").VNodeChild>;
-            readonly default: undefined;
+            readonly default: "Cancel";
         };
         readonly okType: {
             readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
@@ -151,11 +151,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly confirmLoading: BooleanConstructor;
         readonly okText: {
             readonly type: import("vue").PropType<import("vue").VNodeChild>;
-            readonly default: undefined;
+            readonly default: "OK";
         };
         readonly cancelText: {
             readonly type: import("vue").PropType<import("vue").VNodeChild>;
-            readonly default: undefined;
+            readonly default: "Cancel";
         };
         readonly okType: {
             readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
@@ -259,11 +259,11 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
         readonly type: import("vue").PropType<import("vue").VNodeChild>;
-        readonly default: undefined;
+        readonly default: "OK";
     };
     readonly cancelText: {
         readonly type: import("vue").PropType<import("vue").VNodeChild>;
-        readonly default: undefined;
+        readonly default: "Cancel";
     };
     readonly okType: {
         readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;

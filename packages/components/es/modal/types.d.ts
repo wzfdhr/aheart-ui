@@ -75,11 +75,11 @@ export declare const modalProps: {
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
         readonly type: PropType<VNodeChild>;
-        readonly default: undefined;
+        readonly default: "OK";
     };
     readonly cancelText: {
         readonly type: PropType<VNodeChild>;
-        readonly default: undefined;
+        readonly default: "Cancel";
     };
     readonly okType: {
         readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
