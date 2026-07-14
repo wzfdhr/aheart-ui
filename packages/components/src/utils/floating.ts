@@ -1,4 +1,11 @@
 import type { CSSProperties } from 'vue'
+export {
+  fromFloatingUIPlacement,
+  getFloatingArrowStaticSide,
+  toFloatingUIPlacement,
+  useFloatingPosition
+} from './use-floating-position'
+export type { UseFloatingPositionOptions, UseFloatingPositionReturn } from './use-floating-position'
 
 export const floatingPlacements = [
   'top',

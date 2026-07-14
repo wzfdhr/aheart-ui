@@ -744,6 +744,11 @@
   fill: currentColor;
 }
 
+.aheart-icon svg.lucide {
+  fill: none;
+  stroke: currentColor;
+}
+
 .aheart-icon--spin {
   animation: aheart-icon-spin 1s linear infinite;
 }

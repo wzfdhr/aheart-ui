@@ -40,7 +40,9 @@
     "vue": ">=3.4.0 <4"
   },
   "dependencies": {
-    "@aheart-ui/utils": "workspace:^"
+    "@aheart-ui/utils": "workspace:^",
+    "@floating-ui/dom": "^1.8.0",
+    "@lucide/vue": "^1.24.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",

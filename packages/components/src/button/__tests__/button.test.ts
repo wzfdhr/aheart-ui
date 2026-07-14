@@ -135,7 +135,7 @@ describe('Button', () => {
     const children = Array.from(wrapper.element.children)
     expect(children[0].classList.contains('aheart-button__icon')).toBe(true)
     expect(children[1].classList.contains('aheart-button__content')).toBe(true)
-    expect(wrapper.find('.aheart-icon').text()).toBe('plus')
+    expect(wrapper.find('.aheart-icon svg.lucide-plus').exists()).toBe(true)
   })
 
   it('renders vnode icon prop content', () => {

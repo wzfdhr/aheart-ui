@@ -1,3 +1,4 @@
+import { fromFloatingUIPlacement, getFloatingArrowStaticSide, toFloatingUIPlacement, useFloatingPosition } from "./use-floating-position.js";
 const floatingPlacements = [
   "top",
   "left",
@@ -28,8 +29,12 @@ const getFloatingPopupStyle = (color, zIndex) => ({
 export {
   floatingPlacements,
   floatingTriggers,
+  fromFloatingUIPlacement,
+  getFloatingArrowStaticSide,
   getFloatingPopupStyle,
   isFloatingTrigger,
   isFloatingTriggerProp,
-  normalizeFloatingTriggers
+  normalizeFloatingTriggers,
+  toFloatingUIPlacement,
+  useFloatingPosition
 };

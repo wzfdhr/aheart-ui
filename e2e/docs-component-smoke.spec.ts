@@ -97,6 +97,9 @@ test('icon documentation loads without runtime errors', async ({ page }) => {
   const errors = collectRuntimeErrors(page)
   await page.goto('/components/icon')
   await expect(page.getByRole('heading', { name: /Icon 图标/ })).toBeVisible()
+  const basicDemo = page.locator('.aheart-demo-panel').first()
+  await expect(basicDemo.locator('svg.lucide')).toHaveCount(3)
+  await expect(basicDemo).not.toContainText(/search|setting|loading/)
   expect(errors).toEqual([])
 })
 

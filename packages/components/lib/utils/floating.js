@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const useFloatingPosition = require("./use-floating-position.js");
 const floatingPlacements = [
   "top",
   "left",
@@ -27,6 +28,10 @@ const getFloatingPopupStyle = (color, zIndex) => ({
   ...color ? { background: color } : {},
   ...zIndex !== void 0 ? { zIndex } : {}
 });
+exports.fromFloatingUIPlacement = useFloatingPosition.fromFloatingUIPlacement;
+exports.getFloatingArrowStaticSide = useFloatingPosition.getFloatingArrowStaticSide;
+exports.toFloatingUIPlacement = useFloatingPosition.toFloatingUIPlacement;
+exports.useFloatingPosition = useFloatingPosition.useFloatingPosition;
 exports.floatingPlacements = floatingPlacements;
 exports.floatingTriggers = floatingTriggers;
 exports.getFloatingPopupStyle = getFloatingPopupStyle;

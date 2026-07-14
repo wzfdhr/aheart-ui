@@ -1,4 +1,6 @@
 import type { CSSProperties } from 'vue';
+export { fromFloatingUIPlacement, getFloatingArrowStaticSide, toFloatingUIPlacement, useFloatingPosition } from './use-floating-position';
+export type { UseFloatingPositionOptions, UseFloatingPositionReturn } from './use-floating-position';
 export declare const floatingPlacements: readonly ["top", "left", "right", "bottom", "topLeft", "topRight", "bottomLeft", "bottomRight", "leftTop", "leftBottom", "rightTop", "rightBottom"];
 export declare const floatingTriggers: readonly ["hover", "focus", "click", "contextMenu"];
 export type FloatingPlacement = (typeof floatingPlacements)[number];
