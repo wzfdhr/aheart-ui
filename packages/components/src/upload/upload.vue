@@ -52,7 +52,11 @@ const updateFileList = (files: UploadFile[]) => {
   emit('update:fileList', files)
   emit('change', files)
 }
-const replaceFile = (file: UploadFile) => updateFileList(mergedFileList.value.map((current) => current.uid === file.uid ? file : current))
+const replaceFile = (file: UploadFile, files: UploadFile[]) => {
+  const nextFiles = files.map((current) => current.uid === file.uid ? file : current)
+  updateFileList(nextFiles)
+  return nextFiles
+}
 const toUploadFile = (file: File): UploadFile => ({
   uid: `${Date.now()}-${uid += 1}`,
   name: file.name,
@@ -61,13 +65,19 @@ const toUploadFile = (file: File): UploadFile => ({
   status: 'ready',
   originFile: file
 })
-const upload = async (file: UploadFile) => {
-  if (!file.originFile || file.status === 'uploading') return
+const upload = async (file: UploadFile, files: UploadFile[]) => {
+  if (!file.originFile || file.status === 'uploading') return files
 
-  replaceFile({ ...file, status: 'uploading', percent: 0 })
-  const onProgress = (percent: number) => replaceFile({ ...file, status: 'uploading', percent: Math.max(0, Math.min(100, percent)) })
-  const onSuccess = (response?: unknown) => replaceFile({ ...file, status: 'done', percent: 100, response })
-  const onError = (error: unknown) => replaceFile({ ...file, status: 'error', error })
+  let currentFiles = replaceFile({ ...file, status: 'uploading', percent: 0 }, files)
+  const onProgress = (percent: number) => {
+    currentFiles = replaceFile({ ...file, status: 'uploading', percent: Math.max(0, Math.min(100, percent)) }, currentFiles)
+  }
+  const onSuccess = (response?: unknown) => {
+    currentFiles = replaceFile({ ...file, status: 'done', percent: 100, response }, currentFiles)
+  }
+  const onError = (error: unknown) => {
+    currentFiles = replaceFile({ ...file, status: 'error', error }, currentFiles)
+  }
 
   try {
     if (props.customRequest) {
@@ -78,17 +88,26 @@ const upload = async (file: UploadFile) => {
   } catch (error) {
     onError(error)
   }
+
+  return currentFiles
 }
-const uploadReadyFiles = () => Promise.all(readyFiles.value.map(upload))
+const uploadReadyFiles = async () => {
+  let files = mergedFileList.value
+  for (const file of files.filter((current) => current.status === 'ready')) {
+    files = await upload(file, files)
+  }
+}
 const handleChange = async (event: Event) => {
   const files = Array.from((event.target as HTMLInputElement).files ?? [])
   const remaining = Math.max(0, props.maxCount - mergedFileList.value.length)
+  let nextFiles = mergedFileList.value
 
   for (const rawFile of files.slice(0, remaining)) {
     const uploadFile = toUploadFile(rawFile)
-    const shouldUpload = await props.beforeUpload?.(rawFile, [...mergedFileList.value, uploadFile])
-    updateFileList([...mergedFileList.value, uploadFile])
-    if (shouldUpload !== false) await upload(uploadFile)
+    const shouldUpload = await props.beforeUpload?.(rawFile, [...nextFiles, uploadFile])
+    nextFiles = [...nextFiles, uploadFile]
+    updateFileList(nextFiles)
+    if (shouldUpload !== false) nextFiles = await upload(uploadFile, nextFiles)
   }
 
   ;(event.target as HTMLInputElement).value = ''

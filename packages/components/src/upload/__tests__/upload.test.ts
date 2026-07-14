@@ -20,6 +20,19 @@ describe('Upload', () => {
     expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'report.txt', status: 'done' }])
   })
 
+  it('emits the completed upload state for a controlled file list', async () => {
+    const wrapper = mount(Upload, {
+      props: {
+        fileList: [],
+        customRequest: async ({ onSuccess }: { onSuccess: (response?: unknown) => void }) => onSuccess({ ok: true })
+      }
+    })
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('controlled.txt')])
+
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'controlled.txt', status: 'done' }])
+  })
+
   it('allows manual upload after beforeUpload returns false', async () => {
     const customRequest = vi.fn(async ({ onSuccess }: { onSuccess: (response?: unknown) => void }) => onSuccess())
     const wrapper = mount(Upload, { props: { beforeUpload: () => false, customRequest } })
