@@ -12,6 +12,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
   const isDragging = ref(false)
   let animationFrame: number | undefined
   let latestEvent: PointerEvent | undefined
+  let activePointerId: number | undefined
   let dragShield: HTMLDivElement | undefined
   let previousCursor = ''
   let previousUserSelect = ''
@@ -55,8 +56,16 @@ export const usePointerDrag = (options: PointerDragOptions) => {
       return
     }
 
-    cancelFrame()
-    latestEvent = undefined
+    if (reason === 'end' && latestEvent) {
+      cancelFrame()
+      const finalEvent = latestEvent
+      latestEvent = undefined
+      options.onMove(finalEvent)
+    } else {
+      cancelFrame()
+      latestEvent = undefined
+    }
+
     currentDocument.removeEventListener('pointermove', handleMove)
     currentDocument.removeEventListener('pointerup', handlePointerUp)
     currentDocument.removeEventListener('pointercancel', handlePointerCancel)
@@ -64,6 +73,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
     removeShield()
     restoreDocument()
     isDragging.value = false
+    activePointerId = undefined
     options.onEnd?.(reason)
   }
 
@@ -86,7 +96,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
   }
 
   function handleMove(event: Event) {
-    if (!isDragging.value) {
+    if (!isDragging.value || !isActivePointer(event)) {
       return
     }
 
@@ -95,16 +105,29 @@ export const usePointerDrag = (options: PointerDragOptions) => {
     scheduleMove()
   }
 
-  function handlePointerUp() {
+  function handlePointerUp(event: Event) {
+    if (!isActivePointer(event)) {
+      return
+    }
+
     stop('end')
   }
 
-  function handlePointerCancel() {
+  function handlePointerCancel(event: Event) {
+    if (!isActivePointer(event)) {
+      return
+    }
+
     stop('cancel')
   }
 
   function handleWindowBlur() {
     stop('blur')
+  }
+
+  function isActivePointer(event: Event) {
+    const pointerId = (event as PointerEvent).pointerId
+    return pointerId === undefined || activePointerId === pointerId
   }
 
   const createShield = (currentDocument: Document) => {
@@ -129,6 +152,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
 
     event.preventDefault()
     isDragging.value = true
+    activePointerId = event.pointerId
     previousCursor = currentDocument.body.style.cursor
     previousUserSelect = currentDocument.body.style.userSelect
     currentDocument.body.style.cursor = options.cursor ?? 'default'
