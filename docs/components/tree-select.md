@@ -15,7 +15,9 @@ const values = ref<string[]>(['archive'])
 
 ## 基础用法
 
-<ATreeSelect v-model="value" :tree-data="treeData" placeholder="选择页面" />
+<div class="aheart-demo-panel">
+  <ATreeSelect v-model="value" :tree-data="treeData" placeholder="选择页面" />
+</div>
 
 ```vue
 <ATreeSelect v-model="value" :tree-data="treeData" placeholder="选择页面" />
@@ -23,7 +25,9 @@ const values = ref<string[]>(['archive'])
 
 ## 多选与搜索
 
-<ATreeSelect v-model="values" :tree-data="treeData" multiple show-search />
+<div class="aheart-demo-panel">
+  <ATreeSelect v-model="values" :tree-data="treeData" multiple show-search />
+</div>
 
 ```vue
 <ATreeSelect v-model="values" :tree-data="treeData" multiple show-search />

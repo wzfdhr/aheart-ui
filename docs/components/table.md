@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, ref } from 'vue'
+
+const tablePage = ref(1)
 
 const tableRenderableColumns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -277,7 +279,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
   <AConfigProvider size="small">
     <ATable
       empty-text="No records"
-      :pagination="{ current: 1, pageSize: 2, showTotal: true }"
+      :pagination="{ current: tablePage, pageSize: 2, showTotal: true }"
       :columns="[
         { title: 'Name', dataIndex: 'name', key: 'name' },
         { title: 'Role', dataIndex: 'role', key: 'role' }
@@ -287,6 +289,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
         { key: 'grace', name: 'Grace', role: 'Engineer' },
         { key: 'linus', name: 'Linus', role: 'Maintainer' }
       ]"
+      @change="pagination => tablePage = pagination.current"
     />
   </AConfigProvider>
 </div>

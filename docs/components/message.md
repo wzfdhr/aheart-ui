@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { message } from 'aheart-ui'
+</script>
+
 # Message 全局提示 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Message displays global lightweight feedback through a static service or the `AMessage` host component.
@@ -122,10 +126,8 @@ message
 <div class="aheart-demo-panel">
   <AButton
     @click="
-      () => {
-        message.config({ top: 32, maxCount: 1 })
-        message.info('Only one message')
-      }
+      message.config({ top: 32, maxCount: 1 });
+      message.info('Only one message')
     "
   >
     Configured message
@@ -142,12 +144,10 @@ message.info('Only one message')
 <div class="aheart-demo-panel">
   <AButton
     @click="
-      () => {
-        message.config({ stack: { threshold: 2 } })
-        message.info('First stacked', 0)
-        message.info('Second stacked', 0)
-        message.info('Third stacked', 0)
-      }
+      message.config({ stack: { threshold: 2 } });
+      message.info('First stacked', 0);
+      message.info('Second stacked', 0);
+      message.info('Third stacked', 0)
     "
   >
     Stacked message

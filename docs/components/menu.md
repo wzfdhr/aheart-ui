@@ -58,7 +58,7 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 
 ## 横向与深色主题
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel menu-horizontal-dark-demo">
   <AMenu
     mode="horizontal"
     theme="dark"

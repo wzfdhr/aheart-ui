@@ -3,6 +3,10 @@ import { h, ref } from 'vue'
 
 const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLLabelElement }>()
 const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Renderable label')
+const checkboxBasic = ref(true)
+const checkboxAlias = ref(true)
+const checkboxFruits = ref(['apple'])
+const checkboxPermissions = ref(['read'])
 </script>
 
 # Checkbox 多选框 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -13,7 +17,7 @@ Checkbox captures a boolean choice or a grouped set of choices with checked, dis
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ACheckbox :model-value="true" label="Selected" />
+    <ACheckbox v-model="checkboxBasic" label="Selected" />
     <ACheckbox label="Unchecked" />
   </ASpace>
 </div>
@@ -40,7 +44,7 @@ Checkbox captures a boolean choice or a grouped set of choices with checked, dis
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ACheckbox :checked="true" label="Checked alias" />
+    <ACheckbox v-model:checked="checkboxAlias" label="Checked alias" />
     <ACheckbox default-checked label="Default checked" />
   </ASpace>
 </div>
@@ -80,7 +84,7 @@ const checkboxRef = ref<{ focus: () => void; blur: () => void; nativeElement?: H
 
 <div class="aheart-demo-panel">
   <ACheckboxGroup
-    :model-value="['apple']"
+    v-model="checkboxFruits"
     name="fruit"
     :options="[
       { label: 'Apple', value: 'apple' },
@@ -135,7 +139,7 @@ const checkboxNodeLabel = h('span', { class: 'demo-checkbox-option-node' }, 'Ren
 <div class="aheart-demo-panel">
   <ACheckboxGroup
     direction="vertical"
-    :model-value="['read']"
+    v-model="checkboxPermissions"
     :options="[
       { label: 'Read', value: 'read' },
       { label: 'Write', value: 'write' },

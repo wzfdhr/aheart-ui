@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 
 const selectRef = ref<{ focus: () => void; blur: () => void }>()
+const selectValue = ref('banana')
+const selectValues = ref(['apple', 'banana'])
 </script>
 
 # Select 选择器 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -12,7 +14,7 @@ Select lets users choose one or more values from a fixed option list, with searc
 
 <div class="aheart-demo-panel">
   <ASelect
-    model-value="banana"
+    v-model="selectValue"
     placeholder="Choose fruit"
     :options="[
       { label: 'Apple', value: 'apple' },
@@ -41,7 +43,7 @@ Select lets users choose one or more values from a fixed option list, with searc
 <div class="aheart-demo-panel">
   <ASelect
     mode="multiple"
-    :model-value="['apple', 'banana']"
+    v-model="selectValues"
     allow-clear
     :options="[
       { label: 'Apple', value: 'apple' },

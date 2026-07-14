@@ -16,7 +16,9 @@ const checkedKeys = ref<TreeKey[]>([])
 
 ## 基础用法
 
-<ATree :tree-data="treeData" :default-expanded-keys="['workspace']" />
+<div class="aheart-demo-panel">
+  <ATree :tree-data="treeData" :default-expanded-keys="['workspace']" />
+</div>
 
 ```vue
 <ATree :tree-data="treeData" :default-expanded-keys="['workspace']" />
@@ -24,14 +26,16 @@ const checkedKeys = ref<TreeKey[]>([])
 
 ## 受控选择与勾选
 
-<ATree
-  :tree-data="treeData"
-  :default-expanded-keys="['workspace']"
-  v-model:selected-keys="selectedKeys"
-  v-model:checked-keys="checkedKeys"
-  checkable
-  multiple
-/>
+<div class="aheart-demo-panel">
+  <ATree
+    :tree-data="treeData"
+    :default-expanded-keys="['workspace']"
+    v-model:selected-keys="selectedKeys"
+    v-model:checked-keys="checkedKeys"
+    checkable
+    multiple
+  />
+</div>
 
 ```vue
 <ATree

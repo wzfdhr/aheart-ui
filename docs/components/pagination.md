@@ -1,3 +1,17 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const paginationBasic = ref(2)
+const paginationSimple = ref(1)
+const paginationAligned = ref(10)
+const paginationSized = ref(2)
+const paginationPageSize = ref(10)
+const paginationQuick = ref(1)
+const paginationQuickButton = ref(1)
+const paginationCustom = ref(3)
+const paginationStyled = ref(2)
+</script>
+
 # Pagination 分页 <span class="aheart-status aheart-status--ready">Ready</span>
 
 Pagination navigates paged data with controlled or uncontrolled current page state.
@@ -5,7 +19,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 ## 基础用法
 
 <div class="aheart-demo-panel">
-  <APagination :total="42" :page-size="10" :current="2" show-total />
+  <APagination v-model:current="paginationBasic" :total="42" :page-size="10" show-total />
 </div>
 
 ```vue
@@ -33,7 +47,7 @@ import { enUS } from 'aheart-ui'
 ## 简洁模式
 
 <div class="aheart-demo-panel">
-  <APagination :total="20" :current="1" :page-size="10" simple />
+  <APagination v-model:current="paginationSimple" :total="20" :page-size="10" simple />
 </div>
 
 ```vue
@@ -45,7 +59,7 @@ import { enUS } from 'aheart-ui'
 ## 对齐与少量页码
 
 <div class="aheart-demo-panel">
-  <APagination :total="200" :current="10" :page-size="10" align="center" show-less-items />
+  <APagination v-model:current="paginationAligned" :total="200" :page-size="10" align="center" show-less-items />
 </div>
 
 ```vue
@@ -57,7 +71,12 @@ import { enUS } from 'aheart-ui'
 ## 每页条数
 
 <div class="aheart-demo-panel">
-  <APagination :total="95" :current="2" :page-size="10" :page-size-options="[10, 20, 50]" />
+  <APagination
+    v-model:current="paginationSized"
+    v-model:page-size="paginationPageSize"
+    :total="95"
+    :page-size-options="[10, 20, 50]"
+  />
 </div>
 
 ```vue
@@ -74,7 +93,7 @@ import { enUS } from 'aheart-ui'
 ## 快速跳转
 
 <div class="aheart-demo-panel">
-  <APagination :total="95" :current="1" :page-size="10" show-quick-jumper />
+  <APagination v-model:current="paginationQuick" :total="95" :page-size="10" show-quick-jumper />
 </div>
 
 ```vue
@@ -86,7 +105,7 @@ import { enUS } from 'aheart-ui'
 ## 自定义跳转按钮
 
 <div class="aheart-demo-panel">
-  <APagination :total="95" :current="1" :page-size="10" :show-quick-jumper="{ goButton: 'Jump' }" />
+  <APagination v-model:current="paginationQuickButton" :total="95" :page-size="10" :show-quick-jumper="{ goButton: 'Jump' }" />
 </div>
 
 ```vue
@@ -100,7 +119,7 @@ import { enUS } from 'aheart-ui'
 <div class="aheart-demo-panel">
   <APagination
     :total="96"
-    :current="3"
+    v-model:current="paginationCustom"
     :page-size="10"
     :show-total="(total, range) => range[0] + '-' + range[1] + ' / ' + total"
     :item-render="(page, type, original) => type === 'page' ? '#' + page : original"
@@ -124,7 +143,7 @@ import { enUS } from 'aheart-ui'
 <div class="aheart-demo-panel">
   <APagination
     :total="48"
-    :current="2"
+    v-model:current="paginationStyled"
     :page-size="10"
     show-total
     show-size-changer

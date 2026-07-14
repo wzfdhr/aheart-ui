@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, ref } from 'vue'
+
+const inputNumberBasic = ref(4)
+const inputNumberStep = ref(2)
+const inputNumberDecimal = ref(1)
+const inputNumberAmount = ref(12.345)
+const inputNumberNodeAmount = ref(88)
+const inputNumberPrecise = ref('1.000000000000000001')
+const inputNumberCustom = ref(8)
+const inputNumberPlain = ref(8)
+const inputNumberWheel = ref(4)
 
 const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
   root: 'demo-input-number-semantic-root',
@@ -24,7 +34,7 @@ InputNumber captures numeric values with min, max, step, controls, precision, fo
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <AInputNumber :model-value="4" :min="1" :max="10" />
+    <AInputNumber v-model="inputNumberBasic" :min="1" :max="10" />
     <AInputNumber :default-value="6" />
   </ASpace>
 </div>
@@ -40,11 +50,11 @@ InputNumber captures numeric values with min, max, step, controls, precision, fo
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <AInputNumber :model-value="2" :step="2" />
-    <AInputNumber :model-value="1" step="0.5" />
-    <AInputNumber :model-value="12.345" :precision="2" prefix="$" suffix="USD" />
+    <AInputNumber v-model="inputNumberStep" :step="2" />
+    <AInputNumber v-model="inputNumberDecimal" step="0.5" />
+    <AInputNumber v-model="inputNumberAmount" :precision="2" prefix="$" suffix="USD" />
     <AInputNumber
-      :model-value="88"
+      v-model="inputNumberNodeAmount"
       :prefix="h('strong', { class: 'demo-input-number-node' }, '$')"
       :suffix="h('span', { class: 'demo-input-number-node' }, 'USD')"
     />
@@ -142,7 +152,7 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 <div class="aheart-demo-panel">
   <AInputNumber
     string-mode
-    model-value="1.000000000000000001"
+    v-model="inputNumberPrecise"
     step="0.000000000000000001"
   />
 </div>
@@ -162,13 +172,13 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 <div class="aheart-demo-panel">
   <ASpace>
     <AInputNumber
-      :model-value="8"
+      v-model="inputNumberCustom"
       :controls="{
         upIcon: h('span', { class: 'demo-input-number-node' }, 'up'),
         downIcon: h('span', { class: 'demo-input-number-node' }, 'down')
       }"
     />
-    <AInputNumber :model-value="8" :controls="false" />
+    <AInputNumber v-model="inputNumberPlain" :controls="false" />
   </ASpace>
 </div>
 
@@ -192,7 +202,7 @@ import { h } from 'vue'
 ## 滚轮步进
 
 <div class="aheart-demo-panel">
-  <AInputNumber :model-value="4" :step="2" change-on-wheel />
+  <AInputNumber v-model="inputNumberWheel" :step="2" change-on-wheel />
 </div>
 
 ```vue

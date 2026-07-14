@@ -239,6 +239,40 @@
   background: #fff;
 }
 
+/* VitePress prose rules must not become component runtime styles. */
+.vp-doc .aheart-demo-panel
+  :where(
+    :is(ul, ol)[class^='aheart-'],
+    :is(ul, ol)[class*=' aheart-'],
+    [class^='aheart-'] :is(ul, ol),
+    [class*=' aheart-'] :is(ul, ol)
+  ) {
+  margin: 0;
+  padding-inline-start: 0;
+  list-style: none;
+}
+
+.vp-doc .aheart-demo-panel
+  :where([class^='aheart-'], [class*=' aheart-'])
+  :where(li + li) {
+  margin-top: 0;
+}
+
+.vp-doc .aheart-demo-panel :where(.aheart-table table) {
+  display: table;
+  margin: 0;
+}
+
+.vp-doc .aheart-demo-panel
+  :where(
+    :is(button, input, select, textarea)[class^='aheart-'],
+    :is(button, input, select, textarea)[class*=' aheart-'],
+    [class^='aheart-'] :is(button, input, select, textarea),
+    [class*=' aheart-'] :is(button, input, select, textarea)
+  ) {
+  font: inherit;
+}
+
 .aheart-component-overview {
   max-width: 1040px;
   margin: 0 auto;

@@ -4,6 +4,10 @@ import { h, ref } from 'vue'
 const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTMLButtonElement }>()
 const checkedNode = h('span', { class: 'demo-switch-node' }, '1')
 const uncheckedNode = h('span', { class: 'demo-switch-node' }, '0')
+const switchBasic = ref(true)
+const switchText = ref(true)
+const switchCheckedAlias = ref(true)
+const switchValueAlias = ref(true)
 </script>
 
 # Switch 开关 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -14,7 +18,7 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ASwitch :model-value="true" />
+    <ASwitch v-model="switchBasic" />
     <ASwitch />
   </ASpace>
 </div>
@@ -29,7 +33,7 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ASwitch :model-value="true" checked-children="On" un-checked-children="Off" />
+    <ASwitch v-model="switchText" checked-children="On" un-checked-children="Off" />
     <ASwitch loading />
   </ASpace>
 </div>
@@ -45,8 +49,8 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 
 <div class="aheart-demo-panel">
   <ASpace>
-    <ASwitch :checked="true" checked-children="Checked" un-checked-children="Unchecked" />
-    <ASwitch :value="true" checked-children="Value" />
+    <ASwitch v-model:checked="switchCheckedAlias" checked-children="Checked" un-checked-children="Unchecked" />
+    <ASwitch v-model:value="switchValueAlias" checked-children="Value" />
     <ASwitch default-checked checked-children="Default" un-checked-children="Off" />
   </ASpace>
 </div>
