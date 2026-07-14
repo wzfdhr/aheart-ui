@@ -3,8 +3,10 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const floating = require("../utils/floating.js");
 require("../utils/floating.css.js");
+const useMotionPresence = require("../utils/use-motion-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
+const _hoisted_1 = ["aria-hidden"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "APopover"
@@ -30,7 +32,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const innerOpen = vue.ref(props.defaultOpen);
-    const hasRenderedPopup = vue.ref(Boolean(props.defaultOpen || props.open));
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const popupRef = vue.ref(null);
@@ -45,7 +46,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasPopupContent = vue.computed(() => hasTitle.value || hasContent.value);
     const visible = vue.computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldDestroyOnHidden = vue.computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
-    const shouldRenderPopup = vue.computed(() => hasPopupContent.value && (visible.value || !shouldDestroyOnHidden.value && hasRenderedPopup.value));
+    const motion = useMotionPresence.useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const shouldRenderPopup = vue.computed(() => hasPopupContent.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = vue.computed(() => {
       if (props.getPopupContainer && triggerRef.value) {
@@ -78,6 +80,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const triggerStyle = vue.computed(() => resolvedStyles.value.trigger);
     const popupClass = vue.computed(() => [
       `aheart-floating--${effectivePlacement.value}`,
+      `is-${motion.phase.value}`,
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
@@ -237,7 +240,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       visible,
       (open) => {
         if (open) {
-          hasRenderedPopup.value = true;
           schedulePlacementUpdate();
           return;
         }
@@ -370,6 +372,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-popover__popup", popupClass.value]),
             style: vue.normalizeStyle(popupStyle.value),
             role: "dialog",
+            "aria-hidden": vue.unref(motion).phase.value === "hidden" ? "true" : void 0,
             onMouseenter: handleMouseEnter,
             onMouseleave: handleMouseLeave
           }, [
@@ -402,8 +405,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 ])
               ], 6)) : vue.createCommentVNode("", true)
             ], 6)
-          ], 38)), [
-            [vue.vShow, visible.value]
+          ], 46, _hoisted_1)), [
+            [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
       ], 38);

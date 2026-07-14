@@ -1,11 +1,13 @@
-import { defineComponent, useSlots, ref, computed, inject, provide, watch, nextTick, onBeforeUnmount, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, withCtx, createElementVNode, renderSlot, vShow } from "vue";
+import { defineComponent, useSlots, computed, ref, inject, provide, watch, nextTick, onBeforeUnmount, openBlock, createBlock, Teleport, unref, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, withCtx, createElementVNode, renderSlot, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
 import { usePointerDrag } from "../utils/use-pointer-drag.js";
+import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["aria-label"];
-const _hoisted_2 = ["disabled"];
+const _hoisted_1 = ["aria-hidden"];
+const _hoisted_2 = ["aria-label"];
 const _hoisted_3 = ["disabled"];
+const _hoisted_4 = ["disabled"];
 const DRAWER_PUSH_CONTEXT = Symbol("ADrawerPushContext");
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
@@ -56,10 +58,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       '[contenteditable="true"]',
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
-    const hasRendered = ref(props.open || props.forceRender);
     const dialogLabel = computed(() => typeof props.title === "string" || typeof props.title === "number" ? String(props.title) : void 0);
     const triggerElement = ref(null);
     const panelRef = ref(null);
+    const leaveFocusElement = ref(null);
     const resizedSize = ref();
     const resizeStart = ref(null);
     const parentPushContext = inject(DRAWER_PUSH_CONTEXT, null);
@@ -130,7 +132,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     );
     const isResizable = computed(() => props.resizable === true || resizableConfig.value !== void 0);
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel);
-    const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
+    const motion = useMotionPresence(() => props.open, {
+      forceRender: () => props.forceRender,
+      destroyOnHidden: () => shouldDestroy.value,
+      duration: 240
+    });
+    const shouldRender = motion.isMounted;
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
     const isMaskConfig = (value) => typeof value === "object" && value !== null;
     const maskConfig = computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
@@ -250,7 +257,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasFooter = computed(
       () => !shouldHideFooter.value && (Boolean(slots.footer) || props.footer === true || shouldRenderFooterProp.value)
     );
-    const rootClass = computed(() => ["aheart-drawer", props.rootClassName, semanticClass("root")]);
+    const rootClass = computed(() => ["aheart-drawer", `is-${motion.phase.value}`, props.rootClassName, semanticClass("root")]);
     const maskClass = computed(() => [
       "aheart-drawer__mask",
       { "is-blur": isMaskBlurred.value },
@@ -281,25 +288,31 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(
       () => props.open,
       (open, previousOpen) => {
+        var _a;
         if (open && !previousOpen) {
-          captureTriggerElement();
+          leaveFocusElement.value = null;
+          if (motion.phase.value === "hidden")
+            captureTriggerElement();
         }
-        if (open) {
-          hasRendered.value = true;
-        } else if (shouldDestroy.value && !props.forceRender) {
-          hasRendered.value = false;
+        if (!open) {
+          const activeElement = document.activeElement;
+          leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = panelRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
+          void nextTick(() => {
+            if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+              leaveFocusElement.value.focus();
+            }
+          });
         }
         emit("afterOpenChange", open);
-        if (!open) {
-          void nextTick(() => restoreTriggerFocus());
-        }
-      }
+      },
+      { flush: "sync" }
     );
     watch(
-      () => props.forceRender,
-      (forceRender) => {
-        if (forceRender) {
-          hasRendered.value = true;
+      () => motion.phase.value,
+      (phase) => {
+        if (phase === "hidden" && !props.open) {
+          void nextTick(() => restoreTriggerFocus());
+          leaveFocusElement.value = null;
         }
       }
     );
@@ -449,11 +462,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         to: teleportTo.value,
         disabled: !shouldTeleport.value
       }, [
-        shouldRender.value ? withDirectives((openBlock(), createElementBlock("div", {
+        unref(shouldRender) ? withDirectives((openBlock(), createElementBlock("div", {
           key: 0,
           class: normalizeClass(rootClass.value),
           style: normalizeStyle(rootStyle.value),
           role: "presentation",
+          "aria-hidden": unref(motion).phase.value === "hidden" ? "true" : void 0,
           tabindex: "-1",
           onKeydown: handleKeydown
         }, [
@@ -490,7 +504,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_2)) : createCommentVNode("", true),
+                  ], 14, _hoisted_3)) : createCommentVNode("", true),
                   hasTitle.value ? (openBlock(), createElementBlock("div", {
                     key: 1,
                     class: normalizeClass(titleClass.value),
@@ -519,7 +533,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_3)) : createCommentVNode("", true)
+                  ], 14, _hoisted_4)) : createCommentVNode("", true)
                 ], 6)) : createCommentVNode("", true),
                 createElementVNode("div", {
                   class: normalizeClass(bodyClass.value),
@@ -551,12 +565,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   "aria-label": "Resize drawer",
                   onPointerdown: handleResizeStart
                 }, null, 38)) : createCommentVNode("", true)
-              ], 14, _hoisted_1)
+              ], 14, _hoisted_2)
             ]),
             _: 3
           }, 8, ["renderer"])
-        ], 38)), [
-          [vShow, _ctx.open]
+        ], 46, _hoisted_1)), [
+          [vShow, unref(motion).phase.value !== "hidden"]
         ]) : createCommentVNode("", true)
       ], 8, ["to", "disabled"]);
     };

@@ -24,12 +24,13 @@
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <div
         v-if="shouldRenderOverlay"
-        v-show="mergedOpen"
+        v-show="motion.phase.value !== 'hidden'"
         ref="overlayRef"
         class="aheart-dropdown__overlay"
         :class="overlayClass"
         :style="overlayStyle"
         role="presentation"
+        :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
         @mouseenter="handleMouseEnter"
         @mouseleave="handleMouseLeave"
       >
@@ -52,6 +53,7 @@
 import { computed, defineComponent, h, nextTick, onBeforeUnmount, ref, useSlots, watch, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AMenu, { type MenuClickInfo } from '../menu'
+import { useMotionPresence } from '../utils/use-motion-presence'
 import {
   dropdownEmits,
   dropdownProps,
@@ -83,7 +85,6 @@ const ARenderNode = defineComponent({
 })
 
 const innerOpen = ref(props.defaultOpen)
-const hasRenderedOverlay = ref(Boolean(props.defaultOpen || props.open))
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const overlayRef = ref<HTMLElement | null>(null)
@@ -97,9 +98,8 @@ const triggerSet = computed(() => new Set(props.trigger))
 const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyPopupOnHide)
 const hasMenu = computed(() => Boolean(props.menu?.items?.length))
 const hasOverlayContent = computed(() => hasMenu.value || Boolean(slots.popup || props.popupRender || props.dropdownRender))
-const shouldRenderOverlay = computed(
-  () => hasOverlayContent.value && (mergedOpen.value || (!shouldDestroyOnHidden.value && hasRenderedOverlay.value))
-)
+const motion = useMotionPresence(mergedOpen, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 })
+const shouldRenderOverlay = computed(() => hasOverlayContent.value && motion.isMounted.value)
 const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
 const popupContainer = computed(() => {
   if (props.getPopupContainer && triggerRef.value) {
@@ -136,6 +136,7 @@ const triggerClass = computed(() => resolvedClassNames.value.trigger)
 const triggerStyle = computed(() => resolvedStyles.value.trigger)
 const overlayClass = computed(() => [
   `aheart-dropdown__overlay--${effectivePlacement.value}`,
+  `is-${motion.phase.value}`,
   props.overlayClassName,
   resolvedClassNames.value.popup
 ])
@@ -340,7 +341,6 @@ watch(
   mergedOpen,
   (open) => {
     if (open) {
-      hasRenderedOverlay.value = true
       schedulePlacementUpdate()
       return
     }

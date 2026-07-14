@@ -2,10 +2,11 @@
   <Teleport :to="teleportTo" :disabled="!shouldTeleport">
     <div
       v-if="shouldRender"
-      v-show="open"
+      v-show="motion.phase.value !== 'hidden'"
       :class="rootClass"
       :style="rootStyle"
       role="presentation"
+      :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
       tabindex="-1"
       @keydown="handleKeydown"
     >
@@ -104,6 +105,7 @@ import {
 } from 'vue'
 import ASkeleton from '../skeleton'
 import { usePointerDrag } from '../utils/use-pointer-drag'
+import { useMotionPresence } from '../utils/use-motion-presence'
 import {
   drawerEmits,
   drawerProps,
@@ -162,10 +164,10 @@ const FOCUSABLE_SELECTOR = [
   '[contenteditable="true"]',
   '[tabindex]:not([tabindex="-1"])'
 ].join(',')
-const hasRendered = ref(props.open || props.forceRender)
 const dialogLabel = computed(() => typeof props.title === 'string' || typeof props.title === 'number' ? String(props.title) : undefined)
 const triggerElement = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
+const leaveFocusElement = ref<HTMLElement | null>(null)
 const resizedSize = ref<number>()
 const resizeStart = ref<{ size: number; clientX: number; clientY: number } | null>(null)
 
@@ -244,7 +246,12 @@ const resizableConfig = computed(() =>
 )
 const isResizable = computed(() => props.resizable === true || resizableConfig.value !== undefined)
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel)
-const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
+const motion = useMotionPresence(() => props.open, {
+  forceRender: () => props.forceRender,
+  destroyOnHidden: () => shouldDestroy.value,
+  duration: 240
+})
+const shouldRender = motion.isMounted
 const isRenderableNode = (value: VNodeChild) =>
   value !== undefined && value !== null && value !== false && value !== true && value !== ''
 const isMaskConfig = (value: typeof props.mask): value is DrawerMaskConfig =>
@@ -359,7 +366,7 @@ const hasFooter = computed(
   () => !shouldHideFooter.value && (Boolean(slots.footer) || props.footer === true || shouldRenderFooterProp.value)
 )
 
-const rootClass = computed(() => ['aheart-drawer', props.rootClassName, semanticClass('root')])
+const rootClass = computed(() => ['aheart-drawer', `is-${motion.phase.value}`, props.rootClassName, semanticClass('root')])
 const maskClass = computed(() => [
   'aheart-drawer__mask',
   { 'is-blur': isMaskBlurred.value },
@@ -392,28 +399,32 @@ watch(
   () => props.open,
   (open, previousOpen) => {
     if (open && !previousOpen) {
-      captureTriggerElement()
+      leaveFocusElement.value = null
+      if (motion.phase.value === 'hidden') captureTriggerElement()
     }
 
-    if (open) {
-      hasRendered.value = true
-    } else if (shouldDestroy.value && !props.forceRender) {
-      hasRendered.value = false
+    if (!open) {
+      const activeElement = document.activeElement
+      leaveFocusElement.value =
+        activeElement instanceof HTMLElement && panelRef.value?.contains(activeElement) ? activeElement : null
+      void nextTick(() => {
+        if (motion.phase.value === 'leave' && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+          leaveFocusElement.value.focus()
+        }
+      })
     }
 
     emit('afterOpenChange', open)
-
-    if (!open) {
-      void nextTick(() => restoreTriggerFocus())
-    }
-  }
+  },
+  { flush: 'sync' }
 )
 
 watch(
-  () => props.forceRender,
-  (forceRender) => {
-    if (forceRender) {
-      hasRendered.value = true
+  () => motion.phase.value,
+  (phase) => {
+    if (phase === 'hidden' && !props.open) {
+      void nextTick(() => restoreTriggerFocus())
+      leaveFocusElement.value = null
     }
   }
 )

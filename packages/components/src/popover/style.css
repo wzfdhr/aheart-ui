@@ -23,6 +23,42 @@
   background: var(--aheart-color-bg-elevated);
   box-shadow: var(--aheart-shadow);
   color: var(--aheart-color-text);
+  opacity: 0;
+  scale: 0.98;
+  transition:
+    opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    scale var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    translate var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out);
+}
+
+.aheart-popover__popup.is-entered {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
+}
+
+.aheart-floating--bottom,
+.aheart-floating--bottomLeft,
+.aheart-floating--bottomRight {
+  translate: 0 -4px;
+}
+
+.aheart-floating--top,
+.aheart-floating--topLeft,
+.aheart-floating--topRight {
+  translate: 0 4px;
+}
+
+.aheart-floating--left,
+.aheart-floating--leftTop,
+.aheart-floating--leftBottom {
+  translate: 4px 0;
+}
+
+.aheart-floating--right,
+.aheart-floating--rightTop,
+.aheart-floating--rightBottom {
+  translate: -4px 0;
 }
 
 .aheart-popover__container {

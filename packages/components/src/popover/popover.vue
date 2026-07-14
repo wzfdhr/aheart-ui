@@ -24,12 +24,13 @@
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <span
         v-if="shouldRenderPopup"
-        v-show="visible"
+        v-show="motion.phase.value !== 'hidden'"
         ref="popupRef"
         class="aheart-popover__popup"
         :class="popupClass"
         :style="popupStyle"
         role="dialog"
+        :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
         @mouseenter="handleMouseEnter"
         @mouseleave="handleMouseLeave"
       >
@@ -61,6 +62,7 @@
 import { computed, defineComponent, nextTick, onBeforeUnmount, ref, useSlots, watch, type PropType } from 'vue'
 import { getFloatingPopupStyle, normalizeFloatingTriggers, type FloatingPlacement } from '../utils/floating'
 import '../utils/floating.css'
+import { useMotionPresence } from '../utils/use-motion-presence'
 import {
   popoverEmits,
   popoverProps,
@@ -95,7 +97,6 @@ const emit = defineEmits(popoverEmits)
 const slots = useSlots()
 
 const innerOpen = ref(props.defaultOpen)
-const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open))
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const popupRef = ref<HTMLElement | null>(null)
@@ -111,7 +112,8 @@ const hasContent = computed(() => Boolean(slots.content) || hasRenderable(props.
 const hasPopupContent = computed(() => hasTitle.value || hasContent.value)
 const visible = computed(() => hasPopupContent.value && mergedOpen.value)
 const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide)
-const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || (!shouldDestroyOnHidden.value && hasRenderedPopup.value)))
+const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 })
+const shouldRenderPopup = computed(() => hasPopupContent.value && motion.isMounted.value)
 const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
 const popupContainer = computed(() => {
   if (props.getPopupContainer && triggerRef.value) {
@@ -145,6 +147,7 @@ const triggerClass = computed(() => resolvedClassNames.value.trigger)
 const triggerStyle = computed(() => resolvedStyles.value.trigger)
 const popupClass = computed(() => [
   `aheart-floating--${effectivePlacement.value}`,
+  `is-${motion.phase.value}`,
   props.overlayClassName,
   resolvedClassNames.value.popup
 ])
@@ -334,7 +337,6 @@ watch(
   visible,
   (open) => {
     if (open) {
-      hasRenderedPopup.value = true
       schedulePlacementUpdate()
       return
     }

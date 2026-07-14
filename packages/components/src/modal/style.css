@@ -7,10 +7,21 @@
   line-height: var(--aheart-line-height);
 }
 
+.aheart-modal.is-enter,
+.aheart-modal.is-leave {
+  pointer-events: none;
+}
+
 .aheart-modal__mask {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity var(--aheart-motion-duration-base) var(--aheart-motion-ease-out);
+}
+
+.aheart-modal.is-entered .aheart-modal__mask {
+  opacity: 1;
 }
 
 .aheart-modal__mask.is-blur {
@@ -33,11 +44,25 @@
   background: var(--aheart-color-bg-elevated);
   border-radius: var(--aheart-radius);
   box-shadow: var(--aheart-shadow);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--aheart-motion-duration-base) var(--aheart-motion-ease-out),
+    transform var(--aheart-motion-duration-base) var(--aheart-motion-ease-out);
+}
+
+.aheart-modal.is-entered .aheart-modal__dialog {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .aheart-modal__dialog.is-centered {
   top: 50%;
   margin-top: 0;
+  transform: translateY(calc(-50% + 8px));
+}
+
+.aheart-modal.is-entered .aheart-modal__dialog.is-centered {
   transform: translateY(-50%);
 }
 

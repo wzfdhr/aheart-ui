@@ -2,10 +2,11 @@
   <Teleport :to="teleportTo" :disabled="!shouldTeleport">
     <div
       v-if="shouldRender"
-      v-show="open"
+      v-show="motion.phase.value !== 'hidden'"
       :class="rootClass"
       :style="rootStyle"
       role="presentation"
+      :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
       tabindex="-1"
       @keydown="handleKeydown"
     >
@@ -71,6 +72,7 @@ import {
 import AButton from '../button'
 import { useAheartConfig } from '../config'
 import ASkeleton from '../skeleton'
+import { useMotionPresence } from '../utils/use-motion-presence'
 import {
   modalEmits,
   modalProps,
@@ -111,9 +113,9 @@ const FOCUSABLE_SELECTOR = [
 ].join(',')
 const modalWidthBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
 
-const hasRendered = ref(props.open || props.forceRender)
 const triggerElement = ref<HTMLElement | null>(null)
 const dialogRef = ref<HTMLElement | null>(null)
+const leaveFocusElement = ref<HTMLElement | null>(null)
 
 const AModalRenderNode = defineComponent({
   name: 'AModalRenderNode',
@@ -196,7 +198,12 @@ const responsiveWidthVars = computed(() => {
 })
 
 const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose)
-const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value)
+const motion = useMotionPresence(() => props.open, {
+  forceRender: () => props.forceRender,
+  destroyOnHidden: () => shouldDestroy.value,
+  duration: 180
+})
+const shouldRender = motion.isMounted
 
 const dialogStyle = computed(() => ({
   ...props.style,
@@ -217,7 +224,7 @@ const hasFooter = computed(
   () => !props.loading && (Boolean(slots.footer) || (props.footer !== false && props.footer !== null))
 )
 
-const rootClass = computed(() => ['aheart-modal', props.rootClassName, semanticClass('root')])
+const rootClass = computed(() => ['aheart-modal', `is-${motion.phase.value}`, props.rootClassName, semanticClass('root')])
 const maskConfig = computed(() => (isMaskConfig(props.mask) ? props.mask : undefined))
 const isMaskVisible = computed(() => (props.mask === false ? false : maskConfig.value?.enabled !== false))
 const isMaskBlurred = computed(() => maskConfig.value?.blur === true)
@@ -327,30 +334,34 @@ watch(
   () => props.open,
   (open, previousOpen) => {
     if (open && !previousOpen) {
-      captureTriggerElement()
-    }
-
-    if (open) {
-      hasRendered.value = true
-    } else if (shouldDestroy.value && !props.forceRender) {
-      hasRendered.value = false
+      leaveFocusElement.value = null
+      if (motion.phase.value === 'hidden') captureTriggerElement()
     }
 
     emit('afterOpenChange', open)
 
     if (!open) {
+      const activeElement = document.activeElement
+      leaveFocusElement.value =
+        activeElement instanceof HTMLElement && dialogRef.value?.contains(activeElement) ? activeElement : null
       emit('afterClose')
       closableConfig.value?.afterClose?.()
-      void nextTick(() => restoreTriggerFocus())
+      void nextTick(() => {
+        if (motion.phase.value === 'leave' && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+          leaveFocusElement.value.focus()
+        }
+      })
     }
-  }
+  },
+  { flush: 'sync' }
 )
 
 watch(
-  () => props.forceRender,
-  (forceRender) => {
-    if (forceRender) {
-      hasRendered.value = true
+  () => motion.phase.value,
+  (phase) => {
+    if (phase === 'hidden' && !props.open) {
+      void nextTick(() => restoreTriggerFocus())
+      leaveFocusElement.value = null
     }
   }
 )

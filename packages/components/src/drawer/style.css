@@ -7,10 +7,21 @@
   line-height: var(--aheart-line-height);
 }
 
+.aheart-drawer.is-enter,
+.aheart-drawer.is-leave {
+  pointer-events: none;
+}
+
 .aheart-drawer__mask {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity var(--aheart-motion-duration-base) var(--aheart-motion-ease-out);
+}
+
+.aheart-drawer.is-entered .aheart-drawer__mask {
+  opacity: 1;
 }
 
 .aheart-drawer__mask.is-blur {
@@ -23,6 +34,15 @@
   flex-direction: column;
   background: var(--aheart-color-bg-elevated);
   box-shadow: var(--aheart-shadow);
+  opacity: 0;
+  transition:
+    opacity var(--aheart-motion-duration-slow) var(--aheart-motion-ease-out),
+    translate var(--aheart-motion-duration-slow) var(--aheart-motion-ease-out);
+}
+
+.aheart-drawer.is-entered .aheart-drawer__panel {
+  opacity: 1;
+  translate: 0 0;
 }
 
 .aheart-drawer__panel--right {
@@ -30,6 +50,7 @@
   right: 0;
   bottom: 0;
   max-width: 100vw;
+  translate: 24px 0;
 }
 
 .aheart-drawer__panel--left {
@@ -37,6 +58,7 @@
   bottom: 0;
   left: 0;
   max-width: 100vw;
+  translate: -24px 0;
 }
 
 .aheart-drawer__panel--top {
@@ -44,6 +66,7 @@
   right: 0;
   left: 0;
   max-height: 100vh;
+  translate: 0 -24px;
 }
 
 .aheart-drawer__panel--bottom {
@@ -51,6 +74,7 @@
   bottom: 0;
   left: 0;
   max-height: 100vh;
+  translate: 0 24px;
 }
 
 .aheart-drawer__dragger {

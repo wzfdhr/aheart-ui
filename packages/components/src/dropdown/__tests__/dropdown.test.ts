@@ -241,8 +241,12 @@ describe('Dropdown', () => {
 
       await vi.advanceTimersByTimeAsync(1)
       await nextTick()
-      expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('display: none')
+      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('is-leave')
       expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false, { source: 'trigger' }])
+
+      await vi.advanceTimersByTimeAsync(121)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('display: none')
     } finally {
       vi.useRealTimers()
     }
@@ -304,6 +308,10 @@ describe('Dropdown', () => {
       expect(wrapper.find('.aheart-dropdown__overlay').attributes('style') ?? '').not.toContain('display: none')
 
       await vi.advanceTimersByTimeAsync(1)
+      await nextTick()
+      expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('is-leave')
+
+      await vi.advanceTimersByTimeAsync(120)
       await nextTick()
       expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('display: none')
     } finally {
@@ -457,7 +465,7 @@ describe('Dropdown', () => {
     await wrapper.find('[data-menu-key="edit"]').trigger('click')
 
     expect(wrapper.emitted('click')?.[0]?.[0]).toMatchObject({ key: 'edit' })
-    expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('display: none')
+    expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('is-leave')
   })
 
   it('applies root semantic and overlay class and style hooks', () => {
@@ -596,10 +604,16 @@ describe('Dropdown', () => {
     await preserved.find('.aheart-dropdown__trigger').trigger('click')
     expect(preserved.find('.aheart-dropdown__overlay').exists()).toBe(true)
 
-    await preserved.find('.aheart-dropdown__trigger').trigger('click')
-    const preservedOverlay = preserved.find('.aheart-dropdown__overlay')
-    expect(preservedOverlay.exists()).toBe(true)
-    expect(preservedOverlay.attributes('style')).toContain('display: none')
+    vi.useFakeTimers()
+    try {
+      await preserved.find('.aheart-dropdown__trigger').trigger('click')
+      const preservedOverlay = preserved.find('.aheart-dropdown__overlay')
+      expect(preservedOverlay.exists()).toBe(true)
+      expect(preservedOverlay.classes()).toContain('is-leave')
+
+    } finally {
+      vi.useRealTimers()
+    }
 
     const destroyOnHidden = mountDropdown({
       props: { menu, trigger: ['click'], destroyOnHidden: true },
@@ -609,8 +623,16 @@ describe('Dropdown', () => {
     await destroyOnHidden.find('.aheart-dropdown__trigger').trigger('click')
     expect(destroyOnHidden.find('.aheart-dropdown__overlay').exists()).toBe(true)
 
-    await destroyOnHidden.find('.aheart-dropdown__trigger').trigger('click')
-    expect(destroyOnHidden.find('.aheart-dropdown__overlay').exists()).toBe(false)
+    vi.useFakeTimers()
+    try {
+      await destroyOnHidden.find('.aheart-dropdown__trigger').trigger('click')
+      expect(destroyOnHidden.find('.aheart-dropdown__overlay').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(121)
+      expect(destroyOnHidden.find('.aheart-dropdown__overlay').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
 
     const destroyPopupOnHide = mountDropdown({
       props: { menu, trigger: ['click'], destroyPopupOnHide: true },
@@ -620,8 +642,16 @@ describe('Dropdown', () => {
     await destroyPopupOnHide.find('.aheart-dropdown__trigger').trigger('click')
     expect(destroyPopupOnHide.find('.aheart-dropdown__overlay').exists()).toBe(true)
 
-    await destroyPopupOnHide.find('.aheart-dropdown__trigger').trigger('click')
-    expect(destroyPopupOnHide.find('.aheart-dropdown__overlay').exists()).toBe(false)
+    vi.useFakeTimers()
+    try {
+      await destroyPopupOnHide.find('.aheart-dropdown__trigger').trigger('click')
+      expect(destroyPopupOnHide.find('.aheart-dropdown__overlay').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(121)
+      expect(destroyPopupOnHide.find('.aheart-dropdown__overlay').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('menu click closes by default without openChange close event', async () => {
@@ -633,7 +663,7 @@ describe('Dropdown', () => {
     await wrapper.find('[data-menu-key="edit"]').trigger('click')
 
     expect(wrapper.emitted('click')?.[0]?.[0]).toMatchObject({ key: 'edit' })
-    expect(wrapper.find('.aheart-dropdown__overlay').attributes('style')).toContain('display: none')
+    expect(wrapper.find('.aheart-dropdown__overlay').classes()).toContain('is-leave')
     expect(wrapper.emitted('update:open')).toEqual([[false]])
     expect(wrapper.emitted('openChange')).toBeUndefined()
   })

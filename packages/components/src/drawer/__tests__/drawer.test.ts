@@ -495,10 +495,18 @@ describe('Drawer', () => {
       props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
     })
 
-    await destroyable.setProps({ open: false })
+    vi.useFakeTimers()
+    try {
+      await destroyable.setProps({ open: false })
 
-    expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
-    expect(destroyable.find('.aheart-drawer').exists()).toBe(false)
+      expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
+      expect(destroyable.find('.aheart-drawer').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(241)
+      expect(destroyable.find('.aheart-drawer').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('treats destroyInactivePanel as a destroyOnHidden alias', async () => {
@@ -511,10 +519,18 @@ describe('Drawer', () => {
 
     expect(wrapper.find('.legacy-destroy-control').exists()).toBe(true)
 
-    await wrapper.setProps({ open: false })
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
 
-    expect(wrapper.find('.aheart-drawer').exists()).toBe(false)
-    expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
+      expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
+      expect(wrapper.emitted('afterOpenChange')?.[0]).toEqual([false])
+
+      await vi.advanceTimersByTimeAsync(241)
+      expect(wrapper.find('.aheart-drawer').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('keeps forceRender ahead of destroyInactivePanel', async () => {
@@ -536,10 +552,44 @@ describe('Drawer', () => {
     expect(wrapper.find('.forced-legacy-control').exists()).toBe(true)
   })
 
+  it('does not restore trigger focus when reopening during a leave transition', async () => {
+    const trigger = document.createElement('button')
+    document.body.append(trigger)
+    trigger.focus()
+
+    const wrapper = mountDrawer({
+      attachTo: document.body,
+      props: { open: false, title: 'Reopened focus' }
+    })
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: true })
+      await vi.advanceTimersByTimeAsync(1)
+      const close = wrapper.find('.aheart-drawer__close').element as HTMLButtonElement
+      close.focus()
+      expect(document.activeElement).toBe(close)
+
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(80)
+      await wrapper.setProps({ open: true })
+      await vi.advanceTimersByTimeAsync(1)
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(241)
+      await nextTick()
+
+      expect(document.activeElement).toBe(trigger)
+    } finally {
+      vi.useRealTimers()
+    }
+
+    wrapper.unmount()
+    trigger.remove()
+  })
+
   it('restores focus to the trigger after close by default', async () => {
     const trigger = document.createElement('button')
-    const outside = document.createElement('button')
-    document.body.append(trigger, outside)
+    document.body.append(trigger)
     trigger.focus()
 
     const wrapper = mountDrawer({
@@ -551,11 +601,23 @@ describe('Drawer', () => {
     })
 
     await wrapper.setProps({ open: true })
+    const outside = document.createElement('button')
+    document.body.append(outside)
     outside.focus()
-    await wrapper.setProps({ open: false })
-    await nextTick()
 
-    expect(document.activeElement).toBe(trigger)
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      await nextTick()
+
+      expect(document.activeElement).toBe(outside)
+
+      await vi.advanceTimersByTimeAsync(241)
+      await nextTick()
+      expect(document.activeElement).toBe(trigger)
+    } finally {
+      vi.useRealTimers()
+    }
 
     wrapper.unmount()
     trigger.remove()
@@ -581,10 +643,16 @@ describe('Drawer', () => {
 
     await wrapper.setProps({ open: true })
     outside.focus()
-    await wrapper.setProps({ open: false })
-    await nextTick()
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(241)
+      await nextTick()
 
-    expect(document.activeElement).toBe(outside)
+      expect(document.activeElement).toBe(outside)
+    } finally {
+      vi.useRealTimers()
+    }
 
     wrapper.unmount()
     trigger.remove()

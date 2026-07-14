@@ -381,6 +381,10 @@ describe('Popover', () => {
       await vi.advanceTimersByTimeAsync(1)
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('openChange')?.at(-1)).toEqual([false])
+      expect(wrapper.find('.aheart-popover__popup').classes()).toContain('is-leave')
+
+      await vi.advanceTimersByTimeAsync(120)
+      await wrapper.vm.$nextTick()
       expect(wrapper.find('.aheart-popover__popup').attributes('style')).toContain('display: none')
     } finally {
       vi.useRealTimers()
@@ -394,10 +398,18 @@ describe('Popover', () => {
     })
 
     await preserved.find('.aheart-popover__trigger').trigger('click')
-    await preserved.find('.aheart-popover__trigger').trigger('click')
+    vi.useFakeTimers()
+    try {
+      await preserved.find('.aheart-popover__trigger').trigger('click')
 
-    expect(preserved.find('.aheart-popover__popup').exists()).toBe(true)
-    expect(preserved.find('.aheart-popover__popup').isVisible()).toBe(false)
+      expect(preserved.find('.aheart-popover__popup').exists()).toBe(true)
+      expect(preserved.find('.aheart-popover__popup').classes()).toContain('is-leave')
+
+      await vi.advanceTimersByTimeAsync(120)
+      expect(preserved.find('.aheart-popover__popup').isVisible()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
 
     const destroyed = mountPopover({
       props: { content: 'Destroyed', trigger: 'click', destroyOnHidden: true },
@@ -405,9 +417,17 @@ describe('Popover', () => {
     })
 
     await destroyed.find('.aheart-popover__trigger').trigger('click')
-    await destroyed.find('.aheart-popover__trigger').trigger('click')
+    vi.useFakeTimers()
+    try {
+      await destroyed.find('.aheart-popover__trigger').trigger('click')
 
-    expect(destroyed.find('.aheart-popover__popup').exists()).toBe(false)
+      expect(destroyed.find('.aheart-popover__popup').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(121)
+      expect(destroyed.find('.aheart-popover__popup').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('supports destroyTooltipOnHide as a hidden destroy alias', async () => {
@@ -419,9 +439,17 @@ describe('Popover', () => {
     await wrapper.find('.aheart-popover__trigger').trigger('click')
     expect(wrapper.find('.aheart-popover__popup').exists()).toBe(true)
 
-    await wrapper.find('.aheart-popover__trigger').trigger('click')
-    expect(wrapper.find('.aheart-popover__popup').exists()).toBe(false)
-    expect(wrapper.attributes('destroytooltiponhide')).toBeUndefined()
+    vi.useFakeTimers()
+    try {
+      await wrapper.find('.aheart-popover__trigger').trigger('click')
+      expect(wrapper.find('.aheart-popover__popup').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(121)
+      expect(wrapper.find('.aheart-popover__popup').exists()).toBe(false)
+      expect(wrapper.attributes('destroytooltiponhide')).toBeUndefined()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('teleports popup to document body by default', async () => {

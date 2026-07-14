@@ -1,8 +1,10 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, unref, vShow, nextTick } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, unref, createCommentVNode, createVNode, vShow, nextTick } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
 import "../utils/floating.css.js";
+import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { popoverProps, popoverEmits } from "./types.js";
 import "./style.css.js";
+const _hoisted_1 = ["aria-hidden"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "APopover"
@@ -28,7 +30,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const innerOpen = ref(props.defaultOpen);
-    const hasRenderedPopup = ref(Boolean(props.defaultOpen || props.open));
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const popupRef = ref(null);
@@ -43,7 +44,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasPopupContent = computed(() => hasTitle.value || hasContent.value);
     const visible = computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
-    const shouldRenderPopup = computed(() => hasPopupContent.value && (visible.value || !shouldDestroyOnHidden.value && hasRenderedPopup.value));
+    const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const shouldRenderPopup = computed(() => hasPopupContent.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = computed(() => {
       if (props.getPopupContainer && triggerRef.value) {
@@ -76,6 +78,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const triggerStyle = computed(() => resolvedStyles.value.trigger);
     const popupClass = computed(() => [
       `aheart-floating--${effectivePlacement.value}`,
+      `is-${motion.phase.value}`,
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
@@ -235,7 +238,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       visible,
       (open) => {
         if (open) {
-          hasRenderedPopup.value = true;
           schedulePlacementUpdate();
           return;
         }
@@ -368,6 +370,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: normalizeClass(["aheart-popover__popup", popupClass.value]),
             style: normalizeStyle(popupStyle.value),
             role: "dialog",
+            "aria-hidden": unref(motion).phase.value === "hidden" ? "true" : void 0,
             onMouseenter: handleMouseEnter,
             onMouseleave: handleMouseLeave
           }, [
@@ -400,8 +403,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 ])
               ], 6)) : createCommentVNode("", true)
             ], 6)
-          ], 38)), [
-            [vShow, visible.value]
+          ], 46, _hoisted_1)), [
+            [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
       ], 38);

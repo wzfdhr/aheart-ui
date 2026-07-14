@@ -2,10 +2,12 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const index = require("../menu/index.js");
+const useMotionPresence = require("../utils/use-motion-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-expanded", "aria-disabled"];
+const _hoisted_2 = ["aria-hidden"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ADropdown"
@@ -28,7 +30,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     });
     const innerOpen = vue.ref(props.defaultOpen);
-    const hasRenderedOverlay = vue.ref(Boolean(props.defaultOpen || props.open));
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const overlayRef = vue.ref(null);
@@ -45,9 +46,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return Boolean((_b = (_a = props.menu) == null ? void 0 : _a.items) == null ? void 0 : _b.length);
     });
     const hasOverlayContent = vue.computed(() => hasMenu.value || Boolean(slots.popup || props.popupRender || props.dropdownRender));
-    const shouldRenderOverlay = vue.computed(
-      () => hasOverlayContent.value && (mergedOpen.value || !shouldDestroyOnHidden.value && hasRenderedOverlay.value)
-    );
+    const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const shouldRenderOverlay = vue.computed(() => hasOverlayContent.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = vue.computed(() => {
       if (props.getPopupContainer && triggerRef.value) {
@@ -81,6 +81,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const triggerStyle = vue.computed(() => resolvedStyles.value.trigger);
     const overlayClass = vue.computed(() => [
       `aheart-dropdown__overlay--${effectivePlacement.value}`,
+      `is-${motion.phase.value}`,
       props.overlayClassName,
       resolvedClassNames.value.popup
     ]);
@@ -251,7 +252,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       mergedOpen,
       (open) => {
         if (open) {
-          hasRenderedOverlay.value = true;
           schedulePlacementUpdate();
           return;
         }
@@ -387,6 +387,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-dropdown__overlay", overlayClass.value]),
             style: vue.normalizeStyle(overlayStyle.value),
             role: "presentation",
+            "aria-hidden": vue.unref(motion).phase.value === "hidden" ? "true" : void 0,
             onMouseenter: handleMouseEnter,
             onMouseleave: handleMouseLeave
           }, [
@@ -399,8 +400,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.renderSlot(_ctx.$slots, "popup", {}, () => [
               vue.createVNode(vue.unref(ARenderNode), { node: popupContent.value }, null, 8, ["node"])
             ])
-          ], 38)), [
-            [vue.vShow, mergedOpen.value]
+          ], 46, _hoisted_2)), [
+            [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
       ], 38);

@@ -288,10 +288,18 @@ describe('Modal', () => {
       props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
     })
 
-    await destroyable.setProps({ open: false })
+    vi.useFakeTimers()
+    try {
+      await destroyable.setProps({ open: false })
 
-    expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
-    expect(destroyable.find('.aheart-modal').exists()).toBe(false)
+      expect(destroyable.emitted('afterOpenChange')?.[0]).toEqual([false])
+      expect(destroyable.find('.aheart-modal').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(181)
+      expect(destroyable.find('.aheart-modal').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('emits afterClose when open changes to false', async () => {
@@ -321,16 +329,78 @@ describe('Modal', () => {
       props: { open: true, destroyOnHidden: true, title: 'Destroyable' }
     })
 
-    await wrapper.setProps({ open: false })
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
 
-    expect(wrapper.find('.aheart-modal').exists()).toBe(false)
-    expect(wrapper.emitted('afterClose')).toHaveLength(1)
+      expect(wrapper.find('.aheart-modal').exists()).toBe(true)
+      expect(wrapper.emitted('afterClose')).toHaveLength(1)
+
+      await vi.advanceTimersByTimeAsync(181)
+      expect(wrapper.find('.aheart-modal').exists()).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('cancels a pending leave when the controlled open state becomes true again', async () => {
+    const wrapper = mountModal({
+      props: { open: true, destroyOnHidden: true, title: 'Reopened modal' }
+    })
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      expect(wrapper.find('.aheart-modal').exists()).toBe(true)
+
+      await wrapper.setProps({ open: true })
+      await vi.advanceTimersByTimeAsync(181)
+
+      expect(wrapper.find('.aheart-modal').exists()).toBe(true)
+      expect(wrapper.find('.aheart-modal').isVisible()).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('does not restore trigger focus when reopening during a leave transition', async () => {
+    const trigger = document.createElement('button')
+    document.body.append(trigger)
+    trigger.focus()
+
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: false, title: 'Reopened focus' }
+    })
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: true })
+      await vi.advanceTimersByTimeAsync(1)
+      const close = wrapper.find('.aheart-modal__close').element as HTMLButtonElement
+      close.focus()
+      expect(document.activeElement).toBe(close)
+
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(80)
+      await wrapper.setProps({ open: true })
+      await vi.advanceTimersByTimeAsync(1)
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
+
+      expect(document.activeElement).toBe(trigger)
+    } finally {
+      vi.useRealTimers()
+    }
+
+    wrapper.unmount()
+    trigger.remove()
   })
 
   it('restores focus to the trigger after close by default', async () => {
     const trigger = document.createElement('button')
-    const outside = document.createElement('button')
-    document.body.append(trigger, outside)
+    document.body.append(trigger)
     trigger.focus()
 
     const wrapper = mountModal({
@@ -342,11 +412,23 @@ describe('Modal', () => {
     })
 
     await wrapper.setProps({ open: true })
+    const outside = document.createElement('button')
+    document.body.append(outside)
     outside.focus()
-    await wrapper.setProps({ open: false })
-    await nextTick()
 
-    expect(document.activeElement).toBe(trigger)
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      await nextTick()
+
+      expect(document.activeElement).toBe(outside)
+
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
+      expect(document.activeElement).toBe(trigger)
+    } finally {
+      vi.useRealTimers()
+    }
 
     wrapper.unmount()
     trigger.remove()
@@ -373,10 +455,16 @@ describe('Modal', () => {
 
     await wrapper.setProps({ open: true })
     outside.focus()
-    await wrapper.setProps({ open: false })
-    await nextTick()
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
 
-    expect(document.activeElement).toBe(trigger)
+      expect(document.activeElement).toBe(trigger)
+    } finally {
+      vi.useRealTimers()
+    }
 
     wrapper.unmount()
     trigger.remove()
@@ -402,10 +490,16 @@ describe('Modal', () => {
 
     await wrapper.setProps({ open: true })
     outside.focus()
-    await wrapper.setProps({ open: false })
-    await nextTick()
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
 
-    expect(document.activeElement).toBe(outside)
+      expect(document.activeElement).toBe(outside)
+    } finally {
+      vi.useRealTimers()
+    }
 
     wrapper.unmount()
     trigger.remove()

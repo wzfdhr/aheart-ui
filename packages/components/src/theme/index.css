@@ -27,5 +27,18 @@
   --aheart-spacing-md: 16px;
   --aheart-spacing-lg: 24px;
   --aheart-motion-duration: 0.2s;
+  --aheart-motion-duration-fast: 120ms;
+  --aheart-motion-duration-base: 180ms;
+  --aheart-motion-duration-slow: 240ms;
   --aheart-motion-ease: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --aheart-motion-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --aheart-motion-duration: 0ms;
+    --aheart-motion-duration-fast: 0ms;
+    --aheart-motion-duration-base: 0ms;
+    --aheart-motion-duration-slow: 0ms;
+  }
 }

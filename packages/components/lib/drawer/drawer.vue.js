@@ -3,11 +3,13 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const index = require("../skeleton/index.js");
 const usePointerDrag = require("../utils/use-pointer-drag.js");
+const useMotionPresence = require("../utils/use-motion-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["aria-label"];
-const _hoisted_2 = ["disabled"];
+const _hoisted_1 = ["aria-hidden"];
+const _hoisted_2 = ["aria-label"];
 const _hoisted_3 = ["disabled"];
+const _hoisted_4 = ["disabled"];
 const DRAWER_PUSH_CONTEXT = Symbol("ADrawerPushContext");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
@@ -58,10 +60,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       '[contenteditable="true"]',
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
-    const hasRendered = vue.ref(props.open || props.forceRender);
     const dialogLabel = vue.computed(() => typeof props.title === "string" || typeof props.title === "number" ? String(props.title) : void 0);
     const triggerElement = vue.ref(null);
     const panelRef = vue.ref(null);
+    const leaveFocusElement = vue.ref(null);
     const resizedSize = vue.ref();
     const resizeStart = vue.ref(null);
     const parentPushContext = vue.inject(DRAWER_PUSH_CONTEXT, null);
@@ -132,7 +134,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     );
     const isResizable = vue.computed(() => props.resizable === true || resizableConfig.value !== void 0);
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose || props.destroyInactivePanel);
-    const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
+    const motion = useMotionPresence.useMotionPresence(() => props.open, {
+      forceRender: () => props.forceRender,
+      destroyOnHidden: () => shouldDestroy.value,
+      duration: 240
+    });
+    const shouldRender = motion.isMounted;
     const isRenderableNode = (value) => value !== void 0 && value !== null && value !== false && value !== true && value !== "";
     const isMaskConfig = (value) => typeof value === "object" && value !== null;
     const maskConfig = vue.computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
@@ -252,7 +259,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasFooter = vue.computed(
       () => !shouldHideFooter.value && (Boolean(slots.footer) || props.footer === true || shouldRenderFooterProp.value)
     );
-    const rootClass = vue.computed(() => ["aheart-drawer", props.rootClassName, semanticClass("root")]);
+    const rootClass = vue.computed(() => ["aheart-drawer", `is-${motion.phase.value}`, props.rootClassName, semanticClass("root")]);
     const maskClass = vue.computed(() => [
       "aheart-drawer__mask",
       { "is-blur": isMaskBlurred.value },
@@ -283,25 +290,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => props.open,
       (open, previousOpen) => {
+        var _a;
         if (open && !previousOpen) {
-          captureTriggerElement();
+          leaveFocusElement.value = null;
+          if (motion.phase.value === "hidden")
+            captureTriggerElement();
         }
-        if (open) {
-          hasRendered.value = true;
-        } else if (shouldDestroy.value && !props.forceRender) {
-          hasRendered.value = false;
+        if (!open) {
+          const activeElement = document.activeElement;
+          leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = panelRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
+          void vue.nextTick(() => {
+            if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+              leaveFocusElement.value.focus();
+            }
+          });
         }
         emit("afterOpenChange", open);
-        if (!open) {
-          void vue.nextTick(() => restoreTriggerFocus());
-        }
-      }
+      },
+      { flush: "sync" }
     );
     vue.watch(
-      () => props.forceRender,
-      (forceRender) => {
-        if (forceRender) {
-          hasRendered.value = true;
+      () => motion.phase.value,
+      (phase) => {
+        if (phase === "hidden" && !props.open) {
+          void vue.nextTick(() => restoreTriggerFocus());
+          leaveFocusElement.value = null;
         }
       }
     );
@@ -451,11 +464,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         to: teleportTo.value,
         disabled: !shouldTeleport.value
       }, [
-        shouldRender.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
+        vue.unref(shouldRender) ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
           key: 0,
           class: vue.normalizeClass(rootClass.value),
           style: vue.normalizeStyle(rootStyle.value),
           role: "presentation",
+          "aria-hidden": vue.unref(motion).phase.value === "hidden" ? "true" : void 0,
           tabindex: "-1",
           onKeydown: handleKeydown
         }, [
@@ -492,7 +506,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     vue.createVNode(vue.unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_2)) : vue.createCommentVNode("", true),
+                  ], 14, _hoisted_3)) : vue.createCommentVNode("", true),
                   hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
                     key: 1,
                     class: vue.normalizeClass(titleClass.value),
@@ -521,7 +535,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     vue.createVNode(vue.unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_3)) : vue.createCommentVNode("", true)
+                  ], 14, _hoisted_4)) : vue.createCommentVNode("", true)
                 ], 6)) : vue.createCommentVNode("", true),
                 vue.createElementVNode("div", {
                   class: vue.normalizeClass(bodyClass.value),
@@ -553,12 +567,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   "aria-label": "Resize drawer",
                   onPointerdown: handleResizeStart
                 }, null, 38)) : vue.createCommentVNode("", true)
-              ], 14, _hoisted_1)
+              ], 14, _hoisted_2)
             ]),
             _: 3
           }, 8, ["renderer"])
-        ], 38)), [
-          [vue.vShow, _ctx.open]
+        ], 46, _hoisted_1)), [
+          [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
         ]) : vue.createCommentVNode("", true)
       ], 8, ["to", "disabled"]);
     };

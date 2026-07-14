@@ -3,10 +3,12 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const index$1 = require("../button/index.js");
 const index = require("../skeleton/index.js");
+const useMotionPresence = require("../utils/use-motion-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["disabled", "aria-label"];
+const _hoisted_1 = ["aria-hidden"];
+const _hoisted_2 = ["disabled", "aria-label"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AModal"
@@ -34,9 +36,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
     const modalWidthBreakpoints = ["xs", "sm", "md", "lg", "xl", "xxl"];
-    const hasRendered = vue.ref(props.open || props.forceRender);
     const triggerElement = vue.ref(null);
     const dialogRef = vue.ref(null);
+    const leaveFocusElement = vue.ref(null);
     const AModalRenderNode = vue.defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -100,7 +102,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return style;
     });
     const shouldDestroy = vue.computed(() => props.destroyOnHidden || props.destroyOnClose);
-    const shouldRender = vue.computed(() => props.open || props.forceRender || hasRendered.value);
+    const motion = useMotionPresence.useMotionPresence(() => props.open, {
+      forceRender: () => props.forceRender,
+      destroyOnHidden: () => shouldDestroy.value,
+      duration: 180
+    });
+    const shouldRender = motion.isMounted;
     const dialogStyle = vue.computed(() => ({
       ...props.style,
       ...responsiveWidthVars.value,
@@ -117,7 +124,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasFooter = vue.computed(
       () => !props.loading && (Boolean(slots.footer) || props.footer !== false && props.footer !== null)
     );
-    const rootClass = vue.computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
+    const rootClass = vue.computed(() => ["aheart-modal", `is-${motion.phase.value}`, props.rootClassName, semanticClass("root")]);
     const maskConfig = vue.computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
     const isMaskVisible = vue.computed(() => {
       var _a;
@@ -245,28 +252,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a, _b;
+        var _a, _b, _c;
         if (open && !previousOpen) {
-          captureTriggerElement();
-        }
-        if (open) {
-          hasRendered.value = true;
-        } else if (shouldDestroy.value && !props.forceRender) {
-          hasRendered.value = false;
+          leaveFocusElement.value = null;
+          if (motion.phase.value === "hidden")
+            captureTriggerElement();
         }
         emit("afterOpenChange", open);
         if (!open) {
+          const activeElement = document.activeElement;
+          leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
           emit("afterClose");
-          (_b = (_a = closableConfig.value) == null ? void 0 : _a.afterClose) == null ? void 0 : _b.call(_a);
-          void vue.nextTick(() => restoreTriggerFocus());
+          (_c = (_b = closableConfig.value) == null ? void 0 : _b.afterClose) == null ? void 0 : _c.call(_b);
+          void vue.nextTick(() => {
+            if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+              leaveFocusElement.value.focus();
+            }
+          });
         }
-      }
+      },
+      { flush: "sync" }
     );
     vue.watch(
-      () => props.forceRender,
-      (forceRender) => {
-        if (forceRender) {
-          hasRendered.value = true;
+      () => motion.phase.value,
+      (phase) => {
+        if (phase === "hidden" && !props.open) {
+          void vue.nextTick(() => restoreTriggerFocus());
+          leaveFocusElement.value = null;
         }
       }
     );
@@ -367,11 +379,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         to: teleportTo.value,
         disabled: !shouldTeleport.value
       }, [
-        shouldRender.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
+        vue.unref(shouldRender) ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
           key: 0,
           class: vue.normalizeClass(rootClass.value),
           style: vue.normalizeStyle(rootStyle.value),
           role: "presentation",
+          "aria-hidden": vue.unref(motion).phase.value === "hidden" ? "true" : void 0,
           tabindex: "-1",
           onKeydown: handleKeydown
         }, [
@@ -420,7 +433,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       onClick: handleCloseButtonClick
                     }, [
                       vue.createVNode(vue.unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                    ], 14, _hoisted_1)) : vue.createCommentVNode("", true)
+                    ], 14, _hoisted_2)) : vue.createCommentVNode("", true)
                   ], 6)) : vue.createCommentVNode("", true),
                   vue.createElementVNode("div", {
                     class: vue.normalizeClass(bodyClass.value),
@@ -446,8 +459,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               _: 3
             }, 8, ["renderer"])
           ], 6)
-        ], 38)), [
-          [vue.vShow, _ctx.open]
+        ], 46, _hoisted_1)), [
+          [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
         ]) : vue.createCommentVNode("", true)
       ], 8, ["to", "disabled"]);
     };

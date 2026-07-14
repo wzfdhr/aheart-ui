@@ -20,6 +20,18 @@
   border: 1px solid var(--aheart-color-border);
   border-radius: var(--aheart-radius);
   box-shadow: var(--aheart-shadow);
+  opacity: 0;
+  scale: 0.98;
+  transition:
+    opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    scale var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out),
+    translate var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out);
+}
+
+.aheart-dropdown__overlay.is-entered {
+  opacity: 1;
+  scale: 1;
+  translate: 0 0;
 }
 
 .aheart-dropdown__menu {
@@ -29,64 +41,76 @@
 .aheart-dropdown__overlay--bottomLeft {
   top: calc(100% + var(--aheart-spacing-xs));
   left: 0;
+  translate: 0 -4px;
 }
 
 .aheart-dropdown__overlay--bottom {
   top: calc(100% + var(--aheart-spacing-xs));
   left: 50%;
   transform: translateX(-50%);
+  translate: 0 -4px;
 }
 
 .aheart-dropdown__overlay--bottomRight {
   top: calc(100% + var(--aheart-spacing-xs));
   right: 0;
+  translate: 0 -4px;
 }
 
 .aheart-dropdown__overlay--topLeft {
   bottom: calc(100% + var(--aheart-spacing-xs));
   left: 0;
+  translate: 0 4px;
 }
 
 .aheart-dropdown__overlay--top {
   bottom: calc(100% + var(--aheart-spacing-xs));
   left: 50%;
   transform: translateX(-50%);
+  translate: 0 4px;
 }
 
 .aheart-dropdown__overlay--topRight {
   right: 0;
   bottom: calc(100% + var(--aheart-spacing-xs));
+  translate: 0 4px;
 }
 
 .aheart-dropdown__overlay--left {
   top: 50%;
   right: calc(100% + var(--aheart-spacing-xs));
   transform: translateY(-50%);
+  translate: 4px 0;
 }
 
 .aheart-dropdown__overlay--leftTop {
   top: 0;
   right: calc(100% + var(--aheart-spacing-xs));
+  translate: 4px 0;
 }
 
 .aheart-dropdown__overlay--leftBottom {
   right: calc(100% + var(--aheart-spacing-xs));
   bottom: 0;
+  translate: 4px 0;
 }
 
 .aheart-dropdown__overlay--right {
   top: 50%;
   left: calc(100% + var(--aheart-spacing-xs));
   transform: translateY(-50%);
+  translate: -4px 0;
 }
 
 .aheart-dropdown__overlay--rightTop {
   top: 0;
   left: calc(100% + var(--aheart-spacing-xs));
+  translate: -4px 0;
 }
 
 .aheart-dropdown__overlay--rightBottom {
   bottom: 0;
+  translate: -4px 0;
   left: calc(100% + var(--aheart-spacing-xs));
 }
 

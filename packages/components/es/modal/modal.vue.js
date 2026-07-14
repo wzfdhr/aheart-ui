@@ -1,10 +1,12 @@
-import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, unref, withCtx, renderSlot, vShow, h } from "vue";
+import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, nextTick, openBlock, createBlock, Teleport, unref, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, createVNode, withCtx, renderSlot, vShow, h } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
+import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { modalProps, modalEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
-const _hoisted_1 = ["disabled", "aria-label"];
+const _hoisted_1 = ["aria-hidden"];
+const _hoisted_2 = ["disabled", "aria-label"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AModal"
@@ -32,9 +34,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
     const modalWidthBreakpoints = ["xs", "sm", "md", "lg", "xl", "xxl"];
-    const hasRendered = ref(props.open || props.forceRender);
     const triggerElement = ref(null);
     const dialogRef = ref(null);
+    const leaveFocusElement = ref(null);
     const AModalRenderNode = defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -98,7 +100,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return style;
     });
     const shouldDestroy = computed(() => props.destroyOnHidden || props.destroyOnClose);
-    const shouldRender = computed(() => props.open || props.forceRender || hasRendered.value);
+    const motion = useMotionPresence(() => props.open, {
+      forceRender: () => props.forceRender,
+      destroyOnHidden: () => shouldDestroy.value,
+      duration: 180
+    });
+    const shouldRender = motion.isMounted;
     const dialogStyle = computed(() => ({
       ...props.style,
       ...responsiveWidthVars.value,
@@ -115,7 +122,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const hasFooter = computed(
       () => !props.loading && (Boolean(slots.footer) || props.footer !== false && props.footer !== null)
     );
-    const rootClass = computed(() => ["aheart-modal", props.rootClassName, semanticClass("root")]);
+    const rootClass = computed(() => ["aheart-modal", `is-${motion.phase.value}`, props.rootClassName, semanticClass("root")]);
     const maskConfig = computed(() => isMaskConfig(props.mask) ? props.mask : void 0);
     const isMaskVisible = computed(() => {
       var _a;
@@ -243,28 +250,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a, _b;
+        var _a, _b, _c;
         if (open && !previousOpen) {
-          captureTriggerElement();
-        }
-        if (open) {
-          hasRendered.value = true;
-        } else if (shouldDestroy.value && !props.forceRender) {
-          hasRendered.value = false;
+          leaveFocusElement.value = null;
+          if (motion.phase.value === "hidden")
+            captureTriggerElement();
         }
         emit("afterOpenChange", open);
         if (!open) {
+          const activeElement = document.activeElement;
+          leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
           emit("afterClose");
-          (_b = (_a = closableConfig.value) == null ? void 0 : _a.afterClose) == null ? void 0 : _b.call(_a);
-          void nextTick(() => restoreTriggerFocus());
+          (_c = (_b = closableConfig.value) == null ? void 0 : _b.afterClose) == null ? void 0 : _c.call(_b);
+          void nextTick(() => {
+            if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+              leaveFocusElement.value.focus();
+            }
+          });
         }
-      }
+      },
+      { flush: "sync" }
     );
     watch(
-      () => props.forceRender,
-      (forceRender) => {
-        if (forceRender) {
-          hasRendered.value = true;
+      () => motion.phase.value,
+      (phase) => {
+        if (phase === "hidden" && !props.open) {
+          void nextTick(() => restoreTriggerFocus());
+          leaveFocusElement.value = null;
         }
       }
     );
@@ -365,11 +377,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         to: teleportTo.value,
         disabled: !shouldTeleport.value
       }, [
-        shouldRender.value ? withDirectives((openBlock(), createElementBlock("div", {
+        unref(shouldRender) ? withDirectives((openBlock(), createElementBlock("div", {
           key: 0,
           class: normalizeClass(rootClass.value),
           style: normalizeStyle(rootStyle.value),
           role: "presentation",
+          "aria-hidden": unref(motion).phase.value === "hidden" ? "true" : void 0,
           tabindex: "-1",
           onKeydown: handleKeydown
         }, [
@@ -418,7 +431,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       onClick: handleCloseButtonClick
                     }, [
                       createVNode(unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                    ], 14, _hoisted_1)) : createCommentVNode("", true)
+                    ], 14, _hoisted_2)) : createCommentVNode("", true)
                   ], 6)) : createCommentVNode("", true),
                   createElementVNode("div", {
                     class: normalizeClass(bodyClass.value),
@@ -444,8 +457,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               _: 3
             }, 8, ["renderer"])
           ], 6)
-        ], 38)), [
-          [vShow, _ctx.open]
+        ], 46, _hoisted_1)), [
+          [vShow, unref(motion).phase.value !== "hidden"]
         ]) : createCommentVNode("", true)
       ], 8, ["to", "disabled"]);
     };

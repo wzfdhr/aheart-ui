@@ -35,6 +35,17 @@ export interface ComponentCategory {
   components: ComponentMeta[]
 }
 
+export interface ComponentDomain extends ComponentCategory {
+  taskGroup: string
+}
+
+export interface ComponentDocumentContext {
+  component: ComponentMeta
+  domain: Pick<ComponentDomain, 'key' | 'name' | 'description' | 'taskGroup'>
+  packageName: 'aheart-ui' | '@aheart-ui/dnd' | '@aheart-ui/ai'
+  related: ComponentMeta[]
+}
+
 export const statusText: Record<Locale, Record<ComponentStatus, string>> = {
   zh: {
     Ready: '已完成',
@@ -687,3 +698,142 @@ export function getComponentCategories(locale: Locale): ComponentCategory[] {
 }
 
 export const componentCategories = getComponentCategories('en')
+
+interface ComponentDomainDefinition {
+  key: string
+  name: LocalizedText
+  description: LocalizedText
+  taskGroup: LocalizedText
+  componentKeys: string[]
+}
+
+const componentDomainDefinitions: ComponentDomainDefinition[] = [
+  {
+    key: 'foundations',
+    name: { zh: '设计基础', en: 'Design Foundations' },
+    description: { zh: '定义全局配置、视觉语言与内容表达。', en: 'Define global configuration, visual language, and content expression.' },
+    taskGroup: { zh: '全局规范', en: 'Global standards' },
+    componentKeys: ['config-provider', 'typography', 'icon']
+  },
+  {
+    key: 'building',
+    name: { zh: '通用构建', en: 'General Building' },
+    description: { zh: '组织操作、间距与页面骨架。', en: 'Compose actions, spacing, and page structure.' },
+    taskGroup: { zh: '布局与操作', en: 'Layout and actions' },
+    componentKeys: ['button', 'space', 'flex', 'grid', 'divider']
+  },
+  {
+    key: 'navigation',
+    name: { zh: '导航与流程', en: 'Navigation And Flow' },
+    description: { zh: '帮助用户在页面、视图与任务步骤中移动。', en: 'Move users across pages, views, and task steps.' },
+    taskGroup: { zh: '路径与进度', en: 'Paths and progress' },
+    componentKeys: ['menu', 'tabs', 'breadcrumb', 'steps', 'dropdown']
+  },
+  {
+    key: 'entry',
+    name: { zh: '表单与选择', en: 'Forms And Selection' },
+    description: { zh: '录入、选择、校验并提交业务数据。', en: 'Enter, select, validate, and submit business data.' },
+    taskGroup: { zh: '采集与选择', en: 'Collection and selection' },
+    componentKeys: [
+      'input', 'textarea', 'input-number', 'select', 'checkbox', 'radio', 'switch', 'date-picker', 'time-picker',
+      'cascader', 'tree-select', 'upload', 'form'
+    ]
+  },
+  {
+    key: 'data',
+    name: { zh: '数据与状态', en: 'Data And Status' },
+    description: { zh: '展示结构化信息、结果与系统状态。', en: 'Present structured information, outcomes, and system state.' },
+    taskGroup: { zh: '呈现与状态', en: 'Presentation and status' },
+    componentKeys: ['table', 'pagination', 'tree', 'descriptions', 'card', 'tag', 'badge', 'empty', 'spin', 'skeleton', 'alert']
+  },
+  {
+    key: 'feedback',
+    name: { zh: '浮层与反馈', en: 'Overlays And Feedback' },
+    description: { zh: '在不打断主任务的前提下提示、确认与补充内容。', en: 'Prompt, confirm, and reveal supporting content without losing task context.' },
+    taskGroup: { zh: '上下文反馈', en: 'Contextual feedback' },
+    componentKeys: ['message', 'modal', 'drawer', 'tooltip', 'popover', 'popconfirm']
+  },
+  {
+    key: 'advanced',
+    name: { zh: '高级交互与工作区', en: 'Advanced Interaction And Workspace' },
+    description: { zh: '构建可调整、多区域和可排序的复杂工作界面。', en: 'Build adjustable, multi-region, and sortable work interfaces.' },
+    taskGroup: { zh: '空间与编排', en: 'Space and orchestration' },
+    componentKeys: ['splitter', 'dnd']
+  },
+  {
+    key: 'ai',
+    name: { zh: '智能产品能力', en: 'Intelligent Product Capabilities' },
+    description: { zh: '组织模型无关的对话、受控表单与 Agent 工作流。', en: 'Compose model-agnostic conversations, controlled forms, and agent workflows.' },
+    taskGroup: { zh: '对话与协作', en: 'Conversation and collaboration' },
+    componentKeys: ['ai', 'ai-form', 'ai-agent-workbench']
+  }
+]
+
+const definitionsByKey = new Map(
+  categoryDefinitions.flatMap((category) => category.components.map((component) => [component.key, component]))
+)
+
+const packageNameFor = (key: string): ComponentDocumentContext['packageName'] => {
+  if (key === 'dnd') return '@aheart-ui/dnd'
+  if (key === 'ai' || key === 'ai-form' || key === 'ai-agent-workbench') return '@aheart-ui/ai'
+  return 'aheart-ui'
+}
+
+const toMeta = (component: ComponentDefinition, locale: Locale): ComponentMeta => ({
+  key: component.key,
+  name: component.name,
+  zhName: component.zhName,
+  description: component.description[locale],
+  status: component.status,
+  link: component.link?.[locale]
+})
+
+export function validateComponentDomains() {
+  const domainKeys = componentDomainDefinitions.flatMap((domain) => domain.componentKeys)
+  const duplicate = domainKeys.find((key, index) => domainKeys.indexOf(key) !== index)
+  const readyKeys = [...definitionsByKey.values()].filter((component) => component.status === 'Ready').map((component) => component.key)
+  const missing = readyKeys.filter((key) => !domainKeys.includes(key))
+  const unknown = domainKeys.filter((key) => !definitionsByKey.has(key))
+
+  if (duplicate || missing.length || unknown.length || domainKeys.length !== readyKeys.length) {
+    throw new Error(`Invalid component domain metadata: duplicate=${duplicate ?? 'none'}, missing=${missing.join(',') || 'none'}, unknown=${unknown.join(',') || 'none'}`)
+  }
+}
+
+validateComponentDomains()
+
+export function getComponentDomains(locale: Locale): ComponentDomain[] {
+  return componentDomainDefinitions.map((domain) => ({
+    key: domain.key,
+    name: domain.name[locale],
+    description: domain.description[locale],
+    taskGroup: domain.taskGroup[locale],
+    components: domain.componentKeys.map((key) => toMeta(definitionsByKey.get(key)!, locale))
+  }))
+}
+
+export function getComponentSidebar(locale: Locale) {
+  return getComponentDomains(locale).map((domain) => ({
+    text: `${domain.name} · ${domain.components.length}`,
+    collapsed: true,
+    items: domain.components.map((component) => ({
+      text: component.zhName ? `${component.name} ${component.zhName}` : component.name,
+      link: component.link
+    }))
+  }))
+}
+
+export function getComponentDocumentContext(path: string, locale: Locale): ComponentDocumentContext | undefined {
+  const key = path.replace(/^\/?components\//, '').replace(/\.(md|html)$/, '').replace(/\/$/, '')
+  const domain = getComponentDomains(locale).find((candidate) => candidate.components.some((component) => component.key === key))
+  const component = domain?.components.find((candidate) => candidate.key === key)
+
+  if (!domain || !component) return undefined
+
+  return {
+    component,
+    domain: { key: domain.key, name: domain.name, description: domain.description, taskGroup: domain.taskGroup },
+    packageName: packageNameFor(component.key),
+    related: domain.components.filter((candidate) => candidate.key !== component.key).slice(0, 4)
+  }
+}
