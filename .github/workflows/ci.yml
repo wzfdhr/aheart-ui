@@ -1,5 +1,12 @@
 name: CI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
@@ -40,5 +47,20 @@ jobs:
       - name: Build Components
         run: pnpm build
 
+      - name: Check Generated Output
+        run: pnpm check:generated
+
       - name: Build Docs
         run: pnpm docs:build
+
+      - name: Verify Release Tarballs
+        run: pnpm release:pack
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-End Tests
+        run: pnpm test:e2e
+
+      - name: Check Whitespace
+        run: git diff --check

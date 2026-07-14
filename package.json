@@ -9,12 +9,14 @@
     "build": "corepack pnpm --filter ./packages/components build && corepack pnpm --filter @aheart-ui/dnd build && corepack pnpm --filter @aheart-ui/ai build",
     "build:components": "corepack pnpm --filter ./packages/components build",
     "typecheck": "corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter @aheart-ui/dnd typecheck && corepack pnpm --filter @aheart-ui/ai typecheck",
-    "test": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test",
+    "test": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test && node --test scripts/*.test.mjs",
     "docs:dev": "corepack pnpm --dir docs dev",
     "docs:build": "corepack pnpm --dir docs build",
     "test:e2e": "playwright test",
-    "check:generated": "git diff --exit-code -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib",
-    "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm build && corepack pnpm --dir docs build && corepack pnpm check:generated && git diff --check"
+    "test:release-contract": "node --test scripts/*.test.mjs",
+    "release:pack": "node scripts/release-contract.mjs",
+    "check:generated": "node scripts/check-generated.mjs",
+    "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm build && corepack pnpm docs:build && corepack pnpm release:pack && corepack pnpm test:e2e && corepack pnpm check:generated && git diff --check"
   },
   "keywords": [
     "aheart-ui",

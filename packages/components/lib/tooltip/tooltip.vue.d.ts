@@ -6,7 +6,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         default: undefined;
     };
     readonly placement: {
-        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -52,15 +52,15 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly classNames: PropType<import("./types").TooltipClassNames>;
     readonly styles: PropType<import("./types").TooltipStyles>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
+    "update:open": (open: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly title: {
         type: PropType<TooltipTitle>;
         default: undefined;
     };
     readonly placement: {
-        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -106,19 +106,19 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly classNames: PropType<import("./types").TooltipClassNames>;
     readonly styles: PropType<import("./types").TooltipStyles>;
 }>> & Readonly<{
-    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
+    "onUpdate:open"?: ((open: boolean) => any) | undefined;
 }>, {
     readonly title: TooltipTitle;
     readonly open: boolean;
-    readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly arrow: import("./types").TooltipArrow;
+    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
-    readonly arrow: import("./types").TooltipArrow;
-    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
-    readonly defaultOpen: boolean;
     readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

@@ -93,9 +93,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly variant: import("./types").TextareaVariant;
     readonly disabled: boolean;
     readonly bordered: boolean;
-    readonly rows: number;
-    readonly readOnly: boolean;
     readonly allowClear: import("./types").TextareaAllowClear;
+    readonly readOnly: boolean;
+    readonly rows: number;
     readonly showCount: import("./types").TextareaShowCount;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     clearIcon?(_: {}): any;

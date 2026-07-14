@@ -353,9 +353,9 @@ export declare const TagGroup: import("../utils/install").SFCWithInstall<import(
     readonly multiple: boolean;
     readonly disabled: boolean;
     readonly value: import("./types").TagGroupValue;
+    readonly options: import("./types").TagRawOption[];
     readonly modelValue: import("./types").TagGroupValue;
     readonly defaultValue: import("./types").TagGroupValue;
-    readonly options: import("./types").TagRawOption[];
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export { CheckableTag as ACheckableTag, TagGroup as ATagGroup };
 export type { CheckableTagProps, TagClassNames, TagColor, TagGroupClassNames, TagGroupProps, TagGroupSemanticPart, TagGroupStyles, TagGroupValue, TagIcon, TagOption, TagProps, TagRawOption, TagSemanticPart, TagStyles, TagValue, TagVariant } from './types';

@@ -1,4 +1,4 @@
-import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js";
 import { watchEffect, toValue } from "vue";
 function useDroppable(element, options) {
   watchEffect((onCleanup) => {

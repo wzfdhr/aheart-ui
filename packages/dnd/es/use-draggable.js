@@ -1,4 +1,4 @@
-import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { draggable } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js";
 import { ref, watchEffect, toValue } from "vue";
 import { endDrag, startDrag } from "./drag-state.js";
 function useDraggable(element, options) {

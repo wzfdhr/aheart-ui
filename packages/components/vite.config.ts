@@ -68,6 +68,9 @@ function deterministicStyleBundle(): Plugin {
                     writeFileSync(target, css)
                 }
             }
+
+            writeFileSync(new URL('./es/package.json', import.meta.url), '{\n  "type": "module"\n}\n')
+            writeFileSync(new URL('./lib/package.json', import.meta.url), '{\n  "type": "commonjs"\n}\n')
         }
     }
 }

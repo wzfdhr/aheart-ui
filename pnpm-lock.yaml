@@ -75,9 +75,6 @@ importers:
 
   packages/components:
     dependencies:
-      '@aheart-ui/utils':
-        specifier: workspace:^
-        version: link:../utils
       '@floating-ui/dom':
         specifier: ^1.8.0
         version: 1.8.0
@@ -113,7 +110,7 @@ importers:
   packages/dnd:
     dependencies:
       '@atlaskit/pragmatic-drag-and-drop':
-        specifier: ^2.0.1
+        specifier: 2.0.1
         version: 2.0.1
     devDependencies:
       '@vitejs/plugin-vue':
@@ -140,8 +137,6 @@ importers:
       vue-tsc:
         specifier: ^2.0.29
         version: 2.2.12(typescript@5.3.3)
-
-  packages/utils: {}
 
 packages:
 

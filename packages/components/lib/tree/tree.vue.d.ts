@@ -29,9 +29,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     disabled: BooleanConstructor;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     select: (keys: TreeKey[], node: TreeNodeData) => void;
+    check: (keys: TreeKey[], node: TreeNodeData) => void;
     "update:selectedKeys": (keys: TreeKey[]) => void;
     expand: (keys: TreeKey[], node: TreeNodeData) => void;
-    check: (keys: TreeKey[], node: TreeNodeData) => void;
     "update:expandedKeys": (keys: TreeKey[]) => void;
     "update:checkedKeys": (keys: TreeKey[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
@@ -64,9 +64,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     disabled: BooleanConstructor;
 }>> & Readonly<{
     onSelect?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
+    onCheck?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
     "onUpdate:selectedKeys"?: ((keys: TreeKey[]) => any) | undefined;
     onExpand?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
-    onCheck?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
     "onUpdate:expandedKeys"?: ((keys: TreeKey[]) => any) | undefined;
     "onUpdate:checkedKeys"?: ((keys: TreeKey[]) => any) | undefined;
 }>, {

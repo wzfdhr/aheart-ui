@@ -9,6 +9,8 @@ yarn-error.log*
 
 tests/**/coverage/
 tests/e2e/reports
+test-results/
+playwright-report/
 selenium-debug.log
 
 # Editor directories and files

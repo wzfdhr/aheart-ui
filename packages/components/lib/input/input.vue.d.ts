@@ -124,12 +124,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly variant: import("./types").InputVariant;
     readonly disabled: boolean;
     readonly bordered: boolean;
+    readonly allowClear: import("./types").InputAllowClear;
+    readonly readOnly: boolean;
     readonly prefix: VNodeChild;
     readonly suffix: VNodeChild;
     readonly addonBefore: VNodeChild;
     readonly addonAfter: VNodeChild;
-    readonly readOnly: boolean;
-    readonly allowClear: import("./types").InputAllowClear;
     readonly showCount: import("./types").InputShowCount;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     addonBefore?(_: {}): any;

@@ -76,9 +76,9 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly round: boolean;
         readonly block: boolean;
         readonly disabled: boolean;
+        readonly loading: import("./types").ButtonLoading;
         readonly danger: boolean;
         readonly nativeType: "reset" | "submit" | "button";
-        readonly loading: import("./types").ButtonLoading;
         readonly ghost: boolean;
         readonly shape: "default" | "round" | "circle";
         readonly autoInsertSpace: boolean;
@@ -164,9 +164,9 @@ declare const Button: import("../utils/install").SFCWithInstall<{
         readonly round: boolean;
         readonly block: boolean;
         readonly disabled: boolean;
+        readonly loading: import("./types").ButtonLoading;
         readonly danger: boolean;
         readonly nativeType: "reset" | "submit" | "button";
-        readonly loading: import("./types").ButtonLoading;
         readonly ghost: boolean;
         readonly shape: "default" | "round" | "circle";
         readonly autoInsertSpace: boolean;
@@ -251,9 +251,9 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     readonly round: boolean;
     readonly block: boolean;
     readonly disabled: boolean;
+    readonly loading: import("./types").ButtonLoading;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";
-    readonly loading: import("./types").ButtonLoading;
     readonly ghost: boolean;
     readonly shape: "default" | "round" | "circle";
     readonly autoInsertSpace: boolean;

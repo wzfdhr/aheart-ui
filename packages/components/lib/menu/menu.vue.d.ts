@@ -52,8 +52,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (_info: MenuClickInfo) => void;
     select: (_info: import("./types").MenuSelectInfo) => void;
-    deselect: (_info: import("./types").MenuSelectInfo) => void;
     openChange: (keys: string[]) => void;
+    deselect: (_info: import("./types").MenuSelectInfo) => void;
     "update:selectedKeys": (keys: string[]) => void;
     "update:openKeys": (keys: string[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
@@ -109,8 +109,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
 }>> & Readonly<{
     onClick?: ((_info: MenuClickInfo) => any) | undefined;
     onSelect?: ((_info: import("./types").MenuSelectInfo) => any) | undefined;
-    onDeselect?: ((_info: import("./types").MenuSelectInfo) => any) | undefined;
     onOpenChange?: ((keys: string[]) => any) | undefined;
+    onDeselect?: ((_info: import("./types").MenuSelectInfo) => any) | undefined;
     "onUpdate:selectedKeys"?: ((keys: string[]) => any) | undefined;
     "onUpdate:openKeys"?: ((keys: string[]) => any) | undefined;
 }>, {

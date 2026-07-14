@@ -14,7 +14,7 @@
 - Keep `aheart-ui`, `@aheart-ui/dnd`, and `@aheart-ui/ai` at version `1.0.0`.
 - Keep English documentation disabled; only update Chinese release documentation.
 - Vue remains `>=3.4.0 <4` as a peer dependency.
-- Every package must expose ESM, CommonJS, declarations, CSS, and package metadata.
+- Every package must expose ESM, Node-compatible CommonJS, declarations, CSS, and package metadata.
 - Every implementation task follows red-green-refactor where executable behavior changes.
 - Design director and product manager must approve with `P1=0, P2=0` before merge.
 
@@ -53,7 +53,7 @@
 - Produces: three consistent packed manifests and DnD declarations under `es` and `lib`.
 
 - [ ] Run the release verifier and capture failures for missing metadata, missing DnD ESM types, and the AI workspace link.
-- [ ] Add repository, homepage, bugs, publishConfig, author, keywords, and consistent type exports.
+- [ ] Add repository, homepage, bugs, publishConfig, author, keywords, and consistent ESM, Node, CommonJS, and type exports.
 - [ ] Move DnD's first declaration output from ignored `dist` to `es`.
 - [ ] Remove the unused utils package and dependency, then run `pnpm install --lockfile-only` followed by `pnpm install --offline`.
 - [ ] Build all packages and run the release verifier until all three tarballs pass.
@@ -109,4 +109,3 @@
 - [ ] Run `corepack pnpm release:pack`, `corepack pnpm test:e2e`, `corepack pnpm check:generated`, and `git diff --check`.
 - [ ] Obtain design director and product manager reviews with no P1/P2 findings.
 - [ ] Commit, push `codex/release-readiness`, fast-forward merge to `master`, push `master`, and delete the merged branch.
-

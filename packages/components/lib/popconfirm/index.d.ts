@@ -13,7 +13,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             default: undefined;
         };
         readonly placement: {
-            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
             readonly validator: (value: string) => boolean;
         };
@@ -79,14 +79,14 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
     }>> & Readonly<{
         onCancel?: (() => any) | undefined;
-        "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
+        "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onConfirm?: (() => any) | undefined;
         onPopupClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         cancel: () => void;
-        "update:open": (open: boolean) => void;
         openChange: (open: boolean) => void;
+        "update:open": (open: boolean) => void;
         confirm: () => void;
         popupClick: (event: MouseEvent) => void;
     }, import("vue").PublicProps, {
@@ -95,16 +95,16 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly description: import("./types").PopconfirmContent;
         readonly open: boolean;
         readonly disabled: boolean;
-        readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly okText: string;
         readonly cancelText: string;
+        readonly arrow: import("./types").PopconfirmArrow;
+        readonly defaultOpen: boolean;
+        readonly autoAdjustOverflow: boolean;
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
-        readonly arrow: import("./types").PopconfirmArrow;
-        readonly autoAdjustOverflow: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
-        readonly defaultOpen: boolean;
         readonly destroyTooltipOnHide: boolean;
         readonly fresh: boolean;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
@@ -130,7 +130,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             default: undefined;
         };
         readonly placement: {
-            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
             readonly default: "top";
             readonly validator: (value: string) => boolean;
         };
@@ -196,8 +196,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
     }>> & Readonly<{
         onCancel?: (() => any) | undefined;
-        "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
+        "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onConfirm?: (() => any) | undefined;
         onPopupClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
@@ -206,16 +206,16 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly description: import("./types").PopconfirmContent;
         readonly open: boolean;
         readonly disabled: boolean;
-        readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+        readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly okText: string;
         readonly cancelText: string;
+        readonly arrow: import("./types").PopconfirmArrow;
+        readonly defaultOpen: boolean;
+        readonly autoAdjustOverflow: boolean;
         readonly destroyOnHidden: boolean;
         readonly trigger: import("../utils/floating").FloatingTriggerProp;
-        readonly arrow: import("./types").PopconfirmArrow;
-        readonly autoAdjustOverflow: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
-        readonly defaultOpen: boolean;
         readonly destroyTooltipOnHide: boolean;
         readonly fresh: boolean;
         readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
@@ -238,7 +238,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         default: undefined;
     };
     readonly placement: {
-        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -304,14 +304,14 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
 }>> & Readonly<{
     onCancel?: (() => any) | undefined;
-    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
+    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onConfirm?: (() => any) | undefined;
     onPopupClick?: ((event: MouseEvent) => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     cancel: () => void;
-    "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
+    "update:open": (open: boolean) => void;
     confirm: () => void;
     popupClick: (event: MouseEvent) => void;
 }, string, {
@@ -320,16 +320,16 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly description: import("./types").PopconfirmContent;
     readonly open: boolean;
     readonly disabled: boolean;
-    readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly okText: string;
     readonly cancelText: string;
+    readonly arrow: import("./types").PopconfirmArrow;
+    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
-    readonly arrow: import("./types").PopconfirmArrow;
-    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
-    readonly defaultOpen: boolean;
     readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";

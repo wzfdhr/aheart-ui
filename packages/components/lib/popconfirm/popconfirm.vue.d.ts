@@ -14,7 +14,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         default: undefined;
     };
     readonly placement: {
-        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -80,8 +80,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly styles: PropType<import("./types").PopconfirmStyles>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     cancel: () => void;
-    "update:open": (open: boolean) => void;
     openChange: (open: boolean) => void;
+    "update:open": (open: boolean) => void;
     confirm: () => void;
     popupClick: (event: MouseEvent) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
@@ -98,7 +98,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         default: undefined;
     };
     readonly placement: {
-        readonly type: PropType<"left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly type: PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
         readonly default: "top";
         readonly validator: (value: string) => boolean;
     };
@@ -164,8 +164,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly styles: PropType<import("./types").PopconfirmStyles>;
 }>> & Readonly<{
     onCancel?: (() => any) | undefined;
-    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
+    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onConfirm?: (() => any) | undefined;
     onPopupClick?: ((event: MouseEvent) => any) | undefined;
 }>, {
@@ -174,16 +174,16 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly description: PopconfirmContent;
     readonly open: boolean;
     readonly disabled: boolean;
-    readonly placement: "left" | "right" | "bottom" | "top" | "bottomLeft" | "bottomRight" | "topLeft" | "topRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
+    readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly okText: string;
     readonly cancelText: string;
+    readonly arrow: import("./types").PopconfirmArrow;
+    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating").FloatingTriggerProp;
-    readonly arrow: import("./types").PopconfirmArrow;
-    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
-    readonly defaultOpen: boolean;
     readonly destroyTooltipOnHide: boolean;
     readonly fresh: boolean;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";

@@ -70,12 +70,12 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly variant: import("./types").InputVariant;
         readonly disabled: boolean;
         readonly bordered: boolean;
+        readonly allowClear: import("./types").InputAllowClear;
+        readonly readOnly: boolean;
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
-        readonly readOnly: boolean;
-        readonly allowClear: import("./types").InputAllowClear;
         readonly showCount: import("./types").InputShowCount;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -149,12 +149,12 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly variant: import("./types").InputVariant;
         readonly disabled: boolean;
         readonly bordered: boolean;
+        readonly allowClear: import("./types").InputAllowClear;
+        readonly readOnly: boolean;
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
-        readonly readOnly: boolean;
-        readonly allowClear: import("./types").InputAllowClear;
         readonly showCount: import("./types").InputShowCount;
     }>;
     __isFragment?: undefined;
@@ -231,12 +231,12 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     readonly variant: import("./types").InputVariant;
     readonly disabled: boolean;
     readonly bordered: boolean;
+    readonly allowClear: import("./types").InputAllowClear;
+    readonly readOnly: boolean;
     readonly prefix: import("vue").VNodeChild;
     readonly suffix: import("vue").VNodeChild;
     readonly addonBefore: import("vue").VNodeChild;
     readonly addonAfter: import("vue").VNodeChild;
-    readonly readOnly: boolean;
-    readonly allowClear: import("./types").InputAllowClear;
     readonly showCount: import("./types").InputShowCount;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {

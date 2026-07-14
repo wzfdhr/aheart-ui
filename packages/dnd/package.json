@@ -4,13 +4,13 @@
   "description": "Vue 3 drag and drop components for Aheart UI.",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "types": "lib/index.d.ts",
+  "types": "es/index.d.ts",
   "sideEffects": [
     "**/*.css"
   ],
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
+      "types": "./es/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.js"
     },
@@ -31,14 +31,30 @@
   "keywords": [
     "aheart-ui",
     "vue3",
-    "drag-and-drop"
+    "drag-and-drop",
+    "sortable",
+    "accessibility"
   ],
+  "author": "小凡",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzfdhr/aheart-ui.git",
+    "directory": "packages/dnd"
+  },
+  "homepage": "https://github.com/wzfdhr/aheart-ui#readme",
+  "bugs": {
+    "url": "https://github.com/wzfdhr/aheart-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "peerDependencies": {
     "vue": ">=3.4.0 <4"
   },
   "dependencies": {
-    "@atlaskit/pragmatic-drag-and-drop": "^2.0.1"
+    "@atlaskit/pragmatic-drag-and-drop": "2.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",

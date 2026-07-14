@@ -49,8 +49,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly dropdownRender: import("vue").PropType<import("./types").DropdownRender>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (_info: MenuClickInfo) => void;
-    "update:open": (open: boolean) => void;
     openChange: (open: boolean, info?: DropdownOpenChangeInfo | undefined) => void;
+    "update:open": (open: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly menu: import("vue").PropType<import("./types").DropdownMenuConfig>;
     readonly trigger: {
@@ -100,19 +100,19 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly dropdownRender: import("vue").PropType<import("./types").DropdownRender>;
 }>> & Readonly<{
     onClick?: ((_info: MenuClickInfo) => any) | undefined;
-    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean, info?: DropdownOpenChangeInfo | undefined) => any) | undefined;
+    "onUpdate:open"?: ((open: boolean) => any) | undefined;
 }>, {
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: DropdownPlacement;
+    readonly arrow: import("./types").DropdownArrow;
+    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
-    readonly arrow: import("./types").DropdownArrow;
-    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
-    readonly defaultOpen: boolean;
     readonly destroyPopupOnHide: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;

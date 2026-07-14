@@ -1,4 +1,4 @@
-import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder";
+import { reorder } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/reorder.js";
 const controllers = /* @__PURE__ */ new Map();
 function registerSortableList(listId, controller) {
   controllers.set(listId, controller);

@@ -80,8 +80,8 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly buttonsRender: import("vue").PropType<import("./types").DropdownButtonRender>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (event: MouseEvent) => void;
-    "update:open": (open: boolean) => void;
     openChange: (open: boolean, info?: import("./types").DropdownOpenChangeInfo | undefined) => void;
+    "update:open": (open: boolean) => void;
     menuClick: (_info: import("../menu").MenuClickInfo) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly menu: import("vue").PropType<import("./types").DropdownMenuConfig>;
@@ -163,8 +163,8 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly buttonsRender: import("vue").PropType<import("./types").DropdownButtonRender>;
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
-    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean, info?: import("./types").DropdownOpenChangeInfo | undefined) => any) | undefined;
+    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onMenuClick?: ((_info: import("../menu").MenuClickInfo) => any) | undefined;
 }>, {
     readonly icon: import("vue").VNodeChild;
@@ -172,16 +172,16 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: import("./types").DropdownPlacement;
+    readonly loading: import("../button/types").ButtonLoading;
+    readonly arrow: import("./types").DropdownArrow;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";
-    readonly loading: import("../button/types").ButtonLoading;
+    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
-    readonly arrow: import("./types").DropdownArrow;
-    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
-    readonly defaultOpen: boolean;
     readonly destroyPopupOnHide: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 type DropdownComponent = SFCWithInstall<typeof dropdown> & {

@@ -80,8 +80,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly multiple: boolean;
     readonly disabled: boolean;
     readonly value: TagGroupValue;
+    readonly options: import("./types").TagRawOption[];
     readonly modelValue: TagGroupValue;
     readonly defaultValue: TagGroupValue;
-    readonly options: import("./types").TagRawOption[];
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

@@ -1,30 +1,76 @@
 # 发布
 
-每次发布 `aheart-ui` 前，都从仓库根目录执行以下检查：
+本页定义 Aheart UI 三个 npm 包的首次 `1.0.0` 发布流程。日常开发与发布准备不得执行真实发布。
+
+## 发布前门禁
+
+从干净的 `master` 执行：
 
 ```bash
-corepack pnpm release:check
-rm -rf /tmp/aheart-ui-pack
-mkdir -p /tmp/aheart-ui-pack
-corepack pnpm --dir packages/components pack --json --pack-destination /tmp/aheart-ui-pack
+corepack pnpm install --frozen-lockfile
+CI=true corepack pnpm release:check
 git status --short
 ```
 
-`release:check` 会运行测试、类型检查、组件构建、VitePress 构建、已生成产物检查和 Git 空白检查。`pack` 命令会在 `/tmp/aheart-ui-pack` 创建可检查的发布 tarball，不会修改仓库中的发布包。
+验收要求：
+
+- 单元测试、类型检查、三包构建和中文文档构建通过。
+- Playwright 桌面与移动端用例无失败。
+- 三个 tarball 均通过 release contract。
+- 构建后 `es/lib` 无漂移，Git 工作区保持干净。
 
 ## 检查 tarball
 
-检查 tarball 内容，确认其中包含：
+```bash
+corepack pnpm release:pack
+```
 
-- `es/index.js`、`lib/index.js` 及其声明文件。
-- `es/style.css` 和 `lib/style.css`。
-- `package.json`。
-- 组件的已构建模块和声明文件。
+验证器会临时打包并检查：
 
-发布包只包含 `es` 和 `lib` 目录中的构建产物；Vue 作为 peer dependency，不会被打进组件包。
+- `aheart-ui@1.0.0`
+- `@aheart-ui/dnd@1.0.0`
+- `@aheart-ui/ai@1.0.0`
 
-## 已生成产物
+每个包必须包含 README、LICENSE、package.json、ESM、Node/SSR 可用的 CommonJS、TypeScript 声明和样式；不得包含源码、测试或未解析的 `workspace:` 协议。`es/package.json` 与 `lib/package.json` 必须分别声明 `module` 和 `commonjs` 模块类型。
 
-当本次预期的源代码改动导致 `packages/components/es` 或 `packages/components/lib` 发生变化时，提交这些生成文件。构建造成的无关声明文件排序变化不属于预期改动，必须从提交中排除。提交前使用 `git status --short` 和 `git diff` 复核范围。
+## 正式发布
 
-只有在两次使用固定依赖的干净构建产生完全相同的输出，且已提交的生成基线已经过时时，才允许同步基线。此时必须单独创建仅包含构建产物同步的提交，并记录校验和与 diff 证据；其他所有与本次改动无关的输出仍必须排除。
+以下步骤只能在负责人明确批准后执行。先把 `CHANGELOG.md` 的 Unreleased 替换为实际发布日期，提交发布版本，并从该提交创建本地 tag：
+
+```bash
+git status --short
+CI=true corepack pnpm release:check
+git tag -a v1.0.0 -m "Aheart UI v1.0.0"
+```
+
+随后保持在同一提交发布三个包：
+
+```bash
+npm whoami
+npm config get registry
+corepack pnpm --dir packages/components publish --access public
+corepack pnpm --dir packages/dnd publish --access public
+corepack pnpm --dir packages/ai publish --access public
+```
+
+发布顺序固定为核心包、DnD、AI。发布前确认 registry 为 `https://registry.npmjs.org/`，账号拥有 `@aheart-ui` scope 的发布权限，并启用 npm 要求的二次验证。任一包失败时停止后续发布，不移动或重建 tag。
+
+## 发布后验证
+
+```bash
+npm view aheart-ui@1.0.0 version
+npm view @aheart-ui/dnd@1.0.0 version
+npm view @aheart-ui/ai@1.0.0 version
+```
+
+随后在空目录安装三个包，验证 ESM、CommonJS、类型和样式入口。确认无误后推送同一 tag 并创建 GitHub Release：
+
+```bash
+git push origin v1.0.0
+```
+
+Git tag、GitHub Release 与 npm tarball 必须来自同一提交。
+
+## 生成产物策略
+
+源代码变化引起的 `es/lib` 输出必须随阶段提交。完整构建连续执行两次后，第二次不得产生任何差异。任何与当前源码无关的声明顺序漂移都必须先查明原因，不能通过暂存文件绕过检查。

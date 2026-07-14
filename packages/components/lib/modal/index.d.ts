@@ -100,10 +100,10 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly okText: import("vue").VNodeChild;
         readonly cancelText: import("vue").VNodeChild;
         readonly loading: boolean;
+        readonly forceRender: boolean;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly getContainer: import("./types").ModalGetContainer;
-        readonly forceRender: boolean;
         readonly destroyOnClose: boolean;
         readonly destroyOnHidden: boolean;
         readonly centered: boolean;
@@ -211,10 +211,10 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly okText: import("vue").VNodeChild;
         readonly cancelText: import("vue").VNodeChild;
         readonly loading: boolean;
+        readonly forceRender: boolean;
         readonly maskClosable: boolean;
         readonly keyboard: boolean;
         readonly getContainer: import("./types").ModalGetContainer;
-        readonly forceRender: boolean;
         readonly destroyOnClose: boolean;
         readonly destroyOnHidden: boolean;
         readonly centered: boolean;
@@ -326,10 +326,10 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     readonly okText: import("vue").VNodeChild;
     readonly cancelText: import("vue").VNodeChild;
     readonly loading: boolean;
+    readonly forceRender: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly getContainer: import("./types").ModalGetContainer;
-    readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;
     readonly centered: boolean;

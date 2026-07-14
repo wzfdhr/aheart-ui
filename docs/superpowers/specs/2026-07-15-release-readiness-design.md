@@ -28,6 +28,8 @@ Every public package must expose:
 - built-module escape hatches through `./es/*` and `./lib/*`;
 - `./package.json` for tooling inspection.
 
+Each build writes `es/package.json` with `type: module` and `lib/package.json` with `type: commonjs`, so direct built-module imports retain the intended JavaScript format.
+
 The packed manifest must not contain `workspace:` protocols. Scoped packages use `publishConfig.access = "public"`; all packages use the public npm registry. Vue remains a peer dependency and must not be bundled.
 
 ## Release Contract Verifier
@@ -63,4 +65,3 @@ The root README describes all three public packages and current component covera
 - `pnpm release:check` passes from a clean checkout.
 - Two consecutive builds are deterministic.
 - Design review and product review both report `P1=0, P2=0` before merge.
-

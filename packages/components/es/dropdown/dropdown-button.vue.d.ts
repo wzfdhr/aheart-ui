@@ -80,8 +80,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly buttonsRender: PropType<import("./types").DropdownButtonRender>;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (event: MouseEvent) => void;
-    "update:open": (open: boolean) => void;
     openChange: (open: boolean, info?: DropdownOpenChangeInfo | undefined) => void;
+    "update:open": (open: boolean) => void;
     menuClick: (_info: import("../menu").MenuClickInfo) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly menu: PropType<import("./types").DropdownMenuConfig>;
@@ -163,8 +163,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly buttonsRender: PropType<import("./types").DropdownButtonRender>;
 }>> & Readonly<{
     onClick?: ((event: MouseEvent) => any) | undefined;
-    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onOpenChange?: ((open: boolean, info?: DropdownOpenChangeInfo | undefined) => any) | undefined;
+    "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onMenuClick?: ((_info: import("../menu").MenuClickInfo) => any) | undefined;
 }>, {
     readonly icon: VNodeChild;
@@ -172,16 +172,16 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: import("./types").DropdownPlacement;
+    readonly loading: import("../button/types").ButtonLoading;
+    readonly arrow: import("./types").DropdownArrow;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";
-    readonly loading: import("../button/types").ButtonLoading;
+    readonly defaultOpen: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
-    readonly arrow: import("./types").DropdownArrow;
-    readonly autoAdjustOverflow: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
-    readonly defaultOpen: boolean;
     readonly destroyPopupOnHide: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

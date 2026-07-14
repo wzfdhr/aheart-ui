@@ -176,10 +176,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly okText: VNodeChild;
     readonly cancelText: VNodeChild;
     readonly loading: boolean;
+    readonly forceRender: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly getContainer: import("./types").ModalGetContainer;
-    readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;
     readonly centered: boolean;

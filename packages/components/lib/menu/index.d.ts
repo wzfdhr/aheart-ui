@@ -51,8 +51,8 @@ declare const Menu: import("../utils/install").SFCWithInstall<import("vue").Defi
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     click: (_info: import("./types").MenuClickInfo) => void;
     select: (_info: import("./types").MenuSelectInfo) => void;
-    deselect: (_info: import("./types").MenuSelectInfo) => void;
     openChange: (keys: string[]) => void;
+    deselect: (_info: import("./types").MenuSelectInfo) => void;
     "update:selectedKeys": (keys: string[]) => void;
     "update:openKeys": (keys: string[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
@@ -108,8 +108,8 @@ declare const Menu: import("../utils/install").SFCWithInstall<import("vue").Defi
 }>> & Readonly<{
     onClick?: ((_info: import("./types").MenuClickInfo) => any) | undefined;
     onSelect?: ((_info: import("./types").MenuSelectInfo) => any) | undefined;
-    onDeselect?: ((_info: import("./types").MenuSelectInfo) => any) | undefined;
     onOpenChange?: ((keys: string[]) => any) | undefined;
+    onDeselect?: ((_info: import("./types").MenuSelectInfo) => any) | undefined;
     "onUpdate:selectedKeys"?: ((keys: string[]) => any) | undefined;
     "onUpdate:openKeys"?: ((keys: string[]) => any) | undefined;
 }>, {

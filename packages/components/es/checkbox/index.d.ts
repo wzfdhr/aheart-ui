@@ -232,9 +232,9 @@ export declare const CheckboxGroup: import("../utils/install").SFCWithInstall<im
     readonly disabled: boolean;
     readonly direction: import("./types").CheckboxGroupDirection;
     readonly value: import("./types").CheckboxValue[];
+    readonly options: import("./types").CheckboxRawOption[];
     readonly modelValue: import("./types").CheckboxValue[];
     readonly defaultValue: import("./types").CheckboxValue[];
-    readonly options: import("./types").CheckboxRawOption[];
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export { CheckboxGroup as ACheckboxGroup };
 export type { CheckboxGroupProps, CheckboxOption, CheckboxProps, CheckboxValue } from './types';

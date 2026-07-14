@@ -6,15 +6,15 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<string>;
         default: string;
     };
+    format: {
+        type: import("vue").PropType<string>;
+        default: string;
+    };
     modelValue: {
         type: import("vue").PropType<string>;
     };
     defaultValue: {
         type: import("vue").PropType<string>;
-    };
-    format: {
-        type: import("vue").PropType<string>;
-        default: string;
     };
     readOnly: {
         type: import("vue").PropType<boolean>;
@@ -33,15 +33,15 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<string>;
         default: string;
     };
+    format: {
+        type: import("vue").PropType<string>;
+        default: string;
+    };
     modelValue: {
         type: import("vue").PropType<string>;
     };
     defaultValue: {
         type: import("vue").PropType<string>;
-    };
-    format: {
-        type: import("vue").PropType<string>;
-        default: string;
     };
     readOnly: {
         type: import("vue").PropType<boolean>;

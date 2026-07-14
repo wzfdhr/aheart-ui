@@ -5,7 +5,9 @@
   "main": "lib/index.js",
   "module": "es/index.js",
   "types": "es/index.d.ts",
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
@@ -17,14 +19,38 @@
     "./lib/*": "./lib/*",
     "./package.json": "./package.json"
   },
-  "files": ["es", "lib"],
+  "files": [
+    "es",
+    "lib"
+  ],
   "scripts": {
     "build": "vite build",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "test": "vitest run --environment jsdom"
   },
-  "keywords": ["aheart-ui", "vue3", "ai", "chat"],
+  "keywords": [
+    "aheart-ui",
+    "vue3",
+    "ai",
+    "chat",
+    "agent",
+    "form"
+  ],
+  "author": "小凡",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzfdhr/aheart-ui.git",
+    "directory": "packages/ai"
+  },
+  "homepage": "https://github.com/wzfdhr/aheart-ui#readme",
+  "bugs": {
+    "url": "https://github.com/wzfdhr/aheart-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "peerDependencies": {
     "aheart-ui": "workspace:^",
     "vue": ">=3.4.0 <4"

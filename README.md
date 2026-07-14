@@ -1,83 +1,74 @@
 # Aheart UI
 
-Aheart UI is a Vue 3 component library for product interfaces. This repository is a pnpm workspace built with Vue 3, TypeScript, Vite, Vitest, and VitePress.
+Aheart UI 是面向专业产品界面的 Vue 3 组件体系，提供基础组件、可访问拖拽能力和后端无关的 AI 产品组件。
 
-## Components
+## 包结构
 
-The library covers the component categories used in product interfaces:
+| 包 | 作用 |
+| --- | --- |
+| `aheart-ui` | 设计基础、布局、导航、表单、数据展示、浮层反馈和 Splitter |
+| `@aheart-ui/dnd` | Draggable、DropZone、SortableList、DragOverlay 与组合式 API |
+| `@aheart-ui/ai` | AIChatPanel、AIForm、AIAgentWorkbench 和 AI 原子组件 |
 
-- General and configuration: Button, ConfigProvider, Icon, Typography, Tag, Badge.
-- Layout: Space, Divider, Flex, Grid, Card, Descriptions.
-- Navigation: Breadcrumb, Dropdown, Menu, Tabs, Steps, Pagination.
-- Data entry: Input, Textarea, InputNumber, Checkbox, Radio, Switch, Select, Form.
-- Feedback: Alert, Message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty.
-- Data display: Table and the supporting display primitives above.
+中文文档站包含 48 个 Ready 条目。英文站当前按产品决策暂停，不参与发布验收。
 
-## Installation
-
-Install the package and Vue 3 in your application:
+## 安装
 
 ```bash
 pnpm add aheart-ui vue
 ```
 
-Install every component through the default plugin and load the package stylesheet:
-
 ```ts
 import { createApp } from 'vue'
-import App from './App.vue'
 import AheartUI from 'aheart-ui'
 import 'aheart-ui/style.css'
+import App from './App.vue'
 
-const app = createApp(App)
-app.use(AheartUI)
-app.mount('#app')
+createApp(App).use(AheartUI).mount('#app')
 ```
 
-For a single component, import and install it by name:
+按需安装组件：
 
 ```ts
 import { createApp } from 'vue'
-import App from './App.vue'
 import { Button } from 'aheart-ui'
 import 'aheart-ui/style.css'
+import App from './App.vue'
 
-const app = createApp(App)
-app.use(Button)
-app.mount('#app')
+createApp(App).use(Button).mount('#app')
 ```
 
-## Workspace
+使用拖拽或 AI 包时，分别加载对应样式：
 
-This repository has one VitePress documentation site in `docs`; it also hosts the component demos. There is no second demo application.
+```ts
+import '@aheart-ui/dnd/style.css'
+import '@aheart-ui/ai/style.css'
+```
 
-- `packages/components` owns the public `aheart-ui` package, component source, tests, and `es` / `lib` build output.
-- `packages/utils` owns the shared `@aheart-ui/utils` workspace package.
-
-## Development
-
-Install workspace dependencies with `pnpm install`, then use these commands from the repository root:
+## 开发
 
 ```bash
-pnpm dev
-pnpm test
-pnpm typecheck
-pnpm build
-pnpm docs:build
-pnpm release:check
+corepack pnpm install
+corepack pnpm dev
+corepack pnpm test
+corepack pnpm typecheck
+corepack pnpm build
+corepack pnpm docs:build
+corepack pnpm test:e2e
+corepack pnpm release:check
 ```
 
-`pnpm dev` starts the VitePress site. `pnpm release:check` runs tests, type checking, the component build, the VitePress production build, generated-output verification, and whitespace validation.
+仓库只保留一套 VitePress 演示站：
 
-## Roadmap
+- `packages/components`：`aheart-ui`
+- `packages/dnd`：`@aheart-ui/dnd`
+- `packages/ai`：`@aheart-ui/ai`
+- `docs`：中文文档与交互演示
+- `scripts/release-contract.mjs`：npm tarball 合约验证
 
-The next milestones are, in order:
+## 发布边界
 
-1. Internationalization.
-2. Splitter.
-3. Advanced inputs.
-4. Drag and drop.
-5. AI packages.
+`release:check` 只验证发布就绪状态，不执行 `npm publish`、创建 Git tag 或 GitHub Release。正式发布步骤见 [中文发布指南](docs/guide/releasing.md)。
 
 ## License
 

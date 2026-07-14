@@ -203,12 +203,12 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly placement: "left" | "right" | "bottom" | "top";
     readonly loading: boolean;
     readonly extra: VNodeChild;
+    readonly forceRender: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
     readonly getContainer: import("./types").DrawerGetContainer;
     readonly resizable: import("./types").DrawerResizable;
     readonly maxSize: number;
-    readonly forceRender: boolean;
     readonly destroyOnClose: boolean;
     readonly destroyOnHidden: boolean;
     readonly destroyInactivePanel: boolean;

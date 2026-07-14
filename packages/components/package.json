@@ -1,7 +1,7 @@
 {
   "name": "aheart-ui",
   "version": "1.0.0",
-  "description": "A Vue 3 component library.",
+  "description": "Professional Vue 3 components for product interfaces.",
   "main": "lib/index.js",
   "module": "es/index.js",
   "types": "es/index.d.ts",
@@ -32,15 +32,30 @@
   ],
   "keywords": [
     "aheart-ui",
-    "vue3组件库"
+    "vue",
+    "vue3",
+    "component-library",
+    "design-system"
   ],
   "author": "小凡",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzfdhr/aheart-ui.git",
+    "directory": "packages/components"
+  },
+  "homepage": "https://github.com/wzfdhr/aheart-ui#readme",
+  "bugs": {
+    "url": "https://github.com/wzfdhr/aheart-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "peerDependencies": {
     "vue": ">=3.4.0 <4"
   },
   "dependencies": {
-    "@aheart-ui/utils": "workspace:^",
     "@floating-ui/dom": "^1.8.0",
     "@lucide/vue": "^1.24.0"
   },
