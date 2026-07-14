@@ -13,6 +13,7 @@ const styleSourceFiles = [
     'date-picker/style.css',
     'time-picker/style.css',
     'upload/style.css',
+    'tree/style.css',
     'flex/style.css',
     'grid/style.css',
     'icon/style.css',

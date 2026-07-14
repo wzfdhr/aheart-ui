@@ -13,6 +13,7 @@ const zhComponentItems = [
   { text: 'DatePicker 日期选择器', link: '/components/date-picker' },
   { text: 'TimePicker 时间选择器', link: '/components/time-picker' },
   { text: 'Upload 上传', link: '/components/upload' },
+  { text: 'Tree 树形控件', link: '/components/tree' },
   { text: 'Splitter 分割面板', link: '/components/splitter' },
   { text: 'Flex 弹性布局', link: '/components/flex' },
   { text: 'Grid 栅格', link: '/components/grid' },
@@ -47,55 +48,10 @@ const zhComponentItems = [
   { text: 'Form 表单', link: '/components/form' }
 ]
 
-const enComponentItems = [
-  { text: 'Overview', link: '/en/components/overview' },
-  { text: 'Button', link: '/en/components/button' },
-  { text: 'ConfigProvider', link: '/en/components/config-provider' },
-  { text: 'Icon', link: '/en/components/icon' },
-  { text: 'Typography', link: '/en/components/typography' },
-  { text: 'Space', link: '/en/components/space' },
-  { text: 'Divider', link: '/en/components/divider' },
-  { text: 'DatePicker', link: '/en/components/date-picker' },
-  { text: 'TimePicker', link: '/en/components/time-picker' },
-  { text: 'Upload', link: '/en/components/upload' },
-  { text: 'Splitter', link: '/en/components/splitter' },
-  { text: 'Flex', link: '/en/components/flex' },
-  { text: 'Grid', link: '/en/components/grid' },
-  { text: 'Tag', link: '/en/components/tag' },
-  { text: 'Badge', link: '/en/components/badge' },
-  { text: 'Alert', link: '/en/components/alert' },
-  { text: 'Message', link: '/en/components/message' },
-  { text: 'Modal', link: '/en/components/modal' },
-  { text: 'Drawer', link: '/en/components/drawer' },
-  { text: 'Tooltip', link: '/en/components/tooltip' },
-  { text: 'Popover', link: '/en/components/popover' },
-  { text: 'Popconfirm', link: '/en/components/popconfirm' },
-  { text: 'Spin', link: '/en/components/spin' },
-  { text: 'Skeleton', link: '/en/components/skeleton' },
-  { text: 'Empty', link: '/en/components/empty' },
-  { text: 'Tabs', link: '/en/components/tabs' },
-  { text: 'Breadcrumb', link: '/en/components/breadcrumb' },
-  { text: 'Dropdown', link: '/en/components/dropdown' },
-  { text: 'Menu', link: '/en/components/menu' },
-  { text: 'Steps', link: '/en/components/steps' },
-  { text: 'Input', link: '/en/components/input' },
-  { text: 'Textarea', link: '/en/components/textarea' },
-  { text: 'InputNumber', link: '/en/components/input-number' },
-  { text: 'Checkbox', link: '/en/components/checkbox' },
-  { text: 'Radio', link: '/en/components/radio' },
-  { text: 'Switch', link: '/en/components/switch' },
-  { text: 'Card', link: '/en/components/card' },
-  { text: 'Descriptions', link: '/en/components/descriptions' },
-  { text: 'Table', link: '/en/components/table' },
-  { text: 'Pagination', link: '/en/components/pagination' },
-  { text: 'Select', link: '/en/components/select' },
-  { text: 'Form', link: '/en/components/form' }
-]
-
 export default defineConfig({
   title: 'Aheart UI',
   description: '面向产品界面的 Vue 3 组件库',
-  srcExclude: ['superpowers/**'],
+  srcExclude: ['superpowers/**', 'en/**'],
   lastUpdated: true,
   head: [
     ['meta', { name: 'theme-color', content: '#1677ff' }],
@@ -113,7 +69,6 @@ export default defineConfig({
         nav: [
           { text: '指南', link: '/guide/introduction' },
           { text: '组件', link: '/components/overview' },
-          { text: 'English', link: '/en/' },
           { text: 'GitHub', link: githubLink },
           { text: 'v1.0.0', link: '/guide/installation' }
         ],
@@ -134,48 +89,6 @@ export default defineConfig({
             {
               text: '组件',
               items: zhComponentItems
-            }
-          ]
-        },
-        socialLinks: [
-          { icon: 'github', link: githubLink }
-        ],
-        search: {
-          provider: 'local'
-        }
-      }
-    },
-    en: {
-      label: 'English',
-      lang: 'en-US',
-      title: 'Aheart UI',
-      description: 'A Vue 3 component library for product interfaces',
-      themeConfig: {
-        logo: '/logo.svg',
-        nav: [
-          { text: 'Guide', link: '/en/guide/introduction' },
-          { text: 'Components', link: '/en/components/overview' },
-          { text: '简体中文', link: '/' },
-          { text: 'GitHub', link: githubLink },
-          { text: 'v1.0.0', link: '/en/guide/installation' }
-        ],
-        sidebar: {
-          '/en/guide/': [
-            {
-              text: 'Guide',
-              items: [
-                { text: 'Introduction', link: '/en/guide/introduction' },
-                { text: 'Installation', link: '/en/guide/installation' },
-                { text: 'Usage', link: '/en/guide/usage' },
-                { text: 'Theme Tokens', link: '/en/guide/theme' },
-                { text: 'Release', link: '/en/guide/releasing' }
-              ]
-            }
-          ],
-          '/en/components/': [
-            {
-              text: 'Components',
-              items: enComponentItems
             }
           ]
         },

@@ -38,6 +38,7 @@ import Tag, { CheckableTag, TagGroup } from "./tag/index.js";
 import Tabs from "./tabs/index.js";
 import TimePicker from "./time-picker/index.js";
 import Textarea from "./textarea/index.js";
+import Tree from "./tree/index.js";
 import Tooltip from "./tooltip/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
 import Upload from "./upload/index.js";
@@ -52,6 +53,7 @@ const components = [
   DatePicker,
   TimePicker,
   Upload,
+  Tree,
   Flex,
   Grid,
   Icon,
@@ -167,6 +169,7 @@ export {
   TimePicker,
   Title,
   Tooltip,
+  Tree,
   Typography,
   Upload,
   AheartUI as default,

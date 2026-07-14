@@ -37,10 +37,12 @@ import Tag, { CheckableTag, TagGroup } from './tag'
 import Tabs from './tabs'
 import TimePicker from './time-picker'
 import Textarea from './textarea'
+import Tree from './tree'
 import Tooltip from './tooltip'
 import Typography, { Link, Paragraph, Text, Title } from './typography'
 import Upload from './upload'
 export type { AheartLocale } from './config'
+export type { TreeKey, TreeNodeData } from './tree'
 export type { UploadFile, UploadRequest, UploadRequestOption, UploadStatus } from './upload'
 export { enUS, zhCN } from './config'
 import './theme/index.css'
@@ -53,6 +55,7 @@ const components = [
   DatePicker,
   TimePicker,
   Upload,
+  Tree,
   Flex,
   Grid,
   Icon,
@@ -111,5 +114,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, DatePicker, TimePicker, Upload, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Splitter, SplitterPanel, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, DatePicker, TimePicker, Upload, Tree, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Splitter, SplitterPanel, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI

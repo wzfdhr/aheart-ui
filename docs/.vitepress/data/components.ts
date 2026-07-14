@@ -298,6 +298,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('upload'), en: '/en/components/upload' }
       },
       {
+        key: 'tree',
+        name: 'Tree',
+        zhName: '树形控件',
+        description: {
+          zh: '按层级展示、选择和勾选结构化数据。',
+          en: 'Display, select, and check hierarchical data.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('tree') }
+      },
+      {
         key: 'textarea',
         name: 'Textarea',
         zhName: '文本域',
