@@ -309,6 +309,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('tree') }
       },
       {
+        key: 'tree-select',
+        name: 'TreeSelect',
+        zhName: '树选择',
+        description: {
+          zh: '在下拉面板中选择层级数据。',
+          en: 'Select hierarchical data from a dropdown panel.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('tree-select') }
+      },
+      {
         key: 'textarea',
         name: 'Textarea',
         zhName: '文本域',

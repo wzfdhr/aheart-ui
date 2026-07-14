@@ -38,6 +38,7 @@ import Tabs from './tabs'
 import TimePicker from './time-picker'
 import Textarea from './textarea'
 import Tree from './tree'
+import TreeSelect from './tree-select'
 import Tooltip from './tooltip'
 import Typography, { Link, Paragraph, Text, Title } from './typography'
 import Upload from './upload'
@@ -56,6 +57,7 @@ const components = [
   TimePicker,
   Upload,
   Tree,
+  TreeSelect,
   Flex,
   Grid,
   Icon,
@@ -114,5 +116,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, DatePicker, TimePicker, Upload, Tree, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Splitter, SplitterPanel, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, DatePicker, TimePicker, Upload, Tree, TreeSelect, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Splitter, SplitterPanel, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI

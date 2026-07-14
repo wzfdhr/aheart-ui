@@ -39,6 +39,7 @@ import Tabs from "./tabs/index.js";
 import TimePicker from "./time-picker/index.js";
 import Textarea from "./textarea/index.js";
 import Tree from "./tree/index.js";
+import TreeSelect from "./tree-select/index.js";
 import Tooltip from "./tooltip/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
 import Upload from "./upload/index.js";
@@ -54,6 +55,7 @@ const components = [
   TimePicker,
   Upload,
   Tree,
+  TreeSelect,
   Flex,
   Grid,
   Icon,
@@ -170,6 +172,7 @@ export {
   Title,
   Tooltip,
   Tree,
+  TreeSelect,
   Typography,
   Upload,
   AheartUI as default,

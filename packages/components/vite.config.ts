@@ -14,6 +14,7 @@ const styleSourceFiles = [
     'time-picker/style.css',
     'upload/style.css',
     'tree/style.css',
+    'tree-select/style.css',
     'flex/style.css',
     'grid/style.css',
     'icon/style.css',

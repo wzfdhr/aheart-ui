@@ -32,8 +32,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const checkedControlled = vue.computed(() => props.checkedKeys !== void 0);
     vue.watch(() => props.treeData, (nodes) => {
       var _a2;
-      if (!focusedKey.value)
-        focusedKey.value = (_a2 = nodes[0]) == null ? void 0 : _a2.key;
+      const visibleNodes = getVisibleNodes(nodes);
+      if (!visibleNodes.some((node) => node.key === focusedKey.value)) {
+        focusedKey.value = (_a2 = visibleNodes[0]) == null ? void 0 : _a2.key;
+      }
     });
     const hasKey = (keys, key) => keys.includes(key);
     const replaceKey = (keys, key, enabled) => enabled ? hasKey(keys, key) ? keys : [...keys, key] : keys.filter((current) => current !== key);

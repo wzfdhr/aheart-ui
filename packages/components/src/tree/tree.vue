@@ -55,7 +55,10 @@ const selectedControlled = computed(() => props.selectedKeys !== undefined)
 const checkedControlled = computed(() => props.checkedKeys !== undefined)
 
 watch(() => props.treeData, (nodes) => {
-  if (!focusedKey.value) focusedKey.value = nodes[0]?.key
+  const visibleNodes = getVisibleNodes(nodes)
+  if (!visibleNodes.some((node) => node.key === focusedKey.value)) {
+    focusedKey.value = visibleNodes[0]?.key
+  }
 })
 
 const hasKey = (keys: TreeKey[], key: TreeKey) => keys.includes(key)
