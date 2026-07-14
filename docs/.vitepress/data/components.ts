@@ -265,6 +265,28 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('input'), en: '/en/components/input' }
       },
       {
+        key: 'date-picker',
+        name: 'DatePicker',
+        zhName: '日期选择器',
+        description: {
+          zh: '输入或在日历中选择日期。',
+          en: 'Enter or select a date from a calendar.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('date-picker'), en: '/en/components/date-picker' }
+      },
+      {
+        key: 'time-picker',
+        name: 'TimePicker',
+        zhName: '时间选择器',
+        description: {
+          zh: '输入或选择一天中的时间。',
+          en: 'Enter or select a time of day.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('time-picker'), en: '/en/components/time-picker' }
+      },
+      {
         key: 'textarea',
         name: 'Textarea',
         zhName: '文本域',

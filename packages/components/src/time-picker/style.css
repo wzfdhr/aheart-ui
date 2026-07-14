@@ -1,0 +1,7 @@
+.aheart-time-picker { position: relative; display: inline-block; }
+.aheart-time-picker__input { box-sizing: border-box; inline-size: 100%; min-inline-size: 140px; padding: 5px 11px; border: 1px solid #d9d9d9; border-radius: 6px; line-height: 22px; }
+.aheart-time-picker__panel { position: absolute; z-index: 1050; inset: calc(100% + 4px) auto auto 0; display:grid; grid-template-columns:repeat(4, 1fr); gap:2px; inline-size:224px; max-block-size:256px; overflow:auto; padding:8px; border:1px solid #d9d9d9; border-radius:6px; background:#fff; box-shadow:0 6px 16px rgba(0,0,0,.08); }
+.aheart-time-picker__panel button { block-size:28px; border:0; border-radius:4px; background:transparent; cursor:pointer; }
+.aheart-time-picker__panel button:hover { background:#e6f4ff; }
+.aheart-time-picker__panel button.is-selected { background:#1677ff; color:#fff; }
+.aheart-time-picker__panel button:disabled { color:#d9d9d9; cursor:not-allowed; background:transparent; }

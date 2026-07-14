@@ -10,6 +10,8 @@ const styleSourceFiles = [
     'config-provider/style.css',
     'space/style.css',
     'divider/style.css',
+    'date-picker/style.css',
+    'time-picker/style.css',
     'flex/style.css',
     'grid/style.css',
     'icon/style.css',

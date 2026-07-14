@@ -7,6 +7,7 @@ import Card, { CardGrid, CardMeta } from './card'
 import Checkbox, { CheckboxGroup } from './checkbox'
 import ConfigProvider from './config-provider'
 import Descriptions from './descriptions'
+import DatePicker from './date-picker'
 import Divider from './divider'
 import Drawer from './drawer'
 import Dropdown, { DropdownButton } from './dropdown'
@@ -34,6 +35,7 @@ import Splitter, { SplitterPanel } from './splitter'
 import Table from './table'
 import Tag, { CheckableTag, TagGroup } from './tag'
 import Tabs from './tabs'
+import TimePicker from './time-picker'
 import Textarea from './textarea'
 import Tooltip from './tooltip'
 import Typography, { Link, Paragraph, Text, Title } from './typography'
@@ -46,6 +48,8 @@ const components = [
   ConfigProvider,
   Space,
   Divider,
+  DatePicker,
+  TimePicker,
   Flex,
   Grid,
   Icon,
@@ -104,5 +108,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Splitter, SplitterPanel, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, DatePicker, TimePicker, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Splitter, SplitterPanel, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI
