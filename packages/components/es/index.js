@@ -31,6 +31,7 @@ import Space from "./space/index.js";
 import Spin from "./spin/index.js";
 import Steps from "./steps/index.js";
 import Switch from "./switch/index.js";
+import Splitter, { SplitterPanel } from "./splitter/index.js";
 import Table from "./table/index.js";
 import Tag, { CheckableTag, TagGroup } from "./tag/index.js";
 import Tabs from "./tabs/index.js";
@@ -82,6 +83,8 @@ const components = [
   Radio,
   RadioGroup,
   Switch,
+  Splitter,
+  SplitterPanel,
   Card,
   CardGrid,
   CardMeta,
@@ -144,6 +147,8 @@ export {
   Skeleton,
   Space,
   Spin,
+  Splitter,
+  SplitterPanel,
   Steps,
   Switch,
   Table,

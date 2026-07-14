@@ -12,7 +12,7 @@ const resolveValue = (value: number | `${number}%` | undefined, containerSize: n
   return fallback
 }
 
-const getBounds = (panel: SplitterPanelConstraint | undefined, containerSize?: number) => ({
+export const resolveSplitterPanelBounds = (panel: SplitterPanelConstraint | undefined, containerSize = 0) => ({
   min: Math.max(0, resolveValue(panel?.min, containerSize ?? 0, 0)),
   max: Math.max(0, resolveValue(panel?.max, containerSize ?? 0, Number.POSITIVE_INFINITY))
 })
@@ -24,7 +24,7 @@ const redistribute = (sizes: number[], panels: SplitterPanelConstraint[], contai
     let changed = false
 
     for (let index = 0; index < nextSizes.length; index += 1) {
-      const bounds = getBounds(panels[index], containerSize)
+      const bounds = resolveSplitterPanelBounds(panels[index], containerSize)
 
       if (nextSizes[index] < bounds.min) {
         let remaining = bounds.min - nextSizes[index]
@@ -32,7 +32,7 @@ const redistribute = (sizes: number[], panels: SplitterPanelConstraint[], contai
 
         for (let donor = 0; donor < nextSizes.length && remaining > 0; donor += 1) {
           if (donor === index) continue
-          const donorBounds = getBounds(panels[donor], containerSize)
+          const donorBounds = resolveSplitterPanelBounds(panels[donor], containerSize)
           const transferable = Math.max(0, nextSizes[donor] - donorBounds.min)
           const transfer = Math.min(transferable, remaining)
           nextSizes[donor] -= transfer
@@ -48,7 +48,7 @@ const redistribute = (sizes: number[], panels: SplitterPanelConstraint[], contai
 
         for (let receiver = 0; receiver < nextSizes.length && remaining > 0; receiver += 1) {
           if (receiver === index) continue
-          const receiverBounds = getBounds(panels[receiver], containerSize)
+          const receiverBounds = resolveSplitterPanelBounds(panels[receiver], containerSize)
           const capacity = Math.max(0, receiverBounds.max - nextSizes[receiver])
           const transfer = Math.min(capacity, remaining)
           nextSizes[receiver] += transfer
@@ -85,8 +85,8 @@ export const resizeAdjacentPanels = ({ sizes, panels, handleIndex, delta }: Resi
     return [...sizes]
   }
 
-  const leftBounds = getBounds(panels[handleIndex])
-  const rightBounds = getBounds(panels[rightIndex])
+  const leftBounds = resolveSplitterPanelBounds(panels[handleIndex])
+  const rightBounds = resolveSplitterPanelBounds(panels[rightIndex])
   const lowerDelta = Math.max(leftBounds.min - sizes[handleIndex], sizes[rightIndex] - rightBounds.max)
   const upperDelta = Math.min(leftBounds.max - sizes[handleIndex], sizes[rightIndex] - rightBounds.min)
   const appliedDelta = Math.min(Math.max(delta, lowerDelta), upperDelta)

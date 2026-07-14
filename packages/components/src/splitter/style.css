@@ -46,3 +46,38 @@
 .aheart-splitter__handle--vertical::after {
   inset: 2px 0;
 }
+
+.aheart-splitter__collapse {
+  position: absolute;
+  z-index: 1;
+  inset: 50% auto auto 50%;
+  inline-size: 14px;
+  block-size: 14px;
+  padding: 0;
+  border: 1px solid var(--aheart-color-border, #d9d9d9);
+  border-radius: 50%;
+  background: var(--aheart-color-bg-container, #fff);
+  color: var(--aheart-color-text, #1f1f1f);
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
+.aheart-splitter__collapse::before,
+.aheart-splitter__collapse::after {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  inline-size: 6px;
+  block-size: 1px;
+  background: currentColor;
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.aheart-splitter__collapse[aria-pressed='false']::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.aheart-splitter__collapse:focus-visible {
+  outline: 2px solid var(--aheart-color-primary, #1677ff);
+  outline-offset: 1px;
+}

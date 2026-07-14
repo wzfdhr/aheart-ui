@@ -3,6 +3,7 @@ export type SplitterSize = number | `${number}%` | 'auto'
 export interface SplitterPanelConstraint {
   min?: number | `${number}%`
   max?: number | `${number}%`
+  collapsible?: boolean
 }
 
 export interface ResolveSplitterSizesOptions {
@@ -25,4 +26,5 @@ export interface SplitterProps {
   defaultSizes?: SplitterSize[]
   layout?: SplitterLayout
   lazy?: boolean
+  disabled?: boolean
 }

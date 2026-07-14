@@ -140,6 +140,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('divider'), en: '/en/components/divider' }
       },
       {
+        key: 'splitter',
+        name: 'Splitter',
+        zhName: '分割面板',
+        description: {
+          zh: '通过可拖动分隔柄调整相邻面板尺寸。',
+          en: 'Resize adjacent panels with draggable separator handles.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('splitter'), en: '/en/components/splitter' }
+      },
+      {
         key: 'flex',
         name: 'Flex',
         zhName: '弹性布局',

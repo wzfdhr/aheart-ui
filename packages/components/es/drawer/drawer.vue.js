@@ -1,5 +1,6 @@
 import { defineComponent, useSlots, ref, inject, provide, computed, watch, nextTick, onBeforeUnmount, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, withCtx, createElementVNode, renderSlot, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
+import { usePointerDrag } from "../utils/use-pointer-drag.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["disabled"];
@@ -309,7 +310,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     );
     onBeforeUnmount(() => {
       parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, false);
-      stopResize();
     });
     const resolveSemanticConfig = (config, part) => {
       const resolved = typeof config === "function" ? config({ props }) : config;
@@ -391,28 +391,35 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!resizeStart.value) {
         return;
       }
-      stopResize();
       resizeStart.value = null;
       (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResizeEnd) == null ? void 0 : _b.call(_a);
     }
-    function stopResize() {
-      document.removeEventListener("pointermove", handleResizeMove);
-      document.removeEventListener("pointerup", handleResizeEnd);
-    }
+    const { isDragging: isResizing, start: startPointerResize } = usePointerDrag({
+      cursor: () => props.placement === "top" || props.placement === "bottom" ? "row-resize" : "col-resize",
+      onMove: handleResizeMove,
+      onEnd: (reason) => {
+        if (reason === "end") {
+          handleResizeEnd();
+        } else {
+          resizeStart.value = null;
+        }
+      }
+    });
     function handleResizeStart(event) {
       var _a, _b;
       if (!isResizable.value) {
         return;
       }
-      event.preventDefault();
+      startPointerResize(event);
+      if (!isResizing.value) {
+        return;
+      }
       resizeStart.value = {
         size: activePanelSize.value,
         clientX: event.clientX,
         clientY: event.clientY
       };
       (_b = (_a = resizableConfig.value) == null ? void 0 : _a.onResizeStart) == null ? void 0 : _b.call(_a);
-      document.addEventListener("pointermove", handleResizeMove);
-      document.addEventListener("pointerup", handleResizeEnd);
     }
     const close = () => {
       emit("update:open", false);

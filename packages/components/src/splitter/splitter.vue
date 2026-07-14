@@ -14,7 +14,7 @@ import {
   type VNode
 } from 'vue'
 import { usePointerDrag } from '../utils/use-pointer-drag'
-import { resizeAdjacentPanels, resolveSplitterSizes } from './solver'
+import { resizeAdjacentPanels, resolveSplitterPanelBounds, resolveSplitterSizes } from './solver'
 import type { SplitterLayout, SplitterPanelConstraint, SplitterSize } from './types'
 import './style.css'
 
@@ -28,7 +28,8 @@ const splitterProps = {
     type: String as PropType<SplitterLayout>,
     default: 'horizontal'
   },
-  lazy: Boolean
+  lazy: Boolean,
+  disabled: Boolean
 } as const
 
 export default defineComponent({
@@ -45,6 +46,8 @@ export default defineComponent({
     const containerSize = ref(0)
     const innerSizes = ref<SplitterSize[]>([...props.defaultSizes])
     const pendingSizes = ref<number[] | null>(null)
+    const collapsedPanels = ref(new Set<number>())
+    const collapsedSizes = new Map<number, number>()
     const dragState = ref<{ handleIndex: number; startX: number; startY: number; sizes: number[] } | null>(null)
     let resizeObserver: ResizeObserver | undefined
 
@@ -52,7 +55,7 @@ export default defineComponent({
     const panelConstraints = computed<SplitterPanelConstraint[]>(() =>
       panelNodes.value.map((node) => {
         const panel = (node.props ?? {}) as SplitterPanelConstraint
-        return { min: panel.min, max: panel.max }
+        return { min: panel.min, max: panel.max, collapsible: panel.collapsible }
       })
     )
     const sourceSizes = computed<SplitterSize[]>(() => {
@@ -119,6 +122,8 @@ export default defineComponent({
     })
 
     const handlePointerDown = (event: PointerEvent, handleIndex: number) => {
+      if (props.disabled) return
+
       dragState.value = {
         handleIndex,
         startX: event.clientX,
@@ -136,6 +141,8 @@ export default defineComponent({
     }
 
     const handleKeydown = (event: KeyboardEvent, handleIndex: number) => {
+      if (props.disabled) return
+
       const increaseKey = isHorizontal.value ? 'ArrowRight' : 'ArrowDown'
       const decreaseKey = isHorizontal.value ? 'ArrowLeft' : 'ArrowUp'
       if (event.key !== increaseKey && event.key !== decreaseKey) return
@@ -145,6 +152,46 @@ export default defineComponent({
       const nextSizes = applyResize(handleIndex, delta, true)
       pendingSizes.value = null
       emit('resizeEnd', nextSizes)
+    }
+
+    const getCollapsiblePanelIndex = (handleIndex: number) => {
+      if (panelConstraints.value[handleIndex]?.collapsible) return handleIndex
+      if (panelConstraints.value[handleIndex + 1]?.collapsible) return handleIndex + 1
+      return undefined
+    }
+
+    const togglePanelCollapse = (handleIndex: number) => {
+      if (props.disabled) return
+
+      const panelIndex = getCollapsiblePanelIndex(handleIndex)
+      if (panelIndex === undefined) return
+
+      const currentSizes = resolvedSizes.value
+      const isCollapsed = collapsedPanels.value.has(panelIndex)
+      const targetSize = isCollapsed
+        ? collapsedSizes.get(panelIndex) ?? currentSizes[panelIndex]
+        : resolveSplitterPanelBounds(panelConstraints.value[panelIndex], solverContainerSize.value).min
+      const delta = panelIndex === currentSizes.length - 1
+        ? currentSizes[panelIndex] - targetSize
+        : targetSize - currentSizes[panelIndex]
+      const nextSizes = resizeAdjacentPanels({
+        sizes: currentSizes,
+        panels: panelConstraints.value,
+        handleIndex: panelIndex === currentSizes.length - 1 ? panelIndex - 1 : panelIndex,
+        delta
+      })
+
+      if (isCollapsed) {
+        collapsedSizes.delete(panelIndex)
+        const nextCollapsedPanels = new Set(collapsedPanels.value)
+        nextCollapsedPanels.delete(panelIndex)
+        collapsedPanels.value = nextCollapsedPanels
+      } else {
+        collapsedSizes.set(panelIndex, currentSizes[panelIndex])
+        collapsedPanels.value = new Set([...collapsedPanels.value, panelIndex])
+      }
+
+      emitSizes(nextSizes)
     }
 
     const panelStyle = (index: number): CSSProperties => {
@@ -157,6 +204,18 @@ export default defineComponent({
         flexGrow: 0,
         flexShrink: 0,
         flexBasis: `${resolvedSizes.value[index] ?? 0}px`
+      }
+    }
+
+    const getHandleAriaBounds = (handleIndex: number) => {
+      const leftSize = resolvedSizes.value[handleIndex] ?? 0
+      const rightSize = resolvedSizes.value[handleIndex + 1] ?? 0
+      const leftBounds = resolveSplitterPanelBounds(panelConstraints.value[handleIndex], solverContainerSize.value)
+      const rightBounds = resolveSplitterPanelBounds(panelConstraints.value[handleIndex + 1], solverContainerSize.value)
+
+      return {
+        min: Math.max(leftBounds.min, leftSize + rightSize - rightBounds.max),
+        max: Math.min(leftBounds.max, leftSize + rightSize - rightBounds.min)
       }
     }
 
@@ -177,19 +236,37 @@ export default defineComponent({
 
         if (index >= panelNodes.value.length - 1) return
         const size = resolvedSizes.value[index] ?? 0
-        const bounds = panelConstraints.value[index] ?? {}
+        const bounds = getHandleAriaBounds(index)
+        const collapsiblePanelIndex = getCollapsiblePanelIndex(index)
+        const isPanelCollapsed = collapsiblePanelIndex !== undefined && collapsedPanels.value.has(collapsiblePanelIndex)
+        const handleChildren = []
+
+        if (collapsiblePanelIndex !== undefined) {
+          handleChildren.push(
+            h('button', {
+              class: 'aheart-splitter__collapse',
+              type: 'button',
+              disabled: props.disabled,
+              'aria-label': isPanelCollapsed ? 'Expand panel' : 'Collapse panel',
+              'aria-pressed': isPanelCollapsed,
+              onPointerdown: (event: PointerEvent) => event.stopPropagation(),
+              onClick: () => togglePanelCollapse(index)
+            })
+          )
+        }
         children.push(
           h('div', {
             class: ['aheart-splitter__handle', `aheart-splitter__handle--${props.layout}`],
             role: 'separator',
-            tabindex: 0,
+            tabindex: props.disabled ? -1 : 0,
             'aria-orientation': isHorizontal.value ? 'vertical' : 'horizontal',
             'aria-valuenow': Math.round(size),
-            'aria-valuemin': bounds.min ?? 0,
-            'aria-valuemax': bounds.max,
+            'aria-valuemin': Math.round(bounds.min),
+            'aria-valuemax': Math.round(bounds.max),
+            'aria-disabled': props.disabled || undefined,
             onPointerdown: (event: PointerEvent) => handlePointerDown(event, index),
             onKeydown: (event: KeyboardEvent) => handleKeydown(event, index)
-          })
+          }, handleChildren)
         )
       })
 

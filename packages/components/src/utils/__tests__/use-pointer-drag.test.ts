@@ -39,7 +39,6 @@ describe('usePointerDrag', () => {
     await wrapper.find('.drag-handle').trigger('pointerdown', { button: 0, pointerId: 1, clientX: 10, clientY: 20 })
     await wrapper.find('.drag-handle').trigger('pointerdown', { button: 0, pointerId: 1, clientX: 10, clientY: 20 })
     document.dispatchEvent(createPointerEvent('pointermove', 1, { clientX: 30, clientY: 20 }))
-    document.dispatchEvent(createPointerEvent('pointermove', 1, { clientX: 40, clientY: 20 }))
 
     const shield = document.querySelector('[data-aheart-drag-shield]') as HTMLElement
     expect(shield).not.toBeNull()
@@ -49,7 +48,9 @@ describe('usePointerDrag', () => {
     expect(document.body.style.cursor).toBe('col-resize')
     expect(onMove).not.toHaveBeenCalled()
 
-    document.dispatchEvent(createPointerEvent('pointerup', 1, { clientX: 40, clientY: 20 }))
+    // Once the pointer crosses an iframe, the full-page shield becomes the event target and bubbles back to the driver.
+    shield.dispatchEvent(createPointerEvent('pointermove', 1, { clientX: 40, clientY: 20 }))
+    shield.dispatchEvent(createPointerEvent('pointerup', 1, { clientX: 40, clientY: 20 }))
     await nextTick()
 
     expect(onMove).toHaveBeenCalledTimes(1)

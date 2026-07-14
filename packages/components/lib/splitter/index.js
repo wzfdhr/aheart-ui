@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
+const splitter_vue_vue_type_script_lang = require("./splitter.vue.js");
+const splitterPanel_vue_vue_type_script_setup_true_lang = require("./splitter-panel.vue.js");
+const install = require("../utils/install.js");
+const Splitter = install.withInstall(splitter_vue_vue_type_script_lang.default, "ASplitter");
+const SplitterPanel = install.withInstall(splitterPanel_vue_vue_type_script_setup_true_lang.default, "ASplitterPanel");
+const Splitter$1 = Splitter;
+exports.SplitterPanel = SplitterPanel;
+exports.default = Splitter$1;
