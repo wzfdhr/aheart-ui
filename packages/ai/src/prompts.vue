@@ -1,10 +1,12 @@
 <template>
-  <div class="aheart-ai-prompts" role="list">
-    <button v-for="prompt in prompts" :key="prompt.key" type="button" role="listitem" :disabled="disabled" @click="emit('select', prompt)">
-      <strong>{{ prompt.label }}</strong>
-      <span v-if="prompt.description">{{ prompt.description }}</span>
-    </button>
-  </div>
+  <ul class="aheart-ai-prompts" aria-label="建议任务">
+    <li v-for="prompt in prompts" :key="prompt.key">
+      <button type="button" :disabled="disabled" @click="emit('select', prompt)">
+        <strong>{{ prompt.label }}</strong>
+        <span v-if="prompt.description">{{ prompt.description }}</span>
+      </button>
+    </li>
+  </ul>
 </template>
 
 <script setup lang="ts">

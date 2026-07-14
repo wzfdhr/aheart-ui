@@ -2,6 +2,7 @@ import { defineComponent, ref, computed, Comment, Text, onMounted, onBeforeUnmou
 import { usePointerDrag } from "../utils/use-pointer-drag.js";
 import { resolveSplitterSizes, resolveSplitterPanelBounds, resizeAdjacentPanels } from "./solver.js";
 import "./style.css.js";
+const SPLITTER_HANDLE_SIZE = 6;
 const splitterProps = {
   sizes: Array,
   defaultSizes: {
@@ -48,8 +49,10 @@ const _sfc_main = defineComponent({
       return panelNodes.value.map((_, index) => configured[index] ?? "auto");
     });
     const solverContainerSize = computed(() => {
-      if (containerSize.value > 0)
-        return containerSize.value;
+      if (containerSize.value > 0) {
+        const handleSpace = Math.max(0, panelNodes.value.length - 1) * SPLITTER_HANDLE_SIZE;
+        return Math.max(0, containerSize.value - handleSpace);
+      }
       return sourceSizes.value.reduce((total, size) => total + (typeof size === "number" ? size : 0), 0);
     });
     const resolvedSizes = computed(

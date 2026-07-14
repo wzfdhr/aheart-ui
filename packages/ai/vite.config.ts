@@ -31,5 +31,5 @@ export default defineConfig({
     },
     lib: { entry: './src/index.ts', name: 'AheartAI' }
   },
-  plugins: [vue(), dts({ tsconfigPath: './tsconfig.json' }), dts({ outDir: 'lib', tsconfigPath: './tsconfig.json' }), deterministicStyleBundle()]
+  plugins: [vue(), dts({ outDir: 'es', tsconfigPath: './tsconfig.json' }), dts({ outDir: 'lib', tsconfigPath: './tsconfig.json' }), deterministicStyleBundle()]
 })

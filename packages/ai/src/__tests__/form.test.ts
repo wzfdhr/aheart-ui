@@ -16,7 +16,7 @@ describe('AIForm', () => {
 
   it('degrades invalid schemas without rendering fields', () => {
     const wrapper = mount(AIForm, { props: { schema: { version: '1', fields: [{ key: 'bad', label: '危险', type: 'script' }] } } })
-    expect(wrapper.get('[role="alert"]').text()).toBe('表单配置无效')
+    expect(wrapper.get('[role="alert"]').text()).toContain('表单配置无效')
     expect(wrapper.emitted('schema-error')?.[0]?.[0]).not.toHaveLength(0)
   })
 
@@ -120,5 +120,74 @@ describe('AIForm', () => {
       expect(label.attributes('id')).toBe(`${key}-label`)
       expect(wrapper.get(`#${key}`).attributes('aria-labelledby')).toBe(`${key}-label`)
     }
+  })
+
+  it('renders product context and fields in declared semantic groups', () => {
+    const wrapper = mount(AIForm, {
+      props: {
+        schema: {
+          version: '1',
+          title: '创建研究任务',
+          description: '配置目标、范围和交付方式。',
+          groups: [
+            { key: 'basic', title: '任务目标', description: '先定义要解决的问题。' },
+            { key: 'delivery', title: '交付设置' }
+          ],
+          fields: [
+            { key: 'title', label: '任务名称', type: 'input', group: 'basic', description: '使用便于团队识别的名称。' },
+            { key: 'format', label: '交付格式', type: 'select', group: 'delivery', options: [{ label: '报告', value: 'report' }] }
+          ]
+        }
+      }
+    })
+
+    expect(wrapper.get('.aheart-ai-form__header').text()).toContain('创建研究任务')
+    expect(wrapper.findAll('fieldset')).toHaveLength(2)
+    expect(wrapper.findAll('legend').map((legend) => legend.text())).toEqual(['任务目标先定义要解决的问题。', '交付设置'])
+    expect(wrapper.get('[data-field-key="title"] .aheart-ai-form__field-description').text()).toBe('使用便于团队识别的名称。')
+  })
+
+  it('shows an error summary, focuses the first invalid field, and links feedback', async () => {
+    const wrapper = mount(AIForm, {
+      attachTo: document.body,
+      props: {
+        schema: {
+          version: '1',
+          fields: [
+            { key: 'title', label: '任务名称', type: 'input', required: true },
+            { key: 'owner', label: '负责人', type: 'input', required: true }
+          ]
+        }
+      }
+    })
+
+    await wrapper.get('form').trigger('submit')
+
+    const summary = wrapper.get('.aheart-ai-form__error-summary')
+    expect(summary.attributes('role')).toBe('alert')
+    expect(summary.text()).toContain('请完成 2 个必填项')
+    expect(wrapper.get('[data-field-key="title"]').classes()).toContain('is-error')
+    expect(wrapper.get('[data-field-key="title"] .aheart-ai-form__field-error').attributes('id')).toBe('title-error')
+    expect(document.activeElement).toBe(wrapper.get('[data-field-key="title"]').element)
+    wrapper.unmount()
+  })
+
+  it('locks the form while submitting and exposes a safe business error', async () => {
+    const wrapper = mount(AIForm, {
+      props: {
+        schema: { version: '1', fields: [{ key: 'title', label: '任务名称', type: 'input' }] },
+        modelValue: { title: '发布计划' },
+        submitting: true,
+        submitText: '创建任务',
+        submitError: '任务创建失败，请重试'
+      }
+    })
+
+    expect(wrapper.get('form').attributes('aria-busy')).toBe('true')
+    expect(wrapper.get('.aheart-input__control').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('button[type="submit"]').text()).toContain('创建任务')
+    expect(wrapper.get('.aheart-ai-form__submit-error').text()).toBe('任务创建失败，请重试')
+    await wrapper.get('form').trigger('submit')
+    expect(wrapper.emitted('submit')).toBeUndefined()
   })
 })

@@ -18,6 +18,8 @@ import { resizeAdjacentPanels, resolveSplitterPanelBounds, resolveSplitterSizes 
 import type { SplitterLayout, SplitterPanelConstraint, SplitterSize } from './types'
 import './style.css'
 
+const SPLITTER_HANDLE_SIZE = 6
+
 const splitterProps = {
   sizes: Array as PropType<SplitterSize[]>,
   defaultSizes: {
@@ -63,7 +65,10 @@ export default defineComponent({
       return panelNodes.value.map((_, index) => configured[index] ?? 'auto')
     })
     const solverContainerSize = computed<number>(() => {
-      if (containerSize.value > 0) return containerSize.value
+      if (containerSize.value > 0) {
+        const handleSpace = Math.max(0, panelNodes.value.length - 1) * SPLITTER_HANDLE_SIZE
+        return Math.max(0, containerSize.value - handleSpace)
+      }
       return sourceSizes.value.reduce<number>((total, size) => total + (typeof size === 'number' ? size : 0), 0)
     })
     const resolvedSizes = computed(() =>

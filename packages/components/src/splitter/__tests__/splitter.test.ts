@@ -195,7 +195,38 @@ describe('Splitter', () => {
     observers[0].callback()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll('.aheart-splitter__panel')[1].attributes('style')).toContain('flex-basis: 600px')
+    expect(wrapper.findAll('.aheart-splitter__panel')[1].attributes('style')).toContain('flex-basis: 594px')
+  })
+
+  it('reserves every handle width when distributing an auto panel', async () => {
+    const observers: Array<{ callback: () => void; observe: ReturnType<typeof vi.fn>; disconnect: ReturnType<typeof vi.fn> }> = []
+    class MockResizeObserver {
+      callback: () => void
+      observe = vi.fn()
+      disconnect = vi.fn()
+
+      constructor(callback: () => void) {
+        this.callback = callback
+        observers.push(this)
+      }
+    }
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+
+    const wrapper = mount(Splitter, {
+      props: { defaultSizes: [200, 'auto', 200] },
+      slots: {
+        default: () => [
+          h(SplitterPanel, null, () => 'Left'),
+          h(SplitterPanel, null, () => 'Center'),
+          h(SplitterPanel, null, () => 'Right')
+        ]
+      }
+    })
+    Object.defineProperty(wrapper.element, 'clientWidth', { configurable: true, value: 1000 })
+    observers[0].callback()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findAll('.aheart-splitter__panel')[1].attributes('style')).toContain('flex-basis: 588px')
   })
 
   it('keeps drag updates pending until release when lazy is enabled', async () => {

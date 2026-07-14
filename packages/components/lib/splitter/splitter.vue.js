@@ -4,6 +4,7 @@ const vue = require("vue");
 const usePointerDrag = require("../utils/use-pointer-drag.js");
 const solver = require("./solver.js");
 require("./style.css.js");
+const SPLITTER_HANDLE_SIZE = 6;
 const splitterProps = {
   sizes: Array,
   defaultSizes: {
@@ -50,8 +51,10 @@ const _sfc_main = vue.defineComponent({
       return panelNodes.value.map((_, index) => configured[index] ?? "auto");
     });
     const solverContainerSize = vue.computed(() => {
-      if (containerSize.value > 0)
-        return containerSize.value;
+      if (containerSize.value > 0) {
+        const handleSpace = Math.max(0, panelNodes.value.length - 1) * SPLITTER_HANDLE_SIZE;
+        return Math.max(0, containerSize.value - handleSpace);
+      }
       return sourceSizes.value.reduce((total, size) => total + (typeof size === "number" ? size : 0), 0);
     });
     const resolvedSizes = vue.computed(

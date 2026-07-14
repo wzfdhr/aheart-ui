@@ -36,10 +36,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         __props.loading ? (vue.openBlock(), vue.createElementBlock("button", {
           key: 0,
           type: "button",
+          "aria-label": "停止生成",
           onClick: _cache[1] || (_cache[1] = ($event) => emit("stop"))
         }, "停止")) : (vue.openBlock(), vue.createElementBlock("button", {
           key: 1,
           type: "submit",
+          "aria-label": "发送消息",
           disabled: __props.disabled || !__props.modelValue.trim(),
           onClick: vue.withModifiers(submit, ["prevent"])
         }, "发送", 8, _hoisted_2))

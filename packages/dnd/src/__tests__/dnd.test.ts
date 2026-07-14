@@ -137,4 +137,21 @@ describe('Aheart DnD adapters', () => {
     expect(wrapper.get('.aheart-dnd-live-region').text()).toBe('')
     wrapper.unmount()
   })
+
+  it('prevents item-level disabled records from dragging or keyboard sorting', async () => {
+    const wrapper = mount(SortableList, {
+      props: { items: [{ id: 'locked', disabled: true }, { id: 'open' }], itemKey: 'id' },
+      slots: { item: ({ item }: { item: { id: string } }) => item.id }
+    })
+    await nextTick()
+
+    const lockedConfig = adapter.draggable.mock.calls
+      .map(([config]) => config)
+      .findLast((config) => config.getInitialData().index === 0)
+    expect(lockedConfig.canDrag()).toBe(false)
+    expect(wrapper.get('[data-sortable-index="0"]').attributes('aria-disabled')).toBe('true')
+
+    await wrapper.get('[data-sortable-index="0"]').trigger('keydown', { key: 'ArrowDown', altKey: true })
+    expect(wrapper.emitted('update:items')).toBeUndefined()
+  })
 })

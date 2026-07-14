@@ -3,7 +3,7 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const _hoisted_1 = {
   class: "aheart-ai-prompts",
-  role: "list"
+  "aria-label": "建议任务"
 };
 const _hoisted_2 = ["disabled", "onClick"];
 const _hoisted_3 = { key: 0 };
@@ -18,18 +18,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const emit = __emit;
     return (_ctx, _cache) => {
-      return vue.openBlock(), vue.createElementBlock("div", _hoisted_1, [
+      return vue.openBlock(), vue.createElementBlock("ul", _hoisted_1, [
         (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(__props.prompts, (prompt) => {
-          return vue.openBlock(), vue.createElementBlock("button", {
-            key: prompt.key,
-            type: "button",
-            role: "listitem",
-            disabled: __props.disabled,
-            onClick: ($event) => emit("select", prompt)
+          return vue.openBlock(), vue.createElementBlock("li", {
+            key: prompt.key
           }, [
-            vue.createElementVNode("strong", null, vue.toDisplayString(prompt.label), 1),
-            prompt.description ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, vue.toDisplayString(prompt.description), 1)) : vue.createCommentVNode("", true)
-          ], 8, _hoisted_2);
+            vue.createElementVNode("button", {
+              type: "button",
+              disabled: __props.disabled,
+              onClick: ($event) => emit("select", prompt)
+            }, [
+              vue.createElementVNode("strong", null, vue.toDisplayString(prompt.label), 1),
+              prompt.description ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, vue.toDisplayString(prompt.description), 1)) : vue.createCommentVNode("", true)
+            ], 8, _hoisted_2)
+          ]);
         }), 128))
       ]);
     };

@@ -1,6 +1,6 @@
 export type AIMessageRole = 'user' | 'assistant' | 'system' | 'tool'
 export type AIMessageStatus = 'complete' | 'streaming' | 'stopped' | 'error'
-export type AIProcessStatus = 'pending' | 'running' | 'complete' | 'error'
+export type AIProcessStatus = 'pending' | 'running' | 'complete' | 'stopped' | 'error'
 
 export interface AIAttachment {
   id: string
@@ -37,9 +37,13 @@ export interface AIMessage {
 
 export type AIContentRenderer = (message: AIMessage) => VNodeChild
 
+export type AIChatAction = 'send' | 'retry' | 'regenerate' | 'edit'
+
 export interface AIChatRequest {
   conversationId?: string
   messages: AIMessage[]
+  action?: AIChatAction
+  messageId?: string
 }
 
 export type AIStreamEvent =
@@ -74,6 +78,7 @@ export interface AIAction {
 
 export type AIAgentTaskStatus = 'pending' | 'running' | 'waiting-approval' | 'complete' | 'error' | 'cancelled'
 export type AIAgentApprovalStatus = 'pending' | 'approved' | 'rejected'
+export type AIAgentTaskKind = 'task' | 'tool' | 'approval'
 
 export interface AIAgentApproval {
   id: string
@@ -86,8 +91,13 @@ export interface AIAgentTask {
   id: string
   label: string
   status: AIAgentTaskStatus
+  kind?: AIAgentTaskKind
   detail?: string
   error?: string
+  toolName?: string
+  progress?: number
+  startedAt?: string
+  completedAt?: string
   approval?: AIAgentApproval
 }
 
@@ -104,5 +114,7 @@ export interface AIAgentArtifact {
   description?: string
   type?: string
   url?: string
+  status?: 'draft' | 'ready' | 'error'
+  updatedAt?: string
 }
 import type { VNodeChild } from 'vue'

@@ -8,8 +8,8 @@
       @input="emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       @keydown.enter.exact.prevent="submit"
     />
-    <button v-if="loading" type="button" @click="emit('stop')">停止</button>
-    <button v-else type="submit" :disabled="disabled || !modelValue.trim()" @click.prevent="submit">发送</button>
+    <button v-if="loading" type="button" aria-label="停止生成" @click="emit('stop')">停止</button>
+    <button v-else type="submit" aria-label="发送消息" :disabled="disabled || !modelValue.trim()" @click.prevent="submit">发送</button>
   </form>
 </template>
 
