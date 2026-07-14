@@ -23,4 +23,15 @@ describe('TimePicker', () => {
     await wrapper.find('[data-time="10:15"]').trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
+
+  it('selects the next time option with keyboard navigation', async () => {
+    const wrapper = mount(TimePicker, { props: { defaultValue: '09:30' } })
+    const input = wrapper.find('input')
+
+    await input.trigger('focus')
+    await input.trigger('keydown', { key: 'ArrowDown' })
+    await input.trigger('keydown', { key: 'Enter' })
+
+    expect(wrapper.emitted('update:modelValue')).toEqual([['09:45']])
+  })
 })
