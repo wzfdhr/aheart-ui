@@ -15,6 +15,7 @@ const zhComponentItems = [
   { text: 'Upload 上传', link: '/components/upload' },
   { text: 'Tree 树形控件', link: '/components/tree' },
   { text: 'TreeSelect 树选择', link: '/components/tree-select' },
+  { text: 'Cascader 级联选择', link: '/components/cascader' },
   { text: 'Splitter 分割面板', link: '/components/splitter' },
   { text: 'Flex 弹性布局', link: '/components/flex' },
   { text: 'Grid 栅格', link: '/components/grid' },

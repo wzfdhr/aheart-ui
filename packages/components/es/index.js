@@ -3,6 +3,7 @@ import Badge, { BadgeRibbon } from "./badge/index.js";
 import Breadcrumb from "./breadcrumb/index.js";
 import Button from "./button/index.js";
 import Card, { CardGrid, CardMeta } from "./card/index.js";
+import Cascader from "./cascader/index.js";
 import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
@@ -48,6 +49,7 @@ import { message } from "./message/service.js";
 import { enUS, zhCN } from "./config/context.js";
 const components = [
   Button,
+  Cascader,
   ConfigProvider,
   Space,
   Divider,
@@ -122,6 +124,7 @@ export {
   Card,
   CardGrid,
   CardMeta,
+  Cascader,
   CheckableTag,
   Checkbox,
   CheckboxGroup,

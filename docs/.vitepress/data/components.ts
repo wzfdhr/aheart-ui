@@ -320,6 +320,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('tree-select') }
       },
       {
+        key: 'cascader',
+        name: 'Cascader',
+        zhName: '级联选择',
+        description: {
+          zh: '从多级选项中选择一条或多条路径。',
+          en: 'Select one or more paths from nested options.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('cascader') }
+      },
+      {
         key: 'textarea',
         name: 'Textarea',
         zhName: '文本域',

@@ -7,6 +7,7 @@ import dts from 'vite-plugin-dts'
 const styleSourceFiles = [
     'theme/index.css',
     'button/style.css',
+    'cascader/style.css',
     'config-provider/style.css',
     'space/style.css',
     'divider/style.css',

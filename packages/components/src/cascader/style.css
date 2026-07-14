@@ -1,0 +1,13 @@
+.aheart-cascader { position: relative; inline-size: min(100%, 320px); color: var(--aheart-color-text); }
+.aheart-cascader__trigger { display: flex; align-items: center; justify-content: space-between; inline-size: 100%; min-block-size: var(--aheart-control-height); padding: 0 var(--aheart-spacing-sm); border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-radius); background: var(--aheart-color-bg); color: inherit; text-align: start; cursor: pointer; }
+.aheart-cascader__trigger:disabled { background: var(--aheart-color-bg-disabled); color: var(--aheart-color-text-disabled); cursor: not-allowed; }
+.aheart-cascader__panel { position: absolute; z-index: 10; inset-block-start: calc(100% + 4px); inline-size: max-content; min-inline-size: 100%; max-inline-size: min(100vw - 32px, 720px); overflow: auto; padding: var(--aheart-spacing-sm); border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-radius); background: var(--aheart-color-bg); box-shadow: var(--aheart-shadow); }
+.aheart-cascader__columns { display: flex; min-block-size: 180px; }
+.aheart-cascader__column { inline-size: 180px; padding-inline-end: var(--aheart-spacing-sm); border-inline-end: 1px solid var(--aheart-color-border-secondary); }
+.aheart-cascader__column:last-child { padding-inline-end: 0; border-inline-end: 0; }
+.aheart-cascader__option { display: flex; align-items: center; justify-content: space-between; inline-size: 100%; min-block-size: 32px; padding: 0 var(--aheart-spacing-sm); border: 0; border-radius: var(--aheart-radius); background: transparent; color: inherit; text-align: start; cursor: pointer; }
+.aheart-cascader__option:hover, .aheart-cascader__option.is-active { background: var(--aheart-color-fill-secondary); }
+.aheart-cascader__option.is-selected { background: var(--aheart-color-primary-bg); color: var(--aheart-color-primary); }
+.aheart-cascader__option:disabled { color: var(--aheart-color-text-disabled); cursor: not-allowed; }
+.aheart-cascader__search { box-sizing: border-box; inline-size: 100%; min-block-size: var(--aheart-control-height); margin-block-end: var(--aheart-spacing-sm); padding-inline: var(--aheart-spacing-sm); border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-radius); }
+.aheart-cascader__search-results { inline-size: 280px; }
