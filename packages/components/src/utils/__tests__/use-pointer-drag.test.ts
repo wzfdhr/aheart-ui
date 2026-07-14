@@ -81,6 +81,18 @@ describe('usePointerDrag', () => {
     expect(onEnd).toHaveBeenCalledWith('unmount')
   })
 
+  it('does not replay a move already delivered by an animation frame on pointerup', async () => {
+    vi.useFakeTimers()
+    const { wrapper, onMove } = createDriver()
+
+    await wrapper.find('.drag-handle').trigger('pointerdown', { button: 0, pointerId: 1 })
+    document.dispatchEvent(createPointerEvent('pointermove', 1, { clientX: 40 }))
+    vi.advanceTimersByTime(20)
+    document.dispatchEvent(createPointerEvent('pointerup', 1, { clientX: 40 }))
+
+    expect(onMove).toHaveBeenCalledTimes(1)
+  })
+
   it('cleans up the active drag when the window loses focus', async () => {
     const { wrapper, onEnd } = createDriver()
 

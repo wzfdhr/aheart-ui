@@ -80,8 +80,11 @@ export const usePointerDrag = (options: PointerDragOptions) => {
   const flushMove = () => {
     animationFrame = undefined
 
-    if (latestEvent) {
-      options.onMove(latestEvent)
+    const moveEvent = latestEvent
+    latestEvent = undefined
+
+    if (moveEvent) {
+      options.onMove(moveEvent)
     }
   }
 
