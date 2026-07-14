@@ -28,4 +28,17 @@ describe('DatePicker', () => {
     await wrapper.find('[data-date="2026-07-20"]').trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
+
+  it('selects the focused calendar day with keyboard navigation', async () => {
+    const wrapper = mount(DatePicker, {
+      props: { defaultValue: '2026-07-14' }
+    })
+
+    const input = wrapper.find('input')
+    await input.trigger('focus')
+    await input.trigger('keydown', { key: 'ArrowRight' })
+    await input.trigger('keydown', { key: 'Enter' })
+
+    expect(wrapper.emitted('update:modelValue')).toEqual([['2026-07-15']])
+  })
 })

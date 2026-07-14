@@ -8,7 +8,7 @@
       :readonly="readOnly"
       @focus="open = true"
       @input="handleInput"
-      @keydown.esc="open = false"
+      @keydown="handleKeydown"
     />
     <div v-if="open" class="aheart-date-picker__panel" role="dialog" aria-label="Choose date">
       <div class="aheart-date-picker__header">
@@ -65,6 +65,7 @@ const selectedDate = computed(() => parseDate(props.modelValue ?? internalValue.
 const currentDate = selectedDate.value ?? new Date()
 const viewYear = ref(currentDate.getFullYear())
 const viewMonth = ref(currentDate.getMonth())
+const focusedDate = ref(currentDate)
 const inputValue = computed(() => props.modelValue ?? internalValue.value ?? '')
 const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
@@ -99,6 +100,31 @@ const selectDate = (date: Date) => {
   viewYear.value = date.getFullYear()
   viewMonth.value = date.getMonth()
   open.value = false
+}
+const moveFocus = (offset: number) => {
+  const next = new Date(focusedDate.value.getFullYear(), focusedDate.value.getMonth(), focusedDate.value.getDate() + offset)
+  focusedDate.value = next
+  viewYear.value = next.getFullYear()
+  viewMonth.value = next.getMonth()
+}
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    open.value = false
+    return
+  }
+
+  const offsets: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }
+  if (event.key in offsets) {
+    event.preventDefault()
+    open.value = true
+    moveFocus(offsets[event.key])
+    return
+  }
+
+  if (event.key === 'Enter' && open.value) {
+    event.preventDefault()
+    selectDate(focusedDate.value)
+  }
 }
 const handleInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value
