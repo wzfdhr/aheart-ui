@@ -36,6 +36,8 @@ import Tabs from './tabs'
 import Textarea from './textarea'
 import Tooltip from './tooltip'
 import Typography, { Link, Paragraph, Text, Title } from './typography'
+export type { AheartLocale } from './config'
+export { enUS, zhCN } from './config'
 import './theme/index.css'
 
 const components = [

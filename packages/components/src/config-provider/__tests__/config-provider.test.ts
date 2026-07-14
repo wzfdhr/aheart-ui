@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { describe, expect, it } from 'vitest'
-import { useAheartConfig } from '../../config'
+import { enUS, useAheartConfig } from '../../config'
 import ConfigProvider from '../config-provider.vue'
 
 const ConfigReader = defineComponent({
@@ -13,7 +13,9 @@ const ConfigReader = defineComponent({
         class: 'config-reader',
         'data-size': config.value.size,
         'data-disabled': String(config.value.disabled),
-        'data-empty': config.value.locale?.empty?.description
+        'data-empty': config.value.locale?.empty?.description,
+        'data-pagination-total': config.value.locale?.pagination?.total?.(42, [1, 10]),
+        'data-modal-ok': config.value.locale?.modal?.okText
       })
   }
 })
@@ -59,5 +61,41 @@ describe('ConfigProvider', () => {
     expect(wrapper.attributes('style')).toContain('--aheart-color-primary: #0958d9')
     expect(wrapper.attributes('style')).toContain('--aheart-radius: 4px')
     expect(wrapper.attributes('style')).toContain('--aheart-font-size: 13px')
+  })
+
+  it('uses Simplified Chinese locale defaults', () => {
+    const wrapper = mount(ConfigReader)
+    const reader = wrapper.find('.config-reader')
+
+    expect(reader.attributes('data-empty')).toBe('暂无数据')
+    expect(reader.attributes('data-pagination-total')).toBe('共 42 条')
+    expect(reader.attributes('data-modal-ok')).toBe('确定')
+  })
+
+  it('deeply merges a nested locale override with its parent locale', () => {
+    const NestedProvider = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ConfigProvider,
+            { locale: enUS },
+            {
+              default: () =>
+                h(
+                  ConfigProvider,
+                  { locale: { modal: { okText: 'Proceed' } } },
+                  { default: () => h(ConfigReader) }
+                )
+            }
+          )
+      }
+    })
+
+    const wrapper = mount(NestedProvider)
+    const reader = wrapper.find('.config-reader')
+
+    expect(reader.attributes('data-empty')).toBe('No Data')
+    expect(reader.attributes('data-pagination-total')).toBe('Total 42 items')
+    expect(reader.attributes('data-modal-ok')).toBe('Proceed')
   })
 })

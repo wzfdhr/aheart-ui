@@ -7,6 +7,69 @@ export interface AheartLocale {
   empty?: {
     description?: string
   }
+  pagination?: {
+    ariaLabel?: string
+    prevPage?: string
+    nextPage?: string
+    pageSize?: (pageSize: number) => string
+    quickJumper?: string
+    goButton?: string
+    total?: (total: number, range: [number, number]) => string
+  }
+  modal?: {
+    okText?: string
+    cancelText?: string
+    close?: string
+  }
+  table?: {
+    emptyText?: string
+  }
+}
+
+export const zhCN: AheartLocale = {
+  empty: {
+    description: '暂无数据'
+  },
+  pagination: {
+    ariaLabel: '分页',
+    prevPage: '上一页',
+    nextPage: '下一页',
+    pageSize: (pageSize) => `${pageSize} 条/页`,
+    quickJumper: '跳至',
+    goButton: '确定',
+    total: (total) => `共 ${total} 条`
+  },
+  modal: {
+    okText: '确定',
+    cancelText: '取消',
+    close: '关闭'
+  },
+  table: {
+    emptyText: '暂无数据'
+  }
+}
+
+export const enUS: AheartLocale = {
+  empty: {
+    description: 'No Data'
+  },
+  pagination: {
+    ariaLabel: 'pagination',
+    prevPage: 'Previous Page',
+    nextPage: 'Next Page',
+    pageSize: (pageSize) => `${pageSize} / page`,
+    quickJumper: 'Go to',
+    goButton: 'Go',
+    total: (total) => `Total ${total} items`
+  },
+  modal: {
+    okText: 'OK',
+    cancelText: 'Cancel',
+    close: 'Close'
+  },
+  table: {
+    emptyText: 'No Data'
+  }
 }
 
 export interface AheartTheme {
@@ -37,11 +100,7 @@ export const defaultAheartConfig: Required<Pick<AheartConfig, 'size' | 'disabled
   Pick<AheartConfig, 'locale' | 'theme'> = {
   size: 'middle',
   disabled: false,
-  locale: {
-    empty: {
-      description: 'No Data'
-    }
-  },
+  locale: zhCN,
   theme: {}
 }
 
@@ -62,13 +121,28 @@ export const provideAheartConfig = (config: Ref<AheartConfig>) => {
       ...parent,
       ...current,
       locale: {
-        ...defaultAheartConfig.locale,
+        ...zhCN,
         ...parent.locale,
         ...current.locale,
         empty: {
-          ...defaultAheartConfig.locale?.empty,
+          ...zhCN.empty,
           ...parent.locale?.empty,
           ...current.locale?.empty
+        },
+        pagination: {
+          ...zhCN.pagination,
+          ...parent.locale?.pagination,
+          ...current.locale?.pagination
+        },
+        modal: {
+          ...zhCN.modal,
+          ...parent.locale?.modal,
+          ...current.locale?.modal
+        },
+        table: {
+          ...zhCN.table,
+          ...parent.locale?.table,
+          ...current.locale?.table
         }
       },
       theme: {
