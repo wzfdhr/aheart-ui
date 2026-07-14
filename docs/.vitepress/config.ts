@@ -18,6 +18,7 @@ const zhComponentItems = [
   { text: 'Cascader 级联选择', link: '/components/cascader' },
   { text: 'DnD 拖拽', link: '/components/dnd' },
   { text: 'AI 智能对话', link: '/components/ai' },
+  { text: 'AI 智能表单', link: '/components/ai-form' },
   { text: 'Splitter 分割面板', link: '/components/splitter' },
   { text: 'Flex 弹性布局', link: '/components/flex' },
   { text: 'Grid 栅格', link: '/components/grid' },

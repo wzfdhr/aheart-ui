@@ -11,7 +11,9 @@ const sender_vue_vue_type_script_setup_true_lang = require("./sender.vue.js");
 const sources_vue_vue_type_script_setup_true_lang = require("./sources.vue.js");
 const thoughtChain_vue_vue_type_script_setup_true_lang = require("./thought-chain.vue.js");
 const welcome_vue_vue_type_script_setup_true_lang = require("./welcome.vue.js");
+const form_vue_vue_type_script_setup_true_lang = require("./form.vue.js");
 ;/* empty css           */
+const formSchema = require("./form-schema.js");
 const AheartAI = {
   install(app) {
     app.component("AAIActions", actions_vue_vue_type_script_setup_true_lang.default);
@@ -19,6 +21,7 @@ const AheartAI = {
     app.component("AAIBubble", bubble_vue_vue_type_script_setup_true_lang.default);
     app.component("AAIChatPanel", chatPanel_vue_vue_type_script_setup_true_lang.default);
     app.component("AAIConversations", conversations_vue_vue_type_script_setup_true_lang.default);
+    app.component("AAIForm", form_vue_vue_type_script_setup_true_lang.default);
     app.component("AAIProcess", process_vue_vue_type_script_setup_true_lang.default);
     app.component("AAIPrompts", prompts_vue_vue_type_script_setup_true_lang.default);
     app.component("AAISender", sender_vue_vue_type_script_setup_true_lang.default);
@@ -38,4 +41,8 @@ exports.AISender = sender_vue_vue_type_script_setup_true_lang.default;
 exports.AISources = sources_vue_vue_type_script_setup_true_lang.default;
 exports.AIThoughtChain = thoughtChain_vue_vue_type_script_setup_true_lang.default;
 exports.AIWelcome = welcome_vue_vue_type_script_setup_true_lang.default;
+exports.AIForm = form_vue_vue_type_script_setup_true_lang.default;
+exports.AI_FORM_CONDITION_OPERATORS = formSchema.AI_FORM_CONDITION_OPERATORS;
+exports.AI_FORM_FIELD_TYPES = formSchema.AI_FORM_FIELD_TYPES;
+exports.validateAIFormSchema = formSchema.validateAIFormSchema;
 exports.default = AheartAI;

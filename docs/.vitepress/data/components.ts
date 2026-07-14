@@ -643,6 +643,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         },
         status: 'Ready',
         link: { zh: zhLink('ai') }
+      },
+      {
+        key: 'ai-form',
+        name: 'AIForm',
+        zhName: 'AI 智能表单',
+        description: {
+          zh: '根据安全 schema 受控渲染表单字段与联动条件。',
+          en: 'Render controlled form fields and conditions from a safe schema.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('ai-form') }
       }
     ]
   }

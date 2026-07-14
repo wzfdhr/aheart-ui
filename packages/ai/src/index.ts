@@ -9,10 +9,12 @@ import AISender from './sender.vue'
 import AISources from './sources.vue'
 import AIThoughtChain from './thought-chain.vue'
 import AIWelcome from './welcome.vue'
+import AIForm from './form.vue'
 import './style.css'
 
-export { AIActions, AIAttachments, AIBubble, AIChatPanel, AIConversations, AIProcess, AIPrompts, AISender, AISources, AIThoughtChain, AIWelcome }
+export { AIActions, AIAttachments, AIBubble, AIChatPanel, AIConversations, AIForm, AIProcess, AIPrompts, AISender, AISources, AIThoughtChain, AIWelcome }
 export * from './types'
+export * from './form-schema'
 
 const AheartAI: Plugin = {
   install(app: App) {
@@ -21,6 +23,7 @@ const AheartAI: Plugin = {
     app.component('AAIBubble', AIBubble)
     app.component('AAIChatPanel', AIChatPanel)
     app.component('AAIConversations', AIConversations)
+    app.component('AAIForm', AIForm)
     app.component('AAIProcess', AIProcess)
     app.component('AAIPrompts', AIPrompts)
     app.component('AAISender', AISender)
