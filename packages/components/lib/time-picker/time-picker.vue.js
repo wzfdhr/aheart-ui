@@ -40,6 +40,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }).filter((time) => time !== void 0)
       ).flat();
     });
+    const focusedIndex = vue.ref(0);
     const isTime = (value) => /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
     const updateValue = (value) => {
       if (props.modelValue === void 0)
@@ -53,6 +54,29 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       updateValue(time);
       open.value = false;
+    };
+    const handleKeydown = (event) => {
+      if (event.key === "Escape") {
+        open.value = false;
+        return;
+      }
+      const currentIndex = Math.max(0, times.value.indexOf(inputValue.value));
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+        event.preventDefault();
+        open.value = true;
+        focusedIndex.value = Math.min(times.value.length - 1, currentIndex + 1);
+        return;
+      }
+      if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+        event.preventDefault();
+        open.value = true;
+        focusedIndex.value = Math.max(0, currentIndex - 1);
+        return;
+      }
+      if (event.key === "Enter" && open.value) {
+        event.preventDefault();
+        selectTime(times.value[focusedIndex.value]);
+      }
     };
     const handleInput = (event) => {
       var _a;
@@ -72,7 +96,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           readonly: __props.readOnly,
           onFocus: _cache[0] || (_cache[0] = ($event) => open.value = true),
           onInput: handleInput,
-          onKeydown: _cache[1] || (_cache[1] = vue.withKeys(($event) => open.value = false, ["esc"]))
+          onKeydown: handleKeydown
         }, null, 40, _hoisted_2),
         open.value ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_3, [
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(times.value, (time) => {

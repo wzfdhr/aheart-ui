@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, openBlock, createElementBlock, createElementVNode, withKeys, Fragment, renderList, normalizeClass, toDisplayString, createCommentVNode } from "vue";
+import { defineComponent, ref, computed, openBlock, createElementBlock, createElementVNode, Fragment, renderList, normalizeClass, toDisplayString, createCommentVNode } from "vue";
 import "./style.css.js";
 const _hoisted_1 = { class: "aheart-time-picker" };
 const _hoisted_2 = ["value", "placeholder", "disabled", "readonly"];
@@ -38,6 +38,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }).filter((time) => time !== void 0)
       ).flat();
     });
+    const focusedIndex = ref(0);
     const isTime = (value) => /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
     const updateValue = (value) => {
       if (props.modelValue === void 0)
@@ -51,6 +52,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       updateValue(time);
       open.value = false;
+    };
+    const handleKeydown = (event) => {
+      if (event.key === "Escape") {
+        open.value = false;
+        return;
+      }
+      const currentIndex = Math.max(0, times.value.indexOf(inputValue.value));
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+        event.preventDefault();
+        open.value = true;
+        focusedIndex.value = Math.min(times.value.length - 1, currentIndex + 1);
+        return;
+      }
+      if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+        event.preventDefault();
+        open.value = true;
+        focusedIndex.value = Math.max(0, currentIndex - 1);
+        return;
+      }
+      if (event.key === "Enter" && open.value) {
+        event.preventDefault();
+        selectTime(times.value[focusedIndex.value]);
+      }
     };
     const handleInput = (event) => {
       var _a;
@@ -70,7 +94,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           readonly: __props.readOnly,
           onFocus: _cache[0] || (_cache[0] = ($event) => open.value = true),
           onInput: handleInput,
-          onKeydown: _cache[1] || (_cache[1] = withKeys(($event) => open.value = false, ["esc"]))
+          onKeydown: handleKeydown
         }, null, 40, _hoisted_2),
         open.value ? (openBlock(), createElementBlock("div", _hoisted_3, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(times.value, (time) => {
