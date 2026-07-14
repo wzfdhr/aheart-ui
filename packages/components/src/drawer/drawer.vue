@@ -544,7 +544,13 @@ function handleResizeEnd() {
 const { isDragging: isResizing, start: startPointerResize } = usePointerDrag({
   cursor: () => (props.placement === 'top' || props.placement === 'bottom' ? 'row-resize' : 'col-resize'),
   onMove: handleResizeMove,
-  onEnd: handleResizeEnd
+  onEnd: (reason) => {
+    if (reason === 'end') {
+      handleResizeEnd()
+    } else {
+      resizeStart.value = null
+    }
+  }
 })
 
 function handleResizeStart(event: PointerEvent) {

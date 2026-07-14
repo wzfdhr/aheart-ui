@@ -439,12 +439,13 @@ describe('Drawer', () => {
   })
 
   it('uses the shared drag shield and removes it when resize is cancelled or the drawer unmounts', async () => {
+    const onResizeEnd = vi.fn()
     const wrapper = mountDrawer({
       props: {
         open: true,
         title: 'Shielded drawer',
         width: 320,
-        resizable: true
+        resizable: { onResizeEnd }
       }
     })
     const dragger = wrapper.find('.aheart-drawer__dragger')
@@ -454,12 +455,14 @@ describe('Drawer', () => {
 
     document.dispatchEvent(new Event('pointercancel'))
     expect(document.querySelector('[data-aheart-drag-shield]')).toBeNull()
+    expect(onResizeEnd).not.toHaveBeenCalled()
 
     await dragger.trigger('pointerdown', { button: 0, pointerId: 2, clientX: 100, clientY: 0 })
     expect(document.querySelector('[data-aheart-drag-shield]')).not.toBeNull()
 
     wrapper.unmount()
     expect(document.querySelector('[data-aheart-drag-shield]')).toBeNull()
+    expect(onResizeEnd).not.toHaveBeenCalled()
   })
 
   it('does not render a resize dragger when resizable is disabled', () => {
