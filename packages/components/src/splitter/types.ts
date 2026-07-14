@@ -17,3 +17,12 @@ export interface ResizeAdjacentPanelsOptions {
   handleIndex: number
   delta: number
 }
+
+export type SplitterLayout = 'horizontal' | 'vertical'
+
+export interface SplitterProps {
+  sizes?: SplitterSize[]
+  defaultSizes?: SplitterSize[]
+  layout?: SplitterLayout
+  lazy?: boolean
+}

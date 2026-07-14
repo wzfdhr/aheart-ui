@@ -30,6 +30,7 @@ import Space from './space'
 import Spin from './spin'
 import Steps from './steps'
 import Switch from './switch'
+import Splitter, { SplitterPanel } from './splitter'
 import Table from './table'
 import Tag, { CheckableTag, TagGroup } from './tag'
 import Tabs from './tabs'
@@ -82,6 +83,8 @@ const components = [
   Radio,
   RadioGroup,
   Switch,
+  Splitter,
+  SplitterPanel,
   Card,
   CardGrid,
   CardMeta,
@@ -101,5 +104,5 @@ const AheartUI: Plugin = {
   }
 }
 
-export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
+export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Splitter, SplitterPanel, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table }
 export default AheartUI

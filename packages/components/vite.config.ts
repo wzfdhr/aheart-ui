@@ -38,6 +38,7 @@ const styleSourceFiles = [
     'checkbox/style.css',
     'radio/style.css',
     'switch/style.css',
+    'splitter/style.css',
     'card/style.css',
     'descriptions/style.css',
     'pagination/style.css',
