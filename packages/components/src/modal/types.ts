@@ -98,11 +98,11 @@ export const modalProps = {
   confirmLoading: Boolean,
   okText: {
     type: null as unknown as PropType<ModalRenderable>,
-    default: 'OK'
+    default: undefined
   },
   cancelText: {
     type: null as unknown as PropType<ModalRenderable>,
-    default: 'Cancel'
+    default: undefined
   },
   okType: {
     type: String as PropType<ButtonType>,

@@ -11,6 +11,7 @@ export interface AheartLocale {
     ariaLabel?: string
     prevPage?: string
     nextPage?: string
+    pageSizeLabel?: string
     pageSize?: (pageSize: number) => string
     quickJumper?: string
     goButton?: string
@@ -34,6 +35,7 @@ export const zhCN: AheartLocale = {
     ariaLabel: '分页',
     prevPage: '上一页',
     nextPage: '下一页',
+    pageSizeLabel: '每页条数',
     pageSize: (pageSize) => `${pageSize} 条/页`,
     quickJumper: '跳至',
     goButton: '确定',
@@ -57,6 +59,7 @@ export const enUS: AheartLocale = {
     ariaLabel: 'pagination',
     prevPage: 'Previous Page',
     nextPage: 'Next Page',
+    pageSizeLabel: 'Page Size',
     pageSize: (pageSize) => `${pageSize} / page`,
     quickJumper: 'Go to',
     goButton: 'Go',

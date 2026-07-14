@@ -189,7 +189,9 @@ const isSelectionDisabled = computed(() => isDisabled.value || Boolean(props.row
 const selectedKeys = computed(() => props.rowSelection?.selectedRowKeys ?? innerSelectedRowKeys.value)
 const expandedKeys = computed(() => props.expandable?.expandedRowKeys ?? innerExpandedRowKeys.value)
 const resolvedEmptyText = computed<TableRenderable>(() =>
-  hasRenderableContent(props.emptyText) ? props.emptyText : config.value.locale?.empty?.description || 'No Data'
+  hasRenderableContent(props.emptyText)
+    ? props.emptyText
+    : config.value.locale?.table?.emptyText ?? config.value.locale?.empty?.description ?? 'No Data'
 )
 
 const paginationConfig = computed(() => (props.pagination && typeof props.pagination === 'object' ? props.pagination : {}))

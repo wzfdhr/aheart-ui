@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
+import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Empty from '../empty.vue'
 import EmptyInstall from '../index'
@@ -10,7 +11,7 @@ describe('Empty', () => {
     const wrapper = mount(Empty)
 
     expect(wrapper.classes()).toContain('aheart-empty')
-    expect(wrapper.text()).toContain('No Data')
+    expect(wrapper.text()).toContain('暂无数据')
   })
 
   it('uses description prop before locale', () => {
@@ -55,6 +56,17 @@ describe('Empty', () => {
     })
 
     expect(wrapper.text()).toContain('暂无内容')
+  })
+
+  it('uses the enUS locale pack when provided', () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(Empty)
+      }
+    })
+
+    expect(wrapper.text()).toContain('No Data')
   })
 
   it('renders image and default action slots', () => {

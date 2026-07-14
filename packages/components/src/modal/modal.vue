@@ -32,7 +32,7 @@
                 :style="semanticStyle('close')"
                 :disabled="isCloseButtonDisabled"
                 type="button"
-                aria-label="Close"
+                :aria-label="closeAriaLabel"
                 @click="handleCloseButtonClick"
               >
                 <AModalRenderNode :node="resolvedCloseIcon" />
@@ -68,6 +68,7 @@ import {
   type VNodeChild
 } from 'vue'
 import AButton from '../button'
+import { useAheartConfig } from '../config'
 import ASkeleton from '../skeleton'
 import {
   modalEmits,
@@ -92,6 +93,7 @@ defineOptions({
 const props = defineProps(modalProps)
 const emit = defineEmits(modalEmits)
 const slots = useSlots()
+const config = useAheartConfig()
 const FOCUSABLE_SELECTOR = [
   'a[href]',
   'area[href]',
@@ -261,6 +263,9 @@ const showCloseButton = computed(
   () => props.closable !== false && resolvedCloseIcon.value !== false && resolvedCloseIcon.value !== null
 )
 const isCloseButtonDisabled = computed(() => closableConfig.value?.disabled === true)
+const resolvedOkText = computed<VNodeChild>(() => props.okText ?? config.value.locale?.modal?.okText ?? 'OK')
+const resolvedCancelText = computed<VNodeChild>(() => props.cancelText ?? config.value.locale?.modal?.cancelText ?? 'Cancel')
+const closeAriaLabel = computed(() => config.value.locale?.modal?.close ?? 'Close')
 
 const resolvedCancelButtonProps = computed(() => props.cancelButtonProps ?? {})
 const resolvedOkButtonProps = computed(() => ({
@@ -287,10 +292,10 @@ const createFooterButton = (
   )
 }
 const cancelButtonNode = computed(() =>
-  createFooterButton('aheart-modal__cancel', resolvedCancelButtonProps.value, handleCancel, props.cancelText)
+  createFooterButton('aheart-modal__cancel', resolvedCancelButtonProps.value, handleCancel, resolvedCancelText.value)
 )
 const okButtonNode = computed(() =>
-  createFooterButton('aheart-modal__ok', resolvedOkButtonProps.value, handleOk, props.okText)
+  createFooterButton('aheart-modal__ok', resolvedOkButtonProps.value, handleOk, resolvedOkText.value)
 )
 const defaultFooterNode = computed(() => [cancelButtonNode.value, okButtonNode.value])
 const footerRenderExtra = computed<ModalFooterRenderExtra>(() => ({

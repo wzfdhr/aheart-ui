@@ -1,6 +1,8 @@
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
+import { enUS } from '../../config'
+import ConfigProvider from '../../config-provider/config-provider.vue'
 import Modal from '../modal.vue'
 
 const mountModal = (options: Record<string, any> = {}) =>
@@ -27,8 +29,21 @@ describe('Modal', () => {
     expect(wrapper.find('.aheart-modal__dialog').attributes('style')).toContain('width: 480px')
     expect(wrapper.text()).toContain('Edit profile')
     expect(wrapper.text()).toContain('Profile form')
-    expect(wrapper.text()).toContain('OK')
-    expect(wrapper.text()).toContain('Cancel')
+    expect(wrapper.find('.aheart-modal__ok').text().replace(/\s/g, '')).toBe('确定')
+    expect(wrapper.find('.aheart-modal__cancel').text().replace(/\s/g, '')).toBe('取消')
+  })
+
+  it('uses enUS labels when no explicit footer text is supplied', () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(Modal, { open: true, getContainer: false })
+      }
+    })
+
+    expect(wrapper.find('.aheart-modal__ok').text()).toBe('OK')
+    expect(wrapper.find('.aheart-modal__cancel').text()).toBe('Cancel')
+    expect(wrapper.find('.aheart-modal__close').attributes('aria-label')).toBe('Close')
   })
 
   it('maps responsive width object to breakpoint CSS variables', () => {

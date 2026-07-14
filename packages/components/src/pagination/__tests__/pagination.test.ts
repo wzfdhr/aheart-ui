@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
+import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Pagination from '../pagination.vue'
 
@@ -10,10 +11,36 @@ describe('Pagination', () => {
       props: { total: 42, pageSize: 10, current: 2, showTotal: true }
     })
 
-    expect(wrapper.attributes('aria-label')).toBe('pagination')
-    expect(wrapper.text()).toContain('Total 42 items')
+    expect(wrapper.attributes('aria-label')).toBe('分页')
+    expect(wrapper.text()).toContain('共 42 条')
     expect(wrapper.find('[aria-current="page"]').text()).toBe('2')
     expect(wrapper.findAll('.aheart-pagination__page')).toHaveLength(5)
+  })
+
+  it('uses enUS labels for built-in pagination copy', () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () =>
+          h(Pagination, {
+            total: 60,
+            current: 1,
+            pageSize: 10,
+            showTotal: true,
+            showSizeChanger: true,
+            showQuickJumper: true
+          })
+      }
+    })
+
+    const pagination = wrapper.findComponent(Pagination)
+    expect(pagination.attributes('aria-label')).toBe('pagination')
+    expect(pagination.text()).toContain('Total 60 items')
+    expect(pagination.find('.aheart-pagination__prev').attributes('aria-label')).toBe('Previous Page')
+    expect(pagination.find('.aheart-pagination__next').attributes('aria-label')).toBe('Next Page')
+    expect(pagination.find('option').text()).toBe('10 / page')
+    expect(pagination.find('.aheart-pagination__quick-jumper-label').text()).toBe('Go to')
+    expect(pagination.find('.aheart-pagination__quick-jumper-go').text()).toBe('Go')
   })
 
   it('emits current updates when page and next buttons are clicked', async () => {

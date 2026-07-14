@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
+import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Table from '../table.vue'
 import type { TableColumn } from '../types'
@@ -89,6 +90,17 @@ describe('Table', () => {
     })
 
     expect(wrapper.find('.aheart-table__empty').text()).toBe('No records')
+  })
+
+  it('uses locale table empty text without overriding explicit emptyText', () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(Table, { columns, dataSource: [] })
+      }
+    })
+
+    expect(wrapper.find('.aheart-table__empty').text()).toBe('No Data')
   })
 
   it('renders vnode filter labels and empty content', () => {

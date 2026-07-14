@@ -4,7 +4,7 @@
     class="aheart-pagination"
     :class="paginationClass"
     :style="rootStyle"
-    aria-label="pagination"
+    :aria-label="paginationLocale.ariaLabel"
   >
     <span v-if="showTotalContent" :class="totalClass" :style="totalStyle">{{ totalText }}</span>
     <button
@@ -12,7 +12,7 @@
       :style="prevStyle"
       type="button"
       :disabled="isDisabled || mergedCurrent <= 1"
-      aria-label="Previous Page"
+      :aria-label="paginationLocale.prevPage"
       @click="setCurrent(mergedCurrent - 1)"
     >
       {{ prevLabel }}
@@ -40,7 +40,7 @@
       :style="nextStyle"
       type="button"
       :disabled="isDisabled || mergedCurrent >= pageCount"
-      aria-label="Next Page"
+      :aria-label="paginationLocale.nextPage"
       @click="setCurrent(mergedCurrent + 1)"
     >
       {{ nextLabel }}
@@ -51,15 +51,15 @@
       :style="sizeChangerStyle"
       :value="mergedPageSize"
       :disabled="isDisabled"
-      aria-label="Page Size"
+      :aria-label="paginationLocale.pageSizeLabel"
       @change="handlePageSizeChange"
     >
       <option v-for="option in normalizedPageSizeOptions" :key="option" :value="option">
-        {{ option }} / page
+        {{ paginationLocale.pageSize(option) }}
       </option>
     </select>
     <span v-if="showQuickJumper" :class="quickJumperClass" :style="quickJumperStyle">
-      <span class="aheart-pagination__quick-jumper-label">Go to</span>
+      <span class="aheart-pagination__quick-jumper-label">{{ paginationLocale.quickJumper }}</span>
       <input
         v-model="quickJumpValue"
         class="aheart-pagination__quick-jumper-input"
@@ -135,7 +135,17 @@ const isQuickJumperConfig = (value: boolean | PaginationQuickJumperConfig): valu
   typeof value === 'object' && value !== null
 const hasRenderable = (value: unknown) => value !== undefined && value !== null && value !== false && value !== ''
 const quickJumperConfig = computed(() => (isQuickJumperConfig(props.showQuickJumper) ? props.showQuickJumper : undefined))
-const quickJumperGoButton = computed(() => quickJumperConfig.value?.goButton ?? 'Go')
+const paginationLocale = computed(() => ({
+  ariaLabel: config.value.locale?.pagination?.ariaLabel ?? 'pagination',
+  prevPage: config.value.locale?.pagination?.prevPage ?? 'Previous Page',
+  nextPage: config.value.locale?.pagination?.nextPage ?? 'Next Page',
+  pageSizeLabel: config.value.locale?.pagination?.pageSizeLabel ?? 'Page Size',
+  pageSize: config.value.locale?.pagination?.pageSize ?? ((pageSize: number) => `${pageSize} / page`),
+  quickJumper: config.value.locale?.pagination?.quickJumper ?? 'Go to',
+  goButton: config.value.locale?.pagination?.goButton ?? 'Go',
+  total: config.value.locale?.pagination?.total ?? ((total: number) => `Total ${total} items`)
+}))
+const quickJumperGoButton = computed(() => quickJumperConfig.value?.goButton ?? paginationLocale.value.goButton)
 const showQuickJumperGoButton = computed(
   () => props.showQuickJumper === true || hasRenderable(quickJumperConfig.value?.goButton)
 )
@@ -182,7 +192,7 @@ const totalText = computed(() => {
     return props.showTotal(props.total, currentRange.value)
   }
 
-  return `Total ${props.total} items`
+  return paginationLocale.value.total(props.total, currentRange.value)
 })
 
 const pageItems = computed<PageItem[]>(() => {
