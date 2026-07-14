@@ -5,13 +5,13 @@
   "description": "Vue 3 component library workspace for aheart-ui.",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "vitepress dev docs",
+    "dev": "corepack pnpm --dir docs dev",
     "build": "pnpm --filter ./packages/components build",
     "build:components": "pnpm --filter ./packages/components build",
     "typecheck": "pnpm --filter ./packages/components typecheck",
     "test": "pnpm --filter ./packages/components test",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
+    "docs:dev": "corepack pnpm --dir docs dev",
+    "docs:build": "corepack pnpm --dir docs build",
     "check:generated": "git diff --exit-code -- packages/components/es packages/components/lib",
     "release:check": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter ./packages/components build && corepack pnpm --dir docs build && corepack pnpm check:generated && git diff --check"
   },

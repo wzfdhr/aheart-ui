@@ -26,3 +26,5 @@ The published package contains only build output from `es` and `lib`; Vue is a p
 ## Generated output
 
 Commit changes under `packages/components/es` or `packages/components/lib` only when an intended source change caused them. Declaration-order changes created by a build that are unrelated to the intended work must be excluded from the commit. Review the scope with `git status --short` and `git diff` before committing.
+
+Synchronize a committed generated baseline only after two clean builds with pinned dependencies produce identical output and the baseline is stale. Make this a dedicated build-only synchronization commit and record checksum and diff evidence; all other output unrelated to the intended change remains excluded.

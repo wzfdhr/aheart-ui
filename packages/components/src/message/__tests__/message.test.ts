@@ -1,7 +1,10 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createRequire } from 'node:module'
 import { h, nextTick } from 'vue'
 import Message, { message } from '../index'
+
+const require = createRequire(import.meta.url)
 
 afterEach(() => {
   vi.useRealTimers()
@@ -10,11 +13,12 @@ afterEach(() => {
 })
 
 describe('Message', () => {
-  it('preserves the message service in the generated ESM subpath entry', async () => {
-    const generatedModule = await import('../../../es/message/index.js')
+  it('preserves the message service through public ESM and CJS subpath entries', async () => {
+    const esmModule = await import('aheart-ui/es/message/index.js')
+    const cjsModule = require('aheart-ui/lib/message/index.js')
 
-    expect(generatedModule.message).toBeDefined()
-    expect(generatedModule.message.info).toBeTypeOf('function')
+    expect(esmModule.message.info).toBeTypeOf('function')
+    expect(cjsModule.message.info).toBeTypeOf('function')
   })
 
   it('renders notices and emits close', async () => {
