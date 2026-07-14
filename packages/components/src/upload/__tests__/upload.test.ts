@@ -45,6 +45,18 @@ describe('Upload', () => {
     expect(customRequest).toHaveBeenCalledOnce()
   })
 
+  it('starts one request when manual upload is activated repeatedly', async () => {
+    const customRequest = vi.fn(() => undefined)
+    const wrapper = mount(Upload, { props: { beforeUpload: () => false, customRequest } })
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile()])
+
+    const start = wrapper.find('.aheart-upload__start')
+    await start.trigger('click')
+    await start.trigger('click')
+
+    expect(customRequest).toHaveBeenCalledOnce()
+  })
+
   it('enforces maxCount and supports removal', async () => {
     const wrapper = mount(Upload, { props: { maxCount: 1 } })
     await selectFiles(wrapper.find('input[type="file"]'), [createFile('one.txt'), createFile('two.txt')])

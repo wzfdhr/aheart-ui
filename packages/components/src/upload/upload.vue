@@ -67,7 +67,7 @@ const toUploadFile = (file: File): UploadFile => ({
   originFile: file
 })
 const upload = async (file: UploadFile, files: UploadFile[]) => {
-  if (!file.originFile || file.status === 'uploading') return files
+  if (!file.originFile || file.status === 'uploading' || activeUploadUids.has(file.uid)) return files
 
   activeUploadUids.add(file.uid)
   let currentFiles = replaceFile({ ...file, status: 'uploading', percent: 0 }, files)
