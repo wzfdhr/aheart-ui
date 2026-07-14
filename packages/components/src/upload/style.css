@@ -1,0 +1,9 @@
+.aheart-upload { color: var(--aheart-color-text); }
+.aheart-upload__trigger { display: inline-flex; align-items: center; min-block-size: var(--aheart-control-height); padding: 0 var(--aheart-spacing-sm); border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-radius); background: var(--aheart-color-bg); cursor: pointer; }
+.aheart-upload__trigger input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
+.aheart-upload.is-disabled .aheart-upload__trigger { background: var(--aheart-color-bg-disabled); color: var(--aheart-color-text-secondary); cursor: not-allowed; }
+.aheart-upload__start { margin-inline-start: var(--aheart-spacing-sm); padding: 4px 10px; border: 1px solid var(--aheart-color-primary); border-radius: var(--aheart-radius); background: var(--aheart-color-primary); color: #fff; cursor: pointer; }
+.aheart-upload__list { margin: var(--aheart-spacing-sm) 0 0; padding: 0; list-style: none; }
+.aheart-upload__item { display: flex; gap: var(--aheart-spacing-sm); align-items: center; min-block-size: 28px; }
+.aheart-upload__item.is-error { color: var(--aheart-color-danger); }
+.aheart-upload__remove { margin-inline-start: auto; padding: 0; border: 0; background: transparent; color: var(--aheart-color-primary); cursor: pointer; }
