@@ -52,4 +52,21 @@ describe('Upload', () => {
     await wrapper.find('.aheart-upload__remove').trigger('click')
     expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toEqual([])
   })
+
+  it('does not restore a removed file when a pending request resolves', async () => {
+    let completeUpload: (() => void) | undefined
+    const wrapper = mount(Upload, {
+      props: {
+        customRequest: ({ onSuccess }: { onSuccess: () => void }) => {
+          completeUpload = onSuccess
+        }
+      }
+    })
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('pending.txt')])
+    await wrapper.find('.aheart-upload__remove').trigger('click')
+    completeUpload?.()
+
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toEqual([])
+  })
 })
