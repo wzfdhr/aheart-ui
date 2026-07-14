@@ -6,6 +6,7 @@ import Card, { CardGrid, CardMeta } from "./card/index.js";
 import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
+import DatePicker from "./date-picker/index.js";
 import Divider from "./divider/index.js";
 import Drawer from "./drawer/index.js";
 import Dropdown, { DropdownButton } from "./dropdown/index.js";
@@ -35,6 +36,7 @@ import Splitter, { SplitterPanel } from "./splitter/index.js";
 import Table from "./table/index.js";
 import Tag, { CheckableTag, TagGroup } from "./tag/index.js";
 import Tabs from "./tabs/index.js";
+import TimePicker from "./time-picker/index.js";
 import Textarea from "./textarea/index.js";
 import Tooltip from "./tooltip/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
@@ -46,6 +48,8 @@ const components = [
   ConfigProvider,
   Space,
   Divider,
+  DatePicker,
+  TimePicker,
   Flex,
   Grid,
   Icon,
@@ -117,6 +121,7 @@ export {
   CheckboxGroup,
   Col,
   ConfigProvider,
+  DatePicker,
   Descriptions,
   Divider,
   Drawer,
@@ -157,6 +162,7 @@ export {
   TagGroup,
   Text,
   Textarea,
+  TimePicker,
   Title,
   Tooltip,
   Typography,
