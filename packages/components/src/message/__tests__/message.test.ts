@@ -10,6 +10,13 @@ afterEach(() => {
 })
 
 describe('Message', () => {
+  it('preserves the message service in the generated ESM subpath entry', async () => {
+    const generatedModule = await import('../../../es/message/index.js')
+
+    expect(generatedModule.message).toBeDefined()
+    expect(generatedModule.message.info).toBeTypeOf('function')
+  })
+
   it('renders notices and emits close', async () => {
     const wrapper = mount(Message, {
       props: {
