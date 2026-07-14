@@ -104,7 +104,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const showOptionalMark = computed(
       () => Boolean(props.label || props.name) && !isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) === "optional"
     );
-    const effectiveValidateStatus = computed(() => props.validateStatus ?? (fieldErrors.value.length > 0 ? "error" : void 0));
+    const effectiveValidateStatus = computed(
+      () => props.validateStatus ?? (props.name && (formContext == null ? void 0 : formContext.isFieldValidating(props.name)) ? "validating" : fieldErrors.value.length > 0 ? "error" : void 0)
+    );
     const effectiveHelp = computed(() => props.help !== void 0 ? props.help : fieldErrors.value[0] ?? "");
     const hasHelp = computed(() => hasRenderableContent(effectiveHelp.value));
     const hasExtra = computed(() => hasRenderableContent(props.extra));

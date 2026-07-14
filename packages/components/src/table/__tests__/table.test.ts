@@ -103,6 +103,20 @@ describe('Table', () => {
     expect(wrapper.find('.aheart-table__empty').text()).toBe('No Data')
   })
 
+  it('announces loading state and uses localized loading text', () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(Table, { columns, dataSource: [], loading: true })
+      }
+    })
+    const table = wrapper.findComponent(Table)
+
+    expect(table.attributes('aria-busy')).toBe('true')
+    expect(table.find('[role="status"]').text()).toBe('Loading')
+    expect(table.find('.aheart-table__empty').exists()).toBe(false)
+  })
+
   it('renders vnode filter labels and empty content', () => {
     const wrapper = mount(Table, {
       props: {
@@ -345,5 +359,74 @@ describe('Table', () => {
     const table = wrapper.findComponent(Table)
     expect(table.classes()).toContain('aheart-table--small')
     expect(table.find('tbody input[type="checkbox"]').attributes()).toHaveProperty('disabled')
+  })
+
+  it('clamps an uncontrolled page when the available data shrinks', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        pagination: { defaultCurrent: 2, defaultPageSize: 2 }
+      }
+    })
+
+    expect(wrapper.find('tbody tr').text()).toContain('Linus')
+
+    await wrapper.setProps({ dataSource: [dataSource[0]] })
+
+    expect(wrapper.find('tbody tr').text()).toContain('Ada')
+    expect(wrapper.find('.aheart-table__empty').exists()).toBe(false)
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('1')
+  })
+
+  it('keeps controlled row selection and expansion unchanged when the parent rejects updates', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        rowSelection: { selectedRowKeys: [] },
+        expandable: {
+          expandedRowKeys: [],
+          expandedRowRender: (record) => `${record.name} details`
+        }
+      }
+    })
+
+    await wrapper.find('tbody input[type="checkbox"]').setValue(true)
+    await wrapper.find('.aheart-table__expand-button').trigger('click')
+
+    expect((wrapper.find('tbody input[type="checkbox"]').element as HTMLInputElement).checked).toBe(false)
+    expect(wrapper.find('.aheart-table__expanded-row').exists()).toBe(false)
+    expect(wrapper.emitted('update:selectedRowKeys')?.[0]).toEqual([['ada']])
+    expect(wrapper.emitted('update:expandedRowKeys')?.[0]).toEqual([['ada']])
+  })
+
+  it('keeps a controlled page stable when the parent rejects pagination', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        pagination: { current: 1, pageSize: 1 }
+      }
+    })
+
+    await wrapper.find('.aheart-pagination__next').trigger('click')
+
+    expect(wrapper.find('tbody tr').text()).toContain('Ada')
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('1')
+    expect(wrapper.emitted('change')?.[0]?.[0]).toMatchObject({ current: 2, pageSize: 1 })
+  })
+
+  it('renders server-provided page records without slicing them a second time', () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource: [dataSource[2]],
+        pagination: { current: 5, pageSize: 10, total: 100 }
+      }
+    })
+
+    expect(wrapper.find('tbody tr').text()).toContain('Linus')
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('5')
   })
 })

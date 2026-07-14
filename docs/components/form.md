@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, reactive, ref } from 'vue'
 
 const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
 const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
 const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your work email')
 const formTooltipNode = h('span', { class: 'demo-form-tooltip-node' }, 'Password must be at least 8 characters')
 const formTooltipIcon = h('span', { class: 'demo-form-tooltip-icon' }, 'i')
+const formDemo = reactive({ email: '' })
+const formDemoResult = ref('等待提交')
+const asyncForm = reactive({ email: 'taken@example.com' })
+const asyncFormRef = ref<{ resetFields: () => void }>()
+const asyncFormResult = ref('输入 free@example.com 可通过校验')
+const asyncEmailValidator = async (_rule: unknown, value: unknown) => {
+  await new Promise((resolve) => window.setTimeout(resolve, 240))
+  if (value === 'taken@example.com') {
+    throw new Error('该邮箱已被占用')
+  }
+}
 </script>
 
 # Form 表单 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -50,16 +61,19 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
 
 <div class="aheart-demo-panel">
   <AForm
-    :model="{ email: '' }"
+    :model="formDemo"
     :rules="{ email: [{ required: true, message: 'Email is required' }] }"
     layout="vertical"
+    @finish="formDemoResult = '提交成功：' + formDemo.email"
+    @finish-failed="formDemoResult = '请先修正表单错误'"
   >
     <AFormItem label="Email" name="email">
-      <AInput model-value="" placeholder="Email" />
+      <AInput v-model="formDemo.email" placeholder="Email" />
     </AFormItem>
     <AFormItem>
       <AButton type="primary" native-type="submit">Submit</AButton>
     </AFormItem>
+    <span class="aheart-demo-result" aria-live="polite">{{ formDemoResult }}</span>
   </AForm>
 </div>
 
@@ -75,6 +89,64 @@ const formExtraNode = h('span', { class: 'demo-form-extra-node' }, 'Use your wor
   </AForm>
 </template>
 ```
+
+## 异步校验与重置
+
+<div class="aheart-demo-panel q4-form-async-demo">
+  <AForm
+    ref="asyncFormRef"
+    :model="asyncForm"
+    layout="vertical"
+    @finish="asyncFormResult = '校验通过，可以提交'"
+    @finish-failed="asyncFormResult = '异步校验未通过'"
+  >
+    <AFormItem
+      label="工作邮箱"
+      name="email"
+      html-for="q4-async-email"
+      has-feedback
+      :rules="[
+        { required: true, message: '请输入邮箱' },
+        { type: 'email', message: '邮箱格式不正确' },
+        { validator: asyncEmailValidator }
+      ]"
+    >
+      <AInput id="q4-async-email" v-model="asyncForm.email" placeholder="free@example.com" />
+    </AFormItem>
+    <AFormItem>
+      <ASpace>
+        <AButton type="primary" native-type="submit">异步校验</AButton>
+        <AButton @click="asyncFormRef?.resetFields(); asyncFormResult = '已恢复初始值'">重置</AButton>
+      </ASpace>
+    </AFormItem>
+    <span class="aheart-demo-result" aria-live="polite">{{ asyncFormResult }}</span>
+  </AForm>
+</div>
+
+```vue
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+
+const formRef = ref()
+const formState = reactive({ email: 'taken@example.com' })
+const checkEmail = async (_rule, value) => {
+  const available = await api.checkEmail(value)
+  if (!available) throw new Error('该邮箱已被占用')
+}
+</script>
+
+<template>
+  <AForm ref="formRef" :model="formState">
+    <AFormItem name="email" has-feedback :rules="[{ validator: checkEmail }]">
+      <AInput v-model="formState.email" />
+    </AFormItem>
+    <AButton native-type="submit">提交</AButton>
+    <AButton @click="formRef.resetFields()">重置</AButton>
+  </AForm>
+</template>
+```
+
+异步校验期间表单项进入 `validating` 状态；同一字段的新一轮校验会使旧结果失效，避免慢响应覆盖最新输入。
 
 ## 滚动到首个错误
 
@@ -447,6 +519,7 @@ const passwordTooltipIcon = h('span', 'i')
 | max | 字符/数组最大长度，或数字最大值 | `number` | - |
 | len | 字符/数组固定长度，或数字固定值 | `number` | - |
 | pattern | 正则校验 | `RegExp` | - |
+| validator | 自定义同步或异步校验器；返回 `false`、错误字符串或 reject 表示失败 | `(rule, value, model) => void \| boolean \| string \| Promise` | - |
 
 ## FormFinishFailedInfo
 
@@ -459,8 +532,9 @@ const passwordTooltipIcon = h('span', 'i')
 
 | 名称 | 说明 | 类型 |
 | --- | --- | --- |
-| validate | 触发表单同步校验 | `() => { values: FormModel; errorFields: FormValidationError[] }` |
-| validateFields | 触发指定字段或全部字段的同步校验 | `(names?: string[]) => { values: FormModel; errorFields: FormValidationError[] }` |
+| validate | 触发表单校验；含异步规则时返回 Promise | `() => FormValidationResult \| Promise<FormValidationResult>` |
+| validateFields | 触发指定字段或全部字段校验；含异步规则时返回 Promise | `(names?: string[]) => FormValidationResult \| Promise<FormValidationResult>` |
+| resetFields | 将指定字段或全部已注册字段恢复为初始值并清除校验状态 | `(names?: string[]) => void` |
 | clearValidate | 清除字段错误 | `(names?: string[]) => void` |
 | setFieldValue | 设置指定字段值并清除该字段错误 | `(name: string, value: unknown) => void` |
 | setFieldsValue | 批量设置字段值并清除对应字段错误 | `(values: FormModel) => void` |

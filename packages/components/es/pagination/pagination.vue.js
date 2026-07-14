@@ -48,7 +48,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const quickJumpValue = ref("");
     const isControlled = computed(() => props.current !== void 0);
     const isPageSizeControlled = computed(() => props.pageSize !== void 0);
-    const mergedPageSize = computed(() => props.pageSize ?? innerPageSize.value);
+    const normalizePageSize = (pageSize) => Number.isFinite(pageSize) && pageSize > 0 ? Math.max(1, Math.trunc(pageSize)) : 1;
+    const mergedPageSize = computed(() => normalizePageSize(props.pageSize ?? innerPageSize.value));
     const pageCount = computed(() => getPageCount(props.total, mergedPageSize.value));
     const mergedCurrent = computed(() => Math.min(Math.max(props.current ?? innerCurrent.value, 1), pageCount.value));
     const shouldRender = computed(() => !(props.hideOnSinglePage && pageCount.value <= 1));
@@ -245,7 +246,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (isDisabled.value) {
         return;
       }
-      const nextPageSize = Number(event.target.value);
+      const select = event.target;
+      const nextPageSize = Number(select.value);
       if (!Number.isInteger(nextPageSize) || nextPageSize <= 0 || nextPageSize === mergedPageSize.value) {
         return;
       }
@@ -254,7 +256,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!isPageSizeControlled.value) {
         innerPageSize.value = nextPageSize;
       }
-      if (!isControlled.value) {
+      if (!isControlled.value && !isPageSizeControlled.value) {
         innerCurrent.value = nextCurrent;
       }
       if (nextCurrent !== mergedCurrent.value) {
@@ -263,6 +265,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("update:pageSize", nextPageSize);
       emit("showSizeChange", nextCurrent, nextPageSize);
       emit("change", nextCurrent, nextPageSize);
+      if (isPageSizeControlled.value) {
+        select.value = String(mergedPageSize.value);
+      }
     };
     const jumpToQuickPage = () => {
       const nextInputValue = String(quickJumpValue.value).trim();

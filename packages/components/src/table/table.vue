@@ -1,5 +1,5 @@
 <template>
-  <section class="aheart-table" :class="tableClass">
+  <section class="aheart-table" :class="tableClass" :aria-busy="loading || undefined">
     <div class="aheart-table__container">
       <table>
         <thead v-if="showHeader">
@@ -61,7 +61,7 @@
                   :checked="isSelected(row.key)"
                   :disabled="isSelectionDisabled"
                   :aria-label="`Select row ${row.key}`"
-                  @change="toggleSelection(row.record, row.key, getEventChecked($event))"
+                  @change="handleSelectionChange($event, row.record, row.key)"
                 />
               </td>
               <td v-if="hasExpandable" class="aheart-table__expand-cell">
@@ -100,7 +100,7 @@
       </table>
       <div v-if="loading" class="aheart-table__loading" role="status" aria-live="polite">
         <span class="aheart-table__loading-dot" aria-hidden="true" />
-        <span>Loading</span>
+        <span>{{ resolvedLoadingText }}</span>
       </div>
     </div>
     <APagination
@@ -193,11 +193,17 @@ const resolvedEmptyText = computed<TableRenderable>(() =>
     ? props.emptyText
     : config.value.locale?.table?.emptyText ?? config.value.locale?.empty?.description ?? 'No Data'
 )
+const resolvedLoadingText = computed(() => config.value.locale?.table?.loadingText ?? '加载中')
 
 const paginationConfig = computed(() => (props.pagination && typeof props.pagination === 'object' ? props.pagination : {}))
-const pageSize = computed(() => paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10)
-const currentPage = computed(() => paginationConfig.value.current ?? innerCurrent.value)
+const pageSize = computed(() => {
+  const value = paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10
+  return Number.isFinite(value) && value > 0 ? Math.max(1, Math.trunc(value)) : 1
+})
+const rawCurrentPage = computed(() => paginationConfig.value.current ?? innerCurrent.value)
 const paginationTotal = computed(() => paginationConfig.value.total ?? sortedData.value.length)
+const pageCount = computed(() => Math.max(1, Math.ceil(Math.max(0, paginationTotal.value) / pageSize.value)))
+const currentPage = computed(() => Math.min(Math.max(rawCurrentPage.value, 1), pageCount.value))
 const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== undefined || sortedData.value.length > pageSize.value))
 const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0))
 
@@ -255,6 +261,10 @@ const pagedRows = computed(() => {
     return allRows.value
   }
 
+  if (paginationConfig.value.total !== undefined) {
+    return allRows.value
+  }
+
   const start = (currentPage.value - 1) * pageSize.value
   return allRows.value.slice(start, start + pageSize.value)
 })
@@ -308,6 +318,12 @@ watch(
   },
   { immediate: true }
 )
+
+watch(pageCount, (count) => {
+  if (paginationConfig.value.current === undefined && innerCurrent.value > count) {
+    innerCurrent.value = count
+  }
+})
 
 function getColumnKey(column: TableColumn) {
   return column.key ?? String(Array.isArray(column.dataIndex) ? column.dataIndex.join('.') : column.dataIndex ?? column.title)
@@ -512,7 +528,7 @@ const toggleSelection = (record: TableRecord, key: TableKey, checked: boolean) =
       ? Array.from(new Set([...selectedKeys.value, key]))
       : selectedKeys.value.filter((currentKey) => currentKey !== key)
 
-  if (!props.rowSelection?.selectedRowKeys) {
+  if (props.rowSelection?.selectedRowKeys === undefined) {
     innerSelectedRowKeys.value = nextKeys
   }
 
@@ -531,10 +547,11 @@ const toggleExpand = (record: TableRecord, key: TableKey) => {
   const nextExpanded = !isExpanded(key)
   const nextKeys = nextExpanded ? [...expandedKeys.value, key] : expandedKeys.value.filter((currentKey) => currentKey !== key)
 
-  if (!props.expandable?.expandedRowKeys) {
+  if (props.expandable?.expandedRowKeys === undefined) {
     innerExpandedRowKeys.value = nextKeys
   }
 
+  emit('update:expandedRowKeys', nextKeys)
   emit('expand', nextExpanded, record, key)
 }
 
@@ -576,5 +593,14 @@ const emitTableChange = (
 
 const getEventChecked = (event: Event) => {
   return Boolean((event.target as HTMLInputElement | null)?.checked)
+}
+
+const handleSelectionChange = (event: Event, record: TableRecord, key: TableKey) => {
+  const input = event.target as HTMLInputElement | null
+  toggleSelection(record, key, getEventChecked(event))
+
+  if (input && props.rowSelection?.selectedRowKeys !== undefined) {
+    input.checked = isSelected(key)
+  }
 }
 </script>

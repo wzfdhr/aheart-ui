@@ -20,7 +20,8 @@ const zhCN = {
     close: "关闭"
   },
   table: {
-    emptyText: "暂无数据"
+    emptyText: "暂无数据",
+    loadingText: "加载中"
   }
 };
 const enUS = {
@@ -44,7 +45,8 @@ const enUS = {
     close: "Close"
   },
   table: {
-    emptyText: "No Data"
+    emptyText: "No Data",
+    loadingText: "Loading"
   }
 };
 const defaultAheartConfig = {

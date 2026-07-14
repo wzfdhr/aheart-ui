@@ -114,6 +114,7 @@ export const tableProps = {
 export const tableEmits = {
   change: (_pagination: TableChangePagination, _filters: TableFilters, _sorter: TableSorter, _extra: TableChangeExtra) => true,
   'update:selectedRowKeys': (keys: TableKey[]) => Array.isArray(keys),
+  'update:expandedRowKeys': (keys: TableKey[]) => Array.isArray(keys),
   select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => true,
   expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => true
 }

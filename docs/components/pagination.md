@@ -18,7 +18,7 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 
 ## 基础用法
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-pagination-basic-demo">
   <APagination v-model:current="paginationBasic" :total="42" :page-size="10" show-total />
 </div>
 
@@ -46,7 +46,7 @@ import { enUS } from 'aheart-ui'
 
 ## 简洁模式
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-pagination-simple-demo">
   <APagination v-model:current="paginationSimple" :total="20" :page-size="10" simple />
 </div>
 
@@ -58,7 +58,7 @@ import { enUS } from 'aheart-ui'
 
 ## 对齐与少量页码
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-pagination-align-demo">
   <APagination v-model:current="paginationAligned" :total="200" :page-size="10" align="center" show-less-items />
 </div>
 
@@ -70,7 +70,7 @@ import { enUS } from 'aheart-ui'
 
 ## 每页条数
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-pagination-size-demo">
   <APagination
     v-model:current="paginationSized"
     v-model:page-size="paginationPageSize"
@@ -92,7 +92,7 @@ import { enUS } from 'aheart-ui'
 
 ## 快速跳转
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-pagination-quick-demo">
   <APagination v-model:current="paginationQuick" :total="95" :page-size="10" show-quick-jumper />
 </div>
 

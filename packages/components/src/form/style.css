@@ -44,6 +44,7 @@
 .aheart-form-item__label {
   display: inline-flex;
   align-items: center;
+  width: min(32%, 128px);
   min-width: 96px;
   padding-top: 5px;
   color: var(--aheart-color-text);
@@ -73,6 +74,7 @@
 .aheart-form--vertical .aheart-form-item__label,
 .aheart-form-item--vertical .aheart-form-item__label {
   justify-content: flex-start;
+  width: auto;
   min-width: 0;
   padding-top: 0;
   text-align: left;
@@ -147,6 +149,14 @@
   gap: var(--aheart-spacing-xs);
 }
 
+.aheart-form-item__content > :first-child:not(.aheart-form-item__feedback) {
+  min-width: 0;
+}
+
+.aheart-form-item:focus-within .aheart-form-item__label {
+  color: var(--aheart-color-primary);
+}
+
 .aheart-form-item__feedback {
   color: var(--aheart-color-text-secondary);
 }
@@ -177,4 +187,18 @@
 
 .aheart-form-item__extra {
   color: var(--aheart-color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  .aheart-form--horizontal .aheart-form-item:not(.aheart-form-item--horizontal) {
+    flex-direction: column;
+  }
+
+  .aheart-form--horizontal .aheart-form-item:not(.aheart-form-item--horizontal) .aheart-form-item__label {
+    width: auto;
+    min-width: 0;
+    padding-top: 0;
+    text-align: left;
+    justify-content: flex-start;
+  }
 }

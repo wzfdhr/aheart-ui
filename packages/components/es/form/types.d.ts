@@ -19,6 +19,8 @@ export type FormItemTooltipConfig = Partial<Omit<TooltipProps, 'title'>> & {
 export type FormItemTooltip = FormTooltipTitle | FormItemTooltipConfig;
 export type FormRuleType = 'string' | 'number' | 'email' | 'array';
 export type FormModel = Record<string, unknown>;
+export type FormRuleValidatorResult = void | boolean | string;
+export type FormRuleValidator = (rule: FormRule, value: unknown, model: FormModel) => FormRuleValidatorResult | Promise<FormRuleValidatorResult>;
 export interface FormRule {
     required?: boolean;
     message?: string;
@@ -27,6 +29,7 @@ export interface FormRule {
     max?: number;
     len?: number;
     pattern?: RegExp;
+    validator?: FormRuleValidator;
 }
 export type FormRules = Record<string, FormRule[]>;
 export interface FormValidationError {
@@ -39,6 +42,7 @@ export interface FormFinishFailedInfo {
 }
 export interface FormFieldState {
     errors: string[];
+    validating: boolean;
     rules: FormRule[];
     validateFirst: FormValidateFirst;
     messageVariables: FormMessageVariables;
@@ -49,6 +53,7 @@ export interface FormContext {
     registerField: (name: string, rules: FormRule[], validateFirst: FormValidateFirst, messageVariables: FormMessageVariables) => void;
     unregisterField: (name: string) => void;
     getFieldErrors: (name: string) => string[];
+    isFieldValidating: (name: string) => boolean;
     isFieldRequired: (name: string) => boolean;
 }
 export declare const formContextKey: InjectionKey<FormContext>;

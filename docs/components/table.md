@@ -2,6 +2,7 @@
 import { h, ref } from 'vue'
 
 const tablePage = ref(1)
+const tableServerPage = ref(5)
 
 const tableRenderableColumns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -41,7 +42,7 @@ import { enUS } from 'aheart-ui'
 
 ## 基础用法
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-basic-demo">
   <ATable
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -64,7 +65,7 @@ import { enUS } from 'aheart-ui'
 
 ## 排序
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-sort-demo">
   <ATable
     bordered
     :columns="[
@@ -97,7 +98,7 @@ import { enUS } from 'aheart-ui'
 
 ## 自定义渲染与隐藏列
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-custom-demo">
   <ATable
     :columns="[
       {
@@ -137,7 +138,7 @@ import { enUS } from 'aheart-ui'
 
 ## 筛选
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-filter-demo">
   <ATable
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -188,7 +189,7 @@ import { enUS } from 'aheart-ui'
 
 ## 筛选项与空态节点
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-renderable-demo">
   <ATable
     :columns="tableRenderableColumns"
     :data-source="[]"
@@ -221,7 +222,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 ## 行选择
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-selection-demo">
   <ATable
     :row-selection="{ defaultSelectedRowKeys: ['ada'] }"
     :columns="[
@@ -249,7 +250,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 ## 展开行
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-expand-demo">
   <ATable
     :columns="[
       { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -275,7 +276,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 ## 分页与状态
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel q4-table-pagination-demo">
   <AConfigProvider size="small">
     <ATable
       empty-text="No records"
@@ -305,6 +306,33 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
   </AConfigProvider>
 </template>
 ```
+
+## 服务端分页
+
+<div class="aheart-demo-panel q4-table-server-demo">
+  <ATable
+    :pagination="{ current: tableServerPage, pageSize: 10, total: 100, showTotal: true }"
+    :columns="[
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      { title: 'Role', dataIndex: 'role', key: 'role' }
+    ]"
+    :data-source="[{ key: 'page-5-record', name: 'Page 5 record', role: 'Remote result' }]"
+    @change="pagination => tableServerPage = pagination.current"
+  />
+</div>
+
+```vue
+<template>
+  <ATable
+    :data-source="currentPageRows"
+    :columns="columns"
+    :pagination="{ current: page, pageSize: 10, total }"
+    @change="loadPage"
+  />
+</template>
+```
+
+设置 `pagination.total` 后，`dataSource` 视为业务层已加载的当前页数据，Table 不会再次本地切片；分页事件仍通过 `change` 交给业务层请求下一页。
 
 ## API
 
@@ -390,6 +418,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | update:selectedRowKeys | 选择项变化时触发 | `(keys) => void` |
 | select | 选择某一行时触发 | `(key, selected, record, selectedRowKeys) => void` |
 | expand | 展开状态变化时触发 | `(expanded, record, key) => void` |
+| update:expandedRowKeys | 展开 keys 变化时触发，可用于受控展开状态 | `(keys) => void` |
 
 ### TableChangeExtra
 

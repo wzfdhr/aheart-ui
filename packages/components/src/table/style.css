@@ -16,6 +16,7 @@
   border-spacing: 0;
   border-collapse: separate;
   background: var(--aheart-color-bg);
+  table-layout: auto;
 }
 
 .aheart-table th,
@@ -113,6 +114,14 @@
 .aheart-table__sorter:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.aheart-table__sorter:focus-visible,
+.aheart-table__filter-option:focus-visible,
+.aheart-table__expand-button:focus-visible,
+.aheart-table__selection-cell input:focus-visible {
+  outline: 2px solid var(--aheart-color-primary);
+  outline-offset: 2px;
 }
 
 .aheart-table__sort-icon {
@@ -254,6 +263,24 @@
 
 .aheart-table.is-disabled input {
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .aheart-table table {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .aheart-table th,
+  .aheart-table td {
+    padding: 10px var(--aheart-spacing-sm);
+    white-space: nowrap;
+  }
+
+  .aheart-table__pagination {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 @keyframes aheart-table-spin {

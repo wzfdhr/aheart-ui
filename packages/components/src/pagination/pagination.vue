@@ -114,7 +114,9 @@ const innerPageSize = ref(props.defaultPageSize)
 const quickJumpValue = ref('')
 const isControlled = computed(() => props.current !== undefined)
 const isPageSizeControlled = computed(() => props.pageSize !== undefined)
-const mergedPageSize = computed(() => props.pageSize ?? innerPageSize.value)
+const normalizePageSize = (pageSize: number) =>
+  Number.isFinite(pageSize) && pageSize > 0 ? Math.max(1, Math.trunc(pageSize)) : 1
+const mergedPageSize = computed(() => normalizePageSize(props.pageSize ?? innerPageSize.value))
 const pageCount = computed(() => getPageCount(props.total, mergedPageSize.value))
 const mergedCurrent = computed(() => Math.min(Math.max(props.current ?? innerCurrent.value, 1), pageCount.value))
 const shouldRender = computed(() => !(props.hideOnSinglePage && pageCount.value <= 1))
@@ -291,7 +293,8 @@ const handlePageSizeChange = (event: Event) => {
     return
   }
 
-  const nextPageSize = Number((event.target as HTMLSelectElement).value)
+  const select = event.target as HTMLSelectElement
+  const nextPageSize = Number(select.value)
 
   if (!Number.isInteger(nextPageSize) || nextPageSize <= 0 || nextPageSize === mergedPageSize.value) {
     return
@@ -304,7 +307,7 @@ const handlePageSizeChange = (event: Event) => {
     innerPageSize.value = nextPageSize
   }
 
-  if (!isControlled.value) {
+  if (!isControlled.value && !isPageSizeControlled.value) {
     innerCurrent.value = nextCurrent
   }
 
@@ -315,6 +318,10 @@ const handlePageSizeChange = (event: Event) => {
   emit('update:pageSize', nextPageSize)
   emit('showSizeChange', nextCurrent, nextPageSize)
   emit('change', nextCurrent, nextPageSize)
+
+  if (isPageSizeControlled.value) {
+    select.value = String(mergedPageSize.value)
+  }
 }
 
 const jumpToQuickPage = () => {

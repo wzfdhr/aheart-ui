@@ -1,5 +1,5 @@
-import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { flushPromises, mount } from '@vue/test-utils'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Input from '../../input/input.vue'
 import Form, { FormItem } from '../index'
@@ -903,5 +903,280 @@ describe('Form', () => {
 
     expect(wrapper.findComponent(FormItem).classes()).toContain('aheart-form-item--error')
     expect(wrapper.text()).toContain('Adults only')
+  })
+
+  it('waits for asynchronous validators before finishing submission', async () => {
+    let releaseValidation: (() => void) | undefined
+    const validator = vi.fn(
+      () =>
+        new Promise<void>((_resolve, reject) => {
+          releaseValidation = () => reject(new Error('Email is already registered'))
+        })
+    )
+    const wrapper = mount(Form, {
+      props: {
+        model: { email: 'ada@example.com' },
+        rules: { email: [{ validator }] }
+      },
+      slots: {
+        default: () =>
+          h(FormItem, { label: 'Email', name: 'email', hasFeedback: true }, () =>
+            h(Input, { modelValue: 'ada@example.com' })
+          )
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+    await nextTick()
+
+    expect(validator).toHaveBeenCalledTimes(1)
+    expect(wrapper.findComponent(FormItem).classes()).toContain('aheart-form-item--validating')
+    expect(wrapper.emitted('finish')).toBeUndefined()
+
+    releaseValidation?.()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Email is already registered')
+    expect(wrapper.emitted('finishFailed')?.[0]?.[0]).toMatchObject({
+      errorFields: [{ name: 'email', errors: ['Email is already registered'] }]
+    })
+  })
+
+  it('does not validate a dynamic field after its FormItem unmounts', async () => {
+    const Host = defineComponent({
+      setup() {
+        const showEmail = ref(true)
+        const model = { email: '' }
+        return { showEmail, model }
+      },
+      render() {
+        return h(
+          Form,
+          {
+            model: this.model,
+            rules: { email: [{ required: true, message: 'Email is required' }] }
+          },
+          {
+            default: () => [
+              this.showEmail ? h(FormItem, { label: 'Email', name: 'email' }, () => h(Input, { modelValue: '' })) : null,
+              h('button', { type: 'submit' }, 'Save')
+            ]
+          }
+        )
+      }
+    })
+    const wrapper = mount(Host)
+
+    wrapper.vm.showEmail = false
+    await nextTick()
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.findComponent(Form).emitted('finish')?.[0]).toEqual([{ email: '' }])
+    expect(wrapper.findComponent(Form).emitted('finishFailed')).toBeUndefined()
+  })
+
+  it('resets registered fields to their initial values and clears errors', async () => {
+    const model = { email: 'initial@example.com', role: 'author' }
+    const wrapper = mount(Form, {
+      props: { model },
+      slots: {
+        default: () =>
+          h(FormItem, { label: 'Email', name: 'email', rules: [{ required: true, message: 'Email is required' }] }, () =>
+            h(Input, { modelValue: model.email })
+          )
+      }
+    })
+    const form = wrapper.vm as unknown as {
+      validateFields: () => unknown
+      resetFields: (names?: string[]) => void
+      getFieldError: (name: string) => string[]
+    }
+
+    model.email = ''
+    await Promise.resolve(form.validateFields())
+    expect(form.getFieldError('email')).toEqual(['Email is required'])
+
+    form.resetFields()
+    await nextTick()
+
+    expect(model).toEqual({ email: 'initial@example.com', role: 'author' })
+    expect(form.getFieldError('email')).toEqual([])
+  })
+
+  it('ignores an obsolete asynchronous submission after a newer submission finishes', async () => {
+    const releases = new Map<string, (result: boolean) => void>()
+    const model = { email: 'first@example.com' }
+    const wrapper = mount(Form, {
+      props: {
+        model,
+        rules: {
+          email: [
+            {
+              message: 'Email is unavailable',
+              validator: (_rule, value) =>
+                new Promise<boolean>((resolve) => {
+                  releases.set(String(value), resolve)
+                })
+            }
+          ]
+        }
+      },
+      slots: {
+        default: () => [
+          h(FormItem, { label: 'Email', name: 'email' }, () => h(Input, { modelValue: model.email })),
+          h('button', { type: 'submit' }, 'Save')
+        ]
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+    model.email = 'second@example.com'
+    await wrapper.find('form').trigger('submit')
+
+    releases.get('second@example.com')?.(true)
+    await flushPromises()
+    expect(wrapper.emitted('finish')?.[0]).toEqual([{ email: 'second@example.com' }])
+
+    releases.get('first@example.com')?.(false)
+    await flushPromises()
+
+    expect(wrapper.emitted('finishFailed')).toBeUndefined()
+    expect(wrapper.findComponent(FormItem).classes()).not.toContain('aheart-form-item--error')
+  })
+
+  it('cancels a pending submission when fields are reset', async () => {
+    let releaseValidation: ((result: boolean) => void) | undefined
+    const model = { email: 'initial@example.com' }
+    const wrapper = mount(Form, {
+      props: {
+        model,
+        rules: {
+          email: [
+            {
+              validator: () =>
+                new Promise<boolean>((resolve) => {
+                  releaseValidation = resolve
+                })
+            }
+          ]
+        }
+      },
+      slots: {
+        default: () => [
+          h(FormItem, { name: 'email' }, () => h(Input, { modelValue: model.email })),
+          h('button', { type: 'submit' }, 'Save')
+        ]
+      }
+    })
+    const form = wrapper.vm as unknown as { resetFields: () => void }
+
+    await wrapper.find('form').trigger('submit')
+    form.resetFields()
+    releaseValidation?.(false)
+    await flushPromises()
+
+    expect(wrapper.emitted('finish')).toBeUndefined()
+    expect(wrapper.emitted('finishFailed')).toBeUndefined()
+    expect(wrapper.findComponent(FormItem).classes()).not.toContain('aheart-form-item--validating')
+  })
+
+  it('restores nested arrays and objects from an immutable initial snapshot', async () => {
+    const model = {
+      tags: ['design'],
+      profile: { role: 'author' }
+    }
+    const wrapper = mount(Form, {
+      props: { model },
+      slots: {
+        default: () => [
+          h(FormItem, { name: 'tags' }, () => h('input')),
+          h(FormItem, { name: 'profile' }, () => h('input'))
+        ]
+      }
+    })
+    const form = wrapper.vm as unknown as { resetFields: () => void }
+
+    model.tags.push('engineering')
+    model.profile.role = 'admin'
+    form.resetFields()
+    await nextTick()
+
+    expect(model).toEqual({ tags: ['design'], profile: { role: 'author' } })
+  })
+
+  it('ignores a pending async validation result after its dynamic field unmounts', async () => {
+    let releaseValidation: ((result: boolean) => void) | undefined
+    const Host = defineComponent({
+      setup() {
+        const showEmail = ref(true)
+        const model = { email: 'ada@example.com' }
+        const rules = {
+          email: [
+            {
+              message: 'Email is unavailable',
+              validator: () =>
+                new Promise<boolean>((resolve) => {
+                  releaseValidation = resolve
+                })
+            }
+          ]
+        }
+        return { showEmail, model, rules }
+      },
+      render() {
+        return h(Form, { model: this.model, rules: this.rules }, {
+          default: () => [
+            this.showEmail ? h(FormItem, { name: 'email' }, () => h(Input, { modelValue: this.model.email })) : null,
+            h('button', { type: 'submit' }, 'Save')
+          ]
+        })
+      }
+    })
+    const wrapper = mount(Host)
+    const form = wrapper.findComponent(Form)
+
+    await wrapper.find('form').trigger('submit')
+    wrapper.vm.showEmail = false
+    await nextTick()
+    releaseValidation?.(false)
+    await flushPromises()
+
+    expect(form.emitted('finish')?.[0]).toEqual([{ email: 'ada@example.com' }])
+    expect(form.emitted('finishFailed')).toBeUndefined()
+  })
+
+  it('does not finish an async submission when the model changes before validation completes', async () => {
+    let releaseValidation: ((result: boolean) => void) | undefined
+    const model = { email: 'valid@example.com' }
+    const wrapper = mount(Form, {
+      props: {
+        model,
+        rules: {
+          email: [
+            {
+              validator: () =>
+                new Promise<boolean>((resolve) => {
+                  releaseValidation = resolve
+                })
+            }
+          ]
+        }
+      },
+      slots: {
+        default: () => [
+          h(FormItem, { name: 'email' }, () => h(Input, { modelValue: model.email })),
+          h('button', { type: 'submit' }, 'Save')
+        ]
+      }
+    })
+
+    await wrapper.find('form').trigger('submit')
+    model.email = 'invalid'
+    releaseValidation?.(true)
+    await flushPromises()
+
+    expect(wrapper.emitted('finish')).toBeUndefined()
+    expect(wrapper.emitted('finishFailed')).toBeUndefined()
   })
 })

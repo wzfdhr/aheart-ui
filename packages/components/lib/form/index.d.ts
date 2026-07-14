@@ -46,11 +46,18 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         validate: () => {
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
-        };
+        } | Promise<{
+            values: import("./types").FormModel;
+            errorFields: import("./types").FormValidationError[];
+        }>;
         validateFields: (names?: string[] | undefined) => {
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
-        };
+        } | Promise<{
+            values: import("./types").FormModel;
+            errorFields: import("./types").FormValidationError[];
+        }>;
+        resetFields: (names?: string[] | undefined) => void;
         clearValidate: (names?: string[] | undefined) => void;
         setFieldValue: (name: string, value: unknown) => void;
         setFieldsValue: (values: import("./types").FormModel) => void;
@@ -131,11 +138,18 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         validate: () => {
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
-        };
+        } | Promise<{
+            values: import("./types").FormModel;
+            errorFields: import("./types").FormValidationError[];
+        }>;
         validateFields: (names?: string[] | undefined) => {
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
-        };
+        } | Promise<{
+            values: import("./types").FormModel;
+            errorFields: import("./types").FormValidationError[];
+        }>;
+        resetFields: (names?: string[] | undefined) => void;
         clearValidate: (names?: string[] | undefined) => void;
         setFieldValue: (name: string, value: unknown) => void;
         setFieldsValue: (values: import("./types").FormModel) => void;
@@ -208,11 +222,18 @@ declare const Form: import("../utils/install").SFCWithInstall<{
     validate: () => {
         values: import("./types").FormModel;
         errorFields: import("./types").FormValidationError[];
-    };
+    } | Promise<{
+        values: import("./types").FormModel;
+        errorFields: import("./types").FormValidationError[];
+    }>;
     validateFields: (names?: string[] | undefined) => {
         values: import("./types").FormModel;
         errorFields: import("./types").FormValidationError[];
-    };
+    } | Promise<{
+        values: import("./types").FormModel;
+        errorFields: import("./types").FormValidationError[];
+    }>;
+    resetFields: (names?: string[] | undefined) => void;
     clearValidate: (names?: string[] | undefined) => void;
     setFieldValue: (name: string, value: unknown) => void;
     setFieldsValue: (values: import("./types").FormModel) => void;
@@ -407,3 +428,4 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
 })>;
 export { FormItem as AFormItem };
 export default Form;
+export type * from './types';

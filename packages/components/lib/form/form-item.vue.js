@@ -106,7 +106,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const showOptionalMark = vue.computed(
       () => Boolean(props.label || props.name) && !isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) === "optional"
     );
-    const effectiveValidateStatus = vue.computed(() => props.validateStatus ?? (fieldErrors.value.length > 0 ? "error" : void 0));
+    const effectiveValidateStatus = vue.computed(
+      () => props.validateStatus ?? (props.name && (formContext == null ? void 0 : formContext.isFieldValidating(props.name)) ? "validating" : fieldErrors.value.length > 0 ? "error" : void 0)
+    );
     const effectiveHelp = vue.computed(() => props.help !== void 0 ? props.help : fieldErrors.value[0] ?? "");
     const hasHelp = vue.computed(() => hasRenderableContent(effectiveHelp.value));
     const hasExtra = vue.computed(() => hasRenderableContent(props.extra));

@@ -3,45 +3,46 @@ import Pagination from "../pagination/index.js";
 import { tableProps, tableEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = { class: "aheart-table__container" };
-const _hoisted_2 = { key: 0 };
-const _hoisted_3 = {
+const _hoisted_1 = ["aria-busy"];
+const _hoisted_2 = { class: "aheart-table__container" };
+const _hoisted_3 = { key: 0 };
+const _hoisted_4 = {
   key: 0,
   class: "aheart-table__selection-cell",
   scope: "col"
 };
-const _hoisted_4 = {
+const _hoisted_5 = {
   key: 1,
   class: "aheart-table__expand-cell",
   scope: "col"
 };
-const _hoisted_5 = { class: "aheart-table__head-content" };
-const _hoisted_6 = ["disabled", "onClick"];
-const _hoisted_7 = ["data-sort"];
-const _hoisted_8 = {
+const _hoisted_6 = { class: "aheart-table__head-content" };
+const _hoisted_7 = ["disabled", "onClick"];
+const _hoisted_8 = ["data-sort"];
+const _hoisted_9 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_9 = ["aria-label"];
-const _hoisted_10 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_11 = {
+const _hoisted_10 = ["aria-label"];
+const _hoisted_11 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_12 = {
   key: 0,
   class: "aheart-table__selection-cell"
 };
-const _hoisted_12 = ["type", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_13 = {
+const _hoisted_13 = ["type", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_14 = {
   key: 1,
   class: "aheart-table__expand-cell"
 };
-const _hoisted_14 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_15 = {
+const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_16 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_16 = ["colspan"];
-const _hoisted_17 = { key: 0 };
-const _hoisted_18 = ["colspan"];
-const _hoisted_19 = {
+const _hoisted_17 = ["colspan"];
+const _hoisted_18 = { key: 0 };
+const _hoisted_19 = ["colspan"];
+const _hoisted_20 = {
   key: 0,
   class: "aheart-table__loading",
   role: "status",
@@ -110,10 +111,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return hasRenderableContent(props.emptyText) ? props.emptyText : ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.table) == null ? void 0 : _b2.emptyText) ?? ((_d = (_c = config.value.locale) == null ? void 0 : _c.empty) == null ? void 0 : _d.description) ?? "No Data";
       }
     );
+    const resolvedLoadingText = computed(() => {
+      var _a2, _b2;
+      return ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.table) == null ? void 0 : _b2.loadingText) ?? "加载中";
+    });
     const paginationConfig = computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
-    const pageSize = computed(() => paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10);
-    const currentPage = computed(() => paginationConfig.value.current ?? innerCurrent.value);
+    const pageSize = computed(() => {
+      const value = paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10;
+      return Number.isFinite(value) && value > 0 ? Math.max(1, Math.trunc(value)) : 1;
+    });
+    const rawCurrentPage = computed(() => paginationConfig.value.current ?? innerCurrent.value);
     const paginationTotal = computed(() => paginationConfig.value.total ?? sortedData.value.length);
+    const pageCount = computed(() => Math.max(1, Math.ceil(Math.max(0, paginationTotal.value) / pageSize.value)));
+    const currentPage = computed(() => Math.min(Math.max(rawCurrentPage.value, 1), pageCount.value));
     const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== void 0 || sortedData.value.length > pageSize.value));
     const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
     const controlledSort = computed(() => {
@@ -156,6 +166,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     );
     const pagedRows = computed(() => {
       if (!shouldShowPagination.value) {
+        return allRows.value;
+      }
+      if (paginationConfig.value.total !== void 0) {
         return allRows.value;
       }
       const start = (currentPage.value - 1) * pageSize.value;
@@ -206,6 +219,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       },
       { immediate: true }
     );
+    watch(pageCount, (count) => {
+      if (paginationConfig.value.current === void 0 && innerCurrent.value > count) {
+        innerCurrent.value = count;
+      }
+    });
     function getColumnKey(column) {
       return column.key ?? String(Array.isArray(column.dataIndex) ? column.dataIndex.join(".") : column.dataIndex ?? column.title);
     }
@@ -359,7 +377,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       }
       const nextKeys = selectionType.value === "radio" ? checked ? [key] : [] : checked ? Array.from(/* @__PURE__ */ new Set([...selectedKeys.value, key])) : selectedKeys.value.filter((currentKey) => currentKey !== key);
-      if (!((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys)) {
+      if (((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) === void 0) {
         innerSelectedRowKeys.value = nextKeys;
       }
       emit("update:selectedRowKeys", nextKeys);
@@ -377,9 +395,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       const nextExpanded = !isExpanded(key);
       const nextKeys = nextExpanded ? [...expandedKeys.value, key] : expandedKeys.value.filter((currentKey) => currentKey !== key);
-      if (!((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys)) {
+      if (((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys) === void 0) {
         innerExpandedRowKeys.value = nextKeys;
       }
+      emit("update:expandedRowKeys", nextKeys);
       emit("expand", nextExpanded, record, key);
     };
     const handlePageChange = (current, nextPageSize) => {
@@ -412,21 +431,30 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a2;
       return Boolean((_a2 = event.target) == null ? void 0 : _a2.checked);
     };
+    const handleSelectionChange = (event, record, key) => {
+      var _a2;
+      const input = event.target;
+      toggleSelection(record, key, getEventChecked(event));
+      if (input && ((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) !== void 0) {
+        input.checked = isSelected(key);
+      }
+    };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("section", {
-        class: normalizeClass(["aheart-table", tableClass.value])
+        class: normalizeClass(["aheart-table", tableClass.value]),
+        "aria-busy": _ctx.loading || void 0
       }, [
-        createElementVNode("div", _hoisted_1, [
+        createElementVNode("div", _hoisted_2, [
           createElementVNode("table", null, [
-            _ctx.showHeader ? (openBlock(), createElementBlock("thead", _hoisted_2, [
+            _ctx.showHeader ? (openBlock(), createElementBlock("thead", _hoisted_3, [
               createElementVNode("tr", null, [
-                hasSelection.value ? (openBlock(), createElementBlock("th", _hoisted_3, [..._cache[0] || (_cache[0] = [
+                hasSelection.value ? (openBlock(), createElementBlock("th", _hoisted_4, [..._cache[0] || (_cache[0] = [
                   createElementVNode("span", {
                     class: "aheart-table__selection-title",
                     "aria-hidden": "true"
                   }, null, -1)
                 ])])) : createCommentVNode("", true),
-                hasExpandable.value ? (openBlock(), createElementBlock("th", _hoisted_4, [..._cache[1] || (_cache[1] = [
+                hasExpandable.value ? (openBlock(), createElementBlock("th", _hoisted_5, [..._cache[1] || (_cache[1] = [
                   createElementVNode("span", {
                     class: "aheart-table__expand-title",
                     "aria-hidden": "true"
@@ -440,7 +468,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     style: normalizeStyle(columnStyle(column)),
                     scope: "col"
                   }, [
-                    createElementVNode("div", _hoisted_5, [
+                    createElementVNode("div", _hoisted_6, [
                       column.sorter ? (openBlock(), createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__sorter",
@@ -457,8 +485,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           class: "aheart-table__sort-icon",
                           "data-sort": getSortState(column),
                           "aria-hidden": "true"
-                        }, null, 8, _hoisted_7)
-                      ], 8, _hoisted_6)) : (openBlock(), createElementBlock("span", _hoisted_8, [
+                        }, null, 8, _hoisted_8)
+                      ], 8, _hoisted_7)) : (openBlock(), createElementBlock("span", _hoisted_9, [
                         createVNode(unref(ARenderNode), {
                           node: column.title
                         }, null, 8, ["node"])
@@ -480,9 +508,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                             createVNode(unref(ARenderNode), {
                               node: filter.text
                             }, null, 8, ["node"])
-                          ], 10, _hoisted_10);
+                          ], 10, _hoisted_11);
                         }), 128))
-                      ], 8, _hoisted_9)) : createCommentVNode("", true)
+                      ], 8, _hoisted_10)) : createCommentVNode("", true)
                     ])
                   ], 6);
                 }), 128))
@@ -496,17 +524,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   createElementVNode("tr", {
                     class: normalizeClass({ "is-selected": isSelected(row.key) })
                   }, [
-                    hasSelection.value ? (openBlock(), createElementBlock("td", _hoisted_11, [
+                    hasSelection.value ? (openBlock(), createElementBlock("td", _hoisted_12, [
                       createElementVNode("input", {
                         type: selectionType.value,
                         name: radioName,
                         checked: isSelected(row.key),
                         disabled: isSelectionDisabled.value,
                         "aria-label": `Select row ${row.key}`,
-                        onChange: ($event) => toggleSelection(row.record, row.key, getEventChecked($event))
-                      }, null, 40, _hoisted_12)
+                        onChange: ($event) => handleSelectionChange($event, row.record, row.key)
+                      }, null, 40, _hoisted_13)
                     ])) : createCommentVNode("", true),
-                    hasExpandable.value ? (openBlock(), createElementBlock("td", _hoisted_13, [
+                    hasExpandable.value ? (openBlock(), createElementBlock("td", _hoisted_14, [
                       isRowExpandable(row.record) ? (openBlock(), createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__expand-button",
@@ -514,7 +542,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         "aria-expanded": isExpanded(row.key),
                         disabled: isDisabled.value,
                         onClick: ($event) => toggleExpand(row.record, row.key)
-                      }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_14)) : createCommentVNode("", true)
+                      }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : createCommentVNode("", true)
                     ])) : createCommentVNode("", true),
                     (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
                       return openBlock(), createElementBlock("td", {
@@ -528,7 +556,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       ], 6);
                     }), 128))
                   ], 2),
-                  hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_15, [
+                  hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_16, [
                     createElementVNode("td", {
                       colspan: columnCount.value,
                       class: "aheart-table__expanded-cell"
@@ -536,27 +564,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       createVNode(unref(ARenderNode), {
                         node: renderExpanded(row.record, row.index)
                       }, null, 8, ["node"])
-                    ], 8, _hoisted_16)
+                    ], 8, _hoisted_17)
                   ])) : createCommentVNode("", true)
                 ], 64);
               }), 128)),
-              !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_17, [
+              !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_18, [
                 createElementVNode("td", {
                   colspan: columnCount.value,
                   class: "aheart-table__empty"
                 }, [
                   createVNode(unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                ], 8, _hoisted_18)
+                ], 8, _hoisted_19)
               ])) : createCommentVNode("", true)
             ])
           ]),
-          _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_19, [..._cache[2] || (_cache[2] = [
-            createElementVNode("span", {
+          _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_20, [
+            _cache[2] || (_cache[2] = createElementVNode("span", {
               class: "aheart-table__loading-dot",
               "aria-hidden": "true"
-            }, null, -1),
-            createElementVNode("span", null, "Loading", -1)
-          ])])) : createCommentVNode("", true)
+            }, null, -1)),
+            createElementVNode("span", null, toDisplayString(resolvedLoadingText.value), 1)
+          ])) : createCommentVNode("", true)
         ]),
         shouldShowPagination.value ? (openBlock(), createBlock(unref(Pagination), {
           key: 0,
@@ -571,7 +599,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           size: resolvedSize.value,
           onChange: handlePageChange
         }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "disabled", "size"])) : createCommentVNode("", true)
-      ], 2);
+      ], 10, _hoisted_1);
     };
   }
 });

@@ -25,6 +25,7 @@ export interface AheartLocale {
   }
   table?: {
     emptyText?: string
+    loadingText?: string
   }
 }
 
@@ -49,7 +50,8 @@ export const zhCN: AheartLocale = {
     close: '关闭'
   },
   table: {
-    emptyText: '暂无数据'
+    emptyText: '暂无数据',
+    loadingText: '加载中'
   }
 }
 
@@ -74,7 +76,8 @@ export const enUS: AheartLocale = {
     close: 'Close'
   },
   table: {
-    emptyText: 'No Data'
+    emptyText: 'No Data',
+    loadingText: 'Loading'
   }
 }
 

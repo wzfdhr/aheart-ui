@@ -270,4 +270,64 @@ describe('Pagination', () => {
     expect(wrapper.find('.aheart-pagination__size-changer').classes()).toContain('semantic-size-changer')
     expect(wrapper.find('.aheart-pagination__quick-jumper').classes()).toContain('semantic-quick-jumper')
   })
+
+  it('does not optimistically change a controlled current page', async () => {
+    const wrapper = mount(Pagination, {
+      props: { total: 30, current: 1, pageSize: 10 }
+    })
+
+    await wrapper.find('.aheart-pagination__next').trigger('click')
+
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('1')
+    expect(wrapper.emitted('update:current')?.[0]).toEqual([2])
+    expect(wrapper.emitted('change')?.[0]).toEqual([2, 10])
+  })
+
+  it('does not change an uncontrolled current page when a controlled page size update is rejected', async () => {
+    const wrapper = mount(Pagination, {
+      props: {
+        total: 95,
+        defaultCurrent: 10,
+        pageSize: 10,
+        showSizeChanger: true,
+        pageSizeOptions: [10, 20]
+      }
+    })
+
+    await wrapper.find('.aheart-pagination__size-changer').setValue('20')
+
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('10')
+    expect(wrapper.find<HTMLSelectElement>('.aheart-pagination__size-changer').element.value).toBe('10')
+    expect(wrapper.emitted('update:pageSize')?.[0]).toEqual([20])
+    expect(wrapper.emitted('update:current')?.[0]).toEqual([5])
+  })
+
+  it('normalizes a non-positive page size without producing invalid pagination state', () => {
+    const wrapper = mount(Pagination, {
+      props: { total: 3, current: 1, pageSize: 0, simple: true, showTotal: true }
+    })
+
+    expect(wrapper.find('.aheart-pagination__simple').text()).toBe('1 / 3')
+    expect(wrapper.find('.aheart-pagination__total').text()).toContain('共 3 条')
+    expect(wrapper.find('.aheart-pagination__next').attributes('disabled')).toBeUndefined()
+  })
+
+  it('clamps the current page after a controlled page-size update is accepted', async () => {
+    const wrapper = mount(Pagination, {
+      props: {
+        total: 95,
+        defaultCurrent: 10,
+        pageSize: 10,
+        showSizeChanger: true,
+        pageSizeOptions: [10, 20]
+      }
+    })
+
+    await wrapper.find('.aheart-pagination__size-changer').setValue('20')
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('10')
+
+    await wrapper.setProps({ pageSize: 20 })
+
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('5')
+  })
 })

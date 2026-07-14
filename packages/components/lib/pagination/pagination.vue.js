@@ -50,7 +50,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const quickJumpValue = vue.ref("");
     const isControlled = vue.computed(() => props.current !== void 0);
     const isPageSizeControlled = vue.computed(() => props.pageSize !== void 0);
-    const mergedPageSize = vue.computed(() => props.pageSize ?? innerPageSize.value);
+    const normalizePageSize = (pageSize) => Number.isFinite(pageSize) && pageSize > 0 ? Math.max(1, Math.trunc(pageSize)) : 1;
+    const mergedPageSize = vue.computed(() => normalizePageSize(props.pageSize ?? innerPageSize.value));
     const pageCount = vue.computed(() => getPageCount(props.total, mergedPageSize.value));
     const mergedCurrent = vue.computed(() => Math.min(Math.max(props.current ?? innerCurrent.value, 1), pageCount.value));
     const shouldRender = vue.computed(() => !(props.hideOnSinglePage && pageCount.value <= 1));
@@ -247,7 +248,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (isDisabled.value) {
         return;
       }
-      const nextPageSize = Number(event.target.value);
+      const select = event.target;
+      const nextPageSize = Number(select.value);
       if (!Number.isInteger(nextPageSize) || nextPageSize <= 0 || nextPageSize === mergedPageSize.value) {
         return;
       }
@@ -256,7 +258,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (!isPageSizeControlled.value) {
         innerPageSize.value = nextPageSize;
       }
-      if (!isControlled.value) {
+      if (!isControlled.value && !isPageSizeControlled.value) {
         innerCurrent.value = nextCurrent;
       }
       if (nextCurrent !== mergedCurrent.value) {
@@ -265,6 +267,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("update:pageSize", nextPageSize);
       emit("showSizeChange", nextCurrent, nextPageSize);
       emit("change", nextCurrent, nextPageSize);
+      if (isPageSizeControlled.value) {
+        select.value = String(mergedPageSize.value);
+      }
     };
     const jumpToQuickPage = () => {
       const nextInputValue = String(quickJumpValue.value).trim();

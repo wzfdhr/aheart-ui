@@ -7,3 +7,4 @@ export const FormItem = withInstall(formItem, 'AFormItem')
 
 export { FormItem as AFormItem }
 export default Form
+export type * from './types'

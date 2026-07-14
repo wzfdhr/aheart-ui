@@ -23,6 +23,7 @@ export interface AheartLocale {
     };
     table?: {
         emptyText?: string;
+        loadingText?: string;
     };
 }
 export declare const zhCN: AheartLocale;

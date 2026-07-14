@@ -32,6 +32,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     change: (_pagination: import("./types").TableChangePagination, _filters: TableFilters, _sorter: import("./types").TableSorter<TableRecord>, _extra: import("./types").TableChangeExtra<TableRecord>) => void;
     select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => void;
     "update:selectedRowKeys": (keys: TableKey[]) => void;
+    "update:expandedRowKeys": (keys: TableKey[]) => void;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly columns: PropType<TableColumn<TableRecord>[]>;
@@ -65,6 +66,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     onChange?: ((_pagination: import("./types").TableChangePagination, _filters: TableFilters, _sorter: import("./types").TableSorter<TableRecord>, _extra: import("./types").TableChangeExtra<TableRecord>) => any) | undefined;
     onSelect?: ((_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => any) | undefined;
     "onUpdate:selectedRowKeys"?: ((keys: TableKey[]) => any) | undefined;
+    "onUpdate:expandedRowKeys"?: ((keys: TableKey[]) => any) | undefined;
     onExpand?: ((_expanded: boolean, _record: TableRecord, _key: TableKey) => any) | undefined;
 }>, {
     readonly disabled: boolean;

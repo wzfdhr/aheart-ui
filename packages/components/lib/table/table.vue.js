@@ -5,45 +5,46 @@ const index = require("../pagination/index.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = { class: "aheart-table__container" };
-const _hoisted_2 = { key: 0 };
-const _hoisted_3 = {
+const _hoisted_1 = ["aria-busy"];
+const _hoisted_2 = { class: "aheart-table__container" };
+const _hoisted_3 = { key: 0 };
+const _hoisted_4 = {
   key: 0,
   class: "aheart-table__selection-cell",
   scope: "col"
 };
-const _hoisted_4 = {
+const _hoisted_5 = {
   key: 1,
   class: "aheart-table__expand-cell",
   scope: "col"
 };
-const _hoisted_5 = { class: "aheart-table__head-content" };
-const _hoisted_6 = ["disabled", "onClick"];
-const _hoisted_7 = ["data-sort"];
-const _hoisted_8 = {
+const _hoisted_6 = { class: "aheart-table__head-content" };
+const _hoisted_7 = ["disabled", "onClick"];
+const _hoisted_8 = ["data-sort"];
+const _hoisted_9 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_9 = ["aria-label"];
-const _hoisted_10 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_11 = {
+const _hoisted_10 = ["aria-label"];
+const _hoisted_11 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_12 = {
   key: 0,
   class: "aheart-table__selection-cell"
 };
-const _hoisted_12 = ["type", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_13 = {
+const _hoisted_13 = ["type", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_14 = {
   key: 1,
   class: "aheart-table__expand-cell"
 };
-const _hoisted_14 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_15 = {
+const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_16 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_16 = ["colspan"];
-const _hoisted_17 = { key: 0 };
-const _hoisted_18 = ["colspan"];
-const _hoisted_19 = {
+const _hoisted_17 = ["colspan"];
+const _hoisted_18 = { key: 0 };
+const _hoisted_19 = ["colspan"];
+const _hoisted_20 = {
   key: 0,
   class: "aheart-table__loading",
   role: "status",
@@ -112,10 +113,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return hasRenderableContent(props.emptyText) ? props.emptyText : ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.table) == null ? void 0 : _b2.emptyText) ?? ((_d = (_c = config.value.locale) == null ? void 0 : _c.empty) == null ? void 0 : _d.description) ?? "No Data";
       }
     );
+    const resolvedLoadingText = vue.computed(() => {
+      var _a2, _b2;
+      return ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.table) == null ? void 0 : _b2.loadingText) ?? "加载中";
+    });
     const paginationConfig = vue.computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
-    const pageSize = vue.computed(() => paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10);
-    const currentPage = vue.computed(() => paginationConfig.value.current ?? innerCurrent.value);
+    const pageSize = vue.computed(() => {
+      const value = paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10;
+      return Number.isFinite(value) && value > 0 ? Math.max(1, Math.trunc(value)) : 1;
+    });
+    const rawCurrentPage = vue.computed(() => paginationConfig.value.current ?? innerCurrent.value);
     const paginationTotal = vue.computed(() => paginationConfig.value.total ?? sortedData.value.length);
+    const pageCount = vue.computed(() => Math.max(1, Math.ceil(Math.max(0, paginationTotal.value) / pageSize.value)));
+    const currentPage = vue.computed(() => Math.min(Math.max(rawCurrentPage.value, 1), pageCount.value));
     const shouldShowPagination = vue.computed(() => props.pagination !== false && (props.pagination !== void 0 || sortedData.value.length > pageSize.value));
     const columnCount = vue.computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
     const controlledSort = vue.computed(() => {
@@ -158,6 +168,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     );
     const pagedRows = vue.computed(() => {
       if (!shouldShowPagination.value) {
+        return allRows.value;
+      }
+      if (paginationConfig.value.total !== void 0) {
         return allRows.value;
       }
       const start = (currentPage.value - 1) * pageSize.value;
@@ -208,6 +221,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       },
       { immediate: true }
     );
+    vue.watch(pageCount, (count) => {
+      if (paginationConfig.value.current === void 0 && innerCurrent.value > count) {
+        innerCurrent.value = count;
+      }
+    });
     function getColumnKey(column) {
       return column.key ?? String(Array.isArray(column.dataIndex) ? column.dataIndex.join(".") : column.dataIndex ?? column.title);
     }
@@ -361,7 +379,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       }
       const nextKeys = selectionType.value === "radio" ? checked ? [key] : [] : checked ? Array.from(/* @__PURE__ */ new Set([...selectedKeys.value, key])) : selectedKeys.value.filter((currentKey) => currentKey !== key);
-      if (!((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys)) {
+      if (((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) === void 0) {
         innerSelectedRowKeys.value = nextKeys;
       }
       emit("update:selectedRowKeys", nextKeys);
@@ -379,9 +397,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       const nextExpanded = !isExpanded(key);
       const nextKeys = nextExpanded ? [...expandedKeys.value, key] : expandedKeys.value.filter((currentKey) => currentKey !== key);
-      if (!((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys)) {
+      if (((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys) === void 0) {
         innerExpandedRowKeys.value = nextKeys;
       }
+      emit("update:expandedRowKeys", nextKeys);
       emit("expand", nextExpanded, record, key);
     };
     const handlePageChange = (current, nextPageSize) => {
@@ -414,21 +433,30 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a2;
       return Boolean((_a2 = event.target) == null ? void 0 : _a2.checked);
     };
+    const handleSelectionChange = (event, record, key) => {
+      var _a2;
+      const input = event.target;
+      toggleSelection(record, key, getEventChecked(event));
+      if (input && ((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) !== void 0) {
+        input.checked = isSelected(key);
+      }
+    };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("section", {
-        class: vue.normalizeClass(["aheart-table", tableClass.value])
+        class: vue.normalizeClass(["aheart-table", tableClass.value]),
+        "aria-busy": _ctx.loading || void 0
       }, [
-        vue.createElementVNode("div", _hoisted_1, [
+        vue.createElementVNode("div", _hoisted_2, [
           vue.createElementVNode("table", null, [
-            _ctx.showHeader ? (vue.openBlock(), vue.createElementBlock("thead", _hoisted_2, [
+            _ctx.showHeader ? (vue.openBlock(), vue.createElementBlock("thead", _hoisted_3, [
               vue.createElementVNode("tr", null, [
-                hasSelection.value ? (vue.openBlock(), vue.createElementBlock("th", _hoisted_3, [..._cache[0] || (_cache[0] = [
+                hasSelection.value ? (vue.openBlock(), vue.createElementBlock("th", _hoisted_4, [..._cache[0] || (_cache[0] = [
                   vue.createElementVNode("span", {
                     class: "aheart-table__selection-title",
                     "aria-hidden": "true"
                   }, null, -1)
                 ])])) : vue.createCommentVNode("", true),
-                hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("th", _hoisted_4, [..._cache[1] || (_cache[1] = [
+                hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("th", _hoisted_5, [..._cache[1] || (_cache[1] = [
                   vue.createElementVNode("span", {
                     class: "aheart-table__expand-title",
                     "aria-hidden": "true"
@@ -442,7 +470,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     style: vue.normalizeStyle(columnStyle(column)),
                     scope: "col"
                   }, [
-                    vue.createElementVNode("div", _hoisted_5, [
+                    vue.createElementVNode("div", _hoisted_6, [
                       column.sorter ? (vue.openBlock(), vue.createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__sorter",
@@ -459,8 +487,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           class: "aheart-table__sort-icon",
                           "data-sort": getSortState(column),
                           "aria-hidden": "true"
-                        }, null, 8, _hoisted_7)
-                      ], 8, _hoisted_6)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_8, [
+                        }, null, 8, _hoisted_8)
+                      ], 8, _hoisted_7)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_9, [
                         vue.createVNode(vue.unref(ARenderNode), {
                           node: column.title
                         }, null, 8, ["node"])
@@ -482,9 +510,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                             vue.createVNode(vue.unref(ARenderNode), {
                               node: filter.text
                             }, null, 8, ["node"])
-                          ], 10, _hoisted_10);
+                          ], 10, _hoisted_11);
                         }), 128))
-                      ], 8, _hoisted_9)) : vue.createCommentVNode("", true)
+                      ], 8, _hoisted_10)) : vue.createCommentVNode("", true)
                     ])
                   ], 6);
                 }), 128))
@@ -498,17 +526,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   vue.createElementVNode("tr", {
                     class: vue.normalizeClass({ "is-selected": isSelected(row.key) })
                   }, [
-                    hasSelection.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_11, [
+                    hasSelection.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_12, [
                       vue.createElementVNode("input", {
                         type: selectionType.value,
                         name: radioName,
                         checked: isSelected(row.key),
                         disabled: isSelectionDisabled.value,
                         "aria-label": `Select row ${row.key}`,
-                        onChange: ($event) => toggleSelection(row.record, row.key, getEventChecked($event))
-                      }, null, 40, _hoisted_12)
+                        onChange: ($event) => handleSelectionChange($event, row.record, row.key)
+                      }, null, 40, _hoisted_13)
                     ])) : vue.createCommentVNode("", true),
-                    hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_13, [
+                    hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_14, [
                       isRowExpandable(row.record) ? (vue.openBlock(), vue.createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__expand-button",
@@ -516,7 +544,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         "aria-expanded": isExpanded(row.key),
                         disabled: isDisabled.value,
                         onClick: ($event) => toggleExpand(row.record, row.key)
-                      }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_14)) : vue.createCommentVNode("", true)
+                      }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : vue.createCommentVNode("", true)
                     ])) : vue.createCommentVNode("", true),
                     (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
                       return vue.openBlock(), vue.createElementBlock("td", {
@@ -530,7 +558,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       ], 6);
                     }), 128))
                   ], 2),
-                  hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_15, [
+                  hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_16, [
                     vue.createElementVNode("td", {
                       colspan: columnCount.value,
                       class: "aheart-table__expanded-cell"
@@ -538,27 +566,27 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       vue.createVNode(vue.unref(ARenderNode), {
                         node: renderExpanded(row.record, row.index)
                       }, null, 8, ["node"])
-                    ], 8, _hoisted_16)
+                    ], 8, _hoisted_17)
                   ])) : vue.createCommentVNode("", true)
                 ], 64);
               }), 128)),
-              !_ctx.loading && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_17, [
+              !_ctx.loading && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_18, [
                 vue.createElementVNode("td", {
                   colspan: columnCount.value,
                   class: "aheart-table__empty"
                 }, [
                   vue.createVNode(vue.unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                ], 8, _hoisted_18)
+                ], 8, _hoisted_19)
               ])) : vue.createCommentVNode("", true)
             ])
           ]),
-          _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_19, [..._cache[2] || (_cache[2] = [
-            vue.createElementVNode("span", {
+          _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_20, [
+            _cache[2] || (_cache[2] = vue.createElementVNode("span", {
               class: "aheart-table__loading-dot",
               "aria-hidden": "true"
-            }, null, -1),
-            vue.createElementVNode("span", null, "Loading", -1)
-          ])])) : vue.createCommentVNode("", true)
+            }, null, -1)),
+            vue.createElementVNode("span", null, vue.toDisplayString(resolvedLoadingText.value), 1)
+          ])) : vue.createCommentVNode("", true)
         ]),
         shouldShowPagination.value ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), {
           key: 0,
@@ -573,7 +601,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           size: resolvedSize.value,
           onChange: handlePageChange
         }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "disabled", "size"])) : vue.createCommentVNode("", true)
-      ], 2);
+      ], 10, _hoisted_1);
     };
   }
 });

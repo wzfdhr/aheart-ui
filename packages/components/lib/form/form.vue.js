@@ -16,6 +16,81 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const fieldStates = vue.reactive({});
     const formElement = vue.ref();
+    const cloneInitialValue = (value) => {
+      if (Array.isArray(value)) {
+        return value.map((item) => cloneInitialValue(item));
+      }
+      if (value instanceof Date) {
+        return new Date(value.getTime());
+      }
+      if (value instanceof Map) {
+        return new Map(Array.from(value, ([key, item]) => [cloneInitialValue(key), cloneInitialValue(item)]));
+      }
+      if (value instanceof Set) {
+        return new Set(Array.from(value, (item) => cloneInitialValue(item)));
+      }
+      if (value && typeof value === "object") {
+        const prototype = Object.getPrototypeOf(value);
+        if (prototype === Object.prototype || prototype === null) {
+          return Object.fromEntries(
+            Object.entries(value).map(([key, item]) => [key, cloneInitialValue(item)])
+          );
+        }
+      }
+      return value;
+    };
+    const isSameFormValue = (left, right) => {
+      if (Object.is(left, right)) {
+        return true;
+      }
+      if (Array.isArray(left) || Array.isArray(right)) {
+        return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((item, index) => isSameFormValue(item, right[index]));
+      }
+      if (left instanceof Date || right instanceof Date) {
+        return left instanceof Date && right instanceof Date && left.getTime() === right.getTime();
+      }
+      if (left instanceof Map || right instanceof Map) {
+        if (!(left instanceof Map) || !(right instanceof Map) || left.size !== right.size) {
+          return false;
+        }
+        const leftEntries = Array.from(left.entries());
+        const rightEntries = Array.from(right.entries());
+        return leftEntries.every(
+          ([key, value], index) => {
+            var _a, _b;
+            return isSameFormValue(key, (_a = rightEntries[index]) == null ? void 0 : _a[0]) && isSameFormValue(value, (_b = rightEntries[index]) == null ? void 0 : _b[1]);
+          }
+        );
+      }
+      if (left instanceof Set || right instanceof Set) {
+        if (!(left instanceof Set) || !(right instanceof Set) || left.size !== right.size) {
+          return false;
+        }
+        const leftValues = Array.from(left.values());
+        const rightValues = Array.from(right.values());
+        return leftValues.every((value, index) => isSameFormValue(value, rightValues[index]));
+      }
+      if (left && right && typeof left === "object" && typeof right === "object") {
+        const leftPrototype = Object.getPrototypeOf(left);
+        const rightPrototype = Object.getPrototypeOf(right);
+        const isPlainObject = (prototype) => prototype === Object.prototype || prototype === null;
+        if (!isPlainObject(leftPrototype) || !isPlainObject(rightPrototype)) {
+          return false;
+        }
+        const leftRecord = left;
+        const rightRecord = right;
+        const leftKeys = Object.keys(leftRecord);
+        const rightKeys = Object.keys(rightRecord);
+        return leftKeys.length === rightKeys.length && leftKeys.every(
+          (key) => Object.prototype.hasOwnProperty.call(rightRecord, key) && isSameFormValue(leftRecord[key], rightRecord[key])
+        );
+      }
+      return false;
+    };
+    const initialValues = cloneInitialValue(props.model);
+    const retiredFieldNames = /* @__PURE__ */ new Set();
+    const validationRuns = /* @__PURE__ */ new Map();
+    let submissionRun = 0;
     context.provideAheartConfig(
       vue.computed(() => ({
         size: props.size,
@@ -84,75 +159,153 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ...rule.max !== void 0 ? { max: rule.max } : {}
       };
     };
+    const isPromiseLike = (value) => typeof (value == null ? void 0 : value.then) === "function";
+    const normalizeValidatorResult = (result, message) => {
+      if (typeof result === "string") {
+        return result;
+      }
+      return result === false ? message : void 0;
+    };
+    const normalizeValidatorError = (error, message) => {
+      if (error instanceof Error && error.message) {
+        return error.message;
+      }
+      return typeof error === "string" && error ? error : message;
+    };
     const validateRule = (name, value, rule) => {
       const message = interpolateMessage(rule.message ?? getDefaultMessage(name, rule), getRuleMessageVariables(name, rule));
       if (rule.required && isEmptyValue(value)) {
         return message;
       }
-      if (isEmptyValue(value)) {
-        return void 0;
-      }
-      if (rule.type === "email" && (typeof value !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) {
-        return message;
-      }
-      if (rule.type === "number" && typeof value !== "number") {
-        return message;
-      }
-      if (rule.type === "string" && typeof value !== "string") {
-        return message;
-      }
-      if (rule.type === "array" && !Array.isArray(value)) {
-        return message;
-      }
-      const valueSize = getValueSize(value);
-      if (rule.len !== void 0 && valueSize !== rule.len) {
-        return message;
-      }
-      if (rule.min !== void 0 && valueSize !== void 0 && valueSize < rule.min) {
-        return message;
-      }
-      if (rule.max !== void 0 && valueSize !== void 0 && valueSize > rule.max) {
-        return message;
-      }
-      if (rule.pattern && (typeof value !== "string" || !rule.pattern.test(value))) {
-        return message;
-      }
-      return void 0;
-    };
-    const validateField = (name) => {
-      var _a;
-      const validateFirst = Boolean((_a = fieldStates[name]) == null ? void 0 : _a.validateFirst);
-      const errors = [];
-      for (const rule of getRules(name)) {
-        const error = validateRule(name, props.model[name], rule);
-        if (error) {
-          errors.push(error);
-          if (validateFirst) {
-            break;
-          }
+      if (!isEmptyValue(value)) {
+        if (rule.type === "email" && (typeof value !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) {
+          return message;
+        }
+        if (rule.type === "number" && typeof value !== "number") {
+          return message;
+        }
+        if (rule.type === "string" && typeof value !== "string") {
+          return message;
+        }
+        if (rule.type === "array" && !Array.isArray(value)) {
+          return message;
+        }
+        const valueSize = getValueSize(value);
+        if (rule.len !== void 0 && valueSize !== rule.len) {
+          return message;
+        }
+        if (rule.min !== void 0 && valueSize !== void 0 && valueSize < rule.min) {
+          return message;
+        }
+        if (rule.max !== void 0 && valueSize !== void 0 && valueSize > rule.max) {
+          return message;
+        }
+        if (rule.pattern && (typeof value !== "string" || !rule.pattern.test(value))) {
+          return message;
         }
       }
-      if (!fieldStates[name]) {
-        fieldStates[name] = { errors: [], rules: [], validateFirst: false, messageVariables: {} };
+      if (!rule.validator) {
+        return void 0;
       }
-      fieldStates[name].errors = errors;
-      emit("validate", name, errors.length === 0, errors);
-      return errors.length > 0 ? { name, errors } : void 0;
+      try {
+        const result = rule.validator(rule, value, props.model);
+        if (isPromiseLike(result)) {
+          return result.then(
+            (resolved) => normalizeValidatorResult(resolved, message),
+            (error) => normalizeValidatorError(error, message)
+          );
+        }
+        return normalizeValidatorResult(result, message);
+      } catch (error) {
+        return normalizeValidatorError(error, message);
+      }
     };
-    const getFieldNames = () => Array.from(/* @__PURE__ */ new Set([...Object.keys(props.rules), ...Object.keys(fieldStates)]));
-    const validateFields = (names) => {
-      const errorFields = (names ?? getFieldNames()).map((name) => validateField(name)).filter((error) => Boolean(error));
-      return {
-        values: cloneValues(),
-        errorFields
+    const ensureFieldState = (name) => {
+      if (!fieldStates[name]) {
+        fieldStates[name] = { errors: [], validating: false, rules: [], validateFirst: false, messageVariables: {} };
+      }
+      return fieldStates[name];
+    };
+    const collectRuleErrors = (name, rules, validateFirst) => {
+      if (validateFirst === true) {
+        const runNext = (index) => {
+          for (let ruleIndex = index; ruleIndex < rules.length; ruleIndex += 1) {
+            const result = validateRule(name, props.model[name], rules[ruleIndex]);
+            if (isPromiseLike(result)) {
+              return result.then((error) => error ? [error] : runNext(ruleIndex + 1));
+            }
+            if (result) {
+              return [result];
+            }
+          }
+          return [];
+        };
+        return runNext(0);
+      }
+      const results = rules.map((rule) => validateRule(name, props.model[name], rule));
+      const finalize = (resolved) => {
+        const errors = resolved.filter((error) => Boolean(error));
+        return validateFirst === "parallel" ? errors.slice(0, 1) : errors;
       };
+      return results.some(isPromiseLike) ? Promise.all(results.map((result) => Promise.resolve(result))).then(finalize) : finalize(results);
+    };
+    const validateField = (name) => {
+      const fieldState = ensureFieldState(name);
+      const runId = (validationRuns.get(name) ?? 0) + 1;
+      validationRuns.set(name, runId);
+      const result = collectRuleErrors(name, getRules(name), fieldState.validateFirst);
+      const finish = (errors) => {
+        if (validationRuns.get(name) !== runId || retiredFieldNames.has(name)) {
+          return void 0;
+        }
+        if (fieldStates[name]) {
+          fieldStates[name].errors = errors;
+          fieldStates[name].validating = false;
+        }
+        emit("validate", name, errors.length === 0, errors);
+        return errors.length > 0 ? { name, errors } : void 0;
+      };
+      if (isPromiseLike(result)) {
+        fieldState.validating = true;
+        return result.then(finish);
+      }
+      return finish(result);
+    };
+    const getFieldNames = () => Array.from(/* @__PURE__ */ new Set([...Object.keys(props.rules), ...Object.keys(fieldStates)])).filter(
+      (name) => !retiredFieldNames.has(name)
+    );
+    const validateFields = (names) => {
+      const results = (names ?? getFieldNames()).map((name) => validateField(name));
+      const finish = (resolved) => ({
+        values: cloneValues(),
+        errorFields: resolved.filter((error) => Boolean(error))
+      });
+      return results.some(isPromiseLike) ? Promise.all(results.map((result) => Promise.resolve(result))).then(finish) : finish(results);
     };
     const validate = () => validateFields();
+    const resetFields = (names) => {
+      submissionRun += 1;
+      const targetNames = names ?? getFieldNames();
+      targetNames.forEach((name) => {
+        validationRuns.set(name, (validationRuns.get(name) ?? 0) + 1);
+        if (Object.prototype.hasOwnProperty.call(initialValues, name)) {
+          props.model[name] = cloneInitialValue(initialValues[name]);
+        } else {
+          delete props.model[name];
+        }
+        if (fieldStates[name]) {
+          fieldStates[name].errors = [];
+          fieldStates[name].validating = false;
+        }
+      });
+    };
     const clearValidate = (names) => {
       const targetNames = names ?? Object.keys(fieldStates);
       targetNames.forEach((name) => {
         if (fieldStates[name]) {
+          validationRuns.set(name, (validationRuns.get(name) ?? 0) + 1);
           fieldStates[name].errors = [];
+          fieldStates[name].validating = false;
         }
       });
     };
@@ -209,20 +362,28 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       requiredMark: vue.computed(() => props.requiredMark),
       colon: vue.computed(() => props.colon),
       registerField(name, rules, validateFirst, messageVariables) {
-        var _a;
+        var _a, _b;
+        retiredFieldNames.delete(name);
         fieldStates[name] = {
           errors: ((_a = fieldStates[name]) == null ? void 0 : _a.errors) ?? [],
+          validating: ((_b = fieldStates[name]) == null ? void 0 : _b.validating) ?? false,
           rules,
           validateFirst,
           messageVariables
         };
       },
       unregisterField(name) {
+        retiredFieldNames.add(name);
+        validationRuns.set(name, (validationRuns.get(name) ?? 0) + 1);
         delete fieldStates[name];
       },
       getFieldErrors(name) {
         var _a;
         return ((_a = fieldStates[name]) == null ? void 0 : _a.errors) ?? [];
+      },
+      isFieldValidating(name) {
+        var _a;
+        return ((_a = fieldStates[name]) == null ? void 0 : _a.validating) ?? false;
       },
       isFieldRequired(name) {
         return getRules(name).some((rule) => rule.required);
@@ -231,17 +392,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.provide(types.formContextKey, formContext);
     const handleSubmit = (event) => {
       emit("submit", event);
+      submissionRun += 1;
+      const runId = submissionRun;
+      const submittedValues = cloneInitialValue(props.model);
       const validationResult = validate();
-      if (validationResult.errorFields.length > 0) {
-        emit("finishFailed", validationResult);
-        scrollToFirstError(validationResult.errorFields);
+      const finishSubmission = (result) => {
+        if (runId !== submissionRun || !isSameFormValue(submittedValues, props.model)) {
+          return;
+        }
+        if (result.errorFields.length > 0) {
+          emit("finishFailed", result);
+          scrollToFirstError(result.errorFields);
+          return;
+        }
+        emit("finish", result.values);
+      };
+      if (isPromiseLike(validationResult)) {
+        void validationResult.then(finishSubmission);
         return;
       }
-      emit("finish", validationResult.values);
+      finishSubmission(validationResult);
     };
     __expose({
       validate,
       validateFields,
+      resetFields,
       clearValidate,
       setFieldValue,
       setFieldsValue,

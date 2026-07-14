@@ -107,6 +107,7 @@ export declare const tableProps: {
 export declare const tableEmits: {
     change: (_pagination: TableChangePagination, _filters: TableFilters, _sorter: TableSorter, _extra: TableChangeExtra) => boolean;
     'update:selectedRowKeys': (keys: TableKey[]) => boolean;
+    'update:expandedRowKeys': (keys: TableKey[]) => boolean;
     select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => boolean;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => boolean;
 };

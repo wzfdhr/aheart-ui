@@ -123,3 +123,4 @@ declare const Pagination: import("../utils/install").SFCWithInstall<import("vue"
     readonly showQuickJumper: boolean | import("./types").PaginationQuickJumperConfig;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Pagination;
+export type * from './types';

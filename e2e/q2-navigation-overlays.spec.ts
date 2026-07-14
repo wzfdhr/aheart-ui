@@ -139,7 +139,13 @@ test('dropdown uses real viewport coordinates and restores focus on Escape', asy
   const overlayBox = await overlay.boundingBox()
   expect(triggerBox).not.toBeNull()
   expect(overlayBox).not.toBeNull()
-  expect(overlayBox!.y).toBeGreaterThanOrEqual(triggerBox!.y + triggerBox!.height - 1)
+  const overlayClass = await overlay.getAttribute('class')
+  if (overlayClass?.includes('aheart-floating--top')) {
+    expect(overlayBox!.y + overlayBox!.height).toBeLessThanOrEqual(triggerBox!.y + 1)
+  } else {
+    expect(overlayClass).toContain('aheart-floating--bottom')
+    expect(overlayBox!.y).toBeGreaterThanOrEqual(triggerBox!.y + triggerBox!.height - 1)
+  }
   expect(overlayBox!.x).toBeGreaterThanOrEqual(0)
   expect(overlayBox!.x + overlayBox!.width).toBeLessThanOrEqual(await page.evaluate(() => innerWidth))
 

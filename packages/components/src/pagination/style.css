@@ -23,6 +23,7 @@
 .aheart-pagination__total {
   margin-right: var(--aheart-spacing-sm);
   color: var(--aheart-color-text-secondary);
+  line-height: var(--aheart-control-height);
 }
 
 .aheart-pagination button {
@@ -38,6 +39,13 @@
   transition:
     border-color var(--aheart-motion-duration) var(--aheart-motion-ease),
     color var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-pagination button:focus-visible,
+.aheart-pagination__size-changer:focus-visible,
+.aheart-pagination__quick-jumper-input:focus-visible {
+  outline: 2px solid var(--aheart-color-primary);
+  outline-offset: 2px;
 }
 
 .aheart-pagination__size-changer,
@@ -56,6 +64,7 @@
 .aheart-pagination__size-changer {
   min-width: 104px;
   padding: 0 var(--aheart-spacing-sm);
+  line-height: var(--aheart-control-height);
 }
 
 .aheart-pagination__quick-jumper {
@@ -72,6 +81,7 @@
 .aheart-pagination__quick-jumper-input {
   width: 64px;
   padding: 0 var(--aheart-spacing-xs);
+  line-height: var(--aheart-control-height);
 }
 
 .aheart-pagination button:hover:not(:disabled),
@@ -115,6 +125,10 @@
   font-size: var(--aheart-font-size-sm);
 }
 
+.aheart-pagination--small .aheart-pagination__total {
+  line-height: var(--aheart-control-height-sm);
+}
+
 .aheart-pagination--small button {
   min-width: var(--aheart-control-height-sm);
   height: var(--aheart-control-height-sm);
@@ -131,6 +145,10 @@
   font-size: var(--aheart-font-size-lg);
 }
 
+.aheart-pagination--large .aheart-pagination__total {
+  line-height: var(--aheart-control-height-lg);
+}
+
 .aheart-pagination--large button {
   min-width: var(--aheart-control-height-lg);
   height: var(--aheart-control-height-lg);
@@ -140,4 +158,20 @@
 .aheart-pagination--large .aheart-pagination__quick-jumper-input,
 .aheart-pagination--large .aheart-pagination__ellipsis {
   height: var(--aheart-control-height-lg);
+}
+
+@media (max-width: 640px) {
+  .aheart-pagination {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .aheart-pagination__total {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+
+  .aheart-pagination__quick-jumper {
+    margin-left: 0;
+  }
 }

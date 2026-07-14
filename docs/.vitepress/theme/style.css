@@ -239,6 +239,13 @@
   background: #fff;
 }
 
+.aheart-demo-result {
+  display: block;
+  min-height: 22px;
+  color: var(--aheart-site-text-muted);
+  font-size: 13px;
+}
+
 /* VitePress prose rules must not become component runtime styles. */
 .vp-doc .aheart-demo-panel
   :where(
