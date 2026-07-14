@@ -20,6 +20,9 @@ importers:
 
   docs:
     dependencies:
+      '@aheart-ui/dnd':
+        specifier: workspace:^
+        version: link:../packages/dnd
       aheart-ui:
         specifier: workspace:^
         version: link:../packages/components
@@ -51,6 +54,37 @@ importers:
       vite-plugin-dts:
         specifier: ^3.7.2
         version: 3.7.2(rollup@4.62.0)(typescript@5.3.3)(vite@5.0.12)
+      vitest:
+        specifier: ^1.6.1
+        version: 1.6.1(jsdom@24.1.3)
+      vue:
+        specifier: ^3.5.38
+        version: 3.5.38(typescript@5.3.3)
+      vue-tsc:
+        specifier: ^2.0.29
+        version: 2.2.12(typescript@5.3.3)
+
+  packages/dnd:
+    dependencies:
+      '@atlaskit/pragmatic-drag-and-drop':
+        specifier: ^2.0.1
+        version: 2.0.1
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.3
+        version: 5.2.4(vite@5.4.21)(vue@3.5.38(typescript@5.3.3))
+      '@vue/test-utils':
+        specifier: ^2.4.6
+        version: 2.4.11(@vue/compiler-dom@3.5.38)(@vue/server-renderer@3.5.38(vue@3.5.38(typescript@5.3.3)))(vue@3.5.38(typescript@5.3.3))
+      jsdom:
+        specifier: ^24.1.1
+        version: 24.1.3
+      vite:
+        specifier: ^5.0.12
+        version: 5.4.21
+      vite-plugin-dts:
+        specifier: ^3.7.2
+        version: 3.7.2(rollup@4.62.0)(typescript@5.3.3)(vite@5.4.21)
       vitest:
         specifier: ^1.6.1
         version: 1.6.1(jsdom@24.1.3)
@@ -144,6 +178,9 @@ packages:
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
 
+  '@atlaskit/pragmatic-drag-and-drop@2.0.1':
+    resolution: {integrity: sha512-5iSbCveKuWYh0HijDxfSsYKD2VE0UPObI9jO1pqq+RBk9LzaoOYeKyW0Fobv/6db8HAPcyT3vhRy8bmk5TMcMw==}
+
   '@babel/helper-string-parser@7.29.7':
     resolution: {integrity: sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==}
     engines: {node: '>=6.9.0'}
@@ -156,6 +193,10 @@ packages:
     resolution: {integrity: sha512-hnORnjP/1P/zFEndoeX+n+t1RwWRJiJpM/jO7FW32Kn9r5+sJB2JWOdYo4L6k78j15eCwY3Gm/7364B1EMwtNg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  '@babel/runtime@7.29.7':
+    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
+    engines: {node: '>=6.9.0'}
 
   '@babel/types@7.29.7':
     resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
@@ -1024,6 +1065,9 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
+  bind-event-listener@3.0.0:
+    resolution: {integrity: sha512-PJvH288AWQhKs2v9zyfYdPzlPqf5bXbGMmhmUIY9x4dAUGIWgomO771oBQNwJnMQSnUIXhKu6sgzpBRXTlvb8Q==}
+
   birpc@2.9.0:
     resolution: {integrity: sha512-KrayHS5pBi69Xi9JmvoqrIgYGDkD6mcSe/i6YKi3w5kekCLzrX4+nawcXqrj2tIp50Kw/mT/s3p+GVK0A0sKxw==}
 
@@ -1594,6 +1638,9 @@ packages:
   querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
 
+  raf-schd@4.0.3:
+    resolution: {integrity: sha512-tQkJl2GRWh83ui2DiPTJz9wEiMN20syf+5oKfB03yYP7ioZcJwsIK8FjrtLwH1m7C7e+Tt2yYBlrOpdT+dyeIQ==}
+
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
@@ -2152,6 +2199,12 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
+  '@atlaskit/pragmatic-drag-and-drop@2.0.1':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      bind-event-listener: 3.0.0
+      raf-schd: 4.0.3
+
   '@babel/helper-string-parser@7.29.7': {}
 
   '@babel/helper-validator-identifier@7.29.7': {}
@@ -2159,6 +2212,8 @@ snapshots:
   '@babel/parser@7.29.7':
     dependencies:
       '@babel/types': 7.29.7
+
+  '@babel/runtime@7.29.7': {}
 
   '@babel/types@7.29.7':
     dependencies:
@@ -2886,6 +2941,8 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
+  bind-event-listener@3.0.0: {}
+
   birpc@2.9.0: {}
 
   brace-expansion@2.0.1:
@@ -3506,6 +3563,8 @@ snapshots:
 
   querystringify@2.2.0: {}
 
+  raf-schd@4.0.3: {}
+
   react-is@18.3.1: {}
 
   regex-recursion@6.0.2:
@@ -3760,12 +3819,13 @@ snapshots:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.0.12
+      vite: 5.4.21
     transitivePeerDependencies:
       - '@types/node'
       - less
       - lightningcss
       - sass
+      - sass-embedded
       - stylus
       - sugarss
       - supports-color
@@ -3782,6 +3842,22 @@ snapshots:
       vue-tsc: 1.8.27(typescript@5.3.3)
     optionalDependencies:
       vite: 5.0.12
+    transitivePeerDependencies:
+      - '@types/node'
+      - rollup
+      - supports-color
+
+  vite-plugin-dts@3.7.2(rollup@4.62.0)(typescript@5.3.3)(vite@5.4.21):
+    dependencies:
+      '@microsoft/api-extractor': 7.39.0
+      '@rollup/pluginutils': 5.1.0(rollup@4.62.0)
+      '@vue/language-core': 1.8.27(typescript@5.3.3)
+      debug: 4.3.4
+      kolorist: 1.8.0
+      typescript: 5.3.3
+      vue-tsc: 1.8.27(typescript@5.3.3)
+    optionalDependencies:
+      vite: 5.4.21
     transitivePeerDependencies:
       - '@types/node'
       - rollup
@@ -3880,6 +3956,7 @@ snapshots:
       - less
       - lightningcss
       - sass
+      - sass-embedded
       - stylus
       - sugarss
       - supports-color

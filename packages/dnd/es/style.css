@@ -1,0 +1,8 @@
+.aheart-dnd-draggable { cursor: grab; }
+.aheart-dnd-dragging { cursor: grabbing; user-select: none; }
+.aheart-dnd-drop-zone { min-block-size: 1px; }
+.aheart-dnd-sortable-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.aheart-dnd-sortable-item { cursor: grab; outline: none; }
+.aheart-dnd-sortable-item:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.aheart-dnd-live-region { position: fixed; overflow: hidden; inline-size: 1px; block-size: 1px; clip: rect(0 0 0 0); white-space: nowrap; }
+.aheart-dnd-overlay { position: fixed; z-index: 1000; inset-inline-end: 16px; inset-block-end: 16px; max-inline-size: min(320px, calc(100vw - 32px)); padding: 8px 12px; border: 1px solid currentColor; border-radius: 4px; background: #fff; box-shadow: 0 6px 16px rgb(0 0 0 / 18%); pointer-events: none; }

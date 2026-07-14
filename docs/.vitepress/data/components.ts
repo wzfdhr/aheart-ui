@@ -331,6 +331,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('cascader') }
       },
       {
+        key: 'dnd',
+        name: 'DnD',
+        zhName: '拖拽',
+        description: {
+          zh: '为列表排序和跨容器移动提供拖拽能力。',
+          en: 'Provide drag and drop for sorting and moving between containers.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('dnd') }
+      },
+      {
         key: 'textarea',
         name: 'Textarea',
         zhName: '文本域',

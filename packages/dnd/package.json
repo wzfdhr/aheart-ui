@@ -1,0 +1,53 @@
+{
+  "name": "@aheart-ui/dnd",
+  "version": "1.0.0",
+  "description": "Vue 3 drag and drop components for Aheart UI.",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "types": "es/index.d.ts",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.js"
+    },
+    "./style.css": "./es/style.css",
+    "./es/*": "./es/*",
+    "./lib/*": "./lib/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "es",
+    "lib"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --environment jsdom"
+  },
+  "keywords": [
+    "aheart-ui",
+    "vue3",
+    "drag-and-drop"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": ">=3.4.0 <4"
+  },
+  "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^2.0.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^24.1.1",
+    "vite": "^5.0.12",
+    "vite-plugin-dts": "^3.7.2",
+    "vitest": "^1.6.1",
+    "vue": "^3.5.38",
+    "vue-tsc": "^2.0.29"
+  }
+}
