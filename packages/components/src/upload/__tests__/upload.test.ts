@@ -31,6 +31,7 @@ describe('Upload', () => {
     await selectFiles(wrapper.find('input[type="file"]'), [createFile('controlled.txt')])
 
     expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'controlled.txt', status: 'done' }])
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
   })
 
   it('allows manual upload after beforeUpload returns false', async () => {
