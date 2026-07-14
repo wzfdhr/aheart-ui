@@ -654,6 +654,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         },
         status: 'Ready',
         link: { zh: zhLink('ai-form') }
+      },
+      {
+        key: 'ai-agent-workbench',
+        name: 'AIAgentWorkbench',
+        zhName: 'AI Agent 工作台',
+        description: {
+          zh: '组合受控会话、对话、任务审批、上下文与产物的 Agent 工作台。',
+          en: 'Compose controlled conversations, chat, approvals, context, and artifacts for agent workflows.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('ai-agent-workbench') }
       }
     ]
   }

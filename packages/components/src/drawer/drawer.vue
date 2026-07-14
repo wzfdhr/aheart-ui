@@ -17,6 +17,7 @@
           :style="panelStyle"
           role="dialog"
           aria-modal="true"
+          :aria-label="dialogLabel"
           tabindex="-1"
         >
           <header v-if="hasHeader" :class="headerClass" :style="mergedHeaderStyle">
@@ -162,6 +163,7 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])'
 ].join(',')
 const hasRendered = ref(props.open || props.forceRender)
+const dialogLabel = computed(() => typeof props.title === 'string' || typeof props.title === 'number' ? String(props.title) : undefined)
 const triggerElement = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 const resizedSize = ref<number>()

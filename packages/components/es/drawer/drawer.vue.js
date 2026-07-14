@@ -1,10 +1,11 @@
-import { defineComponent, useSlots, ref, inject, provide, computed, watch, nextTick, onBeforeUnmount, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, withCtx, createElementVNode, renderSlot, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, inject, provide, watch, nextTick, onBeforeUnmount, openBlock, createBlock, Teleport, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, withCtx, createElementVNode, renderSlot, vShow } from "vue";
 import Skeleton from "../skeleton/index.js";
 import { usePointerDrag } from "../utils/use-pointer-drag.js";
 import { drawerProps, drawerEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["disabled"];
+const _hoisted_1 = ["aria-label"];
 const _hoisted_2 = ["disabled"];
+const _hoisted_3 = ["disabled"];
 const DRAWER_PUSH_CONTEXT = Symbol("ADrawerPushContext");
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
@@ -56,6 +57,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
     const hasRendered = ref(props.open || props.forceRender);
+    const dialogLabel = computed(() => typeof props.title === "string" || typeof props.title === "number" ? String(props.title) : void 0);
     const triggerElement = ref(null);
     const panelRef = ref(null);
     const resizedSize = ref();
@@ -470,6 +472,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 style: normalizeStyle(panelStyle.value),
                 role: "dialog",
                 "aria-modal": "true",
+                "aria-label": dialogLabel.value,
                 tabindex: "-1"
               }, [
                 hasHeader.value ? (openBlock(), createElementBlock("header", {
@@ -487,7 +490,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_1)) : createCommentVNode("", true),
+                  ], 14, _hoisted_2)) : createCommentVNode("", true),
                   hasTitle.value ? (openBlock(), createElementBlock("div", {
                     key: 1,
                     class: normalizeClass(titleClass.value),
@@ -516,7 +519,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     createVNode(unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_2)) : createCommentVNode("", true)
+                  ], 14, _hoisted_3)) : createCommentVNode("", true)
                 ], 6)) : createCommentVNode("", true),
                 createElementVNode("div", {
                   class: normalizeClass(bodyClass.value),
@@ -548,7 +551,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   "aria-label": "Resize drawer",
                   onPointerdown: handleResizeStart
                 }, null, 38)) : createCommentVNode("", true)
-              ], 6)
+              ], 14, _hoisted_1)
             ]),
             _: 3
           }, 8, ["renderer"])

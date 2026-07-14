@@ -10,15 +10,17 @@ import AISources from './sources.vue'
 import AIThoughtChain from './thought-chain.vue'
 import AIWelcome from './welcome.vue'
 import AIForm from './form.vue'
+import AIAgentWorkbench from './agent-workbench.vue'
 import './style.css'
 
-export { AIActions, AIAttachments, AIBubble, AIChatPanel, AIConversations, AIForm, AIProcess, AIPrompts, AISender, AISources, AIThoughtChain, AIWelcome }
+export { AIActions, AIAgentWorkbench, AIAttachments, AIBubble, AIChatPanel, AIConversations, AIForm, AIProcess, AIPrompts, AISender, AISources, AIThoughtChain, AIWelcome }
 export * from './types'
 export * from './form-schema'
 
 const AheartAI: Plugin = {
   install(app: App) {
     app.component('AAIActions', AIActions)
+    app.component('AAIAgentWorkbench', AIAgentWorkbench)
     app.component('AAIAttachments', AIAttachments)
     app.component('AAIBubble', AIBubble)
     app.component('AAIChatPanel', AIChatPanel)

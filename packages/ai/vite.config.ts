@@ -22,7 +22,7 @@ export default defineConfig({
     target: 'modules',
     minify: false,
     rollupOptions: {
-      external: (id) => id === 'vue' || id.startsWith('vue/') || id === 'aheart-ui',
+      external: (id) => id === 'vue' || id.startsWith('vue/') || id === 'aheart-ui' || id === '@aheart-ui/dnd',
       input: 'src/index.ts',
       output: [
         { format: 'es', exports: 'named', entryFileNames: '[name].js', preserveModules: true, dir: 'es', preserveModulesRoot: 'src' },

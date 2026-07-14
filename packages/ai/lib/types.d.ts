@@ -70,4 +70,33 @@ export interface AIAction {
     label: string;
     disabled?: boolean;
 }
+export type AIAgentTaskStatus = 'pending' | 'running' | 'waiting-approval' | 'complete' | 'error' | 'cancelled';
+export type AIAgentApprovalStatus = 'pending' | 'approved' | 'rejected';
+export interface AIAgentApproval {
+    id: string;
+    title: string;
+    description?: string;
+    status?: AIAgentApprovalStatus;
+}
+export interface AIAgentTask {
+    id: string;
+    label: string;
+    status: AIAgentTaskStatus;
+    detail?: string;
+    error?: string;
+    approval?: AIAgentApproval;
+}
+export interface AIAgentContextItem {
+    id: string;
+    label: string;
+    description?: string;
+    disabled?: boolean;
+}
+export interface AIAgentArtifact {
+    id: string;
+    title: string;
+    description?: string;
+    type?: string;
+    url?: string;
+}
 import type { VNodeChild } from 'vue';

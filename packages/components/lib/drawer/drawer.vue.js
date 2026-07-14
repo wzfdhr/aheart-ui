@@ -5,8 +5,9 @@ const index = require("../skeleton/index.js");
 const usePointerDrag = require("../utils/use-pointer-drag.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["disabled"];
+const _hoisted_1 = ["aria-label"];
 const _hoisted_2 = ["disabled"];
+const _hoisted_3 = ["disabled"];
 const DRAWER_PUSH_CONTEXT = Symbol("ADrawerPushContext");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
@@ -58,6 +59,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
     const hasRendered = vue.ref(props.open || props.forceRender);
+    const dialogLabel = vue.computed(() => typeof props.title === "string" || typeof props.title === "number" ? String(props.title) : void 0);
     const triggerElement = vue.ref(null);
     const panelRef = vue.ref(null);
     const resizedSize = vue.ref();
@@ -472,6 +474,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 style: vue.normalizeStyle(panelStyle.value),
                 role: "dialog",
                 "aria-modal": "true",
+                "aria-label": dialogLabel.value,
                 tabindex: "-1"
               }, [
                 hasHeader.value ? (vue.openBlock(), vue.createElementBlock("header", {
@@ -489,7 +492,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     vue.createVNode(vue.unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_1)) : vue.createCommentVNode("", true),
+                  ], 14, _hoisted_2)) : vue.createCommentVNode("", true),
                   hasTitle.value ? (vue.openBlock(), vue.createElementBlock("div", {
                     key: 1,
                     class: vue.normalizeClass(titleClass.value),
@@ -518,7 +521,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     onClick: handleCloseButtonClick
                   }, [
                     vue.createVNode(vue.unref(ADrawerRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])
-                  ], 14, _hoisted_2)) : vue.createCommentVNode("", true)
+                  ], 14, _hoisted_3)) : vue.createCommentVNode("", true)
                 ], 6)) : vue.createCommentVNode("", true),
                 vue.createElementVNode("div", {
                   class: vue.normalizeClass(bodyClass.value),
@@ -550,7 +553,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   "aria-label": "Resize drawer",
                   onPointerdown: handleResizeStart
                 }, null, 38)) : vue.createCommentVNode("", true)
-              ], 6)
+              ], 14, _hoisted_1)
             ]),
             _: 3
           }, 8, ["renderer"])

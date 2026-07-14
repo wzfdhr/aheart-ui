@@ -4,13 +4,13 @@
   "description": "Vue 3 drag and drop components for Aheart UI.",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "types": "es/index.d.ts",
+  "types": "lib/index.d.ts",
   "sideEffects": [
     "**/*.css"
   ],
   "exports": {
     ".": {
-      "types": "./es/index.d.ts",
+      "types": "./lib/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.js"
     },

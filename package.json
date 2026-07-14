@@ -12,6 +12,7 @@
     "test": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test",
     "docs:dev": "corepack pnpm --dir docs dev",
     "docs:build": "corepack pnpm --dir docs build",
+    "test:e2e": "playwright test",
     "check:generated": "git diff --exit-code -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib",
     "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm build && corepack pnpm --dir docs build && corepack pnpm check:generated && git diff --check"
   },
@@ -23,6 +24,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@vitejs/plugin-vue": "^5.0.3",
     "vite": "^5.0.12",
     "vite-plugin-dts": "^3.7.2"

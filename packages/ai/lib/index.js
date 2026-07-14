@@ -12,11 +12,13 @@ const sources_vue_vue_type_script_setup_true_lang = require("./sources.vue.js");
 const thoughtChain_vue_vue_type_script_setup_true_lang = require("./thought-chain.vue.js");
 const welcome_vue_vue_type_script_setup_true_lang = require("./welcome.vue.js");
 const form_vue_vue_type_script_setup_true_lang = require("./form.vue.js");
+const agentWorkbench_vue_vue_type_script_setup_true_lang = require("./agent-workbench.vue.js");
 ;/* empty css           */
 const formSchema = require("./form-schema.js");
 const AheartAI = {
   install(app) {
     app.component("AAIActions", actions_vue_vue_type_script_setup_true_lang.default);
+    app.component("AAIAgentWorkbench", agentWorkbench_vue_vue_type_script_setup_true_lang.default);
     app.component("AAIAttachments", attachments_vue_vue_type_script_setup_true_lang.default);
     app.component("AAIBubble", bubble_vue_vue_type_script_setup_true_lang.default);
     app.component("AAIChatPanel", chatPanel_vue_vue_type_script_setup_true_lang.default);
@@ -42,6 +44,7 @@ exports.AISources = sources_vue_vue_type_script_setup_true_lang.default;
 exports.AIThoughtChain = thoughtChain_vue_vue_type_script_setup_true_lang.default;
 exports.AIWelcome = welcome_vue_vue_type_script_setup_true_lang.default;
 exports.AIForm = form_vue_vue_type_script_setup_true_lang.default;
+exports.AIAgentWorkbench = agentWorkbench_vue_vue_type_script_setup_true_lang.default;
 exports.AI_FORM_CONDITION_OPERATORS = formSchema.AI_FORM_CONDITION_OPERATORS;
 exports.AI_FORM_FIELD_TYPES = formSchema.AI_FORM_FIELD_TYPES;
 exports.validateAIFormSchema = formSchema.validateAIFormSchema;
