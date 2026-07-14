@@ -64,13 +64,36 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 </template>
 ```
 
+## Locale
+
+Built-in copy defaults to Simplified Chinese. Import `enUS` from the package root to switch a subtree to English. Nested providers merge locale namespaces, so a local key can override one label without discarding its parent values.
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <APagination :total="42" show-total />
+    <AModal open title="Delete item">This dialog uses English actions.</AModal>
+  </AConfigProvider>
+
+  <AConfigProvider :locale="enUS">
+    <AConfigProvider :locale="{ modal: { okText: 'Proceed' } }">
+      <AModal open title="Nested override" />
+    </AConfigProvider>
+  </AConfigProvider>
+</template>
+```
+
 ## API
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
 | size | Global component size. | `large` \| `middle` \| `small` | `middle` |
 | disabled | Global disabled state. | `boolean` | `false` |
-| locale | Built-in component copy. | `AheartLocale` | `{ empty: { description: 'No Data' } }` |
+| locale | Built-in component copy in the `empty`, `pagination`, `modal`, and `table` namespaces. | `AheartLocale` | `zhCN` |
 | theme | Local theme-token overrides. | `AheartTheme` | `{}` |
 
 ## Slots

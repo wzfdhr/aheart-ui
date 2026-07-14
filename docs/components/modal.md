@@ -65,6 +65,25 @@ const open = ref(false)
 </template>
 ```
 
+## 国际化
+
+未传入 `ok-text`、`cancel-text` 时，确认、取消和关闭按钮文案由 ConfigProvider locale 提供。
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+import { ref } from 'vue'
+
+const open = ref(true)
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <AModal v-model:open="open" title="Delete item">English default actions.</AModal>
+  </AConfigProvider>
+</template>
+```
+
 ## 关闭控件
 
 <div class="aheart-demo-panel">

@@ -5,7 +5,8 @@ const index$1 = require("../button/index.js");
 const index = require("../skeleton/index.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["disabled"];
+const context = require("../config/context.js");
+const _hoisted_1 = ["disabled", "aria-label"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AModal"
@@ -17,6 +18,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = vue.useSlots();
+    const config = context.useAheartConfig();
     const FOCUSABLE_SELECTOR = [
       "a[href]",
       "area[href]",
@@ -179,6 +181,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
     });
+    const resolvedOkText = vue.computed(() => {
+      var _a, _b;
+      return props.okText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.okText) ?? "OK";
+    });
+    const resolvedCancelText = vue.computed(() => {
+      var _a, _b;
+      return props.cancelText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.cancelText) ?? "Cancel";
+    });
+    const closeAriaLabel = vue.computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.close) ?? "Close";
+    });
     const resolvedCancelButtonProps = vue.computed(() => props.cancelButtonProps ?? {});
     const resolvedOkButtonProps = vue.computed(() => {
       var _a, _b;
@@ -201,10 +215,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       );
     };
     const cancelButtonNode = vue.computed(
-      () => createFooterButton("aheart-modal__cancel", resolvedCancelButtonProps.value, handleCancel, props.cancelText)
+      () => createFooterButton("aheart-modal__cancel", resolvedCancelButtonProps.value, handleCancel, resolvedCancelText.value)
     );
     const okButtonNode = vue.computed(
-      () => createFooterButton("aheart-modal__ok", resolvedOkButtonProps.value, handleOk, props.okText)
+      () => createFooterButton("aheart-modal__ok", resolvedOkButtonProps.value, handleOk, resolvedOkText.value)
     );
     const defaultFooterNode = vue.computed(() => [cancelButtonNode.value, okButtonNode.value]);
     const footerRenderExtra = vue.computed(() => ({
@@ -250,8 +264,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
     );
-    const resolveSemanticConfig = (config, part) => {
-      const resolved = typeof config === "function" ? config({ props }) : config;
+    const resolveSemanticConfig = (config2, part) => {
+      const resolved = typeof config2 === "function" ? config2({ props }) : config2;
       return resolved == null ? void 0 : resolved[part];
     };
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
@@ -396,7 +410,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       style: vue.normalizeStyle(semanticStyle("close")),
                       disabled: isCloseButtonDisabled.value,
                       type: "button",
-                      "aria-label": "Close",
+                      "aria-label": closeAriaLabel.value,
                       onClick: handleCloseButtonClick
                     }, [
                       vue.createVNode(vue.unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])

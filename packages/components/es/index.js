@@ -39,6 +39,7 @@ import Tooltip from "./tooltip/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
 import "./theme/index.css.js";
 import { message } from "./message/service.js";
+import { enUS, zhCN } from "./config/context.js";
 const components = [
   Button,
   ConfigProvider,
@@ -155,5 +156,7 @@ export {
   Tooltip,
   Typography,
   AheartUI as default,
-  message
+  enUS,
+  message,
+  zhCN
 };

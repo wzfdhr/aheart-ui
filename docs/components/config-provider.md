@@ -58,13 +58,36 @@ ConfigProvider provides shared configuration for Aheart UI components, including
 </template>
 ```
 
+## 国际化
+
+组件默认使用简体中文。通过根导出的 `enUS` 切换整棵子树的内置文案；内层 Provider 可以只覆盖一个字段，其余字段继续继承外层 locale。
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <APagination :total="42" show-total />
+    <AModal open title="Delete item">This dialog uses English actions.</AModal>
+  </AConfigProvider>
+
+  <AConfigProvider :locale="enUS">
+    <AConfigProvider :locale="{ modal: { okText: 'Proceed' } }">
+      <AModal open title="Nested override" />
+    </AConfigProvider>
+  </AConfigProvider>
+</template>
+```
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | size | 全局组件尺寸 | `large` \| `middle` \| `small` | `middle` |
 | disabled | 全局禁用状态 | `boolean` | `false` |
-| locale | 组件内置文案 | `AheartLocale` | `{ empty: { description: 'No Data' } }` |
+| locale | 组件内置文案，支持 `empty`、`pagination`、`modal` 和 `table` namespace | `AheartLocale` | `zhCN` |
 | theme | 局部主题 token 覆盖 | `AheartTheme` | `{}` |
 
 ## Slots

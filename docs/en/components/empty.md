@@ -4,7 +4,7 @@
 
 
 import { h } from 'vue'
-import { Empty } from 'aheart-ui'
+import { Empty, enUS } from 'aheart-ui'
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 const richDescription = h('span', { style: { color: 'var(--aheart-color-text)' } }, [
@@ -47,14 +47,14 @@ Empty presents an intentional empty state with optional custom image and action 
 ## Localized Text
 
 <div class="aheart-demo-panel">
-  <AConfigProvider :locale="{ empty: { description: 'No content' } }">
+  <AConfigProvider :locale="enUS">
     <AEmpty />
   </AConfigProvider>
 </div>
 
 ```vue
 <template>
-<AConfigProvider :locale="{ empty: { description: 'No content' } }">
+  <AConfigProvider :locale="enUS">
     <AEmpty />
   </AConfigProvider>
 </template>

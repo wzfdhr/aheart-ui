@@ -2,6 +2,20 @@
 
 Table displays structured records with columns, sorting, selection, expansion, pagination, loading, and empty states.
 
+The default empty state comes from `table.emptyText` in ConfigProvider. The `empty-text` prop remains higher priority than locale copy.
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <ATable :columns="[]" :data-source="[]" />
+  </AConfigProvider>
+</template>
+```
+
 <script setup lang="ts">
 import { h } from 'vue'
 const tableRenderableColumns = [

@@ -16,6 +16,22 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
+## Locale
+
+ConfigProvider localizes the default total, previous/next labels, page-size options, and quick-jump controls. Component-level `show-total` and `item-render` callbacks continue to take precedence.
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <APagination :total="95" show-total show-size-changer show-quick-jumper />
+  </AConfigProvider>
+</template>
+```
+
 ## Simple Mode
 
 <div class="aheart-demo-panel">

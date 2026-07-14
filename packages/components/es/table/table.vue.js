@@ -106,8 +106,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const resolvedEmptyText = computed(
       () => {
-        var _a2, _b2;
-        return hasRenderableContent(props.emptyText) ? props.emptyText : ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.empty) == null ? void 0 : _b2.description) || "No Data";
+        var _a2, _b2, _c, _d;
+        return hasRenderableContent(props.emptyText) ? props.emptyText : ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.table) == null ? void 0 : _b2.emptyText) ?? ((_d = (_c = config.value.locale) == null ? void 0 : _c.empty) == null ? void 0 : _d.description) ?? "No Data";
       }
     );
     const paginationConfig = computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});

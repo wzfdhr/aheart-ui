@@ -68,11 +68,11 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     onExpand?: ((_expanded: boolean, _record: TableRecord, _key: TableKey) => any) | undefined;
 }>, {
     readonly disabled: boolean;
+    readonly emptyText: VNodeChild;
+    readonly pagination: false | import("./types").TablePaginationConfig;
     readonly loading: boolean;
     readonly bordered: boolean;
-    readonly pagination: false | import("./types").TablePaginationConfig;
     readonly rowKey: string | ((record: TableRecord) => TableKey);
     readonly showHeader: boolean;
-    readonly emptyText: VNodeChild;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

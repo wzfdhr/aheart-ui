@@ -36,6 +36,8 @@ import Tabs from './tabs';
 import Textarea from './textarea';
 import Tooltip from './tooltip';
 import Typography, { Link, Paragraph, Text, Title } from './typography';
+export type { AheartLocale } from './config';
+export { enUS, zhCN } from './config';
 declare const AheartUI: Plugin;
 export { Button, ConfigProvider, Space, Divider, Flex, Grid, Row, Col, Icon, Typography, Title, Text, Paragraph, Link, Tag, CheckableTag, TagGroup, Badge, BadgeRibbon, Alert, Message, message, Modal, Drawer, Tooltip, Popover, Popconfirm, Spin, Skeleton, Empty, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE, Breadcrumb, Dropdown, DropdownButton, DropdownButton as ADropdownButton, Menu, Tabs, Steps, Input, Textarea, InputNumber, Checkbox, CheckboxGroup, Radio, RadioGroup, Switch, Card, CardGrid, CardMeta, Descriptions, Pagination, Select, Form, FormItem, Table };
 export default AheartUI;

@@ -65,6 +65,25 @@ const basicOpen = ref(false)
 </template>
 ```
 
+## Locale
+
+When `ok-text` and `cancel-text` are omitted, the confirm, cancel, and close labels come from ConfigProvider.
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+import { ref } from 'vue'
+
+const open = ref(true)
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <AModal v-model:open="open" title="Delete item">English default actions.</AModal>
+  </AConfigProvider>
+</template>
+```
+
 ## Close Controls
 
 <div class="aheart-demo-panel">

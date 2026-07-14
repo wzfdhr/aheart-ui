@@ -34,11 +34,11 @@ const modalProps = {
   confirmLoading: Boolean,
   okText: {
     type: null,
-    default: "OK"
+    default: void 0
   },
   cancelText: {
     type: null,
-    default: "Cancel"
+    default: void 0
   },
   okType: {
     type: String,

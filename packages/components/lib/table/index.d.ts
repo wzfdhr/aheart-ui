@@ -66,12 +66,12 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     onExpand?: ((_expanded: boolean, _record: import("./types").TableRecord, _key: import("./types").TableKey) => any) | undefined;
 }>, {
     readonly disabled: boolean;
+    readonly emptyText: import("vue").VNodeChild;
+    readonly pagination: false | import("./types").TablePaginationConfig;
     readonly loading: boolean;
     readonly bordered: boolean;
-    readonly pagination: false | import("./types").TablePaginationConfig;
     readonly rowKey: string | ((record: import("./types").TableRecord) => import("./types").TableKey);
     readonly showHeader: boolean;
-    readonly emptyText: import("vue").VNodeChild;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Table;
 export type { TableChangePagination, TableColumn, TableDataIndex, TableExpandable, TableKey, TablePaginationConfig, TableProps, TableRecord, TableRowSelection, TableSorter } from './types';

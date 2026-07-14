@@ -34,11 +34,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
         readonly type: PropType<VNodeChild>;
-        readonly default: "OK";
+        readonly default: undefined;
     };
     readonly cancelText: {
         readonly type: PropType<VNodeChild>;
-        readonly default: "Cancel";
+        readonly default: undefined;
     };
     readonly okType: {
         readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
@@ -116,11 +116,11 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly confirmLoading: BooleanConstructor;
     readonly okText: {
         readonly type: PropType<VNodeChild>;
-        readonly default: "OK";
+        readonly default: undefined;
     };
     readonly cancelText: {
         readonly type: PropType<VNodeChild>;
-        readonly default: "Cancel";
+        readonly default: undefined;
     };
     readonly okType: {
         readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
@@ -173,6 +173,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly mask: import("./types").ModalMask;
     readonly width: ModalWidth;
     readonly zIndex: number;
+    readonly okText: VNodeChild;
+    readonly cancelText: VNodeChild;
     readonly loading: boolean;
     readonly maskClosable: boolean;
     readonly keyboard: boolean;
@@ -182,8 +184,6 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly destroyOnHidden: boolean;
     readonly centered: boolean;
     readonly confirmLoading: boolean;
-    readonly okText: VNodeChild;
-    readonly cancelText: VNodeChild;
     readonly okType: "success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger";
     readonly focusTriggerAfterClose: boolean | undefined;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

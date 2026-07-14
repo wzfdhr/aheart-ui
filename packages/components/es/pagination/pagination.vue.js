@@ -2,22 +2,24 @@ import { defineComponent, ref, computed, watch, openBlock, createElementBlock, n
 import { paginationProps, paginationEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["disabled"];
-const _hoisted_2 = {
+const _hoisted_1 = ["aria-label"];
+const _hoisted_2 = ["disabled", "aria-label"];
+const _hoisted_3 = {
   key: 1,
   class: "aheart-pagination__simple"
 };
-const _hoisted_3 = {
+const _hoisted_4 = {
   key: 0,
   class: "aheart-pagination__ellipsis",
   "aria-hidden": "true"
 };
-const _hoisted_4 = ["aria-current", "disabled", "onClick"];
-const _hoisted_5 = ["disabled"];
-const _hoisted_6 = ["value", "disabled"];
-const _hoisted_7 = ["value"];
-const _hoisted_8 = ["max", "disabled"];
-const _hoisted_9 = ["disabled"];
+const _hoisted_5 = ["aria-current", "disabled", "onClick"];
+const _hoisted_6 = ["disabled", "aria-label"];
+const _hoisted_7 = ["value", "disabled", "aria-label"];
+const _hoisted_8 = ["value"];
+const _hoisted_9 = { class: "aheart-pagination__quick-jumper-label" };
+const _hoisted_10 = ["max", "disabled"];
+const _hoisted_11 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "APagination"
@@ -63,9 +65,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isQuickJumperConfig = (value) => typeof value === "object" && value !== null;
     const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const quickJumperConfig = computed(() => isQuickJumperConfig(props.showQuickJumper) ? props.showQuickJumper : void 0);
+    const paginationLocale = computed(() => {
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+      return {
+        ariaLabel: ((_b = (_a = config.value.locale) == null ? void 0 : _a.pagination) == null ? void 0 : _b.ariaLabel) ?? "pagination",
+        prevPage: ((_d = (_c = config.value.locale) == null ? void 0 : _c.pagination) == null ? void 0 : _d.prevPage) ?? "Previous Page",
+        nextPage: ((_f = (_e = config.value.locale) == null ? void 0 : _e.pagination) == null ? void 0 : _f.nextPage) ?? "Next Page",
+        pageSizeLabel: ((_h = (_g = config.value.locale) == null ? void 0 : _g.pagination) == null ? void 0 : _h.pageSizeLabel) ?? "Page Size",
+        pageSize: ((_j = (_i = config.value.locale) == null ? void 0 : _i.pagination) == null ? void 0 : _j.pageSize) ?? ((pageSize) => `${pageSize} / page`),
+        quickJumper: ((_l = (_k = config.value.locale) == null ? void 0 : _k.pagination) == null ? void 0 : _l.quickJumper) ?? "Go to",
+        goButton: ((_n = (_m = config.value.locale) == null ? void 0 : _m.pagination) == null ? void 0 : _n.goButton) ?? "Go",
+        total: ((_p = (_o = config.value.locale) == null ? void 0 : _o.pagination) == null ? void 0 : _p.total) ?? ((total) => `Total ${total} items`)
+      };
+    });
     const quickJumperGoButton = computed(() => {
       var _a;
-      return ((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton) ?? "Go";
+      return ((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton) ?? paginationLocale.value.goButton;
     });
     const showQuickJumperGoButton = computed(
       () => {
@@ -145,7 +160,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (typeof props.showTotal === "function") {
         return props.showTotal(props.total, currentRange.value);
       }
-      return `Total ${props.total} items`;
+      return paginationLocale.value.total(props.total, currentRange.value);
     });
     const pageItems = computed(() => {
       const count = pageCount.value;
@@ -265,7 +280,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         key: 0,
         class: normalizeClass(["aheart-pagination", paginationClass.value]),
         style: normalizeStyle(rootStyle.value),
-        "aria-label": "pagination"
+        "aria-label": paginationLocale.value.ariaLabel
       }, [
         showTotalContent.value ? (openBlock(), createElementBlock("span", {
           key: 0,
@@ -277,14 +292,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           style: normalizeStyle(prevStyle.value),
           type: "button",
           disabled: isDisabled.value || mergedCurrent.value <= 1,
-          "aria-label": "Previous Page",
+          "aria-label": paginationLocale.value.prevPage,
           onClick: _cache[0] || (_cache[0] = ($event) => setCurrent(mergedCurrent.value - 1))
-        }, toDisplayString(prevLabel.value), 15, _hoisted_1),
-        _ctx.simple ? (openBlock(), createElementBlock("span", _hoisted_2, toDisplayString(mergedCurrent.value) + " / " + toDisplayString(pageCount.value), 1)) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(pageItems.value, (item) => {
+        }, toDisplayString(prevLabel.value), 15, _hoisted_2),
+        _ctx.simple ? (openBlock(), createElementBlock("span", _hoisted_3, toDisplayString(mergedCurrent.value) + " / " + toDisplayString(pageCount.value), 1)) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(pageItems.value, (item) => {
           return openBlock(), createElementBlock(Fragment, {
             key: item.key
           }, [
-            item.type === "ellipsis" ? (openBlock(), createElementBlock("span", _hoisted_3, "...")) : (openBlock(), createElementBlock("button", {
+            item.type === "ellipsis" ? (openBlock(), createElementBlock("span", _hoisted_4, "...")) : (openBlock(), createElementBlock("button", {
               key: 1,
               class: normalizeClass(["aheart-pagination__page", getPageClass(item.page)]),
               type: "button",
@@ -292,7 +307,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "aria-current": item.page === mergedCurrent.value ? "page" : void 0,
               disabled: isDisabled.value,
               onClick: ($event) => setCurrent(item.page)
-            }, toDisplayString(renderItem(item.page, "page", String(item.page))), 15, _hoisted_4))
+            }, toDisplayString(renderItem(item.page, "page", String(item.page))), 15, _hoisted_5))
           ], 64);
         }), 128)),
         createElementVNode("button", {
@@ -300,31 +315,31 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           style: normalizeStyle(nextStyle.value),
           type: "button",
           disabled: isDisabled.value || mergedCurrent.value >= pageCount.value,
-          "aria-label": "Next Page",
+          "aria-label": paginationLocale.value.nextPage,
           onClick: _cache[1] || (_cache[1] = ($event) => setCurrent(mergedCurrent.value + 1))
-        }, toDisplayString(nextLabel.value), 15, _hoisted_5),
+        }, toDisplayString(nextLabel.value), 15, _hoisted_6),
         shouldShowSizeChanger.value ? (openBlock(), createElementBlock("select", {
           key: 3,
           class: normalizeClass(sizeChangerClass.value),
           style: normalizeStyle(sizeChangerStyle.value),
           value: mergedPageSize.value,
           disabled: isDisabled.value,
-          "aria-label": "Page Size",
+          "aria-label": paginationLocale.value.pageSizeLabel,
           onChange: handlePageSizeChange
         }, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedPageSizeOptions.value, (option) => {
             return openBlock(), createElementBlock("option", {
               key: option,
               value: option
-            }, toDisplayString(option) + " / page ", 9, _hoisted_7);
+            }, toDisplayString(paginationLocale.value.pageSize(option)), 9, _hoisted_8);
           }), 128))
-        ], 46, _hoisted_6)) : createCommentVNode("", true),
+        ], 46, _hoisted_7)) : createCommentVNode("", true),
         _ctx.showQuickJumper ? (openBlock(), createElementBlock("span", {
           key: 4,
           class: normalizeClass(quickJumperClass.value),
           style: normalizeStyle(quickJumperStyle.value)
         }, [
-          _cache[3] || (_cache[3] = createElementVNode("span", { class: "aheart-pagination__quick-jumper-label" }, "Go to", -1)),
+          createElementVNode("span", _hoisted_9, toDisplayString(paginationLocale.value.quickJumper), 1),
           withDirectives(createElementVNode("input", {
             "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => quickJumpValue.value = $event),
             class: "aheart-pagination__quick-jumper-input",
@@ -333,7 +348,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             max: pageCount.value,
             disabled: isDisabled.value,
             onKeydown: withKeys(jumpToQuickPage, ["enter"])
-          }, null, 40, _hoisted_8), [
+          }, null, 40, _hoisted_10), [
             [vModelText, quickJumpValue.value]
           ]),
           showQuickJumperGoButton.value ? (openBlock(), createElementBlock("button", {
@@ -344,9 +359,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onClick: jumpToQuickPage
           }, [
             createVNode(unref(ARenderNode), { node: quickJumperGoButton.value }, null, 8, ["node"])
-          ], 8, _hoisted_9)) : createCommentVNode("", true)
+          ], 8, _hoisted_11)) : createCommentVNode("", true)
         ], 6)) : createCommentVNode("", true)
-      ], 6)) : createCommentVNode("", true);
+      ], 14, _hoisted_1)) : createCommentVNode("", true);
     };
   }
 });

@@ -23,6 +23,20 @@ const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color
 
 Table displays structured records with columns, sorting, selection, expansion, pagination, loading, and empty states.
 
+默认空状态文案来自 ConfigProvider 的 `table.emptyText`；`empty-text` prop 仍优先于 locale。
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <ATable :columns="[]" :data-source="[]" />
+  </AConfigProvider>
+</template>
+```
+
 ## 基础用法
 
 <div class="aheart-demo-panel">

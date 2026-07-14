@@ -5,7 +5,7 @@ declare const ConfigProvider: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly locale: import("vue").PropType<import("../config").AheartLocale>;
+        readonly locale: import("vue").PropType<import("..").AheartLocale>;
         readonly theme: import("vue").PropType<import("../config").AheartTheme>;
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly disabled: boolean;
@@ -22,7 +22,7 @@ declare const ConfigProvider: import("../utils/install").SFCWithInstall<{
             readonly type: BooleanConstructor;
             readonly default: undefined;
         };
-        readonly locale: import("vue").PropType<import("../config").AheartLocale>;
+        readonly locale: import("vue").PropType<import("..").AheartLocale>;
         readonly theme: import("vue").PropType<import("../config").AheartTheme>;
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly disabled: boolean;
@@ -36,7 +36,7 @@ declare const ConfigProvider: import("../utils/install").SFCWithInstall<{
         readonly type: BooleanConstructor;
         readonly default: undefined;
     };
-    readonly locale: import("vue").PropType<import("../config").AheartLocale>;
+    readonly locale: import("vue").PropType<import("..").AheartLocale>;
     readonly theme: import("vue").PropType<import("../config").AheartTheme>;
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly disabled: boolean;

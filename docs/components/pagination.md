@@ -14,6 +14,22 @@ Pagination navigates paged data with controlled or uncontrolled current page sta
 </template>
 ```
 
+## 国际化
+
+`show-total`、上一页/下一页标签、每页条数和快速跳转的默认文案来自 ConfigProvider locale；传入 `show-total` 或 `item-render` 时仍优先使用组件配置。
+
+```vue
+<script setup lang="ts">
+import { enUS } from 'aheart-ui'
+</script>
+
+<template>
+  <AConfigProvider :locale="enUS">
+    <APagination :total="95" show-total show-size-changer show-quick-jumper />
+  </AConfigProvider>
+</template>
+```
+
 ## 简洁模式
 
 <div class="aheart-demo-panel">

@@ -5,7 +5,27 @@ export interface AheartLocale {
     empty?: {
         description?: string;
     };
+    pagination?: {
+        ariaLabel?: string;
+        prevPage?: string;
+        nextPage?: string;
+        pageSizeLabel?: string;
+        pageSize?: (pageSize: number) => string;
+        quickJumper?: string;
+        goButton?: string;
+        total?: (total: number, range: [number, number]) => string;
+    };
+    modal?: {
+        okText?: string;
+        cancelText?: string;
+        close?: string;
+    };
+    table?: {
+        emptyText?: string;
+    };
 }
+export declare const zhCN: AheartLocale;
+export declare const enUS: AheartLocale;
 export interface AheartTheme {
     primaryColor?: string;
     primaryHoverColor?: string;

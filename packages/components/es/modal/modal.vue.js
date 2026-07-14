@@ -3,7 +3,8 @@ import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { modalProps, modalEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["disabled"];
+import { useAheartConfig } from "../config/context.js";
+const _hoisted_1 = ["disabled", "aria-label"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AModal"
@@ -15,6 +16,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const slots = useSlots();
+    const config = useAheartConfig();
     const FOCUSABLE_SELECTOR = [
       "a[href]",
       "area[href]",
@@ -177,6 +179,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return ((_a = closableConfig.value) == null ? void 0 : _a.disabled) === true;
     });
+    const resolvedOkText = computed(() => {
+      var _a, _b;
+      return props.okText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.okText) ?? "OK";
+    });
+    const resolvedCancelText = computed(() => {
+      var _a, _b;
+      return props.cancelText ?? ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.cancelText) ?? "Cancel";
+    });
+    const closeAriaLabel = computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.modal) == null ? void 0 : _b.close) ?? "Close";
+    });
     const resolvedCancelButtonProps = computed(() => props.cancelButtonProps ?? {});
     const resolvedOkButtonProps = computed(() => {
       var _a, _b;
@@ -199,10 +213,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       );
     };
     const cancelButtonNode = computed(
-      () => createFooterButton("aheart-modal__cancel", resolvedCancelButtonProps.value, handleCancel, props.cancelText)
+      () => createFooterButton("aheart-modal__cancel", resolvedCancelButtonProps.value, handleCancel, resolvedCancelText.value)
     );
     const okButtonNode = computed(
-      () => createFooterButton("aheart-modal__ok", resolvedOkButtonProps.value, handleOk, props.okText)
+      () => createFooterButton("aheart-modal__ok", resolvedOkButtonProps.value, handleOk, resolvedOkText.value)
     );
     const defaultFooterNode = computed(() => [cancelButtonNode.value, okButtonNode.value]);
     const footerRenderExtra = computed(() => ({
@@ -248,8 +262,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     );
-    const resolveSemanticConfig = (config, part) => {
-      const resolved = typeof config === "function" ? config({ props }) : config;
+    const resolveSemanticConfig = (config2, part) => {
+      const resolved = typeof config2 === "function" ? config2({ props }) : config2;
       return resolved == null ? void 0 : resolved[part];
     };
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
@@ -394,7 +408,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       style: normalizeStyle(semanticStyle("close")),
                       disabled: isCloseButtonDisabled.value,
                       type: "button",
-                      "aria-label": "Close",
+                      "aria-label": closeAriaLabel.value,
                       onClick: handleCloseButtonClick
                     }, [
                       createVNode(unref(AModalRenderNode), { node: resolvedCloseIcon.value }, null, 8, ["node"])

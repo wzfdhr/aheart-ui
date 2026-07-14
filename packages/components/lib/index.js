@@ -39,6 +39,7 @@ const index$e = require("./tooltip/index.js");
 const index$7 = require("./typography/index.js");
 require("./theme/index.css.js");
 const service = require("./message/service.js");
+const context = require("./config/context.js");
 const components = [
   index.default,
   index$1.default,
@@ -154,4 +155,6 @@ exports.Text = index$7.Text;
 exports.Title = index$7.Title;
 exports.Typography = index$7.default;
 exports.message = service.message;
+exports.enUS = context.enUS;
+exports.zhCN = context.zhCN;
 exports.default = AheartUI;

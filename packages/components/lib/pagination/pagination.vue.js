@@ -4,22 +4,24 @@ const vue = require("vue");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["disabled"];
-const _hoisted_2 = {
+const _hoisted_1 = ["aria-label"];
+const _hoisted_2 = ["disabled", "aria-label"];
+const _hoisted_3 = {
   key: 1,
   class: "aheart-pagination__simple"
 };
-const _hoisted_3 = {
+const _hoisted_4 = {
   key: 0,
   class: "aheart-pagination__ellipsis",
   "aria-hidden": "true"
 };
-const _hoisted_4 = ["aria-current", "disabled", "onClick"];
-const _hoisted_5 = ["disabled"];
-const _hoisted_6 = ["value", "disabled"];
-const _hoisted_7 = ["value"];
-const _hoisted_8 = ["max", "disabled"];
-const _hoisted_9 = ["disabled"];
+const _hoisted_5 = ["aria-current", "disabled", "onClick"];
+const _hoisted_6 = ["disabled", "aria-label"];
+const _hoisted_7 = ["value", "disabled", "aria-label"];
+const _hoisted_8 = ["value"];
+const _hoisted_9 = { class: "aheart-pagination__quick-jumper-label" };
+const _hoisted_10 = ["max", "disabled"];
+const _hoisted_11 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "APagination"
@@ -65,9 +67,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isQuickJumperConfig = (value) => typeof value === "object" && value !== null;
     const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
     const quickJumperConfig = vue.computed(() => isQuickJumperConfig(props.showQuickJumper) ? props.showQuickJumper : void 0);
+    const paginationLocale = vue.computed(() => {
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+      return {
+        ariaLabel: ((_b = (_a = config.value.locale) == null ? void 0 : _a.pagination) == null ? void 0 : _b.ariaLabel) ?? "pagination",
+        prevPage: ((_d = (_c = config.value.locale) == null ? void 0 : _c.pagination) == null ? void 0 : _d.prevPage) ?? "Previous Page",
+        nextPage: ((_f = (_e = config.value.locale) == null ? void 0 : _e.pagination) == null ? void 0 : _f.nextPage) ?? "Next Page",
+        pageSizeLabel: ((_h = (_g = config.value.locale) == null ? void 0 : _g.pagination) == null ? void 0 : _h.pageSizeLabel) ?? "Page Size",
+        pageSize: ((_j = (_i = config.value.locale) == null ? void 0 : _i.pagination) == null ? void 0 : _j.pageSize) ?? ((pageSize) => `${pageSize} / page`),
+        quickJumper: ((_l = (_k = config.value.locale) == null ? void 0 : _k.pagination) == null ? void 0 : _l.quickJumper) ?? "Go to",
+        goButton: ((_n = (_m = config.value.locale) == null ? void 0 : _m.pagination) == null ? void 0 : _n.goButton) ?? "Go",
+        total: ((_p = (_o = config.value.locale) == null ? void 0 : _o.pagination) == null ? void 0 : _p.total) ?? ((total) => `Total ${total} items`)
+      };
+    });
     const quickJumperGoButton = vue.computed(() => {
       var _a;
-      return ((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton) ?? "Go";
+      return ((_a = quickJumperConfig.value) == null ? void 0 : _a.goButton) ?? paginationLocale.value.goButton;
     });
     const showQuickJumperGoButton = vue.computed(
       () => {
@@ -147,7 +162,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (typeof props.showTotal === "function") {
         return props.showTotal(props.total, currentRange.value);
       }
-      return `Total ${props.total} items`;
+      return paginationLocale.value.total(props.total, currentRange.value);
     });
     const pageItems = vue.computed(() => {
       const count = pageCount.value;
@@ -267,7 +282,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         key: 0,
         class: vue.normalizeClass(["aheart-pagination", paginationClass.value]),
         style: vue.normalizeStyle(rootStyle.value),
-        "aria-label": "pagination"
+        "aria-label": paginationLocale.value.ariaLabel
       }, [
         showTotalContent.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 0,
@@ -279,14 +294,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           style: vue.normalizeStyle(prevStyle.value),
           type: "button",
           disabled: isDisabled.value || mergedCurrent.value <= 1,
-          "aria-label": "Previous Page",
+          "aria-label": paginationLocale.value.prevPage,
           onClick: _cache[0] || (_cache[0] = ($event) => setCurrent(mergedCurrent.value - 1))
-        }, vue.toDisplayString(prevLabel.value), 15, _hoisted_1),
-        _ctx.simple ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, vue.toDisplayString(mergedCurrent.value) + " / " + vue.toDisplayString(pageCount.value), 1)) : (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 2 }, vue.renderList(pageItems.value, (item) => {
+        }, vue.toDisplayString(prevLabel.value), 15, _hoisted_2),
+        _ctx.simple ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, vue.toDisplayString(mergedCurrent.value) + " / " + vue.toDisplayString(pageCount.value), 1)) : (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 2 }, vue.renderList(pageItems.value, (item) => {
           return vue.openBlock(), vue.createElementBlock(vue.Fragment, {
             key: item.key
           }, [
-            item.type === "ellipsis" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_3, "...")) : (vue.openBlock(), vue.createElementBlock("button", {
+            item.type === "ellipsis" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, "...")) : (vue.openBlock(), vue.createElementBlock("button", {
               key: 1,
               class: vue.normalizeClass(["aheart-pagination__page", getPageClass(item.page)]),
               type: "button",
@@ -294,7 +309,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               "aria-current": item.page === mergedCurrent.value ? "page" : void 0,
               disabled: isDisabled.value,
               onClick: ($event) => setCurrent(item.page)
-            }, vue.toDisplayString(renderItem(item.page, "page", String(item.page))), 15, _hoisted_4))
+            }, vue.toDisplayString(renderItem(item.page, "page", String(item.page))), 15, _hoisted_5))
           ], 64);
         }), 128)),
         vue.createElementVNode("button", {
@@ -302,31 +317,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           style: vue.normalizeStyle(nextStyle.value),
           type: "button",
           disabled: isDisabled.value || mergedCurrent.value >= pageCount.value,
-          "aria-label": "Next Page",
+          "aria-label": paginationLocale.value.nextPage,
           onClick: _cache[1] || (_cache[1] = ($event) => setCurrent(mergedCurrent.value + 1))
-        }, vue.toDisplayString(nextLabel.value), 15, _hoisted_5),
+        }, vue.toDisplayString(nextLabel.value), 15, _hoisted_6),
         shouldShowSizeChanger.value ? (vue.openBlock(), vue.createElementBlock("select", {
           key: 3,
           class: vue.normalizeClass(sizeChangerClass.value),
           style: vue.normalizeStyle(sizeChangerStyle.value),
           value: mergedPageSize.value,
           disabled: isDisabled.value,
-          "aria-label": "Page Size",
+          "aria-label": paginationLocale.value.pageSizeLabel,
           onChange: handlePageSizeChange
         }, [
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedPageSizeOptions.value, (option) => {
             return vue.openBlock(), vue.createElementBlock("option", {
               key: option,
               value: option
-            }, vue.toDisplayString(option) + " / page ", 9, _hoisted_7);
+            }, vue.toDisplayString(paginationLocale.value.pageSize(option)), 9, _hoisted_8);
           }), 128))
-        ], 46, _hoisted_6)) : vue.createCommentVNode("", true),
+        ], 46, _hoisted_7)) : vue.createCommentVNode("", true),
         _ctx.showQuickJumper ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 4,
           class: vue.normalizeClass(quickJumperClass.value),
           style: vue.normalizeStyle(quickJumperStyle.value)
         }, [
-          _cache[3] || (_cache[3] = vue.createElementVNode("span", { class: "aheart-pagination__quick-jumper-label" }, "Go to", -1)),
+          vue.createElementVNode("span", _hoisted_9, vue.toDisplayString(paginationLocale.value.quickJumper), 1),
           vue.withDirectives(vue.createElementVNode("input", {
             "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => quickJumpValue.value = $event),
             class: "aheart-pagination__quick-jumper-input",
@@ -335,7 +350,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             max: pageCount.value,
             disabled: isDisabled.value,
             onKeydown: vue.withKeys(jumpToQuickPage, ["enter"])
-          }, null, 40, _hoisted_8), [
+          }, null, 40, _hoisted_10), [
             [vue.vModelText, quickJumpValue.value]
           ]),
           showQuickJumperGoButton.value ? (vue.openBlock(), vue.createElementBlock("button", {
@@ -346,9 +361,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onClick: jumpToQuickPage
           }, [
             vue.createVNode(vue.unref(ARenderNode), { node: quickJumperGoButton.value }, null, 8, ["node"])
-          ], 8, _hoisted_9)) : vue.createCommentVNode("", true)
+          ], 8, _hoisted_11)) : vue.createCommentVNode("", true)
         ], 6)) : vue.createCommentVNode("", true)
-      ], 6)) : vue.createCommentVNode("", true);
+      ], 14, _hoisted_1)) : vue.createCommentVNode("", true);
     };
   }
 });
