@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
+import { renderToString } from '@vue/server-renderer'
+import { createSSRApp, defineComponent, h } from 'vue'
 import { describe, expect, it } from 'vitest'
 import { enUS, useAheartConfig } from '../../config'
 import ConfigProvider from '../config-provider.vue'
@@ -97,5 +98,17 @@ describe('ConfigProvider', () => {
     expect(reader.attributes('data-empty')).toBe('No Data')
     expect(reader.attributes('data-pagination-total')).toBe('Total 42 items')
     expect(reader.attributes('data-modal-ok')).toBe('Proceed')
+  })
+
+  it('renders locale defaults during SSR without browser globals', async () => {
+    const app = createSSRApp({
+      render: () => h(ConfigProvider, null, { default: () => h(ConfigReader) })
+    })
+
+    const html = await renderToString(app)
+
+    expect(html).toContain('data-empty="暂无数据"')
+    expect(html).toContain('data-pagination-total="共 42 条"')
+    expect(html).toContain('data-modal-ok="确定"')
   })
 })
