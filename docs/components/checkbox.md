@@ -51,7 +51,7 @@ Checkbox captures a boolean choice or a grouped set of choices with checked, dis
 
 ```vue
 <template>
-  <ACheckbox :checked="checked" label="Checked alias" />
+  <ACheckbox v-model:checked="checked" label="Checked alias" />
   <ACheckbox default-checked label="Default checked" />
 </template>
 ```

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, ref } from 'vue'
+
+const textareaBasic = ref('A longer description can live here.')
+const textareaCount = ref('Line one')
 </script>
 
 # Textarea 文本域 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -9,7 +12,7 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 ## 基础用法
 
 <div class="aheart-demo-panel">
-  <ATextarea model-value="A longer description can live here." placeholder="Enter description" />
+  <ATextarea v-model="textareaBasic" placeholder="Enter description" />
 </div>
 
 ```vue
@@ -22,7 +25,7 @@ Textarea captures multi-line text with rows, count, clear action, auto-size row 
 
 <div class="aheart-demo-panel">
   <ATextarea
-    model-value="Line one"
+    v-model="textareaCount"
     :rows="4"
     :maxlength="120"
     show-count
@@ -216,8 +219,8 @@ import { h } from 'vue'
 | bordered | 是否显示边框，设为 `false` 时等同 `borderless` | `boolean` | `true` |
 | allowClear | 是否显示清除按钮，支持自定义清除图标与禁用清除按钮 | `boolean` \| `{ clearIcon?: VNodeChild; disabled?: boolean }` | `false` |
 | maxlength | 最大字符数 | `number` | - |
-| showCount | 是否显示字数，支持格式化 | `boolean` \| `{ formatter?: (info: CountInfo) => VNodeChild }` | `false` |
-| count | 计数配置 | `{ max?: number; strategy?: (value: string) => number; show?: boolean \| ((info: CountInfo) => VNodeChild); exceedFormatter?: (value: string, config: { max: number }) => string }` | - |
+| showCount | 是否显示字数，支持格式化 | `boolean` \| `{ formatter?: (info: TextareaCountFormatterInfo) => VNodeChild }` | `false` |
+| count | 计数配置 | `{ max?: number; strategy?: (value: string) => number; show?: boolean \| ((info: TextareaCountFormatterInfo) => VNodeChild); exceedFormatter?: (value: string, config: { max: number }) => string }` | - |
 | autoSize | 是否禁用手动 resize，或配置最小/最大行数 | `boolean` \| `{ minRows?: number; maxRows?: number }` | `false` |
 | className | 文本域根节点兼容 class | `string` | - |
 | rootClassName | 文本域根节点 class | `string` | - |

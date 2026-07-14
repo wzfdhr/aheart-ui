@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const usePropPresence = require("../utils/use-prop-presence.js");
+const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
@@ -32,8 +34,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = vue.computed(() => props.checked !== void 0 || props.value !== void 0 || props.modelValue !== void 0);
-    const mergedChecked = vue.computed(() => props.checked ?? props.value ?? props.modelValue ?? internalChecked.value);
+    const hasModelValue = usePropPresence.usePropPresence("modelValue", "model-value");
+    const hasChecked = usePropPresence.usePropPresence("checked");
+    const hasValue = usePropPresence.usePropPresence("value");
+    const isControlled = vue.computed(() => hasModelValue.value || hasChecked.value || hasValue.value);
+    const mergedChecked = vue.computed(() => hasModelValue.value ? Boolean(props.modelValue) : hasChecked.value ? Boolean(props.checked) : hasValue.value ? Boolean(props.value) : internalChecked.value);
     const switchClass = vue.computed(() => {
       var _a;
       return [
@@ -43,7 +48,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         (_a = props.classNames) == null ? void 0 : _a.root,
         {
           "is-checked": mergedChecked.value,
-          "is-loading": props.loading
+          "is-loading": props.loading,
+          "is-disabled": isDisabled.value
         }
       ];
     });
@@ -116,7 +122,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           class: vue.normalizeClass(indicatorClass.value),
           style: vue.normalizeStyle(indicatorStyle.value),
           "aria-hidden": "true"
-        }, null, 6),
+        }, [
+          _ctx.loading ? (vue.openBlock(), vue.createBlock(icon_vue_vue_type_script_setup_true_lang.default, {
+            key: 0,
+            name: "loading",
+            size: 12,
+            spin: ""
+          })) : vue.createCommentVNode("", true)
+        ], 6),
         vue.createElementVNode("span", {
           class: vue.normalizeClass(contentClass.value),
           style: vue.normalizeStyle(contentStyle.value)

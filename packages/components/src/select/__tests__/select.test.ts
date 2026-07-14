@@ -10,167 +10,258 @@ const options = [
   { label: 'Cherry', value: 'cherry', disabled: true }
 ]
 
-describe('Select', () => {
-  it('renders placeholder and options', () => {
-    const wrapper = mount(Select, {
-      props: { options, placeholder: 'Choose fruit' }
-    })
+const mountSelect = (options: Record<string, any> = {}) => mount(Select, {
+  ...options,
+  global: {
+    ...options.global,
+    stubs: { ...options.global?.stubs, Teleport: true }
+  }
+})
 
-    expect(wrapper.classes()).toContain('aheart-select')
-    expect(wrapper.find('select').element.value).toBe('')
-    expect(wrapper.findAll('option').map((option) => option.text())).toEqual(['Choose fruit', 'Apple', 'Banana', 'Cherry'])
+describe('Select', () => {
+  it('renders an interactive combobox and opens a listbox instead of a native select', async () => {
+    const wrapper = mountSelect({ props: { options, placeholder: 'Choose fruit' } })
+
+    expect(wrapper.find('select').exists()).toBe(false)
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Choose fruit')
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('false')
+
+    await wrapper.get('[role="combobox"]').trigger('click')
+
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('true')
+    expect(wrapper.get('[role="listbox"]').exists()).toBe(true)
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Apple', 'Banana', 'Cherry'])
+    expect(wrapper.findAll('[role="option"]')[2].attributes('aria-disabled')).toBe('true')
   })
 
-  it('emits model update and change when selected', async () => {
-    const wrapper = mount(Select, {
-      props: { options }
-    })
+  it('selects from the popup while a controlled owner remains the source of truth', async () => {
+    const wrapper = mountSelect({ props: { options, modelValue: 'apple' } })
 
-    await wrapper.find('select').setValue('banana')
+    await wrapper.get('[role="combobox"]').trigger('click')
+    await wrapper.findAll('[role="option"]')[1].trigger('click')
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['banana'])
     expect(wrapper.emitted('change')?.[0]).toEqual(['banana'])
+    expect(wrapper.get('.aheart-select__selection').text()).toContain('Apple')
   })
 
-  it('emits focus and blur events from the native selector', async () => {
-    const wrapper = mount(Select, {
-      props: { options }
+  it('keeps an explicitly undefined controlled value empty when the owner rejects selection', async () => {
+    const wrapper = mountSelect({
+      props: { options, modelValue: undefined, defaultValue: 'apple', placeholder: 'Choose fruit' }
     })
-    const select = wrapper.find('select')
 
-    await select.trigger('focus')
-    await select.trigger('blur')
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Choose fruit')
+    await wrapper.get('[role="combobox"]').trigger('click')
+    await wrapper.findAll('[role="option"]')[1].trigger('click')
 
-    expect(wrapper.emitted('focus')?.[0]?.[0]).toBeInstanceOf(FocusEvent)
-    expect(wrapper.emitted('blur')?.[0]?.[0]).toBeInstanceOf(FocusEvent)
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['banana'])
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Choose fruit')
   })
 
-  it('exposes focus and blur methods for the native selector', async () => {
-    const host = document.createElement('div')
-    document.body.appendChild(host)
+  it('allows a parent to take control after an uncontrolled mount', async () => {
+    const wrapper = mountSelect({ props: { options, defaultValue: 'banana' } })
 
-    const wrapper = mount(Select, {
-      attachTo: host,
-      props: { options }
-    })
-    const selectVm = wrapper.vm as unknown as {
-      focus: () => void
-      blur: () => void
-    }
-    const select = wrapper.find('select').element
+    await wrapper.setProps({ modelValue: 'apple' })
 
-    selectVm.focus()
-    await nextTick()
-    expect(document.activeElement).toBe(select)
+    expect(wrapper.get('.aheart-select__selection').text()).toContain('Apple')
+  })
 
-    selectVm.blur()
-    await nextTick()
-    expect(document.activeElement).not.toBe(select)
+  it('keeps an explicitly undefined controlled search value empty', async () => {
+    const wrapper = mountSelect({ props: { options, showSearch: true, searchValue: undefined } })
+    const search = wrapper.get('.aheart-select__search')
 
+    await search.setValue('ban')
+
+    expect(wrapper.emitted('search')?.[0]).toEqual(['ban'])
+    expect((search.element as HTMLInputElement).value).toBe('')
+  })
+
+  it('supports keyboard navigation, selection, escape, and focus restoration', async () => {
+    const wrapper = mountSelect({ attachTo: document.body, props: { options } })
+    const combobox = wrapper.get<HTMLElement>('[role="combobox"]')
+    combobox.element.focus()
+
+    await combobox.trigger('keydown', { key: 'ArrowDown' })
+    await combobox.trigger('keydown', { key: 'ArrowDown' })
+    await combobox.trigger('keydown', { key: 'Enter' })
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['banana'])
+
+    await combobox.trigger('keydown', { key: 'ArrowDown' })
+    await combobox.trigger('keydown', { key: 'Escape' })
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('false')
+    expect(document.activeElement).toBe(combobox.element)
     wrapper.unmount()
-    host.remove()
   })
 
-  it('focuses the search input when showSearch is enabled', async () => {
-    const host = document.createElement('div')
-    document.body.appendChild(host)
-
-    const wrapper = mount(Select, {
-      attachTo: host,
-      props: {
-        options,
-        showSearch: true
-      }
-    })
-    const selectVm = wrapper.vm as unknown as {
-      focus: () => void
-      blur: () => void
-    }
-    const searchInput = wrapper.find('.aheart-select__search').element
-
-    selectVm.focus()
-    await nextTick()
-    expect(document.activeElement).toBe(searchInput)
-
-    selectVm.blur()
-    await nextTick()
-    expect(document.activeElement).not.toBe(searchInput)
-
-    wrapper.unmount()
-    host.remove()
-  })
-
-  it('clears selected value when allowClear is clicked', async () => {
-    const wrapper = mount(Select, {
-      props: { options, modelValue: 'apple', allowClear: true }
+  it('renders removable multiple tags and clears the complete value', async () => {
+    const wrapper = mountSelect({
+      props: { options, modelValue: ['apple', 'banana'], mode: 'multiple', allowClear: true }
     })
 
-    await wrapper.find('.aheart-select__clear').trigger('click')
+    expect(wrapper.findAll('.aheart-select__tag')).toHaveLength(2)
+    await wrapper.findAll('.aheart-select__tag-remove')[0].trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['banana']])
 
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([''])
+    await wrapper.get('.aheart-select__clear').trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([[]])
     expect(wrapper.emitted('clear')).toHaveLength(1)
   })
 
-  it('supports multiple mode', async () => {
-    const wrapper = mount(Select, {
-      props: { options, modelValue: ['apple'], mode: 'multiple' }
+  it('keeps a controlled popup closed when its owner rejects the open request', async () => {
+    const wrapper = mountSelect({ props: { options, open: false } })
+
+    await wrapper.get('[role="combobox"]').trigger('click')
+
+    expect(wrapper.emitted('openChange')?.[0]).toEqual([true])
+    expect(wrapper.find('[role="listbox"]').exists()).toBe(false)
+  })
+
+  it('supports uncontrolled defaultOpen and defaultValue', async () => {
+    const wrapper = mountSelect({ props: { options, defaultValue: 'banana', defaultOpen: true } })
+
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Banana')
+    expect(wrapper.get('[role="listbox"]').exists()).toBe(true)
+
+    await wrapper.findAll('[role="option"]')[0].trigger('click')
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Apple')
+  })
+
+  it('emits focus and blur and exposes imperative focus methods', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const wrapper = mountSelect({ attachTo: host, props: { options } })
+    const vm = wrapper.vm as unknown as { focus: () => void; blur: () => void }
+    const combobox = wrapper.get<HTMLElement>('[role="combobox"]')
+
+    vm.focus()
+    await nextTick()
+    expect(document.activeElement).toBe(combobox.element)
+    await combobox.trigger('focusin')
+    expect(wrapper.emitted('focus')).toHaveLength(1)
+
+    vm.blur()
+    await nextTick()
+    expect(wrapper.emitted('blur')).toHaveLength(1)
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('focuses the search combobox when showSearch is enabled', async () => {
+    const wrapper = mountSelect({ attachTo: document.body, props: { options, showSearch: true } })
+    const vm = wrapper.vm as unknown as { focus: () => void }
+
+    vm.focus()
+    await nextTick()
+
+    expect(document.activeElement).toBe(wrapper.get('.aheart-select__search').element)
+    wrapper.unmount()
+  })
+
+  it('filters visible listbox options and renders the empty state', async () => {
+    const wrapper = mountSelect({
+      props: { options, showSearch: true, notFoundContent: 'No fruit' }
+    })
+    const search = wrapper.get('.aheart-select__search')
+
+    await search.setValue('ban')
+    expect(wrapper.emitted('search')?.[0]).toEqual(['ban'])
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Banana'])
+
+    await search.setValue('zzz')
+    expect(wrapper.findAll('[role="option"]')).toHaveLength(0)
+    expect(wrapper.get('.aheart-select__empty').text()).toBe('No fruit')
+  })
+
+  it('passes the original search value to custom filters and sorters', async () => {
+    const receivedFilterValues: string[] = []
+    const receivedSortValues: string[] = []
+    const wrapper = mountSelect({
+      props: {
+        options,
+        showSearch: true,
+        filterOption: (inputValue: string) => {
+          receivedFilterValues.push(inputValue)
+          return true
+        },
+        filterSort: (_left: unknown, _right: unknown, info: { searchValue: string }) => {
+          receivedSortValues.push(info.searchValue)
+          return 0
+        }
+      }
     })
 
-    const select = wrapper.find('select').element
-    Array.from(select.options).forEach((option) => {
-      option.selected = ['apple', 'banana'].includes(option.value)
-    })
-    await wrapper.find('select').trigger('change')
+    await wrapper.get('.aheart-select__search').setValue('  BAN ')
 
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['apple', 'banana']])
+    expect(receivedFilterValues).toContain('  BAN ')
+    expect(receivedSortValues).toContain('  BAN ')
+  })
+
+  it('creates tags from search text and respects maxCount', async () => {
+    const wrapper = mountSelect({
+      props: { options, mode: 'tags', showSearch: true, defaultValue: ['apple'], maxCount: 2 }
+    })
+    const search = wrapper.get('.aheart-select__search')
+
+    await search.setValue('dragonfruit')
+    await search.trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['apple', 'dragonfruit']])
+
+    await search.setValue('pear')
+    await search.trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
+  })
+
+  it('makes tags mode searchable without requiring showSearch', async () => {
+    const wrapper = mountSelect({ props: { options, mode: 'tags' } })
+    const search = wrapper.get('.aheart-select__search')
+
+    await search.setValue('dragonfruit')
+    await search.trigger('keydown', { key: 'Enter' })
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['dragonfruit']])
+  })
+
+  it('maps custom fields, filter property, sorting, and numeric values', async () => {
+    const wrapper = mountSelect({
+      props: {
+        showSearch: true,
+        optionFilterProp: 'code',
+        fieldNames: { label: 'name', value: 'id', disabled: 'locked' },
+        filterSort: (a: any, b: any) => a.label.localeCompare(b.label),
+        options: [
+          { name: 'Beta', id: 2, code: 'match', locked: false },
+          { name: 'Alpha', id: 1, code: 'match', locked: true },
+          { name: 'Gamma', id: 3, code: 'skip', locked: false }
+        ]
+      }
+    })
+
+    await wrapper.get('.aheart-select__search').setValue('match')
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toEqual(['Alpha', 'Beta'])
+    expect(wrapper.findAll('[role="option"]')[0].attributes('aria-disabled')).toBe('true')
+
+    await wrapper.findAll('[role="option"]')[1].trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([2])
   })
 
   it('uses ConfigProvider size and disabled fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { size: 'large', disabled: true },
-      slots: {
-        default: {
-          render() {
-            return h(Select, { options })
-          }
-        }
-      }
+      slots: { default: () => h(Select, { options }) },
+      global: { stubs: { Teleport: true } }
     })
-
     const select = wrapper.findComponent(Select)
+
     expect(select.classes()).toContain('aheart-select--large')
-    expect(select.find('select').attributes()).toHaveProperty('disabled')
+    expect(select.get('.aheart-select__selector').attributes('aria-disabled')).toBe('true')
   })
 
-  it('filters options when showSearch is enabled and emits search', async () => {
-    const wrapper = mount(Select, {
+  it('renders variants, prefix, suffix, form name, and selected numeric label', () => {
+    const wrapper = mountSelect({
       props: {
-        options,
-        showSearch: true,
-        notFoundContent: 'No fruit'
-      }
-    })
-
-    await wrapper.find('.aheart-select__search').setValue('ban')
-
-    expect(wrapper.emitted('search')?.[0]).toEqual(['ban'])
-    expect(wrapper.findAll('option').map((option) => option.text())).toEqual(['Banana'])
-
-    await wrapper.find('.aheart-select__search').setValue('zzz')
-
-    expect(wrapper.findAll('option')).toHaveLength(1)
-    expect(wrapper.find('option').text()).toBe('No fruit')
-  })
-
-  it('supports variant adornments native attributes and numeric values', async () => {
-    const numericOptions = [
-      { label: 'One', value: 1 },
-      { label: 'Two', value: 2 }
-    ]
-    const wrapper = mount(Select, {
-      props: {
-        options: numericOptions,
-        modelValue: 1,
+        options: [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }],
+        modelValue: 2,
         id: 'level',
         name: 'level',
         prefix: 'Level',
@@ -180,188 +271,108 @@ describe('Select', () => {
     })
 
     expect(wrapper.classes()).toContain('aheart-select--filled')
-    expect(wrapper.find('.aheart-select__prefix').text()).toBe('Level')
-    expect(wrapper.find('.aheart-select__suffix').text()).toBe('⌄')
-    expect(wrapper.find('select').attributes('id')).toBe('level')
-    expect(wrapper.find('select').attributes('name')).toBe('level')
-
-    await wrapper.find('select').setValue('2')
-
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([2])
+    expect(wrapper.get('.aheart-select__prefix').text()).toBe('Level')
+    expect(wrapper.get('.aheart-select__suffix').text()).toBe('⌄')
+    expect(wrapper.get('[role="combobox"]').attributes('id')).toBe('level')
+    expect(wrapper.get('input[type="hidden"]').attributes('name')).toBe('level')
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Two')
   })
 
-  it('maps bordered false to borderless and limits tags values with maxCount', async () => {
-    const wrapper = mount(Select, {
-      props: {
-        options,
-        mode: 'tags',
-        maxCount: 1,
-        bordered: false
-      }
+  it('renders loading feedback without exposing an inert native selector', () => {
+    const wrapper = mountSelect({
+      props: { options, loading: true, loadingIcon: h('span', { class: 'custom-loading' }, 'Loading') }
     })
 
-    expect(wrapper.classes()).toContain('aheart-select--borderless')
-
-    const select = wrapper.find('select').element
-    Array.from(select.options).forEach((option) => {
-      option.selected = ['apple', 'banana'].includes(option.value)
-    })
-    await wrapper.find('select').trigger('change')
-
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['apple']])
+    expect(wrapper.classes()).toContain('is-loading')
+    expect(wrapper.get('.custom-loading').text()).toBe('Loading')
+    expect(wrapper.find('select').exists()).toBe(false)
   })
 
-  it('applies root and semantic classes and styles', () => {
-    const wrapper = mount(Select, {
+  it('opens an empty loading popup so users can see pending feedback', async () => {
+    const wrapper = mountSelect({ props: { loading: true } })
+
+    await wrapper.get('[role="combobox"]').trigger('click')
+
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('true')
+    expect(wrapper.get('.aheart-select__empty').text()).toBe('Loading')
+  })
+
+  it('announces loading state from the combobox', () => {
+    const wrapper = mountSelect({ props: { options, loading: true } })
+
+    expect(wrapper.get('[role="combobox"]').attributes('aria-busy')).toBe('true')
+    expect(wrapper.get('[role="status"]').text()).toBe('Loading')
+  })
+
+  it('does not submit values after an open popup becomes disabled', async () => {
+    const wrapper = mountSelect({ props: { options, defaultOpen: true } })
+
+    await wrapper.setProps({ disabled: true })
+    await wrapper.findAll('[role="option"]')[0].trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  it('prioritizes loading feedback over clear and uses the standard spinner', () => {
+    const wrapper = mountSelect({
+      props: { options, modelValue: 'apple', allowClear: true, loading: true }
+    })
+
+    expect(wrapper.find('.aheart-select__clear').exists()).toBe(false)
+    expect(wrapper.get('.aheart-select__loading .aheart-icon').classes()).toContain('aheart-icon--spin')
+  })
+
+  it('supports custom clear icons and semantic classes and styles', () => {
+    const wrapper = mountSelect({
       props: {
         options,
         modelValue: 'apple',
-        showSearch: true,
-        allowClear: true,
-        prefix: 'Fruit',
-        suffixIcon: '⌄',
+        allowClear: { clearIcon: h('span', { class: 'custom-clear' }, 'Clear') },
         className: 'outer-select',
         rootClassName: 'root-select',
         style: { width: '240px' },
-        classNames: {
-          root: 'semantic-root',
-          prefix: 'semantic-prefix',
-          search: 'semantic-search',
-          selector: 'semantic-selector',
-          option: 'semantic-option',
-          clear: 'semantic-clear',
-          suffix: 'semantic-suffix'
-        },
-        styles: {
-          root: { minWidth: '220px' },
-          prefix: { color: 'rgb(1, 2, 3)' },
-          search: { background: 'rgb(4, 5, 6)' },
-          selector: { borderColor: 'rgb(7, 8, 9)' },
-          option: { color: 'rgb(10, 11, 12)' },
-          clear: { color: 'rgb(13, 14, 15)' },
-          suffix: { color: 'rgb(16, 17, 18)' }
-        }
+        classNames: { root: 'semantic-root', selector: 'semantic-selector', clear: 'semantic-clear' },
+        styles: { root: { minWidth: '220px' }, selector: { borderColor: 'red' }, clear: { color: 'purple' } }
       }
     })
 
     expect(wrapper.classes()).toEqual(expect.arrayContaining(['outer-select', 'root-select', 'semantic-root']))
     expect(wrapper.attributes('style')).toContain('width: 240px')
-    expect(wrapper.attributes('style')).toContain('min-width: 220px')
-    expect(wrapper.find('.aheart-select__prefix').classes()).toContain('semantic-prefix')
-    expect(wrapper.find('.aheart-select__prefix').attributes('style')).toContain('color: rgb(1, 2, 3)')
-    expect(wrapper.find('.aheart-select__search').classes()).toContain('semantic-search')
-    expect(wrapper.find('.aheart-select__search').attributes('style')).toContain('background: rgb(4, 5, 6)')
-    expect(wrapper.find('select').classes()).toContain('semantic-selector')
-    expect(wrapper.find('select').attributes('style')).toContain('border-color: rgb(7, 8, 9)')
-    expect(wrapper.find('option').classes()).toContain('semantic-option')
-    expect(wrapper.find('option').attributes('style')).toContain('color: rgb(10, 11, 12)')
-    expect(wrapper.find('.aheart-select__clear').classes()).toContain('semantic-clear')
-    expect(wrapper.find('.aheart-select__clear').attributes('style')).toContain('color: rgb(13, 14, 15)')
-    expect(wrapper.find('.aheart-select__suffix').classes()).toContain('semantic-suffix')
-    expect(wrapper.find('.aheart-select__suffix').attributes('style')).toContain('color: rgb(16, 17, 18)')
+    expect(wrapper.get('.aheart-select__selector').classes()).toContain('semantic-selector')
+    expect(wrapper.get('.aheart-select__selector').attributes('style')).toContain('border-color: red')
+    expect(wrapper.get('.aheart-select__clear').classes()).toContain('semantic-clear')
+    expect(wrapper.get('.custom-clear').text()).toBe('Clear')
   })
 
-  it('maps fieldNames and uses optionFilterProp with filterSort', async () => {
-    const wrapper = mount(Select, {
+  it('supports optionRender, tagRender, and maxTagCount', async () => {
+    const wrapper = mountSelect({
       props: {
-        showSearch: true,
-        optionFilterProp: 'code',
-        fieldNames: {
-          label: 'name',
-          value: 'id',
-          disabled: 'locked'
-        },
-        filterSort: (a, b, info) => `${a.label}-${info.searchValue}`.localeCompare(`${b.label}-${info.searchValue}`),
-        options: [
-          { name: 'Beta', id: 2, code: 'match', locked: false },
-          { name: 'Alpha', id: 1, code: 'match', locked: true },
-          { name: 'Gamma', id: 3, code: 'skip', locked: false }
-        ]
+        options,
+        modelValue: ['apple', 'banana'],
+        mode: 'multiple',
+        defaultOpen: true,
+        maxTagCount: 1,
+        optionRender: (option: any) => h('strong', { class: 'custom-option' }, option.label),
+        tagRender: ({ label }: any) => h('em', { class: 'custom-tag' }, label)
       }
     })
 
-    await wrapper.find('.aheart-select__search').setValue('match')
-
-    expect(wrapper.findAll('option').map((option) => option.text())).toEqual(['Alpha', 'Beta'])
-    expect(wrapper.find('option').attributes()).toHaveProperty('disabled')
-
-    await wrapper.find('select').setValue('2')
-
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([2])
+    expect(wrapper.findAll('.custom-tag')).toHaveLength(1)
+    expect(wrapper.findAll('.aheart-select__tag-label')).toHaveLength(1)
+    expect(wrapper.get('.aheart-select__tag--rest').text()).toBe('+1')
+    expect(wrapper.findAll('.custom-option')).toHaveLength(3)
   })
 
-  it('uses defaultValue for uncontrolled selection and updates internal value', async () => {
-    const wrapper = mount(Select, {
-      props: {
-        defaultValue: 'banana',
-        options
-      }
-    })
-
-    expect(wrapper.find('select').element.value).toBe('banana')
-
-    await wrapper.find('select').setValue('apple')
-
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['apple'])
-    expect(wrapper.find('select').element.value).toBe('apple')
+  it('maps bordered false to the borderless variant', () => {
+    const wrapper = mountSelect({ props: { options, bordered: false } })
+    expect(wrapper.classes()).toContain('aheart-select--borderless')
   })
 
-  it('renders loading state and custom loading icons', () => {
-    const propIcon = mount(Select, {
-      props: {
-        options,
-        loading: true,
-        loadingIcon: h('span', { class: 'custom-loading' }, 'Loading')
-      }
-    })
+  it('uses custom popup width and keeps placement classes on the floating surface', async () => {
+    const wrapper = mountSelect({ props: { options, defaultOpen: true, popupMatchSelectWidth: 280, placement: 'topRight' } })
+    const popup = wrapper.get('.aheart-select__popup')
 
-    expect(propIcon.classes()).toContain('is-loading')
-    expect(propIcon.find('.aheart-select__loading').exists()).toBe(true)
-    expect(propIcon.find('.custom-loading').text()).toBe('Loading')
-
-    const slotIcon = mount(Select, {
-      props: {
-        options,
-        loading: true
-      },
-      slots: {
-        loadingIcon: '<span class="slot-loading">Wait</span>'
-      }
-    })
-
-    expect(slotIcon.find('.slot-loading').text()).toBe('Wait')
-  })
-
-  it('renders configurable clear icons and slot override', async () => {
-    const propIcon = mount(Select, {
-      props: {
-        options,
-        modelValue: 'apple',
-        allowClear: {
-          clearIcon: h('span', { class: 'custom-clear' }, 'Clear')
-        }
-      }
-    })
-
-    expect(propIcon.find('.custom-clear').text()).toBe('Clear')
-
-    const slotIcon = mount(Select, {
-      props: {
-        options,
-        modelValue: 'banana',
-        allowClear: {
-          clearIcon: 'Clear'
-        }
-      },
-      slots: {
-        clearIcon: '<span class="slot-clear">Slot clear</span>'
-      }
-    })
-
-    expect(slotIcon.find('.slot-clear').text()).toBe('Slot clear')
-
-    await slotIcon.find('.aheart-select__clear').trigger('click')
-
-    expect(slotIcon.emitted('clear')).toHaveLength(1)
+    expect(popup.attributes('style')).toContain('width: 280px')
+    expect(popup.classes()).toContain('aheart-floating--topRight')
   })
 })

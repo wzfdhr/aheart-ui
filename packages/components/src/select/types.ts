@@ -1,5 +1,6 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
+import { floatingPlacements, type FloatingPlacement } from '../utils/floating'
 
 export type SelectStatus = 'error' | 'warning'
 export type SelectPrimitiveValue = string | number
@@ -7,6 +8,19 @@ export type SelectMode = 'multiple' | 'tags'
 export type SelectValue = SelectPrimitiveValue | SelectPrimitiveValue[]
 export type SelectVariant = 'outlined' | 'borderless' | 'filled' | 'underlined'
 export type SelectAllowClear = boolean | { clearIcon?: VNodeChild }
+export type SelectPlacement = FloatingPlacement
+export type SelectGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement
+export interface SelectOptionRenderInfo {
+  index: number
+}
+export interface SelectTagRenderInfo {
+  label: string
+  value: SelectPrimitiveValue
+  closable: boolean
+  onClose: () => void
+}
+export type SelectOptionRender = (option: SelectOption, info: SelectOptionRenderInfo) => VNodeChild
+export type SelectTagRender = (info: SelectTagRenderInfo) => VNodeChild
 export type SelectSemanticPart =
   | 'root'
   | 'prefix'
@@ -17,6 +31,11 @@ export type SelectSemanticPart =
   | 'clear'
   | 'suffix'
   | 'loading'
+  | 'selection'
+  | 'tag'
+  | 'tagRemove'
+  | 'popup'
+  | 'list'
 export type SelectClassNames = Partial<Record<SelectSemanticPart, string>>
 export type SelectStyles = Partial<Record<SelectSemanticPart, StyleValue>>
 
@@ -42,13 +61,15 @@ export type SelectFilterSort = (optionA: SelectOption, optionB: SelectOption, in
 
 export const selectProps = {
   id: String,
+  labelledBy: String,
+  ariaLabelledby: String,
   name: String,
   modelValue: [String, Number, Array] as PropType<SelectValue>,
   defaultValue: [String, Number, Array] as PropType<SelectValue>,
   options: Array as PropType<SelectRawOption[]>,
   placeholder: String,
-  prefix: String,
-  suffixIcon: String,
+  prefix: [String, Number, Object, Array, Function] as PropType<VNodeChild>,
+  suffixIcon: [String, Number, Object, Array, Function] as PropType<VNodeChild>,
   loadingIcon: [String, Number, Object, Array, Function] as PropType<VNodeChild>,
   size: String as PropType<AheartSize>,
   disabled: {
@@ -69,6 +90,25 @@ export const selectProps = {
     default: false
   },
   mode: String as PropType<SelectMode>,
+  open: {
+    type: Boolean,
+    default: undefined
+  },
+  defaultOpen: Boolean,
+  placement: {
+    type: String as PropType<SelectPlacement>,
+    default: 'bottomLeft',
+    validator: (value: string) => floatingPlacements.includes(value as SelectPlacement)
+  },
+  autoAdjustOverflow: {
+    type: Boolean,
+    default: true
+  },
+  getPopupContainer: Function as PropType<SelectGetPopupContainer>,
+  popupMatchSelectWidth: {
+    type: [Boolean, Number] as PropType<boolean | number>,
+    default: true
+  },
   showSearch: Boolean,
   searchValue: String,
   optionFilterProp: {
@@ -86,6 +126,9 @@ export const selectProps = {
     default: 'Not Found'
   },
   maxCount: Number,
+  maxTagCount: Number,
+  optionRender: Function as PropType<SelectOptionRender>,
+  tagRender: Function as PropType<SelectTagRender>,
   loading: Boolean,
   className: String,
   rootClassName: String,
@@ -107,7 +150,8 @@ export const selectEmits = {
   clear: () => true,
   search: (value: string) => typeof value === 'string',
   focus: (event: FocusEvent) => event instanceof FocusEvent,
-  blur: (event: FocusEvent) => event instanceof FocusEvent
+  blur: (event: FocusEvent) => event instanceof FocusEvent,
+  openChange: (open: boolean) => typeof open === 'boolean'
 }
 
 export type SelectProps = ExtractPropTypes<typeof selectProps>

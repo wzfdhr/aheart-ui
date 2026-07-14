@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Textarea from '../textarea.vue'
@@ -28,6 +28,61 @@ describe('Textarea', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual(['Long text'])
   })
 
+  it('updates the count immediately while the user is typing', async () => {
+    const wrapper = mount(Textarea, {
+      props: { maxlength: 20, showCount: true }
+    })
+
+    await wrapper.find('textarea').setValue('实时计数')
+
+    expect(wrapper.find('.aheart-textarea__count').text()).toBe('4 / 20')
+  })
+
+  it('keeps a controlled value visible when the owner rejects input and clear requests', async () => {
+    const wrapper = mount(Textarea, {
+      props: { modelValue: 'locked', allowClear: true, showCount: true }
+    })
+    const control = wrapper.get('textarea')
+
+    await control.setValue('draft')
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['draft'])
+    expect(control.element.value).toBe('locked')
+    expect(wrapper.get('.aheart-textarea__count').text()).toBe('6')
+
+    await wrapper.get('.aheart-textarea__clear').trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([''])
+    expect(control.element.value).toBe('locked')
+  })
+
+  it('marks count overflow without truncating when no exceed formatter is supplied', async () => {
+    const wrapper = mount(Textarea, {
+      props: { showCount: true, count: { max: 3 } }
+    })
+
+    await wrapper.find('textarea').setValue('1234')
+
+    expect(wrapper.classes()).toContain('is-count-exceeded')
+    expect(wrapper.find('textarea').attributes('aria-invalid')).toBe('true')
+    expect(wrapper.find('.aheart-textarea__count').text()).toBe('4 / 3')
+  })
+
+  it('resizes from scrollHeight and clamps object autosize rows', async () => {
+    const wrapper = mount(Textarea, {
+      attachTo: document.body,
+      props: { modelValue: '', autoSize: { minRows: 2, maxRows: 4 } }
+    })
+    const control = wrapper.find('textarea').element
+    Object.defineProperty(control, 'scrollHeight', { configurable: true, value: 96 })
+    Object.defineProperty(control, 'clientHeight', { configurable: true, value: 48 })
+
+    await wrapper.find('textarea').setValue('line one\nline two\nline three')
+    await nextTick()
+
+    expect(control.style.height).not.toBe('')
+    expect(control.style.overflowY).toBe('auto')
+    wrapper.unmount()
+  })
+
   it('uses ConfigProvider disabled fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { disabled: true },
@@ -43,7 +98,7 @@ describe('Textarea', () => {
     expect(wrapper.find('textarea').attributes()).toHaveProperty('disabled')
   })
 
-  it('supports allowClear variants readonly id and pressEnter', async () => {
+  it('keeps readonly text immutable while supporting variants, id, and pressEnter', async () => {
     const wrapper = mount(Textarea, {
       props: {
         modelValue: 'Clear me',
@@ -61,9 +116,9 @@ describe('Textarea', () => {
     await wrapper.find('textarea').trigger('keydown', { key: 'Enter' })
     expect(wrapper.emitted('pressEnter')).toHaveLength(1)
 
-    await wrapper.find('.aheart-textarea__clear').trigger('click')
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([''])
-    expect(wrapper.emitted('clear')).toHaveLength(1)
+    expect(wrapper.find('.aheart-textarea__clear').exists()).toBe(false)
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(wrapper.emitted('clear')).toBeUndefined()
   })
 
   it('supports autoSize object minRows and maxRows', () => {
@@ -212,11 +267,14 @@ describe('Textarea', () => {
     expect(wrapper.find('.aheart-textarea__count').text()).toBe('3 / 3')
 
     await wrapper.find('textarea').setValue('12345')
-    await wrapper.find('textarea').trigger('change')
+    await wrapper.setProps({ modelValue: '123' })
+    wrapper.find('textarea').element.value = '123'
+    wrapper.find('textarea').element.dispatchEvent(new Event('change'))
+    await nextTick()
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['123'])
     expect(wrapper.emitted('input')?.[0]).toEqual(['123'])
-    expect(wrapper.emitted('change')?.[0]).toEqual(['123'])
+    expect(wrapper.emitted('change')?.at(-1)).toEqual(['123'])
   })
 
   it('applies root class and style hooks with autosize variables', () => {

@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, ref, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
+import { usePropPresence } from '../utils/use-prop-presence'
 import Checkbox from './checkbox.vue'
 import { checkboxGroupEmits, checkboxGroupProps, type CheckboxOption, type CheckboxValue } from './types'
 import './style.css'
@@ -47,8 +48,10 @@ const ACheckboxGroupRenderNode = defineComponent({
 })
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
-const isControlled = computed(() => props.value !== undefined || props.modelValue !== undefined)
-const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value)
+const hasValue = usePropPresence('value')
+const hasModelValue = usePropPresence('modelValue', 'model-value')
+const isControlled = computed(() => hasValue.value || hasModelValue.value)
+const mergedValue = computed(() => hasValue.value ? props.value ?? [] : hasModelValue.value ? props.modelValue ?? [] : internalValue.value)
 const normalizedOptions = computed<CheckboxOption[]>(() =>
   props.options.map((option) =>
     typeof option === 'object' && option !== null

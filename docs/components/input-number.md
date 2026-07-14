@@ -10,6 +10,12 @@ const inputNumberPrecise = ref('1.000000000000000001')
 const inputNumberCustom = ref(8)
 const inputNumberPlain = ref(8)
 const inputNumberWheel = ref(4)
+const inputNumberDecimalSeparator = ref(12.5)
+const inputNumberFormatted = ref(1200)
+const inputNumberSpinner = ref(8)
+
+const currencyFormatter = (value?: number | string) => value === undefined ? '' : `$ ${value}`
+const currencyParser = (value: string) => Number(value.replace(/[$,\s]/g, ''))
 
 const inputNumberClassNames = ({ props }: { props: Readonly<Record<string, unknown>> }) => ({
   root: 'demo-input-number-semantic-root',
@@ -105,11 +111,19 @@ import { h } from 'vue'
 
 ## 格式化与解析
 
+<div class="aheart-demo-panel">
+  <AInputNumber
+    v-model="inputNumberFormatted"
+    :formatter="currencyFormatter"
+    :parser="currencyParser"
+    prefix="USD"
+  />
+</div>
+
 ```vue
 <script setup lang="ts">
-const formatter = (value?: number, info?: { userTyping: boolean; input: string }) =>
-  value === undefined ? '' : `$ ${info?.input ?? value}`
-const parser = (value: string) => Number(value.replace('$', '').trim())
+const formatter = (value?: number | string) => value === undefined ? '' : `$ ${value}`
+const parser = (value: string) => Number(value.replace(/[$,\s]/g, ''))
 </script>
 
 <template>
@@ -122,7 +136,7 @@ const parser = (value: string) => Number(value.replace('$', '').trim())
 ## 小数分隔符
 
 <div class="aheart-demo-panel">
-  <AInputNumber :model-value="12.5" decimal-separator="," />
+  <AInputNumber v-model="inputNumberDecimalSeparator" decimal-separator="," />
 </div>
 
 ```vue
@@ -197,6 +211,22 @@ import { h } from 'vue'
   />
   <AInputNumber v-model="plainValue" :controls="false" />
 </template>
+```
+
+## Spinner 模式
+
+<div class="aheart-demo-panel">
+  <AInputNumber
+    v-model="inputNumberSpinner"
+    mode="spinner"
+    addon-before="数量"
+    prefix="#"
+    suffix="件"
+  />
+</div>
+
+```vue
+<AInputNumber v-model="value" mode="spinner" addon-before="数量" prefix="#" suffix="件" />
 ```
 
 ## 滚轮步进

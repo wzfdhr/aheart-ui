@@ -9,6 +9,7 @@ import {
   ChevronRight,
   ChevronUp,
   Copy,
+  Clock,
   Info,
   LoaderCircle,
   Plus,
@@ -38,7 +39,8 @@ export const iconComponents: Record<string, Component> = {
   'chevron-right': ChevronRight,
   'chevron-up': ChevronUp,
   'chevron-down': ChevronDown,
-  copy: Copy
+  copy: Copy,
+  clock: Clock
 }
 
 export const warnedUnknownIconNames = new Set<string>()

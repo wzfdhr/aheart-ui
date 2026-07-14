@@ -1,4 +1,6 @@
-import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref } from "vue";
+import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, createBlock, createCommentVNode, renderSlot, createVNode, unref } from "vue";
+import { usePropPresence } from "../utils/use-prop-presence.js";
+import _sfc_main$1 from "../icon/icon.vue.js";
 import { switchProps, switchEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
@@ -30,8 +32,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = computed(() => props.checked !== void 0 || props.value !== void 0 || props.modelValue !== void 0);
-    const mergedChecked = computed(() => props.checked ?? props.value ?? props.modelValue ?? internalChecked.value);
+    const hasModelValue = usePropPresence("modelValue", "model-value");
+    const hasChecked = usePropPresence("checked");
+    const hasValue = usePropPresence("value");
+    const isControlled = computed(() => hasModelValue.value || hasChecked.value || hasValue.value);
+    const mergedChecked = computed(() => hasModelValue.value ? Boolean(props.modelValue) : hasChecked.value ? Boolean(props.checked) : hasValue.value ? Boolean(props.value) : internalChecked.value);
     const switchClass = computed(() => {
       var _a;
       return [
@@ -41,7 +46,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         (_a = props.classNames) == null ? void 0 : _a.root,
         {
           "is-checked": mergedChecked.value,
-          "is-loading": props.loading
+          "is-loading": props.loading,
+          "is-disabled": isDisabled.value
         }
       ];
     });
@@ -114,7 +120,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           class: normalizeClass(indicatorClass.value),
           style: normalizeStyle(indicatorStyle.value),
           "aria-hidden": "true"
-        }, null, 6),
+        }, [
+          _ctx.loading ? (openBlock(), createBlock(_sfc_main$1, {
+            key: 0,
+            name: "loading",
+            size: 12,
+            spin: ""
+          })) : createCommentVNode("", true)
+        ], 6),
         createElementVNode("span", {
           class: normalizeClass(contentClass.value),
           style: normalizeStyle(contentStyle.value)

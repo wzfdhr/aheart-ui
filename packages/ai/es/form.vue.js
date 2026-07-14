@@ -1,7 +1,7 @@
 import { defineComponent, computed, reactive, watch, openBlock, createElementBlock, withModifiers, Fragment, renderList, createElementVNode, toDisplayString, createBlock, unref, createCommentVNode, createVNode, withCtx, createTextVNode, nextTick } from "vue";
 import { Textarea, TreeSelect, Upload, RadioGroup, CheckboxGroup, Select, Switch, InputNumber, DatePicker, TimePicker, Input, Button } from "aheart-ui";
 import { validateAIFormSchema } from "./form-schema.js";
-const _hoisted_1 = ["for"];
+const _hoisted_1 = ["id", "for"];
 const _hoisted_2 = {
   key: 11,
   class: "aheart-ai-form__field-error"
@@ -97,24 +97,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: "aheart-ai-form__field"
           }, [
             createElementVNode("label", {
+              id: `${field.key}-label`,
               for: field.key
             }, toDisplayString(field.label), 9, _hoisted_1),
             field.type === "textarea" ? (openBlock(), createBlock(unref(Textarea), {
               key: fieldKey(field),
               id: field.key,
+              "aria-labelledby": `${field.key}-label`,
               "model-value": fieldValue(field),
               placeholder: field.placeholder,
               disabled: isDisabled(field),
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["id", "model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "tree-select" ? (openBlock(), createBlock(unref(TreeSelect), {
+            }, null, 8, ["id", "aria-labelledby", "model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "tree-select" ? (openBlock(), createBlock(unref(TreeSelect), {
               key: fieldKey(field),
               id: field.key,
+              "labelled-by": `${field.key}-label`,
               "model-value": fieldValue(field),
               "tree-data": treeData(field),
               multiple: Array.isArray(fieldValue(field)),
               disabled: isDisabled(field),
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["id", "model-value", "tree-data", "multiple", "disabled", "onUpdate:modelValue"])) : field.type === "upload" ? (openBlock(), createBlock(unref(Upload), {
+            }, null, 8, ["id", "labelled-by", "model-value", "tree-data", "multiple", "disabled", "onUpdate:modelValue"])) : field.type === "upload" ? (openBlock(), createBlock(unref(Upload), {
               key: fieldKey(field),
               "file-list": fieldValue(field),
               disabled: isDisabled(field),
@@ -134,11 +137,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             }, null, 8, ["model-value", "options", "disabled", "onUpdate:modelValue"])) : field.type === "select" ? (openBlock(), createBlock(unref(Select), {
               key: fieldKey(field),
               id: field.key,
+              "labelled-by": `${field.key}-label`,
               "model-value": fieldValue(field),
               disabled: isDisabled(field),
               options: field.options,
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["id", "model-value", "disabled", "options", "onUpdate:modelValue"])) : field.type === "switch" ? (openBlock(), createBlock(unref(Switch), {
+            }, null, 8, ["id", "labelled-by", "model-value", "disabled", "options", "onUpdate:modelValue"])) : field.type === "switch" ? (openBlock(), createBlock(unref(Switch), {
               key: fieldKey(field),
               id: field.key,
               "model-value": Boolean(fieldValue(field)),
@@ -159,11 +163,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "onUpdate:modelValue": ($event) => update(field.key, $event)
             }, null, 8, ["model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "time" ? (openBlock(), createBlock(unref(TimePicker), {
               key: fieldKey(field),
+              id: field.key,
+              "labelled-by": `${field.key}-label`,
               "model-value": fieldValue(field),
               placeholder: field.placeholder,
               disabled: isDisabled(field),
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "input" ? (openBlock(), createBlock(unref(Input), {
+            }, null, 8, ["id", "labelled-by", "model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "input" ? (openBlock(), createBlock(unref(Input), {
               key: fieldKey(field),
               id: field.key,
               "model-value": fieldValue(field),

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const usePropPresence = require("../utils/use-prop-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
@@ -67,10 +68,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = vue.computed(() => props.modelValue !== void 0 || props.value !== void 0);
-    const mergedValue = vue.computed(
-      () => props.modelValue !== void 0 ? props.modelValue : props.value !== void 0 ? props.value : uncontrolledValue.value
-    );
+    const hasModelValue = usePropPresence.usePropPresence("modelValue", "model-value");
+    const hasValue = usePropPresence.usePropPresence("value");
+    const isControlled = vue.computed(() => hasModelValue.value || hasValue.value);
+    const mergedValue = vue.computed(() => hasModelValue.value ? props.modelValue : hasValue.value ? props.value : uncontrolledValue.value);
     const resolvedVariant = vue.computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );

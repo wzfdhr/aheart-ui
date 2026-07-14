@@ -1,13 +1,15 @@
 declare const Select: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly id: StringConstructor;
+        readonly labelledBy: StringConstructor;
+        readonly ariaLabelledby: StringConstructor;
         readonly name: StringConstructor;
         readonly modelValue: import("vue").PropType<import("./types").SelectValue>;
         readonly defaultValue: import("vue").PropType<import("./types").SelectValue>;
         readonly options: import("vue").PropType<import("./types").SelectRawOption[]>;
         readonly placeholder: StringConstructor;
-        readonly prefix: StringConstructor;
-        readonly suffixIcon: StringConstructor;
+        readonly prefix: import("vue").PropType<import("vue").VNodeChild>;
+        readonly suffixIcon: import("vue").PropType<import("vue").VNodeChild>;
         readonly loadingIcon: import("vue").PropType<import("vue").VNodeChild>;
         readonly size: import("vue").PropType<import("../config").AheartSize>;
         readonly disabled: {
@@ -28,6 +30,25 @@ declare const Select: import("../utils/install").SFCWithInstall<{
             readonly default: false;
         };
         readonly mode: import("vue").PropType<import("./types").SelectMode>;
+        readonly open: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
+        readonly defaultOpen: BooleanConstructor;
+        readonly placement: {
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+            readonly default: "bottomLeft";
+            readonly validator: (value: string) => boolean;
+        };
+        readonly autoAdjustOverflow: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
+        readonly getPopupContainer: import("vue").PropType<import("./types").SelectGetPopupContainer>;
+        readonly popupMatchSelectWidth: {
+            readonly type: import("vue").PropType<number | boolean>;
+            readonly default: true;
+        };
         readonly showSearch: BooleanConstructor;
         readonly searchValue: StringConstructor;
         readonly optionFilterProp: {
@@ -45,6 +66,9 @@ declare const Select: import("../utils/install").SFCWithInstall<{
             readonly default: "Not Found";
         };
         readonly maxCount: NumberConstructor;
+        readonly maxTagCount: NumberConstructor;
+        readonly optionRender: import("vue").PropType<import("./types").SelectOptionRender>;
+        readonly tagRender: import("vue").PropType<import("./types").SelectTagRender>;
         readonly loading: BooleanConstructor;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -64,8 +88,9 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         onFocus?: ((event: FocusEvent) => any) | undefined;
         onClear?: (() => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
+        onOpenChange?: ((open: boolean) => any) | undefined;
     }>, {
-        focus: () => void;
+        focus: () => void | undefined;
         blur: () => void;
     }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         search: (value: string) => void;
@@ -74,15 +99,21 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         focus: (event: FocusEvent) => void;
         clear: () => void;
         "update:modelValue": (value: import("./types").SelectValue) => void;
+        openChange: (open: boolean) => void;
     }, import("vue").PublicProps, {
         readonly variant: import("./types").SelectVariant;
         readonly classNames: Partial<Record<import("./types").SelectSemanticPart, string>>;
         readonly styles: Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>;
+        readonly open: boolean;
         readonly disabled: boolean;
+        readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly loading: boolean;
         readonly bordered: boolean;
-        readonly allowClear: import("./types").SelectAllowClear;
         readonly showSearch: boolean;
+        readonly defaultOpen: boolean;
+        readonly allowClear: import("./types").SelectAllowClear;
+        readonly autoAdjustOverflow: boolean;
+        readonly popupMatchSelectWidth: number | boolean;
         readonly optionFilterProp: string;
         readonly filterOption: import("./types").SelectFilterOption;
         readonly notFoundContent: string;
@@ -95,13 +126,15 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly id: StringConstructor;
+        readonly labelledBy: StringConstructor;
+        readonly ariaLabelledby: StringConstructor;
         readonly name: StringConstructor;
         readonly modelValue: import("vue").PropType<import("./types").SelectValue>;
         readonly defaultValue: import("vue").PropType<import("./types").SelectValue>;
         readonly options: import("vue").PropType<import("./types").SelectRawOption[]>;
         readonly placeholder: StringConstructor;
-        readonly prefix: StringConstructor;
-        readonly suffixIcon: StringConstructor;
+        readonly prefix: import("vue").PropType<import("vue").VNodeChild>;
+        readonly suffixIcon: import("vue").PropType<import("vue").VNodeChild>;
         readonly loadingIcon: import("vue").PropType<import("vue").VNodeChild>;
         readonly size: import("vue").PropType<import("../config").AheartSize>;
         readonly disabled: {
@@ -122,6 +155,25 @@ declare const Select: import("../utils/install").SFCWithInstall<{
             readonly default: false;
         };
         readonly mode: import("vue").PropType<import("./types").SelectMode>;
+        readonly open: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
+        readonly defaultOpen: BooleanConstructor;
+        readonly placement: {
+            readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+            readonly default: "bottomLeft";
+            readonly validator: (value: string) => boolean;
+        };
+        readonly autoAdjustOverflow: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
+        readonly getPopupContainer: import("vue").PropType<import("./types").SelectGetPopupContainer>;
+        readonly popupMatchSelectWidth: {
+            readonly type: import("vue").PropType<number | boolean>;
+            readonly default: true;
+        };
         readonly showSearch: BooleanConstructor;
         readonly searchValue: StringConstructor;
         readonly optionFilterProp: {
@@ -139,6 +191,9 @@ declare const Select: import("../utils/install").SFCWithInstall<{
             readonly default: "Not Found";
         };
         readonly maxCount: NumberConstructor;
+        readonly maxTagCount: NumberConstructor;
+        readonly optionRender: import("vue").PropType<import("./types").SelectOptionRender>;
+        readonly tagRender: import("vue").PropType<import("./types").SelectTagRender>;
         readonly loading: BooleanConstructor;
         readonly className: StringConstructor;
         readonly rootClassName: StringConstructor;
@@ -158,18 +213,24 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         onFocus?: ((event: FocusEvent) => any) | undefined;
         onClear?: (() => any) | undefined;
         "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
+        onOpenChange?: ((open: boolean) => any) | undefined;
     }>, {
-        focus: () => void;
+        focus: () => void | undefined;
         blur: () => void;
     }, {}, {}, {}, {
         readonly variant: import("./types").SelectVariant;
         readonly classNames: Partial<Record<import("./types").SelectSemanticPart, string>>;
         readonly styles: Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>;
+        readonly open: boolean;
         readonly disabled: boolean;
+        readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly loading: boolean;
         readonly bordered: boolean;
-        readonly allowClear: import("./types").SelectAllowClear;
         readonly showSearch: boolean;
+        readonly defaultOpen: boolean;
+        readonly allowClear: import("./types").SelectAllowClear;
+        readonly autoAdjustOverflow: boolean;
+        readonly popupMatchSelectWidth: number | boolean;
         readonly optionFilterProp: string;
         readonly filterOption: import("./types").SelectFilterOption;
         readonly notFoundContent: string;
@@ -179,13 +240,15 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
+    readonly labelledBy: StringConstructor;
+    readonly ariaLabelledby: StringConstructor;
     readonly name: StringConstructor;
     readonly modelValue: import("vue").PropType<import("./types").SelectValue>;
     readonly defaultValue: import("vue").PropType<import("./types").SelectValue>;
     readonly options: import("vue").PropType<import("./types").SelectRawOption[]>;
     readonly placeholder: StringConstructor;
-    readonly prefix: StringConstructor;
-    readonly suffixIcon: StringConstructor;
+    readonly prefix: import("vue").PropType<import("vue").VNodeChild>;
+    readonly suffixIcon: import("vue").PropType<import("vue").VNodeChild>;
     readonly loadingIcon: import("vue").PropType<import("vue").VNodeChild>;
     readonly size: import("vue").PropType<import("../config").AheartSize>;
     readonly disabled: {
@@ -206,6 +269,25 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         readonly default: false;
     };
     readonly mode: import("vue").PropType<import("./types").SelectMode>;
+    readonly open: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+    readonly defaultOpen: BooleanConstructor;
+    readonly placement: {
+        readonly type: import("vue").PropType<"left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom">;
+        readonly default: "bottomLeft";
+        readonly validator: (value: string) => boolean;
+    };
+    readonly autoAdjustOverflow: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly getPopupContainer: import("vue").PropType<import("./types").SelectGetPopupContainer>;
+    readonly popupMatchSelectWidth: {
+        readonly type: import("vue").PropType<number | boolean>;
+        readonly default: true;
+    };
     readonly showSearch: BooleanConstructor;
     readonly searchValue: StringConstructor;
     readonly optionFilterProp: {
@@ -223,6 +305,9 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         readonly default: "Not Found";
     };
     readonly maxCount: NumberConstructor;
+    readonly maxTagCount: NumberConstructor;
+    readonly optionRender: import("vue").PropType<import("./types").SelectOptionRender>;
+    readonly tagRender: import("vue").PropType<import("./types").SelectTagRender>;
     readonly loading: BooleanConstructor;
     readonly className: StringConstructor;
     readonly rootClassName: StringConstructor;
@@ -242,8 +327,9 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     onFocus?: ((event: FocusEvent) => any) | undefined;
     onClear?: (() => any) | undefined;
     "onUpdate:modelValue"?: ((value: import("./types").SelectValue) => any) | undefined;
+    onOpenChange?: ((open: boolean) => any) | undefined;
 }>, {
-    focus: () => void;
+    focus: () => void | undefined;
     blur: () => void;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     search: (value: string) => void;
@@ -252,15 +338,21 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     focus: (event: FocusEvent) => void;
     clear: () => void;
     "update:modelValue": (value: import("./types").SelectValue) => void;
+    openChange: (open: boolean) => void;
 }, string, {
     readonly variant: import("./types").SelectVariant;
     readonly classNames: Partial<Record<import("./types").SelectSemanticPart, string>>;
     readonly styles: Partial<Record<import("./types").SelectSemanticPart, import("vue").StyleValue>>;
+    readonly open: boolean;
     readonly disabled: boolean;
+    readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly loading: boolean;
     readonly bordered: boolean;
-    readonly allowClear: import("./types").SelectAllowClear;
     readonly showSearch: boolean;
+    readonly defaultOpen: boolean;
+    readonly allowClear: import("./types").SelectAllowClear;
+    readonly autoAdjustOverflow: boolean;
+    readonly popupMatchSelectWidth: number | boolean;
     readonly optionFilterProp: string;
     readonly filterOption: import("./types").SelectFilterOption;
     readonly notFoundContent: string;
@@ -272,4 +364,5 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         suffixIcon?(_: {}): any;
     };
 })>;
+export type * from './types';
 export default Select;

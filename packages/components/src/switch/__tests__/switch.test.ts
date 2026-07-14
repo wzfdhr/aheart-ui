@@ -56,16 +56,43 @@ describe('Switch', () => {
     expect(control.attributes()).toHaveProperty('disabled')
   })
 
-  it('prefers checked and value aliases over modelValue', () => {
+  it('uses modelValue before checked and value aliases', () => {
     const checkedWrapper = mount(Switch, {
       props: { modelValue: false, value: false, checked: true }
     })
     const valueWrapper = mount(Switch, {
-      props: { modelValue: false, value: true }
+      props: { checked: false, value: true }
     })
 
-    expect(checkedWrapper.attributes('aria-checked')).toBe('true')
-    expect(valueWrapper.attributes('aria-checked')).toBe('true')
+    expect(checkedWrapper.attributes('aria-checked')).toBe('false')
+    expect(valueWrapper.attributes('aria-checked')).toBe('false')
+  })
+
+  it('keeps controlled UI unchanged when the owner rejects an update', async () => {
+    const wrapper = mount(Switch, { props: { modelValue: false } })
+
+    await wrapper.trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
+    expect(wrapper.attributes('aria-checked')).toBe('false')
+  })
+
+  it('keeps an explicitly undefined modelValue controlled and unchecked', async () => {
+    const wrapper = mount(Switch, {
+      props: { modelValue: undefined, defaultChecked: true }
+    })
+
+    expect(wrapper.attributes('aria-checked')).toBe('false')
+    await wrapper.trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
+    expect(wrapper.attributes('aria-checked')).toBe('false')
+  })
+
+  it('renders a spinning loading indicator inside the handle', () => {
+    const wrapper = mount(Switch, { props: { loading: true } })
+
+    expect(wrapper.find('.aheart-switch__handle .aheart-icon').exists()).toBe(true)
+    expect(wrapper.find('.aheart-switch__handle .aheart-icon').classes()).toContain('aheart-icon--spin')
   })
 
   it('emits Ant-style alias updates, change, and click payloads', async () => {

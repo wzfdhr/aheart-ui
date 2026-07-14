@@ -57,9 +57,11 @@ test('form control demos update their visible state', async ({ page }) => {
 
   await page.goto('/components/select')
   const selectDemo = page.locator('.aheart-demo-panel').first()
-  const selector = selectDemo.locator('select').first()
-  await selector.selectOption('apple')
-  await expect(selector).toHaveValue('apple')
+  const selector = selectDemo.getByRole('combobox')
+  await selector.click()
+  await page.getByRole('option', { name: 'Apple', exact: true }).click()
+  await expect(selectDemo.locator('.aheart-select__selection')).toContainText('Apple')
+  await expect(selectDemo.locator('select')).toHaveCount(0)
 
   await page.goto('/components/checkbox')
   const checkbox = page.locator('.aheart-demo-panel').first().getByRole('checkbox').first()

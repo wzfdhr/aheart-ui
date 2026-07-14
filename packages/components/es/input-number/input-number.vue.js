@@ -1,4 +1,5 @@
 import { defineComponent, useAttrs, useSlots, ref, computed, onMounted, onBeforeUnmount, openBlock, createElementBlock, mergeProps, createVNode, unref, createCommentVNode, normalizeClass, normalizeStyle, renderSlot, createElementVNode } from "vue";
+import { usePropPresence } from "../utils/use-prop-presence.js";
 import { inputNumberProps, inputNumberEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
@@ -65,10 +66,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = computed(() => props.modelValue !== void 0 || props.value !== void 0);
-    const mergedValue = computed(
-      () => props.modelValue !== void 0 ? props.modelValue : props.value !== void 0 ? props.value : uncontrolledValue.value
-    );
+    const hasModelValue = usePropPresence("modelValue", "model-value");
+    const hasValue = usePropPresence("value");
+    const isControlled = computed(() => hasModelValue.value || hasValue.value);
+    const mergedValue = computed(() => hasModelValue.value ? props.modelValue : hasValue.value ? props.value : uncontrolledValue.value);
     const resolvedVariant = computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );

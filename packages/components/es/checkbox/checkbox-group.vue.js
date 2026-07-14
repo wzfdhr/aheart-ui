@@ -1,4 +1,5 @@
 import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createBlock, withCtx, createVNode, unref } from "vue";
+import { usePropPresence } from "../utils/use-prop-presence.js";
 import _sfc_main$1 from "./checkbox.vue.js";
 import { checkboxGroupProps, checkboxGroupEmits } from "./types.js";
 import "./style.css.js";
@@ -28,8 +29,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = computed(() => props.value !== void 0 || props.modelValue !== void 0);
-    const mergedValue = computed(() => props.value ?? props.modelValue ?? internalValue.value);
+    const hasValue = usePropPresence("value");
+    const hasModelValue = usePropPresence("modelValue", "model-value");
+    const isControlled = computed(() => hasValue.value || hasModelValue.value);
+    const mergedValue = computed(() => hasValue.value ? props.value ?? [] : hasModelValue.value ? props.modelValue ?? [] : internalValue.value);
     const normalizedOptions = computed(
       () => props.options.map(
         (option) => typeof option === "object" && option !== null ? option : {

@@ -93,6 +93,7 @@
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, useAttrs, useSlots } from 'vue'
 import type { InputHTMLAttributes, PropType, StyleValue, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
+import { usePropPresence } from '../utils/use-prop-presence'
 import { inputNumberEmits, inputNumberProps } from './types'
 import type { InputNumberFocusOptions, InputNumberSemanticInfo, InputNumberSemanticRecord, InputNumberValue } from './types'
 import './style.css'
@@ -149,10 +150,10 @@ const hasRenderable = (value: unknown) => {
 
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
-const isControlled = computed(() => props.modelValue !== undefined || props.value !== undefined)
-const mergedValue = computed(() =>
-  props.modelValue !== undefined ? props.modelValue : props.value !== undefined ? props.value : uncontrolledValue.value
-)
+const hasModelValue = usePropPresence('modelValue', 'model-value')
+const hasValue = usePropPresence('value')
+const isControlled = computed(() => hasModelValue.value || hasValue.value)
+const mergedValue = computed(() => hasModelValue.value ? props.modelValue : hasValue.value ? props.value : uncontrolledValue.value)
 const resolvedVariant = computed(() =>
   props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined')
 )

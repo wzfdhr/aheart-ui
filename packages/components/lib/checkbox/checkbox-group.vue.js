@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const usePropPresence = require("../utils/use-prop-presence.js");
 const checkbox_vue_vue_type_script_setup_true_lang = require("./checkbox.vue.js");
 const types = require("./types.js");
 require("./style.css.js");
@@ -30,8 +31,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     });
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = vue.computed(() => props.value !== void 0 || props.modelValue !== void 0);
-    const mergedValue = vue.computed(() => props.value ?? props.modelValue ?? internalValue.value);
+    const hasValue = usePropPresence.usePropPresence("value");
+    const hasModelValue = usePropPresence.usePropPresence("modelValue", "model-value");
+    const isControlled = vue.computed(() => hasValue.value || hasModelValue.value);
+    const mergedValue = vue.computed(() => hasValue.value ? props.value ?? [] : hasModelValue.value ? props.modelValue ?? [] : internalValue.value);
     const normalizedOptions = vue.computed(
       () => props.options.map(
         (option) => typeof option === "object" && option !== null ? option : {

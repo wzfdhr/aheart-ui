@@ -1,8 +1,9 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode } from "vue";
+import { defineComponent, ref, computed, watch, onMounted, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, nextTick } from "vue";
+import { usePropPresence } from "../utils/use-prop-presence.js";
 import { textareaProps, textareaEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["id", "value", "placeholder", "rows", "disabled", "readonly", "maxlength"];
+const _hoisted_1 = ["id", "value", "placeholder", "rows", "disabled", "readonly", "maxlength", "aria-invalid"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATextarea"
@@ -14,6 +15,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
+    const textareaRef = ref();
     const ATextareaRenderNode = defineComponent({
       name: "ATextareaRenderNode",
       props: {
@@ -38,9 +40,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return props.count.exceedFormatter(value, { max });
     };
+    const draftValue = ref(formatExceededValue(props.modelValue ?? ""));
+    const isControlled = usePropPresence("modelValue", "model-value");
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const currentValue = computed(() => formatExceededValue(props.modelValue ?? ""));
+    const currentValue = computed(() => formatExceededValue(isControlled.value ? props.modelValue ?? "" : draftValue.value));
     const resolvedVariant = computed(
       () => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined")
     );
@@ -53,7 +57,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return ((_a = allowClearConfig.value) == null ? void 0 : _a.disabled) ?? false;
     });
     const showClear = computed(
-      () => Boolean(props.allowClear) && !allowClearDisabled.value && !isDisabled.value && Boolean(currentValue.value)
+      () => Boolean(props.allowClear) && !allowClearDisabled.value && !isDisabled.value && !props.readOnly && Boolean(currentValue.value)
     );
     const clearIconContent = computed(() => {
       var _a;
@@ -71,7 +75,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           [`aheart-textarea--${props.status}`]: props.status,
           "is-autosize": hasAutoSize.value,
           "is-disabled": isDisabled.value,
-          "is-readonly": props.readOnly
+          "is-readonly": props.readOnly,
+          "has-clear": showClear.value,
+          "has-count": showCountDisplay.value,
+          "is-count-exceeded": countExceeded.value
         }
       ];
     });
@@ -122,6 +129,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       maxLength: countMaxLength.value,
       value: currentValue.value
     }));
+    const countExceeded = computed(
+      () => countMaxLength.value !== void 0 && countLength.value > countMaxLength.value
+    );
     const showCountFormatter = computed(
       () => typeof props.showCount === "object" && props.showCount !== null ? props.showCount.formatter : void 0
     );
@@ -150,10 +160,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return value;
     };
+    const resizeTextarea = () => {
+      const textarea = textareaRef.value;
+      if (!textarea || !props.autoSize || typeof window === "undefined") {
+        return;
+      }
+      textarea.style.height = "auto";
+      const style = window.getComputedStyle(textarea);
+      const fontSize = Number.parseFloat(style.fontSize) || 14;
+      const lineHeight = Number.parseFloat(style.lineHeight) || fontSize * 1.5715;
+      const verticalPadding = (Number.parseFloat(style.paddingTop) || 0) + (Number.parseFloat(style.paddingBottom) || 0);
+      const config2 = typeof props.autoSize === "object" ? props.autoSize : void 0;
+      const minHeight = (config2 == null ? void 0 : config2.minRows) ? config2.minRows * lineHeight + verticalPadding : 0;
+      const maxHeight = (config2 == null ? void 0 : config2.maxRows) ? config2.maxRows * lineHeight + verticalPadding : Number.POSITIVE_INFINITY;
+      const contentHeight = Math.max(textarea.scrollHeight, minHeight);
+      const height = Math.min(contentHeight, maxHeight);
+      textarea.style.height = `${Math.round(height * 100) / 100}px`;
+      textarea.style.overflowY = contentHeight > maxHeight ? "auto" : "hidden";
+    };
+    const scheduleResize = () => {
+      void nextTick(resizeTextarea);
+    };
     const handleInput = (event) => {
       const value = getEventValue(event);
+      if (!isControlled.value)
+        draftValue.value = value;
       emit("update:modelValue", value);
       emit("input", value);
+      if (isControlled.value)
+        event.target.value = currentValue.value;
+      scheduleResize();
     };
     const handleChange = (event) => {
       emit("change", getEventValue(event));
@@ -164,16 +200,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     const handleClear = () => {
+      if (isDisabled.value || props.readOnly || allowClearDisabled.value)
+        return;
+      if (!isControlled.value)
+        draftValue.value = "";
       emit("update:modelValue", "");
       emit("input", "");
       emit("clear");
+      scheduleResize();
     };
+    watch(
+      () => props.modelValue,
+      (value) => {
+        draftValue.value = formatExceededValue(value ?? "");
+        scheduleResize();
+      }
+    );
+    watch(() => props.autoSize, scheduleResize, { deep: true });
+    onMounted(resizeTextarea);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
         class: normalizeClass(["aheart-textarea", textareaClass.value]),
         style: normalizeStyle(textareaStyle.value)
       }, [
         createElementVNode("textarea", {
+          ref_key: "textareaRef",
+          ref: textareaRef,
           class: normalizeClass(["aheart-textarea__control", controlClass.value]),
           style: normalizeStyle(controlStyle.value),
           id: _ctx.id,
@@ -183,6 +235,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           disabled: isDisabled.value,
           readonly: _ctx.readOnly,
           maxlength: _ctx.maxlength,
+          "aria-invalid": props.status === "error" || countExceeded.value ? "true" : void 0,
           onInput: handleInput,
           onChange: handleChange,
           onKeydown: handleKeydown

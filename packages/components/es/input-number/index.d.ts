@@ -93,12 +93,12 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly step: string | number;
         readonly bordered: boolean;
         readonly autoFocus: boolean;
+        readonly readOnly: boolean;
         readonly keyboard: boolean;
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
-        readonly readOnly: boolean;
         readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
         readonly changeOnBlur: boolean;
@@ -198,12 +198,12 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly step: string | number;
         readonly bordered: boolean;
         readonly autoFocus: boolean;
+        readonly readOnly: boolean;
         readonly keyboard: boolean;
         readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
-        readonly readOnly: boolean;
         readonly stringMode: boolean;
         readonly controls: import("./types").InputNumberControls;
         readonly changeOnBlur: boolean;
@@ -306,12 +306,12 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly step: string | number;
     readonly bordered: boolean;
     readonly autoFocus: boolean;
+    readonly readOnly: boolean;
     readonly keyboard: boolean;
     readonly prefix: import("vue").VNodeChild;
     readonly suffix: import("vue").VNodeChild;
     readonly addonBefore: import("vue").VNodeChild;
     readonly addonAfter: import("vue").VNodeChild;
-    readonly readOnly: boolean;
     readonly stringMode: boolean;
     readonly controls: import("./types").InputNumberControls;
     readonly changeOnBlur: boolean;
@@ -324,4 +324,5 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         decreaseIcon?(_: {}): any;
     };
 })>;
+export type * from './types';
 export default InputNumber;

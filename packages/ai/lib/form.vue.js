@@ -3,7 +3,7 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const aheartUi = require("aheart-ui");
 const formSchema = require("./form-schema.js");
-const _hoisted_1 = ["for"];
+const _hoisted_1 = ["id", "for"];
 const _hoisted_2 = {
   key: 11,
   class: "aheart-ai-form__field-error"
@@ -99,24 +99,27 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: "aheart-ai-form__field"
           }, [
             vue.createElementVNode("label", {
+              id: `${field.key}-label`,
               for: field.key
             }, vue.toDisplayString(field.label), 9, _hoisted_1),
             field.type === "textarea" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Textarea), {
               key: fieldKey(field),
               id: field.key,
+              "aria-labelledby": `${field.key}-label`,
               "model-value": fieldValue(field),
               placeholder: field.placeholder,
               disabled: isDisabled(field),
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["id", "model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "tree-select" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.TreeSelect), {
+            }, null, 8, ["id", "aria-labelledby", "model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "tree-select" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.TreeSelect), {
               key: fieldKey(field),
               id: field.key,
+              "labelled-by": `${field.key}-label`,
               "model-value": fieldValue(field),
               "tree-data": treeData(field),
               multiple: Array.isArray(fieldValue(field)),
               disabled: isDisabled(field),
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["id", "model-value", "tree-data", "multiple", "disabled", "onUpdate:modelValue"])) : field.type === "upload" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Upload), {
+            }, null, 8, ["id", "labelled-by", "model-value", "tree-data", "multiple", "disabled", "onUpdate:modelValue"])) : field.type === "upload" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Upload), {
               key: fieldKey(field),
               "file-list": fieldValue(field),
               disabled: isDisabled(field),
@@ -136,11 +139,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             }, null, 8, ["model-value", "options", "disabled", "onUpdate:modelValue"])) : field.type === "select" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Select), {
               key: fieldKey(field),
               id: field.key,
+              "labelled-by": `${field.key}-label`,
               "model-value": fieldValue(field),
               disabled: isDisabled(field),
               options: field.options,
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["id", "model-value", "disabled", "options", "onUpdate:modelValue"])) : field.type === "switch" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Switch), {
+            }, null, 8, ["id", "labelled-by", "model-value", "disabled", "options", "onUpdate:modelValue"])) : field.type === "switch" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Switch), {
               key: fieldKey(field),
               id: field.key,
               "model-value": Boolean(fieldValue(field)),
@@ -161,11 +165,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               "onUpdate:modelValue": ($event) => update(field.key, $event)
             }, null, 8, ["model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "time" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.TimePicker), {
               key: fieldKey(field),
+              id: field.key,
+              "labelled-by": `${field.key}-label`,
               "model-value": fieldValue(field),
               placeholder: field.placeholder,
               disabled: isDisabled(field),
               "onUpdate:modelValue": ($event) => update(field.key, $event)
-            }, null, 8, ["model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "input" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Input), {
+            }, null, 8, ["id", "labelled-by", "model-value", "placeholder", "disabled", "onUpdate:modelValue"])) : field.type === "input" ? (vue.openBlock(), vue.createBlock(vue.unref(aheartUi.Input), {
               key: fieldKey(field),
               id: field.key,
               "model-value": fieldValue(field),

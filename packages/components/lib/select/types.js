@@ -1,14 +1,17 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const floating = require("../utils/floating.js");
 const selectProps = {
   id: String,
+  labelledBy: String,
+  ariaLabelledby: String,
   name: String,
   modelValue: [String, Number, Array],
   defaultValue: [String, Number, Array],
   options: Array,
   placeholder: String,
-  prefix: String,
-  suffixIcon: String,
+  prefix: [String, Number, Object, Array, Function],
+  suffixIcon: [String, Number, Object, Array, Function],
   loadingIcon: [String, Number, Object, Array, Function],
   size: String,
   disabled: {
@@ -29,6 +32,25 @@ const selectProps = {
     default: false
   },
   mode: String,
+  open: {
+    type: Boolean,
+    default: void 0
+  },
+  defaultOpen: Boolean,
+  placement: {
+    type: String,
+    default: "bottomLeft",
+    validator: (value) => floating.floatingPlacements.includes(value)
+  },
+  autoAdjustOverflow: {
+    type: Boolean,
+    default: true
+  },
+  getPopupContainer: Function,
+  popupMatchSelectWidth: {
+    type: [Boolean, Number],
+    default: true
+  },
   showSearch: Boolean,
   searchValue: String,
   optionFilterProp: {
@@ -46,6 +68,9 @@ const selectProps = {
     default: "Not Found"
   },
   maxCount: Number,
+  maxTagCount: Number,
+  optionRender: Function,
+  tagRender: Function,
   loading: Boolean,
   className: String,
   rootClassName: String,
@@ -65,7 +90,8 @@ const selectEmits = {
   clear: () => true,
   search: (value) => typeof value === "string",
   focus: (event) => event instanceof FocusEvent,
-  blur: (event) => event instanceof FocusEvent
+  blur: (event) => event instanceof FocusEvent,
+  openChange: (open) => typeof open === "boolean"
 };
 exports.selectEmits = selectEmits;
 exports.selectProps = selectProps;

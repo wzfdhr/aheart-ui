@@ -7,8 +7,12 @@
   --aheart-color-info: #1677ff;
   --aheart-color-text: #1f2329;
   --aheart-color-text-secondary: #646a73;
+  --aheart-color-text-disabled: #b8b8b8;
   --aheart-color-border: #d9d9d9;
+  --aheart-color-border-secondary: #f0f0f0;
   --aheart-color-fill: #f5f5f5;
+  --aheart-color-fill-secondary: #fafafa;
+  --aheart-color-primary-bg: #e6f4ff;
   --aheart-color-bg: #ffffff;
   --aheart-color-bg-disabled: #f5f5f5;
   --aheart-color-bg-elevated: #ffffff;

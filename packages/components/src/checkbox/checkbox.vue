@@ -8,6 +8,7 @@
         :name="name"
         :value="value"
         :checked="mergedChecked"
+        :indeterminate="indeterminate"
         :disabled="isDisabled"
         :aria-checked="indeterminate ? 'mixed' : mergedChecked ? 'true' : 'false'"
         @change="handleChange"
@@ -23,8 +24,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
+import { usePropPresence } from '../utils/use-prop-presence'
 import { checkboxEmits, checkboxProps } from './types'
 import './style.css'
 
@@ -40,8 +42,10 @@ const inputRef = ref<HTMLInputElement>()
 const internalChecked = ref(props.defaultChecked ?? false)
 
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
-const isControlled = computed(() => props.checked !== undefined || props.modelValue !== undefined)
-const mergedChecked = computed(() => props.checked ?? props.modelValue ?? internalChecked.value)
+const hasChecked = usePropPresence('checked')
+const hasModelValue = usePropPresence('modelValue', 'model-value')
+const isControlled = computed(() => hasChecked.value || hasModelValue.value)
+const mergedChecked = computed(() => hasChecked.value ? Boolean(props.checked) : hasModelValue.value ? Boolean(props.modelValue) : internalChecked.value)
 
 const checkboxClass = computed(() => [
   props.className,
@@ -60,9 +64,12 @@ const labelClass = computed(() => ['aheart-checkbox__label', props.classNames?.l
 const labelStyle = computed(() => props.styles?.label)
 
 const handleChange = (event: Event) => {
-  const checked = (event.target as HTMLInputElement).checked
+  const target = event.target as HTMLInputElement
+  const checked = target.checked
   if (!isControlled.value) {
     internalChecked.value = checked
+  } else {
+    target.checked = mergedChecked.value
   }
 
   emit('update:modelValue', checked)
@@ -90,6 +97,10 @@ onMounted(() => {
   if (props.autoFocus) {
     nextTick(focus)
   }
+})
+
+watchEffect(() => {
+  if (inputRef.value) inputRef.value.indeterminate = props.indeterminate
 })
 
 defineExpose({

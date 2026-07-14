@@ -1,11 +1,12 @@
 <template>
   <form v-if="validation.valid && validation.schema" class="aheart-ai-form" @submit.prevent="submit">
     <div v-for="field in visibleFields" :key="field.key" class="aheart-ai-form__field">
-      <label :for="field.key">{{ field.label }}</label>
+      <label :id="`${field.key}-label`" :for="field.key">{{ field.label }}</label>
       <ATextarea
         v-if="field.type === 'textarea'"
         :key="fieldKey(field)"
         :id="field.key"
+        :aria-labelledby="`${field.key}-label`"
         :model-value="fieldValue(field) as string"
         :placeholder="field.placeholder"
         :disabled="isDisabled(field)"
@@ -15,6 +16,7 @@
         v-else-if="field.type === 'tree-select'"
         :key="fieldKey(field)"
         :id="field.key"
+        :labelled-by="`${field.key}-label`"
         :model-value="fieldValue(field) as string | number | Array<string | number>"
         :tree-data="treeData(field)"
         :multiple="Array.isArray(fieldValue(field))"
@@ -34,6 +36,7 @@
         v-else-if="field.type === 'select'"
         :key="fieldKey(field)"
         :id="field.key"
+        :labelled-by="`${field.key}-label`"
         :model-value="fieldValue(field) as string | number"
         :disabled="isDisabled(field)"
         :options="field.options"
@@ -49,7 +52,7 @@
       />
       <AInputNumber v-else-if="field.type === 'number'" :key="fieldKey(field)" :id="field.key" :model-value="fieldValue(field) as number | string" :placeholder="field.placeholder" :disabled="isDisabled(field)" @update:model-value="update(field.key, $event)" />
       <ADatePicker v-else-if="field.type === 'date'" :key="fieldKey(field)" :model-value="fieldValue(field) as string" :placeholder="field.placeholder" :disabled="isDisabled(field)" @update:model-value="update(field.key, $event)" />
-      <ATimePicker v-else-if="field.type === 'time'" :key="fieldKey(field)" :model-value="fieldValue(field) as string" :placeholder="field.placeholder" :disabled="isDisabled(field)" @update:model-value="update(field.key, $event)" />
+      <ATimePicker v-else-if="field.type === 'time'" :key="fieldKey(field)" :id="field.key" :labelled-by="`${field.key}-label`" :model-value="fieldValue(field) as string" :placeholder="field.placeholder" :disabled="isDisabled(field)" @update:model-value="update(field.key, $event)" />
       <AInput
         v-else-if="field.type === 'input'"
         :key="fieldKey(field)"

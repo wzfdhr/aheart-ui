@@ -1,10 +1,11 @@
-import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
+import { defineComponent, ref, computed, onMounted, nextTick, watchEffect, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
+import { usePropPresence } from "../utils/use-prop-presence.js";
 import { checkboxProps, checkboxEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["title"];
 const _hoisted_2 = { class: "aheart-checkbox__box" };
-const _hoisted_3 = ["name", "value", "checked", "disabled", "aria-checked"];
+const _hoisted_3 = ["name", "value", "checked", "indeterminate", "disabled", "aria-checked"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ACheckbox"
@@ -20,8 +21,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const inputRef = ref();
     const internalChecked = ref(props.defaultChecked ?? false);
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = computed(() => props.checked !== void 0 || props.modelValue !== void 0);
-    const mergedChecked = computed(() => props.checked ?? props.modelValue ?? internalChecked.value);
+    const hasChecked = usePropPresence("checked");
+    const hasModelValue = usePropPresence("modelValue", "model-value");
+    const isControlled = computed(() => hasChecked.value || hasModelValue.value);
+    const mergedChecked = computed(() => hasChecked.value ? Boolean(props.checked) : hasModelValue.value ? Boolean(props.modelValue) : internalChecked.value);
     const checkboxClass = computed(() => {
       var _a;
       return [
@@ -56,9 +59,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return (_a = props.styles) == null ? void 0 : _a.label;
     });
     const handleChange = (event) => {
-      const checked = event.target.checked;
+      const target = event.target;
+      const checked = target.checked;
       if (!isControlled.value) {
         internalChecked.value = checked;
+      } else {
+        target.checked = mergedChecked.value;
       }
       emit("update:modelValue", checked);
       emit("update:checked", checked);
@@ -83,6 +89,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         nextTick(focus);
       }
     });
+    watchEffect(() => {
+      if (inputRef.value)
+        inputRef.value.indeterminate = props.indeterminate;
+    });
     __expose({
       focus,
       blur,
@@ -105,6 +115,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             name: _ctx.name,
             value: _ctx.value,
             checked: mergedChecked.value,
+            indeterminate: _ctx.indeterminate,
             disabled: isDisabled.value,
             "aria-checked": _ctx.indeterminate ? "mixed" : mergedChecked.value ? "true" : "false",
             onChange: handleChange,

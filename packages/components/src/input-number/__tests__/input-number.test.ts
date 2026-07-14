@@ -247,6 +247,17 @@ describe('InputNumber', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([6])
   })
 
+  it('keeps an explicitly undefined modelValue controlled instead of restoring defaultValue', async () => {
+    const wrapper = mount(InputNumber, {
+      props: { modelValue: undefined, defaultValue: 7 }
+    })
+
+    expect(wrapper.get('input').element.value).toBe('')
+    await wrapper.get('.aheart-input-number__increase').trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toHaveLength(1)
+    expect(wrapper.get('input').element.value).toBe('')
+  })
+
   it('uses value as a controlled value alias', async () => {
     const wrapper = mount(InputNumber, {
       props: { value: 5, step: 2 }

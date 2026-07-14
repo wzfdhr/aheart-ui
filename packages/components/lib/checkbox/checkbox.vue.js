@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const usePropPresence = require("../utils/use-prop-presence.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["title"];
 const _hoisted_2 = { class: "aheart-checkbox__box" };
-const _hoisted_3 = ["name", "value", "checked", "disabled", "aria-checked"];
+const _hoisted_3 = ["name", "value", "checked", "indeterminate", "disabled", "aria-checked"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ACheckbox"
@@ -22,8 +23,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const inputRef = vue.ref();
     const internalChecked = vue.ref(props.defaultChecked ?? false);
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isControlled = vue.computed(() => props.checked !== void 0 || props.modelValue !== void 0);
-    const mergedChecked = vue.computed(() => props.checked ?? props.modelValue ?? internalChecked.value);
+    const hasChecked = usePropPresence.usePropPresence("checked");
+    const hasModelValue = usePropPresence.usePropPresence("modelValue", "model-value");
+    const isControlled = vue.computed(() => hasChecked.value || hasModelValue.value);
+    const mergedChecked = vue.computed(() => hasChecked.value ? Boolean(props.checked) : hasModelValue.value ? Boolean(props.modelValue) : internalChecked.value);
     const checkboxClass = vue.computed(() => {
       var _a;
       return [
@@ -58,9 +61,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return (_a = props.styles) == null ? void 0 : _a.label;
     });
     const handleChange = (event) => {
-      const checked = event.target.checked;
+      const target = event.target;
+      const checked = target.checked;
       if (!isControlled.value) {
         internalChecked.value = checked;
+      } else {
+        target.checked = mergedChecked.value;
       }
       emit("update:modelValue", checked);
       emit("update:checked", checked);
@@ -85,6 +91,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         vue.nextTick(focus);
       }
     });
+    vue.watchEffect(() => {
+      if (inputRef.value)
+        inputRef.value.indeterminate = props.indeterminate;
+    });
     __expose({
       focus,
       blur,
@@ -107,6 +117,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             name: _ctx.name,
             value: _ctx.value,
             checked: mergedChecked.value,
+            indeterminate: _ctx.indeterminate,
             disabled: isDisabled.value,
             "aria-checked": _ctx.indeterminate ? "mixed" : mergedChecked.value ? "true" : "false",
             onChange: handleChange,

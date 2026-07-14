@@ -20,7 +20,8 @@ const iconComponents = {
   "chevron-right": vue.ChevronRight,
   "chevron-up": vue.ChevronUp,
   "chevron-down": vue.ChevronDown,
-  copy: vue.Copy
+  copy: vue.Copy,
+  clock: vue.Clock
 };
 const warnedUnknownIconNames = /* @__PURE__ */ new Set();
 exports.iconComponents = iconComponents;

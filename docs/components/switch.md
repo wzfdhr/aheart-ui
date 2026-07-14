@@ -57,8 +57,8 @@ Switch toggles a boolean setting with semantic `role="switch"` output.
 
 ```vue
 <template>
-  <ASwitch :checked="checked" />
-  <ASwitch :value="enabled" />
+  <ASwitch v-model:checked="checked" />
+  <ASwitch v-model:value="enabled" />
   <ASwitch default-checked />
 </template>
 ```
@@ -181,8 +181,8 @@ const switchRef = ref<{ focus: () => void; blur: () => void; nativeElement?: HTM
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | modelValue | 是否开启 | `boolean` | `false` |
-| checked | 是否开启，Ant 风格受控别名，优先级高于 `value` 和 `modelValue` | `boolean` | - |
-| value | 是否开启，Ant 风格受控别名 | `boolean` | - |
+| checked | 是否开启，Ant 风格受控别名；优先级低于 `modelValue`、高于 `value` | `boolean` | - |
+| value | 是否开启，Ant 风格受控别名；受控优先级最低 | `boolean` | - |
 | defaultChecked | 非受控初始开启状态 | `boolean` | - |
 | defaultValue | 非受控初始开启状态别名 | `boolean` | - |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |

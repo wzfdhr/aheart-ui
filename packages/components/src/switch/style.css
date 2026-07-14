@@ -63,11 +63,17 @@
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-  transition: transform var(--aheart-motion-duration) var(--aheart-motion-ease);
+  transition: left var(--aheart-motion-duration) var(--aheart-motion-ease);
+}
+
+.aheart-switch__handle .aheart-icon {
+  position: absolute;
+  inset: 3px;
+  color: var(--aheart-color-primary);
 }
 
 .aheart-switch.is-checked .aheart-switch__handle {
-  transform: translateX(22px);
+  left: calc(100% - 20px);
 }
 
 .aheart-switch--small .aheart-switch__handle {
@@ -76,7 +82,7 @@
 }
 
 .aheart-switch--small.is-checked .aheart-switch__handle {
-  transform: translateX(16px);
+  left: calc(100% - 16px);
 }
 
 .aheart-switch--large .aheart-switch__handle {
@@ -85,11 +91,20 @@
 }
 
 .aheart-switch--large.is-checked .aheart-switch__handle {
-  transform: translateX(26px);
+  left: calc(100% - 24px);
 }
 
 .aheart-switch__label {
   position: relative;
   z-index: 1;
   min-width: 0;
+}
+
+@media (pointer: coarse) {
+  .aheart-switch::before {
+    position: absolute;
+    inset-block: -11px;
+    inset-inline: 0;
+    content: '';
+  }
 }

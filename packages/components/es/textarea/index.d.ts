@@ -54,9 +54,9 @@ declare const Textarea: import("../utils/install").SFCWithInstall<{
         readonly variant: import("./types").TextareaVariant;
         readonly disabled: boolean;
         readonly bordered: boolean;
-        readonly rows: number;
-        readonly readOnly: boolean;
         readonly allowClear: import("./types").TextareaAllowClear;
+        readonly readOnly: boolean;
+        readonly rows: number;
         readonly showCount: import("./types").TextareaShowCount;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
@@ -114,9 +114,9 @@ declare const Textarea: import("../utils/install").SFCWithInstall<{
         readonly variant: import("./types").TextareaVariant;
         readonly disabled: boolean;
         readonly bordered: boolean;
-        readonly rows: number;
-        readonly readOnly: boolean;
         readonly allowClear: import("./types").TextareaAllowClear;
+        readonly readOnly: boolean;
+        readonly rows: number;
         readonly showCount: import("./types").TextareaShowCount;
     }>;
     __isFragment?: undefined;
@@ -177,13 +177,14 @@ declare const Textarea: import("../utils/install").SFCWithInstall<{
     readonly variant: import("./types").TextareaVariant;
     readonly disabled: boolean;
     readonly bordered: boolean;
-    readonly rows: number;
-    readonly readOnly: boolean;
     readonly allowClear: import("./types").TextareaAllowClear;
+    readonly readOnly: boolean;
+    readonly rows: number;
     readonly showCount: import("./types").TextareaShowCount;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         clearIcon?(_: {}): any;
     };
 })>;
+export type * from './types';
 export default Textarea;

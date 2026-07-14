@@ -4,6 +4,8 @@ import { ref } from 'vue'
 const selectRef = ref<{ focus: () => void; blur: () => void }>()
 const selectValue = ref('banana')
 const selectValues = ref(['apple', 'banana'])
+const selectTagValues = ref(['apple'])
+const selectClearValue = ref('apple')
 </script>
 
 # Select 选择器 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -226,7 +228,7 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 
 <div class="aheart-demo-panel">
   <ASelect
-    model-value="apple"
+    v-model="selectClearValue"
     :allow-clear="{ clearIcon: 'clear' }"
     class-name="demo-select"
     :class-names="{ selector: 'demo-select-control', clear: 'demo-select-clear' }"
@@ -256,7 +258,8 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 <div class="aheart-demo-panel">
   <ASelect
     mode="tags"
-    :model-value="['apple']"
+    v-model="selectTagValues"
+    show-search
     :max-count="2"
     :options="[
       { label: 'Apple', value: 'apple' },
@@ -268,9 +271,11 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 
 ```vue
 <template>
-  <ASelect v-model="values" mode="tags" :max-count="2" :options="options" />
+  <ASelect v-model="values" mode="tags" show-search :max-count="2" :options="options" />
 </template>
 ```
+
+`tags` 模式会自动提供文本输入；`showSearch` 在示例中显式写出，以强调可搜索和按 Enter 创建标签的交互。
 
 ## 状态与全局配置
 
@@ -300,13 +305,15 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | modelValue | 当前值 | `string` \| `number` \| `(string \| number)[]` | - |
-| id | 原生 select id | `string` | - |
-| name | 原生 select name | `string` | - |
+| id | combobox 触发器 id | `string` | - |
+| labelledBy | 为 combobox 提供可访问名称的标签元素 id | `string` | - |
+| ariaLabelledby | `labelledBy` 的兼容别名 | `string` | - |
+| name | 表单提交字段名 | `string` | - |
 | defaultValue | 非受控默认值 | `string` \| `number` \| `(string \| number)[]` | - |
 | options | 选项列表 | `SelectOption[]` | `[]` |
 | placeholder | 占位提示 | `string` | - |
-| prefix | 选择器前缀内容 | `string` | - |
-| suffixIcon | 选择器后缀图标内容 | `string` | - |
+| prefix | 选择器前缀内容 | `VNodeChild` | - |
+| suffixIcon | 选择器后缀图标内容 | `VNodeChild` | - |
 | loadingIcon | 自定义加载图标 | `VNodeChild` | - |
 | size | 选择器尺寸 | `large` \| `middle` \| `small` | ConfigProvider size |
 | disabled | 是否禁用 | `boolean` | ConfigProvider disabled |
@@ -315,6 +322,12 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | bordered | 是否显示边框，设为 `false` 时等同 `borderless` | `boolean` | `true` |
 | allowClear | 是否显示清除按钮，可配置清除图标 | `boolean \| { clearIcon?: VNodeChild }` | `false` |
 | mode | 选择模式 | `multiple` \| `tags` | - |
+| open | 受控下拉面板状态 | `boolean` | - |
+| defaultOpen | 非受控初始展开状态 | `boolean` | `false` |
+| placement | 下拉面板位置 | `topLeft` \| `topRight` \| `bottomLeft` \| `bottomRight` | `bottomLeft` |
+| autoAdjustOverflow | 是否在视口边缘自动翻转和位移 | `boolean` | `true` |
+| getPopupContainer | 自定义浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
+| popupMatchSelectWidth | 浮层是否匹配触发器宽度，也可指定像素宽度 | `boolean` \| `number` | `true` |
 | showSearch | 是否显示搜索输入 | `boolean` | `false` |
 | searchValue | 受控搜索文本 | `string` | - |
 | optionFilterProp | 默认搜索匹配的选项字段 | `string` | `label` |
@@ -323,6 +336,9 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | fieldNames | 自定义选项字段名 | `SelectFieldNames` | `{ label: 'label', value: 'value', disabled: 'disabled' }` |
 | notFoundContent | 无匹配选项时的提示内容 | `string` | `Not Found` |
 | maxCount | 多选/tags 模式最多提交的选项数量 | `number` | - |
+| maxTagCount | 最多展示的标签数量，超出部分聚合显示 | `number` | - |
+| optionRender | 自定义选项内容 | `(option, info) => VNodeChild` | - |
+| tagRender | 自定义多选标签内容 | `(info) => VNodeChild` | - |
 | loading | 是否显示加载状态 | `boolean` | `false` |
 | className | 根节点类名 | `string` | - |
 | rootClassName | 根节点类名 | `string` | - |
@@ -369,6 +385,7 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | search | 搜索文本变化时触发 | `(value: string) => void` |
 | focus | 选择器或搜索输入框聚焦时触发 | `(event: FocusEvent) => void` |
 | blur | 选择器或搜索输入框失焦时触发 | `(event: FocusEvent) => void` |
+| openChange | 下拉面板状态请求变化时触发 | `(open: boolean) => void` |
 
 ## Slots
 
@@ -386,12 +403,17 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | root | 根节点 |
 | prefix | 前缀区域 |
 | search | 搜索输入 |
-| selector | 原生 select 控件 |
+| selector | combobox 触发与输入区域 |
 | option | 选项节点 |
 | notFound | 空结果选项 |
 | clear | 清除按钮 |
 | suffix | 后缀区域 |
 | loading | 加载图标区域 |
+| selection | 当前选中内容区域 |
+| tag | 多选标签 |
+| tagRemove | 标签移除按钮 |
+| popup | 下拉浮层 |
+| list | listbox 选项列表 |
 
 ## Theme Tokens
 

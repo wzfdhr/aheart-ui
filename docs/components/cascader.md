@@ -7,6 +7,11 @@ const options = [
 ]
 const value = ref<string[]>()
 const values = ref<string[][]>([])
+const lazyOptions = [{ value: 'china', label: '中国', isLeaf: false }]
+const loadChildren = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 350))
+  return [{ value: 'shanghai', label: '上海' }, { value: 'beijing', label: '北京' }]
+}
 </script>
 
 # Cascader 级联选择 <span class="aheart-status aheart-status--ready">Ready</span>
@@ -15,17 +20,21 @@ const values = ref<string[][]>([])
 
 ## 基础用法
 
-<ACascader v-model="value" :options="options" placeholder="选择地区" />
+<div class="aheart-demo-panel">
+  <ACascader v-model="value" :options="options" placeholder="选择地区" allow-clear />
+</div>
 
 ```vue
-<ACascader v-model="value" :options="options" />
+<ACascader v-model="value" :options="options" allow-clear />
 ```
 
 单选值是完整路径：`['zhejiang', 'hangzhou', 'xihu']`。
 
 ## 多选与搜索
 
-<ACascader v-model="values" :options="options" multiple show-search />
+<div class="aheart-demo-panel">
+  <ACascader v-model="values" :options="options" multiple show-search />
+</div>
 
 ```vue
 <ACascader v-model="values" :options="options" multiple show-search />
@@ -35,12 +44,20 @@ const values = ref<string[][]>([])
 
 ## 按需加载
 
-```vue
-<ACascader :options="options" :load-data="loadData" />
+<div class="aheart-demo-panel">
+  <ACascader :options="lazyOptions" :load-data="loadChildren" placeholder="选择并加载地区" />
+</div>
 
+```vue
 <script setup lang="ts">
-const loadData = async (option) => fetchChildren(option.value)
+const options = [{ value: 'china', label: '中国', isLeaf: false }]
+const loadData = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 350))
+  return [{ value: 'shanghai', label: '上海' }]
+}
 </script>
+
+<template><ACascader :options="options" :load-data="loadData" /></template>
 ```
 
 当选项设置 `isLeaf: false` 且未提供子节点时，组件调用 `loadData` 获取子节点；请求、缓存与错误提示由业务层负责。
@@ -56,6 +73,13 @@ const loadData = async (option) => fetchChildren(option.value)
 | showSearch | 是否显示搜索框 | `boolean` | `false` |
 | placeholder | 无选中值时的提示文字 | `string` | `请选择` |
 | disabled | 是否禁用 | `boolean` | `false` |
+| allowClear | 是否允许清除当前路径 | `boolean` | `false` |
+| maxTagCount | 多选模式最多展示的路径标签数量 | `number` | - |
+| open | 受控浮层状态 | `boolean` | - |
+| defaultOpen | 非受控初始展开状态 | `boolean` | `false` |
+| placement | 浮层位置 | `topLeft` \| `topRight` \| `bottomLeft` \| `bottomRight` | `bottomLeft` |
+| autoAdjustOverflow | 是否自动翻转与避让 | `boolean` | `true` |
+| getPopupContainer | 自定义浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | loadData | 按需加载子节点 | `(option) => Promise<CascaderOption[]>` | - |
 
 `CascaderOption` 包含 `value`、`label`、可选的 `children`、`disabled` 与 `isLeaf`。
@@ -64,3 +88,5 @@ const loadData = async (option) => fetchChildren(option.value)
 | --- | --- |
 | update:modelValue | 选择值变化 |
 | change | 选择值变化 |
+| openChange | 浮层状态请求变化 |
+| clear | 清除当前值 |

@@ -106,7 +106,7 @@ describe('AIForm', () => {
     const wrapper = mount(AIForm, { props: { schema, modelValue: { tags: [], files: [] } } })
 
     expect(wrapper.find('.aheart-input-number__control').exists()).toBe(true)
-    expect(wrapper.find('.aheart-select__control').exists()).toBe(true)
+    expect(wrapper.find('.aheart-select [role="combobox"]').exists()).toBe(true)
     expect(wrapper.find('.aheart-radio input').exists()).toBe(true)
     expect(wrapper.find('.aheart-checkbox input').exists()).toBe(true)
     expect(wrapper.find('.aheart-date-picker__input').exists()).toBe(true)
@@ -114,5 +114,11 @@ describe('AIForm', () => {
     expect(wrapper.find('.aheart-upload input[type="file"]').exists()).toBe(true)
     expect(wrapper.find('.aheart-tree-select__trigger').exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'ATreeSelect' }).props('multiple')).toBe(true)
+
+    for (const key of ['kind', 'time', 'node']) {
+      const label = wrapper.get(`label[for="${key}"]`)
+      expect(label.attributes('id')).toBe(`${key}-label`)
+      expect(wrapper.get(`#${key}`).attributes('aria-labelledby')).toBe(`${key}-label`)
+    }
   })
 })

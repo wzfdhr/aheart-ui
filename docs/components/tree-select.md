@@ -16,11 +16,11 @@ const values = ref<string[]>(['archive'])
 ## 基础用法
 
 <div class="aheart-demo-panel">
-  <ATreeSelect v-model="value" :tree-data="treeData" placeholder="选择页面" />
+  <ATreeSelect v-model="value" :tree-data="treeData" placeholder="选择页面" allow-clear />
 </div>
 
 ```vue
-<ATreeSelect v-model="value" :tree-data="treeData" placeholder="选择页面" />
+<ATreeSelect v-model="value" :tree-data="treeData" placeholder="选择页面" allow-clear />
 ```
 
 ## 多选与搜索
@@ -40,14 +40,26 @@ const values = ref<string[]>(['archive'])
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | treeData | 树节点数据 | `TreeNodeData[]` | `[]` |
+| id | combobox 触发器 id | `string` | - |
+| labelledBy | 为 combobox 提供可访问名称的标签元素 id | `string` | - |
+| ariaLabelledby | `labelledBy` 的兼容别名 | `string` | - |
 | modelValue | 受控值 | `TreeKey \| TreeKey[]` | - |
 | defaultValue | 非受控初始值 | `TreeKey \| TreeKey[]` | - |
 | multiple | 是否多选 | `boolean` | `false` |
 | showSearch | 是否显示搜索框 | `boolean` | `false` |
 | placeholder | 无选中值时的提示文字 | `string` | `请选择` |
 | disabled | 是否禁用 | `boolean` | `false` |
+| allowClear | 是否允许清除当前值 | `boolean` | `false` |
+| maxTagCount | 多选模式最多展示的节点标签数量 | `number` | - |
+| open | 受控浮层状态 | `boolean` | - |
+| defaultOpen | 非受控初始展开状态 | `boolean` | `false` |
+| placement | 浮层位置 | `topLeft` \| `topRight` \| `bottomLeft` \| `bottomRight` | `bottomLeft` |
+| autoAdjustOverflow | 是否自动翻转与避让 | `boolean` | `true` |
+| getPopupContainer | 自定义浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 
 | 事件 | 说明 |
 | --- | --- |
 | update:modelValue | 选择值变化 |
 | change | 选择值变化 |
+| openChange | 浮层状态请求变化 |
+| clear | 清除当前值 |

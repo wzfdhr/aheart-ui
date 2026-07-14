@@ -1,4 +1,4 @@
-import { Search, Settings, LoaderCircle, Info, User, Plus, Check, X, ArrowRight, ArrowLeft, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Copy } from "@lucide/vue";
+import { Search, Settings, LoaderCircle, Info, User, Plus, Check, X, ArrowRight, ArrowLeft, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Copy, Clock } from "@lucide/vue";
 const iconComponents = {
   search: Search,
   setting: Settings,
@@ -18,7 +18,8 @@ const iconComponents = {
   "chevron-right": ChevronRight,
   "chevron-up": ChevronUp,
   "chevron-down": ChevronDown,
-  copy: Copy
+  copy: Copy,
+  clock: Clock
 };
 const warnedUnknownIconNames = /* @__PURE__ */ new Set();
 export {

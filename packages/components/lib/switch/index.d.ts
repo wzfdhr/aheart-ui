@@ -61,10 +61,10 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly value: boolean;
         readonly loading: boolean;
         readonly modelValue: boolean;
+        readonly defaultValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
         readonly autoFocus: boolean;
-        readonly defaultValue: boolean;
         readonly checkedChildren: import("vue").VNodeChild;
         readonly unCheckedChildren: import("vue").VNodeChild;
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -130,10 +130,10 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         readonly value: boolean;
         readonly loading: boolean;
         readonly modelValue: boolean;
+        readonly defaultValue: boolean;
         readonly checked: boolean;
         readonly defaultChecked: boolean;
         readonly autoFocus: boolean;
-        readonly defaultValue: boolean;
         readonly checkedChildren: import("vue").VNodeChild;
         readonly unCheckedChildren: import("vue").VNodeChild;
     }>;
@@ -202,10 +202,10 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
     readonly value: boolean;
     readonly loading: boolean;
     readonly modelValue: boolean;
+    readonly defaultValue: boolean;
     readonly checked: boolean;
     readonly defaultChecked: boolean;
     readonly autoFocus: boolean;
-    readonly defaultValue: boolean;
     readonly checkedChildren: import("vue").VNodeChild;
     readonly unCheckedChildren: import("vue").VNodeChild;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
@@ -214,4 +214,5 @@ declare const Switch: import("../utils/install").SFCWithInstall<{
         unCheckedChildren?(_: {}): any;
     };
 })>;
+export type * from './types';
 export default Switch;

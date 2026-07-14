@@ -20,6 +20,8 @@ describe('Checkbox', () => {
     expect(wrapper.classes()).toContain('aheart-checkbox')
     expect(wrapper.classes()).toContain('is-indeterminate')
     expect(wrapper.find('input').element.checked).toBe(true)
+    expect(wrapper.find('input').element.indeterminate).toBe(true)
+    expect(wrapper.find('input').attributes('aria-checked')).toBe('mixed')
     expect(wrapper.text()).toContain('Remember me')
   })
 
@@ -159,6 +161,26 @@ describe('Checkbox', () => {
     expect(defaultWrapper.find('input').element.checked).toBe(false)
   })
 
+  it('keeps controlled checkbox UI unchanged when the owner rejects an update', async () => {
+    const wrapper = mount(Checkbox, { props: { modelValue: false, label: 'Controlled' } })
+
+    await wrapper.find('input').setValue(true)
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
+    expect(wrapper.find('input').element.checked).toBe(false)
+  })
+
+  it('keeps an explicitly undefined modelValue controlled and unchecked', async () => {
+    const wrapper = mount(Checkbox, {
+      props: { modelValue: undefined, defaultChecked: true, label: 'Controlled empty' }
+    })
+
+    expect(wrapper.get('input').element.checked).toBe(false)
+    await wrapper.get('input').setValue(true)
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
+    expect(wrapper.get('input').element.checked).toBe(false)
+  })
+
   it('emits checked alias update and change event payload', async () => {
     const wrapper = mount(Checkbox, {
       props: { checked: false }
@@ -228,6 +250,21 @@ describe('Checkbox', () => {
     expect(defaultWrapper.emitted('update:value')?.[0]).toEqual([['apple', 'banana']])
     expect(defaultWrapper.emitted('change')?.[0]).toEqual([['apple', 'banana']])
     expect(defaultWrapper.findAll('input')[1].element.checked).toBe(true)
+  })
+
+  it('keeps an explicitly undefined CheckboxGroup model controlled', async () => {
+    const wrapper = mount(CheckboxGroup, {
+      props: {
+        modelValue: undefined,
+        defaultValue: ['apple'],
+        options: [{ label: 'Apple', value: 'apple' }]
+      }
+    })
+
+    expect(wrapper.get('input').element.checked).toBe(false)
+    await wrapper.get('input').setValue(true)
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['apple']])
+    expect(wrapper.get('input').element.checked).toBe(false)
   })
 
   it('normalizes primitive group options and applies option metadata', () => {
