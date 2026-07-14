@@ -102,6 +102,7 @@ import {
   type VNodeChild
 } from 'vue'
 import ASkeleton from '../skeleton'
+import { usePointerDrag } from '../utils/use-pointer-drag'
 import {
   drawerEmits,
   drawerProps,
@@ -425,7 +426,6 @@ watch(
 
 onBeforeUnmount(() => {
   parentPushContext?.setChildOpen(drawerId, false)
-  stopResize()
 })
 
 const resolveSemanticConfig = <T,>(
@@ -537,30 +537,33 @@ function handleResizeEnd() {
     return
   }
 
-  stopResize()
   resizeStart.value = null
   resizableConfig.value?.onResizeEnd?.()
 }
 
-function stopResize() {
-  document.removeEventListener('pointermove', handleResizeMove)
-  document.removeEventListener('pointerup', handleResizeEnd)
-}
+const { isDragging: isResizing, start: startPointerResize } = usePointerDrag({
+  cursor: () => (props.placement === 'top' || props.placement === 'bottom' ? 'row-resize' : 'col-resize'),
+  onMove: handleResizeMove,
+  onEnd: handleResizeEnd
+})
 
 function handleResizeStart(event: PointerEvent) {
   if (!isResizable.value) {
     return
   }
 
-  event.preventDefault()
+  startPointerResize(event)
+
+  if (!isResizing.value) {
+    return
+  }
+
   resizeStart.value = {
     size: activePanelSize.value,
     clientX: event.clientX,
     clientY: event.clientY
   }
   resizableConfig.value?.onResizeStart?.()
-  document.addEventListener('pointermove', handleResizeMove)
-  document.addEventListener('pointerup', handleResizeEnd)
 }
 
 const close = () => {

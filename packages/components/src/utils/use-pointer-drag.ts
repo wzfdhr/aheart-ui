@@ -3,7 +3,7 @@ import { onBeforeUnmount, ref } from 'vue'
 export type PointerDragEndReason = 'end' | 'cancel' | 'blur' | 'unmount'
 
 export interface PointerDragOptions {
-  cursor?: string
+  cursor?: string | (() => string)
   onMove: (event: PointerEvent) => void
   onEnd?: (reason: PointerDragEndReason) => void
 }
@@ -18,6 +18,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
   let previousUserSelect = ''
 
   const getDocument = () => (typeof document === 'undefined' ? undefined : document)
+  const getCursor = () => (typeof options.cursor === 'function' ? options.cursor() : options.cursor) ?? 'default'
 
   const cancelFrame = () => {
     if (animationFrame === undefined) {
@@ -139,7 +140,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
     shield.style.position = 'fixed'
     shield.style.inset = '0'
     shield.style.zIndex = '2147483647'
-    shield.style.cursor = options.cursor ?? 'default'
+    shield.style.cursor = getCursor()
     shield.style.pointerEvents = 'all'
     shield.style.background = 'transparent'
     currentDocument.body.appendChild(shield)
@@ -149,7 +150,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
   const start = (event: PointerEvent) => {
     const currentDocument = getDocument()
 
-    if (!currentDocument || isDragging.value || event.button !== 0) {
+    if (!currentDocument || isDragging.value || (event.button !== undefined && event.button !== 0)) {
       return
     }
 
@@ -158,7 +159,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
     activePointerId = event.pointerId
     previousCursor = currentDocument.body.style.cursor
     previousUserSelect = currentDocument.body.style.userSelect
-    currentDocument.body.style.cursor = options.cursor ?? 'default'
+    currentDocument.body.style.cursor = getCursor()
     currentDocument.body.style.userSelect = 'none'
     createShield(currentDocument)
     ;(event.currentTarget as Element | null)?.setPointerCapture?.(event.pointerId)

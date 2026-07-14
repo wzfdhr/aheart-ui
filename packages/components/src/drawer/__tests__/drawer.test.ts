@@ -411,10 +411,10 @@ describe('Drawer', () => {
     document.dispatchEvent(new MouseEvent('pointerup', { clientX: 20, clientY: 0 }))
     await nextTick()
 
-    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('width: 360px')
     expect(onResizeStart).toHaveBeenCalledTimes(1)
     expect(onResize).toHaveBeenCalledWith(360)
     expect(onResizeEnd).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('width: 360px')
   })
 
   it('resizes a bottom drawer by dragging upward', async () => {
@@ -436,6 +436,30 @@ describe('Drawer', () => {
     await nextTick()
 
     expect(wrapper.find('.aheart-drawer__panel').attributes('style')).toContain('height: 260px')
+  })
+
+  it('uses the shared drag shield and removes it when resize is cancelled or the drawer unmounts', async () => {
+    const wrapper = mountDrawer({
+      props: {
+        open: true,
+        title: 'Shielded drawer',
+        width: 320,
+        resizable: true
+      }
+    })
+    const dragger = wrapper.find('.aheart-drawer__dragger')
+
+    await dragger.trigger('pointerdown', { button: 0, pointerId: 1, clientX: 100, clientY: 0 })
+    expect(document.querySelector('[data-aheart-drag-shield]')).not.toBeNull()
+
+    document.dispatchEvent(new Event('pointercancel'))
+    expect(document.querySelector('[data-aheart-drag-shield]')).toBeNull()
+
+    await dragger.trigger('pointerdown', { button: 0, pointerId: 2, clientX: 100, clientY: 0 })
+    expect(document.querySelector('[data-aheart-drag-shield]')).not.toBeNull()
+
+    wrapper.unmount()
+    expect(document.querySelector('[data-aheart-drag-shield]')).toBeNull()
   })
 
   it('does not render a resize dragger when resizable is disabled', () => {
