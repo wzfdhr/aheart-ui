@@ -225,7 +225,8 @@
   background: var(--aheart-color-bg, #fff);
 }
 .aheart-date-picker__footer button { min-block-size: 28px; padding-inline: 8px; border: 0; border-radius: 4px; background: transparent; color: var(--aheart-color-primary, #1677ff); cursor: pointer; }
-.aheart-date-picker__footer .aheart-date-picker__ok { margin-inline-start: auto; background: var(--aheart-color-primary, #1677ff); color: #fff; }
+.aheart-date-picker__footer .aheart-date-picker__cancel { margin-inline-start: auto; }
+.aheart-date-picker__footer .aheart-date-picker__ok { background: var(--aheart-color-primary, #1677ff); color: #fff; }
 .aheart-date-picker__footer .aheart-date-picker__ok:disabled { cursor: not-allowed; background: #b9d7ff; }
 .aheart-date-picker__live { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 

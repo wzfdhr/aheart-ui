@@ -112,6 +112,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ...(_b = props.locale) == null ? void 0 : _b.datePicker
       };
     });
+    const cancelText = vue.computed(() => resolvedLocale.value.locale === "en-US" ? "Cancel" : "取消");
     const resolvedPlaceholder = vue.computed(() => props.placeholder ?? {
       date: effectiveShowTime.value ? resolvedLocale.value.selectTime : resolvedLocale.value.selectDate,
       week: resolvedLocale.value.selectWeek,
@@ -417,6 +418,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const value = Array.isArray(draftValue.value) ? [...draftValue.value] : draftValue.value;
       commitValue(value);
       emit("ok", value);
+    };
+    const cancelDraft = () => {
+      requestOpen(false, true);
     };
     const selectToday = () => {
       const today = nowDate.value ?? dayjs.createPickerDate();
@@ -905,6 +909,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 vue.renderSlot(_ctx.$slots, "footer"),
                 effectiveNeedConfirm.value ? (vue.openBlock(), vue.createElementBlock("button", {
                   key: 0,
+                  class: "aheart-date-picker__cancel",
+                  type: "button",
+                  onClick: cancelDraft
+                }, vue.toDisplayString(cancelText.value), 1)) : vue.createCommentVNode("", true),
+                effectiveNeedConfirm.value ? (vue.openBlock(), vue.createElementBlock("button", {
+                  key: 1,
                   class: "aheart-date-picker__ok",
                   type: "button",
                   disabled: !hasDraftValue.value,

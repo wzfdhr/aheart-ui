@@ -24,6 +24,8 @@ test('Chinese docs shell and component status copy stay localized', async () => 
   assert.match(config, /sidebarMenuLabel:\s*'菜单'/)
   assert.match(config, /returnToTopLabel:\s*'返回顶部'/)
   assert.match(config, /skipToContentLabel:\s*'跳至正文'/)
+  assert.match(config, /lastUpdated:\s*\{\s*text:\s*'最后更新'\s*\}/)
+  assert.match(config, /docFooter:\s*\{\s*prev:\s*'上一页',\s*next:\s*'下一页'\s*\}/)
   assert.match(overview, />组件系统\s*\/\s*中文站</)
   assert.doesNotMatch(overview, /COMPONENT SYSTEM\s*\/\s*CN/)
   assert.match(workbench, />智能工作区</)

@@ -170,6 +170,9 @@
           <footer class="aheart-date-picker__footer">
             <button class="aheart-date-picker__today" type="button" @click="selectToday">{{ resolvedLocale.today }}</button>
             <slot name="footer" />
+            <button v-if="effectiveNeedConfirm" class="aheart-date-picker__cancel" type="button" @click="cancelDraft">
+              {{ cancelText }}
+            </button>
             <button v-if="effectiveNeedConfirm" class="aheart-date-picker__ok" type="button" :disabled="!hasDraftValue" @click="confirmDraft">
               {{ resolvedLocale.ok }}
             </button>
@@ -251,6 +254,7 @@ const resolvedLocale = computed(() => ({
   ...config.value.locale?.datePicker,
   ...props.locale?.datePicker
 }) as Required<NonNullable<typeof zhCN.datePicker>>)
+const cancelText = computed(() => resolvedLocale.value.locale === 'en-US' ? 'Cancel' : '取消')
 const resolvedPlaceholder = computed(() => props.placeholder ?? ({
   date: effectiveShowTime.value ? resolvedLocale.value.selectTime : resolvedLocale.value.selectDate,
   week: resolvedLocale.value.selectWeek,
@@ -574,6 +578,9 @@ const confirmDraft = () => {
   const value = Array.isArray(draftValue.value) ? [...draftValue.value] : draftValue.value
   commitValue(value)
   emit('ok', value)
+}
+const cancelDraft = () => {
+  requestOpen(false, true)
 }
 
 const selectToday = () => {
