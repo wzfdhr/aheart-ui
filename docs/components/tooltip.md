@@ -1,4 +1,4 @@
-# Tooltip 文字提示 <span class="aheart-status aheart-status--ready">Ready</span>
+# Tooltip 文字提示 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Tooltip displays compact explanatory text for controls and dense interface elements.
 

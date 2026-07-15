@@ -19,7 +19,7 @@ const asyncEmailValidator = async (_rule: unknown, value: unknown) => {
 }
 </script>
 
-# Form 表单 <span class="aheart-status aheart-status--ready">Ready</span>
+# Form 表单 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Form manages field layout, model validation, submit success/failure events, and configuration inheritance.
 

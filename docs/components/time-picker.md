@@ -15,7 +15,7 @@ const businessHours = {
 }
 </script>
 
-# TimePicker 时间选择器 <span class="aheart-status aheart-status--ready">Ready</span>
+# TimePicker 时间选择器 <span class="aheart-status aheart-status--ready">已完成</span>
 
 通过时、分、秒分栏选择一天中的时间，支持单值、范围、步长、确认、12 小时制和结构化禁用规则。内部使用共享 Picker codec，对外始终保持字符串值。
 

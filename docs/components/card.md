@@ -1,4 +1,4 @@
-# Card 卡片 <span class="aheart-status aheart-status--ready">Ready</span>
+# Card 卡片 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Card groups related content in a bordered container with optional header, cover, actions, and loading state.
 

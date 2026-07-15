@@ -28,6 +28,10 @@ export default defineConfig({
       description: '面向产品界面的 Vue 3 组件库',
       themeConfig: {
         logo: '/logo.svg',
+        outline: { label: '本页内容' },
+        sidebarMenuLabel: '菜单',
+        returnToTopLabel: '返回顶部',
+        skipToContentLabel: '跳至正文',
         nav: [
           { text: '指南', link: '/guide/introduction' },
           { text: '组件', link: '/components/overview' },

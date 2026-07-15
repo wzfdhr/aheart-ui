@@ -1,4 +1,4 @@
-# Popconfirm 气泡确认框 <span class="aheart-status aheart-status--ready">Ready</span>
+# Popconfirm 气泡确认框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Popconfirm asks for confirmation near the triggering action before continuing.
 

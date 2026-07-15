@@ -5,7 +5,7 @@ const radioRef = ref<{ focus: () => void; blur: () => void }>()
 const radioNodeLabel = h('span', { class: 'demo-radio-option-node' }, 'Renderable label')
 </script>
 
-# Radio 单选框 <span class="aheart-status aheart-status--ready">Ready</span>
+# Radio 单选框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Radio captures a single boolean selection or one value from a grouped option set.
 

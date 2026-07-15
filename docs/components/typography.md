@@ -1,4 +1,4 @@
-# Typography 排版 <span class="aheart-status aheart-status--ready">Ready</span>
+# Typography 排版 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Typography provides text, title, paragraph, and link primitives for product interfaces.
 

@@ -1,8 +1,8 @@
 <template>
-  <section class="aheart-ai-workbench" aria-label="Agent 工作台">
+  <section class="aheart-ai-workbench" aria-label="AI 工作台">
     <header class="aheart-ai-workbench__header">
       <div>
-        <span class="aheart-ai-workbench__eyebrow">AGENT WORKSPACE</span>
+        <span class="aheart-ai-workbench__eyebrow">智能工作区</span>
         <h2>{{ title }}</h2>
         <p v-if="description">{{ description }}</p>
       </div>
@@ -178,7 +178,7 @@ const props = withDefaults(defineProps<{
   activeArtifact?: string
   disabled?: boolean
 }>(), {
-  title: 'Agent 工作台',
+  title: 'AI 工作台',
   description: '编排对话、任务、审批与产物。',
   panelSizes: () => [150, 'auto', 200],
   conversations: () => [],

@@ -17,7 +17,7 @@ const renderableFooter = h('div', { class: 'docs-drawer-renderable-footer' }, 'F
 const drawerRender = (node: VNodeChild) => h('div', { class: 'docs-drawer-render-shell' }, [node])
 </script>
 
-# Drawer 抽屉 <span class="aheart-status aheart-status--ready">Ready</span>
+# Drawer 抽屉 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Drawer presents a contextual panel from an edge of the screen without leaving the current page.
 

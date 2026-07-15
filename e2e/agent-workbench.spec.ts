@@ -37,6 +37,11 @@ test('mobile workbench tabs provide 40px targets and arrow-key activation', asyn
   await expect(execution).toBeFocused()
   await expect(execution).toHaveAttribute('aria-selected', 'true')
   await expect(mobile.getByRole('button', { name: '查看执行与产物' })).toBeVisible()
+  await mobile.getByRole('button', { name: '查看执行与产物' }).click()
+  const drawer = page.getByRole('dialog', { name: '执行与产物' })
+  await expect(drawer).toBeVisible()
+  await expect(drawer).not.toContainText('EXECUTION')
+  await expect(drawer).not.toContainText('OUTPUTS')
 
   await execution.press('ArrowLeft')
   await expect(chat).toBeFocused()

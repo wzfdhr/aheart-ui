@@ -9,7 +9,7 @@ const value = ref<string>()
 const values = ref<string[]>(['archive'])
 </script>
 
-# TreeSelect 树选择 <span class="aheart-status aheart-status--ready">Ready</span>
+# TreeSelect 树选择 <span class="aheart-status aheart-status--ready">已完成</span>
 
 在下拉面板中选择层级数据，复用 Tree 的禁用、展开和键盘操作。
 

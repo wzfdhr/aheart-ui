@@ -744,6 +744,18 @@
   .aheart-date-picker__panel.has-presets { inline-size: min(424px, calc(100vw - 16px)); }
   .aheart-date-picker__presets { flex-basis: 104px; }
   .aheart-date-picker__grid button { min-block-size: 40px; }
+  .aheart-date-picker__header,
+  .aheart-date-picker__header.is-compact {
+    grid-template-columns: 44px 44px minmax(0, 1fr) 44px 44px;
+    min-block-size: 52px;
+    padding-block: 4px;
+  }
+  .aheart-date-picker__header.is-compact { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+  .aheart-date-picker__header button {
+    inline-size: 44px;
+    block-size: 44px;
+  }
+  .aheart-date-picker__panel.has-time .aheart-date-picker__header { min-block-size: 52px; }
   .aheart-date-picker__panel.has-time {
     position: fixed !important;
     inset: auto 8px 8px !important;
@@ -756,7 +768,9 @@
     position: sticky;
     z-index: 1;
     inset-block-end: 0;
+    min-block-size: 52px;
   }
+  .aheart-date-picker__footer button { min-block-size: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

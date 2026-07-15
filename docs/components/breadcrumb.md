@@ -1,4 +1,4 @@
-# Breadcrumb 面包屑 <span class="aheart-status aheart-status--ready">Ready</span>
+# Breadcrumb 面包屑 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Breadcrumb shows the user's position in a page hierarchy.
 

@@ -4,8 +4,9 @@ const vue = require("vue");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick"];
-const _hoisted_2 = ["id", "aria-labelledby"];
+const _hoisted_1 = ["aria-orientation"];
+const _hoisted_2 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick", "onKeydown"];
+const _hoisted_3 = ["id", "aria-labelledby"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ATabs"
@@ -50,6 +51,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       bottom: "bottom"
     };
     const resolvedPlacement = vue.computed(() => props.tabPlacement ?? (props.tabPosition ? positionPlacementMap[props.tabPosition] : "top"));
+    const tabOrientation = vue.computed(() => resolvedPlacement.value === "start" || resolvedPlacement.value === "end" ? "vertical" : "horizontal");
     const animatedInkBar = vue.computed(() => typeof props.animated === "object" ? props.animated.inkBar === true : props.animated);
     const animatedTabPane = vue.computed(() => typeof props.animated === "object" ? props.animated.tabPane === true : props.animated);
     const isExtraContentConfig = (value) => {
@@ -155,6 +157,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     );
     const getTabId = (key) => `aheart-tab-${key}`;
     const getPanelId = (key) => `aheart-tab-panel-${key}`;
+    const tabRefs = /* @__PURE__ */ new Map();
+    const setTabRef = (key, element) => {
+      if (element instanceof HTMLButtonElement)
+        tabRefs.set(key, element);
+      else
+        tabRefs.delete(key);
+    };
     const getTabClass = (item) => {
       var _a, _b, _c, _d;
       return [
@@ -174,11 +183,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         item.key === mergedActiveKey.value ? (_c = props.styles) == null ? void 0 : _c.activeTab : void 0
       ];
     };
-    const handleTabClick = (item, event) => {
-      if (item.disabled) {
+    const activateTab = (item) => {
+      if (item.disabled)
         return;
-      }
-      emit("tabClick", item.key, event);
       if (item.key === mergedActiveKey.value) {
         return;
       }
@@ -187,6 +194,32 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       emit("update:activeKey", item.key);
       emit("change", item.key);
+    };
+    const handleTabClick = (item, event) => {
+      if (item.disabled)
+        return;
+      emit("tabClick", item.key, event);
+      activateTab(item);
+    };
+    const handleTabKeydown = (item, event) => {
+      const forwardKey = tabOrientation.value === "vertical" ? "ArrowDown" : "ArrowRight";
+      const backwardKey = tabOrientation.value === "vertical" ? "ArrowUp" : "ArrowLeft";
+      if (![forwardKey, backwardKey, "Home", "End"].includes(event.key))
+        return;
+      const enabledItems = normalizedItems.value.filter((candidate) => !candidate.disabled);
+      if (!enabledItems.length)
+        return;
+      const currentIndex = Math.max(enabledItems.findIndex((candidate) => candidate.key === item.key), 0);
+      const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? enabledItems.length - 1 : (currentIndex + (event.key === forwardKey ? 1 : -1) + enabledItems.length) % enabledItems.length;
+      const nextItem = enabledItems[nextIndex];
+      if (!nextItem)
+        return;
+      event.preventDefault();
+      activateTab(nextItem);
+      void vue.nextTick(() => {
+        var _a;
+        return (_a = tabRefs.get(nextItem.key)) == null ? void 0 : _a.focus();
+      });
     };
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
@@ -209,7 +242,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           vue.createElementVNode("div", {
             class: vue.normalizeClass(navListClass.value),
             style: vue.normalizeStyle(navListStyle.value),
-            role: "tablist"
+            role: "tablist",
+            "aria-orientation": tabOrientation.value
           }, [
             (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedItems.value, (item) => {
               return vue.openBlock(), vue.createElementBlock("button", {
@@ -223,7 +257,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 "aria-controls": getPanelId(item.key),
                 disabled: item.disabled,
                 tabindex: item.key === mergedActiveKey.value ? 0 : -1,
-                onClick: ($event) => handleTabClick(item, $event)
+                ref_for: true,
+                ref: (element) => setTabRef(item.key, element),
+                onClick: ($event) => handleTabClick(item, $event),
+                onKeydown: ($event) => handleTabKeydown(item, $event)
               }, [
                 hasRenderable(item.icon) ? (vue.openBlock(), vue.createElementBlock("span", {
                   key: 0,
@@ -243,9 +280,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     node: item.label
                   }, null, 8, ["node"])
                 ], 6)
-              ], 14, _hoisted_1);
+              ], 46, _hoisted_2);
             }), 128))
-          ], 6),
+          ], 14, _hoisted_1),
           hasRightExtra.value ? (vue.openBlock(), vue.createElementBlock("span", {
             key: 1,
             class: vue.normalizeClass(extraRightClass.value),
@@ -269,7 +306,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               node: activeItem.value.children
             }, null, 8, ["node"])
           ]) : vue.createCommentVNode("", true)
-        ], 14, _hoisted_2)) : vue.createCommentVNode("", true)
+        ], 14, _hoisted_3)) : vue.createCommentVNode("", true)
       ], 6);
     };
   }

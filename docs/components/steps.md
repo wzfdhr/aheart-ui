@@ -1,4 +1,4 @@
-# Steps 步骤条 <span class="aheart-status aheart-status--ready">Ready</span>
+# Steps 步骤条 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Steps communicates progress through a multi-step workflow.
 

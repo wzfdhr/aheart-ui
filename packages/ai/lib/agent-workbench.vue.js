@@ -10,7 +10,7 @@ const sources_vue_vue_type_script_setup_true_lang = require("./sources.vue.js");
 const agentExecution_vue_vue_type_script_setup_true_lang = require("./agent-execution.vue.js");
 const _hoisted_1 = {
   class: "aheart-ai-workbench",
-  "aria-label": "Agent 工作台"
+  "aria-label": "AI 工作台"
 };
 const _hoisted_2 = { class: "aheart-ai-workbench__header" };
 const _hoisted_3 = { key: 0 };
@@ -64,7 +64,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{ name: "AAIAgentWorkbench" },
   __name: "agent-workbench",
   props: {
-    title: { default: "Agent 工作台" },
+    title: { default: "AI 工作台" },
     description: { default: "编排对话、任务、审批与产物。" },
     panelSizes: { default: () => [150, "auto", 200] },
     conversations: { default: () => [] },
@@ -145,7 +145,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return vue.openBlock(), vue.createElementBlock("section", _hoisted_1, [
         vue.createElementVNode("header", _hoisted_2, [
           vue.createElementVNode("div", null, [
-            _cache[30] || (_cache[30] = vue.createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "AGENT WORKSPACE", -1)),
+            _cache[30] || (_cache[30] = vue.createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "智能工作区", -1)),
             vue.createElementVNode("h2", null, vue.toDisplayString(__props.title), 1),
             __props.description ? (vue.openBlock(), vue.createElementBlock("p", _hoisted_3, vue.toDisplayString(__props.description), 1)) : vue.createCommentVNode("", true)
           ]),

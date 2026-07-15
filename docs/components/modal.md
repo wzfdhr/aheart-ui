@@ -37,7 +37,7 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 })
 </script>
 
-# Modal 对话框 <span class="aheart-status aheart-status--ready">Ready</span>
+# Modal 对话框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Modal focuses attention in a blocking dialog for decisions, confirmations, and short workflows.
 

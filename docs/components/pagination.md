@@ -12,7 +12,7 @@ const paginationCustom = ref(3)
 const paginationStyled = ref(2)
 </script>
 
-# Pagination 分页 <span class="aheart-status aheart-status--ready">Ready</span>
+# Pagination 分页 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Pagination navigates paged data with controlled or uncontrolled current page state.
 

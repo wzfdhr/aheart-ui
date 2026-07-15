@@ -4,7 +4,7 @@ import { h } from 'vue'
 const tagNodeLabel = h('span', { class: 'demo-tag-option-node' }, 'Node label')
 </script>
 
-# Tag 标签 <span class="aheart-status aheart-status--ready">Ready</span>
+# Tag 标签 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Tag labels content with compact status, category, link, close, and checkable selection affordances.
 

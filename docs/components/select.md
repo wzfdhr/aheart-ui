@@ -8,7 +8,7 @@ const selectTagValues = ref(['apple'])
 const selectClearValue = ref('apple')
 </script>
 
-# Select 选择器 <span class="aheart-status aheart-status--ready">Ready</span>
+# Select 选择器 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Select lets users choose one or more values from a fixed option list, with search, variants, adornments, and multi-value limits.
 

@@ -6,7 +6,7 @@
           <ARenderNode :node="leftExtraContent" />
         </slot>
       </span>
-      <div :class="navListClass" :style="navListStyle" role="tablist">
+      <div :class="navListClass" :style="navListStyle" role="tablist" :aria-orientation="tabOrientation">
         <button
           v-for="item in normalizedItems"
           :id="getTabId(item.key)"
@@ -20,7 +20,9 @@
           :aria-controls="getPanelId(item.key)"
           :disabled="item.disabled"
           :tabindex="item.key === mergedActiveKey ? 0 : -1"
+          :ref="(element) => setTabRef(item.key, element)"
           @click="handleTabClick(item, $event)"
+          @keydown="handleTabKeydown(item, $event)"
         >
           <span v-if="hasRenderable(item.icon)" :class="tabIconClass" :style="tabIconStyle" aria-hidden="true">
             <ARenderNode :node="item.icon" />
@@ -52,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, nextTick, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { tabsEmits, tabsProps, type TabItem, type TabsExtraContent, type TabsExtraContentConfig } from './types'
 import './style.css'
@@ -102,6 +104,7 @@ const positionPlacementMap = {
   bottom: 'bottom'
 } as const
 const resolvedPlacement = computed(() => props.tabPlacement ?? (props.tabPosition ? positionPlacementMap[props.tabPosition] : 'top'))
+const tabOrientation = computed(() => (resolvedPlacement.value === 'start' || resolvedPlacement.value === 'end' ? 'vertical' : 'horizontal'))
 const animatedInkBar = computed(() => (typeof props.animated === 'object' ? props.animated.inkBar === true : props.animated))
 const animatedTabPane = computed(() => (typeof props.animated === 'object' ? props.animated.tabPane === true : props.animated))
 const isExtraContentConfig = (value: TabsExtraContent | undefined): value is TabsExtraContentConfig => {
@@ -163,6 +166,11 @@ watch(
 
 const getTabId = (key: string) => `aheart-tab-${key}`
 const getPanelId = (key: string) => `aheart-tab-panel-${key}`
+const tabRefs = new Map<string, HTMLButtonElement>()
+const setTabRef = (key: string, element: unknown) => {
+  if (element instanceof HTMLButtonElement) tabRefs.set(key, element)
+  else tabRefs.delete(key)
+}
 
 const getTabClass = (item: TabItem) => [
   props.classNames?.tab,
@@ -179,13 +187,8 @@ const getTabStyle = (item: TabItem) => [
   item.key === mergedActiveKey.value ? props.styles?.activeTab : undefined
 ]
 
-const handleTabClick = (item: TabItem, event: MouseEvent) => {
-  if (item.disabled) {
-    return
-  }
-
-  emit('tabClick', item.key, event)
-
+const activateTab = (item: TabItem) => {
+  if (item.disabled) return
   if (item.key === mergedActiveKey.value) {
     return
   }
@@ -196,5 +199,32 @@ const handleTabClick = (item: TabItem, event: MouseEvent) => {
 
   emit('update:activeKey', item.key)
   emit('change', item.key)
+}
+
+const handleTabClick = (item: TabItem, event: MouseEvent) => {
+  if (item.disabled) return
+  emit('tabClick', item.key, event)
+  activateTab(item)
+}
+
+const handleTabKeydown = (item: TabItem, event: KeyboardEvent) => {
+  const forwardKey = tabOrientation.value === 'vertical' ? 'ArrowDown' : 'ArrowRight'
+  const backwardKey = tabOrientation.value === 'vertical' ? 'ArrowUp' : 'ArrowLeft'
+  if (![forwardKey, backwardKey, 'Home', 'End'].includes(event.key)) return
+
+  const enabledItems = normalizedItems.value.filter((candidate) => !candidate.disabled)
+  if (!enabledItems.length) return
+  const currentIndex = Math.max(enabledItems.findIndex((candidate) => candidate.key === item.key), 0)
+  const nextIndex = event.key === 'Home'
+    ? 0
+    : event.key === 'End'
+      ? enabledItems.length - 1
+      : (currentIndex + (event.key === forwardKey ? 1 : -1) + enabledItems.length) % enabledItems.length
+  const nextItem = enabledItems[nextIndex]
+  if (!nextItem) return
+
+  event.preventDefault()
+  activateTab(nextItem)
+  void nextTick(() => tabRefs.get(nextItem.key)?.focus())
 }
 </script>

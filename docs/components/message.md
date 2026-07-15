@@ -2,7 +2,7 @@
 import { message } from 'aheart-ui'
 </script>
 
-# Message 全局提示 <span class="aheart-status aheart-status--ready">Ready</span>
+# Message 全局提示 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Message displays global lightweight feedback through a static service or the `AMessage` host component.
 

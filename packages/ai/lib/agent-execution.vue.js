@@ -117,7 +117,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         vue.createElementVNode("section", _hoisted_2, [
           vue.createElementVNode("div", _hoisted_3, [
             _cache[0] || (_cache[0] = vue.createElementVNode("div", null, [
-              vue.createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "EXECUTION"),
+              vue.createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "执行流程"),
               vue.createElementVNode("h2", { id: "agent-tasks-title" }, "执行时间线")
             ], -1)),
             vue.createElementVNode("span", null, vue.toDisplayString(__props.tasks.length) + " 项", 1)
@@ -271,7 +271,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         vue.createElementVNode("section", _hoisted_22, [
           vue.createElementVNode("div", _hoisted_23, [
             _cache[9] || (_cache[9] = vue.createElementVNode("div", null, [
-              vue.createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "OUTPUTS"),
+              vue.createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "产物输出"),
               vue.createElementVNode("h2", { id: "agent-artifacts-title" }, "产物")
             ], -1)),
             vue.createElementVNode("span", null, vue.toDisplayString(__props.artifacts.length) + " 项", 1)

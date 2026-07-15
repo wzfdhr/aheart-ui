@@ -10,7 +10,7 @@ const switchCheckedAlias = ref(true)
 const switchValueAlias = ref(true)
 </script>
 
-# Switch 开关 <span class="aheart-status aheart-status--ready">Ready</span>
+# Switch 开关 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Switch toggles a boolean setting with semantic `role="switch"` output.
 

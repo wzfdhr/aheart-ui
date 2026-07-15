@@ -1,4 +1,4 @@
-# Spin 加载中 <span class="aheart-status aheart-status--ready">Ready</span>
+# Spin 加载中 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Spin communicates loading state for standalone areas or nested content.
 

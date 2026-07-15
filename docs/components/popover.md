@@ -1,4 +1,4 @@
-# Popover 气泡卡片 <span class="aheart-status aheart-status--ready">Ready</span>
+# Popover 气泡卡片 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Popover displays richer floating content with an optional title and body.
 
