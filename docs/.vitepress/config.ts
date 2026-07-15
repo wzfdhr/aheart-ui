@@ -49,6 +49,7 @@ export default defineConfig({
                 { text: '安装', link: '/guide/installation' },
                 { text: '使用', link: '/guide/usage' },
                 { text: '主题 Token', link: '/guide/theme' },
+                { text: '质量矩阵', link: '/guide/quality-matrix' },
                 { text: '发布', link: '/guide/releasing' }
               ]
             }
