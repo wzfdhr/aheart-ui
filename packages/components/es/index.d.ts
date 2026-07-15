@@ -53,6 +53,7 @@ export type * from './select';
 export type * from './switch';
 export type * from './textarea';
 export type * from './time-picker';
+export type { DatePickerMultiplePublicProps, DatePickerPublicProps, DatePickerSinglePublicProps, DateRangePickerPublicProps, MultiplePickerValue, PickerFormat, PickerDisabledDate, PickerDisabledTime, PickerDisabledTimeConfig, PickerMode, PickerPreset, PickerShowTimeOptions, PickerValue, RangePickerPart, RangePickerValue, TimePickerPublicProps, TimeRangePickerPublicProps } from './picker-core/types';
 export type * from './form';
 export type * from './pagination';
 export type * from './table';

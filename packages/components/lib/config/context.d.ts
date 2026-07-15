@@ -25,6 +25,42 @@ export interface AheartLocale {
         emptyText?: string;
         loadingText?: string;
     };
+    datePicker?: {
+        locale?: 'zh-CN' | 'en-US';
+        weekStartsOn?: number;
+        weekdaysShort?: string[];
+        monthsShort?: string[];
+        selectDate?: string;
+        selectTime?: string;
+        startDate?: string;
+        endDate?: string;
+        selectWeek?: string;
+        selectMonth?: string;
+        selectQuarter?: string;
+        selectYear?: string;
+        today?: string;
+        now?: string;
+        ok?: string;
+        clear?: string;
+        previousMonth?: string;
+        nextMonth?: string;
+        previousYear?: string;
+        nextYear?: string;
+        selected?: (value: string) => string;
+        rangeStartSelected?: string;
+        rangeComplete?: (start: string, end: string) => string;
+    };
+    timePicker?: {
+        selectTime?: string;
+        startTime?: string;
+        endTime?: string;
+        now?: string;
+        ok?: string;
+        clear?: string;
+        selected?: (value: string) => string;
+        rangeStartSelected?: string;
+        rangeComplete?: (start: string, end: string) => string;
+    };
 }
 export declare const zhCN: AheartLocale;
 export declare const enUS: AheartLocale;

@@ -87,8 +87,8 @@ export default defineConfig(
             //cssCodeSplit: true,
             rollupOptions: {
                 //忽略打包vue文件
-                external: ['vue', '@floating-ui/dom', '@lucide/vue'],
-                input: ['src/index.ts', 'src/message/index.ts', 'src/utils/use-floating-position.ts'],
+                external: ['vue', '@floating-ui/dom', '@lucide/vue', 'dayjs', /^dayjs\//],
+                input: ['src/index.ts', 'src/message/index.ts', 'src/utils/use-floating-position.ts', 'src/picker-core/index.ts'],
                 output: [
                     {
                         format: 'es',

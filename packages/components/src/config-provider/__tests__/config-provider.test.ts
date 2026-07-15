@@ -100,6 +100,32 @@ describe('ConfigProvider', () => {
     expect(reader.attributes('data-modal-ok')).toBe('Proceed')
   })
 
+  it('deeply merges date and time picker locale copy', () => {
+    const Consumer = defineComponent({
+      setup() {
+        const config = useAheartConfig()
+        return () =>
+          h('span', [
+            config.value.locale?.datePicker?.today,
+            '|',
+            config.value.locale?.datePicker?.selectDate,
+            '|',
+            config.value.locale?.timePicker?.now,
+            '|',
+            config.value.locale?.datePicker?.weekStartsOn,
+            '|',
+            config.value.locale?.datePicker?.weekdaysShort?.join(',')
+          ])
+      }
+    })
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: { datePicker: { today: '本日' } } },
+      slots: { default: () => h(Consumer) }
+    })
+
+    expect(wrapper.text()).toBe('本日|请选择日期|此刻|1|一,二,三,四,五,六,日')
+  })
+
   it('renders locale defaults during SSR without browser globals', async () => {
     const app = createSSRApp({
       render: () => h(ConfigProvider, null, { default: () => h(ConfigReader) })
