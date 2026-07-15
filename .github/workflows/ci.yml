@@ -53,7 +53,7 @@ jobs:
         run: |
           mkdir -p test-results
           git diff -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/generated-tracked.diff
-          git status --short --untracked-files=all -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/generated-status.txt
+          git ls-files --others -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/generated-untracked.txt
 
       - name: Upload Build Diagnostics
         if: ${{ failure() && steps.build_generated.outcome == 'failure' }}
