@@ -42,10 +42,11 @@ const createGateRepository = (t, { gitignore = '', buildBody = '' } = {}) => {
     root,
     'build-fixture.mjs',
     [
-      "import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'",
+      "import { appendFileSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'",
       "const countPath = '.build-count'",
       "const count = existsSync(countPath) ? Number(readFileSync(countPath, 'utf8')) + 1 : 1",
       "writeFileSync(countPath, String(count))",
+      "appendFileSync('.build-events.jsonl', `${JSON.stringify({ count, cwd: process.cwd(), execPath: process.execPath, initCwd: process.env.INIT_CWD, lifecycle: process.env.npm_lifecycle_event, userAgent: process.env.npm_config_user_agent })}\\n`)",
       buildBody
     ].join('\n')
   )
@@ -238,10 +239,16 @@ test('writes sorted SHA-256 manifests and a readable comparison when builds diff
   const secondHash = createHash('sha256').update('build-two\n').digest('hex')
   const firstPaths = firstLines.map((line) => line.slice(66))
   const secondPaths = secondLines.map((line) => line.slice(66))
+  const failureEvidence = [
+    `build events:\n${readFileSync(join(root, '.build-events.jsonl'), 'utf8')}`,
+    `build 1 manifest:\n${firstLines.join('\n')}`,
+    `build 2 manifest:\n${secondLines.join('\n')}`,
+    `gate output:\n${gateOutput(result)}`
+  ].join('\n\n')
 
   assert.deepEqual(firstPaths, [...firstPaths].sort())
   assert.deepEqual(secondPaths, [...secondPaths].sort())
-  assert.ok(firstLines.includes(`${firstHash}  ${generatedFile}`))
-  assert.ok(secondLines.includes(`${secondHash}  ${generatedFile}`))
+  assert.ok(firstLines.includes(`${firstHash}  ${generatedFile}`), failureEvidence)
+  assert.ok(secondLines.includes(`${secondHash}  ${generatedFile}`), failureEvidence)
   assert.match(readFileSync(reportPath, 'utf8'), new RegExp(`CHANGED ${generatedFile.replaceAll('.', '\\.')}`))
 })
