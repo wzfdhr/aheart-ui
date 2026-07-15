@@ -23,6 +23,16 @@ afterEach(() => {
 })
 
 describe('DateRangePicker', () => {
+  it('applies inherited ids, labels and validation feedback to both range inputs', () => {
+    const wrapper = mountPicker({ id: 'delivery', labelledBy: 'delivery-label', describedBy: 'delivery-error', status: 'error' })
+    const inputs = wrapper.findAll('input')
+
+    expect(inputs.map((input) => input.attributes('id'))).toEqual(['delivery-start', 'delivery-end'])
+    expect(inputs.every((input) => input.attributes('aria-labelledby') === 'delivery-label')).toBe(true)
+    expect(inputs.every((input) => input.attributes('aria-describedby') === 'delivery-error')).toBe(true)
+    expect(inputs.every((input) => input.attributes('aria-invalid') === 'true')).toBe(true)
+  })
+
   it('is available as a named and namespaced component', () => {
     expect(DateRangePicker).toBeTruthy()
     expect(DatePicker.RangePicker).toBe(DateRangePicker)

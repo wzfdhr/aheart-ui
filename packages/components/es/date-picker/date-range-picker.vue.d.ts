@@ -3,6 +3,10 @@ import type { RangePickerPart, RangePickerValue } from '../picker-core/types';
 import { type DatePickerCellRenderInfo } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
+    readonly labelledBy: StringConstructor;
+    readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: PropType<RangePickerValue>;
     readonly defaultValue: PropType<RangePickerValue>;
     readonly showTime: PropType<boolean | import("../picker-core/types").PickerShowTimeOptions>;
@@ -79,6 +83,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     calendarChange: (value: RangePickerValue, info: import("../picker-core/types").PickerCalendarChangeInfo) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
+    readonly labelledBy: StringConstructor;
+    readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: PropType<RangePickerValue>;
     readonly defaultValue: PropType<RangePickerValue>;
     readonly showTime: PropType<boolean | import("../picker-core/types").PickerShowTimeOptions>;

@@ -1,5 +1,5 @@
 import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, createTextVNode, toDisplayString, createCommentVNode, createBlock, unref } from "vue";
-import { Textarea, TreeSelect, Upload, RadioGroup, CheckboxGroup, Select, Switch, InputNumber, DatePicker, TimePicker, Input } from "aheart-ui";
+import { Textarea, TreeSelect, Upload, RadioGroup, CheckboxGroup, Select, Switch, InputNumber, DatePicker, DateRangePicker, TimePicker, TimeRangePicker, Input } from "aheart-ui";
 const _hoisted_1 = ["data-field-key", "aria-invalid", "aria-describedby"];
 const _hoisted_2 = ["id", "for"];
 const _hoisted_3 = {
@@ -22,6 +22,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const fieldElement = ref();
+    const rangeControl = ref();
     const treeData = computed(
       () => (props.field.options ?? []).map((option) => ({
         key: option.value,
@@ -32,10 +33,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const describedBy = computed(
       () => [props.field.description && `${props.field.key}-description`, props.error && `${props.field.key}-error`].filter(Boolean).join(" ") || void 0
     );
+    const controlId = computed(
+      () => props.field.type === "date-range" || props.field.type === "time-range" ? `${props.field.key}-start` : props.field.key
+    );
     __expose({
       focus: () => {
-        var _a;
-        return (_a = fieldElement.value) == null ? void 0 : _a.focus({ preventScroll: true });
+        var _a, _b;
+        if (rangeControl.value) {
+          rangeControl.value.focus("start");
+          return;
+        }
+        (_b = (_a = fieldElement.value) == null ? void 0 : _a.querySelector('input, button, [role="combobox"], [tabindex="0"]')) == null ? void 0 : _b.focus({ preventScroll: true });
       }
     });
     return (_ctx, _cache) => {
@@ -50,7 +58,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }, [
         createElementVNode("label", {
           id: `${__props.field.key}-label`,
-          for: __props.field.key
+          for: controlId.value
         }, [
           createTextVNode(toDisplayString(__props.field.label) + " ", 1),
           __props.field.required ? (openBlock(), createElementBlock("span", _hoisted_3, "*")) : createCommentVNode("", true)
@@ -118,29 +126,57 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => emit("update", $event))
         }, null, 8, ["id", "model-value", "placeholder", "disabled"])) : __props.field.type === "date" ? (openBlock(), createBlock(unref(DatePicker), {
           key: 9,
+          id: __props.field.key,
+          "labelled-by": `${__props.field.key}-label`,
+          "described-by": describedBy.value,
+          status: __props.error ? "error" : void 0,
           "model-value": __props.value,
           placeholder: __props.field.placeholder,
           disabled: __props.disabled,
           "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => emit("update", $event))
-        }, null, 8, ["model-value", "placeholder", "disabled"])) : __props.field.type === "time" ? (openBlock(), createBlock(unref(TimePicker), {
+        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "placeholder", "disabled"])) : __props.field.type === "date-range" ? (openBlock(), createBlock(unref(DateRangePicker), {
           key: 10,
+          ref_key: "rangeControl",
+          ref: rangeControl,
           id: __props.field.key,
           "labelled-by": `${__props.field.key}-label`,
+          "described-by": describedBy.value,
+          status: __props.error ? "error" : void 0,
+          "model-value": __props.value,
+          disabled: __props.disabled,
+          "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => emit("update", $event))
+        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "disabled"])) : __props.field.type === "time" ? (openBlock(), createBlock(unref(TimePicker), {
+          key: 11,
+          id: __props.field.key,
+          "labelled-by": `${__props.field.key}-label`,
+          "described-by": describedBy.value,
+          status: __props.error ? "error" : void 0,
           "model-value": __props.value,
           placeholder: __props.field.placeholder,
           disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "labelled-by", "model-value", "placeholder", "disabled"])) : (openBlock(), createBlock(unref(Input), {
-          key: 11,
+          "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event) => emit("update", $event))
+        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "placeholder", "disabled"])) : __props.field.type === "time-range" ? (openBlock(), createBlock(unref(TimeRangePicker), {
+          key: 12,
+          ref_key: "rangeControl",
+          ref: rangeControl,
+          id: __props.field.key,
+          "labelled-by": `${__props.field.key}-label`,
+          "described-by": describedBy.value,
+          status: __props.error ? "error" : void 0,
+          "model-value": __props.value,
+          disabled: __props.disabled,
+          "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event) => emit("update", $event))
+        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "disabled"])) : (openBlock(), createBlock(unref(Input), {
+          key: 13,
           id: __props.field.key,
           "model-value": __props.value,
           placeholder: __props.field.placeholder,
           disabled: __props.disabled,
           "aria-describedby": describedBy.value,
-          "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event) => emit("update", $event))
+          "onUpdate:modelValue": _cache[12] || (_cache[12] = ($event) => emit("update", $event))
         }, null, 8, ["id", "model-value", "placeholder", "disabled", "aria-describedby"])),
         __props.error ? (openBlock(), createElementBlock("p", {
-          key: 12,
+          key: 14,
           id: `${__props.field.key}-error`,
           class: "aheart-ai-form__field-error",
           role: "alert"

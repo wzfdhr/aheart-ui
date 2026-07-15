@@ -113,12 +113,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       });
     });
     function isEmptyValue(value) {
-      return value === void 0 || value === null || value === "" || value === false || Array.isArray(value) && value.length === 0;
+      return value === void 0 || value === null || value === "" || value === false || Array.isArray(value) && (value.length === 0 || value.every((item) => item === void 0 || item === null || item === ""));
     }
+    const isMissingRequiredValue = (field, value) => field.type === "date-range" || field.type === "time-range" ? !Array.isArray(value) || value.length !== 2 || value.some((item) => item === void 0 || item === null || item === "") : isEmptyValue(value);
     const fieldValue = (field) => {
       const value = resolvedValues.value[field.key];
       if (value !== void 0) return value;
-      return field.type === "checkbox" || field.type === "upload" ? [] : "";
+      if (field.type === "checkbox" || field.type === "upload") return [];
+      if (field.type === "date-range" || field.type === "time-range") return void 0;
+      return "";
     };
     const fieldKey = (field) => `${field.key}-${fieldRevisions[field.key] ?? 0}`;
     const setFieldRef = (key, instance) => {
@@ -138,7 +141,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const submit = async () => {
       if (props.disabled || props.submitting) return;
       Object.keys(errors).forEach((key) => delete errors[key]);
-      const validationErrors = visibleFields.value.filter((field) => field.required && !isDisabled(field) && isEmptyValue(resolvedValues.value[field.key])).map((field) => ({ key: field.key, message: `${field.label}为必填项` }));
+      const validationErrors = visibleFields.value.filter((field) => field.required && !isDisabled(field) && isMissingRequiredValue(field, resolvedValues.value[field.key])).map((field) => ({ key: field.key, message: `${field.label}为必填项` }));
       validationErrors.forEach((error) => {
         errors[error.key] = error.message;
       });

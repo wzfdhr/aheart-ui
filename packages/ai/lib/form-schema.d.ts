@@ -1,4 +1,4 @@
-export declare const AI_FORM_FIELD_TYPES: readonly ["input", "textarea", "number", "select", "checkbox", "radio", "switch", "date", "time", "upload", "tree-select"];
+export declare const AI_FORM_FIELD_TYPES: readonly ["input", "textarea", "number", "select", "checkbox", "radio", "switch", "date", "date-range", "time", "time-range", "upload", "tree-select"];
 export declare const AI_FORM_CONDITION_OPERATORS: readonly ["equals", "not-equals", "includes", "not-includes", "is-empty", "is-not-empty"];
 export type AIFormFieldType = (typeof AI_FORM_FIELD_TYPES)[number];
 export type AIFormConditionOperator = (typeof AI_FORM_CONDITION_OPERATORS)[number];

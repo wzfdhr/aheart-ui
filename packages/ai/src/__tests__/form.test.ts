@@ -98,7 +98,9 @@ describe('AIForm', () => {
         { key: 'level', label: '级别', type: 'radio', options: [{ label: '高', value: 'high' }] },
         { key: 'tags', label: '标签', type: 'checkbox', options: [{ label: '甲', value: 'a' }] },
         { key: 'date', label: '日期', type: 'date' },
+        { key: 'dateRange', label: '日期范围', type: 'date-range' },
         { key: 'time', label: '时间', type: 'time' },
+        { key: 'timeRange', label: '时间范围', type: 'time-range' },
         { key: 'files', label: '附件', type: 'upload' },
         { key: 'node', label: '节点', type: 'tree-select', defaultValue: ['root'], options: [{ label: '根节点', value: 'root' }] }
       ]
@@ -110,16 +112,75 @@ describe('AIForm', () => {
     expect(wrapper.find('.aheart-radio input').exists()).toBe(true)
     expect(wrapper.find('.aheart-checkbox input').exists()).toBe(true)
     expect(wrapper.find('.aheart-date-picker__input').exists()).toBe(true)
+    expect(wrapper.find('.aheart-date-range-picker').exists()).toBe(true)
     expect(wrapper.find('.aheart-time-picker__input').exists()).toBe(true)
+    expect(wrapper.find('.aheart-time-range-picker').exists()).toBe(true)
     expect(wrapper.find('.aheart-upload input[type="file"]').exists()).toBe(true)
     expect(wrapper.find('.aheart-tree-select__trigger').exists()).toBe(true)
     expect(wrapper.findComponent({ name: 'ATreeSelect' }).props('multiple')).toBe(true)
 
-    for (const key of ['kind', 'time', 'node']) {
+    for (const key of ['kind', 'date', 'time', 'node']) {
       const label = wrapper.get(`label[for="${key}"]`)
       expect(label.attributes('id')).toBe(`${key}-label`)
       expect(wrapper.get(`#${key}`).attributes('aria-labelledby')).toBe(`${key}-label`)
     }
+    expect(wrapper.findAll('#dateRange-start, #dateRange-end')).toHaveLength(2)
+    expect(wrapper.findAll('#timeRange-start, #timeRange-end')).toHaveLength(2)
+  })
+
+  it.each([
+    [undefined, undefined],
+    ['09:00:00', undefined],
+    [undefined, '18:00:00']
+  ])('treats an incomplete required range as missing: %j', async (start, end) => {
+    const wrapper = mount(AIForm, {
+      props: {
+        schema: { version: '1', fields: [{ key: 'window', label: '执行窗口', type: 'time-range', required: true }] },
+        modelValue: { window: [start, end] }
+      }
+    })
+
+    await wrapper.get('form').trigger('submit')
+
+    expect(wrapper.text()).toContain('执行窗口为必填项')
+    expect(wrapper.emitted('submit')).toBeUndefined()
+  })
+
+  it('connects range labels and validation feedback to both inputs', async () => {
+    const wrapper = mount(AIForm, {
+      attachTo: document.body,
+      props: {
+        schema: { version: '1', fields: [{ key: 'window', label: '执行窗口', type: 'time-range', required: true }] },
+        modelValue: { window: [undefined, undefined] }
+      }
+    })
+
+    expect(wrapper.get('label').attributes('for')).toBe('window-start')
+    await wrapper.get('form').trigger('submit')
+
+    const inputs = wrapper.findAll('#window-start, #window-end')
+    expect(inputs).toHaveLength(2)
+    expect(inputs.every((input) => input.attributes('aria-invalid') === 'true')).toBe(true)
+    expect(inputs.every((input) => input.attributes('aria-describedby') === 'window-error')).toBe(true)
+    expect(document.activeElement).toBe(inputs[0].element)
+    wrapper.unmount()
+  })
+
+  it.each([
+    ['date', 'day'],
+    ['time', 'time']
+  ])('connects validation feedback to a required %s picker', async (type, key) => {
+    const wrapper = mount(AIForm, {
+      props: {
+        schema: { version: '1', fields: [{ key, label: '执行时间', type, required: true }] }
+      }
+    })
+
+    await wrapper.get('form').trigger('submit')
+
+    const input = wrapper.get(`#${key}`)
+    expect(input.attributes('aria-invalid')).toBe('true')
+    expect(input.attributes('aria-describedby')).toBe(`${key}-error`)
   })
 
   it('renders product context and fields in declared semantic groups', () => {
@@ -168,7 +229,7 @@ describe('AIForm', () => {
     expect(summary.text()).toContain('请完成 2 个必填项')
     expect(wrapper.get('[data-field-key="title"]').classes()).toContain('is-error')
     expect(wrapper.get('[data-field-key="title"] .aheart-ai-form__field-error').attributes('id')).toBe('title-error')
-    expect(document.activeElement).toBe(wrapper.get('[data-field-key="title"]').element)
+    expect(document.activeElement).toBe(wrapper.get('#title').element)
     wrapper.unmount()
   })
 

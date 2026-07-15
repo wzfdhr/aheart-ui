@@ -57,7 +57,7 @@ test('AIForm groups fields, focuses validation, and exposes async submission sta
   expect(switchBox!.width).toBeLessThan(formBox!.width / 2)
   await form.getByRole('button', { name: '创建研究任务' }).click()
   await expect(form.getByRole('alert').filter({ hasText: '请完成' })).toContainText('1 个必填项')
-  await expect(form.locator('[data-field-key="title"]')).toBeFocused()
+  await expect(form.locator('#title')).toBeFocused()
 
   await form.locator('#title').fill('Aheart UI 质量研究')
   await form.getByRole('button', { name: '创建研究任务' }).click()

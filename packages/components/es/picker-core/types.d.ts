@@ -42,6 +42,11 @@ export interface PickerCellInfo {
     range?: RangePickerPart;
 }
 export interface PickerAppearanceProps {
+    id?: string;
+    labelledBy?: string;
+    ariaLabelledby?: string;
+    describedBy?: string;
+    ariaDescribedby?: string;
     size?: AheartSize;
     status?: PickerStatus;
     variant?: AheartVariant;

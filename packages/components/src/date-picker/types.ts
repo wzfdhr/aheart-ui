@@ -30,6 +30,10 @@ export interface DatePickerCellRenderInfo {
 
 export const datePickerProps = {
   id: String,
+  labelledBy: String,
+  ariaLabelledby: String,
+  describedBy: String,
+  ariaDescribedby: String,
   modelValue: [String, Array] as PropType<DatePickerValue>,
   defaultValue: [String, Array] as PropType<DatePickerValue>,
   picker: { type: String as PropType<PickerMode>, default: 'date' },
@@ -80,6 +84,10 @@ export type DatePickerRuntimeProps = ExtractPropTypes<typeof datePickerProps>
 
 interface DatePickerSupplementalProps {
   id?: string
+  labelledBy?: string
+  ariaLabelledby?: string
+  describedBy?: string
+  ariaDescribedby?: string
   placeholder?: string
   locale?: AheartLocale
   cellRender?: (info: DatePickerCellRenderInfo) => VNodeChild
@@ -96,6 +104,10 @@ export type DatePickerProps = DatePickerPublicProps & DatePickerSupplementalProp
 
 export const dateRangePickerProps = {
   id: String,
+  labelledBy: String,
+  ariaLabelledby: String,
+  describedBy: String,
+  ariaDescribedby: String,
   modelValue: Array as unknown as PropType<RangePickerValue>,
   defaultValue: Array as unknown as PropType<RangePickerValue>,
   showTime: [Boolean, Object] as PropType<boolean | PickerShowTimeOptions>,
@@ -149,6 +161,10 @@ export type DateRangePickerRuntimeProps = ExtractPropTypes<typeof dateRangePicke
 
 interface DateRangePickerSupplementalProps {
   id?: string
+  labelledBy?: string
+  ariaLabelledby?: string
+  describedBy?: string
+  ariaDescribedby?: string
   placeholder?: [string, string]
   locale?: AheartLocale
   cellRender?: (info: DatePickerCellRenderInfo & { range: RangePickerPart }) => VNodeChild

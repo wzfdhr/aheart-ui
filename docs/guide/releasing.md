@@ -74,3 +74,10 @@ Git tag、GitHub Release 与 npm tarball 必须来自同一提交。
 ## 生成产物策略
 
 源代码变化引起的 `es/lib` 输出必须随阶段提交。完整构建连续执行两次后，第二次不得产生任何差异。任何与当前源码无关的声明顺序漂移都必须先查明原因，不能通过暂存文件绕过检查。
+
+## 日期时间迁移检查
+
+- TimePicker 默认业务格式为 `HH:mm:ss`；旧项目保留分钟值时同时设置 `format="HH:mm"` 与 `value-format="HH:mm"`。
+- `format` 只负责显示，`valueFormat` 决定字符串模型值；Dayjs 不属于公共值类型。
+- 范围选择统一使用 `DateRangePicker` / `TimeRangePicker` 或对应的 `RangePicker` 静态成员，不再拼接两个单值组件。
+- AIForm 范围字段使用 `date-range` / `time-range` 和二元字符串数组；发布前需验证空端、必填与受控拒绝更新。

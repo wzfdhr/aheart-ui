@@ -14,10 +14,10 @@ const _hoisted_1 = {
   key: 0,
   class: "aheart-time-range-picker__prefix"
 };
-const _hoisted_2 = ["id", "aria-labelledby", "aria-expanded", "aria-activedescendant", "value", "placeholder", "disabled", "readonly"];
+const _hoisted_2 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-activedescendant", "value", "placeholder", "disabled", "readonly"];
 const _hoisted_3 = ["aria-label"];
 const _hoisted_4 = { class: "aheart-time-range-picker__separator" };
-const _hoisted_5 = ["id", "aria-labelledby", "aria-expanded", "aria-activedescendant", "value", "placeholder", "disabled", "readonly"];
+const _hoisted_5 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-activedescendant", "value", "placeholder", "disabled", "readonly"];
 const _hoisted_6 = ["aria-label"];
 const _hoisted_7 = ["aria-label"];
 const _hoisted_8 = {
@@ -507,6 +507,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               role: "combobox",
               "aria-haspopup": "dialog",
               "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
+              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
+              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value,
               "aria-activedescendant": mergedOpen.value && activePart.value === "start" ? activeDescendantId.value : void 0,
@@ -558,6 +560,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               role: "combobox",
               "aria-haspopup": "dialog",
               "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
+              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
+              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value,
               "aria-activedescendant": mergedOpen.value && activePart.value === "end" ? activeDescendantId.value : void 0,

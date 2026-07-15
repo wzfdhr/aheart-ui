@@ -1,6 +1,10 @@
 import { floatingPlacements } from "../utils/floating.js";
 const datePickerProps = {
   id: String,
+  labelledBy: String,
+  ariaLabelledby: String,
+  describedBy: String,
+  ariaDescribedby: String,
   modelValue: [String, Array],
   defaultValue: [String, Array],
   picker: { type: String, default: "date" },
@@ -47,6 +51,10 @@ const datePickerEmits = {
 };
 const dateRangePickerProps = {
   id: String,
+  labelledBy: String,
+  ariaLabelledby: String,
+  describedBy: String,
+  ariaDescribedby: String,
   modelValue: Array,
   defaultValue: Array,
   showTime: [Boolean, Object],

@@ -2,6 +2,10 @@ import { type PropType, type VNodeChild } from 'vue';
 import type { DatePickerValue, DatePickerCellRenderInfo } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
+    readonly labelledBy: StringConstructor;
+    readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: PropType<DatePickerValue>;
     readonly defaultValue: PropType<DatePickerValue>;
     readonly picker: {
@@ -67,6 +71,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     panelChange: (value: string, mode: import("..").PickerMode) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly id: StringConstructor;
+    readonly labelledBy: StringConstructor;
+    readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: PropType<DatePickerValue>;
     readonly defaultValue: PropType<DatePickerValue>;
     readonly picker: {

@@ -180,13 +180,19 @@ function isEmptyValue(value: unknown) {
     value === null ||
     value === '' ||
     value === false ||
-    (Array.isArray(value) && value.length === 0)
+    (Array.isArray(value) && (value.length === 0 || value.every((item) => item === undefined || item === null || item === '')))
   )
 }
+const isMissingRequiredValue = (field: AIFormFieldV1, value: unknown) =>
+  field.type === 'date-range' || field.type === 'time-range'
+    ? !Array.isArray(value) || value.length !== 2 || value.some((item) => item === undefined || item === null || item === '')
+    : isEmptyValue(value)
 const fieldValue = (field: AIFormFieldV1) => {
   const value = resolvedValues.value[field.key]
   if (value !== undefined) return value
-  return field.type === 'checkbox' || field.type === 'upload' ? [] : ''
+  if (field.type === 'checkbox' || field.type === 'upload') return []
+  if (field.type === 'date-range' || field.type === 'time-range') return undefined
+  return ''
 }
 const fieldKey = (field: AIFormFieldV1) => `${field.key}-${fieldRevisions[field.key] ?? 0}`
 const setFieldRef = (key: string, instance: unknown) => {
@@ -204,7 +210,7 @@ const submit = async () => {
   if (props.disabled || props.submitting) return
   Object.keys(errors).forEach((key) => delete errors[key])
   const validationErrors = visibleFields.value
-    .filter((field) => field.required && !isDisabled(field) && isEmptyValue(resolvedValues.value[field.key]))
+    .filter((field) => field.required && !isDisabled(field) && isMissingRequiredValue(field, resolvedValues.value[field.key]))
     .map((field) => ({ key: field.key, message: `${field.label}为必填项` }))
   validationErrors.forEach((error) => {
     errors[error.key] = error.message

@@ -5,7 +5,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     disabled?: boolean | undefined;
     error?: string | undefined;
 }>>, {
-    focus: () => void | undefined;
+    focus: () => void;
 }, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
     update: (value: unknown) => void;
 }, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_TypePropsToRuntimeProps<{

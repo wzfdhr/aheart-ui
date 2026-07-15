@@ -22,7 +22,7 @@ const _hoisted_2 = {
   class: "aheart-date-picker__tags"
 };
 const _hoisted_3 = ["aria-label", "onClick"];
-const _hoisted_4 = ["id", "inputmode", "aria-expanded", "aria-activedescendant", "value", "placeholder", "disabled", "readonly"];
+const _hoisted_4 = ["id", "inputmode", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-activedescendant", "value", "placeholder", "disabled", "readonly"];
 const _hoisted_5 = ["aria-label"];
 const _hoisted_6 = {
   class: "aheart-date-picker__suffix",
@@ -680,6 +680,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             autocomplete: "off",
             role: "combobox",
             "aria-haspopup": "dialog",
+            "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
+            "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
+            "aria-invalid": _ctx.status === "error" ? "true" : void 0,
             "aria-controls": panelId,
             "aria-expanded": mergedOpen.value ? "true" : "false",
             "aria-activedescendant": mergedOpen.value ? activeCellId.value : void 0,

@@ -214,6 +214,8 @@ const thisMonthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padS
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | modelValue / defaultValue | 受控值 / 非受控初始值 | `string \| string[]` | - |
+| id | 单值输入框 id；范围组件派生为 `-start` / `-end` | `string` | - |
+| labelledBy / ariaLabelledby | 外部标签元素 id | `string` | - |
 | picker | 选择粒度 | `date \| week \| month \| quarter \| year` | `date` |
 | multiple | 开启多选 | `boolean` | `false` |
 | showTime | 日期时间组合配置 | `boolean \| PickerShowTimeOptions` | `false` |

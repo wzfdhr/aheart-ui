@@ -15,6 +15,33 @@ describe('AIForm schema validation', () => {
     expect(result).toMatchObject({ valid: true, errors: [] })
   })
 
+  it('accepts string tuple defaults for date and time ranges', () => {
+    const result = validateAIFormSchema({
+      version: '1',
+      fields: [
+        { key: 'delivery', label: '交付日期', type: 'date-range', defaultValue: ['2026-07-20', '2026-07-24'] },
+        { key: 'shift', label: '工作时段', type: 'time-range', defaultValue: ['09:00:00', '18:00:00'] }
+      ]
+    })
+
+    expect(result).toMatchObject({ valid: true, errors: [] })
+  })
+
+  it('rejects partial or unparseable temporal defaults', () => {
+    const result = validateAIFormSchema({
+      version: '1',
+      fields: [
+        { key: 'day', label: '日期', type: 'date', defaultValue: '2026-02-30' },
+        { key: 'time', label: '时间', type: 'time', defaultValue: '25:00:00' },
+        { key: 'delivery', label: '交付日期', type: 'date-range', defaultValue: ['tomorrow', 'later'] },
+        { key: 'shift', label: '工作时段', type: 'time-range', defaultValue: ['09:00:00', undefined] }
+      ]
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.errors.filter((error) => error.includes('defaultValue'))).toHaveLength(4)
+  })
+
   it('rejects unsafe field shapes and unapproved conditions without throwing', () => {
     const result = validateAIFormSchema({
       version: '1',

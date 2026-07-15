@@ -7,7 +7,7 @@ Aheart UI 是面向专业产品界面的 Vue 3 组件体系，覆盖基础组件
 ## 特性
 
 - Vue 3 + TypeScript：组件源码、类型声明和构建产物围绕 Vue 3 组织。
-- 产品界面优先：覆盖表单、表格、日期时间、树、上传、反馈、浮层和布局等常见后台场景。
+- 产品界面优先：覆盖表单、表格、单值与范围日期时间、树、上传、反馈、浮层和布局等常见后台场景。
 - 拖拽能力：提供 Draggable、DropZone、SortableList、DragOverlay 和组合式 API。
 - AI 产品组件：提供 AIChatPanel、AIForm、AIAgentWorkbench 与配套原子组件，不绑定具体模型 SDK。
 - 发布前验证：通过测试、类型检查、构建、文档构建、E2E 和 npm tarball 合约检查。
@@ -16,7 +16,7 @@ Aheart UI 是面向专业产品界面的 Vue 3 组件体系，覆盖基础组件
 
 | 包 | 作用 |
 | --- | --- |
-| `aheart-ui` | 设计基础、布局、导航、表单、数据展示、日期时间、浮层反馈、树和 Splitter |
+| `aheart-ui` | 设计基础、布局、导航、表单、数据展示、Date/Time RangePicker、浮层反馈、树和 Splitter |
 | `@aheart-ui/dnd` | Draggable、DropZone、SortableList、DragOverlay 与组合式 API |
 | `@aheart-ui/ai` | AIChatPanel、AIForm、AIAgentWorkbench 和 AI 原子组件 |
 

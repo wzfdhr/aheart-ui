@@ -14,7 +14,7 @@ const _hoisted_1 = {
   key: 0,
   class: "aheart-time-picker__prefix"
 };
-const _hoisted_2 = ["id", "value", "placeholder", "disabled", "readonly", "aria-labelledby", "aria-expanded", "aria-activedescendant"];
+const _hoisted_2 = ["id", "value", "placeholder", "disabled", "readonly", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-activedescendant"];
 const _hoisted_3 = ["aria-label"];
 const _hoisted_4 = {
   class: "aheart-time-picker__suffix",
@@ -421,6 +421,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             readonly: _ctx.readOnly,
             role: "combobox",
             "aria-labelledby": resolvedAriaLabelledby.value,
+            "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
+            "aria-invalid": _ctx.status === "error" ? "true" : void 0,
             "aria-controls": panelId,
             "aria-expanded": mergedOpen.value ? "true" : "false",
             "aria-haspopup": "dialog",

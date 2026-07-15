@@ -5,6 +5,8 @@ const timePickerProps = {
   id: String,
   labelledBy: String,
   ariaLabelledby: String,
+  describedBy: String,
+  ariaDescribedby: String,
   modelValue: String,
   defaultValue: String,
   placeholder: String,

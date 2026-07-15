@@ -26,6 +26,13 @@ afterEach(() => {
 })
 
 describe('DatePicker', () => {
+  it('links the input to an external field label', () => {
+    const wrapper = mountPicker({ id: 'due-date', labelledBy: 'due-date-label' })
+
+    expect(wrapper.find('input').attributes('id')).toBe('due-date')
+    expect(wrapper.find('input').attributes('aria-labelledby')).toBe('due-date-label')
+  })
+
   it('opens a localized month grid and emits a value-format string', async () => {
     const wrapper = mountPicker({ defaultValue: '2026-07-14', format: 'DD/MM/YYYY', valueFormat: 'YYYY-MM-DD' })
 

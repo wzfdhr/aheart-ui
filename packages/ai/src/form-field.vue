@@ -8,7 +8,7 @@
     :aria-describedby="describedBy"
     tabindex="-1"
   >
-    <label :id="`${field.key}-label`" :for="field.key">
+    <label :id="`${field.key}-label`" :for="controlId">
       {{ field.label }}
       <span v-if="field.required" class="aheart-ai-form__required" aria-hidden="true">*</span>
     </label>
@@ -81,8 +81,23 @@
     />
     <ADatePicker
       v-else-if="field.type === 'date'"
+      :id="field.key"
+      :labelled-by="`${field.key}-label`"
+      :described-by="describedBy"
+      :status="error ? 'error' : undefined"
       :model-value="value as string"
       :placeholder="field.placeholder"
+      :disabled="disabled"
+      @update:model-value="emit('update', $event)"
+    />
+    <ADateRangePicker
+      v-else-if="field.type === 'date-range'"
+      ref="rangeControl"
+      :id="field.key"
+      :labelled-by="`${field.key}-label`"
+      :described-by="describedBy"
+      :status="error ? 'error' : undefined"
+      :model-value="value as [string | undefined, string | undefined] | undefined"
       :disabled="disabled"
       @update:model-value="emit('update', $event)"
     />
@@ -90,8 +105,21 @@
       v-else-if="field.type === 'time'"
       :id="field.key"
       :labelled-by="`${field.key}-label`"
+      :described-by="describedBy"
+      :status="error ? 'error' : undefined"
       :model-value="value as string"
       :placeholder="field.placeholder"
+      :disabled="disabled"
+      @update:model-value="emit('update', $event)"
+    />
+    <ATimeRangePicker
+      v-else-if="field.type === 'time-range'"
+      ref="rangeControl"
+      :id="field.key"
+      :labelled-by="`${field.key}-label`"
+      :described-by="describedBy"
+      :status="error ? 'error' : undefined"
+      :model-value="value as [string | undefined, string | undefined] | undefined"
       :disabled="disabled"
       @update:model-value="emit('update', $event)"
     />
@@ -113,6 +141,7 @@ import { computed, ref } from 'vue'
 import {
   CheckboxGroup as ACheckboxGroup,
   DatePicker as ADatePicker,
+  DateRangePicker as ADateRangePicker,
   Input as AInput,
   InputNumber as AInputNumber,
   RadioGroup as ARadioGroup,
@@ -120,6 +149,7 @@ import {
   Switch as ASwitch,
   Textarea as ATextarea,
   TimePicker as ATimePicker,
+  TimeRangePicker as ATimeRangePicker,
   TreeSelect as ATreeSelect,
   Upload as AUpload,
   type TreeNodeData,
@@ -135,6 +165,7 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ update: [value: unknown] }>()
 const fieldElement = ref<HTMLElement>()
+const rangeControl = ref<{ focus: (part?: 'start' | 'end') => void }>()
 const treeData = computed<TreeNodeData[]>(() =>
   (props.field.options ?? []).map((option) => ({
     key: option.value,
@@ -147,8 +178,19 @@ const describedBy = computed(() =>
     .filter(Boolean)
     .join(' ') || undefined
 )
+const controlId = computed(() =>
+  props.field.type === 'date-range' || props.field.type === 'time-range'
+    ? `${props.field.key}-start`
+    : props.field.key
+)
 
 defineExpose({
-  focus: () => fieldElement.value?.focus({ preventScroll: true })
+  focus: () => {
+    if (rangeControl.value) {
+      rangeControl.value.focus('start')
+      return
+    }
+    fieldElement.value?.querySelector<HTMLElement>('input, button, [role="combobox"], [tabindex="0"]')?.focus({ preventScroll: true })
+  }
 })
 </script>

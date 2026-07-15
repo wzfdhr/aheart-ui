@@ -7,7 +7,9 @@ export const AI_FORM_FIELD_TYPES = [
   'radio',
   'switch',
   'date',
+  'date-range',
   'time',
+  'time-range',
   'upload',
   'tree-select'
 ] as const
@@ -68,6 +70,19 @@ const isOptionValue = (value: unknown): value is AIFormOption['value'] =>
   typeof value === 'string' || typeof value === 'number'
 const isOptionValueArray = (value: unknown) => Array.isArray(value) && value.every(isOptionValue)
 const isUploadFileDefault = (value: unknown) => isRecord(value) && typeof value.uid === 'string' && typeof value.name === 'string'
+const isDateValue = (value: unknown) => {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  const parsed = new Date(Date.UTC(year, month - 1, day))
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day
+}
+const isTimeValue = (value: unknown) => {
+  if (typeof value !== 'string' || !/^\d{2}:\d{2}:\d{2}$/.test(value)) return false
+  const [hour, minute, second] = value.split(':').map(Number)
+  return hour <= 23 && minute <= 59 && second <= 59
+}
+const isRangeDefault = (value: unknown, validator: (item: unknown) => boolean) =>
+  Array.isArray(value) && value.length === 2 && value.every(validator)
 const ROOT_KEYS = new Set(['version', 'title', 'description', 'groups', 'fields'])
 const GROUP_KEYS = new Set(['key', 'title', 'description'])
 const FIELD_KEYS = new Set([
@@ -98,6 +113,10 @@ const hasCompatibleDefaultValue = (type: AIFormFieldType, value: unknown) => {
   if (type === 'number') return typeof value === 'number'
   if (type === 'checkbox') return isOptionValueArray(value)
   if (type === 'upload') return Array.isArray(value) && value.every(isUploadFileDefault)
+  if (type === 'date') return isDateValue(value)
+  if (type === 'time') return isTimeValue(value)
+  if (type === 'date-range') return isRangeDefault(value, isDateValue)
+  if (type === 'time-range') return isRangeDefault(value, isTimeValue)
   if (type === 'tree-select') return isOptionValue(value) || isOptionValueArray(value)
   if (type === 'select' || type === 'radio') return isOptionValue(value)
   return typeof value === 'string'

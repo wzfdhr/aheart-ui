@@ -12,6 +12,8 @@
         :readonly="readOnly"
         role="combobox"
         :aria-labelledby="resolvedAriaLabelledby"
+        :aria-describedby="describedBy ?? ariaDescribedby"
+        :aria-invalid="status === 'error' ? 'true' : undefined"
         :aria-controls="panelId"
         :aria-expanded="mergedOpen ? 'true' : 'false'"
         aria-haspopup="dialog"

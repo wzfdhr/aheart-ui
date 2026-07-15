@@ -3,6 +3,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: StringConstructor;
     readonly defaultValue: StringConstructor;
     readonly placeholder: StringConstructor;
@@ -76,6 +78,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: StringConstructor;
     readonly defaultValue: StringConstructor;
     readonly placeholder: StringConstructor;

@@ -5,7 +5,8 @@ import type { AIFormSchemaV1 } from '@aheart-ui/ai'
 const value = ref<Record<string, unknown>>({
   priority: 'normal',
   advanced: false,
-  channel: 'report'
+  channel: 'report',
+  deliveryWindow: ['2026-07-20', '2026-07-24']
 })
 const submitting = ref(false)
 const submitError = ref('')
@@ -57,7 +58,8 @@ const schema: AIFormSchemaV1 = {
         { label: '研究报告', value: 'report' },
         { label: '任务清单', value: 'checklist' }
       ]
-    }
+    },
+    { key: 'deliveryWindow', label: '交付窗口', type: 'date-range', group: 'delivery', required: true }
   ]
 }
 
@@ -78,6 +80,8 @@ const submit = async (data: Record<string, unknown>) => {
 # AI 智能表单 <span class="aheart-status aheart-status--ready">Ready</span>
 
 `AIForm` 以受控数据和版本化 schema 构建可交付的业务表单。它支持字段分组、条件联动、校验反馈和外部提交状态；不会执行 schema 中的函数、脚本、HTML 或样式。
+
+日期时间默认值必须使用 `YYYY-MM-DD`、`HH:mm:ss` 或对应的完整双端范围。必填范围要求起止两端都有值；V1 暂不提供开放端范围。
 
 ## 任务表单
 
@@ -120,7 +124,7 @@ const schema: AIFormSchemaV1 = {
 
 ## Schema
 
-`AIFormSchemaV1` 只支持 `input`、`textarea`、`number`、`select`、`checkbox`、`radio`、`switch`、`date`、`time`、`upload` 和 `tree-select` 字段。
+`AIFormSchemaV1` 只支持 `input`、`textarea`、`number`、`select`、`checkbox`、`radio`、`switch`、`date`、`date-range`、`time`、`time-range`、`upload` 和 `tree-select` 字段。范围字段使用完整双端 `[string, string]` 默认值；运行时未选择时可以是 `undefined`，并始终保持完全受控。
 
 条件字段 `visibleWhen` 与 `disabledWhen` 只允许 `equals`、`not-equals`、`includes`、`not-includes`、`is-empty`、`is-not-empty` 操作符。根对象、分组、字段、选项与条件均执行属性白名单校验，未声明的函数、事件或样式属性会使 schema 安全降级。
 

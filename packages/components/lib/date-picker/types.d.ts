@@ -12,6 +12,10 @@ export interface DatePickerCellRenderInfo {
 }
 export declare const datePickerProps: {
     readonly id: StringConstructor;
+    readonly labelledBy: StringConstructor;
+    readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: PropType<DatePickerValue>;
     readonly defaultValue: PropType<DatePickerValue>;
     readonly picker: {
@@ -77,6 +81,10 @@ export declare const datePickerEmits: {
 export type DatePickerRuntimeProps = ExtractPropTypes<typeof datePickerProps>;
 interface DatePickerSupplementalProps {
     id?: string;
+    labelledBy?: string;
+    ariaLabelledby?: string;
+    describedBy?: string;
+    ariaDescribedby?: string;
     placeholder?: string;
     locale?: AheartLocale;
     cellRender?: (info: DatePickerCellRenderInfo) => VNodeChild;
@@ -91,6 +99,10 @@ interface DatePickerSupplementalProps {
 export type DatePickerProps = DatePickerPublicProps & DatePickerSupplementalProps;
 export declare const dateRangePickerProps: {
     readonly id: StringConstructor;
+    readonly labelledBy: StringConstructor;
+    readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: PropType<RangePickerValue>;
     readonly defaultValue: PropType<RangePickerValue>;
     readonly showTime: PropType<boolean | PickerShowTimeOptions>;
@@ -167,6 +179,10 @@ export declare const dateRangePickerEmits: {
 export type DateRangePickerRuntimeProps = ExtractPropTypes<typeof dateRangePickerProps>;
 interface DateRangePickerSupplementalProps {
     id?: string;
+    labelledBy?: string;
+    ariaLabelledby?: string;
+    describedBy?: string;
+    ariaDescribedby?: string;
     placeholder?: [string, string];
     locale?: AheartLocale;
     cellRender?: (info: DatePickerCellRenderInfo & {

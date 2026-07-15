@@ -11,6 +11,8 @@ export declare const timePickerProps: {
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly modelValue: StringConstructor;
     readonly defaultValue: StringConstructor;
     readonly placeholder: StringConstructor;
@@ -113,6 +115,8 @@ export declare const timeRangePickerProps: {
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
+    readonly describedBy: StringConstructor;
+    readonly ariaDescribedby: StringConstructor;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;

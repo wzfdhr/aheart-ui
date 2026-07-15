@@ -2,6 +2,8 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Input from '../../input/input.vue'
+import { DateRangePicker } from '../../date-picker'
+import { TimeRangePicker } from '../../time-picker'
 import Form, { FormItem } from '../index'
 
 describe('Form', () => {
@@ -323,6 +325,25 @@ describe('Form', () => {
     const input = wrapper.findComponent(Input)
     expect(input.classes()).toContain('aheart-input--large')
     expect(input.find('input').attributes()).toHaveProperty('disabled')
+  })
+
+  it('provides size, disabled state and variant to date and time ranges', () => {
+    const wrapper = mount(Form, {
+      props: { size: 'large', disabled: true, variant: 'filled' },
+      slots: {
+        default: {
+          render() {
+            return h('div', [h(DateRangePicker), h(TimeRangePicker)])
+          }
+        }
+      }
+    })
+
+    for (const [component, prefix] of [[wrapper.findComponent(DateRangePicker), 'aheart-date-range-picker'], [wrapper.findComponent(TimeRangePicker), 'aheart-time-range-picker']] as const) {
+      expect(component.classes()).toContain(`${prefix}--large`)
+      expect(component.classes()).toContain(`${prefix}--filled`)
+      expect(component.findAll('input').every((input) => input.attributes('disabled') !== undefined)).toBe(true)
+    }
   })
 
   it('validates required model fields and emits finishFailed on submit', async () => {

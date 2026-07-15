@@ -280,7 +280,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         name: 'DatePicker',
         zhName: '日期选择器',
         description: {
-          zh: '输入或在日历中选择日期。',
+          zh: '输入或选择单个、多选及范围日期。',
           en: 'Enter or select a date from a calendar.'
         },
         status: 'Ready',
@@ -291,7 +291,7 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         name: 'TimePicker',
         zhName: '时间选择器',
         description: {
-          zh: '输入或选择一天中的时间。',
+          zh: '输入或选择单个及范围时间。',
           en: 'Enter or select a time of day.'
         },
         status: 'Ready',

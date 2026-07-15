@@ -11,6 +11,8 @@ Aheart UI 的重要变更统一记录在本文件中。
 - `@aheart-ui/dnd` 通用拖拽、排序、跨列表移动与键盘替代操作。
 - `@aheart-ui/ai` AI 对话、智能表单和 Agent 工作台。
 - 中英文运行时 locale pack、统一浮层定位、Presence 动效和 reduced-motion 支持。
+- 基于共享 Picker 内核的 DatePicker、TimePicker、DateRangePicker 与 TimeRangePicker，支持多模式、预设、12 小时制、禁用规则和字符串业务值。
+- AIForm 的 `date-range` 与 `time-range` 安全 schema 字段映射。
 - 三包 tarball 合约验证、全量 CI 和发布前质量门禁。
 
 ### 发布状态

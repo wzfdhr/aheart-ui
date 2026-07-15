@@ -182,13 +182,15 @@ describe('TimeRangePicker', () => {
 
   it('applies inherited input labels, ids and a custom clear icon', () => {
     const wrapper = mount(TimeRangePicker, {
-      props: { id: 'shift', labelledBy: 'shift-label', defaultValue: ['09:00:00', '10:00:00'] },
+      props: { id: 'shift', labelledBy: 'shift-label', describedBy: 'shift-error', status: 'error', defaultValue: ['09:00:00', '10:00:00'] },
       slots: { clearIcon: '<span data-clear-icon>清</span>' },
       global: { stubs: { Teleport: true } }
     })
     const inputs = wrapper.findAll('input')
     expect(inputs.map((input) => input.attributes('id'))).toEqual(['shift-start', 'shift-end'])
     expect(inputs.every((input) => input.attributes('aria-labelledby') === 'shift-label')).toBe(true)
+    expect(inputs.every((input) => input.attributes('aria-describedby') === 'shift-error')).toBe(true)
+    expect(inputs.every((input) => input.attributes('aria-invalid') === 'true')).toBe(true)
     expect(wrapper.get('[data-range-clear="all"] [data-clear-icon]').exists()).toBe(true)
     expect(wrapper.get('[data-range-clear="all"]').attributes('aria-label')).toBe('清除时间范围')
   })
