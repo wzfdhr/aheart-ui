@@ -54,6 +54,7 @@ const components = [
   index$3.default,
   index$4.default,
   index$5.default,
+  index$5.DateRangePicker,
   index$6.default,
   index$7.default,
   index$8.default,
@@ -128,6 +129,7 @@ exports.CheckboxGroup = index$y.CheckboxGroup;
 exports.ConfigProvider = index$2.default;
 exports.Descriptions = index$D.default;
 exports.DatePicker = index$5.default;
+exports.DateRangePicker = index$5.DateRangePicker;
 exports.Divider = index$4.default;
 exports.Drawer = index$j.default;
 exports.ADropdownButton = index$r.DropdownButton;

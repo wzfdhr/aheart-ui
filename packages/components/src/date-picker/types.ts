@@ -7,6 +7,10 @@ import type {
   PickerFormat,
   PickerMode,
   PickerPreset,
+  PickerCalendarChangeInfo,
+  RangePickerPanelValue,
+  RangePickerPart,
+  RangePickerValue,
   PickerShowTimeOptions,
   PickerStatus,
   PickerValue
@@ -89,3 +93,73 @@ interface DatePickerSupplementalProps {
 }
 
 export type DatePickerProps = DatePickerPublicProps & DatePickerSupplementalProps
+
+export const dateRangePickerProps = {
+  id: String,
+  modelValue: Array as unknown as PropType<RangePickerValue>,
+  defaultValue: Array as unknown as PropType<RangePickerValue>,
+  showTime: [Boolean, Object] as PropType<boolean | PickerShowTimeOptions>,
+  needConfirm: { type: Boolean, default: undefined },
+  presets: Array as PropType<PickerPreset<RangePickerValue>[]>,
+  picker: { type: String as PropType<PickerMode>, default: 'date' },
+  pickerValue: Array as unknown as PropType<RangePickerPanelValue>,
+  defaultPickerValue: Array as unknown as PropType<RangePickerPanelValue>,
+  allowEmpty: { type: Array as unknown as PropType<[boolean, boolean]>, default: () => [false, false] },
+  order: { type: Boolean, default: true },
+  separator: null as unknown as PropType<VNodeChild>,
+  minDate: String,
+  maxDate: String,
+  disabledDate: Function as PropType<PickerDisabledDate>,
+  format: [String, Array] as PropType<PickerFormat>,
+  valueFormat: String,
+  placeholder: Array as unknown as PropType<[string, string]>,
+  size: String as PropType<AheartSize>,
+  status: String as PropType<PickerStatus>,
+  variant: String as PropType<AheartVariant>,
+  prefix: null as unknown as PropType<VNodeChild>,
+  suffixIcon: null as unknown as PropType<VNodeChild>,
+  allowClear: { type: Boolean, default: true },
+  disabled: { type: Boolean, default: undefined },
+  readOnly: Boolean,
+  open: { type: Boolean, default: undefined },
+  defaultOpen: Boolean,
+  placement: {
+    type: String as PropType<FloatingPlacement>,
+    default: 'bottomLeft',
+    validator: (value: string) => floatingPlacements.includes(value as FloatingPlacement)
+  },
+  autoAdjustOverflow: { type: Boolean, default: true },
+  getPopupContainer: Function as PropType<DatePickerGetPopupContainer>,
+  locale: Object as PropType<AheartLocale>,
+  cellRender: Function as PropType<(info: DatePickerCellRenderInfo & { range: RangePickerPart }) => VNodeChild>
+} as const
+
+export const dateRangePickerEmits = {
+  'update:modelValue': (value: RangePickerValue) => value === undefined || Array.isArray(value),
+  change: (value: RangePickerValue) => value === undefined || Array.isArray(value),
+  openChange: (open: boolean) => typeof open === 'boolean',
+  panelChange: (value: RangePickerPanelValue, mode: PickerMode) => Array.isArray(value) && typeof mode === 'string',
+  calendarChange: (value: RangePickerValue, info: PickerCalendarChangeInfo) => (value === undefined || Array.isArray(value)) && Boolean(info?.range),
+  ok: (value: RangePickerValue) => value === undefined || Array.isArray(value),
+  clear: () => true,
+  invalid: (input: string, part: RangePickerPart) => typeof input === 'string' && Boolean(part)
+}
+
+export type DateRangePickerRuntimeProps = ExtractPropTypes<typeof dateRangePickerProps>
+
+interface DateRangePickerSupplementalProps {
+  id?: string
+  placeholder?: [string, string]
+  locale?: AheartLocale
+  cellRender?: (info: DatePickerCellRenderInfo & { range: RangePickerPart }) => VNodeChild
+  'onUpdate:modelValue'?: (value: RangePickerValue) => void
+  onChange?: (value: RangePickerValue) => void
+  onOpenChange?: (open: boolean) => void
+  onPanelChange?: (value: RangePickerPanelValue, mode: PickerMode) => void
+  onCalendarChange?: (value: RangePickerValue, info: PickerCalendarChangeInfo) => void
+  onOk?: (value: RangePickerValue) => void
+  onClear?: () => void
+  onInvalid?: (input: string, part: RangePickerPart) => void
+}
+
+export type DateRangePickerProps = import('../picker-core/types').DateRangePickerPublicProps & DateRangePickerSupplementalProps

@@ -2,6 +2,7 @@ import { renderToString } from '@vue/server-renderer'
 import { createSSRApp, h } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import DatePicker from '../date-picker.vue'
+import DateRangePicker from '../date-range-picker.vue'
 
 describe('DatePicker SSR', () => {
   afterEach(() => vi.useRealTimers())
@@ -27,5 +28,16 @@ describe('DatePicker SSR', () => {
     const second = await render()
     expect(first).toBe(second)
     expect(first).toContain('2000年1月')
+  })
+
+  it('renders a deterministic range selector without browser globals', async () => {
+    const html = await renderToString(createSSRApp({
+      render: () => h(DateRangePicker, { modelValue: ['2026-07-14', '2026-07-20'] })
+    }))
+
+    expect(html).toContain('aheart-date-range-picker__selector')
+    expect(html).toContain('value="2026-07-14"')
+    expect(html).toContain('value="2026-07-20"')
+    expect(html).not.toContain('aheart-date-range-picker__panel')
   })
 })

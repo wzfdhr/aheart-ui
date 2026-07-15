@@ -7,7 +7,7 @@ import Cascader from "./cascader/index.js";
 import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
-import DatePicker from "./date-picker/index.js";
+import DatePicker, { DateRangePicker } from "./date-picker/index.js";
 import Divider from "./divider/index.js";
 import Drawer from "./drawer/index.js";
 import Dropdown, { DropdownButton } from "./dropdown/index.js";
@@ -54,6 +54,7 @@ const components = [
   Space,
   Divider,
   DatePicker,
+  DateRangePicker,
   TimePicker,
   Upload,
   Tree,
@@ -131,6 +132,7 @@ export {
   Col,
   ConfigProvider,
   DatePicker,
+  DateRangePicker,
   Descriptions,
   Divider,
   Drawer,
