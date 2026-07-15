@@ -107,18 +107,16 @@ const createGateRepository = (t, { gitignore = '', buildBody = '' } = {}) => {
   return root
 }
 
-const runGate = (root, { offline = false } = {}) =>
+const defaultFixtureBuildCommand = [installedPnpm.command, ...installedPnpm.args, 'build']
+
+const runGate = (root, { offline = false, buildCommand = defaultFixtureBuildCommand } = {}) =>
   spawnSync(process.execPath, [gateScript], {
     cwd: root,
     encoding: 'utf8',
     env: {
       ...process.env,
       CI: 'true',
-      AHEART_BUILD_DETERMINISM_COMMAND: JSON.stringify([
-        installedPnpm.command,
-        ...installedPnpm.args,
-        'build'
-      ]),
+      AHEART_BUILD_DETERMINISM_COMMAND: JSON.stringify(buildCommand),
       ...(offline
         ? {
             COREPACK_ENABLE_NETWORK: '0',
@@ -416,6 +414,101 @@ test('persists and tees build 2 failure after recording the completed first buil
     readDiagnostic(root, 'comparison.txt'),
     /Build 2 failed after build 1 snapshot completed; build 2 snapshot was not captured\./
   )
+})
+
+test('reports snapshot 1 capture failure after build 1 completes successfully', (t) => {
+  const missingRoot = 'packages/ai/lib'
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log('SNAPSHOT_ONE_BUILD_COMPLETED')",
+      `if (count === 1) rmSync(${JSON.stringify(missingRoot)}, { recursive: true, force: true })`
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+  const manifest = readDiagnostic(root, 'build-1.sha256.txt')
+  const comparison = readDiagnostic(root, 'comparison.txt')
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.deepEqual(readBuildEvents(root).map(({ count }) => count), [1])
+  assertBuildResult(root, 1, { stage: 'completed', status: '0', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'not-started', status: 'not-run', signal: 'none' })
+  assert.match(manifest, /^# unavailable: build 1 completed but snapshot unavailable(?:\n|:)/)
+  assert.doesNotMatch(manifest, /build 1 did not complete/)
+  assert.match(comparison, /Failure stage: snapshot-1/)
+  assert.match(
+    comparison,
+    /Build 1 completed successfully, but snapshot 1 capture failed; build 2 was not started\./
+  )
+  assert.match(comparison, /Snapshot comparison unavailable because snapshot 1 was not captured/)
+  assert.match(comparison, new RegExp(missingRoot.replaceAll('/', '\\/')))
+})
+
+test('reports snapshot 2 capture failure after both builds complete successfully', (t) => {
+  const missingRoot = 'packages/dnd/es'
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log(`SNAPSHOT_${count}_BUILD_COMPLETED`)",
+      `if (count === 2) rmSync(${JSON.stringify(missingRoot)}, { recursive: true, force: true })`
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+  const firstManifest = readDiagnostic(root, 'build-1.sha256.txt')
+  const secondManifest = readDiagnostic(root, 'build-2.sha256.txt')
+  const comparison = readDiagnostic(root, 'comparison.txt')
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.deepEqual(readBuildEvents(root).map(({ count }) => count), [1, 2])
+  assertBuildResult(root, 1, { stage: 'completed', status: '0', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'completed', status: '0', signal: 'none' })
+  assert.doesNotMatch(firstManifest, /^# unavailable:/)
+  assert.match(secondManifest, /^# unavailable: build 2 completed but snapshot unavailable(?:\n|:)/)
+  assert.doesNotMatch(secondManifest, /build 2 did not complete/)
+  assert.match(comparison, /Failure stage: snapshot-2/)
+  assert.match(
+    comparison,
+    /Build 2 completed successfully after snapshot 1 was captured, but snapshot 2 capture failed\./
+  )
+  assert.match(comparison, /Snapshot comparison unavailable because snapshot 2 was not captured/)
+  assert.match(comparison, new RegExp(missingRoot.replaceAll('/', '\\/')))
+})
+
+test('preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts', (t) => {
+  const root = createGateRepository(t)
+  const splitOutputScript = join(root, 'split-utf8-output.mjs')
+  writeFixture(
+    root,
+    'split-utf8-output.mjs',
+    [
+      'const writeAcrossChunks = async (stream, text) => {',
+      '  const bytes = Buffer.from(text)',
+      '  stream.write(bytes.subarray(0, 1))',
+      '  await new Promise((resolve) => setTimeout(resolve, 25))',
+      '  stream.write(bytes.subarray(1))',
+      '}',
+      "await writeAcrossChunks(process.stdout, '构建输出\\n')",
+      "await writeAcrossChunks(process.stderr, '诊断错误\\n')",
+      'process.exitCode = 41'
+    ].join('\n')
+  )
+
+  const result = runGate(root, {
+    offline: true,
+    buildCommand: [process.execPath, splitOutputScript]
+  })
+  const terminalMirror = gateOutput(result)
+  const stdoutArtifact = readDiagnostic(root, 'build-1.stdout.log')
+  const stderrArtifact = readDiagnostic(root, 'build-1.stderr.log')
+
+  assert.notEqual(result.status, 0, terminalMirror)
+  assert.match(result.stdout, /构建输出/)
+  assert.match(result.stderr, /诊断错误/)
+  assert.equal(stdoutArtifact, '构建输出\n')
+  assert.equal(stderrArtifact, '诊断错误\n')
+  assert.doesNotMatch(terminalMirror, /\uFFFD/)
+  assert.doesNotMatch(`${stdoutArtifact}${stderrArtifact}`, /\uFFFD/)
+  assertBuildResult(root, 1, { stage: 'failed', status: '41', signal: 'none' })
 })
 
 test('reports postflight failure after two matching snapshots and preserves both build results', (t) => {
