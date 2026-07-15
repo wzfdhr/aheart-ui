@@ -38,7 +38,11 @@ const createGateRepository = (t, { gitignore = '', buildBody = '' } = {}) => {
   t.after(() => rmSync(root, { recursive: true, force: true }))
 
   assert.equal(runGit(root, ['init', '--quiet']).status, 0)
-  writeFixture(root, 'package.json', JSON.stringify({ scripts: { build: 'node build-fixture.mjs' } }))
+  writeFixture(
+    root,
+    'package.json',
+    JSON.stringify({ packageManager: workspacePackageManager, scripts: { build: 'node build-fixture.mjs' } })
+  )
   writeFixture(
     root,
     'build-fixture.mjs',
