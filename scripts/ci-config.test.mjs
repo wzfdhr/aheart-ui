@@ -30,3 +30,25 @@ test('uploads tracked diffs and every untracked generated file on build gate fai
   assert.doesNotMatch(captureStep, /git ls-files[^\n]*--exclude-standard/)
   assert.match(uploadStep, /path: test-results\//)
 })
+
+test('uploads uniquely named e2e artifacts only when end-to-end tests fail', () => {
+  const e2eStep = getStep('End-to-End Tests')
+  const uploadStep = getStep('Upload End-to-End Failure Artifacts')
+
+  assert.ok(e2eStep, 'End-to-End Tests step is missing')
+  assert.ok(uploadStep, 'Upload End-to-End Failure Artifacts step is missing')
+  assert.match(e2eStep, /\n        id: e2e\n/)
+  assert.match(
+    uploadStep,
+    /\n        if: \$\{\{ failure\(\) && steps\.e2e\.outcome == 'failure' \}\}\n/
+  )
+  assert.match(uploadStep, /\n        uses: actions\/upload-artifact@v4\n/)
+
+  const artifactName = uploadStep.match(/\n          name: ([^\n]+)/)?.[1]
+
+  assert.ok(artifactName, 'e2e artifact name is missing')
+  assert.match(artifactName, /\$\{\{ github\.run_id \}\}/)
+  assert.match(artifactName, /\$\{\{ github\.run_attempt \}\}/)
+  assert.match(uploadStep, /\n          path: test-results\/\n/)
+  assert.match(uploadStep, /\n          if-no-files-found: warn(?:\n|$)/)
+})
