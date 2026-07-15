@@ -172,7 +172,7 @@ test('real orchestration runs both builds with the installed workspace pnpm whil
     })),
     [1, 2].map((count) => ({
       count,
-      userAgent: `pnpm/${workspacePnpmVersion} npm/? node/${process.versions.node} ${process.platform} ${process.arch}`,
+      userAgent: `pnpm/${workspacePnpmVersion} npm/? node/v${process.versions.node} ${process.platform} ${process.arch}`,
       corepackHome,
       corepackNetwork: '0'
     }))

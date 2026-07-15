@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
@@ -7,6 +7,7 @@ import { checkGeneratedOutput, GENERATED_PATHS } from './check-generated.mjs'
 
 const comparePaths = (first, second) => (first < second ? -1 : first > second ? 1 : 0)
 const toPosixPath = (path) => path.split(sep).join('/')
+const defaultBuildCommand = { command: 'corepack', args: ['pnpm', 'build'] }
 
 const listFiles = (directory) => {
   const files = []
@@ -71,7 +72,11 @@ const formatManifest = (snapshot, unavailableReason) => {
 }
 
 const formatComparison = (first, second) => {
-  if (!first || !second) return 'Snapshot comparison unavailable because both builds did not complete.'
+  if (!first && !second) {
+    return 'Snapshot comparison unavailable because build 1 and build 2 did not complete.'
+  }
+  if (!first) return 'Snapshot comparison unavailable because build 1 did not complete.'
+  if (!second) return 'Snapshot comparison unavailable because build 2 did not complete.'
 
   const differences = compareSnapshots(first, second)
   if (differences.length === 0) return 'No differences between build snapshots.'
@@ -79,7 +84,116 @@ const formatComparison = (first, second) => {
   return differences.map(({ status, path }) => `${status.toUpperCase()} ${path}`).join('\n')
 }
 
-export const writeBuildDiagnostics = ({ rootDirectory, first, second, error }) => {
+const formatFailureStage = (stage) => {
+  switch (stage) {
+    case 'preflight':
+      return 'Preflight generated-output check failed before build 1 started.'
+    case 'build-1':
+      return 'Build 1 failed before its snapshot was captured; build 2 was not started.'
+    case 'build-2':
+      return 'Build 2 failed after build 1 snapshot completed; build 2 snapshot was not captured.'
+    case 'snapshot-comparison':
+      return 'Both build snapshots completed, but their generated output differs.'
+    case 'postflight':
+      return 'Both build snapshots completed and matched; postflight generated-output check failed.'
+    default:
+      return 'Build determinism gate failed at an unknown stage.'
+  }
+}
+
+const notStartedBuild = (buildNumber) => ({
+  buildNumber,
+  command: undefined,
+  stage: 'not-started',
+  status: undefined,
+  signal: undefined,
+  stdout: '',
+  stderr: ''
+})
+
+const formatBuildResult = (result) =>
+  [
+    `Build: ${result.buildNumber}`,
+    `Stage: ${result.stage}`,
+    `Exit status: ${result.stage === 'not-started' ? 'not-run' : (result.status ?? 'null')}`,
+    `Signal: ${result.signal ?? 'none'}`,
+    `Command: ${result.command ? JSON.stringify(result.command) : 'not-run'}`,
+    ''
+  ].join('\n')
+
+const readBuildCommand = () => {
+  const serializedCommand = process.env.AHEART_BUILD_DETERMINISM_COMMAND
+  if (!serializedCommand) return defaultBuildCommand
+
+  const commandParts = JSON.parse(serializedCommand)
+  if (
+    !Array.isArray(commandParts) ||
+    commandParts.length === 0 ||
+    commandParts.some((part) => typeof part !== 'string' || part.length === 0)
+  ) {
+    throw new Error('AHEART_BUILD_DETERMINISM_COMMAND must be a JSON array of non-empty strings')
+  }
+
+  return { command: commandParts[0], args: commandParts.slice(1) }
+}
+
+const runBuild = ({ rootDirectory, buildNumber, buildCommand }) =>
+  new Promise((resolveBuild) => {
+    const child = spawn(buildCommand.command, buildCommand.args, {
+      cwd: rootDirectory,
+      stdio: ['inherit', 'pipe', 'pipe']
+    })
+    let stdout = ''
+    let stderr = ''
+    let spawnError
+
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk.toString()
+      process.stdout.write(chunk)
+    })
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk.toString()
+      process.stderr.write(chunk)
+    })
+    child.once('error', (error) => {
+      spawnError = error
+      const message = `${error.message}\n`
+      stderr += message
+      process.stderr.write(message)
+    })
+    child.once('close', (status, signal) => {
+      resolveBuild({
+        buildNumber,
+        command: [buildCommand.command, ...buildCommand.args],
+        stage: spawnError || status !== 0 || signal ? 'failed' : 'completed',
+        status,
+        signal,
+        stdout,
+        stderr,
+        spawnError
+      })
+    })
+  })
+
+const assertBuildCompleted = (result) => {
+  if (result.stage === 'completed') return
+
+  const exitDescription = result.signal
+    ? `signal ${result.signal}`
+    : result.status === null
+      ? 'no exit status'
+      : `exit status ${result.status}`
+  throw new Error(`Build ${result.buildNumber} failed with ${exitDescription}.`)
+}
+
+export const writeBuildDiagnostics = ({
+  rootDirectory,
+  first,
+  second,
+  error,
+  failureStage,
+  buildResults
+}) => {
   const diagnosticsDirectory = join(rootDirectory, 'test-results/build-generated-diagnostics')
   mkdirSync(diagnosticsDirectory, { recursive: true })
   writeFileSync(
@@ -90,11 +204,21 @@ export const writeBuildDiagnostics = ({ rootDirectory, first, second, error }) =
     join(diagnosticsDirectory, 'build-2.sha256.txt'),
     formatManifest(second, 'build 2 did not complete')
   )
+  for (const result of buildResults) {
+    writeFileSync(join(diagnosticsDirectory, `build-${result.buildNumber}.stdout.log`), result.stdout)
+    writeFileSync(join(diagnosticsDirectory, `build-${result.buildNumber}.stderr.log`), result.stderr)
+    writeFileSync(
+      join(diagnosticsDirectory, `build-${result.buildNumber}.result.txt`),
+      formatBuildResult(result)
+    )
+  }
   writeFileSync(
     join(diagnosticsDirectory, 'comparison.txt'),
     [
       'Generated output determinism diagnostics',
+      `Failure stage: ${failureStage}`,
       `Failure: ${error instanceof Error ? error.message : String(error)}`,
+      `Stage summary: ${formatFailureStage(failureStage)}`,
       '',
       'Snapshot comparison:',
       formatComparison(first, second),
@@ -103,26 +227,36 @@ export const writeBuildDiagnostics = ({ rootDirectory, first, second, error }) =
   )
 }
 
-export const checkBuildDeterminism = (rootDirectory = process.cwd()) => {
+export const checkBuildDeterminism = async (rootDirectory = process.cwd()) => {
   const diagnosticsDirectory = join(rootDirectory, 'test-results/build-generated-diagnostics')
+  const buildCommand = readBuildCommand()
+  const buildResults = [notStartedBuild(1), notStartedBuild(2)]
   let first
   let second
+  let failureStage = 'preflight'
 
   rmSync(diagnosticsDirectory, { recursive: true, force: true })
 
   try {
     checkGeneratedOutput(rootDirectory)
 
-    execFileSync('corepack', ['pnpm', 'build'], { cwd: rootDirectory, stdio: 'inherit' })
+    failureStage = 'build-1'
+    buildResults[0] = await runBuild({ rootDirectory, buildNumber: 1, buildCommand })
+    assertBuildCompleted(buildResults[0])
     first = snapshotGeneratedFiles(rootDirectory)
 
-    execFileSync('corepack', ['pnpm', 'build'], { cwd: rootDirectory, stdio: 'inherit' })
+    failureStage = 'build-2'
+    buildResults[1] = await runBuild({ rootDirectory, buildNumber: 2, buildCommand })
+    assertBuildCompleted(buildResults[1])
     second = snapshotGeneratedFiles(rootDirectory)
 
+    failureStage = 'snapshot-comparison'
     assertSnapshotsEqual(first, second)
+
+    failureStage = 'postflight'
     checkGeneratedOutput(rootDirectory)
   } catch (error) {
-    writeBuildDiagnostics({ rootDirectory, first, second, error })
+    writeBuildDiagnostics({ rootDirectory, first, second, error, failureStage, buildResults })
     throw error
   }
 }
@@ -131,7 +265,7 @@ const isCli = process.argv[1] && import.meta.url === pathToFileURL(resolve(proce
 
 if (isCli) {
   try {
-    checkBuildDeterminism()
+    await checkBuildDeterminism()
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error))
     process.exitCode = 1
