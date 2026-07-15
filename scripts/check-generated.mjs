@@ -16,8 +16,29 @@ export const assertNoUntrackedGeneratedFiles = (output) => {
   if (files) throw new Error(`Untracked generated files:\n${files}`)
 }
 
+const assertCleanDiff = (cwd, args, message) => {
+  try {
+    execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+  } catch (error) {
+    const output = [error.stdout, error.stderr]
+      .filter((value) => typeof value === 'string' && value.trim())
+      .join('\n')
+      .trim()
+    throw new Error(output ? `${message}:\n${output}` : message)
+  }
+}
+
 export const checkGeneratedOutput = (cwd = process.cwd()) => {
-  execFileSync('git', ['diff', '--exit-code', 'HEAD', '--', ...GENERATED_PATHS], { cwd, stdio: 'inherit' })
+  assertCleanDiff(
+    cwd,
+    ['diff', '--cached', '--exit-code', 'HEAD', '--', ...GENERATED_PATHS],
+    'Generated output index differs from HEAD'
+  )
+  assertCleanDiff(
+    cwd,
+    ['diff', '--exit-code', '--', ...GENERATED_PATHS],
+    'Generated output worktree differs from index'
+  )
   const untracked = execFileSync('git', ['ls-files', '--others', '--', ...GENERATED_PATHS], {
     cwd,
     encoding: 'utf8'

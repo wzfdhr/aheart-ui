@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readdirSync, readFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { checkGeneratedOutput, GENERATED_PATHS } from './check-generated.mjs'
@@ -61,15 +61,70 @@ export const assertSnapshotsEqual = (first, second) => {
   throw new Error(`Generated output differs between consecutive builds:\n${report}`)
 }
 
-export const checkBuildDeterminism = () => {
-  execFileSync('corepack', ['pnpm', 'build'], { stdio: 'inherit' })
-  const first = snapshotGeneratedFiles()
+const formatManifest = (snapshot, unavailableReason) => {
+  if (!snapshot) return `# unavailable: ${unavailableReason}\n`
 
-  execFileSync('corepack', ['pnpm', 'build'], { stdio: 'inherit' })
-  const second = snapshotGeneratedFiles()
+  return `${Object.entries(snapshot)
+    .sort(([firstPath], [secondPath]) => comparePaths(firstPath, secondPath))
+    .map(([path, hash]) => `${hash}  ${path}`)
+    .join('\n')}\n`
+}
 
-  assertSnapshotsEqual(first, second)
-  checkGeneratedOutput()
+const formatComparison = (first, second) => {
+  if (!first || !second) return 'Snapshot comparison unavailable because both builds did not complete.'
+
+  const differences = compareSnapshots(first, second)
+  if (differences.length === 0) return 'No differences between build snapshots.'
+
+  return differences.map(({ status, path }) => `${status.toUpperCase()} ${path}`).join('\n')
+}
+
+export const writeBuildDiagnostics = ({ rootDirectory, first, second, error }) => {
+  const diagnosticsDirectory = join(rootDirectory, 'test-results/build-generated-diagnostics')
+  mkdirSync(diagnosticsDirectory, { recursive: true })
+  writeFileSync(
+    join(diagnosticsDirectory, 'build-1.sha256.txt'),
+    formatManifest(first, 'build 1 did not complete')
+  )
+  writeFileSync(
+    join(diagnosticsDirectory, 'build-2.sha256.txt'),
+    formatManifest(second, 'build 2 did not complete')
+  )
+  writeFileSync(
+    join(diagnosticsDirectory, 'comparison.txt'),
+    [
+      'Generated output determinism diagnostics',
+      `Failure: ${error instanceof Error ? error.message : String(error)}`,
+      '',
+      'Snapshot comparison:',
+      formatComparison(first, second),
+      ''
+    ].join('\n')
+  )
+}
+
+export const checkBuildDeterminism = (rootDirectory = process.cwd()) => {
+  const diagnosticsDirectory = join(rootDirectory, 'test-results/build-generated-diagnostics')
+  let first
+  let second
+
+  rmSync(diagnosticsDirectory, { recursive: true, force: true })
+
+  try {
+    checkGeneratedOutput(rootDirectory)
+
+    execFileSync('corepack', ['pnpm', 'build'], { cwd: rootDirectory, stdio: 'inherit' })
+    first = snapshotGeneratedFiles(rootDirectory)
+
+    execFileSync('corepack', ['pnpm', 'build'], { cwd: rootDirectory, stdio: 'inherit' })
+    second = snapshotGeneratedFiles(rootDirectory)
+
+    assertSnapshotsEqual(first, second)
+    checkGeneratedOutput(rootDirectory)
+  } catch (error) {
+    writeBuildDiagnostics({ rootDirectory, first, second, error })
+    throw error
+  }
 }
 
 const isCli = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href

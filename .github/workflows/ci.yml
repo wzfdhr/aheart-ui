@@ -51,16 +51,17 @@ jobs:
       - name: Capture Build Diagnostics
         if: ${{ failure() && steps.build_generated.outcome == 'failure' }}
         run: |
-          mkdir -p test-results
-          git diff -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/generated-tracked.diff
-          git ls-files --others -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/generated-untracked.txt
+          mkdir -p test-results/build-generated-diagnostics
+          git diff --cached HEAD -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/build-generated-diagnostics/generated-cached.diff
+          git diff -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/build-generated-diagnostics/generated-worktree.diff
+          git ls-files --others -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/build-generated-diagnostics/generated-untracked.txt
 
       - name: Upload Build Diagnostics
         if: ${{ failure() && steps.build_generated.outcome == 'failure' }}
         uses: actions/upload-artifact@v4
         with:
-          name: build-generated-diagnostics
-          path: test-results/
+          name: build-generated-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/build-generated-diagnostics/
           if-no-files-found: error
 
       - name: Build Docs
