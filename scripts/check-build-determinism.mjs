@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
+import { StringDecoder } from 'node:string_decoder'
 import { pathToFileURL } from 'node:url'
 import { checkGeneratedOutput, GENERATED_PATHS } from './check-generated.mjs'
 
@@ -71,12 +72,23 @@ const formatManifest = (snapshot, unavailableReason) => {
     .join('\n')}\n`
 }
 
-const formatComparison = (first, second) => {
+const formatComparison = (first, second, buildResults) => {
   if (!first && !second) {
+    if (buildResults[0].stage === 'completed') {
+      return 'Snapshot comparison unavailable because snapshot 1 was not captured and snapshot 2 was not captured.'
+    }
     return 'Snapshot comparison unavailable because build 1 and build 2 did not complete.'
   }
-  if (!first) return 'Snapshot comparison unavailable because build 1 did not complete.'
-  if (!second) return 'Snapshot comparison unavailable because build 2 did not complete.'
+  if (!first) {
+    return buildResults[0].stage === 'completed'
+      ? 'Snapshot comparison unavailable because snapshot 1 was not captured after build 1 completed.'
+      : 'Snapshot comparison unavailable because build 1 did not complete.'
+  }
+  if (!second) {
+    return buildResults[1].stage === 'completed'
+      ? 'Snapshot comparison unavailable because snapshot 2 was not captured after build 2 completed.'
+      : 'Snapshot comparison unavailable because build 2 did not complete.'
+  }
 
   const differences = compareSnapshots(first, second)
   if (differences.length === 0) return 'No differences between build snapshots.'
@@ -90,8 +102,12 @@ const formatFailureStage = (stage) => {
       return 'Preflight generated-output check failed before build 1 started.'
     case 'build-1':
       return 'Build 1 failed before its snapshot was captured; build 2 was not started.'
+    case 'snapshot-1':
+      return 'Build 1 completed successfully, but snapshot 1 capture failed; build 2 was not started.'
     case 'build-2':
       return 'Build 2 failed after build 1 snapshot completed; build 2 snapshot was not captured.'
+    case 'snapshot-2':
+      return 'Build 2 completed successfully after snapshot 1 was captured, but snapshot 2 capture failed.'
     case 'snapshot-comparison':
       return 'Both build snapshots completed, but their generated output differs.'
     case 'postflight':
@@ -146,13 +162,15 @@ const runBuild = ({ rootDirectory, buildNumber, buildCommand }) =>
     let stdout = ''
     let stderr = ''
     let spawnError
+    const stdoutDecoder = new StringDecoder('utf8')
+    const stderrDecoder = new StringDecoder('utf8')
 
     child.stdout.on('data', (chunk) => {
-      stdout += chunk.toString()
+      stdout += stdoutDecoder.write(chunk)
       process.stdout.write(chunk)
     })
     child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString()
+      stderr += stderrDecoder.write(chunk)
       process.stderr.write(chunk)
     })
     child.once('error', (error) => {
@@ -162,6 +180,8 @@ const runBuild = ({ rootDirectory, buildNumber, buildCommand }) =>
       process.stderr.write(message)
     })
     child.once('close', (status, signal) => {
+      stdout += stdoutDecoder.end()
+      stderr += stderrDecoder.end()
       resolveBuild({
         buildNumber,
         command: [buildCommand.command, ...buildCommand.args],
@@ -198,11 +218,21 @@ export const writeBuildDiagnostics = ({
   mkdirSync(diagnosticsDirectory, { recursive: true })
   writeFileSync(
     join(diagnosticsDirectory, 'build-1.sha256.txt'),
-    formatManifest(first, 'build 1 did not complete')
+    formatManifest(
+      first,
+      buildResults[0].stage === 'completed'
+        ? 'build 1 completed but snapshot unavailable'
+        : 'build 1 did not complete'
+    )
   )
   writeFileSync(
     join(diagnosticsDirectory, 'build-2.sha256.txt'),
-    formatManifest(second, 'build 2 did not complete')
+    formatManifest(
+      second,
+      buildResults[1].stage === 'completed'
+        ? 'build 2 completed but snapshot unavailable'
+        : 'build 2 did not complete'
+    )
   )
   for (const result of buildResults) {
     writeFileSync(join(diagnosticsDirectory, `build-${result.buildNumber}.stdout.log`), result.stdout)
@@ -221,7 +251,7 @@ export const writeBuildDiagnostics = ({
       `Stage summary: ${formatFailureStage(failureStage)}`,
       '',
       'Snapshot comparison:',
-      formatComparison(first, second),
+      formatComparison(first, second, buildResults),
       ''
     ].join('\n')
   )
@@ -243,11 +273,15 @@ export const checkBuildDeterminism = async (rootDirectory = process.cwd()) => {
     failureStage = 'build-1'
     buildResults[0] = await runBuild({ rootDirectory, buildNumber: 1, buildCommand })
     assertBuildCompleted(buildResults[0])
+
+    failureStage = 'snapshot-1'
     first = snapshotGeneratedFiles(rootDirectory)
 
     failureStage = 'build-2'
     buildResults[1] = await runBuild({ rootDirectory, buildNumber: 2, buildCommand })
     assertBuildCompleted(buildResults[1])
+
+    failureStage = 'snapshot-2'
     second = snapshotGeneratedFiles(rootDirectory)
 
     failureStage = 'snapshot-comparison'
