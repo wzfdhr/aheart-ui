@@ -10,7 +10,7 @@ const selectedKeys = ref<TreeKey[]>(['overview'])
 const checkedKeys = ref<TreeKey[]>([])
 </script>
 
-# Tree 树形控件 <span class="aheart-status aheart-status--ready">Ready</span>
+# Tree 树形控件 <span class="aheart-status aheart-status--ready">已完成</span>
 
 按层级展示、选择和勾选结构化数据。
 

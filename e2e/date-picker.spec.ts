@@ -74,6 +74,17 @@ test('DatePicker remains reachable on a narrow viewport', async ({ page }, testI
   expect(box!.x).toBeGreaterThanOrEqual(0)
   expect(box!.x + box!.width).toBeLessThanOrEqual(390)
   await expect(panel.locator('.aheart-date-picker__grid button').first()).toHaveCSS('min-height', '40px')
+  const navigationBox = await panel.locator('.aheart-date-picker__header button').first().boundingBox()
+  const confirmBox = await panel.locator('.aheart-date-picker__ok').boundingBox()
+  expect(navigationBox?.width).toBeGreaterThanOrEqual(40)
+  expect(navigationBox?.height).toBeGreaterThanOrEqual(40)
+  expect(confirmBox?.width).toBeGreaterThanOrEqual(40)
+  expect(confirmBox?.height).toBeGreaterThanOrEqual(40)
+  const viewport = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth
+  }))
+  expect(viewport.scrollWidth).toBeLessThanOrEqual(viewport.clientWidth)
 
   const input = picker.locator('input').first()
   await panel.locator('[data-value="2026-07-20"]').click()
@@ -89,6 +100,43 @@ test('DatePicker remains reachable on a narrow viewport', async ({ page }, testI
   await panel.locator('[data-value="2026-07-21"]').click()
   await page.keyboard.press('Escape')
   await expect(input).toHaveValue('2026-07-20 11:05:00 晚上')
+})
+
+test('DatePicker does not widen the mobile page under wider font metrics', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'mobile-only geometry check')
+
+  await page.addStyleTag({
+    content: `
+      .aheart-date-picker__tag {
+        font-size: 20px !important;
+      }
+    `
+  })
+
+  const viewport = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth
+  }))
+
+  expect(viewport.scrollWidth).toBeLessThanOrEqual(viewport.clientWidth)
+})
+
+test('DatePicker keeps the mobile showTime footer interactive under wider font metrics', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'mobile-only interaction check')
+
+  await page.addStyleTag({
+    content: '.aheart-date-picker__tag { font-size: 20px !important; }'
+  })
+
+  const input = page.locator('.vp-doc .aheart-date-picker').nth(7).locator('input').first()
+  await input.click()
+  const panel = page.locator('.aheart-date-picker__panel.is-entered')
+  await panel.locator('[data-value="2026-07-20"]').click()
+  await panel.locator('[data-time-part="hour"]').fill('11')
+  await panel.locator('.aheart-date-picker__ok').click()
+
+  await expect(input).toHaveValue('2026-07-20 11:30:00 中午')
+  await expect(panel).toBeHidden()
 })
 
 test('DatePicker uses a coherent dark popup surface', async ({ page }) => {

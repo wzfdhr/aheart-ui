@@ -16,7 +16,8 @@
     "test:release-contract": "node --test scripts/*.test.mjs",
     "release:pack": "node scripts/release-contract.mjs",
     "check:generated": "node scripts/check-generated.mjs",
-    "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm build && corepack pnpm docs:build && corepack pnpm release:pack && corepack pnpm test:e2e && corepack pnpm check:generated && git diff --check"
+    "check:build-determinism": "node scripts/check-build-determinism.mjs",
+    "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm check:build-determinism && corepack pnpm docs:build && corepack pnpm release:pack && corepack pnpm test:e2e && git diff --check"
   },
   "keywords": [
     "aheart-ui",

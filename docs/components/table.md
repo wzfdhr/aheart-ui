@@ -22,7 +22,7 @@ const tableRenderableColumns = [
 const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
 </script>
 
-# Table 表格 <span class="aheart-status aheart-status--ready">Ready</span>
+# Table 表格 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Table displays structured records with columns, sorting, selection, expansion, pagination, loading, and empty states.
 

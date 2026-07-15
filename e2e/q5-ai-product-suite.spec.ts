@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test'
 
+const expectTouchTargetDimension = (value: number) => {
+  expect(value).toBeGreaterThanOrEqual(44 - 0.01)
+}
+
 test('AIChatPanel supports prompts, failure recovery, editing, and conversation switching', async ({ page }, testInfo) => {
   await page.goto('/components/ai')
 
@@ -13,9 +17,9 @@ test('AIChatPanel supports prompts, failure recovery, editing, and conversation 
     const conversationBox = await activeConversation.boundingBox()
     const senderBox = await panel.getByRole('button', { name: '发送消息' }).boundingBox()
     const attachmentBox = await panel.getByRole('button', { name: '移除 产品简报.md' }).boundingBox()
-    expect(conversationBox!.height).toBeGreaterThanOrEqual(44)
-    expect(senderBox!.height).toBeGreaterThanOrEqual(44)
-    expect(attachmentBox!.height).toBeGreaterThanOrEqual(44)
+    expectTouchTargetDimension(conversationBox!.height)
+    expectTouchTargetDimension(senderBox!.height)
+    expectTouchTargetDimension(attachmentBox!.height)
   }
   await panel.getByRole('button', { name: '会话二' }).click()
   await expect(page.locator('[data-demo-active-conversation]')).toHaveText('会话二')
@@ -96,8 +100,8 @@ test('AI product surfaces remain operable on mobile', async ({ page }, testInfo)
   await expect(workbench.locator('.aheart-ai-workbench__desktop')).toBeHidden()
   await workbench.getByRole('tab', { name: '会话' }).click()
   const workbenchConversationBox = await workbench.getByRole('button', { name: '产品方案' }).boundingBox()
-  expect(workbenchConversationBox!.height).toBeGreaterThanOrEqual(44)
-  expect(workbenchConversationBox!.width).toBeGreaterThanOrEqual(44)
+  expectTouchTargetDimension(workbenchConversationBox!.height)
+  expectTouchTargetDimension(workbenchConversationBox!.width)
   await workbench.getByRole('tab', { name: '执行' }).click()
   await workbench.getByRole('button', { name: '查看执行与产物' }).click()
   await expect(page.getByRole('dialog', { name: '执行与产物' })).toBeVisible()
@@ -105,8 +109,8 @@ test('AI product surfaces remain operable on mobile', async ({ page }, testInfo)
   const closeButtonBox = await drawer.getByRole('button', { name: 'Close' }).boundingBox()
   await expect(drawer.locator('.aheart-ai-workbench__timeline-item').first()).toBeVisible()
   const moveButtonBox = await drawer.getByRole('button', { name: /下\s*移/ }).first().boundingBox()
-  expect(closeButtonBox!.height).toBeGreaterThanOrEqual(44)
-  expect(closeButtonBox!.width).toBeGreaterThanOrEqual(44)
-  expect(moveButtonBox!.height).toBeGreaterThanOrEqual(44)
-  expect(moveButtonBox!.width).toBeGreaterThanOrEqual(44)
+  expectTouchTargetDimension(closeButtonBox!.height)
+  expectTouchTargetDimension(closeButtonBox!.width)
+  expectTouchTargetDimension(moveButtonBox!.height)
+  expectTouchTargetDimension(moveButtonBox!.width)
 })

@@ -14,7 +14,7 @@ const loadChildren = async () => {
 }
 </script>
 
-# Cascader 级联选择 <span class="aheart-status aheart-status--ready">Ready</span>
+# Cascader 级联选择 <span class="aheart-status aheart-status--ready">已完成</span>
 
 从多级选项中选择一条或多条路径，支持搜索、禁用与按需加载。
 

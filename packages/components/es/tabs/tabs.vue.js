@@ -1,9 +1,10 @@
-import { defineComponent, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList } from "vue";
+import { defineComponent, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, nextTick } from "vue";
 import { tabsProps, tabsEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick"];
-const _hoisted_2 = ["id", "aria-labelledby"];
+const _hoisted_1 = ["aria-orientation"];
+const _hoisted_2 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick", "onKeydown"];
+const _hoisted_3 = ["id", "aria-labelledby"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATabs"
@@ -48,6 +49,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       bottom: "bottom"
     };
     const resolvedPlacement = computed(() => props.tabPlacement ?? (props.tabPosition ? positionPlacementMap[props.tabPosition] : "top"));
+    const tabOrientation = computed(() => resolvedPlacement.value === "start" || resolvedPlacement.value === "end" ? "vertical" : "horizontal");
     const animatedInkBar = computed(() => typeof props.animated === "object" ? props.animated.inkBar === true : props.animated);
     const animatedTabPane = computed(() => typeof props.animated === "object" ? props.animated.tabPane === true : props.animated);
     const isExtraContentConfig = (value) => {
@@ -153,6 +155,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     );
     const getTabId = (key) => `aheart-tab-${key}`;
     const getPanelId = (key) => `aheart-tab-panel-${key}`;
+    const tabRefs = /* @__PURE__ */ new Map();
+    const setTabRef = (key, element) => {
+      if (element instanceof HTMLButtonElement)
+        tabRefs.set(key, element);
+      else
+        tabRefs.delete(key);
+    };
     const getTabClass = (item) => {
       var _a, _b, _c, _d;
       return [
@@ -172,11 +181,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         item.key === mergedActiveKey.value ? (_c = props.styles) == null ? void 0 : _c.activeTab : void 0
       ];
     };
-    const handleTabClick = (item, event) => {
-      if (item.disabled) {
+    const activateTab = (item) => {
+      if (item.disabled)
         return;
-      }
-      emit("tabClick", item.key, event);
       if (item.key === mergedActiveKey.value) {
         return;
       }
@@ -185,6 +192,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       emit("update:activeKey", item.key);
       emit("change", item.key);
+    };
+    const handleTabClick = (item, event) => {
+      if (item.disabled)
+        return;
+      emit("tabClick", item.key, event);
+      activateTab(item);
+    };
+    const handleTabKeydown = (item, event) => {
+      const forwardKey = tabOrientation.value === "vertical" ? "ArrowDown" : "ArrowRight";
+      const backwardKey = tabOrientation.value === "vertical" ? "ArrowUp" : "ArrowLeft";
+      if (![forwardKey, backwardKey, "Home", "End"].includes(event.key))
+        return;
+      const enabledItems = normalizedItems.value.filter((candidate) => !candidate.disabled);
+      if (!enabledItems.length)
+        return;
+      const currentIndex = Math.max(enabledItems.findIndex((candidate) => candidate.key === item.key), 0);
+      const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? enabledItems.length - 1 : (currentIndex + (event.key === forwardKey ? 1 : -1) + enabledItems.length) % enabledItems.length;
+      const nextItem = enabledItems[nextIndex];
+      if (!nextItem)
+        return;
+      event.preventDefault();
+      activateTab(nextItem);
+      void nextTick(() => {
+        var _a;
+        return (_a = tabRefs.get(nextItem.key)) == null ? void 0 : _a.focus();
+      });
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -207,7 +240,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           createElementVNode("div", {
             class: normalizeClass(navListClass.value),
             style: normalizeStyle(navListStyle.value),
-            role: "tablist"
+            role: "tablist",
+            "aria-orientation": tabOrientation.value
           }, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedItems.value, (item) => {
               return openBlock(), createElementBlock("button", {
@@ -221,7 +255,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 "aria-controls": getPanelId(item.key),
                 disabled: item.disabled,
                 tabindex: item.key === mergedActiveKey.value ? 0 : -1,
-                onClick: ($event) => handleTabClick(item, $event)
+                ref_for: true,
+                ref: (element) => setTabRef(item.key, element),
+                onClick: ($event) => handleTabClick(item, $event),
+                onKeydown: ($event) => handleTabKeydown(item, $event)
               }, [
                 hasRenderable(item.icon) ? (openBlock(), createElementBlock("span", {
                   key: 0,
@@ -241,9 +278,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     node: item.label
                   }, null, 8, ["node"])
                 ], 6)
-              ], 14, _hoisted_1);
+              ], 46, _hoisted_2);
             }), 128))
-          ], 6),
+          ], 14, _hoisted_1),
           hasRightExtra.value ? (openBlock(), createElementBlock("span", {
             key: 1,
             class: normalizeClass(extraRightClass.value),
@@ -267,7 +304,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               node: activeItem.value.children
             }, null, 8, ["node"])
           ]) : createCommentVNode("", true)
-        ], 14, _hoisted_2)) : createCommentVNode("", true)
+        ], 14, _hoisted_3)) : createCommentVNode("", true)
       ], 6);
     };
   }

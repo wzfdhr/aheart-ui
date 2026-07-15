@@ -32,7 +32,7 @@ const inputNumberStyles = ({ props }: { props: Readonly<Record<string, unknown>>
 })
 </script>
 
-# InputNumber 数字输入框 <span class="aheart-status aheart-status--ready">Ready</span>
+# InputNumber 数字输入框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 InputNumber captures numeric values with min, max, step, controls, precision, formatter/parser hooks, blur-time commit control, variants, status, and size inheritance.
 

@@ -77,7 +77,7 @@ const submit = async (data: Record<string, unknown>) => {
 }
 </script>
 
-# AI 智能表单 <span class="aheart-status aheart-status--ready">Ready</span>
+# AI 智能表单 <span class="aheart-status aheart-status--ready">已完成</span>
 
 `AIForm` 以受控数据和版本化 schema 构建可交付的业务表单。它支持字段分组、条件联动、校验反馈和外部提交状态；不会执行 schema 中的函数、脚本、HTML 或样式。
 

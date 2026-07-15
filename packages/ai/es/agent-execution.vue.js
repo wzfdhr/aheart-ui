@@ -115,7 +115,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         createElementVNode("section", _hoisted_2, [
           createElementVNode("div", _hoisted_3, [
             _cache[0] || (_cache[0] = createElementVNode("div", null, [
-              createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "EXECUTION"),
+              createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "执行流程"),
               createElementVNode("h2", { id: "agent-tasks-title" }, "执行时间线")
             ], -1)),
             createElementVNode("span", null, toDisplayString(__props.tasks.length) + " 项", 1)
@@ -269,7 +269,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         createElementVNode("section", _hoisted_22, [
           createElementVNode("div", _hoisted_23, [
             _cache[9] || (_cache[9] = createElementVNode("div", null, [
-              createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "OUTPUTS"),
+              createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "产物输出"),
               createElementVNode("h2", { id: "agent-artifacts-title" }, "产物")
             ], -1)),
             createElementVNode("span", null, toDisplayString(__props.artifacts.length) + " 项", 1)

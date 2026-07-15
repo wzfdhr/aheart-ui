@@ -94,7 +94,7 @@ const retryTask = (task: AIAgentTask) => {
 const cancelTask = (task: AIAgentTask) => updateTask(task, { status: 'cancelled', detail: '已请求取消' })
 </script>
 
-# AI Agent 工作台 <span class="aheart-status aheart-status--ready">Ready</span>
+# AI Agent 工作台 <span class="aheart-status aheart-status--ready">已完成</span>
 
 `AIAgentWorkbench` 负责展示和编排 Agent 工作流，不保存任务、不执行工具调用，也不绑定模型、鉴权或持久化服务。业务层通过受控 props 和事件对接会话、传输、审批和产物系统。
 

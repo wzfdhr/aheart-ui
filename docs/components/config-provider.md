@@ -1,4 +1,4 @@
-# ConfigProvider 全局配置 <span class="aheart-status aheart-status--ready">Ready</span>
+# ConfigProvider 全局配置 <span class="aheart-status aheart-status--ready">已完成</span>
 
 ConfigProvider provides shared configuration for Aheart UI components, including global size, disabled state, locale text, and local theme token overrides.
 

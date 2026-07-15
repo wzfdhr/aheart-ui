@@ -1,4 +1,4 @@
-# Grid 栅格 <span class="aheart-status aheart-status--ready">Ready</span>
+# Grid 栅格 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Grid provides a 24-column responsive layout system with `ARow` and `ACol`.
 

@@ -1257,6 +1257,11 @@ fieldset.aheart-ai-form__group {
     padding: 12px;
   }
 
+  .aheart-ai-workbench__mobile .aheart-tabs__tab {
+    min-block-size: 44px;
+    padding-inline: 12px;
+  }
+
   .aheart-ai-workbench__mobile-panel {
     min-block-size: 400px;
   }

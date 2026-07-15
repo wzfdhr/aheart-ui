@@ -1,4 +1,4 @@
-# Empty 空状态 <span class="aheart-status aheart-status--ready">Ready</span>
+# Empty 空状态 <span class="aheart-status aheart-status--ready">已完成</span>
 
 <script setup lang="ts">
 import { h } from 'vue'

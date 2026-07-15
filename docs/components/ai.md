@@ -84,7 +84,7 @@ const resetChat = () => {
 }
 </script>
 
-# AI 智能对话 <span class="aheart-status aheart-status--ready">Ready</span>
+# AI 智能对话 <span class="aheart-status aheart-status--ready">已完成</span>
 
 `@aheart-ui/ai` 提供模型无关的完整对话流程。业务层实现 `AITransport` 并负责鉴权、持久化、模型调用和工具执行；组件包不会保存 API Key，也不绑定任何模型 SDK。
 

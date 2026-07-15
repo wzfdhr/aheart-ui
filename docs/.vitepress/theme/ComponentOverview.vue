@@ -1,7 +1,7 @@
 <template>
   <section class="aheart-component-overview" :class="{ 'is-motion-ready': motionReady }" aria-label="组件能力域">
     <header class="aheart-component-overview__header">
-      <p class="aheart-component-overview__eyebrow">COMPONENT SYSTEM / CN</p>
+      <p class="aheart-component-overview__eyebrow">组件系统 / 中文站</p>
       <h1>组件总览</h1>
       <p>按照产品任务与能力层级组织组件，从设计基础逐步进入高级工作区与智能产品能力。</p>
     </header>

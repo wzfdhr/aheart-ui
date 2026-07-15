@@ -1,4 +1,4 @@
-# Divider 分割线 <span class="aheart-status aheart-status--ready">Ready</span>
+# Divider 分割线 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Divider separates content groups with horizontal or vertical rules, title placement, and line variants.
 

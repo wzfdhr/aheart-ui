@@ -1,4 +1,4 @@
-# Tabs 标签页 <span class="aheart-status aheart-status--ready">Ready</span>
+# Tabs 标签页 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Tabs switch between related panels while keeping the surrounding page context stable.
 

@@ -8,7 +8,7 @@ import _sfc_main$3 from "./sources.vue.js";
 import _sfc_main$5 from "./agent-execution.vue.js";
 const _hoisted_1 = {
   class: "aheart-ai-workbench",
-  "aria-label": "Agent 工作台"
+  "aria-label": "AI 工作台"
 };
 const _hoisted_2 = { class: "aheart-ai-workbench__header" };
 const _hoisted_3 = { key: 0 };
@@ -62,7 +62,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{ name: "AAIAgentWorkbench" },
   __name: "agent-workbench",
   props: {
-    title: { default: "Agent 工作台" },
+    title: { default: "AI 工作台" },
     description: { default: "编排对话、任务、审批与产物。" },
     panelSizes: { default: () => [150, "auto", 200] },
     conversations: { default: () => [] },
@@ -143,7 +143,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("section", _hoisted_1, [
         createElementVNode("header", _hoisted_2, [
           createElementVNode("div", null, [
-            _cache[30] || (_cache[30] = createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "AGENT WORKSPACE", -1)),
+            _cache[30] || (_cache[30] = createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "智能工作区", -1)),
             createElementVNode("h2", null, toDisplayString(__props.title), 1),
             __props.description ? (openBlock(), createElementBlock("p", _hoisted_3, toDisplayString(__props.description), 1)) : createCommentVNode("", true)
           ]),

@@ -8,7 +8,7 @@ const setNavigationSize = (value: number | null) => {
 }
 </script>
 
-# Splitter 分割面板 <span class="aheart-status aheart-status--ready">Ready</span>
+# Splitter 分割面板 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Splitter creates resizable adjacent panels. It is separate from Divider, which only provides visual separation.
 

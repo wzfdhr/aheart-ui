@@ -19,7 +19,7 @@ const todayValue = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(to
 const thisMonthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`
 </script>
 
-# DatePicker 日期选择器 <span class="aheart-status aheart-status--ready">Ready</span>
+# DatePicker 日期选择器 <span class="aheart-status aheart-status--ready">已完成</span>
 
 面向企业表单与任务排期的日期选择器。显示格式与提交格式相互独立，对外始终输出字符串。
 

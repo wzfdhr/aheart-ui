@@ -2,7 +2,7 @@
 import { h } from 'vue'
 </script>
 
-# Input 输入框 <span class="aheart-status aheart-status--ready">Ready</span>
+# Input 输入框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Input captures single-line text with optional prefix, suffix, addons, clear action, count, variants, and validation status.
 

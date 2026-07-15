@@ -1,4 +1,4 @@
-# Skeleton 骨架屏 <span class="aheart-status aheart-status--ready">Ready</span>
+# Skeleton 骨架屏 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Skeleton displays loading placeholders before content is ready.
 

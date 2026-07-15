@@ -3,7 +3,7 @@
     <section class="aheart-ai-workbench__tasks" aria-labelledby="agent-tasks-title">
       <div class="aheart-ai-workbench__section-heading">
         <div>
-          <span class="aheart-ai-workbench__eyebrow">EXECUTION</span>
+          <span class="aheart-ai-workbench__eyebrow">执行流程</span>
           <h2 id="agent-tasks-title">执行时间线</h2>
         </div>
         <span>{{ tasks.length }} 项</span>
@@ -123,7 +123,7 @@
     <section class="aheart-ai-workbench__artifacts" aria-labelledby="agent-artifacts-title">
       <div class="aheart-ai-workbench__section-heading">
         <div>
-          <span class="aheart-ai-workbench__eyebrow">OUTPUTS</span>
+          <span class="aheart-ai-workbench__eyebrow">产物输出</span>
           <h2 id="agent-artifacts-title">产物</h2>
         </div>
         <span>{{ artifacts.length }} 项</span>

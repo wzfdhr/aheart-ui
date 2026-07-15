@@ -1,4 +1,4 @@
-# Icon 图标 <span class="aheart-status aheart-status--ready">Ready</span>
+# Icon 图标 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Icon 使用受控 Lucide 映射渲染一致的界面符号，也支持组件和自定义 SVG 内容。
 

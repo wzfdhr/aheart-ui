@@ -1,4 +1,4 @@
-# Descriptions 描述列表 <span class="aheart-status aheart-status--ready">Ready</span>
+# Descriptions 描述列表 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Descriptions displays record details as label and content pairs.
 

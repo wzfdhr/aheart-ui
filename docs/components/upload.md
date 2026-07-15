@@ -9,7 +9,7 @@ const customRequest = ({ onProgress, onSuccess }: { onProgress: (percent: number
 }
 </script>
 
-# Upload 上传 <span class="aheart-status aheart-status--ready">Ready</span>
+# Upload 上传 <span class="aheart-status aheart-status--ready">已完成</span>
 
 选择文件并管理上传状态。组件不包含上传服务，通过 `customRequest` 接入业务请求。
 

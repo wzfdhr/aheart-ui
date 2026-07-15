@@ -1,4 +1,4 @@
-# Flex 弹性布局 <span class="aheart-status aheart-status--ready">Ready</span>
+# Flex 弹性布局 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Flex provides a small layout helper for one-dimensional alignment and spacing.
 

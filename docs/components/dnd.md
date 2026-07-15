@@ -5,7 +5,7 @@ const todo = ref([{ id: 'plan', title: '整理需求' }, { id: 'review', title: 
 const done = ref([{ id: 'release', title: '准备发布' }])
 </script>
 
-# DnD 拖拽 <span class="aheart-status aheart-status--ready">Ready</span>
+# DnD 拖拽 <span class="aheart-status aheart-status--ready">已完成</span>
 
 `@aheart-ui/dnd` 基于 Pragmatic Drag and Drop 提供 Vue 受控拖拽能力。它不修改业务数据，所有排序和跨容器移动都通过 `v-model:items` 回传。
 

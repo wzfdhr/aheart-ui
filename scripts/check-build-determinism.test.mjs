@@ -1,0 +1,535 @@
+import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { homedir, tmpdir } from 'node:os'
+import { dirname, join, resolve } from 'node:path'
+import test from 'node:test'
+import {
+  GENERATED_PATHS,
+  assertSnapshotsEqual,
+  compareSnapshots,
+  snapshotGeneratedFiles
+} from './check-build-determinism.mjs'
+
+const generatedPaths = [
+  'packages/components/es',
+  'packages/components/lib',
+  'packages/dnd/es',
+  'packages/dnd/lib',
+  'packages/ai/es',
+  'packages/ai/lib'
+]
+
+const gateScript = resolve('scripts/check-build-determinism.mjs')
+const workspacePackageManager = JSON.parse(readFileSync(resolve('package.json'), 'utf8')).packageManager
+const [workspacePackageManagerName, workspacePnpmVersion] = workspacePackageManager.split('@')
+
+assert.equal(workspacePackageManagerName, 'pnpm')
+
+const findInstalledPnpm = () => {
+  const candidates = [
+    process.env.AHEART_TEST_PNPM_EXECUTABLE,
+    process.env.PNPM_HOME && join(process.env.PNPM_HOME, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'),
+    join(homedir(), '.cache/node/corepack/v1/pnpm', workspacePnpmVersion, 'bin/pnpm.cjs')
+  ].filter(Boolean)
+
+  for (const executable of candidates) {
+    if (!existsSync(executable)) continue
+
+    const command = executable.endsWith('.cjs') ? process.execPath : executable
+    const args = executable.endsWith('.cjs') ? [executable] : []
+    const versionResult = spawnSync(command, [...args, '--version'], { encoding: 'utf8' })
+
+    if (versionResult.status === 0 && versionResult.stdout.trim() === workspacePnpmVersion) {
+      return { command, args, executable, version: versionResult.stdout.trim() }
+    }
+  }
+
+  throw new Error(
+    `pnpm@${workspacePnpmVersion} must be installed before running the build gate orchestration tests`
+  )
+}
+
+const installedPnpm = findInstalledPnpm()
+
+const writeFixture = (root, path, contents) => {
+  const absolutePath = join(root, path)
+  mkdirSync(dirname(absolutePath), { recursive: true })
+  writeFileSync(absolutePath, contents)
+}
+
+const runGit = (root, args, options = {}) =>
+  spawnSync('git', args, { cwd: root, encoding: 'utf8', ...options })
+
+const createGateRepository = (t, { gitignore = '', buildBody = '' } = {}) => {
+  const root = mkdtempSync(join(tmpdir(), 'aheart-build-gate-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  assert.equal(runGit(root, ['init', '--quiet']).status, 0)
+  writeFixture(
+    root,
+    'package.json',
+    JSON.stringify({ packageManager: workspacePackageManager, scripts: { build: 'node build-fixture.mjs' } })
+  )
+  writeFixture(
+    root,
+    'build-fixture.mjs',
+    [
+      "import { appendFileSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'",
+      "const countPath = '.build-count'",
+      "const count = existsSync(countPath) ? Number(readFileSync(countPath, 'utf8')) + 1 : 1",
+      "writeFileSync(countPath, String(count))",
+      "appendFileSync('.build-events.jsonl', `${JSON.stringify({ count, cwd: process.cwd(), execPath: process.execPath, initCwd: process.env.INIT_CWD, lifecycle: process.env.npm_lifecycle_event, userAgent: process.env.npm_config_user_agent, corepackHome: process.env.COREPACK_HOME, corepackNetwork: process.env.COREPACK_ENABLE_NETWORK })}\\n`)",
+      buildBody
+    ].join('\n')
+  )
+  if (gitignore) writeFixture(root, '.gitignore', gitignore)
+  for (const [index, directory] of generatedPaths.entries()) {
+    writeFixture(root, `${directory}/baseline-${index}.d.ts`, `baseline-${index}\n`)
+  }
+
+  assert.equal(runGit(root, ['add', '.']).status, 0)
+  assert.equal(
+    runGit(root, [
+      '-c',
+      'user.name=Aheart Test',
+      '-c',
+      'user.email=test@aheart.local',
+      'commit',
+      '--quiet',
+      '-m',
+      'baseline'
+    ]).status,
+    0
+  )
+
+  return root
+}
+
+const defaultFixtureBuildCommand = [installedPnpm.command, ...installedPnpm.args, 'build']
+
+const runGate = (root, { offline = false, buildCommand = defaultFixtureBuildCommand } = {}) =>
+  spawnSync(process.execPath, [gateScript], {
+    cwd: root,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      CI: 'true',
+      AHEART_BUILD_DETERMINISM_COMMAND: JSON.stringify(buildCommand),
+      ...(offline
+        ? {
+            COREPACK_ENABLE_NETWORK: '0',
+            COREPACK_HOME: join(root, '.empty-corepack-home')
+          }
+        : {})
+    }
+  })
+
+const gateOutput = (result) => `${result.stdout ?? ''}\n${result.stderr ?? ''}`
+const readOptionalFixture = (path) => (existsSync(path) ? readFileSync(path, 'utf8') : '<missing>')
+const readBuildEvents = (root) =>
+  readFileSync(join(root, '.build-events.jsonl'), 'utf8')
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line))
+const diagnosticsPath = (root, file) => join(root, 'test-results/build-generated-diagnostics', file)
+const readDiagnostic = (root, file) => readFileSync(diagnosticsPath(root, file), 'utf8')
+
+const assertBuildResult = (root, buildNumber, expected) => {
+  const result = readDiagnostic(root, `build-${buildNumber}.result.txt`)
+
+  assert.match(result, new RegExp(`Build: ${buildNumber}(?:\\n|$)`))
+  assert.match(result, new RegExp(`Stage: ${expected.stage}(?:\\n|$)`))
+  assert.match(result, new RegExp(`Exit status: ${expected.status}(?:\\n|$)`))
+  assert.match(result, new RegExp(`Signal: ${expected.signal}(?:\\n|$)`))
+}
+
+test('temporary gate repository pins the workspace package manager', (t) => {
+  const root = createGateRepository(t)
+  const fixturePackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
+  assert.equal(fixturePackage.packageManager, workspacePackageManager)
+  assert.equal(installedPnpm.version, workspacePnpmVersion)
+})
+
+test('real orchestration runs both builds with the installed workspace pnpm while Corepack is cold and offline', (t) => {
+  const root = createGateRepository(t)
+  const corepackHome = join(root, '.empty-corepack-home')
+  mkdirSync(corepackHome)
+
+  const result = runGate(root, { offline: true })
+
+  assert.equal(result.status, 0, gateOutput(result))
+  assert.deepEqual(
+    readBuildEvents(root).map(({ count, userAgent, corepackHome: actualHome, corepackNetwork }) => ({
+      count,
+      userAgent,
+      corepackHome: actualHome,
+      corepackNetwork
+    })),
+    [1, 2].map((count) => ({
+      count,
+      userAgent: `pnpm/${workspacePnpmVersion} npm/? node/v${process.versions.node} ${process.platform} ${process.arch}`,
+      corepackHome,
+      corepackNetwork: '0'
+    }))
+  )
+})
+
+test('snapshots every file in all generated directories with relative paths and SHA-256', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'aheart-build-snapshot-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const files = generatedPaths.map((directory, index) => [
+    `${directory}/nested/file-${index}.d.ts`,
+    index === 0 ? 'alpha' : `content-${index}`
+  ])
+
+  for (const [relativePath, contents] of files) {
+    const absolutePath = join(root, relativePath)
+    mkdirSync(dirname(absolutePath), { recursive: true })
+    writeFileSync(absolutePath, contents)
+  }
+
+  assert.deepEqual(GENERATED_PATHS, generatedPaths)
+  assert.deepEqual(Object.keys(snapshotGeneratedFiles(root)), files.map(([path]) => path))
+  assert.equal(
+    snapshotGeneratedFiles(root)['packages/components/es/nested/file-0.d.ts'],
+    '8ed3f6ad685b959ead7022518e1af76cd816f8e8ec7ccdda1ed4018e8f2223f8'
+  )
+})
+
+test('identical snapshots produce no differences regardless of insertion order', () => {
+  const first = {
+    'packages/components/es/z.d.ts': 'hash-z',
+    'packages/components/es/a.d.ts': 'hash-a'
+  }
+  const second = {
+    'packages/components/es/a.d.ts': 'hash-a',
+    'packages/components/es/z.d.ts': 'hash-z'
+  }
+
+  assert.deepEqual(compareSnapshots(first, second), [])
+  assert.doesNotThrow(() => assertSnapshotsEqual(first, second))
+})
+
+test('identifies added, removed, and changed files in deterministic order', () => {
+  const first = {
+    'packages/dnd/lib/z-removed.d.ts': 'old-z',
+    'packages/components/es/b-changed.d.ts': 'old-b',
+    'packages/dnd/lib/a-removed.d.ts': 'old-a',
+    'packages/ai/es/unchanged.d.ts': 'same'
+  }
+  const second = {
+    'packages/components/lib/z-added.d.ts': 'new-z',
+    'packages/components/es/b-changed.d.ts': 'new-b',
+    'packages/components/lib/a-added.d.ts': 'new-a',
+    'packages/ai/es/unchanged.d.ts': 'same'
+  }
+
+  assert.deepEqual(compareSnapshots(first, second), [
+    { status: 'added', path: 'packages/components/lib/a-added.d.ts' },
+    { status: 'added', path: 'packages/components/lib/z-added.d.ts' },
+    { status: 'removed', path: 'packages/dnd/lib/a-removed.d.ts' },
+    { status: 'removed', path: 'packages/dnd/lib/z-removed.d.ts' },
+    { status: 'changed', path: 'packages/components/es/b-changed.d.ts' }
+  ])
+})
+
+test('mismatched snapshots throw a readable status report with paths', () => {
+  const first = {
+    'packages/components/es/changed.d.ts': 'before',
+    'packages/components/es/removed.d.ts': 'before'
+  }
+  const second = {
+    'packages/components/es/added.d.ts': 'after',
+    'packages/components/es/changed.d.ts': 'after'
+  }
+
+  assert.throws(
+    () => assertSnapshotsEqual(first, second),
+    {
+      message: [
+        'Generated output differs between consecutive builds:',
+        'ADDED packages/components/es/added.d.ts',
+        'REMOVED packages/components/es/removed.d.ts',
+        'CHANGED packages/components/es/changed.d.ts'
+      ].join('\n')
+    }
+  )
+})
+
+test('preflight rejects a staged change even when the worktree is restored to HEAD', (t) => {
+  const generatedFile = 'packages/components/es/baseline-0.d.ts'
+  const root = createGateRepository(t, {
+    buildBody: `writeFileSync(${JSON.stringify(generatedFile)}, 'baseline-0\\n')`
+  })
+
+  writeFixture(root, generatedFile, 'staged\n')
+  assert.equal(runGit(root, ['add', generatedFile]).status, 0)
+  writeFixture(root, generatedFile, 'baseline-0\n')
+
+  const result = runGate(root)
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.match(gateOutput(result), /Generated output index differs from HEAD/)
+  assert.equal(existsSync(join(root, '.build-count')), false, 'build must not run after a failed preflight')
+  assert.equal(readDiagnostic(root, 'build-1.stdout.log'), '')
+  assert.equal(readDiagnostic(root, 'build-1.stderr.log'), '')
+  assertBuildResult(root, 1, { stage: 'not-started', status: 'not-run', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'not-started', status: 'not-run', signal: 'none' })
+  assert.match(readDiagnostic(root, 'comparison.txt'), /Failure stage: preflight/)
+  assert.match(
+    readDiagnostic(root, 'comparison.txt'),
+    /Preflight generated-output check failed before build 1 started\./
+  )
+})
+
+test('preflight rejects a staged new file before a build can delete it', (t) => {
+  const generatedFile = 'packages/components/es/staged-new.d.ts'
+  const root = createGateRepository(t, {
+    buildBody: `rmSync(${JSON.stringify(generatedFile)}, { force: true })`
+  })
+
+  writeFixture(root, generatedFile, 'staged new output\n')
+  assert.equal(runGit(root, ['add', generatedFile]).status, 0)
+
+  const result = runGate(root)
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.match(gateOutput(result), /Generated output index differs from HEAD/)
+  assert.equal(existsSync(join(root, '.build-count')), false, 'build must not erase staged evidence')
+})
+
+test('preflight rejects an ignored generated file before a build can delete it', (t) => {
+  const ignoredFile = 'packages/components/es/ignored-before-build.d.ts'
+  const root = createGateRepository(t, {
+    gitignore: `${ignoredFile}\n`,
+    buildBody: `rmSync(${JSON.stringify(ignoredFile)}, { force: true })`
+  })
+
+  writeFixture(root, ignoredFile, 'ignored generated output\n')
+
+  const result = runGate(root)
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.match(gateOutput(result), new RegExp(`Untracked generated files:\\s+${ignoredFile.replaceAll('.', '\\.')}`))
+  assert.equal(existsSync(join(root, '.build-count')), false, 'build must not erase ignored evidence')
+})
+
+test('writes sorted SHA-256 manifests and a readable comparison when builds differ', (t) => {
+  const generatedFile = 'packages/components/es/baseline-0.d.ts'
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log(`BUILD_${count}_STDOUT`)",
+      `writeFileSync(${JSON.stringify(generatedFile)}, count === 1 ? 'build-one\\n' : 'build-two\\n')`
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+  const diagnostics = join(root, 'test-results/build-generated-diagnostics')
+  const firstPath = join(diagnostics, 'build-1.sha256.txt')
+  const secondPath = join(diagnostics, 'build-2.sha256.txt')
+  const reportPath = join(diagnostics, 'comparison.txt')
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.equal(existsSync(firstPath), true, 'build 1 manifest is missing')
+  assert.equal(existsSync(secondPath), true, 'build 2 manifest is missing')
+  assert.equal(existsSync(reportPath), true, 'comparison report is missing')
+
+  const firstLines = readFileSync(firstPath, 'utf8').trim().split('\n')
+  const secondLines = readFileSync(secondPath, 'utf8').trim().split('\n')
+  const firstHash = createHash('sha256').update('build-one\n').digest('hex')
+  const secondHash = createHash('sha256').update('build-two\n').digest('hex')
+  const firstPaths = firstLines.map((line) => line.slice(66))
+  const secondPaths = secondLines.map((line) => line.slice(66))
+  const failureEvidence = [
+    `build events:\n${readOptionalFixture(join(root, '.build-events.jsonl'))}`,
+    `build 1 manifest:\n${firstLines.join('\n')}`,
+    `build 2 manifest:\n${secondLines.join('\n')}`,
+    `gate output:\n${gateOutput(result)}`
+  ].join('\n\n')
+
+  assert.deepEqual(firstPaths, [...firstPaths].sort())
+  assert.deepEqual(secondPaths, [...secondPaths].sort())
+  assert.ok(firstLines.includes(`${firstHash}  ${generatedFile}`), failureEvidence)
+  assert.ok(secondLines.includes(`${secondHash}  ${generatedFile}`), failureEvidence)
+  assert.equal(readDiagnostic(root, 'build-1.stdout.log').includes('BUILD_1_STDOUT'), true)
+  assert.equal(readDiagnostic(root, 'build-2.stdout.log').includes('BUILD_2_STDOUT'), true)
+  assertBuildResult(root, 1, { stage: 'completed', status: '0', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'completed', status: '0', signal: 'none' })
+  assert.match(readFileSync(reportPath, 'utf8'), /Failure stage: snapshot-comparison/)
+  assert.match(readFileSync(reportPath, 'utf8'), new RegExp(`CHANGED ${generatedFile.replaceAll('.', '\\.')}`))
+})
+
+test('persists and tees build 1 stdout, stderr, exit status, and accurate failure stage', (t) => {
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log('BUILD_ONE_STDOUT')",
+      "console.error('BUILD_ONE_STDERR')",
+      'process.exit(41)'
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+  const output = gateOutput(result)
+
+  assert.notEqual(result.status, 0, output)
+  assert.match(output, /BUILD_ONE_STDOUT/)
+  assert.match(output, /BUILD_ONE_STDERR/)
+  assert.match(readDiagnostic(root, 'build-1.stdout.log'), /BUILD_ONE_STDOUT/)
+  assert.match(readDiagnostic(root, 'build-1.stderr.log'), /BUILD_ONE_STDERR/)
+  assertBuildResult(root, 1, { stage: 'failed', status: '41', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'not-started', status: 'not-run', signal: 'none' })
+  assert.match(readDiagnostic(root, 'comparison.txt'), /Failure stage: build-1/)
+  assert.match(
+    readDiagnostic(root, 'comparison.txt'),
+    /Build 1 failed before its snapshot was captured; build 2 was not started\./
+  )
+})
+
+test('persists and tees build 2 failure after recording the completed first build', (t) => {
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log(count === 1 ? 'BUILD_ONE_OK' : 'BUILD_TWO_STDOUT')",
+      "if (count === 2) console.error('BUILD_TWO_STDERR')",
+      'if (count === 2) process.exit(42)'
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+  const output = gateOutput(result)
+
+  assert.notEqual(result.status, 0, output)
+  assert.match(output, /BUILD_TWO_STDOUT/)
+  assert.match(output, /BUILD_TWO_STDERR/)
+  assert.match(readDiagnostic(root, 'build-1.stdout.log'), /BUILD_ONE_OK/)
+  assert.match(readDiagnostic(root, 'build-2.stdout.log'), /BUILD_TWO_STDOUT/)
+  assert.match(readDiagnostic(root, 'build-2.stderr.log'), /BUILD_TWO_STDERR/)
+  assertBuildResult(root, 1, { stage: 'completed', status: '0', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'failed', status: '42', signal: 'none' })
+  assert.match(readDiagnostic(root, 'comparison.txt'), /Failure stage: build-2/)
+  assert.match(
+    readDiagnostic(root, 'comparison.txt'),
+    /Build 2 failed after build 1 snapshot completed; build 2 snapshot was not captured\./
+  )
+})
+
+test('reports snapshot 1 capture failure after build 1 completes successfully', (t) => {
+  const missingRoot = 'packages/ai/lib'
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log('SNAPSHOT_ONE_BUILD_COMPLETED')",
+      `if (count === 1) rmSync(${JSON.stringify(missingRoot)}, { recursive: true, force: true })`
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+  const manifest = readDiagnostic(root, 'build-1.sha256.txt')
+  const comparison = readDiagnostic(root, 'comparison.txt')
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.deepEqual(readBuildEvents(root).map(({ count }) => count), [1])
+  assertBuildResult(root, 1, { stage: 'completed', status: '0', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'not-started', status: 'not-run', signal: 'none' })
+  assert.match(manifest, /^# unavailable: build 1 completed but snapshot unavailable(?:\n|:)/)
+  assert.doesNotMatch(manifest, /build 1 did not complete/)
+  assert.match(comparison, /Failure stage: snapshot-1/)
+  assert.match(
+    comparison,
+    /Build 1 completed successfully, but snapshot 1 capture failed; build 2 was not started\./
+  )
+  assert.match(comparison, /Snapshot comparison unavailable because snapshot 1 was not captured/)
+  assert.match(comparison, new RegExp(missingRoot.replaceAll('/', '\\/')))
+})
+
+test('reports snapshot 2 capture failure after both builds complete successfully', (t) => {
+  const missingRoot = 'packages/dnd/es'
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log(`SNAPSHOT_${count}_BUILD_COMPLETED`)",
+      `if (count === 2) rmSync(${JSON.stringify(missingRoot)}, { recursive: true, force: true })`
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+  const firstManifest = readDiagnostic(root, 'build-1.sha256.txt')
+  const secondManifest = readDiagnostic(root, 'build-2.sha256.txt')
+  const comparison = readDiagnostic(root, 'comparison.txt')
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.deepEqual(readBuildEvents(root).map(({ count }) => count), [1, 2])
+  assertBuildResult(root, 1, { stage: 'completed', status: '0', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'completed', status: '0', signal: 'none' })
+  assert.doesNotMatch(firstManifest, /^# unavailable:/)
+  assert.match(secondManifest, /^# unavailable: build 2 completed but snapshot unavailable(?:\n|:)/)
+  assert.doesNotMatch(secondManifest, /build 2 did not complete/)
+  assert.match(comparison, /Failure stage: snapshot-2/)
+  assert.match(
+    comparison,
+    /Build 2 completed successfully after snapshot 1 was captured, but snapshot 2 capture failed\./
+  )
+  assert.match(comparison, /Snapshot comparison unavailable because snapshot 2 was not captured/)
+  assert.match(comparison, new RegExp(missingRoot.replaceAll('/', '\\/')))
+})
+
+test('preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts', (t) => {
+  const root = createGateRepository(t)
+  const splitOutputScript = join(root, 'split-utf8-output.mjs')
+  writeFixture(
+    root,
+    'split-utf8-output.mjs',
+    [
+      'const writeAcrossChunks = async (stream, text) => {',
+      '  const bytes = Buffer.from(text)',
+      '  stream.write(bytes.subarray(0, 1))',
+      '  await new Promise((resolve) => setTimeout(resolve, 25))',
+      '  stream.write(bytes.subarray(1))',
+      '}',
+      "await writeAcrossChunks(process.stdout, '构建输出\\n')",
+      "await writeAcrossChunks(process.stderr, '诊断错误\\n')",
+      'process.exitCode = 41'
+    ].join('\n')
+  )
+
+  const result = runGate(root, {
+    offline: true,
+    buildCommand: [process.execPath, splitOutputScript]
+  })
+  const terminalMirror = gateOutput(result)
+  const stdoutArtifact = readDiagnostic(root, 'build-1.stdout.log')
+  const stderrArtifact = readDiagnostic(root, 'build-1.stderr.log')
+
+  assert.notEqual(result.status, 0, terminalMirror)
+  assert.match(result.stdout, /构建输出/)
+  assert.match(result.stderr, /诊断错误/)
+  assert.equal(stdoutArtifact, '构建输出\n')
+  assert.equal(stderrArtifact, '诊断错误\n')
+  assert.doesNotMatch(terminalMirror, /\uFFFD/)
+  assert.doesNotMatch(`${stdoutArtifact}${stderrArtifact}`, /\uFFFD/)
+  assertBuildResult(root, 1, { stage: 'failed', status: '41', signal: 'none' })
+})
+
+test('reports postflight failure after two matching snapshots and preserves both build results', (t) => {
+  const generatedFile = 'packages/components/es/baseline-0.d.ts'
+  const root = createGateRepository(t, {
+    buildBody: [
+      "console.log(`POSTFLIGHT_BUILD_${count}`)",
+      `writeFileSync(${JSON.stringify(generatedFile)}, 'postflight-drift\\n')`
+    ].join('\n')
+  })
+
+  const result = runGate(root, { offline: true })
+
+  assert.notEqual(result.status, 0, gateOutput(result))
+  assert.deepEqual(readBuildEvents(root).map(({ count }) => count), [1, 2])
+  assertBuildResult(root, 1, { stage: 'completed', status: '0', signal: 'none' })
+  assertBuildResult(root, 2, { stage: 'completed', status: '0', signal: 'none' })
+  assert.match(readDiagnostic(root, 'comparison.txt'), /Failure stage: postflight/)
+  assert.match(
+    readDiagnostic(root, 'comparison.txt'),
+    /Both build snapshots completed and matched; postflight generated-output check failed\./
+  )
+  assert.match(readDiagnostic(root, 'comparison.txt'), /No differences between build snapshots\./)
+})

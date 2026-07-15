@@ -5,7 +5,7 @@ const textareaBasic = ref('A longer description can live here.')
 const textareaCount = ref('Line one')
 </script>
 
-# Textarea 文本域 <span class="aheart-status aheart-status--ready">Ready</span>
+# Textarea 文本域 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Textarea captures multi-line text with rows, count, clear action, auto-size row bounds, variants, disabled state, and validation status.
 

@@ -9,7 +9,7 @@ const checkboxFruits = ref(['apple'])
 const checkboxPermissions = ref(['read'])
 </script>
 
-# Checkbox 多选框 <span class="aheart-status aheart-status--ready">Ready</span>
+# Checkbox 多选框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Checkbox captures a boolean choice or a grouped set of choices with checked, disabled, and indeterminate states.
 

@@ -1,4 +1,4 @@
-# Dropdown 下拉菜单 <span class="aheart-status aheart-status--ready">Ready</span>
+# Dropdown 下拉菜单 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Dropdown exposes contextual actions from a trigger element and renders a Menu overlay. Its default trigger follows Ant Design and opens on hover.
 

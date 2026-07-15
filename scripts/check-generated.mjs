@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const generatedPaths = [
+export const GENERATED_PATHS = [
   'packages/components/es',
   'packages/components/lib',
   'packages/dnd/es',
@@ -16,9 +16,31 @@ export const assertNoUntrackedGeneratedFiles = (output) => {
   if (files) throw new Error(`Untracked generated files:\n${files}`)
 }
 
-export const checkGeneratedOutput = () => {
-  execFileSync('git', ['diff', '--exit-code', '--', ...generatedPaths], { stdio: 'inherit' })
-  const untracked = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '--', ...generatedPaths], {
+const assertCleanDiff = (cwd, args, message) => {
+  try {
+    execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+  } catch (error) {
+    const output = [error.stdout, error.stderr]
+      .filter((value) => typeof value === 'string' && value.trim())
+      .join('\n')
+      .trim()
+    throw new Error(output ? `${message}:\n${output}` : message)
+  }
+}
+
+export const checkGeneratedOutput = (cwd = process.cwd()) => {
+  assertCleanDiff(
+    cwd,
+    ['diff', '--cached', '--exit-code', 'HEAD', '--', ...GENERATED_PATHS],
+    'Generated output index differs from HEAD'
+  )
+  assertCleanDiff(
+    cwd,
+    ['diff', '--exit-code', '--', ...GENERATED_PATHS],
+    'Generated output worktree differs from index'
+  )
+  const untracked = execFileSync('git', ['ls-files', '--others', '--', ...GENERATED_PATHS], {
+    cwd,
     encoding: 'utf8'
   })
   assertNoUntrackedGeneratedFiles(untracked)

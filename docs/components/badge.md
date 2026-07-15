@@ -1,4 +1,4 @@
-# Badge 徽标 <span class="aheart-status aheart-status--ready">Ready</span>
+# Badge 徽标 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Badge shows counts, dots, and status markers around nearby content.
 

@@ -1,4 +1,4 @@
-# Alert 警告提示 <span class="aheart-status aheart-status--ready">Ready</span>
+# Alert 警告提示 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Alert displays contextual information with optional icons, descriptions, and close controls.
 

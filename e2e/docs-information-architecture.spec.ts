@@ -36,3 +36,25 @@ test('mobile overview keeps capability domains readable', async ({ page }, testI
   )
   expect(itemBoxes[1]).toBeGreaterThan(itemBoxes[0])
 })
+
+test('Chinese documentation shell and status copy stay localized', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'mobile shell copy check')
+  await page.goto('/components/overview')
+
+  await expect(page.locator('.aheart-component-overview__eyebrow')).toHaveText('组件系统 / 中文站')
+  await expect(page.locator('.aheart-component-item .aheart-status').first()).toHaveText('已完成')
+  await expect(page.getByText('菜单', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: '返回顶部' })).toBeVisible()
+  await expect(page.getByRole('link', { name: '跳至正文' })).toBeAttached()
+
+  await page.goto('/components/ai-agent-workbench')
+  await expect(page.locator('h1 .aheart-status')).toHaveText('已完成')
+  await expect(page.locator('.aheart-ai-workbench__header .aheart-ai-workbench__eyebrow')).toHaveText('智能工作区')
+  await page.evaluate(() => window.scrollTo(0, 160))
+  const localNav = page.locator('.VPLocalNav')
+  await expect(localNav.locator('.VPLocalNavOutlineDropdown .menu-text')).toHaveText('本页内容')
+  await expect(localNav).not.toContainText('On this page')
+  await expect(page.getByText('AGENT WORKSPACE', { exact: true })).toHaveCount(0)
+  await expect(page.getByText('EXECUTION', { exact: true })).toHaveCount(0)
+  await expect(page.getByText('OUTPUTS', { exact: true })).toHaveCount(0)
+})
