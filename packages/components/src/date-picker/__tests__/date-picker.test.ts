@@ -260,6 +260,22 @@ describe('DatePicker', () => {
     expect(document.activeElement).toBe(wrapper.find('input').element)
   })
 
+  it('localizes the confirmation cancel action without committing an enUS draft', async () => {
+    vi.useFakeTimers()
+    const wrapper = mountPicker({ locale: enUS, showTime: true, defaultValue: '2026-07-14 09:08:07' })
+    await openPicker(wrapper)
+    await wrapper.find('[data-value="2026-07-20"]').trigger('click')
+
+    const cancel = wrapper.find('.aheart-date-picker__cancel')
+    expect(cancel.text()).toBe('Cancel')
+    await cancel.trigger('click')
+    await vi.advanceTimersByTimeAsync(120)
+    await nextTick()
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(wrapper.find('.aheart-date-picker__panel').exists()).toBe(false)
+  })
+
   it('supports showTime default values, steps and 12-hour periods', async () => {
     const wrapper = mountPicker({
       showTime: { defaultValue: '21:30:00', hourStep: 2, minuteStep: 5, use12Hours: true },
