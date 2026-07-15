@@ -71,8 +71,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly disabled: boolean;
         readonly bordered: boolean;
         readonly allowClear: import("./types").InputAllowClear;
-        readonly readOnly: boolean;
         readonly prefix: import("vue").VNodeChild;
+        readonly readOnly: boolean;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
@@ -150,8 +150,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
         readonly disabled: boolean;
         readonly bordered: boolean;
         readonly allowClear: import("./types").InputAllowClear;
-        readonly readOnly: boolean;
         readonly prefix: import("vue").VNodeChild;
+        readonly readOnly: boolean;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
@@ -232,8 +232,8 @@ declare const Input: import("../utils/install").SFCWithInstall<{
     readonly disabled: boolean;
     readonly bordered: boolean;
     readonly allowClear: import("./types").InputAllowClear;
-    readonly readOnly: boolean;
     readonly prefix: import("vue").VNodeChild;
+    readonly readOnly: boolean;
     readonly suffix: import("vue").VNodeChild;
     readonly addonBefore: import("vue").VNodeChild;
     readonly addonAfter: import("vue").VNodeChild;

@@ -44,11 +44,24 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Build Components
-        run: pnpm build
+      - name: Check Build Determinism and Generated Output
+        id: build_generated
+        run: pnpm check:build-determinism
 
-      - name: Check Generated Output
-        run: pnpm check:generated
+      - name: Capture Build Diagnostics
+        if: ${{ failure() && steps.build_generated.outcome == 'failure' }}
+        run: |
+          mkdir -p test-results
+          git diff -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/generated-tracked.diff
+          git status --short --untracked-files=all -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/generated-status.txt
+
+      - name: Upload Build Diagnostics
+        if: ${{ failure() && steps.build_generated.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-generated-diagnostics
+          path: test-results/
+          if-no-files-found: error
 
       - name: Build Docs
         run: pnpm docs:build

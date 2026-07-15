@@ -93,9 +93,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly step: string | number;
         readonly bordered: boolean;
         readonly autoFocus: boolean;
+        readonly prefix: import("vue").VNodeChild;
         readonly readOnly: boolean;
         readonly keyboard: boolean;
-        readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
@@ -198,9 +198,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
         readonly step: string | number;
         readonly bordered: boolean;
         readonly autoFocus: boolean;
+        readonly prefix: import("vue").VNodeChild;
         readonly readOnly: boolean;
         readonly keyboard: boolean;
-        readonly prefix: import("vue").VNodeChild;
         readonly suffix: import("vue").VNodeChild;
         readonly addonBefore: import("vue").VNodeChild;
         readonly addonAfter: import("vue").VNodeChild;
@@ -306,9 +306,9 @@ declare const InputNumber: import("../utils/install").SFCWithInstall<{
     readonly step: string | number;
     readonly bordered: boolean;
     readonly autoFocus: boolean;
+    readonly prefix: import("vue").VNodeChild;
     readonly readOnly: boolean;
     readonly keyboard: boolean;
-    readonly prefix: import("vue").VNodeChild;
     readonly suffix: import("vue").VNodeChild;
     readonly addonBefore: import("vue").VNodeChild;
     readonly addonAfter: import("vue").VNodeChild;

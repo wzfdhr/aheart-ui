@@ -165,9 +165,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly step: string | number;
     readonly bordered: boolean;
     readonly autoFocus: boolean;
+    readonly prefix: VNodeChild;
     readonly readOnly: boolean;
     readonly keyboard: boolean;
-    readonly prefix: VNodeChild;
     readonly suffix: VNodeChild;
     readonly addonBefore: VNodeChild;
     readonly addonAfter: VNodeChild;

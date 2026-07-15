@@ -79,9 +79,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     close: () => void;
     cancel: () => void;
     afterClose: () => void;
+    ok: () => void;
     "update:open": (open: boolean) => void;
     afterOpenChange: (open: boolean) => void;
-    ok: () => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly open: BooleanConstructor;
     readonly title: {
@@ -161,9 +161,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     onClose?: (() => any) | undefined;
     onCancel?: (() => any) | undefined;
     onAfterClose?: (() => any) | undefined;
+    onOk?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
-    onOk?: (() => any) | undefined;
 }>, {
     readonly title: VNodeChild;
     readonly closable: import("./types").ModalClosable;

@@ -78,16 +78,16 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         onClose?: (() => any) | undefined;
         onCancel?: (() => any) | undefined;
         onAfterClose?: (() => any) | undefined;
+        onOk?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
-        onOk?: (() => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         close: () => void;
         cancel: () => void;
         afterClose: () => void;
+        ok: () => void;
         "update:open": (open: boolean) => void;
         afterOpenChange: (open: boolean) => void;
-        ok: () => void;
     }, import("vue").PublicProps, {
         readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").ModalClosable;
@@ -196,9 +196,9 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         onClose?: (() => any) | undefined;
         onCancel?: (() => any) | undefined;
         onAfterClose?: (() => any) | undefined;
+        onOk?: (() => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
         onAfterOpenChange?: ((open: boolean) => any) | undefined;
-        onOk?: (() => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly title: import("vue").VNodeChild;
         readonly closable: import("./types").ModalClosable;
@@ -304,16 +304,16 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
     onClose?: (() => any) | undefined;
     onCancel?: (() => any) | undefined;
     onAfterClose?: (() => any) | undefined;
+    onOk?: (() => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
     onAfterOpenChange?: ((open: boolean) => any) | undefined;
-    onOk?: (() => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     close: () => void;
     cancel: () => void;
     afterClose: () => void;
+    ok: () => void;
     "update:open": (open: boolean) => void;
     afterOpenChange: (open: boolean) => void;
-    ok: () => void;
 }, string, {
     readonly title: import("vue").VNodeChild;
     readonly closable: import("./types").ModalClosable;

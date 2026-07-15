@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const generatedPaths = [
+export const GENERATED_PATHS = [
   'packages/components/es',
   'packages/components/lib',
   'packages/dnd/es',
@@ -17,8 +17,8 @@ export const assertNoUntrackedGeneratedFiles = (output) => {
 }
 
 export const checkGeneratedOutput = () => {
-  execFileSync('git', ['diff', '--exit-code', '--', ...generatedPaths], { stdio: 'inherit' })
-  const untracked = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '--', ...generatedPaths], {
+  execFileSync('git', ['diff', '--exit-code', '--', ...GENERATED_PATHS], { stdio: 'inherit' })
+  const untracked = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '--', ...GENERATED_PATHS], {
     encoding: 'utf8'
   })
   assertNoUntrackedGeneratedFiles(untracked)

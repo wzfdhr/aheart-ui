@@ -125,8 +125,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly disabled: boolean;
     readonly bordered: boolean;
     readonly allowClear: import("./types").InputAllowClear;
-    readonly readOnly: boolean;
     readonly prefix: VNodeChild;
+    readonly readOnly: boolean;
     readonly suffix: VNodeChild;
     readonly addonBefore: VNodeChild;
     readonly addonAfter: VNodeChild;
