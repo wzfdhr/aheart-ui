@@ -16,9 +16,10 @@ export const assertNoUntrackedGeneratedFiles = (output) => {
   if (files) throw new Error(`Untracked generated files:\n${files}`)
 }
 
-export const checkGeneratedOutput = () => {
-  execFileSync('git', ['diff', '--exit-code', '--', ...GENERATED_PATHS], { stdio: 'inherit' })
-  const untracked = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '--', ...GENERATED_PATHS], {
+export const checkGeneratedOutput = (cwd = process.cwd()) => {
+  execFileSync('git', ['diff', '--exit-code', 'HEAD', '--', ...GENERATED_PATHS], { cwd, stdio: 'inherit' })
+  const untracked = execFileSync('git', ['ls-files', '--others', '--', ...GENERATED_PATHS], {
+    cwd,
     encoding: 'utf8'
   })
   assertNoUntrackedGeneratedFiles(untracked)
