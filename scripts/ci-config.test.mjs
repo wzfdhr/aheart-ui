@@ -4,12 +4,16 @@ import test from 'node:test'
 import { GENERATED_PATHS } from './check-generated.mjs'
 
 const workflowSource = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8')
+const qualityPlanSource = readFileSync(
+  new URL('../docs/superpowers/plans/2026-07-15-full-functional-quality-plan.md', import.meta.url),
+  'utf8'
+)
 const generatedPaths = GENERATED_PATHS.join(' ')
 
 const getStep = (name) =>
   workflowSource.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name:|$)`))?.[0]
 
-test('uploads tracked diffs and every untracked generated file on build gate failure', () => {
+test('uploads both tracked diff layers and build manifests on build gate failure', () => {
   const captureStep = getStep('Capture Build Diagnostics')
   const uploadStep = getStep('Upload Build Diagnostics')
 
@@ -17,18 +21,41 @@ test('uploads tracked diffs and every untracked generated file on build gate fai
   assert.ok(uploadStep, 'Upload Build Diagnostics step is missing')
   assert.ok(
     captureStep.includes(
-      `git diff -- ${generatedPaths} > test-results/generated-tracked.diff`
+      `git diff --cached HEAD -- ${generatedPaths} > test-results/build-generated-diagnostics/generated-cached.diff`
     ),
-    'tracked generated diff capture is incomplete'
+    'HEAD-to-index generated diff capture is incomplete'
   )
   assert.ok(
     captureStep.includes(
-      `git ls-files --others -- ${generatedPaths} > test-results/generated-untracked.txt`
+      `git diff -- ${generatedPaths} > test-results/build-generated-diagnostics/generated-worktree.diff`
+    ),
+    'index-to-worktree generated diff capture is incomplete'
+  )
+  assert.ok(
+    captureStep.includes(
+      `git ls-files --others -- ${generatedPaths} > test-results/build-generated-diagnostics/generated-untracked.txt`
     ),
     'untracked generated diagnostics must include ignored files'
   )
   assert.doesNotMatch(captureStep, /git ls-files[^\n]*--exclude-standard/)
-  assert.match(uploadStep, /path: test-results\//)
+  assert.match(uploadStep, /path: test-results\/build-generated-diagnostics\//)
+
+  const artifactName = uploadStep.match(/\n          name: ([^\n]+)/)?.[1]
+
+  assert.ok(artifactName, 'build diagnostics artifact name is missing')
+  assert.match(artifactName, /\$\{\{ github\.run_id \}\}/)
+  assert.match(artifactName, /\$\{\{ github\.run_attempt \}\}/)
+  assert.match(uploadStep, /\n          if-no-files-found: error(?:\n|$)/)
+})
+
+test('keeps the quality plan entry point aligned with the four-role gate', () => {
+  const executionRequirement = qualityPlanSource.match(/^> \*\*执行要求：\*\*.*$/m)?.[0]
+
+  assert.ok(executionRequirement, 'quality plan execution requirement is missing')
+  assert.match(executionRequirement, /设计审核/)
+  assert.match(executionRequirement, /开发经理/)
+  assert.match(executionRequirement, /测试经理/)
+  assert.match(executionRequirement, /产品经理/)
 })
 
 test('uploads uniquely named e2e artifacts only when end-to-end tests fail', () => {

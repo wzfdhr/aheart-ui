@@ -53,10 +53,22 @@ test('rejects staged tracked changes in generated directories', (t) => {
 
   writeFixture(root, generatedFile, 'after\n')
   runGit(root, ['add', generatedFile])
+  writeFixture(root, generatedFile, 'before\n')
 
-  assert.equal(runGit(root, ['diff', '--name-only']).trim(), '')
+  assert.equal(runGit(root, ['diff', 'HEAD', '--name-only']).trim(), '')
   assert.equal(runGit(root, ['diff', '--cached', '--name-only']).trim(), generatedFile)
-  assert.throws(() => checkGeneratedOutput(root))
+  assert.throws(() => checkGeneratedOutput(root), /Generated output index differs from HEAD/)
+})
+
+test('rejects unstaged tracked changes in generated directories', (t) => {
+  const generatedFile = 'packages/components/es/index.d.ts'
+  const root = createGitRepository(t, { [generatedFile]: 'before\n' })
+
+  writeFixture(root, generatedFile, 'after\n')
+
+  assert.equal(runGit(root, ['diff', '--cached', '--name-only']).trim(), '')
+  assert.equal(runGit(root, ['diff', '--name-only']).trim(), generatedFile)
+  assert.throws(() => checkGeneratedOutput(root), /Generated output worktree differs from index/)
 })
 
 test('rejects ignored untracked files in generated directories', (t) => {
