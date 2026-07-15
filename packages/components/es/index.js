@@ -37,7 +37,7 @@ import Splitter, { SplitterPanel } from "./splitter/index.js";
 import Table from "./table/index.js";
 import Tag, { CheckableTag, TagGroup } from "./tag/index.js";
 import Tabs from "./tabs/index.js";
-import TimePicker from "./time-picker/index.js";
+import TimePicker, { TimeRangePicker } from "./time-picker/index.js";
 import Textarea from "./textarea/index.js";
 import Tree from "./tree/index.js";
 import TreeSelect from "./tree-select/index.js";
@@ -56,6 +56,7 @@ const components = [
   DatePicker,
   DateRangePicker,
   TimePicker,
+  TimeRangePicker,
   Upload,
   Tree,
   TreeSelect,
@@ -174,6 +175,7 @@ export {
   Text,
   Textarea,
   TimePicker,
+  TimeRangePicker,
   Title,
   Tooltip,
   Tree,

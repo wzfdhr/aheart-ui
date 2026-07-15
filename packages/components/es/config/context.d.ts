@@ -68,6 +68,15 @@ export interface AheartLocale {
         now?: string;
         ok?: string;
         clear?: string;
+        hour?: string;
+        minute?: string;
+        second?: string;
+        period?: string;
+        am?: string;
+        pm?: string;
+        clearStart?: string;
+        clearEnd?: string;
+        clearRange?: string;
         selected?: (value: string) => string;
         rangeStartSelected?: string;
         rangeComplete?: (start: string, end: string) => string;

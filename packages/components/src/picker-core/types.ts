@@ -35,6 +35,11 @@ export type PickerDisabledTime =
   | PickerDisabledTimeConfig
   | ((value: string | undefined, part?: RangePickerPart) => boolean | PickerDisabledTimeConfig)
 
+export type PickerSingleDisabledTime =
+  | PickerDisabledTimeConfig
+  | (() => PickerDisabledTimeConfig)
+  | ((value: string) => boolean)
+
 export interface PickerPreset<T> {
   label: VNodeChild
   value: T | (() => T)
@@ -121,7 +126,7 @@ export interface DateRangePickerPublicProps extends PickerAppearanceProps, Picke
 export interface TimePickerPublicProps extends PickerAppearanceProps, PickerPopupProps {
   modelValue?: PickerValue
   defaultValue?: PickerValue
-  format?: PickerFormat
+  format?: string
   valueFormat?: string
   hourStep?: number
   minuteStep?: number
@@ -131,7 +136,7 @@ export interface TimePickerPublicProps extends PickerAppearanceProps, PickerPopu
   changeOnScroll?: boolean
   showNow?: boolean
   needConfirm?: boolean
-  disabledTime?: PickerDisabledTime
+  disabledTime?: PickerSingleDisabledTime
   clearIcon?: VNodeChild | Component
   renderExtraFooter?: () => VNodeChild
 }

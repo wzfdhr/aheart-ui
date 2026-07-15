@@ -1,11 +1,27 @@
 import { type Component, type PropType, type VNodeChild } from 'vue';
+import type { RangePickerPart, RangePickerValue } from '../picker-core/types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
+    readonly modelValue: PropType<RangePickerValue>;
+    readonly defaultValue: PropType<RangePickerValue>;
+    readonly placeholder: PropType<[string, string]>;
+    readonly disabledTime: PropType<import("../picker-core/types").PickerDisabledTime>;
+    readonly allowEmpty: {
+        readonly type: PropType<[boolean, boolean]>;
+        readonly default: () => boolean[];
+    };
+    readonly order: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly separator: PropType<VNodeChild>;
+    readonly presets: PropType<import("../picker-core/types").PickerPreset<RangePickerValue>[]>;
+    readonly needConfirm: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
-    readonly modelValue: StringConstructor;
-    readonly defaultValue: StringConstructor;
-    readonly placeholder: StringConstructor;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -55,30 +71,50 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: true;
     };
-    readonly needConfirm: BooleanConstructor;
-    readonly disabledTime: PropType<import("..").PickerSingleDisabledTime>;
     readonly hideDisabledOptions: BooleanConstructor;
     readonly changeOnScroll: BooleanConstructor;
     readonly size: PropType<import("../config").AheartSize>;
-    readonly status: PropType<import("../picker-core").PickerStatus>;
+    readonly status: PropType<import("../picker-core/types").PickerStatus>;
     readonly variant: PropType<import("../config").AheartVariant>;
     readonly prefix: PropType<VNodeChild>;
     readonly suffixIcon: PropType<VNodeChild | Component>;
     readonly clearIcon: PropType<VNodeChild | Component>;
     readonly renderExtraFooter: PropType<() => VNodeChild>;
-}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    change: (value: string | undefined) => void;
-    invalid: (input: string) => void;
+}>, {
+    focus: (part?: RangePickerPart) => void | undefined;
+    blur: () => void | undefined;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    change: (value: RangePickerValue) => void;
+    invalid: (input: string, part: RangePickerPart) => void;
     clear: () => void;
-    "update:modelValue": (value: string | undefined) => void;
+    ok: (value: RangePickerValue) => void;
+    "update:modelValue": (value: RangePickerValue) => void;
     openChange: (open: boolean) => void;
+    calendarChange: (value: RangePickerValue, info: {
+        range: RangePickerPart;
+    }) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    readonly modelValue: PropType<RangePickerValue>;
+    readonly defaultValue: PropType<RangePickerValue>;
+    readonly placeholder: PropType<[string, string]>;
+    readonly disabledTime: PropType<import("../picker-core/types").PickerDisabledTime>;
+    readonly allowEmpty: {
+        readonly type: PropType<[boolean, boolean]>;
+        readonly default: () => boolean[];
+    };
+    readonly order: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
+    readonly separator: PropType<VNodeChild>;
+    readonly presets: PropType<import("../picker-core/types").PickerPreset<RangePickerValue>[]>;
+    readonly needConfirm: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
-    readonly modelValue: StringConstructor;
-    readonly defaultValue: StringConstructor;
-    readonly placeholder: StringConstructor;
     readonly disabled: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -128,26 +164,29 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: BooleanConstructor;
         readonly default: true;
     };
-    readonly needConfirm: BooleanConstructor;
-    readonly disabledTime: PropType<import("..").PickerSingleDisabledTime>;
     readonly hideDisabledOptions: BooleanConstructor;
     readonly changeOnScroll: BooleanConstructor;
     readonly size: PropType<import("../config").AheartSize>;
-    readonly status: PropType<import("../picker-core").PickerStatus>;
+    readonly status: PropType<import("../picker-core/types").PickerStatus>;
     readonly variant: PropType<import("../config").AheartVariant>;
     readonly prefix: PropType<VNodeChild>;
     readonly suffixIcon: PropType<VNodeChild | Component>;
     readonly clearIcon: PropType<VNodeChild | Component>;
     readonly renderExtraFooter: PropType<() => VNodeChild>;
 }>> & Readonly<{
-    onChange?: ((value: string | undefined) => any) | undefined;
-    onInvalid?: ((input: string) => any) | undefined;
+    onChange?: ((value: RangePickerValue) => any) | undefined;
+    onInvalid?: ((input: string, part: RangePickerPart) => any) | undefined;
     onClear?: (() => any) | undefined;
-    "onUpdate:modelValue"?: ((value: string | undefined) => any) | undefined;
+    onOk?: ((value: RangePickerValue) => any) | undefined;
+    "onUpdate:modelValue"?: ((value: RangePickerValue) => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
+    onCalendarChange?: ((value: RangePickerValue, info: {
+        range: RangePickerPart;
+    }) => any) | undefined;
 }>, {
     readonly open: boolean;
     readonly disabled: boolean;
+    readonly order: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly format: string;
     readonly defaultOpen: boolean;
@@ -156,6 +195,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly needConfirm: boolean;
     readonly valueFormat: string;
     readonly readOnly: boolean;
+    readonly allowEmpty: [boolean, boolean];
     readonly hourStep: number;
     readonly minuteStep: number;
     readonly secondStep: number;
@@ -166,6 +206,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     prefix?(_: {}): any;
     clearIcon?(_: {}): any;
+    separator?(_: {}): any;
     suffix?(_: {}): any;
     footer?(_: {}): any;
 }>;

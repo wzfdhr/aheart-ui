@@ -1,4 +1,5 @@
 export * from './codec';
 export * from './calendar';
 export * from './selection';
+export * from './time';
 export type * from './types';

@@ -56,6 +56,7 @@ const components = [
   index$5.default,
   index$5.DateRangePicker,
   index$6.default,
+  index$6.TimeRangePicker,
   index$7.default,
   index$8.default,
   index$9.default,
@@ -169,6 +170,7 @@ exports.Tag = index$e.default;
 exports.TagGroup = index$e.TagGroup;
 exports.Tabs = index$t.default;
 exports.TimePicker = index$6.default;
+exports.TimeRangePicker = index$6.TimeRangePicker;
 exports.Textarea = index$w.default;
 exports.Tree = index$8.default;
 exports.TreeSelect = index$9.default;

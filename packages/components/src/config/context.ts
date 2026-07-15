@@ -70,6 +70,15 @@ export interface AheartLocale {
     now?: string
     ok?: string
     clear?: string
+    hour?: string
+    minute?: string
+    second?: string
+    period?: string
+    am?: string
+    pm?: string
+    clearStart?: string
+    clearEnd?: string
+    clearRange?: string
     selected?: (value: string) => string
     rangeStartSelected?: string
     rangeComplete?: (start: string, end: string) => string
@@ -113,6 +122,8 @@ export const zhCN: AheartLocale = {
   },
   timePicker: {
     selectTime: '请选择时间', startTime: '开始时间', endTime: '结束时间', now: '此刻', ok: '确定', clear: '清除',
+    hour: '时', minute: '分', second: '秒', period: '时段', am: '上午', pm: '下午',
+    clearStart: '清除开始时间', clearEnd: '清除结束时间', clearRange: '清除时间范围',
     selected: (value) => `已选择 ${value}`, rangeStartSelected: '已选择开始时间，请选择结束时间',
     rangeComplete: (start, end) => `已选择 ${start} 至 ${end}`
   }
@@ -155,6 +166,8 @@ export const enUS: AheartLocale = {
   },
   timePicker: {
     selectTime: 'Select time', startTime: 'Start time', endTime: 'End time', now: 'Now', ok: 'OK', clear: 'Clear',
+    hour: 'Hour', minute: 'Minute', second: 'Second', period: 'Period', am: 'AM', pm: 'PM',
+    clearStart: 'Clear start time', clearEnd: 'Clear end time', clearRange: 'Clear time range',
     selected: (value) => `Selected ${value}`, rangeStartSelected: 'Start time selected, choose an end time',
     rangeComplete: (start, end) => `Selected ${start} to ${end}`
   }

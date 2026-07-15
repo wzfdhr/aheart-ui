@@ -81,7 +81,7 @@ test('TimePicker defaults to one-minute steps and supports configured steps and 
 
   const basicInput = page.locator('.aheart-demo-panel').nth(0).getByRole('combobox')
   await basicInput.focus()
-  const minuteColumn = page.getByRole('listbox', { name: 'Minute' })
+  const minuteColumn = page.getByRole('listbox', { name: '分' })
   await expect(minuteColumn.getByRole('option')).toHaveCount(60)
   await expect(minuteColumn.getByRole('option', { name: '01', exact: true })).toBeVisible()
   const selectedMinuteIsVisible = await minuteColumn.evaluate((column) => {
@@ -94,16 +94,16 @@ test('TimePicker defaults to one-minute steps and supports configured steps and 
 
   const steppedInput = page.locator('.aheart-demo-panel').nth(1).getByRole('combobox')
   await steppedInput.focus()
-  await expect(page.getByRole('listbox', { name: 'Minute' }).getByRole('option')).toHaveCount(12)
-  await expect(page.getByRole('listbox', { name: 'Second' }).getByRole('option')).toHaveCount(6)
+  await expect(page.getByRole('listbox', { name: '分' }).getByRole('option')).toHaveCount(12)
+  await expect(page.getByRole('listbox', { name: '秒' }).getByRole('option')).toHaveCount(6)
   await page.keyboard.press('Escape')
 
   const confirmInput = page.locator('.aheart-demo-panel').nth(2).getByRole('combobox')
   await confirmInput.focus()
-  await page.getByRole('listbox', { name: 'Minute' }).getByRole('option', { name: '31', exact: true }).click()
-  await expect(confirmInput).toHaveValue('14:30')
+  await page.getByRole('listbox', { name: '分' }).getByRole('option', { name: '31', exact: true }).click()
+  await expect(confirmInput).toHaveValue('14:31:00')
   await page.getByRole('button', { name: '确定', exact: true }).click()
-  await expect(confirmInput).toHaveValue('14:31')
+  await expect(confirmInput).toHaveValue('14:31:00')
 })
 
 test('Cascader and TreeSelect overlays align controls and remain marker-free', async ({ page }) => {

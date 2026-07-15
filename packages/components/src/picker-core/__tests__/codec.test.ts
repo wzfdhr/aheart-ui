@@ -7,8 +7,15 @@ import {
   parsePickerValue,
   shiftPickerValue
 } from '../codec'
+import { parseTimeValue } from '../time'
 
 describe('picker value codec', () => {
+  it('rejects invalid 12-hour clock values instead of ignoring the period', () => {
+    expect(parseTimeValue('14:30 PM')).toBeUndefined()
+    expect(parseTimeValue('00:30 AM')).toBeUndefined()
+    expect(parseTimeValue('12:30 AM')).toEqual({ hour: 0, minute: 30, second: 0 })
+    expect(parseTimeValue('12:30 PM')).toEqual({ hour: 12, minute: 30, second: 0 })
+  })
   it('keeps all public values as strings', () => {
     const value = parsePickerValue('2028-02-29', ['DD/MM/YYYY', 'YYYY-MM-DD'])
 

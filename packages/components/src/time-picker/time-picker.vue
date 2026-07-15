@@ -1,13 +1,14 @@
 <template>
-  <span ref="rootRef" class="aheart-time-picker" :class="{ 'is-open': mergedOpen, 'is-disabled': disabled }">
+  <span ref="rootRef" class="aheart-time-picker" :class="rootClass">
     <span ref="triggerRef" class="aheart-time-picker__selector">
+      <span v-if="hasPrefix" class="aheart-time-picker__prefix"><slot name="prefix"><ARenderNode :node="prefix" /></slot></span>
       <input
         ref="inputRef"
         class="aheart-time-picker__input"
         :id="id"
         :value="displayValue"
-        :placeholder="placeholder"
-        :disabled="disabled"
+        :placeholder="resolvedPlaceholder"
+        :disabled="isDisabled"
         :readonly="readOnly"
         role="combobox"
         :aria-labelledby="resolvedAriaLabelledby"
@@ -20,13 +21,13 @@
         @keydown="handleKeydown"
       />
       <button
-        v-if="allowClear && displayValue && !disabled && !readOnly"
+        v-if="allowClear && displayValue && !isDisabled && !readOnly"
         class="aheart-time-picker__clear"
         type="button"
-        aria-label="Clear time"
+        :aria-label="resolvedLocale.clear"
         @click="clearValue"
-      ><AIcon name="close" :size="14" /></button>
-      <AIcon class="aheart-time-picker__suffix" name="clock" :size="16" aria-hidden="true" />
+      ><slot name="clearIcon"><ARenderNode v-if="clearIcon" :node="clearIcon" /><AIcon v-else name="close" :size="14" /></slot></button>
+      <span class="aheart-time-picker__suffix" aria-hidden="true"><slot name="suffix"><ARenderNode v-if="suffixIcon" :node="suffixIcon" /><AIcon v-else name="clock" :size="16" /></slot></span>
     </span>
 
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
@@ -39,14 +40,14 @@
         :class="panelClass"
         :style="panelStyle"
         role="dialog"
-        aria-label="Choose time"
+        :aria-label="resolvedLocale.selectTime"
         :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
         @mousedown.prevent
       >
         <div class="aheart-time-picker__columns">
-          <div ref="hourColumnRef" class="aheart-time-picker__column" :class="{ 'is-keyboard-active': activeColumn === 'hour' }" role="listbox" aria-label="Hour">
+          <div ref="hourColumnRef" data-time-column="hour" class="aheart-time-picker__column" :class="{ 'is-keyboard-active': activeColumn === 'hour' }" role="listbox" :aria-label="resolvedLocale.hour" @scroll="handleColumnScroll('hour', $event)">
             <button
-              v-for="hour in hourOptions"
+              v-for="hour in visibleHourOptions"
               :key="hour"
               type="button"
               :id="getTimeOptionId('hour', hour)"
@@ -59,9 +60,9 @@
               @click="selectHour(hour)"
             >{{ pad(hour) }}</button>
           </div>
-          <div ref="minuteColumnRef" class="aheart-time-picker__column" :class="{ 'is-keyboard-active': activeColumn === 'minute' }" role="listbox" aria-label="Minute">
+          <div ref="minuteColumnRef" data-time-column="minute" class="aheart-time-picker__column" :class="{ 'is-keyboard-active': activeColumn === 'minute' }" role="listbox" :aria-label="resolvedLocale.minute" @scroll="handleColumnScroll('minute', $event)">
             <button
-              v-for="minute in minuteOptions"
+              v-for="minute in visibleMinuteOptions"
               :key="minute"
               type="button"
               :id="getTimeOptionId('minute', minute)"
@@ -74,9 +75,9 @@
               @click="selectMinute(minute)"
             >{{ pad(minute) }}</button>
           </div>
-          <div v-if="showSeconds" ref="secondColumnRef" class="aheart-time-picker__column" :class="{ 'is-keyboard-active': activeColumn === 'second' }" role="listbox" aria-label="Second">
+          <div v-if="showSeconds" ref="secondColumnRef" data-time-column="second" class="aheart-time-picker__column" :class="{ 'is-keyboard-active': activeColumn === 'second' }" role="listbox" :aria-label="resolvedLocale.second" @scroll="handleColumnScroll('second', $event)">
             <button
-              v-for="second in secondOptions"
+              v-for="second in visibleSecondOptions"
               :key="second"
               type="button"
               :id="getTimeOptionId('second', second)"
@@ -89,7 +90,7 @@
               @click="selectSecond(second)"
             >{{ pad(second) }}</button>
           </div>
-          <div v-if="showPeriod" ref="periodColumnRef" class="aheart-time-picker__column aheart-time-picker__column--period" :class="{ 'is-keyboard-active': activeColumn === 'period' }" role="listbox" aria-label="Period">
+          <div v-if="showPeriod" ref="periodColumnRef" data-time-column="period" class="aheart-time-picker__column aheart-time-picker__column--period" :class="{ 'is-keyboard-active': activeColumn === 'period' }" role="listbox" :aria-label="resolvedLocale.period">
             <button
               v-for="period in ['AM', 'PM'] as const"
               :key="period"
@@ -102,12 +103,13 @@
               role="option"
               :aria-selected="selectedPeriod === period ? 'true' : 'false'"
               @click="selectPeriod(period)"
-            >{{ period }}</button>
+            >{{ period === 'AM' ? resolvedLocale.am : resolvedLocale.pm }}</button>
           </div>
         </div>
-        <div v-if="showNow || needConfirm" class="aheart-time-picker__footer">
-          <button v-if="showNow" class="aheart-time-picker__now" type="button" :disabled="isInteractionDisabled" @click="selectNow">此刻</button>
-          <button v-if="needConfirm" class="aheart-time-picker__confirm" type="button" :disabled="isInteractionDisabled" @click="confirmValue">确定</button>
+        <div v-if="showNow || needConfirm || renderExtraFooter || slots.footer" class="aheart-time-picker__footer">
+          <button v-if="showNow" class="aheart-time-picker__now" type="button" :disabled="isInteractionDisabled" @click="selectNow">{{ resolvedLocale.now }}</button>
+          <slot name="footer"><ARenderNode v-if="renderExtraFooter" :node="renderExtraFooter()" /></slot>
+          <button v-if="needConfirm" class="aheart-time-picker__confirm" type="button" :disabled="isInteractionDisabled" @click="confirmValue">{{ resolvedLocale.ok }}</button>
         </div>
       </div>
     </Teleport>
@@ -115,8 +117,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useAttrs, useId, watch } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, ref, toRaw, useAttrs, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
+import { createTimeOptions, formatTimeValue, parseTimeValue, type PickerTimeParts } from '../picker-core/time'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
@@ -126,17 +130,15 @@ import './style.css'
 
 defineOptions({ name: 'ATimePicker' })
 
-interface TimeParts {
-  hour: number
-  minute: number
-  second: number
-}
+type TimeParts = PickerTimeParts
 
 type TimeColumn = 'hour' | 'minute' | 'second' | 'period'
 
 const props = defineProps(timePickerProps)
 const emit = defineEmits(timePickerEmits)
 const attrs = useAttrs()
+const slots = useSlots()
+const config = useAheartConfig()
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -152,59 +154,63 @@ const instanceId = useId().replace(/:/g, '')
 const panelId = `aheart-time-${instanceId}-panel`
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
+const isFormatProvided = usePropPresence('format')
+const ARenderNode = defineComponent({
+  name: 'ATimePickerRenderNode',
+  props: { node: { type: null as unknown as PropType<VNodeChild | Component>, default: undefined } },
+  setup(renderProps) {
+    return () => {
+      const node = renderProps.node
+      const component = typeof node === 'function' || (typeof node === 'object' && node !== null && !Array.isArray(node) && !isVNode(node))
+      return component ? h(toRaw(node as Component)) : node
+    }
+  }
+})
 const mergedValue = computed(() => isValueControlled.value ? props.modelValue : internalValue.value)
 const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const resolvedLocale = computed(() => ({ ...zhCN.timePicker, ...config.value.locale?.timePicker }) as Required<NonNullable<typeof zhCN.timePicker>>)
+const resolvedPlaceholder = computed(() => props.placeholder ?? resolvedLocale.value.selectTime)
+const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
+const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
+const resolvedVariant = computed(() => props.variant ?? config.value.variant ?? 'outlined')
+const hasPrefix = computed(() => props.prefix !== undefined || Boolean(slots.prefix))
+const rootClass = computed(() => [
+  `aheart-time-picker--${resolvedSize.value}`,
+  `aheart-time-picker--${resolvedVariant.value}`,
+  props.status && `aheart-time-picker--${props.status}`,
+  { 'is-open': mergedOpen.value, 'is-disabled': isDisabled.value }
+])
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
-const showSeconds = computed(() => props.format.includes('ss'))
-const showPeriod = computed(() => props.use12Hours || props.format.includes('A'))
+const resolvedFormat = computed(() => props.use12Hours && !isFormatProvided.value ? 'hh:mm:ss A' : props.format)
+const meridiemLabels = computed(() => ({ am: resolvedLocale.value.am, pm: resolvedLocale.value.pm }))
+const showSeconds = computed(() => resolvedFormat.value.includes('ss'))
+const showPeriod = computed(() => props.use12Hours || resolvedFormat.value.includes('A'))
 const pad = (value: number) => String(value).padStart(2, '0')
 const clamp = (value: number, max: number) => Math.max(0, Math.min(max, value))
 
-const parseTime = (value?: string): TimeParts | undefined => {
-  if (!value) return undefined
-  const match = value.trim().match(/^(\d{1,2}):([0-5]\d)(?::([0-5]\d))?(?:\s*(AM|PM))?$/i)
-  if (!match) return undefined
-  let hour = Number(match[1])
-  const period = match[4]?.toUpperCase()
-  if (period && hour <= 12) {
-    hour = hour % 12 + (period === 'PM' ? 12 : 0)
-  }
-  if (hour > 23) return undefined
-  return { hour, minute: Number(match[2]), second: Number(match[3] ?? 0) }
-}
-
-const formatTime = (parts: TimeParts) => {
-  const hour12 = parts.hour % 12 || 12
-  const period = parts.hour >= 12 ? 'PM' : 'AM'
-  return props.format
-    .replace('HH', pad(parts.hour))
-    .replace('hh', pad(hour12))
-    .replace('mm', pad(parts.minute))
-    .replace('ss', pad(parts.second))
-    .replace('A', period)
-}
+const parseTime = (value?: string) => parseTimeValue(value, meridiemLabels.value)
+const formatTime = (parts: TimeParts, format = resolvedFormat.value, localized = false) =>
+  formatTimeValue(parts, format, localized ? meridiemLabels.value : undefined)
 
 const initialParts = () => parseTime(mergedValue.value) ?? { hour: 0, minute: 0, second: 0 }
 const draft = ref<TimeParts>(initialParts())
+const draftHasValue = ref(Boolean(mergedValue.value))
 const displayValue = computed(() => {
+  if (mergedOpen.value && props.needConfirm && draftHasValue.value) return formatTime(draft.value, resolvedFormat.value, true)
   const parts = parseTime(mergedValue.value)
-  return parts ? formatTime(parts) : mergedValue.value ?? ''
+  return parts ? formatTime(parts, resolvedFormat.value, true) : mergedValue.value ?? ''
 })
 const displayedHour = computed(() => showPeriod.value ? draft.value.hour % 12 || 12 : draft.value.hour)
 const selectedPeriod = computed<'AM' | 'PM'>(() => draft.value.hour >= 12 ? 'PM' : 'AM')
-const isInteractionDisabled = computed(() => props.disabled || props.readOnly)
-const normalizeStep = (step: number, limit: number) => Math.max(1, Math.min(limit, Math.floor(step) || 1))
-const createOptions = (limit: number, step: number, start = 0) => {
-  const normalizedStep = normalizeStep(step, limit)
-  const values: number[] = []
-  for (let value = start; value < limit + start; value += normalizedStep) values.push(value)
-  return values
-}
+const isInteractionDisabled = computed(() => isDisabled.value || props.readOnly)
 const hourOptions = computed(() => showPeriod.value
-  ? createOptions(12, props.hourStep, 1).filter((hour) => hour <= 12)
-  : createOptions(24, props.hourStep))
-const minuteOptions = computed(() => createOptions(60, props.minuteStep))
-const secondOptions = computed(() => createOptions(60, props.secondStep))
+  ? createTimeOptions(12, props.hourStep).map((hour) => hour || 12)
+  : createTimeOptions(24, props.hourStep))
+const minuteOptions = computed(() => createTimeOptions(60, props.minuteStep))
+const secondOptions = computed(() => createTimeOptions(60, props.secondStep))
+const visibleHourOptions = computed(() => props.hideDisabledOptions ? hourOptions.value.filter((value) => !isHourDisabled(value)) : hourOptions.value)
+const visibleMinuteOptions = computed(() => props.hideDisabledOptions ? minuteOptions.value.filter((value) => !isMinuteDisabled(value)) : minuteOptions.value)
+const visibleSecondOptions = computed(() => props.hideDisabledOptions ? secondOptions.value.filter((value) => !isSecondDisabled(value)) : secondOptions.value)
 const visibleColumns = computed<TimeColumn[]>(() => [
   'hour',
   'minute',
@@ -213,9 +219,9 @@ const visibleColumns = computed<TimeColumn[]>(() => [
 ])
 const getTimeOptionId = (column: TimeColumn, value: number | string) => `aheart-time-${instanceId}-${column}-${String(value).toLowerCase()}`
 const activeDescendantId = computed(() => {
-  if (activeColumn.value === 'hour') return getTimeOptionId('hour', displayedHour.value)
-  if (activeColumn.value === 'minute') return getTimeOptionId('minute', draft.value.minute)
-  if (activeColumn.value === 'second') return getTimeOptionId('second', draft.value.second)
+  if (activeColumn.value === 'hour') return visibleHourOptions.value.includes(displayedHour.value) ? getTimeOptionId('hour', displayedHour.value) : undefined
+  if (activeColumn.value === 'minute') return visibleMinuteOptions.value.includes(draft.value.minute) ? getTimeOptionId('minute', draft.value.minute) : undefined
+  if (activeColumn.value === 'second') return visibleSecondOptions.value.includes(draft.value.second) ? getTimeOptionId('second', draft.value.second) : undefined
   return getTimeOptionId('period', selectedPeriod.value)
 })
 
@@ -230,23 +236,27 @@ const legacyDisabled = computed(() =>
     ? props.disabledTime as (value: string) => boolean
     : undefined
 )
+const isLegacyDisabled = (parts: TimeParts) => {
+  if (!legacyDisabled.value) return false
+  return legacyDisabled.value(formatTime(parts, props.valueFormat)) || legacyDisabled.value(formatTime(parts, 'HH:mm'))
+}
 const isPartsDisabled = (parts: TimeParts) => Boolean(
   disabledConfig.value?.disabledHours?.().includes(parts.hour) ||
   disabledConfig.value?.disabledMinutes?.(parts.hour).includes(parts.minute) ||
   disabledConfig.value?.disabledSeconds?.(parts.hour, parts.minute).includes(parts.second) ||
-  legacyDisabled.value?.(formatTime(parts))
+  isLegacyDisabled(parts)
 )
 const toHour24 = (hour: number) => showPeriod.value
   ? hour % 12 + (selectedPeriod.value === 'PM' ? 12 : 0)
   : hour
 const isHourDisabled = (hour: number) => {
   const hour24 = toHour24(hour)
-  return Boolean(disabledConfig.value?.disabledHours?.().includes(hour24)) || Boolean(legacyDisabled.value?.(formatTime({ ...draft.value, hour: hour24 })))
+  return Boolean(disabledConfig.value?.disabledHours?.().includes(hour24)) || isLegacyDisabled({ ...draft.value, hour: hour24 })
 }
 const isMinuteDisabled = (minute: number) =>
-  Boolean(disabledConfig.value?.disabledMinutes?.(draft.value.hour).includes(minute)) || Boolean(legacyDisabled.value?.(formatTime({ ...draft.value, minute })))
+  Boolean(disabledConfig.value?.disabledMinutes?.(draft.value.hour).includes(minute)) || isLegacyDisabled({ ...draft.value, minute })
 const isSecondDisabled = (second: number) =>
-  Boolean(disabledConfig.value?.disabledSeconds?.(draft.value.hour, draft.value.minute).includes(second)) || Boolean(legacyDisabled.value?.(formatTime({ ...draft.value, second })))
+  Boolean(disabledConfig.value?.disabledSeconds?.(draft.value.hour, draft.value.minute).includes(second)) || isLegacyDisabled({ ...draft.value, second })
 const isPeriodDisabled = (period: 'AM' | 'PM') => {
   const hour12 = draft.value.hour % 12
   return isPartsDisabled({ ...draft.value, hour: hour12 + (period === 'PM' ? 12 : 0) })
@@ -276,6 +286,7 @@ const panelStyle = computed(() => floatingPosition.popupStyle.value)
 
 const syncDraft = () => {
   draft.value = initialParts()
+  draftHasValue.value = Boolean(mergedValue.value)
 }
 const scrollSelectedOptionsIntoView = () => {
   for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) {
@@ -283,7 +294,7 @@ const scrollSelectedOptionsIntoView = () => {
   }
 }
 const requestOpen = (open: boolean) => {
-  if (isInteractionDisabled.value) return
+  if (open && isInteractionDisabled.value) return
   if (!isOpenControlled.value) internalOpen.value = open
   emit('openChange', open)
   if (open) {
@@ -293,37 +304,47 @@ const requestOpen = (open: boolean) => {
 }
 const commitValue = (parts: TimeParts, close = true) => {
   if (isInteractionDisabled.value || isPartsDisabled(parts)) return false
-  const value = formatTime(parts)
+  const value = formatTime(parts, props.valueFormat)
   if (!isValueControlled.value) internalValue.value = value
   emit('update:modelValue', value)
   emit('change', value)
+  if (isValueControlled.value && !props.needConfirm) syncDraft()
   if (close) requestOpen(false)
   return true
 }
 const selectHour = (hour: number) => {
   if (isInteractionDisabled.value || isHourDisabled(hour)) return
   draft.value = { ...draft.value, hour: toHour24(hour) }
+  draftHasValue.value = true
+  if (!props.needConfirm) commitValue(draft.value, false)
 }
 const selectMinute = (minute: number) => {
   if (isInteractionDisabled.value || isMinuteDisabled(minute)) return
   draft.value = { ...draft.value, minute }
-  if (!props.needConfirm && !showSeconds.value) commitValue(draft.value)
+  draftHasValue.value = true
+  if (!props.needConfirm) commitValue(draft.value, false)
 }
 const selectSecond = (second: number) => {
   if (isInteractionDisabled.value || isSecondDisabled(second)) return
   draft.value = { ...draft.value, second }
-  if (!props.needConfirm) commitValue(draft.value)
+  draftHasValue.value = true
+  if (!props.needConfirm) commitValue(draft.value, false)
 }
 const selectPeriod = (period: 'AM' | 'PM') => {
   if (isInteractionDisabled.value || isPeriodDisabled(period)) return
   const hour12 = draft.value.hour % 12
   draft.value = { ...draft.value, hour: hour12 + (period === 'PM' ? 12 : 0) }
+  draftHasValue.value = true
+  if (!props.needConfirm) commitValue(draft.value, false)
 }
 const confirmValue = () => commitValue(draft.value)
 const selectNow = () => {
   if (isInteractionDisabled.value) return
   const now = new Date()
-  draft.value = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() }
+  const next = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() }
+  if (isPartsDisabled(next)) return
+  draft.value = next
+  draftHasValue.value = true
   if (!props.needConfirm) commitValue(draft.value)
 }
 const clearValue = () => {
@@ -340,7 +361,35 @@ const handleInputChange = (event: Event) => {
   const value = input.value.trim()
   if (!value) return clearValue()
   const parts = parseTime(value)
-  if (!parts || !commitValue(parts)) input.value = displayValue.value
+  if (!parts || isPartsDisabled(parts)) {
+    emit('invalid', value)
+    input.value = displayValue.value
+  } else if (props.needConfirm) {
+    draft.value = parts
+    draftHasValue.value = true
+    input.value = formatTime(parts, resolvedFormat.value, true)
+  } else if (!commitValue(parts)) {
+    emit('invalid', value)
+    input.value = displayValue.value
+  }
+}
+let scrollTimer: ReturnType<typeof setTimeout> | undefined
+const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) => {
+  if (!props.changeOnScroll || isInteractionDisabled.value) return
+  clearTimeout(scrollTimer)
+  scrollTimer = setTimeout(() => {
+    const options = column === 'hour' ? visibleHourOptions.value : column === 'minute' ? visibleMinuteOptions.value : visibleSecondOptions.value
+    const value = options[Math.max(0, Math.min(options.length - 1, Math.round((event.target as HTMLElement).scrollTop / 28)))]
+    if (value === undefined) return
+    const next = column === 'hour'
+      ? { ...draft.value, hour: toHour24(value) }
+      : column === 'minute'
+        ? { ...draft.value, minute: value }
+        : { ...draft.value, second: value }
+    draft.value = next
+    draftHasValue.value = true
+    if (!props.needConfirm) commitValue(next, false)
+  }, 0)
 }
 const moveToOption = <T>(options: T[], current: T, direction: 1 | -1, disabled: (option: T) => boolean, apply: (option: T) => void) => {
   if (!options.length) return
@@ -360,27 +409,23 @@ const moveActiveColumn = (direction: 1 | -1) => {
 }
 const moveActiveValue = (direction: 1 | -1) => {
   if (activeColumn.value === 'hour') {
-    moveToOption(hourOptions.value, displayedHour.value, direction, isHourDisabled, (hour) => {
-      draft.value = { ...draft.value, hour: toHour24(hour) }
-    })
+    moveToOption(visibleHourOptions.value, displayedHour.value, direction, isHourDisabled, selectHour)
   } else if (activeColumn.value === 'minute') {
-    moveToOption(minuteOptions.value, draft.value.minute, direction, isMinuteDisabled, (minute) => {
-      draft.value = { ...draft.value, minute }
-    })
+    moveToOption(visibleMinuteOptions.value, draft.value.minute, direction, isMinuteDisabled, selectMinute)
   } else if (activeColumn.value === 'second') {
-    moveToOption(secondOptions.value, draft.value.second, direction, isSecondDisabled, (second) => {
-      draft.value = { ...draft.value, second }
-    })
+    moveToOption(visibleSecondOptions.value, draft.value.second, direction, isSecondDisabled, selectSecond)
   } else {
-    moveToOption<Array<'AM' | 'PM'>[number]>(['AM', 'PM'], selectedPeriod.value, direction, isPeriodDisabled, (period) => {
-      const hour12 = draft.value.hour % 12
-      const next = { ...draft.value, hour: hour12 + (period === 'PM' ? 12 : 0) }
-      if (!isPartsDisabled(next)) draft.value = next
-    })
+    moveToOption<Array<'AM' | 'PM'>[number]>(['AM', 'PM'], selectedPeriod.value, direction, isPeriodDisabled, selectPeriod)
   }
   void nextTick(scrollSelectedOptionsIntoView)
 }
 const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && mergedOpen.value) {
+    event.preventDefault()
+    requestOpen(false)
+    void nextTick(() => inputRef.value?.focus())
+    return
+  }
   if (isInteractionDisabled.value) return
   if (!mergedOpen.value && event.key === 'ArrowDown') {
     event.preventDefault()
@@ -391,10 +436,6 @@ const handleKeydown = (event: KeyboardEvent) => {
   } else if (mergedOpen.value && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
     event.preventDefault()
     moveActiveValue(event.key === 'ArrowDown' ? 1 : -1)
-  } else if (event.key === 'Escape' && mergedOpen.value) {
-    event.preventDefault()
-    requestOpen(false)
-    void nextTick(() => inputRef.value?.focus())
   } else if (event.key === 'Enter' && mergedOpen.value) {
     event.preventDefault()
     confirmValue()
