@@ -8,17 +8,36 @@ const qualityPlanSource = readFileSync(
   new URL('../docs/superpowers/plans/2026-07-15-full-functional-quality-plan.md', import.meta.url),
   'utf8'
 )
+const workspacePackage = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8')
+)
 const generatedPaths = GENERATED_PATHS.join(' ')
+const workspacePnpmVersion = workspacePackage.packageManager.match(/^pnpm@(.+)$/)?.[1]
 
 const getStep = (name) =>
   workflowSource.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name:|$)`))?.[0]
 
 test('uploads both tracked diff layers and build manifests on build gate failure', () => {
+  const setupPnpmStep = getStep('Setup pnpm')
+  const buildStep = getStep('Check Build Determinism and Generated Output')
   const captureStep = getStep('Capture Build Diagnostics')
   const uploadStep = getStep('Upload Build Diagnostics')
 
+  assert.ok(workspacePnpmVersion, 'workspace packageManager must pin pnpm')
+  assert.ok(setupPnpmStep, 'Setup pnpm step is missing')
+  assert.match(setupPnpmStep, new RegExp(`\\n          version: ${workspacePnpmVersion}(?:\\n|$)`))
+  assert.ok(buildStep, 'build determinism step is missing')
   assert.ok(captureStep, 'Capture Build Diagnostics step is missing')
   assert.ok(uploadStep, 'Upload Build Diagnostics step is missing')
+  assert.match(buildStep, /\n        id: build_generated\n/)
+  assert.match(
+    captureStep,
+    /\n        if: \$\{\{ failure\(\) && steps\.build_generated\.outcome == 'failure' \}\}\n/
+  )
+  assert.match(
+    uploadStep,
+    /\n        if: \$\{\{ failure\(\) && steps\.build_generated\.outcome == 'failure' \}\}\n/
+  )
   assert.ok(
     captureStep.includes(
       `git diff --cached HEAD -- ${generatedPaths} > test-results/build-generated-diagnostics/generated-cached.diff`
