@@ -81,6 +81,7 @@ const runGate = (root) =>
   })
 
 const gateOutput = (result) => `${result.stdout ?? ''}\n${result.stderr ?? ''}`
+const readOptionalFixture = (path) => (existsSync(path) ? readFileSync(path, 'utf8') : '<missing>')
 
 test('snapshots every file in all generated directories with relative paths and SHA-256', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'aheart-build-snapshot-'))
@@ -240,7 +241,7 @@ test('writes sorted SHA-256 manifests and a readable comparison when builds diff
   const firstPaths = firstLines.map((line) => line.slice(66))
   const secondPaths = secondLines.map((line) => line.slice(66))
   const failureEvidence = [
-    `build events:\n${readFileSync(join(root, '.build-events.jsonl'), 'utf8')}`,
+    `build events:\n${readOptionalFixture(join(root, '.build-events.jsonl'))}`,
     `build 1 manifest:\n${firstLines.join('\n')}`,
     `build 2 manifest:\n${secondLines.join('\n')}`,
     `gate output:\n${gateOutput(result)}`
