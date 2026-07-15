@@ -74,6 +74,17 @@ test('DatePicker remains reachable on a narrow viewport', async ({ page }, testI
   expect(box!.x).toBeGreaterThanOrEqual(0)
   expect(box!.x + box!.width).toBeLessThanOrEqual(390)
   await expect(panel.locator('.aheart-date-picker__grid button').first()).toHaveCSS('min-height', '40px')
+  const navigationBox = await panel.locator('.aheart-date-picker__header button').first().boundingBox()
+  const confirmBox = await panel.locator('.aheart-date-picker__ok').boundingBox()
+  expect(navigationBox?.width).toBeGreaterThanOrEqual(40)
+  expect(navigationBox?.height).toBeGreaterThanOrEqual(40)
+  expect(confirmBox?.width).toBeGreaterThanOrEqual(40)
+  expect(confirmBox?.height).toBeGreaterThanOrEqual(40)
+  const viewport = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth
+  }))
+  expect(viewport.scrollWidth).toBeLessThanOrEqual(viewport.clientWidth)
 
   const input = picker.locator('input').first()
   await panel.locator('[data-value="2026-07-20"]').click()

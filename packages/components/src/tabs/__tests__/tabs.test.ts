@@ -125,6 +125,24 @@ describe('Tabs', () => {
     expect(wrapper.find('[aria-selected="true"]').text()).toContain('Overview')
   })
 
+  it('moves focus and activates the next enabled horizontal tab with arrow keys', async () => {
+    const wrapper = mount(Tabs, {
+      attachTo: document.body,
+      props: { items }
+    })
+    const tabs = wrapper.findAll('[role="tab"]')
+
+    await tabs[0]!.trigger('keydown', { key: 'ArrowRight' })
+
+    expect(document.activeElement).toBe(tabs[1]!.element)
+    expect(tabs[1]!.attributes('aria-selected')).toBe('true')
+    expect(tabs[1]!.attributes('tabindex')).toBe('0')
+    expect(wrapper.emitted('update:activeKey')?.[0]).toEqual(['settings'])
+    await tabs[1]!.trigger('keydown', { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(tabs[0]!.element)
+    wrapper.unmount()
+  })
+
   it('uses controlled activeKey and ConfigProvider size fallback', () => {
     const wrapper = mount(ConfigProvider, {
       props: { size: 'large' },
