@@ -18,11 +18,29 @@ const normalizeFormats = (format) => {
   const formats = Array.isArray(format) ? format : [format];
   return formats.filter((item, index) => Boolean(item) && formats.indexOf(item) === index);
 };
-const parsePickerValue = (value, format) => {
+const parsePickerValue = (value, format, locale) => {
   if (!value)
     return void 0;
   for (const candidate of normalizeFormats(format)) {
-    const parsed = dayjs.createPickerDate(value, candidate, true);
+    if (candidate === "GGGG-[W]WW") {
+      const match = /^(\d{4})-W(\d{2})$/.exec(value);
+      if (match) {
+        const isoYear = Number(match[1]);
+        const isoWeek = Number(match[2]);
+        const firstIsoWeek = dayjs.createPickerDate(`${isoYear}-01-04`, "YYYY-MM-DD", true).startOf("isoWeek");
+        const parsed2 = firstIsoWeek.add(isoWeek - 1, "week");
+        if (isoWeek >= 1 && isoWeek <= 53 && parsed2.format(candidate) === value)
+          return parsed2;
+      }
+      continue;
+    }
+    if (candidate === "YYYY-[Q]Q") {
+      const match = /^(\d{4})-Q([1-4])$/.exec(value);
+      if (match)
+        return dayjs.createPickerDate(`${match[1]}-${(Number(match[2]) - 1) * 3 + 1}-01`, "YYYY-M-DD", true);
+      continue;
+    }
+    const parsed = dayjs.createPickerDate(value, candidate, true, locale);
     if (parsed.isValid())
       return parsed;
   }

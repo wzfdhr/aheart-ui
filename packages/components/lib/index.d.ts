@@ -48,6 +48,7 @@ export type { CascaderKey, CascaderOption, CascaderPath, CascaderValue } from '.
 export type { TreeKey, TreeNodeData } from './tree';
 export type { UploadFile, UploadRequest, UploadRequestOption, UploadStatus } from './upload';
 export type * from './checkbox';
+export type * from './date-picker';
 export type * from './input-number';
 export type * from './select';
 export type * from './switch';

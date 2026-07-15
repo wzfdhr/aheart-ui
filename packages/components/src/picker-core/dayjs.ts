@@ -19,9 +19,9 @@ const ensurePickerDayjs = () => {
   configured = true
 }
 
-export const createPickerDate = (value?: string, format?: string, strict?: boolean): PickerDate => {
+export const createPickerDate = (value?: string, format?: string, strict?: boolean, locale?: string): PickerDate => {
   ensurePickerDayjs()
-  return format ? dayjs(value, format, strict) : dayjs(value)
+  return format ? dayjs(value, format, locale, strict) : dayjs(value)
 }
 
 export const pickerDayjsLocale = (locale: 'zh-CN' | 'en-US') => (locale === 'zh-CN' ? 'zh-cn' : 'en')

@@ -17,8 +17,10 @@ const ensurePickerDayjs = () => {
   dayjs.extend(quarterOfYear);
   configured = true;
 };
-const createPickerDate = (value, format, strict) => {
+const createPickerDate = (value, format, strict, locale) => {
   ensurePickerDayjs();
-  return format ? dayjs(value, format, strict) : dayjs(value);
+  return format ? dayjs(value, format, locale, strict) : dayjs(value);
 };
+const pickerDayjsLocale = (locale) => locale === "zh-CN" ? "zh-cn" : "en";
 exports.createPickerDate = createPickerDate;
+exports.pickerDayjsLocale = pickerDayjsLocale;

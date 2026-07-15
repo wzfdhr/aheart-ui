@@ -30,6 +30,7 @@ export interface AheartLocale {
         weekStartsOn?: number;
         weekdaysShort?: string[];
         monthsShort?: string[];
+        monthTitle?: (year: number, month: number, monthLabel: string) => string;
         selectDate?: string;
         selectTime?: string;
         startDate?: string;
@@ -46,6 +47,16 @@ export interface AheartLocale {
         nextMonth?: string;
         previousYear?: string;
         nextYear?: string;
+        previousDecade?: string;
+        nextDecade?: string;
+        presets?: string;
+        time?: string;
+        hour?: string;
+        minute?: string;
+        second?: string;
+        period?: string;
+        am?: string;
+        pm?: string;
         selected?: (value: string) => string;
         rangeStartSelected?: string;
         rangeComplete?: (start: string, end: string) => string;

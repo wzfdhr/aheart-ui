@@ -88,7 +88,13 @@ export default defineConfig(
             rollupOptions: {
                 //忽略打包vue文件
                 external: ['vue', '@floating-ui/dom', '@lucide/vue', 'dayjs', /^dayjs\//],
-                input: ['src/index.ts', 'src/message/index.ts', 'src/utils/use-floating-position.ts', 'src/picker-core/index.ts'],
+                input: [
+                    'src/index.ts',
+                    'src/message/index.ts',
+                    'src/utils/use-floating-position.ts',
+                    'src/picker-core/index.ts',
+                    'src/date-picker/date-utils.ts'
+                ],
                 output: [
                     {
                         format: 'es',

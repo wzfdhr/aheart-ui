@@ -3,7 +3,7 @@ import type { PickerFormat, PickerMode } from './types';
 export declare const defaultValueFormat: (mode: PickerMode, showTime?: boolean) => string;
 export declare const defaultTimeValueFormat: () => string;
 export declare const normalizeFormats: (format: PickerFormat) => string[];
-export declare const parsePickerValue: (value: string | undefined, format: PickerFormat) => PickerDate | undefined;
+export declare const parsePickerValue: (value: string | undefined, format: PickerFormat, locale?: string) => PickerDate | undefined;
 export declare const formatPickerValue: (value: PickerDate | undefined, format: string) => string | undefined;
 export declare const comparePickerValues: (left: string, right: string, format: PickerFormat) => number;
 export declare const shiftPickerValue: (value: PickerDate | undefined, amount: number, unit: 'day' | 'week' | 'month' | 'quarter' | 'year') => PickerDate | undefined;

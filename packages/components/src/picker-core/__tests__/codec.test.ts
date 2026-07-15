@@ -58,6 +58,19 @@ describe('picker value codec', () => {
     }
   })
 
+  it('parses ISO weeks independently from the ambient current week', () => {
+    for (const value of ['2026-W01', '2026-W30', '2026-W53']) {
+      expect(formatPickerValue(parsePickerValue(value, 'GGGG-[W]WW'), 'GGGG-[W]WW')).toBe(value)
+    }
+    expect(parsePickerValue('2025-W53', 'GGGG-[W]WW')).toBeUndefined()
+    expect(parsePickerValue('2026-W00', 'GGGG-[W]WW')).toBeUndefined()
+  })
+
+  it('parses localized meridiem text when a locale is explicit', () => {
+    const value = parsePickerValue('2026-07-20 11:30:00 晚上', 'YYYY-MM-DD hh:mm:ss A', 'zh-cn')
+    expect(formatPickerValue(value, 'YYYY-MM-DD HH:mm:ss')).toBe('2026-07-20 23:30:00')
+  })
+
   it('clamps month shifts to the destination month end', () => {
     const januaryEnd = parsePickerValue('2028-01-31', 'YYYY-MM-DD')
 

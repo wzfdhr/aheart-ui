@@ -21,11 +21,27 @@ export const normalizeFormats = (format: PickerFormat): string[] => {
   return formats.filter((item, index) => Boolean(item) && formats.indexOf(item) === index)
 }
 
-export const parsePickerValue = (value: string | undefined, format: PickerFormat): PickerDate | undefined => {
+export const parsePickerValue = (value: string | undefined, format: PickerFormat, locale?: string): PickerDate | undefined => {
   if (!value) return undefined
 
   for (const candidate of normalizeFormats(format)) {
-    const parsed = createPickerDate(value, candidate, true)
+    if (candidate === 'GGGG-[W]WW') {
+      const match = /^(\d{4})-W(\d{2})$/.exec(value)
+      if (match) {
+        const isoYear = Number(match[1])
+        const isoWeek = Number(match[2])
+        const firstIsoWeek = createPickerDate(`${isoYear}-01-04`, 'YYYY-MM-DD', true).startOf('isoWeek')
+        const parsed = firstIsoWeek.add(isoWeek - 1, 'week')
+        if (isoWeek >= 1 && isoWeek <= 53 && parsed.format(candidate) === value) return parsed
+      }
+      continue
+    }
+    if (candidate === 'YYYY-[Q]Q') {
+      const match = /^(\d{4})-Q([1-4])$/.exec(value)
+      if (match) return createPickerDate(`${match[1]}-${(Number(match[2]) - 1) * 3 + 1}-01`, 'YYYY-M-DD', true)
+      continue
+    }
+    const parsed = createPickerDate(value, candidate, true, locale)
     if (parsed.isValid()) return parsed
   }
 

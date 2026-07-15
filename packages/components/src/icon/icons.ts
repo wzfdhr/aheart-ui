@@ -4,10 +4,13 @@ import {
   ArrowRight,
   ArrowUp,
   Check,
+  CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  ChevronsLeft,
+  ChevronsRight,
   Copy,
   Clock,
   Info,
@@ -40,7 +43,10 @@ export const iconComponents: Record<string, Component> = {
   'chevron-up': ChevronUp,
   'chevron-down': ChevronDown,
   copy: Copy,
-  clock: Clock
+  clock: Clock,
+  calendar: CalendarDays,
+  'chevrons-left': ChevronsLeft,
+  'chevrons-right': ChevronsRight
 }
 
 export const warnedUnknownIconNames = new Set<string>()

@@ -32,6 +32,7 @@ export interface AheartLocale {
     weekStartsOn?: number
     weekdaysShort?: string[]
     monthsShort?: string[]
+    monthTitle?: (year: number, month: number, monthLabel: string) => string
     selectDate?: string
     selectTime?: string
     startDate?: string
@@ -48,6 +49,16 @@ export interface AheartLocale {
     nextMonth?: string
     previousYear?: string
     nextYear?: string
+    previousDecade?: string
+    nextDecade?: string
+    presets?: string
+    time?: string
+    hour?: string
+    minute?: string
+    second?: string
+    period?: string
+    am?: string
+    pm?: string
     selected?: (value: string) => string
     rangeStartSelected?: string
     rangeComplete?: (start: string, end: string) => string
@@ -92,10 +103,12 @@ export const zhCN: AheartLocale = {
   datePicker: {
     locale: 'zh-CN', weekStartsOn: 1, weekdaysShort: ['一', '二', '三', '四', '五', '六', '日'],
     monthsShort: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+    monthTitle: (year, month) => `${year}年${month}月`,
     selectDate: '请选择日期', selectTime: '请选择时间', startDate: '开始日期', endDate: '结束日期',
     selectWeek: '请选择周', selectMonth: '请选择月份', selectQuarter: '请选择季度', selectYear: '请选择年份',
     today: '今天', now: '此刻', ok: '确定', clear: '清除', previousMonth: '上个月', nextMonth: '下个月',
-    previousYear: '上一年', nextYear: '下一年', selected: (value) => `已选择 ${value}`,
+    previousYear: '上一年', nextYear: '下一年', previousDecade: '上一个十年', nextDecade: '下一个十年',
+    presets: '快捷选择', time: '时间', hour: '时', minute: '分', second: '秒', period: '时段', am: '上午', pm: '下午', selected: (value) => `已选择 ${value}`,
     rangeStartSelected: '已选择开始日期，请选择结束日期', rangeComplete: (start, end) => `已选择 ${start} 至 ${end}`
   },
   timePicker: {
@@ -132,10 +145,12 @@ export const enUS: AheartLocale = {
   datePicker: {
     locale: 'en-US', weekStartsOn: 0, weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    monthTitle: (year, _month, monthLabel) => `${monthLabel} ${year}`,
     selectDate: 'Select date', selectTime: 'Select time', startDate: 'Start date', endDate: 'End date',
     selectWeek: 'Select week', selectMonth: 'Select month', selectQuarter: 'Select quarter', selectYear: 'Select year',
     today: 'Today', now: 'Now', ok: 'OK', clear: 'Clear', previousMonth: 'Previous month', nextMonth: 'Next month',
-    previousYear: 'Previous year', nextYear: 'Next year', selected: (value) => `Selected ${value}`,
+    previousYear: 'Previous year', nextYear: 'Next year', previousDecade: 'Previous decade', nextDecade: 'Next decade',
+    presets: 'Presets', time: 'Time', hour: 'Hour', minute: 'Minute', second: 'Second', period: 'Period', am: 'AM', pm: 'PM', selected: (value) => `Selected ${value}`,
     rangeStartSelected: 'Start date selected, choose an end date', rangeComplete: (start, end) => `Selected ${start} to ${end}`
   },
   timePicker: {
