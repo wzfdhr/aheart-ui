@@ -22,6 +22,7 @@ const generatedPaths = [
 ]
 
 const gateScript = resolve('scripts/check-build-determinism.mjs')
+const workspacePackageManager = JSON.parse(readFileSync(resolve('package.json'), 'utf8')).packageManager
 
 const writeFixture = (root, path, contents) => {
   const absolutePath = join(root, path)
@@ -82,6 +83,13 @@ const runGate = (root) =>
 
 const gateOutput = (result) => `${result.stdout ?? ''}\n${result.stderr ?? ''}`
 const readOptionalFixture = (path) => (existsSync(path) ? readFileSync(path, 'utf8') : '<missing>')
+
+test('temporary gate repository pins the workspace package manager', (t) => {
+  const root = createGateRepository(t)
+  const fixturePackage = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
+  assert.equal(fixturePackage.packageManager, workspacePackageManager)
+})
 
 test('snapshots every file in all generated directories with relative paths and SHA-256', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'aheart-build-snapshot-'))
