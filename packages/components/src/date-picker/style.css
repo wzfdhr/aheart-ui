@@ -3,6 +3,7 @@
   --aheart-picker-padding: 11px;
   display: inline-flex;
   min-inline-size: 200px;
+  max-inline-size: 100%;
   color: var(--aheart-color-text, #1f2329);
   font-size: var(--aheart-font-size, 14px);
   line-height: 1.5;
