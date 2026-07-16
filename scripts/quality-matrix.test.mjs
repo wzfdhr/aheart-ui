@@ -47,4 +47,8 @@ test('quality matrix registers every Ready component exactly once with release e
     () => validateEvidence({ ...sample, a11y: [{ kind: 'planned', milestone: 'QG4' }] }, root),
     /invalid planned evidence item/
   )
+  assert.throws(
+    () => validateEvidence({ ...sample, visual: [{ kind: 'planned', milestone: 'QG5', reason: 'hypothetical' }] }, root),
+    /invalid planned evidence item/
+  )
 })

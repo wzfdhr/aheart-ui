@@ -53,7 +53,7 @@ const validateEvidenceItem = (record, category, evidence, root) => {
     return
   }
   if (evidence.kind === 'planned') {
-    if (!['a11y', 'visual'].includes(category) || !evidence.milestone || !evidence.reason?.trim()) {
+    if (!['a11y', 'visual'].includes(category) || evidence.milestone !== 'QG4' || !evidence.reason?.trim()) {
       throw new Error(`${record.component}.${category} has an invalid planned evidence item`)
     }
     return
