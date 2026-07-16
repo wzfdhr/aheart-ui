@@ -24,15 +24,32 @@ const packageFor = (component) => component === 'dnd'
   ? '@aheart-ui/dnd'
   : ['ai', 'ai-form', 'ai-agent-workbench'].includes(component) ? '@aheart-ui/ai' : 'aheart-ui'
 
+const aiUnit = {
+  ai: 'packages/ai/src/__tests__/chat-panel.test.ts',
+  'ai-form': 'packages/ai/src/__tests__/form.test.ts',
+  'ai-agent-workbench': 'packages/ai/src/__tests__/agent-workbench.test.ts'
+}
+const e2eFor = (component) => component === 'ai' || component.startsWith('ai-')
+  ? 'e2e/q5-ai-product-suite.spec.ts'
+  : component === 'dnd' || component === 'splitter' ? 'e2e/agent-workbench.spec.ts'
+    : ['date-picker', 'time-picker'].includes(component) ? 'e2e/date-picker.spec.ts'
+      : 'e2e/docs-component-smoke.spec.ts'
+const ssrFor = (component) => ({
+  'date-picker': 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts',
+  'time-picker': 'packages/components/src/time-picker/__tests__/time-picker.ssr.test.ts'
+}[component])
+const file = (path) => ({ kind: 'file', path })
+const notApplicable = (reason) => ({ kind: 'notApplicable', reason })
+
 const evidenceFor = (component) => ({
   component,
   package: packageFor(component),
   risk: r1.has(component) ? 'R1' : 'R2',
-  unit: [`packages/${packageFor(component) === 'aheart-ui' ? 'components' : packageFor(component).endsWith('dnd') ? 'dnd' : 'ai'}/src/**/__tests__`],
-  e2e: [`e2e/${component === 'ai' || component.startsWith('ai-') ? 'q5-ai-product-suite' : component === 'dnd' || component === 'splitter' ? 'agent-workbench' : 'docs-component-smoke'}.spec.ts`],
-  ssr: ['packages/components/src/**/__tests__/*.ssr.test.ts'],
-  a11y: ['键盘路径、可见焦点与语义角色'],
-  visual: ['1440×900、390×844 中文文档站截图基线'],
+  unit: [file(component === 'dnd' ? 'packages/dnd/src/__tests__/dnd.test.ts' : aiUnit[component] ?? `packages/components/src/${component}/__tests__/${component}.test.ts`)],
+  e2e: [file(e2eFor(component))],
+  ssr: [ssrFor(component) ? file(ssrFor(component)) : notApplicable('QG6 统一消费端 SSR 契约将覆盖该组件；当前阶段不把其他包的测试冒充为本组件证据。')],
+  a11y: [file(e2eFor(component))],
+  visual: [file(e2eFor(component))],
   owner: '质量工程组'
 })
 
