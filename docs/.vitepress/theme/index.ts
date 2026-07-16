@@ -10,6 +10,7 @@ import '@aheart-ui/dnd/style.css'
 import './style.css'
 import ComponentContext from './ComponentContext.vue'
 import ComponentOverview from './ComponentOverview.vue'
+import QualityMatrix from './QualityMatrix.vue'
 
 const theme: Theme = {
   extends: DefaultTheme,
@@ -19,6 +20,7 @@ const theme: Theme = {
     app.use(AheartAI)
     app.use(AheartDnd)
     app.component('ComponentOverview', ComponentOverview)
+    app.component('QualityMatrix', QualityMatrix)
   }
 }
 
