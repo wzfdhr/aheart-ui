@@ -41,8 +41,8 @@ export const parseReadyComponentKeys = (source) => {
   for (let index = 0; index < source.length; index += 1) {
     if (source[index] !== '{') continue
     const fields = directFields(source, index)
-    const key = fields.match(/\bkey\s*:\s*'([^']+)'/)
-    if (key && /\bstatus\s*:\s*'Ready'/.test(fields)) keys.push(key[1])
+    const key = fields.match(/\bkey\s*:\s*(['"])([^'"`]+)\1/)
+    if (key && /\bstatus\s*:\s*(['"])Ready\1/.test(fields)) keys.push(key[2])
   }
   return keys
 }
@@ -50,6 +50,12 @@ export const parseReadyComponentKeys = (source) => {
 const validateEvidenceItem = (record, category, evidence, root) => {
   if (evidence.kind === 'notApplicable') {
     if (!evidence.reason?.trim()) throw new Error(`${record.component}.${category} needs a notApplicable reason`)
+    return
+  }
+  if (evidence.kind === 'planned') {
+    if (!['a11y', 'visual'].includes(category) || !evidence.milestone || !evidence.reason?.trim()) {
+      throw new Error(`${record.component}.${category} has an invalid planned evidence item`)
+    }
     return
   }
   if (evidence.kind !== 'file' || !evidence.path) throw new Error(`${record.component}.${category} has invalid evidence`)

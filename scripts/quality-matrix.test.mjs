@@ -22,6 +22,10 @@ test('quality matrix registers every Ready component exactly once with release e
     parseReadyComponentKeys("{ key: 'without-zh-name', name: 'Example', description: {}, status: 'Ready' }"),
     ['without-zh-name']
   )
+  assert.deepEqual(
+    parseReadyComponentKeys('{ key: "double-quoted", name: "Example", description: {}, status: "Ready" }'),
+    ['double-quoted']
+  )
 
   for (const record of qualityMatrix) {
     assert.match(record.package, /^(aheart-ui|@aheart-ui\/(dnd|ai))$/)
@@ -38,5 +42,9 @@ test('quality matrix registers every Ready component exactly once with release e
   assert.throws(
     () => validateEvidence({ ...sample, visual: [{ kind: 'file', path: 'e2e/does-not-exist.spec.ts' }] }, root),
     /evidence is missing/
+  )
+  assert.throws(
+    () => validateEvidence({ ...sample, a11y: [{ kind: 'planned', milestone: 'QG4' }] }, root),
+    /invalid planned evidence item/
   )
 })

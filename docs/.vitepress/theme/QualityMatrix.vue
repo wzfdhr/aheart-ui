@@ -33,5 +33,8 @@ const groups = computed(() => ['aheart-ui', '@aheart-ui/dnd', '@aheart-ui/ai'].m
   records: qualityMatrix.filter((record) => record.package === packageName)
 })))
 
-const evidenceLabel = (evidence) => evidence.kind === 'file' ? evidence.path : `不适用：${evidence.reason}`
+const evidenceLabel = (evidence) => evidence.kind === 'file'
+  ? evidence.path
+  : evidence.kind === 'planned' ? `${evidence.milestone}：待验收`
+    : `不适用：${evidence.reason}`
 </script>

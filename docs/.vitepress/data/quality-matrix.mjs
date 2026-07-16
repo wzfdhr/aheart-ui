@@ -40,6 +40,7 @@ const ssrFor = (component) => ({
 }[component])
 const file = (path) => ({ kind: 'file', path })
 const notApplicable = (reason) => ({ kind: 'notApplicable', reason })
+const planned = (milestone, reason) => ({ kind: 'planned', milestone, reason })
 
 const evidenceFor = (component) => ({
   component,
@@ -48,8 +49,8 @@ const evidenceFor = (component) => ({
   unit: [file(component === 'dnd' ? 'packages/dnd/src/__tests__/dnd.test.ts' : aiUnit[component] ?? `packages/components/src/${component}/__tests__/${component}.test.ts`)],
   e2e: [file(e2eFor(component))],
   ssr: [ssrFor(component) ? file(ssrFor(component)) : notApplicable('QG6 统一消费端 SSR 契约将覆盖该组件；当前阶段不把其他包的测试冒充为本组件证据。')],
-  a11y: [file(e2eFor(component))],
-  visual: [file(e2eFor(component))],
+  a11y: [planned('QG4', 'QG4 建立组件级 axe、键盘与焦点验收；QG1 不将现有冒烟测试误标为无障碍覆盖。')],
+  visual: [planned('QG4', 'QG4 建立桌面、移动、暗色与 reduced-motion 截图基线；QG1 不将普通 E2E 文件误标为视觉基线。')],
   owner: '质量工程组'
 })
 
