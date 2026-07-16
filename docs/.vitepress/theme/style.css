@@ -106,7 +106,7 @@
 .aheart-quality-matrix__table-wrap { overflow-x: auto; }
 .aheart-quality-matrix table { width: 100%; margin: 0; font-size: 13px; }
 .aheart-quality-matrix th, .aheart-quality-matrix td { min-width: 112px; padding: 10px 12px; vertical-align: top; white-space: nowrap; }
-.aheart-quality-matrix td:nth-child(3), .aheart-quality-matrix td:nth-child(4) { color: var(--vp-c-text-2); font-family: var(--vp-font-family-mono); font-size: 12px; }
+.aheart-quality-matrix td:nth-child(n + 3):nth-child(-n + 7) { color: var(--vp-c-text-2); font-family: var(--vp-font-family-mono); font-size: 12px; }
 .aheart-quality-risk { display: inline-flex; min-width: 28px; justify-content: center; padding: 1px 5px; border: 1px solid currentColor; border-radius: 4px; font: 12px/1.4 var(--vp-font-family-mono); }
 .aheart-quality-risk.is-r1 { color: #1677ff; background: #edf4ff; }
 .aheart-quality-risk.is-r2 { color: #52724a; background: #f1f8ef; }

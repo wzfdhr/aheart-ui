@@ -8,13 +8,16 @@
       </header>
       <div class="aheart-quality-matrix__table-wrap">
         <table>
-          <thead><tr><th>组件</th><th>风险</th><th>单元测试</th><th>浏览器验收</th><th>负责人</th></tr></thead>
+          <thead><tr><th>组件</th><th>风险</th><th>单元测试</th><th>浏览器验收</th><th>SSR</th><th>无障碍</th><th>视觉</th><th>负责人</th></tr></thead>
           <tbody>
             <tr v-for="record in group.records" :key="record.component">
               <td><code>{{ record.component }}</code></td>
               <td><span :class="['aheart-quality-risk', `is-${record.risk.toLowerCase()}`]">{{ record.risk }}</span></td>
               <td>{{ evidenceLabel(record.unit[0]) }}</td>
               <td>{{ evidenceLabel(record.e2e[0]) }}</td>
+              <td>{{ evidenceLabel(record.ssr[0]) }}</td>
+              <td>{{ evidenceLabel(record.a11y[0]) }}</td>
+              <td>{{ evidenceLabel(record.visual[0]) }}</td>
               <td>{{ record.owner }}</td>
             </tr>
           </tbody>
