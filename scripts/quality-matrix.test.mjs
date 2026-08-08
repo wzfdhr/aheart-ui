@@ -40,7 +40,7 @@ test('quality matrix registers every Ready component exactly once with release e
     /crosses package boundary/
   )
   assert.throws(
-    () => validateEvidence({ ...sample, visual: [{ kind: 'file', path: 'e2e/does-not-exist.spec.ts' }] }, root),
+    () => validateEvidence({ ...sample, e2e: [{ kind: 'file', path: 'e2e/does-not-exist.spec.ts' }] }, root),
     /evidence is missing/
   )
   assert.throws(
@@ -51,4 +51,37 @@ test('quality matrix registers every Ready component exactly once with release e
     () => validateEvidence({ ...sample, visual: [{ kind: 'planned', milestone: 'QG5', reason: 'hypothetical' }] }, root),
     /invalid planned evidence item/
   )
+  assert.throws(
+    () => validateEvidence({ ...sample, a11y: [{ kind: 'file', path: 'packages/components/src/button/__tests__/button.test.ts' }] }, root),
+    /a11y evidence must be planned for QG4/
+  )
+  assert.throws(
+    () => validateEvidence({ ...sample, visual: [{ kind: 'notApplicable', reason: 'not tested' }] }, root),
+    /visual evidence must be planned for QG4/
+  )
+  assert.throws(
+    () => validateEvidence({ ...sample, ssr: [{ kind: 'planned', milestone: 'QG6', reason: 'deferred' }] }, root),
+    /SSR planned evidence must be deferred at QG6/
+  )
+  assert.doesNotThrow(() => validateEvidence({
+    ...sample,
+    e2e: [{ kind: 'planned', milestone: 'QG2', reason: 'component-specific browser task is pending' }],
+    ssr: [{ kind: 'planned', milestone: 'QG6', status: 'deferred', reason: 'consumer SSR contract is pending' }]
+  }, root))
+  assert.throws(
+    () => validateEvidence({ ...sample, unit: [{ kind: 'file', path: 'packages/components/src/input/__tests__/input.test.ts' }] }, root),
+    /does not match the canonical component test/
+  )
+
+  const dnd = qualityMatrix.find((record) => record.component === 'dnd')
+  const splitter = qualityMatrix.find((record) => record.component === 'splitter')
+  const timePicker = qualityMatrix.find((record) => record.component === 'time-picker')
+  assert.equal(dnd.e2e[0].kind, 'planned')
+  assert.equal(dnd.e2e[0].milestone, 'QG2')
+  assert.equal(splitter.e2e[0].kind, 'planned')
+  assert.equal(splitter.e2e[0].milestone, 'QG2')
+  assert.equal(timePicker.e2e[0].path, 'e2e/time-picker-range.spec.ts')
+  assert.equal(sample.ssr[0].kind, 'planned')
+  assert.equal(sample.ssr[0].milestone, 'QG6')
+  assert.equal(sample.ssr[0].status, 'deferred')
 })

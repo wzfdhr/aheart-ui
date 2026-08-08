@@ -7,6 +7,17 @@ const packageRoot = {
   '@aheart-ui/ai': 'packages/ai/'
 }
 
+const canonicalUnitPath = (record) => {
+  const exceptions = {
+    '@aheart-ui/dnd:dnd': 'packages/dnd/src/__tests__/dnd.test.ts',
+    '@aheart-ui/ai:ai': 'packages/ai/src/__tests__/chat-panel.test.ts',
+    '@aheart-ui/ai:ai-form': 'packages/ai/src/__tests__/form.test.ts',
+    '@aheart-ui/ai:ai-agent-workbench': 'packages/ai/src/__tests__/agent-workbench.test.ts'
+  }
+  return exceptions[`${record.package}:${record.component}`]
+    ?? `${packageRoot[record.package]}src/${record.component}/__tests__/${record.component}.test.ts`
+}
+
 const directFields = (source, start) => {
   let depth = 0
   let quote = ''
@@ -48,12 +59,21 @@ export const parseReadyComponentKeys = (source) => {
 }
 
 const validateEvidenceItem = (record, category, evidence, root) => {
+  if (['a11y', 'visual'].includes(category) && evidence.kind !== 'planned') {
+    throw new Error(`${record.component}.${category} evidence must be planned for QG4`)
+  }
   if (evidence.kind === 'notApplicable') {
     if (!evidence.reason?.trim()) throw new Error(`${record.component}.${category} needs a notApplicable reason`)
     return
   }
   if (evidence.kind === 'planned') {
-    if (!['a11y', 'visual'].includes(category) || evidence.milestone !== 'QG4' || !evidence.reason?.trim()) {
+    if (category === 'ssr' && evidence.milestone === 'QG6' && evidence.status !== 'deferred') {
+      throw new Error(`${record.component}.ssr SSR planned evidence must be deferred at QG6`)
+    }
+    const qg4Coverage = ['a11y', 'visual'].includes(category) && evidence.milestone === 'QG4'
+    const qg2BrowserPlan = category === 'e2e' && evidence.milestone === 'QG2'
+    const qg6SsrDefer = category === 'ssr' && evidence.milestone === 'QG6' && evidence.status === 'deferred'
+    if (!(qg4Coverage || qg2BrowserPlan || qg6SsrDefer) || !evidence.reason?.trim()) {
       throw new Error(`${record.component}.${category} has an invalid planned evidence item`)
     }
     return
@@ -62,6 +82,9 @@ const validateEvidenceItem = (record, category, evidence, root) => {
   if (!existsSync(path.join(root, evidence.path))) throw new Error(`${record.component}.${category} evidence is missing: ${evidence.path}`)
   if (category === 'unit' && !evidence.path.startsWith(packageRoot[record.package])) {
     throw new Error(`${record.component}.unit crosses package boundary: ${evidence.path}`)
+  }
+  if (category === 'unit' && evidence.path !== canonicalUnitPath(record)) {
+    throw new Error(`${record.component}.unit does not match the canonical component test: ${evidence.path}`)
   }
 }
 

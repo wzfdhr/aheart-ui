@@ -31,8 +31,7 @@ const aiUnit = {
 }
 const e2eFor = (component) => component === 'ai' || component.startsWith('ai-')
   ? 'e2e/q5-ai-product-suite.spec.ts'
-  : component === 'dnd' || component === 'splitter' ? 'e2e/agent-workbench.spec.ts'
-    : ['date-picker', 'time-picker'].includes(component) ? 'e2e/date-picker.spec.ts'
+    : component === 'time-picker' ? 'e2e/time-picker-range.spec.ts'
       : 'e2e/docs-component-smoke.spec.ts'
 const ssrFor = (component) => ({
   'date-picker': 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts',
@@ -41,14 +40,17 @@ const ssrFor = (component) => ({
 const file = (path) => ({ kind: 'file', path })
 const notApplicable = (reason) => ({ kind: 'notApplicable', reason })
 const planned = (milestone, reason) => ({ kind: 'planned', milestone, reason })
+const deferred = (milestone, reason) => ({ kind: 'planned', milestone, status: 'deferred', reason })
 
 const evidenceFor = (component) => ({
   component,
   package: packageFor(component),
   risk: r1.has(component) ? 'R1' : 'R2',
   unit: [file(component === 'dnd' ? 'packages/dnd/src/__tests__/dnd.test.ts' : aiUnit[component] ?? `packages/components/src/${component}/__tests__/${component}.test.ts`)],
-  e2e: [file(e2eFor(component))],
-  ssr: [ssrFor(component) ? file(ssrFor(component)) : notApplicable('QG6 统一消费端 SSR 契约将覆盖该组件；当前阶段不把其他包的测试冒充为本组件证据。')],
+  e2e: [component === 'dnd' || component === 'splitter'
+    ? planned('QG2', 'QG2 建立组件专项浏览器交互验收；当前不把 AI 工作台中的间接存在性断言冒充为组件证据。')
+    : file(e2eFor(component))],
+  ssr: [ssrFor(component) ? file(ssrFor(component)) : deferred('QG6', 'QG6 建立消费端 SSR 契约；当前明确记录为延期，不将 SSR 覆盖误标为不适用。')],
   a11y: [planned('QG4', 'QG4 建立组件级 axe、键盘与焦点验收；QG1 不将现有冒烟测试误标为无障碍覆盖。')],
   visual: [planned('QG4', 'QG4 建立桌面、移动、暗色与 reduced-motion 截图基线；QG1 不将普通 E2E 文件误标为视觉基线。')],
   owner: '质量工程组'

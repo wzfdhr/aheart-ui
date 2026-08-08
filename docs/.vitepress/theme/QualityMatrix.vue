@@ -38,6 +38,6 @@ const groups = computed(() => ['aheart-ui', '@aheart-ui/dnd', '@aheart-ui/ai'].m
 
 const evidenceLabel = (evidence) => evidence.kind === 'file'
   ? evidence.path
-  : evidence.kind === 'planned' ? `${evidence.milestone}：待验收`
+  : evidence.kind === 'planned' ? `${evidence.milestone}：${evidence.status === 'deferred' ? '延期（待验收）' : '待验收'}`
     : `不适用：${evidence.reason}`
 </script>
