@@ -31,7 +31,8 @@ const aiUnit = {
 }
 const e2eFor = (component) => component === 'ai' || component.startsWith('ai-')
   ? 'e2e/q5-ai-product-suite.spec.ts'
-    : component === 'time-picker' ? 'e2e/time-picker-range.spec.ts'
+    : component === 'date-picker' ? 'e2e/date-picker.spec.ts'
+      : component === 'time-picker' ? 'e2e/time-picker-range.spec.ts'
       : 'e2e/docs-component-smoke.spec.ts'
 const ssrFor = (component) => ({
   'date-picker': 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts',

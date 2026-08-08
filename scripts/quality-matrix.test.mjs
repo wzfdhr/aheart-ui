@@ -65,9 +65,30 @@ test('quality matrix registers every Ready component exactly once with release e
   )
   assert.doesNotThrow(() => validateEvidence({
     ...sample,
-    e2e: [{ kind: 'planned', milestone: 'QG2', reason: 'component-specific browser task is pending' }],
     ssr: [{ kind: 'planned', milestone: 'QG6', status: 'deferred', reason: 'consumer SSR contract is pending' }]
   }, root))
+  assert.throws(
+    () => validateEvidence({ ...sample, e2e: [{ kind: 'planned', milestone: 'QG2', reason: 'not a component-specific plan' }] }, root),
+    /QG2 e2e planned evidence is only allowed for dnd and splitter/
+  )
+  assert.throws(
+    () => validateEvidence({ ...sample, ssr: [{ kind: 'notApplicable', reason: 'not covered yet' }] }, root),
+    /SSR evidence cannot be notApplicable/
+  )
+  const datePicker = qualityMatrix.find((record) => record.component === 'date-picker')
+  const timePickerWithSsr = qualityMatrix.find((record) => record.component === 'time-picker')
+  assert.throws(
+    () => validateEvidence({ ...datePicker, ssr: [{ kind: 'planned', milestone: 'QG6', status: 'deferred', reason: 'deferred' }] }, root),
+    /has a dedicated SSR file and cannot be deferred/
+  )
+  assert.throws(
+    () => validateEvidence({ ...timePickerWithSsr, ssr: [{ kind: 'notApplicable', reason: 'not covered yet' }] }, root),
+    /has a dedicated SSR file and cannot be notApplicable/
+  )
+  assert.throws(
+    () => validateEvidence({ ...sample, e2e: [{ kind: 'file', path: 'e2e/agent-workbench.spec.ts' }] }, root),
+    /does not match the canonical component browser evidence/
+  )
   assert.throws(
     () => validateEvidence({ ...sample, unit: [{ kind: 'file', path: 'packages/components/src/input/__tests__/input.test.ts' }] }, root),
     /does not match the canonical component test/
@@ -81,6 +102,8 @@ test('quality matrix registers every Ready component exactly once with release e
   assert.equal(splitter.e2e[0].kind, 'planned')
   assert.equal(splitter.e2e[0].milestone, 'QG2')
   assert.equal(timePicker.e2e[0].path, 'e2e/time-picker-range.spec.ts')
+  assert.equal(datePicker.ssr[0].path, 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts')
+  assert.equal(timePickerWithSsr.ssr[0].path, 'packages/components/src/time-picker/__tests__/time-picker.ssr.test.ts')
   assert.equal(sample.ssr[0].kind, 'planned')
   assert.equal(sample.ssr[0].milestone, 'QG6')
   assert.equal(sample.ssr[0].status, 'deferred')

@@ -18,6 +18,18 @@ const canonicalUnitPath = (record) => {
     ?? `${packageRoot[record.package]}src/${record.component}/__tests__/${record.component}.test.ts`
 }
 
+const canonicalE2ePath = (record) => {
+  if (record.component === 'date-picker') return 'e2e/date-picker.spec.ts'
+  if (record.component === 'time-picker') return 'e2e/time-picker-range.spec.ts'
+  if (record.component === 'ai' || record.component.startsWith('ai-')) return 'e2e/q5-ai-product-suite.spec.ts'
+  return 'e2e/docs-component-smoke.spec.ts'
+}
+
+const canonicalSsrPath = {
+  'date-picker': 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts',
+  'time-picker': 'packages/components/src/time-picker/__tests__/time-picker.ssr.test.ts'
+}
+
 const directFields = (source, start) => {
   let depth = 0
   let quote = ''
@@ -63,12 +75,22 @@ const validateEvidenceItem = (record, category, evidence, root) => {
     throw new Error(`${record.component}.${category} evidence must be planned for QG4`)
   }
   if (evidence.kind === 'notApplicable') {
+    if (category === 'ssr' && canonicalSsrPath[record.component]) {
+      throw new Error(`${record.component}.ssr has a dedicated SSR file and cannot be notApplicable`)
+    }
+    if (category === 'ssr') throw new Error(`${record.component}.ssr SSR evidence cannot be notApplicable`)
     if (!evidence.reason?.trim()) throw new Error(`${record.component}.${category} needs a notApplicable reason`)
     return
   }
   if (evidence.kind === 'planned') {
+    if (category === 'e2e' && evidence.milestone === 'QG2' && !['dnd', 'splitter'].includes(record.component)) {
+      throw new Error(`${record.component}.e2e QG2 e2e planned evidence is only allowed for dnd and splitter`)
+    }
     if (category === 'ssr' && evidence.milestone === 'QG6' && evidence.status !== 'deferred') {
       throw new Error(`${record.component}.ssr SSR planned evidence must be deferred at QG6`)
+    }
+    if (category === 'ssr' && canonicalSsrPath[record.component]) {
+      throw new Error(`${record.component}.ssr has a dedicated SSR file and cannot be deferred`)
     }
     const qg4Coverage = ['a11y', 'visual'].includes(category) && evidence.milestone === 'QG4'
     const qg2BrowserPlan = category === 'e2e' && evidence.milestone === 'QG2'
@@ -85,6 +107,12 @@ const validateEvidenceItem = (record, category, evidence, root) => {
   }
   if (category === 'unit' && evidence.path !== canonicalUnitPath(record)) {
     throw new Error(`${record.component}.unit does not match the canonical component test: ${evidence.path}`)
+  }
+  if (category === 'e2e' && evidence.path !== canonicalE2ePath(record)) {
+    throw new Error(`${record.component}.e2e does not match the canonical component browser evidence: ${evidence.path}`)
+  }
+  if (category === 'ssr' && canonicalSsrPath[record.component] && evidence.path !== canonicalSsrPath[record.component]) {
+    throw new Error(`${record.component}.ssr does not match the dedicated SSR file: ${evidence.path}`)
   }
 }
 
