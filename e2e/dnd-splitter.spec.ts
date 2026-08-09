@@ -457,6 +457,23 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(page.getByTestId('splitter-iframe').locator('iframe')).toBeVisible()
   })
 
+  test('clamps mobile external sizes to the measured splitter container', async ({ page }, testInfo) => {
+    test.skip(!testInfo.project.name.includes('mobile'), 'Measured mobile bounds only apply to mobile projects.')
+
+    const fixture = page.getByTestId('splitter-fixture')
+    const controlled = page.getByTestId('splitter-input')
+    const input = controlled.locator('input').first()
+    await controlled.scrollIntoViewIfNeeded()
+
+    await input.fill('480')
+    await input.press('Enter')
+
+    const firstSize = Number((await page.getByTestId('splitter-input-output').textContent())?.replace(/\D/g, ''))
+    const containerWidth = await controlled.locator('.aheart-splitter').evaluate((node) => node.getBoundingClientRect().width)
+    expect(firstSize).toBeLessThanOrEqual(Math.floor(containerWidth - 160))
+    expect(await fixture.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true)
+  })
+
   test('renders the panel API table and keeps mobile controlled sizes inside the fixture', async ({ page }, testInfo) => {
     await expect(page.locator('h3#splitterpanel + table')).toBeVisible()
     if (!testInfo.project.name.includes('mobile')) return
