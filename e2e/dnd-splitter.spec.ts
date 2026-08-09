@@ -175,6 +175,30 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
   })
 
+  test('hands auto-scroll from an exhausted inner region to its outer ancestor', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'Continuous native drag auto-scroll is verified in desktop Chromium.')
+
+    const outer = page.getByTestId('dnd-scroll-outer')
+    const inner = page.getByTestId('dnd-scroll-region')
+    const source = item(page.getByTestId('dnd-scroll-source'), '滚动任务 12')
+    await outer.scrollIntoViewIfNeeded()
+    await inner.evaluate((node) => ((node as HTMLElement).scrollTop = (node as HTMLElement).scrollHeight))
+    await outer.evaluate((node) => ((node as HTMLElement).scrollTop = 0))
+    const sourceBox = await source.boundingBox()
+    const outerBox = await outer.boundingBox()
+    expect(sourceBox).not.toBeNull()
+    expect(outerBox).not.toBeNull()
+
+    await page.mouse.move(sourceBox!.x + 12, sourceBox!.y + 12)
+    await page.mouse.down()
+    await page.mouse.move(outerBox!.x + outerBox!.width / 2, outerBox!.y + outerBox!.height - 3, { steps: 18 })
+    await expect.poll(() => outer.evaluate((node) => (node as HTMLElement).scrollTop)).toBeGreaterThan(0)
+    await page.keyboard.press('Escape')
+    await page.mouse.move(0, 0)
+    await page.mouse.up()
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+  })
+
   test('unmounts and remounts without stale drag state', async ({ page }) => {
     const fixture = page.getByTestId('dnd-fixture')
     const region = page.getByTestId('dnd-scroll-region')
@@ -481,6 +505,13 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect.poll(async () => controlled.locator('.aheart-splitter__panel').evaluateAll((nodes) =>
       nodes.reduce((total, node) => total + (node as HTMLElement).getBoundingClientRect().width, 0)
     )).toBeLessThanOrEqual(240)
+    await expect.poll(async () => controlled.locator('.aheart-splitter').evaluate((node) => {
+      const occupied = [...node.children].reduce(
+        (total, child) => total + (child as HTMLElement).getBoundingClientRect().width,
+        0
+      )
+      return occupied <= node.getBoundingClientRect().width
+    })).toBe(true)
   })
 
   test('renders the panel API table and keeps mobile controlled sizes inside the fixture', async ({ page }, testInfo) => {

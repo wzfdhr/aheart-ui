@@ -26,8 +26,13 @@ const setNavigationSize = (value: number | null) => {
 }
 
 const syncControlledWidth = () => {
-  const width = Math.floor(controlledPanelRef.value?.clientWidth ?? 0)
-  if (width <= 0) return
+  const root = controlledPanelRef.value
+  const containerWidth = Math.floor(root?.clientWidth ?? 0)
+  if (!root || containerWidth <= 0) return
+
+  const handleSpace = [...root.querySelectorAll<HTMLElement>('.aheart-splitter__handle')]
+    .reduce((total, handle) => total + handle.getBoundingClientRect().width, 0)
+  const width = Math.max(0, containerWidth - handleSpace)
 
   controlledWidth.value = width
   navigationMin.value = width < 280 ? Math.floor(width * 3 / 7) : 120

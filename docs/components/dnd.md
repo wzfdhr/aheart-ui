@@ -137,13 +137,16 @@ app.use(AheartDnd)
     </section>
   </div>
 
-  <div data-testid="dnd-scroll-region" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 160px; overflow: auto; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
-    <div data-testid="dnd-scroll-source"><ASortableList v-model:items="scrollSource" item-key="id" group="scroll" @change="status = '嵌套滚动移动已更新'">
-      <template #item="{ item }"><div :data-item-id="item.id" style="min-height: 36px; padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
-    </ASortableList></div>
-    <div data-testid="dnd-scroll-target" class="qg2-dnd-drop-list"><ASortableList v-model:items="scrollTarget" item-key="id" group="scroll">
-      <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
-    </ASortableList></div>
+  <div data-testid="dnd-scroll-outer" style="height: 160px; overflow: auto; border: 1px solid #e5eaf0; border-radius: 6px;">
+    <div data-testid="dnd-scroll-region" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 160px; overflow: auto; padding: 8px;">
+      <div data-testid="dnd-scroll-source"><ASortableList v-model:items="scrollSource" item-key="id" group="scroll" @change="status = '嵌套滚动移动已更新'">
+        <template #item="{ item }"><div :data-item-id="item.id" style="min-height: 36px; padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
+      </ASortableList></div>
+      <div data-testid="dnd-scroll-target" class="qg2-dnd-drop-list"><ASortableList v-model:items="scrollTarget" item-key="id" group="scroll">
+        <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
+      </ASortableList></div>
+    </div>
+    <div style="height: 220px; padding: 12px; color: #667085; font-size: 12px;">内层到达边界后继续滚动外层区域</div>
   </div>
 
   <div style="display: flex; gap: 8px;">

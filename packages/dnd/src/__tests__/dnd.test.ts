@@ -68,6 +68,33 @@ describe('sortable auto-scroll registration', () => {
     scrollRegion.remove()
   })
 
+  it('registers every scrollable ancestor and window for nested overflow handoff', () => {
+    const outer = document.createElement('div')
+    const inner = document.createElement('div')
+    const list = document.createElement('ul')
+    inner.append(list)
+    outer.append(inner)
+    document.body.append(outer)
+    const getComputedStyle = vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => ({
+      overflowX: element === outer ? 'auto' : 'visible',
+      overflowY: element === inner || element === outer ? 'auto' : 'visible'
+    }) as CSSStyleDeclaration)
+
+    const release = registerSortableAutoScroll(list)
+
+    expect(autoScroll.autoScrollForElements).toHaveBeenCalledTimes(2)
+    expect(autoScroll.autoScrollForElements).toHaveBeenNthCalledWith(1, { element: inner })
+    expect(autoScroll.autoScrollForElements).toHaveBeenNthCalledWith(2, { element: outer })
+    expect(autoScroll.autoScrollWindowForElements).toHaveBeenCalledTimes(1)
+
+    release()
+    expect(autoScroll.autoScrollForElements.mock.results[0].value).toHaveBeenCalledTimes(1)
+    expect(autoScroll.autoScrollForElements.mock.results[1].value).toHaveBeenCalledTimes(1)
+    expect(autoScroll.autoScrollWindowForElements.mock.results[0].value).toHaveBeenCalledTimes(1)
+    getComputedStyle.mockRestore()
+    outer.remove()
+  })
+
   it('registers window auto-scroll once for visible-overflow trees and cleans it after all lists release', () => {
     const firstList = document.createElement('ul')
     const secondList = document.createElement('ul')
