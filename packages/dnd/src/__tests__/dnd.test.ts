@@ -5,6 +5,7 @@ import Draggable from '../draggable.vue'
 import DropZone from '../drop-zone.vue'
 import { currentDragData } from '../drag-state'
 import SortableList from '../sortable-list.vue'
+import { registerSortableAutoScroll } from '../sortable-auto-scroll'
 
 const cleanupFns = vi.hoisted(() => [] as ReturnType<typeof vi.fn>[])
 const adapter = vi.hoisted(() => ({
@@ -19,8 +20,12 @@ const adapter = vi.hoisted(() => ({
     return cleanup
   })
 }))
+const autoScroll = vi.hoisted(() => ({
+  autoScrollForElements: vi.fn(() => vi.fn())
+}))
 
 vi.mock('@atlaskit/pragmatic-drag-and-drop/element/adapter', () => adapter)
+vi.mock('@atlaskit/pragmatic-drag-and-drop-auto-scroll/element', () => autoScroll)
 vi.mock('@atlaskit/pragmatic-drag-and-drop/reorder', () => ({
   reorder: <T>({ list, startIndex, finishIndex }: { list: T[]; startIndex: number; finishIndex: number }) => {
     const next = [...list]
@@ -33,6 +38,43 @@ vi.mock('@atlaskit/pragmatic-drag-and-drop/reorder', () => ({
 beforeEach(() => {
   vi.clearAllMocks()
   cleanupFns.length = 0
+})
+
+describe('sortable auto-scroll registration', () => {
+  it('registers the nearest scrollable ancestor once and releases it after all lists unmount', () => {
+    const scrollRegion = document.createElement('div')
+    const firstList = document.createElement('ul')
+    const secondList = document.createElement('ul')
+    const staticList = document.createElement('ul')
+    scrollRegion.append(firstList, secondList)
+    document.body.append(scrollRegion, staticList)
+    Object.defineProperties(scrollRegion, {
+      clientHeight: { configurable: true, value: 100 },
+      scrollHeight: { configurable: true, value: 200 },
+      clientWidth: { configurable: true, value: 100 },
+      scrollWidth: { configurable: true, value: 100 }
+    })
+    const getComputedStyle = vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => ({
+      overflowX: element === scrollRegion ? 'auto' : 'visible',
+      overflowY: element === scrollRegion ? 'auto' : 'visible'
+    }) as CSSStyleDeclaration)
+
+    const releaseFirst = registerSortableAutoScroll(firstList)
+    const releaseSecond = registerSortableAutoScroll(secondList)
+    const releaseStatic = registerSortableAutoScroll(staticList)
+
+    expect(autoScroll.autoScrollForElements).toHaveBeenCalledTimes(1)
+    expect(autoScroll.autoScrollForElements).toHaveBeenCalledWith({ element: scrollRegion })
+
+    releaseFirst()
+    expect(autoScroll.autoScrollForElements.mock.results[0].value).not.toHaveBeenCalled()
+    releaseSecond()
+    expect(autoScroll.autoScrollForElements.mock.results[0].value).toHaveBeenCalledTimes(1)
+    releaseStatic()
+    getComputedStyle.mockRestore()
+    scrollRegion.remove()
+    staticList.remove()
+  })
 })
 
 describe('Aheart DnD adapters', () => {

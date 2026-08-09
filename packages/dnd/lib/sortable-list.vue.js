@@ -5,6 +5,7 @@ const sortableItem_vue_vue_type_script_setup_true_lang = require("./sortable-ite
 const sortableContext = require("./sortable-context.js");
 const sortableRegistry = require("./sortable-registry.js");
 const useDroppable = require("./use-droppable.js");
+const sortableAutoScroll = require("./sortable-auto-scroll.js");
 const _hoisted_1 = {
   class: "aheart-dnd-live-region",
   "aria-live": "polite"
@@ -33,6 +34,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const unregister = sortableRegistry.registerSortableList(listId, { group: () => props.group, items: () => props.items, update: updateItems });
     vue.onBeforeUnmount(unregister);
+    let unregisterAutoScroll = () => {
+    };
+    vue.onMounted(() => {
+      unregisterAutoScroll = sortableAutoScroll.registerSortableAutoScroll(root.value);
+    });
+    vue.onBeforeUnmount(() => unregisterAutoScroll());
     const move = (source, targetIndex, keyboard = false) => {
       if (!disabled.value && sortableRegistry.moveSortableItem(source, listId, targetIndex) && keyboard) {
         announcement.value = `已移动到第 ${targetIndex + 1} 项`;

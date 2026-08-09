@@ -10,11 +10,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, provide, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
 import SortableItem from './sortable-item.vue'
 import { sortableContextKey, type SortableItemData } from './sortable-context'
 import { moveSortableItem, registerSortableList } from './sortable-registry'
 import { useDroppable } from './use-droppable'
+import { registerSortableAutoScroll } from './sortable-auto-scroll'
 
 defineOptions({ name: 'ASortableList' })
 
@@ -40,6 +41,11 @@ const updateItems = (items: unknown[]) => {
 }
 const unregister = registerSortableList(listId, { group: () => props.group, items: () => props.items, update: updateItems })
 onBeforeUnmount(unregister)
+let unregisterAutoScroll = () => {}
+onMounted(() => {
+  unregisterAutoScroll = registerSortableAutoScroll(root.value)
+})
+onBeforeUnmount(() => unregisterAutoScroll())
 const move = (source: SortableItemData, targetIndex: number, keyboard = false) => {
   if (!disabled.value && moveSortableItem(source, listId, targetIndex) && keyboard) {
     announcement.value = `已移动到第 ${targetIndex + 1} 项`

@@ -1,8 +1,9 @@
-import { defineComponent, computed, ref, onBeforeUnmount, provide, openBlock, createElementBlock, Fragment, createElementVNode, renderList, createBlock, withCtx, renderSlot, mergeProps, toDisplayString } from "vue";
+import { defineComponent, computed, ref, onBeforeUnmount, onMounted, provide, openBlock, createElementBlock, Fragment, createElementVNode, renderList, createBlock, withCtx, renderSlot, mergeProps, toDisplayString } from "vue";
 import _sfc_main$1 from "./sortable-item.vue.js";
 import { sortableContextKey } from "./sortable-context.js";
 import { registerSortableList, moveSortableItem } from "./sortable-registry.js";
 import { useDroppable } from "./use-droppable.js";
+import { registerSortableAutoScroll } from "./sortable-auto-scroll.js";
 const _hoisted_1 = {
   class: "aheart-dnd-live-region",
   "aria-live": "polite"
@@ -31,6 +32,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const unregister = registerSortableList(listId, { group: () => props.group, items: () => props.items, update: updateItems });
     onBeforeUnmount(unregister);
+    let unregisterAutoScroll = () => {
+    };
+    onMounted(() => {
+      unregisterAutoScroll = registerSortableAutoScroll(root.value);
+    });
+    onBeforeUnmount(() => unregisterAutoScroll());
     const move = (source, targetIndex, keyboard = false) => {
       if (!disabled.value && moveSortableItem(source, listId, targetIndex) && keyboard) {
         announcement.value = `已移动到第 ${targetIndex + 1} 项`;
