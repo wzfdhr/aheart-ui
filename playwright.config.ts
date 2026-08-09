@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 const port = process.env.AHEART_E2E_PORT ?? '5173'
 const qg2Only = /dnd-splitter\.spec\.ts/
+const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 
 export default defineConfig({
   testDir: './e2e',
@@ -16,7 +17,7 @@ export default defineConfig({
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
-    { name: 'desktop-firefox', testMatch: qg2Only, use: { ...devices['Desktop Chrome'], browserName: 'firefox' } },
+    { name: 'desktop-firefox', testMatch: qg2Only, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },
     { name: 'desktop-webkit', testMatch: qg2Only, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },
     { name: 'mobile-webkit', testMatch: qg2Only, use: { ...devices['iPhone 13'], browserName: 'webkit' } }
   ],

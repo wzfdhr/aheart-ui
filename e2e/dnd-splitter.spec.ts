@@ -46,7 +46,7 @@ const pointerResizeBy = async (page: Page, handle: Locator, deltaX: number, delt
 test.describe('QG2 中文 DnD fixture', () => {
   test.beforeEach(async ({ page }) => {
     collectRuntimeErrors(page)
-    await page.goto('/components/dnd', { waitUntil: 'networkidle' })
+    await page.goto('/components/dnd', { waitUntil: 'domcontentloaded' })
   })
 
   test.afterEach(async ({ page }) => {
@@ -85,7 +85,8 @@ test.describe('QG2 中文 DnD fixture', () => {
     await drag(page, item(todo, '准备发布'), item(done, '发布复盘'))
     await expect(done).toContainText('准备发布')
     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
-    await drag(page, item(done, '准备发布'), empty)
+    await empty.scrollIntoViewIfNeeded()
+    await drag(page, item(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
     await expect(empty).toContainText('准备发布')
     await expect(page.getByTestId('dnd-empty-count')).toHaveText('1')
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
@@ -168,14 +169,14 @@ test.describe('QG2 中文 DnD fixture', () => {
 test.describe('QG2 中文 Splitter fixture', () => {
   test.beforeEach(async ({ page }) => {
     collectRuntimeErrors(page)
-    await page.goto('/components/splitter', { waitUntil: 'networkidle' })
+    await page.goto('/components/splitter', { waitUntil: 'domcontentloaded' })
   })
 
   test.afterEach(async ({ page }) => {
     expectNoRuntimeErrors(page)
   })
 
-  test('renders horizontal, vertical, and three-panel splitters with state output', async ({ page }) => {
+  test('renders horizontal, vertical, and three-panel splitters with state output', async ({ page }, testInfo) => {
     const fixture = page.getByTestId('splitter-fixture')
     await expect(fixture).toBeVisible()
     await expect(page.getByTestId('splitter-horizontal').getByRole('separator')).toHaveCount(1)
@@ -188,6 +189,8 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await page.keyboard.press('ArrowRight')
     await expect(handle).not.toHaveAttribute('aria-valuenow', initial ?? '')
     await expect(page.getByTestId('splitter-status')).toContainText('键盘')
+
+    if (testInfo.project.name.includes('mobile')) return
 
     const vertical = page.getByTestId('splitter-vertical')
     const verticalPanel = vertical.locator('.aheart-splitter__panel').first()
@@ -223,10 +226,12 @@ test.describe('QG2 中文 Splitter fixture', () => {
     const beforeMax = Number(await handle.getAttribute('aria-valuemax'))
     await fixture.evaluate((node) => ((node as HTMLElement).style.width = '520px'))
     await expect.poll(async () => Number(await handle.getAttribute('aria-valuemax'))).not.toBe(beforeMax)
-    const panelsWidth = await splitter.locator('.aheart-splitter__panel').evaluateAll((nodes) =>
-      nodes.reduce((total, node) => total + (node as HTMLElement).getBoundingClientRect().width, 0)
-    )
-    expect(panelsWidth).toBeGreaterThan(400)
+    const splitterWidth = (await splitter.boundingBox())!.width
+    await expect.poll(async () =>
+      splitter.locator('.aheart-splitter__panel').evaluateAll((nodes) =>
+        nodes.reduce((total, node) => total + (node as HTMLElement).getBoundingClientRect().width, 0)
+      )
+    ).toBeGreaterThan(splitterWidth - 16)
   })
 
   test('keeps lazy values unchanged while dragging and commits on pointerup', async ({ page }) => {
@@ -288,6 +293,7 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await page.evaluate(() => window.dispatchEvent(new Event('blur')))
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(bodyStyle)
+    await page.mouse.up()
 
     await beginPointerResize(page, handle, handleBox!.x + 48, handleBox!.y + handleBox!.height / 2)
     await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()

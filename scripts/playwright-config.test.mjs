@@ -43,6 +43,11 @@ test('retains failure diagnostics and uses the HTML reporter', () => {
   assert.match(configSource, /reporter:\s*['"]html['"]/)
 })
 
+test('disables the macOS system proxy for local Firefox verification', () => {
+  assert.match(configSource, /const firefoxLaunchOptions = \{ firefoxUserPrefs: \{ 'network\.proxy\.type': 0 \} \}/)
+  assert.match(configSource, /name:\s*'desktop-firefox'[^\n]*launchOptions:\s*firefoxLaunchOptions/)
+})
+
 test('CI installs all browsers and uploads test results and the Playwright report', () => {
   assert.match(configSource, /testDir:/)
   const ciSource = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8')
