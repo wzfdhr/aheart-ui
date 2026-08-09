@@ -78,7 +78,7 @@ const sortableSsrApp = () => createSSRApp(defineComponent({
 }))
 
 describe('sortable SSR and hydration', () => {
-  it('uses a stable list id without registering SSR controllers and hydrates without warnings', async () => {
+  it('does not render a runtime list id on SSR and hydrates without warnings', async () => {
     const register = vi.spyOn(sortableRegistry, 'registerSortableList')
     const firstHtml = await renderToString(sortableSsrApp())
     const secondHtml = await renderToString(sortableSsrApp())
@@ -88,6 +88,7 @@ describe('sortable SSR and hydration', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     expect(firstHtml).toBe(secondHtml)
+    expect(firstHtml).not.toContain('data-aheart-sortable-list-id=')
     expect(register).not.toHaveBeenCalled()
 
     const app = sortableSsrApp()
@@ -95,12 +96,73 @@ describe('sortable SSR and hydration', () => {
     await nextTick()
 
     expect(register).toHaveBeenCalledTimes(1)
+    expect(host.querySelector('[data-aheart-sortable-list-id]')).not.toBeNull()
     expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('Hydration'))
 
     app.unmount()
     warn.mockRestore()
     register.mockRestore()
     host.remove()
+  })
+
+  it('assigns different ids to independent apps in the same document', async () => {
+    const first = mount(SortableList, {
+      props: { items: [{ id: 'first-a' }, { id: 'first-b' }], itemKey: 'id', group: 'shared' },
+      attachTo: document.body
+    })
+    const second = mount(SortableList, {
+      props: { items: [{ id: 'second-a' }, { id: 'second-b' }], itemKey: 'id', group: 'shared' },
+      attachTo: document.body
+    })
+    await nextTick()
+
+    const firstList = first.find('ul').element as HTMLElement
+    const secondList = second.find('ul').element as HTMLElement
+    expect(firstList.dataset.aheartSortableListId).toBeTruthy()
+    expect(secondList.dataset.aheartSortableListId).toBeTruthy()
+    expect(firstList.dataset.aheartSortableListId).not.toBe(secondList.dataset.aheartSortableListId)
+
+    first.unmount()
+    second.unmount()
+  })
+
+  it('keeps registry operations isolated between independent apps', async () => {
+    const firstItems = ref([{ id: 'first-a' }, { id: 'first-b' }])
+    const secondItems = ref([{ id: 'second-a' }, { id: 'second-b' }])
+    const first = mount(SortableList, {
+      props: { items: firstItems.value, itemKey: 'id', group: 'shared', 'onUpdate:items': (items) => firstItems.value = items as typeof firstItems.value },
+      attachTo: document.body
+    })
+    const second = mount(SortableList, {
+      props: { items: secondItems.value, itemKey: 'id', group: 'shared', 'onUpdate:items': (items) => secondItems.value = items as typeof secondItems.value },
+      attachTo: document.body
+    })
+    await nextTick()
+
+    const firstListId = (first.find('ul').element as HTMLElement).dataset.aheartSortableListId!
+    const secondListId = (second.find('ul').element as HTMLElement).dataset.aheartSortableListId!
+    expect(sortableRegistry.moveSortableItem({ type: 'aheart-sortable', listId: firstListId, index: 0 }, firstListId, 1)).toBe(true)
+    await nextTick()
+
+    expect(firstItems.value.map((item) => item.id)).toEqual(['first-b', 'first-a'])
+    expect(secondItems.value.map((item) => item.id)).toEqual(['second-a', 'second-b'])
+    expect(sortableRegistry.moveSortableItem({ type: 'aheart-sortable', listId: secondListId, index: 0 }, secondListId, 1)).toBe(true)
+
+    first.unmount()
+    second.unmount()
+  })
+
+  it('does not let an old registry cleanup remove a replacement controller', () => {
+    const first = { group: () => 'shared', items: () => [{ id: 'first' }], update: vi.fn() }
+    const second = { group: () => 'shared', items: () => [{ id: 'second-a' }, { id: 'second-b' }], update: vi.fn() }
+    const releaseFirst = sortableRegistry.registerSortableList('same-id', first)
+    sortableRegistry.registerSortableList('same-id', second)
+
+    releaseFirst()
+
+    expect(sortableRegistry.moveSortableItem({ type: 'aheart-sortable', listId: 'same-id', index: 0 }, 'same-id', 1)).toBe(true)
+    expect(second.update).toHaveBeenCalledTimes(1)
+    sortableRegistry.registerSortableList('same-id', second)()
   })
 })
 
@@ -116,6 +178,16 @@ describe('sortable deep declarations', () => {
       const contents = readFileSync(new URL(declaration, import.meta.url), 'utf8')
       expect(contents).toContain('move: (source: SortableItemData, targetIndex: number, keyboard?: boolean) => void;')
       expect(contents).not.toContain('moveAdjacent')
+    }
+  })
+
+  it('does not import Vue useId in source or generated sortable-list modules', () => {
+    for (const file of [
+      '../sortable-list.vue',
+      '../../es/sortable-list.vue.js',
+      '../../lib/sortable-list.vue.js'
+    ]) {
+      expect(readFileSync(new URL(file, import.meta.url), 'utf8')).not.toMatch(/\buseId\b/)
     }
   })
 })

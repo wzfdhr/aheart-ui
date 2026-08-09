@@ -2,7 +2,10 @@ import { reorder } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/
 const controllers = /* @__PURE__ */ new Map();
 function registerSortableList(listId, controller) {
   controllers.set(listId, controller);
-  return () => controllers.delete(listId);
+  return () => {
+    if (controllers.get(listId) !== controller) return false;
+    return controllers.delete(listId);
+  };
 }
 function moveSortableItem(source, targetListId, targetIndex) {
   const sourceController = controllers.get(source.listId);

@@ -1,3 +1,7 @@
+<script lang="ts">
+let sortableListIdCounter = 0
+</script>
+
 <template>
   <ul
     ref="root"
@@ -20,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, provide, ref, useId } from 'vue'
+import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
 import SortableItem from './sortable-item.vue'
 import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
 import { moveSortableItem, registerSortableList } from './sortable-registry'
@@ -48,7 +52,7 @@ const emit = defineEmits<{
   change: [items: Record<string, unknown>[]]
 }>()
 
-const listId = `aheart-sortable-${useId()}`
+const listId = ref<string>()
 const disabled = computed(() => props.disabled)
 const announcement = ref('')
 const root = ref<HTMLElement>()
@@ -59,7 +63,13 @@ const updateItems = (items: unknown[]) => {
 }
 let unregister = () => {}
 onMounted(() => {
-  unregister = registerSortableList(listId, {
+  const ownerWindow = root.value?.ownerDocument.defaultView
+  const randomUUID = ownerWindow?.crypto?.randomUUID
+  const generatedId = randomUUID
+    ? randomUUID.call(ownerWindow.crypto)
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${sortableListIdCounter++}`
+  listId.value = `aheart-sortable-${generatedId}`
+  unregister = registerSortableList(listId.value, {
     group: () => props.group,
     items: () => props.items,
     update: updateItems,
@@ -80,12 +90,26 @@ const handleAnnouncement = (event: Event) => {
 }
 const move = (source: SortableItemData, targetIndex: number) => {
   if (disabled.value) return false
-  moveSortableItem(source, listId, targetIndex)
+  const currentListId = listId.value
+  if (!currentListId) return false
+  moveSortableItem(source, currentListId, targetIndex)
 }
 
-provide(sortableContextKey, { listId, group: props.group, disabled, move })
+provide(sortableContextKey, {
+  get listId() {
+    return listId.value ?? ''
+  },
+  group: props.group,
+  disabled,
+  move
+})
 useDroppable(root, {
-  data: () => ({ type: 'aheart-sortable', listId, group: props.group, targetIndex: props.items.length }),
+  data: () => {
+    const currentListId = listId.value
+    return currentListId
+      ? { type: 'aheart-sortable', listId: currentListId, group: props.group, targetIndex: props.items.length }
+      : undefined
+  },
   accept: 'aheart-sortable',
   disabled,
   onDrop: (source) => {

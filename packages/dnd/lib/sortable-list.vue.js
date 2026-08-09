@@ -6,11 +6,12 @@ const sortableContext = require("./sortable-context.js");
 const sortableRegistry = require("./sortable-registry.js");
 const useDroppable = require("./use-droppable.js");
 const sortableAutoScroll = require("./sortable-auto-scroll.js");
-const _hoisted_1 = ["data-aheart-sortable-group", "data-aheart-sortable-disabled"];
+const _hoisted_1 = ["data-aheart-sortable-list-id", "data-aheart-sortable-group", "data-aheart-sortable-disabled"];
 const _hoisted_2 = {
   class: "aheart-dnd-live-region",
   "aria-live": "polite"
 };
+let sortableListIdCounter = 0;
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{ name: "ASortableList" },
   __name: "sortable-list",
@@ -24,7 +25,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
-    const listId = `aheart-sortable-${vue.useId()}`;
+    const listId = vue.ref();
     const disabled = vue.computed(() => props.disabled);
     const announcement = vue.ref("");
     const root = vue.ref();
@@ -36,13 +37,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     let unregister = () => {
     };
     vue.onMounted(() => {
-      var _a;
-      unregister = sortableRegistry.registerSortableList(listId, {
+      var _a, _b, _c;
+      const ownerWindow = (_a = root.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      const randomUUID = (_b = ownerWindow == null ? void 0 : ownerWindow.crypto) == null ? void 0 : _b.randomUUID;
+      const generatedId = randomUUID ? randomUUID.call(ownerWindow.crypto) : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${sortableListIdCounter++}`;
+      listId.value = `aheart-sortable-${generatedId}`;
+      unregister = sortableRegistry.registerSortableList(listId.value, {
         group: () => props.group,
         items: () => props.items,
         update: updateItems
       });
-      (_a = root.value) == null ? void 0 : _a.addEventListener("aheart-sortable-announce", handleAnnouncement);
+      (_c = root.value) == null ? void 0 : _c.addEventListener("aheart-sortable-announce", handleAnnouncement);
     });
     vue.onBeforeUnmount(() => {
       var _a;
@@ -60,11 +65,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const move = (source, targetIndex) => {
       if (disabled.value) return false;
-      sortableRegistry.moveSortableItem(source, listId, targetIndex);
+      const currentListId = listId.value;
+      if (!currentListId) return false;
+      sortableRegistry.moveSortableItem(source, currentListId, targetIndex);
     };
-    vue.provide(sortableContext.sortableContextKey, { listId, group: props.group, disabled, move });
+    vue.provide(sortableContext.sortableContextKey, {
+      get listId() {
+        return listId.value ?? "";
+      },
+      group: props.group,
+      disabled,
+      move
+    });
     useDroppable.useDroppable(root, {
-      data: () => ({ type: "aheart-sortable", listId, group: props.group, targetIndex: props.items.length }),
+      data: () => {
+        const currentListId = listId.value;
+        return currentListId ? { type: "aheart-sortable", listId: currentListId, group: props.group, targetIndex: props.items.length } : void 0;
+      },
       accept: "aheart-sortable",
       disabled,
       onDrop: (source) => {
@@ -78,7 +95,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref_key: "root",
           ref: root,
           class: "aheart-dnd-sortable-list",
-          "data-aheart-sortable-list-id": listId,
+          "data-aheart-sortable-list-id": listId.value,
           "data-aheart-sortable-group": __props.group,
           "data-aheart-sortable-disabled": disabled.value ? "true" : void 0,
           role: "list"
