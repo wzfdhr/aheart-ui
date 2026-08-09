@@ -21,13 +21,14 @@ const dedicatedE2e = {
   'date-picker': 'e2e/date-picker.spec.ts',
   drawer: 'e2e/overlay-motion.spec.ts',
   popover: 'e2e/overlay-motion.spec.ts',
+  splitter: 'e2e/dnd-splitter.spec.ts',
+  dnd: 'e2e/dnd-splitter.spec.ts',
   ai: 'e2e/q5-ai-product-suite.spec.ts',
   'ai-form': 'e2e/q5-ai-product-suite.spec.ts',
   'ai-agent-workbench': 'e2e/q5-ai-product-suite.spec.ts'
 }
 
 const futureBrowserMilestone = new Map([
-  ['splitter', 'QG2'], ['dnd', 'QG2'],
   ['config-provider', 'QG3'], ['upload', 'QG3'], ['tree', 'QG3'], ['message', 'QG3'], ['modal', 'QG3']
 ])
 
