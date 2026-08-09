@@ -17,7 +17,10 @@ export const packageContracts = [
     name: '@aheart-ui/dnd',
     version: '1.0.0',
     packageDir: 'packages/dnd',
-    expectedDependencies: { '@atlaskit/pragmatic-drag-and-drop': '2.0.1' },
+    expectedDependencies: {
+      '@atlaskit/pragmatic-drag-and-drop': '2.0.1',
+      '@atlaskit/pragmatic-drag-and-drop-auto-scroll': '3.0.0'
+    },
     requiredFiles: ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css']
   },
   {

@@ -4,4 +4,4 @@ export declare const resolveSplitterPanelBounds: (panel: SplitterPanelConstraint
     max: number;
 };
 export declare const resolveSplitterSizes: ({ containerSize, sizes, panels }: ResolveSplitterSizesOptions) => number[];
-export declare const resizeAdjacentPanels: ({ sizes, panels, handleIndex, delta }: ResizeAdjacentPanelsOptions) => number[];
+export declare const resizeAdjacentPanels: ({ sizes, panels, containerSize, handleIndex, delta }: ResizeAdjacentPanelsOptions) => number[];

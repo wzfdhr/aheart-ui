@@ -119,6 +119,81 @@ describe('Splitter', () => {
     expect(wrapper.emitted('update:sizes')).toEqual([[[250, 350]]])
   })
 
+  it('uses the live container size for percentage constraints during keyboard resize', async () => {
+    const observers: Array<{ callback: () => void }> = []
+    class MockResizeObserver {
+      callback: () => void
+
+      constructor(callback: () => void) {
+        this.callback = callback
+        observers.push(this)
+      }
+
+      observe = vi.fn()
+      disconnect = vi.fn()
+    }
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+
+    const wrapper = mount(Splitter, {
+      props: { sizes: [300, 300] },
+      slots: {
+        default: () => [
+          h(SplitterPanel, { min: '20%', max: '60%' }, () => 'Navigation'),
+          h(SplitterPanel, { min: '20%', max: '80%' }, () => 'Content')
+        ]
+      }
+    })
+    Object.defineProperty(wrapper.element, 'clientWidth', { configurable: true, value: 606 })
+    observers[0].callback()
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.aheart-splitter__handle').trigger('keydown', { key: 'ArrowRight', shiftKey: true })
+
+    expect(wrapper.emitted('update:sizes')).toEqual([[[350, 250]]])
+  })
+
+  it('rescales adjusted percentage defaults when the live panel area changes', async () => {
+    const observers: Array<{ callback: () => void }> = []
+    class MockResizeObserver {
+      callback: () => void
+
+      constructor(callback: () => void) {
+        this.callback = callback
+        observers.push(this)
+      }
+
+      observe = vi.fn()
+      disconnect = vi.fn()
+    }
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+
+    const wrapper = mount(Splitter, {
+      props: { defaultSizes: ['40%', '60%'] },
+      slots: {
+        default: () => [
+          h(SplitterPanel, { min: '20%', max: '60%' }, () => 'Navigation'),
+          h(SplitterPanel, { min: '20%', max: '60%' }, () => 'Content')
+        ]
+      }
+    })
+    Object.defineProperty(wrapper.element, 'clientWidth', { configurable: true, value: 312 })
+    observers[0].callback()
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.aheart-splitter__handle').trigger('keydown', { key: 'ArrowRight' })
+
+    Object.defineProperty(wrapper.element, 'clientWidth', { configurable: true, value: 518 })
+    observers[0].callback()
+    await wrapper.vm.$nextTick()
+
+    const panels = wrapper.findAll('.aheart-splitter__panel')
+    const panelSizes = panels.map((panel) => Number(panel.attributes('style')?.match(/flex-basis: ([\d.]+)px/)?.[1]))
+    expect(panelSizes[0]).toBeCloseTo(221.532, 3)
+    expect(panelSizes[1]).toBeCloseTo(290.468, 3)
+    expect(panelSizes[0] + panelSizes[1]).toBeCloseTo(512, 3)
+    expect(panelSizes.every((size) => size >= 102.4 && size <= 307.2)).toBe(true)
+  })
+
   it('collapses and restores a collapsible panel with the handle control', async () => {
     const wrapper = mount(Splitter, {
       props: { sizes: [240, 360] },
@@ -141,6 +216,39 @@ describe('Splitter', () => {
 
     expect(wrapper.emitted('update:sizes')).toEqual([[[0, 600]], [[240, 360]]])
     expect(wrapper.find('.aheart-splitter__panel').attributes('style')).toContain('flex-basis: 300px')
+  })
+
+  it('uses the live container size for percentage constraints when collapsing', async () => {
+    const observers: Array<{ callback: () => void }> = []
+    class MockResizeObserver {
+      callback: () => void
+
+      constructor(callback: () => void) {
+        this.callback = callback
+        observers.push(this)
+      }
+
+      observe = vi.fn()
+      disconnect = vi.fn()
+    }
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+
+    const wrapper = mount(Splitter, {
+      props: { sizes: [300, 300] },
+      slots: {
+        default: () => [
+          h(SplitterPanel, { min: '20%', collapsible: true }, () => 'Navigation'),
+          h(SplitterPanel, { max: '60%' }, () => 'Content')
+        ]
+      }
+    })
+    Object.defineProperty(wrapper.element, 'clientWidth', { configurable: true, value: 606 })
+    observers[0].callback()
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.aheart-splitter__collapse').trigger('click')
+
+    expect(wrapper.emitted('update:sizes')).toEqual([[[240, 360]]])
   })
 
   it('does not start resize interactions when disabled', async () => {

@@ -158,10 +158,10 @@ test('quality matrix registers every Ready component exactly once with release e
     }, root),
     /unexpected component browser evidence/
   )
-  assert.equal(dnd.e2e[0].path, 'e2e/qg1-ready-component-contracts.spec.ts')
-  assert.equal(dnd.e2e[1].milestone, 'QG2')
-  assert.equal(splitter.e2e[0].path, 'e2e/qg1-ready-component-contracts.spec.ts')
-  assert.equal(splitter.e2e[1].milestone, 'QG2')
+  assert.ok(dnd.e2e.some((evidence) => evidence.path === 'e2e/dnd-splitter.spec.ts'))
+  assert.equal(dnd.e2e.some((evidence) => evidence.kind === 'planned' && evidence.milestone === 'QG2'), false)
+  assert.ok(splitter.e2e.some((evidence) => evidence.path === 'e2e/dnd-splitter.spec.ts'))
+  assert.equal(splitter.e2e.some((evidence) => evidence.kind === 'planned' && evidence.milestone === 'QG2'), false)
   assert.equal(timePicker.e2e[0].path, 'e2e/qg1-ready-component-contracts.spec.ts')
   assert.ok(timePicker.e2e.some((evidence) => evidence.path === 'e2e/time-picker-range.spec.ts'))
   const qg3Components = ['config-provider', 'upload', 'tree', 'message', 'modal']

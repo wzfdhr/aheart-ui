@@ -1,10 +1,16 @@
-import type { InjectionKey, Ref } from 'vue';
+import type { ComponentPublicInstance, InjectionKey, Ref } from 'vue';
 import type { DragData } from './types';
 export interface SortableItemData extends DragData {
     type: 'aheart-sortable';
     listId: string;
     group?: string;
     index: number;
+}
+export interface SortableHandleProps {
+    class: string;
+    'data-aheart-dnd-handle': string;
+    ref: (element: Element | ComponentPublicInstance | null) => void;
+    onPointerdown: (event: PointerEvent) => void;
 }
 export interface SortableContextValue {
     listId: string;

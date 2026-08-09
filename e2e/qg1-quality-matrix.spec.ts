@@ -89,8 +89,8 @@ test.describe('QG1 quality matrix usability', () => {
 
     const splitterRow = page.locator('.aheart-quality-matrix tbody tr').filter({ hasText: 'splitter' }).first()
     const browserEvidence = splitterRow.locator('td').nth(3)
-    await expect(browserEvidence).toContainText('qg1-ready-component-contracts.spec.ts')
-    await expect(browserEvidence).toContainText('QG2：待验收')
+    await expect(browserEvidence).toContainText('dnd-splitter.spec.ts')
+    await expect(browserEvidence).not.toContainText('QG2：待验收')
   })
 
   test('desktop matrix uses the available width and keeps every table discoverable', async ({ page }, testInfo) => {

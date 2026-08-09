@@ -1,10 +1,11 @@
-import { Search, Settings, LoaderCircle, Info, User, Plus, Check, X, ArrowRight, ArrowLeft, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Copy, Clock, CalendarDays, ChevronsLeft, ChevronsRight } from "@lucide/vue";
+import { Search, Settings, LoaderCircle, Info, GripVertical, User, Plus, Check, X, ArrowRight, ArrowLeft, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Copy, Clock, CalendarDays, ChevronsLeft, ChevronsRight } from "@lucide/vue";
 const iconComponents = {
   search: Search,
   setting: Settings,
   settings: Settings,
   loading: LoaderCircle,
   info: Info,
+  "grip-vertical": GripVertical,
   user: User,
   plus: Plus,
   check: Check,

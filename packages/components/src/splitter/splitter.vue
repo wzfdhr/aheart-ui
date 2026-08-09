@@ -83,7 +83,23 @@ export default defineComponent({
 
     const updateContainerSize = () => {
       const root = rootRef.value
-      containerSize.value = root ? (isHorizontal.value ? root.clientWidth : root.clientHeight) : 0
+      const nextContainerSize = root ? (isHorizontal.value ? root.clientWidth : root.clientHeight) : 0
+      const handleSpace = Math.max(0, panelNodes.value.length - 1) * SPLITTER_HANDLE_SIZE
+      const previousPanelSize = Math.max(0, containerSize.value - handleSpace)
+      const nextPanelSize = Math.max(0, nextContainerSize - handleSpace)
+      const resolvedTotal = resolvedSizes.value.reduce((total, size) => total + size, 0)
+
+      if (
+        props.sizes === undefined &&
+        innerSizes.value.every((size): size is number => typeof size === 'number') &&
+        previousPanelSize > 0 &&
+        Math.abs(resolvedTotal - previousPanelSize) < 0.001
+      ) {
+        const scale = nextPanelSize / previousPanelSize
+        innerSizes.value = innerSizes.value.map((size) => size * scale)
+      }
+
+      containerSize.value = nextContainerSize
     }
 
     const emitSizes = (sizes: number[]) => {
@@ -100,6 +116,7 @@ export default defineComponent({
       const nextSizes = resizeAdjacentPanels({
         sizes: startSizes,
         panels: panelConstraints.value,
+        containerSize: solverContainerSize.value,
         handleIndex,
         delta
       })
@@ -182,6 +199,7 @@ export default defineComponent({
       const nextSizes = resizeAdjacentPanels({
         sizes: currentSizes,
         panels: panelConstraints.value,
+        containerSize: solverContainerSize.value,
         handleIndex: panelIndex === currentSizes.length - 1 ? panelIndex - 1 : panelIndex,
         delta
       })

@@ -5,7 +5,8 @@ import dts from 'vite-plugin-dts'
 
 const nodeCompatibleEsmPaths: Record<string, string> = {
   '@atlaskit/pragmatic-drag-and-drop/element/adapter': '@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js',
-  '@atlaskit/pragmatic-drag-and-drop/reorder': '@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/reorder.js'
+  '@atlaskit/pragmatic-drag-and-drop/reorder': '@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/reorder.js',
+  '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element': '@atlaskit/pragmatic-drag-and-drop-auto-scroll/dist/cjs/entry-point/element.js'
 }
 
 function deterministicStyleBundle(): Plugin {

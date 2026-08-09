@@ -23,6 +23,13 @@ describe('Icon', () => {
     expect(wrapper.find('svg.lucide-settings').exists()).toBe(true)
   })
 
+  it('renders the grip-vertical drag handle icon', () => {
+    const wrapper = mount(Icon, { props: { name: 'grip-vertical' } })
+
+    expect(wrapper.find('svg.lucide-grip-vertical').exists()).toBe(true)
+    expect(wrapper.text()).toBe('')
+  })
+
   it('renders a supplied component before a named icon', () => {
     const CustomIcon = defineComponent(() => () => h('svg', { 'data-custom-icon': '' }))
     const wrapper = mount(Icon, {

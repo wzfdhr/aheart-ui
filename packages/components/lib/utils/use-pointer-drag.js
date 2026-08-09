@@ -7,6 +7,7 @@ const usePointerDrag = (options) => {
   let latestEvent;
   let activePointerId;
   let dragShield;
+  let capturedTarget;
   let previousCursor = "";
   let previousUserSelect = "";
   const getDocument = () => typeof document === "undefined" ? void 0 : document;
@@ -35,7 +36,7 @@ const usePointerDrag = (options) => {
     currentDocument.body.style.userSelect = previousUserSelect;
   };
   const stop = (reason = "end") => {
-    var _a;
+    var _a, _b;
     const currentDocument = getDocument();
     if (!isDragging.value || !currentDocument) {
       return;
@@ -53,11 +54,18 @@ const usePointerDrag = (options) => {
     currentDocument.removeEventListener("pointerup", handlePointerUp);
     currentDocument.removeEventListener("pointercancel", handlePointerCancel);
     window.removeEventListener("blur", handleWindowBlur);
+    if (capturedTarget && activePointerId !== void 0) {
+      try {
+        (_a = capturedTarget.releasePointerCapture) == null ? void 0 : _a.call(capturedTarget, activePointerId);
+      } catch {
+      }
+    }
+    capturedTarget = void 0;
     removeShield();
     restoreDocument();
     isDragging.value = false;
     activePointerId = void 0;
-    (_a = options.onEnd) == null ? void 0 : _a.call(options, reason);
+    (_b = options.onEnd) == null ? void 0 : _b.call(options, reason);
   };
   const flushMove = () => {
     animationFrame = void 0;
@@ -113,7 +121,6 @@ const usePointerDrag = (options) => {
     dragShield = shield;
   };
   const start = (event) => {
-    var _a, _b;
     const currentDocument = getDocument();
     if (!currentDocument || isDragging.value || event.button !== void 0 && event.button !== 0) {
       return;
@@ -126,7 +133,14 @@ const usePointerDrag = (options) => {
     currentDocument.body.style.cursor = getCursor();
     currentDocument.body.style.userSelect = "none";
     createShield(currentDocument);
-    (_b = (_a = event.currentTarget) == null ? void 0 : _a.setPointerCapture) == null ? void 0 : _b.call(_a, event.pointerId);
+    const captureTarget = event.currentTarget;
+    if (captureTarget == null ? void 0 : captureTarget.setPointerCapture) {
+      try {
+        captureTarget.setPointerCapture(event.pointerId);
+        capturedTarget = captureTarget;
+      } catch {
+      }
+    }
     currentDocument.addEventListener("pointermove", handleMove);
     currentDocument.addEventListener("pointerup", handlePointerUp);
     currentDocument.addEventListener("pointercancel", handlePointerCancel);
