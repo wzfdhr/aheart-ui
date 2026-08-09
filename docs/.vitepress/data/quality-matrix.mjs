@@ -38,7 +38,6 @@ const taskGroups = [
   ['对话与协作', ['ai', 'ai-form', 'ai-agent-workbench']]
 ]
 const taskGroupFor = new Map(taskGroups.flatMap(([taskGroup, components]) => components.map((component) => [component, taskGroup])))
-const qg2Depth = new Set(['dropdown', 'message', 'modal', 'drawer', 'tooltip', 'popover', 'popconfirm', 'splitter', 'dnd'])
 
 const packageFor = (component) => component === 'dnd'
   ? '@aheart-ui/dnd'
@@ -49,15 +48,53 @@ const aiUnit = {
   'ai-form': 'packages/ai/src/__tests__/form.test.ts',
   'ai-agent-workbench': 'packages/ai/src/__tests__/agent-workbench.test.ts'
 }
-const e2eFor = () => 'e2e/docs-component-smoke.spec.ts'
+const dedicatedE2e = {
+  button: 'e2e/q2-navigation-overlays.spec.ts',
+  menu: 'e2e/q2-navigation-overlays.spec.ts',
+  steps: 'e2e/q2-navigation-overlays.spec.ts',
+  dropdown: 'e2e/q2-navigation-overlays.spec.ts',
+  modal: 'e2e/q2-navigation-overlays.spec.ts',
+  popconfirm: 'e2e/q2-navigation-overlays.spec.ts',
+  'input-number': 'e2e/q3-form-controls.spec.ts',
+  textarea: 'e2e/q3-form-controls.spec.ts',
+  select: 'e2e/q3-form-controls.spec.ts',
+  checkbox: 'e2e/q3-form-controls.spec.ts',
+  switch: 'e2e/q3-form-controls.spec.ts',
+  'time-picker': 'e2e/time-picker-range.spec.ts',
+  cascader: 'e2e/q3-form-controls.spec.ts',
+  'tree-select': 'e2e/q3-form-controls.spec.ts',
+  form: 'e2e/q4-data-forms.spec.ts',
+  table: 'e2e/q4-data-forms.spec.ts',
+  pagination: 'e2e/q4-data-forms.spec.ts',
+  'date-picker': 'e2e/date-picker.spec.ts',
+  drawer: 'e2e/overlay-motion.spec.ts',
+  tooltip: 'e2e/overlay-motion.spec.ts',
+  popover: 'e2e/overlay-motion.spec.ts',
+  ai: 'e2e/q5-ai-product-suite.spec.ts',
+  'ai-form': 'e2e/q5-ai-product-suite.spec.ts',
+  'ai-agent-workbench': 'e2e/q5-ai-product-suite.spec.ts'
+}
+const futureBrowserMilestone = new Map([
+  ['splitter', 'QG2'], ['dnd', 'QG2'],
+  ['config-provider', 'QG3'], ['upload', 'QG3'], ['tree', 'QG3'], ['message', 'QG3'], ['modal', 'QG3']
+])
 const ssrFor = (component) => ({
   'date-picker': 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts',
   'time-picker': 'packages/components/src/time-picker/__tests__/time-picker.ssr.test.ts'
 }[component])
 const file = (path) => ({ kind: 'file', path })
-const notApplicable = (reason) => ({ kind: 'notApplicable', reason })
 const planned = (milestone, reason) => ({ kind: 'planned', milestone, reason })
 const deferred = (milestone, reason) => ({ kind: 'planned', milestone, status: 'deferred', reason })
+
+const e2eEvidenceFor = (component) => {
+  const evidence = [file(r1.has(component) ? 'e2e/qg1-ready-component-contracts.spec.ts' : 'e2e/docs-component-smoke.spec.ts')]
+  if (dedicatedE2e[component]) evidence.push(file(dedicatedE2e[component]))
+  const milestone = futureBrowserMilestone.get(component)
+  if (milestone) {
+    evidence.push(planned(milestone, `${milestone} 补充组件深度交互验收；QG1 当前证据只登记真实路由与组件入口契约。`))
+  }
+  return evidence
+}
 
 const evidenceFor = (component) => ({
   component,
@@ -69,12 +106,7 @@ const evidenceFor = (component) => ({
     acceptance: `验收 ${component} 在真实产品任务中的核心入口可用。`
   }],
   unit: [file(component === 'dnd' ? 'packages/dnd/src/__tests__/dnd.test.ts' : aiUnit[component] ?? `packages/components/src/${component}/__tests__/${component}.test.ts`)],
-  e2e: r1.has(component)
-    ? [
-        file('e2e/qg1-ready-component-contracts.spec.ts'),
-        planned(qg2Depth.has(component) ? 'QG2' : 'QG3', '后续质量门补充组件深度交互验收；QG1 仅登记真实路由与组件入口契约。')
-      ]
-    : [file(e2eFor(component))],
+  e2e: e2eEvidenceFor(component),
   ssr: [ssrFor(component) ? file(ssrFor(component)) : deferred('QG6', 'QG6 建立消费端 SSR 契约；当前明确记录为延期，不将 SSR 覆盖误标为不适用。')],
   a11y: [planned('QG4', 'QG4 建立组件级 axe、键盘与焦点验收；QG1 不将现有冒烟测试误标为无障碍覆盖。')],
   visual: [planned('QG4', 'QG4 建立桌面、移动、暗色与 reduced-motion 截图基线；QG1 不将普通 E2E 文件误标为视觉基线。')],

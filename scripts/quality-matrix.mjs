@@ -8,6 +8,19 @@ const packageRoot = {
   '@aheart-ui/ai': 'packages/ai/'
 }
 
+const canonicalUnitPath = (record) => {
+  const exceptions = {
+    '@aheart-ui/dnd:dnd': 'packages/dnd/src/__tests__/dnd.test.ts',
+    '@aheart-ui/ai:ai': 'packages/ai/src/__tests__/chat-panel.test.ts',
+    '@aheart-ui/ai:ai-form': 'packages/ai/src/__tests__/form.test.ts',
+    '@aheart-ui/ai:ai-agent-workbench': 'packages/ai/src/__tests__/agent-workbench.test.ts'
+  }
+  return exceptions[`${record.package}:${record.component}`]
+    ?? `${packageRoot[record.package]}src/${record.component}/__tests__/${record.component}.test.ts`
+}
+
+const qg1ComponentContractPath = 'e2e/qg1-ready-component-contracts.spec.ts'
+
 const canonicalSsrPath = {
   'date-picker': 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts',
   'time-picker': 'packages/components/src/time-picker/__tests__/time-picker.ssr.test.ts'
@@ -164,6 +177,9 @@ const validateEvidenceItem = (record, category, evidence, root) => {
   if (['unit', 'ssr'].includes(category) && !isWithin(path.resolve(root, packageRoot[record.package]), resolved)) {
     throw new Error(`${record.component}.${category} crosses package boundary: ${evidence.path}`)
   }
+  if (category === 'unit' && evidence.path !== canonicalUnitPath(record)) {
+    throw new Error(`${record.component}.unit does not match the canonical component test: ${evidence.path}`)
+  }
   if (category === 'e2e' && !isWithin(path.resolve(root, 'e2e'), resolved)) {
     throw new Error(`${record.component}.e2e evidence must be inside e2e/: ${evidence.path}`)
   }
@@ -180,6 +196,9 @@ export const validateEvidence = (record, root) => {
     )
     if (!currentProductEvidence.length) {
       throw new Error(`${record.component}.e2e requires current component contract or dedicated product evidence`)
+    }
+    if (!currentProductEvidence.some((evidence) => evidence.path === qg1ComponentContractPath)) {
+      throw new Error(`${record.component}.e2e requires the QG1 component contract`)
     }
   }
 }

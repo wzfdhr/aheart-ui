@@ -104,11 +104,9 @@ test('quality matrix registers every Ready component exactly once with release e
     () => validateEvidence({ ...timePickerWithSsr, ssr: [{ kind: 'notApplicable', reason: 'not covered yet' }] }, root),
     /has a dedicated SSR file and cannot be notApplicable/
   )
-  assert.doesNotThrow(
-    () => validateEvidence({ ...sample, e2e: [{ kind: 'file', path: 'e2e/agent-workbench.spec.ts' }] }, root),
-  )
-  assert.doesNotThrow(
+  assert.throws(
     () => validateEvidence({ ...sample, unit: [{ kind: 'file', path: 'packages/components/src/input/__tests__/input.test.ts' }] }, root),
+    /canonical component test/
   )
 
   assert.throws(
@@ -129,13 +127,26 @@ test('quality matrix registers every Ready component exactly once with release e
 
   const dnd = qualityMatrix.find((record) => record.component === 'dnd')
   const splitter = qualityMatrix.find((record) => record.component === 'splitter')
+  const upload = qualityMatrix.find((record) => record.component === 'upload')
   const timePicker = qualityMatrix.find((record) => record.component === 'time-picker')
+  assert.throws(
+    () => validateEvidence({ ...upload, e2e: [{ kind: 'file', path: 'e2e/agent-workbench.spec.ts' }] }, root),
+    /component contract/
+  )
   assert.equal(dnd.e2e[0].path, 'e2e/qg1-ready-component-contracts.spec.ts')
   assert.equal(dnd.e2e[1].milestone, 'QG2')
   assert.equal(splitter.e2e[0].path, 'e2e/qg1-ready-component-contracts.spec.ts')
   assert.equal(splitter.e2e[1].milestone, 'QG2')
   assert.equal(timePicker.e2e[0].path, 'e2e/qg1-ready-component-contracts.spec.ts')
-  assert.equal(timePicker.e2e[1].milestone, 'QG3')
+  assert.ok(timePicker.e2e.some((evidence) => evidence.path === 'e2e/time-picker-range.spec.ts'))
+  const qg3Components = ['config-provider', 'upload', 'tree', 'message', 'modal']
+  for (const component of qg3Components) {
+    const record = qualityMatrix.find((candidate) => candidate.component === component)
+    assert.ok(record.e2e.some((evidence) => evidence.kind === 'planned' && evidence.milestone === 'QG3'))
+  }
+  const dropdown = qualityMatrix.find((record) => record.component === 'dropdown')
+  assert.ok(dropdown.e2e.some((evidence) => evidence.path === 'e2e/q2-navigation-overlays.spec.ts'))
+  assert.equal(dropdown.e2e.some((evidence) => evidence.kind === 'planned' && evidence.milestone === 'QG2'), false)
   assert.equal(datePicker.ssr[0].path, 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts')
   assert.equal(timePickerWithSsr.ssr[0].path, 'packages/components/src/time-picker/__tests__/time-picker.ssr.test.ts')
   assert.equal(sample.ssr[0].kind, 'planned')
