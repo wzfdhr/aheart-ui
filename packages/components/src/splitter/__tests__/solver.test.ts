@@ -43,4 +43,16 @@ describe('Splitter size solver', () => {
       })
     ).toEqual([200, 300])
   })
+
+  it('resolves percentage bounds against the live container during a resize', () => {
+    expect(
+      resizeAdjacentPanels({
+        sizes: [300, 300],
+        panels: [{ min: '20%', max: '60%' }, { min: '20%', max: '80%' }],
+        containerSize: 600,
+        handleIndex: 0,
+        delta: 100
+      })
+    ).toEqual([360, 240])
+  })
 })

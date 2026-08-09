@@ -119,6 +119,39 @@ describe('Splitter', () => {
     expect(wrapper.emitted('update:sizes')).toEqual([[[250, 350]]])
   })
 
+  it('uses the live container size for percentage constraints during keyboard resize', async () => {
+    const observers: Array<{ callback: () => void }> = []
+    class MockResizeObserver {
+      callback: () => void
+
+      constructor(callback: () => void) {
+        this.callback = callback
+        observers.push(this)
+      }
+
+      observe = vi.fn()
+      disconnect = vi.fn()
+    }
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+
+    const wrapper = mount(Splitter, {
+      props: { sizes: [300, 300] },
+      slots: {
+        default: () => [
+          h(SplitterPanel, { min: '20%', max: '60%' }, () => 'Navigation'),
+          h(SplitterPanel, { min: '20%', max: '80%' }, () => 'Content')
+        ]
+      }
+    })
+    Object.defineProperty(wrapper.element, 'clientWidth', { configurable: true, value: 606 })
+    observers[0].callback()
+    await wrapper.vm.$nextTick()
+
+    await wrapper.find('.aheart-splitter__handle').trigger('keydown', { key: 'ArrowRight', shiftKey: true })
+
+    expect(wrapper.emitted('update:sizes')).toEqual([[[350, 250]]])
+  })
+
   it('collapses and restores a collapsible panel with the handle control', async () => {
     const wrapper = mount(Splitter, {
       props: { sizes: [240, 360] },
