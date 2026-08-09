@@ -246,7 +246,16 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(handle).not.toHaveAttribute('aria-valuenow', initial ?? '')
     await expect(page.getByTestId('splitter-status')).toContainText('键盘')
 
-    if (testInfo.project.name.includes('mobile')) return
+    if (testInfo.project.name.includes('mobile')) {
+      const grip = await handle.evaluate((node) => {
+        const style = getComputedStyle(node, '::before')
+        return { content: style.content, width: Number.parseFloat(style.width), height: Number.parseFloat(style.height) }
+      })
+      expect(grip.content).not.toBe('none')
+      expect(grip.width).toBeGreaterThanOrEqual(4)
+      expect(grip.height).toBeGreaterThanOrEqual(24)
+      return
+    }
 
     const vertical = page.getByTestId('splitter-vertical')
     const verticalPanel = vertical.locator('.aheart-splitter__panel').first()
