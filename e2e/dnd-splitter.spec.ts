@@ -117,6 +117,18 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(todo.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
   })
 
+  test('sorts from a focused handle with Alt+Arrow and restores focus to that handle', async ({ page }) => {
+    const todo = page.getByTestId('dnd-todo-list')
+    const handle = itemHandle(todo, '整理需求')
+
+    await handle.focus()
+    await page.keyboard.press('Alt+ArrowDown')
+
+    await expect.poll(() => itemOrder(todo)).toEqual(['review', 'plan', 'release'])
+    await expect(itemHandle(todo, '整理需求')).toBeFocused()
+    await expect(todo.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
+  })
+
   test('reorders a list once with a real pointer drag', async ({ page }) => {
     const todo = page.getByTestId('dnd-todo-list')
 
@@ -124,6 +136,16 @@ test.describe('QG2 中文 DnD fixture', () => {
 
     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+  })
+
+  test('keeps legacy desktop whole-item native dragging without handleProps', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'Legacy native dragging is a desktop compatibility contract.')
+    const legacy = page.getByTestId('dnd-legacy-list')
+
+    await drag(page, item(legacy, '旧用法 A'), item(legacy, '旧用法 C'))
+
+    await expect.poll(() => itemOrder(legacy)).toEqual(['legacy-b', 'legacy-c', 'legacy-a'])
+    await expect(page.getByTestId('dnd-legacy-events')).toHaveText('update 1 / change 1')
   })
 
   test('reorders from a trusted Chromium touch sequence on the handle', async ({ page }, testInfo) => {
@@ -160,6 +182,36 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(item(todo, '整理需求')).not.toHaveClass(/aheart-dnd-dragging/)
     await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+  })
+
+  test('naturally scrolls from trusted Chromium touch input on item content without sorting', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'Trusted device-level touch scrolling is available in mobile Chromium.')
+    const sourceList = page.getByTestId('dnd-scroll-source')
+    const source = item(sourceList, '滚动任务 3')
+    const body = source.locator('[data-dnd-item-body]')
+    const region = page.getByTestId('dnd-scroll-region')
+    await expect(sourceList.locator('[data-item-id]')).toHaveCount(12)
+    const beforeOrder = await itemOrder(sourceList)
+    await region.scrollIntoViewIfNeeded()
+    await expect.poll(() => region.evaluate((node) => (node as HTMLElement).scrollTop)).toBe(0)
+    const bodyBox = await body.boundingBox()
+    expect(bodyBox).not.toBeNull()
+    const startX = bodyBox!.x + bodyBox!.width / 2
+    const startY = bodyBox!.y + bodyBox!.height / 2
+    const evidence = observeTrustedTouchPointer(page)
+    const touch = await page.context().newCDPSession(page)
+
+    await dispatchCdpTouch(touch, 'touchStart', startX, startY)
+    for (const y of [startY - 16, startY - 32, startY - 56, startY - 80]) {
+      await dispatchCdpTouch(touch, 'touchMove', startX, y)
+    }
+    await dispatchCdpTouch(touch, 'touchEnd')
+
+    await expect(evidence).resolves.toEqual({ isTrusted: true, pointerType: 'touch' })
+    await expect.poll(() => region.evaluate((node) => (node as HTMLElement).scrollTop)).toBeGreaterThan(0)
+    await expect.poll(() => itemOrder(sourceList)).toEqual(beforeOrder)
+    await expect(source).not.toHaveClass(/aheart-dnd-dragging/)
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
   })
 
   test('runs the touch handle state machine with scripted PointerEvents in mobile WebKit', async ({ page }, testInfo) => {

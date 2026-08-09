@@ -19,7 +19,7 @@ import { registerSortableAutoScroll } from './sortable-auto-scroll'
 
 defineOptions({ name: 'ASortableList' })
 defineSlots<{
-  item?: (props: { item: unknown; index: number; handleProps: SortableHandleProps }) => unknown
+  item?: (props: { item: Record<string, unknown>; index: number; handleProps: SortableHandleProps }) => unknown
 }>()
 
 const props = withDefaults(defineProps<{

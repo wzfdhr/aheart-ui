@@ -23,13 +23,13 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     disabled: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, Readonly<{
     item?: ((props: {
-        item: unknown;
+        item: Record<string, unknown>;
         index: number;
         handleProps: SortableHandleProps;
     }) => unknown) | undefined;
 }> & {
     item?: ((props: {
-        item: unknown;
+        item: Record<string, unknown>;
         index: number;
         handleProps: SortableHandleProps;
     }) => unknown) | undefined;

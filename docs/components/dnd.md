@@ -7,6 +7,7 @@ const done = ref([{ id: 'retro', title: '发布复盘' }])
 const empty = ref<Record<string, unknown>[]>([])
 const disabled = ref([{ id: 'locked', title: '锁定任务', disabled: true }])
 const rejected = ref([{ id: 'blocked', title: '仅接收审计项' }])
+const legacy = ref([{ id: 'legacy-a', title: '旧用法 A' }, { id: 'legacy-b', title: '旧用法 B' }, { id: 'legacy-c', title: '旧用法 C' }])
 const scrollSource = ref(Array.from({ length: 12 }, (_, index) => ({ id: `scroll-${index + 1}`, title: `滚动任务 ${index + 1}` })))
 const scrollTarget = ref<Record<string, unknown>[]>([])
 const status = ref('可拖拽；禁用或分组不匹配时保持原位')
@@ -20,6 +21,8 @@ const disabledUpdates = ref(0)
 const disabledChanges = ref(0)
 const rejectedUpdates = ref(0)
 const rejectedChanges = ref(0)
+const legacyUpdates = ref(0)
+const legacyChanges = ref(0)
 </script>
 
 <style>
@@ -165,6 +168,14 @@ app.use(AheartDnd)
       </ASortableList><span data-testid="dnd-reject-events">update {{ rejectedUpdates }} / change {{ rejectedChanges }}</span></div>
     </section>
   </div>
+
+  <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
+    <strong>旧用法桌面兼容</strong>
+    <small class="qg2-dnd-state-hint">未绑定 handleProps；桌面仍可整项拖动，移动端正文保持原生滚动。</small>
+    <div data-testid="dnd-legacy-list"><ASortableList v-model:items="legacy" item-key="id" @update:items="legacyUpdates++" @change="legacyChanges++">
+      <template #item="{ item }"><div :data-item-id="item.id" class="qg2-dnd-item" style="grid-template-columns: minmax(0, 1fr);"><span data-dnd-item-body class="qg2-dnd-item-body">{{ item.title }}</span></div></template>
+    </ASortableList><span data-testid="dnd-legacy-events">update {{ legacyUpdates }} / change {{ legacyChanges }}</span></div>
+  </section>
 
   <div data-testid="dnd-scroll-outer" style="height: 160px; overflow: auto; border: 1px solid #e5eaf0; border-radius: 6px;">
     <div data-testid="dnd-scroll-region" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 160px; overflow: auto; padding: 8px;">

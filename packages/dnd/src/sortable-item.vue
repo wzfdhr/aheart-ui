@@ -22,11 +22,11 @@ import { useDroppable } from './use-droppable'
 
 defineOptions({ name: 'ASortableItem' })
 defineSlots<{
-  default?: (props: { item: unknown; index: number; handleProps: SortableHandleProps }) => unknown
+  default?: (props: { item: Record<string, unknown>; index: number; handleProps: SortableHandleProps }) => unknown
 }>()
 
 const props = defineProps<{
-  item: unknown
+  item: Record<string, unknown>
   index: number
 }>()
 const context = inject(sortableContextKey)
