@@ -895,9 +895,12 @@ test.describe('QG2 中文 Splitter fixture', () => {
   })
 
   test('navigates between DnD and Splitter through the real sidebar without runtime errors', async ({ page }) => {
-    await page.goto('/components/dnd', { waitUntil: 'domcontentloaded' })
     const dndFixture = page.getByTestId('dnd-fixture')
     const splitterFixture = page.getByTestId('splitter-fixture')
+    await expect(splitterFixture).toBeVisible()
+
+    await clickAdvancedSidebarLink(page, 'DnD 拖拽', '/components/dnd')
+    await expect(page).toHaveURL(/\/components\/dnd(?:\.html)?$/)
     await expect(dndFixture).toBeVisible()
 
     for (let round = 0; round < 2; round += 1) {
