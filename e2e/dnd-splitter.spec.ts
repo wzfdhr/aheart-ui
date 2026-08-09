@@ -259,6 +259,45 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
   })
 
+  test('synthesizes a touch drag for lazy values with Chromium CDP', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'Chromium CDP touch synthesis is limited to the mobile project; native DnD touch is intentionally not covered.')
+
+    const lazy = page.getByTestId('splitter-lazy')
+    const handle = lazy.getByRole('separator')
+    const panel = lazy.locator('.aheart-splitter__panel').first()
+    await lazy.scrollIntoViewIfNeeded()
+    const handleBox = await handle.boundingBox()
+    const beforeBox = await panel.boundingBox()
+    const beforeValues = await page.getByTestId('splitter-lazy-values').textContent()
+    expect(handleBox).not.toBeNull()
+    expect(beforeBox).not.toBeNull()
+
+    const touch = await page.context().newCDPSession(page)
+    const startX = handleBox!.x + handleBox!.width / 2
+    const startY = handleBox!.y + handleBox!.height / 2
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: startX, y: startY }]
+    })
+    await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
+
+    for (const x of [startX + 16, startX + 32, startX + 48]) {
+      await touch.send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x, y: startY }]
+      })
+    }
+
+    await expect.poll(async () => (await panel.boundingBox())!.width).toBeGreaterThan(beforeBox!.width + 20)
+    await expect(page.getByTestId('splitter-lazy-values')).toHaveText(beforeValues ?? '')
+    await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('0')
+
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await expect(page.getByTestId('splitter-lazy-values')).not.toHaveText(beforeValues ?? '')
+    await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('1')
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+  })
+
   test('drags across the iframe and restores the document after pointerup', async ({ page }) => {
     const fixture = page.getByTestId('splitter-iframe')
     const handle = fixture.getByRole('separator')
