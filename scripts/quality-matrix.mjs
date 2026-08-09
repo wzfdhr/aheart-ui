@@ -207,9 +207,9 @@ export const validateEvidence = (record, root) => {
   const actualMilestones = record.e2e.filter((evidence) => evidence.kind === 'planned').map((evidence) => evidence.milestone)
   if (
     actualFiles.length !== expectedPolicy.files.length ||
-    actualFiles.some((filePath) => !expectedPolicy.files.includes(filePath)) ||
+    actualFiles.some((filePath, index) => filePath !== expectedPolicy.files[index]) ||
     actualMilestones.length !== expectedPolicy.plannedMilestones.length ||
-    actualMilestones.some((milestone) => !expectedPolicy.plannedMilestones.includes(milestone))
+    actualMilestones.some((milestone, index) => milestone !== expectedPolicy.plannedMilestones[index])
   ) {
     throw new Error(`${record.component}.e2e has unexpected component browser evidence`)
   }

@@ -101,6 +101,16 @@ test('quality matrix registers every Ready component exactly once with release e
   const datePicker = qualityMatrix.find((record) => record.component === 'date-picker')
   const timePickerWithSsr = qualityMatrix.find((record) => record.component === 'time-picker')
   assert.throws(
+    () => validateEvidence({
+      ...datePicker,
+      e2e: [
+        { kind: 'file', path: 'e2e/qg1-ready-component-contracts.spec.ts' },
+        { kind: 'file', path: 'e2e/qg1-ready-component-contracts.spec.ts' }
+      ]
+    }, root),
+    /unexpected component browser evidence/
+  )
+  assert.throws(
     () => validateEvidence({ ...datePicker, ssr: [{ kind: 'planned', milestone: 'QG6', status: 'deferred', reason: 'deferred' }] }, root),
     /has a dedicated SSR file and cannot be deferred/
   )
