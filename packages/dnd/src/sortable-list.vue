@@ -1,5 +1,50 @@
 <script lang="ts">
 let sortableListIdCounter = 0
+
+type LiveRegionState = {
+  element: HTMLElement
+  count: number
+  token: number
+}
+
+const liveRegions = new WeakMap<Document, LiveRegionState>()
+
+const acquireLiveRegion = (ownerDocument: Document) => {
+  let state = liveRegions.get(ownerDocument)
+  if (!state) {
+    const element = ownerDocument.createElement('div')
+    element.className = 'aheart-dnd-live-region'
+    element.setAttribute('aria-live', 'polite')
+    element.setAttribute('aria-atomic', 'true')
+    ;(ownerDocument.body ?? ownerDocument.documentElement).append(element)
+    state = { element, count: 0, token: 0 }
+    liveRegions.set(ownerDocument, state)
+  }
+  state.count += 1
+
+  let released = false
+  return () => {
+    if (released) return
+    released = true
+    state!.count -= 1
+    if (state!.count > 0) return
+    state!.token += 1
+    state!.element.remove()
+    liveRegions.delete(ownerDocument)
+  }
+}
+
+const announceLiveRegion = (ownerDocument: Document, announcement: string) => {
+  const state = liveRegions.get(ownerDocument)
+  if (!state) return
+  state.token += 1
+  state.element.textContent = ''
+  const token = state.token
+  Promise.resolve().then(() => {
+    if (liveRegions.get(ownerDocument) !== state || state.token !== token) return
+    state.element.textContent = announcement
+  })
+}
 </script>
 
 <template>
@@ -20,7 +65,6 @@ let sortableListIdCounter = 0
       </template>
     </SortableItem>
   </ul>
-  <div class="aheart-dnd-live-region" aria-live="polite">{{ announcement }}</div>
 </template>
 
 <script setup lang="ts">
@@ -54,7 +98,6 @@ const emit = defineEmits<{
 
 const listId = ref<string>()
 const disabled = computed(() => props.disabled)
-const announcement = ref('')
 const root = ref<HTMLElement>()
 const updateItems = (items: unknown[]) => {
   const nextItems = items as Record<string, unknown>[]
@@ -62,8 +105,10 @@ const updateItems = (items: unknown[]) => {
   emit('change', nextItems)
 }
 let unregister = () => {}
+let releaseLiveRegion = () => {}
 onMounted(() => {
-  const ownerWindow = root.value?.ownerDocument.defaultView
+  const ownerDocument = root.value?.ownerDocument
+  const ownerWindow = ownerDocument?.defaultView
   const randomUUID = ownerWindow?.crypto?.randomUUID
   const generatedId = randomUUID
     ? randomUUID.call(ownerWindow.crypto)
@@ -74,10 +119,12 @@ onMounted(() => {
     items: () => props.items,
     update: updateItems,
   })
+  if (ownerDocument) releaseLiveRegion = acquireLiveRegion(ownerDocument)
   root.value?.addEventListener('aheart-sortable-announce', handleAnnouncement)
 })
 onBeforeUnmount(() => {
   root.value?.removeEventListener('aheart-sortable-announce', handleAnnouncement)
+  releaseLiveRegion()
   unregister()
 })
 let unregisterAutoScroll = () => {}
@@ -86,7 +133,8 @@ onMounted(() => {
 })
 onBeforeUnmount(() => unregisterAutoScroll())
 const handleAnnouncement = (event: Event) => {
-  announcement.value = (event as CustomEvent<string>).detail
+  const ownerDocument = root.value?.ownerDocument
+  if (ownerDocument) announceLiveRegion(ownerDocument, (event as CustomEvent<string>).detail)
 }
 const move = (source: SortableItemData, targetIndex: number) => {
   if (disabled.value) return false
