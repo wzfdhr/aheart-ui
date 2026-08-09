@@ -2,7 +2,10 @@
   <ul ref="root" class="aheart-dnd-sortable-list" role="list">
     <SortableItem v-for="(item, index) in items" :key="String(item[itemKey])" :item="item" :index="index">
       <template #default="slotProps">
-        <slot name="item" v-bind="slotProps" />
+        <slot
+          name="item"
+          v-bind="slotProps as SortableListItemSlotProps"
+        />
       </template>
     </SortableItem>
   </ul>
@@ -18,6 +21,11 @@ import { useDroppable } from './use-droppable'
 import { registerSortableAutoScroll } from './sortable-auto-scroll'
 
 defineOptions({ name: 'ASortableList' })
+type SortableListItemSlotProps = {
+  item: Record<string, unknown>
+  index: number
+  handleProps: SortableHandleProps
+}
 defineSlots<{
   item?: (props: { item: Record<string, unknown>; index: number; handleProps: SortableHandleProps }) => unknown
 }>()

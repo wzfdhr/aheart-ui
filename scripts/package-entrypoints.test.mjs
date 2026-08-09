@@ -32,8 +32,11 @@ test('dnd root types expose handles, type list records, and accept standalone va
   await symlink(path.join(workspaceRoot, 'node_modules'), path.join(fixtureDir, 'node_modules'), 'dir')
   await writeFile(path.join(fixtureDir, 'consumer.vue'), `<script setup lang="ts">
 import { SortableItem, SortableList, type SortableHandleProps } from '@aheart-ui/dnd'
+import { ref } from 'vue'
 
+type SortableItemInstance = InstanceType<typeof SortableItem>
 const items: Record<string, unknown>[] = [{ id: 'task-1', title: 'Task' }]
+const sortableItemRef = ref<SortableItemInstance>()
 const useHandle = (_props: SortableHandleProps) => undefined
 </script>
 
@@ -43,7 +46,7 @@ const useHandle = (_props: SortableHandleProps) => undefined
       <button v-bind="handleProps" @click="useHandle(handleProps)">{{ item['title'] }}</button>
     </template>
   </SortableList>
-  <SortableItem :item="items[0]" :index="0">
+  <SortableItem ref="sortableItemRef" :item="items[0]" :index="0">
     <template #default="{ item }">{{ item }}</template>
   </SortableItem>
   <SortableItem item="legacy-value" :index="0">
