@@ -167,6 +167,7 @@ const _sfc_main = defineComponent({
       const nextSizes = resizeAdjacentPanels({
         sizes: currentSizes,
         panels: panelConstraints.value,
+        containerSize: solverContainerSize.value,
         handleIndex: panelIndex === currentSizes.length - 1 ? panelIndex - 1 : panelIndex,
         delta
       });
