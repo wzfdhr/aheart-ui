@@ -1,6 +1,7 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type CDPSession, type Locator, type Page } from '@playwright/test'
 
 const item = (list: Locator, name: string) => list.locator('.aheart-dnd-sortable-item').filter({ hasText: name }).first()
+const itemHandle = (list: Locator, name: string) => item(list, name).getByRole('button', { name: `拖动 ${name}` })
 const runtimeErrors = new WeakMap<Page, string[]>()
 
 const collectRuntimeErrors = (page: Page) => {
@@ -57,6 +58,21 @@ const dispatchTouchPointer = async (page: Page, type: 'pointerdown' | 'pointermo
   }, { type, eventInit })
 }
 
+const observeTrustedTouchPointer = (page: Page) => page.evaluate(() => new Promise<{ isTrusted: boolean; pointerType: string }>((resolve) => {
+  document.addEventListener('pointerdown', (event) => resolve({ isTrusted: event.isTrusted, pointerType: event.pointerType }), {
+    capture: true,
+    once: true
+  })
+}))
+
+const dispatchCdpTouch = (session: CDPSession, type: 'touchStart' | 'touchMove' | 'touchEnd', x?: number, y?: number) => session.send(
+  'Input.dispatchTouchEvent',
+  {
+    type,
+    touchPoints: type === 'touchEnd' ? [] : [{ x: x!, y: y!, id: 0, force: 1, radiusX: 1, radiusY: 1 }]
+  }
+)
+
 const drag = async (_page: Page, source: Locator, target: Locator) => {
   await source.dragTo(target)
 }
@@ -104,37 +120,38 @@ test.describe('QG2 中文 DnD fixture', () => {
   test('reorders a list once with a real pointer drag', async ({ page }) => {
     const todo = page.getByTestId('dnd-todo-list')
 
-    await drag(page, item(todo, '整理需求'), item(todo, '准备发布'))
+    await drag(page, itemHandle(todo, '整理需求'), item(todo, '准备发布'))
 
     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
   })
 
-  test('reorders once from a touch pointer sequence and clears focus, state, and overlay', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'mobile-webkit', 'Mobile Safari touch fallback is verified in mobile-webkit.')
+  test('reorders from a trusted Chromium touch sequence on the handle', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'Trusted device-level touch injection is available in mobile Chromium.')
     const todo = page.getByTestId('dnd-todo-list')
     const source = item(todo, '整理需求')
+    const handle = itemHandle(todo, '整理需求')
     const target = item(todo, '准备发布')
     await source.scrollIntoViewIfNeeded()
-    const sourceBox = await source.boundingBox()
+    const handleBox = await handle.boundingBox()
     const targetBox = await target.boundingBox()
-    expect(sourceBox).not.toBeNull()
+    expect(handleBox).not.toBeNull()
     expect(targetBox).not.toBeNull()
-    const pointerId = 41
-    const startX = sourceBox!.x + sourceBox!.width / 2
-    const startY = sourceBox!.y + sourceBox!.height / 2
+    const startX = handleBox!.x + handleBox!.width / 2
+    const startY = handleBox!.y + handleBox!.height / 2
     const targetX = targetBox!.x + targetBox!.width / 2
     const targetY = targetBox!.y + targetBox!.height / 2
     await source.focus()
+    const evidence = observeTrustedTouchPointer(page)
+    const touch = await page.context().newCDPSession(page)
 
-    await dispatchTouchPointer(page, 'pointerdown', { pointerId, clientX: startX, clientY: startY }, source)
-    await dispatchTouchPointer(page, 'pointermove', { pointerId, clientX: startX, clientY: startY + 12 })
-    await dispatchTouchPointer(page, 'pointermove', { pointerId, clientX: targetX, clientY: targetY })
-    await expect(source).toBeFocused()
+    await dispatchCdpTouch(touch, 'touchStart', startX, startY)
+    await dispatchCdpTouch(touch, 'touchMove', startX, startY + 12)
     await expect(source).toHaveClass(/aheart-dnd-dragging/)
     await expect(page.locator('.aheart-dnd-overlay')).toBeVisible()
-
-    await dispatchTouchPointer(page, 'pointerup', { pointerId, clientX: targetX, clientY: targetY })
+    await dispatchCdpTouch(touch, 'touchMove', targetX, targetY)
+    await expect(evidence).resolves.toEqual({ isTrusted: true, pointerType: 'touch' })
+    await dispatchCdpTouch(touch, 'touchEnd')
 
     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
@@ -145,16 +162,49 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
   })
 
+  test('runs the touch handle state machine with scripted PointerEvents in mobile WebKit', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-webkit', 'WebKit automation uses scripted PointerEvents; physical iOS evidence is deferred to QG5.')
+    const todo = page.getByTestId('dnd-todo-list')
+    const source = item(todo, '整理需求')
+    const handle = itemHandle(todo, '整理需求')
+    const target = item(todo, '准备发布')
+    await source.scrollIntoViewIfNeeded()
+    const handleBox = await handle.boundingBox()
+    const targetBox = await target.boundingBox()
+    expect(handleBox).not.toBeNull()
+    expect(targetBox).not.toBeNull()
+    const pointerId = 41
+    const startX = handleBox!.x + handleBox!.width / 2
+    const startY = handleBox!.y + handleBox!.height / 2
+    const targetX = targetBox!.x + targetBox!.width / 2
+    const targetY = targetBox!.y + targetBox!.height / 2
+    await source.focus()
+
+    await dispatchTouchPointer(page, 'pointerdown', { pointerId, clientX: startX, clientY: startY }, handle)
+    await dispatchTouchPointer(page, 'pointermove', { pointerId, clientX: startX, clientY: startY + 12 })
+    await dispatchTouchPointer(page, 'pointermove', { pointerId, clientX: targetX, clientY: targetY })
+    await expect(source).toHaveClass(/aheart-dnd-dragging/)
+    await expect(page.locator('.aheart-dnd-overlay')).toBeVisible()
+
+    await dispatchTouchPointer(page, 'pointerup', { pointerId, clientX: targetX, clientY: targetY })
+
+    await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+    await expect(item(todo, '整理需求')).toBeFocused()
+    await expect(item(todo, '整理需求')).not.toHaveClass(/aheart-dnd-dragging/)
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+  })
+
   test('moves across lists and accepts an empty destination with a real pointer drag', async ({ page }) => {
     const todo = page.getByTestId('dnd-todo-list')
     const done = page.getByTestId('dnd-done-list')
     const empty = page.getByTestId('dnd-empty-list')
 
-    await drag(page, item(todo, '准备发布'), item(done, '发布复盘'))
+    await drag(page, itemHandle(todo, '准备发布'), item(done, '发布复盘'))
     await expect(done).toContainText('准备发布')
     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
     await empty.scrollIntoViewIfNeeded()
-    await drag(page, item(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+    await drag(page, itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
     await expect(empty).toContainText('准备发布')
     await expect(page.getByTestId('dnd-empty-count')).toHaveText('1')
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
@@ -186,8 +236,8 @@ test.describe('QG2 中文 DnD fixture', () => {
     expect(beforeStatus ?? '').not.toContain('拒绝')
 
     await expect(item(disabled, '锁定任务')).toHaveAttribute('aria-disabled', 'true')
-    await drag(page, item(todo, '产品审核'), item(disabled, '锁定任务'))
-    await drag(page, item(todo, '产品审核'), rejected)
+    await drag(page, itemHandle(todo, '产品审核'), item(disabled, '锁定任务'))
+    await drag(page, itemHandle(todo, '产品审核'), rejected)
     await expect(todo.locator('.aheart-dnd-sortable-item')).toHaveText(beforeTodo)
     await expect(disabled.locator('.aheart-dnd-sortable-item')).toHaveText(beforeDisabled)
     await expect(rejected.locator('.aheart-dnd-sortable-item')).toHaveText(beforeRejected)
@@ -220,11 +270,75 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(page.getByTestId('dnd-reject-hint')).toContainText('仅接收')
   })
 
+  test('keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-webkit', 'WebKit verifies scrollability separately from its scripted drag state-machine test.')
+    const todo = page.getByTestId('dnd-todo-list')
+    const todoItem = item(todo, '整理需求')
+    const body = todoItem.locator('[data-dnd-item-body]')
+    const handle = itemHandle(todo, '整理需求')
+    const beforeOrder = await itemOrder(todo)
+    await expect(todoItem).toHaveCSS('touch-action', 'auto')
+    await expect(body).toHaveCSS('touch-action', 'auto')
+    await expect(handle).toHaveCSS('touch-action', 'none')
+
+    await page.evaluate(() => window.scrollTo(0, 0))
+    const pageMovePrevented = await body.evaluate((node) => {
+      const rect = node.getBoundingClientRect()
+      const eventInit = {
+        bubbles: true,
+        cancelable: true,
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+        isPrimary: true,
+        pointerId: 41,
+        pointerType: 'touch',
+      }
+      node.dispatchEvent(new PointerEvent('pointerdown', eventInit))
+      const move = new PointerEvent('pointermove', { ...eventInit, clientY: eventInit.clientY - 80 })
+      node.dispatchEvent(move)
+      window.scrollBy(0, 420)
+      node.dispatchEvent(new PointerEvent('pointerup', { ...eventInit, clientY: eventInit.clientY - 80 }))
+      return move.defaultPrevented
+    })
+    expect(pageMovePrevented).toBe(false)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+
+    const region = page.getByTestId('dnd-scroll-region')
+    const nestedBody = item(page.getByTestId('dnd-scroll-source'), '滚动任务 1').locator('[data-dnd-item-body]')
+    await region.scrollIntoViewIfNeeded()
+    await region.evaluate((node) => ((node as HTMLElement).scrollTop = 0))
+    const regionMovePrevented = await nestedBody.evaluate((node) => {
+      const rect = node.getBoundingClientRect()
+      const eventInit = {
+        bubbles: true,
+        cancelable: true,
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2,
+        isPrimary: true,
+        pointerId: 42,
+        pointerType: 'touch',
+      }
+      node.dispatchEvent(new PointerEvent('pointerdown', eventInit))
+      const move = new PointerEvent('pointermove', { ...eventInit, clientY: eventInit.clientY - 80 })
+      node.dispatchEvent(move)
+      const scrollRegion = node.closest('[data-testid="dnd-scroll-region"]') as HTMLElement
+      scrollRegion.scrollTop += 240
+      node.dispatchEvent(new PointerEvent('pointerup', { ...eventInit, clientY: eventInit.clientY - 80 }))
+      return move.defaultPrevented
+    })
+    expect(regionMovePrevented).toBe(false)
+    await expect.poll(() => region.evaluate((node) => (node as HTMLElement).scrollTop)).toBeGreaterThan(0)
+
+    await expect.poll(() => itemOrder(todo)).toEqual(beforeOrder)
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 0 / change 0')
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+  })
+
   test('auto-scrolls a nested region and cancels without moving', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'Playwright does not synthesize continuing native drag events outside desktop Chromium, so nested auto-scroll cannot run under automation.')
 
     const region = page.getByTestId('dnd-scroll-region')
-    const source = item(page.getByTestId('dnd-scroll-source'), '滚动任务 1')
+    const source = itemHandle(page.getByTestId('dnd-scroll-source'), '滚动任务 1')
     await region.scrollIntoViewIfNeeded()
     const sourceBox = await source.boundingBox()
     const regionBox = await region.boundingBox()
@@ -248,7 +362,7 @@ test.describe('QG2 中文 DnD fixture', () => {
 
     const outer = page.getByTestId('dnd-scroll-outer')
     const inner = page.getByTestId('dnd-scroll-region')
-    const source = item(page.getByTestId('dnd-scroll-source'), '滚动任务 12')
+    const source = itemHandle(page.getByTestId('dnd-scroll-source'), '滚动任务 12')
     await outer.scrollIntoViewIfNeeded()
     await inner.evaluate((node) => ((node as HTMLElement).scrollTop = (node as HTMLElement).scrollHeight))
     await outer.evaluate((node) => ((node as HTMLElement).scrollTop = 0))
@@ -270,7 +384,7 @@ test.describe('QG2 中文 DnD fixture', () => {
   test('unmounts and remounts without stale drag state', async ({ page }) => {
     const fixture = page.getByTestId('dnd-fixture')
     const region = page.getByTestId('dnd-scroll-region')
-    const source = item(page.getByTestId('dnd-scroll-source'), '滚动任务 1')
+    const source = itemHandle(page.getByTestId('dnd-scroll-source'), '滚动任务 1')
     await region.scrollIntoViewIfNeeded()
     await region.evaluate((node) => ((node as HTMLElement).scrollTop = 0))
     await expect.poll(() => region.evaluate((node) => (node as HTMLElement).scrollTop)).toBe(0)
@@ -405,8 +519,43 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
   })
 
-  test('commits lazy values after a real touch PointerEvent sequence', async ({ page }, testInfo) => {
-    test.skip(!['mobile', 'mobile-webkit'].includes(testInfo.project.name), 'Touch PointerEvent coverage runs in mobile Chromium and mobile WebKit.')
+  test('commits lazy values after a trusted Chromium touch sequence', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'Trusted device-level touch injection is available in mobile Chromium.')
+
+    const lazy = page.getByTestId('splitter-lazy')
+    const handle = lazy.getByRole('separator')
+    const panel = lazy.locator('.aheart-splitter__panel').first()
+    await lazy.scrollIntoViewIfNeeded()
+    const handleBox = await handle.boundingBox()
+    const beforeBox = await panel.boundingBox()
+    const beforeValues = await page.getByTestId('splitter-lazy-values').textContent()
+    expect(handleBox).not.toBeNull()
+    expect(beforeBox).not.toBeNull()
+
+    const startX = handleBox!.x + handleBox!.width / 2
+    const startY = handleBox!.y + handleBox!.height / 2
+    const evidence = observeTrustedTouchPointer(page)
+    const touch = await page.context().newCDPSession(page)
+    await dispatchCdpTouch(touch, 'touchStart', startX, startY)
+    await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
+
+    for (const x of [startX + 16, startX + 32, startX + 48]) {
+      await dispatchCdpTouch(touch, 'touchMove', x, startY)
+    }
+
+    await expect(evidence).resolves.toEqual({ isTrusted: true, pointerType: 'touch' })
+    await expect.poll(async () => (await panel.boundingBox())!.width).toBeGreaterThan(beforeBox!.width + 20)
+    await expect(page.getByTestId('splitter-lazy-values')).toHaveText(beforeValues ?? '')
+    await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('0')
+
+    await dispatchCdpTouch(touch, 'touchEnd')
+    await expect(page.getByTestId('splitter-lazy-values')).not.toHaveText(beforeValues ?? '')
+    await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('1')
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+  })
+
+  test('runs the lazy touch state machine with scripted PointerEvents in mobile WebKit', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-webkit', 'WebKit automation uses scripted PointerEvents; physical iOS evidence is deferred to QG5.')
 
     const lazy = page.getByTestId('splitter-lazy')
     const handle = lazy.getByRole('separator')
@@ -531,7 +680,7 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(initialBodyStyle)
     await page.mouse.up()
 
-    const source = item(page.getByTestId('dnd-todo-list'), '整理需求')
+    const source = itemHandle(page.getByTestId('dnd-todo-list'), '整理需求')
     await source.scrollIntoViewIfNeeded()
     const sourceBox = await source.boundingBox()
     expect(sourceBox).not.toBeNull()

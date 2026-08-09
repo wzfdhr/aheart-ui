@@ -1,14 +1,22 @@
+import { type SortableHandleProps } from './sortable-context';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_TypePropsToRuntimeProps<{
     item: unknown;
     index: number;
 }>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_TypePropsToRuntimeProps<{
     item: unknown;
     index: number;
-}>>> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
-    default?(_: {
+}>>> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, Readonly<{
+    default?: ((props: {
         item: unknown;
         index: number;
-    }): any;
+        handleProps: SortableHandleProps;
+    }) => unknown) | undefined;
+}> & {
+    default?: ((props: {
+        item: unknown;
+        index: number;
+        handleProps: SortableHandleProps;
+    }) => unknown) | undefined;
 }>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;

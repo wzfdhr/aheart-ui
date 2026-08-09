@@ -6,22 +6,24 @@
     :data-sortable-index="index"
     :tabindex="itemDisabled ? -1 : 0"
     :aria-disabled="itemDisabled ? 'true' : undefined"
-    @pointerdown="handlePointerDown"
     @dragstart.capture="handleNativeDragStart"
     @keydown="handleKeydown"
   >
-    <slot :item="item" :index="index" />
+    <slot :item="item" :index="index" :handle-props="handleProps" />
   </li>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, nextTick, onBeforeUnmount, ref } from 'vue'
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+import { computed, inject, nextTick, onBeforeUnmount, ref, watchEffect, type ComponentPublicInstance } from 'vue'
 import { endDrag, startDrag } from './drag-state'
-import { sortableContextKey, type SortableItemData } from './sortable-context'
-import { useDraggable } from './use-draggable'
+import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
 import { useDroppable } from './use-droppable'
 
 defineOptions({ name: 'ASortableItem' })
+defineSlots<{
+  default?: (props: { item: unknown; index: number; handleProps: SortableHandleProps }) => unknown
+}>()
 
 const props = defineProps<{
   item: unknown
@@ -42,12 +44,14 @@ const data = computed<SortableItemData>(() => ({
   index: props.index
 }))
 const isTouchDragging = ref(false)
+const dragHandle = ref<Element>()
 let touchSession: {
   pointerId: number
   startX: number
   startY: number
   data: SortableItemData
   document: Document
+  window: Window
   started: boolean
 } | undefined
 
@@ -55,6 +59,9 @@ const removeTouchListeners = (session: NonNullable<typeof touchSession>) => {
   session.document.removeEventListener('pointermove', handleTouchPointerMove)
   session.document.removeEventListener('pointerup', handleTouchPointerUp)
   session.document.removeEventListener('pointercancel', handleTouchPointerCancel)
+  session.document.removeEventListener('visibilitychange', handleTouchVisibilityChange)
+  session.window.removeEventListener('blur', handleTouchInterruption)
+  session.window.removeEventListener('pagehide', handleTouchInterruption)
 }
 const clearTouchSession = (clearDragState = true) => {
   if (!touchSession) return
@@ -112,22 +119,33 @@ function handleTouchPointerCancel(event: PointerEvent) {
   if (!touchSession || event.pointerId !== touchSession.pointerId) return
   clearTouchSession()
 }
+function handleTouchInterruption() {
+  clearTouchSession()
+}
+function handleTouchVisibilityChange() {
+  if (touchSession?.document.visibilityState === 'hidden') clearTouchSession()
+}
 const handlePointerDown = (event: PointerEvent) => {
   if (touchSession || itemDisabled.value) return
   if (event.pointerType !== 'touch' || !event.isPrimary || event.button !== 0) return
   const ownerDocument = root.value?.ownerDocument
-  if (!ownerDocument) return
+  const ownerWindow = ownerDocument?.defaultView
+  if (!ownerDocument || !ownerWindow) return
   touchSession = {
     pointerId: event.pointerId,
     startX: event.clientX,
     startY: event.clientY,
     data: { ...data.value },
     document: ownerDocument,
+    window: ownerWindow,
     started: false
   }
   ownerDocument.addEventListener('pointermove', handleTouchPointerMove, { passive: false })
   ownerDocument.addEventListener('pointerup', handleTouchPointerUp)
   ownerDocument.addEventListener('pointercancel', handleTouchPointerCancel)
+  ownerDocument.addEventListener('visibilitychange', handleTouchVisibilityChange)
+  ownerWindow.addEventListener('blur', handleTouchInterruption)
+  ownerWindow.addEventListener('pagehide', handleTouchInterruption)
 }
 const handleNativeDragStart = () => {
   // A native drag owns the interaction once it starts; the fallback must not submit it too.
@@ -135,7 +153,43 @@ const handleNativeDragStart = () => {
 }
 onBeforeUnmount(() => clearTouchSession())
 
-const { isDragging } = useDraggable(root, { data, disabled: itemDisabled })
+const setDragHandle = (element: Element | ComponentPublicInstance | null) => {
+  const candidate = element instanceof Element ? element : element?.$el
+  dragHandle.value = candidate instanceof Element ? candidate : undefined
+}
+const handleProps: SortableHandleProps = {
+  class: 'aheart-dnd-sortable-handle',
+  'data-aheart-dnd-handle': '',
+  ref: setDragHandle,
+  onPointerdown: handlePointerDown
+}
+const isDragging = ref(false)
+watchEffect((onCleanup) => {
+  const target = root.value
+  const handle = dragHandle.value
+  if (!target) return
+  const cleanup = draggable({
+    element: target,
+    dragHandle: handle,
+    getInitialData: () => data.value,
+    canDrag: () => !itemDisabled.value,
+    onDragStart: () => {
+      isDragging.value = true
+      startDrag(data.value)
+    },
+    onDrop: () => {
+      isDragging.value = false
+      endDrag()
+    }
+  })
+  onCleanup(() => {
+    cleanup()
+    if (isDragging.value) {
+      isDragging.value = false
+      endDrag()
+    }
+  })
+})
 useDroppable(root, {
   data,
   accept: 'aheart-sortable',

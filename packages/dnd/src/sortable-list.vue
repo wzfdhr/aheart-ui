@@ -12,12 +12,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
 import SortableItem from './sortable-item.vue'
-import { sortableContextKey, type SortableItemData } from './sortable-context'
+import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
 import { moveSortableItem, registerSortableList } from './sortable-registry'
 import { useDroppable } from './use-droppable'
 import { registerSortableAutoScroll } from './sortable-auto-scroll'
 
 defineOptions({ name: 'ASortableList' })
+defineSlots<{
+  item?: (props: { item: unknown; index: number; handleProps: SortableHandleProps }) => unknown
+}>()
 
 const props = withDefaults(defineProps<{
   items: Record<string, unknown>[]

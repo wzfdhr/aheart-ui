@@ -58,6 +58,11 @@ const touchPointer = (type: string, pointerId: number, clientX: number, clientY:
   return event as PointerEvent
 }
 
+const itemWithHandle = ({ item, handleProps }: { item: { id: string }; handleProps?: Record<string, unknown> }) => h('div', [
+  h('button', { ...handleProps, 'data-handle': item.id }, 'drag'),
+  h('span', { 'data-item-body': item.id }, item.id)
+])
+
 describe('sortable auto-scroll registration', () => {
   it('registers an overflow ancestor before it becomes scrollable', () => {
     const scrollRegion = document.createElement('div')
@@ -317,7 +322,7 @@ describe('Aheart DnD adapters', () => {
     wrapper.unmount()
   })
 
-  it('reorders from a touch pointer sequence and clears drag state without using the native adapter', async () => {
+  it('exposes handleProps and reorders only from the registered touch handle', async () => {
     const items = ref([{ id: 'first' }, { id: 'second' }])
     const updates = vi.fn((nextItems: typeof items.value) => { items.value = nextItems })
     const changes = vi.fn()
@@ -330,7 +335,7 @@ describe('Aheart DnD adapters', () => {
             'onUpdate:items': updates,
             onChange: changes
           }, {
-            item: ({ item }: { item: { id: string } }) => item.id
+            item: itemWithHandle
           }),
           h(DragOverlay)
         ]
@@ -340,14 +345,19 @@ describe('Aheart DnD adapters', () => {
     await nextTick()
     const source = wrapper.get('[data-sortable-index="0"]').element as HTMLElement
     const target = wrapper.get('[data-sortable-index="1"]').element as HTMLElement
+    const handle = wrapper.get('[data-handle="first"]').element as HTMLElement
     source.focus()
     const elementFromPoint = vi.fn(() => target)
     Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: elementFromPoint })
 
-    source.dispatchEvent(touchPointer('pointerdown', 7, 10, 10))
+    handle.dispatchEvent(touchPointer('pointerdown', 7, 10, 10))
     document.dispatchEvent(touchPointer('pointermove', 7, 10, 32))
     await nextTick()
 
+    const sourceConfig = adapter.draggable.mock.calls
+      .map(([config]) => config)
+      .findLast((config) => config.getInitialData().index === 0)
+    expect(sourceConfig.dragHandle).toBe(handle)
     expect(currentDragData.value).toMatchObject({ type: 'aheart-sortable', index: 0 })
     expect(source.classList.contains('aheart-dnd-dragging')).toBe(true)
     expect(document.querySelector('.aheart-dnd-overlay')).not.toBeNull()
@@ -367,16 +377,37 @@ describe('Aheart DnD adapters', () => {
     wrapper.unmount()
   })
 
+  it('leaves touch movement from legacy item content to native scrolling', async () => {
+    const wrapper = mount(SortableList, {
+      props: { items: [{ id: 'first' }, { id: 'second' }], itemKey: 'id' },
+      slots: { item: ({ item }: { item: { id: string } }) => h('span', { 'data-legacy-body': item.id }, item.id) },
+      attachTo: document.body
+    })
+    await nextTick()
+    const body = wrapper.get('[data-legacy-body="first"]').element
+
+    body.dispatchEvent(touchPointer('pointerdown', 12, 10, 10))
+    const move = touchPointer('pointermove', 12, 10, 32)
+    document.dispatchEvent(move)
+    await nextTick()
+    const dragStateDuringMove = currentDragData.value
+    wrapper.unmount()
+
+    expect(dragStateDuringMove).toBeUndefined()
+    expect(move.defaultPrevented).toBe(false)
+  })
+
   it('clears an active touch pointer sort on cancel and unmount without committing', async () => {
     const wrapper = mount(SortableList, {
       props: { items: [{ id: 'first' }, { id: 'second' }], itemKey: 'id' },
-      slots: { item: ({ item }: { item: { id: string } }) => item.id },
+      slots: { item: itemWithHandle },
       attachTo: document.body
     })
     await nextTick()
     const source = wrapper.get('[data-sortable-index="0"]').element
+    const handle = wrapper.get('[data-handle="first"]').element
 
-    source.dispatchEvent(touchPointer('pointerdown', 8, 10, 10))
+    handle.dispatchEvent(touchPointer('pointerdown', 8, 10, 10))
     document.dispatchEvent(touchPointer('pointermove', 8, 10, 32))
     await nextTick()
     expect(currentDragData.value).toBeDefined()
@@ -386,7 +417,7 @@ describe('Aheart DnD adapters', () => {
     expect(currentDragData.value).toBeUndefined()
     expect(wrapper.emitted('update:items')).toBeUndefined()
 
-    source.dispatchEvent(touchPointer('pointerdown', 9, 10, 10))
+    handle.dispatchEvent(touchPointer('pointerdown', 9, 10, 10))
     document.dispatchEvent(touchPointer('pointermove', 9, 10, 32))
     await nextTick()
     expect(currentDragData.value).toBeDefined()
@@ -395,6 +426,43 @@ describe('Aheart DnD adapters', () => {
     expect(currentDragData.value).toBeUndefined()
     document.dispatchEvent(touchPointer('pointerup', 9, 10, 48))
     expect(wrapper.emitted('update:items')).toBeUndefined()
+  })
+
+  it.each(['blur', 'pagehide', 'visibilitychange'] as const)('clears an active touch sort on %s without committing', async (interruption) => {
+    const wrapper = mount(SortableList, {
+      props: { items: [{ id: 'first' }, { id: 'second' }], itemKey: 'id' },
+      slots: { item: itemWithHandle },
+      attachTo: document.body
+    })
+    await nextTick()
+    const source = wrapper.get('[data-sortable-index="0"]').element
+    const target = wrapper.get('[data-sortable-index="1"]').element
+    const handle = wrapper.get('[data-handle="first"]').element
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => target })
+
+    handle.dispatchEvent(touchPointer('pointerdown', 13, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 13, 10, 32))
+    await nextTick()
+
+    let visibility: ReturnType<typeof vi.spyOn> | undefined
+    if (interruption === 'visibilitychange') {
+      visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+      document.dispatchEvent(new Event('visibilitychange'))
+    } else {
+      window.dispatchEvent(new Event(interruption))
+    }
+    await nextTick()
+    const stateAfterInterruption = currentDragData.value
+    const draggingAfterInterruption = source.classList.contains('aheart-dnd-dragging')
+    document.dispatchEvent(touchPointer('pointerup', 13, 10, 48))
+    await nextTick()
+    visibility?.mockRestore()
+    delete (document as Partial<Document>).elementFromPoint
+
+    expect(stateAfterInterruption).toBeUndefined()
+    expect(draggingAfterInterruption).toBe(false)
+    expect(wrapper.emitted('update:items')).toBeUndefined()
+    wrapper.unmount()
   })
 
   it('does not touch-sort onto a disabled item', async () => {
@@ -407,7 +475,7 @@ describe('Aheart DnD adapters', () => {
           itemKey: 'id',
           'onUpdate:items': updates
         }, {
-          item: ({ item }: { item: { id: string } }) => item.id
+          item: itemWithHandle
         })
       }
     })
@@ -415,9 +483,10 @@ describe('Aheart DnD adapters', () => {
     await nextTick()
     const source = wrapper.get('[data-sortable-index="0"]').element
     const target = wrapper.get('[data-sortable-index="1"]').element
+    const handle = wrapper.get('[data-handle="first"]').element
     Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => target })
 
-    source.dispatchEvent(touchPointer('pointerdown', 10, 10, 10))
+    handle.dispatchEvent(touchPointer('pointerdown', 10, 10, 10))
     document.dispatchEvent(touchPointer('pointermove', 10, 10, 32))
     document.dispatchEvent(touchPointer('pointerup', 10, 10, 48))
     await nextTick()
@@ -432,13 +501,14 @@ describe('Aheart DnD adapters', () => {
   it('relinquishes a touch fallback when a native drag starts so pointerup cannot double-submit', async () => {
     const wrapper = mount(SortableList, {
       props: { items: [{ id: 'first' }, { id: 'second' }], itemKey: 'id' },
-      slots: { item: ({ item }: { item: { id: string } }) => item.id },
+      slots: { item: itemWithHandle },
       attachTo: document.body
     })
     await nextTick()
     const source = wrapper.get('[data-sortable-index="0"]').element
+    const handle = wrapper.get('[data-handle="first"]').element
 
-    source.dispatchEvent(touchPointer('pointerdown', 11, 10, 10))
+    handle.dispatchEvent(touchPointer('pointerdown', 11, 10, 10))
     document.dispatchEvent(touchPointer('pointermove', 11, 10, 32))
     source.dispatchEvent(new Event('dragstart', { bubbles: true, cancelable: true }))
     document.dispatchEvent(touchPointer('pointerup', 11, 10, 48))
