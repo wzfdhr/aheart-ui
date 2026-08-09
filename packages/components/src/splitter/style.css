@@ -41,8 +41,8 @@
   inline-size: 4px;
   block-size: 28px;
   border-radius: 2px;
-  background: var(--aheart-color-text-tertiary, #7e91a7);
-  box-shadow: 0 0 0 3px var(--aheart-color-bg-container, #fff);
+  background: var(--aheart-color-text-secondary, #646a73);
+  box-shadow: 0 0 0 3px var(--aheart-color-bg, #fff);
   content: '';
   pointer-events: none;
   transform: translate(-50%, -50%);

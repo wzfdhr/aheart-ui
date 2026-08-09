@@ -254,6 +254,19 @@ test.describe('QG2 中文 Splitter fixture', () => {
       expect(grip.content).not.toBe('none')
       expect(grip.width).toBeGreaterThanOrEqual(4)
       expect(grip.height).toBeGreaterThanOrEqual(24)
+      await handle.blur()
+      await page.mouse.move(0, 0)
+      await handle.evaluate((node) => {
+        const splitter = node.closest<HTMLElement>('.aheart-splitter')
+        splitter?.style.setProperty('--aheart-color-text-secondary', '#123456')
+        splitter?.style.setProperty('--aheart-color-bg', '#0b0c0d')
+      })
+      const themedGrip = await handle.evaluate((node) => {
+        const style = getComputedStyle(node, '::before')
+        return { background: style.backgroundColor, shadow: style.boxShadow }
+      })
+      expect(themedGrip.background).toBe('rgb(18, 52, 86)')
+      expect(themedGrip.shadow).toContain('rgb(11, 12, 13)')
       return
     }
 
