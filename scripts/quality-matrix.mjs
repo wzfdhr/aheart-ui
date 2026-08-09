@@ -1,6 +1,7 @@
 import { existsSync, lstatSync } from 'node:fs'
 import path from 'node:path'
 import ts from 'typescript'
+import { e2ePolicyFor, qg1ComponentContractPath } from '../docs/.vitepress/data/quality-evidence-policy.mjs'
 
 const packageRoot = {
   'aheart-ui': 'packages/components/',
@@ -18,8 +19,6 @@ const canonicalUnitPath = (record) => {
   return exceptions[`${record.package}:${record.component}`]
     ?? `${packageRoot[record.package]}src/${record.component}/__tests__/${record.component}.test.ts`
 }
-
-const qg1ComponentContractPath = 'e2e/qg1-ready-component-contracts.spec.ts'
 
 const canonicalSsrPath = {
   'date-picker': 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts',
@@ -105,25 +104,27 @@ export const parseReadyComponentKeys = (source) => {
     if (ts.isObjectLiteralExpression(node)) {
       const object = objectFields(node)
       const keyNode = object?.fields.get('key')
+      const statusNode = object?.fields.get('status')
       const key = keyNode ? evaluateString(keyNode) : undefined
-      if (key) {
-        const statusNode = object.fields.get('status')
-        if (!statusNode && object.unresolvedSpread) {
-          throw new Error(`Cannot statically evaluate status for component "${key}": unsupported object spread`)
+      if (!statusNode && key && object.unresolvedSpread) {
+        throw new Error(`Cannot statically evaluate status for component "${key}": unsupported object spread`)
+      }
+      if (statusNode && (keyNode || object.unresolvedSpread)) {
+        const status = evaluateString(statusNode)
+        if (status === undefined) {
+          const { line, character } = sourceFile.getLineAndCharacterOfPosition(statusNode.getStart(sourceFile))
+          throw new Error(`Cannot statically evaluate status for component "${key ?? 'unknown'}" at ${line + 1}:${character + 1}`)
         }
-        if (statusNode) {
-          const status = evaluateString(statusNode)
-          if (status === undefined) {
-            const { line, character } = sourceFile.getLineAndCharacterOfPosition(statusNode.getStart(sourceFile))
-            throw new Error(`Cannot statically evaluate status for component "${key}" at ${line + 1}:${character + 1}`)
-          }
-          if (status === 'Ready') keys.push(key)
+        if (!key) {
+          const { line, character } = sourceFile.getLineAndCharacterOfPosition((keyNode ?? node).getStart(sourceFile))
+          throw new Error(`Cannot statically evaluate key for component metadata with status "${status}" at ${line + 1}:${character + 1}`)
         }
+        if (status === 'Ready') keys.push(key)
       }
     }
     ts.forEachChild(node, visit)
   }
-  visit(sourceFile)
+  visit(constants.get('categoryDefinitions') ?? sourceFile)
   return keys
 }
 
@@ -200,5 +201,16 @@ export const validateEvidence = (record, root) => {
     if (!currentProductEvidence.some((evidence) => evidence.path === qg1ComponentContractPath)) {
       throw new Error(`${record.component}.e2e requires the QG1 component contract`)
     }
+  }
+  const expectedPolicy = e2ePolicyFor(record.component, record.risk)
+  const actualFiles = record.e2e.filter((evidence) => evidence.kind === 'file').map((evidence) => evidence.path)
+  const actualMilestones = record.e2e.filter((evidence) => evidence.kind === 'planned').map((evidence) => evidence.milestone)
+  if (
+    actualFiles.length !== expectedPolicy.files.length ||
+    actualFiles.some((filePath) => !expectedPolicy.files.includes(filePath)) ||
+    actualMilestones.length !== expectedPolicy.plannedMilestones.length ||
+    actualMilestones.some((milestone) => !expectedPolicy.plannedMilestones.includes(milestone))
+  ) {
+    throw new Error(`${record.component}.e2e has unexpected component browser evidence`)
   }
 }

@@ -118,6 +118,8 @@
 .aheart-quality-matrix__product-task { display: grid; gap: 2px; margin-top: 6px; color: var(--vp-c-text-2); font-size: 12px; line-height: 1.45; }
 .aheart-quality-matrix__product-task strong { color: var(--vp-c-text-1); font-weight: 600; }
 .aheart-quality-matrix__product-task span { font-family: var(--vp-font-family-base); }
+.aheart-quality-matrix__evidence { display: block; }
+.aheart-quality-matrix__evidence + .aheart-quality-matrix__evidence { margin-top: 6px; }
 .aheart-quality-risk { display: inline-flex; min-width: 28px; justify-content: center; padding: 1px 5px; border: 1px solid currentColor; border-radius: 4px; font: 12px/1.4 var(--vp-font-family-mono); }
 .aheart-quality-risk.is-r1 { color: #1677ff; background: #edf4ff; }
 .aheart-quality-risk.is-r2 { color: #52724a; background: #f1f8ef; }

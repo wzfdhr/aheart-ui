@@ -39,6 +39,10 @@ test('quality matrix registers every Ready component exactly once with release e
     () => parseReadyComponentKeys("const status = getStatus(); const component = { key: 'dynamic', status }"),
     /dynamic.*status|status.*dynamic/i
   )
+  assert.throws(
+    () => parseReadyComponentKeys("const key = makeKey(); const component = { key, status: 'Ready' }"),
+    /key.*statically|statically.*key/i
+  )
 
   for (const record of qualityMatrix) {
     assert.match(record.package, /^(aheart-ui|@aheart-ui\/(dnd|ai))$/)
@@ -121,8 +125,9 @@ test('quality matrix registers every Ready component exactly once with release e
     () => validateEvidence({ ...sample, ssr: [{ kind: 'file', path: 'packages/ai/src/__tests__/form.test.ts' }] }, root),
     /crosses package boundary/
   )
-  assert.doesNotThrow(
-    () => validateEvidence({ ...sample, e2e: [{ kind: 'file', path: 'e2e/q2-navigation-overlays.spec.ts' }] }, root)
+  assert.throws(
+    () => validateEvidence({ ...sample, e2e: [{ kind: 'file', path: 'e2e/q2-navigation-overlays.spec.ts' }] }, root),
+    /unexpected component browser evidence/
   )
 
   const dnd = qualityMatrix.find((record) => record.component === 'dnd')
@@ -132,6 +137,16 @@ test('quality matrix registers every Ready component exactly once with release e
   assert.throws(
     () => validateEvidence({ ...upload, e2e: [{ kind: 'file', path: 'e2e/agent-workbench.spec.ts' }] }, root),
     /component contract/
+  )
+  assert.throws(
+    () => validateEvidence({
+      ...upload,
+      e2e: [
+        { kind: 'file', path: 'e2e/qg1-ready-component-contracts.spec.ts' },
+        { kind: 'file', path: 'e2e/agent-workbench.spec.ts' }
+      ]
+    }, root),
+    /unexpected component browser evidence/
   )
   assert.equal(dnd.e2e[0].path, 'e2e/qg1-ready-component-contracts.spec.ts')
   assert.equal(dnd.e2e[1].milestone, 'QG2')
@@ -147,6 +162,8 @@ test('quality matrix registers every Ready component exactly once with release e
   const dropdown = qualityMatrix.find((record) => record.component === 'dropdown')
   assert.ok(dropdown.e2e.some((evidence) => evidence.path === 'e2e/q2-navigation-overlays.spec.ts'))
   assert.equal(dropdown.e2e.some((evidence) => evidence.kind === 'planned' && evidence.milestone === 'QG2'), false)
+  const tooltip = qualityMatrix.find((record) => record.component === 'tooltip')
+  assert.equal(tooltip.e2e.some((evidence) => evidence.path === 'e2e/overlay-motion.spec.ts'), false)
   assert.equal(datePicker.ssr[0].path, 'packages/components/src/date-picker/__tests__/date-picker.ssr.test.ts')
   assert.equal(timePickerWithSsr.ssr[0].path, 'packages/components/src/time-picker/__tests__/time-picker.ssr.test.ts')
   assert.equal(sample.ssr[0].kind, 'planned')
@@ -199,6 +216,9 @@ test('R1 records have current component evidence and product task metadata', asy
       `${record.component} cannot use docs-component-smoke as its only product evidence`
     )
   }
+  const acceptances = qualityMatrix.map((record) => record.productTasks[0].acceptance)
+  assert.equal(new Set(acceptances).size, qualityMatrix.length, 'every component needs an executable, component-specific acceptance target')
+  assert.ok(acceptances.every((acceptance) => acceptance.length >= 24))
 })
 
 test('pull request template requires product task and quality matrix review', async () => {

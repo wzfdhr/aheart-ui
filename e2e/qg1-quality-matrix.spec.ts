@@ -86,6 +86,11 @@ test.describe('QG1 quality matrix usability', () => {
     const firstRow = page.locator('.aheart-quality-matrix tbody tr').first()
     await expect(firstRow.locator('td')).toHaveCount(8)
     await expect(firstRow.locator('td').first().locator('.aheart-quality-matrix__product-task')).toContainText(/.+/)
+
+    const splitterRow = page.locator('.aheart-quality-matrix tbody tr').filter({ hasText: 'splitter' }).first()
+    const browserEvidence = splitterRow.locator('td').nth(3)
+    await expect(browserEvidence).toContainText('qg1-ready-component-contracts.spec.ts')
+    await expect(browserEvidence).toContainText('QG2：待验收')
   })
 
   test('desktop matrix uses the available width and keeps every table discoverable', async ({ page }, testInfo) => {

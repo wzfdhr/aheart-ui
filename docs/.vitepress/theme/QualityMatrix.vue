@@ -27,7 +27,11 @@
               </td>
               <td><span :class="['aheart-quality-risk', `is-${record.risk.toLowerCase()}`]">{{ record.risk }}</span></td>
               <td>{{ evidenceLabel(record.unit[0]) }}</td>
-              <td>{{ evidenceLabel(record.e2e[0]) }}</td>
+              <td>
+                <span v-for="(evidence, index) in record.e2e" :key="`${record.component}-e2e-${index}`" class="aheart-quality-matrix__evidence">
+                  {{ evidenceLabel(evidence) }}
+                </span>
+              </td>
               <td>{{ evidenceLabel(record.ssr[0]) }}</td>
               <td>{{ evidenceLabel(record.a11y[0]) }}</td>
               <td>{{ evidenceLabel(record.visual[0]) }}</td>
