@@ -24,6 +24,39 @@ const beginPointerResize = async (page: Page, handle: Locator, x: number, y: num
   await page.mouse.move(x, y, { steps: 8 })
 }
 
+const dispatchTouchPointer = async (page: Page, type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel', init: {
+  pointerId: number
+  clientX: number
+  clientY: number
+}, target?: Locator) => {
+  const eventInit = {
+    ...init,
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    isPrimary: true,
+    pointerType: 'touch',
+    button: 0,
+    buttons: type === 'pointerup' || type === 'pointercancel' ? 0 : 1,
+    pressure: type === 'pointerup' || type === 'pointercancel' ? 0 : 0.5
+  }
+  const dispatch = (node: Element, payload: { type: string; eventInit: PointerEventInit }) => {
+    const event = new PointerEvent(payload.type, payload.eventInit)
+    if (event.pointerType !== 'touch') throw new Error('Expected a touch PointerEvent')
+    node.dispatchEvent(event)
+  }
+  if (target) {
+    await target.evaluate(dispatch, { type, eventInit })
+    return
+  }
+  await page.evaluate((payload) => {
+    const node = document.elementFromPoint(payload.eventInit.clientX ?? 0, payload.eventInit.clientY ?? 0) ?? document.body
+    const event = new PointerEvent(payload.type, payload.eventInit)
+    if (event.pointerType !== 'touch') throw new Error('Expected a touch PointerEvent')
+    node.dispatchEvent(event)
+  }, { type, eventInit })
+}
+
 const drag = async (_page: Page, source: Locator, target: Locator) => {
   await source.dragTo(target)
 }
@@ -75,6 +108,41 @@ test.describe('QG2 中文 DnD fixture', () => {
 
     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+  })
+
+  test('reorders once from a touch pointer sequence and clears focus, state, and overlay', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-webkit', 'Mobile Safari touch fallback is verified in mobile-webkit.')
+    const todo = page.getByTestId('dnd-todo-list')
+    const source = item(todo, '整理需求')
+    const target = item(todo, '准备发布')
+    await source.scrollIntoViewIfNeeded()
+    const sourceBox = await source.boundingBox()
+    const targetBox = await target.boundingBox()
+    expect(sourceBox).not.toBeNull()
+    expect(targetBox).not.toBeNull()
+    const pointerId = 41
+    const startX = sourceBox!.x + sourceBox!.width / 2
+    const startY = sourceBox!.y + sourceBox!.height / 2
+    const targetX = targetBox!.x + targetBox!.width / 2
+    const targetY = targetBox!.y + targetBox!.height / 2
+    await source.focus()
+
+    await dispatchTouchPointer(page, 'pointerdown', { pointerId, clientX: startX, clientY: startY }, source)
+    await dispatchTouchPointer(page, 'pointermove', { pointerId, clientX: startX, clientY: startY + 12 })
+    await dispatchTouchPointer(page, 'pointermove', { pointerId, clientX: targetX, clientY: targetY })
+    await expect(source).toBeFocused()
+    await expect(source).toHaveClass(/aheart-dnd-dragging/)
+    await expect(page.locator('.aheart-dnd-overlay')).toBeVisible()
+
+    await dispatchTouchPointer(page, 'pointerup', { pointerId, clientX: targetX, clientY: targetY })
+
+    await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+    await expect(page.getByTestId('dnd-status')).toContainText('同列表')
+    await expect(item(todo, '整理需求')).toBeFocused()
+    await expect(item(todo, '整理需求')).not.toHaveClass(/aheart-dnd-dragging/)
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
   })
 
   test('moves across lists and accepts an empty destination with a real pointer drag', async ({ page }) => {
@@ -337,8 +405,8 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
   })
 
-  test('synthesizes a touch drag for lazy values with Chromium CDP', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'mobile', 'Chromium CDP touch synthesis is limited to the mobile project; native DnD touch is intentionally not covered.')
+  test('commits lazy values after a real touch PointerEvent sequence', async ({ page }, testInfo) => {
+    test.skip(!['mobile', 'mobile-webkit'].includes(testInfo.project.name), 'Touch PointerEvent coverage runs in mobile Chromium and mobile WebKit.')
 
     const lazy = page.getByTestId('splitter-lazy')
     const handle = lazy.getByRole('separator')
@@ -350,27 +418,21 @@ test.describe('QG2 中文 Splitter fixture', () => {
     expect(handleBox).not.toBeNull()
     expect(beforeBox).not.toBeNull()
 
-    const touch = await page.context().newCDPSession(page)
     const startX = handleBox!.x + handleBox!.width / 2
     const startY = handleBox!.y + handleBox!.height / 2
-    await touch.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x: startX, y: startY }]
-    })
+    const pointerId = 42
+    await dispatchTouchPointer(page, 'pointerdown', { pointerId, clientX: startX, clientY: startY }, handle)
     await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
 
     for (const x of [startX + 16, startX + 32, startX + 48]) {
-      await touch.send('Input.dispatchTouchEvent', {
-        type: 'touchMove',
-        touchPoints: [{ x, y: startY }]
-      })
+      await dispatchTouchPointer(page, 'pointermove', { pointerId, clientX: x, clientY: startY })
     }
 
     await expect.poll(async () => (await panel.boundingBox())!.width).toBeGreaterThan(beforeBox!.width + 20)
     await expect(page.getByTestId('splitter-lazy-values')).toHaveText(beforeValues ?? '')
     await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('0')
 
-    await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await dispatchTouchPointer(page, 'pointerup', { pointerId, clientX: startX + 48, clientY: startY })
     await expect(page.getByTestId('splitter-lazy-values')).not.toHaveText(beforeValues ?? '')
     await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('1')
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)

@@ -3,6 +3,7 @@ import { defineComponent, h, nextTick, ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Draggable from '../draggable.vue'
 import DropZone from '../drop-zone.vue'
+import DragOverlay from '../drag-overlay.vue'
 import { currentDragData } from '../drag-state'
 import SortableList from '../sortable-list.vue'
 import { registerSortableAutoScroll } from '../sortable-auto-scroll'
@@ -40,6 +41,22 @@ beforeEach(() => {
   vi.clearAllMocks()
   cleanupFns.length = 0
 })
+
+const touchPointer = (type: string, pointerId: number, clientX: number, clientY: number) => {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX,
+    clientY,
+    buttons: type === 'pointerup' || type === 'pointercancel' ? 0 : 1
+  })
+  Object.defineProperties(event, {
+    pointerId: { value: pointerId },
+    pointerType: { value: 'touch' },
+    isPrimary: { value: true }
+  })
+  return event as PointerEvent
+}
 
 describe('sortable auto-scroll registration', () => {
   it('registers an overflow ancestor before it becomes scrollable', () => {
@@ -297,6 +314,139 @@ describe('Aheart DnD adapters', () => {
     expect(items.value).toEqual([{ id: 'second' }, { id: 'first' }])
     expect(wrapper.get('[data-sortable-index="1"]').element).toBe(firstElement)
     expect(document.activeElement).toBe(firstElement)
+    wrapper.unmount()
+  })
+
+  it('reorders from a touch pointer sequence and clears drag state without using the native adapter', async () => {
+    const items = ref([{ id: 'first' }, { id: 'second' }])
+    const updates = vi.fn((nextItems: typeof items.value) => { items.value = nextItems })
+    const changes = vi.fn()
+    const Host = defineComponent({
+      setup() {
+        return () => [
+          h(SortableList, {
+            items: items.value,
+            itemKey: 'id',
+            'onUpdate:items': updates,
+            onChange: changes
+          }, {
+            item: ({ item }: { item: { id: string } }) => item.id
+          }),
+          h(DragOverlay)
+        ]
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const source = wrapper.get('[data-sortable-index="0"]').element as HTMLElement
+    const target = wrapper.get('[data-sortable-index="1"]').element as HTMLElement
+    source.focus()
+    const elementFromPoint = vi.fn(() => target)
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: elementFromPoint })
+
+    source.dispatchEvent(touchPointer('pointerdown', 7, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 7, 10, 32))
+    await nextTick()
+
+    expect(currentDragData.value).toMatchObject({ type: 'aheart-sortable', index: 0 })
+    expect(source.classList.contains('aheart-dnd-dragging')).toBe(true)
+    expect(document.querySelector('.aheart-dnd-overlay')).not.toBeNull()
+
+    document.dispatchEvent(touchPointer('pointerup', 7, 10, 48))
+    await nextTick()
+
+    expect(items.value).toEqual([{ id: 'second' }, { id: 'first' }])
+    expect(updates).toHaveBeenCalledTimes(1)
+    expect(changes).toHaveBeenCalledTimes(1)
+    expect(document.activeElement).toBe(source)
+    expect(currentDragData.value).toBeUndefined()
+    expect(source.classList.contains('aheart-dnd-dragging')).toBe(false)
+    expect(document.querySelector('.aheart-dnd-overlay')).toBeNull()
+
+    delete (document as Partial<Document>).elementFromPoint
+    wrapper.unmount()
+  })
+
+  it('clears an active touch pointer sort on cancel and unmount without committing', async () => {
+    const wrapper = mount(SortableList, {
+      props: { items: [{ id: 'first' }, { id: 'second' }], itemKey: 'id' },
+      slots: { item: ({ item }: { item: { id: string } }) => item.id },
+      attachTo: document.body
+    })
+    await nextTick()
+    const source = wrapper.get('[data-sortable-index="0"]').element
+
+    source.dispatchEvent(touchPointer('pointerdown', 8, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 8, 10, 32))
+    await nextTick()
+    expect(currentDragData.value).toBeDefined()
+
+    document.dispatchEvent(touchPointer('pointercancel', 8, 10, 32))
+    await nextTick()
+    expect(currentDragData.value).toBeUndefined()
+    expect(wrapper.emitted('update:items')).toBeUndefined()
+
+    source.dispatchEvent(touchPointer('pointerdown', 9, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 9, 10, 32))
+    await nextTick()
+    expect(currentDragData.value).toBeDefined()
+
+    wrapper.unmount()
+    expect(currentDragData.value).toBeUndefined()
+    document.dispatchEvent(touchPointer('pointerup', 9, 10, 48))
+    expect(wrapper.emitted('update:items')).toBeUndefined()
+  })
+
+  it('does not touch-sort onto a disabled item', async () => {
+    const items = ref([{ id: 'first' }, { id: 'locked', disabled: true }])
+    const updates = vi.fn((nextItems: typeof items.value) => { items.value = nextItems })
+    const Host = defineComponent({
+      setup() {
+        return () => h(SortableList, {
+          items: items.value,
+          itemKey: 'id',
+          'onUpdate:items': updates
+        }, {
+          item: ({ item }: { item: { id: string } }) => item.id
+        })
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const source = wrapper.get('[data-sortable-index="0"]').element
+    const target = wrapper.get('[data-sortable-index="1"]').element
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => target })
+
+    source.dispatchEvent(touchPointer('pointerdown', 10, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 10, 10, 32))
+    document.dispatchEvent(touchPointer('pointerup', 10, 10, 48))
+    await nextTick()
+    delete (document as Partial<Document>).elementFromPoint
+
+    expect(items.value).toEqual([{ id: 'first' }, { id: 'locked', disabled: true }])
+    expect(updates).not.toHaveBeenCalled()
+    expect(currentDragData.value).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('relinquishes a touch fallback when a native drag starts so pointerup cannot double-submit', async () => {
+    const wrapper = mount(SortableList, {
+      props: { items: [{ id: 'first' }, { id: 'second' }], itemKey: 'id' },
+      slots: { item: ({ item }: { item: { id: string } }) => item.id },
+      attachTo: document.body
+    })
+    await nextTick()
+    const source = wrapper.get('[data-sortable-index="0"]').element
+
+    source.dispatchEvent(touchPointer('pointerdown', 11, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 11, 10, 32))
+    source.dispatchEvent(new Event('dragstart', { bubbles: true, cancelable: true }))
+    document.dispatchEvent(touchPointer('pointerup', 11, 10, 48))
+
+    expect(wrapper.emitted('update:items')).toBeUndefined()
+    expect(source.classList.contains('aheart-dnd-dragging')).toBe(false)
+    adapter.draggable.mock.calls.at(-1)?.[0].onDrop()
+    expect(currentDragData.value).toBeUndefined()
     wrapper.unmount()
   })
 
