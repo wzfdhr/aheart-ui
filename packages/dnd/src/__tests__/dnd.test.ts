@@ -1,13 +1,23 @@
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { defineComponent, h, nextTick, ref } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Draggable from '../draggable.vue'
 import DropZone from '../drop-zone.vue'
+import { currentDragData } from '../drag-state'
 import SortableList from '../sortable-list.vue'
 
+const cleanupFns = vi.hoisted(() => [] as ReturnType<typeof vi.fn>[])
 const adapter = vi.hoisted(() => ({
-  draggable: vi.fn(() => vi.fn()),
-  dropTargetForElements: vi.fn(() => vi.fn())
+  draggable: vi.fn(() => {
+    const cleanup = vi.fn()
+    cleanupFns.push(cleanup)
+    return cleanup
+  }),
+  dropTargetForElements: vi.fn(() => {
+    const cleanup = vi.fn()
+    cleanupFns.push(cleanup)
+    return cleanup
+  })
 }))
 
 vi.mock('@atlaskit/pragmatic-drag-and-drop/element/adapter', () => adapter)
@@ -19,6 +29,11 @@ vi.mock('@atlaskit/pragmatic-drag-and-drop/reorder', () => ({
     return next
   }
 }))
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  cleanupFns.length = 0
+})
 
 describe('Aheart DnD adapters', () => {
   it('registers a draggable element with its data and disabled guard', async () => {
@@ -153,5 +168,124 @@ describe('Aheart DnD adapters', () => {
 
     await wrapper.get('[data-sortable-index="0"]').trigger('keydown', { key: 'ArrowDown', altKey: true })
     expect(wrapper.emitted('update:items')).toBeUndefined()
+  })
+
+  it('keeps focus on the same business item after host-controlled Alt + ArrowDown sorting', async () => {
+    const items = ref([{ id: 'first' }, { id: 'second' }])
+    const Host = defineComponent({
+      setup() {
+        return () => h(SortableList, {
+          items: items.value,
+          itemKey: 'id',
+          'onUpdate:items': (nextItems: typeof items.value) => { items.value = nextItems }
+        }, {
+          item: ({ item }: { item: { id: string } }) => item.id
+        })
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+
+    const firstElement = wrapper.get('[data-sortable-index="0"]').element
+    firstElement.focus()
+    await wrapper.get('[data-sortable-index="0"]').trigger('keydown', { key: 'ArrowDown', altKey: true })
+    await nextTick()
+
+    expect(items.value).toEqual([{ id: 'second' }, { id: 'first' }])
+    expect(wrapper.get('[data-sortable-index="1"]').element).toBe(firstElement)
+    expect(document.activeElement).toBe(firstElement)
+    wrapper.unmount()
+  })
+
+  it('applies dynamic list disabled state to keyboard sorting and adapter guards', async () => {
+    const disabled = ref(false)
+    const items = ref([{ id: 'first' }, { id: 'second' }])
+    const Host = defineComponent({
+      setup() {
+        return () => h(SortableList, {
+          items: items.value,
+          itemKey: 'id',
+          disabled: disabled.value,
+          'onUpdate:items': (nextItems: typeof items.value) => { items.value = nextItems }
+        }, {
+          item: ({ item }: { item: { id: string } }) => item.id
+        })
+      }
+    })
+    const wrapper = mount(Host)
+    await nextTick()
+    const draggableConfig = adapter.draggable.mock.calls[0][0]
+    const dropTargetConfig = adapter.dropTargetForElements.mock.calls[0][0]
+
+    disabled.value = true
+    await nextTick()
+    expect(wrapper.get('[data-sortable-index="0"]').attributes('aria-disabled')).toBe('true')
+    expect(draggableConfig.canDrag()).toBe(false)
+    expect(dropTargetConfig.canDrop({ source: { data: { type: 'aheart-sortable' } } })).toBe(false)
+    await wrapper.get('[data-sortable-index="0"]').trigger('keydown', { key: 'ArrowDown', altKey: true })
+    expect(items.value).toEqual([{ id: 'first' }, { id: 'second' }])
+
+    disabled.value = false
+    await nextTick()
+    expect(wrapper.get('[data-sortable-index="0"]').attributes('aria-disabled')).toBeUndefined()
+    expect(draggableConfig.canDrag()).toBe(true)
+    expect(dropTargetConfig.canDrop({ source: { data: { type: 'aheart-sortable' } } })).toBe(true)
+    await wrapper.get('[data-sortable-index="0"]').trigger('keydown', { key: 'ArrowDown', altKey: true })
+    expect(items.value).toEqual([{ id: 'second' }, { id: 'first' }])
+    wrapper.unmount()
+  })
+
+  it('cleans adapter registrations on host unmount and ignores keyboard events on detached items', async () => {
+    const wrapper = mount(SortableList, {
+      props: { items: [{ id: 'first' }], itemKey: 'id' },
+      slots: { item: ({ item }: { item: { id: string } }) => item.id }
+    })
+    await nextTick()
+    const detachedItem = wrapper.get('[data-sortable-index="0"]').element
+
+    wrapper.unmount()
+    cleanupFns.forEach((cleanup) => expect(cleanup).toHaveBeenCalledTimes(1))
+    detachedItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, bubbles: true }))
+    expect(wrapper.emitted('update:items')).toBeUndefined()
+  })
+
+  it('handles a nested drop only at the innermost target', async () => {
+    const innerDrop = vi.fn()
+    const wrapper = mount(DropZone, {
+      props: { accept: 'task' },
+      slots: {
+        default: () => h(DropZone, { accept: 'task', onDrop: innerDrop }, { default: () => 'inner' })
+      }
+    })
+    await nextTick()
+
+    const [outerConfig, innerConfig] = adapter.dropTargetForElements.mock.calls
+      .slice(-2)
+      .map(([config]) => config)
+    const source = { data: { type: 'task', id: '1' } }
+    const dropTargets = [
+      { element: innerConfig.element, data: innerConfig.getData() },
+      { element: outerConfig.element, data: outerConfig.getData() }
+    ]
+
+    innerConfig.onDrop({ source, self: dropTargets[0], location: { current: { dropTargets } } })
+    outerConfig.onDrop({ source, self: dropTargets[1], location: { current: { dropTargets } } })
+
+    expect(innerDrop).toHaveBeenCalledWith(source.data)
+    expect(wrapper.emitted('drop')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('clears global drag state when the draggable is unmounted after drag start', async () => {
+    const wrapper = mount(Draggable, { props: { data: { type: 'task', id: '1' } } })
+    await nextTick()
+    const config = adapter.draggable.mock.calls.at(-1)?.[0]
+
+    config.onDragStart()
+    expect(currentDragData.value).toEqual({ type: 'task', id: '1' })
+
+    wrapper.unmount()
+
+    expect(currentDragData.value).toBeUndefined()
   })
 })

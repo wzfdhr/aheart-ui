@@ -28,6 +28,21 @@ const drag = async (_page: Page, source: Locator, target: Locator) => {
   await source.dragTo(target)
 }
 
+const itemOrder = (list: Locator) => list.locator('[data-item-id]').evaluateAll((nodes) =>
+  nodes.map((node) => (node as HTMLElement).dataset.itemId ?? '')
+)
+
+const pointerResizeBy = async (page: Page, handle: Locator, deltaX: number, deltaY: number) => {
+  const box = await handle.boundingBox()
+  expect(box).not.toBeNull()
+  const startX = box!.x + box!.width / 2
+  const startY = box!.y + box!.height / 2
+  await page.mouse.move(startX, startY)
+  await page.mouse.down()
+  await page.mouse.move(startX + deltaX, startY + deltaY, { steps: 8 })
+  await page.mouse.up()
+}
+
 test.describe('QG2 中文 DnD fixture', () => {
   test.beforeEach(async ({ page }) => {
     collectRuntimeErrors(page)
@@ -48,8 +63,18 @@ test.describe('QG2 中文 DnD fixture', () => {
     await item(todo, '整理需求').focus()
     await page.keyboard.press('Alt+ArrowDown')
     await expect(todo.locator('.aheart-dnd-sortable-item').first()).toContainText('产品审核')
+    await expect(item(todo, '整理需求')).toBeFocused()
     await expect(page.getByTestId('dnd-status')).toContainText('同列表')
     await expect(todo.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
+  })
+
+  test('reorders a list once with a real pointer drag', async ({ page }) => {
+    const todo = page.getByTestId('dnd-todo-list')
+
+    await drag(page, item(todo, '整理需求'), item(todo, '准备发布'))
+
+    await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
   })
 
   test('moves across lists and accepts an empty destination with a real pointer drag', async ({ page }) => {
@@ -63,6 +88,14 @@ test.describe('QG2 中文 DnD fixture', () => {
     await drag(page, item(done, '准备发布'), empty)
     await expect(empty).toContainText('准备发布')
     await expect(page.getByTestId('dnd-empty-count')).toHaveText('1')
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+    await expect(page.getByTestId('dnd-done-events')).toHaveText('update 2 / change 2')
+    await expect(page.getByTestId('dnd-empty-events')).toHaveText('update 1 / change 1')
+
+    const ids = await page.locator('[data-testid^="dnd-"][data-testid$="-list"] [data-item-id]').evaluateAll((nodes) =>
+      nodes.map((node) => (node as HTMLElement).dataset.itemId ?? '')
+    )
+    expect(ids.filter((id) => id === 'release')).toHaveLength(1)
   })
 
   test('keeps disabled and rejected destinations unchanged', async ({ page }) => {
@@ -99,16 +132,36 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(page.getByTestId('dnd-reject-events')).toHaveText('update 0 / change 0')
   })
 
-  test('survives nested scrolling and unmount/remount without stale list state', async ({ page }) => {
+  test('auto-scrolls a nested region, cancels without moving, and remounts without stale drag state', async ({ page }) => {
     const fixture = page.getByTestId('dnd-fixture')
-    await page.getByTestId('dnd-scroll-region').evaluate((node) => (node as HTMLElement).scrollTop = 120)
-    await drag(page, item(page.getByTestId('dnd-scroll-source'), '滚动任务'), page.getByTestId('dnd-scroll-target'))
-    await expect(page.getByTestId('dnd-status')).toContainText('滚动')
-    await page.getByRole('button', { name: '卸载 DnD' }).click()
+    const region = page.getByTestId('dnd-scroll-region')
+    const source = item(page.getByTestId('dnd-scroll-source'), '滚动任务 1')
+    const sourceBox = await source.boundingBox()
+    const regionBox = await region.boundingBox()
+    const beforeOrder = await itemOrder(page.getByTestId('dnd-scroll-source'))
+    expect(sourceBox).not.toBeNull()
+    expect(regionBox).not.toBeNull()
+    await page.mouse.move(sourceBox!.x + 12, sourceBox!.y + 12)
+    await page.mouse.down()
+    await page.mouse.move(regionBox!.x + regionBox!.width / 3, regionBox!.y + regionBox!.height - 3, { steps: 16 })
+    await expect.poll(() => region.evaluate((node) => (node as HTMLElement).scrollTop)).toBeGreaterThan(0)
+    await page.keyboard.press('Escape')
+    await page.mouse.up()
+
+    await expect.poll(() => itemOrder(page.getByTestId('dnd-scroll-source'))).toEqual(beforeOrder)
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+
+    await page.mouse.move(sourceBox!.x + 12, sourceBox!.y + 12)
+    await page.mouse.down()
+    await page.mouse.move(sourceBox!.x + 36, sourceBox!.y + 24, { steps: 4 })
+    await expect(page.locator('.aheart-dnd-overlay')).toBeVisible()
+    await page.getByRole('button', { name: '卸载 DnD' }).evaluate((button: HTMLButtonElement) => button.click())
+    await page.mouse.up()
     await expect(fixture).toHaveAttribute('data-mounted', 'false')
     await page.getByRole('button', { name: '重新挂载 DnD' }).click()
     await expect(fixture).toHaveAttribute('data-mounted', 'true')
     await expect(page.getByTestId('dnd-todo-count')).toHaveText('3')
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
   })
 })
 
@@ -135,6 +188,45 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await page.keyboard.press('ArrowRight')
     await expect(handle).not.toHaveAttribute('aria-valuenow', initial ?? '')
     await expect(page.getByTestId('splitter-status')).toContainText('键盘')
+
+    const vertical = page.getByTestId('splitter-vertical')
+    const verticalPanel = vertical.locator('.aheart-splitter__panel').first()
+    const beforeHeight = (await verticalPanel.boundingBox())!.height
+    await pointerResizeBy(page, vertical.getByRole('separator'), 0, 28)
+    await expect.poll(async () => (await verticalPanel.boundingBox())!.height).toBeGreaterThan(beforeHeight + 15)
+
+    const triple = page.getByTestId('splitter-triple')
+    const panels = triple.locator('.aheart-splitter__panel')
+    const beforeWidths = await panels.evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).getBoundingClientRect().width))
+    const secondHandle = triple.getByRole('separator').nth(1)
+    await secondHandle.focus()
+    await page.keyboard.press('Shift+ArrowRight')
+    await expect.poll(async () => (await panels.nth(1).boundingBox())!.width).toBeGreaterThan(beforeWidths[1] + 20)
+    const afterWidths = await panels.evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).getBoundingClientRect().width))
+    expect(afterWidths[0]).toBeCloseTo(beforeWidths[0], 0)
+    expect(afterWidths[1]).toBeGreaterThan(beforeWidths[1] + 20)
+    expect(afterWidths[2]).toBeLessThan(beforeWidths[2] - 20)
+  })
+
+  test('enforces percentage bounds and recomputes them after container resize', async ({ page }) => {
+    const fixture = page.getByTestId('splitter-percent')
+    const splitter = fixture.locator('.aheart-splitter')
+    const handle = fixture.getByRole('separator')
+    await fixture.scrollIntoViewIfNeeded()
+
+    await handle.focus()
+    for (let index = 0; index < 10; index += 1) await page.keyboard.press('Shift+ArrowRight')
+    await expect(handle).toHaveAttribute('aria-valuenow', await handle.getAttribute('aria-valuemax') ?? '')
+    for (let index = 0; index < 10; index += 1) await page.keyboard.press('Shift+ArrowLeft')
+    await expect(handle).toHaveAttribute('aria-valuenow', await handle.getAttribute('aria-valuemin') ?? '')
+
+    const beforeMax = Number(await handle.getAttribute('aria-valuemax'))
+    await fixture.evaluate((node) => ((node as HTMLElement).style.width = '520px'))
+    await expect.poll(async () => Number(await handle.getAttribute('aria-valuemax'))).not.toBe(beforeMax)
+    const panelsWidth = await splitter.locator('.aheart-splitter__panel').evaluateAll((nodes) =>
+      nodes.reduce((total, node) => total + (node as HTMLElement).getBoundingClientRect().width, 0)
+    )
+    expect(panelsWidth).toBeGreaterThan(400)
   })
 
   test('keeps lazy values unchanged while dragging and commits on pointerup', async ({ page }) => {
@@ -181,6 +273,29 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(bodyStyle)
     await expect(iframe).toHaveAttribute('style', iframeStyle ?? '')
+  })
+
+  test('cancels on window blur and cleans up when unmounted during a resize', async ({ page }) => {
+    const fixture = page.getByTestId('splitter-iframe')
+    const handle = fixture.getByRole('separator')
+    await fixture.scrollIntoViewIfNeeded()
+    const bodyStyle = await page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))
+    const handleBox = await handle.boundingBox()
+    expect(handleBox).not.toBeNull()
+
+    await beginPointerResize(page, handle, handleBox!.x + 40, handleBox!.y + handleBox!.height / 2)
+    await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
+    await page.evaluate(() => window.dispatchEvent(new Event('blur')))
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+    await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(bodyStyle)
+
+    await beginPointerResize(page, handle, handleBox!.x + 48, handleBox!.y + handleBox!.height / 2)
+    await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
+    await page.getByRole('button', { name: '卸载 Splitter' }).evaluate((button: HTMLButtonElement) => button.click())
+    await expect(page.getByTestId('splitter-fixture')).toHaveAttribute('data-mounted', 'false')
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+    await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(bodyStyle)
+    await page.mouse.up()
   })
 
   test('updates from external InputNumber and keeps a visible iframe in the splitter', async ({ page }) => {
