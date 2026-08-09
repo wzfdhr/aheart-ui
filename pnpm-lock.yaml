@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  postcss: 8.5.18
+
 importers:
 
   .:
@@ -34,7 +37,7 @@ importers:
         version: link:../packages/components
       vitepress:
         specifier: ^1.6.3
-        version: 1.6.4(@algolia/client-search@5.55.0)(postcss@8.5.15)(search-insights@2.17.3)(typescript@5.3.3)
+        version: 1.6.4(@algolia/client-search@5.55.0)(postcss@8.5.18)(search-insights@2.17.3)(typescript@5.3.3)
       vue:
         specifier: ^3.5.38
         version: 3.5.38(typescript@5.3.3)
@@ -1609,11 +1612,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@3.3.7:
-    resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
   nopt@7.2.1:
     resolution: {integrity: sha512-taM24ViiimT/XntxbPyJQzCG+p4EKOpgD3mxFwW38mGjVUrfERQOeY4EDHjdnptttfHuHQXFx+lTP08Q+mLa/w==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -1696,12 +1694,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  postcss@8.4.33:
-    resolution: {integrity: sha512-Kkpbhhdjw2qQs2O2DGX+8m5OVqEcbB9HRBvuYM9pgrjEFUg30A9LmXNlTAUj4S9kgtGyrMbTzVjH7E+s5Re2yg==}
-    engines: {node: ^10 || ^12 || >=14}
-
-  postcss@8.5.15:
-    resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
+  postcss@8.5.18:
+    resolution: {integrity: sha512-xdB1oSLHbz1vRWgCDalrCqEFTWzFlhqFC5tIHLMOSUIjhm3XXQ1qrFy8S/ESr1JYRRXqM3c1QFiMZUJdUTqyMQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   preact@10.29.2:
@@ -1803,10 +1797,6 @@ packages:
   signal-exit@4.1.0:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
-
-  source-map-js@1.0.2:
-    resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
-    engines: {node: '>=0.10.0'}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -2032,7 +2022,7 @@ packages:
     hasBin: true
     peerDependencies:
       markdown-it-mathjax3: ^4
-      postcss: ^8
+      postcss: 8.5.18
     peerDependenciesMeta:
       markdown-it-mathjax3:
         optional: true
@@ -2878,7 +2868,7 @@ snapshots:
       '@vue/shared': 3.5.38
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.15
+      postcss: 8.5.18
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.38':
@@ -3584,8 +3574,6 @@ snapshots:
 
   nanoid@3.3.12: {}
 
-  nanoid@3.3.7: {}
-
   nopt@7.2.1:
     dependencies:
       abbrev: 2.0.0
@@ -3657,13 +3645,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  postcss@8.4.33:
-    dependencies:
-      nanoid: 3.3.7
-      picocolors: 1.0.0
-      source-map-js: 1.0.2
-
-  postcss@8.5.15:
+  postcss@8.5.18:
     dependencies:
       nanoid: 3.3.12
       picocolors: 1.1.1
@@ -3805,8 +3787,6 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  source-map-js@1.0.2: {}
-
   source-map-js@1.2.1: {}
 
   source-map@0.6.1: {}
@@ -3944,7 +3924,7 @@ snapshots:
       cac: 6.7.14
       debug: 4.3.4
       pathe: 1.1.2
-      picocolors: 1.0.0
+      picocolors: 1.1.1
       vite: 5.4.21
     transitivePeerDependencies:
       - '@types/node'
@@ -3992,7 +3972,7 @@ snapshots:
   vite@5.0.12:
     dependencies:
       esbuild: 0.19.12
-      postcss: 8.4.33
+      postcss: 8.5.18
       rollup: 4.9.6
     optionalDependencies:
       fsevents: 2.3.3
@@ -4000,12 +3980,12 @@ snapshots:
   vite@5.4.21:
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.15
+      postcss: 8.5.18
       rollup: 4.62.0
     optionalDependencies:
       fsevents: 2.3.3
 
-  vitepress@1.6.4(@algolia/client-search@5.55.0)(postcss@8.5.15)(search-insights@2.17.3)(typescript@5.3.3):
+  vitepress@1.6.4(@algolia/client-search@5.55.0)(postcss@8.5.18)(search-insights@2.17.3)(typescript@5.3.3):
     dependencies:
       '@docsearch/css': 3.8.2
       '@docsearch/js': 3.8.2(@algolia/client-search@5.55.0)(search-insights@2.17.3)
@@ -4026,7 +4006,7 @@ snapshots:
       vite: 5.4.21
       vue: 3.5.38(typescript@5.3.3)
     optionalDependencies:
-      postcss: 8.5.15
+      postcss: 8.5.18
     transitivePeerDependencies:
       - '@algolia/client-search'
       - '@types/node'
