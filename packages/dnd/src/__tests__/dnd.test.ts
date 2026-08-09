@@ -21,7 +21,8 @@ const adapter = vi.hoisted(() => ({
   })
 }))
 const autoScroll = vi.hoisted(() => ({
-  autoScrollForElements: vi.fn(() => vi.fn())
+  autoScrollForElements: vi.fn(() => vi.fn()),
+  autoScrollWindowForElements: vi.fn(() => vi.fn())
 }))
 
 vi.mock('@atlaskit/pragmatic-drag-and-drop/element/adapter', () => adapter)
@@ -41,16 +42,14 @@ beforeEach(() => {
 })
 
 describe('sortable auto-scroll registration', () => {
-  it('registers the nearest scrollable ancestor once and releases it after all lists unmount', () => {
+  it('registers an overflow ancestor before it becomes scrollable', () => {
     const scrollRegion = document.createElement('div')
-    const firstList = document.createElement('ul')
-    const secondList = document.createElement('ul')
-    const staticList = document.createElement('ul')
-    scrollRegion.append(firstList, secondList)
-    document.body.append(scrollRegion, staticList)
+    const list = document.createElement('ul')
+    scrollRegion.append(list)
+    document.body.append(scrollRegion)
     Object.defineProperties(scrollRegion, {
       clientHeight: { configurable: true, value: 100 },
-      scrollHeight: { configurable: true, value: 200 },
+      scrollHeight: { configurable: true, value: 100 },
       clientWidth: { configurable: true, value: 100 },
       scrollWidth: { configurable: true, value: 100 }
     })
@@ -59,21 +58,56 @@ describe('sortable auto-scroll registration', () => {
       overflowY: element === scrollRegion ? 'auto' : 'visible'
     }) as CSSStyleDeclaration)
 
-    const releaseFirst = registerSortableAutoScroll(firstList)
-    const releaseSecond = registerSortableAutoScroll(secondList)
-    const releaseStatic = registerSortableAutoScroll(staticList)
+    const release = registerSortableAutoScroll(list)
 
     expect(autoScroll.autoScrollForElements).toHaveBeenCalledTimes(1)
     expect(autoScroll.autoScrollForElements).toHaveBeenCalledWith({ element: scrollRegion })
-
-    releaseFirst()
-    expect(autoScroll.autoScrollForElements.mock.results[0].value).not.toHaveBeenCalled()
-    releaseSecond()
+    release()
     expect(autoScroll.autoScrollForElements.mock.results[0].value).toHaveBeenCalledTimes(1)
-    releaseStatic()
     getComputedStyle.mockRestore()
     scrollRegion.remove()
-    staticList.remove()
+  })
+
+  it('registers window auto-scroll once for visible-overflow trees and cleans it after all lists release', () => {
+    const firstList = document.createElement('ul')
+    const secondList = document.createElement('ul')
+    document.body.append(firstList, secondList)
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({ overflowX: 'visible', overflowY: 'visible' } as CSSStyleDeclaration)
+
+    const releaseFirst = registerSortableAutoScroll(firstList)
+    const releaseSecond = registerSortableAutoScroll(secondList)
+
+    expect(autoScroll.autoScrollWindowForElements).toHaveBeenCalledTimes(1)
+    releaseFirst()
+    expect(autoScroll.autoScrollWindowForElements.mock.results[0].value).not.toHaveBeenCalled()
+    releaseSecond()
+    expect(autoScroll.autoScrollWindowForElements.mock.results[0].value).toHaveBeenCalledTimes(1)
+    vi.restoreAllMocks()
+    firstList.remove()
+    secondList.remove()
+  })
+
+  it('registers and cleans auto-scroll through SortableList mount and unmount', async () => {
+    const scrollRegion = document.createElement('div')
+    document.body.append(scrollRegion)
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => ({
+      overflowX: element === scrollRegion ? 'auto' : 'visible',
+      overflowY: element === scrollRegion ? 'auto' : 'visible'
+    }) as CSSStyleDeclaration)
+
+    const props = { items: [{ id: 'item' }], itemKey: 'id' }
+    const first = mount(SortableList, { props, attachTo: scrollRegion })
+    const second = mount(SortableList, { props, attachTo: scrollRegion })
+    await nextTick()
+
+    expect(autoScroll.autoScrollForElements).toHaveBeenCalledTimes(1)
+    first.unmount()
+    expect(autoScroll.autoScrollForElements.mock.results[0].value).not.toHaveBeenCalled()
+    second.unmount()
+    expect(autoScroll.autoScrollForElements.mock.results[0].value).toHaveBeenCalledTimes(1)
+
+    vi.restoreAllMocks()
+    scrollRegion.remove()
   })
 })
 

@@ -2,25 +2,37 @@
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const element = require("@atlaskit/pragmatic-drag-and-drop-auto-scroll/element");
 const registrations = /* @__PURE__ */ new WeakMap();
+let windowRegistration;
 const scrollableOverflow = /* @__PURE__ */ new Set(["auto", "scroll"]);
-function hasScrollableAxis(element2, overflow, clientSize, scrollSize) {
-  return scrollableOverflow.has(overflow) && scrollSize > clientSize;
-}
 function findScrollableAncestor(element2) {
   let ancestor = element2.parentElement;
   while (ancestor) {
     const style = window.getComputedStyle(ancestor);
-    const scrollsVertically = hasScrollableAxis(ancestor, style.overflowY, ancestor.clientHeight, ancestor.scrollHeight);
-    const scrollsHorizontally = hasScrollableAxis(ancestor, style.overflowX, ancestor.clientWidth, ancestor.scrollWidth);
-    if (scrollsVertically || scrollsHorizontally) return ancestor;
+    if (scrollableOverflow.has(style.overflowX) || scrollableOverflow.has(style.overflowY)) return ancestor;
     ancestor = ancestor.parentElement;
   }
   return void 0;
 }
 function registerSortableAutoScroll(element$1) {
   const ancestor = element$1 && findScrollableAncestor(element$1);
-  if (!ancestor) return () => {
-  };
+  if (!ancestor) {
+    if (windowRegistration) {
+      windowRegistration.count += 1;
+    } else {
+      windowRegistration = { count: 1, cleanup: element.autoScrollWindowForElements() };
+    }
+    let released2 = false;
+    return () => {
+      if (released2) return;
+      released2 = true;
+      if (!windowRegistration) return;
+      windowRegistration.count -= 1;
+      if (windowRegistration.count === 0) {
+        windowRegistration.cleanup();
+        windowRegistration = void 0;
+      }
+    };
+  }
   const existing = registrations.get(ancestor);
   if (existing) {
     existing.count += 1;

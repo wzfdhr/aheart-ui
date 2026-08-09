@@ -1,4 +1,7 @@
-import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element'
+import {
+  autoScrollForElements,
+  autoScrollWindowForElements
+} from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element'
 
 type Registration = {
   count: number
@@ -6,20 +9,15 @@ type Registration = {
 }
 
 const registrations = new WeakMap<Element, Registration>()
+let windowRegistration: Registration | undefined
 
 const scrollableOverflow = new Set(['auto', 'scroll'])
-
-function hasScrollableAxis(element: HTMLElement, overflow: string, clientSize: number, scrollSize: number) {
-  return scrollableOverflow.has(overflow) && scrollSize > clientSize
-}
 
 function findScrollableAncestor(element: HTMLElement) {
   let ancestor = element.parentElement
   while (ancestor) {
     const style = window.getComputedStyle(ancestor)
-    const scrollsVertically = hasScrollableAxis(ancestor, style.overflowY, ancestor.clientHeight, ancestor.scrollHeight)
-    const scrollsHorizontally = hasScrollableAxis(ancestor, style.overflowX, ancestor.clientWidth, ancestor.scrollWidth)
-    if (scrollsVertically || scrollsHorizontally) return ancestor
+    if (scrollableOverflow.has(style.overflowX) || scrollableOverflow.has(style.overflowY)) return ancestor
     ancestor = ancestor.parentElement
   }
   return undefined
@@ -27,7 +25,25 @@ function findScrollableAncestor(element: HTMLElement) {
 
 export function registerSortableAutoScroll(element: HTMLElement | undefined) {
   const ancestor = element && findScrollableAncestor(element)
-  if (!ancestor) return () => {}
+  if (!ancestor) {
+    if (windowRegistration) {
+      windowRegistration.count += 1
+    } else {
+      windowRegistration = { count: 1, cleanup: autoScrollWindowForElements() }
+    }
+
+    let released = false
+    return () => {
+      if (released) return
+      released = true
+      if (!windowRegistration) return
+      windowRegistration.count -= 1
+      if (windowRegistration.count === 0) {
+        windowRegistration.cleanup()
+        windowRegistration = undefined
+      }
+    }
+  }
 
   const existing = registrations.get(ancestor)
   if (existing) {

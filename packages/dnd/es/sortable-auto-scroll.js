@@ -1,24 +1,36 @@
-import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { autoScrollWindowForElements, autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/dist/cjs/entry-point/element.js";
 const registrations = /* @__PURE__ */ new WeakMap();
+let windowRegistration;
 const scrollableOverflow = /* @__PURE__ */ new Set(["auto", "scroll"]);
-function hasScrollableAxis(element, overflow, clientSize, scrollSize) {
-  return scrollableOverflow.has(overflow) && scrollSize > clientSize;
-}
 function findScrollableAncestor(element) {
   let ancestor = element.parentElement;
   while (ancestor) {
     const style = window.getComputedStyle(ancestor);
-    const scrollsVertically = hasScrollableAxis(ancestor, style.overflowY, ancestor.clientHeight, ancestor.scrollHeight);
-    const scrollsHorizontally = hasScrollableAxis(ancestor, style.overflowX, ancestor.clientWidth, ancestor.scrollWidth);
-    if (scrollsVertically || scrollsHorizontally) return ancestor;
+    if (scrollableOverflow.has(style.overflowX) || scrollableOverflow.has(style.overflowY)) return ancestor;
     ancestor = ancestor.parentElement;
   }
   return void 0;
 }
 function registerSortableAutoScroll(element) {
   const ancestor = element && findScrollableAncestor(element);
-  if (!ancestor) return () => {
-  };
+  if (!ancestor) {
+    if (windowRegistration) {
+      windowRegistration.count += 1;
+    } else {
+      windowRegistration = { count: 1, cleanup: autoScrollWindowForElements() };
+    }
+    let released2 = false;
+    return () => {
+      if (released2) return;
+      released2 = true;
+      if (!windowRegistration) return;
+      windowRegistration.count -= 1;
+      if (windowRegistration.count === 0) {
+        windowRegistration.cleanup();
+        windowRegistration = void 0;
+      }
+    };
+  }
   const existing = registrations.get(ancestor);
   if (existing) {
     existing.count += 1;

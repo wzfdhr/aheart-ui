@@ -12,5 +12,8 @@ for (const packageDir of packages) {
 
     assert.ok(Object.keys(esm).length > 0)
     assert.ok(Object.keys(cjs).length > 0)
+    if (packageDir === 'dnd') {
+      assert.equal(typeof esm.SortableList, 'object')
+    }
   })
 }
