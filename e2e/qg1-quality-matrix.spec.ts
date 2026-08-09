@@ -2,13 +2,16 @@ import { expect, test, type Locator } from '@playwright/test'
 
 const assertMatrixTables = async (wraps: Locator, options: { requireVisibleLastHeader: boolean }) => {
   await expect(wraps).toHaveCount(3)
+  const regionLabels = await wraps.evaluateAll((elements) => elements.map((element) => element.getAttribute('aria-label')))
+  expect(new Set(regionLabels).size).toBe(3)
 
   for (let index = 0; index < await wraps.count(); index += 1) {
     const wrap = wraps.nth(index)
     const table = wrap.locator('table')
+    const packageName = (await wrap.locator('xpath=..').locator('header strong').textContent())!.trim()
 
     await expect(wrap).toHaveAttribute('tabindex', '0')
-    await expect(wrap).toHaveAttribute('aria-label', /质量矩阵/)
+    await expect(wrap).toHaveAttribute('aria-label', new RegExp(packageName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
     await expect(table.locator('thead th')).toHaveCount(8)
 
     const structure = await table.evaluate((element) => {
@@ -76,6 +79,15 @@ const assertMatrixTables = async (wraps: Locator, options: { requireVisibleLastH
 }
 
 test.describe('QG1 quality matrix usability', () => {
+  test('desktop shows product tasks inside the component column without adding columns', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop')
+    await page.goto('/guide/quality-matrix')
+
+    const firstRow = page.locator('.aheart-quality-matrix tbody tr').first()
+    await expect(firstRow.locator('td')).toHaveCount(8)
+    await expect(firstRow.locator('td').first().locator('.aheart-quality-matrix__product-task')).toContainText(/.+/)
+  })
+
   test('desktop matrix uses the available width and keeps every table discoverable', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop')
     await page.setViewportSize({ width: 1440, height: 900 })
