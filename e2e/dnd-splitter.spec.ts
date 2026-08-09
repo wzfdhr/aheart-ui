@@ -17,6 +17,21 @@ const collectRuntimeErrors = (page: Page) => {
 
 const expectNoRuntimeErrors = (page: Page) => expect(runtimeErrors.get(page) ?? []).toEqual([])
 
+const clickAdvancedSidebarLink = async (page: Page, name: 'DnD 拖拽' | 'Splitter 分割面板', href: string) => {
+  const sidebar = page.locator('.VPSidebar')
+  if (!await sidebar.isVisible()) {
+    await page.getByRole('button', { name: '菜单' }).click()
+    await expect(sidebar).toBeVisible()
+  }
+
+  const advanced = sidebar.locator('.VPSidebarItem').filter({ hasText: '高级交互与工作区' }).first()
+  const link = advanced.getByRole('link', { name, exact: true })
+  if (!await link.isVisible()) await advanced.getByLabel('toggle section').click()
+  await expect(link).toHaveAttribute('href', new RegExp(`^${href.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}(?:\\.html)?$`))
+  await link.evaluate((element) => element.scrollIntoView({ block: 'center', inline: 'nearest' }))
+  await link.evaluate((element) => (element as HTMLElement).click())
+}
+
 const beginPointerResize = async (page: Page, handle: Locator, x: number, y: number) => {
   const box = await handle.boundingBox()
   expect(box).not.toBeNull()
@@ -127,7 +142,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(todo.locator('.aheart-dnd-sortable-item').first()).toContainText('产品审核')
     await expect(item(todo, '整理需求')).toBeFocused()
     await expect(page.getByTestId('dnd-status')).toContainText('同列表')
-    await expect(todo.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
+    await expect(page.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
   })
 
   test('sorts from a focused handle with Alt+Arrow and restores focus to that handle', async ({ page }) => {
@@ -139,7 +154,7 @@ test.describe('QG2 中文 DnD fixture', () => {
 
     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'plan', 'release'])
     await expect(itemHandle(todo, '整理需求')).toBeFocused()
-    await expect(todo.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
+    await expect(page.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
   })
 
   test('moves a focused handle across compatible lists with Alt+Arrow and announces the destination', async ({ page }) => {
@@ -153,7 +168,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect.poll(() => itemOrder(todo)).toEqual(['plan', 'review'])
     await expect.poll(() => itemOrder(done)).toEqual(['retro', 'release'])
     await expect(itemHandle(done, '准备发布')).toBeFocused()
-    await expect(done.locator('.aheart-dnd-live-region')).toContainText('跨列表')
+    await expect(page.locator('.aheart-dnd-live-region')).toContainText('跨列表')
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
     await expect(page.getByTestId('dnd-done-events')).toHaveText('update 1 / change 1')
   })
@@ -877,6 +892,25 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(initialBodyStyle)
+  })
+
+  test('navigates between DnD and Splitter through the real sidebar without runtime errors', async ({ page }) => {
+    await page.goto('/components/dnd', { waitUntil: 'domcontentloaded' })
+    const dndFixture = page.getByTestId('dnd-fixture')
+    const splitterFixture = page.getByTestId('splitter-fixture')
+    await expect(dndFixture).toBeVisible()
+
+    for (let round = 0; round < 2; round += 1) {
+      await clickAdvancedSidebarLink(page, 'Splitter 分割面板', '/components/splitter')
+      await expect(page).toHaveURL(/\/components\/splitter(?:\.html)?$/)
+      await expect(splitterFixture).toHaveAttribute('data-mounted', 'true')
+
+      await clickAdvancedSidebarLink(page, 'DnD 拖拽', '/components/dnd')
+      await expect(page).toHaveURL(/\/components\/dnd(?:\.html)?$/)
+      await expect(dndFixture).toBeVisible()
+    }
+
+    expectNoRuntimeErrors(page)
   })
 
   test('updates from external InputNumber and keeps a visible iframe in the splitter', async ({ page }, testInfo) => {

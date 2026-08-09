@@ -328,6 +328,7 @@ describe('Aheart DnD adapters', () => {
     target.onDrop({ source: { data: source.getInitialData() } })
 
     expect(wrapper.emitted('update:items')).toEqual([[[{ id: 'second' }, { id: 'first' }]]])
+    wrapper.unmount()
   })
 
   it('moves items between sortable lists in the same group', async () => {
@@ -568,8 +569,20 @@ describe('Aheart DnD adapters', () => {
     expect(sourceUpdates).toHaveBeenCalledTimes(1)
     expect(targetUpdates).toHaveBeenCalledTimes(1)
     expect(lists[3].get('[data-handle="source"]').element).toBe(document.activeElement)
-    expect(lists[3].element.nextElementSibling?.textContent).toContain('跨列表')
+    const liveRegions = Array.from(document.querySelectorAll<HTMLElement>('.aheart-dnd-live-region'))
+    expect(liveRegions).toHaveLength(1)
+    expect(liveRegions[0].getAttribute('aria-live')).toBe('polite')
+    expect(liveRegions[0].getAttribute('aria-atomic')).toBe('true')
+    expect(liveRegions[0].textContent).toBe('已跨列表移动到第 2 项')
+
+    const targetHandle = lists[3].get('[data-handle="source"]').element as HTMLElement
+    targetHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true, bubbles: true }))
+    await nextTick()
+    await nextTick()
+
+    expect(liveRegions[0].textContent).toBe('已跨列表移动到第 1 项')
     wrapper.unmount()
+    expect(document.querySelectorAll('.aheart-dnd-live-region')).toHaveLength(0)
   })
 
   it('moves with Alt + ArrowLeft to the previous compatible registered list', async () => {
@@ -630,7 +643,9 @@ describe('Aheart DnD adapters', () => {
     expect(sourceItems.value).toEqual([{ id: 'source' }])
     expect(targetItems.value).toEqual([{ id: 'target' }])
     expect(document.activeElement).toBe(sourceHandle)
-    expect(wrapper.findAll('.aheart-dnd-live-region').filter((region) => region.text().length > 0)).toHaveLength(0)
+    const liveRegions = Array.from(document.querySelectorAll<HTMLElement>('.aheart-dnd-live-region'))
+    expect(liveRegions).toHaveLength(1)
+    expect(liveRegions[0].textContent).toBe('')
 
     wrapper.unmount()
   })
@@ -678,8 +693,11 @@ describe('Aheart DnD adapters', () => {
     await wrapper.get('[data-sortable-index="1"]').trigger('keydown', { key: 'ArrowDown', altKey: true })
 
     expect(wrapper.emitted('update:items')).toBeUndefined()
-    expect(wrapper.get('.aheart-dnd-live-region').text()).toBe('')
+    const liveRegions = document.querySelectorAll<HTMLElement>('.aheart-dnd-live-region')
+    expect(liveRegions).toHaveLength(1)
+    expect(liveRegions[0].textContent).toBe('')
     wrapper.unmount()
+    expect(document.querySelectorAll('.aheart-dnd-live-region')).toHaveLength(0)
   })
 
   it('prevents item-level disabled records from dragging or keyboard sorting', async () => {
