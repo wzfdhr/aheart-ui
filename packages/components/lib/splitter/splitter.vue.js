@@ -67,7 +67,16 @@ const _sfc_main = vue.defineComponent({
     const isHorizontal = vue.computed(() => props.layout === "horizontal");
     const updateContainerSize = () => {
       const root = rootRef.value;
-      containerSize.value = root ? isHorizontal.value ? root.clientWidth : root.clientHeight : 0;
+      const nextContainerSize = root ? isHorizontal.value ? root.clientWidth : root.clientHeight : 0;
+      const handleSpace = Math.max(0, panelNodes.value.length - 1) * SPLITTER_HANDLE_SIZE;
+      const previousPanelSize = Math.max(0, containerSize.value - handleSpace);
+      const nextPanelSize = Math.max(0, nextContainerSize - handleSpace);
+      const resolvedTotal = resolvedSizes.value.reduce((total, size) => total + size, 0);
+      if (props.sizes === void 0 && innerSizes.value.every((size) => typeof size === "number") && previousPanelSize > 0 && Math.abs(resolvedTotal - previousPanelSize) < 1e-3) {
+        const scale = nextPanelSize / previousPanelSize;
+        innerSizes.value = innerSizes.value.map((size) => size * scale);
+      }
+      containerSize.value = nextContainerSize;
     };
     const emitSizes = (sizes) => {
       if (props.sizes === void 0) {
