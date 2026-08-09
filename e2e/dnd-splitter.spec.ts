@@ -280,6 +280,36 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(iframe).toHaveAttribute('style', iframeStyle ?? '')
   })
 
+  test('cleans up on pointercancel and commits a subsequent pointer drag', async ({ page }) => {
+    const splitter = page.getByTestId('splitter-horizontal')
+    const handle = splitter.getByRole('separator')
+    const panel = splitter.locator('.aheart-splitter__panel').first()
+    await splitter.scrollIntoViewIfNeeded()
+    const handleBox = await handle.boundingBox()
+    const beforePanel = await panel.boundingBox()
+    const bodyStyle = await page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))
+    const beforeStatus = await page.getByTestId('splitter-status').textContent()
+    expect(handleBox).not.toBeNull()
+    expect(beforePanel).not.toBeNull()
+
+    await beginPointerResize(page, handle, handleBox!.x + 40, handleBox!.y + handleBox!.height / 2)
+    await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCSS('pointer-events', 'all')
+    await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual({ cursor: 'col-resize', userSelect: 'none' })
+
+    await page.evaluate(() => document.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 1 })))
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+    await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(bodyStyle)
+    await expect(page.getByTestId('splitter-status')).toHaveText(beforeStatus ?? '')
+    await page.mouse.up()
+
+    await beginPointerResize(page, handle, handleBox!.x + 48, handleBox!.y + handleBox!.height / 2)
+    await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
+    await page.mouse.up()
+    await expect(page.getByTestId('splitter-status')).toContainText('已提交')
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+  })
+
   test('cancels on window blur and cleans up when unmounted during a resize', async ({ page }) => {
     const fixture = page.getByTestId('splitter-iframe')
     const handle = fixture.getByRole('separator')
@@ -302,6 +332,43 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(bodyStyle)
     await page.mouse.up()
+  })
+
+  test('cleans global drag state when navigating between Splitter and DnD', async ({ page }) => {
+    const handle = page.getByTestId('splitter-horizontal').getByRole('separator')
+    const handleBox = await handle.boundingBox()
+    const initialBodyStyle = await page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))
+    expect(handleBox).not.toBeNull()
+
+    await beginPointerResize(page, handle, handleBox!.x + 40, handleBox!.y + handleBox!.height / 2)
+    await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
+    await page.goto('/components/dnd', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+    await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(initialBodyStyle)
+    await page.mouse.up()
+
+    const source = item(page.getByTestId('dnd-todo-list'), '整理需求')
+    await source.scrollIntoViewIfNeeded()
+    const sourceBox = await source.boundingBox()
+    expect(sourceBox).not.toBeNull()
+    await page.mouse.move(sourceBox!.x + 12, sourceBox!.y + 12)
+    await page.mouse.down()
+    await page.mouse.move(sourceBox!.x + 36, sourceBox!.y + 24, { steps: 4 })
+    await expect(page.locator('.aheart-dnd-overlay')).toBeVisible()
+
+    await page.goto('/components/splitter', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+    await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(initialBodyStyle)
+    await page.mouse.up()
+
+    await page.goto('/components/dnd', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByTestId('dnd-todo-count')).toHaveText('3')
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 0 / change 0')
+    await expect(page.getByTestId('dnd-status')).toHaveText('等待交互；目标保持不变')
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+    await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(initialBodyStyle)
   })
 
   test('updates from external InputNumber and keeps a visible iframe in the splitter', async ({ page }) => {
