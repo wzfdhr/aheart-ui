@@ -131,8 +131,8 @@ import 'aheart-ui/es/style.css'
 
 <div class="aheart-demo-panel">
   <div class="aheart-demo-row">
-    <AButton icon="+">新建</AButton>
-    <AButton icon=">" icon-placement="end">下一步</AButton>
+    <AButton icon="plus">新建</AButton>
+    <AButton icon="chevron-right" icon-placement="end">下一步</AButton>
     <AButton icon-position="end">
       <template #icon>
         <span>^</span>
@@ -151,8 +151,8 @@ const nodeIcon = h('span', { class: 'demo-button-node-icon' }, '★')
 </script>
 
 <template>
-  <Button icon="+">新建</Button>
-  <Button icon=">" icon-placement="end">下一步</Button>
+  <Button icon="plus">新建</Button>
+  <Button icon="chevron-right" icon-placement="end">下一步</Button>
   <Button icon-position="end">
     <template #icon>
       <span>^</span>

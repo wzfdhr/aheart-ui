@@ -12,7 +12,9 @@ const collectRuntimeErrors = (page: Page) => {
 
   page.on('pageerror', (error) => errors.push(error.message))
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text())
+    if (message.type() === 'error' || (message.type() === 'warning' && message.text().includes('[Vue warn]'))) {
+      errors.push(message.text())
+    }
   })
 
   return errors
