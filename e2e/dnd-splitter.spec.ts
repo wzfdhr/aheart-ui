@@ -138,6 +138,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     const fixture = page.getByTestId('dnd-fixture')
     const region = page.getByTestId('dnd-scroll-region')
     const source = item(page.getByTestId('dnd-scroll-source'), '滚动任务 1')
+    await region.scrollIntoViewIfNeeded()
     const sourceBox = await source.boundingBox()
     const regionBox = await region.boundingBox()
     const beforeOrder = await itemOrder(page.getByTestId('dnd-scroll-source'))
