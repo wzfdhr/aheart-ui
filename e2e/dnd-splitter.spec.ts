@@ -103,6 +103,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     const todo = page.getByTestId('dnd-todo-list')
     const disabled = page.getByTestId('dnd-disabled-list')
     const rejected = page.getByTestId('dnd-reject-list')
+    await expect(todo.locator('.aheart-dnd-sortable-item')).toHaveCount(3)
     const beforeTodo = await todo.locator('.aheart-dnd-sortable-item').allTextContents()
     const beforeDisabled = await disabled.locator('.aheart-dnd-sortable-item').allTextContents()
     const beforeRejected = await rejected.locator('.aheart-dnd-sortable-item').allTextContents()
