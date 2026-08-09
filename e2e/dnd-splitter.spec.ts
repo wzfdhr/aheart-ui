@@ -472,6 +472,15 @@ test.describe('QG2 中文 Splitter fixture', () => {
     const containerWidth = await controlled.locator('.aheart-splitter').evaluate((node) => node.getBoundingClientRect().width)
     expect(firstSize).toBeLessThanOrEqual(Math.floor(containerWidth - 160))
     expect(await fixture.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true)
+
+    const controlledFrame = controlled.locator('.aheart-splitter').locator('..')
+    await controlledFrame.evaluate((node) => ((node as HTMLElement).style.width = '240px'))
+    await expect.poll(async () => Number(await input.getAttribute('aria-valuemax'))).toBeLessThan(240)
+    await input.fill('480')
+    await input.press('Enter')
+    await expect.poll(async () => controlled.locator('.aheart-splitter__panel').evaluateAll((nodes) =>
+      nodes.reduce((total, node) => total + (node as HTMLElement).getBoundingClientRect().width, 0)
+    )).toBeLessThanOrEqual(240)
   })
 
   test('renders the panel API table and keeps mobile controlled sizes inside the fixture', async ({ page }, testInfo) => {

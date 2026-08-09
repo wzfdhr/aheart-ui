@@ -9,6 +9,8 @@ const splitterStatus = ref('等待调整')
 const compact = ref(false)
 const controlledPanelRef = ref<HTMLElement>()
 const controlledWidth = ref(680)
+const navigationMin = ref(120)
+const contentMin = ref(160)
 const navigationMax = ref(480)
 let compactQuery: MediaQueryList | undefined
 let controlledResizeObserver: ResizeObserver | undefined
@@ -18,18 +20,23 @@ const syncCompactSizes = () => {
   lazySizes.value = compact.value ? [120, 180] : [260, 420]
 }
 const setNavigationSize = (value: number | null) => {
-  const navigationSize = Math.min(navigationMax.value, Math.max(120, value ?? 120))
+  const navigationSize = Math.min(navigationMax.value, Math.max(navigationMin.value, value ?? navigationMin.value))
   sizes.value = [navigationSize, controlledWidth.value - navigationSize]
   splitterStatus.value = `外部输入：${navigationSize}px`
 }
 
 const syncControlledWidth = () => {
   const width = Math.floor(controlledPanelRef.value?.clientWidth ?? 0)
-  if (width < 280) return
+  if (width <= 0) return
 
   controlledWidth.value = width
-  navigationMax.value = Math.max(120, Math.min(480, width - 160))
-  const navigationSize = Math.min(navigationMax.value, Math.max(120, sizes.value[0] ?? 120))
+  navigationMin.value = width < 280 ? Math.floor(width * 3 / 7) : 120
+  contentMin.value = width < 280 ? width - navigationMin.value : 160
+  navigationMax.value = Math.max(navigationMin.value, Math.min(480, width - contentMin.value))
+  const navigationSize = Math.min(
+    navigationMax.value,
+    Math.max(navigationMin.value, sizes.value[0] ?? navigationMin.value)
+  )
   sizes.value = [navigationSize, width - navigationSize]
 }
 
@@ -100,7 +107,7 @@ Splitter 创建可调整尺寸的相邻面板。它与只负责视觉分隔的 D
   <span data-testid="splitter-lazy-output" style="color: #536273; font-size: 13px;">lazy：拖动过程中预览，释放后提交</span>
   <span data-testid="splitter-lazy-values">{{ JSON.stringify(lazySizes) }}</span><span data-testid="splitter-lazy-left">{{ lazySizes[0] }}</span><span data-testid="splitter-lazy-right">{{ lazySizes[1] }}</span><span data-testid="splitter-lazy-update-count">{{ lazyUpdateCount }}</span>
   <div data-testid="splitter-percent" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="['35%', '65%']"><ASplitterPanel min="30%" max="70%" style="padding: 12px;">30% min / 70% max</ASplitterPanel><ASplitterPanel min="30%" style="padding: 12px;">百分比约束</ASplitterPanel></ASplitter></div>
-  <div data-testid="splitter-input" style="display: grid; gap: 8px; min-width: 0;"><AInputNumber :model-value="sizes[0]" :min="120" :max="navigationMax" @update:model-value="setNavigationSize" /><div ref="controlledPanelRef" style="height: 148px; min-width: 0; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter v-model:sizes="sizes"><ASplitterPanel :min="120" style="padding: 12px;"><span data-testid="splitter-input-output">{{ sizes[0] }} px</span></ASplitterPanel><ASplitterPanel :min="160" style="padding: 12px;">外部控制内容</ASplitterPanel></ASplitter></div></div>
+  <div data-testid="splitter-input" style="display: grid; gap: 8px; min-width: 0;"><AInputNumber :model-value="sizes[0]" :min="navigationMin" :max="navigationMax" @update:model-value="setNavigationSize" /><div ref="controlledPanelRef" style="height: 148px; min-width: 0; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter v-model:sizes="sizes"><ASplitterPanel :min="navigationMin" style="padding: 12px;"><span data-testid="splitter-input-output">{{ sizes[0] }} px</span></ASplitterPanel><ASplitterPanel :min="contentMin" style="padding: 12px;">外部控制内容</ASplitterPanel></ASplitter></div></div>
   <div data-testid="splitter-iframe" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="[140, 'auto']"><ASplitterPanel :min="80" style="padding: 12px;">编辑区</ASplitterPanel><ASplitterPanel :min="80" style="padding: 8px;"><iframe title="可见预览" srcdoc="<p style='font-family: sans-serif'>预览 iframe</p>" style="width: 100%; height: 100%; border: 1px solid #d9e1ea;"></iframe></ASplitterPanel></ASplitter></div>
   <AButton size="small" @click="mounted = false">卸载 Splitter</AButton>
 </div>
