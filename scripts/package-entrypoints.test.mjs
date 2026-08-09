@@ -26,7 +26,7 @@ for (const packageDir of packages) {
   })
 }
 
-test('dnd root types expose SortableHandleProps and Record item slots to Vue consumers', async (t) => {
+test('dnd root types expose handles, type list records, and accept standalone values', async (t) => {
   const fixtureDir = await mkdtemp(path.join(tmpdir(), 'aheart-dnd-types-'))
   t.after(() => rm(fixtureDir, { recursive: true, force: true }))
   await symlink(path.join(workspaceRoot, 'node_modules'), path.join(fixtureDir, 'node_modules'), 'dir')
@@ -44,7 +44,10 @@ const useHandle = (_props: SortableHandleProps) => undefined
     </template>
   </SortableList>
   <SortableItem :item="items[0]" :index="0">
-    <template #default="{ item }">{{ item['title'] }}</template>
+    <template #default="{ item }">{{ item }}</template>
+  </SortableItem>
+  <SortableItem item="legacy-value" :index="0">
+    <template #default="{ item }">{{ item }}</template>
   </SortableItem>
 </template>
 `)

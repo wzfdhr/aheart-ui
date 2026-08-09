@@ -13,7 +13,7 @@
   </li>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T = unknown">
 import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { computed, inject, nextTick, onBeforeUnmount, ref, watchEffect, type ComponentPublicInstance } from 'vue'
 import { endDrag, startDrag } from './drag-state'
@@ -22,11 +22,11 @@ import { useDroppable } from './use-droppable'
 
 defineOptions({ name: 'ASortableItem' })
 defineSlots<{
-  default?: (props: { item: Record<string, unknown>; index: number; handleProps: SortableHandleProps }) => unknown
+  default?: (props: { item: T; index: number; handleProps: SortableHandleProps }) => unknown
 }>()
 
 const props = defineProps<{
-  item: Record<string, unknown>
+  item: T
   index: number
 }>()
 const context = inject(sortableContextKey)
