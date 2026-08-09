@@ -64,13 +64,13 @@ const resolveSplitterSizes = ({ containerSize, sizes, panels }) => {
   const resolved = sizes.map((size) => size === "auto" ? autoSize : resolveValue(size, normalizedContainerSize, 0));
   return redistribute(resolved, panels, normalizedContainerSize);
 };
-const resizeAdjacentPanels = ({ sizes, panels, handleIndex, delta }) => {
+const resizeAdjacentPanels = ({ sizes, panels, containerSize = 0, handleIndex, delta }) => {
   const rightIndex = handleIndex + 1;
   if (handleIndex < 0 || rightIndex >= sizes.length || !Number.isFinite(delta)) {
     return [...sizes];
   }
-  const leftBounds = resolveSplitterPanelBounds(panels[handleIndex]);
-  const rightBounds = resolveSplitterPanelBounds(panels[rightIndex]);
+  const leftBounds = resolveSplitterPanelBounds(panels[handleIndex], containerSize);
+  const rightBounds = resolveSplitterPanelBounds(panels[rightIndex], containerSize);
   const lowerDelta = Math.max(leftBounds.min - sizes[handleIndex], sizes[rightIndex] - rightBounds.max);
   const upperDelta = Math.min(leftBounds.max - sizes[handleIndex], sizes[rightIndex] - rightBounds.min);
   const appliedDelta = Math.min(Math.max(delta, lowerDelta), upperDelta);

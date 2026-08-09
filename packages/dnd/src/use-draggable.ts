@@ -31,7 +31,13 @@ export function useDraggable(element: Ref<HTMLElement | undefined>, options: Use
         options.onDrop?.()
       }
     })
-    onCleanup(cleanup)
+    onCleanup(() => {
+      cleanup()
+      if (isDragging.value) {
+        isDragging.value = false
+        endDrag()
+      }
+    })
   })
 
   return { isDragging }

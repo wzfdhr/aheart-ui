@@ -14,6 +14,7 @@ export const usePointerDrag = (options: PointerDragOptions) => {
   let latestEvent: PointerEvent | undefined
   let activePointerId: number | undefined
   let dragShield: HTMLDivElement | undefined
+  let capturedTarget: Element | undefined
   let previousCursor = ''
   let previousUserSelect = ''
 
@@ -71,6 +72,14 @@ export const usePointerDrag = (options: PointerDragOptions) => {
     currentDocument.removeEventListener('pointerup', handlePointerUp)
     currentDocument.removeEventListener('pointercancel', handlePointerCancel)
     window.removeEventListener('blur', handleWindowBlur)
+    if (capturedTarget && activePointerId !== undefined) {
+      try {
+        capturedTarget.releasePointerCapture?.(activePointerId)
+      } catch {
+        // The pointer may already have been released by the browser.
+      }
+    }
+    capturedTarget = undefined
     removeShield()
     restoreDocument()
     isDragging.value = false
@@ -162,7 +171,15 @@ export const usePointerDrag = (options: PointerDragOptions) => {
     currentDocument.body.style.cursor = getCursor()
     currentDocument.body.style.userSelect = 'none'
     createShield(currentDocument)
-    ;(event.currentTarget as Element | null)?.setPointerCapture?.(event.pointerId)
+    const captureTarget = event.currentTarget as Element | null
+    if (captureTarget?.setPointerCapture) {
+      try {
+        captureTarget.setPointerCapture(event.pointerId)
+        capturedTarget = captureTarget
+      } catch {
+        // Pointer capture is optional and may be unavailable in the browser.
+      }
+    }
     currentDocument.addEventListener('pointermove', handleMove)
     currentDocument.addEventListener('pointerup', handlePointerUp)
     currentDocument.addEventListener('pointercancel', handlePointerCancel)

@@ -7,11 +7,15 @@ const done = ref([{ id: 'retro', title: '发布复盘' }])
 const empty = ref<Record<string, unknown>[]>([])
 const disabled = ref([{ id: 'locked', title: '锁定任务', disabled: true }])
 const rejected = ref([{ id: 'blocked', title: '仅接收审计项' }])
-const scrollSource = ref([{ id: 'scroll', title: '滚动任务' }])
+const scrollSource = ref(Array.from({ length: 12 }, (_, index) => ({ id: `scroll-${index + 1}`, title: `滚动任务 ${index + 1}` })))
 const scrollTarget = ref<Record<string, unknown>[]>([])
 const status = ref('等待交互；目标保持不变')
 const todoUpdates = ref(0)
 const todoChanges = ref(0)
+const doneUpdates = ref(0)
+const doneChanges = ref(0)
+const emptyUpdates = ref(0)
+const emptyChanges = ref(0)
 const disabledUpdates = ref(0)
 const disabledChanges = ref(0)
 const rejectedUpdates = ref(0)
@@ -51,23 +55,23 @@ app.use(AheartDnd)
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>待处理 <span data-testid="dnd-todo-count">{{ todo.length }}</span></strong>
       <div data-testid="dnd-todo-list"><ASortableList v-model:items="todo" item-key="id" group="tasks" @update:items="todoUpdates++" @change="todoChanges++; status = '同列表排序已更新'">
-        <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px; background: #fff;">{{ item.title }}</div></template>
+        <template #item="{ item }"><div :data-item-id="item.id" style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px; background: #fff;">{{ item.title }}</div></template>
       </ASortableList><span data-testid="dnd-todo-events">update {{ todoUpdates }} / change {{ todoChanges }}</span></div>
     </section>
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>已完成 <span data-testid="dnd-done-count">{{ done.length }}</span></strong>
-      <div data-testid="dnd-done-list"><ASortableList v-model:items="done" item-key="id" group="tasks" @change="status = '跨列表移动已更新'">
-        <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px; background: #fff;">{{ item.title }}</div></template>
-      </ASortableList></div>
+      <div data-testid="dnd-done-list"><ASortableList v-model:items="done" item-key="id" group="tasks" @update:items="doneUpdates++" @change="doneChanges++; status = '跨列表移动已更新'">
+        <template #item="{ item }"><div :data-item-id="item.id" style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px; background: #fff;">{{ item.title }}</div></template>
+      </ASortableList><span data-testid="dnd-done-events">update {{ doneUpdates }} / change {{ doneChanges }}</span></div>
     </section>
   </div>
 
   <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>空列表 <span data-testid="dnd-empty-count">{{ empty.length }}</span></strong>
-      <div data-testid="dnd-empty-list" class="qg2-dnd-drop-list"><ASortableList v-model:items="empty" item-key="id" group="tasks" @change="status = '空列表已接收条目'">
-        <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
-      </ASortableList></div>
+      <div data-testid="dnd-empty-list" class="qg2-dnd-drop-list"><ASortableList v-model:items="empty" item-key="id" group="tasks" @update:items="emptyUpdates++" @change="emptyChanges++; status = '空列表已接收条目'">
+        <template #item="{ item }"><div :data-item-id="item.id" style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
+      </ASortableList><span data-testid="dnd-empty-events">update {{ emptyUpdates }} / change {{ emptyChanges }}</span></div>
     </section>
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>禁用目标 <span>{{ disabled.length }}</span></strong>
@@ -83,9 +87,9 @@ app.use(AheartDnd)
     </section>
   </div>
 
-  <div data-testid="dnd-scroll-region" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 112px; overflow: auto; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
+  <div data-testid="dnd-scroll-region" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 160px; overflow: auto; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
     <div data-testid="dnd-scroll-source"><ASortableList v-model:items="scrollSource" item-key="id" group="scroll" @change="status = '嵌套滚动移动已更新'">
-      <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
+      <template #item="{ item }"><div :data-item-id="item.id" style="min-height: 36px; padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
     </ASortableList></div>
     <div data-testid="dnd-scroll-target" class="qg2-dnd-drop-list"><ASortableList v-model:items="scrollTarget" item-key="id" group="scroll">
       <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>

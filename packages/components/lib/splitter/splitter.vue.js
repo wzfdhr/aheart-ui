@@ -82,6 +82,7 @@ const _sfc_main = vue.defineComponent({
       const nextSizes = solver.resizeAdjacentPanels({
         sizes: startSizes,
         panels: panelConstraints.value,
+        containerSize: solverContainerSize.value,
         handleIndex,
         delta
       });

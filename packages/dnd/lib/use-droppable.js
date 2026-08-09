@@ -15,9 +15,10 @@ function useDroppable(element, options) {
         const acceptedTypes = Array.isArray(accept) ? accept : [accept];
         return acceptedTypes.length === 0 || acceptedTypes.includes(String(source.data.type ?? ""));
       },
-      onDrop: ({ source }) => {
-        var _a;
-        return (_a = options.onDrop) == null ? void 0 : _a.call(options, source.data);
+      onDrop: ({ source, location }) => {
+        var _a, _b;
+        if (location && ((_a = location.current.dropTargets[0]) == null ? void 0 : _a.element) !== target) return;
+        (_b = options.onDrop) == null ? void 0 : _b.call(options, source.data);
       }
     });
     onCleanup(cleanup);
