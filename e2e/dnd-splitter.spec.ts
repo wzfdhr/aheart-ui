@@ -134,6 +134,24 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(page.getByTestId('dnd-reject-events')).toHaveText('update 0 / change 0')
   })
 
+  test('keeps the mobile workbench readable and its states explicit', async ({ page }, testInfo) => {
+    test.skip(!testInfo.project.name.includes('mobile'), 'Responsive workbench assertions only apply to mobile projects.')
+
+    const fixture = page.getByTestId('dnd-fixture')
+    const primaryGrid = fixture.locator('.qg2-dnd-primary-grid')
+    const secondaryGrid = fixture.locator('.qg2-dnd-secondary-grid')
+    await fixture.scrollIntoViewIfNeeded()
+
+    await expect(primaryGrid).toBeVisible()
+    await expect(secondaryGrid).toBeVisible()
+    expect(await primaryGrid.evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length)).toBe(1)
+    expect(await secondaryGrid.evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length)).toBe(1)
+    expect(await fixture.locator('.aheart-dnd-sortable-list').first().evaluate((node) => getComputedStyle(node).listStyleType)).toBe('none')
+    expect(await fixture.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true)
+    await expect(page.getByTestId('dnd-disabled-hint')).toContainText('不接收')
+    await expect(page.getByTestId('dnd-reject-hint')).toContainText('仅接收')
+  })
+
   test('auto-scrolls a nested region and cancels without moving', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'Playwright does not synthesize continuing native drag events outside desktop Chromium, so nested auto-scroll cannot run under automation.')
 
@@ -256,6 +274,7 @@ test.describe('QG2 中文 Splitter fixture', () => {
     const handleBox = await handle.boundingBox()
     const beforeBox = await panel.boundingBox()
     const beforeValues = await page.getByTestId('splitter-lazy-values').textContent()
+    const beforeSizes = JSON.parse(beforeValues ?? '[]') as number[]
     expect(handleBox).not.toBeNull()
     expect(beforeBox).not.toBeNull()
 
@@ -267,8 +286,8 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await page.mouse.up()
     await expect(page.getByTestId('splitter-lazy-values')).not.toHaveText(beforeValues ?? '')
     await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('1')
-    await expect(page.getByTestId('splitter-lazy-left')).not.toHaveText('260')
-    await expect(page.getByTestId('splitter-lazy-right')).not.toHaveText('420')
+    await expect(page.getByTestId('splitter-lazy-left')).not.toHaveText(String(beforeSizes[0]))
+    await expect(page.getByTestId('splitter-lazy-right')).not.toHaveText(String(beforeSizes[1]))
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
   })
 
@@ -422,19 +441,30 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await page.goto('/components/dnd', { waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('dnd-todo-count')).toHaveText('3')
     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 0 / change 0')
-    await expect(page.getByTestId('dnd-status')).toHaveText('等待交互；目标保持不变')
+    await expect(page.getByTestId('dnd-status')).toHaveText('可拖拽；禁用或分组不匹配时保持原位')
     await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(initialBodyStyle)
   })
 
-  test('updates from external InputNumber and keeps a visible iframe in the splitter', async ({ page }) => {
+  test('updates from external InputNumber and keeps a visible iframe in the splitter', async ({ page }, testInfo) => {
     const input = page.getByTestId('splitter-input').locator('input').first()
-    await expect(input).toHaveValue('260')
+    const initialValue = testInfo.project.name.includes('mobile') ? 120 : 260
+    await expect(input).toHaveValue(String(initialValue))
     await page.getByTestId('splitter-input').getByRole('button', { name: 'Increase' }).click()
-    await expect(input).toHaveValue('261')
-    await expect(page.getByTestId('splitter-input-output')).toContainText('261 px')
+    await expect(input).toHaveValue(String(initialValue + 1))
+    await expect(page.getByTestId('splitter-input-output')).toContainText(`${initialValue + 1} px`)
     await expect(page.getByTestId('splitter-iframe').locator('iframe')).toBeVisible()
+  })
+
+  test('renders the panel API table and keeps mobile controlled sizes inside the fixture', async ({ page }, testInfo) => {
+    await expect(page.locator('h3#splitterpanel + table')).toBeVisible()
+    if (!testInfo.project.name.includes('mobile')) return
+
+    const fixture = page.getByTestId('splitter-fixture')
+    await fixture.scrollIntoViewIfNeeded()
+    expect(await fixture.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true)
+    await expect(page.getByTestId('splitter-input').locator('input').first()).toHaveValue('120')
   })
 
   test('cleans up and remounts the splitter demos', async ({ page }) => {

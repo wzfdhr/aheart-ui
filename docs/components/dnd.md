@@ -9,7 +9,7 @@ const disabled = ref([{ id: 'locked', title: '锁定任务', disabled: true }])
 const rejected = ref([{ id: 'blocked', title: '仅接收审计项' }])
 const scrollSource = ref(Array.from({ length: 12 }, (_, index) => ({ id: `scroll-${index + 1}`, title: `滚动任务 ${index + 1}` })))
 const scrollTarget = ref<Record<string, unknown>[]>([])
-const status = ref('等待交互；目标保持不变')
+const status = ref('可拖拽；禁用或分组不匹配时保持原位')
 const todoUpdates = ref(0)
 const todoChanges = ref(0)
 const doneUpdates = ref(0)
@@ -25,6 +25,54 @@ const rejectedChanges = ref(0)
 <style>
 .qg2-dnd-drop-list .aheart-dnd-sortable-list {
   min-height: 48px;
+}
+
+.qg2-dnd-workbench .aheart-dnd-sortable-list {
+  list-style: none !important;
+}
+
+.qg2-dnd-workbench .aheart-dnd-sortable-item > * {
+  border-radius: 8px !important;
+}
+
+.qg2-dnd-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.qg2-dnd-primary-grid,
+.qg2-dnd-secondary-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.qg2-dnd-primary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.qg2-dnd-secondary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.qg2-dnd-state-hint {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .qg2-dnd-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .qg2-dnd-primary-grid,
+  .qg2-dnd-secondary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 </style>
 
@@ -45,13 +93,13 @@ app.use(AheartDnd)
 
 ## 交互工作台
 
-<div v-if="mounted" data-testid="dnd-fixture" data-mounted="true" style="display: grid; gap: 8px; padding: 16px; border: 1px solid #d9e1ea; border-radius: 8px; background: #fff;">
-  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #536273; font-size: 13px;">
+<div v-if="mounted" data-testid="dnd-fixture" data-mounted="true" class="aheart-demo-panel qg2-dnd-workbench" style="display: grid; gap: 8px;">
+  <div class="qg2-dnd-toolbar" style="color: #536273; font-size: 13px;">
     <span>受控拖拽台 · Alt + ↑/↓ 支持键盘排序</span>
     <span data-testid="dnd-status" aria-live="polite" style="color: #1677ff;">{{ status }}</span>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+  <div class="qg2-dnd-primary-grid">
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>待处理 <span data-testid="dnd-todo-count">{{ todo.length }}</span></strong>
       <div data-testid="dnd-todo-list"><ASortableList v-model:items="todo" item-key="id" group="tasks" @update:items="todoUpdates++" @change="todoChanges++; status = '同列表排序已更新'">
@@ -66,7 +114,7 @@ app.use(AheartDnd)
     </section>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+  <div class="qg2-dnd-secondary-grid">
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>空列表 <span data-testid="dnd-empty-count">{{ empty.length }}</span></strong>
       <div data-testid="dnd-empty-list" class="qg2-dnd-drop-list"><ASortableList v-model:items="empty" item-key="id" group="tasks" @update:items="emptyUpdates++" @change="emptyChanges++; status = '空列表已接收条目'">
@@ -75,12 +123,14 @@ app.use(AheartDnd)
     </section>
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>禁用目标 <span>{{ disabled.length }}</span></strong>
+      <small data-testid="dnd-disabled-hint" class="qg2-dnd-state-hint">已禁用，不接收拖拽</small>
       <div data-testid="dnd-disabled-list"><ASortableList v-model:items="disabled" item-key="id" group="tasks" disabled @update:items="disabledUpdates++" @change="disabledChanges++">
         <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px; color: #8a96a3;">{{ item.title }}</div></template>
       </ASortableList><span data-testid="dnd-disabled-events">update {{ disabledUpdates }} / change {{ disabledChanges }}</span></div>
     </section>
     <section style="display: grid; gap: 8px; padding: 8px; border: 1px solid #e5eaf0; border-radius: 6px;">
       <strong>父级拒绝 <span>{{ rejected.length }}</span></strong>
+      <small data-testid="dnd-reject-hint" class="qg2-dnd-state-hint">仅接收 audit 分组</small>
       <div data-testid="dnd-reject-list"><ASortableList v-model:items="rejected" item-key="id" group="audit" @update:items="rejectedUpdates++" @change="rejectedChanges++">
         <template #item="{ item }"><div style="padding: 8px; border: 1px solid #d9e1ea; border-radius: 4px;">{{ item.title }}</div></template>
       </ASortableList><span data-testid="dnd-reject-events">update {{ rejectedUpdates }} / change {{ rejectedChanges }}</span></div>
@@ -97,13 +147,13 @@ app.use(AheartDnd)
   </div>
 
   <div style="display: flex; gap: 8px;">
-    <button type="button" @click="mounted = false">卸载 DnD</button>
+    <AButton size="small" @click="mounted = false">卸载 DnD</AButton>
   </div>
   <ADragOverlay />
 </div>
-<div v-else data-testid="dnd-fixture" data-mounted="false" style="display: grid; gap: 8px; padding: 16px; border: 1px dashed #d9e1ea; border-radius: 8px;">
+<div v-else data-testid="dnd-fixture" data-mounted="false" class="aheart-demo-panel" style="display: grid; gap: 8px; border-style: dashed;">
   <span>DnD fixture 已卸载</span>
-  <button type="button" @click="mounted = true">重新挂载 DnD</button>
+  <AButton size="small" @click="mounted = true">重新挂载 DnD</AButton>
 </div>
 
 ```vue
