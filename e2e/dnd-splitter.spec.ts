@@ -381,6 +381,51 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(page.getByTestId('dnd-reject-events')).toHaveText('update 0 / change 0')
   })
 
+  test('rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'Trusted device-level touch injection is available in mobile Chromium.')
+    await page.setViewportSize({ width: 960, height: 800 })
+    const todo = page.getByTestId('dnd-todo-list')
+    const disabled = page.getByTestId('dnd-disabled-list')
+    const rejected = page.getByTestId('dnd-reject-list')
+    const source = itemHandle(todo, '产品审核')
+    const touch = await page.context().newCDPSession(page)
+    await expect(source).toBeVisible()
+    await expect(item(disabled, '锁定任务')).toBeVisible()
+    await expect(item(rejected, '仅接收审计项')).toBeVisible()
+    const beforeTodo = await itemOrder(todo)
+    const beforeDisabled = await itemOrder(disabled)
+    const beforeRejected = await itemOrder(rejected)
+
+    const attemptRejectedMove = async (target: Locator) => {
+      await source.scrollIntoViewIfNeeded()
+      await target.scrollIntoViewIfNeeded()
+      const sourceBox = await source.boundingBox()
+      const targetBox = await target.boundingBox()
+      expect(sourceBox).not.toBeNull()
+      expect(targetBox).not.toBeNull()
+      const expectTrustedTouch = await armTrustedTouchPointerEvidence(page)
+      await dispatchCdpTouch(touch, 'touchStart', sourceBox!.x + sourceBox!.width / 2, sourceBox!.y + sourceBox!.height / 2)
+      await dispatchCdpTouch(touch, 'touchMove', sourceBox!.x + sourceBox!.width / 2, sourceBox!.y + sourceBox!.height / 2 + 12)
+      await dispatchCdpTouch(touch, 'touchMove', targetBox!.x + targetBox!.width / 2, targetBox!.y + targetBox!.height / 2)
+      await expectTrustedTouch()
+      await dispatchCdpTouch(touch, 'touchEnd')
+      await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+      await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
+    }
+
+    await attemptRejectedMove(item(disabled, '锁定任务'))
+    await expect.poll(() => itemOrder(todo)).toEqual(beforeTodo)
+    await expect.poll(() => itemOrder(disabled)).toEqual(beforeDisabled)
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 0 / change 0')
+    await expect(page.getByTestId('dnd-disabled-events')).toHaveText('update 0 / change 0')
+
+    await attemptRejectedMove(item(rejected, '仅接收审计项'))
+    await expect.poll(() => itemOrder(todo)).toEqual(beforeTodo)
+    await expect.poll(() => itemOrder(rejected)).toEqual(beforeRejected)
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 0 / change 0')
+    await expect(page.getByTestId('dnd-reject-events')).toHaveText('update 0 / change 0')
+  })
+
   test('keeps the mobile workbench readable and its states explicit', async ({ page }, testInfo) => {
     test.skip(!testInfo.project.name.includes('mobile'), 'Responsive workbench assertions only apply to mobile projects.')
 

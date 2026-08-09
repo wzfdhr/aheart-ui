@@ -1,5 +1,7 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { readFileSync } from 'node:fs'
+import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { renderToString } from '@vue/server-renderer'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Draggable from '../draggable.vue'
 import DropZone from '../drop-zone.vue'
@@ -7,6 +9,7 @@ import DragOverlay from '../drag-overlay.vue'
 import { currentDragData } from '../drag-state'
 import SortableList from '../sortable-list.vue'
 import { registerSortableAutoScroll } from '../sortable-auto-scroll'
+import * as sortableRegistry from '../sortable-registry'
 
 const cleanupFns = vi.hoisted(() => [] as ReturnType<typeof vi.fn>[])
 const adapter = vi.hoisted(() => ({
@@ -62,6 +65,60 @@ const itemWithHandle = ({ item, handleProps }: { item: { id: string }; handlePro
   h('button', { ...handleProps, 'data-handle': item.id }, 'drag'),
   h('span', { 'data-item-body': item.id }, item.id)
 ])
+
+const sortableSsrApp = () => createSSRApp(defineComponent({
+  setup() {
+    return () => h(SortableList, {
+      items: [{ id: 'item' }],
+      itemKey: 'id'
+    }, {
+      item: ({ item }: { item: { id: string } }) => item.id
+    })
+  }
+}))
+
+describe('sortable SSR and hydration', () => {
+  it('uses a stable list id without registering SSR controllers and hydrates without warnings', async () => {
+    const register = vi.spyOn(sortableRegistry, 'registerSortableList')
+    const firstHtml = await renderToString(sortableSsrApp())
+    const secondHtml = await renderToString(sortableSsrApp())
+    const host = document.createElement('div')
+    host.innerHTML = firstHtml
+    document.body.append(host)
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    expect(firstHtml).toBe(secondHtml)
+    expect(register).not.toHaveBeenCalled()
+
+    const app = sortableSsrApp()
+    app.mount(host)
+    await nextTick()
+
+    expect(register).toHaveBeenCalledTimes(1)
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('Hydration'))
+
+    app.unmount()
+    warn.mockRestore()
+    register.mockRestore()
+    host.remove()
+  })
+})
+
+describe('sortable deep declarations', () => {
+  it('preserves the established deep registry and context API surface', () => {
+    for (const declaration of ['../../es/sortable-registry.d.ts', '../../lib/sortable-registry.d.ts']) {
+      const contents = readFileSync(new URL(declaration, import.meta.url), 'utf8')
+      expect(contents).toContain('moveSortableItem(source: SortableItemData, targetListId: string, targetIndex: number): boolean;')
+      expect(contents).not.toContain('SortableMoveResult')
+      expect(contents).not.toContain('moveSortableItemToAdjacentList')
+    }
+    for (const declaration of ['../../es/sortable-context.d.ts', '../../lib/sortable-context.d.ts']) {
+      const contents = readFileSync(new URL(declaration, import.meta.url), 'utf8')
+      expect(contents).toContain('move: (source: SortableItemData, targetIndex: number, keyboard?: boolean) => void;')
+      expect(contents).not.toContain('moveAdjacent')
+    }
+  })
+})
 
 describe('sortable auto-scroll registration', () => {
   it('registers an overflow ancestor before it becomes scrollable', () => {
@@ -204,11 +261,13 @@ describe('Aheart DnD adapters', () => {
   it('moves items between sortable lists in the same group', async () => {
     const sourceList = mount(SortableList, {
       props: { items: [{ id: 'source' }], itemKey: 'id', group: 'tasks' },
-      slots: { item: ({ item }: { item: { id: string } }) => item.id }
+      slots: { item: ({ item }: { item: { id: string } }) => item.id },
+      global: { config: { idPrefix: 'source' } }
     })
     const targetList = mount(SortableList, {
       props: { items: [{ id: 'target' }], itemKey: 'id', group: 'tasks' },
-      slots: { item: ({ item }: { item: { id: string } }) => item.id }
+      slots: { item: ({ item }: { item: { id: string } }) => item.id },
+      global: { config: { idPrefix: 'target' } }
     })
     await nextTick()
 
@@ -228,8 +287,8 @@ describe('Aheart DnD adapters', () => {
   })
 
   it('does not move items between ungrouped sortable lists', async () => {
-    const sourceList = mount(SortableList, { props: { items: [{ id: 'source' }], itemKey: 'id' } })
-    const targetList = mount(SortableList, { props: { items: [{ id: 'target' }], itemKey: 'id' } })
+    const sourceList = mount(SortableList, { props: { items: [{ id: 'source' }], itemKey: 'id' }, global: { config: { idPrefix: 'source' } } })
+    const targetList = mount(SortableList, { props: { items: [{ id: 'target' }], itemKey: 'id' }, global: { config: { idPrefix: 'target' } } })
     await nextTick()
     const sources = adapter.draggable.mock.calls
       .map(([config]) => config)
@@ -248,8 +307,8 @@ describe('Aheart DnD adapters', () => {
   })
 
   it('moves an item into an empty sortable list in the same group', async () => {
-    const sourceList = mount(SortableList, { props: { items: [{ id: 'source' }], itemKey: 'id', group: 'empty' } })
-    const targetList = mount(SortableList, { props: { items: [], itemKey: 'id', group: 'empty' } })
+    const sourceList = mount(SortableList, { props: { items: [{ id: 'source' }], itemKey: 'id', group: 'empty' }, global: { config: { idPrefix: 'source' } } })
+    const targetList = mount(SortableList, { props: { items: [], itemKey: 'id', group: 'empty' }, global: { config: { idPrefix: 'target' } } })
     await nextTick()
     const source = adapter.draggable.mock.calls.map(([config]) => config).find((config) => config.getInitialData().group === 'empty')
     const target = adapter.dropTargetForElements.mock.calls
@@ -437,7 +496,7 @@ describe('Aheart DnD adapters', () => {
     expect(sourceUpdates).toHaveBeenCalledTimes(1)
     expect(targetUpdates).toHaveBeenCalledTimes(1)
     expect(lists[3].get('[data-handle="source"]').element).toBe(document.activeElement)
-    expect(lists[3].element.parentElement?.querySelector('.aheart-dnd-live-region')?.textContent).toContain('跨列表')
+    expect(lists[3].element.nextElementSibling?.textContent).toContain('跨列表')
     wrapper.unmount()
   })
 
@@ -470,6 +529,71 @@ describe('Aheart DnD adapters', () => {
     expect(targetUpdates).toHaveBeenCalledTimes(1)
     expect(lists[0].get('[data-handle="source"]').element).toBe(document.activeElement)
     wrapper.unmount()
+  })
+
+  it('keeps source focus and suppresses success live regions when a controlled parent rejects an adjacent move', async () => {
+    const sourceItems = ref([{ id: 'source' }])
+    const targetItems = ref([{ id: 'target' }])
+    const sourceUpdates = vi.fn()
+    const targetUpdates = vi.fn()
+    const Host = defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': sourceUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': targetUpdates }, { item: itemWithHandle })
+        ])
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const [sourceList] = wrapper.findAll('.aheart-dnd-sortable-list')
+    const sourceHandle = sourceList.get('[data-handle="source"]').element as HTMLElement
+    sourceHandle.focus()
+    sourceHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true, bubbles: true }))
+    await nextTick()
+    await nextTick()
+
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
+    expect(sourceItems.value).toEqual([{ id: 'source' }])
+    expect(targetItems.value).toEqual([{ id: 'target' }])
+    expect(document.activeElement).toBe(sourceHandle)
+    expect(wrapper.findAll('.aheart-dnd-live-region').filter((region) => region.text().length > 0)).toHaveLength(0)
+
+    wrapper.unmount()
+  })
+
+  it('uses the iframe document for handle registration and cross-list focus restoration', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const iframeDocument = iframe.contentDocument!
+    const sourceItems = ref([{ id: 'source' }])
+    const targetItems = ref([{ id: 'target' }])
+    const Host = defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': (next: typeof sourceItems.value) => { sourceItems.value = next } }, { item: itemWithHandle }),
+          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': (next: typeof targetItems.value) => { targetItems.value = next } }, { item: itemWithHandle })
+        ])
+      }
+    })
+    const wrapper = mount(Host, { attachTo: iframeDocument.body })
+    await nextTick()
+    const [sourceList, targetList] = wrapper.findAll('.aheart-dnd-sortable-list')
+    const sourceHandle = sourceList.get('[data-handle="source"]').element as HTMLElement
+    sourceHandle.focus()
+    sourceHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true, bubbles: true }))
+    await nextTick()
+    await nextTick()
+
+    const sourceConfig = adapter.draggable.mock.calls
+      .map(([config]) => config)
+      .find((config) => config.getInitialData().listId === sourceList.attributes('data-aheart-sortable-list-id'))
+    expect(sourceConfig.dragHandle).toBe(sourceHandle)
+    expect(iframeDocument.activeElement).toBe(targetList.get('[data-handle="source"]').element)
+
+    wrapper.unmount()
+    iframe.remove()
   })
 
   it('does not emit a move when the last item receives Alt + ArrowDown', async () => {

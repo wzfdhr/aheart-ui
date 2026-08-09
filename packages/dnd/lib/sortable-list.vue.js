@@ -6,7 +6,8 @@ const sortableContext = require("./sortable-context.js");
 const sortableRegistry = require("./sortable-registry.js");
 const useDroppable = require("./use-droppable.js");
 const sortableAutoScroll = require("./sortable-auto-scroll.js");
-const _hoisted_1 = {
+const _hoisted_1 = ["data-aheart-sortable-group", "data-aheart-sortable-disabled"];
+const _hoisted_2 = {
   class: "aheart-dnd-live-region",
   "aria-live": "polite"
 };
@@ -23,7 +24,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
-    const listId = `aheart-sortable-${Math.random().toString(36).slice(2)}`;
+    const listId = `aheart-sortable-${vue.useId()}`;
     const disabled = vue.computed(() => props.disabled);
     const announcement = vue.ref("");
     const root = vue.ref();
@@ -32,30 +33,36 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("update:items", nextItems);
       emit("change", nextItems);
     };
-    const unregister = sortableRegistry.registerSortableList(listId, {
-      group: () => props.group,
-      disabled: () => disabled.value,
-      items: () => props.items,
-      update: updateItems,
-      announce: (message) => {
-        announcement.value = message;
-      }
+    let unregister = () => {
+    };
+    vue.onMounted(() => {
+      var _a;
+      unregister = sortableRegistry.registerSortableList(listId, {
+        group: () => props.group,
+        items: () => props.items,
+        update: updateItems
+      });
+      (_a = root.value) == null ? void 0 : _a.addEventListener("aheart-sortable-announce", handleAnnouncement);
     });
-    vue.onBeforeUnmount(unregister);
+    vue.onBeforeUnmount(() => {
+      var _a;
+      (_a = root.value) == null ? void 0 : _a.removeEventListener("aheart-sortable-announce", handleAnnouncement);
+      unregister();
+    });
     let unregisterAutoScroll = () => {
     };
     vue.onMounted(() => {
       unregisterAutoScroll = sortableAutoScroll.registerSortableAutoScroll(root.value);
     });
     vue.onBeforeUnmount(() => unregisterAutoScroll());
-    const move = (source, targetIndex, keyboard = false) => {
-      if (disabled.value) return false;
-      const result = sortableRegistry.moveSortableItem(source, listId, targetIndex);
-      if (result && keyboard) announcement.value = `已移动到第 ${result.targetIndex + 1} 项`;
-      return result;
+    const handleAnnouncement = (event) => {
+      announcement.value = event.detail;
     };
-    const moveAdjacent = (source, direction) => sortableRegistry.moveSortableItemToAdjacentList(source, direction);
-    vue.provide(sortableContext.sortableContextKey, { listId, group: props.group, disabled, move, moveAdjacent });
+    const move = (source, targetIndex) => {
+      if (disabled.value) return false;
+      sortableRegistry.moveSortableItem(source, listId, targetIndex);
+    };
+    vue.provide(sortableContext.sortableContextKey, { listId, group: props.group, disabled, move });
     useDroppable.useDroppable(root, {
       data: () => ({ type: "aheart-sortable", listId, group: props.group, targetIndex: props.items.length }),
       accept: "aheart-sortable",
@@ -72,6 +79,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref: root,
           class: "aheart-dnd-sortable-list",
           "data-aheart-sortable-list-id": listId,
+          "data-aheart-sortable-group": __props.group,
+          "data-aheart-sortable-disabled": disabled.value ? "true" : void 0,
           role: "list"
         }, [
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(__props.items, (item, index) => {
@@ -86,8 +95,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               _: 3
             }, 8, ["item", "index"]);
           }), 128))
-        ], 512),
-        vue.createElementVNode("div", _hoisted_1, vue.toDisplayString(announcement.value), 1)
+        ], 8, _hoisted_1),
+        vue.createElementVNode("div", _hoisted_2, vue.toDisplayString(announcement.value), 1)
       ], 64);
     };
   }

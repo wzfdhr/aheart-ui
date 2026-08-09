@@ -1,5 +1,12 @@
 <template>
-  <ul ref="root" class="aheart-dnd-sortable-list" :data-aheart-sortable-list-id="listId" role="list">
+  <ul
+    ref="root"
+    class="aheart-dnd-sortable-list"
+    :data-aheart-sortable-list-id="listId"
+    :data-aheart-sortable-group="group"
+    :data-aheart-sortable-disabled="disabled ? 'true' : undefined"
+    role="list"
+  >
     <SortableItem v-for="(item, index) in items" :key="String(item[itemKey])" :item="item" :index="index">
       <template #default="slotProps">
         <slot
@@ -13,10 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, provide, ref, useId } from 'vue'
 import SortableItem from './sortable-item.vue'
 import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
-import { moveSortableItem, moveSortableItemToAdjacentList, registerSortableList } from './sortable-registry'
+import { moveSortableItem, registerSortableList } from './sortable-registry'
 import { useDroppable } from './use-droppable'
 import { registerSortableAutoScroll } from './sortable-auto-scroll'
 
@@ -41,7 +48,7 @@ const emit = defineEmits<{
   change: [items: Record<string, unknown>[]]
 }>()
 
-const listId = `aheart-sortable-${Math.random().toString(36).slice(2)}`
+const listId = `aheart-sortable-${useId()}`
 const disabled = computed(() => props.disabled)
 const announcement = ref('')
 const root = ref<HTMLElement>()
@@ -50,29 +57,33 @@ const updateItems = (items: unknown[]) => {
   emit('update:items', nextItems)
   emit('change', nextItems)
 }
-const unregister = registerSortableList(listId, {
-  group: () => props.group,
-  disabled: () => disabled.value,
-  items: () => props.items,
-  update: updateItems,
-  announce: (message) => { announcement.value = message }
+let unregister = () => {}
+onMounted(() => {
+  unregister = registerSortableList(listId, {
+    group: () => props.group,
+    items: () => props.items,
+    update: updateItems,
+  })
+  root.value?.addEventListener('aheart-sortable-announce', handleAnnouncement)
 })
-onBeforeUnmount(unregister)
+onBeforeUnmount(() => {
+  root.value?.removeEventListener('aheart-sortable-announce', handleAnnouncement)
+  unregister()
+})
 let unregisterAutoScroll = () => {}
 onMounted(() => {
   unregisterAutoScroll = registerSortableAutoScroll(root.value)
 })
 onBeforeUnmount(() => unregisterAutoScroll())
-const move = (source: SortableItemData, targetIndex: number, keyboard = false) => {
+const handleAnnouncement = (event: Event) => {
+  announcement.value = (event as CustomEvent<string>).detail
+}
+const move = (source: SortableItemData, targetIndex: number) => {
   if (disabled.value) return false
-  const result = moveSortableItem(source, listId, targetIndex)
-  if (result && keyboard) announcement.value = `已移动到第 ${result.targetIndex + 1} 项`
-  return result
+  moveSortableItem(source, listId, targetIndex)
 }
 
-const moveAdjacent = (source: SortableItemData, direction: -1 | 1) => moveSortableItemToAdjacentList(source, direction)
-
-provide(sortableContextKey, { listId, group: props.group, disabled, move, moveAdjacent })
+provide(sortableContextKey, { listId, group: props.group, disabled, move })
 useDroppable(root, {
   data: () => ({ type: 'aheart-sortable', listId, group: props.group, targetIndex: props.items.length }),
   accept: 'aheart-sortable',

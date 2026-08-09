@@ -51,13 +51,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     function releaseTouchOwnership() {
       clearTouchSession();
     }
-    const focusMovedItem = (listId, targetIndex, focusHandle) => {
+    const completeMove = (ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, announcement) => {
       void nextTick(() => {
-        var _a;
-        const destinationList = Array.from(document.querySelectorAll(".aheart-dnd-sortable-list")).find((element) => element instanceof HTMLElement && element.dataset.aheartSortableListId === listId);
+        var _a, _b;
+        const destinationList = Array.from(ownerDocument.querySelectorAll(".aheart-dnd-sortable-list")).find((element) => element.dataset.aheartSortableListId === targetListId);
         const destinationItem = destinationList == null ? void 0 : destinationList.querySelector(`[data-sortable-index="${targetIndex}"]`);
+        const moved = sourceElement.isConnected ? destinationItem === sourceElement : Boolean(destinationItem);
+        if (!moved || !destinationList || !destinationItem) return;
         const destinationHandle = focusHandle ? destinationItem == null ? void 0 : destinationItem.querySelector("[data-aheart-dnd-handle]") : void 0;
         (_a = destinationHandle ?? destinationItem) == null ? void 0 : _a.focus({ preventScroll: true });
+        const CustomEventConstructor = (_b = ownerDocument.defaultView) == null ? void 0 : _b.CustomEvent;
+        if (CustomEventConstructor) {
+          destinationList.dispatchEvent(new CustomEventConstructor("aheart-sortable-announce", { detail: announcement }));
+        }
       });
     };
     function handleTouchPointerMove(event) {
@@ -85,11 +91,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         const targetItem = target == null ? void 0 : target.closest(".aheart-dnd-sortable-item");
         const targetList = target == null ? void 0 : target.closest(".aheart-dnd-sortable-list");
         const targetListId = targetList == null ? void 0 : targetList.dataset.aheartSortableListId;
-        if (targetListId && (!targetItem || targetItem.getAttribute("aria-disabled") !== "true")) {
+        if (targetListId && targetList.dataset.aheartSortableDisabled !== "true" && (!targetItem || targetItem.getAttribute("aria-disabled") !== "true")) {
           const targetIndex = targetItem ? Number(targetItem.dataset.sortableIndex) : targetList.querySelectorAll(".aheart-dnd-sortable-item").length;
           if (Number.isInteger(targetIndex)) {
-            const result = moveSortableItem(session.data, targetListId, targetIndex);
-            if (result) focusMovedItem(result.targetListId, result.targetIndex, result.crossedList);
+            const sourceElement = root.value;
+            const moved = moveSortableItem(session.data, targetListId, targetIndex);
+            if (moved && sourceElement) {
+              completeMove(
+                session.document,
+                sourceElement,
+                targetListId,
+                targetIndex,
+                session.data.listId !== targetListId,
+                session.data.listId === targetListId ? `已移动到第 ${targetIndex + 1} 项` : `已跨列表移动到第 ${targetIndex + 1} 项`
+              );
+            }
           }
         }
       }
@@ -134,8 +150,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     onBeforeUnmount(() => clearTouchSession());
     const setDragHandle = (element) => {
-      const candidate = element instanceof Element ? element : element == null ? void 0 : element.$el;
-      dragHandle.value = candidate instanceof Element ? candidate : void 0;
+      var _a, _b;
+      const candidate = element && "$el" in element ? element.$el : element;
+      const ElementConstructor = (_b = (_a = candidate == null ? void 0 : candidate.ownerDocument) == null ? void 0 : _a.defaultView) == null ? void 0 : _b.Element;
+      dragHandle.value = ElementConstructor && candidate instanceof ElementConstructor ? candidate : void 0;
     };
     const handleProps = {
       class: "aheart-dnd-sortable-handle",
@@ -180,17 +198,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     const handleKeydown = (event) => {
+      var _a;
       if (itemDisabled.value) return;
       if (!event.altKey || !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) return;
       event.preventDefault();
+      const target = event.target && typeof event.target === "object" && "closest" in event.target ? event.target : void 0;
+      const ownerDocument = (target == null ? void 0 : target.ownerDocument) ?? ((_a = root.value) == null ? void 0 : _a.ownerDocument);
+      const sourceElement = root.value;
+      if (!ownerDocument || !sourceElement) return;
+      const focusHandle = Boolean(target == null ? void 0 : target.closest("[data-aheart-dnd-handle]"));
       if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-        context.move(data.value, props.index + (event.key === "ArrowUp" ? -1 : 1), true);
+        const targetIndex = props.index + (event.key === "ArrowUp" ? -1 : 1);
+        context.move(data.value, targetIndex, true);
+        completeMove(ownerDocument, sourceElement, sortableContext.listId, targetIndex, focusHandle, `已移动到第 ${targetIndex + 1} 项`);
         return;
       }
-      const result = context.moveAdjacent(data.value, event.key === "ArrowLeft" ? -1 : 1);
-      if (result) {
-        const target = event.target instanceof Element ? event.target : void 0;
-        focusMovedItem(result.targetListId, result.targetIndex, Boolean(target == null ? void 0 : target.closest("[data-aheart-dnd-handle]")));
+      const lists = Array.from(ownerDocument.querySelectorAll(".aheart-dnd-sortable-list"));
+      const sourceListIndex = lists.findIndex((list) => list.dataset.aheartSortableListId === sortableContext.listId);
+      for (let index = sourceListIndex + (event.key === "ArrowLeft" ? -1 : 1); index >= 0 && index < lists.length; index += event.key === "ArrowLeft" ? -1 : 1) {
+        const targetList = lists[index];
+        const targetListId = targetList.dataset.aheartSortableListId;
+        if (!targetListId || targetList.dataset.aheartSortableDisabled === "true" || !sortableContext.group || targetList.dataset.aheartSortableGroup !== sortableContext.group) continue;
+        const targetIndex = targetList.querySelectorAll(".aheart-dnd-sortable-item").length;
+        if (moveSortableItem(data.value, targetListId, targetIndex)) {
+          completeMove(ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, `已跨列表移动到第 ${targetIndex + 1} 项`);
+        }
+        return;
       }
     };
     return (_ctx, _cache) => {
