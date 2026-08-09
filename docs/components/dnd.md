@@ -127,8 +127,8 @@ app.use(AheartDnd)
 
 <div v-if="mounted" data-testid="dnd-fixture" data-mounted="true" class="aheart-demo-panel qg2-dnd-workbench" style="display: grid; gap: 8px;">
   <div class="qg2-dnd-toolbar" style="color: #536273; font-size: 13px;">
-    <span>受控拖拽台 · 移动端使用拖动柄 · Alt + ↑/↓ 支持键盘排序</span>
-    <span data-testid="dnd-status" aria-live="polite" style="color: #1677ff;">{{ status }}</span>
+    <span>受控拖拽台 · 移动端使用拖动柄 · Alt + 方向键支持键盘排序</span>
+    <span data-testid="dnd-status" aria-live="polite" style="color: #0958d9;">{{ status }}</span>
   </div>
 
   <div class="qg2-dnd-primary-grid">
@@ -215,7 +215,7 @@ app.use(AheartDnd)
 
 `#item` 插槽提供 `{ item, index, handleProps }`。把 `handleProps` 完整绑定到一个可见按钮后，该按钮会成为桌面原生拖拽和移动触摸排序的唯一起手区；条目正文保持浏览器原生滚动。没有绑定 `handleProps` 的旧用法仍保留桌面整项拖拽，但移动端不会伪装成可触摸排序。
 
-条目获得焦点后，可使用 `Alt + ArrowUp` 或 `Alt + ArrowDown` 完成同列表移动；组件会通过 live region 宣布结果。
+条目获得焦点后，可使用 `Alt + ArrowUp` 或 `Alt + ArrowDown` 完成同列表移动；使用 `Alt + ArrowLeft` 或 `Alt + ArrowRight` 会在注册顺序中移入上一个或下一个同 `group`、未禁用的列表。组件会通过 live region 宣布结果，并将焦点恢复到目标条目或拖动柄。
 
 ## 跨容器移动
 
@@ -238,7 +238,7 @@ app.use(AheartDnd)
 
 | `SortableList` 插槽 | 参数 | 说明 |
 | --- | --- | --- |
-| `#item` | `{ item, index, handleProps }` | `handleProps` 绑定到单个拖动柄；仅该元素接管移动触摸，正文继续原生滚动。键盘用户聚焦条目后使用 `Alt + ArrowUp/ArrowDown`。 |
+| `#item` | `{ item, index, handleProps }` | `handleProps` 绑定到单个拖动柄；仅该元素接管移动触摸，正文继续原生滚动。键盘用户聚焦条目后使用 `Alt + ArrowUp/ArrowDown` 排序，或以 `Alt + ArrowLeft/ArrowRight` 移入相邻兼容列表。 |
 
 | 组合式 API | 说明 |
 | --- | --- |

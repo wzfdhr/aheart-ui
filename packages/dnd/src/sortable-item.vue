@@ -1,3 +1,7 @@
+<script lang="ts">
+let activeTouchOwner: (() => void) | undefined
+</script>
+
 <template>
   <li
     ref="root"
@@ -18,6 +22,7 @@ import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { computed, inject, nextTick, onBeforeUnmount, ref, watchEffect, type ComponentPublicInstance } from 'vue'
 import { endDrag, startDrag } from './drag-state'
 import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
+import { moveSortableItem } from './sortable-registry'
 import { useDroppable } from './use-droppable'
 
 defineOptions({ name: 'ASortableItem' })
@@ -67,11 +72,26 @@ const clearTouchSession = (clearDragState = true) => {
   if (!touchSession) return
   const session = touchSession
   touchSession = undefined
+  if (activeTouchOwner === releaseTouchOwnership) activeTouchOwner = undefined
   removeTouchListeners(session)
   if (session.started) {
     isTouchDragging.value = false
     if (clearDragState) endDrag()
   }
+}
+function releaseTouchOwnership() {
+  clearTouchSession()
+}
+const focusMovedItem = (listId: string, targetIndex: number, focusHandle: boolean) => {
+  void nextTick(() => {
+    const destinationList = Array.from(document.querySelectorAll('.aheart-dnd-sortable-list'))
+      .find((element): element is HTMLElement => element instanceof HTMLElement && element.dataset.aheartSortableListId === listId)
+    const destinationItem = destinationList?.querySelector(`[data-sortable-index="${targetIndex}"]`) as HTMLElement | null | undefined
+    const destinationHandle = focusHandle
+      ? destinationItem?.querySelector('[data-aheart-dnd-handle]') as HTMLElement | null | undefined
+      : undefined
+    ;(destinationHandle ?? destinationItem)?.focus({ preventScroll: true })
+  })
 }
 function handleTouchPointerMove(event: PointerEvent) {
   if (!touchSession || event.pointerId !== touchSession.pointerId) return
@@ -92,28 +112,23 @@ function handleTouchPointerMove(event: PointerEvent) {
 function handleTouchPointerUp(event: PointerEvent) {
   if (!touchSession || event.pointerId !== touchSession.pointerId) return
   const session = touchSession
-  const sourceElement = root.value
   if (session.started) {
     event.preventDefault()
     const target = session.document.elementFromPoint(event.clientX, event.clientY)
     const targetItem = target?.closest<HTMLElement>('.aheart-dnd-sortable-item')
-    const sourceList = sourceElement?.closest('.aheart-dnd-sortable-list')
-    if (
-      targetItem
-      && targetItem.getAttribute('aria-disabled') !== 'true'
-      && sourceList
-      && targetItem.closest('.aheart-dnd-sortable-list') === sourceList
-    ) {
-      const targetIndex = Number(targetItem.dataset.sortableIndex)
-      if (Number.isInteger(targetIndex)) sortableContext.move(session.data, targetIndex)
+    const targetList = target?.closest<HTMLElement>('.aheart-dnd-sortable-list')
+    const targetListId = targetList?.dataset.aheartSortableListId
+    if (targetListId && (!targetItem || targetItem.getAttribute('aria-disabled') !== 'true')) {
+        const targetIndex = targetItem
+          ? Number(targetItem.dataset.sortableIndex)
+          : targetList.querySelectorAll('.aheart-dnd-sortable-item').length
+      if (Number.isInteger(targetIndex)) {
+        const result = moveSortableItem(session.data, targetListId, targetIndex)
+        if (result) focusMovedItem(result.targetListId, result.targetIndex, result.crossedList)
+      }
     }
   }
   clearTouchSession()
-  if (session.started) {
-    void nextTick(() => {
-      if (sourceElement?.isConnected && !itemDisabled.value) sourceElement.focus({ preventScroll: true })
-    })
-  }
 }
 function handleTouchPointerCancel(event: PointerEvent) {
   if (!touchSession || event.pointerId !== touchSession.pointerId) return
@@ -126,7 +141,7 @@ function handleTouchVisibilityChange() {
   if (touchSession?.document.visibilityState === 'hidden') clearTouchSession()
 }
 const handlePointerDown = (event: PointerEvent) => {
-  if (touchSession || itemDisabled.value) return
+  if (touchSession || activeTouchOwner || itemDisabled.value) return
   if (event.pointerType !== 'touch' || !event.isPrimary || event.button !== 0) return
   const ownerDocument = root.value?.ownerDocument
   const ownerWindow = ownerDocument?.defaultView
@@ -140,6 +155,7 @@ const handlePointerDown = (event: PointerEvent) => {
     window: ownerWindow,
     started: false
   }
+  activeTouchOwner = releaseTouchOwnership
   ownerDocument.addEventListener('pointermove', handleTouchPointerMove, { passive: false })
   ownerDocument.addEventListener('pointerup', handleTouchPointerUp)
   ownerDocument.addEventListener('pointercancel', handleTouchPointerCancel)
@@ -201,8 +217,16 @@ useDroppable(root, {
 })
 const handleKeydown = (event: KeyboardEvent) => {
   if (itemDisabled.value) return
-  if (!event.altKey || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return
+  if (!event.altKey || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return
   event.preventDefault()
-  context.move(data.value, props.index + (event.key === 'ArrowUp' ? -1 : 1), true)
+  if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    context.move(data.value, props.index + (event.key === 'ArrowUp' ? -1 : 1), true)
+    return
+  }
+  const result = context.moveAdjacent(data.value, event.key === 'ArrowLeft' ? -1 : 1)
+  if (result) {
+    const target = event.target instanceof Element ? event.target : undefined
+    focusMovedItem(result.targetListId, result.targetIndex, Boolean(target?.closest('[data-aheart-dnd-handle]')))
+  }
 }
 </script>

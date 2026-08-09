@@ -58,12 +58,25 @@ const dispatchTouchPointer = async (page: Page, type: 'pointerdown' | 'pointermo
   }, { type, eventInit })
 }
 
-const observeTrustedTouchPointer = (page: Page) => page.evaluate(() => new Promise<{ isTrusted: boolean; pointerType: string }>((resolve) => {
-  document.addEventListener('pointerdown', (event) => resolve({ isTrusted: event.isTrusted, pointerType: event.pointerType }), {
+const trustedTouchEvidenceKey = '__aheartTrustedTouchEvidence__'
+
+const armTrustedTouchPointerEvidence = async (page: Page) => {
+  await page.evaluate((key) => {
+    const evidenceWindow = window as typeof window & Record<string, { isTrusted: boolean; pointerType: string } | undefined>
+    evidenceWindow[key] = undefined
+    document.addEventListener('pointerdown', (event) => {
+      evidenceWindow[key] = { isTrusted: event.isTrusted, pointerType: event.pointerType }
+    }, {
     capture: true,
     once: true
   })
-}))
+  }, trustedTouchEvidenceKey)
+
+  return () => expect.poll(() => page.evaluate((key) => {
+    const evidenceWindow = window as typeof window & Record<string, { isTrusted: boolean; pointerType: string } | undefined>
+    return evidenceWindow[key]
+  }, trustedTouchEvidenceKey)).toEqual({ isTrusted: true, pointerType: 'touch' })
+}
 
 const dispatchCdpTouch = (session: CDPSession, type: 'touchStart' | 'touchMove' | 'touchEnd', x?: number, y?: number) => session.send(
   'Input.dispatchTouchEvent',
@@ -129,6 +142,29 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(todo.locator('.aheart-dnd-live-region')).toContainText('已移动到第 2 项')
   })
 
+  test('moves a focused handle across compatible lists with Alt+Arrow and announces the destination', async ({ page }) => {
+    const todo = page.getByTestId('dnd-todo-list')
+    const done = page.getByTestId('dnd-done-list')
+    const handle = itemHandle(todo, '准备发布')
+
+    await handle.focus()
+    await page.keyboard.press('Alt+ArrowRight')
+
+    await expect.poll(() => itemOrder(todo)).toEqual(['plan', 'review'])
+    await expect.poll(() => itemOrder(done)).toEqual(['retro', 'release'])
+    await expect(itemHandle(done, '准备发布')).toBeFocused()
+    await expect(done.locator('.aheart-dnd-live-region')).toContainText('跨列表')
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+    await expect(page.getByTestId('dnd-done-events')).toHaveText('update 1 / change 1')
+  })
+
+  test('uses an accessible deep-blue color for DnD status text without changing the handle focus color', async ({ page }) => {
+    const handle = itemHandle(page.getByTestId('dnd-todo-list'), '整理需求')
+    await handle.focus()
+    await expect(page.getByTestId('dnd-status')).toHaveCSS('color', 'rgb(9, 88, 217)')
+    await expect(handle).toHaveCSS('outline-color', 'rgb(22, 119, 255)')
+  })
+
   test('reorders a list once with a real pointer drag', async ({ page }) => {
     const todo = page.getByTestId('dnd-todo-list')
 
@@ -164,7 +200,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     const targetX = targetBox!.x + targetBox!.width / 2
     const targetY = targetBox!.y + targetBox!.height / 2
     await source.focus()
-    const evidence = observeTrustedTouchPointer(page)
+    const expectTrustedTouch = await armTrustedTouchPointerEvidence(page)
     const touch = await page.context().newCDPSession(page)
 
     await dispatchCdpTouch(touch, 'touchStart', startX, startY)
@@ -172,7 +208,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     await expect(source).toHaveClass(/aheart-dnd-dragging/)
     await expect(page.locator('.aheart-dnd-overlay')).toBeVisible()
     await dispatchCdpTouch(touch, 'touchMove', targetX, targetY)
-    await expect(evidence).resolves.toEqual({ isTrusted: true, pointerType: 'touch' })
+    await expectTrustedTouch()
     await dispatchCdpTouch(touch, 'touchEnd')
 
     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
@@ -198,7 +234,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     expect(bodyBox).not.toBeNull()
     const startX = bodyBox!.x + bodyBox!.width / 2
     const startY = bodyBox!.y + bodyBox!.height / 2
-    const evidence = observeTrustedTouchPointer(page)
+    const expectTrustedTouch = await armTrustedTouchPointerEvidence(page)
     const touch = await page.context().newCDPSession(page)
 
     await dispatchCdpTouch(touch, 'touchStart', startX, startY)
@@ -207,7 +243,7 @@ test.describe('QG2 中文 DnD fixture', () => {
     }
     await dispatchCdpTouch(touch, 'touchEnd')
 
-    await expect(evidence).resolves.toEqual({ isTrusted: true, pointerType: 'touch' })
+    await expectTrustedTouch()
     await expect.poll(() => region.evaluate((node) => (node as HTMLElement).scrollTop)).toBeGreaterThan(0)
     await expect.poll(() => itemOrder(sourceList)).toEqual(beforeOrder)
     await expect(source).not.toHaveClass(/aheart-dnd-dragging/)
@@ -267,6 +303,47 @@ test.describe('QG2 中文 DnD fixture', () => {
       nodes.map((node) => (node as HTMLElement).dataset.itemId ?? '')
     )
     expect(ids.filter((id) => id === 'release')).toHaveLength(1)
+  })
+
+  test('moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'Trusted device-level touch injection is available in mobile Chromium.')
+    await page.setViewportSize({ width: 960, height: 800 })
+    const todo = page.getByTestId('dnd-todo-list')
+    const done = page.getByTestId('dnd-done-list')
+    const empty = page.getByTestId('dnd-empty-list')
+    const touch = await page.context().newCDPSession(page)
+
+    const moveHandle = async (source: Locator, target: Locator) => {
+      await source.scrollIntoViewIfNeeded()
+      const sourceBox = await source.boundingBox()
+      const targetBox = await target.boundingBox()
+      expect(sourceBox).not.toBeNull()
+      expect(targetBox).not.toBeNull()
+      const startX = sourceBox!.x + sourceBox!.width / 2
+      const startY = sourceBox!.y + sourceBox!.height / 2
+      const targetX = targetBox!.x + targetBox!.width / 2
+      const targetY = targetBox!.y + targetBox!.height / 2
+      const expectTrustedTouch = await armTrustedTouchPointerEvidence(page)
+      await dispatchCdpTouch(touch, 'touchStart', startX, startY)
+      await dispatchCdpTouch(touch, 'touchMove', startX, startY + 12)
+      await dispatchCdpTouch(touch, 'touchMove', targetX, targetY)
+      await expectTrustedTouch()
+      await dispatchCdpTouch(touch, 'touchEnd')
+    }
+
+    await moveHandle(itemHandle(todo, '准备发布'), item(done, '发布复盘'))
+    await expect.poll(() => itemOrder(done)).toEqual(['release', 'retro'])
+    await expect(itemHandle(done, '准备发布')).toBeFocused()
+
+    await empty.scrollIntoViewIfNeeded()
+    await moveHandle(itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+    await expect.poll(() => itemOrder(empty)).toEqual(['release'])
+    await expect(itemHandle(empty, '准备发布')).toBeFocused()
+    await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+    await expect(page.getByTestId('dnd-done-events')).toHaveText('update 2 / change 2')
+    await expect(page.getByTestId('dnd-empty-events')).toHaveText('update 1 / change 1')
+    await expect(page.locator('.aheart-dnd-overlay')).toHaveCount(0)
+    await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
   })
 
   test('keeps disabled and rejected destinations unchanged', async ({ page }) => {
@@ -479,6 +556,7 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await page.keyboard.press('ArrowRight')
     await expect(handle).not.toHaveAttribute('aria-valuenow', initial ?? '')
     await expect(page.getByTestId('splitter-status')).toContainText('键盘')
+    await expect(page.getByTestId('splitter-status')).toHaveCSS('color', 'rgb(9, 88, 217)')
 
     if (testInfo.project.name.includes('mobile')) {
       const grip = await handle.evaluate((node) => {
@@ -586,7 +664,7 @@ test.describe('QG2 中文 Splitter fixture', () => {
 
     const startX = handleBox!.x + handleBox!.width / 2
     const startY = handleBox!.y + handleBox!.height / 2
-    const evidence = observeTrustedTouchPointer(page)
+    const expectTrustedTouch = await armTrustedTouchPointerEvidence(page)
     const touch = await page.context().newCDPSession(page)
     await dispatchCdpTouch(touch, 'touchStart', startX, startY)
     await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
@@ -595,7 +673,7 @@ test.describe('QG2 中文 Splitter fixture', () => {
       await dispatchCdpTouch(touch, 'touchMove', x, startY)
     }
 
-    await expect(evidence).resolves.toEqual({ isTrusted: true, pointerType: 'touch' })
+    await expectTrustedTouch()
     await expect.poll(async () => (await panel.boundingBox())!.width).toBeGreaterThan(beforeBox!.width + 20)
     await expect(page.getByTestId('splitter-lazy-values')).toHaveText(beforeValues ?? '')
     await expect(page.getByTestId('splitter-lazy-update-count')).toHaveText('0')

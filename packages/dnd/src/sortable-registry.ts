@@ -3,11 +3,19 @@ import type { SortableItemData } from './sortable-context'
 
 interface SortableListController {
   group: () => string | undefined
+  disabled: () => boolean
   items: () => unknown[]
   update: (items: unknown[]) => void
+  announce: (message: string) => void
 }
 
 const controllers = new Map<string, SortableListController>()
+
+export interface SortableMoveResult {
+  targetListId: string
+  targetIndex: number
+  crossedList: boolean
+}
 
 export function registerSortableList(listId: string, controller: SortableListController) {
   controllers.set(listId, controller)
@@ -18,6 +26,7 @@ export function moveSortableItem(source: SortableItemData, targetListId: string,
   const sourceController = controllers.get(source.listId)
   const targetController = controllers.get(targetListId)
   if (!sourceController || !targetController) return false
+  if (sourceController.disabled() || targetController.disabled()) return false
   if (source.listId !== targetListId && (!sourceController.group() || sourceController.group() !== targetController.group())) return false
 
   const sourceItems = sourceController.items()
@@ -28,7 +37,7 @@ export function moveSortableItem(source: SortableItemData, targetListId: string,
     const finishIndex = Math.min(targetIndex, targetItems.length - 1)
     if (source.index === finishIndex) return false
     targetController.update(reorder({ list: targetItems, startIndex: source.index, finishIndex }))
-    return true
+    return { targetListId, targetIndex: finishIndex, crossedList: false } satisfies SortableMoveResult
   }
 
   const item = sourceItems[source.index]
@@ -36,5 +45,26 @@ export function moveSortableItem(source: SortableItemData, targetListId: string,
   const nextTargetItems = [...targetItems]
   nextTargetItems.splice(targetIndex, 0, item)
   targetController.update(nextTargetItems)
-  return true
+  return { targetListId, targetIndex, crossedList: true } satisfies SortableMoveResult
+}
+
+export function moveSortableItemToAdjacentList(source: SortableItemData, direction: -1 | 1) {
+  const sourceIndex = [...controllers.keys()].indexOf(source.listId)
+  const sourceController = controllers.get(source.listId)
+  if (sourceIndex === -1 || !sourceController || sourceController.disabled()) return false
+
+  const entries = [...controllers.entries()]
+  for (let index = sourceIndex + direction; index >= 0 && index < entries.length; index += direction) {
+    const [targetListId, targetController] = entries[index]
+    if (targetController.disabled() || !sourceController.group() || sourceController.group() !== targetController.group()) continue
+
+    const result = moveSortableItem(source, targetListId, targetController.items().length)
+    if (!result) return false
+    const directionLabel = direction === -1 ? '上一个' : '下一个'
+    sourceController.announce(`已跨列表移至${directionLabel}列表第 ${result.targetIndex + 1} 项`)
+    targetController.announce(`已跨列表移入第 ${result.targetIndex + 1} 项`)
+    return result
+  }
+
+  return false
 }

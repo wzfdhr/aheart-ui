@@ -1,5 +1,6 @@
 import type { ComponentPublicInstance, InjectionKey, Ref } from 'vue';
 import type { DragData } from './types';
+import type { SortableMoveResult } from './sortable-registry';
 export interface SortableItemData extends DragData {
     type: 'aheart-sortable';
     listId: string;
@@ -16,6 +17,7 @@ export interface SortableContextValue {
     listId: string;
     group?: string;
     disabled: Ref<boolean>;
-    move: (source: SortableItemData, targetIndex: number, keyboard?: boolean) => void;
+    move: (source: SortableItemData, targetIndex: number, keyboard?: boolean) => SortableMoveResult | false;
+    moveAdjacent: (source: SortableItemData, direction: -1 | 1) => SortableMoveResult | false;
 }
 export declare const sortableContextKey: InjectionKey<SortableContextValue>;

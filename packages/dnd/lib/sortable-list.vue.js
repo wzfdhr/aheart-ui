@@ -32,7 +32,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("update:items", nextItems);
       emit("change", nextItems);
     };
-    const unregister = sortableRegistry.registerSortableList(listId, { group: () => props.group, items: () => props.items, update: updateItems });
+    const unregister = sortableRegistry.registerSortableList(listId, {
+      group: () => props.group,
+      disabled: () => disabled.value,
+      items: () => props.items,
+      update: updateItems,
+      announce: (message) => {
+        announcement.value = message;
+      }
+    });
     vue.onBeforeUnmount(unregister);
     let unregisterAutoScroll = () => {
     };
@@ -41,11 +49,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     vue.onBeforeUnmount(() => unregisterAutoScroll());
     const move = (source, targetIndex, keyboard = false) => {
-      if (!disabled.value && sortableRegistry.moveSortableItem(source, listId, targetIndex) && keyboard) {
-        announcement.value = `已移动到第 ${targetIndex + 1} 项`;
-      }
+      if (disabled.value) return false;
+      const result = sortableRegistry.moveSortableItem(source, listId, targetIndex);
+      if (result && keyboard) announcement.value = `已移动到第 ${result.targetIndex + 1} 项`;
+      return result;
     };
-    vue.provide(sortableContext.sortableContextKey, { listId, group: props.group, disabled, move });
+    const moveAdjacent = (source, direction) => sortableRegistry.moveSortableItemToAdjacentList(source, direction);
+    vue.provide(sortableContext.sortableContextKey, { listId, group: props.group, disabled, move, moveAdjacent });
     useDroppable.useDroppable(root, {
       data: () => ({ type: "aheart-sortable", listId, group: props.group, targetIndex: props.items.length }),
       accept: "aheart-sortable",
@@ -61,6 +71,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref_key: "root",
           ref: root,
           class: "aheart-dnd-sortable-list",
+          "data-aheart-sortable-list-id": listId,
           role: "list"
         }, [
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(__props.items, (item, index) => {

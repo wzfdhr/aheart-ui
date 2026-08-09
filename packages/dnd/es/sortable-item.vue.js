@@ -2,8 +2,10 @@ import { defineComponent, inject, ref, computed, onBeforeUnmount, watchEffect, o
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js";
 import { endDrag, startDrag } from "./drag-state.js";
 import { sortableContextKey } from "./sortable-context.js";
+import { moveSortableItem } from "./sortable-registry.js";
 import { useDroppable } from "./use-droppable.js";
 const _hoisted_1 = ["data-sortable-index", "tabindex", "aria-disabled"];
+let activeTouchOwner;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{ name: "ASortableItem" },
   __name: "sortable-item",
@@ -39,11 +41,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!touchSession) return;
       const session = touchSession;
       touchSession = void 0;
+      if (activeTouchOwner === releaseTouchOwnership) activeTouchOwner = void 0;
       removeTouchListeners(session);
       if (session.started) {
         isTouchDragging.value = false;
         if (clearDragState) endDrag();
       }
+    };
+    function releaseTouchOwnership() {
+      clearTouchSession();
+    }
+    const focusMovedItem = (listId, targetIndex, focusHandle) => {
+      void nextTick(() => {
+        var _a;
+        const destinationList = Array.from(document.querySelectorAll(".aheart-dnd-sortable-list")).find((element) => element instanceof HTMLElement && element.dataset.aheartSortableListId === listId);
+        const destinationItem = destinationList == null ? void 0 : destinationList.querySelector(`[data-sortable-index="${targetIndex}"]`);
+        const destinationHandle = focusHandle ? destinationItem == null ? void 0 : destinationItem.querySelector("[data-aheart-dnd-handle]") : void 0;
+        (_a = destinationHandle ?? destinationItem) == null ? void 0 : _a.focus({ preventScroll: true });
+      });
     };
     function handleTouchPointerMove(event) {
       if (!touchSession || event.pointerId !== touchSession.pointerId) return;
@@ -64,23 +79,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     function handleTouchPointerUp(event) {
       if (!touchSession || event.pointerId !== touchSession.pointerId) return;
       const session = touchSession;
-      const sourceElement = root.value;
       if (session.started) {
         event.preventDefault();
         const target = session.document.elementFromPoint(event.clientX, event.clientY);
         const targetItem = target == null ? void 0 : target.closest(".aheart-dnd-sortable-item");
-        const sourceList = sourceElement == null ? void 0 : sourceElement.closest(".aheart-dnd-sortable-list");
-        if (targetItem && targetItem.getAttribute("aria-disabled") !== "true" && sourceList && targetItem.closest(".aheart-dnd-sortable-list") === sourceList) {
-          const targetIndex = Number(targetItem.dataset.sortableIndex);
-          if (Number.isInteger(targetIndex)) sortableContext.move(session.data, targetIndex);
+        const targetList = target == null ? void 0 : target.closest(".aheart-dnd-sortable-list");
+        const targetListId = targetList == null ? void 0 : targetList.dataset.aheartSortableListId;
+        if (targetListId && (!targetItem || targetItem.getAttribute("aria-disabled") !== "true")) {
+          const targetIndex = targetItem ? Number(targetItem.dataset.sortableIndex) : targetList.querySelectorAll(".aheart-dnd-sortable-item").length;
+          if (Number.isInteger(targetIndex)) {
+            const result = moveSortableItem(session.data, targetListId, targetIndex);
+            if (result) focusMovedItem(result.targetListId, result.targetIndex, result.crossedList);
+          }
         }
       }
       clearTouchSession();
-      if (session.started) {
-        void nextTick(() => {
-          if ((sourceElement == null ? void 0 : sourceElement.isConnected) && !itemDisabled.value) sourceElement.focus({ preventScroll: true });
-        });
-      }
     }
     function handleTouchPointerCancel(event) {
       if (!touchSession || event.pointerId !== touchSession.pointerId) return;
@@ -94,7 +107,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     }
     const handlePointerDown = (event) => {
       var _a;
-      if (touchSession || itemDisabled.value) return;
+      if (touchSession || activeTouchOwner || itemDisabled.value) return;
       if (event.pointerType !== "touch" || !event.isPrimary || event.button !== 0) return;
       const ownerDocument = (_a = root.value) == null ? void 0 : _a.ownerDocument;
       const ownerWindow = ownerDocument == null ? void 0 : ownerDocument.defaultView;
@@ -108,6 +121,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         window: ownerWindow,
         started: false
       };
+      activeTouchOwner = releaseTouchOwnership;
       ownerDocument.addEventListener("pointermove", handleTouchPointerMove, { passive: false });
       ownerDocument.addEventListener("pointerup", handleTouchPointerUp);
       ownerDocument.addEventListener("pointercancel", handleTouchPointerCancel);
@@ -167,9 +181,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const handleKeydown = (event) => {
       if (itemDisabled.value) return;
-      if (!event.altKey || event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+      if (!event.altKey || !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) return;
       event.preventDefault();
-      context.move(data.value, props.index + (event.key === "ArrowUp" ? -1 : 1), true);
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        context.move(data.value, props.index + (event.key === "ArrowUp" ? -1 : 1), true);
+        return;
+      }
+      const result = context.moveAdjacent(data.value, event.key === "ArrowLeft" ? -1 : 1);
+      if (result) {
+        const target = event.target instanceof Element ? event.target : void 0;
+        focusMovedItem(result.targetListId, result.targetIndex, Boolean(target == null ? void 0 : target.closest("[data-aheart-dnd-handle]")));
+      }
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("li", {

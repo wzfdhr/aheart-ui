@@ -264,6 +264,214 @@ describe('Aheart DnD adapters', () => {
     targetList.unmount()
   })
 
+  it('moves a touch-handle item into a non-empty compatible list once and restores focus in the destination', async () => {
+    const sourceItems = ref([{ id: 'source' }])
+    const targetItems = ref([{ id: 'target' }])
+    const sourceUpdates = vi.fn((nextItems: typeof sourceItems.value) => { sourceItems.value = nextItems })
+    const targetUpdates = vi.fn((nextItems: typeof targetItems.value) => { targetItems.value = nextItems })
+    const Host = defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': sourceUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': targetUpdates }, { item: itemWithHandle }),
+          h(DragOverlay)
+        ])
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const [sourceList, targetList] = wrapper.findAll('.aheart-dnd-sortable-list')
+    const sourceHandle = sourceList.get('[data-handle="source"]').element
+    const targetItem = targetList.get('[data-sortable-index="0"]').element as HTMLElement
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => targetItem })
+
+    sourceHandle.dispatchEvent(touchPointer('pointerdown', 21, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 21, 10, 28))
+    document.dispatchEvent(touchPointer('pointerup', 21, 10, 48))
+    await nextTick()
+    await nextTick()
+
+    expect(sourceItems.value).toEqual([])
+    expect(targetItems.value).toEqual([{ id: 'source' }, { id: 'target' }])
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
+    expect(targetList.get('[data-handle="source"]').element).toBe(document.activeElement)
+    expect(currentDragData.value).toBeUndefined()
+    expect(document.querySelector('.aheart-dnd-overlay')).toBeNull()
+    delete (document as Partial<Document>).elementFromPoint
+    wrapper.unmount()
+  })
+
+  it('moves a touch-handle item into an empty compatible list once', async () => {
+    const sourceItems = ref([{ id: 'source' }])
+    const targetItems = ref<{ id: string }[]>([])
+    const sourceUpdates = vi.fn((nextItems: typeof sourceItems.value) => { sourceItems.value = nextItems })
+    const targetUpdates = vi.fn((nextItems: typeof targetItems.value) => { targetItems.value = nextItems })
+    const Host = defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': sourceUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': targetUpdates }, { item: itemWithHandle })
+        ])
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const [sourceList, targetList] = wrapper.findAll('.aheart-dnd-sortable-list')
+    const sourceHandle = sourceList.get('[data-handle="source"]').element
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => targetList.element })
+
+    sourceHandle.dispatchEvent(touchPointer('pointerdown', 22, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 22, 10, 28))
+    document.dispatchEvent(touchPointer('pointerup', 22, 10, 48))
+    await nextTick()
+
+    expect(sourceItems.value).toEqual([])
+    expect(targetItems.value).toEqual([{ id: 'source' }])
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
+    delete (document as Partial<Document>).elementFromPoint
+    wrapper.unmount()
+  })
+
+  it('allows only one sortable handle to own a touch gesture across list instances', async () => {
+    const wrapper = mount(defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: [{ id: 'first' }], itemKey: 'id' }, { item: itemWithHandle }),
+          h(SortableList, { items: [{ id: 'second' }], itemKey: 'id' }, { item: itemWithHandle })
+        ])
+      }
+    }), { attachTo: document.body })
+    await nextTick()
+    const [firstList, secondList] = wrapper.findAll('.aheart-dnd-sortable-list')
+    const firstHandle = firstList.get('[data-handle="first"]').element
+    const secondHandle = secondList.get('[data-handle="second"]').element
+
+    firstHandle.dispatchEvent(touchPointer('pointerdown', 23, 10, 10))
+    secondHandle.dispatchEvent(touchPointer('pointerdown', 24, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 24, 10, 28))
+    await nextTick()
+    const stateDuringSecondGesture = currentDragData.value
+    document.dispatchEvent(touchPointer('pointercancel', 23, 10, 28))
+    document.dispatchEvent(touchPointer('pointercancel', 24, 10, 28))
+
+    expect(stateDuringSecondGesture).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('rejects touch-handle moves to disabled and different-group lists', async () => {
+    const sourceItems = ref([{ id: 'source' }])
+    const disabledItems = ref<{ id: string }[]>([])
+    const rejectedItems = ref<{ id: string }[]>([])
+    const sourceUpdates = vi.fn((nextItems: typeof sourceItems.value) => { sourceItems.value = nextItems })
+    const disabledUpdates = vi.fn((nextItems: typeof disabledItems.value) => { disabledItems.value = nextItems })
+    const rejectedUpdates = vi.fn((nextItems: typeof rejectedItems.value) => { rejectedItems.value = nextItems })
+    const Host = defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': sourceUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: disabledItems.value, itemKey: 'id', group: 'tasks', disabled: true, 'onUpdate:items': disabledUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: rejectedItems.value, itemKey: 'id', group: 'audit', 'onUpdate:items': rejectedUpdates }, { item: itemWithHandle })
+        ])
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const [sourceList, disabledList, rejectedList] = wrapper.findAll('.aheart-dnd-sortable-list')
+    const sourceHandle = sourceList.get('[data-handle="source"]').element
+    let target: HTMLElement = disabledList.element
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => target })
+
+    sourceHandle.dispatchEvent(touchPointer('pointerdown', 25, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 25, 10, 28))
+    document.dispatchEvent(touchPointer('pointerup', 25, 10, 48))
+    target = rejectedList.element
+    sourceHandle.dispatchEvent(touchPointer('pointerdown', 26, 10, 10))
+    document.dispatchEvent(touchPointer('pointermove', 26, 10, 28))
+    document.dispatchEvent(touchPointer('pointerup', 26, 10, 48))
+    await nextTick()
+
+    expect(sourceItems.value).toEqual([{ id: 'source' }])
+    expect(disabledItems.value).toEqual([])
+    expect(rejectedItems.value).toEqual([])
+    expect(sourceUpdates).not.toHaveBeenCalled()
+    expect(disabledUpdates).not.toHaveBeenCalled()
+    expect(rejectedUpdates).not.toHaveBeenCalled()
+    expect(currentDragData.value).toBeUndefined()
+    delete (document as Partial<Document>).elementFromPoint
+    wrapper.unmount()
+  })
+
+  it('moves with Alt + ArrowRight to the next compatible registered list and focuses its handle', async () => {
+    const sourceItems = ref([{ id: 'source' }])
+    const rejectedItems = ref([{ id: 'rejected' }])
+    const disabledItems = ref([{ id: 'disabled' }])
+    const targetItems = ref([{ id: 'target' }])
+    const sourceUpdates = vi.fn((nextItems: typeof sourceItems.value) => { sourceItems.value = nextItems })
+    const targetUpdates = vi.fn((nextItems: typeof targetItems.value) => { targetItems.value = nextItems })
+    const Host = defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': sourceUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: rejectedItems.value, itemKey: 'id', group: 'audit' }, { item: itemWithHandle }),
+          h(SortableList, { items: disabledItems.value, itemKey: 'id', group: 'tasks', disabled: true }, { item: itemWithHandle }),
+          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': targetUpdates }, { item: itemWithHandle })
+        ])
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const lists = wrapper.findAll('.aheart-dnd-sortable-list')
+    const sourceHandle = lists[0].get('[data-handle="source"]').element as HTMLElement
+    sourceHandle.focus()
+
+    sourceHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true, bubbles: true }))
+    await nextTick()
+    await nextTick()
+
+    expect(sourceItems.value).toEqual([])
+    expect(rejectedItems.value).toEqual([{ id: 'rejected' }])
+    expect(disabledItems.value).toEqual([{ id: 'disabled' }])
+    expect(targetItems.value).toEqual([{ id: 'target' }, { id: 'source' }])
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
+    expect(lists[3].get('[data-handle="source"]').element).toBe(document.activeElement)
+    expect(lists[3].element.parentElement?.querySelector('.aheart-dnd-live-region')?.textContent).toContain('跨列表')
+    wrapper.unmount()
+  })
+
+  it('moves with Alt + ArrowLeft to the previous compatible registered list', async () => {
+    const sourceItems = ref([{ id: 'source' }])
+    const targetItems = ref<{ id: string }[]>([])
+    const sourceUpdates = vi.fn((nextItems: typeof sourceItems.value) => { sourceItems.value = nextItems })
+    const targetUpdates = vi.fn((nextItems: typeof targetItems.value) => { targetItems.value = nextItems })
+    const Host = defineComponent({
+      setup() {
+        return () => h('div', [
+          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': targetUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': sourceUpdates }, { item: itemWithHandle })
+        ])
+      }
+    })
+    const wrapper = mount(Host, { attachTo: document.body })
+    await nextTick()
+    const lists = wrapper.findAll('.aheart-dnd-sortable-list')
+    const sourceHandle = lists[1].get('[data-handle="source"]').element as HTMLElement
+    sourceHandle.focus()
+
+    sourceHandle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true, bubbles: true }))
+    await nextTick()
+    await nextTick()
+
+    expect(sourceItems.value).toEqual([])
+    expect(targetItems.value).toEqual([{ id: 'source' }])
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
+    expect(lists[0].get('[data-handle="source"]').element).toBe(document.activeElement)
+    wrapper.unmount()
+  })
+
   it('does not emit a move when the last item receives Alt + ArrowDown', async () => {
     const wrapper = mount(SortableList, {
       props: { items: [{ id: 'first' }, { id: 'last' }], itemKey: 'id' },
