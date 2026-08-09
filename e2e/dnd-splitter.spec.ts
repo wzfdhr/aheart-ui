@@ -292,12 +292,16 @@ test.describe('QG2 中文 Splitter fixture', () => {
     expect(handleBox).not.toBeNull()
     expect(beforePanel).not.toBeNull()
 
+    const pointerIdPromise = page.evaluate(() => new Promise<number>((resolve) => {
+      document.addEventListener('pointerdown', (event) => resolve(event.pointerId), { once: true, capture: true })
+    }))
     await beginPointerResize(page, handle, handleBox!.x + 40, handleBox!.y + handleBox!.height / 2)
+    const pointerId = await pointerIdPromise
     await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCSS('pointer-events', 'all')
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual({ cursor: 'col-resize', userSelect: 'none' })
 
-    await page.evaluate(() => document.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 1 })))
+    await page.evaluate((pointerId) => document.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId })), pointerId)
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(bodyStyle)
     await expect(page.getByTestId('splitter-status')).toHaveText(beforeStatus ?? '')
