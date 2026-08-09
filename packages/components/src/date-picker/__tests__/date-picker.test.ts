@@ -453,7 +453,7 @@ describe('DatePicker', () => {
   })
 
   it('uses ConfigProvider runtime English copy', async () => {
-    const wrapper = mountPicker({ locale: enUS })
+    const wrapper = mountPicker({ locale: enUS, defaultPickerValue: '2026-07-14' })
     await openPicker(wrapper)
 
     expect(wrapper.find('[role="dialog"]').attributes('aria-label')).toBe('Select date')
