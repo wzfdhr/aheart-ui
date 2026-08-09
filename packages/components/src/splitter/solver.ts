@@ -78,15 +78,15 @@ export const resolveSplitterSizes = ({ containerSize, sizes, panels }: ResolveSp
   return redistribute(resolved, panels, normalizedContainerSize)
 }
 
-export const resizeAdjacentPanels = ({ sizes, panels, handleIndex, delta }: ResizeAdjacentPanelsOptions) => {
+export const resizeAdjacentPanels = ({ sizes, panels, containerSize = 0, handleIndex, delta }: ResizeAdjacentPanelsOptions) => {
   const rightIndex = handleIndex + 1
 
   if (handleIndex < 0 || rightIndex >= sizes.length || !Number.isFinite(delta)) {
     return [...sizes]
   }
 
-  const leftBounds = resolveSplitterPanelBounds(panels[handleIndex])
-  const rightBounds = resolveSplitterPanelBounds(panels[rightIndex])
+  const leftBounds = resolveSplitterPanelBounds(panels[handleIndex], containerSize)
+  const rightBounds = resolveSplitterPanelBounds(panels[rightIndex], containerSize)
   const lowerDelta = Math.max(leftBounds.min - sizes[handleIndex], sizes[rightIndex] - rightBounds.max)
   const upperDelta = Math.min(leftBounds.max - sizes[handleIndex], sizes[rightIndex] - rightBounds.min)
   const appliedDelta = Math.min(Math.max(delta, lowerDelta), upperDelta)

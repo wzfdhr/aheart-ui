@@ -100,6 +100,7 @@ export default defineComponent({
       const nextSizes = resizeAdjacentPanels({
         sizes: startSizes,
         panels: panelConstraints.value,
+        containerSize: solverContainerSize.value,
         handleIndex,
         delta
       })

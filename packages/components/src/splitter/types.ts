@@ -15,6 +15,7 @@ export interface ResolveSplitterSizesOptions {
 export interface ResizeAdjacentPanelsOptions {
   sizes: number[]
   panels: SplitterPanelConstraint[]
+  containerSize?: number
   handleIndex: number
   delta: number
 }

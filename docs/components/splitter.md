@@ -1,16 +1,38 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const mounted = ref(true)
 const sizes = ref([260, 420])
+const lazySizes = ref([260, 420])
+const lazyUpdateCount = ref(0)
+const splitterStatus = ref('等待调整')
 const setNavigationSize = (value: number | null) => {
   const navigationSize = Math.min(480, Math.max(120, value ?? 120))
   sizes.value = [navigationSize, 680 - navigationSize]
+  splitterStatus.value = `外部输入：${navigationSize}px`
 }
 </script>
 
 # Splitter 分割面板 <span class="aheart-status aheart-status--ready">已完成</span>
 
-Splitter creates resizable adjacent panels. It is separate from Divider, which only provides visual separation.
+Splitter 创建可调整尺寸的相邻面板。它与只负责视觉分隔的 Divider 相互独立。
+
+## 交互工作台
+
+<div v-if="mounted" data-testid="splitter-fixture" data-mounted="true" style="display: grid; gap: 8px; padding: 16px; border: 1px solid #d9e1ea; border-radius: 8px; background: #fff;">
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #536273; font-size: 13px;"><span>可见尺寸输出 · 键盘每次调整 10px</span><span data-testid="splitter-status" aria-live="polite" style="color: #1677ff;">{{ splitterStatus }}</span></div>
+  <div data-testid="splitter-horizontal" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="[120, 'auto']" @resize-end="splitterStatus = '键盘或指针调整已提交'"><ASplitterPanel :min="80" style="padding: 12px;">导航</ASplitterPanel><ASplitterPanel :min="120" style="padding: 12px;">内容</ASplitterPanel></ASplitter></div>
+  <div data-testid="splitter-vertical" style="height: 148px; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter layout="vertical" :default-sizes="[70, 'auto']"><ASplitterPanel :min="48" style="padding: 12px;">顶部</ASplitterPanel><ASplitterPanel :min="48" style="padding: 12px;">底部</ASplitterPanel></ASplitter></div>
+  <div data-testid="splitter-triple" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="[150, 'auto', 170]"><ASplitterPanel :min="120" style="padding: 12px;">左栏</ASplitterPanel><ASplitterPanel :min="160" style="padding: 12px;">主区</ASplitterPanel><ASplitterPanel :min="120" style="padding: 12px;">右栏</ASplitterPanel></ASplitter></div>
+  <div data-testid="splitter-lazy" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter v-model:sizes="lazySizes" @update:sizes="lazyUpdateCount++" :default-sizes="[260, 420]" lazy><ASplitterPanel :min="120" style="padding: 12px;">延迟提交</ASplitterPanel><ASplitterPanel :min="160" style="padding: 12px;">释放后更新</ASplitterPanel></ASplitter></div>
+  <span data-testid="splitter-lazy-output" style="color: #536273; font-size: 13px;">lazy：拖动过程中预览，释放后提交</span>
+  <span data-testid="splitter-lazy-values">{{ JSON.stringify(lazySizes) }}</span><span data-testid="splitter-lazy-left">{{ lazySizes[0] }}</span><span data-testid="splitter-lazy-right">{{ lazySizes[1] }}</span><span data-testid="splitter-lazy-update-count">{{ lazyUpdateCount }}</span>
+  <div data-testid="splitter-percent" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="['35%', '65%']"><ASplitterPanel min="30%" max="70%" style="padding: 12px;">30% min / 70% max</ASplitterPanel><ASplitterPanel min="30%" style="padding: 12px;">百分比约束</ASplitterPanel></ASplitter></div>
+  <div data-testid="splitter-input" style="display: grid; gap: 8px; min-width: 0;"><AInputNumber :model-value="sizes[0]" :min="120" :max="480" @update:model-value="setNavigationSize" /><div style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter v-model:sizes="sizes"><ASplitterPanel :min="120" style="padding: 12px;"><span data-testid="splitter-input-output">{{ sizes[0] }} px</span></ASplitterPanel><ASplitterPanel :min="160" style="padding: 12px;">外部控制内容</ASplitterPanel></ASplitter></div></div>
+  <div data-testid="splitter-iframe" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="[260, 'auto']"><ASplitterPanel :min="160" style="padding: 12px;">编辑区</ASplitterPanel><ASplitterPanel :min="160" style="padding: 8px;"><iframe title="可见预览" srcdoc="<p style='font-family: sans-serif'>预览 iframe</p>" style="width: 100%; height: 100%; border: 1px solid #d9e1ea;"></iframe></ASplitterPanel></ASplitter></div>
+  <button type="button" @click="mounted = false">卸载 Splitter</button>
+</div>
+<div v-else data-testid="splitter-fixture" data-mounted="false" style="display: grid; gap: 8px; padding: 16px; border: 1px dashed #d9e1ea; border-radius: 8px;"><span>Splitter fixture 已卸载</span><button type="button" @click="mounted = true">重新挂载 Splitter</button></div>
 
 ## 基础用法
 
