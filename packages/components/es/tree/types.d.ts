@@ -33,5 +33,8 @@ export declare const treeProps: {
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
-    disabled: BooleanConstructor;
+    disabled: {
+        type: BooleanConstructor;
+        default: undefined;
+    };
 };

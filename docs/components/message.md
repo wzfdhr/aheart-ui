@@ -1,10 +1,110 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue'
 import { message } from 'aheart-ui'
+
+const messageContainer = ref<HTMLElement | null>(null)
+const oneMessage = ref<{ close: () => void } | null>(null)
+const actionResult = ref('准备就绪：等待一次真实消息服务调用')
+const serviceContainer = () => messageContainer.value ?? document.body
+const resetMessageConfig = () => {
+  message.destroy()
+  message.config({ getContainer: serviceContainer })
+  message.info('已重置提示', 0)
+  actionResult.value = '已销毁全部提示并恢复默认全局配置'
+}
+const showSuccess = () => {
+  message.success({ content: '成功', duration: 0 })
+  actionResult.value = '已挂载成功消息'
+}
+const startKeyed = () => {
+  message.loading({ key: 'upload', content: '上传中', duration: 0 })
+  actionResult.value = '已开始任务'
+}
+const finishKeyed = () => {
+  message.success({ key: 'upload', content: '已上传', duration: 0 })
+  actionResult.value = '已用同一 key 更新为已上传'
+}
+const stackMessages = () => {
+  message.destroy()
+  message.config({ getContainer: serviceContainer, stack: { threshold: 2 } })
+  message.info('第一条提示', 0)
+  message.info('第二条提示', 0)
+  message.info('第三条提示', 0)
+  actionResult.value = '已创建 3 条提示，阈值 2 折叠旧提示'
+}
+const closeOne = () => {
+  if (!oneMessage.value) {
+    oneMessage.value = message.info({ key: 'one', content: '单条提示', duration: 0 })
+  }
+  oneMessage.value?.close()
+  oneMessage.value = null
+  actionResult.value = '已销毁单条提示'
+}
+const closeAll = () => {
+  message.destroy()
+  message.config({ getContainer: serviceContainer })
+  actionResult.value = '已销毁全部消息'
+}
+const showConfigured = () => {
+  message.destroy()
+  message.config({ getContainer: serviceContainer, top: 32, maxCount: 1 })
+  message.info('已配置提示', 0)
+  actionResult.value = '已应用 top=32、maxCount=1'
+}
+const showOne = () => {
+  message.destroy()
+  message.config({ getContainer: serviceContainer })
+  oneMessage.value = message.info({ key: 'one', content: '第一条提示', duration: 0 })
+  message.info({ key: 'two', content: '第二条提示', duration: 0 })
+  actionResult.value = '已准备单条销毁样本'
+}
+
+onMounted(() => message.config({ getContainer: serviceContainer }))
+onUnmounted(() => message.destroy())
 </script>
 
 # Message 全局提示 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Message displays global lightweight feedback through a static service or the `AMessage` host component.
+
+## QG3 消息服务交互工作台
+
+<section class="message-service-workbench" role="region" aria-label="消息服务交互工作台">
+  <div class="message-service-workbench__toolbar">
+    <div>
+      <p class="message-service-workbench__eyebrow">MESSAGE SERVICE / QG3</p>
+      <h3>真实服务入口与可观察状态</h3>
+      <p>所有操作都通过公开的 message service 触发，提示会挂载到下方工作台容器。</p>
+    </div>
+    <div class="message-service-workbench__actions" aria-label="消息服务操作">
+      <button type="button" @click="showSuccess">成功</button>
+      <button type="button" @click="startKeyed">开始任务</button>
+      <button type="button" @click="finishKeyed">完成任务</button>
+      <button type="button" @click="stackMessages">堆叠阈值</button>
+      <button type="button" @click="showOne">准备单条</button>
+      <button type="button" @click="closeOne">关闭单条</button>
+      <button type="button" @click="closeAll">关闭全部</button>
+      <button type="button" @click="showConfigured">已配置提示</button>
+      <button type="button" @click="resetMessageConfig">重置配置</button>
+    </div>
+  </div>
+  <div ref="messageContainer" data-testid="message-service-container" class="message-service-workbench__container" aria-label="消息服务挂载容器" />
+  <p class="message-service-workbench__result" aria-live="polite">{{ actionResult }}</p>
+</section>
+
+<style>
+.message-service-workbench { display: grid; gap: 16px; margin: 20px 0 28px; color: #344054; background: #fff; border: 1px solid #d9e1ea; }
+.message-service-workbench__toolbar { display: flex; gap: 24px; justify-content: space-between; padding: 24px; border-bottom: 1px solid #eef1f5; }
+.message-service-workbench__toolbar h3 { margin: 4px 0 8px; color: #1d2939; }
+.message-service-workbench__toolbar p { margin: 0; color: #667085; }
+.message-service-workbench__eyebrow { font-size: 11px; letter-spacing: .12em; color: #1677ff !important; }
+.message-service-workbench__actions { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; justify-content: flex-end; }
+.message-service-workbench button { padding: 7px 11px; border: 1px solid #d9e1ea; border-radius: 6px; background: #fff; color: inherit; cursor: pointer; }
+.message-service-workbench button:hover, .message-service-workbench button:focus-visible { border-color: #1677ff; color: #1677ff; }
+.message-service-workbench__container { min-height: 56px; margin: 0 24px; border: 1px dashed #d9e1ea; }
+.message-service-workbench__result { margin: 0; padding: 12px 24px; border-top: 1px solid #eef1f5; color: #667085; font-size: 13px; }
+@media (max-width: 640px) { .message-service-workbench__toolbar { display: block; padding: 16px; } .message-service-workbench__actions { justify-content: flex-start; margin-top: 16px; } .message-service-workbench__container { margin: 0 16px; } .message-service-workbench__result { padding: 12px 16px; } }
+</style>
 
 ## 基础用法
 

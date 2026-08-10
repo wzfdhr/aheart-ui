@@ -26,7 +26,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
-    disabled: BooleanConstructor;
+    disabled: {
+        type: BooleanConstructor;
+        default: undefined;
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     select: (keys: TreeKey[], node: TreeNodeData) => void;
     check: (keys: TreeKey[], node: TreeNodeData) => void;
@@ -61,7 +64,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
-    disabled: BooleanConstructor;
+    disabled: {
+        type: BooleanConstructor;
+        default: undefined;
+    };
 }>> & Readonly<{
     onSelect?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
     onCheck?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;

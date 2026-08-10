@@ -98,9 +98,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleChange = async (event) => {
       var _a;
+      if (props.disabled)
+        return;
       const files = Array.from(event.target.files ?? []);
-      const remaining = Math.max(0, props.maxCount - latestFileList.value.length);
-      let nextFiles = latestFileList.value;
+      event.target.value = "";
+      let nextFiles = props.fileList === void 0 ? latestFileList.value : [...props.fileList];
+      latestFileList.value = nextFiles;
+      const remaining = Math.max(0, props.maxCount - nextFiles.length);
       for (const rawFile of files.slice(0, remaining)) {
         const uploadFile = toUploadFile(rawFile);
         const shouldUpload = await ((_a = props.beforeUpload) == null ? void 0 : _a.call(props, rawFile, [...nextFiles, uploadFile]));
@@ -109,7 +113,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         if (shouldUpload !== false)
           nextFiles = await upload(uploadFile, nextFiles);
       }
-      event.target.value = "";
     };
     const removeFile = (uid2) => {
       const file = mergedFileList.value.find((current) => current.uid === uid2);

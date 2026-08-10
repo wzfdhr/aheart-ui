@@ -1,11 +1,61 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { UploadFile } from 'aheart-ui'
 
 const files = ref<UploadFile[]>([])
 const customRequest = ({ onProgress, onSuccess }: { onProgress: (percent: number) => void; onSuccess: (response?: unknown) => void }) => {
   onProgress(50)
   window.setTimeout(() => onSuccess({ ok: true }), 300)
+}
+
+const progressFiles = ref<UploadFile[]>([])
+let completeProgressRequest: (() => void) | undefined
+const progressRequest = ({ onProgress, onSuccess }: { onProgress: (percent: number) => void; onSuccess: (response?: unknown) => void }) => {
+  onProgress(50)
+  completeProgressRequest = () => onSuccess({ ok: true })
+}
+const completeProgress = () => completeProgressRequest?.()
+const progressStatus = computed(() => progressFiles.value[0]?.status === 'done' ? '上传成功' : `上传进度：${progressFiles.value[0]?.percent ?? 0}%`)
+
+const failureFiles = ref<UploadFile[]>([])
+let failureAttempts = 0
+const failureRequestCount = ref(0)
+const failureRequest = ({ onSuccess, onError }: { onSuccess: (response?: unknown) => void; onError: (error: unknown) => void }) => {
+  failureAttempts += 1
+  failureRequestCount.value = failureAttempts
+  if (failureAttempts === 1) onError(new Error('QG3 failure'))
+  else onSuccess({ ok: true })
+}
+const retryFailure = () => {
+  const file = failureFiles.value[0]
+  if (file) failureFiles.value = [{ ...file, status: 'ready', error: undefined, percent: undefined, response: undefined }]
+}
+const failureStatus = computed(() => failureFiles.value[0]?.status === 'done' ? '上传成功' : failureFiles.value[0]?.status === 'error' ? '上传失败' : failureFiles.value[0]?.status === 'ready' ? '等待重新上传' : '')
+
+const manualFiles = ref<UploadFile[]>([])
+const manualRequestCount = ref(0)
+const holdUpload = () => false
+const manualRequest = ({ onSuccess }: { onSuccess: (response?: unknown) => void }) => {
+  manualRequestCount.value += 1
+  onSuccess({ ok: true })
+}
+const manualStatus = computed(() => manualFiles.value[0]?.status === 'done' ? '上传成功' : '')
+
+const pendingFiles = ref<UploadFile[]>([])
+let completePendingRequest: (() => void) | undefined
+const pendingRequest = ({ onSuccess }: { onSuccess: (response?: unknown) => void }) => {
+  completePendingRequest = () => onSuccess({ ok: true })
+}
+const removePending = () => { pendingFiles.value = [] }
+const completePending = () => completePendingRequest?.()
+const pendingStatus = computed(() => pendingFiles.value.length ? '' : '已移除')
+
+const disabledFiles = ref<UploadFile[]>([])
+const maxCountFiles = ref<UploadFile[]>([])
+const controlledFiles = ref<UploadFile[]>([])
+const acceptControlledFile = (files: UploadFile[]) => {
+  const acceptedFile = files.find((file) => file.name === 'accepted.txt')
+  controlledFiles.value = acceptedFile ? [acceptedFile] : []
 }
 </script>
 
@@ -47,6 +97,59 @@ const files = ref<UploadFile[]>([])
 ```vue
 <AUpload :before-upload="() => false" :custom-request="customRequest" />
 ```
+
+## 浏览器交互示例
+
+<div data-testid="upload-fixture" class="upload-fixture">
+  <section aria-label="进度与成功">
+    <h3>进度与成功</h3>
+    <AUpload v-model:file-list="progressFiles" :custom-request="progressRequest">选择文件</AUpload>
+    <p data-testid="upload-progress-status">{{ progressStatus }}</p>
+    <button type="button" @click="completeProgress">完成上传</button>
+  </section>
+
+  <section aria-label="失败与重试">
+    <h3>失败与重试</h3>
+    <AUpload v-model:file-list="failureFiles" :custom-request="failureRequest">选择文件</AUpload>
+    <p data-testid="upload-retry-status">{{ failureStatus }}</p>
+    <p data-testid="upload-retry-request-count">请求次数：{{ failureRequestCount }}</p>
+    <button v-if="failureFiles[0]?.status === 'error'" type="button" @click="retryFailure">重试 {{ failureFiles[0].name }}</button>
+  </section>
+
+  <section aria-label="手动上传">
+    <h3>手动上传</h3>
+    <AUpload v-model:file-list="manualFiles" :before-upload="holdUpload" :custom-request="manualRequest">选择文件</AUpload>
+    <p data-testid="upload-manual-request-count">请求次数：{{ manualRequestCount }}</p>
+    <p data-testid="upload-manual-status">{{ manualStatus }}</p>
+  </section>
+
+  <section aria-label="移除上传中的文件">
+    <h3>移除上传中的文件</h3>
+    <AUpload v-model:file-list="pendingFiles" :custom-request="pendingRequest">选择文件</AUpload>
+    <button v-if="pendingFiles[0]" type="button" @click="removePending">移除 {{ pendingFiles[0].name }}</button>
+    <button type="button" @click="completePending">完成待处理上传</button>
+    <p data-testid="upload-removal-status">{{ pendingStatus }}</p>
+  </section>
+
+  <section aria-label="禁用上传">
+    <h3>禁用上传</h3>
+    <AUpload v-model:file-list="disabledFiles" disabled :before-upload="holdUpload">选择文件</AUpload>
+    <p data-testid="upload-disabled-count">已选择 {{ disabledFiles.length }} 个文件</p>
+  </section>
+
+  <section aria-label="最大文件数">
+    <h3>最大文件数</h3>
+    <AUpload v-model:file-list="maxCountFiles" :max-count="1" multiple>选择文件</AUpload>
+    <button v-if="maxCountFiles[0]" type="button" @click="maxCountFiles = []">移除 {{ maxCountFiles[0].name }}</button>
+    <p data-testid="upload-max-count">已接受 {{ maxCountFiles.length }} 个文件</p>
+  </section>
+
+  <section aria-label="受控拒绝">
+    <h3>受控拒绝</h3>
+    <AUpload v-model:file-list="controlledFiles" :max-count="1" @update:file-list="acceptControlledFile">选择文件</AUpload>
+    <p data-testid="upload-controlled-count">已接受 {{ controlledFiles.length }} 个文件</p>
+  </section>
+</div>
 
 ## API
 

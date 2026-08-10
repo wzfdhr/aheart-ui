@@ -109,9 +109,12 @@ const uploadReadyFiles = async () => {
   }
 }
 const handleChange = async (event: Event) => {
+  if (props.disabled) return
   const files = Array.from((event.target as HTMLInputElement).files ?? [])
-  const remaining = Math.max(0, props.maxCount - latestFileList.value.length)
-  let nextFiles = latestFileList.value
+  ;(event.target as HTMLInputElement).value = ''
+  let nextFiles = props.fileList === undefined ? latestFileList.value : [...props.fileList]
+  latestFileList.value = nextFiles
+  const remaining = Math.max(0, props.maxCount - nextFiles.length)
 
   for (const rawFile of files.slice(0, remaining)) {
     const uploadFile = toUploadFile(rawFile)
@@ -120,8 +123,6 @@ const handleChange = async (event: Event) => {
     updateFileList(nextFiles)
     if (shouldUpload !== false) nextFiles = await upload(uploadFile, nextFiles)
   }
-
-  ;(event.target as HTMLInputElement).value = ''
 }
 const removeFile = (uid: string) => {
   const file = mergedFileList.value.find((current) => current.uid === uid)

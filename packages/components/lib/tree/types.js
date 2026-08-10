@@ -27,6 +27,10 @@ const treeProps = {
   },
   multiple: Boolean,
   checkable: Boolean,
-  disabled: Boolean
+  // `undefined` preserves ConfigProvider inheritance when the prop is omitted.
+  disabled: {
+    type: Boolean,
+    default: void 0
+  }
 };
 exports.treeProps = treeProps;

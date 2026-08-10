@@ -2,6 +2,7 @@
   <li
     class="aheart-tree__treeitem"
     role="treeitem"
+    :aria-label="node.title"
     :aria-selected="selected"
     :aria-expanded="hasChildren ? expanded : undefined"
     :aria-disabled="isDisabled || undefined"

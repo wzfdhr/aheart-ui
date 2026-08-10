@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const _hoisted_1 = ["aria-selected", "aria-expanded", "aria-disabled"];
+const _hoisted_1 = ["aria-label", "aria-selected", "aria-expanded", "aria-disabled"];
 const _hoisted_2 = ["data-tree-key", "tabindex"];
 const _hoisted_3 = ["disabled", "aria-label"];
 const _hoisted_4 = {
@@ -45,6 +45,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return vue.openBlock(), vue.createElementBlock("li", {
         class: "aheart-tree__treeitem",
         role: "treeitem",
+        "aria-label": __props.node.title,
         "aria-selected": selected.value,
         "aria-expanded": hasChildren.value ? expanded.value : void 0,
         "aria-disabled": isDisabled.value || void 0

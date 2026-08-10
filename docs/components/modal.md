@@ -12,6 +12,71 @@ const centeredOpen = ref(false)
 const responsiveWidthOpen = ref(false)
 const loadingOpen = ref(false)
 const styledOpen = ref(false)
+const asyncOpen = ref(false)
+const guardedOpen = ref(false)
+const pending = ref(false)
+const requestError = ref('')
+const resolveRequest = ref<(() => void) | null>(null)
+const rejectRequest = ref<((reason?: unknown) => void) | null>(null)
+let requestSequence = 0
+const startRequest = () => {
+  const requestId = ++requestSequence
+  pending.value = true
+  requestError.value = ''
+  const request = new Promise<void>((resolve, reject) => {
+    resolveRequest.value = resolve
+    rejectRequest.value = reject
+  })
+  void request
+    .then(() => {
+      if (requestId !== requestSequence) return
+      resolveRequest.value = null
+      rejectRequest.value = null
+      pending.value = false
+      asyncOpen.value = false
+    })
+    .catch(() => {
+      if (requestId !== requestSequence) return
+      resolveRequest.value = null
+      rejectRequest.value = null
+      pending.value = false
+      requestError.value = '保存失败，请重试或关闭对话框。'
+    })
+}
+const resolveSuccess = () => {
+  const resolve = resolveRequest.value
+  resolveRequest.value = null
+  rejectRequest.value = null
+  resolve?.()
+}
+const rejectFailure = () => {
+  const reject = rejectRequest.value
+  resolveRequest.value = null
+  rejectRequest.value = null
+  reject?.()
+}
+const retryRequest = () => {
+  startRequest()
+}
+const cancelRequest = () => {
+  requestSequence += 1
+  const reject = rejectRequest.value
+  resolveRequest.value = null
+  rejectRequest.value = null
+  pending.value = false
+  requestError.value = ''
+  reject?.(new Error('request cancelled by modal close'))
+}
+const handleAsyncOpenChange = (open: boolean) => {
+  asyncOpen.value = open
+  if (!open) cancelRequest()
+}
+const rejectGuardedClose = () => {
+  guardedOpen.value = true
+}
+const openGuarded = () => {
+  guardedOpen.value = true
+}
 const customCloseIcon = h('span', { class: 'docs-modal-close-icon' }, 'X')
 const renderableTitle = h('span', { class: 'docs-modal-title-node' }, 'Renderable title')
 const renderableOkText = h('span', { class: 'docs-modal-ok-node' }, 'Confirm')
@@ -40,6 +105,67 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 # Modal 对话框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Modal focuses attention in a blocking dialog for decisions, confirmations, and short workflows.
+
+## QG3 对话框交互工作台
+
+<section class="modal-interaction-workbench" role="region" aria-label="对话框交互工作台">
+  <div class="modal-interaction-workbench__toolbar">
+    <div>
+      <p class="modal-interaction-workbench__eyebrow">MODAL CONTROL / QG3</p>
+      <h3>受控打开、异步确认与关闭拒绝</h3>
+      <p>父组件持有 open；所有结果从真实对话框、按钮和焦点状态观察。</p>
+    </div>
+    <div class="modal-interaction-workbench__actions" aria-label="对话框操作">
+      <button type="button" @click="asyncOpen = true">打开异步对话框</button>
+      <button type="button" @click="openGuarded">打开受控对话框</button>
+    </div>
+  </div>
+  <p class="modal-interaction-workbench__result" aria-live="polite">{{ pending ? '请求进行中：确认按钮忙碌且不可操作' : requestError || '准备就绪：等待一次真实对话框操作' }}</p>
+  <AModal
+    v-model:open="asyncOpen"
+    title="异步确认"
+    :confirm-loading="pending"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
+    @update:open="handleAsyncOpenChange"
+    @ok="startRequest"
+  >
+    <p>点击确定后由父组件发起可控的模拟异步请求。</p>
+    <div class="modal-interaction-workbench__request-controls" aria-label="模拟异步请求控制">
+      <button type="button" @click="resolveSuccess">模拟成功</button>
+      <button type="button" @click="rejectFailure">模拟失败</button>
+    </div>
+    <div v-if="requestError" class="modal-interaction-workbench__error" role="alert">
+      <p>{{ requestError }}</p>
+      <button type="button" class="modal-interaction-workbench__retry" @click="retryRequest">重试保存</button>
+    </div>
+  </AModal>
+  <AModal
+    v-model:open="guardedOpen"
+    title="受控对话框"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
+    @update:open="rejectGuardedClose"
+  >
+    <p>Escape 会触发受控关闭请求，但父组件拒绝更新 open。</p>
+    <p role="alert">受控关闭已拒绝</p>
+  </AModal>
+</section>
+
+<style>
+.modal-interaction-workbench { display: grid; gap: 16px; margin: 20px 0 28px; color: #344054; background: #fff; border: 1px solid #d9e1ea; }
+.modal-interaction-workbench__toolbar { display: flex; gap: 24px; justify-content: space-between; padding: 24px; border-bottom: 1px solid #eef1f5; }
+.modal-interaction-workbench__toolbar h3 { margin: 4px 0 8px; color: #1d2939; }
+.modal-interaction-workbench__toolbar p { margin: 0; color: #667085; }
+.modal-interaction-workbench__eyebrow { font-size: 11px; letter-spacing: .12em; color: #1677ff !important; }
+.modal-interaction-workbench__actions { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; justify-content: flex-end; }
+.modal-interaction-workbench button { padding: 7px 11px; border: 1px solid #d9e1ea; border-radius: 6px; background: #fff; color: inherit; cursor: pointer; }
+.modal-interaction-workbench button:hover, .modal-interaction-workbench button:focus-visible { border-color: #1677ff; color: #1677ff; }
+.modal-interaction-workbench__request-controls button, .modal-interaction-workbench__retry { min-height: 40px; padding: 8px 14px; border: 1px solid #98a2b3; border-radius: 6px; background: #fff; color: #344054; cursor: pointer; }
+.modal-interaction-workbench__request-controls button:hover, .modal-interaction-workbench__request-controls button:focus-visible, .modal-interaction-workbench__retry:hover, .modal-interaction-workbench__retry:focus-visible { border-color: #1677ff; color: #1677ff; outline: 2px solid rgba(22, 119, 255, .25); outline-offset: 2px; }
+.modal-interaction-workbench__error { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: #b42318; }
+.modal-interaction-workbench__error p { margin: 0; }
+.modal-interaction-workbench__result { margin: 0; padding: 12px 24px; border-top: 1px solid #eef1f5; color: #667085; font-size: 13px; }
+@media (max-width: 640px) { .modal-interaction-workbench__toolbar { display: block; padding: 16px; } .modal-interaction-workbench__actions { justify-content: flex-start; margin-top: 16px; } .modal-interaction-workbench__result { padding: 12px 16px; } }
+</style>
 
 ## 基础用法
 
