@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, createCommentVNode, Fragment, renderList, normalizeStyle, createVNode, unref, toDisplayString, createBlock } from "vue";
+import { defineComponent, ref, useId, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, createCommentVNode, Fragment, renderList, normalizeStyle, createVNode, unref, toDisplayString, createBlock } from "vue";
 import Pagination from "../pagination/index.js";
 import { tableProps, tableEmits } from "./types.js";
 import "./style.css.js";
@@ -16,33 +16,34 @@ const _hoisted_5 = {
   class: "aheart-table__expand-cell",
   scope: "col"
 };
-const _hoisted_6 = { class: "aheart-table__head-content" };
-const _hoisted_7 = ["disabled", "onClick"];
-const _hoisted_8 = ["data-sort"];
-const _hoisted_9 = {
+const _hoisted_6 = ["aria-sort"];
+const _hoisted_7 = { class: "aheart-table__head-content" };
+const _hoisted_8 = ["disabled", "aria-label", "onClick"];
+const _hoisted_9 = ["data-sort"];
+const _hoisted_10 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_10 = ["aria-label"];
-const _hoisted_11 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_12 = {
+const _hoisted_11 = ["aria-label"];
+const _hoisted_12 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_13 = {
   key: 0,
   class: "aheart-table__selection-cell"
 };
-const _hoisted_13 = ["type", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_14 = {
+const _hoisted_14 = ["type", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_15 = {
   key: 1,
   class: "aheart-table__expand-cell"
 };
-const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_16 = {
+const _hoisted_16 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_17 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_17 = ["colspan"];
-const _hoisted_18 = { key: 0 };
-const _hoisted_19 = ["colspan"];
-const _hoisted_20 = {
+const _hoisted_18 = ["colspan"];
+const _hoisted_19 = { key: 0 };
+const _hoisted_20 = ["colspan"];
+const _hoisted_21 = {
   key: 0,
   class: "aheart-table__loading",
   role: "status",
@@ -79,7 +80,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const innerFilters = ref({});
     const hasInitializedSort = ref(false);
     const initializedFilterKeys = ref(/* @__PURE__ */ new Set());
-    const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`;
+    const radioName = `aheart-table-selection-${useId().replace(/[^a-zA-Z0-9_-]/g, "-")}`;
     const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden));
     const normalizedData = computed(() => props.dataSource ?? []);
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
@@ -329,6 +330,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return activeSort.value.order;
     };
+    const getColumnLabel = (column) => typeof column.title === "string" ? column.title : getColumnKey(column);
+    const getAriaSort = (column) => {
+      const state = getSortState(column);
+      return state === "ascend" ? "ascending" : state === "descend" ? "descending" : "none";
+    };
+    const getSortActionLabel = (column) => {
+      const label = getColumnLabel(column);
+      const state = getSortState(column);
+      return state === "ascend" ? `Sort ${label} descending` : state === "descend" ? `Clear sort for ${label}` : `Sort ${label}`;
+    };
     const toggleSort = (column) => {
       if (isDisabled.value) {
         return;
@@ -466,14 +477,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     key: getColumnKey(column),
                     class: normalizeClass(columnClass(column)),
                     style: normalizeStyle(columnStyle(column)),
+                    "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                     scope: "col"
                   }, [
-                    createElementVNode("div", _hoisted_6, [
+                    createElementVNode("div", _hoisted_7, [
                       column.sorter ? (openBlock(), createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__sorter",
                         type: "button",
                         disabled: isDisabled.value,
+                        "aria-label": getSortActionLabel(column),
                         onClick: ($event) => toggleSort(column)
                       }, [
                         createElementVNode("span", null, [
@@ -485,8 +498,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           class: "aheart-table__sort-icon",
                           "data-sort": getSortState(column),
                           "aria-hidden": "true"
-                        }, null, 8, _hoisted_8)
-                      ], 8, _hoisted_7)) : (openBlock(), createElementBlock("span", _hoisted_9, [
+                        }, null, 8, _hoisted_9)
+                      ], 8, _hoisted_8)) : (openBlock(), createElementBlock("span", _hoisted_10, [
                         createVNode(unref(ARenderNode), {
                           node: column.title
                         }, null, 8, ["node"])
@@ -508,11 +521,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                             createVNode(unref(ARenderNode), {
                               node: filter.text
                             }, null, 8, ["node"])
-                          ], 10, _hoisted_11);
+                          ], 10, _hoisted_12);
                         }), 128))
-                      ], 8, _hoisted_10)) : createCommentVNode("", true)
+                      ], 8, _hoisted_11)) : createCommentVNode("", true)
                     ])
-                  ], 6);
+                  ], 14, _hoisted_6);
                 }), 128))
               ])
             ])) : createCommentVNode("", true),
@@ -524,7 +537,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   createElementVNode("tr", {
                     class: normalizeClass({ "is-selected": isSelected(row.key) })
                   }, [
-                    hasSelection.value ? (openBlock(), createElementBlock("td", _hoisted_12, [
+                    hasSelection.value ? (openBlock(), createElementBlock("td", _hoisted_13, [
                       createElementVNode("input", {
                         type: selectionType.value,
                         name: radioName,
@@ -532,9 +545,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         disabled: isSelectionDisabled.value,
                         "aria-label": `Select row ${row.key}`,
                         onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                      }, null, 40, _hoisted_13)
+                      }, null, 40, _hoisted_14)
                     ])) : createCommentVNode("", true),
-                    hasExpandable.value ? (openBlock(), createElementBlock("td", _hoisted_14, [
+                    hasExpandable.value ? (openBlock(), createElementBlock("td", _hoisted_15, [
                       isRowExpandable(row.record) ? (openBlock(), createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__expand-button",
@@ -542,7 +555,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         "aria-expanded": isExpanded(row.key),
                         disabled: isDisabled.value,
                         onClick: ($event) => toggleExpand(row.record, row.key)
-                      }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : createCommentVNode("", true)
+                      }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_16)) : createCommentVNode("", true)
                     ])) : createCommentVNode("", true),
                     (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
                       return openBlock(), createElementBlock("td", {
@@ -556,7 +569,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       ], 6);
                     }), 128))
                   ], 2),
-                  hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_16, [
+                  hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_17, [
                     createElementVNode("td", {
                       colspan: columnCount.value,
                       class: "aheart-table__expanded-cell"
@@ -564,21 +577,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       createVNode(unref(ARenderNode), {
                         node: renderExpanded(row.record, row.index)
                       }, null, 8, ["node"])
-                    ], 8, _hoisted_17)
+                    ], 8, _hoisted_18)
                   ])) : createCommentVNode("", true)
                 ], 64);
               }), 128)),
-              !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_18, [
+              !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_19, [
                 createElementVNode("td", {
                   colspan: columnCount.value,
                   class: "aheart-table__empty"
                 }, [
                   createVNode(unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                ], 8, _hoisted_19)
+                ], 8, _hoisted_20)
               ])) : createCommentVNode("", true)
             ])
           ]),
-          _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_20, [
+          _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_21, [
             _cache[2] || (_cache[2] = createElementVNode("span", {
               class: "aheart-table__loading-dot",
               "aria-hidden": "true"

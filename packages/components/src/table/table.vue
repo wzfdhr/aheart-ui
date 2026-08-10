@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, ref, useId, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import APagination from '../pagination'
 import {
@@ -178,7 +178,7 @@ const innerSort = ref<InternalSortState>({})
 const innerFilters = ref<TableFilters>({})
 const hasInitializedSort = ref(false)
 const initializedFilterKeys = ref(new Set<string>())
-const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`
+const radioName = `aheart-table-selection-${useId().replace(/[^a-zA-Z0-9_-]/g, '-')}`
 
 const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden))
 const normalizedData = computed(() => props.dataSource ?? [])

@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, useAttrs, ref, useId, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, withModifiers, toDisplayString, createBlock, Teleport, withDirectives, vShow, nextTick } from "vue";
+import { defineComponent, useSlots, useAttrs, ref, useId, computed, watch, openBlock, createElementBlock, mergeProps, createElementVNode, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, withModifiers, toDisplayString, createBlock, Teleport, withDirectives, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
@@ -7,9 +7,9 @@ import { usePropPresence } from "../utils/use-prop-presence.js";
 import { selectProps, selectEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["id", "role", "tabindex", "aria-labelledby", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
+const _hoisted_1 = ["id", "role", "tabindex", "aria-controls", "aria-labelledby", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
 const _hoisted_2 = { class: "aheart-select__tag-label" };
-const _hoisted_3 = ["aria-label", "onClick"];
+const _hoisted_3 = ["onClick"];
 const _hoisted_4 = {
   key: 0,
   class: "aheart-select__tag aheart-select__tag--rest"
@@ -30,7 +30,7 @@ const _hoisted_9 = ["aria-multiselectable", "aria-hidden"];
 const _hoisted_10 = ["id", "aria-selected", "aria-disabled", "onMouseenter", "onClick"];
 const _hoisted_11 = { class: "aheart-select__option-content" };
 const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "ASelect" },
+  ...{ name: "ASelect", inheritAttrs: false },
   __name: "select",
   props: selectProps,
   emits: selectEmits,
@@ -90,6 +90,23 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
     });
+    const interactiveAriaAttrs = computed(() => Object.fromEntries(
+      Object.entries(attrs).filter(([key]) => key.startsWith("aria-"))
+    ));
+    const rootAttrs = computed(() => Object.fromEntries(
+      Object.entries(attrs).filter(([key]) => !key.startsWith("aria-"))
+    ));
+    const resolvedLoadingText = computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.loadingText) ?? "Loading";
+    });
+    const hasNotFoundContent = usePropPresence("notFoundContent", "not-found-content");
+    const resolvedNotFoundContent = computed(
+      () => {
+        var _a, _b;
+        return hasNotFoundContent.value ? props.notFoundContent : ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) ?? props.notFoundContent;
+      }
+    );
     const getOptionKey = (value) => `${typeof value}:${String(value)}`;
     const valueEquals = (left, right) => left === right;
     const selectedValues = computed(
@@ -357,32 +374,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     __expose({ focus, blur });
     return (_ctx, _cache) => {
       var _a;
-      return openBlock(), createElementBlock("span", {
+      return openBlock(), createElementBlock("span", mergeProps({
         ref_key: "rootRef",
         ref: rootRef,
-        class: normalizeClass(["aheart-select", selectClass.value]),
-        style: normalizeStyle(rootStyle.value)
-      }, [
-        createElementVNode("span", {
+        class: ["aheart-select", selectClass.value],
+        style: rootStyle.value
+      }, rootAttrs.value), [
+        createElementVNode("span", mergeProps({
           ref_key: "selectorRef",
           ref: selectorRef,
-          class: normalizeClass(["aheart-select__selector", _ctx.classNames.selector]),
-          style: normalizeStyle(_ctx.styles.selector),
+          class: ["aheart-select__selector", _ctx.classNames.selector],
+          style: _ctx.styles.selector
+        }, isSearchable.value ? void 0 : interactiveAriaAttrs.value, {
           id: isSearchable.value ? void 0 : _ctx.id,
           role: isSearchable.value ? void 0 : "combobox",
           tabindex: isSearchable.value || isDisabled.value ? void 0 : 0,
-          "aria-controls": listboxId,
-          "aria-labelledby": resolvedAriaLabelledby.value,
-          "aria-expanded": mergedOpen.value ? "true" : "false",
+          "aria-controls": isSearchable.value ? void 0 : listboxId,
+          "aria-labelledby": isSearchable.value ? void 0 : resolvedAriaLabelledby.value,
+          "aria-expanded": isSearchable.value ? void 0 : mergedOpen.value ? "true" : "false",
           "aria-haspopup": isSearchable.value ? void 0 : "listbox",
-          "aria-disabled": isDisabled.value ? "true" : void 0,
-          "aria-busy": _ctx.loading ? "true" : void 0,
-          "aria-activedescendant": activeOptionId.value,
+          "aria-disabled": isSearchable.value ? void 0 : isDisabled.value ? "true" : void 0,
+          "aria-busy": isSearchable.value ? void 0 : _ctx.loading ? "true" : void 0,
+          "aria-activedescendant": isSearchable.value ? void 0 : activeOptionId.value,
           onClick: handleSelectorClick,
           onKeydown: handleKeydown,
           onFocusin: handleFocusIn,
           onFocusout: handleFocusOut
-        }, [
+        }), [
           hasPrefix.value ? (openBlock(), createElementBlock("span", {
             key: 0,
             class: normalizeClass(["aheart-select__prefix", _ctx.classNames.prefix]),
@@ -413,36 +431,38 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     class: normalizeClass(["aheart-select__tag-remove", _ctx.classNames.tagRemove]),
                     style: normalizeStyle(_ctx.styles.tagRemove),
                     type: "button",
-                    "aria-label": `Remove ${option.label}`,
+                    "aria-label": "Remove selected option",
                     onClick: withModifiers(($event) => removeValue(option.value), ["stop"])
                   }, " × ", 14, _hoisted_3)) : createCommentVNode("", true)
                 ], 6);
               }), 128)),
               hiddenTagCount.value > 0 ? (openBlock(), createElementBlock("span", _hoisted_4, " +" + toDisplayString(hiddenTagCount.value), 1)) : createCommentVNode("", true)
             ], 64)) : createCommentVNode("", true),
-            isSearchable.value ? (openBlock(), createElementBlock("input", {
+            isSearchable.value ? (openBlock(), createElementBlock("input", mergeProps({
               key: 1,
               ref_key: "searchRef",
               ref: searchRef,
-              class: normalizeClass(["aheart-select__search", _ctx.classNames.search]),
-              style: normalizeStyle(_ctx.styles.search),
+              class: ["aheart-select__search", _ctx.classNames.search],
+              style: _ctx.styles.search,
               id: _ctx.id,
               type: "text",
               role: "combobox",
               autocomplete: "off",
               value: currentSearchValue.value,
               disabled: isDisabled.value,
-              placeholder: searchPlaceholder.value,
+              placeholder: searchPlaceholder.value
+            }, isSearchable.value ? interactiveAriaAttrs.value : void 0, {
               "aria-controls": listboxId,
               "aria-labelledby": resolvedAriaLabelledby.value,
               "aria-expanded": mergedOpen.value ? "true" : "false",
+              "aria-autocomplete": "list",
               "aria-haspopup": "listbox",
               "aria-activedescendant": activeOptionId.value,
               "aria-busy": _ctx.loading ? "true" : void 0,
               onInput: handleSearch,
               onClick: withModifiers(openPopup, ["stop"]),
               onKeydown: handleKeydown
-            }, null, 46, _hoisted_5)) : !isMultiple.value ? (openBlock(), createElementBlock("span", {
+            }), null, 16, _hoisted_5)) : !isMultiple.value ? (openBlock(), createElementBlock("span", {
               key: 2,
               class: normalizeClass(["aheart-select__value", { "is-placeholder": !selectedOption.value }])
             }, toDisplayString(((_a = selectedOption.value) == null ? void 0 : _a.label) ?? _ctx.placeholder ?? ""), 3)) : selectedOptions.value.length === 0 && !isSearchable.value ? (openBlock(), createElementBlock("span", _hoisted_6, toDisplayString(_ctx.placeholder), 1)) : createCommentVNode("", true)
@@ -458,7 +478,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: normalizeClass(["aheart-select__clear", _ctx.classNames.clear]),
             style: normalizeStyle(_ctx.styles.clear),
             type: "button",
-            "aria-label": "Clear",
+            "aria-label": "Clear selection",
             onClick: withModifiers(handleClear, ["stop"])
           }, [
             renderSlot(_ctx.$slots, "clearIcon", {}, () => [
@@ -499,8 +519,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               }))
             ])
           ], 6))
-        ], 46, _hoisted_1),
-        _ctx.loading ? (openBlock(), createElementBlock("span", _hoisted_8, "Loading")) : createCommentVNode("", true),
+        ], 16, _hoisted_1),
+        _ctx.loading ? (openBlock(), createElementBlock("span", _hoisted_8, toDisplayString(resolvedLoadingText.value), 1)) : createCommentVNode("", true),
         (openBlock(), createBlock(Teleport, {
           to: teleportTo.value,
           disabled: !shouldTeleport.value
@@ -558,13 +578,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 key: 0,
                 class: normalizeClass(["aheart-select__empty", _ctx.classNames.notFound]),
                 style: normalizeStyle(_ctx.styles.notFound)
-              }, toDisplayString(_ctx.loading ? "Loading" : _ctx.notFoundContent), 7)) : createCommentVNode("", true)
+              }, toDisplayString(_ctx.loading ? resolvedLoadingText.value : resolvedNotFoundContent.value), 7)) : createCommentVNode("", true)
             ], 6)
           ], 14, _hoisted_9)), [
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
-      ], 6);
+      ], 16);
     };
   }
 });

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
@@ -305,6 +305,24 @@ describe('Table', () => {
     await wrapper.findAll('tbody input[type="radio"]')[2].setValue(true)
 
     expect(wrapper.emitted('update:selectedRowKeys')?.[0]).toEqual([['linus']])
+  })
+
+  it('uses unique SSR-stable radio group names without runtime randomness', () => {
+    const random = vi.spyOn(Math, 'random')
+    const wrapper = mount({
+      render: () => h('div', [
+        h(Table, { columns, dataSource, rowSelection: { type: 'radio' } }),
+        h(Table, { columns, dataSource, rowSelection: { type: 'radio' } })
+      ])
+    })
+
+    const names = wrapper.findAll('tbody input[type="radio"]').map((input) => input.attributes('name'))
+
+    expect(names[0]).toMatch(/^aheart-table-selection-/)
+    expect(names[3]).toMatch(/^aheart-table-selection-/)
+    expect(names[0]).not.toBe(names[3])
+    expect(random).not.toHaveBeenCalled()
+    random.mockRestore()
   })
 
   it('expands rows with custom expanded content', async () => {

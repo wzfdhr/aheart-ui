@@ -221,7 +221,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 ]),
                 _: 1
               }),
-              createVNode(unref(SplitterPanel), { min: 240 }, {
+              createVNode(unref(SplitterPanel), { min: 230 }, {
                 default: withCtx(() => [
                   createElementVNode("main", _hoisted_12, [
                     __props.transport ? (openBlock(), createBlock(_sfc_main$2, mergeProps({ key: 0 }, chatMessageProps.value, {
@@ -248,7 +248,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 _: 3
               }),
               createVNode(unref(SplitterPanel), {
-                min: 190,
+                min: 180,
                 collapsible: ""
               }, {
                 default: withCtx(() => [

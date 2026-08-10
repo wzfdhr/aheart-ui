@@ -85,6 +85,69 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     }
   })
 
+  test('Select opens, selects with the keyboard, and restores focus on Escape', async ({ page }) => {
+    await gotoComponent(page, 'select')
+    const surface = await getComponentSurface(page, 'select')
+    const select = surface.getByRole('combobox').first()
+
+    await select.focus()
+    await expect(select).toBeFocused()
+    await select.press('ArrowDown')
+    await expect(select).toHaveAttribute('aria-expanded', 'true')
+    await select.press('ArrowDown')
+    await select.press('Enter')
+    await expect(select).toHaveAttribute('aria-expanded', 'false')
+    await expect(select).toContainText('Apple')
+
+    await select.press('ArrowDown')
+    await expect(select).toHaveAttribute('aria-expanded', 'true')
+    await select.press('Escape')
+    await expect(select).toHaveAttribute('aria-expanded', 'false')
+    await expect(select).toBeFocused()
+  })
+
+  test('Menu supports real directional navigation, Enter selection, and Escape', async ({ page }) => {
+    await gotoComponent(page, 'menu')
+    const surface = await getComponentSurface(page, 'menu')
+    const menu = surface.locator('.aheart-menu').first()
+    const firstItem = menu.locator('[data-menu-key], [data-submenu-key]').first()
+
+    await firstItem.focus()
+    await firstItem.press('ArrowDown')
+    await expect(menu.locator('[data-menu-key]:focus, [data-submenu-key]:focus')).toHaveCount(1)
+    await firstItem.press('ArrowRight')
+    await firstItem.press('Enter')
+    await expect(menu.locator('.is-selected')).toHaveCount(1)
+    await firstItem.press('Escape')
+    await expect(firstItem).toBeFocused()
+  })
+
+  test('Table sort button responds to keyboard activation', async ({ page }) => {
+    await gotoComponent(page, 'table')
+    const surface = await getComponentSurface(page, 'table')
+    const sortButton = surface.getByRole('button', { name: /Age/ })
+
+    await sortButton.focus()
+    await expect(sortButton).toBeFocused()
+    await sortButton.press('Enter')
+    await expect(surface.locator('tbody tr').first()).toContainText('Linus')
+    await sortButton.press('Space')
+    await expect(surface.locator('tbody tr').first()).toContainText('Ada')
+  })
+
+  test('Splitter separator adjusts from the keyboard and updates aria-valuenow', async ({ page }) => {
+    await gotoComponent(page, 'splitter')
+    const surface = await getComponentSurface(page, 'splitter')
+    const separator = surface.locator('[role="separator"]').first()
+    const before = await separator.getAttribute('aria-valuenow')
+
+    await separator.focus()
+    await separator.press('ArrowRight')
+    await expect(separator).toHaveAttribute('aria-valuenow', String(Number(before) + 10))
+    await separator.press('ArrowLeft')
+    await expect(separator).toHaveAttribute('aria-valuenow', before ?? '')
+  })
+
   test('Chinese long copy remains within the viewport at 200 percent zoom', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 })
     for (const component of components) {
@@ -94,6 +157,20 @@ test.describe('QG4 accessibility and visual regression gates', () => {
       const overflow = await surface.evaluate((element) => ({ viewport: element.clientWidth, content: element.scrollWidth }))
       expect(overflow.content, `${component} overflows horizontally at 200%`).toBeLessThanOrEqual(overflow.viewport)
     }
+  })
+
+  test('target panel text and controls remain visible and operable at 200 percent zoom', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await gotoComponent(page, 'ai-agent-workbench')
+    const surface = await getComponentSurface(page, 'ai-agent-workbench')
+    await page.evaluate(() => { document.documentElement.style.zoom = '200%' })
+
+    const targetPanel = surface.locator('.aheart-ai-workbench__main, .aheart-ai-workbench__execution, .aheart-ai-workbench__artifact').filter({ hasText: /任务|执行|产物/ }).first()
+    await expect(targetPanel).toBeVisible()
+    const operableButton = targetPanel.locator('button:not([disabled])').first()
+    await expect(operableButton).toBeVisible()
+    await operableButton.focus()
+    await expect(operableButton).toBeFocused()
   })
 
   test('desktop component surface screenshots match baselines', async ({ page }) => {

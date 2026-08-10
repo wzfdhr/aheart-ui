@@ -223,7 +223,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 ]),
                 _: 1
               }),
-              vue.createVNode(vue.unref(aheartUi.SplitterPanel), { min: 240 }, {
+              vue.createVNode(vue.unref(aheartUi.SplitterPanel), { min: 230 }, {
                 default: vue.withCtx(() => [
                   vue.createElementVNode("main", _hoisted_12, [
                     __props.transport ? (vue.openBlock(), vue.createBlock(chatPanel_vue_vue_type_script_setup_true_lang.default, vue.mergeProps({ key: 0 }, chatMessageProps.value, {
@@ -250,7 +250,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 _: 3
               }),
               vue.createVNode(vue.unref(aheartUi.SplitterPanel), {
-                min: 190,
+                min: 180,
                 collapsible: ""
               }, {
                 default: vue.withCtx(() => [
