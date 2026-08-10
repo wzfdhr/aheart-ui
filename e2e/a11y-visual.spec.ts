@@ -19,9 +19,16 @@ const gotoComponent = async (page: Page, component: string) => {
 }
 
 const getComponentSurface = async (page: Page, component: string) => {
-  const surfaceSelector = component === 'date-picker' ? '.aheart-date-picker' : '.aheart-demo-panel, .aheart-ai-workbench'
+  const surfaceSelector = component === 'date-picker'
+    ? '.aheart-date-picker'
+    : component === 'table'
+      ? '.q4-table-sort-demo'
+      : '.aheart-demo-panel, .aheart-ai-workbench'
   const surface = page.locator(surfaceSelector).first()
   await expect(surface, `${component} should expose a component demo`).toBeVisible()
+  if (component === 'table') {
+    await expect(surface, 'table focus gate should target the interactive sorting demo').toHaveClass(/q4-table-sort-demo/)
+  }
   return surface
 }
 
