@@ -1,22 +1,30 @@
 import { mount } from '@vue/test-utils'
 import { renderToString } from '@vue/server-renderer'
-import { createSSRApp, defineComponent, h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
 import { enUS, useAheartConfig } from '../../config'
 import ConfigProvider from '../config-provider.vue'
 
 const ConfigReader = defineComponent({
-  setup() {
+  props: {
+    label: {
+      type: String,
+      default: 'default'
+    }
+  },
+  setup(props) {
     const config = useAheartConfig()
 
     return () =>
       h('div', {
         class: 'config-reader',
+        'data-label': props.label,
         'data-size': config.value.size,
         'data-disabled': String(config.value.disabled),
         'data-empty': config.value.locale?.empty?.description,
         'data-pagination-total': config.value.locale?.pagination?.total?.(42, [1, 10]),
-        'data-modal-ok': config.value.locale?.modal?.okText
+        'data-modal-ok': config.value.locale?.modal?.okText,
+        'data-theme-primary': config.value.theme?.primaryColor
       })
   }
 })
@@ -42,6 +50,32 @@ describe('ConfigProvider', () => {
     expect(reader.attributes('data-size')).toBe('large')
     expect(reader.attributes('data-disabled')).toBe('true')
     expect(reader.attributes('data-empty')).toBe('暂无内容')
+  })
+
+  it('propagates runtime locale size disabled and theme updates to mounted descendants', async () => {
+    const wrapper = mount(ConfigProvider, {
+      props: {
+        size: 'small',
+        disabled: false,
+        locale: { empty: { description: '初始空状态' } },
+        theme: { primaryColor: '#1677ff' }
+      },
+      slots: { default: ConfigReader }
+    })
+
+    await wrapper.setProps({
+      size: 'large',
+      disabled: true,
+      locale: enUS,
+      theme: { primaryColor: '#0958d9' }
+    })
+
+    const reader = wrapper.find('.config-reader')
+    expect(reader.attributes('data-size')).toBe('large')
+    expect(reader.attributes('data-disabled')).toBe('true')
+    expect(reader.attributes('data-empty')).toBe('No Data')
+    expect(reader.attributes('data-theme-primary')).toBe('#0958d9')
+    expect(wrapper.attributes('style')).toContain('--aheart-color-primary: #0958d9')
   })
 
   it('applies theme tokens as scoped CSS variables', () => {
@@ -100,6 +134,47 @@ describe('ConfigProvider', () => {
     expect(reader.attributes('data-modal-ok')).toBe('Proceed')
   })
 
+  it('uses the nearest nested provider override without leaking to an outer sibling', () => {
+    const NestedProviders = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ConfigProvider,
+            {
+              size: 'large',
+              disabled: true,
+              locale: enUS,
+              theme: { primaryColor: '#1677ff' }
+            },
+            {
+              default: () => [
+                h(ConfigProvider, { locale: { empty: { description: '中层空状态' } } }, {
+                  default: () =>
+                    h(ConfigProvider, { size: 'small', disabled: false, theme: { primaryColor: '#0958d9' } }, {
+                      default: () => h(ConfigReader, { label: 'inner' })
+                    })
+                }),
+                h(ConfigReader, { label: 'outer-sibling' })
+              ]
+            }
+          )
+      }
+    })
+
+    const wrapper = mount(NestedProviders)
+    const inner = wrapper.find('[data-label="inner"]')
+    const sibling = wrapper.find('[data-label="outer-sibling"]')
+
+    expect(inner.attributes('data-size')).toBe('small')
+    expect(inner.attributes('data-disabled')).toBe('false')
+    expect(inner.attributes('data-empty')).toBe('中层空状态')
+    expect(inner.attributes('data-theme-primary')).toBe('#0958d9')
+    expect(sibling.attributes('data-size')).toBe('large')
+    expect(sibling.attributes('data-disabled')).toBe('true')
+    expect(sibling.attributes('data-empty')).toBe('No Data')
+    expect(sibling.attributes('data-theme-primary')).toBe('#1677ff')
+  })
+
   it('deeply merges date and time picker locale copy', () => {
     const Consumer = defineComponent({
       setup() {
@@ -136,5 +211,39 @@ describe('ConfigProvider', () => {
     expect(html).toContain('data-empty="暂无数据"')
     expect(html).toContain('data-pagination-total="共 42 条"')
     expect(html).toContain('data-modal-ok="确定"')
+  })
+
+  it('hydrates Chinese HTML without Vue warnings and remains reactive after locale and theme switches', async () => {
+    const state = ref({
+      locale: undefined,
+      theme: { primaryColor: '#1677ff' }
+    })
+    const App = defineComponent({
+      setup() {
+        return () => h(ConfigProvider, state.value, { default: () => h(ConfigReader) })
+      }
+    })
+
+    const html = await renderToString(createSSRApp(App))
+    const host = document.createElement('div')
+    host.innerHTML = html
+    document.body.replaceChildren(host)
+
+    const warnings: string[] = []
+    const warn = vi.spyOn(console, 'warn').mockImplementation((...args) => warnings.push(args.join(' ')))
+    const clientApp = createSSRApp(App)
+    clientApp.config.warnHandler = (message) => warnings.push(message)
+    clientApp.mount(host, true)
+
+    expect(warnings.filter((message) => message.includes('[Vue warn]') || message.includes('Hydration'))).toEqual([])
+
+    state.value = { locale: enUS, theme: { primaryColor: '#0958d9' } }
+    await nextTick()
+
+    const reader = document.querySelector('.config-reader') as HTMLElement
+    const provider = document.querySelector('.aheart-config-provider') as HTMLElement
+    expect(reader.dataset.empty).toBe('No Data')
+    expect(provider.getAttribute('style')).toContain('--aheart-color-primary: #0958d9')
+    warn.mockRestore()
   })
 })
