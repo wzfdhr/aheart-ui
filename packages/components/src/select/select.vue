@@ -41,7 +41,7 @@
               :class="classNames.tagRemove"
               :style="styles.tagRemove"
               type="button"
-              aria-label="Remove selected option"
+              :aria-label="`移除 ${option.label}`"
               @click.stop="removeValue(option.value)"
             >
               ×
@@ -93,7 +93,7 @@
         :class="classNames.clear"
         :style="styles.clear"
         type="button"
-        aria-label="Clear selection"
+        aria-label="清除"
         @click.stop="handleClear"
       >
         <slot name="clearIcon"><ARenderNode :node="clearIconContent" /></slot>

@@ -150,29 +150,75 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     await expect(separator).toHaveAttribute('aria-valuenow', before ?? '')
   })
 
+  test('Splitter mobile separator keeps a visual line while exposing a touch hit area', async ({ page }, testInfo) => {
+    test.skip(!testInfo.project.name.includes('mobile'), 'Touch target assertions only apply to mobile projects.')
+    await gotoComponent(page, 'splitter')
+    const surface = await getComponentSurface(page, 'splitter')
+    const separator = surface.locator('[role="separator"]').first()
+    const box = await separator.boundingBox()
+    expect(box).not.toBeNull()
+    const x = box!.x - 12
+    const y = box!.y + box!.height / 2
+    const hitTarget = await page.evaluate(({ x, y }) => {
+      const target = document.elementFromPoint(x, y)
+      return target?.closest('[role="separator"]')?.getAttribute('role') ?? null
+    }, { x, y })
+    expect(hitTarget).toBe('separator')
+
+    const before = Number(await separator.getAttribute('aria-valuenow'))
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x + 20, y, { steps: 4 })
+    await page.mouse.up()
+    await expect(separator).toHaveAttribute('aria-valuenow', String(before + 20))
+  })
+
   test('Chinese long copy remains within the viewport at 200 percent zoom', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.setViewportSize({ width: 640, height: 900 })
     for (const component of components) {
       await gotoComponent(page, component)
       const surface = await getComponentSurface(page, component)
-      await page.evaluate(() => document.documentElement.style.zoom = '200%')
       const overflow = await surface.evaluate((element) => ({ viewport: element.clientWidth, content: element.scrollWidth }))
       expect(overflow.content, `${component} overflows horizontally at 200%`).toBeLessThanOrEqual(overflow.viewport)
+      const outOfViewport = await surface.evaluate((element) => {
+        const viewportRight = document.documentElement.clientWidth
+        return Array.from(element.querySelectorAll<HTMLElement>('button, input, textarea, select, [role="button"], [role="combobox"], h1, h2, h3, p, label'))
+          .filter((candidate) => {
+            const style = getComputedStyle(candidate)
+            return style.display !== 'none' && style.visibility !== 'hidden'
+          })
+          .map((candidate) => candidate.getBoundingClientRect())
+          .filter((rect) => rect.left < -1 || rect.right > viewportRight + 1)
+          .map((rect) => ({ left: Math.round(rect.left), right: Math.round(rect.right) }))
+      })
+      expect(outOfViewport, `${component} has visible content outside the viewport at 200%`).toEqual([])
     }
   })
 
   test('target panel text and controls remain visible and operable at 200 percent zoom', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.setViewportSize({ width: 640, height: 900 })
     await gotoComponent(page, 'ai-agent-workbench')
     const surface = await getComponentSurface(page, 'ai-agent-workbench')
-    await page.evaluate(() => { document.documentElement.style.zoom = '200%' })
 
-    const targetPanel = surface.locator('.aheart-ai-workbench__main, .aheart-ai-workbench__execution, .aheart-ai-workbench__artifact').filter({ hasText: /任务|执行|产物/ }).first()
+    const targetPanel = surface.locator('.aheart-ai-workbench__chat:visible, .aheart-ai-workbench__mobile-panel:visible, .aheart-ai-workbench__execution:visible').first()
     await expect(targetPanel).toBeVisible()
     const operableButton = targetPanel.locator('button:not([disabled])').first()
     await expect(operableButton).toBeVisible()
     await operableButton.focus()
     await expect(operableButton).toBeFocused()
+  })
+
+  test('AI Workbench exposes the execution and artifact state on mobile', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'The execution drawer visual evidence is owned by the mobile project.')
+    await page.setViewportSize({ width: 390, height: 844 })
+    await gotoComponent(page, 'ai-agent-workbench')
+    const workbench = page.locator('.aheart-ai-workbench').first()
+    await workbench.getByRole('tab', { name: '执行' }).click()
+    await workbench.getByRole('button', { name: '查看执行与产物' }).click()
+    const drawer = page.getByRole('dialog', { name: '执行与产物' })
+    await expect(drawer).toBeVisible()
+    await expect(drawer).toContainText('产物')
+    await expect(drawer).toHaveScreenshot('ai-agent-workbench-execution-mobile-390x844.png', { animations: 'disabled' })
   })
 
   test('desktop component surface screenshots match baselines', async ({ page }) => {

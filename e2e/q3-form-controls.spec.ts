@@ -26,9 +26,9 @@ test('Select supports real popup selection, multiple removal, clear, and loading
 
   const multiple = page.locator('.aheart-demo-panel').nth(1)
   await expect(multiple.locator('.aheart-select__tag')).toHaveCount(2)
-  await multiple.getByRole('button', { name: 'Remove Apple' }).click()
+  await multiple.getByRole('button', { name: '移除 Apple' }).click()
   await expect(multiple.locator('.aheart-select__tag')).toHaveCount(1)
-  await multiple.getByRole('button', { name: 'Clear' }).click()
+  await multiple.getByRole('button', { name: '清除' }).click()
   await expect(multiple.locator('.aheart-select__tag')).toHaveCount(0)
 
   const loading = page.locator('.aheart-select.is-loading')

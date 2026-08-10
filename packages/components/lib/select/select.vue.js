@@ -11,7 +11,7 @@ require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["id", "role", "tabindex", "aria-controls", "aria-labelledby", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
 const _hoisted_2 = { class: "aheart-select__tag-label" };
-const _hoisted_3 = ["onClick"];
+const _hoisted_3 = ["aria-label", "onClick"];
 const _hoisted_4 = {
   key: 0,
   class: "aheart-select__tag aheart-select__tag--rest"
@@ -433,7 +433,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     class: vue.normalizeClass(["aheart-select__tag-remove", _ctx.classNames.tagRemove]),
                     style: vue.normalizeStyle(_ctx.styles.tagRemove),
                     type: "button",
-                    "aria-label": "Remove selected option",
+                    "aria-label": `移除 ${option.label}`,
                     onClick: vue.withModifiers(($event) => removeValue(option.value), ["stop"])
                   }, " × ", 14, _hoisted_3)) : vue.createCommentVNode("", true)
                 ], 6);
@@ -480,7 +480,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-select__clear", _ctx.classNames.clear]),
             style: vue.normalizeStyle(_ctx.styles.clear),
             type: "button",
-            "aria-label": "Clear selection",
+            "aria-label": "清除",
             onClick: vue.withModifiers(handleClear, ["stop"])
           }, [
             vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [

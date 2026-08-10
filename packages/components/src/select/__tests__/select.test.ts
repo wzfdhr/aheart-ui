@@ -365,8 +365,8 @@ describe('Select', () => {
       props: { options, modelValue: ['apple'], mode: 'multiple', allowClear: true }
     })
 
-    expect(wrapper.get('.aheart-select__clear').attributes('aria-label')).toBe('Clear selection')
-    expect(wrapper.get('.aheart-select__tag-remove').attributes('aria-label')).toBe('Remove selected option')
+    expect(wrapper.get('.aheart-select__clear').attributes('aria-label')).toBe('清除')
+    expect(wrapper.get('.aheart-select__tag-remove').attributes('aria-label')).toBe('移除 Apple')
   })
 
   it('does not submit values after an open popup becomes disabled', async () => {
