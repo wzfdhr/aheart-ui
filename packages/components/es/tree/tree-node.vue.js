@@ -1,5 +1,5 @@
 import { defineComponent, computed, resolveComponent, openBlock, createElementBlock, createElementVNode, normalizeClass, withModifiers, toDisplayString, createCommentVNode, Fragment, renderList, createBlock } from "vue";
-const _hoisted_1 = ["aria-selected", "aria-expanded", "aria-disabled"];
+const _hoisted_1 = ["aria-label", "aria-selected", "aria-expanded", "aria-disabled"];
 const _hoisted_2 = ["data-tree-key", "tabindex"];
 const _hoisted_3 = ["disabled", "aria-label"];
 const _hoisted_4 = {
@@ -43,6 +43,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("li", {
         class: "aheart-tree__treeitem",
         role: "treeitem",
+        "aria-label": __props.node.title,
         "aria-selected": selected.value,
         "aria-expanded": hasChildren.value ? expanded.value : void 0,
         "aria-disabled": isDisabled.value || void 0

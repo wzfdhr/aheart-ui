@@ -26,7 +26,10 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
-    disabled: BooleanConstructor;
+    disabled: {
+        type: BooleanConstructor;
+        default: undefined;
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     select: (keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => void;
     check: (keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => void;
@@ -61,7 +64,10 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
-    disabled: BooleanConstructor;
+    disabled: {
+        type: BooleanConstructor;
+        default: undefined;
+    };
 }>> & Readonly<{
     onSelect?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => any) | undefined;
     onCheck?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => any) | undefined;

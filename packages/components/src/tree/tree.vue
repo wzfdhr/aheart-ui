@@ -79,12 +79,17 @@ const findParent = (key: TreeKey, nodes = props.treeData, parent?: TreeNodeData)
 }
 watch(mergedExpandedKeys, () => {
   const visibleNodes = getVisibleNodes(props.treeData)
-  if (!visibleNodes.some((node) => node.key === focusedKey.value)) {
-    let nextKey = focusedKey.value
+  const activeElement = typeof document !== 'undefined' && rootRef.value?.contains(document.activeElement)
+    ? (document.activeElement as HTMLElement).dataset.treeKey
+    : undefined
+  const currentKey = activeElement ?? focusedKey.value
+  if (!visibleNodes.some((node) => String(node.key) === currentKey || node.key === currentKey)) {
+    let nextKey = currentKey === undefined ? undefined : (visibleNodes.find((node) => String(node.key) === currentKey)?.key ?? currentKey)
     while (nextKey !== undefined && !visibleNodes.some((node) => node.key === nextKey)) {
       nextKey = findParent(nextKey)?.key
     }
     focusedKey.value = nextKey ?? visibleNodes[0]?.key
+    if (focusedKey.value !== undefined) focusNode(focusedKey.value)
   }
 })
 const focusNode = (key: TreeKey) => {
@@ -94,6 +99,12 @@ const focusNode = (key: TreeKey) => {
       .find((element) => element.dataset.treeKey === String(key))
       ?.focus()
   })
+}
+const syncCheckboxes = () => {
+  for (const input of Array.from(rootRef.value?.querySelectorAll<HTMLInputElement>('.aheart-tree__checkbox') ?? [])) {
+    const key = input.closest<HTMLElement>('[data-tree-key]')?.dataset.treeKey
+    if (key !== undefined) input.checked = mergedCheckedKeys.value.some((current) => String(current) === key)
+  }
 }
 const updateExpandedKeys = (keys: TreeKey[], node: TreeNodeData) => {
   if (!expandedControlled.value) innerExpandedKeys.value = keys
@@ -121,6 +132,7 @@ const checkNode = (node: TreeNodeData) => {
   focusedKey.value = node.key
   emit('update:checkedKeys', nextKeys)
   emit('check', nextKeys, node)
+  nextTick(syncCheckboxes)
 }
 const handleKeydown = (event: KeyboardEvent, node: TreeNodeData) => {
   const visibleNodes = getVisibleNodes(props.treeData)
@@ -133,8 +145,12 @@ const handleKeydown = (event: KeyboardEvent, node: TreeNodeData) => {
     focusNode(visibleNodes[index - 1].key)
   } else if (event.key === 'ArrowRight') {
     event.preventDefault()
-    if (node.children?.length && !mergedExpandedKeys.value.includes(node.key)) toggleExpanded(node, true)
-    else if (node.children?.[0]) focusNode(node.children[0].key)
+    if (node.children?.length && !mergedExpandedKeys.value.includes(node.key)) {
+      toggleExpanded(node, true)
+      nextTick(() => {
+        if (mergedExpandedKeys.value.includes(node.key) && node.children?.[0]) focusNode(node.children[0].key)
+      })
+    } else if (node.children?.[0]) focusNode(node.children[0].key)
   } else if (event.key === 'ArrowLeft') {
     event.preventDefault()
     if (mergedExpandedKeys.value.includes(node.key)) toggleExpanded(node, false)
@@ -149,6 +165,10 @@ const handleKeydown = (event: KeyboardEvent, node: TreeNodeData) => {
     event.preventDefault()
     if (props.checkable) checkNode(node)
     else selectNode(node)
+  } else if (event.key === 'Home' || event.key === 'End') {
+    event.preventDefault()
+    const target = event.key === 'Home' ? visibleNodes[0] : visibleNodes.at(-1)
+    if (target) focusNode(target.key)
   }
 }
 </script>

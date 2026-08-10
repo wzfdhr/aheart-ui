@@ -57,14 +57,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     vue.watch(mergedExpandedKeys, () => {
-      var _a2, _b;
+      var _a2, _b, _c, _d;
       const visibleNodes = getVisibleNodes(props.treeData);
-      if (!visibleNodes.some((node) => node.key === focusedKey.value)) {
-        let nextKey = focusedKey.value;
+      const activeElement = typeof document !== "undefined" && ((_a2 = rootRef.value) == null ? void 0 : _a2.contains(document.activeElement)) ? document.activeElement.dataset.treeKey : void 0;
+      const currentKey = activeElement ?? focusedKey.value;
+      if (!visibleNodes.some((node) => String(node.key) === currentKey || node.key === currentKey)) {
+        let nextKey = currentKey === void 0 ? void 0 : ((_b = visibleNodes.find((node) => String(node.key) === currentKey)) == null ? void 0 : _b.key) ?? currentKey;
         while (nextKey !== void 0 && !visibleNodes.some((node) => node.key === nextKey)) {
-          nextKey = (_a2 = findParent(nextKey)) == null ? void 0 : _a2.key;
+          nextKey = (_c = findParent(nextKey)) == null ? void 0 : _c.key;
         }
-        focusedKey.value = nextKey ?? ((_b = visibleNodes[0]) == null ? void 0 : _b.key);
+        focusedKey.value = nextKey ?? ((_d = visibleNodes[0]) == null ? void 0 : _d.key);
+        if (focusedKey.value !== void 0)
+          focusNode(focusedKey.value);
       }
     });
     const focusNode = (key) => {
@@ -73,6 +77,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         var _a2, _b;
         (_b = Array.from(((_a2 = rootRef.value) == null ? void 0 : _a2.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeKey === String(key))) == null ? void 0 : _b.focus();
       });
+    };
+    const syncCheckboxes = () => {
+      var _a2, _b;
+      for (const input of Array.from(((_a2 = rootRef.value) == null ? void 0 : _a2.querySelectorAll(".aheart-tree__checkbox")) ?? [])) {
+        const key = (_b = input.closest("[data-tree-key]")) == null ? void 0 : _b.dataset.treeKey;
+        if (key !== void 0)
+          input.checked = mergedCheckedKeys.value.some((current) => String(current) === key);
+      }
     };
     const updateExpandedKeys = (keys, node) => {
       if (!expandedControlled.value)
@@ -107,6 +119,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       focusedKey.value = node.key;
       emit("update:checkedKeys", nextKeys);
       emit("check", nextKeys, node);
+      vue.nextTick(syncCheckboxes);
     };
     const handleKeydown = (event, node) => {
       var _a2, _b;
@@ -120,9 +133,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         focusNode(visibleNodes[index - 1].key);
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
-        if (((_a2 = node.children) == null ? void 0 : _a2.length) && !mergedExpandedKeys.value.includes(node.key))
+        if (((_a2 = node.children) == null ? void 0 : _a2.length) && !mergedExpandedKeys.value.includes(node.key)) {
           toggleExpanded(node, true);
-        else if ((_b = node.children) == null ? void 0 : _b[0])
+          vue.nextTick(() => {
+            var _a3;
+            if (mergedExpandedKeys.value.includes(node.key) && ((_a3 = node.children) == null ? void 0 : _a3[0]))
+              focusNode(node.children[0].key);
+          });
+        } else if ((_b = node.children) == null ? void 0 : _b[0])
           focusNode(node.children[0].key);
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
@@ -142,6 +160,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           checkNode(node);
         else
           selectNode(node);
+      } else if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        const target = event.key === "Home" ? visibleNodes[0] : visibleNodes.at(-1);
+        if (target)
+          focusNode(target.key);
       }
     };
     return (_ctx, _cache) => {
