@@ -1,10 +1,10 @@
 <template>
   <div class="aheart-ai-workbench__execution-content">
-    <section class="aheart-ai-workbench__tasks" aria-labelledby="agent-tasks-title">
+    <section class="aheart-ai-workbench__tasks" :aria-labelledby="taskHeadingId">
       <div class="aheart-ai-workbench__section-heading">
         <div>
           <span class="aheart-ai-workbench__eyebrow">执行流程</span>
-          <h2 id="agent-tasks-title">执行时间线</h2>
+          <h2 :id="taskHeadingId">执行时间线</h2>
         </div>
         <span>{{ tasks.length }} 项</span>
       </div>
@@ -120,11 +120,11 @@
       <p v-if="!tasks.length" class="aheart-ai-workbench__empty">尚无执行任务。</p>
     </section>
 
-    <section class="aheart-ai-workbench__artifacts" aria-labelledby="agent-artifacts-title">
+    <section class="aheart-ai-workbench__artifacts" :aria-labelledby="artifactHeadingId">
       <div class="aheart-ai-workbench__section-heading">
         <div>
           <span class="aheart-ai-workbench__eyebrow">产物输出</span>
-          <h2 id="agent-artifacts-title">产物</h2>
+          <h2 :id="artifactHeadingId">产物</h2>
         </div>
         <span>{{ artifacts.length }} 项</span>
       </div>
@@ -168,13 +168,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import { Button as AButton } from 'aheart-ui'
 import { SortableList as ASortableList } from '@aheart-ui/dnd'
 import { getSafeUrl } from './safe-markdown'
 import type { AIAgentArtifact, AIAgentTask, AIAgentTaskStatus } from './types'
 
 defineOptions({ name: 'AIAgentWorkbenchExecution' })
+
+const executionId = `aheart-agent-execution-${useId().replace(/[^a-zA-Z0-9_-]/g, '-')}`
+const taskHeadingId = `${executionId}-tasks`
+const artifactHeadingId = `${executionId}-artifacts`
 
 const props = withDefaults(
   defineProps<{

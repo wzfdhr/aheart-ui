@@ -36,6 +36,23 @@ describe('AIAgentWorkbench', () => {
     expect(wrapper.emitted('move-task')?.[0]).toEqual(['research', 'down'])
   })
 
+  it('gives each execution instance unique labelled section ids', async () => {
+    const wrapper = mount(AIAgentWorkbench, { props: { tasks, artifacts: [{ id: 'report', title: '报告.md' }] } })
+    await wrapper.get('#aheart-tab-execution').trigger('click')
+    await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
+    const taskSections = wrapper.findAll('.aheart-ai-workbench__tasks')
+    const artifactSections = wrapper.findAll('.aheart-ai-workbench__artifacts')
+    const taskIds = taskSections.map((section) => section.get('h2').attributes('id'))
+    const artifactIds = artifactSections.map((section) => section.get('h2').attributes('id'))
+
+    expect(taskSections).toHaveLength(2)
+    expect(artifactSections).toHaveLength(2)
+    expect(new Set(taskIds).size).toBe(taskIds.length)
+    expect(new Set(artifactIds).size).toBe(artifactIds.length)
+    expect(taskSections.every((section, index) => section.attributes('aria-labelledby') === taskIds[index])).toBe(true)
+    expect(artifactSections.every((section, index) => section.attributes('aria-labelledby') === artifactIds[index])).toBe(true)
+  })
+
   it('includes a mobile tabs and drawer workflow', async () => {
     const wrapper = mount(AIAgentWorkbench, { props: { tasks, contextItems: [{ id: 'brief', label: '需求简报' }] } })
 

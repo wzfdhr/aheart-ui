@@ -7,6 +7,7 @@ const zhComponentItems = getComponentSidebar('zh')
 
 export default defineConfig({
   title: 'Aheart UI',
+  lang: 'zh-CN',
   description: '面向产品界面的 Vue 3 组件库',
   srcExclude: ['superpowers/**', 'en/**'],
   lastUpdated: true,

@@ -868,6 +868,8 @@ fieldset.aheart-ai-form__group {
 }
 
 .aheart-ai-workbench__execution-content {
+  min-inline-size: 0;
+  overflow-x: hidden;
   padding: 16px;
 }
 
@@ -1183,6 +1185,33 @@ fieldset.aheart-ai-form__group {
 
 .aheart-ai-workbench__mobile {
   display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .aheart-ai-workbench__execution {
+    --aheart-ai-line: #344054;
+    --aheart-ai-surface: #101828;
+    --aheart-ai-surface-subtle: #1d2939;
+    --aheart-ai-text: #f2f4f7;
+    --aheart-ai-text-secondary: #b8c3d1;
+    background: var(--aheart-ai-surface);
+    color: var(--aheart-ai-text);
+  }
+
+  .aheart-ai-workbench__execution .aheart-ai-workbench__timeline-marker,
+  .aheart-ai-workbench__execution .aheart-ai-workbench__artifact-list li,
+  .aheart-ai-workbench__execution .aheart-ai-workbench__empty {
+    background: var(--aheart-ai-surface-subtle);
+  }
+
+  .aheart-ai-workbench__execution .aheart-ai-workbench__task-progress [role="progressbar"] {
+    background: #475467;
+  }
+
+  .aheart-ai-workbench__execution .aheart-ai-workbench__artifact-preview {
+    border-color: #3b82f6;
+    background: #172554;
+  }
 }
 
 @media (max-width: 760px) {
