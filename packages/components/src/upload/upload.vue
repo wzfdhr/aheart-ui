@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import type { UploadFile, UploadRequest } from './types'
 import './style.css'
 
@@ -110,8 +110,9 @@ const uploadReadyFiles = async () => {
 }
 const handleChange = async (event: Event) => {
   const files = Array.from((event.target as HTMLInputElement).files ?? [])
-  const remaining = Math.max(0, props.maxCount - latestFileList.value.length)
-  let nextFiles = latestFileList.value
+  let nextFiles = props.fileList === undefined ? latestFileList.value : [...props.fileList]
+  latestFileList.value = nextFiles
+  const remaining = Math.max(0, props.maxCount - nextFiles.length)
 
   for (const rawFile of files.slice(0, remaining)) {
     const uploadFile = toUploadFile(rawFile)
@@ -121,6 +122,8 @@ const handleChange = async (event: Event) => {
     if (shouldUpload !== false) nextFiles = await upload(uploadFile, nextFiles)
   }
 
+  await nextTick()
+  await nextTick()
   ;(event.target as HTMLInputElement).value = ''
 }
 const removeFile = (uid: string) => {

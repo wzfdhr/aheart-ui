@@ -112,7 +112,7 @@ describe('Upload', () => {
 
     expect(parentUpdates).toContainEqual(['accepted.txt'])
     expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(1)
-    expect(wrapper.find('.aheart-upload__item')).toContain('accepted.txt')
+    expect(wrapper.find('.aheart-upload__item').text()).toContain('accepted.txt')
   })
 
   it('does not restore a removed file when a pending request resolves', async () => {
