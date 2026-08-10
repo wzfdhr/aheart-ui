@@ -3,7 +3,10 @@ import { renderToString } from '@vue/server-renderer'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import { enUS, useAheartConfig } from '../../config'
+import Button from '../../button/button.vue'
 import ConfigProvider from '../config-provider.vue'
+import Empty from '../../empty/empty.vue'
+import Pagination from '../../pagination/pagination.vue'
 
 const ConfigReader = defineComponent({
   props: {
@@ -53,6 +56,16 @@ describe('ConfigProvider', () => {
   })
 
   it('propagates runtime locale size disabled and theme updates to mounted descendants', async () => {
+    const App = defineComponent({
+      setup() {
+        return () => h('div', { class: 'runtime-fixtures' }, [
+          h(Button, { type: 'primary' }, { default: () => '主要操作' }),
+          h(Empty),
+          h(Pagination, { total: 42, pageSize: 10, showTotal: true }),
+          h(ConfigReader)
+        ])
+      }
+    })
     const wrapper = mount(ConfigProvider, {
       props: {
         size: 'small',
@@ -60,8 +73,14 @@ describe('ConfigProvider', () => {
         locale: { empty: { description: '初始空状态' } },
         theme: { primaryColor: '#1677ff' }
       },
-      slots: { default: ConfigReader }
+      slots: { default: () => h(App) }
     })
+
+    expect(wrapper.find('button.aheart-button').classes()).toContain('aheart-button--small')
+    expect(wrapper.find('.aheart-button').attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('.aheart-empty__description').text()).toBe('初始空状态')
+    expect(wrapper.find('.aheart-pagination').attributes('aria-label')).toBe('分页')
+    expect(wrapper.find('.aheart-pagination__total').text()).toBe('共 42 条')
 
     await wrapper.setProps({
       size: 'large',
@@ -70,7 +89,15 @@ describe('ConfigProvider', () => {
       theme: { primaryColor: '#0958d9' }
     })
 
+    const button = wrapper.find('button.aheart-button')
+    const empty = wrapper.find('.aheart-empty__description')
+    const pagination = wrapper.find('.aheart-pagination')
     const reader = wrapper.find('.config-reader')
+    expect(button.classes()).toContain('aheart-button--large')
+    expect(button.attributes('disabled')).toBeDefined()
+    expect(empty.text()).toBe('No Data')
+    expect(pagination.attributes('aria-label')).toBe('pagination')
+    expect(pagination.find('.aheart-pagination__total').text()).toBe('Total 42 items')
     expect(reader.attributes('data-size')).toBe('large')
     expect(reader.attributes('data-disabled')).toBe('true')
     expect(reader.attributes('data-empty')).toBe('No Data')
@@ -151,10 +178,20 @@ describe('ConfigProvider', () => {
                 h(ConfigProvider, { locale: { empty: { description: '中层空状态' } } }, {
                   default: () =>
                     h(ConfigProvider, { size: 'small', disabled: false, theme: { primaryColor: '#0958d9' } }, {
-                      default: () => h(ConfigReader, { label: 'inner' })
+                      default: () => h('section', { 'data-label': 'inner' }, [
+                        h(ConfigReader, { label: 'inner' }),
+                        h(Button, { type: 'primary' }, { default: () => '内层操作' }),
+                        h(Empty),
+                        h(Pagination, { total: 42, pageSize: 10, showTotal: true })
+                      ])
                     })
                 }),
-                h(ConfigReader, { label: 'outer-sibling' })
+                h('section', { 'data-label': 'outer-sibling' }, [
+                  h(ConfigReader, { label: 'outer-sibling' }),
+                  h(Button, { type: 'primary' }, { default: () => '外层操作' }),
+                  h(Empty),
+                  h(Pagination, { total: 42, pageSize: 10, showTotal: true })
+                ])
               ]
             }
           )
@@ -162,8 +199,10 @@ describe('ConfigProvider', () => {
     })
 
     const wrapper = mount(NestedProviders)
-    const inner = wrapper.find('[data-label="inner"]')
-    const sibling = wrapper.find('[data-label="outer-sibling"]')
+    const innerRegion = wrapper.find('[data-label="inner"]')
+    const siblingRegion = wrapper.find('[data-label="outer-sibling"]')
+    const inner = innerRegion.find('.config-reader')
+    const sibling = siblingRegion.find('.config-reader')
 
     expect(inner.attributes('data-size')).toBe('small')
     expect(inner.attributes('data-disabled')).toBe('false')
@@ -173,6 +212,15 @@ describe('ConfigProvider', () => {
     expect(sibling.attributes('data-disabled')).toBe('true')
     expect(sibling.attributes('data-empty')).toBe('No Data')
     expect(sibling.attributes('data-theme-primary')).toBe('#1677ff')
+
+    expect(innerRegion.find('.aheart-button').classes()).toContain('aheart-button--small')
+    expect(innerRegion.find('.aheart-button').attributes('disabled')).toBeUndefined()
+    expect(innerRegion.find('.aheart-empty__description').text()).toBe('中层空状态')
+    expect(innerRegion.find('.aheart-pagination').attributes('aria-label')).toBe('pagination')
+    expect(siblingRegion.find('.aheart-button').classes()).toContain('aheart-button--large')
+    expect(siblingRegion.find('.aheart-button').attributes('disabled')).toBeDefined()
+    expect(siblingRegion.find('.aheart-empty__description').text()).toBe('No Data')
+    expect(siblingRegion.find('.aheart-pagination').attributes('aria-label')).toBe('pagination')
   })
 
   it('deeply merges date and time picker locale copy', () => {
@@ -216,11 +264,19 @@ describe('ConfigProvider', () => {
   it('hydrates Chinese HTML without Vue warnings and remains reactive after locale and theme switches', async () => {
     const state = ref({
       locale: undefined,
+      size: 'middle' as const,
+      disabled: false,
       theme: { primaryColor: '#1677ff' }
     })
     const App = defineComponent({
       setup() {
-        return () => h(ConfigProvider, state.value, { default: () => h(ConfigReader) })
+        return () => h(ConfigProvider, state.value, {
+          default: () => h('div', { class: 'hydration-fixtures' }, [
+            h(Button, { type: 'primary' }, { default: () => '主要操作' }),
+            h(Empty),
+            h(Pagination, { total: 42, pageSize: 10, showTotal: true })
+          ])
+        })
       }
     })
 
@@ -230,20 +286,39 @@ describe('ConfigProvider', () => {
     document.body.replaceChildren(host)
 
     const warnings: string[] = []
-    const warn = vi.spyOn(console, 'warn').mockImplementation((...args) => warnings.push(args.join(' ')))
+    const warn = vi.spyOn(console, 'warn').mockImplementation((...args) => warnings.push(`console.warn: ${args.join(' ')}`))
+    const error = vi.spyOn(console, 'error').mockImplementation((...args) => warnings.push(`console.error: ${args.join(' ')}`))
     const clientApp = createSSRApp(App)
-    clientApp.config.warnHandler = (message) => warnings.push(message)
+    clientApp.config.warnHandler = (message) => warnings.push(`app.warnHandler: ${message}`)
     clientApp.mount(host, true)
 
-    expect(warnings.filter((message) => message.includes('[Vue warn]') || message.includes('Hydration'))).toEqual([])
+    expect(host.querySelector('.aheart-empty__description')?.textContent).toBe('暂无数据')
+    expect(host.querySelector('.aheart-button')?.classList).toContain('aheart-button--normal')
+    expect(host.querySelector('.aheart-button')?.hasAttribute('disabled')).toBe(false)
+    expect(host.querySelector('.aheart-pagination')?.getAttribute('aria-label')).toBe('分页')
+    expect(host.querySelector('.aheart-pagination__total')?.textContent).toBe('共 42 条')
+    expect(warnings).toEqual([])
 
-    state.value = { locale: enUS, theme: { primaryColor: '#0958d9' } }
+    state.value = {
+      locale: enUS,
+      size: 'large',
+      disabled: true,
+      theme: { primaryColor: '#0958d9' }
+    }
     await nextTick()
 
-    const reader = document.querySelector('.config-reader') as HTMLElement
     const provider = document.querySelector('.aheart-config-provider') as HTMLElement
-    expect(reader.dataset.empty).toBe('No Data')
+    const button = document.querySelector('.hydration-fixtures .aheart-button') as HTMLButtonElement
+    const pagination = document.querySelector('.hydration-fixtures .aheart-pagination') as HTMLElement
+    expect(document.querySelector('.aheart-empty__description')?.textContent).toBe('No Data')
+    expect(button.classList).toContain('aheart-button--large')
+    expect(button.disabled).toBe(true)
+    expect(pagination.getAttribute('aria-label')).toBe('pagination')
+    expect(pagination.querySelector('.aheart-pagination__total')?.textContent).toBe('Total 42 items')
     expect(provider.getAttribute('style')).toContain('--aheart-color-primary: #0958d9')
+    expect(warnings).toEqual([])
+    clientApp.unmount()
     warn.mockRestore()
+    error.mockRestore()
   })
 })

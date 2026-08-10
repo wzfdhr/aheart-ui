@@ -27,19 +27,28 @@ test('ConfigProvider workbench updates real descendants across locale, size, dis
   await expect(workbench.getByText('暂无数据', { exact: true })).toBeVisible()
   await expect(workbench.getByRole('navigation', { name: '分页', exact: true })).toBeVisible()
 
+  const primaryButton = workbench.getByRole('button', { name: '主要操作', exact: true })
+  const initialButtonBox = await primaryButton.boundingBox()
+  expect(initialButtonBox).not.toBeNull()
+
   await workbench.getByRole('button', { name: 'English', exact: true }).click()
   await expect(workbench.getByText('No Data', { exact: true })).toBeVisible()
   await expect(workbench.getByRole('navigation', { name: 'pagination', exact: true })).toContainText('Total 42 items')
 
   await workbench.getByRole('combobox', { name: '组件尺寸', exact: true }).selectOption('small')
   await expect(workbench.getByTestId('config-state')).toContainText('size=small')
+  await expect(primaryButton).toHaveClass(/aheart-button--small/)
+  const smallButtonBox = await primaryButton.boundingBox()
+  expect(smallButtonBox).not.toBeNull()
+  expect(smallButtonBox!.height).toBeLessThan(initialButtonBox!.height)
 
-  const primaryButton = workbench.getByRole('button', { name: '主要操作', exact: true })
   await workbench.getByRole('checkbox', { name: '全局禁用', exact: true }).check()
   await expect(primaryButton).toBeDisabled()
 
+  const primaryBackgroundBeforeTheme = await primaryButton.evaluate((element) => getComputedStyle(element).backgroundColor)
   await workbench.getByRole('checkbox', { name: '自定义主题', exact: true }).check()
   await expect(workbench.getByTestId('config-state')).toContainText('theme=custom')
+  await expect.poll(() => primaryButton.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(primaryBackgroundBeforeTheme)
 
   const outer = workbench.getByRole('region', { name: '外层配置', exact: true })
   const inner = workbench.getByRole('region', { name: '内层覆盖', exact: true })
@@ -47,6 +56,14 @@ test('ConfigProvider workbench updates real descendants across locale, size, dis
   await expect(inner).toContainText('inner-size=small')
   await expect(inner).toContainText('inner-locale=English')
   await expect(sibling).toContainText('outer-locale=English')
+  await expect(inner.locator('.aheart-empty__description')).toHaveText('No Data')
+  await expect(inner.locator('.aheart-button')).toHaveClass(/aheart-button--small/)
+  await expect(inner.locator('.aheart-button')).toBeEnabled()
+  await expect(inner.locator('.aheart-pagination')).toHaveAttribute('aria-label', 'pagination')
+  await expect(sibling.locator('.aheart-empty__description')).toHaveText('No Data')
+  await expect(sibling.locator('.aheart-button')).toHaveClass(/aheart-button--large/)
+  await expect(sibling.locator('.aheart-button')).toBeDisabled()
+  await expect(sibling.locator('.aheart-pagination')).toHaveAttribute('aria-label', 'pagination')
   await expect(outer).toBeVisible()
 
   const unhandledRejections = await page.evaluate((key) => {
