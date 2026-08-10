@@ -1,5 +1,7 @@
 :root {
   --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
   --aheart-ai-cyan-soft: #ecfeff;
   --aheart-ai-line: #e4e7ec;
   --aheart-ai-surface: #ffffff;
@@ -427,6 +429,10 @@
 .aheart-ai-sources {
   padding-block-start: 8px;
   border-block-start: 1px solid var(--aheart-ai-line);
+}
+
+.aheart-ai-sources a {
+  color: var(--aheart-ai-brand-strong);
 }
 
 .aheart-ai-sources h3,
@@ -1151,7 +1157,7 @@ fieldset.aheart-ai-form__group {
 }
 
 .aheart-ai-workbench__artifact-preview-header span {
-  color: var(--aheart-ai-cyan);
+  color: var(--aheart-ai-cyan-strong);
   font: 10px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
   text-transform: uppercase;
 }
@@ -1289,6 +1295,10 @@ fieldset.aheart-ai-form__group {
   .aheart-ai-workbench__mobile .aheart-tabs__tab {
     min-block-size: 44px;
     padding-inline: 12px;
+  }
+
+  .aheart-ai-workbench__mobile .aheart-tabs__tab.is-active {
+    color: var(--aheart-ai-brand-strong);
   }
 
   .aheart-ai-workbench__mobile-panel {
