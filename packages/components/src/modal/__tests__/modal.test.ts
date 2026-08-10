@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
@@ -18,6 +18,102 @@ const mountModal = (options: Record<string, any> = {}) =>
   })
 
 describe('Modal', () => {
+  it('opens from a real button entry point and renders the default actions', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(false)
+
+          return () =>
+            h('div', [
+              h('button', { type: 'button', onClick: () => (open.value = true) }, 'Open from user action'),
+              h(Modal, { open: open.value, title: 'User action modal', getContainer: false })
+            ])
+        }
+      })
+    )
+
+    await wrapper.get('button').trigger('click')
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    await nextTick()
+
+    expect(wrapper.text()).toContain('User action modal')
+    expect(wrapper.find('.aheart-modal__ok').exists()).toBe(true)
+  })
+
+  it('marks the real confirm button busy and disabled while an async confirm is pending', async () => {
+    const resolveConfirm = ref<(() => void) | null>(null)
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(true)
+          const confirmLoading = ref(false)
+
+          const confirm = () => {
+            confirmLoading.value = true
+            return new Promise<void>((resolve) => {
+              resolveConfirm.value = () => {
+                confirmLoading.value = false
+                open.value = false
+                resolve()
+              }
+            })
+          }
+
+          return () =>
+            h(Modal, {
+              open: open.value,
+              title: 'Async confirm',
+              getContainer: false,
+              confirmLoading: confirmLoading.value,
+              onOk: confirm
+            })
+        }
+      })
+    )
+
+    const ok = wrapper.find('.aheart-modal__ok')
+    await ok.trigger('click')
+    await nextTick()
+
+    expect(ok.attributes('disabled')).toBeDefined()
+    expect(ok.attributes('aria-busy')).toBe('true')
+
+    resolveConfirm.value?.()
+    await nextTick()
+    expect(wrapper.find('.aheart-modal').classes()).toContain('is-leave')
+  })
+
+  it('keeps the modal open and focusable when a controlled parent rejects close', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(true)
+
+          return () =>
+            h(Modal, {
+              open: open.value,
+              title: 'Controlled close guard',
+              getContainer: false,
+              'onUpdate:open': () => undefined
+            })
+        }
+      }),
+      { attachTo: document.body }
+    )
+
+    await nextTick()
+    const dialog = wrapper.find('.aheart-modal__dialog')
+    dialog.element.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Escape' })
+    await nextTick()
+
+    expect(wrapper.find('.aheart-modal').exists()).toBe(true)
+    expect(document.activeElement).toBe(dialog.element)
+
+    wrapper.unmount()
+  })
   it('renders title content footer centered state and width when open', () => {
     const wrapper = mountModal({
       props: { open: true, title: 'Edit profile', centered: true, width: 480 },

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createRequire } from 'node:module'
-import { h, nextTick } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 import Message, { message } from '../index'
 
 const require = createRequire(import.meta.url)
@@ -93,6 +93,22 @@ describe('Message', () => {
 
     expect(document.body.querySelector('.aheart-message')).toBeTruthy()
     expect(document.body.textContent).toContain('Saved')
+  })
+
+  it('mounts a service notice from a real user button entry point', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          return () => h('button', { type: 'button', onClick: () => message.success('Clicked service', 0) }, 'Show message')
+        }
+      })
+    )
+
+    await wrapper.get('button').trigger('click')
+    await nextTick()
+
+    expect(document.body.textContent).toContain('Clicked service')
+    expect(document.body.querySelector('.aheart-message-notice')).toBeTruthy()
   })
 
   it('updates notices by key', async () => {
@@ -318,5 +334,23 @@ describe('Message', () => {
     expect(document.body.querySelectorAll('.aheart-message-notice')).toHaveLength(1)
     expect(document.body.textContent).not.toContain('First')
     expect(document.body.textContent).toContain('Second')
+  })
+
+  it('resets global top and maxCount config after destroying all notices', async () => {
+    message.config({ top: 32, maxCount: 1 })
+    message.info('Configured', 0)
+    await nextTick()
+
+    message.destroy()
+    message.info('Reset', 0)
+    await nextTick()
+
+    const host = document.body.querySelector('.aheart-message') as HTMLElement
+    expect(host.getAttribute('style')).toContain('top: 8px')
+    expect(document.body.querySelectorAll('.aheart-message-notice')).toHaveLength(1)
+
+    message.info('Reset still allows two', 0)
+    await nextTick()
+    expect(document.body.querySelectorAll('.aheart-message-notice')).toHaveLength(2)
   })
 })
