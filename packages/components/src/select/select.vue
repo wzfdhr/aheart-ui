@@ -5,6 +5,7 @@
       class="aheart-select__selector"
       :class="classNames.selector"
       :style="styles.selector"
+      v-bind="interactiveAriaAttrs"
       :id="isSearchable ? undefined : id"
       :role="isSearchable ? undefined : 'combobox'"
       :tabindex="isSearchable || isDisabled ? undefined : 0"
@@ -40,7 +41,7 @@
               :class="classNames.tagRemove"
               :style="styles.tagRemove"
               type="button"
-              :aria-label="`Remove ${option.label}`"
+              aria-label="Remove selected option"
               @click.stop="removeValue(option.value)"
             >
               ×
@@ -64,9 +65,11 @@
           :value="currentSearchValue"
           :disabled="isDisabled"
           :placeholder="searchPlaceholder"
+          v-bind="interactiveAriaAttrs"
           :aria-controls="listboxId"
           :aria-labelledby="resolvedAriaLabelledby"
           :aria-expanded="mergedOpen ? 'true' : 'false'"
+          aria-autocomplete="list"
           aria-haspopup="listbox"
           :aria-activedescendant="activeOptionId"
           :aria-busy="loading ? 'true' : undefined"
@@ -90,7 +93,7 @@
         :class="classNames.clear"
         :style="styles.clear"
         type="button"
-        aria-label="Clear"
+        aria-label="Clear selection"
         @click.stop="handleClear"
       >
         <slot name="clearIcon"><ARenderNode :node="clearIconContent" /></slot>
@@ -110,7 +113,7 @@
       </span>
     </span>
 
-    <span v-if="loading" class="aheart-select__status" role="status" aria-live="polite">Loading</span>
+    <span v-if="loading" class="aheart-select__status" role="status" aria-live="polite">{{ resolvedLoadingText }}</span>
 
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <div
@@ -158,7 +161,7 @@
             :class="classNames.notFound"
             :style="styles.notFound"
           >
-            {{ loading ? 'Loading' : notFoundContent }}
+            {{ loading ? resolvedLoadingText : resolvedNotFoundContent }}
           </div>
         </div>
       </div>
@@ -185,7 +188,7 @@ import {
 } from './types'
 import './style.css'
 
-defineOptions({ name: 'ASelect' })
+defineOptions({ name: 'ASelect', inheritAttrs: false })
 
 const props = defineProps(selectProps)
 const emit = defineEmits(selectEmits)
@@ -243,6 +246,14 @@ const resolvedVariant = computed(() => props.variant ?? (props.bordered === fals
 const hasPrefix = computed(() => Boolean(props.prefix !== undefined || slots.prefix))
 const allowClearConfig = computed(() => (typeof props.allowClear === 'object' ? props.allowClear : undefined))
 const clearIconContent = computed(() => allowClearConfig.value?.clearIcon ?? '×')
+const interactiveAriaAttrs = computed(() => Object.fromEntries(
+  Object.entries(attrs).filter(([key]) => key.startsWith('aria-'))
+))
+const resolvedLoadingText = computed(() => config.value.locale?.table?.loadingText ?? 'Loading')
+const hasNotFoundContent = usePropPresence('notFoundContent', 'not-found-content')
+const resolvedNotFoundContent = computed(() =>
+  hasNotFoundContent.value ? props.notFoundContent : config.value.locale?.empty?.description ?? props.notFoundContent
+)
 const getOptionKey = (value: SelectPrimitiveValue) => `${typeof value}:${String(value)}`
 const valueEquals = (left: SelectPrimitiveValue, right: SelectPrimitiveValue) => left === right
 const selectedValues = computed<SelectPrimitiveValue[]>(() =>
