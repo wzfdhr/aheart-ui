@@ -46,12 +46,12 @@ test('Message workbench exercises real service entry, updates, stacking, destroy
   await expect(workbench).toBeVisible()
 
   await workbench.getByRole('button', { name: 'Success', exact: true }).click()
-  await expect(page.getByRole('status', { name: 'Message: Success' })).toBeVisible()
+  await expect(page.getByTestId('message-service-container').getByRole('status').filter({ hasText: 'Success' })).toBeVisible()
 
   await workbench.getByRole('button', { name: 'Start keyed', exact: true }).click()
   await workbench.getByRole('button', { name: 'Finish keyed', exact: true }).click()
-  await expect(page.getByRole('status', { name: 'Message: Uploaded' })).toHaveCount(1)
-  await expect(page.getByRole('status', { name: 'Message: Uploading' })).toHaveCount(0)
+  await expect(page.getByTestId('message-service-container').getByRole('status').filter({ hasText: 'Uploaded' })).toHaveCount(1)
+  await expect(page.getByTestId('message-service-container').getByRole('status').filter({ hasText: 'Uploading' })).toHaveCount(0)
 
   await workbench.getByRole('button', { name: 'Stack threshold', exact: true }).click()
   await expect(workbench.getByText('+2', { exact: true })).toBeVisible()
@@ -59,12 +59,12 @@ test('Message workbench exercises real service entry, updates, stacking, destroy
   await workbench.getByRole('button', { name: 'Close one', exact: true }).click()
   await expect(workbench.getByText('One message', { exact: true })).toHaveCount(0)
   await workbench.getByRole('button', { name: 'Close all', exact: true }).click()
-  await expect(page.getByRole('status')).toHaveCount(0)
+  await expect(page.getByTestId('message-service-container').getByRole('status')).toHaveCount(0)
 
   await workbench.getByRole('button', { name: 'Configured message', exact: true }).click()
-  await expect(page.getByRole('status').last().locator('..')).toHaveCSS('top', '32px')
+  await expect(page.getByTestId('message-service-container').locator('.aheart-message')).toHaveCSS('top', '32px')
   await workbench.getByRole('button', { name: 'Reset config', exact: true }).click()
-  await expect(page.getByRole('status').last().locator('..')).toHaveCSS('top', '8px')
+  await expect(page.getByTestId('message-service-container').locator('.aheart-message')).toHaveCSS('top', '8px')
   await expectNoRuntimeErrors(page)
 })
 
@@ -81,13 +81,13 @@ test('Modal workbench covers async success, failure recovery, Escape focus, and 
   await dialog.getByRole('button', { name: /确\s*定/ }).click()
   await expect(dialog.getByRole('button', { name: /确\s*定/ })).toBeDisabled()
   await expect(dialog.getByRole('button', { name: /确\s*定/ })).toHaveAttribute('aria-busy', 'true')
-  await workbench.getByRole('button', { name: 'Resolve success', exact: true }).click()
+  await page.getByRole('button', { name: 'Resolve success', exact: true }).click()
   await expect(dialog).toBeHidden()
 
   await workbench.getByRole('button', { name: 'Open async modal', exact: true }).click()
   const failedDialog = page.getByRole('dialog', { name: 'Async confirm' })
   await failedDialog.getByRole('button', { name: /确\s*定/ }).click()
-  await workbench.getByRole('button', { name: 'Reject failure', exact: true }).click()
+  await page.getByRole('button', { name: 'Reject failure', exact: true }).click()
   await expect(failedDialog.getByRole('alert')).toContainText('保存失败')
   await expect(failedDialog.getByRole('button', { name: /确\s*定/ })).toBeEnabled()
   await expect(failedDialog.getByRole('button', { name: /确\s*定/ })).not.toHaveAttribute('aria-busy', 'true')

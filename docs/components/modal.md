@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
+import { h, nextTick, ref, type CSSProperties, type VNodeChild } from 'vue'
 
 const basicOpen = ref(false)
 const closeControlsOpen = ref(false)
@@ -12,6 +12,40 @@ const centeredOpen = ref(false)
 const responsiveWidthOpen = ref(false)
 const loadingOpen = ref(false)
 const styledOpen = ref(false)
+const asyncOpen = ref(false)
+const guardedOpen = ref(false)
+const pending = ref(false)
+const requestError = ref('')
+const resolveRequest = ref<(() => void) | null>(null)
+const rejectRequest = ref<(() => void) | null>(null)
+const startRequest = () => {
+  pending.value = true
+  requestError.value = ''
+  const request = new Promise<void>((resolve, reject) => {
+    resolveRequest.value = resolve
+    rejectRequest.value = reject
+  })
+  void request
+    .then(() => {
+      pending.value = false
+      asyncOpen.value = false
+    })
+    .catch(() => {
+      pending.value = false
+      requestError.value = '保存失败，请重试或关闭对话框。'
+    })
+}
+const resolveSuccess = () => resolveRequest.value?.()
+const rejectFailure = () => rejectRequest.value?.()
+const rejectGuardedClose = () => {
+  guardedOpen.value = true
+}
+const openGuarded = () => {
+  guardedOpen.value = true
+  void nextTick(() => {
+    window.setTimeout(() => document.querySelector<HTMLElement>('.aheart-modal.is-entered [role="dialog"]')?.focus(), 250)
+  })
+}
 const customCloseIcon = h('span', { class: 'docs-modal-close-icon' }, 'X')
 const renderableTitle = h('span', { class: 'docs-modal-title-node' }, 'Renderable title')
 const renderableOkText = h('span', { class: 'docs-modal-ok-node' }, 'Confirm')
@@ -40,6 +74,59 @@ const semanticStyles = ({ props }: { props: { open?: boolean } }): Record<string
 # Modal 对话框 <span class="aheart-status aheart-status--ready">已完成</span>
 
 Modal focuses attention in a blocking dialog for decisions, confirmations, and short workflows.
+
+## QG3 对话框交互工作台
+
+<section class="modal-interaction-workbench" role="region" aria-label="对话框交互工作台">
+  <div class="modal-interaction-workbench__toolbar">
+    <div>
+      <p class="modal-interaction-workbench__eyebrow">MODAL CONTROL / QG3</p>
+      <h3>受控打开、异步确认与关闭拒绝</h3>
+      <p>父组件持有 open；所有结果从真实对话框、按钮和焦点状态观察。</p>
+    </div>
+    <div class="modal-interaction-workbench__actions" aria-label="对话框操作">
+      <button type="button" @click="asyncOpen = true">Open async modal</button>
+      <button type="button" @click="openGuarded">Open guarded modal</button>
+    </div>
+  </div>
+  <p class="modal-interaction-workbench__result" aria-live="polite">{{ pending ? '请求进行中：确认按钮忙碌且不可操作' : requestError || '准备就绪：等待一次真实对话框操作' }}</p>
+  <AModal
+    v-model:open="asyncOpen"
+    title="Async confirm"
+    :confirm-loading="pending"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
+    @ok="startRequest"
+  >
+    <p>点击确定后由父组件发起可控的 fake async request。</p>
+    <div class="modal-interaction-workbench__request-controls" aria-label="fake async request 控制">
+      <button type="button" @click="resolveSuccess">Resolve success</button>
+      <button type="button" @click="rejectFailure">Reject failure</button>
+    </div>
+    <p v-if="requestError" role="alert">{{ requestError }}</p>
+  </AModal>
+  <AModal
+    v-model:open="guardedOpen"
+    title="Guarded modal"
+    :focusable="{ trap: true, focusTriggerAfterClose: true }"
+    @update:open="rejectGuardedClose"
+  >
+    <p>Escape 会触发受控关闭请求，但父组件拒绝更新 open。</p>
+    <p role="alert">受控关闭已拒绝</p>
+  </AModal>
+</section>
+
+<style>
+.modal-interaction-workbench { display: grid; gap: 16px; margin: 20px 0 28px; color: #344054; background: #fff; border: 1px solid #d9e1ea; }
+.modal-interaction-workbench__toolbar { display: flex; gap: 24px; justify-content: space-between; padding: 24px; border-bottom: 1px solid #eef1f5; }
+.modal-interaction-workbench__toolbar h3 { margin: 4px 0 8px; color: #1d2939; }
+.modal-interaction-workbench__toolbar p { margin: 0; color: #667085; }
+.modal-interaction-workbench__eyebrow { font-size: 11px; letter-spacing: .12em; color: #1677ff !important; }
+.modal-interaction-workbench__actions { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; justify-content: flex-end; }
+.modal-interaction-workbench button { padding: 7px 11px; border: 1px solid #d9e1ea; border-radius: 6px; background: #fff; color: inherit; cursor: pointer; }
+.modal-interaction-workbench button:hover, .modal-interaction-workbench button:focus-visible { border-color: #1677ff; color: #1677ff; }
+.modal-interaction-workbench__result { margin: 0; padding: 12px 24px; border-top: 1px solid #eef1f5; color: #667085; font-size: 13px; }
+@media (max-width: 640px) { .modal-interaction-workbench__toolbar { display: block; padding: 16px; } .modal-interaction-workbench__actions { justify-content: flex-start; margin-top: 16px; } .modal-interaction-workbench__result { padding: 12px 16px; } }
+</style>
 
 ## 基础用法
 
