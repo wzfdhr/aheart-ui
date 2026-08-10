@@ -44,7 +44,7 @@ const collapseExternally = () => { expandedKeys.value = []; announce('外部折�
 
 ## QG3 受控交互工作台
 
-<section class="tree-workbench" role="region" aria-label="树交互工作台">
+<section class="tree-workbench aheart-demo-panel" role="region" aria-label="树交互工作台">
   <div class="tree-workbench__toolbar">
     <div>
       <p class="tree-workbench__eyebrow">CONTROLLED TREE / QG3</p>
@@ -135,6 +135,9 @@ const collapseExternally = () => { expandedKeys.value = []; announce('外部折�
 
 <style>
 .tree-workbench { color: var(--aheart-color-text); background: var(--aheart-color-bg-container); border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-radius-lg); overflow: hidden; }
+.tree-workbench.aheart-demo-panel { margin: 0; padding: 0; }
+.tree-workbench.aheart-demo-panel .aheart-tree__list > li + li, .tree-workbench.aheart-demo-panel .aheart-tree__group > li + li { margin-top: 8px; }
+.tree-workbench.aheart-demo-panel .aheart-tree__group { margin-block: 8px 0; }
 .tree-workbench__toolbar, .tree-workbench__body { display: flex; gap: 24px; justify-content: space-between; padding: 24px; }
 .tree-workbench__toolbar { border-bottom: 1px solid var(--aheart-color-border); }
 .tree-workbench__toolbar h3 { margin: 4px 0 8px; color: var(--aheart-color-text-heading); }
