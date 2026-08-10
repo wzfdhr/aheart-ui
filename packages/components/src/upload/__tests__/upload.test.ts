@@ -102,6 +102,40 @@ describe('Upload', () => {
     await change
   })
 
+  it('emits a second same-name selection while the first custom upload is pending', async () => {
+    const pendingRequests: Array<{
+      file: { name: string; uid: string }
+      onSuccess: () => void
+      resolve: () => void
+    }> = []
+    const customRequest = vi.fn(({ file, onSuccess }: {
+      file: { name: string; uid: string }
+      onSuccess: () => void
+    }) => new Promise<void>((resolve) => {
+      pendingRequests.push({ file, onSuccess, resolve })
+    }))
+    const wrapper = mount(Upload, { props: { customRequest } })
+    const input = wrapper.find('input[type="file"]')
+
+    const firstChange = selectFiles(input, [createFile('same-name.txt')])
+    await vi.waitFor(() => expect(customRequest).toHaveBeenCalledOnce())
+
+    const secondChange = selectFiles(input, [createFile('same-name.txt')])
+    await vi.waitFor(() => expect(customRequest).toHaveBeenCalledTimes(2))
+
+    expect(pendingRequests[0].file.uid).not.toBe(pendingRequests[1].file.uid)
+    expect(wrapper.emitted('change')?.at(-1)?.[0]).toMatchObject([
+      { name: 'same-name.txt', status: 'uploading' },
+      { name: 'same-name.txt', status: 'uploading' }
+    ])
+
+    pendingRequests.forEach(({ onSuccess, resolve }) => {
+      onSuccess()
+      resolve()
+    })
+    await Promise.all([firstChange, secondChange])
+  })
+
   it('enforces maxCount and supports removal', async () => {
     const wrapper = mount(Upload, { props: { maxCount: 1 } })
     await selectFiles(wrapper.find('input[type="file"]'), [createFile('one.txt'), createFile('two.txt')])
