@@ -15,8 +15,10 @@ Select lets users choose one or more values from a fixed option list, with searc
 ## 基础用法
 
 <div class="aheart-demo-panel">
+  <label id="select-basic-label">Choose fruit</label>
   <ASelect
     v-model="selectValue"
+    labelled-by="select-basic-label"
     placeholder="Choose fruit"
     :options="[
       { label: 'Apple', value: 'apple' },
@@ -28,8 +30,10 @@ Select lets users choose one or more values from a fixed option list, with searc
 
 ```vue
 <template>
+  <label id="select-basic-label">Choose fruit</label>
   <ASelect
     v-model="value"
+    labelled-by="select-basic-label"
     placeholder="Choose fruit"
     :options="[
       { label: 'Apple', value: 'apple' },
