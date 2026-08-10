@@ -34,7 +34,7 @@
             </section>
           </aside>
         </ASplitterPanel>
-        <ASplitterPanel :min="240">
+        <ASplitterPanel :min="230">
           <main class="aheart-ai-workbench__chat">
             <AIChatPanel
               v-if="transport"
@@ -56,7 +56,7 @@
             <slot name="attachments" :attachments="attachments"><AIAttachments :items="attachments" /></slot>
           </main>
         </ASplitterPanel>
-        <ASplitterPanel :min="190" collapsible>
+        <ASplitterPanel :min="180" collapsible>
           <aside class="aheart-ai-workbench__execution" aria-label="执行与产物">
             <AgentExecution
               :tasks="tasks"

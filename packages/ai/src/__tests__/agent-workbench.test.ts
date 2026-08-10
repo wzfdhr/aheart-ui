@@ -28,6 +28,13 @@ describe('AIAgentWorkbench', () => {
     expect(wrapper.emitted('approve')?.[0]?.[0]).toMatchObject({ id: 'publish' })
   })
 
+  it('keeps desktop splitter minimums within the zoomed desktop surface budget', () => {
+    const wrapper = mount(AIAgentWorkbench)
+    const panelMinimums = wrapper.findAllComponents({ name: 'ASplitterPanel' }).map((panel) => panel.props('min') as number)
+
+    expect(panelMinimums.reduce((total, minimum) => total + minimum, 0) + 12).toBeLessThanOrEqual(574)
+  })
+
   it('keeps task ordering controlled and provides non-drag move controls', async () => {
     const wrapper = mount(AIAgentWorkbench, { props: { tasks } })
 
