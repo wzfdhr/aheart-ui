@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, nextTick, ref, type CSSProperties, type VNodeChild } from 'vue'
+import { h, ref, type CSSProperties, type VNodeChild } from 'vue'
 
 const basicOpen = ref(false)
 const closeControlsOpen = ref(false)
@@ -17,8 +17,10 @@ const guardedOpen = ref(false)
 const pending = ref(false)
 const requestError = ref('')
 const resolveRequest = ref<(() => void) | null>(null)
-const rejectRequest = ref<(() => void) | null>(null)
+const rejectRequest = ref<((reason?: unknown) => void) | null>(null)
+let requestSequence = 0
 const startRequest = () => {
+  const requestId = ++requestSequence
   pending.value = true
   requestError.value = ''
   const request = new Promise<void>((resolve, reject) => {
@@ -27,24 +29,50 @@ const startRequest = () => {
   })
   void request
     .then(() => {
+      if (requestId !== requestSequence) return
+      resolveRequest.value = null
+      rejectRequest.value = null
       pending.value = false
       asyncOpen.value = false
     })
     .catch(() => {
+      if (requestId !== requestSequence) return
+      resolveRequest.value = null
+      rejectRequest.value = null
       pending.value = false
       requestError.value = '保存失败，请重试或关闭对话框。'
     })
 }
-const resolveSuccess = () => resolveRequest.value?.()
-const rejectFailure = () => rejectRequest.value?.()
+const resolveSuccess = () => {
+  const resolve = resolveRequest.value
+  resolveRequest.value = null
+  rejectRequest.value = null
+  resolve?.()
+}
+const rejectFailure = () => {
+  const reject = rejectRequest.value
+  resolveRequest.value = null
+  rejectRequest.value = null
+  reject?.()
+}
+const cancelRequest = () => {
+  requestSequence += 1
+  const reject = rejectRequest.value
+  resolveRequest.value = null
+  rejectRequest.value = null
+  pending.value = false
+  requestError.value = ''
+  reject?.(new Error('request cancelled by modal close'))
+}
+const handleAsyncOpenChange = (open: boolean) => {
+  asyncOpen.value = open
+  if (!open) cancelRequest()
+}
 const rejectGuardedClose = () => {
   guardedOpen.value = true
 }
 const openGuarded = () => {
   guardedOpen.value = true
-  void nextTick(() => {
-    window.setTimeout(() => document.querySelector<HTMLElement>('.aheart-modal.is-entered [role="dialog"]')?.focus(), 250)
-  })
 }
 const customCloseIcon = h('span', { class: 'docs-modal-close-icon' }, 'X')
 const renderableTitle = h('span', { class: 'docs-modal-title-node' }, 'Renderable title')
@@ -95,6 +123,7 @@ Modal focuses attention in a blocking dialog for decisions, confirmations, and s
     title="Async confirm"
     :confirm-loading="pending"
     :focusable="{ trap: true, focusTriggerAfterClose: true }"
+    @update:open="handleAsyncOpenChange"
     @ok="startRequest"
   >
     <p>点击确定后由父组件发起可控的 fake async request。</p>
