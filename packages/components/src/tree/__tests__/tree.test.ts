@@ -101,11 +101,133 @@ describe('Tree', () => {
 
   it('restores focus to the closest visible ancestor after a controlled nested collapse', async () => {
     const nestedTreeData = [{ key: 'root', title: 'Root', children: [{ key: 'branch', title: 'Branch', children: [{ key: 'leaf', title: 'Leaf' }] }] }]
-    const wrapper = mount(Tree, { props: { treeData: nestedTreeData, expandedKeys: ['root', 'branch'] } })
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const wrapper = mount(Tree, { attachTo: host, props: { treeData: nestedTreeData, expandedKeys: ['root', 'branch'] } })
 
-    await wrapper.get('[data-tree-key="branch"]').trigger('keydown', { key: 'ArrowDown' })
+    wrapper.get('[data-tree-key="leaf"]').element.focus()
     await wrapper.setProps({ expandedKeys: ['root'] })
+    await nextTick()
 
     expect(wrapper.get('[data-tree-key="branch"]').attributes('tabindex')).toBe('0')
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="branch"]').element)
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('moves focus to the first and last visible treeitem with Home and End', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const wrapper = mount(Tree, { attachTo: host, props: { treeData, defaultExpandedKeys: ['parent'] } })
+    const child = wrapper.get('[data-tree-key="child-a"]')
+
+    child.element.focus()
+    await child.trigger('keydown', { key: 'Home' })
+    await nextTick()
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="parent"]').element)
+
+    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'End' })
+    await nextTick()
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="leaf"]').element)
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('expands a branch and enters its first child with ArrowRight', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const wrapper = mount(Tree, { attachTo: host, props: { treeData } })
+    const parent = wrapper.get('[data-tree-key="parent"]')
+
+    parent.element.focus()
+    await parent.trigger('keydown', { key: 'ArrowRight' })
+    await nextTick()
+
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="child-a"]').element)
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('returns to a parent with ArrowLeft and collapses an expanded branch', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const wrapper = mount(Tree, { attachTo: host, props: { treeData, defaultExpandedKeys: ['parent'] } })
+
+    wrapper.get('[data-tree-key="child-a"]').element.focus()
+    await wrapper.get('[data-tree-key="child-a"]').trigger('keydown', { key: 'ArrowLeft' })
+    await nextTick()
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="parent"]').element)
+
+    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'ArrowLeft' })
+    await nextTick()
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
+    wrapper.unmount()
+    host.remove()
+  })
+
+  it('toggles each selected key independently with Enter in multiple mode', async () => {
+    const wrapper = mount(Tree, { props: { treeData, multiple: true } })
+
+    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'Enter' })
+    await wrapper.get('[data-tree-key="leaf"]').trigger('keydown', { key: 'Enter' })
+    expect(wrapper.get('[data-tree-key="parent"]').classes()).toContain('is-selected')
+    expect(wrapper.get('[data-tree-key="leaf"]').classes()).toContain('is-selected')
+
+    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'Enter' })
+    expect(wrapper.get('[data-tree-key="parent"]').classes()).not.toContain('is-selected')
+    expect(wrapper.get('[data-tree-key="leaf"]').classes()).toContain('is-selected')
+  })
+
+  it('keeps a controlled checkbox unchecked when the parent rejects the update', async () => {
+    const wrapper = mount(Tree, { props: { treeData, checkable: true, checkedKeys: [] } })
+
+    await wrapper.get('[data-tree-key="leaf"] input').setValue(true)
+    await nextTick()
+
+    expect(wrapper.get('[data-tree-key="leaf"] input').element.checked).toBe(false)
+  })
+
+  it('does not drift controlled expanded or selected DOM when the parent rejects updates', async () => {
+    const wrapper = mount(Tree, { props: { treeData, expandedKeys: [], selectedKeys: [] } })
+
+    await wrapper.get('[data-tree-key="parent"] .aheart-tree__switcher').trigger('click')
+    await wrapper.get('[data-tree-key="leaf"]').trigger('click')
+    await nextTick()
+
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
+    expect(wrapper.find('[data-tree-key="child-a"]').exists()).toBe(false)
+    expect(wrapper.get('[data-tree-key="leaf"]').classes()).not.toContain('is-selected')
+  })
+
+  it('does not emit events for disabled nodes or a disabled tree', async () => {
+    const nodeDisabled = mount(Tree, { props: { treeData, defaultExpandedKeys: ['parent'], checkable: true } })
+    await nodeDisabled.get('[data-tree-key="child-b"]').trigger('click')
+    await nodeDisabled.get('[data-tree-key="child-b"] input').trigger('change')
+    expect(nodeDisabled.emitted('select')).toBeUndefined()
+    expect(nodeDisabled.emitted('check')).toBeUndefined()
+
+    const treeDisabled = mount(Tree, { props: { treeData, defaultExpandedKeys: ['parent'], checkable: true, disabled: true } })
+    await treeDisabled.get('[data-tree-key="leaf"]').trigger('click')
+    await treeDisabled.get('[data-tree-key="leaf"] input').trigger('change')
+    expect(treeDisabled.emitted('select')).toBeUndefined()
+    expect(treeDisabled.emitted('check')).toBeUndefined()
+  })
+
+  it('does not scroll the tree when Space checks the focused node', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const wrapper = mount(Tree, { attachTo: host, props: { treeData, checkable: true } })
+    const tree = wrapper.get('[role="tree"]').element as HTMLElement
+    tree.scrollTop = 48
+    const leaf = wrapper.get('[data-tree-key="leaf"]')
+
+    leaf.element.focus()
+    await leaf.trigger('keydown', { key: ' ' })
+    await nextTick()
+
+    expect(tree.scrollTop).toBe(48)
+    expect(leaf.get('input').element.checked).toBe(true)
+    wrapper.unmount()
+    host.remove()
   })
 })
