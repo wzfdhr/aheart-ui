@@ -155,6 +155,7 @@ import {
   onBeforeUnmount,
   onMounted,
   ref,
+  useId,
   watch,
   type PropType,
   type StyleValue,
@@ -227,9 +228,9 @@ const isOpen = computed(() => props.openKeys.includes(props.item.key))
 const isSelected = computed(() => props.selectedKeys.includes(props.item.key))
 const isDisabled = computed(() => props.disabled || Boolean(props.item.disabled))
 const currentKeyPath = computed(() => [...props.keyPath, props.item.key])
-const itemId = computed(() => `aheart-menu-${props.level}-${props.item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`)
-const submenuTriggerId = computed(() => `${itemId.value}-trigger`)
-const submenuId = computed(() => `${itemId.value}-submenu`)
+const itemId = `aheart-menu-${useId().replace(/[^a-zA-Z0-9_-]/g, '-')}-${props.level}-${props.item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`
+const submenuTriggerId = computed(() => `${itemId}-trigger`)
+const submenuId = computed(() => `${itemId}-submenu`)
 const nodeLevelStyle = computed<StyleValue>(() => ({ '--aheart-menu-node-level': props.level }))
 const titleRef = ref<HTMLElement | null>(null)
 const submenuRef = ref<HTMLElement | null>(null)

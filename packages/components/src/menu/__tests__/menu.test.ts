@@ -51,6 +51,27 @@ describe('Menu', () => {
     expect(submenu.attributes('aria-labelledby')).toBe(trigger.attributes('id'))
   })
 
+  it('keeps submenu IDs unique and correctly linked across multiple menu instances', () => {
+    const wrapper = mount({
+      render: () =>
+        h('div', [
+          h(Menu, { items, defaultOpenKeys: ['workspace'] }),
+          h(Menu, { items, defaultOpenKeys: ['workspace'] })
+        ])
+    })
+    const triggers = wrapper.findAll('[data-submenu-key="workspace"]')
+    const submenus = wrapper.findAll('.aheart-menu__submenu-list')
+    const triggerIds = triggers.map((trigger) => trigger.attributes('id'))
+    const submenuIds = submenus.map((submenu) => submenu.attributes('id'))
+
+    expect(new Set(triggerIds).size).toBe(triggerIds.length)
+    expect(new Set(submenuIds).size).toBe(submenuIds.length)
+    triggers.forEach((trigger) => {
+      const submenu = wrapper.find(`#${trigger.attributes('aria-controls')}`)
+      expect(submenu.attributes('aria-labelledby')).toBe(trigger.attributes('id'))
+    })
+  })
+
   it('selects an item and emits click and select', async () => {
     const wrapper = mount(Menu, {
       props: { items }
