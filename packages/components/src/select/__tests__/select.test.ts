@@ -26,6 +26,35 @@ describe('Select', () => {
     expect(wrapper.attributes('aria-label')).toBeUndefined()
   })
 
+  it('preserves non-ARIA fallthrough attributes on the legacy root', () => {
+    const wrapper = mountSelect({
+      attrs: {
+        'data-testid': 'fruit-select',
+        class: 'legacy-select',
+        style: 'color: red'
+      },
+      props: { options }
+    })
+
+    expect(wrapper.attributes('data-testid')).toBe('fruit-select')
+    expect(wrapper.classes()).toContain('legacy-select')
+    expect(wrapper.attributes('style')).toContain('color: red')
+  })
+
+  it('routes searchable accessible labels only to the input combobox', () => {
+    const wrapper = mountSelect({
+      attrs: { 'aria-label': 'Fruit', 'aria-labelledby': 'fruit-label' },
+      props: { options, showSearch: true }
+    })
+    const selector = wrapper.get('.aheart-select__selector')
+    const search = wrapper.get('.aheart-select__search')
+
+    expect(selector.attributes('aria-label')).toBeUndefined()
+    expect(selector.attributes('aria-labelledby')).toBeUndefined()
+    expect(search.attributes('aria-label')).toBe('Fruit')
+    expect(search.attributes('aria-labelledby')).toBe('fruit-label')
+  })
+
   it('keeps the searchable combobox focusable and exposes list autocomplete semantics', () => {
     const wrapper = mountSelect({ props: { options, showSearch: true } })
     const search = wrapper.get('.aheart-select__search')

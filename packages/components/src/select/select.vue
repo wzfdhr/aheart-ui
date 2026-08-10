@@ -1,21 +1,21 @@
 <template>
-  <span ref="rootRef" class="aheart-select" :class="selectClass" :style="rootStyle">
+  <span ref="rootRef" class="aheart-select" :class="selectClass" :style="rootStyle" v-bind="rootAttrs">
     <span
       ref="selectorRef"
       class="aheart-select__selector"
       :class="classNames.selector"
       :style="styles.selector"
-      v-bind="interactiveAriaAttrs"
+      v-bind="isSearchable ? undefined : interactiveAriaAttrs"
       :id="isSearchable ? undefined : id"
       :role="isSearchable ? undefined : 'combobox'"
       :tabindex="isSearchable || isDisabled ? undefined : 0"
-      :aria-controls="listboxId"
-      :aria-labelledby="resolvedAriaLabelledby"
-      :aria-expanded="mergedOpen ? 'true' : 'false'"
+      :aria-controls="isSearchable ? undefined : listboxId"
+      :aria-labelledby="isSearchable ? undefined : resolvedAriaLabelledby"
+      :aria-expanded="isSearchable ? undefined : mergedOpen ? 'true' : 'false'"
       :aria-haspopup="isSearchable ? undefined : 'listbox'"
-      :aria-disabled="isDisabled ? 'true' : undefined"
-      :aria-busy="loading ? 'true' : undefined"
-      :aria-activedescendant="activeOptionId"
+      :aria-disabled="isSearchable ? undefined : isDisabled ? 'true' : undefined"
+      :aria-busy="isSearchable ? undefined : loading ? 'true' : undefined"
+      :aria-activedescendant="isSearchable ? undefined : activeOptionId"
       @click="handleSelectorClick"
       @keydown="handleKeydown"
       @focusin="handleFocusIn"
@@ -65,7 +65,7 @@
           :value="currentSearchValue"
           :disabled="isDisabled"
           :placeholder="searchPlaceholder"
-          v-bind="interactiveAriaAttrs"
+          v-bind="isSearchable ? interactiveAriaAttrs : undefined"
           :aria-controls="listboxId"
           :aria-labelledby="resolvedAriaLabelledby"
           :aria-expanded="mergedOpen ? 'true' : 'false'"
@@ -248,6 +248,9 @@ const allowClearConfig = computed(() => (typeof props.allowClear === 'object' ? 
 const clearIconContent = computed(() => allowClearConfig.value?.clearIcon ?? '×')
 const interactiveAriaAttrs = computed(() => Object.fromEntries(
   Object.entries(attrs).filter(([key]) => key.startsWith('aria-'))
+))
+const rootAttrs = computed(() => Object.fromEntries(
+  Object.entries(attrs).filter(([key]) => !key.startsWith('aria-'))
 ))
 const resolvedLoadingText = computed(() => config.value.locale?.table?.loadingText ?? 'Loading')
 const hasNotFoundContent = usePropPresence('notFoundContent', 'not-found-content')
