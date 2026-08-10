@@ -19,16 +19,18 @@ const progressStatus = computed(() => progressFiles.value[0]?.status === 'done' 
 
 const failureFiles = ref<UploadFile[]>([])
 let failureAttempts = 0
+const failureRequestCount = ref(0)
 const failureRequest = ({ onSuccess, onError }: { onSuccess: (response?: unknown) => void; onError: (error: unknown) => void }) => {
   failureAttempts += 1
+  failureRequestCount.value = failureAttempts
   if (failureAttempts === 1) onError(new Error('QG3 failure'))
   else onSuccess({ ok: true })
 }
 const retryFailure = () => {
   const file = failureFiles.value[0]
-  if (file) failureFiles.value = [{ ...file, status: 'done', error: undefined, percent: 100 }]
+  if (file) failureFiles.value = [{ ...file, status: 'ready', error: undefined, percent: undefined, response: undefined }]
 }
-const failureStatus = computed(() => failureFiles.value[0]?.status === 'done' ? '上传成功' : failureFiles.value[0]?.status === 'error' ? '上传失败' : '')
+const failureStatus = computed(() => failureFiles.value[0]?.status === 'done' ? '上传成功' : failureFiles.value[0]?.status === 'error' ? '上传失败' : failureFiles.value[0]?.status === 'ready' ? '等待重新上传' : '')
 
 const manualFiles = ref<UploadFile[]>([])
 const manualRequestCount = ref(0)
@@ -48,6 +50,7 @@ const removePending = () => { pendingFiles.value = [] }
 const completePending = () => completePendingRequest?.()
 const pendingStatus = computed(() => pendingFiles.value.length ? '' : '已移除')
 
+const disabledFiles = ref<UploadFile[]>([])
 const maxCountFiles = ref<UploadFile[]>([])
 const controlledFiles = ref<UploadFile[]>([])
 const acceptControlledFile = (files: UploadFile[]) => {
@@ -109,6 +112,7 @@ const files = ref<UploadFile[]>([])
     <h3>失败与重试</h3>
     <AUpload v-model:file-list="failureFiles" :custom-request="failureRequest">选择文件</AUpload>
     <p data-testid="upload-retry-status">{{ failureStatus }}</p>
+    <p data-testid="upload-retry-request-count">请求次数：{{ failureRequestCount }}</p>
     <button v-if="failureFiles[0]?.status === 'error'" type="button" @click="retryFailure">重试 {{ failureFiles[0].name }}</button>
   </section>
 
@@ -129,9 +133,8 @@ const files = ref<UploadFile[]>([])
 
   <section aria-label="禁用上传">
     <h3>禁用上传</h3>
-    <AUpload disabled :before-upload="holdUpload">选择文件</AUpload>
-    <button type="button" disabled>Upload</button>
-    <p data-testid="upload-disabled-count">已选择 0 个文件</p>
+    <AUpload v-model:file-list="disabledFiles" disabled :before-upload="holdUpload">选择文件</AUpload>
+    <p data-testid="upload-disabled-count">已选择 {{ disabledFiles.length }} 个文件</p>
   </section>
 
   <section aria-label="最大文件数">

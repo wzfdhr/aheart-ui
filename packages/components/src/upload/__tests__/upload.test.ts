@@ -78,6 +78,30 @@ describe('Upload', () => {
     ])
   })
 
+  it('clears the file input while a custom upload is still pending', async () => {
+    let completeUpload: (() => void) | undefined
+    const wrapper = mount(Upload, {
+      props: {
+        customRequest: ({ onSuccess }: { onSuccess: () => void }) => new Promise<void>((resolve) => {
+          completeUpload = () => {
+            onSuccess()
+            resolve()
+          }
+        })
+      }
+    })
+    const input = wrapper.find('input[type="file"]')
+    Object.defineProperty(input.element, 'files', { configurable: true, value: [createFile('pending.txt')] })
+    Object.defineProperty(input.element, 'value', { configurable: true, writable: true, value: 'C:\\fakepath\\pending.txt' })
+
+    const change = input.trigger('change')
+    await vi.waitFor(() => expect(wrapper.emitted('update:fileList')).toBeTruthy())
+
+    expect(input.element.value).toBe('')
+    completeUpload?.()
+    await change
+  })
+
   it('enforces maxCount and supports removal', async () => {
     const wrapper = mount(Upload, { props: { maxCount: 1 } })
     await selectFiles(wrapper.find('input[type="file"]'), [createFile('one.txt'), createFile('two.txt')])

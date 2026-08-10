@@ -60,6 +60,10 @@ test.describe('QG3 Upload browser flows', () => {
     await expect(scenario.getByText('failure.txt', { exact: true })).toBeVisible()
     await expect(scenario.getByTestId('upload-retry-status')).toHaveText('上传失败')
     await scenario.getByRole('button', { name: '重试 failure.txt' }).click()
+    await expect(scenario.getByTestId('upload-retry-status')).toHaveText('等待重新上传')
+    await expect(scenario.getByRole('button', { name: 'Upload' })).toBeVisible()
+    await scenario.getByRole('button', { name: 'Upload' }).click()
+    await expect(scenario.getByTestId('upload-retry-request-count')).toHaveText('请求次数：2')
     await expect(scenario.getByTestId('upload-retry-status')).toHaveText('上传成功')
   })
 
@@ -91,7 +95,8 @@ test.describe('QG3 Upload browser flows', () => {
     await expect(input).toBeDisabled()
 
     await expect(scenario.getByTestId('upload-disabled-count')).toHaveText('已选择 0 个文件')
-    await expect(scenario.getByRole('button', { name: 'Upload' })).toBeDisabled()
+    await input.setInputFiles(file('disabled.txt'))
+    await expect(scenario.getByTestId('upload-disabled-count')).toHaveText('已选择 0 个文件')
   })
 
   test('caps accepted files at maxCount and frees capacity after removal', async ({ page }) => {
