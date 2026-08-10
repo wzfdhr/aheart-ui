@@ -6,6 +6,13 @@ const localeKey = ref<'zhCN' | 'enUS'>('zhCN')
 const size = ref<'large' | 'middle' | 'small'>('middle')
 const disabled = ref(false)
 const customTheme = ref(false)
+const actionCounts = ref({
+  primary: 0,
+  outer: 0,
+  inner: 0,
+  sibling: 0
+})
+const actionStatus = ref('尚未执行操作')
 
 const activeLocale = computed(() => localeKey.value === 'enUS' ? enUS : zhCN)
 const innerLocale = computed(() => localeKey.value === 'enUS'
@@ -19,6 +26,11 @@ const activeTheme = computed(() => customTheme.value
       borderRadius: '4px'
     }
   : undefined)
+
+function recordAction(key: keyof typeof actionCounts.value, label: string) {
+  actionCounts.value[key] += 1
+  actionStatus.value = `${label}已执行 ${actionCounts.value[key]} 次`
+}
 </script>
 
 # ConfigProvider 全局配置 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -46,6 +58,7 @@ ConfigProvider provides shared configuration for Aheart UI components, including
   <div class="aheart-config-workbench__state" data-testid="config-state">
     locale={{ localeKey === 'enUS' ? 'English' : '中文' }} · size={{ size }} · disabled={{ disabled }} · theme={{ customTheme ? 'custom' : 'default' }}
   </div>
+  <div class="aheart-config-workbench__status" role="status" aria-label="操作结果" aria-live="polite">{{ actionStatus }}</div>
   <AConfigProvider :locale="activeLocale" :size="size" :disabled="disabled" :theme="activeTheme">
     <div class="aheart-config-workbench__preview">
       <div class="aheart-config-workbench__preview-header">
@@ -53,18 +66,18 @@ ConfigProvider provides shared configuration for Aheart UI components, including
         <span>Provider 配置会实时传递给下方组件</span>
       </div>
       <div class="aheart-config-workbench__row">
-        <AButton type="primary" aria-label="主要操作">主要操作</AButton>
+        <AButton type="primary" aria-label="主要操作" @click="recordAction('primary', '主要操作')">主要操作</AButton>
         <AEmpty />
         <APagination :total="42" show-total />
       </div>
     </div>
     <AConfigProvider :locale="activeLocale" size="large" disabled>
-      <div class="aheart-config-workbench__nested-grid">
+      <div class="aheart-config-workbench__nested-grid" role="group" aria-label="嵌套配置区域">
       <div class="aheart-config-workbench__nested" role="region" aria-label="外层配置">
         <strong>外层配置</strong>
         <span>outer-locale={{ localeKey === 'enUS' ? 'English' : '中文' }}</span>
         <div class="aheart-config-workbench__nested-row">
-          <AButton type="primary">外层同级操作</AButton>
+          <AButton type="primary" aria-label="外层同级操作" @click="recordAction('outer', '外层同级操作')">外层同级操作</AButton>
           <AEmpty :description="localeKey === 'enUS' && size === 'small' ? undefined : '外层暂无数据'" />
           <APagination v-if="localeKey === 'enUS' && size === 'small'" :total="42" show-total />
         </div>
@@ -74,7 +87,7 @@ ConfigProvider provides shared configuration for Aheart UI components, including
         <span>inner-size=small · inner-locale=English</span>
         <AConfigProvider :locale="innerLocale" size="small" :disabled="false">
           <div class="aheart-config-workbench__nested-row">
-            <AButton type="primary">内层操作</AButton>
+            <AButton type="primary" aria-label="内层操作" @click="recordAction('inner', '内层操作')">内层操作</AButton>
             <AEmpty :description="localeKey === 'enUS' && size === 'small' ? undefined : '内层暂无数据'" />
             <APagination v-if="localeKey === 'enUS' && size === 'small'" :total="42" show-total />
           </div>
@@ -84,7 +97,7 @@ ConfigProvider provides shared configuration for Aheart UI components, including
         <strong>外层同级</strong>
         <span>outer-locale={{ localeKey === 'enUS' ? 'English' : '中文' }}</span>
         <div class="aheart-config-workbench__nested-row">
-          <AButton type="primary">同级操作</AButton>
+          <AButton type="primary" aria-label="同级操作" @click="recordAction('sibling', '同级操作')">同级操作</AButton>
           <AEmpty :description="localeKey === 'enUS' && size === 'small' ? undefined : '同级暂无数据'" />
           <APagination v-if="localeKey === 'enUS' && size === 'small'" :total="42" show-total />
         </div>
@@ -99,10 +112,8 @@ ConfigProvider provides shared configuration for Aheart UI components, including
   display: grid;
   gap: 16px;
   margin: 20px 0 28px;
-  padding: 20px;
-  border: 1px solid #e6e8ef;
-  border-radius: 8px;
   background: #fff;
+  min-width: 0;
 }
 
 .aheart-config-workbench__toolbar,
@@ -140,13 +151,15 @@ ConfigProvider provides shared configuration for Aheart UI components, including
   font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.aheart-config-workbench__preview,
-.aheart-config-workbench__nested {
+.aheart-config-workbench__status {
+  color: #344054;
+  font-size: 13px;
+}
+
+.aheart-config-workbench__preview {
   display: grid;
   gap: 14px;
-  padding: 16px;
-  border: 1px solid #e6e8ef;
-  border-radius: 6px;
+  min-width: 0;
 }
 
 .aheart-config-workbench__preview-header {
@@ -165,15 +178,38 @@ ConfigProvider provides shared configuration for Aheart UI components, including
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+  border-top: 1px solid #e6e8ef;
+}
+
+.aheart-config-workbench__nested {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid #e6e8ef;
 }
 
 .aheart-config-workbench__nested-row {
   align-items: start;
+  min-width: 0;
+}
+
+.aheart-config-workbench__nested-row > * {
+  min-width: 0;
+}
+
+.aheart-config-workbench__nested-row .aheart-empty {
+  max-width: 100%;
 }
 
 @media (max-width: 760px) {
   .aheart-config-workbench__nested-grid {
     grid-template-columns: 1fr;
+  }
+
+  .aheart-config-workbench__toolbar {
+    align-items: flex-start;
   }
 }
 </style>
