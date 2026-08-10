@@ -58,6 +58,8 @@
       :data-submenu-key="item.key"
       :disabled="isDisabled"
       :aria-expanded="isOpen ? 'true' : 'false'"
+      :id="submenuTriggerId"
+      :aria-controls="submenuId"
       :title="item.title"
       @click="handleSubmenuClick"
     >
@@ -87,6 +89,8 @@
       :class="submenuListClass"
       :style="submenuListStyle"
       role="menu"
+      :id="submenuId"
+      :aria-labelledby="submenuTriggerId"
       :data-open="isOpen ? 'true' : 'false'"
       :aria-hidden="isOpen ? undefined : 'true'"
     >
@@ -223,6 +227,9 @@ const isOpen = computed(() => props.openKeys.includes(props.item.key))
 const isSelected = computed(() => props.selectedKeys.includes(props.item.key))
 const isDisabled = computed(() => props.disabled || Boolean(props.item.disabled))
 const currentKeyPath = computed(() => [...props.keyPath, props.item.key])
+const itemId = computed(() => `aheart-menu-${props.level}-${props.item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`)
+const submenuTriggerId = computed(() => `${itemId.value}-trigger`)
+const submenuId = computed(() => `${itemId.value}-submenu`)
 const nodeLevelStyle = computed<StyleValue>(() => ({ '--aheart-menu-node-level': props.level }))
 const titleRef = ref<HTMLElement | null>(null)
 const submenuRef = ref<HTMLElement | null>(null)

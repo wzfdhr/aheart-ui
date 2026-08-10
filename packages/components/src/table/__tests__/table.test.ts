@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Table from '../table.vue'
@@ -26,6 +27,14 @@ const dataSource: Person[] = [
 ]
 
 describe('Table', () => {
+  it('uses theme tokens for row states and disables motion for reduced-motion users', () => {
+    const styles = readFileSync(`${process.cwd()}/src/table/style.css`, 'utf8')
+
+    expect(styles).toContain('background: var(--aheart-color-bg-hover, #fafafa)')
+    expect(styles).toContain('background: var(--aheart-color-primary-bg, #e6f4ff)')
+    expect(styles).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.aheart-table th,[\s\S]*?transition-duration:\s*0ms/)
+  })
+
   it('renders columns and rows from dataSource', () => {
     const wrapper = mount(Table, {
       props: { columns, dataSource }
@@ -147,6 +156,28 @@ describe('Table', () => {
     const firstRow = wrapper.find('tbody tr')
     expect(firstRow.text()).toContain('Grace')
     expect(wrapper.emitted('change')?.[0]?.[2]).toMatchObject({ columnKey: 'age', order: 'ascend' })
+  })
+
+  it('exposes sortable column semantics and an accessible sort action', async () => {
+    const wrapper = mount(Table, { props: { columns, dataSource } })
+    const headers = wrapper.findAll('th')
+    const ageHeader = headers[1]
+    const sortButton = ageHeader.find('button')
+
+    expect(headers[0].attributes('aria-sort')).toBeUndefined()
+    expect(ageHeader.attributes('aria-sort')).toBe('none')
+    expect(sortButton.attributes('aria-label')).toBe('Sort Age')
+
+    await sortButton.trigger('click')
+    expect(ageHeader.attributes('aria-sort')).toBe('ascending')
+    expect(sortButton.attributes('aria-label')).toBe('Sort Age descending')
+
+    await sortButton.trigger('click')
+    expect(ageHeader.attributes('aria-sort')).toBe('descending')
+    expect(sortButton.attributes('aria-label')).toBe('Clear sort for Age')
+
+    await sortButton.trigger('click')
+    expect(ageHeader.attributes('aria-sort')).toBe('none')
   })
 
   it('applies defaultSortOrder on initial render', () => {

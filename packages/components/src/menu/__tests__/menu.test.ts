@@ -38,6 +38,19 @@ describe('Menu', () => {
     expect(wrapper.find('.aheart-menu__divider').exists()).toBe(true)
   })
 
+  it('allows an accessible root label and links submenu triggers to their menus', () => {
+    const wrapper = mount(Menu, {
+      attrs: { 'aria-label': 'Workspace navigation' },
+      props: { items, defaultOpenKeys: ['workspace'] }
+    })
+    const trigger = wrapper.find('[data-submenu-key="workspace"]')
+    const submenu = wrapper.find('.aheart-menu__submenu-list')
+
+    expect(wrapper.attributes('aria-label')).toBe('Workspace navigation')
+    expect(trigger.attributes('aria-controls')).toBe(submenu.attributes('id'))
+    expect(submenu.attributes('aria-labelledby')).toBe(trigger.attributes('id'))
+  })
+
   it('selects an item and emits click and select', async () => {
     const wrapper = mount(Menu, {
       props: { items }

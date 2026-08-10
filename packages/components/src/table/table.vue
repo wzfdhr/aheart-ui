@@ -15,6 +15,7 @@
               :key="getColumnKey(column)"
               :class="columnClass(column)"
               :style="columnStyle(column)"
+              :aria-sort="column.sorter ? getAriaSort(column) : undefined"
               scope="col"
             >
               <div class="aheart-table__head-content">
@@ -23,6 +24,7 @@
                   class="aheart-table__sorter"
                   type="button"
                   :disabled="isDisabled"
+                  :aria-label="getSortActionLabel(column)"
                   @click="toggleSort(column)"
                 >
                   <span>
@@ -454,6 +456,19 @@ const getSortState = (column: TableColumn) => {
   }
 
   return activeSort.value.order
+}
+
+const getColumnLabel = (column: TableColumn) => typeof column.title === 'string' ? column.title : getColumnKey(column)
+
+const getAriaSort = (column: TableColumn) => {
+  const state = getSortState(column)
+  return state === 'ascend' ? 'ascending' : state === 'descend' ? 'descending' : 'none'
+}
+
+const getSortActionLabel = (column: TableColumn) => {
+  const label = getColumnLabel(column)
+  const state = getSortState(column)
+  return state === 'ascend' ? `Sort ${label} descending` : state === 'descend' ? `Clear sort for ${label}` : `Sort ${label}`
 }
 
 const toggleSort = (column: TableColumn) => {

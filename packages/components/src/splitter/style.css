@@ -72,6 +72,14 @@
   block-size: 4px;
 }
 
+@media (max-width: 640px) {
+  .aheart-splitter__handle,
+  .aheart-splitter__handle--vertical {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+}
+
 .aheart-splitter__collapse {
   position: absolute;
   z-index: 1;

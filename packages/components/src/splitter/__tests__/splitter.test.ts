@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
 import Splitter from '../splitter.vue'
 import SplitterPanel from '../splitter-panel.vue'
 
@@ -16,6 +17,12 @@ afterEach(() => {
 })
 
 describe('Splitter', () => {
+  it('keeps resize handles at a mobile-friendly touch target size', () => {
+    const styles = readFileSync(`${process.cwd()}/src/splitter/style.css`, 'utf8')
+
+    expect(styles).toMatch(/@media \(max-width: 640px\)[\s\S]*?\.aheart-splitter__handle,[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/)
+  })
+
   it('renders horizontal panels and a separator handle between each pair', () => {
     const wrapper = mount(Splitter, {
       props: { sizes: [240, 360] },
