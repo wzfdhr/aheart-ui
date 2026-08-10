@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick } from 'vue'
+import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { enUS } from '../../config'
@@ -323,6 +324,29 @@ describe('Table', () => {
     expect(names[0]).not.toBe(names[3])
     expect(random).not.toHaveBeenCalled()
     random.mockRestore()
+  })
+
+  it('keeps radio group names stable across SSR and hydration', async () => {
+    const App = defineComponent({
+      setup: () => () => h(Table, { columns, dataSource, rowSelection: { type: 'radio' } })
+    })
+    const html = await renderToString(createSSRApp(App))
+    const serverName = html.match(/<input[^>]*type="radio"[^>]*name="([^"]+)"/)?.[1]
+    expect(serverName).toMatch(/^aheart-table-selection-/)
+
+    const host = document.createElement('div')
+    host.innerHTML = html
+    document.body.replaceChildren(host)
+    const warnings: string[] = []
+    const clientApp = createSSRApp(App)
+    clientApp.config.warnHandler = (message) => warnings.push(message)
+    clientApp.mount(host, true)
+    await nextTick()
+
+    expect(host.querySelector('input[type="radio"]')?.getAttribute('name')).toBe(serverName)
+    expect(warnings).toEqual([])
+    clientApp.unmount()
+    host.remove()
   })
 
   it('expands rows with custom expanded content', async () => {
