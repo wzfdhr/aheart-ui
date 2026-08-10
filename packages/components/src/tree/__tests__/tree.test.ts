@@ -21,7 +21,7 @@ describe('Tree', () => {
 
     expect(wrapper.get('[role="tree"]').text()).toContain('Parent')
     expect(wrapper.text()).toContain('Child A')
-    expect(wrapper.get('[data-tree-key="parent"]').parent().attributes('aria-expanded')).toBe('true')
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('true')
   })
 
   it('emits a selected key without mutating controlled selection', async () => {
@@ -30,7 +30,7 @@ describe('Tree', () => {
     await wrapper.get('[data-tree-key="leaf"]').trigger('click')
 
     expect(wrapper.emitted('update:selectedKeys')).toEqual([[['leaf']]])
-    expect(wrapper.get('[data-tree-key="leaf"]').parent().attributes('aria-selected')).toBe('false')
+    expect(wrapper.get('[data-tree-key="leaf"]').element.parentElement?.getAttribute('aria-selected')).toBe('false')
   })
 
   it('toggles checked keys for checkable nodes', async () => {
@@ -81,7 +81,7 @@ describe('Tree', () => {
     await wrapper.get('[data-tree-key="parent"] .aheart-tree__switcher').trigger('click')
     await wrapper.setProps({ defaultExpandedKeys: ['parent'] })
 
-    expect(wrapper.get('[data-tree-key="parent"]').parent().attributes('aria-expanded')).toBe('false')
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
   })
 
   it('keeps keyboard focus within the active tree instance', async () => {
@@ -160,7 +160,7 @@ describe('Tree', () => {
 
     await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'ArrowLeft' })
     await nextTick()
-    expect(wrapper.get('[data-tree-key="parent"]').parent().attributes('aria-expanded')).toBe('false')
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
     wrapper.unmount()
     host.remove()
   })
@@ -170,12 +170,12 @@ describe('Tree', () => {
 
     await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'Enter' })
     await wrapper.get('[data-tree-key="leaf"]').trigger('keydown', { key: 'Enter' })
-    expect(wrapper.get('[data-tree-key="parent"]').parent().attributes('aria-selected')).toBe('true')
-    expect(wrapper.get('[data-tree-key="leaf"]').parent().attributes('aria-selected')).toBe('true')
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-selected')).toBe('true')
+    expect(wrapper.get('[data-tree-key="leaf"]').element.parentElement?.getAttribute('aria-selected')).toBe('true')
 
     await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'Enter' })
-    expect(wrapper.get('[data-tree-key="parent"]').parent().attributes('aria-selected')).toBe('false')
-    expect(wrapper.get('[data-tree-key="leaf"]').parent().attributes('aria-selected')).toBe('true')
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-selected')).toBe('false')
+    expect(wrapper.get('[data-tree-key="leaf"]').element.parentElement?.getAttribute('aria-selected')).toBe('true')
   })
 
   it('keeps a controlled checkbox unchecked when the parent rejects the update', async () => {
@@ -194,9 +194,9 @@ describe('Tree', () => {
     await wrapper.get('[data-tree-key="leaf"]').trigger('click')
     await nextTick()
 
-    expect(wrapper.get('[data-tree-key="parent"]').parent().attributes('aria-expanded')).toBe('false')
+    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
     expect(wrapper.find('[data-tree-key="child-a"]').exists()).toBe(false)
-    expect(wrapper.get('[data-tree-key="leaf"]').parent().attributes('aria-selected')).toBe('false')
+    expect(wrapper.get('[data-tree-key="leaf"]').element.parentElement?.getAttribute('aria-selected')).toBe('false')
   })
 
   it('does not emit events for disabled nodes or a disabled tree', async () => {
