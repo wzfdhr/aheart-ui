@@ -87,6 +87,34 @@ describe('Upload', () => {
     expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toEqual([])
   })
 
+  it('does not let a rejected controlled update consume maxCount capacity', async () => {
+    const parentUpdates: string[][] = []
+    const wrapper = mount(Upload, {
+      props: {
+        fileList: [],
+        maxCount: 1,
+        'onUpdate:fileList': async (files) => {
+          parentUpdates.push(files.map((file) => file.name))
+          if (files[0]?.name === 'accepted.txt') {
+            await wrapper.setProps({ fileList: files })
+          }
+        }
+      }
+    })
+
+    const input = wrapper.find('input[type="file"]')
+    await selectFiles(input, [createFile('rejected.txt')])
+
+    expect(parentUpdates).toContainEqual(['rejected.txt'])
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+
+    await selectFiles(input, [createFile('accepted.txt')])
+
+    expect(parentUpdates).toContainEqual(['accepted.txt'])
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(1)
+    expect(wrapper.find('.aheart-upload__item')).toContain('accepted.txt')
+  })
+
   it('does not restore a removed file when a pending request resolves', async () => {
     let completeUpload: (() => void) | undefined
     const wrapper = mount(Upload, {
