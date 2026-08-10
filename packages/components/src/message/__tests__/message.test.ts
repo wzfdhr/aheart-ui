@@ -108,7 +108,7 @@ describe('Message', () => {
     await nextTick()
 
     expect(document.body.textContent).toContain('Clicked service')
-    expect(document.body.querySelector('.aheart-message-notice')).toBeTruthy()
+    expect(document.body.querySelector('[role="status"]')).toBeTruthy()
   })
 
   it('updates notices by key', async () => {
@@ -345,12 +345,13 @@ describe('Message', () => {
     message.info('Reset', 0)
     await nextTick()
 
-    const host = document.body.querySelector('.aheart-message') as HTMLElement
+    const status = document.body.querySelector('[role="status"]') as HTMLElement
+    const host = status.parentElement as HTMLElement
     expect(host.getAttribute('style')).toContain('top: 8px')
-    expect(document.body.querySelectorAll('.aheart-message-notice')).toHaveLength(1)
+    expect(document.body.querySelectorAll('[role="status"]')).toHaveLength(1)
 
     message.info('Reset still allows two', 0)
     await nextTick()
-    expect(document.body.querySelectorAll('.aheart-message-notice')).toHaveLength(2)
+    expect(document.body.querySelectorAll('[role="status"]')).toHaveLength(2)
   })
 })

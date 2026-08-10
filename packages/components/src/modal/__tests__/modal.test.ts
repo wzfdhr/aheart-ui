@@ -39,7 +39,7 @@ describe('Modal', () => {
     await nextTick()
 
     expect(wrapper.text()).toContain('User action modal')
-    expect(wrapper.find('.aheart-modal__ok').exists()).toBe(true)
+    expect(wrapper.findAll('button').some((button) => button.text().replace(/\s/g, '') === '确定')).toBe(true)
   })
 
   it('marks the real confirm button busy and disabled while an async confirm is pending', async () => {
@@ -73,7 +73,7 @@ describe('Modal', () => {
       })
     )
 
-    const ok = wrapper.find('.aheart-modal__ok')
+    const ok = wrapper.findAll('button').find((button) => button.text().replace(/\s/g, '') === '确定')!
     await ok.trigger('click')
     await nextTick()
 
@@ -82,7 +82,7 @@ describe('Modal', () => {
 
     resolveConfirm.value?.()
     await nextTick()
-    expect(wrapper.find('.aheart-modal').classes()).toContain('is-leave')
+    expect(wrapper.find('[role="presentation"]').classes()).toContain('is-leave')
   })
 
   it('keeps the modal open and focusable when a controlled parent rejects close', async () => {
@@ -104,12 +104,12 @@ describe('Modal', () => {
     )
 
     await nextTick()
-    const dialog = wrapper.find('.aheart-modal__dialog')
+    const dialog = wrapper.find('[role="dialog"]')
     dialog.element.focus()
-    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Escape' })
+    await dialog.trigger('keydown', { key: 'Escape' })
     await nextTick()
 
-    expect(wrapper.find('.aheart-modal').exists()).toBe(true)
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
     expect(document.activeElement).toBe(dialog.element)
 
     wrapper.unmount()
