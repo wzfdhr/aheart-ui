@@ -55,6 +55,9 @@ const rejectFailure = () => {
   rejectRequest.value = null
   reject?.()
 }
+const retryRequest = () => {
+  startRequest()
+}
 const cancelRequest = () => {
   requestSequence += 1
   const reject = rejectRequest.value
@@ -113,29 +116,32 @@ Modal focuses attention in a blocking dialog for decisions, confirmations, and s
       <p>父组件持有 open；所有结果从真实对话框、按钮和焦点状态观察。</p>
     </div>
     <div class="modal-interaction-workbench__actions" aria-label="对话框操作">
-      <button type="button" @click="asyncOpen = true">Open async modal</button>
-      <button type="button" @click="openGuarded">Open guarded modal</button>
+      <button type="button" @click="asyncOpen = true">打开异步对话框</button>
+      <button type="button" @click="openGuarded">打开受控对话框</button>
     </div>
   </div>
   <p class="modal-interaction-workbench__result" aria-live="polite">{{ pending ? '请求进行中：确认按钮忙碌且不可操作' : requestError || '准备就绪：等待一次真实对话框操作' }}</p>
   <AModal
     v-model:open="asyncOpen"
-    title="Async confirm"
+    title="异步确认"
     :confirm-loading="pending"
     :focusable="{ trap: true, focusTriggerAfterClose: true }"
     @update:open="handleAsyncOpenChange"
     @ok="startRequest"
   >
-    <p>点击确定后由父组件发起可控的 fake async request。</p>
-    <div class="modal-interaction-workbench__request-controls" aria-label="fake async request 控制">
-      <button type="button" @click="resolveSuccess">Resolve success</button>
-      <button type="button" @click="rejectFailure">Reject failure</button>
+    <p>点击确定后由父组件发起可控的模拟异步请求。</p>
+    <div class="modal-interaction-workbench__request-controls" aria-label="模拟异步请求控制">
+      <button type="button" @click="resolveSuccess">模拟成功</button>
+      <button type="button" @click="rejectFailure">模拟失败</button>
     </div>
-    <p v-if="requestError" role="alert">{{ requestError }}</p>
+    <div v-if="requestError" class="modal-interaction-workbench__error" role="alert">
+      <p>{{ requestError }}</p>
+      <button type="button" class="modal-interaction-workbench__retry" @click="retryRequest">重试保存</button>
+    </div>
   </AModal>
   <AModal
     v-model:open="guardedOpen"
-    title="Guarded modal"
+    title="受控对话框"
     :focusable="{ trap: true, focusTriggerAfterClose: true }"
     @update:open="rejectGuardedClose"
   >
@@ -153,6 +159,10 @@ Modal focuses attention in a blocking dialog for decisions, confirmations, and s
 .modal-interaction-workbench__actions { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; justify-content: flex-end; }
 .modal-interaction-workbench button { padding: 7px 11px; border: 1px solid #d9e1ea; border-radius: 6px; background: #fff; color: inherit; cursor: pointer; }
 .modal-interaction-workbench button:hover, .modal-interaction-workbench button:focus-visible { border-color: #1677ff; color: #1677ff; }
+.modal-interaction-workbench__request-controls button, .modal-interaction-workbench__retry { min-height: 40px; padding: 8px 14px; border: 1px solid #98a2b3; border-radius: 6px; background: #fff; color: #344054; cursor: pointer; }
+.modal-interaction-workbench__request-controls button:hover, .modal-interaction-workbench__request-controls button:focus-visible, .modal-interaction-workbench__retry:hover, .modal-interaction-workbench__retry:focus-visible { border-color: #1677ff; color: #1677ff; outline: 2px solid rgba(22, 119, 255, .25); outline-offset: 2px; }
+.modal-interaction-workbench__error { display: flex; align-items: center; gap: 12px; margin-top: 12px; color: #b42318; }
+.modal-interaction-workbench__error p { margin: 0; }
 .modal-interaction-workbench__result { margin: 0; padding: 12px 24px; border-top: 1px solid #eef1f5; color: #667085; font-size: 13px; }
 @media (max-width: 640px) { .modal-interaction-workbench__toolbar { display: block; padding: 16px; } .modal-interaction-workbench__actions { justify-content: flex-start; margin-top: 16px; } .modal-interaction-workbench__result { padding: 12px 16px; } }
 </style>

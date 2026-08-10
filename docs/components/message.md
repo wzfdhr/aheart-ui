@@ -9,36 +9,36 @@ const serviceContainer = () => messageContainer.value ?? document.body
 const resetMessageConfig = () => {
   message.destroy()
   message.config({ getContainer: serviceContainer })
-  message.info('Reset message', 0)
+  message.info('已重置提示', 0)
   actionResult.value = '已销毁全部提示并恢复默认全局配置'
 }
 const showSuccess = () => {
-  message.success({ content: 'Success', duration: 0 })
-  actionResult.value = '已挂载 Success 消息'
+  message.success({ content: '成功', duration: 0 })
+  actionResult.value = '已挂载成功消息'
 }
 const startKeyed = () => {
-  message.loading({ key: 'upload', content: 'Uploading', duration: 0 })
-  actionResult.value = '已开始 upload 任务'
+  message.loading({ key: 'upload', content: '上传中', duration: 0 })
+  actionResult.value = '已开始任务'
 }
 const finishKeyed = () => {
-  message.success({ key: 'upload', content: 'Uploaded', duration: 0 })
-  actionResult.value = '已用同一 key 更新为 Uploaded'
+  message.success({ key: 'upload', content: '已上传', duration: 0 })
+  actionResult.value = '已用同一 key 更新为已上传'
 }
 const stackMessages = () => {
   message.destroy()
   message.config({ getContainer: serviceContainer, stack: { threshold: 2 } })
-  message.info('First stacked', 0)
-  message.info('Second stacked', 0)
-  message.info('Third stacked', 0)
+  message.info('第一条提示', 0)
+  message.info('第二条提示', 0)
+  message.info('第三条提示', 0)
   actionResult.value = '已创建 3 条提示，阈值 2 折叠旧提示'
 }
 const closeOne = () => {
   if (!oneMessage.value) {
-    oneMessage.value = message.info({ key: 'one', content: 'One message', duration: 0 })
+    oneMessage.value = message.info({ key: 'one', content: '单条提示', duration: 0 })
   }
   oneMessage.value?.close()
   oneMessage.value = null
-  actionResult.value = '已销毁单条 One message'
+  actionResult.value = '已销毁单条提示'
 }
 const closeAll = () => {
   message.destroy()
@@ -48,14 +48,14 @@ const closeAll = () => {
 const showConfigured = () => {
   message.destroy()
   message.config({ getContainer: serviceContainer, top: 32, maxCount: 1 })
-  message.info('Configured message', 0)
+  message.info('已配置提示', 0)
   actionResult.value = '已应用 top=32、maxCount=1'
 }
 const showOne = () => {
   message.destroy()
   message.config({ getContainer: serviceContainer })
-  oneMessage.value = message.info({ key: 'one', content: 'One message', duration: 0 })
-  message.info({ key: 'two', content: 'Two message', duration: 0 })
+  oneMessage.value = message.info({ key: 'one', content: '第一条提示', duration: 0 })
+  message.info({ key: 'two', content: '第二条提示', duration: 0 })
   actionResult.value = '已准备单条销毁样本'
 }
 
@@ -77,15 +77,15 @@ Message displays global lightweight feedback through a static service or the `AM
       <p>所有操作都通过公开的 message service 触发，提示会挂载到下方工作台容器。</p>
     </div>
     <div class="message-service-workbench__actions" aria-label="消息服务操作">
-      <button type="button" @click="showSuccess">Success</button>
-      <button type="button" @click="startKeyed">Start keyed</button>
-      <button type="button" @click="finishKeyed">Finish keyed</button>
-      <button type="button" @click="stackMessages">Stack threshold</button>
-      <button type="button" @click="showOne">Prepare one</button>
-      <button type="button" @click="closeOne">Close one</button>
-      <button type="button" @click="closeAll">Close all</button>
-      <button type="button" @click="showConfigured">Configured message</button>
-      <button type="button" @click="resetMessageConfig">Reset config</button>
+      <button type="button" @click="showSuccess">成功</button>
+      <button type="button" @click="startKeyed">开始任务</button>
+      <button type="button" @click="finishKeyed">完成任务</button>
+      <button type="button" @click="stackMessages">堆叠阈值</button>
+      <button type="button" @click="showOne">准备单条</button>
+      <button type="button" @click="closeOne">关闭单条</button>
+      <button type="button" @click="closeAll">关闭全部</button>
+      <button type="button" @click="showConfigured">已配置提示</button>
+      <button type="button" @click="resetMessageConfig">重置配置</button>
     </div>
   </div>
   <div ref="messageContainer" data-testid="message-service-container" class="message-service-workbench__container" aria-label="消息服务挂载容器" />
