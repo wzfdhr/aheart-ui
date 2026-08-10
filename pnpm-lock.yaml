@@ -14,12 +14,18 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^5.0.3
         version: 5.0.3(vite@5.0.12)(vue@3.5.38(typescript@5.3.3))
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
       vite:
         specifier: ^5.0.12
         version: 5.0.12
       vite-plugin-dts:
         specifier: ^3.7.2
         version: 3.7.2(rollup@4.62.0)(typescript@5.3.3)(vite@5.0.12)
+      vue-tsc:
+        specifier: ^2.0.29
+        version: 2.2.12(typescript@5.3.3)
 
   docs:
     dependencies:
