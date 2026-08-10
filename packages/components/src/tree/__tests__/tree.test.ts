@@ -21,16 +21,16 @@ describe('Tree', () => {
 
     expect(wrapper.get('[role="tree"]').text()).toContain('Parent')
     expect(wrapper.text()).toContain('Child A')
-    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('true')
+    expect(wrapper.get('[data-tree-key="parent"]').attributes('aria-expanded')).toBe('true')
   })
 
   it('emits a selected key without mutating controlled selection', async () => {
     const wrapper = mount(Tree, { props: { treeData, selectedKeys: [] } })
 
-    await wrapper.get('[data-tree-key="leaf"]').trigger('click')
+    await wrapper.get('[data-tree-key="leaf"] .aheart-tree__node').trigger('click')
 
     expect(wrapper.emitted('update:selectedKeys')).toEqual([[['leaf']]])
-    expect(wrapper.get('[data-tree-key="leaf"]').classes()).not.toContain('is-selected')
+    expect(wrapper.get('[data-tree-key="leaf"]').attributes('aria-selected')).toBe('false')
   })
 
   it('toggles checked keys for checkable nodes', async () => {
@@ -45,14 +45,14 @@ describe('Tree', () => {
   it('does not select disabled nodes', async () => {
     const wrapper = mount(Tree, { props: { treeData, defaultExpandedKeys: ['parent'] } })
 
-    await wrapper.get('[data-tree-key="child-b"]').trigger('click')
+    await wrapper.get('[data-tree-key="child-b"] .aheart-tree__node').trigger('click')
 
     expect(wrapper.emitted('update:selectedKeys')).toBeUndefined()
   })
 
   it('expands and collapses with the keyboard', async () => {
     const wrapper = mount(Tree, { props: { treeData } })
-    const parent = wrapper.get('[data-tree-key="parent"]')
+    const parent = wrapper.get('[data-tree-key="parent"] .aheart-tree__node')
 
     await parent.trigger('keydown', { key: 'ArrowRight' })
     expect(wrapper.emitted('update:expandedKeys')).toEqual([[['parent']]])
@@ -70,7 +70,7 @@ describe('Tree', () => {
     await parent.trigger('keydown', { key: 'ArrowDown' })
     await nextTick()
 
-    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="child-a"]').element)
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="child-a"] .aheart-tree__node').element)
     wrapper.unmount()
     host.remove()
   })
@@ -81,7 +81,7 @@ describe('Tree', () => {
     await wrapper.get('[data-tree-key="parent"] .aheart-tree__switcher').trigger('click')
     await wrapper.setProps({ defaultExpandedKeys: ['parent'] })
 
-    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
+    expect(wrapper.get('[data-tree-key="parent"]').attributes('aria-expanded')).toBe('false')
   })
 
   it('keeps keyboard focus within the active tree instance', async () => {
@@ -90,10 +90,10 @@ describe('Tree', () => {
     const firstTree = mount(Tree, { attachTo: host, props: { treeData, defaultExpandedKeys: ['parent'] } })
     const secondTree = mount(Tree, { attachTo: host, props: { treeData, defaultExpandedKeys: ['parent'] } })
 
-    await secondTree.get('[data-tree-key="parent"]').trigger('keydown', { key: 'ArrowDown' })
+    await secondTree.get('[data-tree-key="parent"] .aheart-tree__node').trigger('keydown', { key: 'ArrowDown' })
     await nextTick()
 
-    expect(document.activeElement).toBe(secondTree.get('[data-tree-key="child-a"]').element)
+    expect(document.activeElement).toBe(secondTree.get('[data-tree-key="child-a"] .aheart-tree__node').element)
     firstTree.unmount()
     secondTree.unmount()
     host.remove()
@@ -109,8 +109,8 @@ describe('Tree', () => {
     await wrapper.setProps({ expandedKeys: ['root'] })
     await nextTick()
 
-    expect(wrapper.get('[data-tree-key="branch"]').attributes('tabindex')).toBe('0')
-    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="branch"]').element)
+    expect(wrapper.get('[data-tree-key="branch"] .aheart-tree__node').attributes('tabindex')).toBe('0')
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="branch"] .aheart-tree__node').element)
     wrapper.unmount()
     host.remove()
   })
@@ -119,16 +119,16 @@ describe('Tree', () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
     const wrapper = mount(Tree, { attachTo: host, props: { treeData, defaultExpandedKeys: ['parent'] } })
-    const child = wrapper.get('[data-tree-key="child-a"]')
+    const child = wrapper.get('[data-tree-key="child-a"] .aheart-tree__node')
 
     child.element.focus()
     await child.trigger('keydown', { key: 'Home' })
     await nextTick()
-    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="parent"]').element)
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="parent"] .aheart-tree__node').element)
 
-    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'End' })
+    await wrapper.get('[data-tree-key="parent"] .aheart-tree__node').trigger('keydown', { key: 'End' })
     await nextTick()
-    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="leaf"]').element)
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="leaf"] .aheart-tree__node').element)
     wrapper.unmount()
     host.remove()
   })
@@ -137,13 +137,13 @@ describe('Tree', () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
     const wrapper = mount(Tree, { attachTo: host, props: { treeData } })
-    const parent = wrapper.get('[data-tree-key="parent"]')
+    const parent = wrapper.get('[data-tree-key="parent"] .aheart-tree__node')
 
     parent.element.focus()
     await parent.trigger('keydown', { key: 'ArrowRight' })
     await nextTick()
 
-    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="child-a"]').element)
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="child-a"] .aheart-tree__node').element)
     wrapper.unmount()
     host.remove()
   })
@@ -153,14 +153,14 @@ describe('Tree', () => {
     document.body.appendChild(host)
     const wrapper = mount(Tree, { attachTo: host, props: { treeData, defaultExpandedKeys: ['parent'] } })
 
-    wrapper.get('[data-tree-key="child-a"]').element.focus()
-    await wrapper.get('[data-tree-key="child-a"]').trigger('keydown', { key: 'ArrowLeft' })
+    wrapper.get('[data-tree-key="child-a"] .aheart-tree__node').element.focus()
+    await wrapper.get('[data-tree-key="child-a"] .aheart-tree__node').trigger('keydown', { key: 'ArrowLeft' })
     await nextTick()
-    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="parent"]').element)
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="parent"] .aheart-tree__node').element)
 
-    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'ArrowLeft' })
+    await wrapper.get('[data-tree-key="parent"] .aheart-tree__node').trigger('keydown', { key: 'ArrowLeft' })
     await nextTick()
-    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
+    expect(wrapper.get('[data-tree-key="parent"]').attributes('aria-expanded')).toBe('false')
     wrapper.unmount()
     host.remove()
   })
@@ -168,14 +168,14 @@ describe('Tree', () => {
   it('toggles each selected key independently with Enter in multiple mode', async () => {
     const wrapper = mount(Tree, { props: { treeData, multiple: true } })
 
-    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'Enter' })
-    await wrapper.get('[data-tree-key="leaf"]').trigger('keydown', { key: 'Enter' })
-    expect(wrapper.get('[data-tree-key="parent"]').classes()).toContain('is-selected')
-    expect(wrapper.get('[data-tree-key="leaf"]').classes()).toContain('is-selected')
+    await wrapper.get('[data-tree-key="parent"] .aheart-tree__node').trigger('keydown', { key: 'Enter' })
+    await wrapper.get('[data-tree-key="leaf"] .aheart-tree__node').trigger('keydown', { key: 'Enter' })
+    expect(wrapper.get('[data-tree-key="parent"]').attributes('aria-selected')).toBe('true')
+    expect(wrapper.get('[data-tree-key="leaf"]').attributes('aria-selected')).toBe('true')
 
-    await wrapper.get('[data-tree-key="parent"]').trigger('keydown', { key: 'Enter' })
-    expect(wrapper.get('[data-tree-key="parent"]').classes()).not.toContain('is-selected')
-    expect(wrapper.get('[data-tree-key="leaf"]').classes()).toContain('is-selected')
+    await wrapper.get('[data-tree-key="parent"] .aheart-tree__node').trigger('keydown', { key: 'Enter' })
+    expect(wrapper.get('[data-tree-key="parent"]').attributes('aria-selected')).toBe('false')
+    expect(wrapper.get('[data-tree-key="leaf"]').attributes('aria-selected')).toBe('true')
   })
 
   it('keeps a controlled checkbox unchecked when the parent rejects the update', async () => {
@@ -191,23 +191,23 @@ describe('Tree', () => {
     const wrapper = mount(Tree, { props: { treeData, expandedKeys: [], selectedKeys: [] } })
 
     await wrapper.get('[data-tree-key="parent"] .aheart-tree__switcher').trigger('click')
-    await wrapper.get('[data-tree-key="leaf"]').trigger('click')
+    await wrapper.get('[data-tree-key="leaf"] .aheart-tree__node').trigger('click')
     await nextTick()
 
-    expect(wrapper.get('[data-tree-key="parent"]').element.parentElement?.getAttribute('aria-expanded')).toBe('false')
+    expect(wrapper.get('[data-tree-key="parent"]').attributes('aria-expanded')).toBe('false')
     expect(wrapper.find('[data-tree-key="child-a"]').exists()).toBe(false)
-    expect(wrapper.get('[data-tree-key="leaf"]').classes()).not.toContain('is-selected')
+    expect(wrapper.get('[data-tree-key="leaf"]').attributes('aria-selected')).toBe('false')
   })
 
   it('does not emit events for disabled nodes or a disabled tree', async () => {
     const nodeDisabled = mount(Tree, { props: { treeData, defaultExpandedKeys: ['parent'], checkable: true } })
-    await nodeDisabled.get('[data-tree-key="child-b"]').trigger('click')
+    await nodeDisabled.get('[data-tree-key="child-b"] .aheart-tree__node').trigger('click')
     await nodeDisabled.get('[data-tree-key="child-b"] input').trigger('change')
     expect(nodeDisabled.emitted('select')).toBeUndefined()
     expect(nodeDisabled.emitted('check')).toBeUndefined()
 
     const treeDisabled = mount(Tree, { props: { treeData, defaultExpandedKeys: ['parent'], checkable: true, disabled: true } })
-    await treeDisabled.get('[data-tree-key="leaf"]').trigger('click')
+    await treeDisabled.get('[data-tree-key="leaf"] .aheart-tree__node').trigger('click')
     await treeDisabled.get('[data-tree-key="leaf"] input').trigger('change')
     expect(treeDisabled.emitted('select')).toBeUndefined()
     expect(treeDisabled.emitted('check')).toBeUndefined()
@@ -219,7 +219,7 @@ describe('Tree', () => {
     const wrapper = mount(Tree, { attachTo: host, props: { treeData, checkable: true } })
     const tree = wrapper.get('[role="tree"]').element as HTMLElement
     tree.scrollTop = 48
-    const leaf = wrapper.get('[data-tree-key="leaf"]')
+    const leaf = wrapper.get('[data-tree-key="leaf"] .aheart-tree__node')
 
     leaf.element.focus()
     await leaf.trigger('keydown', { key: ' ' })
