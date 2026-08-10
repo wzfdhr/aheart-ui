@@ -27,9 +27,9 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   await expect(tree.getByRole('treeitem')).toHaveCount(2)
 
   const rootItem = tree.getByRole('treeitem', { name: /根节点/ }).first()
-  const root = rootItem.locator('.aheart-tree__node')
+  const root = rootItem.locator('[data-tree-key]')
   const leafItem = tree.getByRole('treeitem', { name: /可选叶节点/ }).first()
-  const leaf = leafItem.locator('.aheart-tree__node')
+  const leaf = leafItem.locator('[data-tree-key]')
   const state = workbench.getByTestId('tree-state')
 
   await workbench.getByRole('button', { name: '拒绝展开更新', exact: true }).click()
@@ -42,10 +42,10 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   await expect(state).toContainText('expand-events=1')
   await workbench.getByRole('button', { name: '接受展开更新', exact: true }).click()
   await root.press('ArrowRight')
-  await expect(tree.getByRole('treeitem', { name: /一级子节点/ }).first().locator('.aheart-tree__node')).toBeFocused()
+  await expect(tree.getByRole('treeitem', { name: /一级子节点/ }).first().locator('[data-tree-key]')).toBeFocused()
 
-  const firstChild = tree.getByRole('treeitem', { name: /一级子节点/ }).first().locator('.aheart-tree__node')
-  const secondChild = tree.getByRole('treeitem', { name: /二级子节点/ }).first().locator('.aheart-tree__node')
+  const firstChild = tree.getByRole('treeitem', { name: /一级子节点/ }).first().locator('[data-tree-key]')
+  const secondChild = tree.getByRole('treeitem', { name: /二级子节点/ }).first().locator('[data-tree-key]')
   await firstChild.press('ArrowRight')
   await expect(secondChild).toBeFocused()
   await secondChild.press('ArrowLeft')
@@ -53,9 +53,9 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
 
   await secondChild.focus()
   await secondChild.press('Home')
-  await expect(tree.getByRole('treeitem').first().locator('.aheart-tree__node')).toBeFocused()
-  await tree.getByRole('treeitem').first().locator('.aheart-tree__node').press('End')
-  await expect(tree.getByRole('treeitem').last().locator('.aheart-tree__node')).toBeFocused()
+  await expect(tree.getByRole('treeitem').first().locator('[data-tree-key]')).toBeFocused()
+  await tree.getByRole('treeitem').first().locator('[data-tree-key]').press('End')
+  await expect(tree.getByRole('treeitem').last().locator('[data-tree-key]')).toBeFocused()
 
   const checkedLeaf = leaf.getByRole('checkbox')
   await checkedLeaf.check()
@@ -73,9 +73,9 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   await leaf.press('Enter')
   await expect(leafItem).toHaveAttribute('aria-selected', 'true')
   const anotherLeaf = tree.getByRole('treeitem', { name: /另一个叶节点/ }).first()
-  await anotherLeaf.locator('.aheart-tree__node').press('Enter')
+  await anotherLeaf.locator('[data-tree-key]').press('Enter')
   await expect(state).toContainText('select-events=3')
-  await anotherLeaf.locator('.aheart-tree__node').press('Enter')
+  await anotherLeaf.locator('[data-tree-key]').press('Enter')
   await expect(state).toContainText('select-events=4')
 
   await tree.evaluate((element) => { element.scrollTop = 80 })
@@ -84,7 +84,7 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   await expect.poll(() => tree.evaluate((element) => element.scrollTop)).toBe(80)
 
   const disabledLeafItem = tree.getByRole('treeitem', { name: /禁用叶节点/ }).first()
-  const disabledLeaf = disabledLeafItem.locator('.aheart-tree__node')
+  const disabledLeaf = disabledLeafItem.locator('[data-tree-key]')
   await disabledLeaf.click()
   await expect(state).toContainText('select-events=3')
   await workbench.getByRole('button', { name: '禁用整树', exact: true }).click()
@@ -93,7 +93,7 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   await expect(state).toContainText('select-events=4')
 
   await workbench.getByRole('button', { name: '外部折叠', exact: true }).click()
-  await expect(tree.getByRole('treeitem').first().locator('.aheart-tree__node')).toBeFocused()
+  await expect(tree.getByRole('treeitem').first().locator('[data-tree-key]')).toBeFocused()
   await expect(tree.getByRole('treeitem').first()).toHaveAttribute('aria-expanded', 'false')
   await expect(tree.getByRole('treeitem', { name: /一级子节点/ })).toHaveCount(0)
   await expect(state).toContainText('expanded=[]')
