@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test'
 
 const port = process.env.AHEART_E2E_PORT ?? '5173'
 const qg2Only = /dnd-splitter\.spec\.ts/
+const qg5Only = /cross-browser-production\.spec\.ts/
+const crossBrowserTests = [qg2Only, qg5Only]
 const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 
 export default defineConfig({
@@ -18,14 +20,14 @@ export default defineConfig({
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
-    { name: 'desktop-firefox', testMatch: qg2Only, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },
-    { name: 'desktop-webkit', testMatch: qg2Only, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },
-    { name: 'mobile-webkit', testMatch: qg2Only, use: { ...devices['iPhone 13'], browserName: 'webkit' } }
+    { name: 'desktop-firefox', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },
+    { name: 'desktop-webkit', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },
+    { name: 'mobile-webkit', testMatch: crossBrowserTests, use: { ...devices['iPhone 13'], browserName: 'webkit' } }
   ],
   webServer: {
-    command: `corepack pnpm --dir docs dev --host 127.0.0.1 --port ${port}`,
+    command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,
     url: `http://127.0.0.1:${port}`,
-    reuseExistingServer: !process.env.CI && process.env.AHEART_E2E_REUSE_SERVER !== 'false',
-    timeout: 30_000
+    reuseExistingServer: false,
+    timeout: 120_000
   }
 })
