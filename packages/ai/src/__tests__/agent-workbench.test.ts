@@ -72,7 +72,7 @@ describe('AIAgentWorkbench', () => {
     await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
     const drawer = wrapper.getComponent({ name: 'ADrawer' })
     expect(drawer.exists()).toBe(true)
-    expect(drawer.props('getContainer')).toBeUndefined()
+    expect(drawer.props('getContainer')).toBe(false)
   })
 
   it('shows the artifact explicitly associated with a pending approval', async () => {
