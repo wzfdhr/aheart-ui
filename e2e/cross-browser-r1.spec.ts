@@ -154,7 +154,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
     await failure.getByLabel('选择文件').setInputFiles(file('r1-failure.txt'))
     await expect(failure.getByTestId('upload-retry-status')).toHaveText('上传失败')
     await failure.getByRole('button', { name: '重试 r1-failure.txt' }).click()
-    await failure.getByRole('button', { name: 'Upload' }).click()
+    await failure.getByRole('button', { name: '上传' }).click()
     await expect(failure.getByTestId('upload-retry-status')).toHaveText('上传成功')
 
     const disabled = page.getByRole('region', { name: '禁用上传' })

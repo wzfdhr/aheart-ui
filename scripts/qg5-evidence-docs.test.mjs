@@ -24,3 +24,9 @@ test('documents the two-stage master stability gate and exposes the guide in Chi
   assert.match(config, /QG5 证据/)
   assert.match(config, /\/guide\/qg5-evidence/)
 })
+
+test('describes always-retained and failure-only browser evidence accurately', () => {
+  assert.match(guide, /每次 QG5 CI.*HTML report.*控制台日志/s)
+  assert.match(guide, /失败时.*trace.*截图.*视频/s)
+  assert.doesNotMatch(guide, /每个项目独立上传 HTML report、trace、失败截图、视频和控制台日志/)
+})

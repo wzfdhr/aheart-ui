@@ -4,7 +4,7 @@ QG5 的生产站自动化浏览器矩阵已经建立；物理 iOS Safari 与连�
 
 ## 自动化浏览器矩阵
 
-每次 QG5 CI 分别执行 Desktop Chromium、Mobile Chromium、Desktop Firefox、Desktop WebKit 和 Mobile WebKit。每个项目独立上传 HTML report、trace、失败截图、视频和控制台日志，名称包含 GitHub run ID 与 attempt。
+每次 QG5 CI 分别执行 Desktop Chromium、Mobile Chromium、Desktop Firefox、Desktop WebKit 和 Mobile WebKit。每个项目都会上传 HTML report 与控制台日志；失败时额外保留 trace、截图和视频。artifact 名称包含 GitHub run ID 与 attempt。
 
 本地可执行：
 
