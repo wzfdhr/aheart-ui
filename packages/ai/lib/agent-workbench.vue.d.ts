@@ -109,10 +109,10 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     tasks: AIAgentTask[];
     artifacts: AIAgentArtifact[];
     activeArtifact: string;
+    description: string;
     attachments: AIAttachment[];
     conversations: AIConversation[];
     prompts: AIPrompt[];
-    description: string;
     messages: AIMessage[];
     transport: AITransport;
     activeConversation: string;

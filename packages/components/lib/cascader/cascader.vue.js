@@ -6,6 +6,7 @@ const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
 require("./style.css.js");
 const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled"];
 const _hoisted_2 = {
@@ -260,12 +261,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady.useTeleportReady();
     const popupContainer = vue.computed(() => {
       if (props.getPopupContainer && triggerRef.value)
         return props.getPopupContainer(triggerRef.value);
       return typeof document === "undefined" ? false : document.body;
     });
-    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition.useFloatingPosition({
       reference: triggerRef,

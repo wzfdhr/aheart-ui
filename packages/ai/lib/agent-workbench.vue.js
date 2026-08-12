@@ -16,47 +16,48 @@ const _hoisted_2 = { class: "aheart-ai-workbench__header" };
 const _hoisted_3 = { key: 0 };
 const _hoisted_4 = { class: "aheart-ai-workbench__header-status" };
 const _hoisted_5 = { class: "aheart-ai-workbench__progress" };
-const _hoisted_6 = { class: "aheart-ai-workbench__desktop" };
-const _hoisted_7 = { class: "aheart-ai-workbench__sidebar" };
-const _hoisted_8 = {
+const _hoisted_6 = ["aria-label"];
+const _hoisted_7 = { class: "aheart-ai-workbench__desktop" };
+const _hoisted_8 = { class: "aheart-ai-workbench__sidebar" };
+const _hoisted_9 = {
   key: 0,
   class: "aheart-ai-workbench__context",
   "aria-label": "上下文"
 };
-const _hoisted_9 = ["data-context-id"];
-const _hoisted_10 = { key: 0 };
-const _hoisted_11 = { class: "aheart-ai-workbench__move-actions" };
-const _hoisted_12 = { class: "aheart-ai-workbench__chat" };
-const _hoisted_13 = {
+const _hoisted_10 = ["data-context-id"];
+const _hoisted_11 = { key: 0 };
+const _hoisted_12 = { class: "aheart-ai-workbench__move-actions" };
+const _hoisted_13 = { class: "aheart-ai-workbench__chat" };
+const _hoisted_14 = {
   key: 1,
   class: "aheart-ai-workbench__empty"
 };
-const _hoisted_14 = {
+const _hoisted_15 = {
   class: "aheart-ai-workbench__execution",
   "aria-label": "执行与产物"
 };
-const _hoisted_15 = { class: "aheart-ai-workbench__mobile" };
-const _hoisted_16 = {
+const _hoisted_16 = { class: "aheart-ai-workbench__mobile" };
+const _hoisted_17 = {
   key: 0,
   class: "aheart-ai-workbench__mobile-panel"
 };
-const _hoisted_17 = {
+const _hoisted_18 = {
   key: 0,
   class: "aheart-ai-workbench__context",
   "aria-label": "上下文"
 };
-const _hoisted_18 = ["data-context-id"];
-const _hoisted_19 = { key: 0 };
-const _hoisted_20 = { class: "aheart-ai-workbench__move-actions" };
-const _hoisted_21 = {
+const _hoisted_19 = ["data-context-id"];
+const _hoisted_20 = { key: 0 };
+const _hoisted_21 = { class: "aheart-ai-workbench__move-actions" };
+const _hoisted_22 = {
   key: 1,
   class: "aheart-ai-workbench__mobile-panel"
 };
-const _hoisted_22 = {
+const _hoisted_23 = {
   key: 1,
   class: "aheart-ai-workbench__empty"
 };
-const _hoisted_23 = {
+const _hoisted_24 = {
   key: 2,
   class: "aheart-ai-workbench__mobile-panel"
 };
@@ -93,16 +94,40 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       hasMessagesProp.value = readMessagesPresence();
     });
     const chatMessageProps = vue.computed(() => hasMessagesProp.value ? { messages: props.messages } : { defaultMessages: props.messages });
-    const mobileTabs = [
+    const pendingApprovalTasks = vue.computed(() => props.tasks.filter(
+      (task) => task.approval && (!task.approval.status || task.approval.status === "pending")
+    ));
+    const pendingApprovalCount = vue.computed(() => pendingApprovalTasks.value.length);
+    const pendingApprovalSummary = vue.computed(() => {
+      const task = pendingApprovalTasks.value[0];
+      const artifact = props.artifacts.find((item) => {
+        var _a;
+        return item.id === ((_a = task == null ? void 0 : task.approval) == null ? void 0 : _a.artifactId);
+      });
+      if (!artifact) return `${pendingApprovalCount.value} 项待审批`;
+      const prefix = pendingApprovalCount.value > 1 ? `${pendingApprovalCount.value} 项待审批` : "待审批";
+      return `${prefix}：${artifact.title}`;
+    });
+    const openPendingApproval = () => {
+      mobileView.value = "execution";
+      executionDrawerOpen.value = true;
+    };
+    const mobileTabs = vue.computed(() => [
       { key: "conversations", label: "会话" },
       { key: "chat", label: "对话" },
-      { key: "execution", label: "执行" }
-    ];
+      {
+        key: "execution",
+        label: vue.h("span", { class: "aheart-ai-workbench__mobile-tab-label" }, [
+          vue.h("span", "执行"),
+          pendingApprovalCount.value > 0 ? vue.h("span", { class: "aheart-ai-workbench__pending-badge", "aria-label": `${pendingApprovalCount.value} 项待审批` }, String(pendingApprovalCount.value)) : null
+        ])
+      }
+    ]);
     const sortableContext = vue.computed(() => props.contextItems);
     const completedTaskCount = vue.computed(() => props.tasks.filter((task) => task.status === "complete").length);
     const workbenchStatus = vue.computed(() => {
       if (props.tasks.some((task) => task.status === "error")) return { key: "error", label: "需要处理" };
-      if (props.tasks.some((task) => task.status === "waiting-approval")) return { key: "waiting", label: "等待人工审批" };
+      if (pendingApprovalCount.value > 0) return { key: "waiting", label: "等待人工审批" };
       if (props.tasks.some((task) => task.status === "running")) return { key: "running", label: "执行中" };
       if (props.tasks.length && completedTaskCount.value === props.tasks.length) return { key: "complete", label: "已完成" };
       return { key: "idle", label: "待开始" };
@@ -154,10 +179,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               "data-workbench-status": "",
               class: vue.normalizeClass(`is-${workbenchStatus.value.key}`)
             }, vue.toDisplayString(workbenchStatus.value.label), 3),
-            vue.createElementVNode("small", _hoisted_5, vue.toDisplayString(completedTaskCount.value) + " / " + vue.toDisplayString(__props.tasks.length) + " 已完成", 1)
+            vue.createElementVNode("small", _hoisted_5, vue.toDisplayString(completedTaskCount.value) + " / " + vue.toDisplayString(__props.tasks.length) + " 已完成", 1),
+            pendingApprovalCount.value > 0 ? (vue.openBlock(), vue.createElementBlock("button", {
+              key: 0,
+              type: "button",
+              "data-pending-approval-summary": "",
+              class: "aheart-ai-workbench__pending-summary",
+              "aria-label": pendingApprovalSummary.value,
+              onClick: openPendingApproval
+            }, vue.toDisplayString(pendingApprovalSummary.value), 9, _hoisted_6)) : vue.createCommentVNode("", true)
           ])
         ]),
-        vue.createElementVNode("div", _hoisted_6, [
+        vue.createElementVNode("div", _hoisted_7, [
           vue.createVNode(vue.unref(aheartUi.Splitter), {
             sizes: __props.panelSizes,
             "default-sizes": [150, "auto", 200],
@@ -169,14 +202,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 collapsible: ""
               }, {
                 default: vue.withCtx(() => [
-                  vue.createElementVNode("aside", _hoisted_7, [
+                  vue.createElementVNode("aside", _hoisted_8, [
                     _cache[34] || (_cache[34] = vue.createElementVNode("h2", null, "会话", -1)),
                     vue.createVNode(conversations_vue_vue_type_script_setup_true_lang.default, {
                       "model-value": __props.activeConversation,
                       conversations: __props.conversations,
                       "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => emit("update:activeConversation", $event))
                     }, null, 8, ["model-value", "conversations"]),
-                    __props.contextItems.length ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_8, [
+                    __props.contextItems.length ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_9, [
                       _cache[33] || (_cache[33] = vue.createElementVNode("h3", null, "上下文", -1)),
                       vue.createVNode(vue.unref(dnd.SortableList), {
                         items: sortableContext.value,
@@ -191,8 +224,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                             "data-context-id": asContext(item).id
                           }, [
                             vue.createElementVNode("span", null, vue.toDisplayString(asContext(item).label), 1),
-                            asContext(item).description ? (vue.openBlock(), vue.createElementBlock("small", _hoisted_10, vue.toDisplayString(asContext(item).description), 1)) : vue.createCommentVNode("", true),
-                            vue.createElementVNode("div", _hoisted_11, [
+                            asContext(item).description ? (vue.openBlock(), vue.createElementBlock("small", _hoisted_11, vue.toDisplayString(asContext(item).description), 1)) : vue.createCommentVNode("", true),
+                            vue.createElementVNode("div", _hoisted_12, [
                               vue.createVNode(vue.unref(aheartUi.Button), {
                                 type: "text",
                                 disabled: isContextMoveDisabled(index, -1),
@@ -214,7 +247,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                                 _: 1
                               }, 8, ["disabled", "onClick"])
                             ])
-                          ], 8, _hoisted_9)
+                          ], 8, _hoisted_10)
                         ]),
                         _: 1
                       }, 8, ["items", "disabled"])
@@ -225,7 +258,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               }),
               vue.createVNode(vue.unref(aheartUi.SplitterPanel), { min: 230 }, {
                 default: vue.withCtx(() => [
-                  vue.createElementVNode("main", _hoisted_12, [
+                  vue.createElementVNode("main", _hoisted_13, [
                     __props.transport ? (vue.openBlock(), vue.createBlock(chatPanel_vue_vue_type_script_setup_true_lang.default, vue.mergeProps({ key: 0 }, chatMessageProps.value, {
                       transport: __props.transport,
                       "conversation-id": __props.activeConversation,
@@ -238,7 +271,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       onRegenerate: _cache[5] || (_cache[5] = ($event) => emit("chat-regenerate", $event)),
                       onEdit: forwardChatEdit,
                       onCopy: _cache[6] || (_cache[6] = ($event) => emit("chat-copy", $event))
-                    }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (vue.openBlock(), vue.createElementBlock("p", _hoisted_13, "业务层尚未提供对话传输适配器。")),
+                    }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (vue.openBlock(), vue.createElementBlock("p", _hoisted_14, "业务层尚未提供对话传输适配器。")),
                     vue.renderSlot(_ctx.$slots, "sources", { sources: __props.sources }, () => [
                       vue.createVNode(sources_vue_vue_type_script_setup_true_lang.default, { sources: __props.sources }, null, 8, ["sources"])
                     ]),
@@ -254,7 +287,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 collapsible: ""
               }, {
                 default: vue.withCtx(() => [
-                  vue.createElementVNode("aside", _hoisted_14, [
+                  vue.createElementVNode("aside", _hoisted_15, [
                     vue.createVNode(agentExecution_vue_vue_type_script_setup_true_lang.default, {
                       tasks: __props.tasks,
                       artifacts: __props.artifacts,
@@ -301,19 +334,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             _: 3
           }, 8, ["sizes"])
         ]),
-        vue.createElementVNode("div", _hoisted_15, [
+        vue.createElementVNode("div", _hoisted_16, [
           vue.createVNode(vue.unref(aheartUi.Tabs), {
-            items: mobileTabs,
+            items: mobileTabs.value,
             "active-key": mobileView.value,
             "onUpdate:activeKey": _cache[14] || (_cache[14] = ($event) => mobileView.value = $event)
-          }, null, 8, ["active-key"]),
-          mobileView.value === "conversations" ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_16, [
+          }, null, 8, ["items", "active-key"]),
+          mobileView.value === "conversations" ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_17, [
             vue.createVNode(conversations_vue_vue_type_script_setup_true_lang.default, {
               "model-value": __props.activeConversation,
               conversations: __props.conversations,
               "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event) => emit("update:activeConversation", $event))
             }, null, 8, ["model-value", "conversations"]),
-            __props.contextItems.length ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_17, [
+            __props.contextItems.length ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_18, [
               _cache[37] || (_cache[37] = vue.createElementVNode("h3", null, "上下文", -1)),
               vue.createVNode(vue.unref(dnd.SortableList), {
                 items: sortableContext.value,
@@ -328,8 +361,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     "data-context-id": asContext(item).id
                   }, [
                     vue.createElementVNode("span", null, vue.toDisplayString(asContext(item).label), 1),
-                    asContext(item).description ? (vue.openBlock(), vue.createElementBlock("small", _hoisted_19, vue.toDisplayString(asContext(item).description), 1)) : vue.createCommentVNode("", true),
-                    vue.createElementVNode("div", _hoisted_20, [
+                    asContext(item).description ? (vue.openBlock(), vue.createElementBlock("small", _hoisted_20, vue.toDisplayString(asContext(item).description), 1)) : vue.createCommentVNode("", true),
+                    vue.createElementVNode("div", _hoisted_21, [
                       vue.createVNode(vue.unref(aheartUi.Button), {
                         type: "text",
                         disabled: isContextMoveDisabled(index, -1),
@@ -351,12 +384,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         _: 1
                       }, 8, ["disabled", "onClick"])
                     ])
-                  ], 8, _hoisted_18)
+                  ], 8, _hoisted_19)
                 ]),
                 _: 1
               }, 8, ["items", "disabled"])
             ])) : vue.createCommentVNode("", true)
-          ])) : mobileView.value === "chat" ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_21, [
+          ])) : mobileView.value === "chat" ? (vue.openBlock(), vue.createElementBlock("section", _hoisted_22, [
             __props.transport ? (vue.openBlock(), vue.createBlock(chatPanel_vue_vue_type_script_setup_true_lang.default, vue.mergeProps({ key: 0 }, chatMessageProps.value, {
               transport: __props.transport,
               "conversation-id": __props.activeConversation,
@@ -369,14 +402,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onRegenerate: _cache[20] || (_cache[20] = ($event) => emit("chat-regenerate", $event)),
               onEdit: forwardChatEdit,
               onCopy: _cache[21] || (_cache[21] = ($event) => emit("chat-copy", $event))
-            }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (vue.openBlock(), vue.createElementBlock("p", _hoisted_22, "业务层尚未提供对话传输适配器。")),
+            }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (vue.openBlock(), vue.createElementBlock("p", _hoisted_23, "业务层尚未提供对话传输适配器。")),
             vue.renderSlot(_ctx.$slots, "sources", { sources: __props.sources }, () => [
               vue.createVNode(sources_vue_vue_type_script_setup_true_lang.default, { sources: __props.sources }, null, 8, ["sources"])
             ]),
             vue.renderSlot(_ctx.$slots, "attachments", { attachments: __props.attachments }, () => [
               vue.createVNode(attachments_vue_vue_type_script_setup_true_lang.default, { items: __props.attachments }, null, 8, ["items"])
             ])
-          ])) : (vue.openBlock(), vue.createElementBlock("section", _hoisted_23, [
+          ])) : (vue.openBlock(), vue.createElementBlock("section", _hoisted_24, [
             vue.createVNode(vue.unref(aheartUi.Button), {
               "data-action": "open-execution-drawer",
               type: "primary",

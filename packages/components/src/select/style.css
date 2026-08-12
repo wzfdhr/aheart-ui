@@ -230,7 +230,7 @@
 }
 
 .aheart-select__option.is-selected {
-  color: var(--aheart-color-primary);
+  color: #003eb3;
   font-weight: 500;
 }
 

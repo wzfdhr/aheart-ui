@@ -1,5 +1,48 @@
 <template>
   <div class="aheart-ai-workbench__execution-content">
+    <section v-if="priorityApproval || selectedArtifact" class="aheart-ai-workbench__mobile-priority" role="region" aria-label="移动端优先处理">
+      <div class="aheart-ai-workbench__priority-heading">
+        <span class="aheart-ai-workbench__eyebrow">{{ priorityLabel }}</span>
+        <strong v-if="priorityApproval">{{ priorityApproval.approval?.title }}</strong>
+        <strong v-else>查看当前产物</strong>
+      </div>
+      <div v-if="priorityApproval" class="aheart-ai-workbench__priority-approval">
+        <p v-if="priorityApproval.approval?.description">{{ priorityApproval.approval.description }}</p>
+        <div class="aheart-ai-workbench__priority-actions">
+          <template v-if="!priorityApproval.approval?.status || priorityApproval.approval.status === 'pending'">
+            <AButton data-action="approve" type="primary" :disabled="disabled" @click="emit('approve', priorityApproval)">批准</AButton>
+            <AButton data-action="reject" danger :disabled="disabled" @click="emit('reject', priorityApproval)">拒绝</AButton>
+          </template>
+          <span v-else class="aheart-ai-workbench__approval-result">
+            {{ priorityApproval.approval.status === 'approved' ? '已批准' : '已拒绝' }}
+          </span>
+        </div>
+      </div>
+      <button
+        v-if="priorityArtifact"
+        type="button"
+        class="aheart-ai-workbench__priority-artifact"
+        data-artifact-role="approval"
+        :aria-label="priorityArtifact.title"
+        @click="emit('select-artifact', priorityArtifact)"
+      >
+        <span>{{ priorityApproval?.approval?.artifactId ? '审批对象' : '当前产物' }}</span>
+        <strong>{{ priorityArtifact.title }}</strong>
+        <small v-if="priorityArtifact.description">{{ priorityArtifact.description }}</small>
+      </button>
+      <button
+        v-if="selectedArtifact && selectedArtifact.id !== priorityArtifact?.id"
+        type="button"
+        class="aheart-ai-workbench__priority-artifact"
+        data-artifact-role="current"
+        :aria-label="selectedArtifact.title"
+        @click="emit('select-artifact', selectedArtifact)"
+      >
+        <span>当前产物</span>
+        <strong>{{ selectedArtifact.title }}</strong>
+        <small v-if="selectedArtifact.description">{{ selectedArtifact.description }}</small>
+      </button>
+    </section>
     <section class="aheart-ai-workbench__tasks" :aria-labelledby="taskHeadingId">
       <div class="aheart-ai-workbench__section-heading">
         <div>
@@ -21,7 +64,7 @@
             <article
               :data-task-id="asTask(item).id"
               class="aheart-ai-workbench__timeline-item"
-              :class="`is-${asTask(item).status}`"
+              :class="[`is-${effectiveStatus(asTask(item))}`, { 'has-approval-summary': Boolean(asTask(item).approval) }]"
             >
               <span class="aheart-ai-workbench__timeline-marker" aria-hidden="true"></span>
               <div class="aheart-ai-workbench__task-body">
@@ -32,7 +75,7 @@
                       {{ asTask(item).toolName }}
                     </span>
                   </div>
-                  <span class="aheart-ai-workbench__task-status">{{ statusLabel(asTask(item).status) }}</span>
+                  <span class="aheart-ai-workbench__task-status">{{ effectiveStatusLabel(asTask(item)) }}</span>
                 </header>
                 <p v-if="asTask(item).detail" class="aheart-ai-workbench__task-detail">{{ asTask(item).detail }}</p>
                 <div v-if="asTask(item).progress !== undefined" class="aheart-ai-workbench__task-progress">
@@ -216,8 +259,28 @@ const sortableTasks = computed(() => props.tasks as unknown as Record<string, un
 const selectedArtifact = computed(
   () => props.artifacts.find((artifact) => artifact.id === props.activeArtifact) ?? props.artifacts[0]
 )
+const priorityApproval = computed(
+  () => props.tasks.find((task) => task.approval && (!task.approval.status || task.approval.status === 'pending')) ?? props.tasks.find((task) => task.approval)
+)
+const priorityArtifact = computed(
+  () => props.artifacts.find((artifact) => artifact.id === priorityApproval.value?.approval?.artifactId) ?? selectedArtifact.value
+)
+const priorityLabel = computed(() => {
+  if (priorityApproval.value?.approval && (!priorityApproval.value.approval.status || priorityApproval.value.approval.status === 'pending')) return '等待审批'
+  return priorityApproval.value ? '审批结果' : '当前产物'
+})
 const asTask = (item: unknown) => item as AIAgentTask
 const statusLabel = (status: AIAgentTaskStatus) => statusLabels[status]
+const effectiveStatus = (task: AIAgentTask): AIAgentTaskStatus => {
+  if (task.approval?.status === 'approved') return 'complete'
+  if (task.approval?.status === 'rejected') return 'cancelled'
+  return task.status
+}
+const effectiveStatusLabel = (task: AIAgentTask) => {
+  if (task.approval?.status === 'approved') return '已批准'
+  if (task.approval?.status === 'rejected') return '已拒绝'
+  return statusLabel(task.status)
+}
 const normalizedProgress = (progress?: number) => Math.min(100, Math.max(0, Math.round(progress ?? 0)))
 const updateTasks = (tasks: Record<string, unknown>[]) => {
   if (!props.disabled) emit('update:tasks', tasks as unknown as AIAgentTask[])

@@ -3,6 +3,7 @@ import Menu from "../menu/index.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { dropdownProps, dropdownEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
@@ -48,6 +49,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const hasOverlayContent = computed(() => hasMenu.value || Boolean(slots.popup || props.popupRender || props.dropdownRender));
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const teleportReady = useTeleportReady();
     const shouldRenderOverlay = computed(() => hasOverlayContent.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = computed(() => {
@@ -56,7 +58,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return getDefaultPopupContainer();
     });
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,

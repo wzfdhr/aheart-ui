@@ -4,6 +4,7 @@ const vue = require("vue");
 const index = require("../skeleton/index.js");
 const usePointerDrag = require("../utils/use-pointer-drag.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["aria-hidden"];
@@ -104,9 +105,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const resolvedContainer = vue.computed(() => props.getContainer ?? getDefaultContainer());
     const teleportTarget = vue.computed(() => {
       const container = resolvedContainer.value;
+      if (typeof window === "undefined" && typeof container === "function")
+        return false;
       return typeof container === "function" ? container() : container;
     });
-    const shouldTeleport = vue.computed(() => teleportTarget.value !== false);
+    const teleportReady = useTeleportReady.useTeleportReady();
+    const shouldTeleport = vue.computed(() => teleportReady.value && teleportTarget.value !== false);
     const teleportTo = vue.computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
     const isVertical = vue.computed(() => props.placement === "top" || props.placement === "bottom");
     const hasOpenChildDrawer = vue.computed(() => openChildDrawers.value.size > 0);

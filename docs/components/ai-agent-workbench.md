@@ -44,7 +44,8 @@ const tasks = ref<AIAgentTask[]>([
     approval: {
       id: 'publish-approval',
       title: '确认发布到团队知识库',
-      description: '该操作由业务层执行，组件只收集人工决定。'
+      description: '该操作由业务层执行，组件只收集人工决定。',
+      artifactId: 'brief'
     }
   }
 ])
@@ -167,7 +168,7 @@ const cancelTask = (task: AIAgentTask) => updateTask(task, { status: 'cancelled'
 | `panelSizes` / `v-model:panelSizes` | 三栏尺寸，复用 Splitter 语义。 |
 | `conversations` / `activeConversation` | 受控会话列表与当前会话。 |
 | `messages` / `transport` / `prompts` | 传给 `AIChatPanel` 的对话能力；省略 `messages` 时由工作台维护本地消息。 |
-| `tasks` | 受控任务时间线，包含状态、工具、进度、错误和审批。 |
+| `tasks` | 受控任务时间线，包含状态、工具、进度、错误和审批；审批可通过 `approval.artifactId` 显式关联待处理产物。 |
 | `contextItems` | 可排序的受控上下文列表。 |
 | `sources` / `attachments` | 当前会话的来源和附件。 |
 | `artifacts` / `activeArtifact` | 产物列表与当前预览项。 |

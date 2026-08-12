@@ -6,6 +6,7 @@ require("../utils/floating.css.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["aria-hidden"];
@@ -50,6 +51,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const visible = vue.computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldDestroyOnHidden = vue.computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
     const motion = useMotionPresence.useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const teleportReady = useTeleportReady.useTeleportReady();
     const shouldRenderPopup = vue.computed(() => hasPopupContent.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = vue.computed(() => {
@@ -58,7 +60,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return getDefaultPopupContainer();
     });
-    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition.useFloatingPosition({
       reference: triggerRef,

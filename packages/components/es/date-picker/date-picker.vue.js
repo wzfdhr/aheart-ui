@@ -8,6 +8,7 @@ import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { datePickerProps, datePickerEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
@@ -243,6 +244,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return (_a2 = activeCell.value) == null ? void 0 : _a2.id;
     });
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady();
     const popupContainer = computed(() => {
       if (!triggerRef.value)
         return false;
@@ -250,7 +252,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return props.getPopupContainer(triggerRef.value);
       return typeof document === "undefined" ? false : document.body;
     });
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,

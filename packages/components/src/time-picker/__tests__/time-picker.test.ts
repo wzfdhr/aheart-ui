@@ -340,4 +340,16 @@ describe('TimePicker', () => {
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['09:10:00'])
   })
+
+  it('cancels a pending scroll commit when unmounted', async () => {
+    vi.useFakeTimers()
+    const wrapper = mountPicker({ props: { defaultValue: '09:30:00', defaultOpen: true, changeOnScroll: true } })
+    const minuteColumn = wrapper.get('[data-time-column="minute"]')
+    Object.defineProperty(minuteColumn.element, 'scrollTop', { value: 10 * 28, configurable: true })
+    await minuteColumn.trigger('scroll')
+    expect(vi.getTimerCount()).toBe(1)
+    wrapper.unmount()
+    expect(vi.getTimerCount()).toBe(0)
+    vi.useRealTimers()
+  })
 })

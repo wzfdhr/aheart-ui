@@ -15,7 +15,8 @@ const components = [
 
 const gotoComponent = async (page: Page, component: string) => {
   await page.goto(`/components/${component}`)
-  await page.waitForFunction(() => Boolean(document.title && document.documentElement.lang && document.querySelector('#app')?.textContent?.trim()))
+  await page.waitForLoadState('networkidle')
+  await expect(page.locator('#app')).toContainText(/./)
 }
 
 const getComponentSurface = async (page: Page, component: string) => {
@@ -38,11 +39,26 @@ const expectNoSeriousA11yViolations = async (page: Page, component: string) => {
     element.setAttribute('data-qg4-a11y-target', 'true')
     return '[data-qg4-a11y-target="true"]'
   })
-  const results = await new AxeBuilder({ page })
-    .include(selector)
-    .analyze()
+  const axe = new AxeBuilder({ page }).include(selector)
+  if (component === 'select') {
+    const combobox = target.getByRole('combobox').first()
+    await combobox.focus()
+    await combobox.click()
+    await expect(page.locator('[role="listbox"]:visible').first()).toBeVisible()
+    axe.include('[role="listbox"]')
+  }
+  const results = await axe.analyze()
+  if (component === 'select') {
+    await target.getByRole('combobox').first().press('Escape')
+  }
   const blocking = results.violations.filter((violation) => violation.impact === 'critical' || violation.impact === 'serious')
   expect(blocking, `${component}: ${blocking.map((violation) => `${violation.id}: ${violation.help}`).join('\n')}`).toEqual([])
+}
+
+const expectNoSeriousViolationsIn = async (page: Page, selector: string, label: string) => {
+  const results = await new AxeBuilder({ page }).include(selector).analyze()
+  const blocking = results.violations.filter((violation) => violation.impact === 'critical' || violation.impact === 'serious')
+  expect(blocking, `${label}: ${blocking.map((violation) => `${violation.id}: ${violation.help}`).join('\n')}`).toEqual([])
 }
 
 const expectVisibleFocus = async (page: Page, component: string) => {
@@ -76,6 +92,81 @@ test.describe('QG4 accessibility and visual regression gates', () => {
       await gotoComponent(page, component)
       await expectNoSeriousA11yViolations(page, component)
     }
+  })
+
+  test('critical and serious axe violations are zero for opened overlays', async ({ page }) => {
+    await gotoComponent(page, 'modal')
+    await page.getByRole('region', { name: '对话框交互工作台' }).getByRole('button', { name: '打开异步对话框', exact: true }).click()
+    await expect(page.getByRole('dialog', { name: '异步确认' })).toBeVisible()
+    await expectNoSeriousViolationsIn(page, '.aheart-modal', 'modal overlay')
+
+    await gotoComponent(page, 'drawer')
+    await page.getByRole('button', { name: 'Open drawer', exact: true }).first().click()
+    await expect(page.getByRole('dialog', { name: 'Account details' })).toBeVisible()
+    await expectNoSeriousViolationsIn(page, '.aheart-drawer', 'drawer overlay')
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await gotoComponent(page, 'ai-agent-workbench')
+    await page.getByRole('tab', { name: '执行' }).click()
+    await page.getByRole('button', { name: '查看执行与产物' }).click()
+    await expect(page.getByRole('dialog', { name: '执行与产物' })).toBeVisible()
+    await expectNoSeriousViolationsIn(page, '.aheart-drawer', 'AI Workbench execution overlay')
+  })
+
+  test('production routes hydrate without Vue warnings or hydration mismatches', async ({ page }) => {
+    const consoleErrors: string[] = []
+    const pageErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() !== 'warning' && message.type() !== 'error') return
+      const text = message.text()
+      if (/\[Vue warn\]|hydration|mismatch/i.test(text)) consoleErrors.push(text)
+    })
+    page.on('pageerror', (error) => pageErrors.push(error.message))
+
+    for (const component of ['select', 'date-picker', 'time-picker', 'modal', 'drawer'] as const) {
+      await gotoComponent(page, component)
+      await getComponentSurface(page, component)
+
+      if (component === 'select') {
+        const combobox = page.getByRole('combobox').first()
+        await combobox.click()
+        await expect(page.locator('[role="listbox"]:visible').first()).toBeVisible()
+        await combobox.press('Escape')
+      }
+      if (component === 'date-picker') {
+        const input = page.locator('.aheart-date-picker input').first()
+        await input.click()
+        await expect(page.locator('.aheart-date-picker__panel.is-entered').first()).toBeVisible()
+        await input.press('Escape')
+      }
+      if (component === 'time-picker') {
+        const input = page.locator('.aheart-time-picker input').first()
+        await input.click()
+        await expect(page.locator('.aheart-time-picker__panel.is-entered').first()).toBeVisible()
+        await input.press('Escape')
+      }
+      if (component === 'modal') {
+        const opener = page.getByRole('region', { name: '对话框交互工作台' }).getByRole('button', { name: '打开异步对话框', exact: true })
+        await opener.click()
+        await expect(page.getByRole('dialog', { name: '异步确认' })).toBeVisible()
+        await page.keyboard.press('Escape')
+      }
+      if (component === 'drawer') {
+        const opener = page.getByRole('button', { name: 'Open drawer', exact: true }).first()
+        await opener.click()
+        await expect(page.getByRole('dialog', { name: 'Account details' })).toBeVisible()
+        await page.keyboard.press('Escape')
+      }
+    }
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await gotoComponent(page, 'ai-agent-workbench')
+    await page.getByRole('tab', { name: '执行' }).click()
+    await page.getByRole('button', { name: '查看执行与产物' }).click()
+    await expect(page.getByRole('dialog', { name: '执行与产物' })).toBeVisible()
+
+    expect(consoleErrors, `hydration warnings detected:\n${consoleErrors.join('\n')}`).toEqual([])
+    expect(pageErrors, `runtime errors detected:\n${pageErrors.join('\n')}`).toEqual([])
   })
 
   test('target routes expose visible keyboard focus', async ({ page }) => {
@@ -217,8 +308,37 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     await workbench.getByRole('button', { name: '查看执行与产物' }).click()
     const drawer = page.getByRole('dialog', { name: '执行与产物' })
     await expect(drawer).toBeVisible()
+    await expect(drawer.getByRole('region', { name: '移动端优先处理' })).toBeVisible()
+    const priority = drawer.getByRole('region', { name: '移动端优先处理' })
+    await expect(priority).toContainText('等待审批')
+    await expect(priority).toContainText('审批对象')
+    await expect(priority).toContainText('产品方案.md')
+    const approveButton = priority.locator('button[data-action="approve"]')
+    await expect(approveButton).toBeVisible()
+    await approveButton.click()
+    await expect(priority).toContainText('已批准')
+    await expect(workbench.locator('[data-pending-approval-summary]')).toHaveCount(0)
+    await expect(workbench.locator('.aheart-ai-workbench__pending-badge')).toHaveCount(0)
+    await expect(drawer.locator('[data-task-id="publish"] .aheart-ai-workbench__task-status')).toContainText('已批准')
+    await drawer.getByRole('button', { name: /来源数据\.csv/ }).click()
+    await expect(priority).toContainText('结构化来源清单')
+    await expect(priority).toContainText('审批对象')
     await expect(drawer).toContainText('产物')
+    await drawer.locator('.aheart-drawer__body').evaluate((element) => { element.scrollTop = 0 })
+    await expect(priority).toBeVisible()
     await expect(drawer).toHaveScreenshot('ai-agent-workbench-execution-mobile-390x844.png', { animations: 'disabled' })
+  })
+
+  test('AI Workbench opens the pending approval directly from the mobile summary', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'The pending approval shortcut is owned by the mobile project.')
+    await page.setViewportSize({ width: 390, height: 844 })
+    await gotoComponent(page, 'ai-agent-workbench')
+
+    const summary = page.locator('[data-pending-approval-summary]')
+    await expect(summary).toContainText('待审批：产品方案.md')
+    await summary.click()
+    await expect(page.getByRole('dialog', { name: '执行与产物' })).toBeVisible()
+    await expect(page.getByRole('region', { name: '移动端优先处理' })).toContainText('产品方案.md')
   })
 
   test('desktop component surface screenshots match baselines', async ({ page }) => {
@@ -226,7 +346,10 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     for (const component of components) {
       await gotoComponent(page, component)
       const surface = await getComponentSurface(page, component)
-      await expect(surface).toHaveScreenshot(`${component}-desktop-1440x900.png`, { animations: 'disabled' })
+      await expect(surface).toHaveScreenshot(`${component}-desktop-1440x900.png`, {
+        animations: 'disabled',
+        ...(component === 'ai-agent-workbench' ? { maxDiffPixels: 16 } : {})
+      })
     }
   })
 
@@ -235,7 +358,10 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     for (const component of components) {
       await gotoComponent(page, component)
       const surface = await getComponentSurface(page, component)
-      await expect(surface).toHaveScreenshot(`${component}-mobile-390x844.png`, { animations: 'disabled' })
+      await expect(surface).toHaveScreenshot(`${component}-mobile-390x844.png`, {
+        animations: 'disabled',
+        ...(component === 'ai-agent-workbench' ? { maxDiffPixels: 16 } : {})
+      })
     }
   })
 

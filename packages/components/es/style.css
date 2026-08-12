@@ -3634,7 +3634,7 @@ kbd.aheart-typography-text {
 
 .aheart-menu__item-button:hover:not(:disabled),
 .aheart-menu__submenu-title:hover:not(:disabled) {
-  color: var(--aheart-color-primary);
+  color: #0958d9;
   background: var(--aheart-color-fill);
 }
 
@@ -6220,7 +6220,7 @@ kbd.aheart-typography-text {
 }
 
 .aheart-select__option.is-selected {
-  color: var(--aheart-color-primary);
+  color: #003eb3;
   font-weight: 500;
 }
 

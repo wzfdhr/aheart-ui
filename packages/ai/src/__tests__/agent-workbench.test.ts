@@ -64,10 +64,79 @@ describe('AIAgentWorkbench', () => {
     const wrapper = mount(AIAgentWorkbench, { props: { tasks, contextItems: [{ id: 'brief', label: '需求简报' }] } })
 
     expect(wrapper.find('.aheart-ai-workbench__mobile .aheart-tabs').exists()).toBe(true)
+    expect(wrapper.get('#aheart-tab-execution .aheart-ai-workbench__pending-badge').attributes('aria-label')).toBe('1 项待审批')
     await wrapper.get('#aheart-tab-conversations').trigger('click')
     expect(wrapper.find('.aheart-ai-workbench__mobile').text()).toContain('需求简报')
     await wrapper.get('#aheart-tab-execution').trigger('click')
     await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
+    expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
+  })
+
+  it('shows the artifact explicitly associated with a pending approval', async () => {
+    const wrapper = mount(AIAgentWorkbench, {
+      props: {
+        tasks: [{
+          id: 'publish',
+          label: '发布结果',
+          status: 'waiting-approval' as const,
+          approval: { id: 'approve-publish', title: '确认发布', artifactId: 'report' }
+        }],
+        artifacts: [
+          { id: 'report', title: '调研报告.md', description: '待发布版本' },
+          { id: 'notes', title: '会议纪要.md', description: '背景资料' }
+        ],
+        activeArtifact: 'notes'
+      }
+    })
+
+    await wrapper.get('#aheart-tab-execution').trigger('click')
+    await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
+
+    const priority = wrapper.get('.aheart-ai-workbench__mobile-priority')
+    expect(priority.text()).toContain('审批对象')
+    expect(priority.text()).toContain('调研报告.md')
+    expect(priority.text()).toContain('待发布版本')
+  })
+
+  it('does not count completed approvals as pending when task status lags behind', () => {
+    const wrapper = mount(AIAgentWorkbench, {
+      props: {
+        tasks: [{
+          id: 'publish',
+          label: '发布结果',
+          status: 'waiting-approval' as const,
+          approval: { id: 'approve-publish', title: '确认发布', status: 'approved' as const }
+        }]
+      }
+    })
+
+    expect(wrapper.find('[data-pending-approval-summary]').exists()).toBe(false)
+    expect(wrapper.find('.aheart-ai-workbench__pending-badge').exists()).toBe(false)
+    expect(wrapper.get('[data-workbench-status]').text()).not.toContain('等待人工审批')
+    const timelineItem = wrapper.get('[data-task-id="publish"]')
+    expect(timelineItem.get('.aheart-ai-workbench__task-status').text()).toBe('已批准')
+    expect(timelineItem.classes()).toContain('is-complete')
+    expect(timelineItem.classes()).not.toContain('is-waiting-approval')
+    expect(wrapper.get('.aheart-ai-workbench__mobile-priority').text()).toContain('审批结果')
+    expect(wrapper.get('.aheart-ai-workbench__mobile-priority').text()).toContain('已批准')
+  })
+
+  it('opens the mobile execution drawer from a pending approval summary with its artifact name', async () => {
+    const wrapper = mount(AIAgentWorkbench, {
+      props: {
+        tasks: [{
+          id: 'publish',
+          label: '发布结果',
+          status: 'waiting-approval' as const,
+          approval: { id: 'approve-publish', title: '确认发布', artifactId: 'report' }
+        }],
+        artifacts: [{ id: 'report', title: '调研报告.md' }]
+      }
+    })
+
+    const summary = wrapper.get('[data-pending-approval-summary]')
+    expect(summary.text()).toContain('待审批：调研报告.md')
+    await summary.trigger('click')
     expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
   })
 
@@ -109,6 +178,7 @@ describe('AIAgentWorkbench', () => {
     expect(wrapper.get('.aheart-ai-workbench__header').text()).toContain('发布方案 Agent')
     expect(wrapper.get('[data-workbench-status]').text()).toContain('等待人工审批')
     expect(wrapper.get('.aheart-ai-workbench__progress').text()).toContain('1 / 3 已完成')
+    expect(wrapper.get('[data-pending-approval-summary]').text()).toBe('1 项待审批')
     expect(wrapper.findAll('.aheart-ai-workbench__timeline-item')).toHaveLength(3)
     expect(wrapper.get('[data-task-id="research"]').text()).toContain('knowledge-search')
     expect(wrapper.get('[data-task-id="draft"] [role="progressbar"]').attributes('aria-valuenow')).toBe('64')

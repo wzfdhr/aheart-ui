@@ -1,10 +1,11 @@
-import { defineComponent, useAttrs, useSlots, ref, useId, isVNode, h, toRaw, computed, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, useId, isVNode, h, toRaw, computed, onBeforeUnmount, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, parseTimeValue, formatTimeValue } from "../picker-core/time.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { timePickerProps, timePickerEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
@@ -173,12 +174,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return isPartsDisabled({ ...draft.value, hour: hour12 + (period === "PM" ? 12 : 0) });
     };
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady();
     const popupContainer = computed(() => {
       if (props.getPopupContainer && triggerRef.value)
         return props.getPopupContainer(triggerRef.value);
       return typeof document === "undefined" ? false : document.body;
     });
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,
@@ -306,6 +308,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     let scrollTimer;
+    onBeforeUnmount(() => clearTimeout(scrollTimer));
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;

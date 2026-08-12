@@ -35,6 +35,7 @@ describe('Splitter', () => {
     expect(wrapper.findAll('.aheart-splitter__panel')).toHaveLength(2)
     expect(wrapper.findAll('.aheart-splitter__handle')).toHaveLength(1)
     expect(wrapper.find('.aheart-splitter__panel').attributes('style')).toContain('flex-basis: 240px')
+    expect(wrapper.find('.aheart-splitter__panel').attributes('tabindex')).toBe('0')
     expect(wrapper.find('.aheart-splitter__handle').attributes('role')).toBe('separator')
     expect(wrapper.find('.aheart-splitter__handle').attributes('aria-orientation')).toBe('vertical')
   })
