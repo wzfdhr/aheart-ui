@@ -1,6 +1,6 @@
 import { defineComponent, inject, ref, computed, onBeforeUnmount, watchEffect, openBlock, createElementBlock, normalizeClass, renderSlot, nextTick } from "vue";
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js";
-import { endDrag, startDrag } from "./drag-state.js";
+import { endDrag, startDrag, cancelNativeDrag } from "./drag-state.js";
 import { sortableContextKey } from "./sortable-context.js";
 import { moveSortableItem } from "./sortable-registry.js";
 import { useDroppable } from "./use-droppable.js";
@@ -183,6 +183,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       onCleanup(() => {
         cleanup();
         if (isDragging.value) {
+          cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
           isDragging.value = false;
           endDrag();
         }

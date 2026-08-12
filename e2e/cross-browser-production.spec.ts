@@ -62,6 +62,7 @@ test.describe('QG5 production cross-browser gates', () => {
       await page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
       await expect(page.locator('.vp-doc h1')).toBeVisible()
       await expect(page.locator('.aheart-demo-panel, .aheart-ai-workbench').first()).toBeVisible()
+      await page.waitForLoadState('networkidle')
     }
 
     expect(productionErrors).toEqual([])

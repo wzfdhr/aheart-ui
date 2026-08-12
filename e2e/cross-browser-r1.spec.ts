@@ -37,6 +37,7 @@ const expectProductionRoute = async (page: Page, route: string) => {
   await page.goto(`/components/${route}`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
   await expect(page.locator('.vp-doc h1')).toBeVisible()
+  await page.waitForLoadState('networkidle')
 }
 
 const expectNoProductionErrors = async (page: Page, errors: string[]) => {

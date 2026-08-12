@@ -122,3 +122,18 @@ test('always uploads per-project QG5 Playwright evidence with run identity', () 
   assert.match(uploadStep, /playwright-report\//)
   assert.match(uploadStep, /test-results\//)
 })
+
+test('allows repeatable QG5 baseline collection on master without weakening push and PR checks', () => {
+  assert.match(workflowSource, /\n  workflow_dispatch:\s*(?:\n|$)/)
+  assert.match(workflowSource, /\n  push:\n/)
+  assert.match(workflowSource, /\n  pull_request:\n/)
+  assert.match(qg5Job, /qg5-cross-browser/)
+})
+
+test('exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point', () => {
+  assert.equal(workspacePackage.scripts['test:e2e:qg5'], 'playwright test e2e/cross-browser-production.spec.ts e2e/cross-browser-r1.spec.ts')
+  assert.equal(workspacePackage.scripts['check:qg5-ios-safari'], 'node scripts/qg5-ios-safari-evidence.mjs')
+  assert.equal(workspacePackage.scripts['collect:qg5-master-stability'], 'node scripts/qg5-master-stability.collect.mjs')
+  assert.equal(workspacePackage.scripts['check:qg5-master-stability'], 'node scripts/qg5-master-stability.mjs')
+  assert.doesNotMatch(workspacePackage.scripts.test, /qg5-(?:ios-safari|master-stability)\.mjs/)
+})

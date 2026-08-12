@@ -13,3 +13,10 @@ export const startDrag = (data: DragData) => {
 export const endDrag = () => {
   activeDragData.value = undefined
 }
+
+export const cancelNativeDrag = (ownerWindow: Window | undefined) => {
+  if (!ownerWindow) return
+  const event = ownerWindow.document.createEvent('MouseEvent')
+  event.initEvent('dragend', true, true)
+  ownerWindow.dispatchEvent(event)
+}

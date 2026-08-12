@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 const suite = readFileSync(new URL('../e2e/cross-browser-production.spec.ts', import.meta.url), 'utf8')
+const r1Suite = readFileSync(new URL('../e2e/cross-browser-r1.spec.ts', import.meta.url), 'utf8')
 
 test('QG5 production suite guards resources, hydration, overlays, and viewport containment', () => {
   assert.match(suite, /response/)
@@ -24,4 +25,13 @@ test('collects production errors through a teardown fixture that always attaches
   assert.match(suite, /page\.on\(['"]response['"]/)
   assert.match(suite, /page\.on\(['"]requestfailed['"]/)
   assert.doesNotMatch(suite, /attachProductionErrors\(/)
+})
+
+test('settles prefetch work before navigation and never hides generic cancelled resource failures', () => {
+  for (const source of [suite, r1Suite]) {
+    assert.doesNotMatch(source, /ABORTED\|CANCELLED/i)
+    assert.match(source, /waitForLoadState\(['"]networkidle['"]\)/)
+    assert.match(source, /requestfailed:/)
+    assert.match(source, /response\.status\(\) >= 400/)
+  }
 })

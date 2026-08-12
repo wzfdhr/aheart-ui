@@ -185,6 +185,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       onCleanup(() => {
         cleanup();
         if (isDragging.value) {
+          dragState.cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
           isDragging.value = false;
           dragState.endDrag();
         }
