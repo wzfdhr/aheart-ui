@@ -423,6 +423,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             open: executionDrawerOpen.value,
             "onUpdate:open": _cache[29] || (_cache[29] = ($event) => executionDrawerOpen.value = $event),
             title: "执行与产物",
+            "get-container": false,
             placement: "right"
           }, {
             default: withCtx(() => [

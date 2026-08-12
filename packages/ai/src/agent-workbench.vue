@@ -133,7 +133,7 @@
       <section v-else class="aheart-ai-workbench__mobile-panel">
         <AButton data-action="open-execution-drawer" type="primary" @click="executionDrawerOpen = true">查看执行与产物</AButton>
       </section>
-      <ADrawer v-model:open="executionDrawerOpen" title="执行与产物" placement="right">
+      <ADrawer v-model:open="executionDrawerOpen" title="执行与产物" :get-container="false" placement="right">
         <AgentExecution
           :tasks="tasks"
           :artifacts="artifacts"
