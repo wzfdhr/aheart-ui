@@ -2569,6 +2569,8 @@ kbd.aheart-typography-text {
 .aheart-drawer__panel {
   position: absolute;
   display: flex;
+  box-sizing: border-box;
+  min-width: 0;
   flex-direction: column;
   background: var(--aheart-color-bg-elevated);
   box-shadow: var(--aheart-shadow);
@@ -2739,7 +2741,7 @@ kbd.aheart-typography-text {
 @media (max-width: 575px) {
   .aheart-drawer__panel--right,
   .aheart-drawer__panel--left {
-    width: min(100vw, 378px) !important;
+    width: min(100%, 378px) !important;
   }
 }
 .aheart-floating--top,

@@ -1025,12 +1025,15 @@ describe('Aheart DnD adapters', () => {
     const wrapper = mount(Draggable, { props: { data: { type: 'task', id: '1' } } })
     await nextTick()
     const config = adapter.draggable.mock.calls.at(-1)?.[0]
+    const dragEnd = vi.fn()
+    window.addEventListener('dragend', dragEnd, { once: true })
 
     config.onDragStart()
     expect(currentDragData.value).toEqual({ type: 'task', id: '1' })
 
     wrapper.unmount()
 
+    expect(dragEnd).toHaveBeenCalledOnce()
     expect(currentDragData.value).toBeUndefined()
   })
 })

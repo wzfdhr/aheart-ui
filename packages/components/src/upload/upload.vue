@@ -2,16 +2,16 @@
   <div class="aheart-upload" :class="{ 'is-disabled': disabled }">
     <label class="aheart-upload__trigger">
       <input type="file" :disabled="disabled" :multiple="multiple" @change="handleChange" />
-      <slot><span>Select file</span></slot>
+      <slot><span>{{ copy.selectFile }}</span></slot>
     </label>
-    <button v-if="readyFiles.length" class="aheart-upload__start" type="button" :disabled="disabled" @click="uploadReadyFiles">Upload</button>
+    <button v-if="readyFiles.length" class="aheart-upload__start" type="button" :disabled="disabled" @click="uploadReadyFiles">{{ copy.upload }}</button>
     <ul v-if="mergedFileList.length" class="aheart-upload__list">
       <li v-for="file in mergedFileList" :key="file.uid" class="aheart-upload__item" :class="`is-${file.status ?? 'ready'}`">
         <span>{{ file.name }}</span>
         <span v-if="file.status === 'uploading'">{{ file.percent ?? 0 }}%</span>
-        <span v-else-if="file.status === 'done'">Done</span>
-        <span v-else-if="file.status === 'error'">Failed</span>
-        <button class="aheart-upload__remove" type="button" :disabled="disabled" :aria-label="`Remove ${file.name}`" @click="removeFile(file.uid)">Remove</button>
+        <span v-else-if="file.status === 'done'">{{ copy.done }}</span>
+        <span v-else-if="file.status === 'error'">{{ copy.failed }}</span>
+        <button class="aheart-upload__remove" type="button" :disabled="disabled" :aria-label="copy.remove(file.name)" @click="removeFile(file.uid)">{{ copy.removeAction }}</button>
       </li>
     </ul>
   </div>
@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useAheartConfig } from '../config'
 import type { UploadFile, UploadRequest } from './types'
 import './style.css'
 
@@ -41,6 +42,11 @@ const emit = defineEmits<{
   change: [files: UploadFile[]]
   remove: [file: UploadFile]
 }>()
+
+const config = useAheartConfig()
+const copy = computed(() => config.value.locale?.datePicker?.locale === 'en-US'
+  ? { selectFile: 'Select file', upload: 'Upload', done: 'Done', failed: 'Failed', removeAction: 'Remove', remove: (name: string) => `Remove ${name}` }
+  : { selectFile: '选择文件', upload: '上传', done: '已完成', failed: '上传失败', removeAction: '移除', remove: (name: string) => `移除 ${name}` })
 
 const internalFileList = ref<UploadFile[]>([...props.defaultFileList])
 const mergedFileList = computed(() => props.fileList ?? internalFileList.value)

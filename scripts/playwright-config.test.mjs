@@ -4,9 +4,13 @@ import test from 'node:test'
 
 const configSource = readFileSync(new URL('../playwright.config.ts', import.meta.url), 'utf8')
 
-test('forwards the exact docs host and port command to VitePress', () => {
+test('builds the docs and serves the production preview on the requested port', () => {
   const command = configSource.match(/webServer:\s*\{[\s\S]*?command:\s*`([^`]+)`/)?.[1]
 
+  assert.match(command, /docs:build/)
+  assert.match(command, /docs preview/)
+  assert.doesNotMatch(command, /docs dev/)
+  assert.match(command, /--host 127\.0\.0\.1/)
   assert.match(command, /--port \$\{port\}/)
 })
 
@@ -18,22 +22,26 @@ test('uses AHEART_E2E_PORT with 5173 as the default everywhere', () => {
   assert.match(configSource, /command:[\s\S]*--port \$\{port\}/)
 })
 
-test('reuses an existing server locally but not in CI or when disabled', () => {
-  assert.match(configSource, /reuseExistingServer:\s*!process\.env\.CI && process\.env\.AHEART_E2E_REUSE_SERVER !== 'false'/)
+test('never reuses an unknown local server for production verification', () => {
+  assert.match(configSource, /reuseExistingServer:\s*false/)
 })
 
-test('keeps desktop and mobile projects and adds Firefox and WebKit coverage', () => {
+test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit', () => {
   for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
     assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
   }
 
-  assert.match(configSource, /const qg2Only = \/dnd-splitter\\\.spec\\\.ts\//)
+  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only\]/)
   for (const project of ['desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
     assert.match(
       configSource,
-      new RegExp(String.raw`name:\s*'${project}'[^}]*testMatch:\s*qg2Only`)
+      new RegExp(String.raw`name:\s*'${project}'[^}]*testMatch:\s*crossBrowserTests`)
     )
   }
+})
+
+test('gives the production preview enough time to build before readiness checks', () => {
+  assert.match(configSource, /webServer:[\s\S]*timeout:\s*120_000/)
 })
 
 test('retains failure diagnostics and uses the HTML reporter', () => {

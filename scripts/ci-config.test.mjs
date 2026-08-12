@@ -17,6 +17,8 @@ const workspacePnpmVersion = workspacePackage.packageManager.match(/^pnpm@(.+)$/
 const getStep = (name) =>
   workflowSource.match(new RegExp(`      - name: ${name}\\n[\\s\\S]*?(?=\\n      - name:|$)`))?.[0]
 
+const qg5Job = workflowSource.slice(workflowSource.indexOf('  qg5-cross-browser:'))
+
 test('uploads both tracked diff layers and build manifests on build gate failure', () => {
   const setupPnpmStep = getStep('Setup pnpm')
   const buildStep = getStep('Check Build Determinism and Generated Output')
@@ -97,4 +99,41 @@ test('uploads uniquely named e2e artifacts only when end-to-end tests fail', () 
   assert.match(artifactName, /\$\{\{ github\.run_attempt \}\}/)
   assert.match(uploadStep, /\n          path: \|\n            test-results\/\n            playwright-report\/\n/)
   assert.match(uploadStep, /\n          if-no-files-found: warn(?:\n|$)/)
+})
+
+test('runs QG5 production specs in independent browser project shards', () => {
+  assert.ok(qg5Job, 'QG5 cross-browser job is missing')
+  assert.match(qg5Job, /fail-fast: false/)
+  for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(qg5Job, new RegExp(`\\n\\s+- ${project}(?:\\n|$)`))
+  }
+  assert.match(qg5Job, /cross-browser-production\.spec\.ts/)
+  assert.match(qg5Job, /cross-browser-r1\.spec\.ts/)
+  assert.match(qg5Job, /--project ["']?\$\{\{ matrix\.project \}\}["']?/)
+})
+
+test('always uploads per-project QG5 Playwright evidence with run identity', () => {
+  assert.ok(qg5Job, 'QG5 cross-browser job is missing')
+  const uploadStep = qg5Job.match(/      - name: Upload QG5[\s\S]*$/)?.[0]
+
+  assert.ok(uploadStep, 'QG5 evidence upload step is missing')
+  assert.match(uploadStep, /if: \$\{\{ always\(\) \}\}/)
+  assert.match(uploadStep, /name: qg5-\$\{\{ matrix\.project \}\}-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/)
+  assert.match(uploadStep, /playwright-report\//)
+  assert.match(uploadStep, /test-results\//)
+})
+
+test('allows repeatable QG5 baseline collection on master without weakening push and PR checks', () => {
+  assert.match(workflowSource, /\n  workflow_dispatch:\s*(?:\n|$)/)
+  assert.match(workflowSource, /\n  push:\n/)
+  assert.match(workflowSource, /\n  pull_request:\n/)
+  assert.match(qg5Job, /qg5-cross-browser/)
+})
+
+test('exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point', () => {
+  assert.equal(workspacePackage.scripts['test:e2e:qg5'], 'playwright test e2e/cross-browser-production.spec.ts e2e/cross-browser-r1.spec.ts')
+  assert.equal(workspacePackage.scripts['check:qg5-ios-safari'], 'node scripts/qg5-ios-safari-evidence.mjs')
+  assert.equal(workspacePackage.scripts['collect:qg5-master-stability'], 'node scripts/qg5-master-stability.collect.mjs')
+  assert.equal(workspacePackage.scripts['check:qg5-master-stability'], 'node scripts/qg5-master-stability.mjs')
+  assert.doesNotMatch(workspacePackage.scripts.test, /qg5-(?:ios-safari|master-stability)\.mjs/)
 })

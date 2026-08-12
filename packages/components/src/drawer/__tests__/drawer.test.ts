@@ -1,4 +1,6 @@
 import { mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { h, nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import Drawer from '../drawer.vue'
@@ -16,6 +18,13 @@ const mountDrawer = (options: Record<string, any> = {}) =>
   })
 
 describe('Drawer', () => {
+  it('keeps side panels within a narrow inline container', () => {
+    const drawerStyle = readFileSync(resolve(process.cwd(), 'src/drawer/style.css'), 'utf8')
+
+    expect(drawerStyle).toMatch(/\.aheart-drawer__panel\s*\{[^}]*box-sizing:\s*border-box/s)
+    expect(drawerStyle).toMatch(/@media \(max-width: 575px\)[\s\S]*width:\s*min\(100%, 378px\)/)
+  })
+
   it('renders title content extra placement and width when open', () => {
     const wrapper = mountDrawer({
       props: { open: true, title: 'Filters', placement: 'left', width: 320 },

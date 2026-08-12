@@ -2,6 +2,7 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 require("./style.css.js");
+const context = require("../config/context.js");
 const _hoisted_1 = { class: "aheart-upload__trigger" };
 const _hoisted_2 = ["disabled", "multiple"];
 const _hoisted_3 = ["disabled"];
@@ -29,6 +30,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const config = context.useAheartConfig();
+    const copy = vue.computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.datePicker) == null ? void 0 : _b.locale) === "en-US" ? { selectFile: "Select file", upload: "Upload", done: "Done", failed: "Failed", removeAction: "Remove", remove: (name) => `Remove ${name}` } : { selectFile: "选择文件", upload: "上传", done: "已完成", failed: "上传失败", removeAction: "移除", remove: (name) => `移除 ${name}` };
+    });
     const internalFileList = vue.ref([...props.defaultFileList]);
     const mergedFileList = vue.computed(() => props.fileList ?? internalFileList.value);
     const readyFiles = vue.computed(() => mergedFileList.value.filter((file) => file.status === "ready"));
@@ -134,7 +140,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onChange: handleChange
           }, null, 40, _hoisted_2),
           vue.renderSlot(_ctx.$slots, "default", {}, () => [
-            _cache[0] || (_cache[0] = vue.createElementVNode("span", null, "Select file", -1))
+            vue.createElementVNode("span", null, vue.toDisplayString(copy.value.selectFile), 1)
           ])
         ]),
         readyFiles.value.length ? (vue.openBlock(), vue.createElementBlock("button", {
@@ -143,7 +149,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           type: "button",
           disabled: __props.disabled,
           onClick: uploadReadyFiles
-        }, "Upload", 8, _hoisted_3)) : vue.createCommentVNode("", true),
+        }, vue.toDisplayString(copy.value.upload), 9, _hoisted_3)) : vue.createCommentVNode("", true),
         mergedFileList.value.length ? (vue.openBlock(), vue.createElementBlock("ul", _hoisted_4, [
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(mergedFileList.value, (file) => {
             return vue.openBlock(), vue.createElementBlock("li", {
@@ -151,14 +157,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               class: vue.normalizeClass(["aheart-upload__item", `is-${file.status ?? "ready"}`])
             }, [
               vue.createElementVNode("span", null, vue.toDisplayString(file.name), 1),
-              file.status === "uploading" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_5, vue.toDisplayString(file.percent ?? 0) + "%", 1)) : file.status === "done" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, "Done")) : file.status === "error" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_7, "Failed")) : vue.createCommentVNode("", true),
+              file.status === "uploading" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_5, vue.toDisplayString(file.percent ?? 0) + "%", 1)) : file.status === "done" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, vue.toDisplayString(copy.value.done), 1)) : file.status === "error" ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_7, vue.toDisplayString(copy.value.failed), 1)) : vue.createCommentVNode("", true),
               vue.createElementVNode("button", {
                 class: "aheart-upload__remove",
                 type: "button",
                 disabled: __props.disabled,
-                "aria-label": `Remove ${file.name}`,
+                "aria-label": copy.value.remove(file.name),
                 onClick: ($event) => removeFile(file.uid)
-              }, "Remove", 8, _hoisted_8)
+              }, vue.toDisplayString(copy.value.removeAction), 9, _hoisted_8)
             ], 2);
           }), 128))
         ])) : vue.createCommentVNode("", true)

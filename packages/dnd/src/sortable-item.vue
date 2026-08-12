@@ -20,7 +20,7 @@ let activeTouchOwner: (() => void) | undefined
 <script setup lang="ts">
 import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { computed, inject, nextTick, onBeforeUnmount, ref, watchEffect, type ComponentPublicInstance } from 'vue'
-import { endDrag, startDrag } from './drag-state'
+import { cancelNativeDrag, endDrag, startDrag } from './drag-state'
 import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
 import { moveSortableItem } from './sortable-registry'
 import { useDroppable } from './use-droppable'
@@ -231,6 +231,7 @@ watchEffect((onCleanup) => {
   onCleanup(() => {
     cleanup()
     if (isDragging.value) {
+      cancelNativeDrag(target.ownerDocument.defaultView ?? undefined)
       isDragging.value = false
       endDrag()
     }

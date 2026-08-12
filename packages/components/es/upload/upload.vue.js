@@ -1,5 +1,6 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createCommentVNode, Fragment, renderList, toDisplayString } from "vue";
+import { defineComponent, computed, ref, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, toDisplayString, createCommentVNode, Fragment, renderList } from "vue";
 import "./style.css.js";
+import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = { class: "aheart-upload__trigger" };
 const _hoisted_2 = ["disabled", "multiple"];
 const _hoisted_3 = ["disabled"];
@@ -27,6 +28,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const config = useAheartConfig();
+    const copy = computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.datePicker) == null ? void 0 : _b.locale) === "en-US" ? { selectFile: "Select file", upload: "Upload", done: "Done", failed: "Failed", removeAction: "Remove", remove: (name) => `Remove ${name}` } : { selectFile: "选择文件", upload: "上传", done: "已完成", failed: "上传失败", removeAction: "移除", remove: (name) => `移除 ${name}` };
+    });
     const internalFileList = ref([...props.defaultFileList]);
     const mergedFileList = computed(() => props.fileList ?? internalFileList.value);
     const readyFiles = computed(() => mergedFileList.value.filter((file) => file.status === "ready"));
@@ -132,7 +138,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onChange: handleChange
           }, null, 40, _hoisted_2),
           renderSlot(_ctx.$slots, "default", {}, () => [
-            _cache[0] || (_cache[0] = createElementVNode("span", null, "Select file", -1))
+            createElementVNode("span", null, toDisplayString(copy.value.selectFile), 1)
           ])
         ]),
         readyFiles.value.length ? (openBlock(), createElementBlock("button", {
@@ -141,7 +147,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           type: "button",
           disabled: __props.disabled,
           onClick: uploadReadyFiles
-        }, "Upload", 8, _hoisted_3)) : createCommentVNode("", true),
+        }, toDisplayString(copy.value.upload), 9, _hoisted_3)) : createCommentVNode("", true),
         mergedFileList.value.length ? (openBlock(), createElementBlock("ul", _hoisted_4, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(mergedFileList.value, (file) => {
             return openBlock(), createElementBlock("li", {
@@ -149,14 +155,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               class: normalizeClass(["aheart-upload__item", `is-${file.status ?? "ready"}`])
             }, [
               createElementVNode("span", null, toDisplayString(file.name), 1),
-              file.status === "uploading" ? (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(file.percent ?? 0) + "%", 1)) : file.status === "done" ? (openBlock(), createElementBlock("span", _hoisted_6, "Done")) : file.status === "error" ? (openBlock(), createElementBlock("span", _hoisted_7, "Failed")) : createCommentVNode("", true),
+              file.status === "uploading" ? (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(file.percent ?? 0) + "%", 1)) : file.status === "done" ? (openBlock(), createElementBlock("span", _hoisted_6, toDisplayString(copy.value.done), 1)) : file.status === "error" ? (openBlock(), createElementBlock("span", _hoisted_7, toDisplayString(copy.value.failed), 1)) : createCommentVNode("", true),
               createElementVNode("button", {
                 class: "aheart-upload__remove",
                 type: "button",
                 disabled: __props.disabled,
-                "aria-label": `Remove ${file.name}`,
+                "aria-label": copy.value.remove(file.name),
                 onClick: ($event) => removeFile(file.uid)
-              }, "Remove", 8, _hoisted_8)
+              }, toDisplayString(copy.value.removeAction), 9, _hoisted_8)
             ], 2);
           }), 128))
         ])) : createCommentVNode("", true)

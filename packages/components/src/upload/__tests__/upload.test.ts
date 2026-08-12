@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
+import { enUS } from '../../config'
+import ConfigProvider from '../../config-provider/config-provider.vue'
 import Upload from '../upload.vue'
 
 const createFile = (name = 'report.txt') => new File(['report'], name, { type: 'text/plain' })
@@ -9,6 +12,30 @@ const selectFiles = async (input: ReturnType<ReturnType<typeof mount>['find']>, 
 }
 
 describe('Upload', () => {
+  it('uses Chinese defaults and follows the runtime English locale', () => {
+    const chinese = mount(Upload, {
+      props: { defaultFileList: [{ uid: 'ready', name: '报告.txt', status: 'ready' }] }
+    })
+    expect(chinese.find('.aheart-upload__trigger').text()).toBe('选择文件')
+    expect(chinese.find('.aheart-upload__start').text()).toBe('上传')
+
+    const english = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(Upload, {
+          defaultFileList: [
+            { uid: 'done', name: 'report.txt', status: 'done' },
+            { uid: 'error', name: 'failed.txt', status: 'error' }
+          ]
+        })
+      }
+    })
+    expect(english.find('.aheart-upload__trigger').text()).toBe('Select file')
+    expect(english.find('.aheart-upload__item.is-done').text()).toContain('Done')
+    expect(english.find('.aheart-upload__item.is-error').text()).toContain('Failed')
+    expect(english.find('.aheart-upload__remove').attributes('aria-label')).toBe('Remove report.txt')
+  })
+
   it('adds a selected file and reports a successful custom upload', async () => {
     const customRequest = vi.fn(async ({ onSuccess }: { onSuccess: (response?: unknown) => void }) => onSuccess({ ok: true }))
     const wrapper = mount(Upload, { props: { customRequest } })

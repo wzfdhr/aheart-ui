@@ -28,6 +28,7 @@ function useDraggable(element, options) {
     onCleanup(() => {
       cleanup();
       if (isDragging.value) {
+        dragState.cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
         isDragging.value = false;
         dragState.endDrag();
       }
