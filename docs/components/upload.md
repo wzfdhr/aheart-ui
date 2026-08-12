@@ -92,7 +92,7 @@ const files = ref<UploadFile[]>([])
 
 ## 手动上传
 
-`beforeUpload` 返回 `false` 时，文件进入待上传列表；点击 Upload 后再发起请求。
+`beforeUpload` 返回 `false` 时，文件进入待上传列表；点击“上传”后再发起请求。
 
 ```vue
 <AUpload :before-upload="() => false" :custom-request="customRequest" />

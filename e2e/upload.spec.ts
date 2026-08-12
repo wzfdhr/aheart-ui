@@ -61,19 +61,19 @@ test.describe('QG3 Upload browser flows', () => {
     await expect(scenario.getByTestId('upload-retry-status')).toHaveText('上传失败')
     await scenario.getByRole('button', { name: '重试 failure.txt' }).click()
     await expect(scenario.getByTestId('upload-retry-status')).toHaveText('等待重新上传')
-    await expect(scenario.getByRole('button', { name: 'Upload' })).toBeVisible()
-    await scenario.getByRole('button', { name: 'Upload' }).click()
+    await expect(scenario.getByRole('button', { name: '上传', exact: true })).toBeVisible()
+    await scenario.getByRole('button', { name: '上传', exact: true }).click()
     await expect(scenario.getByTestId('upload-retry-request-count')).toHaveText('请求次数：2')
     await expect(scenario.getByTestId('upload-retry-status')).toHaveText('上传成功')
   })
 
-  test('holds manual uploads until the user clicks Upload', async ({ page }) => {
+  test('holds manual uploads until the user clicks the upload action', async ({ page }) => {
     const scenario = page.getByRole('region', { name: '手动上传' })
     await scenario.getByLabel('选择文件').setInputFiles(file('manual.txt'))
 
     await expect(scenario.getByText('manual.txt', { exact: true })).toBeVisible()
     await expect(scenario.getByTestId('upload-manual-request-count')).toHaveText('请求次数：0')
-    await scenario.getByRole('button', { name: 'Upload' }).click()
+    await scenario.getByRole('button', { name: '上传', exact: true }).click()
     await expect(scenario.getByTestId('upload-manual-request-count')).toHaveText('请求次数：1')
     await expect(scenario.getByTestId('upload-manual-status')).toHaveText('上传成功')
   })
@@ -83,7 +83,7 @@ test.describe('QG3 Upload browser flows', () => {
     await scenario.getByLabel('选择文件').setInputFiles(file('pending.txt'))
 
     await expect(scenario.getByText('pending.txt', { exact: true })).toBeVisible()
-    await scenario.getByRole('button', { name: '移除 pending.txt' }).click()
+    await scenario.getByLabel('移除 pending.txt', { exact: true }).click()
     await scenario.getByRole('button', { name: '完成待处理上传' }).click()
     await expect(scenario.getByText('pending.txt', { exact: true })).toHaveCount(0)
     await expect(scenario.getByTestId('upload-removal-status')).toHaveText('已移除')
@@ -106,7 +106,7 @@ test.describe('QG3 Upload browser flows', () => {
 
     await expect(scenario.getByText('first.txt', { exact: true })).toBeVisible()
     await expect(scenario.getByText('second.txt', { exact: true })).toHaveCount(0)
-    await scenario.getByRole('button', { name: '移除 first.txt' }).click()
+    await scenario.getByLabel('移除 first.txt', { exact: true }).click()
     await input.setInputFiles(file('replacement.txt'))
     await expect(scenario.getByText('replacement.txt', { exact: true })).toBeVisible()
     await expect(scenario.getByTestId('upload-max-count')).toHaveText('已接受 1 个文件')
