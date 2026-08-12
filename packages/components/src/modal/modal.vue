@@ -76,6 +76,7 @@ import AButton from '../button'
 import { useAheartConfig } from '../config'
 import ASkeleton from '../skeleton'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import {
   modalEmits,
   modalProps,
@@ -173,9 +174,11 @@ const resolvedContainer = computed(() => props.getContainer ?? getDefaultContain
 const teleportTarget = computed(() => {
   const container = resolvedContainer.value
 
+  if (typeof window === 'undefined' && typeof container === 'function') return false
   return typeof container === 'function' ? container() : container
 })
-const shouldTeleport = computed(() => teleportTarget.value !== false)
+const teleportReady = useTeleportReady()
+const shouldTeleport = computed(() => teleportReady.value && teleportTarget.value !== false)
 const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : teleportTarget.value))
 const fixedDialogWidth = computed(() => {
   const width = props.width

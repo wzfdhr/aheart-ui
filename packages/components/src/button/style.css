@@ -127,7 +127,7 @@
 
 .aheart-button--variant-solid {
   border-color: transparent;
-  background: var(--aheart-button-color);
+  background: var(--aheart-button-solid-background, var(--aheart-button-color));
   color: #fff;
 }
 
@@ -165,6 +165,11 @@
   border-color: transparent;
   color: #fff;
   opacity: 0.88;
+}
+
+.aheart-button--color-primary.aheart-button--variant-solid:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--aheart-button-solid-background-hover);
+  opacity: 1;
 }
 
 .aheart-button--color-warning.aheart-button--variant-solid,

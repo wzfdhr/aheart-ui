@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
+import { defineComponent, useAttrs, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode, mergeProps } from "vue";
 import { inputProps, inputEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
@@ -6,7 +6,8 @@ const _hoisted_1 = ["id", "type", "value", "placeholder", "disabled", "readonly"
 const _hoisted_2 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
-    name: "AInput"
+    name: "AInput",
+    inheritAttrs: false
   },
   __name: "input",
   props: inputProps,
@@ -14,6 +15,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const attrs = useAttrs();
     const slots = useSlots();
     const config = useAheartConfig();
     const AInputRenderNode = defineComponent({
@@ -242,9 +244,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               createVNode(unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
             ])
           ], 6)) : createCommentVNode("", true),
-          createElementVNode("input", {
-            class: normalizeClass(["aheart-input__control", controlClass.value]),
-            style: normalizeStyle(controlStyle.value),
+          createElementVNode("input", mergeProps(unref(attrs), {
+            class: ["aheart-input__control", controlClass.value],
+            style: controlStyle.value,
             id: _ctx.id,
             type: _ctx.type,
             value: currentValue.value,
@@ -255,13 +257,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onInput: handleInput,
             onChange: handleChange,
             onKeydown: handleKeydown
-          }, null, 46, _hoisted_1),
+          }), null, 16, _hoisted_1),
           showClear.value ? (openBlock(), createElementBlock("button", {
             key: 1,
             class: normalizeClass(clearClass.value),
             style: normalizeStyle(clearStyle.value),
             type: "button",
-            "aria-label": "Clear",
+            "aria-label": "Clear input",
             onClick: handleClear
           }, [
             renderSlot(_ctx.$slots, "clearIcon", {}, () => [
@@ -308,9 +310,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createVNode(unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
           ])
         ], 6)) : createCommentVNode("", true),
-        createElementVNode("input", {
-          class: normalizeClass(["aheart-input__control", controlClass.value]),
-          style: normalizeStyle(controlStyle.value),
+        createElementVNode("input", mergeProps(unref(attrs), {
+          class: ["aheart-input__control", controlClass.value],
+          style: controlStyle.value,
           id: _ctx.id,
           type: _ctx.type,
           value: currentValue.value,
@@ -321,13 +323,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onInput: handleInput,
           onChange: handleChange,
           onKeydown: handleKeydown
-        }, null, 46, _hoisted_2),
+        }), null, 16, _hoisted_2),
         showClear.value ? (openBlock(), createElementBlock("button", {
           key: 1,
           class: normalizeClass(clearClass.value),
           style: normalizeStyle(clearStyle.value),
           type: "button",
-          "aria-label": "Clear",
+          "aria-label": "Clear input",
           onClick: handleClear
         }, [
           renderSlot(_ctx.$slots, "clearIcon", {}, () => [

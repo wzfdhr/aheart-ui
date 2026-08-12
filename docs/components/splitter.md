@@ -69,7 +69,7 @@ onBeforeUnmount(() => {
 }
 
 .qg2-splitter-workbench .aheart-splitter__handle::after {
-  background: #b8c4d1;
+  --aheart-splitter-line-color: #b8c4d1;
 }
 
 .qg2-splitter-workbench {
@@ -109,10 +109,10 @@ Splitter 创建可调整尺寸的相邻面板。它与只负责视觉分隔的 D
   <div data-testid="splitter-vertical" style="height: 148px; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter layout="vertical" :default-sizes="[70, 'auto']"><ASplitterPanel :min="48" style="padding: 12px;">顶部</ASplitterPanel><ASplitterPanel :min="48" style="padding: 12px;">底部</ASplitterPanel></ASplitter></div>
   <div data-testid="splitter-triple" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="[100, 'auto', 100]"><ASplitterPanel :min="70" style="padding: 12px;">左栏</ASplitterPanel><ASplitterPanel :min="90" style="padding: 12px;">主区</ASplitterPanel><ASplitterPanel :min="70" style="padding: 12px;">右栏</ASplitterPanel></ASplitter></div>
   <div data-testid="splitter-lazy" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter v-model:sizes="lazySizes" @update:sizes="lazyUpdateCount++" :default-sizes="[260, 420]" lazy><ASplitterPanel :min="compact ? 100 : 120" style="padding: 12px;">延迟提交</ASplitterPanel><ASplitterPanel :min="compact ? 100 : 160" style="padding: 12px;">释放后更新</ASplitterPanel></ASplitter></div>
-  <span data-testid="splitter-lazy-output" style="color: #536273; font-size: 13px;">lazy：拖动过程中预览，释放后提交</span>
+  <span data-testid="splitter-lazy-output" style="color: #536273; font-size: 13px;">延迟提交：拖动过程中预览，释放后提交</span>
   <span data-testid="splitter-lazy-values">{{ JSON.stringify(lazySizes) }}</span><span data-testid="splitter-lazy-left">{{ lazySizes[0] }}</span><span data-testid="splitter-lazy-right">{{ lazySizes[1] }}</span><span data-testid="splitter-lazy-update-count">{{ lazyUpdateCount }}</span>
   <div data-testid="splitter-percent" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="['35%', '65%']"><ASplitterPanel min="30%" max="70%" style="padding: 12px;">30% min / 70% max</ASplitterPanel><ASplitterPanel min="30%" style="padding: 12px;">百分比约束</ASplitterPanel></ASplitter></div>
-  <div data-testid="splitter-input" style="display: grid; gap: 8px; min-width: 0;"><AInputNumber :model-value="sizes[0]" :min="navigationMin" :max="navigationMax" @update:model-value="setNavigationSize" /><div ref="controlledPanelRef" style="height: 148px; min-width: 0; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter v-model:sizes="sizes"><ASplitterPanel :min="navigationMin" style="padding: 12px;"><span data-testid="splitter-input-output">{{ sizes[0] }} px</span></ASplitterPanel><ASplitterPanel :min="contentMin" style="padding: 12px;">外部控制内容</ASplitterPanel></ASplitter></div></div>
+  <div data-testid="splitter-input" style="display: grid; gap: 8px; min-width: 0;"><label id="splitter-workbench-input-label" for="splitter-workbench-input" style="color: #536273; font-size: 13px;">导航面板宽度（px）</label><AInputNumber id="splitter-workbench-input" aria-labelledby="splitter-workbench-input-label" :model-value="sizes[0]" :min="navigationMin" :max="navigationMax" @update:model-value="setNavigationSize" /><div ref="controlledPanelRef" style="height: 148px; min-width: 0; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter v-model:sizes="sizes"><ASplitterPanel :min="navigationMin" style="padding: 12px;"><span data-testid="splitter-input-output">{{ sizes[0] }} px</span></ASplitterPanel><ASplitterPanel :min="contentMin" style="padding: 12px;">外部控制内容</ASplitterPanel></ASplitter></div></div>
   <div data-testid="splitter-iframe" style="height: 148px; min-width: 0; overflow: hidden; border: 1px solid #e5eaf0; border-radius: 6px;"><ASplitter :default-sizes="[140, 'auto']"><ASplitterPanel :min="80" style="padding: 12px;">编辑区</ASplitterPanel><ASplitterPanel :min="80" style="padding: 8px;"><iframe title="可见预览" srcdoc="<p style='font-family: sans-serif'>预览 iframe</p>" style="width: 100%; height: 100%; border: 1px solid #d9e1ea;"></iframe></ASplitterPanel></ASplitter></div>
   <AButton size="small" @click="mounted = false">卸载 Splitter</AButton>
 </div>
@@ -140,7 +140,8 @@ Splitter 创建可调整尺寸的相邻面板。它与只负责视觉分隔的 D
 
 <div class="aheart-demo-panel" style="height: 220px;">
   <ASpace direction="vertical" style="width: 100%; height: 100%;">
-    <AInputNumber :model-value="sizes[0]" :min="120" :max="480" @update:model-value="setNavigationSize" />
+    <label id="splitter-external-input-label" for="splitter-external-input">导航面板宽度（px）</label>
+    <AInputNumber id="splitter-external-input" aria-labelledby="splitter-external-input-label" :model-value="sizes[0]" :min="120" :max="480" @update:model-value="setNavigationSize" />
     <div style="height: 160px; min-width: 0;">
       <ASplitter v-model:sizes="sizes">
         <ASplitterPanel :min="120" style="padding: 12px;">{{ sizes[0] }} px</ASplitterPanel>
@@ -162,7 +163,8 @@ const setNavigationSize = (value: number | null) => {
 </script>
 
 <template>
-  <AInputNumber :model-value="sizes[0]" :min="120" :max="480" @update:model-value="setNavigationSize" />
+  <label id="splitter-external-input-label" for="splitter-external-input">导航面板宽度（px）</label>
+  <AInputNumber id="splitter-external-input" aria-labelledby="splitter-external-input-label" :model-value="sizes[0]" :min="120" :max="480" @update:model-value="setNavigationSize" />
   <ASplitter v-model:sizes="sizes">
     <ASplitterPanel :min="120">Navigation</ASplitterPanel>
     <ASplitterPanel :min="160">Content</ASplitterPanel>

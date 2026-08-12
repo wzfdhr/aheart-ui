@@ -1,5 +1,5 @@
 <template>
-  <div class="aheart-splitter__panel">
+  <div class="aheart-splitter__panel" tabindex="0">
     <slot />
   </div>
 </template>

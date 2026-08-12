@@ -671,7 +671,8 @@ describe('Drawer', () => {
     props: {
       open: true,
       title: 'Trap drawer',
-      closable: false
+      closable: false,
+      getContainer: false
     },
       slots: {
         default: '<button class="first-control">First</button><button class="last-control">Last</button>'
@@ -695,7 +696,8 @@ describe('Drawer', () => {
     props: {
       open: true,
       title: 'Reverse trap',
-      closable: false
+      closable: false,
+      getContainer: false
     },
       slots: {
         default: '<button class="first-control">First</button><button class="last-control">Last</button>'
@@ -720,6 +722,7 @@ describe('Drawer', () => {
       open: true,
       title: 'No trap',
       closable: false,
+      getContainer: false,
       focusable: {
         trap: false
       }
@@ -747,6 +750,7 @@ describe('Drawer', () => {
       title: 'Forced trap',
       closable: false,
       mask: false,
+      getContainer: false,
       focusable: {
         trap: true
         }

@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, ref, toRaw, useAttrs, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useAttrs, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, type PickerTimeParts } from '../picker-core/time'
@@ -127,6 +127,7 @@ import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timePickerEmits, timePickerProps, type DisabledTimeConfig } from './types'
 import './style.css'
 
@@ -265,11 +266,12 @@ const isPeriodDisabled = (period: 'AM' | 'PM') => {
 }
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
+const teleportReady = useTeleportReady()
 const popupContainer = computed(() => {
   if (props.getPopupContainer && triggerRef.value) return props.getPopupContainer(triggerRef.value)
   return typeof document === 'undefined' ? false : document.body
 })
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
 const floatingPosition = useFloatingPosition({
   reference: triggerRef,
@@ -376,6 +378,7 @@ const handleInputChange = (event: Event) => {
   }
 }
 let scrollTimer: ReturnType<typeof setTimeout> | undefined
+onBeforeUnmount(() => clearTimeout(scrollTimer))
 const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) => {
   if (!props.changeOnScroll || isInteractionDisabled.value) return
   clearTimeout(scrollTimer)

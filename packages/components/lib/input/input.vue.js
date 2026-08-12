@@ -8,7 +8,8 @@ const _hoisted_1 = ["id", "type", "value", "placeholder", "disabled", "readonly"
 const _hoisted_2 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
-    name: "AInput"
+    name: "AInput",
+    inheritAttrs: false
   },
   __name: "input",
   props: types.inputProps,
@@ -16,6 +17,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const attrs = vue.useAttrs();
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
     const AInputRenderNode = vue.defineComponent({
@@ -244,9 +246,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true),
-          vue.createElementVNode("input", {
-            class: vue.normalizeClass(["aheart-input__control", controlClass.value]),
-            style: vue.normalizeStyle(controlStyle.value),
+          vue.createElementVNode("input", vue.mergeProps(vue.unref(attrs), {
+            class: ["aheart-input__control", controlClass.value],
+            style: controlStyle.value,
             id: _ctx.id,
             type: _ctx.type,
             value: currentValue.value,
@@ -257,13 +259,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onInput: handleInput,
             onChange: handleChange,
             onKeydown: handleKeydown
-          }, null, 46, _hoisted_1),
+          }), null, 16, _hoisted_1),
           showClear.value ? (vue.openBlock(), vue.createElementBlock("button", {
             key: 1,
             class: vue.normalizeClass(clearClass.value),
             style: vue.normalizeStyle(clearStyle.value),
             type: "button",
-            "aria-label": "Clear",
+            "aria-label": "Clear input",
             onClick: handleClear
           }, [
             vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [
@@ -310,9 +312,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true),
-        vue.createElementVNode("input", {
-          class: vue.normalizeClass(["aheart-input__control", controlClass.value]),
-          style: vue.normalizeStyle(controlStyle.value),
+        vue.createElementVNode("input", vue.mergeProps(vue.unref(attrs), {
+          class: ["aheart-input__control", controlClass.value],
+          style: controlStyle.value,
           id: _ctx.id,
           type: _ctx.type,
           value: currentValue.value,
@@ -323,13 +325,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onInput: handleInput,
           onChange: handleChange,
           onKeydown: handleKeydown
-        }, null, 46, _hoisted_2),
+        }), null, 16, _hoisted_2),
         showClear.value ? (vue.openBlock(), vue.createElementBlock("button", {
           key: 1,
           class: vue.normalizeClass(clearClass.value),
           style: vue.normalizeStyle(clearStyle.value),
           type: "button",
-          "aria-label": "Clear",
+          "aria-label": "Clear input",
           onClick: handleClear
         }, [
           vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [

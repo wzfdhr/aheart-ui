@@ -242,7 +242,11 @@ const rootStyle = computed(() => [
   {
     '--aheart-button-color': colorTokens[resolvedColor.value],
     '--aheart-button-color-hover':
-      resolvedColor.value === 'default' ? 'var(--aheart-color-primary-hover)' : colorTokens[resolvedColor.value]
+      resolvedColor.value === 'default' ? 'var(--aheart-color-primary-hover)' : colorTokens[resolvedColor.value],
+    '--aheart-button-solid-background':
+      resolvedColor.value === 'primary' && resolvedVariant.value === 'solid' ? '#0958d9' : undefined,
+    '--aheart-button-solid-background-hover':
+      resolvedColor.value === 'primary' && resolvedVariant.value === 'solid' ? '#003eb3' : undefined
   },
   props.style,
   props.styles?.root

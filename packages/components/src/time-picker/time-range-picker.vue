@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, ref, toRaw, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds, type PickerTimeParts } from '../picker-core/time'
@@ -63,6 +63,7 @@ import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timeRangePickerEmits, timeRangePickerProps } from './types'
 import './style.css'
 
@@ -226,6 +227,7 @@ const scrollSelectedOptionsIntoView = () => {
   for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) column?.querySelector<HTMLElement>('.is-selected')?.scrollIntoView?.({ block: 'center' })
 }
 let scrollTimer: ReturnType<typeof setTimeout> | undefined
+onBeforeUnmount(() => clearTimeout(scrollTimer))
 const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) => {
   if (!props.changeOnScroll || isInteractionDisabled.value) return
   clearTimeout(scrollTimer)
@@ -332,8 +334,9 @@ const selectNow = () => {
 }
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
+const teleportReady = useTeleportReady()
 const popupContainer = computed(() => props.getPopupContainer && triggerRef.value ? props.getPopupContainer(triggerRef.value) : typeof document === 'undefined' ? false : document.body)
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
 const floatingPosition = useFloatingPosition({ reference: triggerRef, floating: panelRef, open: () => motion.isMounted.value && motion.phase.value !== 'hidden', placement: () => props.placement, strategy: 'fixed', offset: 4, autoAdjustOverflow: () => props.autoAdjustOverflow })
 const panelClass = computed(() => [`aheart-floating--${floatingPosition.placement.value}`, `is-${motion.phase.value}`, { 'has-presets': props.presets?.length }])

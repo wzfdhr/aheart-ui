@@ -6,10 +6,11 @@ const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["id", "role", "tabindex", "aria-labelledby", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
+const _hoisted_1 = ["id", "role", "tabindex", "aria-controls", "aria-labelledby", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
 const _hoisted_2 = { class: "aheart-select__tag-label" };
 const _hoisted_3 = ["aria-label", "onClick"];
 const _hoisted_4 = {
@@ -32,7 +33,7 @@ const _hoisted_9 = ["aria-multiselectable", "aria-hidden"];
 const _hoisted_10 = ["id", "aria-selected", "aria-disabled", "onMouseenter", "onClick"];
 const _hoisted_11 = { class: "aheart-select__option-content" };
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
-  ...{ name: "ASelect" },
+  ...{ name: "ASelect", inheritAttrs: false },
   __name: "select",
   props: types.selectProps,
   emits: types.selectEmits,
@@ -92,6 +93,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       return ((_a = allowClearConfig.value) == null ? void 0 : _a.clearIcon) ?? "×";
     });
+    const interactiveAriaAttrs = vue.computed(() => Object.fromEntries(
+      Object.entries(attrs).filter(([key]) => key.startsWith("aria-"))
+    ));
+    const rootAttrs = vue.computed(() => Object.fromEntries(
+      Object.entries(attrs).filter(([key]) => !key.startsWith("aria-"))
+    ));
+    const resolvedLoadingText = vue.computed(() => {
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.loadingText) ?? "Loading";
+    });
+    const hasNotFoundContent = usePropPresence.usePropPresence("notFoundContent", "not-found-content");
+    const resolvedNotFoundContent = vue.computed(
+      () => {
+        var _a, _b;
+        return hasNotFoundContent.value ? props.notFoundContent : ((_b = (_a = config.value.locale) == null ? void 0 : _a.empty) == null ? void 0 : _b.description) ?? props.notFoundContent;
+      }
+    );
     const getOptionKey = (value) => `${typeof value}:${String(value)}`;
     const valueEquals = (left, right) => left === right;
     const selectedValues = vue.computed(
@@ -127,12 +145,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const getOptionId = (index) => `${listboxId}-option-${index}`;
     const activeOptionId = vue.computed(() => activeIndex.value >= 0 && mergedOpen.value ? getOptionId(activeIndex.value) : void 0);
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady.useTeleportReady();
     const popupContainer = vue.computed(() => {
       if (props.getPopupContainer && selectorRef.value)
         return props.getPopupContainer(selectorRef.value);
       return typeof document === "undefined" ? false : document.body;
     });
-    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition.useFloatingPosition({
       reference: selectorRef,
@@ -359,32 +378,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     __expose({ focus, blur });
     return (_ctx, _cache) => {
       var _a;
-      return vue.openBlock(), vue.createElementBlock("span", {
+      return vue.openBlock(), vue.createElementBlock("span", vue.mergeProps({
         ref_key: "rootRef",
         ref: rootRef,
-        class: vue.normalizeClass(["aheart-select", selectClass.value]),
-        style: vue.normalizeStyle(rootStyle.value)
-      }, [
-        vue.createElementVNode("span", {
+        class: ["aheart-select", selectClass.value],
+        style: rootStyle.value
+      }, rootAttrs.value), [
+        vue.createElementVNode("span", vue.mergeProps({
           ref_key: "selectorRef",
           ref: selectorRef,
-          class: vue.normalizeClass(["aheart-select__selector", _ctx.classNames.selector]),
-          style: vue.normalizeStyle(_ctx.styles.selector),
+          class: ["aheart-select__selector", _ctx.classNames.selector],
+          style: _ctx.styles.selector
+        }, isSearchable.value ? void 0 : interactiveAriaAttrs.value, {
           id: isSearchable.value ? void 0 : _ctx.id,
           role: isSearchable.value ? void 0 : "combobox",
           tabindex: isSearchable.value || isDisabled.value ? void 0 : 0,
-          "aria-controls": listboxId,
-          "aria-labelledby": resolvedAriaLabelledby.value,
-          "aria-expanded": mergedOpen.value ? "true" : "false",
+          "aria-controls": isSearchable.value ? void 0 : listboxId,
+          "aria-labelledby": isSearchable.value ? void 0 : resolvedAriaLabelledby.value,
+          "aria-expanded": isSearchable.value ? void 0 : mergedOpen.value ? "true" : "false",
           "aria-haspopup": isSearchable.value ? void 0 : "listbox",
-          "aria-disabled": isDisabled.value ? "true" : void 0,
-          "aria-busy": _ctx.loading ? "true" : void 0,
-          "aria-activedescendant": activeOptionId.value,
+          "aria-disabled": isSearchable.value ? void 0 : isDisabled.value ? "true" : void 0,
+          "aria-busy": isSearchable.value ? void 0 : _ctx.loading ? "true" : void 0,
+          "aria-activedescendant": isSearchable.value ? void 0 : activeOptionId.value,
           onClick: handleSelectorClick,
           onKeydown: handleKeydown,
           onFocusin: handleFocusIn,
           onFocusout: handleFocusOut
-        }, [
+        }), [
           hasPrefix.value ? (vue.openBlock(), vue.createElementBlock("span", {
             key: 0,
             class: vue.normalizeClass(["aheart-select__prefix", _ctx.classNames.prefix]),
@@ -415,36 +435,38 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                     class: vue.normalizeClass(["aheart-select__tag-remove", _ctx.classNames.tagRemove]),
                     style: vue.normalizeStyle(_ctx.styles.tagRemove),
                     type: "button",
-                    "aria-label": `Remove ${option.label}`,
+                    "aria-label": `移除 ${option.label}`,
                     onClick: vue.withModifiers(($event) => removeValue(option.value), ["stop"])
                   }, " × ", 14, _hoisted_3)) : vue.createCommentVNode("", true)
                 ], 6);
               }), 128)),
               hiddenTagCount.value > 0 ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_4, " +" + vue.toDisplayString(hiddenTagCount.value), 1)) : vue.createCommentVNode("", true)
             ], 64)) : vue.createCommentVNode("", true),
-            isSearchable.value ? (vue.openBlock(), vue.createElementBlock("input", {
+            isSearchable.value ? (vue.openBlock(), vue.createElementBlock("input", vue.mergeProps({
               key: 1,
               ref_key: "searchRef",
               ref: searchRef,
-              class: vue.normalizeClass(["aheart-select__search", _ctx.classNames.search]),
-              style: vue.normalizeStyle(_ctx.styles.search),
+              class: ["aheart-select__search", _ctx.classNames.search],
+              style: _ctx.styles.search,
               id: _ctx.id,
               type: "text",
               role: "combobox",
               autocomplete: "off",
               value: currentSearchValue.value,
               disabled: isDisabled.value,
-              placeholder: searchPlaceholder.value,
+              placeholder: searchPlaceholder.value
+            }, isSearchable.value ? interactiveAriaAttrs.value : void 0, {
               "aria-controls": listboxId,
               "aria-labelledby": resolvedAriaLabelledby.value,
               "aria-expanded": mergedOpen.value ? "true" : "false",
+              "aria-autocomplete": "list",
               "aria-haspopup": "listbox",
               "aria-activedescendant": activeOptionId.value,
               "aria-busy": _ctx.loading ? "true" : void 0,
               onInput: handleSearch,
               onClick: vue.withModifiers(openPopup, ["stop"]),
               onKeydown: handleKeydown
-            }, null, 46, _hoisted_5)) : !isMultiple.value ? (vue.openBlock(), vue.createElementBlock("span", {
+            }), null, 16, _hoisted_5)) : !isMultiple.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 2,
               class: vue.normalizeClass(["aheart-select__value", { "is-placeholder": !selectedOption.value }])
             }, vue.toDisplayString(((_a = selectedOption.value) == null ? void 0 : _a.label) ?? _ctx.placeholder ?? ""), 3)) : selectedOptions.value.length === 0 && !isSearchable.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_6, vue.toDisplayString(_ctx.placeholder), 1)) : vue.createCommentVNode("", true)
@@ -460,7 +482,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-select__clear", _ctx.classNames.clear]),
             style: vue.normalizeStyle(_ctx.styles.clear),
             type: "button",
-            "aria-label": "Clear",
+            "aria-label": "清除",
             onClick: vue.withModifiers(handleClear, ["stop"])
           }, [
             vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [
@@ -501,8 +523,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               }))
             ])
           ], 6))
-        ], 46, _hoisted_1),
-        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_8, "Loading")) : vue.createCommentVNode("", true),
+        ], 16, _hoisted_1),
+        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_8, vue.toDisplayString(resolvedLoadingText.value), 1)) : vue.createCommentVNode("", true),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
           to: teleportTo.value,
           disabled: !shouldTeleport.value
@@ -560,13 +582,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 key: 0,
                 class: vue.normalizeClass(["aheart-select__empty", _ctx.classNames.notFound]),
                 style: vue.normalizeStyle(_ctx.styles.notFound)
-              }, vue.toDisplayString(_ctx.loading ? "Loading" : _ctx.notFoundContent), 7)) : vue.createCommentVNode("", true)
+              }, vue.toDisplayString(_ctx.loading ? resolvedLoadingText.value : resolvedNotFoundContent.value), 7)) : vue.createCommentVNode("", true)
             ], 6)
           ], 14, _hoisted_9)), [
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
-      ], 6);
+      ], 16);
     };
   }
 });

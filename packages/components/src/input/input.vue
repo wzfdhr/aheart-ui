@@ -17,6 +17,7 @@
         </slot>
       </span>
       <input
+        v-bind="attrs"
         class="aheart-input__control"
         :class="controlClass"
         :style="controlStyle"
@@ -36,7 +37,7 @@
         :class="clearClass"
         :style="clearStyle"
         type="button"
-        aria-label="Clear"
+        aria-label="Clear input"
         @click="handleClear"
       >
         <slot name="clearIcon">
@@ -70,6 +71,7 @@
       </slot>
     </span>
     <input
+      v-bind="attrs"
       class="aheart-input__control"
       :class="controlClass"
       :style="controlStyle"
@@ -89,7 +91,7 @@
       :class="clearClass"
       :style="clearStyle"
       type="button"
-      aria-label="Clear"
+      aria-label="Clear input"
       @click="handleClear"
     >
       <slot name="clearIcon">
@@ -108,18 +110,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, useSlots } from 'vue'
+import { computed, defineComponent, useAttrs, useSlots } from 'vue'
 import type { PropType, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { inputEmits, inputProps } from './types'
 import './style.css'
 
 defineOptions({
-  name: 'AInput'
+  name: 'AInput',
+  inheritAttrs: false
 })
 
 const props = defineProps(inputProps)
 const emit = defineEmits(inputEmits)
+const attrs = useAttrs()
 const slots = useSlots()
 const config = useAheartConfig()
 

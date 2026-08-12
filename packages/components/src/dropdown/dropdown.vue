@@ -57,6 +57,7 @@ import AMenu, { type MenuClickInfo } from '../menu'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import {
   dropdownEmits,
   dropdownProps,
@@ -103,6 +104,7 @@ const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.dest
 const hasMenu = computed(() => Boolean(props.menu?.items?.length))
 const hasOverlayContent = computed(() => hasMenu.value || Boolean(slots.popup || props.popupRender || props.dropdownRender))
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 })
+const teleportReady = useTeleportReady()
 const shouldRenderOverlay = computed(() => hasOverlayContent.value && motion.isMounted.value)
 const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
 const popupContainer = computed(() => {
@@ -112,7 +114,7 @@ const popupContainer = computed(() => {
 
   return getDefaultPopupContainer()
 })
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
 const floatingPosition = useFloatingPosition({
   reference: triggerRef,

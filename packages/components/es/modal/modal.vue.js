@@ -2,6 +2,7 @@ import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, ne
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { modalProps, modalEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
@@ -80,9 +81,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer());
     const teleportTarget = computed(() => {
       const container = resolvedContainer.value;
+      if (typeof window === "undefined" && typeof container === "function")
+        return false;
       return typeof container === "function" ? container() : container;
     });
-    const shouldTeleport = computed(() => teleportTarget.value !== false);
+    const teleportReady = useTeleportReady();
+    const shouldTeleport = computed(() => teleportReady.value && teleportTarget.value !== false);
     const teleportTo = computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
     const fixedDialogWidth = computed(() => {
       const width = props.width;

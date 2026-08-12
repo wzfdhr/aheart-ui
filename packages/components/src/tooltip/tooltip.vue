@@ -61,6 +61,7 @@ import '../utils/floating.css'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import {
   tooltipEmits,
   tooltipProps,
@@ -108,6 +109,7 @@ const hasTitle = computed(() => Boolean(slots.title) || hasTitleContent(props.ti
 const visible = computed(() => hasTitle.value && mergedOpen.value)
 const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide)
 const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 })
+const teleportReady = useTeleportReady()
 const shouldRenderPopup = computed(() => hasTitle.value && motion.isMounted.value)
 const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
 const popupContainer = computed(() => {
@@ -117,7 +119,7 @@ const popupContainer = computed(() => {
 
   return getDefaultPopupContainer()
 })
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
 const floatingPosition = useFloatingPosition({
   reference: triggerRef,

@@ -5,6 +5,27 @@ import ConfigProvider from '../../config-provider/config-provider.vue'
 import Input from '../input.vue'
 
 describe('Input', () => {
+  it('forwards native and aria fallthrough attributes to the input control', () => {
+    const wrapper = mount(Input, {
+      attrs: {
+        'aria-label': 'Search records',
+        autocomplete: 'off',
+        inputmode: 'search',
+        required: true,
+        'data-testid': 'native-input'
+      }
+    })
+
+    expect(wrapper.find('input').attributes()).toMatchObject({
+      'aria-label': 'Search records',
+      autocomplete: 'off',
+      inputmode: 'search',
+      required: '',
+      'data-testid': 'native-input'
+    })
+    expect(wrapper.attributes('aria-label')).toBeUndefined()
+  })
+
   it('renders model value with prefix, suffix, and count', () => {
     const wrapper = mount(Input, {
       props: { modelValue: 'Aheart', maxlength: 12, showCount: true },

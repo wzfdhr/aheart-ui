@@ -1,20 +1,21 @@
 <template>
-  <span ref="rootRef" class="aheart-select" :class="selectClass" :style="rootStyle">
+  <span ref="rootRef" class="aheart-select" :class="selectClass" :style="rootStyle" v-bind="rootAttrs">
     <span
       ref="selectorRef"
       class="aheart-select__selector"
       :class="classNames.selector"
       :style="styles.selector"
+      v-bind="isSearchable ? undefined : interactiveAriaAttrs"
       :id="isSearchable ? undefined : id"
       :role="isSearchable ? undefined : 'combobox'"
       :tabindex="isSearchable || isDisabled ? undefined : 0"
-      :aria-controls="listboxId"
-      :aria-labelledby="resolvedAriaLabelledby"
-      :aria-expanded="mergedOpen ? 'true' : 'false'"
+      :aria-controls="isSearchable ? undefined : listboxId"
+      :aria-labelledby="isSearchable ? undefined : resolvedAriaLabelledby"
+      :aria-expanded="isSearchable ? undefined : mergedOpen ? 'true' : 'false'"
       :aria-haspopup="isSearchable ? undefined : 'listbox'"
-      :aria-disabled="isDisabled ? 'true' : undefined"
-      :aria-busy="loading ? 'true' : undefined"
-      :aria-activedescendant="activeOptionId"
+      :aria-disabled="isSearchable ? undefined : isDisabled ? 'true' : undefined"
+      :aria-busy="isSearchable ? undefined : loading ? 'true' : undefined"
+      :aria-activedescendant="isSearchable ? undefined : activeOptionId"
       @click="handleSelectorClick"
       @keydown="handleKeydown"
       @focusin="handleFocusIn"
@@ -40,7 +41,7 @@
               :class="classNames.tagRemove"
               :style="styles.tagRemove"
               type="button"
-              :aria-label="`Remove ${option.label}`"
+              :aria-label="`移除 ${option.label}`"
               @click.stop="removeValue(option.value)"
             >
               ×
@@ -64,9 +65,11 @@
           :value="currentSearchValue"
           :disabled="isDisabled"
           :placeholder="searchPlaceholder"
+          v-bind="isSearchable ? interactiveAriaAttrs : undefined"
           :aria-controls="listboxId"
           :aria-labelledby="resolvedAriaLabelledby"
           :aria-expanded="mergedOpen ? 'true' : 'false'"
+          aria-autocomplete="list"
           aria-haspopup="listbox"
           :aria-activedescendant="activeOptionId"
           :aria-busy="loading ? 'true' : undefined"
@@ -90,7 +93,7 @@
         :class="classNames.clear"
         :style="styles.clear"
         type="button"
-        aria-label="Clear"
+        aria-label="清除"
         @click.stop="handleClear"
       >
         <slot name="clearIcon"><ARenderNode :node="clearIconContent" /></slot>
@@ -110,7 +113,7 @@
       </span>
     </span>
 
-    <span v-if="loading" class="aheart-select__status" role="status" aria-live="polite">Loading</span>
+    <span v-if="loading" class="aheart-select__status" role="status" aria-live="polite">{{ resolvedLoadingText }}</span>
 
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <div
@@ -158,7 +161,7 @@
             :class="classNames.notFound"
             :style="styles.notFound"
           >
-            {{ loading ? 'Loading' : notFoundContent }}
+            {{ loading ? resolvedLoadingText : resolvedNotFoundContent }}
           </div>
         </div>
       </div>
@@ -174,6 +177,7 @@ import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import {
   selectEmits,
   selectProps,
@@ -185,7 +189,7 @@ import {
 } from './types'
 import './style.css'
 
-defineOptions({ name: 'ASelect' })
+defineOptions({ name: 'ASelect', inheritAttrs: false })
 
 const props = defineProps(selectProps)
 const emit = defineEmits(selectEmits)
@@ -243,6 +247,17 @@ const resolvedVariant = computed(() => props.variant ?? (props.bordered === fals
 const hasPrefix = computed(() => Boolean(props.prefix !== undefined || slots.prefix))
 const allowClearConfig = computed(() => (typeof props.allowClear === 'object' ? props.allowClear : undefined))
 const clearIconContent = computed(() => allowClearConfig.value?.clearIcon ?? '×')
+const interactiveAriaAttrs = computed(() => Object.fromEntries(
+  Object.entries(attrs).filter(([key]) => key.startsWith('aria-'))
+))
+const rootAttrs = computed(() => Object.fromEntries(
+  Object.entries(attrs).filter(([key]) => !key.startsWith('aria-'))
+))
+const resolvedLoadingText = computed(() => config.value.locale?.table?.loadingText ?? 'Loading')
+const hasNotFoundContent = usePropPresence('notFoundContent', 'not-found-content')
+const resolvedNotFoundContent = computed(() =>
+  hasNotFoundContent.value ? props.notFoundContent : config.value.locale?.empty?.description ?? props.notFoundContent
+)
 const getOptionKey = (value: SelectPrimitiveValue) => `${typeof value}:${String(value)}`
 const valueEquals = (left: SelectPrimitiveValue, right: SelectPrimitiveValue) => left === right
 const selectedValues = computed<SelectPrimitiveValue[]>(() =>
@@ -290,11 +305,12 @@ const getOptionId = (index: number) => `${listboxId}-option-${index}`
 const activeOptionId = computed(() => activeIndex.value >= 0 && mergedOpen.value ? getOptionId(activeIndex.value) : undefined)
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
+const teleportReady = useTeleportReady()
 const popupContainer = computed(() => {
   if (props.getPopupContainer && selectorRef.value) return props.getPopupContainer(selectorRef.value)
   return typeof document === 'undefined' ? false : document.body
 })
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
 const floatingPosition = useFloatingPosition({
   reference: selectorRef,

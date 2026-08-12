@@ -635,7 +635,8 @@ describe('Modal', () => {
         open: true,
         title: 'Trapped modal',
         closable: false,
-        footer: false
+        footer: false,
+        getContainer: false
       },
       slots: {
         default: '<button class="first-field">First</button><button class="last-field">Last</button>'
@@ -660,7 +661,8 @@ describe('Modal', () => {
         open: true,
         title: 'Reverse trap',
         closable: false,
-        footer: false
+        footer: false,
+        getContainer: false
       },
       slots: {
         default: '<button class="first-field">First</button><button class="last-field">Last</button>'
@@ -686,6 +688,7 @@ describe('Modal', () => {
         title: 'Trap disabled',
         closable: false,
         footer: false,
+        getContainer: false,
         focusable: {
           trap: false
         }
@@ -715,7 +718,8 @@ describe('Modal', () => {
         footer: false,
         mask: {
           enabled: false
-        }
+        },
+        getContainer: false
       },
       slots: {
         default: '<button class="first-field">First</button><button class="last-field">Last</button>'
@@ -741,6 +745,7 @@ describe('Modal', () => {
         closable: false,
         footer: false,
         mask: false,
+        getContainer: false,
         focusable: {
           trap: true
         }

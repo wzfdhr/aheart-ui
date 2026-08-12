@@ -1,7 +1,10 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
+const waitForHydration = (page: Page) => page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
 
 test('InputNumber and Textarea demos expose live, editable state', async ({ page }) => {
   await page.goto('/components/input-number')
+  await waitForHydration(page)
   const numberDemo = page.locator('.aheart-demo-panel').first()
   const numberInput = numberDemo.getByRole('spinbutton').first()
   await numberInput.fill('12')
@@ -9,6 +12,7 @@ test('InputNumber and Textarea demos expose live, editable state', async ({ page
   await expect(numberInput).toHaveValue('10')
 
   await page.goto('/components/textarea')
+  await waitForHydration(page)
   const countDemo = page.locator('.aheart-demo-panel').nth(1)
   const textarea = countDemo.locator('textarea')
   await textarea.fill('Aheart UI')
@@ -18,6 +22,7 @@ test('InputNumber and Textarea demos expose live, editable state', async ({ page
 
 test('Select supports real popup selection, multiple removal, clear, and loading feedback', async ({ page }) => {
   await page.goto('/components/select')
+  await waitForHydration(page)
 
   const basic = page.locator('.aheart-demo-panel').first()
   await basic.getByRole('combobox').click()
@@ -26,9 +31,9 @@ test('Select supports real popup selection, multiple removal, clear, and loading
 
   const multiple = page.locator('.aheart-demo-panel').nth(1)
   await expect(multiple.locator('.aheart-select__tag')).toHaveCount(2)
-  await multiple.getByRole('button', { name: 'Remove Apple' }).click()
+  await multiple.getByRole('button', { name: '移除 Apple' }).click()
   await expect(multiple.locator('.aheart-select__tag')).toHaveCount(1)
-  await multiple.getByRole('button', { name: 'Clear' }).click()
+  await multiple.getByRole('button', { name: '清除' }).click()
   await expect(multiple.locator('.aheart-select__tag')).toHaveCount(0)
 
   const loading = page.locator('.aheart-select.is-loading')
@@ -38,11 +43,13 @@ test('Select supports real popup selection, multiple removal, clear, and loading
 
 test('Checkbox and Switch expose native state, loading feedback, and keyboard operation', async ({ page }) => {
   await page.goto('/components/checkbox')
+  await waitForHydration(page)
   const indeterminate = page.locator('.aheart-demo-panel').nth(1).getByRole('checkbox')
   await expect(indeterminate).toHaveJSProperty('indeterminate', true)
   await expect(indeterminate).toHaveAttribute('aria-checked', 'mixed')
 
   await page.goto('/components/switch')
+  await waitForHydration(page)
   const textSwitch = page.locator('.aheart-demo-panel').nth(1).getByRole('switch').first()
   await expect(textSwitch).toContainText('On')
   await textSwitch.focus()
@@ -62,6 +69,7 @@ test('Checkbox and Switch expose native state, loading feedback, and keyboard op
 
 test('InputNumber spinner preserves the visual order of addons and controls', async ({ page }) => {
   await page.goto('/components/input-number')
+  await waitForHydration(page)
   const spinner = page.locator('.aheart-input-number--mode-spinner')
   const positions = await spinner.evaluate((element) => {
     const left = (selector: string) => element.querySelector(selector)!.getBoundingClientRect().left
@@ -78,6 +86,7 @@ test('InputNumber spinner preserves the visual order of addons and controls', as
 
 test('TimePicker defaults to one-minute steps and supports configured steps and confirmation', async ({ page }) => {
   await page.goto('/components/time-picker')
+  await waitForHydration(page)
 
   const basicInput = page.locator('.aheart-demo-panel').nth(0).getByRole('combobox')
   await basicInput.focus()
@@ -108,6 +117,7 @@ test('TimePicker defaults to one-minute steps and supports configured steps and 
 
 test('Cascader and TreeSelect overlays align controls and remain marker-free', async ({ page }) => {
   await page.goto('/components/cascader')
+  await waitForHydration(page)
   const cascader = page.locator('.aheart-demo-panel').first().locator('.aheart-cascader')
   await cascader.getByRole('combobox').click()
   await page.locator('[data-cascader-value="zhejiang"]').click()
@@ -122,6 +132,7 @@ test('Cascader and TreeSelect overlays align controls and remain marker-free', a
   expect(arrowGap).toBeLessThanOrEqual(12)
 
   await page.goto('/components/tree-select')
+  await waitForHydration(page)
   const treeSelect = page.locator('.aheart-demo-panel').first().locator('.aheart-tree-select')
   await treeSelect.getByRole('combobox').click()
   const treeItem = page.locator('.aheart-tree-select__panel li').first()
@@ -131,6 +142,7 @@ test('Cascader and TreeSelect overlays align controls and remain marker-free', a
 
 test('Cascader reports lazy-loading progress before rendering loaded children', async ({ page }) => {
   await page.goto('/components/cascader')
+  await waitForHydration(page)
   const lazy = page.locator('.aheart-demo-panel').nth(2).locator('.aheart-cascader')
   await lazy.getByRole('combobox').click()
   const option = page.locator('[data-cascader-value="china"]')
@@ -143,6 +155,7 @@ test('Cascader reports lazy-loading progress before rendering loaded children', 
 
 test('Q3 controls preserve sizing, status colors, theme states, and visible keyboard focus', async ({ page }) => {
   await page.goto('/components/select')
+  await waitForHydration(page)
   const select = page.locator('.aheart-demo-panel').first().locator('.aheart-select')
   const selectSizing = await select.evaluate((element) => {
     const root = element.getBoundingClientRect()

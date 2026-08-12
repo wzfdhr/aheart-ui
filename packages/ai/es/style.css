@@ -1,5 +1,7 @@
 :root {
   --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
   --aheart-ai-cyan-soft: #ecfeff;
   --aheart-ai-line: #e4e7ec;
   --aheart-ai-surface: #ffffff;
@@ -429,6 +431,10 @@
   border-block-start: 1px solid var(--aheart-ai-line);
 }
 
+.aheart-ai-sources a {
+  color: var(--aheart-ai-brand-strong);
+}
+
 .aheart-ai-sources h3,
 .aheart-ai-process h3 {
   font-size: 12px;
@@ -657,6 +663,7 @@ fieldset.aheart-ai-form__group {
   border: 1px solid var(--aheart-ai-line);
   border-radius: 8px;
   background: var(--aheart-ai-surface);
+  scroll-margin-block-start: 112px;
 }
 
 .aheart-ai-workbench__header {
@@ -721,6 +728,10 @@ fieldset.aheart-ai-form__group {
   color: #475467;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .aheart-ai-workbench__header-status > span.is-running {
@@ -750,6 +761,13 @@ fieldset.aheart-ai-form__group {
 .aheart-ai-workbench__progress {
   color: var(--aheart-ai-text-secondary);
   font-size: 11px;
+}
+
+.aheart-ai-workbench__pending-summary {
+  display: none;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
 }
 
 .aheart-ai-workbench__desktop {
@@ -868,7 +886,32 @@ fieldset.aheart-ai-form__group {
 }
 
 .aheart-ai-workbench__execution-content {
+  min-inline-size: 0;
+  overflow-x: hidden;
   padding: 16px;
+}
+
+.aheart-ai-workbench__mobile-priority {
+  display: none;
+}
+
+.aheart-ai-workbench__mobile-tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.aheart-ai-workbench__pending-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 18px;
+  block-size: 18px;
+  padding-inline: 4px;
+  border-radius: 999px;
+  background: #fff1f0;
+  color: #b42318;
+  font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .aheart-ai-workbench__section-heading {
@@ -1149,7 +1192,7 @@ fieldset.aheart-ai-form__group {
 }
 
 .aheart-ai-workbench__artifact-preview-header span {
-  color: var(--aheart-ai-cyan);
+  color: var(--aheart-ai-cyan-strong);
   font: 10px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
   text-transform: uppercase;
 }
@@ -1183,6 +1226,33 @@ fieldset.aheart-ai-form__group {
 
 .aheart-ai-workbench__mobile {
   display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .aheart-ai-workbench__execution {
+    --aheart-ai-line: #344054;
+    --aheart-ai-surface: #101828;
+    --aheart-ai-surface-subtle: #1d2939;
+    --aheart-ai-text: #f2f4f7;
+    --aheart-ai-text-secondary: #b8c3d1;
+    background: var(--aheart-ai-surface);
+    color: var(--aheart-ai-text);
+  }
+
+  .aheart-ai-workbench__execution .aheart-ai-workbench__timeline-marker,
+  .aheart-ai-workbench__execution .aheart-ai-workbench__artifact-list li,
+  .aheart-ai-workbench__execution .aheart-ai-workbench__empty {
+    background: var(--aheart-ai-surface-subtle);
+  }
+
+  .aheart-ai-workbench__execution .aheart-ai-workbench__task-progress [role="progressbar"] {
+    background: #475467;
+  }
+
+  .aheart-ai-workbench__execution .aheart-ai-workbench__artifact-preview {
+    border-color: #3b82f6;
+    background: #172554;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1262,13 +1332,117 @@ fieldset.aheart-ai-form__group {
     padding-inline: 12px;
   }
 
+  .aheart-ai-workbench__mobile .aheart-tabs__tab.is-active {
+    color: var(--aheart-ai-brand-strong);
+  }
+
   .aheart-ai-workbench__mobile-panel {
     min-block-size: 400px;
+  }
+
+  .aheart-ai-workbench__pending-summary {
+    display: block;
+    padding: 2px 0;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: end;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .aheart-ai-workbench__pending-summary:hover {
+    color: #912018;
+  }
+
+  .aheart-ai-workbench__pending-summary:focus-visible {
+    outline: 2px solid var(--aheart-ai-brand);
+    outline-offset: 2px;
   }
 
   .aheart-ai-workbench__mobile-panel > .aheart-ai-chat-panel {
     border: 0;
     border-radius: 0;
+  }
+
+  .aheart-ai-workbench__mobile-priority {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #fedf89;
+    border-inline-start: 3px solid #f79009;
+    border-radius: 5px;
+    background: #fffaeb;
+  }
+
+  .aheart-ai-workbench__priority-heading,
+  .aheart-ai-workbench__priority-approval,
+  .aheart-ai-workbench__priority-actions {
+    display: grid;
+    gap: 4px;
+  }
+
+  .aheart-ai-workbench__priority-heading strong {
+    overflow-wrap: anywhere;
+    font-size: 13px;
+  }
+
+  .aheart-ai-workbench__priority-approval p {
+    margin: 0;
+    color: #93370d;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .aheart-ai-workbench__priority-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aheart-ai-workbench__priority-actions .aheart-button {
+    min-block-size: 40px;
+  }
+
+  .aheart-ai-workbench__priority-artifact {
+    display: grid;
+    gap: 2px;
+    inline-size: 100%;
+    min-block-size: 52px;
+    padding: 8px 10px;
+    border: 1px solid #b2ddff;
+    border-radius: 5px;
+    background: #f8fbff;
+    color: var(--aheart-ai-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .aheart-ai-workbench__priority-artifact:hover,
+  .aheart-ai-workbench__priority-artifact:focus-visible {
+    border-color: var(--aheart-ai-brand-strong);
+    outline: 2px solid rgba(9, 88, 217, 0.2);
+    outline-offset: 1px;
+  }
+
+  .aheart-ai-workbench__priority-artifact span,
+  .aheart-ai-workbench__priority-artifact small {
+    color: #475467;
+    font-size: 11px;
+  }
+
+  .aheart-ai-workbench__execution-content .aheart-ai-workbench__section-heading > span,
+  .aheart-ai-workbench__execution-content .aheart-ai-workbench__task-detail,
+  .aheart-ai-workbench__execution-content .aheart-ai-workbench__task-time {
+    color: #475467;
+  }
+
+  .aheart-ai-workbench__timeline-item {
+    padding-block: 7px;
+  }
+
+  .aheart-ai-workbench__timeline-item.has-approval-summary .aheart-ai-workbench__approval {
+    display: none;
   }
 }
 

@@ -113,12 +113,12 @@
 
 .aheart-menu__item-button:hover:not(:disabled),
 .aheart-menu__submenu-title:hover:not(:disabled) {
-  color: var(--aheart-color-primary);
+  color: #0958d9;
   background: var(--aheart-color-fill);
 }
 
 .aheart-menu__item.is-selected > .aheart-menu__item-button {
-  color: var(--aheart-color-primary);
+  color: #0958d9;
   background: #e6f4ff;
 }
 

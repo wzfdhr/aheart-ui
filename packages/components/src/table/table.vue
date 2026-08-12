@@ -15,6 +15,7 @@
               :key="getColumnKey(column)"
               :class="columnClass(column)"
               :style="columnStyle(column)"
+              :aria-sort="column.sorter ? getAriaSort(column) : undefined"
               scope="col"
             >
               <div class="aheart-table__head-content">
@@ -23,6 +24,7 @@
                   class="aheart-table__sorter"
                   type="button"
                   :disabled="isDisabled"
+                  :aria-label="getSortActionLabel(column)"
                   @click="toggleSort(column)"
                 >
                   <span>
@@ -120,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, ref, useId, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import APagination from '../pagination'
 import {
@@ -176,7 +178,7 @@ const innerSort = ref<InternalSortState>({})
 const innerFilters = ref<TableFilters>({})
 const hasInitializedSort = ref(false)
 const initializedFilterKeys = ref(new Set<string>())
-const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`
+const radioName = `aheart-table-selection-${useId().replace(/[^a-zA-Z0-9_-]/g, '-')}`
 
 const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden))
 const normalizedData = computed(() => props.dataSource ?? [])
@@ -454,6 +456,19 @@ const getSortState = (column: TableColumn) => {
   }
 
   return activeSort.value.order
+}
+
+const getColumnLabel = (column: TableColumn) => typeof column.title === 'string' ? column.title : getColumnKey(column)
+
+const getAriaSort = (column: TableColumn) => {
+  const state = getSortState(column)
+  return state === 'ascend' ? 'ascending' : state === 'descend' ? 'descending' : 'none'
+}
+
+const getSortActionLabel = (column: TableColumn) => {
+  const label = getColumnLabel(column)
+  const state = getSortState(column)
+  return state === 'ascend' ? `Sort ${label} descending` : state === 'descend' ? `Clear sort for ${label}` : `Sort ${label}`
 }
 
 const toggleSort = (column: TableColumn) => {

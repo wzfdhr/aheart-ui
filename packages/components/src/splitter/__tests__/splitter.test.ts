@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { h } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
 import Splitter from '../splitter.vue'
 import SplitterPanel from '../splitter-panel.vue'
 
@@ -16,6 +17,14 @@ afterEach(() => {
 })
 
 describe('Splitter', () => {
+  it('keeps resize handles at a mobile-friendly touch target size', () => {
+    const styles = readFileSync(`${process.cwd()}/src/splitter/style.css`, 'utf8')
+
+    expect(styles).toMatch(/@media \(max-width: 640px\)[\s\S]*?\.aheart-splitter__handle::after[\s\S]*?inset-inline:\s*-19px/)
+    expect(styles).toMatch(/\.aheart-splitter__handle--vertical::after[\s\S]*?inset-block:\s*-19px/)
+    expect(styles).toMatch(/linear-gradient\([\s\S]*?transparent 19px[\s\S]*?25px/)
+  })
+
   it('renders horizontal panels and a separator handle between each pair', () => {
     const wrapper = mount(Splitter, {
       props: { sizes: [240, 360] },
@@ -26,6 +35,7 @@ describe('Splitter', () => {
     expect(wrapper.findAll('.aheart-splitter__panel')).toHaveLength(2)
     expect(wrapper.findAll('.aheart-splitter__handle')).toHaveLength(1)
     expect(wrapper.find('.aheart-splitter__panel').attributes('style')).toContain('flex-basis: 240px')
+    expect(wrapper.find('.aheart-splitter__panel').attributes('tabindex')).toBe('0')
     expect(wrapper.find('.aheart-splitter__handle').attributes('role')).toBe('separator')
     expect(wrapper.find('.aheart-splitter__handle').attributes('aria-orientation')).toBe('vertical')
   })

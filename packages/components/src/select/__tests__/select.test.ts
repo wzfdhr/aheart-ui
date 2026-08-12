@@ -19,6 +19,51 @@ const mountSelect = (options: Record<string, any> = {}) => mount(Select, {
 })
 
 describe('Select', () => {
+  it('puts the accessible name on the interactive combobox', () => {
+    const wrapper = mountSelect({ attrs: { 'aria-label': 'Fruit' }, props: { options } })
+
+    expect(wrapper.get('[role="combobox"]').attributes('aria-label')).toBe('Fruit')
+    expect(wrapper.attributes('aria-label')).toBeUndefined()
+  })
+
+  it('preserves non-ARIA fallthrough attributes on the legacy root', () => {
+    const wrapper = mountSelect({
+      attrs: {
+        'data-testid': 'fruit-select',
+        class: 'legacy-select',
+        style: 'color: red'
+      },
+      props: { options }
+    })
+
+    expect(wrapper.attributes('data-testid')).toBe('fruit-select')
+    expect(wrapper.classes()).toContain('legacy-select')
+    expect(wrapper.attributes('style')).toContain('color: red')
+  })
+
+  it('routes searchable accessible labels only to the input combobox', () => {
+    const wrapper = mountSelect({
+      attrs: { 'aria-label': 'Fruit', 'aria-labelledby': 'fruit-label' },
+      props: { options, showSearch: true }
+    })
+    const selector = wrapper.get('.aheart-select__selector')
+    const search = wrapper.get('.aheart-select__search')
+
+    expect(selector.attributes('aria-label')).toBeUndefined()
+    expect(selector.attributes('aria-labelledby')).toBeUndefined()
+    expect(search.attributes('aria-label')).toBe('Fruit')
+    expect(search.attributes('aria-labelledby')).toBe('fruit-label')
+  })
+
+  it('keeps the searchable combobox focusable and exposes list autocomplete semantics', () => {
+    const wrapper = mountSelect({ props: { options, showSearch: true } })
+    const search = wrapper.get('.aheart-select__search')
+
+    expect(search.attributes('role')).toBe('combobox')
+    expect(search.attributes('aria-autocomplete')).toBe('list')
+    expect(search.attributes('tabindex')).toBeUndefined()
+  })
+
   it('renders an interactive combobox and opens a listbox instead of a native select', async () => {
     const wrapper = mountSelect({ props: { options, placeholder: 'Choose fruit' } })
 
@@ -294,14 +339,34 @@ describe('Select', () => {
     await wrapper.get('[role="combobox"]').trigger('click')
 
     expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('true')
-    expect(wrapper.get('.aheart-select__empty').text()).toBe('Loading')
+    expect(wrapper.get('.aheart-select__empty').text()).toBe('加载中')
   })
 
   it('announces loading state from the combobox', () => {
     const wrapper = mountSelect({ props: { options, loading: true } })
 
     expect(wrapper.get('[role="combobox"]').attributes('aria-busy')).toBe('true')
-    expect(wrapper.get('[role="status"]').text()).toBe('Loading')
+    expect(wrapper.get('[role="status"]').text()).toBe('加载中')
+  })
+
+  it('uses the configured loading locale for status and empty feedback', async () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: { table: { loadingText: '正在加载' } } },
+      slots: { default: () => h(Select, { options: [], loading: true, defaultOpen: true }) },
+      global: { stubs: { Teleport: true } }
+    })
+
+    expect(wrapper.get('[role="status"]').text()).toBe('正在加载')
+    expect(wrapper.get('.aheart-select__empty').text()).toBe('正在加载')
+  })
+
+  it('gives clear and tag removal controls neutral accessible names', () => {
+    const wrapper = mountSelect({
+      props: { options, modelValue: ['apple'], mode: 'multiple', allowClear: true }
+    })
+
+    expect(wrapper.get('.aheart-select__clear').attributes('aria-label')).toBe('清除')
+    expect(wrapper.get('.aheart-select__tag-remove').attributes('aria-label')).toBe('移除 Apple')
   })
 
   it('does not submit values after an open popup becomes disabled', async () => {

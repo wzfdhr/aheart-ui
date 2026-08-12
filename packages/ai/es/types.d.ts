@@ -80,6 +80,7 @@ export interface AIAgentApproval {
     id: string;
     title: string;
     description?: string;
+    artifactId?: string;
     status?: AIAgentApprovalStatus;
 }
 export interface AIAgentTask {

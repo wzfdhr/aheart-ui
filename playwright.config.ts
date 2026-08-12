@@ -7,6 +7,7 @@ const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
+  workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
     baseURL: `http://127.0.0.1:${port}`,

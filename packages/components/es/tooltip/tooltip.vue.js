@@ -4,6 +4,7 @@ import "../utils/floating.css.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { tooltipProps, tooltipEmits } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["aria-hidden"];
@@ -44,6 +45,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const visible = computed(() => hasTitle.value && mergedOpen.value);
     const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
     const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const teleportReady = useTeleportReady();
     const shouldRenderPopup = computed(() => hasTitle.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = computed(() => {
@@ -52,7 +54,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return getDefaultPopupContainer();
     });
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,
