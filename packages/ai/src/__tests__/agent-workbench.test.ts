@@ -47,8 +47,9 @@ describe('AIAgentWorkbench', () => {
     const wrapper = mount(AIAgentWorkbench, { props: { tasks, artifacts: [{ id: 'report', title: '报告.md' }] } })
     await wrapper.get('#aheart-tab-execution').trigger('click')
     await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
-    const taskSections = wrapper.findAll('.aheart-ai-workbench__tasks')
-    const artifactSections = wrapper.findAll('.aheart-ai-workbench__artifacts')
+    const executions = wrapper.findAllComponents({ name: 'AIAgentWorkbenchExecution' })
+    const taskSections = executions.map((execution) => execution.get('.aheart-ai-workbench__tasks'))
+    const artifactSections = executions.map((execution) => execution.get('.aheart-ai-workbench__artifacts'))
     const taskIds = taskSections.map((section) => section.get('h2').attributes('id'))
     const artifactIds = artifactSections.map((section) => section.get('h2').attributes('id'))
 
@@ -69,7 +70,9 @@ describe('AIAgentWorkbench', () => {
     expect(wrapper.find('.aheart-ai-workbench__mobile').text()).toContain('需求简报')
     await wrapper.get('#aheart-tab-execution').trigger('click')
     await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
-    expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
+    const drawer = wrapper.getComponent({ name: 'ADrawer' })
+    expect(drawer.exists()).toBe(true)
+    expect(drawer.props('getContainer')).toBeUndefined()
   })
 
   it('shows the artifact explicitly associated with a pending approval', async () => {
@@ -137,7 +140,7 @@ describe('AIAgentWorkbench', () => {
     const summary = wrapper.get('[data-pending-approval-summary]')
     expect(summary.text()).toContain('待审批：调研报告.md')
     await summary.trigger('click')
-    expect(wrapper.find('.aheart-drawer').exists()).toBe(true)
+    expect(wrapper.getComponent({ name: 'ADrawer' }).props('open')).toBe(true)
   })
 
   it('forwards scoped task, source, attachment and artifact preview slots', () => {
