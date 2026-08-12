@@ -31,7 +31,7 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
     assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
   }
 
-  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only\]/)
+  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only\]/)
   for (const project of ['desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
     assert.match(
       configSource,

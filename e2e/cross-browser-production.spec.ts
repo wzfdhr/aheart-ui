@@ -1,37 +1,43 @@
-import { expect, test, type Page, type TestInfo } from '@playwright/test'
+import { expect, test as base, type Page } from '@playwright/test'
 
-const collectProductionErrors = (page: Page) => {
-  const errors: string[] = []
-
-  page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`))
-  page.on('console', (message) => {
-    if (message.type() === 'error' || /\[Vue warn\]|hydration|mismatch/i.test(message.text())) {
-      errors.push(`console ${message.type()}: ${message.text()}`)
-    }
-  })
-  page.on('response', (response) => {
-    const url = new URL(response.url())
-    if (url.hostname === '127.0.0.1' && response.status() >= 400) {
-      errors.push(`response ${response.status()}: ${url.pathname}`)
-    }
-  })
-  page.on('requestfailed', (request) => {
-    const url = new URL(request.url())
-    const errorText = request.failure()?.errorText ?? 'unknown'
-    if (url.hostname === '127.0.0.1' && !/ABORTED/i.test(errorText)) {
-      errors.push(`requestfailed: ${url.pathname} (${errorText})`)
-    }
-  })
-
-  return errors
+type ProductionErrorFixture = {
+  productionErrors: string[]
 }
 
-const attachProductionErrors = async (testInfo: TestInfo, errors: string[]) => {
-  await testInfo.attach('production-console.json', {
-    body: Buffer.from(JSON.stringify(errors, null, 2)),
-    contentType: 'application/json'
-  })
-}
+const test = base.extend<ProductionErrorFixture>({
+  productionErrors: async ({ page }, use, testInfo) => {
+    const errors: string[] = []
+
+    page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`))
+    page.on('console', (message) => {
+      if (message.type() === 'error' || /\[Vue warn\]|hydration|mismatch/i.test(message.text())) {
+        errors.push(`console ${message.type()}: ${message.text()}`)
+      }
+    })
+    page.on('response', (response) => {
+      const url = new URL(response.url())
+      if (url.hostname === '127.0.0.1' && response.status() >= 400) {
+        errors.push(`response ${response.status()}: ${url.pathname}`)
+      }
+    })
+    page.on('requestfailed', (request) => {
+      const url = new URL(request.url())
+      const errorText = request.failure()?.errorText ?? 'unknown'
+      if (url.hostname === '127.0.0.1' && !/ABORTED/i.test(errorText)) {
+        errors.push(`requestfailed: ${url.pathname} (${errorText})`)
+      }
+    })
+
+    try {
+      await use(errors)
+    } finally {
+      await testInfo.attach('production-console.json', {
+        body: Buffer.from(JSON.stringify(errors, null, 2)),
+        contentType: 'application/json'
+      })
+    }
+  }
+})
 
 const expectInsideViewport = async (locator: ReturnType<Page['locator']>, page: Page) => {
   const viewport = page.viewportSize()
@@ -49,8 +55,7 @@ const expectInsideViewport = async (locator: ReturnType<Page['locator']>, page: 
 }
 
 test.describe('QG5 production cross-browser gates', () => {
-  test('production assets load and interactive routes hydrate without runtime errors', async ({ page }, testInfo) => {
-    const errors = collectProductionErrors(page)
+  test('production assets load and interactive routes hydrate without runtime errors', async ({ page, productionErrors }) => {
 
     for (const route of ['select', 'modal', 'ai-agent-workbench'] as const) {
       await page.goto(`/components/${route}`, { waitUntil: 'domcontentloaded' })
@@ -59,12 +64,10 @@ test.describe('QG5 production cross-browser gates', () => {
       await expect(page.locator('.aheart-demo-panel, .aheart-ai-workbench').first()).toBeVisible()
     }
 
-    await attachProductionErrors(testInfo, errors)
-    expect(errors).toEqual([])
+    expect(productionErrors).toEqual([])
   })
 
-  test('Floating UI remains visible after scrolling, resizing, and edge adjustment', async ({ page }, testInfo) => {
-    const errors = collectProductionErrors(page)
+  test('Floating UI remains visible after scrolling, resizing, and edge adjustment', async ({ page, productionErrors }) => {
     await page.goto('/components/select')
 
     const select = page.locator('.aheart-demo-panel').first().getByRole('combobox')
@@ -80,12 +83,10 @@ test.describe('QG5 production cross-browser gates', () => {
     const currentViewport = page.viewportSize()!
     await page.setViewportSize({ width: Math.max(390, currentViewport.width - 120), height: currentViewport.height })
     await expectInsideViewport(popup, page)
-    await attachProductionErrors(testInfo, errors)
-    expect(errors).toEqual([])
+    expect(productionErrors).toEqual([])
   })
 
-  test('Teleport overlays close cleanly and restore focus', async ({ page }, testInfo) => {
-    const errors = collectProductionErrors(page)
+  test('Teleport overlays close cleanly and restore focus', async ({ page, productionErrors }) => {
     await page.goto('/components/modal')
 
     const trigger = page.getByRole('button', { name: 'Open modal', exact: true }).first()
@@ -100,13 +101,11 @@ test.describe('QG5 production cross-browser gates', () => {
     await page.keyboard.press('Escape')
     await expect(modal).toBeHidden()
     await expect(trigger).toBeFocused()
-    await attachProductionErrors(testInfo, errors)
-    expect(errors).toEqual([])
+    expect(productionErrors).toEqual([])
   })
 
-  test('mobile production surfaces stay within the viewport', async ({ page }, testInfo) => {
+  test('mobile production surfaces stay within the viewport', async ({ page, productionErrors }, testInfo) => {
     test.skip(!testInfo.project.name.includes('mobile'), 'Mobile containment belongs to mobile projects.')
-    const errors = collectProductionErrors(page)
     await page.goto('/components/ai-agent-workbench')
 
     const workbench = page.locator('.aheart-ai-workbench').first()
@@ -122,7 +121,6 @@ test.describe('QG5 production cross-browser gates', () => {
     const drawer = page.getByRole('dialog', { name: '执行与产物' })
     await expect(drawer.locator('xpath=..')).toHaveClass(/is-entered/)
     await expectInsideViewport(drawer, page)
-    await attachProductionErrors(testInfo, errors)
-    expect(errors).toEqual([])
+    expect(productionErrors).toEqual([])
   })
 })
