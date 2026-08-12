@@ -305,7 +305,7 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     await gotoComponent(page, 'ai-agent-workbench')
     const workbench = page.locator('.aheart-ai-workbench').first()
     await workbench.getByRole('tab', { name: '执行' }).click()
-    await workbench.getByRole('button', { name: '查看执行与产物' }).click()
+    await workbench.getByRole('button', { name: '查看执行与产物', exact: true }).click()
     const drawer = page.getByRole('dialog', { name: '执行与产物' })
     await expect(drawer).toBeVisible()
     await expect(drawer.getByRole('region', { name: '移动端优先处理' })).toBeVisible()
