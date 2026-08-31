@@ -1,6 +1,6 @@
 import type { Component, VNodeChild } from 'vue'
 import type { AheartSize, AheartVariant } from '../config'
-import type { FloatingPlacement } from '../utils/floating'
+import type { FloatingPlacement } from '../utils/floating-core'
 
 export type PickerMode = 'date' | 'week' | 'month' | 'quarter' | 'year'
 export type PickerValue = string | undefined

@@ -1,6 +1,6 @@
 import { type AutoUpdateOptions, type Placement, type Side, type Strategy } from '@floating-ui/dom';
 import { type CSSProperties, type ComputedRef, type MaybeRefOrGetter, type Ref } from 'vue';
-import type { FloatingPlacement } from './floating';
+import type { FloatingPlacement } from './floating-core';
 type ElementSource = MaybeRefOrGetter<HTMLElement | null | undefined>;
 export interface UseFloatingPositionOptions {
     reference: ElementSource;

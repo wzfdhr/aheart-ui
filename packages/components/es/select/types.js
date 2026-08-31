@@ -1,4 +1,4 @@
-import { floatingPlacements } from "../utils/floating.js";
+import { floatingPlacements } from "../utils/floating-core.js";
 const selectProps = {
   id: String,
   labelledBy: String,

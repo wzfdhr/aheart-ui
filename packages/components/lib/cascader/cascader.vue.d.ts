@@ -1,4 +1,4 @@
-import type { FloatingPlacement } from '../utils/floating';
+import type { FloatingPlacement } from '../utils/floating-core';
 import type { CascaderOption, CascaderValue } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     options?: CascaderOption[] | undefined;

@@ -22,7 +22,7 @@ import {
   type MaybeRefOrGetter,
   type Ref
 } from 'vue'
-import type { FloatingPlacement } from './floating'
+import type { FloatingPlacement } from './floating-core'
 
 type ElementSource = MaybeRefOrGetter<HTMLElement | null | undefined>
 

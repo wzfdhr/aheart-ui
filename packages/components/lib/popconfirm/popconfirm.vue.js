@@ -2,7 +2,7 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const index = require("../button/index.js");
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 require("../utils/floating.css.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
@@ -43,7 +43,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const effectivePlacement = vue.ref(props.placement);
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
-    const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
+    const normalizedTriggers = vue.computed(() => new Set(floatingCore.normalizeFloatingTriggers(props.trigger)));
     const visible = vue.computed(() => !props.disabled && mergedOpen.value);
     const shouldDestroyOnHidden = vue.computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
     const motion = useMotionPresence.useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
@@ -106,7 +106,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     ]);
     const popupStyle = vue.computed(() => [
       floatingPosition.popupStyle.value,
-      floating.getFloatingPopupStyle(props.color, props.zIndex),
+      floatingCore.getFloatingPopupStyle(props.color, props.zIndex),
       props.overlayStyle,
       resolvedStyles.value.popup
     ]);

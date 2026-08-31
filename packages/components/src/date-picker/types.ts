@@ -15,7 +15,7 @@ import type {
   PickerStatus,
   PickerValue
 } from '../picker-core/types'
-import { floatingPlacements, type FloatingPlacement } from '../utils/floating'
+import { floatingPlacements, type FloatingPlacement } from '../utils/floating-core'
 
 export type DatePickerValue = PickerValue | MultiplePickerValue
 export type DatePickerGetPopupContainer = (triggerNode: HTMLElement) => HTMLElement

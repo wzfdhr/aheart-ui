@@ -21,7 +21,7 @@ import Icon from "./icon/index.js";
 import Input from "./input/index.js";
 import InputNumber from "./input-number/index.js";
 import Menu from "./menu/index.js";
-import Message from "./message/index.js";
+import Message from "./message/public.js";
 import Modal from "./modal/index.js";
 import Pagination from "./pagination/index.js";
 import Popconfirm from "./popconfirm/index.js";
@@ -44,9 +44,11 @@ import TreeSelect from "./tree-select/index.js";
 import Tooltip from "./tooltip/index.js";
 import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
 import Upload from "./upload/index.js";
+import { floatingPlacements, floatingTriggers, getFloatingPopupStyle, isFloatingPlacement, isFloatingTrigger, isFloatingTriggerProp, normalizeFloatingTriggers } from "./utils/floating-core.js";
 import "./theme/index.css.js";
 import { message } from "./message/service.js";
 import { enUS, zhCN } from "./config/context.js";
+import { fromFloatingUIPlacement, getFloatingArrowStaticSide, toFloatingUIPlacement, useFloatingPosition } from "./utils/use-floating-position.js";
 const components = [
   Button,
   Cascader,
@@ -184,6 +186,17 @@ export {
   Upload,
   AheartUI as default,
   enUS,
+  floatingPlacements,
+  floatingTriggers,
+  fromFloatingUIPlacement,
+  getFloatingArrowStaticSide,
+  getFloatingPopupStyle,
+  isFloatingPlacement,
+  isFloatingTrigger,
+  isFloatingTriggerProp,
   message,
+  normalizeFloatingTriggers,
+  toFloatingUIPlacement,
+  useFloatingPosition,
   zhCN
 };

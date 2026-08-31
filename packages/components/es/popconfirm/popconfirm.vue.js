@@ -1,6 +1,6 @@
 import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, unref, createCommentVNode, createVNode, mergeProps, withCtx, createTextVNode, toDisplayString, vShow } from "vue";
 import Button from "../button/index.js";
-import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
+import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating-core.js";
 import "../utils/floating.css.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";

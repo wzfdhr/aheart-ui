@@ -1,4 +1,4 @@
-import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating.js";
+import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating-core.js";
 const renderableProp = {
   type: null,
   default: void 0

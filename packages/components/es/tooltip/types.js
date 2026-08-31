@@ -1,4 +1,4 @@
-import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating.js";
+import { floatingPlacements, isFloatingTriggerProp } from "../utils/floating-core.js";
 const titleProp = {
   type: null,
   default: void 0

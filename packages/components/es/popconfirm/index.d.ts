@@ -22,7 +22,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly trigger: {
-            readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+            readonly type: import("vue").PropType<import("..").FloatingTriggerProp>;
             readonly default: "click";
             readonly validator: (value: unknown) => boolean;
         };
@@ -102,7 +102,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly defaultOpen: boolean;
         readonly autoAdjustOverflow: boolean;
         readonly destroyOnHidden: boolean;
-        readonly trigger: import("../utils/floating").FloatingTriggerProp;
+        readonly trigger: import("..").FloatingTriggerProp;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly destroyTooltipOnHide: boolean;
@@ -139,7 +139,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly default: true;
         };
         readonly trigger: {
-            readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+            readonly type: import("vue").PropType<import("..").FloatingTriggerProp>;
             readonly default: "click";
             readonly validator: (value: unknown) => boolean;
         };
@@ -213,7 +213,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly defaultOpen: boolean;
         readonly autoAdjustOverflow: boolean;
         readonly destroyOnHidden: boolean;
-        readonly trigger: import("../utils/floating").FloatingTriggerProp;
+        readonly trigger: import("..").FloatingTriggerProp;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly destroyTooltipOnHide: boolean;
@@ -247,7 +247,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly default: true;
     };
     readonly trigger: {
-        readonly type: import("vue").PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: import("vue").PropType<import("..").FloatingTriggerProp>;
         readonly default: "click";
         readonly validator: (value: unknown) => boolean;
     };
@@ -327,7 +327,7 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
-    readonly trigger: import("../utils/floating").FloatingTriggerProp;
+    readonly trigger: import("..").FloatingTriggerProp;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyTooltipOnHide: boolean;

@@ -1,6 +1,6 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { ButtonProps } from '../button/types';
-import { type FloatingPlacement, type FloatingTriggerProp } from '../utils/floating';
+import { type FloatingPlacement, type FloatingTriggerProp } from '../utils/floating-core';
 export type PopconfirmButtonProps = Partial<ButtonProps>;
 export type PopconfirmRenderable = VNodeChild;
 export type PopconfirmRenderableFactory = () => VNodeChild;

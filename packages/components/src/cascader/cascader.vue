@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import AIcon from '../icon/icon.vue'
-import type { FloatingPlacement } from '../utils/floating'
+import type { FloatingPlacement } from '../utils/floating-core'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'

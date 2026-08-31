@@ -1,5 +1,5 @@
 import type { TreeKey, TreeNodeData } from '../tree';
-import type { FloatingPlacement } from '../utils/floating';
+import type { FloatingPlacement } from '../utils/floating-core';
 type TreeSelectValue = TreeKey | TreeKey[] | undefined;
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     treeData?: TreeNodeData[] | undefined;

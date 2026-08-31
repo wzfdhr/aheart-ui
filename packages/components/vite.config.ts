@@ -88,19 +88,20 @@ export default defineConfig(
             rollupOptions: {
                 //忽略打包vue文件
                 external: ['vue', '@floating-ui/dom', '@lucide/vue', 'dayjs', /^dayjs\//],
-                input: [
-                    'src/index.ts',
-                    'src/message/index.ts',
-                    'src/utils/use-floating-position.ts',
-                    'src/picker-core/index.ts',
-                    'src/date-picker/date-utils.ts'
-                ],
+                input: {
+                    index: 'src/index.ts',
+                    'message/index': 'src/message/index.ts',
+                    'utils/floating': 'src/utils/floating.ts',
+                    'picker-core/index': 'src/picker-core/index.ts',
+                    'date-picker/date-utils': 'src/date-picker/date-utils.ts'
+                },
                 output: [
                     {
                         format: 'es',
                         exports: 'named',
                         //不用打包成.es.js,这里我们想把它打包成.js
                         entryFileNames: '[name].js',
+                        chunkFileNames: '[name].js',
                         //让打包目录和我们目录对应
                         preserveModules: true,
                         //配置打包根目录
@@ -111,6 +112,7 @@ export default defineConfig(
                         format: 'cjs',
                         exports: 'named',
                         entryFileNames: '[name].js',
+                        chunkFileNames: '[name].js',
                         //让打包目录和我们目录对应
                         preserveModules: true,
                         //配置打包根目录

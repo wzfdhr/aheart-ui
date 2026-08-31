@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 const renderableProp = {
   type: null,
   default: void 0
@@ -11,7 +11,7 @@ const popoverProps = {
   placement: {
     type: String,
     default: "top",
-    validator: (value) => floating.floatingPlacements.includes(value)
+    validator: (value) => floatingCore.floatingPlacements.includes(value)
   },
   autoAdjustOverflow: {
     type: Boolean,
@@ -20,7 +20,7 @@ const popoverProps = {
   trigger: {
     type: [String, Array],
     default: "hover",
-    validator: floating.isFloatingTriggerProp
+    validator: floatingCore.isFloatingTriggerProp
   },
   open: {
     type: Boolean,

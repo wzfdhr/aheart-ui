@@ -1,6 +1,6 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
-import { type FloatingPlacement } from '../utils/floating';
+import { type FloatingPlacement } from '../utils/floating-core';
 export type SelectStatus = 'error' | 'warning';
 export type SelectPrimitiveValue = string | number;
 export type SelectMode = 'multiple' | 'tags';

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 const datePickerProps = {
   id: String,
   labelledBy: String,
@@ -35,7 +35,7 @@ const datePickerProps = {
   placement: {
     type: String,
     default: "bottomLeft",
-    validator: (value) => floating.floatingPlacements.includes(value)
+    validator: (value) => floatingCore.floatingPlacements.includes(value)
   },
   autoAdjustOverflow: { type: Boolean, default: true },
   getPopupContainer: Function,
@@ -87,7 +87,7 @@ const dateRangePickerProps = {
   placement: {
     type: String,
     default: "bottomLeft",
-    validator: (value) => floating.floatingPlacements.includes(value)
+    validator: (value) => floatingCore.floatingPlacements.includes(value)
   },
   autoAdjustOverflow: { type: Boolean, default: true },
   getPopupContainer: Function,

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 require("../utils/floating.css.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
@@ -44,7 +44,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     let mouseLeaveTimer;
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
-    const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
+    const normalizedTriggers = vue.computed(() => new Set(floatingCore.normalizeFloatingTriggers(props.trigger)));
     const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
     const hasContent = vue.computed(() => Boolean(slots.content) || hasRenderable(props.content));
     const hasPopupContent = vue.computed(() => hasTitle.value || hasContent.value);
@@ -105,7 +105,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     ]);
     const popupStyle = vue.computed(() => [
       floatingPosition.popupStyle.value,
-      floating.getFloatingPopupStyle(props.color, props.zIndex),
+      floatingCore.getFloatingPopupStyle(props.color, props.zIndex),
       props.overlayStyle,
       resolvedStyles.value.popup
     ]);
