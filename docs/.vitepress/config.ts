@@ -6,6 +6,7 @@ const githubLink = 'https://github.com/wzfdhr/aheart-ui'
 const zhComponentItems = getComponentSidebar('zh')
 
 export default defineConfig({
+  base: process.env.AHEART_DOCS_BASE || '/',
   title: 'Aheart UI',
   lang: 'zh-CN',
   description: '面向产品界面的 Vue 3 组件库',
