@@ -1,5 +1,8 @@
 name: CI
 
+env:
+  AHEART_EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
 permissions:
   contents: read
 
@@ -78,11 +81,11 @@ jobs:
         id: e2e
         run: pnpm test:e2e
 
-      - name: Upload End-to-End Failure Artifacts
-        if: ${{ failure() && steps.e2e.outcome == 'failure' }}
+      - name: Upload End-to-End Evidence
+        if: ${{ always() && steps.e2e.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-test-results-${{ github.run_id }}-${{ github.run_attempt }}
+          name: e2e-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             test-results/
             playwright-report/

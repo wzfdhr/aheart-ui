@@ -114,6 +114,184 @@ describe('Modal', () => {
 
     wrapper.unmount()
   })
+
+  it('moves focus into the modal during the post-render enter phase so Escape is immediately available', async () => {
+    const trigger = document.createElement('button')
+    document.body.append(trigger)
+    trigger.focus()
+
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: {
+        open: false,
+        title: 'Immediate keyboard modal'
+      }
+    })
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: true })
+      await nextTick()
+
+      expect(wrapper.find('.aheart-modal').classes()).toContain('is-enter')
+      expect(wrapper.find('[role="dialog"]').element.contains(document.activeElement)).toBe(true)
+
+      await wrapper.find('[role="dialog"]').trigger('keydown', { key: 'Escape' })
+      expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    } finally {
+      vi.useRealTimers()
+      wrapper.unmount()
+      trigger.remove()
+    }
+  })
+
+  it.each(['teleport', 'inline'] as const)(
+    'closes only the inner %s modal on Escape and restores its trigger',
+    async (mode) => {
+      const innerAfterClose = vi.fn()
+      const outerCloseRequest = vi.fn()
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const outerOpen = ref(false)
+            const innerOpen = ref(false)
+
+            return () => h('div', [
+              h('button', { class: 'outer-trigger', onClick: () => (outerOpen.value = true) }, 'Open outer'),
+              h(Modal, {
+                open: outerOpen.value,
+                title: 'Outer modal',
+                getContainer: false,
+                'onUpdate:open': (open: boolean) => {
+                  outerCloseRequest(open)
+                  outerOpen.value = open
+                }
+              }, {
+                default: () => [
+                  h('button', { class: 'inner-trigger', onClick: () => (innerOpen.value = true) }, 'Open inner'),
+                  h(Modal, {
+                    open: innerOpen.value,
+                    title: 'Inner modal',
+                    getContainer: mode === 'inline' ? false : () => document.body,
+                    onAfterClose: innerAfterClose,
+                    'onUpdate:open': (open: boolean) => (innerOpen.value = open)
+                  })
+                ]
+              })
+            ])
+          }
+        }),
+        {
+          attachTo: document.body,
+          global: { stubs: { Teleport: false } }
+        }
+      )
+
+      vi.useFakeTimers()
+      try {
+        await wrapper.get('.outer-trigger').trigger('click')
+        await nextTick()
+        await vi.advanceTimersByTimeAsync(181)
+        await nextTick()
+        const innerTrigger = wrapper.get('.inner-trigger').element as HTMLButtonElement
+        innerTrigger.focus()
+        await wrapper.get('.inner-trigger').trigger('click')
+        await nextTick()
+
+        const dialogs = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"]'))
+        const dialogTitle = (dialog: HTMLElement) => document
+          .getElementById(dialog.getAttribute('aria-labelledby') ?? '')
+          ?.textContent
+        const outerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Outer modal')
+        const innerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Inner modal')
+        expect(outerDialog).toBeTruthy()
+        expect(innerDialog).toBeTruthy()
+        expect(innerDialog!.closest('.aheart-modal')?.classList.contains('is-enter')).toBe(true)
+
+        innerTrigger.focus()
+        innerTrigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        await nextTick()
+
+        expect(outerCloseRequest).not.toHaveBeenCalled()
+        expect(outerDialog!.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(false)
+        expect(innerDialog!.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(true)
+
+        await vi.advanceTimersByTimeAsync(181)
+        await nextTick()
+        expect(getComputedStyle(outerDialog!.closest('.aheart-modal')!).display).not.toBe('none')
+        expect(getComputedStyle(innerDialog!.closest('.aheart-modal')!).display).toBe('none')
+        expect(document.activeElement).toBe(innerTrigger)
+        expect(innerAfterClose).toHaveBeenCalledTimes(1)
+      } finally {
+        vi.useRealTimers()
+        wrapper.unmount()
+      }
+    }
+  )
+
+  it('treats an initially open nested modal as topmost regardless of mounted hook order', async () => {
+    const innerAfterClose = vi.fn()
+    const outerCloseRequest = vi.fn()
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const outerOpen = ref(true)
+          const innerOpen = ref(true)
+
+          return () => h(Modal, {
+            open: outerOpen.value,
+            title: 'Initially open outer',
+            getContainer: false,
+            'onUpdate:open': (open: boolean) => {
+              outerCloseRequest(open)
+              outerOpen.value = open
+            }
+          }, {
+            default: () => h(Modal, {
+              open: innerOpen.value,
+              title: 'Initially open inner',
+              getContainer: false,
+              onAfterClose: innerAfterClose,
+              'onUpdate:open': (open: boolean) => (innerOpen.value = open)
+            })
+          })
+        }
+      }),
+      {
+        attachTo: document.body,
+        global: { stubs: { Teleport: false } }
+      }
+    )
+
+    vi.useFakeTimers()
+    try {
+      await nextTick()
+      const dialogs = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"]'))
+      const dialogTitle = (dialog: HTMLElement) => document
+        .getElementById(dialog.getAttribute('aria-labelledby') ?? '')
+        ?.textContent
+      const outerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Initially open outer')!
+      const innerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Initially open inner')!
+
+      expect(innerDialog.contains(document.activeElement)).toBe(true)
+      document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      await nextTick()
+
+      expect(outerCloseRequest).not.toHaveBeenCalled()
+      expect(outerDialog.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(false)
+      expect(innerDialog.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
+      expect(innerAfterClose).toHaveBeenCalledTimes(1)
+      expect(getComputedStyle(outerDialog.closest('.aheart-modal')!).display).not.toBe('none')
+      expect(getComputedStyle(innerDialog.closest('.aheart-modal')!).display).toBe('none')
+    } finally {
+      vi.useRealTimers()
+      wrapper.unmount()
+    }
+  })
+
   it('renders title content footer centered state and width when open', () => {
     const wrapper = mountModal({
       props: { open: true, title: 'Edit profile', centered: true, width: 480 },
@@ -534,6 +712,7 @@ describe('Modal', () => {
     })
 
     await wrapper.setProps({ open: true })
+    await nextTick()
     const outside = document.createElement('button')
     document.body.append(outside)
     outside.focus()
@@ -576,6 +755,7 @@ describe('Modal', () => {
     })
 
     await wrapper.setProps({ open: true })
+    await nextTick()
     outside.focus()
     vi.useFakeTimers()
     try {
@@ -611,6 +791,7 @@ describe('Modal', () => {
     })
 
     await wrapper.setProps({ open: true })
+    await nextTick()
     outside.focus()
     vi.useFakeTimers()
     try {

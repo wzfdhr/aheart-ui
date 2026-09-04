@@ -57,6 +57,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const listId = ref();
     const disabled = computed(() => props.disabled);
     const root = ref();
+    const getItemKey = (item) => String(item[props.itemKey]);
     const updateItems = (items) => {
       const nextItems = items;
       emit("update:items", nextItems);
@@ -136,7 +137,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(__props.items, (item, index) => {
           return openBlock(), createBlock(_sfc_main$1, {
-            key: String(item[__props.itemKey]),
+            key: getItemKey(item),
             item,
             index
           }, {

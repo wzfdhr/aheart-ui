@@ -56,7 +56,7 @@ const announceLiveRegion = (ownerDocument: Document, announcement: string) => {
     :data-aheart-sortable-disabled="disabled ? 'true' : undefined"
     role="list"
   >
-    <SortableItem v-for="(item, index) in items" :key="String(item[itemKey])" :item="item" :index="index">
+    <SortableItem v-for="(item, index) in items" :key="getItemKey(item)" :item="item" :index="index">
       <template #default="slotProps">
         <slot
           name="item"
@@ -67,7 +67,7 @@ const announceLiveRegion = (ownerDocument: Document, announcement: string) => {
   </ul>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TItem extends object = Record<string, unknown>">
 import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
 import SortableItem from './sortable-item.vue'
 import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
@@ -77,30 +77,31 @@ import { registerSortableAutoScroll } from './sortable-auto-scroll'
 
 defineOptions({ name: 'ASortableList' })
 type SortableListItemSlotProps = {
-  item: Record<string, unknown>
+  item: TItem
   index: number
   handleProps: SortableHandleProps
 }
 defineSlots<{
-  item?: (props: { item: Record<string, unknown>; index: number; handleProps: SortableHandleProps }) => unknown
+  item?: (props: SortableListItemSlotProps) => unknown
 }>()
 
 const props = withDefaults(defineProps<{
-  items: Record<string, unknown>[]
+  items: TItem[]
   itemKey: string
   group?: string
   disabled?: boolean
 }>(), { disabled: false })
 const emit = defineEmits<{
-  'update:items': [items: Record<string, unknown>[]]
-  change: [items: Record<string, unknown>[]]
+  'update:items': [items: TItem[]]
+  change: [items: TItem[]]
 }>()
 
 const listId = ref<string>()
 const disabled = computed(() => props.disabled)
 const root = ref<HTMLElement>()
+const getItemKey = (item: TItem) => String((item as Record<string, unknown>)[props.itemKey])
 const updateItems = (items: unknown[]) => {
-  const nextItems = items as Record<string, unknown>[]
+  const nextItems = items as TItem[]
   emit('update:items', nextItems)
   emit('change', nextItems)
 }

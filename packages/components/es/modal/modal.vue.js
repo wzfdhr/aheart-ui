@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, nextTick, onMounted, openBlock, createBlock, Teleport, unref, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, withModifiers, createVNode, withCtx, renderSlot, vShow, h } from "vue";
+import { defineComponent, useSlots, getCurrentInstance, ref, computed, watch, nextTick, onBeforeMount, onMounted, onBeforeUnmount, openBlock, createBlock, Teleport, unref, withDirectives, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createElementVNode, withModifiers, createVNode, withCtx, renderSlot, vShow, h } from "vue";
 import Button from "../button/index.js";
 import Skeleton from "../skeleton/index.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
@@ -9,6 +9,19 @@ import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];
 const _hoisted_3 = ["disabled", "aria-label"];
+const openModalStack = [];
+const registerOpenModal = (id) => {
+  const previousIndex = openModalStack.indexOf(id);
+  if (previousIndex >= 0)
+    openModalStack.splice(previousIndex, 1);
+  openModalStack.push(id);
+};
+const unregisterOpenModal = (id) => {
+  const index = openModalStack.indexOf(id);
+  if (index >= 0)
+    openModalStack.splice(index, 1);
+};
+const isTopmostOpenModal = (id) => openModalStack[openModalStack.length - 1] === id;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AModal"
@@ -39,6 +52,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const triggerElement = ref(null);
     const dialogRef = ref(null);
     const leaveFocusElement = ref(null);
+    const modalStackId = Symbol("aheart-modal");
     const titleId = `aheart-modal-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
     let pendingCloseCompletion = false;
     const AModalRenderNode = defineComponent({
@@ -263,6 +277,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       (open, previousOpen) => {
         var _a;
         if (open && !previousOpen) {
+          registerOpenModal(modalStackId);
           pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
@@ -270,6 +285,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           emit("afterOpenChange", true);
         }
         if (!open) {
+          unregisterOpenModal(modalStackId);
           pendingCloseCompletion = true;
           const activeElement = document.activeElement;
           leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
@@ -283,10 +299,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       { flush: "sync" }
     );
     watch(
+      () => props.open,
+      (open) => {
+        if (open && isTopmostOpenModal(modalStackId))
+          focusDialog();
+      },
+      { flush: "post" }
+    );
+    watch(
       () => motion.phase.value,
       (phase) => {
         var _a, _b;
-        if (phase === "entered" && props.open) {
+        if (phase === "entered" && props.open && isTopmostOpenModal(modalStackId)) {
           void nextTick(() => focusDialog());
           return;
         }
@@ -343,12 +367,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const target = getFocusableElements()[0] ?? dialog;
       target == null ? void 0 : target.focus();
     };
+    onBeforeMount(() => {
+      if (props.open)
+        registerOpenModal(modalStackId);
+    });
     onMounted(() => {
-      if (!props.open) {
+      document.addEventListener("keydown", handleEnteringKeydown);
+      if (!props.open || !isTopmostOpenModal(modalStackId)) {
         return;
       }
       captureTriggerElement();
       focusDialog();
+    });
+    onBeforeUnmount(() => {
+      document.removeEventListener("keydown", handleEnteringKeydown);
+      unregisterOpenModal(modalStackId);
     });
     const handleTrapTab = (event) => {
       if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
@@ -401,9 +434,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         close();
       }
     };
+    const handleEnteringKeydown = (event) => {
+      if (!props.open || !props.keyboard || event.key !== "Escape" || motion.phase.value !== "enter" || document.activeElement !== triggerElement.value || !isTopmostOpenModal(modalStackId)) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+    };
     const handleKeydown = (event) => {
       handleTrapTab(event);
-      if (props.keyboard && event.key === "Escape") {
+      if (props.keyboard && event.key === "Escape" && isTopmostOpenModal(modalStackId)) {
+        event.preventDefault();
+        event.stopPropagation();
         close();
       }
     };

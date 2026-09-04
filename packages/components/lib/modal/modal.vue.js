@@ -11,6 +11,19 @@ const context = require("../config/context.js");
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];
 const _hoisted_3 = ["disabled", "aria-label"];
+const openModalStack = [];
+const registerOpenModal = (id) => {
+  const previousIndex = openModalStack.indexOf(id);
+  if (previousIndex >= 0)
+    openModalStack.splice(previousIndex, 1);
+  openModalStack.push(id);
+};
+const unregisterOpenModal = (id) => {
+  const index2 = openModalStack.indexOf(id);
+  if (index2 >= 0)
+    openModalStack.splice(index2, 1);
+};
+const isTopmostOpenModal = (id) => openModalStack[openModalStack.length - 1] === id;
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AModal"
@@ -41,6 +54,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const triggerElement = vue.ref(null);
     const dialogRef = vue.ref(null);
     const leaveFocusElement = vue.ref(null);
+    const modalStackId = Symbol("aheart-modal");
     const titleId = `aheart-modal-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
     let pendingCloseCompletion = false;
     const AModalRenderNode = vue.defineComponent({
@@ -265,6 +279,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       (open, previousOpen) => {
         var _a;
         if (open && !previousOpen) {
+          registerOpenModal(modalStackId);
           pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
@@ -272,6 +287,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           emit("afterOpenChange", true);
         }
         if (!open) {
+          unregisterOpenModal(modalStackId);
           pendingCloseCompletion = true;
           const activeElement = document.activeElement;
           leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
@@ -285,10 +301,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       { flush: "sync" }
     );
     vue.watch(
+      () => props.open,
+      (open) => {
+        if (open && isTopmostOpenModal(modalStackId))
+          focusDialog();
+      },
+      { flush: "post" }
+    );
+    vue.watch(
       () => motion.phase.value,
       (phase) => {
         var _a, _b;
-        if (phase === "entered" && props.open) {
+        if (phase === "entered" && props.open && isTopmostOpenModal(modalStackId)) {
           void vue.nextTick(() => focusDialog());
           return;
         }
@@ -345,12 +369,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const target = getFocusableElements()[0] ?? dialog;
       target == null ? void 0 : target.focus();
     };
+    vue.onBeforeMount(() => {
+      if (props.open)
+        registerOpenModal(modalStackId);
+    });
     vue.onMounted(() => {
-      if (!props.open) {
+      document.addEventListener("keydown", handleEnteringKeydown);
+      if (!props.open || !isTopmostOpenModal(modalStackId)) {
         return;
       }
       captureTriggerElement();
       focusDialog();
+    });
+    vue.onBeforeUnmount(() => {
+      document.removeEventListener("keydown", handleEnteringKeydown);
+      unregisterOpenModal(modalStackId);
     });
     const handleTrapTab = (event) => {
       if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
@@ -403,9 +436,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         close();
       }
     };
+    const handleEnteringKeydown = (event) => {
+      if (!props.open || !props.keyboard || event.key !== "Escape" || motion.phase.value !== "enter" || document.activeElement !== triggerElement.value || !isTopmostOpenModal(modalStackId)) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+    };
     const handleKeydown = (event) => {
       handleTrapTab(event);
-      if (props.keyboard && event.key === "Escape") {
+      if (props.keyboard && event.key === "Escape" && isTopmostOpenModal(modalStackId)) {
+        event.preventDefault();
+        event.stopPropagation();
         close();
       }
     };

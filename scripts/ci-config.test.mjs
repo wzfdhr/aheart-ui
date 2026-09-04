@@ -79,16 +79,16 @@ test('keeps the quality plan entry point aligned with the four-role gate', () =>
   assert.match(executionRequirement, /产品经理/)
 })
 
-test('uploads uniquely named e2e artifacts only when end-to-end tests fail', () => {
+test('retains uniquely named e2e evidence for successful and failed runs', () => {
   const e2eStep = getStep('End-to-End Tests')
-  const uploadStep = getStep('Upload End-to-End Failure Artifacts')
+  const uploadStep = getStep('Upload End-to-End Evidence')
 
   assert.ok(e2eStep, 'End-to-End Tests step is missing')
-  assert.ok(uploadStep, 'Upload End-to-End Failure Artifacts step is missing')
+  assert.ok(uploadStep, 'Upload End-to-End Evidence step is missing')
   assert.match(e2eStep, /\n        id: e2e\n/)
   assert.match(
     uploadStep,
-    /\n        if: \$\{\{ failure\(\) && steps\.e2e\.outcome == 'failure' \}\}\n/
+    /\n        if: \$\{\{ always\(\) && steps\.e2e\.outcome != 'skipped' \}\}\n/
   )
   assert.match(uploadStep, /\n        uses: actions\/upload-artifact@v4\n/)
 
