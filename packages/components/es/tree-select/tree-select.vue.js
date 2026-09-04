@@ -1,10 +1,11 @@
-import { defineComponent, useAttrs, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
+import { defineComponent, useAttrs, ref, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import Tree from "../tree/index.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import "./style.css.js";
 const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby"];
@@ -53,14 +54,30 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const panelRef = ref(null);
-    const innerOpen = ref(props.defaultOpen);
     const searchText = ref("");
-    const innerValue = ref(props.defaultValue);
     const isControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
-    const mergedOpen = computed(() => isOpenControlled.value ? props.open : innerOpen.value);
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
-    const mergedValue = computed(() => isControlled.value ? props.modelValue : innerValue.value);
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => {
+        const nextOpen = Boolean(open);
+        emit("openChange", nextOpen);
+      }
+    });
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => {
+        emit("update:modelValue", value);
+        emit("change", value);
+      }
+    });
+    const mergedOpen = computed(() => Boolean(openState.state.value));
+    const mergedValue = valueState.state;
     const selectedKeys = computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === void 0 ? [] : [mergedValue.value]);
     const flattenNodes = (nodes) => nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])]);
     const displayLabel = computed(() => selectedKeys.value.map((key) => {
@@ -96,15 +113,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const requestOpen = (open) => {
       if (props.disabled)
         return;
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
     };
     const emitValue = (value) => {
-      if (!isControlled.value)
-        innerValue.value = value;
-      emit("update:modelValue", value);
-      emit("change", value);
+      valueState.setState(value, { force: true });
     };
     const handleSelect = (keys) => {
       const value = props.multiple ? keys : keys[0];
@@ -173,10 +185,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       trigger: triggerRef,
       floating: panelRef,
       onDismiss: () => requestOpen(false)
-    });
-    watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {

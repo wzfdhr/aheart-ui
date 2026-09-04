@@ -172,6 +172,18 @@ describe('Select', () => {
     expect(wrapper.get('.aheart-select__value').text()).toBe('Apple')
   })
 
+  it('uses default props only for initialization', async () => {
+    const wrapper = mountSelect({ props: { options, defaultValue: 'banana', defaultOpen: true } })
+    await wrapper.findAll('[role="option"]')[0].trigger('click')
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Apple')
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('false')
+
+    await wrapper.setProps({ defaultValue: 'banana', defaultOpen: false })
+    await wrapper.setProps({ defaultOpen: true })
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Apple')
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('false')
+  })
+
   it('emits focus and blur and exposes imperative focus methods', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)

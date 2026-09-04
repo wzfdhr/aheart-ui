@@ -4,6 +4,7 @@ import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import "./style.css.js";
 const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled"];
@@ -60,16 +61,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const triggerRef = ref(null);
     const panelRef = ref(null);
     const columnsRef = ref(null);
-    const innerOpen = ref(props.defaultOpen);
     const searchText = ref("");
     const activePath = ref([]);
     const loadingPaths = ref([]);
     const innerOptions = ref(cloneOptions(props.options));
-    const innerValue = ref(props.defaultValue);
     const isControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
-    const mergedOpen = computed(() => isOpenControlled.value ? props.open : innerOpen.value);
-    const mergedValue = computed(() => isControlled.value ? props.modelValue : innerValue.value);
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => {
+        const nextOpen = Boolean(open);
+        emit("openChange", nextOpen);
+      }
+    });
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => {
+        emit("update:modelValue", value);
+        emit("change", value);
+      }
+    });
+    const mergedOpen = computed(() => Boolean(openState.state.value));
+    const mergedValue = valueState.state;
     const selectedPaths = computed(() => {
       if (props.multiple) {
         return Array.isArray(mergedValue.value) && mergedValue.value.every(Array.isArray) ? mergedValue.value : [];
@@ -153,16 +170,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const requestOpen = (open) => {
       if (props.disabled)
         return;
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
     };
     const toggleOpen = () => requestOpen(!mergedOpen.value);
     const emitValue = (value) => {
-      if (!isControlled.value)
-        innerValue.value = value;
-      emit("update:modelValue", value);
-      emit("change", value);
+      valueState.setState(value, { force: true });
     };
     const clearValue = () => {
       emitValue(props.multiple ? [] : void 0);
@@ -286,10 +298,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       trigger: triggerRef,
       floating: panelRef,
       onDismiss: () => requestOpen(false)
-    });
-    watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {

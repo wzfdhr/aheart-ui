@@ -9,7 +9,9 @@ const selection = require("../picker-core/selection.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
@@ -80,8 +82,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const panelRef = vue.ref(null);
     const startInputRef = vue.ref(null);
     const endInputRef = vue.ref(null);
-    const internalValue = vue.ref(props.defaultValue ? [...props.defaultValue] : void 0);
-    const internalOpen = vue.ref(props.defaultOpen);
     const draftValue = vue.ref();
     const activePart = vue.ref("start");
     const activeKeyboardDate = vue.ref();
@@ -91,10 +91,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const inputTexts = vue.ref(["", ""]);
     const nowDate = vue.ref();
     const rangeParts = ["start", "end"];
-    const panelId = `aheart-date-range-picker-${vue.useId().replace(/:/g, "")}-panel`;
+    const panelId = `${useStableId.useStableId(void 0, "aheart-date-range-picker").value}-panel`;
     const isValueControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const isPanelControlled = usePropPresence.usePropPresence("pickerValue", "picker-value");
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue ? [...props.defaultValue] : void 0,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = vue.defineComponent({
       name: "ADateRangePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -106,8 +118,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         };
       }
     });
-    const mergedValue = vue.computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = vue.computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const effectiveShowTime = vue.computed(() => Boolean(props.showTime) && props.picker === "date");
     const showTimeOptions = vue.computed(() => typeof props.showTime === "object" ? props.showTime : {});
     const effectiveNeedConfirm = vue.computed(() => props.needConfirm ?? effectiveShowTime.value);
@@ -313,9 +325,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open, restoreFocus = false) => {
       if (open && (isDisabled.value || props.readOnly))
         return;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (!open && restoreFocus)
         void vue.nextTick(() => {
           var _a;
@@ -471,9 +481,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const commitValue = (value, close = true) => {
       const normalized = selection.normalizeRangeValue(value, resolvedValueFormat.value, props.order, props.allowEmpty) ?? value;
-      if (!isValueControlled.value)
-        internalValue.value = normalized ? [...normalized] : void 0;
-      emit("update:modelValue", normalized);
+      valueState.setState(normalized ? [...normalized] : void 0, { force: true });
       emit("change", normalized);
       if (isValueControlled.value)
         void vue.nextTick(syncInputs);
@@ -671,7 +679,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onChange: _cache[2] || (_cache[2] = ($event) => commitInput("start")),
               onKeydown: handleInputKeydown
             }, null, 40, _hoisted_2),
-            _ctx.allowClear && ((_a = mergedValue.value) == null ? void 0 : _a[0]) && _ctx.allowEmpty[0] && !isDisabled.value && !_ctx.readOnly ? (vue.openBlock(), vue.createElementBlock("button", {
+            _ctx.allowClear && ((_a = vue.unref(mergedValue)) == null ? void 0 : _a[0]) && _ctx.allowEmpty[0] && !isDisabled.value && !_ctx.readOnly ? (vue.openBlock(), vue.createElementBlock("button", {
               key: 0,
               "data-range-clear": "start",
               type: "button",
@@ -721,7 +729,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onChange: _cache[6] || (_cache[6] = ($event) => commitInput("end")),
               onKeydown: handleInputKeydown
             }, null, 40, _hoisted_5),
-            _ctx.allowClear && ((_b = mergedValue.value) == null ? void 0 : _b[1]) && _ctx.allowEmpty[1] && !isDisabled.value && !_ctx.readOnly ? (vue.openBlock(), vue.createElementBlock("button", {
+            _ctx.allowClear && ((_b = vue.unref(mergedValue)) == null ? void 0 : _b[1]) && _ctx.allowEmpty[1] && !isDisabled.value && !_ctx.readOnly ? (vue.openBlock(), vue.createElementBlock("button", {
               key: 0,
               "data-range-clear": "end",
               type: "button",

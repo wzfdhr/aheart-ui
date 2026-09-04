@@ -119,14 +119,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useAttrs, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, type PickerTimeParts } from '../picker-core/time'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timePickerEmits, timePickerProps, type DisabledTimeConfig } from './types'
 import './style.css'
@@ -151,13 +153,23 @@ const minuteColumnRef = ref<HTMLElement | null>(null)
 const secondColumnRef = ref<HTMLElement | null>(null)
 const periodColumnRef = ref<HTMLElement | null>(null)
 const activeColumn = ref<TimeColumn>('hour')
-const internalValue = ref(props.defaultValue)
-const internalOpen = ref(props.defaultOpen)
-const instanceId = useId().replace(/:/g, '')
-const panelId = `aheart-time-${instanceId}-panel`
+const instanceId = useStableId(undefined, 'aheart-time').value
+const panelId = `${instanceId}-panel`
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isFormatProvided = usePropPresence('format')
+const valueState = useControllableState<string>({
+  controlled: () => props.modelValue,
+  isControlled: isValueControlled,
+  defaultValue: () => props.defaultValue,
+  onChange: (value) => emit('update:modelValue', value)
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
 const ARenderNode = defineComponent({
   name: 'ATimePickerRenderNode',
   props: { node: { type: null as unknown as PropType<VNodeChild | Component>, default: undefined } },
@@ -169,8 +181,8 @@ const ARenderNode = defineComponent({
     }
   }
 })
-const mergedValue = computed(() => isValueControlled.value ? props.modelValue : internalValue.value)
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const mergedValue = valueState.state
+const mergedOpen = computed(() => Boolean(openState.state.value))
 const resolvedLocale = computed(() => ({ ...zhCN.timePicker, ...config.value.locale?.timePicker }) as Required<NonNullable<typeof zhCN.timePicker>>)
 const resolvedPlaceholder = computed(() => props.placeholder ?? resolvedLocale.value.selectTime)
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -299,8 +311,7 @@ const scrollSelectedOptionsIntoView = () => {
 }
 const requestOpen = (open: boolean) => {
   if (open && isInteractionDisabled.value) return
-  if (!isOpenControlled.value) internalOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
   if (open) {
     syncDraft()
     activeColumn.value = 'hour'
@@ -309,8 +320,7 @@ const requestOpen = (open: boolean) => {
 const commitValue = (parts: TimeParts, close = true) => {
   if (isInteractionDisabled.value || isPartsDisabled(parts)) return false
   const value = formatTime(parts, props.valueFormat)
-  if (!isValueControlled.value) internalValue.value = value
-  emit('update:modelValue', value)
+  valueState.setState(value, { force: true })
   emit('change', value)
   if (isValueControlled.value && !props.needConfirm) syncDraft()
   if (close) requestOpen(false)
@@ -353,8 +363,7 @@ const selectNow = () => {
 }
 const clearValue = () => {
   if (isInteractionDisabled.value) return
-  if (!isValueControlled.value) internalValue.value = undefined
-  emit('update:modelValue', undefined)
+  valueState.setState(undefined, { force: true })
   emit('change', undefined)
   emit('clear')
   requestOpen(false)
@@ -458,7 +467,4 @@ watch(mergedValue, syncDraft)
 watch(mergedOpen, (open) => {
   if (open) void nextTick(scrollSelectedOptionsIntoView)
 }, { immediate: true })
-watch(() => props.defaultOpen, (open) => {
-  if (!isOpenControlled.value) internalOpen.value = open
-})
 </script>

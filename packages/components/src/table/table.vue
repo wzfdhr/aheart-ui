@@ -122,9 +122,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, useId, watch, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import APagination from '../pagination'
+import { useControllableState } from '../utils/use-controllable-state'
+import { useStableId } from '../utils/use-stable-id'
 import {
   tableEmits,
   tableProps,
@@ -171,14 +173,31 @@ interface InternalSortState {
   order?: TableSortOrder
 }
 
-const innerSelectedRowKeys = ref<TableKey[]>(props.rowSelection?.defaultSelectedRowKeys ?? [])
-const innerExpandedRowKeys = ref<TableKey[]>(props.expandable?.defaultExpandedRowKeys ?? [])
-const innerCurrent = ref(props.pagination && typeof props.pagination === 'object' ? (props.pagination.defaultCurrent ?? props.pagination.current ?? 1) : 1)
+const hasOwn = (value: object | undefined, key: string) => Boolean(value && Object.prototype.hasOwnProperty.call(value, key))
+const selectedState = useControllableState<TableKey[]>({
+  controlled: () => props.rowSelection?.selectedRowKeys,
+  isControlled: () => hasOwn(props.rowSelection, 'selectedRowKeys'),
+  defaultValue: () => [...(props.rowSelection?.defaultSelectedRowKeys ?? [])],
+  onChange: (keys) => emit('update:selectedRowKeys', keys ?? [])
+})
+const expandedState = useControllableState<TableKey[]>({
+  controlled: () => props.expandable?.expandedRowKeys,
+  isControlled: () => hasOwn(props.expandable, 'expandedRowKeys'),
+  defaultValue: () => [...(props.expandable?.defaultExpandedRowKeys ?? [])],
+  onChange: (keys) => emit('update:expandedRowKeys', keys ?? [])
+})
+const currentState = useControllableState<number>({
+  controlled: () => props.pagination && typeof props.pagination === 'object' ? props.pagination.current : undefined,
+  isControlled: () => Boolean(props.pagination && typeof props.pagination === 'object' && hasOwn(props.pagination, 'current')),
+  defaultValue: () => props.pagination && typeof props.pagination === 'object'
+    ? props.pagination.defaultCurrent ?? props.pagination.current ?? 1
+    : 1
+})
 const innerSort = ref<InternalSortState>({})
 const innerFilters = ref<TableFilters>({})
 const hasInitializedSort = ref(false)
 const initializedFilterKeys = ref(new Set<string>())
-const radioName = `aheart-table-selection-${useId().replace(/[^a-zA-Z0-9_-]/g, '-')}`
+const radioName = useStableId(undefined, 'aheart-table-selection').value
 
 const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden))
 const normalizedData = computed(() => props.dataSource ?? [])
@@ -188,8 +207,8 @@ const hasSelection = computed(() => Boolean(props.rowSelection))
 const hasExpandable = computed(() => Boolean(props.expandable?.expandedRowRender))
 const selectionType = computed(() => props.rowSelection?.type ?? 'checkbox')
 const isSelectionDisabled = computed(() => isDisabled.value || Boolean(props.rowSelection?.disabled))
-const selectedKeys = computed(() => props.rowSelection?.selectedRowKeys ?? innerSelectedRowKeys.value)
-const expandedKeys = computed(() => props.expandable?.expandedRowKeys ?? innerExpandedRowKeys.value)
+const selectedKeys = computed(() => selectedState.state.value ?? [])
+const expandedKeys = computed(() => expandedState.state.value ?? [])
 const resolvedEmptyText = computed<TableRenderable>(() =>
   hasRenderableContent(props.emptyText)
     ? props.emptyText
@@ -202,7 +221,7 @@ const pageSize = computed(() => {
   const value = paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10
   return Number.isFinite(value) && value > 0 ? Math.max(1, Math.trunc(value)) : 1
 })
-const rawCurrentPage = computed(() => paginationConfig.value.current ?? innerCurrent.value)
+const rawCurrentPage = computed(() => currentState.state.value ?? 1)
 const paginationTotal = computed(() => paginationConfig.value.total ?? sortedData.value.length)
 const pageCount = computed(() => Math.max(1, Math.ceil(Math.max(0, paginationTotal.value) / pageSize.value)))
 const currentPage = computed(() => Math.min(Math.max(rawCurrentPage.value, 1), pageCount.value))
@@ -272,15 +291,6 @@ const pagedRows = computed(() => {
 })
 
 watch(
-  () => props.rowSelection?.defaultSelectedRowKeys,
-  (keys) => {
-    if (!props.rowSelection?.selectedRowKeys && keys) {
-      innerSelectedRowKeys.value = keys
-    }
-  }
-)
-
-watch(
   normalizedColumns,
   (columns) => {
     if (!hasInitializedSort.value) {
@@ -322,8 +332,8 @@ watch(
 )
 
 watch(pageCount, (count) => {
-  if (paginationConfig.value.current === undefined && innerCurrent.value > count) {
-    innerCurrent.value = count
+  if (!currentState.isControlled.value && (currentState.state.value ?? 1) > count) {
+    currentState.setState(count)
   }
 })
 
@@ -523,9 +533,7 @@ const toggleFilter = (column: TableColumn, value: TableFilterValue) => {
 }
 
 const resetInnerCurrent = () => {
-  if (paginationConfig.value.current === undefined) {
-    innerCurrent.value = 1
-  }
+  currentState.setState(1)
 }
 
 const isSelected = (key: TableKey) => selectedKeys.value.includes(key)
@@ -543,11 +551,7 @@ const toggleSelection = (record: TableRecord, key: TableKey, checked: boolean) =
       ? Array.from(new Set([...selectedKeys.value, key]))
       : selectedKeys.value.filter((currentKey) => currentKey !== key)
 
-  if (props.rowSelection?.selectedRowKeys === undefined) {
-    innerSelectedRowKeys.value = nextKeys
-  }
-
-  emit('update:selectedRowKeys', nextKeys)
+  selectedState.setState(nextKeys)
   emit('select', key, checked, record, nextKeys)
 }
 
@@ -562,18 +566,12 @@ const toggleExpand = (record: TableRecord, key: TableKey) => {
   const nextExpanded = !isExpanded(key)
   const nextKeys = nextExpanded ? [...expandedKeys.value, key] : expandedKeys.value.filter((currentKey) => currentKey !== key)
 
-  if (props.expandable?.expandedRowKeys === undefined) {
-    innerExpandedRowKeys.value = nextKeys
-  }
-
-  emit('update:expandedRowKeys', nextKeys)
+  expandedState.setState(nextKeys)
   emit('expand', nextExpanded, record, key)
 }
 
 const handlePageChange = (current: number, nextPageSize: number) => {
-  if (paginationConfig.value.current === undefined) {
-    innerCurrent.value = current
-  }
+  currentState.setState(current)
 
   emitTableChange('paginate', current, nextPageSize, activeFilters.value, activeSort.value)
 }

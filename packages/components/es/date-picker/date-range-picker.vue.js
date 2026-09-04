@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, useId, isVNode, h, toRaw, computed, watch, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, mergeProps, createTextVNode, vShow } from "vue";
+import { defineComponent, useSlots, ref, isVNode, h, toRaw, computed, watch, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, mergeProps, createTextVNode, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createDateMatrix, isPickerDateDisabled } from "../picker-core/calendar.js";
 import { defaultValueFormat, normalizeFormats, parsePickerValue, formatPickerValue, comparePickerValues } from "../picker-core/codec.js";
@@ -7,7 +7,9 @@ import { normalizeRangeValue, advanceRangeSelection } from "../picker-core/selec
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { dateRangePickerProps, dateRangePickerEmits } from "./types.js";
 import "./style.css.js";
@@ -78,8 +80,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const panelRef = ref(null);
     const startInputRef = ref(null);
     const endInputRef = ref(null);
-    const internalValue = ref(props.defaultValue ? [...props.defaultValue] : void 0);
-    const internalOpen = ref(props.defaultOpen);
     const draftValue = ref();
     const activePart = ref("start");
     const activeKeyboardDate = ref();
@@ -89,10 +89,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const inputTexts = ref(["", ""]);
     const nowDate = ref();
     const rangeParts = ["start", "end"];
-    const panelId = `aheart-date-range-picker-${useId().replace(/:/g, "")}-panel`;
+    const panelId = `${useStableId(void 0, "aheart-date-range-picker").value}-panel`;
     const isValueControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const isPanelControlled = usePropPresence("pickerValue", "picker-value");
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue ? [...props.defaultValue] : void 0,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = defineComponent({
       name: "ADateRangePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -104,8 +116,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         };
       }
     });
-    const mergedValue = computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = computed(() => Boolean(openState.state.value));
     const effectiveShowTime = computed(() => Boolean(props.showTime) && props.picker === "date");
     const showTimeOptions = computed(() => typeof props.showTime === "object" ? props.showTime : {});
     const effectiveNeedConfirm = computed(() => props.needConfirm ?? effectiveShowTime.value);
@@ -311,9 +323,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const requestOpen = (open, restoreFocus = false) => {
       if (open && (isDisabled.value || props.readOnly))
         return;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (!open && restoreFocus)
         void nextTick(() => {
           var _a;
@@ -469,9 +479,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const commitValue = (value, close = true) => {
       const normalized = normalizeRangeValue(value, resolvedValueFormat.value, props.order, props.allowEmpty) ?? value;
-      if (!isValueControlled.value)
-        internalValue.value = normalized ? [...normalized] : void 0;
-      emit("update:modelValue", normalized);
+      valueState.setState(normalized ? [...normalized] : void 0, { force: true });
       emit("change", normalized);
       if (isValueControlled.value)
         void nextTick(syncInputs);
@@ -669,7 +677,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               onChange: _cache[2] || (_cache[2] = ($event) => commitInput("start")),
               onKeydown: handleInputKeydown
             }, null, 40, _hoisted_2),
-            _ctx.allowClear && ((_a = mergedValue.value) == null ? void 0 : _a[0]) && _ctx.allowEmpty[0] && !isDisabled.value && !_ctx.readOnly ? (openBlock(), createElementBlock("button", {
+            _ctx.allowClear && ((_a = unref(mergedValue)) == null ? void 0 : _a[0]) && _ctx.allowEmpty[0] && !isDisabled.value && !_ctx.readOnly ? (openBlock(), createElementBlock("button", {
               key: 0,
               "data-range-clear": "start",
               type: "button",
@@ -719,7 +727,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               onChange: _cache[6] || (_cache[6] = ($event) => commitInput("end")),
               onKeydown: handleInputKeydown
             }, null, 40, _hoisted_5),
-            _ctx.allowClear && ((_b = mergedValue.value) == null ? void 0 : _b[1]) && _ctx.allowEmpty[1] && !isDisabled.value && !_ctx.readOnly ? (openBlock(), createElementBlock("button", {
+            _ctx.allowClear && ((_b = unref(mergedValue)) == null ? void 0 : _b[1]) && _ctx.allowEmpty[1] && !isDisabled.value && !_ctx.readOnly ? (openBlock(), createElementBlock("button", {
               key: 0,
               "data-range-clear": "end",
               type: "button",

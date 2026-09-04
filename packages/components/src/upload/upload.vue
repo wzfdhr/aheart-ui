@@ -20,6 +20,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useAheartConfig } from '../config'
+import { useControllableState } from '../utils/use-controllable-state'
+import { usePropPresence } from '../utils/use-prop-presence'
 import type { UploadFile, UploadRequest } from './types'
 import './style.css'
 
@@ -48,21 +50,26 @@ const copy = computed(() => config.value.locale?.datePicker?.locale === 'en-US'
   ? { selectFile: 'Select file', upload: 'Upload', done: 'Done', failed: 'Failed', removeAction: 'Remove', remove: (name: string) => `Remove ${name}` }
   : { selectFile: '选择文件', upload: '上传', done: '已完成', failed: '上传失败', removeAction: '移除', remove: (name: string) => `移除 ${name}` })
 
-const internalFileList = ref<UploadFile[]>([...props.defaultFileList])
-const mergedFileList = computed(() => props.fileList ?? internalFileList.value)
+const isFileListControlled = usePropPresence('fileList', 'file-list')
+const fileListState = useControllableState<UploadFile[]>({
+  controlled: () => props.fileList,
+  isControlled: isFileListControlled,
+  defaultValue: () => [...props.defaultFileList],
+  onChange: (files) => emit('update:fileList', files ?? [])
+})
+const mergedFileList = computed(() => fileListState.state.value ?? [])
 const readyFiles = computed(() => mergedFileList.value.filter((file) => file.status === 'ready'))
 const latestFileList = ref<UploadFile[]>([...(props.fileList ?? props.defaultFileList)])
 let uid = 0
 const activeUploadUids = new Set<string>()
 
 watch(() => props.fileList, (fileList) => {
-  if (fileList !== undefined) latestFileList.value = [...fileList]
+  if (isFileListControlled.value) latestFileList.value = [...(fileList ?? [])]
 }, { deep: true })
 
 const updateFileList = (files: UploadFile[]) => {
   latestFileList.value = files
-  if (props.fileList === undefined) internalFileList.value = files
-  emit('update:fileList', files)
+  fileListState.setState(files)
   emit('change', files)
 }
 const replaceFile = (file: UploadFile) => {
@@ -118,14 +125,16 @@ const handleChange = async (event: Event) => {
   if (props.disabled) return
   const files = Array.from((event.target as HTMLInputElement).files ?? [])
   ;(event.target as HTMLInputElement).value = ''
-  let nextFiles = props.fileList === undefined ? latestFileList.value : [...props.fileList]
+  let nextFiles = isFileListControlled.value ? [...(props.fileList ?? [])] : latestFileList.value
   latestFileList.value = nextFiles
-  const remaining = Math.max(0, props.maxCount - nextFiles.length)
 
-  for (const rawFile of files.slice(0, remaining)) {
+  for (const rawFile of files) {
+    if (nextFiles.length >= props.maxCount) break
     const uploadFile = toUploadFile(rawFile)
     const shouldUpload = await props.beforeUpload?.(rawFile, [...nextFiles, uploadFile])
-    nextFiles = [...nextFiles, uploadFile]
+    const currentFiles = isFileListControlled.value ? [...(props.fileList ?? [])] : latestFileList.value
+    if (currentFiles.length >= props.maxCount) continue
+    nextFiles = [...currentFiles, uploadFile]
     updateFileList(nextFiles)
     if (shouldUpload !== false) nextFiles = await upload(uploadFile, nextFiles)
   }

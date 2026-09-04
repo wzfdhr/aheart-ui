@@ -1,10 +1,12 @@
-import { defineComponent, useSlots, ref, useId, isVNode, h, toRaw, computed, watch, onBeforeUnmount, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { defineComponent, useSlots, ref, isVNode, h, toRaw, computed, watch, onBeforeUnmount, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds } from "../picker-core/time.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { timeRangePickerProps, timeRangePickerEmits } from "./types.js";
 import "./style.css.js";
@@ -70,14 +72,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const minuteColumnRef = ref(null);
     const secondColumnRef = ref(null);
     const periodColumnRef = ref(null);
-    const internalValue = ref(props.defaultValue ? [...props.defaultValue] : void 0);
-    const internalOpen = ref(props.defaultOpen);
     const activePart = ref("start");
     const activeColumn = ref("hour");
     const draftValue = ref();
     const draftParts = ref([{ hour: 0, minute: 0, second: 0 }, { hour: 0, minute: 0, second: 0 }]);
     const liveMessage = ref("");
-    const panelId = `aheart-time-range-${useId().replace(/:/g, "")}-panel`;
+    const panelId = `${useStableId(void 0, "aheart-time-range").value}-panel`;
     const instanceId = panelId.replace("-panel", "");
     const partPanelId = `${instanceId}-part-panel`;
     const startTabId = `${instanceId}-start-tab`;
@@ -85,6 +85,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isValueControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const isFormatProvided = usePropPresence("format");
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue ? [...props.defaultValue] : void 0,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = defineComponent({
       name: "ATimeRangePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -96,8 +108,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         };
       }
     });
-    const mergedValue = computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = computed(() => Boolean(openState.state.value));
     const resolvedLocale = computed(() => {
       var _a;
       return { ...zhCN.timePicker, ...(_a = config.value.locale) == null ? void 0 : _a.timePicker };
@@ -268,9 +280,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (isInteractionDisabled.value)
         return false;
       if (!value) {
-        if (!isValueControlled.value)
-          internalValue.value = void 0;
-        emit("update:modelValue", void 0);
+        valueState.setState(void 0, { force: true });
         emit("change", void 0);
         if (close)
           requestOpen(false);
@@ -284,9 +294,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         if (parts && isPartsDisabled(parts, index === 0 ? "start" : "end"))
           return false;
       }
-      if (!isValueControlled.value)
-        internalValue.value = [...normalized];
-      emit("update:modelValue", normalized);
+      valueState.setState([...normalized], { force: true });
       emit("change", normalized);
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
@@ -405,9 +413,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (open && isInteractionDisabled.value)
         return;
       const wasOpen = mergedOpen.value;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open && !wasOpen)
         syncDraft();
     };

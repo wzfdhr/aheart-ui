@@ -61,6 +61,46 @@ describe('Upload', () => {
     expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
   })
 
+  it('treats an explicitly undefined fileList as controlled', async () => {
+    const wrapper = mount(Upload, { props: { fileList: undefined, defaultFileList: [{ uid: 'default', name: 'default.txt' }] } })
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('requested.txt')])
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'requested.txt' }])
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+  })
+
+  it('uses defaultFileList only for initialization', async () => {
+    const wrapper = mount(Upload, { props: { defaultFileList: [{ uid: 'first', name: 'first.txt' }] } })
+    await wrapper.find('.aheart-upload__remove').trigger('click')
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+
+    await wrapper.setProps({ defaultFileList: [{ uid: 'second', name: 'second.txt' }] })
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+  })
+
+  it('rebases an async beforeUpload result onto the latest controlled fileList', async () => {
+    let allowUpload: (() => void) | undefined
+    const beforeUpload = () => new Promise<boolean>((resolve) => {
+      allowUpload = () => resolve(false)
+    })
+    const wrapper = mount(Upload, {
+      props: {
+        fileList: [{ uid: 'owner-a', name: 'owner-a.txt' }],
+        beforeUpload
+      }
+    })
+
+    const change = selectFiles(wrapper.find('input[type="file"]'), [createFile('new.txt')])
+    await vi.waitFor(() => expect(allowUpload).toBeTypeOf('function'))
+    await wrapper.setProps({ fileList: [{ uid: 'owner-b', name: 'owner-b.txt' }] })
+    allowUpload?.()
+    await change
+
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0].map((file: { name: string }) => file.name))
+      .toEqual(['owner-b.txt', 'new.txt'])
+  })
+
   it('allows manual upload after beforeUpload returns false', async () => {
     const customRequest = vi.fn(async ({ onSuccess }: { onSuccess: (response?: unknown) => void }) => onSuccess())
     const wrapper = mount(Upload, { props: { beforeUpload: () => false, customRequest } })

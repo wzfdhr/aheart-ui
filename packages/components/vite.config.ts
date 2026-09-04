@@ -92,6 +92,9 @@ export default defineConfig(
                     index: 'src/index.ts',
                     'message/index': 'src/message/index.ts',
                     'utils/floating': 'src/utils/floating.ts',
+                    'utils/use-async-task': 'src/utils/use-async-task.ts',
+                    'utils/use-collection': 'src/utils/use-collection.ts',
+                    'utils/use-roving-focus': 'src/utils/use-roving-focus.ts',
                     'picker-core/index': 'src/picker-core/index.ts',
                     'date-picker/date-utils': 'src/date-picker/date-utils.ts'
                 },

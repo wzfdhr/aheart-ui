@@ -7,6 +7,7 @@ const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 require("./style.css.js");
 const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby"];
@@ -55,14 +56,30 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const panelRef = vue.ref(null);
-    const innerOpen = vue.ref(props.defaultOpen);
     const searchText = vue.ref("");
-    const innerValue = vue.ref(props.defaultValue);
     const isControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
-    const mergedOpen = vue.computed(() => isOpenControlled.value ? props.open : innerOpen.value);
     const resolvedAriaLabelledby = vue.computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
-    const mergedValue = vue.computed(() => isControlled.value ? props.modelValue : innerValue.value);
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => {
+        const nextOpen = Boolean(open);
+        emit("openChange", nextOpen);
+      }
+    });
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => {
+        emit("update:modelValue", value);
+        emit("change", value);
+      }
+    });
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
+    const mergedValue = valueState.state;
     const selectedKeys = vue.computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === void 0 ? [] : [mergedValue.value]);
     const flattenNodes = (nodes) => nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])]);
     const displayLabel = vue.computed(() => selectedKeys.value.map((key) => {
@@ -98,15 +115,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open) => {
       if (props.disabled)
         return;
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
     };
     const emitValue = (value) => {
-      if (!isControlled.value)
-        innerValue.value = value;
-      emit("update:modelValue", value);
-      emit("change", value);
+      valueState.setState(value, { force: true });
     };
     const handleSelect = (keys) => {
       const value = props.multiple ? keys : keys[0];
@@ -175,10 +187,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       trigger: triggerRef,
       floating: panelRef,
       onDismiss: () => requestOpen(false)
-    });
-    vue.watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {

@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds, type PickerTimeParts } from '../picker-core/time'
@@ -62,7 +62,9 @@ import type { PickerDisabledTimeConfig, RangePickerPart, RangePickerValue } from
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timeRangePickerEmits, timeRangePickerProps } from './types'
 import './style.css'
@@ -80,15 +82,13 @@ const hourColumnRef = ref<HTMLElement | null>(null)
 const minuteColumnRef = ref<HTMLElement | null>(null)
 const secondColumnRef = ref<HTMLElement | null>(null)
 const periodColumnRef = ref<HTMLElement | null>(null)
-const internalValue = ref<RangePickerValue>(props.defaultValue ? [...props.defaultValue] as RangePickerValue : undefined)
-const internalOpen = ref(props.defaultOpen)
 const activePart = ref<RangePickerPart>('start')
 type TimeColumn = 'hour' | 'minute' | 'second' | 'period'
 const activeColumn = ref<TimeColumn>('hour')
 const draftValue = ref<RangePickerValue>()
 const draftParts = ref<[PickerTimeParts, PickerTimeParts]>([{ hour: 0, minute: 0, second: 0 }, { hour: 0, minute: 0, second: 0 }])
 const liveMessage = ref('')
-const panelId = `aheart-time-range-${useId().replace(/:/g, '')}-panel`
+const panelId = `${useStableId(undefined, 'aheart-time-range').value}-panel`
 const instanceId = panelId.replace('-panel', '')
 const partPanelId = `${instanceId}-part-panel`
 const startTabId = `${instanceId}-start-tab`
@@ -96,6 +96,18 @@ const endTabId = `${instanceId}-end-tab`
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isFormatProvided = usePropPresence('format')
+const valueState = useControllableState<RangePickerValue>({
+  controlled: () => props.modelValue,
+  isControlled: isValueControlled,
+  defaultValue: () => props.defaultValue ? [...props.defaultValue] as RangePickerValue : undefined,
+  onChange: (value) => emit('update:modelValue', value)
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
 
 const ARenderNode = defineComponent({
   name: 'ATimeRangePickerRenderNode',
@@ -109,8 +121,8 @@ const ARenderNode = defineComponent({
   }
 })
 
-const mergedValue = computed<RangePickerValue>(() => isValueControlled.value ? props.modelValue : internalValue.value)
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const mergedValue = valueState.state
+const mergedOpen = computed(() => Boolean(openState.state.value))
 const resolvedLocale = computed(() => ({ ...zhCN.timePicker, ...config.value.locale?.timePicker }) as Required<NonNullable<typeof zhCN.timePicker>>)
 const resolvedPlaceholders = computed<[string, string]>(() => props.placeholder ?? [resolvedLocale.value.startTime, resolvedLocale.value.endTime])
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -244,8 +256,7 @@ const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) 
 const commitRange = (value: RangePickerValue, close = true) => {
   if (isInteractionDisabled.value) return false
   if (!value) {
-    if (!isValueControlled.value) internalValue.value = undefined
-    emit('update:modelValue', undefined)
+    valueState.setState(undefined, { force: true })
     emit('change', undefined)
     if (close) requestOpen(false)
     return true
@@ -256,8 +267,7 @@ const commitRange = (value: RangePickerValue, close = true) => {
     const parts = parseTime(endpoint)
     if (parts && isPartsDisabled(parts, index === 0 ? 'start' : 'end')) return false
   }
-  if (!isValueControlled.value) internalValue.value = [...normalized] as RangePickerValue
-  emit('update:modelValue', normalized)
+  valueState.setState([...normalized] as RangePickerValue, { force: true })
   emit('change', normalized)
   if (isValueControlled.value && !props.needConfirm) syncDraft()
   if (close) requestOpen(false)
@@ -344,8 +354,7 @@ const panelStyle = computed(() => floatingPosition.popupStyle.value)
 const requestOpen = (open: boolean) => {
   if (open && isInteractionDisabled.value) return
   const wasOpen = mergedOpen.value
-  if (!isOpenControlled.value) internalOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
   if (open && !wasOpen) syncDraft()
 }
 const updateLiveMessage = (value: RangePickerValue) => {

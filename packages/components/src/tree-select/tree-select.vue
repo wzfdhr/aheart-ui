@@ -71,6 +71,7 @@ import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import './style.css'
 
@@ -113,14 +114,30 @@ const emit = defineEmits<{
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
-const innerOpen = ref(props.defaultOpen)
 const searchText = ref('')
-const innerValue = ref<TreeSelectValue>(props.defaultValue)
 const isControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
-const mergedOpen = computed(() => isOpenControlled.value ? props.open : innerOpen.value)
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
-const mergedValue = computed(() => isControlled.value ? props.modelValue : innerValue.value)
+const openState = useControllableState({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => {
+    const nextOpen = Boolean(open)
+    emit('openChange', nextOpen)
+  }
+})
+const valueState = useControllableState<TreeSelectValue>({
+  controlled: () => props.modelValue,
+  isControlled,
+  defaultValue: () => props.defaultValue,
+  onChange: (value) => {
+    emit('update:modelValue', value)
+    emit('change', value)
+  }
+})
+const mergedOpen = computed(() => Boolean(openState.state.value))
+const mergedValue = valueState.state
 const selectedKeys = computed<TreeKey[]>(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === undefined ? [] : [mergedValue.value])
 const flattenNodes = (nodes: TreeNodeData[]): TreeNodeData[] => nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])])
 const displayLabel = computed(() => selectedKeys.value
@@ -152,13 +169,10 @@ const toggleOpen = () => {
 }
 const requestOpen = (open: boolean) => {
   if (props.disabled) return
-  if (!isOpenControlled.value) innerOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
 }
 const emitValue = (value: TreeSelectValue) => {
-  if (!isControlled.value) innerValue.value = value
-  emit('update:modelValue', value)
-  emit('change', value)
+  valueState.setState(value, { force: true })
 }
 const handleSelect = (keys: TreeKey[]) => {
   const value: TreeSelectValue = props.multiple ? keys : keys[0]
@@ -219,7 +233,4 @@ useFloatingDismiss({
   onDismiss: () => requestOpen(false)
 })
 
-watch(() => props.defaultOpen, (open) => {
-  if (!isOpenControlled.value) innerOpen.value = open
-})
 </script>

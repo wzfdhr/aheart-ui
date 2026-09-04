@@ -6,6 +6,7 @@ const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 require("./style.css.js");
 const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled"];
@@ -62,16 +63,32 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const triggerRef = vue.ref(null);
     const panelRef = vue.ref(null);
     const columnsRef = vue.ref(null);
-    const innerOpen = vue.ref(props.defaultOpen);
     const searchText = vue.ref("");
     const activePath = vue.ref([]);
     const loadingPaths = vue.ref([]);
     const innerOptions = vue.ref(cloneOptions(props.options));
-    const innerValue = vue.ref(props.defaultValue);
     const isControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
-    const mergedOpen = vue.computed(() => isOpenControlled.value ? props.open : innerOpen.value);
-    const mergedValue = vue.computed(() => isControlled.value ? props.modelValue : innerValue.value);
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => {
+        const nextOpen = Boolean(open);
+        emit("openChange", nextOpen);
+      }
+    });
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => {
+        emit("update:modelValue", value);
+        emit("change", value);
+      }
+    });
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
+    const mergedValue = valueState.state;
     const selectedPaths = vue.computed(() => {
       if (props.multiple) {
         return Array.isArray(mergedValue.value) && mergedValue.value.every(Array.isArray) ? mergedValue.value : [];
@@ -155,16 +172,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open) => {
       if (props.disabled)
         return;
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
     };
     const toggleOpen = () => requestOpen(!mergedOpen.value);
     const emitValue = (value) => {
-      if (!isControlled.value)
-        innerValue.value = value;
-      emit("update:modelValue", value);
-      emit("change", value);
+      valueState.setState(value, { force: true });
     };
     const clearValue = () => {
       emitValue(props.multiple ? [] : void 0);
@@ -288,10 +300,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       trigger: triggerRef,
       floating: panelRef,
       onDismiss: () => requestOpen(false)
-    });
-    vue.watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {

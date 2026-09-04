@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const useControllableState = require("../utils/use-controllable-state.js");
+const usePropPresence = require("../utils/use-prop-presence.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = { class: "aheart-upload__trigger" };
@@ -35,21 +37,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a, _b;
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.datePicker) == null ? void 0 : _b.locale) === "en-US" ? { selectFile: "Select file", upload: "Upload", done: "Done", failed: "Failed", removeAction: "Remove", remove: (name) => `Remove ${name}` } : { selectFile: "选择文件", upload: "上传", done: "已完成", failed: "上传失败", removeAction: "移除", remove: (name) => `移除 ${name}` };
     });
-    const internalFileList = vue.ref([...props.defaultFileList]);
-    const mergedFileList = vue.computed(() => props.fileList ?? internalFileList.value);
+    const isFileListControlled = usePropPresence.usePropPresence("fileList", "file-list");
+    const fileListState = useControllableState.useControllableState({
+      controlled: () => props.fileList,
+      isControlled: isFileListControlled,
+      defaultValue: () => [...props.defaultFileList],
+      onChange: (files) => emit("update:fileList", files ?? [])
+    });
+    const mergedFileList = vue.computed(() => fileListState.state.value ?? []);
     const readyFiles = vue.computed(() => mergedFileList.value.filter((file) => file.status === "ready"));
     const latestFileList = vue.ref([...props.fileList ?? props.defaultFileList]);
     let uid = 0;
     const activeUploadUids = /* @__PURE__ */ new Set();
     vue.watch(() => props.fileList, (fileList) => {
-      if (fileList !== void 0)
-        latestFileList.value = [...fileList];
+      if (isFileListControlled.value)
+        latestFileList.value = [...fileList ?? []];
     }, { deep: true });
     const updateFileList = (files) => {
       latestFileList.value = files;
-      if (props.fileList === void 0)
-        internalFileList.value = files;
-      emit("update:fileList", files);
+      fileListState.setState(files);
       emit("change", files);
     };
     const replaceFile = (file) => {
@@ -108,13 +114,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       const files = Array.from(event.target.files ?? []);
       event.target.value = "";
-      let nextFiles = props.fileList === void 0 ? latestFileList.value : [...props.fileList];
+      let nextFiles = isFileListControlled.value ? [...props.fileList ?? []] : latestFileList.value;
       latestFileList.value = nextFiles;
-      const remaining = Math.max(0, props.maxCount - nextFiles.length);
-      for (const rawFile of files.slice(0, remaining)) {
+      for (const rawFile of files) {
+        if (nextFiles.length >= props.maxCount)
+          break;
         const uploadFile = toUploadFile(rawFile);
         const shouldUpload = await ((_a = props.beforeUpload) == null ? void 0 : _a.call(props, rawFile, [...nextFiles, uploadFile]));
-        nextFiles = [...nextFiles, uploadFile];
+        const currentFiles = isFileListControlled.value ? [...props.fileList ?? []] : latestFileList.value;
+        if (currentFiles.length >= props.maxCount)
+          continue;
+        nextFiles = [...currentFiles, uploadFile];
         updateFileList(nextFiles);
         if (shouldUpload !== false)
           nextFiles = await upload(uploadFile, nextFiles);
