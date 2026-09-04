@@ -5,7 +5,9 @@ const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
@@ -48,12 +50,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const searchRef = vue.ref(null);
     const popupRef = vue.ref(null);
     const internalSearchValue = vue.ref("");
-    const internalValue = vue.ref(props.defaultValue);
-    const internalOpen = vue.ref(props.defaultOpen);
     const activeIndex = vue.ref(-1);
     const focused = vue.ref(false);
-    const instanceId = vue.useId().replace(/:/g, "");
-    const listboxId = `aheart-select-${instanceId}-listbox`;
+    const listboxId = `${useStableId.useStableId(void 0, "aheart-select").value}-listbox`;
     const ARenderNode = vue.defineComponent({
       name: "ASelectRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -78,10 +77,27 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isMultiple = vue.computed(() => props.mode === "multiple" || props.mode === "tags");
     const isSearchable = vue.computed(() => props.showSearch || props.mode === "tags");
     const isControlled = usePropPresence.usePropPresence("modelValue", "model-value");
-    const mergedValue = vue.computed(() => isControlled.value ? props.modelValue : internalValue.value);
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const isSearchControlled = usePropPresence.usePropPresence("searchValue", "search-value");
-    const mergedOpen = vue.computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => {
+        if (value === void 0)
+          return;
+        emit("update:modelValue", value);
+        emit("change", value);
+      }
+    });
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
+    const mergedValue = valueState.state;
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const currentSearchValue = vue.computed(() => isSearchControlled.value ? props.searchValue ?? "" : internalSearchValue.value);
     const resolvedAriaLabelledby = vue.computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
@@ -200,9 +216,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open) => {
       if (isDisabled.value)
         return;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open)
         setInitialActive();
     };
@@ -222,10 +236,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         });
     };
     const emitValue = (value) => {
-      if (!isControlled.value)
-        internalValue.value = value;
-      emit("update:modelValue", value);
-      emit("change", value);
+      valueState.setState(value, { force: true });
     };
     const clearSearch = () => {
       if (!isSearchControlled.value)
@@ -361,10 +372,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(filteredOptions, () => {
       if (mergedOpen.value)
         setInitialActive();
-    });
-    vue.watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
     });
     const focus = () => {
       var _a;

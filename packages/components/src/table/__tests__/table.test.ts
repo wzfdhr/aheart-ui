@@ -294,6 +294,46 @@ describe('Table', () => {
     expect(wrapper.emitted('select')?.[0]?.[0]).toBe('grace')
   })
 
+  it('does not let changed default selection overwrite runtime state', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        rowSelection: { defaultSelectedRowKeys: ['ada'] }
+      }
+    })
+    await wrapper.findAll('tbody input[type="checkbox"]')[1].setValue(true)
+    expect(wrapper.emitted('update:selectedRowKeys')?.at(-1)).toEqual([['ada', 'grace']])
+
+    await wrapper.setProps({ rowSelection: { defaultSelectedRowKeys: ['linus'] } })
+    const checked = wrapper.findAll('tbody input[type="checkbox"]')
+      .map((input) => (input.element as HTMLInputElement).checked)
+    expect(checked).toEqual([true, true, false])
+  })
+
+  it('supports runtime controlled handoff and explicit undefined selection', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        rowSelection: { defaultSelectedRowKeys: ['ada'] }
+      }
+    })
+    await wrapper.findAll('tbody input[type="checkbox"]')[1].setValue(true)
+
+    await wrapper.setProps({ rowSelection: { selectedRowKeys: ['linus'] } })
+    let checked = wrapper.findAll('tbody input[type="checkbox"]')
+      .map((input) => (input.element as HTMLInputElement).checked)
+    expect(checked).toEqual([false, false, true])
+    await wrapper.findAll('tbody input[type="checkbox"]')[0].setValue(true)
+    expect(wrapper.emitted('update:selectedRowKeys')?.at(-1)).toEqual([['linus', 'ada']])
+
+    await wrapper.setProps({ rowSelection: { selectedRowKeys: undefined, defaultSelectedRowKeys: ['ada'] } })
+    checked = wrapper.findAll('tbody input[type="checkbox"]')
+      .map((input) => (input.element as HTMLInputElement).checked)
+    expect(checked).toEqual([false, false, false])
+  })
+
   it('supports radio row selection', async () => {
     const wrapper = mount(Table, {
       props: {
@@ -488,6 +528,21 @@ describe('Table', () => {
     expect(wrapper.find('tbody tr').text()).toContain('Ada')
     expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('1')
     expect(wrapper.emitted('change')?.[0]?.[0]).toMatchObject({ current: 2, pageSize: 1 })
+  })
+
+  it('keeps the last accepted page when the parent releases pagination control', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        pagination: { current: 2, defaultCurrent: 1, pageSize: 1 }
+      }
+    })
+    expect(wrapper.find('tbody tr').text()).toContain('Grace')
+
+    await wrapper.setProps({ pagination: { defaultCurrent: 1, pageSize: 1 } })
+    expect(wrapper.find('tbody tr').text()).toContain('Grace')
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('2')
   })
 
   it('renders server-provided page records without slicing them a second time', () => {

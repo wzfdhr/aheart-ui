@@ -6,7 +6,9 @@ const time = require("../picker-core/time.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
@@ -72,14 +74,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const minuteColumnRef = vue.ref(null);
     const secondColumnRef = vue.ref(null);
     const periodColumnRef = vue.ref(null);
-    const internalValue = vue.ref(props.defaultValue ? [...props.defaultValue] : void 0);
-    const internalOpen = vue.ref(props.defaultOpen);
     const activePart = vue.ref("start");
     const activeColumn = vue.ref("hour");
     const draftValue = vue.ref();
     const draftParts = vue.ref([{ hour: 0, minute: 0, second: 0 }, { hour: 0, minute: 0, second: 0 }]);
     const liveMessage = vue.ref("");
-    const panelId = `aheart-time-range-${vue.useId().replace(/:/g, "")}-panel`;
+    const panelId = `${useStableId.useStableId(void 0, "aheart-time-range").value}-panel`;
     const instanceId = panelId.replace("-panel", "");
     const partPanelId = `${instanceId}-part-panel`;
     const startTabId = `${instanceId}-start-tab`;
@@ -87,6 +87,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isValueControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const isFormatProvided = usePropPresence.usePropPresence("format");
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue ? [...props.defaultValue] : void 0,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = vue.defineComponent({
       name: "ATimeRangePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -98,8 +110,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         };
       }
     });
-    const mergedValue = vue.computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = vue.computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const resolvedLocale = vue.computed(() => {
       var _a;
       return { ...context.zhCN.timePicker, ...(_a = config.value.locale) == null ? void 0 : _a.timePicker };
@@ -270,9 +282,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (isInteractionDisabled.value)
         return false;
       if (!value) {
-        if (!isValueControlled.value)
-          internalValue.value = void 0;
-        emit("update:modelValue", void 0);
+        valueState.setState(void 0, { force: true });
         emit("change", void 0);
         if (close)
           requestOpen(false);
@@ -286,9 +296,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         if (parts && isPartsDisabled(parts, index === 0 ? "start" : "end"))
           return false;
       }
-      if (!isValueControlled.value)
-        internalValue.value = [...normalized];
-      emit("update:modelValue", normalized);
+      valueState.setState([...normalized], { force: true });
       emit("change", normalized);
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
@@ -407,9 +415,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (open && isInteractionDisabled.value)
         return;
       const wasOpen = mergedOpen.value;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open && !wasOpen)
         syncDraft();
     };

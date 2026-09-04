@@ -1,9 +1,11 @@
-import { defineComponent, useSlots, useAttrs, ref, useId, computed, watch, openBlock, createElementBlock, mergeProps, createElementVNode, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, withModifiers, toDisplayString, createBlock, Teleport, withDirectives, vShow, nextTick } from "vue";
+import { defineComponent, useSlots, useAttrs, ref, computed, watch, openBlock, createElementBlock, mergeProps, createElementVNode, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, withModifiers, toDisplayString, createBlock, Teleport, withDirectives, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { selectProps, selectEmits } from "./types.js";
 import "./style.css.js";
@@ -46,12 +48,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const searchRef = ref(null);
     const popupRef = ref(null);
     const internalSearchValue = ref("");
-    const internalValue = ref(props.defaultValue);
-    const internalOpen = ref(props.defaultOpen);
     const activeIndex = ref(-1);
     const focused = ref(false);
-    const instanceId = useId().replace(/:/g, "");
-    const listboxId = `aheart-select-${instanceId}-listbox`;
+    const listboxId = `${useStableId(void 0, "aheart-select").value}-listbox`;
     const ARenderNode = defineComponent({
       name: "ASelectRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -76,10 +75,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isMultiple = computed(() => props.mode === "multiple" || props.mode === "tags");
     const isSearchable = computed(() => props.showSearch || props.mode === "tags");
     const isControlled = usePropPresence("modelValue", "model-value");
-    const mergedValue = computed(() => isControlled.value ? props.modelValue : internalValue.value);
     const isOpenControlled = usePropPresence("open");
     const isSearchControlled = usePropPresence("searchValue", "search-value");
-    const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => {
+        if (value === void 0)
+          return;
+        emit("update:modelValue", value);
+        emit("change", value);
+      }
+    });
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
+    const mergedValue = valueState.state;
+    const mergedOpen = computed(() => Boolean(openState.state.value));
     const currentSearchValue = computed(() => isSearchControlled.value ? props.searchValue ?? "" : internalSearchValue.value);
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
@@ -198,9 +214,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const requestOpen = (open) => {
       if (isDisabled.value)
         return;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open)
         setInitialActive();
     };
@@ -220,10 +234,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         });
     };
     const emitValue = (value) => {
-      if (!isControlled.value)
-        internalValue.value = value;
-      emit("update:modelValue", value);
-      emit("change", value);
+      valueState.setState(value, { force: true });
     };
     const clearSearch = () => {
       if (!isSearchControlled.value)
@@ -359,10 +370,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(filteredOptions, () => {
       if (mergedOpen.value)
         setInitialActive();
-    });
-    watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
     });
     const focus = () => {
       var _a;

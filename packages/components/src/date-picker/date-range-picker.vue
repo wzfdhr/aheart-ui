@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createDateMatrix, isPickerDateDisabled } from '../picker-core/calendar'
@@ -168,7 +168,9 @@ import type { RangePickerPart, RangePickerValue } from '../picker-core/types'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { dateRangePickerEmits, dateRangePickerProps, type DatePickerCellRenderInfo } from './types'
 import './style.css'
@@ -184,8 +186,6 @@ const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 const startInputRef = ref<HTMLInputElement | null>(null)
 const endInputRef = ref<HTMLInputElement | null>(null)
-const internalValue = ref<RangePickerValue>(props.defaultValue ? [...props.defaultValue] as RangePickerValue : undefined)
-const internalOpen = ref(props.defaultOpen)
 const draftValue = ref<RangePickerValue>()
 const activePart = ref<RangePickerPart>('start')
 const activeKeyboardDate = ref<PickerDate>()
@@ -195,10 +195,22 @@ const liveMessage = ref('')
 const inputTexts = ref<[string, string]>(['', ''])
 const nowDate = ref<PickerDate>()
 const rangeParts: RangePickerPart[] = ['start', 'end']
-const panelId = `aheart-date-range-picker-${useId().replace(/:/g, '')}-panel`
+const panelId = `${useStableId(undefined, 'aheart-date-range-picker').value}-panel`
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isPanelControlled = usePropPresence('pickerValue', 'picker-value')
+const valueState = useControllableState<RangePickerValue>({
+  controlled: () => props.modelValue,
+  isControlled: isValueControlled,
+  defaultValue: () => props.defaultValue ? [...props.defaultValue] as RangePickerValue : undefined,
+  onChange: (value) => emit('update:modelValue', value)
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
 
 const ARenderNode = defineComponent({
   name: 'ADateRangePickerRenderNode',
@@ -212,8 +224,8 @@ const ARenderNode = defineComponent({
   }
 })
 
-const mergedValue = computed<RangePickerValue>(() => isValueControlled.value ? props.modelValue : internalValue.value)
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const mergedValue = valueState.state
+const mergedOpen = computed(() => Boolean(openState.state.value))
 const effectiveShowTime = computed(() => Boolean(props.showTime) && props.picker === 'date')
 const showTimeOptions = computed(() => typeof props.showTime === 'object' ? props.showTime : {})
 const effectiveNeedConfirm = computed(() => props.needConfirm ?? effectiveShowTime.value)
@@ -412,8 +424,7 @@ watch(() => motion.phase.value, (phase) => { if (phase === 'entered') void nextT
 let restoringFocus = false
 const requestOpen = (open: boolean, restoreFocus = false) => {
   if (open && (isDisabled.value || props.readOnly)) return
-  if (!isOpenControlled.value) internalOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
   if (!open && restoreFocus) void nextTick(() => {
     restoringFocus = true
     ;(activePart.value === 'start' ? startInputRef.value : endInputRef.value)?.focus()
@@ -527,8 +538,7 @@ const commitInput = (part: RangePickerPart) => {
 
 const commitValue = (value: RangePickerValue, close = true) => {
   const normalized = normalizeRangeValue(value, resolvedValueFormat.value, props.order, props.allowEmpty) ?? value
-  if (!isValueControlled.value) internalValue.value = normalized ? [...normalized] as RangePickerValue : undefined
-  emit('update:modelValue', normalized)
+  valueState.setState(normalized ? [...normalized] as RangePickerValue : undefined, { force: true })
   emit('change', normalized)
   if (isValueControlled.value) void nextTick(syncInputs)
   if (close) requestOpen(false, true)

@@ -170,13 +170,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, nextTick, ref, useAttrs, useId, useSlots, watch, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, nextTick, ref, useAttrs, useSlots, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AIcon from '../icon/icon.vue'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import {
   selectEmits,
@@ -201,12 +203,9 @@ const selectorRef = ref<HTMLElement | null>(null)
 const searchRef = ref<HTMLInputElement | null>(null)
 const popupRef = ref<HTMLElement | null>(null)
 const internalSearchValue = ref('')
-const internalValue = ref<SelectValue | undefined>(props.defaultValue)
-const internalOpen = ref(props.defaultOpen)
 const activeIndex = ref(-1)
 const focused = ref(false)
-const instanceId = useId().replace(/:/g, '')
-const listboxId = `aheart-select-${instanceId}-listbox`
+const listboxId = `${useStableId(undefined, 'aheart-select').value}-listbox`
 
 const ARenderNode = defineComponent({
   name: 'ASelectRenderNode',
@@ -235,10 +234,26 @@ const normalizedOptions = computed(() => rawOptions.value.map(normalizeOption))
 const isMultiple = computed(() => props.mode === 'multiple' || props.mode === 'tags')
 const isSearchable = computed(() => props.showSearch || props.mode === 'tags')
 const isControlled = usePropPresence('modelValue', 'model-value')
-const mergedValue = computed(() => (isControlled.value ? props.modelValue : internalValue.value))
 const isOpenControlled = usePropPresence('open')
 const isSearchControlled = usePropPresence('searchValue', 'search-value')
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const valueState = useControllableState<SelectValue>({
+  controlled: () => props.modelValue,
+  isControlled,
+  defaultValue: () => props.defaultValue,
+  onChange: (value) => {
+    if (value === undefined) return
+    emit('update:modelValue', value)
+    emit('change', value)
+  }
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
+const mergedValue = valueState.state
+const mergedOpen = computed(() => Boolean(openState.state.value))
 const currentSearchValue = computed(() => isSearchControlled.value ? props.searchValue ?? '' : internalSearchValue.value)
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
@@ -360,8 +375,7 @@ const setInitialActive = () => {
 }
 const requestOpen = (open: boolean) => {
   if (isDisabled.value) return
-  if (!isOpenControlled.value) internalOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
   if (open) setInitialActive()
 }
 const openPopup = () => {
@@ -375,9 +389,7 @@ const handleSelectorClick = () => {
 }
 
 const emitValue = (value: SelectValue) => {
-  if (!isControlled.value) internalValue.value = value
-  emit('update:modelValue', value)
-  emit('change', value)
+  valueState.setState(value, { force: true })
 }
 const clearSearch = () => {
   if (!isSearchControlled.value) internalSearchValue.value = ''
@@ -492,10 +504,6 @@ useFloatingDismiss({
 watch(filteredOptions, () => {
   if (mergedOpen.value) setInitialActive()
 })
-watch(() => props.defaultOpen, (open) => {
-  if (!isOpenControlled.value) internalOpen.value = open
-})
-
 const focus = () => (isSearchable.value ? searchRef.value : selectorRef.value)?.focus()
 const blur = () => {
   searchRef.value?.blur()

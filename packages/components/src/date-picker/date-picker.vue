@@ -185,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createDateMatrix, isPickerDateDisabled } from '../picker-core/calendar'
@@ -196,7 +196,9 @@ import type { DatePickerValue, DatePickerCellRenderInfo } from './types'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { datePickerEmits, datePickerProps } from './types'
 import './style.css'
@@ -211,17 +213,26 @@ const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
-const internalValue = ref<DatePickerValue>(props.defaultValue)
-const internalOpen = ref(props.defaultOpen)
 const draftValue = ref<DatePickerValue>()
 const inputText = ref('')
 const activeCellKey = ref('')
 const liveMessage = ref('')
-const instanceId = useId().replace(/:/g, '')
-const panelId = `aheart-date-picker-${instanceId}-panel`
+const panelId = `${useStableId(undefined, 'aheart-date-picker').value}-panel`
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isPanelControlled = usePropPresence('pickerValue', 'picker-value')
+const valueState = useControllableState<DatePickerValue>({
+  controlled: () => props.modelValue,
+  isControlled: isValueControlled,
+  defaultValue: () => props.defaultValue,
+  onChange: (value) => emit('update:modelValue', value)
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
 
 const ARenderNode = defineComponent({
   name: 'ADatePickerRenderNode',
@@ -235,8 +246,8 @@ const ARenderNode = defineComponent({
   }
 })
 
-const mergedValue = computed<DatePickerValue>(() => isValueControlled.value ? props.modelValue : internalValue.value)
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const mergedValue = valueState.state
+const mergedOpen = computed(() => Boolean(openState.state.value))
 const selectedValues = computed(() => Array.isArray(mergedValue.value)
   ? mergedValue.value
   : mergedValue.value ? [mergedValue.value] : [])
@@ -446,8 +457,7 @@ let restoreFocusOnClose = false
 const requestOpen = (nextOpen: boolean, restoreFocus = false) => {
   if (nextOpen && (isDisabled.value || props.readOnly)) return
   if (!nextOpen) restoreFocusOnClose = restoreFocus
-  if (!isOpenControlled.value) internalOpen.value = nextOpen
-  emit('openChange', nextOpen)
+  openState.setState(nextOpen, { force: true })
 }
 let restoringFocus = false
 const handleFocus = () => {
@@ -482,8 +492,7 @@ useFloatingDismiss({
 
 const commitValue = (value: DatePickerValue, close = true) => {
   const normalized = Array.isArray(value) ? normalizeMultipleValues(value) : value
-  if (!isValueControlled.value) internalValue.value = normalized
-  emit('update:modelValue', normalized)
+  valueState.setState(normalized, { force: true })
   emit('change', normalized)
   if (isValueControlled.value) {
     void nextTick(() => { inputText.value = committedInputText.value })

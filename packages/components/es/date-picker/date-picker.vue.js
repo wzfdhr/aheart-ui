@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, useId, isVNode, h, toRaw, computed, onMounted, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, createTextVNode, toDisplayString, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, mergeProps, vShow } from "vue";
+import { defineComponent, useSlots, ref, isVNode, h, toRaw, computed, onMounted, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, createTextVNode, toDisplayString, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, mergeProps, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createDateMatrix, isPickerDateDisabled } from "../picker-core/calendar.js";
 import { defaultValueFormat, normalizeFormats, parsePickerValue, formatPickerValue } from "../picker-core/codec.js";
@@ -7,7 +7,9 @@ import { normalizeMultipleValues } from "../picker-core/selection.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { datePickerProps, datePickerEmits } from "./types.js";
 import "./style.css.js";
@@ -72,17 +74,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const triggerRef = ref(null);
     const inputRef = ref(null);
     const panelRef = ref(null);
-    const internalValue = ref(props.defaultValue);
-    const internalOpen = ref(props.defaultOpen);
     const draftValue = ref();
     const inputText = ref("");
     const activeCellKey = ref("");
     const liveMessage = ref("");
-    const instanceId = useId().replace(/:/g, "");
-    const panelId = `aheart-date-picker-${instanceId}-panel`;
+    const panelId = `${useStableId(void 0, "aheart-date-picker").value}-panel`;
     const isValueControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const isPanelControlled = usePropPresence("pickerValue", "picker-value");
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = defineComponent({
       name: "ADatePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -94,8 +105,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         };
       }
     });
-    const mergedValue = computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = computed(() => Boolean(openState.state.value));
     const selectedValues = computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value ? [mergedValue.value] : []);
     const effectiveShowTime = computed(() => Boolean(props.showTime) && !props.multiple && props.picker === "date");
     const showTimeOptions = computed(() => typeof props.showTime === "object" ? props.showTime : {});
@@ -290,9 +301,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       if (!nextOpen)
         restoreFocusOnClose = restoreFocus;
-      if (!isOpenControlled.value)
-        internalOpen.value = nextOpen;
-      emit("openChange", nextOpen);
+      openState.setState(nextOpen, { force: true });
     };
     let restoringFocus = false;
     const handleFocus = () => {
@@ -330,9 +339,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const commitValue = (value, close = true) => {
       const normalized = Array.isArray(value) ? normalizeMultipleValues(value) : value;
-      if (!isValueControlled.value)
-        internalValue.value = normalized;
-      emit("update:modelValue", normalized);
+      valueState.setState(normalized, { force: true });
       emit("change", normalized);
       if (isValueControlled.value) {
         void nextTick(() => {

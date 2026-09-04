@@ -6,7 +6,9 @@ const time = require("../picker-core/time.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
@@ -57,13 +59,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const secondColumnRef = vue.ref(null);
     const periodColumnRef = vue.ref(null);
     const activeColumn = vue.ref("hour");
-    const internalValue = vue.ref(props.defaultValue);
-    const internalOpen = vue.ref(props.defaultOpen);
-    const instanceId = vue.useId().replace(/:/g, "");
-    const panelId = `aheart-time-${instanceId}-panel`;
+    const instanceId = useStableId.useStableId(void 0, "aheart-time").value;
+    const panelId = `${instanceId}-panel`;
     const isValueControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const isFormatProvided = usePropPresence.usePropPresence("format");
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = vue.defineComponent({
       name: "ATimePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -75,8 +87,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         };
       }
     });
-    const mergedValue = vue.computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = vue.computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const resolvedLocale = vue.computed(() => {
       var _a;
       return { ...context.zhCN.timePicker, ...(_a = config.value.locale) == null ? void 0 : _a.timePicker };
@@ -211,9 +223,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open) => {
       if (open && isInteractionDisabled.value)
         return;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open) {
         syncDraft();
         activeColumn.value = "hour";
@@ -223,9 +233,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (isInteractionDisabled.value || isPartsDisabled(parts))
         return false;
       const value = formatTime(parts, props.valueFormat);
-      if (!isValueControlled.value)
-        internalValue.value = value;
-      emit("update:modelValue", value);
+      valueState.setState(value, { force: true });
       emit("change", value);
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
@@ -282,9 +290,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const clearValue = () => {
       if (isInteractionDisabled.value)
         return;
-      if (!isValueControlled.value)
-        internalValue.value = void 0;
-      emit("update:modelValue", void 0);
+      valueState.setState(void 0, { force: true });
       emit("change", void 0);
       emit("clear");
       requestOpen(false);
@@ -393,10 +399,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (open)
         void vue.nextTick(scrollSelectedOptionsIntoView);
     }, { immediate: true });
-    vue.watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
         ref_key: "rootRef",

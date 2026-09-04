@@ -94,6 +94,7 @@ import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import type { CascaderKey, CascaderOption, CascaderPath, CascaderValue } from './types'
 import './style.css'
@@ -137,16 +138,32 @@ const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 const columnsRef = ref<HTMLElement | null>(null)
-const innerOpen = ref(props.defaultOpen)
 const searchText = ref('')
 const activePath = ref<CascaderPath>([])
 const loadingPaths = ref<CascaderPath[]>([])
 const innerOptions = ref<CascaderOption[]>(cloneOptions(props.options))
-const innerValue = ref<CascaderValue>(props.defaultValue)
 const isControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
-const mergedOpen = computed(() => isOpenControlled.value ? props.open : innerOpen.value)
-const mergedValue = computed(() => isControlled.value ? props.modelValue : innerValue.value)
+const openState = useControllableState({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => {
+    const nextOpen = Boolean(open)
+    emit('openChange', nextOpen)
+  }
+})
+const valueState = useControllableState<CascaderValue>({
+  controlled: () => props.modelValue,
+  isControlled,
+  defaultValue: () => props.defaultValue,
+  onChange: (value) => {
+    emit('update:modelValue', value)
+    emit('change', value)
+  }
+})
+const mergedOpen = computed(() => Boolean(openState.state.value))
+const mergedValue = valueState.state
 const selectedPaths = computed<CascaderPath[]>(() => {
   if (props.multiple) {
     return Array.isArray(mergedValue.value) && mergedValue.value.every(Array.isArray)
@@ -226,14 +243,11 @@ const isSelected = (columnIndex: number, option: CascaderOption) => selectedPath
 const isLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const requestOpen = (open: boolean) => {
   if (props.disabled) return
-  if (!isOpenControlled.value) innerOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
 }
 const toggleOpen = () => requestOpen(!mergedOpen.value)
 const emitValue = (value: CascaderValue) => {
-  if (!isControlled.value) innerValue.value = value
-  emit('update:modelValue', value)
-  emit('change', value)
+  valueState.setState(value, { force: true })
 }
 const clearValue = () => {
   emitValue(props.multiple ? [] : undefined)
@@ -346,7 +360,4 @@ useFloatingDismiss({
   onDismiss: () => requestOpen(false)
 })
 
-watch(() => props.defaultOpen, (open) => {
-  if (!isOpenControlled.value) innerOpen.value = open
-})
 </script>
