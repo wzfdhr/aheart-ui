@@ -1,17 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { execFileSync } from 'node:child_process'
+import { qg4EvidenceCoverage } from '../docs/.vitepress/data/quality-evidence-policy.mjs'
 
-const components = [
-  'input',
-  'select',
-  'date-picker',
-  'time-picker',
-  'table',
-  'menu',
-  'modal',
-  'splitter',
-  'ai-agent-workbench'
-] as const
+const a11yComponents = qg4EvidenceCoverage.a11y
+const components = qg4EvidenceCoverage.visual
 
 const gotoComponent = async (page: Page, component: string) => {
   await page.goto(`/components/${component}`)
@@ -61,6 +54,12 @@ const expectNoSeriousViolationsIn = async (page: Page, selector: string, label: 
   expect(blocking, `${label}: ${blocking.map((violation) => `${violation.id}: ${violation.help}`).join('\n')}`).toEqual([])
 }
 
+const expectDrawerSettled = async (page: Page) => {
+  const drawer = page.locator('.aheart-drawer:visible').last()
+  await expect(drawer).toHaveClass(/is-entered/)
+  await expect.poll(() => drawer.locator('.aheart-drawer__panel').evaluate((panel) => getComputedStyle(panel).opacity)).toBe('1')
+}
+
 const expectVisibleFocus = async (page: Page, component: string) => {
   const surface = await getComponentSurface(page, component)
   const focusable = surface.locator('button:visible, input:visible, textarea:visible, select:visible, [role="button"]:visible, [role="combobox"]:visible, [tabindex="0"]:visible')
@@ -88,7 +87,7 @@ const expectVisibleFocus = async (page: Page, component: string) => {
 
 test.describe('QG4 accessibility and visual regression gates', () => {
   test('critical and serious axe violations are zero for every target route', async ({ page }) => {
-    for (const component of components) {
+    for (const component of a11yComponents) {
       await gotoComponent(page, component)
       await expectNoSeriousA11yViolations(page, component)
     }
@@ -103,6 +102,7 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     await gotoComponent(page, 'drawer')
     await page.getByRole('button', { name: 'Open drawer', exact: true }).first().click()
     await expect(page.getByRole('dialog', { name: 'Account details' })).toBeVisible()
+    await expectDrawerSettled(page)
     await expectNoSeriousViolationsIn(page, '.aheart-drawer', 'drawer overlay')
 
     await page.setViewportSize({ width: 390, height: 844 })
@@ -110,7 +110,28 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     await page.getByRole('tab', { name: '执行' }).click()
     await page.getByRole('button', { name: '查看执行与产物' }).click()
     await expect(page.getByRole('dialog', { name: '执行与产物' })).toBeVisible()
+    await expectDrawerSettled(page)
     await expectNoSeriousViolationsIn(page, '.aheart-drawer', 'AI Workbench execution overlay')
+  })
+
+  test('evidence manifest binds QG4 coverage to the project and reviewed commit', async ({}, testInfo) => {
+    const reviewedSha = process.env.AHEART_EVIDENCE_SHA
+      ?? execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+    expect(reviewedSha).toMatch(/^[0-9a-f]{40}$/)
+
+    await testInfo.attach('qg4-evidence-manifest.json', {
+      body: Buffer.from(JSON.stringify({
+        schemaVersion: 'aheart-qg4-evidence.v1',
+        commit: {
+          sha: reviewedSha,
+          repository: process.env.GITHUB_REPOSITORY ?? 'local'
+        },
+        project: testInfo.project.name,
+        spec: 'e2e/a11y-visual.spec.ts',
+        coverage: qg4EvidenceCoverage
+      }, null, 2)),
+      contentType: 'application/json'
+    })
   })
 
   test('production routes hydrate without Vue warnings or hydration mismatches', async ({ page }) => {

@@ -1,4 +1,15 @@
 export const qg1ComponentContractPath = 'e2e/qg1-ready-component-contracts.spec.ts'
+export const qg4EvidencePath = 'e2e/a11y-visual.spec.ts'
+export const qg4EvidenceCoverage = {
+  a11y: [
+    'input', 'select', 'date-picker', 'time-picker', 'table', 'menu', 'modal', 'drawer', 'splitter',
+    'ai-agent-workbench'
+  ],
+  visual: [
+    'input', 'select', 'date-picker', 'time-picker', 'table', 'menu', 'modal', 'splitter',
+    'ai-agent-workbench'
+  ]
+}
 
 const dedicatedE2e = {
   button: 'e2e/q2-navigation-overlays.spec.ts',

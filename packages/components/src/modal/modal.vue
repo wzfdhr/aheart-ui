@@ -1,3 +1,20 @@
+<script lang="ts">
+const openModalStack: symbol[] = []
+
+const registerOpenModal = (id: symbol) => {
+  const previousIndex = openModalStack.indexOf(id)
+  if (previousIndex >= 0) openModalStack.splice(previousIndex, 1)
+  openModalStack.push(id)
+}
+
+const unregisterOpenModal = (id: symbol) => {
+  const index = openModalStack.indexOf(id)
+  if (index >= 0) openModalStack.splice(index, 1)
+}
+
+const isTopmostOpenModal = (id: symbol) => openModalStack[openModalStack.length - 1] === id
+</script>
+
 <template>
   <Teleport :to="teleportTo" :disabled="!shouldTeleport">
     <div
@@ -64,6 +81,8 @@ import {
   getCurrentInstance,
   h,
   nextTick,
+  onBeforeMount,
+  onBeforeUnmount,
   onMounted,
   ref,
   useSlots,
@@ -120,6 +139,7 @@ const modalWidthBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
 const triggerElement = ref<HTMLElement | null>(null)
 const dialogRef = ref<HTMLElement | null>(null)
 const leaveFocusElement = ref<HTMLElement | null>(null)
+const modalStackId = Symbol('aheart-modal')
 const titleId = `aheart-modal-title-${instance?.uid ?? 'dialog'}`
 let pendingCloseCompletion = false
 
@@ -343,6 +363,7 @@ watch(
   () => props.open,
   (open, previousOpen) => {
     if (open && !previousOpen) {
+      registerOpenModal(modalStackId)
       pendingCloseCompletion = false
       leaveFocusElement.value = null
       if (motion.phase.value === 'hidden') captureTriggerElement()
@@ -350,6 +371,7 @@ watch(
     }
 
     if (!open) {
+      unregisterOpenModal(modalStackId)
       pendingCloseCompletion = true
       const activeElement = document.activeElement
       leaveFocusElement.value =
@@ -365,9 +387,17 @@ watch(
 )
 
 watch(
+  () => props.open,
+  (open) => {
+    if (open && isTopmostOpenModal(modalStackId)) focusDialog()
+  },
+  { flush: 'post' }
+)
+
+watch(
   () => motion.phase.value,
   (phase) => {
-    if (phase === 'entered' && props.open) {
+    if (phase === 'entered' && props.open && isTopmostOpenModal(modalStackId)) {
       void nextTick(() => focusDialog())
       return
     }
@@ -448,13 +478,23 @@ const focusDialog = () => {
   target?.focus()
 }
 
+onBeforeMount(() => {
+  if (props.open) registerOpenModal(modalStackId)
+})
+
 onMounted(() => {
-  if (!props.open) {
+  document.addEventListener('keydown', handleEnteringKeydown)
+
+  if (!props.open || !isTopmostOpenModal(modalStackId)) {
     return
   }
 
   captureTriggerElement()
   focusDialog()
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEnteringKeydown)
+  unregisterOpenModal(modalStackId)
 })
 
 const handleTrapTab = (event: KeyboardEvent) => {
@@ -521,10 +561,29 @@ const handleMaskClick = () => {
   }
 }
 
+const handleEnteringKeydown = (event: KeyboardEvent) => {
+  if (
+    !props.open ||
+    !props.keyboard ||
+    event.key !== 'Escape' ||
+    motion.phase.value !== 'enter' ||
+    document.activeElement !== triggerElement.value ||
+    !isTopmostOpenModal(modalStackId)
+  ) {
+    return
+  }
+
+  event.preventDefault()
+  event.stopPropagation()
+  close()
+}
+
 const handleKeydown = (event: KeyboardEvent) => {
   handleTrapTab(event)
 
-  if (props.keyboard && event.key === 'Escape') {
+  if (props.keyboard && event.key === 'Escape' && isTopmostOpenModal(modalStackId)) {
+    event.preventDefault()
+    event.stopPropagation()
     close()
   }
 }

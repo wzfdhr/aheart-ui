@@ -1,4 +1,4 @@
-import { e2ePolicyFor } from './quality-evidence-policy.mjs'
+import { e2ePolicyFor, qg4EvidenceCoverage, qg4EvidencePath } from './quality-evidence-policy.mjs'
 
 /** @typedef {'aheart-ui' | '@aheart-ui/dnd' | '@aheart-ui/ai'} QualityPackage */
 /** @typedef {'R1' | 'R2' | 'R3'} QualityRisk */
@@ -108,6 +108,11 @@ const ssrFor = (component) => ({
 const file = (path) => ({ kind: 'file', path })
 const planned = (milestone, reason) => ({ kind: 'planned', milestone, reason })
 const deferred = (milestone, reason) => ({ kind: 'planned', milestone, status: 'deferred', reason })
+const qg4EvidenceFor = (component, category) => qg4EvidenceCoverage[category].includes(component)
+  ? [file(qg4EvidencePath)]
+  : [planned('QG4', category === 'a11y'
+      ? '尚无组件级 axe、键盘与焦点验收；不得用代表页面的结果替代该组件证据。'
+      : '尚无组件级桌面、移动与动效视觉基线；不得用代表页面的截图替代该组件证据。')]
 
 const e2eEvidenceFor = (component) => {
   const policy = e2ePolicyFor(component, r1.has(component) ? 'R1' : r2.has(component) ? 'R2' : 'R3')
@@ -128,8 +133,8 @@ const evidenceFor = (component) => ({
   unit: [file(component === 'dnd' ? 'packages/dnd/src/__tests__/dnd.test.ts' : aiUnit[component] ?? `packages/components/src/${component}/__tests__/${component}.test.ts`)],
   e2e: e2eEvidenceFor(component),
   ssr: [ssrFor(component) ? file(ssrFor(component)) : deferred('QG6', 'QG6 建立消费端 SSR 契约；当前明确记录为延期，不将 SSR 覆盖误标为不适用。')],
-  a11y: [planned('QG4', 'QG4 建立组件级 axe、键盘与焦点验收；QG1 不将现有冒烟测试误标为无障碍覆盖。')],
-  visual: [planned('QG4', 'QG4 建立桌面、移动、暗色与 reduced-motion 截图基线；QG1 不将普通 E2E 文件误标为视觉基线。')],
+  a11y: qg4EvidenceFor(component, 'a11y'),
+  visual: qg4EvidenceFor(component, 'visual'),
   owner: '质量工程组'
 })
 

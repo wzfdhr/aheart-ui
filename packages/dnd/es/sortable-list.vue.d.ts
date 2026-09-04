@@ -1,59 +1,83 @@
 import { type SortableHandleProps } from './sortable-context';
-declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
-    items: Record<string, unknown>[];
-    itemKey: string;
-    group?: string | undefined;
+declare const _default: <TItem extends object = Record<string, unknown>>(__VLS_props: {
     disabled?: boolean | undefined;
-}>, {
-    disabled: boolean;
-}>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
-    change: (items: Record<string, unknown>[]) => void;
-    "update:items": (items: Record<string, unknown>[]) => void;
-}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
-    items: Record<string, unknown>[];
-    itemKey: string;
+    readonly onChange?: ((items: TItem[]) => any) | undefined;
     group?: string | undefined;
-    disabled?: boolean | undefined;
-}>, {
-    disabled: boolean;
-}>>> & Readonly<{
-    onChange?: ((items: Record<string, unknown>[]) => any) | undefined;
-    "onUpdate:items"?: ((items: Record<string, unknown>[]) => any) | undefined;
-}>, {
-    disabled: boolean;
-}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, Readonly<{
-    item?: ((props: {
-        item: Record<string, unknown>;
-        index: number;
-        handleProps: SortableHandleProps;
-    }) => unknown) | undefined;
-}> & {
-    item?: ((props: {
-        item: Record<string, unknown>;
-        index: number;
-        handleProps: SortableHandleProps;
-    }) => unknown) | undefined;
-}>;
-export default _default;
-type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
-type __VLS_TypePropsToRuntimeProps<T> = {
-    [K in keyof T]-?: {} extends Pick<T, K> ? {
-        type: import('vue').PropType<__VLS_NonUndefinedable<T[K]>>;
-    } : {
-        type: import('vue').PropType<T[K]>;
-        required: true;
+    readonly "onUpdate:items"?: ((items: TItem[]) => any) | undefined;
+    items: TItem[];
+    itemKey: string;
+} & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, __VLS_ctx?: {
+    attrs: any;
+    slots: Readonly<{
+        item?: ((props: {
+            item: TItem;
+            index: number;
+            handleProps: SortableHandleProps;
+        }) => unknown) | undefined;
+    }> & {
+        item?: ((props: {
+            item: TItem;
+            index: number;
+            handleProps: SortableHandleProps;
+        }) => unknown) | undefined;
     };
+    emit: ((evt: "change", items: TItem[]) => void) & ((evt: "update:items", items: TItem[]) => void);
+} | undefined, __VLS_expose?: ((exposed: import('vue').ShallowUnwrapRef<{}>) => void) | undefined, __VLS_setup?: Promise<{
+    props: {
+        disabled?: boolean | undefined;
+        readonly onChange?: ((items: TItem[]) => any) | undefined;
+        group?: string | undefined;
+        readonly "onUpdate:items"?: ((items: TItem[]) => any) | undefined;
+        items: TItem[];
+        itemKey: string;
+    } & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps;
+    expose(exposed: import('vue').ShallowUnwrapRef<{}>): void;
+    attrs: any;
+    slots: Readonly<{
+        item?: ((props: {
+            item: TItem;
+            index: number;
+            handleProps: SortableHandleProps;
+        }) => unknown) | undefined;
+    }> & {
+        item?: ((props: {
+            item: TItem;
+            index: number;
+            handleProps: SortableHandleProps;
+        }) => unknown) | undefined;
+    };
+    emit: ((evt: "change", items: TItem[]) => void) & ((evt: "update:items", items: TItem[]) => void);
+}>) => import("vue").VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    [key: string]: any;
+}> & {
+    __ctx?: {
+        props: {
+            disabled?: boolean | undefined;
+            readonly onChange?: ((items: TItem[]) => any) | undefined;
+            group?: string | undefined;
+            readonly "onUpdate:items"?: ((items: TItem[]) => any) | undefined;
+            items: TItem[];
+            itemKey: string;
+        } & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps;
+        expose(exposed: import('vue').ShallowUnwrapRef<{}>): void;
+        attrs: any;
+        slots: Readonly<{
+            item?: ((props: {
+                item: TItem;
+                index: number;
+                handleProps: SortableHandleProps;
+            }) => unknown) | undefined;
+        }> & {
+            item?: ((props: {
+                item: TItem;
+                index: number;
+                handleProps: SortableHandleProps;
+            }) => unknown) | undefined;
+        };
+        emit: ((evt: "change", items: TItem[]) => void) & ((evt: "update:items", items: TItem[]) => void);
+    } | undefined;
 };
-type __VLS_WithDefaults<P, D> = {
-    [K in keyof Pick<P, keyof P>]: K extends keyof D ? __VLS_Prettify<P[K] & {
-        default: D[K];
-    }> : P[K];
-};
+export default _default;
 type __VLS_Prettify<T> = {
     [K in keyof T]: T[K];
 } & {};
-type __VLS_WithTemplateSlots<T, S> = T & {
-    new (): {
-        $slots: S;
-    };
-};

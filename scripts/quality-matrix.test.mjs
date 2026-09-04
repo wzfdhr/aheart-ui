@@ -76,7 +76,7 @@ test('quality matrix registers every Ready component exactly once with release e
   )
   assert.throws(
     () => validateEvidence({ ...sample, a11y: [{ kind: 'file', path: 'packages/components/src/button/__tests__/button.test.ts' }] }, root),
-    /a11y evidence must be planned for QG4/
+    /unregistered QG4 evidence/
   )
   assert.throws(
     () => validateEvidence({ ...sample, visual: [{ kind: 'notApplicable', reason: 'not tested' }] }, root),
@@ -179,6 +179,32 @@ test('quality matrix registers every Ready component exactly once with release e
   assert.equal(sample.ssr[0].kind, 'planned')
   assert.equal(sample.ssr[0].milestone, 'QG6')
   assert.equal(sample.ssr[0].status, 'deferred')
+})
+
+test('QG4 matrix records only component-specific accessibility and visual evidence', async () => {
+  const [{ qualityMatrix }, { qg4EvidenceCoverage, qg4EvidencePath }] = await Promise.all([
+    import(path.join(root, 'docs/.vitepress/data/quality-matrix.mjs')),
+    import(path.join(root, 'docs/.vitepress/data/quality-evidence-policy.mjs'))
+  ])
+
+  for (const category of ['a11y', 'visual']) {
+    const completed = qualityMatrix
+      .filter((record) => record[category][0].kind === 'file')
+      .map((record) => record.component)
+    assert.deepEqual(new Set(completed), new Set(qg4EvidenceCoverage[category]))
+    assert.ok(qualityMatrix
+      .filter((record) => !qg4EvidenceCoverage[category].includes(record.component))
+      .every((record) => record[category][0].kind === 'planned'))
+    assert.ok(qualityMatrix
+      .filter((record) => qg4EvidenceCoverage[category].includes(record.component))
+      .every((record) => record[category][0].path === qg4EvidencePath))
+  }
+
+  const suite = await readFile(path.join(root, qg4EvidencePath), 'utf8')
+  assert.match(suite, /qg4-evidence-manifest\.json/)
+  assert.match(suite, /AHEART_EVIDENCE_SHA/)
+  assert.match(suite, /project: testInfo\.project\.name/)
+  assert.match(suite, /coverage: qg4EvidenceCoverage/)
 })
 
 test('quality matrix uses the planned mutually exclusive risk mapping', async () => {

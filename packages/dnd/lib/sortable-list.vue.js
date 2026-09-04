@@ -59,6 +59,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const listId = vue.ref();
     const disabled = vue.computed(() => props.disabled);
     const root = vue.ref();
+    const getItemKey = (item) => String(item[props.itemKey]);
     const updateItems = (items) => {
       const nextItems = items;
       emit("update:items", nextItems);
@@ -138,7 +139,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }, [
         (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(__props.items, (item, index) => {
           return vue.openBlock(), vue.createBlock(sortableItem_vue_vue_type_script_setup_true_lang.default, {
-            key: String(item[__props.itemKey]),
+            key: getItemKey(item),
             item,
             index
           }, {
