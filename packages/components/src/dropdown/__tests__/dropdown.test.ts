@@ -1,9 +1,11 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Dropdown, { DropdownButton } from '../index'
 import DropdownBase from '../dropdown.vue'
+
+enableAutoUnmount(afterEach)
 
 const menu = {
   items: [
@@ -849,5 +851,24 @@ describe('Dropdown', () => {
     expect(document.activeElement).toBe(wrapper.find('.dropdown-focus-target').element)
     wrapper.unmount()
     outside.remove()
+  })
+
+  it('cancels a pending hover open when click intent arrives', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mountDropdown({
+        props: { menu, trigger: ['hover', 'click'], mouseEnterDelay: 0.2 },
+        slots: { default: '<button>Actions</button>' }
+      })
+      const trigger = wrapper.find('.aheart-dropdown__trigger')
+      await trigger.trigger('mouseenter')
+      await trigger.trigger('click')
+      vi.advanceTimersByTime(200)
+      await wrapper.vm.$nextTick()
+      expect(wrapper.emitted('openChange')?.filter(([, info]) => info?.source === 'trigger')).toHaveLength(1)
+      expect(wrapper.find('.aheart-dropdown__overlay').exists()).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

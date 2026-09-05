@@ -1,4 +1,4 @@
-import { defineComponent, useAttrs, ref, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
+import { defineComponent, useAttrs, ref, computed, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import Tree from "../tree/index.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
@@ -6,9 +6,10 @@ import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
+import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import "./style.css.js";
-const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby"];
+const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-tree-select__value aheart-tree-select__tags"
@@ -19,7 +20,8 @@ const _hoisted_5 = {
   key: 0,
   class: "aheart-tree-select__tag aheart-tree-select__tag--rest"
 };
-const _hoisted_6 = {
+const _hoisted_6 = ["aria-labelledby", "aria-describedby", "aria-label"];
+const _hoisted_7 = {
   key: 1,
   class: "aheart-tree-select__empty",
   role: "status"
@@ -50,6 +52,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const attrs = useAttrs();
+    const instanceId = useStableId(void 0, "aheart-tree-select").value;
+    const panelId = `aheart-tree-select-panel-${instanceId}`;
+    const treeId = `aheart-tree-select-tree-${instanceId}`;
     const emit = __emit;
     const rootRef = ref(null);
     const triggerRef = ref(null);
@@ -58,6 +63,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
+    const resolvedAriaDescribedby = computed(() => attrs["aria-describedby"]);
     const openState = useControllableState({
       controlled: () => props.open,
       isControlled: isOpenControlled,
@@ -103,6 +109,34 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const query = searchText.value.trim().toLowerCase();
       return query ? filterNodes(props.treeData, query) : props.treeData;
     });
+    const activeKey = ref();
+    const nodeId = (key) => `${instanceId}-node-${encodeURIComponent(String(key)).replaceAll("%", "_")}`;
+    const activeNodeId = computed(() => {
+      if (!mergedOpen.value || activeKey.value === void 0)
+        return void 0;
+      return flattenNodes(filteredTreeData.value).some((node) => String(node.key) === String(activeKey.value)) ? nodeId(activeKey.value) : void 0;
+    });
+    const syncTreeNodeIds = () => {
+      var _a;
+      for (const element of Array.from(((_a = panelRef.value) == null ? void 0 : _a.querySelectorAll("[data-tree-key]")) ?? [])) {
+        const key = element.dataset.treeKey;
+        if (key !== void 0)
+          element.id = nodeId(key);
+      }
+    };
+    watch([filteredTreeData, mergedOpen], ([, open]) => {
+      if (open)
+        void nextTick(syncTreeNodeIds);
+    }, { flush: "post" });
+    const handleTreeFocusin = (event) => {
+      var _a;
+      const node = event.target.closest("[data-tree-key]");
+      if ((node == null ? void 0 : node.dataset.treeKey) !== void 0) {
+        const key = node.dataset.treeKey;
+        activeKey.value = ((_a = flattenNodes(filteredTreeData.value).find((item) => String(item.key) === key)) == null ? void 0 : _a.key) ?? key;
+        syncTreeNodeIds();
+      }
+    };
     const searchExpandedKeys = computed(() => flattenNodes(filteredTreeData.value).filter((node) => {
       var _a;
       return (_a = node.children) == null ? void 0 : _a.length;
@@ -139,8 +173,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         event.preventDefault();
         requestOpen(true);
         void nextTick(() => {
-          var _a, _b;
-          return (_b = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-key][tabindex="0"]')) == null ? void 0 : _b.focus();
+          var _a;
+          syncTreeNodeIds();
+          const node = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-key][tabindex="0"]');
+          if ((node == null ? void 0 : node.dataset.treeKey) !== void 0)
+            activeKey.value = node.dataset.treeKey;
+          node == null ? void 0 : node.focus();
         });
       } else if (event.key === "Escape" && mergedOpen.value) {
         event.preventDefault();
@@ -202,6 +240,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": __props.disabled ? "true" : void 0,
           "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-controls": panelId,
+          "aria-activedescendant": activeNodeId.value,
+          "aria-describedby": resolvedAriaDescribedby.value,
           "aria-haspopup": "tree",
           onClick: toggleOpen,
           onKeydown: handleTriggerKeydown
@@ -260,7 +301,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ref_key: "panelRef",
             ref: panelRef,
             class: normalizeClass(["aheart-tree-select__panel", panelClass.value]),
-            style: normalizeStyle(panelStyle.value)
+            style: normalizeStyle(panelStyle.value),
+            id: panelId,
+            role: "dialog",
+            "aria-labelledby": resolvedAriaLabelledby.value || void 0,
+            "aria-describedby": resolvedAriaDescribedby.value || void 0,
+            "aria-label": resolvedAriaLabelledby.value ? void 0 : "树选择",
+            onFocusin: handleTreeFocusin
           }, [
             __props.showSearch ? withDirectives((openBlock(), createElementBlock("input", {
               key: 0,
@@ -273,6 +320,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               [vModelText, searchText.value]
             ]) : createCommentVNode("", true),
             createVNode(unref(Tree), {
+              id: treeId,
               "tree-data": filteredTreeData.value,
               "selected-keys": selectedKeys.value,
               "expanded-keys": searchText.value ? searchExpandedKeys.value : void 0,
@@ -280,8 +328,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               disabled: __props.disabled,
               "onUpdate:selectedKeys": handleSelect
             }, null, 8, ["tree-data", "selected-keys", "expanded-keys", "multiple", "disabled"]),
-            searchText.value.trim() && filteredTreeData.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_6, "暂无匹配节点")) : createCommentVNode("", true)
-          ], 6)), [
+            searchText.value.trim() && filteredTreeData.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_7, "暂无匹配节点")) : createCommentVNode("", true)
+          ], 46, _hoisted_6)), [
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

@@ -7,9 +7,10 @@ const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const useControllableState = require("../utils/use-controllable-state.js");
+const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 require("./style.css.js");
-const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled"];
+const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled", "aria-activedescendant", "aria-labelledby", "aria-describedby"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-cascader__value aheart-cascader__tags"
@@ -20,17 +21,18 @@ const _hoisted_5 = {
   key: 0,
   class: "aheart-cascader__tag aheart-cascader__tag--rest"
 };
-const _hoisted_6 = {
+const _hoisted_6 = ["aria-labelledby", "aria-describedby", "aria-label"];
+const _hoisted_7 = {
   key: 1,
   class: "aheart-cascader__search-results"
 };
-const _hoisted_7 = ["data-cascader-path", "disabled", "onClick"];
-const _hoisted_8 = {
+const _hoisted_8 = ["data-cascader-path", "disabled", "onClick"];
+const _hoisted_9 = {
   key: 0,
   class: "aheart-cascader__empty",
   role: "status"
 };
-const _hoisted_9 = ["data-cascader-value", "disabled", "aria-busy", "onClick"];
+const _hoisted_10 = ["data-cascader-value", "id", "data-cascader-column", "disabled", "aria-busy", "onClick", "onFocus"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{ name: "ACascader" },
   __name: "cascader",
@@ -59,12 +61,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       ...option,
       children: option.children ? cloneOptions(option.children) : void 0
     }));
+    const instanceId = useStableId.useStableId(void 0, "aheart-cascader").value;
+    const panelId = `aheart-cascader-panel-${instanceId}`;
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const panelRef = vue.ref(null);
     const columnsRef = vue.ref(null);
     const searchText = vue.ref("");
     const activePath = vue.ref([]);
+    const focusedPath = vue.ref([]);
     const loadingPaths = vue.ref([]);
     const innerOptions = vue.ref(cloneOptions(props.options));
     const isControlled = usePropPresence.usePropPresence("modelValue", "model-value");
@@ -167,6 +172,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const query = searchText.value.trim().toLowerCase();
       return collectLeaves(innerOptions.value).filter((result) => result.labels.join(" / ").toLowerCase().includes(query));
     });
+    const attrs = vue.useAttrs();
+    const resolvedAriaLabelledby = vue.computed(() => attrs["aria-labelledby"]);
+    const resolvedAriaDescribedby = vue.computed(() => attrs["aria-describedby"]);
+    const optionId = (option, columnIndex) => {
+      var _a;
+      return `${instanceId}-option-${columnIndex}-${Math.max(0, ((_a = columns.value[columnIndex]) == null ? void 0 : _a.indexOf(option)) ?? 0)}`;
+    };
+    const activeDescendantId = vue.computed(() => {
+      var _a, _b, _c;
+      if (!mergedOpen.value || searchText.value.trim())
+        return void 0;
+      const path = focusedPath.value;
+      if (!path.length)
+        return void 0;
+      const option = ((_b = (_a = findOption(path.slice(0, -1))) == null ? void 0 : _a.children) == null ? void 0 : _b.find((item) => item.value === path.at(-1))) ?? (path.length === 1 ? innerOptions.value.find((item) => item.value === path[0]) : void 0);
+      if (!option || !((_c = columns.value[path.length - 1]) == null ? void 0 : _c.includes(option)))
+        return void 0;
+      return optionId(option, path.length - 1);
+    });
     const isSelected = (columnIndex, option) => selectedPaths.value.some((path) => path[columnIndex] === option.value && path.length === columnIndex + 1);
     const isLoading = (columnIndex, option) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
     const requestOpen = (open) => {
@@ -238,6 +262,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }
       }
     };
+    const handleOptionFocus = (option, columnIndex) => {
+      focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value];
+    };
     const handleTriggerKeydown = (event) => {
       if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
         event.preventDefault();
@@ -256,13 +283,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     const handleOptionKeydown = (event) => {
-      var _a, _b;
+      var _a, _b, _c, _d, _e, _f;
       const current = event.currentTarget;
       const options = Array.from(((_a = current.parentElement) == null ? void 0 : _a.querySelectorAll(".aheart-cascader__option:not(:disabled)")) ?? []);
       const index = options.indexOf(current);
+      const columnIndex = Number(current.dataset.cascaderColumn);
+      const option = (_b = columns.value[columnIndex]) == null ? void 0 : _b.find((item) => String(item.value) === current.dataset.cascaderValue);
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
-        (_b = options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length]) == null ? void 0 : _b.focus();
+        (_c = options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length]) == null ? void 0 : _c.focus();
       } else if (event.key === "Escape") {
         event.preventDefault();
         requestOpen(false);
@@ -270,6 +299,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           var _a2;
           return (_a2 = triggerRef.value) == null ? void 0 : _a2.focus();
         });
+      } else if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        (_d = options[event.key === "Home" ? 0 : options.length - 1]) == null ? void 0 : _d.focus();
+      } else if (event.key === "ArrowRight" && option && isBranch(option)) {
+        event.preventDefault();
+        void handleOption(option, columnIndex).then(() => vue.nextTick(() => {
+          var _a2, _b2;
+          return (_b2 = (_a2 = panelRef.value) == null ? void 0 : _a2.querySelector(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)) == null ? void 0 : _b2.focus();
+        }));
+      } else if (event.key === "ArrowLeft" && columnIndex > 0) {
+        event.preventDefault();
+        const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1];
+        (_f = Array.from(((_e = panelRef.value) == null ? void 0 : _e.querySelectorAll(`[data-cascader-column="${columnIndex - 1}"]`)) ?? []).find((element) => element.dataset.cascaderValue === String(parentValue))) == null ? void 0 : _f.focus();
       }
     };
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
@@ -315,6 +357,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           tabindex: __props.disabled ? -1 : 0,
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": __props.disabled ? "true" : void 0,
+          "aria-controls": panelId,
+          "aria-activedescendant": activeDescendantId.value,
+          "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-describedby": resolvedAriaDescribedby.value,
           "aria-haspopup": "dialog",
           onClick: toggleOpen,
           onKeydown: handleTriggerKeydown
@@ -375,7 +421,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-cascader__panel", panelClass.value]),
             style: vue.normalizeStyle(panelStyle.value),
             role: "dialog",
-            "aria-label": "级联选择"
+            id: panelId,
+            "aria-labelledby": resolvedAriaLabelledby.value || void 0,
+            "aria-describedby": resolvedAriaDescribedby.value || void 0,
+            "aria-label": resolvedAriaLabelledby.value ? void 0 : "级联选择"
           }, [
             __props.showSearch ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("input", {
               key: 0,
@@ -387,7 +436,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             }, null, 512)), [
               [vue.vModelText, searchText.value]
             ]) : vue.createCommentVNode("", true),
-            searchText.value.trim() ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_6, [
+            searchText.value.trim() ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_7, [
               (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(searchResults.value, (result) => {
                 return vue.openBlock(), vue.createElementBlock("button", {
                   key: pathKey(result.path),
@@ -396,9 +445,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   "data-cascader-path": pathKey(result.path),
                   disabled: __props.disabled || result.disabled,
                   onClick: ($event) => selectPath(result.path)
-                }, vue.toDisplayString(result.labels.join(" / ")), 9, _hoisted_7);
+                }, vue.toDisplayString(result.labels.join(" / ")), 9, _hoisted_8);
               }), 128)),
-              searchResults.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_8, "暂无匹配选项")) : vue.createCommentVNode("", true)
+              searchResults.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_9, "暂无匹配选项")) : vue.createCommentVNode("", true)
             ])) : (vue.openBlock(), vue.createElementBlock("div", {
               key: 2,
               ref_key: "columnsRef",
@@ -416,9 +465,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       class: vue.normalizeClass(["aheart-cascader__option", { "is-active": activePath.value[columnIndex] === option.value, "is-selected": isSelected(columnIndex, option), "is-loading": isLoading(columnIndex, option) }]),
                       type: "button",
                       "data-cascader-value": option.value,
+                      id: optionId(option, columnIndex),
+                      "data-cascader-column": columnIndex,
                       disabled: __props.disabled || option.disabled || isLoading(columnIndex, option),
                       "aria-busy": isLoading(columnIndex, option) ? "true" : void 0,
                       onClick: ($event) => handleOption(option, columnIndex),
+                      onFocus: ($event) => handleOptionFocus(option, columnIndex),
                       onKeydown: handleOptionKeydown
                     }, [
                       vue.createElementVNode("span", null, vue.toDisplayString(option.label), 1),
@@ -434,12 +486,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         size: 16,
                         "aria-hidden": "true"
                       })) : vue.createCommentVNode("", true)
-                    ], 42, _hoisted_9);
+                    ], 42, _hoisted_10);
                   }), 128))
                 ]);
               }), 128))
             ], 512))
-          ], 6)), [
+          ], 14, _hoisted_6)), [
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

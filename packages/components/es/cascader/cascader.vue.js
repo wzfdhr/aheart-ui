@@ -1,13 +1,14 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
+import { defineComponent, ref, computed, watch, useAttrs, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
+import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import "./style.css.js";
-const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled"];
+const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled", "aria-activedescendant", "aria-labelledby", "aria-describedby"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-cascader__value aheart-cascader__tags"
@@ -18,17 +19,18 @@ const _hoisted_5 = {
   key: 0,
   class: "aheart-cascader__tag aheart-cascader__tag--rest"
 };
-const _hoisted_6 = {
+const _hoisted_6 = ["aria-labelledby", "aria-describedby", "aria-label"];
+const _hoisted_7 = {
   key: 1,
   class: "aheart-cascader__search-results"
 };
-const _hoisted_7 = ["data-cascader-path", "disabled", "onClick"];
-const _hoisted_8 = {
+const _hoisted_8 = ["data-cascader-path", "disabled", "onClick"];
+const _hoisted_9 = {
   key: 0,
   class: "aheart-cascader__empty",
   role: "status"
 };
-const _hoisted_9 = ["data-cascader-value", "disabled", "aria-busy", "onClick"];
+const _hoisted_10 = ["data-cascader-value", "id", "data-cascader-column", "disabled", "aria-busy", "onClick", "onFocus"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{ name: "ACascader" },
   __name: "cascader",
@@ -57,12 +59,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       ...option,
       children: option.children ? cloneOptions(option.children) : void 0
     }));
+    const instanceId = useStableId(void 0, "aheart-cascader").value;
+    const panelId = `aheart-cascader-panel-${instanceId}`;
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const panelRef = ref(null);
     const columnsRef = ref(null);
     const searchText = ref("");
     const activePath = ref([]);
+    const focusedPath = ref([]);
     const loadingPaths = ref([]);
     const innerOptions = ref(cloneOptions(props.options));
     const isControlled = usePropPresence("modelValue", "model-value");
@@ -165,6 +170,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const query = searchText.value.trim().toLowerCase();
       return collectLeaves(innerOptions.value).filter((result) => result.labels.join(" / ").toLowerCase().includes(query));
     });
+    const attrs = useAttrs();
+    const resolvedAriaLabelledby = computed(() => attrs["aria-labelledby"]);
+    const resolvedAriaDescribedby = computed(() => attrs["aria-describedby"]);
+    const optionId = (option, columnIndex) => {
+      var _a;
+      return `${instanceId}-option-${columnIndex}-${Math.max(0, ((_a = columns.value[columnIndex]) == null ? void 0 : _a.indexOf(option)) ?? 0)}`;
+    };
+    const activeDescendantId = computed(() => {
+      var _a, _b, _c;
+      if (!mergedOpen.value || searchText.value.trim())
+        return void 0;
+      const path = focusedPath.value;
+      if (!path.length)
+        return void 0;
+      const option = ((_b = (_a = findOption(path.slice(0, -1))) == null ? void 0 : _a.children) == null ? void 0 : _b.find((item) => item.value === path.at(-1))) ?? (path.length === 1 ? innerOptions.value.find((item) => item.value === path[0]) : void 0);
+      if (!option || !((_c = columns.value[path.length - 1]) == null ? void 0 : _c.includes(option)))
+        return void 0;
+      return optionId(option, path.length - 1);
+    });
     const isSelected = (columnIndex, option) => selectedPaths.value.some((path) => path[columnIndex] === option.value && path.length === columnIndex + 1);
     const isLoading = (columnIndex, option) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
     const requestOpen = (open) => {
@@ -236,6 +260,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     };
+    const handleOptionFocus = (option, columnIndex) => {
+      focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value];
+    };
     const handleTriggerKeydown = (event) => {
       if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
         event.preventDefault();
@@ -254,13 +281,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     const handleOptionKeydown = (event) => {
-      var _a, _b;
+      var _a, _b, _c, _d, _e, _f;
       const current = event.currentTarget;
       const options = Array.from(((_a = current.parentElement) == null ? void 0 : _a.querySelectorAll(".aheart-cascader__option:not(:disabled)")) ?? []);
       const index = options.indexOf(current);
+      const columnIndex = Number(current.dataset.cascaderColumn);
+      const option = (_b = columns.value[columnIndex]) == null ? void 0 : _b.find((item) => String(item.value) === current.dataset.cascaderValue);
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
-        (_b = options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length]) == null ? void 0 : _b.focus();
+        (_c = options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length]) == null ? void 0 : _c.focus();
       } else if (event.key === "Escape") {
         event.preventDefault();
         requestOpen(false);
@@ -268,6 +297,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           var _a2;
           return (_a2 = triggerRef.value) == null ? void 0 : _a2.focus();
         });
+      } else if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        (_d = options[event.key === "Home" ? 0 : options.length - 1]) == null ? void 0 : _d.focus();
+      } else if (event.key === "ArrowRight" && option && isBranch(option)) {
+        event.preventDefault();
+        void handleOption(option, columnIndex).then(() => nextTick(() => {
+          var _a2, _b2;
+          return (_b2 = (_a2 = panelRef.value) == null ? void 0 : _a2.querySelector(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)) == null ? void 0 : _b2.focus();
+        }));
+      } else if (event.key === "ArrowLeft" && columnIndex > 0) {
+        event.preventDefault();
+        const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1];
+        (_f = Array.from(((_e = panelRef.value) == null ? void 0 : _e.querySelectorAll(`[data-cascader-column="${columnIndex - 1}"]`)) ?? []).find((element) => element.dataset.cascaderValue === String(parentValue))) == null ? void 0 : _f.focus();
       }
     };
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
@@ -313,6 +355,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           tabindex: __props.disabled ? -1 : 0,
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": __props.disabled ? "true" : void 0,
+          "aria-controls": panelId,
+          "aria-activedescendant": activeDescendantId.value,
+          "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-describedby": resolvedAriaDescribedby.value,
           "aria-haspopup": "dialog",
           onClick: toggleOpen,
           onKeydown: handleTriggerKeydown
@@ -373,7 +419,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: normalizeClass(["aheart-cascader__panel", panelClass.value]),
             style: normalizeStyle(panelStyle.value),
             role: "dialog",
-            "aria-label": "级联选择"
+            id: panelId,
+            "aria-labelledby": resolvedAriaLabelledby.value || void 0,
+            "aria-describedby": resolvedAriaDescribedby.value || void 0,
+            "aria-label": resolvedAriaLabelledby.value ? void 0 : "级联选择"
           }, [
             __props.showSearch ? withDirectives((openBlock(), createElementBlock("input", {
               key: 0,
@@ -385,7 +434,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             }, null, 512)), [
               [vModelText, searchText.value]
             ]) : createCommentVNode("", true),
-            searchText.value.trim() ? (openBlock(), createElementBlock("div", _hoisted_6, [
+            searchText.value.trim() ? (openBlock(), createElementBlock("div", _hoisted_7, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(searchResults.value, (result) => {
                 return openBlock(), createElementBlock("button", {
                   key: pathKey(result.path),
@@ -394,9 +443,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   "data-cascader-path": pathKey(result.path),
                   disabled: __props.disabled || result.disabled,
                   onClick: ($event) => selectPath(result.path)
-                }, toDisplayString(result.labels.join(" / ")), 9, _hoisted_7);
+                }, toDisplayString(result.labels.join(" / ")), 9, _hoisted_8);
               }), 128)),
-              searchResults.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_8, "暂无匹配选项")) : createCommentVNode("", true)
+              searchResults.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_9, "暂无匹配选项")) : createCommentVNode("", true)
             ])) : (openBlock(), createElementBlock("div", {
               key: 2,
               ref_key: "columnsRef",
@@ -414,9 +463,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       class: normalizeClass(["aheart-cascader__option", { "is-active": activePath.value[columnIndex] === option.value, "is-selected": isSelected(columnIndex, option), "is-loading": isLoading(columnIndex, option) }]),
                       type: "button",
                       "data-cascader-value": option.value,
+                      id: optionId(option, columnIndex),
+                      "data-cascader-column": columnIndex,
                       disabled: __props.disabled || option.disabled || isLoading(columnIndex, option),
                       "aria-busy": isLoading(columnIndex, option) ? "true" : void 0,
                       onClick: ($event) => handleOption(option, columnIndex),
+                      onFocus: ($event) => handleOptionFocus(option, columnIndex),
                       onKeydown: handleOptionKeydown
                     }, [
                       createElementVNode("span", null, toDisplayString(option.label), 1),
@@ -432,12 +484,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         size: 16,
                         "aria-hidden": "true"
                       })) : createCommentVNode("", true)
-                    ], 42, _hoisted_9);
+                    ], 42, _hoisted_10);
                   }), 128))
                 ]);
               }), 128))
             ], 512))
-          ], 6)), [
+          ], 14, _hoisted_6)), [
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

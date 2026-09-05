@@ -1,9 +1,11 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Modal from '../modal.vue'
+
+enableAutoUnmount(afterEach)
 
 const mountModal = (options: Record<string, any> = {}) =>
   mount(Modal, {
@@ -610,6 +612,37 @@ describe('Modal', () => {
     }
   })
 
+  it('holds the body scroll lock until the leave motion is hidden', async () => {
+    const wrapper = mountModal({ props: { open: true, title: 'Scroll lock' } })
+    expect(document.body.style.overflow).toBe('hidden')
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      expect(wrapper.find('.aheart-modal').classes()).toContain('is-leave')
+      expect(document.body.style.overflow).toBe('hidden')
+
+      await vi.advanceTimersByTimeAsync(181)
+      expect(document.body.style.overflow).toBe('')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('locks and restores the owner document for a custom container', () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const wrapper = mountModal({
+      props: { open: true, title: 'Custom document', getContainer: () => ownerDocument.body }
+    })
+
+    expect(ownerDocument.body.style.overflow).toBe('hidden')
+    wrapper.unmount()
+    expect(ownerDocument.body.style.overflow).toBe('')
+    iframe.remove()
+  })
+
   it('does not emit afterClose when open changes to true', async () => {
     const wrapper = mountModal({
       props: { open: false, forceRender: true, title: 'Opening' }
@@ -734,6 +767,40 @@ describe('Modal', () => {
     wrapper.unmount()
     trigger.remove()
     outside.remove()
+  })
+
+  it('restores focus to a pointer opener even when the browser does not focus buttons on click', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(false)
+          return () => h('div', [
+            h('button', { class: 'pointer-opener', onClick: () => (open.value = true) }, [h('span', 'Open')]),
+            h(Modal, {
+              open: open.value,
+              title: 'Pointer modal',
+              getContainer: false,
+              'onUpdate:open': (value: boolean) => (open.value = value)
+            })
+          ])
+        }
+      }),
+      { attachTo: document.body }
+    )
+    const trigger = wrapper.get('.pointer-opener')
+    await trigger.get('span').trigger('pointerdown')
+    await trigger.trigger('click')
+    await nextTick()
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.get('.aheart-modal').trigger('keydown', { key: 'Escape' })
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
+      expect(document.activeElement).toBe(trigger.element)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('lets focusable config control trigger focus restoration', async () => {
@@ -1115,6 +1182,15 @@ describe('Modal', () => {
     const locked = mountModal({ props: { open: true, keyboard: false } })
     await locked.find('.aheart-modal').trigger('keydown', { key: 'Escape' })
     expect(locked.emitted('update:open')).toBeUndefined()
+  })
+
+  it('emits one close request for an attached Escape when the controlled owner rejects it', async () => {
+    const wrapper = mountModal({ attachTo: document.body, props: { open: true } })
+    await wrapper.get('.aheart-modal').trigger('keydown', { key: 'Escape' })
+
+    expect(wrapper.emitted('update:open')).toEqual([[false]])
+    expect(wrapper.emitted('close')).toHaveLength(1)
+    expect(wrapper.props('open')).toBe(true)
   })
 
   it('renders custom closeIcon content and hides the close button when closeIcon is false', () => {

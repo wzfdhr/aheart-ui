@@ -304,6 +304,7 @@ const handleTriggerClick = () => {
     return
   }
 
+  clearHoverTimers()
   setOpen(!mergedOpen.value, { source: 'trigger' })
 }
 
@@ -325,6 +326,7 @@ const handleMouseLeave = (event: MouseEvent) => {
 
 const handleContextmenu = (event: MouseEvent) => {
   if (triggerSet.value.has('contextMenu')) {
+    clearHoverTimers()
     event.preventDefault()
     setOpen(true, { source: 'trigger' })
   }

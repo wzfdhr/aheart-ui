@@ -1,7 +1,9 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Tooltip from '../tooltip.vue'
+
+enableAutoUnmount(afterEach)
 
 const createRect = ({ left, top, width, height }: { left: number; top: number; width: number; height: number }) =>
   ({
@@ -638,5 +640,46 @@ describe('Tooltip', () => {
     expect(document.activeElement).toBe(wrapper.find('.tooltip-focus-target').element)
     wrapper.unmount()
     outside.remove()
+  })
+
+  it('keeps focus tooltip open while focus moves into its teleported popup', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    const wrapper = mountTooltip({
+      attachTo: document.body,
+      props: { title: 'Help', trigger: 'focus' },
+      slots: { default: '<button aria-describedby="help-copy">Help</button>', title: '<button class="tooltip-popup-focus">More</button>' }
+    })
+    const trigger = wrapper.find('.aheart-tooltip__trigger')
+    await trigger.trigger('focusin')
+    const popup = wrapper.find('.aheart-tooltip__popup')
+    const popupButton = wrapper.find<HTMLElement>('.tooltip-popup-focus')
+    expect(trigger.attributes('aria-describedby')).toBe(popup.attributes('id'))
+    expect(wrapper.get('.aheart-tooltip__trigger > button').attributes('aria-describedby')).toBe(`help-copy ${popup.attributes('id')}`)
+    await trigger.trigger('focusout', { relatedTarget: popupButton.element })
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([true])
+    await popupButton.trigger('focusout', { relatedTarget: outside })
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    wrapper.unmount()
+    outside.remove()
+  })
+
+  it('cancels a pending hover open when click intent arrives', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mountTooltip({
+        props: { title: 'Help', trigger: ['hover', 'click'], mouseEnterDelay: 0.2 },
+        slots: { default: '<button>Help</button>' }
+      })
+      const trigger = wrapper.find('.aheart-tooltip__trigger')
+      await trigger.trigger('mouseenter')
+      await trigger.trigger('click')
+      vi.advanceTimersByTime(200)
+      await wrapper.vm.$nextTick()
+      expect(wrapper.emitted('openChange')?.filter(([open]) => open)).toHaveLength(1)
+      expect(wrapper.find('.aheart-tooltip__popup').exists()).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

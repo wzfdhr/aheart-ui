@@ -14,6 +14,10 @@ const loadingOpen = ref(false)
 const styledOpen = ref(false)
 const asyncOpen = ref(false)
 const guardedOpen = ref(false)
+const overlayContractOpen = ref(false)
+const nestedPopoverOpen = ref(false)
+const nestedDrawerOpen = ref(false)
+const modalAboveDrawerOpen = ref(false)
 const pending = ref(false)
 const requestError = ref('')
 const resolveRequest = ref<(() => void) | null>(null)
@@ -165,6 +169,45 @@ Modal focuses attention in a blocking dialog for decisions, confirmations, and s
 .modal-interaction-workbench__error p { margin: 0; }
 .modal-interaction-workbench__result { margin: 0; padding: 12px 24px; border-top: 1px solid #eef1f5; color: #667085; font-size: 13px; }
 @media (max-width: 640px) { .modal-interaction-workbench__toolbar { display: block; padding: 16px; } .modal-interaction-workbench__actions { justify-content: flex-start; margin-top: 16px; } .modal-interaction-workbench__result { padding: 12px 16px; } }
+</style>
+
+## D2 浮层焦点工作台
+
+<section class="d2-overlay-workbench" role="region" aria-label="浮层焦点工作台">
+  <p>这条路径把 Teleport 浮层、Modal 与 Drawer 放进同一层级：Escape 每次只关闭最上层，最后一层离场后才恢复页面滚动。</p>
+  <AButton type="primary" @click="overlayContractOpen = true">Open overlay contract</AButton>
+  <AModal v-model:open="overlayContractOpen" title="Overlay contract modal" :footer="false">
+    <p>先验证弹出内容，再验证混合阻塞层。</p>
+    <div class="d2-overlay-workbench__actions">
+      <APopover
+        v-model:open="nestedPopoverOpen"
+        title="Nested popover"
+        trigger="click"
+        placement="bottomLeft"
+      >
+        <AButton>Open nested popover</AButton>
+        <template #content>
+          <button type="button" class="d2-overlay-workbench__popup-action">Popover action</button>
+        </template>
+      </APopover>
+      <AButton @click="nestedDrawerOpen = true">Open nested drawer</AButton>
+    </div>
+    <ADrawer v-model:open="nestedDrawerOpen" title="Nested drawer" :width="360">
+      <p>Drawer 与外层 Modal 共用顶层关闭和焦点所有权。</p>
+      <AButton @click="modalAboveDrawerOpen = true">Open modal above drawer</AButton>
+      <AModal v-model:open="modalAboveDrawerOpen" title="Modal above drawer" :footer="false">
+        <p>Escape 只关闭这个 Modal，Drawer 仍保持打开。</p>
+      </AModal>
+    </ADrawer>
+  </AModal>
+</section>
+
+<style>
+.d2-overlay-workbench { display: grid; gap: 12px; margin: 20px 0 28px; padding: 20px; border: 1px solid #d9e1ea; border-radius: 8px; background: #fff; color: #344054; }
+.d2-overlay-workbench > p { margin: 0; color: #667085; }
+.d2-overlay-workbench__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.d2-overlay-workbench__popup-action { min-height: 36px; padding: 7px 11px; border: 1px solid #98a2b3; border-radius: 6px; background: #fff; color: #344054; cursor: pointer; }
+.d2-overlay-workbench__popup-action:focus-visible { border-color: #1677ff; outline: 2px solid rgba(22, 119, 255, .25); outline-offset: 2px; }
 </style>
 
 ## 基础用法

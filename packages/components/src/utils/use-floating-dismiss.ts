@@ -1,4 +1,5 @@
 import { nextTick, onScopeDispose, toValue, watchEffect, type MaybeRefOrGetter } from 'vue'
+import { registerOverlay } from './overlay-controller'
 
 type ElementSource = MaybeRefOrGetter<HTMLElement | null | undefined>
 
@@ -13,11 +14,15 @@ export interface UseFloatingDismissOptions {
 }
 
 export function useFloatingDismiss(options: UseFloatingDismissOptions) {
-  let removeListeners: (() => void) | undefined
+  const overlayId = Symbol('aheart-floating-overlay')
+  let unregister: (() => void) | undefined
+  let restoreZIndex: (() => void) | undefined
 
   const cleanup = () => {
-    removeListeners?.()
-    removeListeners = undefined
+    unregister?.()
+    unregister = undefined
+    restoreZIndex?.()
+    restoreZIndex = undefined
   }
 
   const focusTrigger = () => {
@@ -46,39 +51,49 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
       return
     }
 
-    const handlePointerDown = (event: PointerEvent) => {
-      const trigger = toValue(options.trigger)
-      const floating = toValue(options.floating)
-      const path = event.composedPath()
+    const trigger = toValue(options.trigger)
+    const floating = toValue(options.floating)
+    const ownerDocument = trigger?.ownerDocument ?? floating?.ownerDocument ?? document
+    const HTMLElementConstructor = ownerDocument.defaultView?.HTMLElement
+    const floatingElement = HTMLElementConstructor && floating instanceof HTMLElementConstructor
+      ? floating as HTMLElement
+      : null
+    const originalZIndex = floatingElement?.style.zIndex ?? ''
+    const computedZIndex = Number.parseFloat(
+      floatingElement ? ownerDocument.defaultView?.getComputedStyle(floatingElement).zIndex ?? '' : ''
+    )
+    const baseZIndex = Number.isFinite(computedZIndex) ? computedZIndex : 0
+    restoreZIndex = floatingElement
+      ? () => {
+          floatingElement.style.zIndex = originalZIndex
+        }
+      : undefined
+    unregister = registerOverlay({
+      id: overlayId,
+      document: ownerDocument,
+      getTrigger: () => toValue(options.trigger),
+      getContent: () => toValue(options.floating),
+      escapeEnabled: () => toValue(options.open),
+      getBaseZIndex: () => baseZIndex,
+      onZIndexChange: (zIndex) => {
+        const content = toValue(options.floating)
+        if (HTMLElementConstructor && content instanceof HTMLElementConstructor) {
+          ;(content as HTMLElement).style.zIndex = String(zIndex)
+        }
+      },
+      onPointerDownOutside: (event) => {
+        if (toValue(options.open)) options.onDismiss('outside', event)
+      },
+      onEscape: (event) => {
+        options.onDismiss('escape', event)
 
-      if ((trigger && path.includes(trigger)) || (floating && path.includes(floating))) {
-        return
+        if (toValue(options.restoreFocus) !== false) {
+          void nextTick(() => {
+            if (!toValue(options.open)) focusTrigger()
+          })
+        }
       }
-
-      options.onDismiss('outside', event)
-    }
-
-    const handleKeydown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') {
-        return
-      }
-
-      event.preventDefault()
-      options.onDismiss('escape', event)
-
-      if (toValue(options.restoreFocus) !== false) {
-        void nextTick(() => {
-          if (!toValue(options.open)) focusTrigger()
-        })
-      }
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown, true)
-    document.addEventListener('keydown', handleKeydown, true)
-    removeListeners = () => {
-      document.removeEventListener('pointerdown', handlePointerDown, true)
-      document.removeEventListener('keydown', handleKeydown, true)
-    }
+    })
     onCleanup(cleanup)
   })
 

@@ -1,6 +1,8 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 import TreeSelect from '../tree-select.vue'
+
+enableAutoUnmount(afterEach)
 
 const mountTreeSelect = (options: Record<string, any> = {}) => mount(TreeSelect, {
   ...options,
@@ -13,6 +15,35 @@ const treeData = [
 ]
 
 describe('TreeSelect', () => {
+  it('connects combobox, dialog, and visible tree active descendant', async () => {
+    const wrapper = mountTreeSelect({ attrs: { 'aria-describedby': 'tree-help' }, props: { treeData } })
+    const trigger = wrapper.get('.aheart-tree-select__trigger')
+    await trigger.trigger('click')
+    const panel = wrapper.get('.aheart-tree-select__panel')
+    expect(trigger.attributes('aria-controls')).toBe(panel.attributes('id'))
+    expect(trigger.attributes('aria-describedby')).toBe('tree-help')
+    const node = wrapper.get('[data-tree-key="workspace"]')
+    await node.trigger('focusin')
+    const activeId = trigger.attributes('aria-activedescendant')
+    expect(activeId).toBe(node.attributes('id'))
+    expect(panel.element.querySelector(`#${activeId}`)).toBe(node.element)
+  })
+
+  it('clears a stale active descendant after search filters the focused node', async () => {
+    const wrapper = mountTreeSelect({ props: { treeData, showSearch: true } })
+    const trigger = wrapper.get('.aheart-tree-select__trigger')
+    await trigger.trigger('click')
+    const workspace = wrapper.get('[data-tree-key="workspace"]')
+    await workspace.trigger('focusin')
+    expect(trigger.attributes('aria-activedescendant')).toBe(workspace.attributes('id'))
+
+    await wrapper.get('input[type="search"]').setValue('Archive')
+    expect(trigger.attributes('aria-activedescendant')).toBeUndefined()
+    const archive = wrapper.get('[data-tree-key="archive"]')
+    await archive.trigger('focusin')
+    expect(trigger.attributes('aria-activedescendant')).toBe(archive.attributes('id'))
+  })
+
   it('opens a tree and emits a selected value', async () => {
     const wrapper = mountTreeSelect({ props: { treeData, placeholder: 'Choose a page' } })
 
