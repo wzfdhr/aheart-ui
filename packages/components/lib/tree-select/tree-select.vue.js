@@ -2,6 +2,7 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
+const controlContext = require("../form/control-context.js");
 const index = require("../tree/index.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
@@ -11,7 +12,7 @@ const useControllableState = require("../utils/use-controllable-state.js");
 const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 require("./style.css.js");
-const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby"];
+const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby", "aria-invalid"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-tree-select__value aheart-tree-select__tags"
@@ -54,6 +55,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const attrs = vue.useAttrs();
+    const formControl = controlContext.useFormControl();
     const instanceId = useStableId.useStableId(void 0, "aheart-tree-select").value;
     const panelId = `aheart-tree-select-panel-${instanceId}`;
     const treeId = `aheart-tree-select-tree-${instanceId}`;
@@ -64,8 +66,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const searchText = vue.ref("");
     const isControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
+    const resolvedId = vue.computed(() => props.id ?? attrs.id ?? (formControl == null ? void 0 : formControl.controlId.value));
     const resolvedAriaLabelledby = vue.computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
+    const mergedAriaLabelledby = vue.computed(() => controlContext.mergeAriaIds(resolvedAriaLabelledby.value, formControl == null ? void 0 : formControl.labelledBy.value));
     const resolvedAriaDescribedby = vue.computed(() => attrs["aria-describedby"]);
+    const mergedAriaDescribedby = vue.computed(() => controlContext.mergeAriaIds(resolvedAriaDescribedby.value, formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedAriaInvalid = vue.computed(() => attrs["aria-invalid"] ?? ((formControl == null ? void 0 : formControl.invalid.value) ? true : void 0));
     const openState = useControllableState.useControllableState({
       controlled: () => props.open,
       isControlled: isOpenControlled,
@@ -139,6 +145,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         syncTreeNodeIds();
       }
     };
+    const handleTriggerFocusout = () => {
+      void vue.nextTick(() => {
+        var _a, _b;
+        const active = document.activeElement;
+        if (!((_a = triggerRef.value) == null ? void 0 : _a.contains(active)) && !((_b = panelRef.value) == null ? void 0 : _b.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
     const searchExpandedKeys = vue.computed(() => flattenNodes(filteredTreeData.value).filter((node) => {
       var _a;
       return (_a = node.children) == null ? void 0 : _a.length;
@@ -153,6 +167,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const emitValue = (value) => {
       valueState.setState(value, { force: true });
+      formControl == null ? void 0 : formControl.change();
     };
     const handleSelect = (keys) => {
       const value = props.multiple ? keys : keys[0];
@@ -236,18 +251,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: "aheart-tree-select__trigger",
-          id: __props.id,
+          id: resolvedId.value,
           role: "combobox",
           tabindex: __props.disabled ? -1 : 0,
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": __props.disabled ? "true" : void 0,
-          "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-labelledby": mergedAriaLabelledby.value,
           "aria-controls": panelId,
           "aria-activedescendant": activeNodeId.value,
-          "aria-describedby": resolvedAriaDescribedby.value,
+          "aria-describedby": mergedAriaDescribedby.value,
+          "aria-invalid": resolvedAriaInvalid.value,
           "aria-haspopup": "tree",
           onClick: toggleOpen,
-          onKeydown: handleTriggerKeydown
+          onKeydown: handleTriggerKeydown,
+          onFocusout: handleTriggerFocusout
         }, [
           __props.multiple && selectedTags.value.length ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_2, [
             (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(visibleSelectedTags.value, (tag) => {
@@ -309,7 +326,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "aria-labelledby": resolvedAriaLabelledby.value || void 0,
             "aria-describedby": resolvedAriaDescribedby.value || void 0,
             "aria-label": resolvedAriaLabelledby.value ? void 0 : "树选择",
-            onFocusin: handleTreeFocusin
+            onFocusin: handleTreeFocusin,
+            onFocusout: handleTriggerFocusout
           }, [
             __props.showSearch ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("input", {
               key: 0,

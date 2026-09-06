@@ -119,6 +119,7 @@ const resolvedValues = computed(() =>
 )
 const errors = reactive<Record<string, string>>({})
 const formModel = reactive<Record<string, unknown>>({})
+const pendingUpdates = new Map<string, unknown>()
 const fieldRevisions = reactive<Record<string, number>>({})
 const fieldRefs = new Map<string, FieldRef>()
 
@@ -132,11 +133,22 @@ watch(
 
 watch(
   resolvedValues,
-  (next) => {
+  (next, previous) => {
     Object.keys(formModel).forEach((key) => {
       if (!Object.prototype.hasOwnProperty.call(next, key)) delete formModel[key]
     })
-    Object.assign(formModel, next)
+    Object.entries(next).forEach(([key, value]) => {
+      const accepted = pendingUpdates.get(key)
+      if (pendingUpdates.has(key)) {
+        if (isSameValue(value, accepted)) {
+          pendingUpdates.delete(key)
+          delete errors[key]
+        }
+      } else if (previous && !isSameValue(value, previous[key])) {
+        delete errors[key]
+      }
+      formModel[key] = cloneSnapshot(value)
+    })
   },
   { immediate: true, deep: true }
 )
@@ -201,6 +213,27 @@ function isEmptyValue(value: unknown) {
     (Array.isArray(value) && (value.length === 0 || value.every((item) => item === undefined || item === null || item === '')))
   )
 }
+function isSameValue(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((item, index) => isSameValue(item, right[index]))
+  }
+  if (left && right && typeof left === 'object' && typeof right === 'object') {
+    const leftRecord = left as Record<string, unknown>
+    const rightRecord = right as Record<string, unknown>
+    const leftKeys = Object.keys(leftRecord)
+    const rightKeys = Object.keys(rightRecord)
+    return leftKeys.length === rightKeys.length && leftKeys.every((key) => Object.prototype.hasOwnProperty.call(rightRecord, key) && isSameValue(leftRecord[key], rightRecord[key]))
+  }
+  return false
+}
+function cloneSnapshot<T>(value: T): T {
+  if (Array.isArray(value)) return value.map((item) => cloneSnapshot(item)) as T
+  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, cloneSnapshot(item)])) as T
+  }
+  return value
+}
 const isMissingRequiredValue = (field: AIFormFieldV1, value: unknown) =>
   field.type === 'date-range' || field.type === 'time-range'
     ? !Array.isArray(value) || value.length !== 2 || value.some((item) => item === undefined || item === null || item === '')
@@ -219,7 +252,7 @@ const setFieldRef = (key: string, instance: unknown) => {
 }
 const focusField = (key: string) => fieldRefs.get(key)?.focus()
 const update = async (key: string, value: unknown) => {
-  delete errors[key]
+  pendingUpdates.set(key, value)
   emit('update:modelValue', { ...values.value, [key]: value })
   await nextTick()
   if (values.value[key] !== value) fieldRevisions[key] = (fieldRevisions[key] ?? 0) + 1

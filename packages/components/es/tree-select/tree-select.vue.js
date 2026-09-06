@@ -1,5 +1,6 @@
 import { defineComponent, useAttrs, ref, computed, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
+import { useFormControl, mergeAriaIds } from "../form/control-context.js";
 import Tree from "../tree/index.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
@@ -9,7 +10,7 @@ import { useControllableState } from "../utils/use-controllable-state.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import "./style.css.js";
-const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby"];
+const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby", "aria-invalid"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-tree-select__value aheart-tree-select__tags"
@@ -52,6 +53,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const attrs = useAttrs();
+    const formControl = useFormControl();
     const instanceId = useStableId(void 0, "aheart-tree-select").value;
     const panelId = `aheart-tree-select-panel-${instanceId}`;
     const treeId = `aheart-tree-select-tree-${instanceId}`;
@@ -62,8 +64,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const searchText = ref("");
     const isControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
+    const resolvedId = computed(() => props.id ?? attrs.id ?? (formControl == null ? void 0 : formControl.controlId.value));
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
+    const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl == null ? void 0 : formControl.labelledBy.value));
     const resolvedAriaDescribedby = computed(() => attrs["aria-describedby"]);
+    const mergedAriaDescribedby = computed(() => mergeAriaIds(resolvedAriaDescribedby.value, formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedAriaInvalid = computed(() => attrs["aria-invalid"] ?? ((formControl == null ? void 0 : formControl.invalid.value) ? true : void 0));
     const openState = useControllableState({
       controlled: () => props.open,
       isControlled: isOpenControlled,
@@ -137,6 +143,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         syncTreeNodeIds();
       }
     };
+    const handleTriggerFocusout = () => {
+      void nextTick(() => {
+        var _a, _b;
+        const active = document.activeElement;
+        if (!((_a = triggerRef.value) == null ? void 0 : _a.contains(active)) && !((_b = panelRef.value) == null ? void 0 : _b.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
     const searchExpandedKeys = computed(() => flattenNodes(filteredTreeData.value).filter((node) => {
       var _a;
       return (_a = node.children) == null ? void 0 : _a.length;
@@ -151,6 +165,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const emitValue = (value) => {
       valueState.setState(value, { force: true });
+      formControl == null ? void 0 : formControl.change();
     };
     const handleSelect = (keys) => {
       const value = props.multiple ? keys : keys[0];
@@ -234,18 +249,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: "aheart-tree-select__trigger",
-          id: __props.id,
+          id: resolvedId.value,
           role: "combobox",
           tabindex: __props.disabled ? -1 : 0,
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": __props.disabled ? "true" : void 0,
-          "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-labelledby": mergedAriaLabelledby.value,
           "aria-controls": panelId,
           "aria-activedescendant": activeNodeId.value,
-          "aria-describedby": resolvedAriaDescribedby.value,
+          "aria-describedby": mergedAriaDescribedby.value,
+          "aria-invalid": resolvedAriaInvalid.value,
           "aria-haspopup": "tree",
           onClick: toggleOpen,
-          onKeydown: handleTriggerKeydown
+          onKeydown: handleTriggerKeydown,
+          onFocusout: handleTriggerFocusout
         }, [
           __props.multiple && selectedTags.value.length ? (openBlock(), createElementBlock("span", _hoisted_2, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(visibleSelectedTags.value, (tag) => {
@@ -307,7 +324,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "aria-labelledby": resolvedAriaLabelledby.value || void 0,
             "aria-describedby": resolvedAriaDescribedby.value || void 0,
             "aria-label": resolvedAriaLabelledby.value ? void 0 : "树选择",
-            onFocusin: handleTreeFocusin
+            onFocusin: handleTreeFocusin,
+            onFocusout: handleTriggerFocusout
           }, [
             __props.showSearch ? withDirectives((openBlock(), createElementBlock("input", {
               key: 0,

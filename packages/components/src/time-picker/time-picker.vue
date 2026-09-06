@@ -1,19 +1,19 @@
 <template>
-  <span ref="rootRef" class="aheart-time-picker" :class="rootClass">
+  <span ref="rootRef" @focusout="handleControlBlur" class="aheart-time-picker" :class="rootClass">
     <span ref="triggerRef" class="aheart-time-picker__selector">
       <span v-if="hasPrefix" class="aheart-time-picker__prefix"><slot name="prefix"><ARenderNode :node="prefix" /></slot></span>
       <input
         ref="inputRef"
         class="aheart-time-picker__input"
-        :id="id"
+        :id="resolvedId"
         :value="displayValue"
         :placeholder="resolvedPlaceholder"
         :disabled="isDisabled"
         :readonly="readOnly"
         role="combobox"
-        :aria-labelledby="resolvedAriaLabelledby"
-        :aria-describedby="describedBy ?? ariaDescribedby"
-        :aria-invalid="status === 'error' ? 'true' : undefined"
+        :aria-labelledby="mergedAriaLabelledby"
+        :aria-describedby="mergedAriaDescribedby"
+        :aria-invalid="resolvedAriaInvalid"
         :aria-controls="panelId"
         :aria-expanded="mergedOpen ? 'true' : 'false'"
         aria-haspopup="dialog"
@@ -36,7 +36,7 @@
       <div
         v-if="motion.isMounted.value"
         v-show="motion.phase.value !== 'hidden'"
-        ref="panelRef"
+        @focusout="handleControlBlur" ref="panelRef"
         :id="panelId"
         class="aheart-time-picker__panel"
         :class="panelClass"
@@ -121,6 +121,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, type PickerTimeParts } from '../picker-core/time'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
@@ -144,6 +145,7 @@ const emit = defineEmits(timePickerEmits)
 const attrs = useAttrs()
 const slots = useSlots()
 const config = useAheartConfig()
+const formControl = useFormControl()
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -155,6 +157,11 @@ const periodColumnRef = ref<HTMLElement | null>(null)
 const activeColumn = ref<TimeColumn>('hour')
 const instanceId = useStableId(undefined, 'aheart-time').value
 const panelId = `${instanceId}-panel`
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl?.labelledBy.value))
+const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isFormatProvided = usePropPresence('format')
@@ -192,7 +199,7 @@ const hasPrefix = computed(() => props.prefix !== undefined || Boolean(slots.pre
 const rootClass = computed(() => [
   `aheart-time-picker--${resolvedSize.value}`,
   `aheart-time-picker--${resolvedVariant.value}`,
-  props.status && `aheart-time-picker--${props.status}`,
+  resolvedStatus.value && `aheart-time-picker--${resolvedStatus.value}`,
   { 'is-open': mergedOpen.value, 'is-disabled': isDisabled.value }
 ])
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
@@ -322,9 +329,16 @@ const commitValue = (parts: TimeParts, close = true) => {
   const value = formatTime(parts, props.valueFormat)
   valueState.setState(value, { force: true })
   emit('change', value)
+  formControl?.change()
   if (isValueControlled.value && !props.needConfirm) syncDraft()
   if (close) requestOpen(false)
   return true
+}
+const handleControlBlur = () => {
+  void nextTick(() => {
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
+    if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
+  })
 }
 const selectHour = (hour: number) => {
   if (isInteractionDisabled.value || isHourDisabled(hour)) return
@@ -365,6 +379,7 @@ const clearValue = () => {
   if (isInteractionDisabled.value) return
   valueState.setState(undefined, { force: true })
   emit('change', undefined)
+  formControl?.change()
   emit('clear')
   requestOpen(false)
 }

@@ -26,7 +26,7 @@ const dedicatedE2e = {
   'time-picker': 'e2e/time-picker-range.spec.ts',
   cascader: 'e2e/q3-form-controls.spec.ts',
   'tree-select': 'e2e/q3-form-controls.spec.ts',
-  form: 'e2e/q4-data-forms.spec.ts',
+  form: 'e2e/form-engine.spec.ts',
   table: 'e2e/q4-data-forms.spec.ts',
   pagination: 'e2e/q4-data-forms.spec.ts',
   'date-picker': 'e2e/date-picker.spec.ts',

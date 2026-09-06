@@ -251,4 +251,52 @@ describe('AIForm', () => {
     await wrapper.get('form').trigger('submit')
     expect(wrapper.emitted('submit')).toBeUndefined()
   })
+
+  it('composes core Form and FormItem validation while preserving the AI error contract', async () => {
+    const wrapper = mount(AIForm, {
+      props: {
+        schema: { version: '1', fields: [{ key: 'title', label: '标题', type: 'input', required: true }] },
+        modelValue: {}
+      }
+    })
+
+    expect(wrapper.findComponent({ name: 'AForm' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'AFormItem' }).exists()).toBe(true)
+    await wrapper.get('form').trigger('submit')
+    expect(wrapper.emitted('validation-error')?.[0]?.[0]).toEqual([{ key: 'title', message: '标题为必填项' }])
+  })
+
+  it('does not validate required fields that become disabled or hidden', async () => {
+    const schema = {
+      version: '1',
+      fields: [
+        { key: 'enabled', label: '启用', type: 'switch' },
+        { key: 'secret', label: '秘密', type: 'input', required: true, disabledWhen: { field: 'enabled', operator: 'equals', value: false } },
+        { key: 'conditional', label: '条件', type: 'input', required: true, visibleWhen: { field: 'enabled', operator: 'equals', value: true } }
+      ]
+    }
+    const wrapper = mount(AIForm, { props: { schema, modelValue: { enabled: false } } })
+    await wrapper.get('form').trigger('submit')
+    expect(wrapper.emitted('validation-error')).toBeUndefined()
+    await wrapper.setProps({ modelValue: { enabled: true } })
+    await wrapper.get('form').trigger('submit')
+    expect(wrapper.emitted('validation-error')?.at(-1)?.[0]).toEqual([
+      { key: 'secret', message: '秘密为必填项' },
+      { key: 'conditional', message: '条件为必填项' }
+    ])
+  })
+
+  it('keeps errors when a controlled parent rejects an update and clears them after acceptance', async () => {
+    const schema = { version: '1', fields: [{ key: 'title', label: '标题', type: 'input', required: true }] }
+    const wrapper = mount(AIForm, { props: { schema, modelValue: {} }, attachTo: document.body })
+    await wrapper.get('form').trigger('submit')
+    const input = wrapper.get('.aheart-input__control')
+    await input.setValue('待审核')
+    expect(wrapper.get('.aheart-ai-form__field-error').text()).toBe('标题为必填项')
+    await wrapper.setProps({ modelValue: {} })
+    expect(wrapper.get('.aheart-ai-form__field-error').text()).toBe('标题为必填项')
+    await wrapper.setProps({ modelValue: { title: '待审核' } })
+    expect(wrapper.find('.aheart-ai-form__field-error').exists()).toBe(false)
+    wrapper.unmount()
+  })
 })

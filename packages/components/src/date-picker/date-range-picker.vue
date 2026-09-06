@@ -1,17 +1,17 @@
 <template>
   <span ref="rootRef" class="aheart-date-range-picker" :class="rootClass">
-    <span ref="triggerRef" class="aheart-date-range-picker__selector" @mousedown="handleSelectorMouseDown">
+    <span ref="triggerRef" class="aheart-date-range-picker__selector" @mousedown="handleSelectorMouseDown" @focusout="handleControlBlur">
       <span v-if="hasPrefix" class="aheart-date-range-picker__prefix"><slot name="prefix"><ARenderNode :node="prefix" /></slot></span>
       <span class="aheart-date-range-picker__field" :class="{ 'is-active': activePart === 'start' && mergedOpen }">
         <input
           ref="startInputRef"
-          :id="id ? `${id}-start` : undefined"
+          :id="resolvedId ? `${resolvedId}-start` : undefined"
           data-range-part="start"
           role="combobox"
           aria-haspopup="dialog"
-          :aria-labelledby="labelledBy ?? ariaLabelledby"
-          :aria-describedby="describedBy ?? ariaDescribedby"
-          :aria-invalid="status === 'error' ? 'true' : undefined"
+          :aria-labelledby="mergedAriaLabelledby"
+          :aria-describedby="mergedAriaDescribedby"
+          :aria-invalid="resolvedAriaInvalid"
           :aria-controls="panelId"
           :aria-expanded="mergedOpen ? 'true' : 'false'"
           :aria-activedescendant="mergedOpen ? activeCellId : undefined"
@@ -36,13 +36,13 @@
       <span class="aheart-date-range-picker__field" :class="{ 'is-active': activePart === 'end' && mergedOpen }">
         <input
           ref="endInputRef"
-          :id="id ? `${id}-end` : undefined"
+          :id="resolvedId ? `${resolvedId}-end` : undefined"
           data-range-part="end"
           role="combobox"
           aria-haspopup="dialog"
-          :aria-labelledby="labelledBy ?? ariaLabelledby"
-          :aria-describedby="describedBy ?? ariaDescribedby"
-          :aria-invalid="status === 'error' ? 'true' : undefined"
+          :aria-labelledby="mergedAriaLabelledby"
+          :aria-describedby="mergedAriaDescribedby"
+          :aria-invalid="resolvedAriaInvalid"
           :aria-controls="panelId"
           :aria-expanded="mergedOpen ? 'true' : 'false'"
           :aria-activedescendant="mergedOpen ? activeCellId : undefined"
@@ -73,7 +73,7 @@
       <div
         v-if="motion.isMounted.value"
         v-show="motion.phase.value !== 'hidden'"
-        ref="panelRef"
+        @focusout="handleControlBlur" ref="panelRef"
         :id="panelId"
         class="aheart-date-range-picker__panel"
         :class="panelClass"
@@ -157,8 +157,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
 import { createDateMatrix, isPickerDateDisabled } from '../picker-core/calendar'
 import { comparePickerValues, defaultValueFormat, formatPickerValue, normalizeFormats, parsePickerValue } from '../picker-core/codec'
@@ -181,6 +182,8 @@ const props = defineProps(dateRangePickerProps)
 const emit = defineEmits(dateRangePickerEmits)
 const slots = useSlots()
 const config = useAheartConfig()
+const formControl = useFormControl()
+const attrs = useAttrs()
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
@@ -196,6 +199,17 @@ const inputTexts = ref<[string, string]>(['', ''])
 const nowDate = ref<PickerDate>()
 const rangeParts: RangePickerPart[] = ['start', 'end']
 const panelId = `${useStableId(undefined, 'aheart-date-range-picker').value}-panel`
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl?.labelledBy.value))
+const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
+const handleControlBlur = () => {
+  void nextTick(() => {
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
+    if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
+  })
+}
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isPanelControlled = usePropPresence('pickerValue', 'picker-value')
@@ -247,7 +261,7 @@ const rangeComplete = computed(() => Boolean(
 const rootClass = computed(() => [
   `aheart-date-range-picker--${resolvedSize.value}`,
   `aheart-date-range-picker--${resolvedVariant.value}`,
-  props.status && `aheart-date-range-picker--${props.status}`,
+  resolvedStatus.value && `aheart-date-range-picker--${resolvedStatus.value}`,
   { 'is-open': mergedOpen.value, 'is-disabled': isDisabled.value }
 ])
 
@@ -540,6 +554,7 @@ const commitValue = (value: RangePickerValue, close = true) => {
   const normalized = normalizeRangeValue(value, resolvedValueFormat.value, props.order, props.allowEmpty) ?? value
   valueState.setState(normalized ? [...normalized] as RangePickerValue : undefined, { force: true })
   emit('change', normalized)
+  formControl?.change()
   if (isValueControlled.value) void nextTick(syncInputs)
   if (close) requestOpen(false, true)
 }

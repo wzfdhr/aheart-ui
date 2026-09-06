@@ -3,18 +3,20 @@
     <div
       ref="triggerRef"
       class="aheart-tree-select__trigger"
-      :id="id"
+      :id="resolvedId"
       role="combobox"
       :tabindex="disabled ? -1 : 0"
       :aria-expanded="mergedOpen ? 'true' : 'false'"
       :aria-disabled="disabled ? 'true' : undefined"
-      :aria-labelledby="resolvedAriaLabelledby"
+      :aria-labelledby="mergedAriaLabelledby"
       :aria-controls="panelId"
       :aria-activedescendant="activeNodeId"
-      :aria-describedby="resolvedAriaDescribedby"
+      :aria-describedby="mergedAriaDescribedby"
+      :aria-invalid="resolvedAriaInvalid"
       aria-haspopup="tree"
       @click="toggleOpen"
       @keydown="handleTriggerKeydown"
+      @focusout="handleTriggerFocusout"
     >
       <span v-if="multiple && selectedTags.length" class="aheart-tree-select__value aheart-tree-select__tags">
         <span v-for="tag in visibleSelectedTags" :key="String(tag.key)" class="aheart-tree-select__tag">
@@ -47,6 +49,7 @@
       :aria-describedby="resolvedAriaDescribedby || undefined"
       :aria-label="resolvedAriaLabelledby ? undefined : '树选择'"
       @focusin="handleTreeFocusin"
+      @focusout="handleTriggerFocusout"
     >
       <input
         v-if="showSearch"
@@ -74,6 +77,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useAttrs, watch } from 'vue'
 import AIcon from '../icon/icon.vue'
+import { mergeAriaIds, useFormControl } from '../form/control-context'
 import ATree from '../tree'
 import type { TreeKey, TreeNodeData } from '../tree'
 import type { FloatingPlacement } from '../utils/floating-core'
@@ -115,6 +119,7 @@ const props = withDefaults(defineProps<{
   autoAdjustOverflow: true
 })
 const attrs = useAttrs()
+const formControl = useFormControl()
 const instanceId = useStableId(undefined, 'aheart-tree-select').value
 const panelId = `aheart-tree-select-panel-${instanceId}`
 const treeId = `aheart-tree-select-tree-${instanceId}`
@@ -131,8 +136,12 @@ const panelRef = ref<HTMLElement | null>(null)
 const searchText = ref('')
 const isControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
+const resolvedId = computed(() => props.id ?? attrs.id as string | undefined ?? formControl?.controlId.value)
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl?.labelledBy.value))
 const resolvedAriaDescribedby = computed(() => attrs['aria-describedby'] as string | undefined)
+const mergedAriaDescribedby = computed(() => mergeAriaIds(resolvedAriaDescribedby.value, formControl?.describedBy.value))
+const resolvedAriaInvalid = computed(() => attrs['aria-invalid'] as boolean | undefined ?? (formControl?.invalid.value ? true : undefined))
 const openState = useControllableState({
   controlled: () => props.open,
   isControlled: isOpenControlled,
@@ -201,6 +210,12 @@ const handleTreeFocusin = (event: FocusEvent) => {
     syncTreeNodeIds()
   }
 }
+const handleTriggerFocusout = () => {
+  void nextTick(() => {
+    const active = document.activeElement
+    if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
+  })
+}
 const searchExpandedKeys = computed(() => flattenNodes(filteredTreeData.value)
   .filter((node) => node.children?.length)
   .map((node) => node.key))
@@ -213,6 +228,7 @@ const requestOpen = (open: boolean) => {
 }
 const emitValue = (value: TreeSelectValue) => {
   valueState.setState(value, { force: true })
+  formControl?.change()
 }
 const handleSelect = (keys: TreeKey[]) => {
   const value: TreeSelectValue = props.multiple ? keys : keys[0]

@@ -1,4 +1,4 @@
-import { type FormModel, type FormValidationError } from './types';
+import { type FormModel, type FormNamePath, type FormValidationError } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly model: {
         readonly type: import("vue").PropType<FormModel>;
@@ -37,38 +37,54 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
         readonly default: false;
     };
+    readonly validateTrigger: {
+        readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+        readonly default: false;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
 }>, {
     validate: () => {
+        outOfDate?: true | undefined;
         values: FormModel;
         errorFields: FormValidationError[];
     } | Promise<{
+        outOfDate?: true | undefined;
         values: FormModel;
         errorFields: FormValidationError[];
     }>;
-    validateFields: (names?: string[] | undefined) => {
+    validateFields: (names?: FormNamePath[] | undefined) => {
+        outOfDate?: true | undefined;
         values: FormModel;
         errorFields: FormValidationError[];
     } | Promise<{
+        outOfDate?: true | undefined;
         values: FormModel;
         errorFields: FormValidationError[];
     }>;
-    resetFields: (names?: string[] | undefined) => void;
-    clearValidate: (names?: string[] | undefined) => void;
-    setFieldValue: (name: string, value: unknown) => void;
+    resetFields: (names?: FormNamePath[] | undefined) => void;
+    clearValidate: (names?: FormNamePath[] | undefined) => void;
+    setFieldValue: (name: FormNamePath, value: unknown) => void;
     setFieldsValue: (values: FormModel) => void;
-    getFieldValue: (name: string) => unknown;
-    getFieldsValue: (names?: true | string[] | undefined) => FormModel;
-    getFieldError: (name: string) => string[];
-    getFieldsError: (names?: string[] | undefined) => {
-        name: string;
+    getFieldValue: (name: FormNamePath) => unknown;
+    getFieldsValue: (names?: true | FormNamePath[] | undefined) => FormModel;
+    getFieldError: (name: FormNamePath) => string[];
+    getFieldsError: (names?: FormNamePath[] | undefined) => {
+        name: FormNamePath;
         errors: string[];
     }[];
-    scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
+    scrollToField: (name: FormNamePath, options?: ScrollIntoViewOptions | undefined) => void;
+    setFieldsErrors: (fields: {
+        name: FormNamePath;
+        errors: string[];
+    }[]) => void;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     submit: (event: Event) => void;
     finish: (values: FormModel) => void;
     finishFailed: (info: import("./types").FormFinishFailedInfo) => void;
-    validate: (name: string, status: boolean, errors: string[]) => void;
+    validate: (name: FormNamePath, status: boolean, errors: string[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly model: {
         readonly type: import("vue").PropType<FormModel>;
@@ -107,14 +123,23 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
         readonly default: false;
     };
+    readonly validateTrigger: {
+        readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+        readonly default: false;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
 }>> & Readonly<{
     onSubmit?: ((event: Event) => any) | undefined;
     onFinish?: ((values: FormModel) => any) | undefined;
     onFinishFailed?: ((info: import("./types").FormFinishFailedInfo) => any) | undefined;
-    onValidate?: ((name: string, status: boolean, errors: string[]) => any) | undefined;
+    onValidate?: ((name: FormNamePath, status: boolean, errors: string[]) => any) | undefined;
 }>, {
     readonly variant: import("../config").AheartVariant;
     readonly layout: import("./types").FormLayout;
+    readonly preserve: boolean;
     readonly disabled: boolean;
     readonly colon: boolean;
     readonly model: FormModel;
@@ -122,6 +147,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly labelAlign: import("./types").FormLabelAlign;
     readonly requiredMark: import("./types").FormRequiredMark;
     readonly scrollToFirstError: import("./types").FormScrollToFirstError;
+    readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
 }>;

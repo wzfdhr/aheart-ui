@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, provide, reactive, ref, watch } from 'vue'
 import { provideAheartConfig } from '../config'
 import {
   formContextKey,
@@ -15,10 +15,12 @@ import {
   type FormFieldState,
   type FormMessageVariables,
   type FormModel,
+  type FormNamePath,
   type FormRule,
   type FormValidateFirst,
   type FormValidationError
 } from './types'
+import { deleteNamePathValue, getNamePathValue, namePathKey, namePathLabel, normalizeNamePath, setNamePathValue } from './name-path'
 import './style.css'
 
 defineOptions({
@@ -133,7 +135,12 @@ const isSameFormValue = (left: unknown, right: unknown): boolean => {
 const initialValues = cloneInitialValue(props.model)
 const retiredFieldNames = new Set<string>()
 const validationRuns = new Map<string, number>()
+const externalErrors = reactive(new Map<string, string[]>())
 let submissionRun = 0
+let validationRevision = 0
+let disposed = false
+let resetting = false
+const staleValidation = Symbol('stale-validation')
 
 provideAheartConfig(
   computed(() => ({
@@ -153,9 +160,9 @@ const formClass = computed(() => [
   }
 ])
 
-const cloneValues = (): FormModel => ({ ...props.model })
+const cloneValues = (): FormModel => cloneInitialValue(props.model)
 
-const getRules = (name: string) => [...(props.rules[name] ?? []), ...(fieldStates[name]?.rules ?? [])]
+const getRules = (name: FormNamePath) => [...(typeof name === 'string' ? (props.rules[name] ?? []) : []), ...(fieldStates[namePathKey(name)]?.rules ?? [])]
 
 const isEmptyValue = (value: unknown) =>
   value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)
@@ -172,32 +179,33 @@ const getValueSize = (value: unknown) => {
   return undefined
 }
 
-const getDefaultMessage = (name: string, rule: FormRule) => {
+const getDefaultMessage = (name: FormNamePath, rule: FormRule) => {
+  const label = namePathLabel(name)
   if (rule.required) {
-    return `${name} is required`
+    return `${label} is required`
   }
 
   if (rule.type) {
-    return `${name} is not a valid ${rule.type}`
+    return `${label} is not a valid ${rule.type}`
   }
 
   if (rule.len !== undefined) {
-    return `${name} length must be ${rule.len}`
+    return `${label} length must be ${rule.len}`
   }
 
   if (rule.min !== undefined) {
-    return `${name} must be at least ${rule.min}`
+    return `${label} must be at least ${rule.min}`
   }
 
   if (rule.max !== undefined) {
-    return `${name} must be at most ${rule.max}`
+    return `${label} must be at most ${rule.max}`
   }
 
   if (rule.pattern) {
-    return `${name} format is invalid`
+    return `${label} format is invalid`
   }
 
-  return `${name} is invalid`
+  return `${label} is invalid`
 }
 
 const stringifyMessageVariable = (value: unknown) => (value === undefined || value === null ? '' : String(value))
@@ -207,9 +215,9 @@ const interpolateMessage = (message: string, variables: Record<string, unknown>)
     match.startsWith('\\') ? match.slice(1) : stringifyMessageVariable(variables[key.trim()])
   )
 
-const getRuleMessageVariables = (name: string, rule: FormRule) => ({
-  name,
-  ...(fieldStates[name]?.messageVariables ?? {}),
+const getRuleMessageVariables = (name: FormNamePath, rule: FormRule) => ({
+  name: namePathLabel(name),
+  ...(fieldStates[namePathKey(name)]?.messageVariables ?? {}),
   ...(rule.type !== undefined ? { type: rule.type } : {}),
   ...(rule.len !== undefined ? { len: rule.len } : {}),
   ...(rule.min !== undefined ? { min: rule.min } : {}),
@@ -238,7 +246,7 @@ const normalizeValidatorError = (error: unknown, message: string) => {
   return typeof error === 'string' && error ? error : message
 }
 
-const validateRule = (name: string, value: unknown, rule: FormRule): MaybePromise<RuleValidationResult> => {
+const validateRule = (name: FormNamePath, value: unknown, rule: FormRule): MaybePromise<RuleValidationResult> => {
   const message = interpolateMessage(rule.message ?? getDefaultMessage(name, rule), getRuleMessageVariables(name, rule))
 
   if (rule.required && isEmptyValue(value)) {
@@ -301,23 +309,24 @@ const validateRule = (name: string, value: unknown, rule: FormRule): MaybePromis
   }
 }
 
-const ensureFieldState = (name: string) => {
-  if (!fieldStates[name]) {
-    fieldStates[name] = { errors: [], validating: false, rules: [], validateFirst: false, messageVariables: {} }
+const ensureFieldState = (name: FormNamePath) => {
+  const key = namePathKey(name)
+  if (!fieldStates[key]) {
+    fieldStates[key] = { errors: [], validating: false, rules: [], validateFirst: false, messageVariables: {}, dependencies: [], validateTrigger: props.validateTrigger, preserve: props.preserve }
   }
 
-  return fieldStates[name]
+  return fieldStates[key]
 }
 
 const collectRuleErrors = (
-  name: string,
+  name: FormNamePath,
   rules: FormRule[],
   validateFirst: FormValidateFirst
 ): MaybePromise<string[]> => {
   if (validateFirst === true) {
     const runNext = (index: number): MaybePromise<string[]> => {
       for (let ruleIndex = index; ruleIndex < rules.length; ruleIndex += 1) {
-        const result = validateRule(name, props.model[name], rules[ruleIndex])
+        const result = validateRule(name, getNamePathValue(props.model, name), rules[ruleIndex])
 
         if (isPromiseLike(result)) {
           return result.then((error) => (error ? [error] : runNext(ruleIndex + 1)))
@@ -334,7 +343,7 @@ const collectRuleErrors = (
     return runNext(0)
   }
 
-  const results = rules.map((rule) => validateRule(name, props.model[name], rule))
+  const results = rules.map((rule) => validateRule(name, getNamePathValue(props.model, name), rule))
   const finalize = (resolved: RuleValidationResult[]) => {
     const errors = resolved.filter((error): error is string => Boolean(error))
     return validateFirst === 'parallel' ? errors.slice(0, 1) : errors
@@ -345,25 +354,35 @@ const collectRuleErrors = (
     : finalize(results as RuleValidationResult[])
 }
 
-const validateField = (name: string): MaybePromise<FormValidationError | undefined> => {
+const validateField = (name: FormNamePath, trigger?: 'change' | 'blur'): MaybePromise<FormValidationError | undefined | typeof staleValidation> => {
+  const key = namePathKey(name)
   const fieldState = ensureFieldState(name)
-  const runId = (validationRuns.get(name) ?? 0) + 1
-  validationRuns.set(name, runId)
-  const result = collectRuleErrors(name, getRules(name), fieldState.validateFirst)
+  if (!fieldNames.has(key) && !retiredFieldNames.has(key)) fieldNames.set(key, normalizeNamePath(name))
+  const startedModel = cloneValues()
+  const runId = (validationRuns.get(key) ?? 0) + 1
+  validationRuns.set(key, runId)
+  const rules = getRules(name).filter((rule) => {
+    if (!trigger || rule.validateTrigger === undefined) return true
+    if (rule.validateTrigger === false) return false
+    return rule.validateTrigger === trigger || (Array.isArray(rule.validateTrigger) && rule.validateTrigger.includes(trigger))
+  })
+  const result = collectRuleErrors(name, rules, fieldState.validateFirst)
 
   const finish = (errors: string[]) => {
-    if (validationRuns.get(name) !== runId || retiredFieldNames.has(name)) {
-      return undefined
+    if (disposed || validationRuns.get(key) !== runId || retiredFieldNames.has(key) || !isSameFormValue(startedModel, props.model)) {
+      if (validationRuns.get(key) === runId && fieldStates[key]) fieldStates[key].validating = false
+      return staleValidation
     }
 
-    if (fieldStates[name]) {
-      fieldStates[name].errors = errors
-      fieldStates[name].validating = false
+    if (fieldStates[key]) {
+      fieldStates[key].errors = errors
+      fieldStates[key].validating = false
     }
 
-    emit('validate', name, errors.length === 0, errors)
+    const allErrors = [...(externalErrors.get(key) ?? []), ...errors]
+    emit('validate', name, allErrors.length === 0, allErrors)
 
-    return errors.length > 0 ? { name, errors } : undefined
+    return allErrors.length > 0 ? { name, errors: allErrors } : undefined
   }
 
   if (isPromiseLike(result)) {
@@ -374,77 +393,101 @@ const validateField = (name: string): MaybePromise<FormValidationError | undefin
   return finish(result)
 }
 
-const getFieldNames = () =>
-  Array.from(new Set([...Object.keys(props.rules), ...Object.keys(fieldStates)])).filter(
-    (name) => !retiredFieldNames.has(name)
-  )
+const fieldNames = new Map<string, FormNamePath>()
+const getFieldNames = () => Array.from(fieldNames.entries()).filter(([key]) => !retiredFieldNames.has(key)).map(([, name]) => name)
+  .concat(Object.keys(props.rules).filter((name) => !fieldNames.has(namePathKey(name)) && !retiredFieldNames.has(namePathKey(name))).map((name) => name as FormNamePath))
 
-const validateFields = (names?: string[]) => {
-  const results = (names ?? getFieldNames()).map((name) => validateField(name))
-  const finish = (resolved: Array<FormValidationError | undefined>) => ({
-    values: cloneValues(),
-    errorFields: resolved.filter((error): error is FormValidationError => Boolean(error))
-  })
+const validateFields = (names?: FormNamePath[]) => {
+  const startRevision = validationRevision
+  const targets = names ?? getFieldNames()
+  const results = targets.map((name) => validateField(name))
+  const expectedRuns = targets.map((name) => validationRuns.get(namePathKey(name)))
+  const finish = (resolved: Array<FormValidationError | undefined | typeof staleValidation>) => {
+    const outOfDate = disposed || startRevision !== validationRevision || resolved.includes(staleValidation) ||
+      targets.some((name, index) => validationRuns.get(namePathKey(name)) !== expectedRuns[index])
+    return {
+      values: cloneValues(),
+      errorFields: resolved.filter((error): error is FormValidationError => error !== undefined && error !== staleValidation),
+      ...(outOfDate ? { outOfDate: true as const } : {})
+    }
+  }
 
   return results.some(isPromiseLike)
     ? Promise.all(results.map((result) => Promise.resolve(result))).then(finish)
-    : finish(results as Array<FormValidationError | undefined>)
+    : finish(results as Array<FormValidationError | undefined | typeof staleValidation>)
 }
 
 const validate = () => validateFields()
 
-const resetFields = (names?: string[]) => {
+const resetFields = (names?: FormNamePath[]) => {
+  const targetNames = (names ?? getFieldNames()).map(normalizeNamePath)
   submissionRun += 1
-  const targetNames = names ?? getFieldNames()
+  validationRevision += 1
+  resetting = true
+  pendingValidations.clear()
 
   targetNames.forEach((name) => {
-    validationRuns.set(name, (validationRuns.get(name) ?? 0) + 1)
+    const key = namePathKey(name)
+    validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1)
+    externalErrors.delete(key)
 
-    if (Object.prototype.hasOwnProperty.call(initialValues, name)) {
-      props.model[name] = cloneInitialValue(initialValues[name])
+    if (typeof name === 'string' && Object.prototype.hasOwnProperty.call(initialValues, name)) {
+      setNamePathValue(props.model, name, cloneInitialValue(initialValues[name]))
+    } else if (typeof name !== 'string' && getNamePathValue(initialValues, name) !== undefined) {
+      setNamePathValue(props.model, name, cloneInitialValue(getNamePathValue(initialValues, name)))
     } else {
-      delete props.model[name]
+      deleteNamePathValue(props.model, name)
     }
 
-    if (fieldStates[name]) {
-      fieldStates[name].errors = []
-      fieldStates[name].validating = false
+    if (fieldStates[key]) {
+      fieldStates[key].errors = []
+      fieldStates[key].validating = false
     }
   })
+  resetting = false
+  observedModel = cloneValues()
+  targetNames.forEach((name) => notifiedValues.set(namePathKey(name), cloneInitialValue(getNamePathValue(props.model, name))))
 }
 
-const clearValidate = (names?: string[]) => {
-  const targetNames = names ?? Object.keys(fieldStates)
+const clearValidate = (names?: FormNamePath[]) => {
+  const targetNames = names ?? getFieldNames()
   targetNames.forEach((name) => {
-    if (fieldStates[name]) {
-      validationRuns.set(name, (validationRuns.get(name) ?? 0) + 1)
-      fieldStates[name].errors = []
-      fieldStates[name].validating = false
+    const key = namePathKey(name)
+    externalErrors.delete(key)
+    pendingValidations.delete(key)
+    validationRevision += 1
+    if (fieldStates[key]) {
+      validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1)
+      fieldStates[key].errors = []
+      fieldStates[key].validating = false
     }
   })
 }
 
-const setFieldValue = (name: string, value: unknown) => {
-  props.model[name] = value
+const setFieldValue = (name: FormNamePath, value: unknown) => {
+  setNamePathValue(props.model, name, value)
+  observeModel()
   clearValidate([name])
 }
 
 const setFieldsValue = (values: FormModel) => {
   Object.entries(values).forEach(([name, value]) => {
-    props.model[name] = value
+    setNamePathValue(props.model, name, value)
   })
+  observeModel()
   clearValidate(Object.keys(values))
 }
 
-const getFieldValue = (name: string) => props.model[name]
+const getFieldValue = (name: FormNamePath) => getNamePathValue(props.model, name)
 
-const pickValues = (names: string[]) =>
+const pickValues = (names: FormNamePath[]) =>
   names.reduce<FormModel>((values, name) => {
-    values[name] = props.model[name]
+    if (typeof name === 'string') values[name] = getNamePathValue(props.model, name)
+    else setNamePathValue(values, name, getNamePathValue(props.model, name))
     return values
   }, {})
 
-const getFieldsValue = (names?: string[] | true) => {
+const getFieldsValue = (names?: FormNamePath[] | true) => {
   if (names === true) {
     return cloneValues()
   }
@@ -452,17 +495,17 @@ const getFieldsValue = (names?: string[] | true) => {
   return pickValues(names ?? getFieldNames())
 }
 
-const getFieldError = (name: string) => [...(fieldStates[name]?.errors ?? [])]
+const getFieldError = (name: FormNamePath) => [...(fieldStates[namePathKey(name)]?.errors ?? []), ...(externalErrors.get(namePathKey(name)) ?? [])]
 
-const getFieldsError = (names?: string[]) =>
+const getFieldsError = (names?: FormNamePath[]) =>
   (names ?? getFieldNames()).map((name) => ({
     name,
     errors: getFieldError(name)
   }))
 
-const scrollToField = (name: string, options?: ScrollIntoViewOptions) => {
+const scrollToField = (name: FormNamePath, options?: ScrollIntoViewOptions) => {
   const target = Array.from(formElement.value?.querySelectorAll<HTMLElement>('[data-name]') ?? []).find(
-    (element) => element.dataset.name === name
+    (element) => element.dataset.name === (typeof name === 'string' ? name : JSON.stringify(name))
   )
 
   if (!target) {
@@ -485,32 +528,127 @@ const scrollToFirstError = (errorFields: FormValidationError[]) => {
   scrollToField(errorFields[0].name, props.scrollToFirstError === true ? undefined : props.scrollToFirstError)
 }
 
+const notifiedValues = new Map<string, unknown>()
+let observedModel = cloneValues()
+const fieldOptions = new Map<string, { validateTrigger?: FormFieldState['validateTrigger']; preserve?: boolean }>()
+const pendingValidations = new Map<string, { name: FormNamePath; event?: 'change' | 'blur' }>()
+let validationScheduled = false
+const queueValidation = (name: FormNamePath, event?: 'change' | 'blur') => {
+  const key = namePathKey(name)
+  const existing = pendingValidations.get(key)
+  if (!existing || existing.event !== undefined) pendingValidations.set(key, { name, event })
+  if (validationScheduled) return
+  validationScheduled = true
+  void nextTick(() => {
+    validationScheduled = false
+    const batch = [...pendingValidations.values()]
+    pendingValidations.clear()
+    if (disposed) return
+    for (const task of batch) {
+      if (!retiredFieldNames.has(namePathKey(task.name))) void validateField(task.name, task.event)
+    }
+  })
+}
+const clearExternalError = (name: FormNamePath) => externalErrors.delete(namePathKey(name))
+const invalidateField = (name: FormNamePath) => {
+  validationRevision += 1
+  const key = namePathKey(name)
+  validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1)
+  if (fieldStates[key]) {
+    fieldStates[key].errors = []
+    fieldStates[key].validating = false
+  }
+}
+const shouldTrigger = (trigger: FormFieldState['validateTrigger'] | undefined, event: 'change' | 'blur') =>
+  trigger !== false && (trigger === event || (Array.isArray(trigger) && trigger.includes(event)))
+const observeModel = () => {
+  const previous = observedModel
+  observedModel = cloneValues()
+  for (const name of getFieldNames()) {
+    const key = namePathKey(name)
+    if (!isSameFormValue(getNamePathValue(previous, name), getNamePathValue(props.model, name))) {
+      invalidateField(name)
+      clearExternalError(name)
+    }
+    const dependencies = fieldStates[key]?.dependencies ?? []
+    if (!resetting && dependencies.some((path) => !isSameFormValue(getNamePathValue(previous, path), getNamePathValue(props.model, path)))) {
+      invalidateField(name)
+      queueValidation(name)
+    }
+  }
+}
+watch(() => props.model, observeModel, { deep: true, flush: 'sync' })
+watch(() => props.rules, () => {
+  for (const name of getFieldNames()) invalidateField(name)
+}, { deep: true, flush: 'sync' })
+watch(() => [props.validateTrigger, props.preserve], () => {
+  fieldNames.forEach((_name, key) => {
+    const state = fieldStates[key]
+    if (!state) return
+    state.validateTrigger = fieldOptions.get(key)?.validateTrigger ?? props.validateTrigger
+    state.preserve = fieldOptions.get(key)?.preserve ?? props.preserve
+  })
+}, { deep: true })
+
 const formContext: FormContext = {
   requiredMark: computed(() => props.requiredMark),
   colon: computed(() => props.colon),
-  registerField(name, rules, validateFirst: FormValidateFirst, messageVariables: FormMessageVariables) {
-    retiredFieldNames.delete(name)
-    fieldStates[name] = {
-      errors: fieldStates[name]?.errors ?? [],
-      validating: fieldStates[name]?.validating ?? false,
+  registerField(name, rules, validateFirst: FormValidateFirst, messageVariables: FormMessageVariables, options) {
+    const key = namePathKey(name)
+    const previousState = fieldStates[key]
+    const effectiveTrigger = options?.validateTrigger === undefined ? props.validateTrigger : options.validateTrigger
+    const effectivePreserve = options?.preserve === undefined ? props.preserve : options.preserve
+    const changed = previousState && (!isSameFormValue(previousState.rules, rules) || previousState.validateFirst !== validateFirst || !isSameFormValue(previousState.messageVariables, messageVariables) || !isSameFormValue(previousState.dependencies, options?.dependencies ?? []))
+    retiredFieldNames.delete(key)
+    fieldNames.set(key, normalizeNamePath(name))
+    if (!notifiedValues.has(key)) notifiedValues.set(key, cloneInitialValue(getNamePathValue(props.model, name)))
+    fieldOptions.set(key, { validateTrigger: options?.validateTrigger, preserve: options?.preserve })
+    if (changed) invalidateField(name)
+    fieldStates[key] = {
+      errors: fieldStates[key]?.errors ?? [],
+      validating: fieldStates[key]?.validating ?? false,
       rules,
       validateFirst,
-      messageVariables
+      messageVariables,
+      dependencies: options?.dependencies ?? [],
+      validateTrigger: effectiveTrigger,
+      preserve: effectivePreserve
     }
   },
   unregisterField(name) {
-    retiredFieldNames.add(name)
-    validationRuns.set(name, (validationRuns.get(name) ?? 0) + 1)
-    delete fieldStates[name]
+    const key = namePathKey(name)
+    const state = fieldStates[key]
+    retiredFieldNames.add(key)
+    validationRevision += 1
+    validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1)
+    externalErrors.delete(key)
+    delete fieldStates[key]
+    fieldNames.delete(key)
+    fieldOptions.delete(key)
+    pendingValidations.delete(key)
+    notifiedValues.delete(key)
+    if (state?.preserve === false) deleteNamePathValue(props.model, name)
   },
   getFieldErrors(name) {
-    return fieldStates[name]?.errors ?? []
+    return getFieldError(name)
   },
   isFieldValidating(name) {
-    return fieldStates[name]?.validating ?? false
+    return fieldStates[namePathKey(name)]?.validating ?? false
   },
   isFieldRequired(name) {
     return getRules(name).some((rule) => rule.required)
+  },
+  onFieldChange(name) {
+    observeModel()
+    const key = namePathKey(name)
+    const value = getNamePathValue(props.model, name)
+    if (isSameFormValue(value, notifiedValues.get(key))) return
+    notifiedValues.set(key, cloneInitialValue(value))
+    if (shouldTrigger(fieldStates[key]?.validateTrigger, 'change')) queueValidation(name, 'change')
+  },
+  onFieldBlur(name) {
+    observeModel()
+    if (shouldTrigger(fieldStates[namePathKey(name)]?.validateTrigger, 'blur')) queueValidation(name, 'blur')
   }
 }
 
@@ -518,13 +656,15 @@ provide(formContextKey, formContext)
 
 const handleSubmit = (event: Event) => {
   emit('submit', event)
+  pendingValidations.clear()
   submissionRun += 1
   const runId = submissionRun
+  const submitRevision = validationRevision
   const submittedValues = cloneInitialValue(props.model)
   const validationResult = validate()
 
-  const finishSubmission = (result: { values: FormModel; errorFields: FormValidationError[] }) => {
-    if (runId !== submissionRun || !isSameFormValue(submittedValues, props.model)) {
+  const finishSubmission = (result: { values: FormModel; errorFields: FormValidationError[]; outOfDate?: boolean }) => {
+    if (disposed || result.outOfDate || runId !== submissionRun || submitRevision !== validationRevision || !isSameFormValue(submittedValues, props.model)) {
       return
     }
 
@@ -545,6 +685,32 @@ const handleSubmit = (event: Event) => {
   finishSubmission(validationResult)
 }
 
+const setFieldsErrors = (fields: Array<{ name: FormNamePath; errors: string[] }>) => {
+  fields.forEach(({ name, errors }) => {
+    const key = namePathKey(name)
+    fieldNames.set(key, normalizeNamePath(name))
+    ensureFieldState(name)
+    retiredFieldNames.delete(key)
+    pendingValidations.delete(key)
+    notifiedValues.set(key, cloneInitialValue(getNamePathValue(props.model, name)))
+    validationRevision += 1
+    validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1)
+    if (errors.length === 0) externalErrors.delete(key)
+    else externalErrors.set(key, [...errors])
+    if (fieldStates[key]) {
+      fieldStates[key].errors = []
+      fieldStates[key].validating = false
+    }
+  })
+}
+
+onBeforeUnmount(() => {
+  disposed = true
+  pendingValidations.clear()
+  submissionRun += 1
+  validationRevision += 1
+})
+
 defineExpose({
   validate,
   validateFields,
@@ -556,6 +722,7 @@ defineExpose({
   getFieldsValue,
   getFieldError,
   getFieldsError,
-  scrollToField
+  scrollToField,
+  setFieldsErrors
 })
 </script>

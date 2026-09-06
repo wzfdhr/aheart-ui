@@ -1163,8 +1163,10 @@ describe('Form', () => {
     releaseValidation?.(false)
     await flushPromises()
 
-    expect(form.emitted('finish')?.[0]).toEqual([{ email: 'ada@example.com' }])
+    expect(form.emitted('finish')).toBeUndefined()
     expect(form.emitted('finishFailed')).toBeUndefined()
+    await form.find('form').trigger('submit')
+    expect(form.emitted('finish')?.[0]).toEqual([{ email: 'ada@example.com' }])
   })
 
   it('does not finish an async submission when the model changes before validation completes', async () => {

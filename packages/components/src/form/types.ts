@@ -8,6 +8,8 @@ export type FormLabelAlign = 'left' | 'right'
 export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating'
 export type FormRequiredMark = boolean | 'optional'
 export type FormValidateFirst = boolean | 'parallel'
+export type FormValidateTrigger = 'change' | 'blur'
+export type FormNamePath = string | readonly (string | number)[]
 export type FormVariant = AheartVariant
 export type FormRenderable = VNodeChild
 export type FormMessageVariables = Record<string, string | number>
@@ -36,12 +38,13 @@ export interface FormRule {
   len?: number
   pattern?: RegExp
   validator?: FormRuleValidator
+  validateTrigger?: FormValidateTrigger | FormValidateTrigger[] | false
 }
 
 export type FormRules = Record<string, FormRule[]>
 
 export interface FormValidationError {
-  name: string
+  name: FormNamePath
   errors: string[]
 }
 
@@ -50,27 +53,38 @@ export interface FormFinishFailedInfo {
   errorFields: FormValidationError[]
 }
 
+export interface FormValidationResult extends FormFinishFailedInfo {
+  /** The model, rules, or field lifecycle changed while validation was pending. */
+  outOfDate?: true
+}
+
 export interface FormFieldState {
   errors: string[]
   validating: boolean
   rules: FormRule[]
   validateFirst: FormValidateFirst
   messageVariables: FormMessageVariables
+  dependencies: FormNamePath[]
+  validateTrigger: FormValidateTrigger | FormValidateTrigger[] | false
+  preserve: boolean
 }
 
 export interface FormContext {
   requiredMark: ComputedRef<FormRequiredMark>
   colon: ComputedRef<boolean>
   registerField: (
-    name: string,
+    name: FormNamePath,
     rules: FormRule[],
     validateFirst: FormValidateFirst,
-    messageVariables: FormMessageVariables
+    messageVariables: FormMessageVariables,
+    options?: { dependencies?: FormNamePath[]; validateTrigger?: FormValidateTrigger | FormValidateTrigger[] | false; preserve?: boolean }
   ) => void
-  unregisterField: (name: string) => void
-  getFieldErrors: (name: string) => string[]
-  isFieldValidating: (name: string) => boolean
-  isFieldRequired: (name: string) => boolean
+  unregisterField: (name: FormNamePath) => void
+  getFieldErrors: (name: FormNamePath) => string[]
+  isFieldValidating: (name: FormNamePath) => boolean
+  isFieldRequired: (name: FormNamePath) => boolean
+  onFieldChange: (name: FormNamePath) => void
+  onFieldBlur: (name: FormNamePath) => void
 }
 
 export const formContextKey: InjectionKey<FormContext> = Symbol('aheart-form-context')
@@ -112,15 +126,20 @@ export const formProps = {
   scrollToFirstError: {
     type: [Boolean, Object] as PropType<FormScrollToFirstError>,
     default: false
-  }
+  },
+  validateTrigger: {
+    type: [Boolean, String, Array] as PropType<FormValidateTrigger | FormValidateTrigger[] | false>,
+    default: false
+  },
+  preserve: { type: Boolean, default: true }
 } as const
 
 export const formEmits = {
   submit: (event: Event) => event instanceof Event,
   finish: (values: FormModel) => typeof values === 'object' && values !== null,
   finishFailed: (info: FormFinishFailedInfo) => Array.isArray(info.errorFields),
-  validate: (name: string, status: boolean, errors: string[]) =>
-    typeof name === 'string' && typeof status === 'boolean' && Array.isArray(errors)
+  validate: (name: FormNamePath, status: boolean, errors: string[]) =>
+    (typeof name === 'string' || Array.isArray(name)) && typeof status === 'boolean' && Array.isArray(errors)
 }
 
 const renderableProp = {
@@ -135,7 +154,7 @@ const tooltipProp = {
 
 export const formItemProps = {
   label: [String, Number, Object, Array] as PropType<FormRenderable>,
-  name: String,
+  name: [String, Array] as PropType<FormNamePath>,
   colon: {
     type: Boolean,
     default: undefined
@@ -159,7 +178,13 @@ export const formItemProps = {
   help: renderableProp,
   extra: renderableProp,
   tooltip: tooltipProp,
-  hasFeedback: Boolean
+  hasFeedback: Boolean,
+  dependencies: Array as PropType<FormNamePath[]>,
+  validateTrigger: {
+    type: [Boolean, String, Array] as PropType<FormValidateTrigger | FormValidateTrigger[] | false>,
+    default: undefined
+  },
+  preserve: { type: Boolean, default: undefined }
 } as const
 
 export type FormProps = ExtractPropTypes<typeof formProps>

@@ -866,6 +866,7 @@ test.describe('QG2 中文 Splitter fixture', () => {
     await beginPointerResize(page, handle, handleBox!.x + 40, handleBox!.y + handleBox!.height / 2)
     await expect(page.locator('[data-aheart-drag-shield]')).toBeVisible()
     await page.goto('/components/dnd', { waitUntil: 'domcontentloaded' })
+    await page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
     await expect(page.locator('[data-aheart-drag-shield]')).toHaveCount(0)
     await expect.poll(() => page.locator('body').evaluate((body) => ({ cursor: body.style.cursor, userSelect: body.style.userSelect }))).toEqual(initialBodyStyle)
     await page.mouse.up()

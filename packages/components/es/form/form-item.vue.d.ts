@@ -1,8 +1,8 @@
 import { type PropType, type VNodeChild } from 'vue';
-import { type FormMessageVariables } from './types';
+import { type FormMessageVariables, type FormNamePath } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly label: PropType<VNodeChild>;
-    readonly name: StringConstructor;
+    readonly name: PropType<FormNamePath>;
     readonly colon: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -36,9 +36,18 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         default: undefined;
     };
     readonly hasFeedback: BooleanConstructor;
+    readonly dependencies: PropType<FormNamePath[]>;
+    readonly validateTrigger: {
+        readonly type: PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+        readonly default: undefined;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly label: PropType<VNodeChild>;
-    readonly name: StringConstructor;
+    readonly name: PropType<FormNamePath>;
     readonly colon: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -72,19 +81,29 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         default: undefined;
     };
     readonly hasFeedback: BooleanConstructor;
+    readonly dependencies: PropType<FormNamePath[]>;
+    readonly validateTrigger: {
+        readonly type: PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+        readonly default: undefined;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
 }>> & Readonly<{}>, {
     readonly hidden: boolean;
     readonly help: VNodeChild;
+    readonly preserve: boolean;
     readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: VNodeChild;
     readonly colon: boolean;
     readonly required: boolean;
+    readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
     readonly noStyle: boolean;
     readonly validateFirst: import("./types").FormValidateFirst;
     readonly messageVariables: FormMessageVariables;
     readonly hasFeedback: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
-    default?(_: {}): any;
     label?(_: {}): any;
     help?(_: {}): any;
     extra?(_: {}): any;
