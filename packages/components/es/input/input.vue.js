@@ -1,9 +1,10 @@
-import { defineComponent, useAttrs, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode, mergeProps } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode, mergeProps, nextTick } from "vue";
+import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import { inputProps, inputEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
-const _hoisted_2 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
+const _hoisted_1 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
+const _hoisted_2 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AInput",
@@ -18,6 +19,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const attrs = useAttrs();
     const slots = useSlots();
     const config = useAheartConfig();
+    const formControl = useFormControl();
+    const formRootRef = ref();
+    const handleFormBlur = () => {
+      void nextTick(() => {
+        const root = formRootRef.value;
+        if (root && !root.contains(root.ownerDocument.activeElement))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
+    const resolvedId = computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const resolvedAriaLabelledby = computed(() => mergeAriaIds(attrs["aria-labelledby"], formControl == null ? void 0 : formControl.labelledBy.value));
+    const resolvedAriaDescribedby = computed(() => mergeAriaIds(attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const AInputRenderNode = defineComponent({
       name: "AInputRenderNode",
       props: {
@@ -94,7 +109,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         props.rootClassName,
         (_a = props.classNames) == null ? void 0 : _a.root,
         {
-          [`aheart-input--${props.status}`]: props.status,
+          [`aheart-input--${resolvedStatus.value}`]: resolvedStatus.value,
           "is-disabled": isDisabled.value,
           "is-readonly": props.readOnly
         }
@@ -202,6 +217,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const value = getEventValue(event);
       emit("update:modelValue", value);
       emit("input", value);
+      formControl == null ? void 0 : formControl.change();
     };
     const handleChange = (event) => {
       emit("change", getEventValue(event));
@@ -215,12 +231,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("update:modelValue", "");
       emit("input", "");
       emit("clear");
+      formControl == null ? void 0 : formControl.change();
     };
     return (_ctx, _cache) => {
       return hasAddon.value ? (openBlock(), createElementBlock("span", {
         key: 0,
+        ref_key: "formRootRef",
+        ref: formRootRef,
         class: normalizeClass(groupClass.value),
-        style: normalizeStyle(groupStyle.value)
+        style: normalizeStyle(groupStyle.value),
+        onFocusout: handleFormBlur
       }, [
         hasAddonBefore.value ? (openBlock(), createElementBlock("span", {
           key: 0,
@@ -247,7 +267,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           createElementVNode("input", mergeProps(unref(attrs), {
             class: ["aheart-input__control", controlClass.value],
             style: controlStyle.value,
-            id: _ctx.id,
+            id: resolvedId.value,
+            "aria-labelledby": resolvedAriaLabelledby.value,
+            "aria-describedby": resolvedAriaDescribedby.value,
+            "aria-invalid": resolvedAriaInvalid.value,
             type: _ctx.type,
             value: currentValue.value,
             placeholder: _ctx.placeholder,
@@ -296,10 +319,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createVNode(unref(AInputRenderNode), { node: _ctx.addonAfter }, null, 8, ["node"])
           ])
         ], 6)) : createCommentVNode("", true)
-      ], 6)) : (openBlock(), createElementBlock("span", {
+      ], 38)) : (openBlock(), createElementBlock("span", {
         key: 1,
+        ref_key: "formRootRef",
+        ref: formRootRef,
         class: normalizeClass(["aheart-input", inputClass.value]),
-        style: normalizeStyle(rootStyle.value)
+        style: normalizeStyle(rootStyle.value),
+        onFocusout: handleFormBlur
       }, [
         hasPrefix.value ? (openBlock(), createElementBlock("span", {
           key: 0,
@@ -313,7 +339,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         createElementVNode("input", mergeProps(unref(attrs), {
           class: ["aheart-input__control", controlClass.value],
           style: controlStyle.value,
-          id: _ctx.id,
+          id: resolvedId.value,
+          "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-describedby": resolvedAriaDescribedby.value,
+          "aria-invalid": resolvedAriaInvalid.value,
           type: _ctx.type,
           value: currentValue.value,
           placeholder: _ctx.placeholder,
@@ -352,7 +381,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           createVNode(unref(AInputRenderNode), { node: countText.value }, null, 8, ["node"])
         ], 6)) : createCommentVNode("", true)
-      ], 6));
+      ], 38));
     };
   }
 });

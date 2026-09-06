@@ -1,7 +1,7 @@
 <template>
-  <div class="aheart-upload" :class="{ 'is-disabled': disabled }">
+  <div ref="rootRef" v-bind="rootAttrs" class="aheart-upload" :class="{ 'is-disabled': disabled, 'is-error': formControl?.invalid.value }" @focusout="handleFocusOut">
     <label class="aheart-upload__trigger">
-      <input type="file" :disabled="disabled" :multiple="multiple" @change="handleChange" />
+      <input v-bind="inputAttrs" :id="resolvedId" type="file" :aria-labelledby="resolvedAriaLabelledby" :aria-describedby="resolvedAriaDescribedby" :aria-invalid="resolvedAriaInvalid" :disabled="disabled" :multiple="multiple" @change="handleChange" />
       <slot><span>{{ copy.selectFile }}</span></slot>
     </label>
     <button v-if="readyFiles.length" class="aheart-upload__start" type="button" :disabled="disabled" @click="uploadReadyFiles">{{ copy.upload }}</button>
@@ -18,14 +18,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useAttrs, watch } from 'vue'
 import { useAheartConfig } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
 import type { UploadFile, UploadRequest } from './types'
 import './style.css'
 
-defineOptions({ name: 'AUpload' })
+defineOptions({ name: 'AUpload', inheritAttrs: false })
 
 const props = withDefaults(defineProps<{
   fileList?: UploadFile[]
@@ -46,6 +47,16 @@ const emit = defineEmits<{
 }>()
 
 const config = useAheartConfig()
+const attrs = useAttrs()
+const inputAttribute = (key: string) => key === 'id' || key === 'name' || key === 'accept' || key === 'capture' || key.startsWith('aria-')
+const inputAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => inputAttribute(key))))
+const rootAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => !inputAttribute(key))))
+const formControl = useFormControl()
+const rootRef = ref<HTMLElement | null>(null)
+const resolvedId = computed(() => attrs.id as string | undefined ?? formControl?.controlId.value)
+const resolvedAriaLabelledby = computed(() => mergeAriaIds(attrs['aria-labelledby'], formControl?.labelledBy.value))
+const resolvedAriaDescribedby = computed(() => mergeAriaIds(attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], formControl?.status.value))
 const copy = computed(() => config.value.locale?.datePicker?.locale === 'en-US'
   ? { selectFile: 'Select file', upload: 'Upload', done: 'Done', failed: 'Failed', removeAction: 'Remove', remove: (name: string) => `Remove ${name}` }
   : { selectFile: '选择文件', upload: '上传', done: '已完成', failed: '上传失败', removeAction: '移除', remove: (name: string) => `移除 ${name}` })
@@ -71,6 +82,7 @@ const updateFileList = (files: UploadFile[]) => {
   latestFileList.value = files
   fileListState.setState(files)
   emit('change', files)
+  formControl?.change()
 }
 const replaceFile = (file: UploadFile) => {
   const nextFiles = latestFileList.value.map((current) => current.uid === file.uid ? file : current)
@@ -138,6 +150,12 @@ const handleChange = async (event: Event) => {
     updateFileList(nextFiles)
     if (shouldUpload !== false) nextFiles = await upload(uploadFile, nextFiles)
   }
+}
+const handleFocusOut = () => {
+  void Promise.resolve().then(() => {
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
+    if (!rootRef.value?.contains(active)) formControl?.blur()
+  })
 }
 const removeFile = (uid: string) => {
   const file = mergedFileList.value.find((current) => current.uid === uid)

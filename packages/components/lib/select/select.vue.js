@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const controlContext = require("../form/control-context.js");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
@@ -12,14 +13,14 @@ const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["id", "role", "tabindex", "aria-controls", "aria-labelledby", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
+const _hoisted_1 = ["id", "role", "tabindex", "aria-controls", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
 const _hoisted_2 = { class: "aheart-select__tag-label" };
 const _hoisted_3 = ["aria-label", "onClick"];
 const _hoisted_4 = {
   key: 0,
   class: "aheart-select__tag aheart-select__tag--rest"
 };
-const _hoisted_5 = ["id", "value", "disabled", "placeholder", "aria-labelledby", "aria-expanded", "aria-activedescendant", "aria-busy"];
+const _hoisted_5 = ["id", "value", "disabled", "placeholder", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-activedescendant", "aria-busy"];
 const _hoisted_6 = {
   key: 3,
   class: "aheart-select__value is-placeholder"
@@ -45,6 +46,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const slots = vue.useSlots();
     const attrs = vue.useAttrs();
     const config = context.useAheartConfig();
+    const formControl = controlContext.useFormControl();
     const rootRef = vue.ref(null);
     const selectorRef = vue.ref(null);
     const searchRef = vue.ref(null);
@@ -99,7 +101,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const mergedValue = valueState.state;
     const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const currentSearchValue = vue.computed(() => isSearchControlled.value ? props.searchValue ?? "" : internalSearchValue.value);
+    const resolvedId = vue.computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
     const resolvedAriaLabelledby = vue.computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
+    const mergedAriaLabelledby = vue.computed(() => controlContext.mergeAriaIds(resolvedAriaLabelledby.value, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = vue.computed(() => controlContext.mergeAriaIds(attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = vue.computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = vue.computed(() => controlContext.formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const resolvedVariant = vue.computed(() => props.variant ?? (props.bordered === false ? "borderless" : config.value.variant ?? "outlined"));
@@ -185,7 +192,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       `aheart-select--${resolvedSize.value}`,
       `aheart-select--${resolvedVariant.value}`,
       {
-        [`aheart-select--${props.status}`]: props.status,
+        [`aheart-select--${resolvedStatus.value}`]: resolvedStatus.value,
         "is-disabled": isDisabled.value,
         "is-loading": props.loading,
         "is-multiple": isMultiple.value,
@@ -237,6 +244,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const emitValue = (value) => {
       valueState.setState(value, { force: true });
+      formControl == null ? void 0 : formControl.change();
     };
     const clearSearch = () => {
       if (!isSearchControlled.value)
@@ -354,12 +362,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleFocusOut = (event) => {
       void vue.nextTick(() => {
-        var _a, _b;
-        const active = document.activeElement;
-        if (((_a = rootRef.value) == null ? void 0 : _a.contains(active)) || ((_b = popupRef.value) == null ? void 0 : _b.contains(active)))
+        var _a, _b, _c;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (((_b = rootRef.value) == null ? void 0 : _b.contains(active)) || ((_c = popupRef.value) == null ? void 0 : _c.contains(active)))
           return;
         focused.value = false;
         emit("blur", event);
+        formControl == null ? void 0 : formControl.blur();
         closePopup();
       });
     };
@@ -397,11 +406,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           class: ["aheart-select__selector", _ctx.classNames.selector],
           style: _ctx.styles.selector
         }, isSearchable.value ? void 0 : interactiveAriaAttrs.value, {
-          id: isSearchable.value ? void 0 : _ctx.id,
+          id: isSearchable.value ? void 0 : resolvedId.value,
           role: isSearchable.value ? void 0 : "combobox",
           tabindex: isSearchable.value || isDisabled.value ? void 0 : 0,
           "aria-controls": isSearchable.value ? void 0 : listboxId,
-          "aria-labelledby": isSearchable.value ? void 0 : resolvedAriaLabelledby.value,
+          "aria-labelledby": isSearchable.value ? void 0 : mergedAriaLabelledby.value,
+          "aria-describedby": isSearchable.value ? void 0 : mergedAriaDescribedby.value,
+          "aria-invalid": isSearchable.value ? void 0 : resolvedAriaInvalid.value,
           "aria-expanded": isSearchable.value ? void 0 : mergedOpen.value ? "true" : "false",
           "aria-haspopup": isSearchable.value ? void 0 : "listbox",
           "aria-disabled": isSearchable.value ? void 0 : isDisabled.value ? "true" : void 0,
@@ -455,7 +466,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               ref: searchRef,
               class: ["aheart-select__search", _ctx.classNames.search],
               style: _ctx.styles.search,
-              id: _ctx.id,
+              id: resolvedId.value,
               type: "text",
               role: "combobox",
               autocomplete: "off",
@@ -464,7 +475,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               placeholder: searchPlaceholder.value
             }, isSearchable.value ? interactiveAriaAttrs.value : void 0, {
               "aria-controls": listboxId,
-              "aria-labelledby": resolvedAriaLabelledby.value,
+              "aria-labelledby": mergedAriaLabelledby.value,
+              "aria-describedby": mergedAriaDescribedby.value,
+              "aria-invalid": resolvedAriaInvalid.value,
               "aria-expanded": mergedOpen.value ? "true" : "false",
               "aria-autocomplete": "list",
               "aria-haspopup": "listbox",
@@ -539,6 +552,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,
             id: listboxId,
+            onFocusout: handleFocusOut,
             ref_key: "popupRef",
             ref: popupRef,
             class: vue.normalizeClass(["aheart-select__popup", popupClass.value]),
@@ -591,7 +605,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 style: vue.normalizeStyle(_ctx.styles.notFound)
               }, vue.toDisplayString(_ctx.loading ? resolvedLoadingText.value : resolvedNotFoundContent.value), 7)) : vue.createCommentVNode("", true)
             ], 6)
-          ], 14, _hoisted_9)), [
+          ], 46, _hoisted_9)), [
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

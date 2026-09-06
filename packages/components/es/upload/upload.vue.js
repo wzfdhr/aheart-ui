@@ -1,10 +1,11 @@
-import { defineComponent, computed, ref, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, toDisplayString, createCommentVNode, Fragment, renderList } from "vue";
+import { defineComponent, useAttrs, computed, ref, watch, openBlock, createElementBlock, mergeProps, unref, createElementVNode, renderSlot, toDisplayString, createCommentVNode, Fragment, renderList, normalizeClass } from "vue";
+import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = { class: "aheart-upload__trigger" };
-const _hoisted_2 = ["disabled", "multiple"];
+const _hoisted_2 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "disabled", "multiple"];
 const _hoisted_3 = ["disabled"];
 const _hoisted_4 = {
   key: 1,
@@ -15,7 +16,7 @@ const _hoisted_6 = { key: 1 };
 const _hoisted_7 = { key: 2 };
 const _hoisted_8 = ["disabled", "aria-label", "onClick"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AUpload" },
+  ...{ name: "AUpload", inheritAttrs: false },
   __name: "upload",
   props: {
     fileList: {},
@@ -31,6 +32,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const props = __props;
     const emit = __emit;
     const config = useAheartConfig();
+    const attrs = useAttrs();
+    const inputAttribute = (key) => key === "id" || key === "name" || key === "accept" || key === "capture" || key.startsWith("aria-");
+    const inputAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => inputAttribute(key))));
+    const rootAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => !inputAttribute(key))));
+    const formControl = useFormControl();
+    const rootRef = ref(null);
+    const resolvedId = computed(() => attrs.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const resolvedAriaLabelledby = computed(() => mergeAriaIds(attrs["aria-labelledby"], formControl == null ? void 0 : formControl.labelledBy.value));
+    const resolvedAriaDescribedby = computed(() => mergeAriaIds(attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs["aria-invalid"], formControl == null ? void 0 : formControl.status.value));
     const copy = computed(() => {
       var _a, _b;
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.datePicker) == null ? void 0 : _b.locale) === "en-US" ? { selectFile: "Select file", upload: "Upload", done: "Done", failed: "Failed", removeAction: "Remove", remove: (name) => `Remove ${name}` } : { selectFile: "选择文件", upload: "上传", done: "已完成", failed: "上传失败", removeAction: "移除", remove: (name) => `移除 ${name}` };
@@ -55,6 +66,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       latestFileList.value = files;
       fileListState.setState(files);
       emit("change", files);
+      formControl == null ? void 0 : formControl.change();
     };
     const replaceFile = (file) => {
       const nextFiles = latestFileList.value.map((current) => current.uid === file.uid ? file : current);
@@ -128,6 +140,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           nextFiles = await upload(uploadFile, nextFiles);
       }
     };
+    const handleFocusOut = () => {
+      void Promise.resolve().then(() => {
+        var _a, _b;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = rootRef.value) == null ? void 0 : _b.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
     const removeFile = (uid2) => {
       const file = mergedFileList.value.find((current) => current.uid === uid2);
       if (!file)
@@ -137,16 +157,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emit("remove", file);
     };
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        class: normalizeClass(["aheart-upload", { "is-disabled": __props.disabled }])
-      }, [
+      var _a;
+      return openBlock(), createElementBlock("div", mergeProps({
+        ref_key: "rootRef",
+        ref: rootRef
+      }, rootAttrs.value, {
+        class: ["aheart-upload", { "is-disabled": __props.disabled, "is-error": (_a = unref(formControl)) == null ? void 0 : _a.invalid.value }],
+        onFocusout: handleFocusOut
+      }), [
         createElementVNode("label", _hoisted_1, [
-          createElementVNode("input", {
+          createElementVNode("input", mergeProps(inputAttrs.value, {
+            id: resolvedId.value,
             type: "file",
+            "aria-labelledby": resolvedAriaLabelledby.value,
+            "aria-describedby": resolvedAriaDescribedby.value,
+            "aria-invalid": resolvedAriaInvalid.value,
             disabled: __props.disabled,
             multiple: __props.multiple,
             onChange: handleChange
-          }, null, 40, _hoisted_2),
+          }), null, 16, _hoisted_2),
           renderSlot(_ctx.$slots, "default", {}, () => [
             createElementVNode("span", null, toDisplayString(copy.value.selectFile), 1)
           ])
@@ -176,7 +205,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ], 2);
           }), 128))
         ])) : createCommentVNode("", true)
-      ], 2);
+      ], 16);
     };
   }
 });

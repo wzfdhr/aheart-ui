@@ -1,5 +1,5 @@
 <template>
-  <span ref="rootRef" class="aheart-date-picker" :class="rootClass">
+  <span ref="rootRef" @focusout="handleControlBlur" class="aheart-date-picker" :class="rootClass">
     <span ref="triggerRef" class="aheart-date-picker__selector" @mousedown="handleSelectorMouseDown">
       <span v-if="hasPrefix" class="aheart-date-picker__prefix">
         <slot name="prefix"><ARenderNode :node="prefix" /></slot>
@@ -16,16 +16,16 @@
 
       <input
         ref="inputRef"
-        :id="id"
+        :id="resolvedId"
         class="aheart-date-picker__input"
         type="text"
         :inputmode="showTimeOptions.use12Hours ? 'text' : 'numeric'"
         autocomplete="off"
         role="combobox"
         aria-haspopup="dialog"
-        :aria-labelledby="labelledBy ?? ariaLabelledby"
-        :aria-describedby="describedBy ?? ariaDescribedby"
-        :aria-invalid="status === 'error' ? 'true' : undefined"
+        :aria-labelledby="mergedAriaLabelledby"
+        :aria-describedby="mergedAriaDescribedby"
+        :aria-invalid="resolvedAriaInvalid"
         :aria-controls="panelId"
         :aria-expanded="mergedOpen ? 'true' : 'false'"
         :aria-activedescendant="mergedOpen ? activeCellId : undefined"
@@ -57,7 +57,7 @@
       <div
         v-if="motion.isMounted.value"
         v-show="motion.phase.value !== 'hidden'"
-        ref="panelRef"
+        @focusout="handleControlBlur" ref="panelRef"
         :id="panelId"
         class="aheart-date-picker__panel"
         :class="panelClass"
@@ -185,8 +185,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
 import { createDateMatrix, isPickerDateDisabled } from '../picker-core/calendar'
 import { defaultValueFormat, formatPickerValue, normalizeFormats, parsePickerValue } from '../picker-core/codec'
@@ -209,6 +210,8 @@ const props = defineProps(datePickerProps)
 const emit = defineEmits(datePickerEmits)
 const slots = useSlots()
 const config = useAheartConfig()
+const formControl = useFormControl()
+const attrs = useAttrs()
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -247,6 +250,11 @@ const ARenderNode = defineComponent({
 })
 
 const mergedValue = valueState.state
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl?.labelledBy.value))
+const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
 const mergedOpen = computed(() => Boolean(openState.state.value))
 const selectedValues = computed(() => Array.isArray(mergedValue.value)
   ? mergedValue.value
@@ -283,7 +291,7 @@ const hasDraftValue = computed(() => Array.isArray(draftValue.value) ? draftValu
 const rootClass = computed(() => [
   `aheart-date-picker--${resolvedSize.value}`,
   `aheart-date-picker--${resolvedVariant.value}`,
-  props.status && `aheart-date-picker--${props.status}`,
+  resolvedStatus.value && `aheart-date-picker--${resolvedStatus.value}`,
   { 'is-open': mergedOpen.value, 'is-disabled': isDisabled.value, 'is-multiple': props.multiple }
 ])
 
@@ -494,6 +502,7 @@ const commitValue = (value: DatePickerValue, close = true) => {
   const normalized = Array.isArray(value) ? normalizeMultipleValues(value) : value
   valueState.setState(normalized, { force: true })
   emit('change', normalized)
+  formControl?.change()
   if (isValueControlled.value) {
     void nextTick(() => { inputText.value = committedInputText.value })
   }
@@ -685,6 +694,12 @@ const handleInput = (event: Event) => {
   const masked = applyInputMask(target.value)
   target.value = masked
   inputText.value = masked
+}
+const handleControlBlur = () => {
+  void nextTick(() => {
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
+    if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
+  })
 }
 const restoreInput = async () => {
   inputText.value = ''

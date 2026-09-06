@@ -1,4 +1,5 @@
-import { defineComponent, useAttrs, useSlots, ref, isVNode, h, toRaw, computed, onBeforeUnmount, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, isVNode, h, toRaw, onBeforeUnmount, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, parseTimeValue, formatTimeValue } from "../picker-core/time.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
@@ -48,6 +49,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const attrs = useAttrs();
     const slots = useSlots();
     const config = useAheartConfig();
+    const formControl = useFormControl();
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const inputRef = ref(null);
@@ -59,6 +61,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const activeColumn = ref("hour");
     const instanceId = useStableId(void 0, "aheart-time").value;
     const panelId = `${instanceId}-panel`;
+    const resolvedId = computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const isValueControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const isFormatProvided = usePropPresence("format");
@@ -99,7 +106,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootClass = computed(() => [
       `aheart-time-picker--${resolvedSize.value}`,
       `aheart-time-picker--${resolvedVariant.value}`,
-      props.status && `aheart-time-picker--${props.status}`,
+      resolvedStatus.value && `aheart-time-picker--${resolvedStatus.value}`,
       { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }
     ]);
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
@@ -233,11 +240,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const value = formatTime(parts, props.valueFormat);
       valueState.setState(value, { force: true });
       emit("change", value);
+      formControl == null ? void 0 : formControl.change();
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
       if (close)
         requestOpen(false);
       return true;
+    };
+    const handleControlBlur = () => {
+      void nextTick(() => {
+        var _a, _b, _c;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
     };
     const selectHour = (hour) => {
       if (isInteractionDisabled.value || isHourDisabled(hour))
@@ -290,6 +306,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       valueState.setState(void 0, { force: true });
       emit("change", void 0);
+      formControl == null ? void 0 : formControl.change();
       emit("clear");
       requestOpen(false);
     };
@@ -401,6 +418,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("span", {
         ref_key: "rootRef",
         ref: rootRef,
+        onFocusout: handleControlBlur,
         class: normalizeClass(["aheart-time-picker", rootClass.value])
       }, [
         createElementVNode("span", {
@@ -417,15 +435,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ref_key: "inputRef",
             ref: inputRef,
             class: "aheart-time-picker__input",
-            id: _ctx.id,
+            id: resolvedId.value,
             value: displayValue.value,
             placeholder: resolvedPlaceholder.value,
             disabled: isDisabled.value,
             readonly: _ctx.readOnly,
             role: "combobox",
-            "aria-labelledby": resolvedAriaLabelledby.value,
-            "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-            "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+            "aria-labelledby": mergedAriaLabelledby.value,
+            "aria-describedby": mergedAriaDescribedby.value,
+            "aria-invalid": resolvedAriaInvalid.value,
             "aria-controls": panelId,
             "aria-expanded": mergedOpen.value ? "true" : "false",
             "aria-haspopup": "dialog",
@@ -471,6 +489,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,
+            onFocusout: handleControlBlur,
             ref_key: "panelRef",
             ref: panelRef,
             id: panelId,
@@ -607,7 +626,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
-      ], 2);
+      ], 34);
     };
   }
 });

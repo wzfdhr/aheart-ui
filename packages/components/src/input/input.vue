@@ -1,5 +1,5 @@
 <template>
-  <span v-if="hasAddon" :class="groupClass" :style="groupStyle">
+  <span v-if="hasAddon" ref="formRootRef" :class="groupClass" :style="groupStyle" @focusout="handleFormBlur">
     <span
       v-if="hasAddonBefore"
       class="aheart-input__addon aheart-input__addon--before"
@@ -21,7 +21,10 @@
         class="aheart-input__control"
         :class="controlClass"
         :style="controlStyle"
-        :id="id"
+        :id="resolvedId"
+        :aria-labelledby="resolvedAriaLabelledby"
+        :aria-describedby="resolvedAriaDescribedby"
+        :aria-invalid="resolvedAriaInvalid"
         :type="type"
         :value="currentValue"
         :placeholder="placeholder"
@@ -64,7 +67,7 @@
       </slot>
     </span>
   </span>
-  <span v-else class="aheart-input" :class="inputClass" :style="rootStyle">
+  <span v-else ref="formRootRef" class="aheart-input" :class="inputClass" :style="rootStyle" @focusout="handleFormBlur">
     <span v-if="hasPrefix" :class="prefixClass" :style="prefixStyle">
       <slot name="prefix">
         <AInputRenderNode :node="prefix" />
@@ -75,7 +78,10 @@
       class="aheart-input__control"
       :class="controlClass"
       :style="controlStyle"
-      :id="id"
+      :id="resolvedId"
+      :aria-labelledby="resolvedAriaLabelledby"
+      :aria-describedby="resolvedAriaDescribedby"
+      :aria-invalid="resolvedAriaInvalid"
       :type="type"
       :value="currentValue"
       :placeholder="placeholder"
@@ -110,9 +116,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, useAttrs, useSlots } from 'vue'
+import { computed, defineComponent, nextTick, ref, useAttrs, useSlots } from 'vue'
 import type { PropType, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import { inputEmits, inputProps } from './types'
 import './style.css'
 
@@ -126,6 +133,19 @@ const emit = defineEmits(inputEmits)
 const attrs = useAttrs()
 const slots = useSlots()
 const config = useAheartConfig()
+const formControl = useFormControl()
+const formRootRef = ref<HTMLElement>()
+const handleFormBlur = () => {
+  void nextTick(() => {
+    const root = formRootRef.value
+    if (root && !root.contains(root.ownerDocument.activeElement)) formControl?.blur()
+  })
+}
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
+const resolvedAriaLabelledby = computed(() => mergeAriaIds(attrs['aria-labelledby'], formControl?.labelledBy.value))
+const resolvedAriaDescribedby = computed(() => mergeAriaIds(attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
 
 const AInputRenderNode = defineComponent({
   name: 'AInputRenderNode',
@@ -192,7 +212,7 @@ const inputClass = computed(() => [
   props.rootClassName,
   props.classNames?.root,
   {
-    [`aheart-input--${props.status}`]: props.status,
+    [`aheart-input--${resolvedStatus.value}`]: resolvedStatus.value,
     'is-disabled': isDisabled.value,
     'is-readonly': props.readOnly
   }
@@ -257,6 +277,7 @@ const handleInput = (event: Event) => {
   const value = getEventValue(event)
   emit('update:modelValue', value)
   emit('input', value)
+  formControl?.change()
 }
 
 const handleChange = (event: Event) => {
@@ -273,5 +294,6 @@ const handleClear = () => {
   emit('update:modelValue', '')
   emit('input', '')
   emit('clear')
+  formControl?.change()
 }
 </script>

@@ -38,13 +38,18 @@ const formProps = {
   scrollToFirstError: {
     type: [Boolean, Object],
     default: false
-  }
+  },
+  validateTrigger: {
+    type: [Boolean, String, Array],
+    default: false
+  },
+  preserve: { type: Boolean, default: true }
 };
 const formEmits = {
   submit: (event) => event instanceof Event,
   finish: (values) => typeof values === "object" && values !== null,
   finishFailed: (info) => Array.isArray(info.errorFields),
-  validate: (name, status, errors) => typeof name === "string" && typeof status === "boolean" && Array.isArray(errors)
+  validate: (name, status, errors) => (typeof name === "string" || Array.isArray(name)) && typeof status === "boolean" && Array.isArray(errors)
 };
 const renderableProp = {
   type: [String, Number, Boolean, Object, Array],
@@ -56,7 +61,7 @@ const tooltipProp = {
 };
 const formItemProps = {
   label: [String, Number, Object, Array],
-  name: String,
+  name: [String, Array],
   colon: {
     type: Boolean,
     default: void 0
@@ -80,7 +85,13 @@ const formItemProps = {
   help: renderableProp,
   extra: renderableProp,
   tooltip: tooltipProp,
-  hasFeedback: Boolean
+  hasFeedback: Boolean,
+  dependencies: Array,
+  validateTrigger: {
+    type: [Boolean, String, Array],
+    default: void 0
+  },
+  preserve: { type: Boolean, default: void 0 }
 };
 exports.formContextKey = formContextKey;
 exports.formEmits = formEmits;

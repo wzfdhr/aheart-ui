@@ -223,6 +223,7 @@ test('coarse-pointer controls provide reachable touch targets and reveal cascade
   await expectTouchTarget('.aheart-textarea__clear')
 
   await page.goto('/components/time-picker')
+  await waitForHydration(page)
   await page.locator('.aheart-demo-panel').nth(2).getByRole('combobox').focus()
   const timePanel = page.locator('.aheart-time-picker__panel')
   await expect(timePanel).toHaveClass(/is-entered/)

@@ -6,11 +6,13 @@
       :class="classNames.selector"
       :style="styles.selector"
       v-bind="isSearchable ? undefined : interactiveAriaAttrs"
-      :id="isSearchable ? undefined : id"
+      :id="isSearchable ? undefined : resolvedId"
       :role="isSearchable ? undefined : 'combobox'"
       :tabindex="isSearchable || isDisabled ? undefined : 0"
       :aria-controls="isSearchable ? undefined : listboxId"
-      :aria-labelledby="isSearchable ? undefined : resolvedAriaLabelledby"
+      :aria-labelledby="isSearchable ? undefined : mergedAriaLabelledby"
+      :aria-describedby="isSearchable ? undefined : mergedAriaDescribedby"
+      :aria-invalid="isSearchable ? undefined : resolvedAriaInvalid"
       :aria-expanded="isSearchable ? undefined : mergedOpen ? 'true' : 'false'"
       :aria-haspopup="isSearchable ? undefined : 'listbox'"
       :aria-disabled="isSearchable ? undefined : isDisabled ? 'true' : undefined"
@@ -58,7 +60,7 @@
           class="aheart-select__search"
           :class="classNames.search"
           :style="styles.search"
-          :id="id"
+          :id="resolvedId"
           type="text"
           role="combobox"
           autocomplete="off"
@@ -67,7 +69,9 @@
           :placeholder="searchPlaceholder"
           v-bind="isSearchable ? interactiveAriaAttrs : undefined"
           :aria-controls="listboxId"
-          :aria-labelledby="resolvedAriaLabelledby"
+          :aria-labelledby="mergedAriaLabelledby"
+          :aria-describedby="mergedAriaDescribedby"
+          :aria-invalid="resolvedAriaInvalid"
           :aria-expanded="mergedOpen ? 'true' : 'false'"
           aria-autocomplete="list"
           aria-haspopup="listbox"
@@ -120,7 +124,7 @@
         v-if="motion.isMounted.value"
         v-show="motion.phase.value !== 'hidden'"
         :id="listboxId"
-        ref="popupRef"
+        @focusout="handleFocusOut" ref="popupRef"
         class="aheart-select__popup"
         :class="popupClass"
         :style="popupStyle"
@@ -172,6 +176,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, nextTick, ref, useAttrs, useSlots, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
@@ -198,6 +203,7 @@ const emit = defineEmits(selectEmits)
 const slots = useSlots()
 const attrs = useAttrs()
 const config = useAheartConfig()
+const formControl = useFormControl()
 const rootRef = ref<HTMLElement | null>(null)
 const selectorRef = ref<HTMLElement | null>(null)
 const searchRef = ref<HTMLInputElement | null>(null)
@@ -255,7 +261,12 @@ const openState = useControllableState<boolean>({
 const mergedValue = valueState.state
 const mergedOpen = computed(() => Boolean(openState.state.value))
 const currentSearchValue = computed(() => isSearchControlled.value ? props.searchValue ?? '' : internalSearchValue.value)
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl?.labelledBy.value))
+const mergedAriaDescribedby = computed(() => mergeAriaIds(attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const resolvedVariant = computed(() => props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined'))
@@ -344,7 +355,7 @@ const selectClass = computed(() => [
   `aheart-select--${resolvedSize.value}`,
   `aheart-select--${resolvedVariant.value}`,
   {
-    [`aheart-select--${props.status}`]: props.status,
+    [`aheart-select--${resolvedStatus.value}`]: resolvedStatus.value,
     'is-disabled': isDisabled.value,
     'is-loading': props.loading,
     'is-multiple': isMultiple.value,
@@ -390,6 +401,7 @@ const handleSelectorClick = () => {
 
 const emitValue = (value: SelectValue) => {
   valueState.setState(value, { force: true })
+  formControl?.change()
 }
 const clearSearch = () => {
   if (!isSearchControlled.value) internalSearchValue.value = ''
@@ -486,10 +498,11 @@ const handleFocusIn = (event: FocusEvent) => {
 }
 const handleFocusOut = (event: FocusEvent) => {
   void nextTick(() => {
-    const active = document.activeElement
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
     if (rootRef.value?.contains(active) || popupRef.value?.contains(active)) return
     focused.value = false
     emit('blur', event)
+    formControl?.blur()
     closePopup()
   })
 }

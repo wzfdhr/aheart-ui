@@ -1,4 +1,5 @@
-import { defineComponent, useSlots, ref, isVNode, h, toRaw, computed, watch, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, mergeProps, createTextVNode, vShow } from "vue";
+import { defineComponent, useSlots, useAttrs, ref, computed, isVNode, h, toRaw, watch, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, mergeProps, createTextVNode, vShow } from "vue";
+import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createDateMatrix, isPickerDateDisabled } from "../picker-core/calendar.js";
 import { defaultValueFormat, normalizeFormats, parsePickerValue, formatPickerValue, comparePickerValues } from "../picker-core/codec.js";
@@ -75,6 +76,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const config = useAheartConfig();
+    const formControl = useFormControl();
+    const attrs = useAttrs();
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const panelRef = ref(null);
@@ -90,6 +93,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const nowDate = ref();
     const rangeParts = ["start", "end"];
     const panelId = `${useStableId(void 0, "aheart-date-range-picker").value}-panel`;
+    const resolvedId = computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const mergedAriaLabelledby = computed(() => mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
+    const handleControlBlur = () => {
+      void nextTick(() => {
+        var _a, _b, _c;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
     const isValueControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const isPanelControlled = usePropPresence("pickerValue", "picker-value");
@@ -146,7 +162,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootClass = computed(() => [
       `aheart-date-range-picker--${resolvedSize.value}`,
       `aheart-date-range-picker--${resolvedVariant.value}`,
-      props.status && `aheart-date-range-picker--${props.status}`,
+      resolvedStatus.value && `aheart-date-range-picker--${resolvedStatus.value}`,
       { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }
     ]);
     const parseValue = (value) => value ? parsePickerValue(value, [resolvedValueFormat.value, ...displayFormats.value, "YYYY-MM-DD HH:mm:ss", "YYYY-MM-DD", "GGGG-[W]WW", "YYYY-MM", "YYYY-[Q]Q", "YYYY"], pickerDayjsLocale(resolvedLocale.value.locale)) : void 0;
@@ -481,6 +497,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const normalized = normalizeRangeValue(value, resolvedValueFormat.value, props.order, props.allowEmpty) ?? value;
       valueState.setState(normalized ? [...normalized] : void 0, { force: true });
       emit("change", normalized);
+      formControl == null ? void 0 : formControl.change();
       if (isValueControlled.value)
         void nextTick(syncInputs);
       if (close)
@@ -645,7 +662,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: "aheart-date-range-picker__selector",
-          onMousedown: handleSelectorMouseDown
+          onMousedown: handleSelectorMouseDown,
+          onFocusout: handleControlBlur
         }, [
           hasPrefix.value ? (openBlock(), createElementBlock("span", _hoisted_1, [
             renderSlot(_ctx.$slots, "prefix", {}, () => [
@@ -658,13 +676,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createElementVNode("input", {
               ref_key: "startInputRef",
               ref: startInputRef,
-              id: _ctx.id ? `${_ctx.id}-start` : void 0,
+              id: resolvedId.value ? `${resolvedId.value}-start` : void 0,
               "data-range-part": "start",
               role: "combobox",
               "aria-haspopup": "dialog",
-              "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
-              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+              "aria-labelledby": mergedAriaLabelledby.value,
+              "aria-describedby": mergedAriaDescribedby.value,
+              "aria-invalid": resolvedAriaInvalid.value,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value ? "true" : "false",
               "aria-activedescendant": mergedOpen.value ? activeCellId.value : void 0,
@@ -708,13 +726,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createElementVNode("input", {
               ref_key: "endInputRef",
               ref: endInputRef,
-              id: _ctx.id ? `${_ctx.id}-end` : void 0,
+              id: resolvedId.value ? `${resolvedId.value}-end` : void 0,
               "data-range-part": "end",
               role: "combobox",
               "aria-haspopup": "dialog",
-              "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
-              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+              "aria-labelledby": mergedAriaLabelledby.value,
+              "aria-describedby": mergedAriaDescribedby.value,
+              "aria-invalid": resolvedAriaInvalid.value,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value ? "true" : "false",
               "aria-activedescendant": mergedOpen.value ? activeCellId.value : void 0,
@@ -771,6 +789,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,
+            onFocusout: handleControlBlur,
             ref_key: "panelRef",
             ref: panelRef,
             id: panelId,
@@ -987,7 +1006,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               ]),
               createElementVNode("span", _hoisted_35, toDisplayString(liveMessage.value), 1)
             ])
-          ], 14, _hoisted_9)), [
+          ], 46, _hoisted_9)), [
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
