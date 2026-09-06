@@ -6,24 +6,12 @@ const index = require("../skeleton/index.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
+const overlayController = require("../utils/overlay-controller.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];
 const _hoisted_3 = ["disabled", "aria-label"];
-const openModalStack = [];
-const registerOpenModal = (id) => {
-  const previousIndex = openModalStack.indexOf(id);
-  if (previousIndex >= 0)
-    openModalStack.splice(previousIndex, 1);
-  openModalStack.push(id);
-};
-const unregisterOpenModal = (id) => {
-  const index2 = openModalStack.indexOf(id);
-  if (index2 >= 0)
-    openModalStack.splice(index2, 1);
-};
-const isTopmostOpenModal = (id) => openModalStack[openModalStack.length - 1] === id;
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AModal"
@@ -57,6 +45,44 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const modalStackId = Symbol("aheart-modal");
     const titleId = `aheart-modal-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
     let pendingCloseCompletion = false;
+    let overlayRegistered = false;
+    let overlayDocument = null;
+    const effectiveZIndex = vue.ref(props.zIndex);
+    const getModalDocument = () => {
+      var _a, _b;
+      const target = teleportTarget.value;
+      return ((_a = dialogRef.value) == null ? void 0 : _a.ownerDocument) ?? ((_b = triggerElement.value) == null ? void 0 : _b.ownerDocument) ?? (typeof target === "object" && target ? target.ownerDocument : document);
+    };
+    const isModalTopmost = () => overlayController.isTopmost(modalStackId, overlayDocument ?? getModalDocument());
+    const registerModalOverlay = () => {
+      if (overlayRegistered)
+        return;
+      const ownerDocument = getModalDocument();
+      overlayController.registerOverlay({
+        id: modalStackId,
+        document: ownerDocument,
+        getTrigger: () => triggerElement.value,
+        getContent: () => dialogRef.value,
+        escapeEnabled: () => props.open && props.keyboard,
+        getBaseZIndex: () => props.zIndex,
+        onZIndexChange: (zIndex) => {
+          effectiveZIndex.value = zIndex;
+        },
+        onEscape: close
+      });
+      overlayController.lockBodyScroll(ownerDocument);
+      overlayDocument = ownerDocument;
+      overlayRegistered = true;
+    };
+    const unregisterModalOverlay = () => {
+      if (!overlayRegistered)
+        return;
+      const ownerDocument = overlayDocument ?? getModalDocument();
+      overlayController.unregisterOverlay(modalStackId, ownerDocument);
+      overlayController.unlockBodyScroll(ownerDocument);
+      overlayDocument = null;
+      overlayRegistered = false;
+    };
     const AModalRenderNode = vue.defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -138,7 +164,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootStyle = vue.computed(() => ({
       ...props.rootStyle,
       ...semanticStyle("root"),
-      zIndex: props.zIndex
+      zIndex: effectiveZIndex.value
     }));
     const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
     const hasHeader = vue.computed(() => hasTitle.value || showCloseButton.value);
@@ -277,22 +303,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a;
+        var _a, _b;
         if (open && !previousOpen) {
-          registerOpenModal(modalStackId);
           pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
             captureTriggerElement();
+          registerModalOverlay();
           emit("afterOpenChange", true);
         }
         if (!open) {
-          unregisterOpenModal(modalStackId);
           pendingCloseCompletion = true;
-          const activeElement = document.activeElement;
-          leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
+          const ownerDocument = overlayDocument ?? getModalDocument();
+          const activeElement = ownerDocument.activeElement;
+          const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
+          leaveFocusElement.value = HTMLElementConstructor && activeElement instanceof HTMLElementConstructor && ((_b = dialogRef.value) == null ? void 0 : _b.contains(activeElement)) ? activeElement : null;
           void vue.nextTick(() => {
-            if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+            if (motion.phase.value === "leave" && leaveFocusElement.value && ownerDocument.contains(leaveFocusElement.value)) {
               leaveFocusElement.value.focus();
             }
           });
@@ -301,9 +328,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       { flush: "sync" }
     );
     vue.watch(
+      () => props.zIndex,
+      (zIndex) => {
+        if (overlayRegistered)
+          overlayController.refreshOverlayStack(overlayDocument ?? getModalDocument());
+        else
+          effectiveZIndex.value = zIndex;
+      }
+    );
+    vue.watch(
       () => props.open,
       (open) => {
-        if (open && isTopmostOpenModal(modalStackId))
+        if (open && isModalTopmost())
           focusDialog();
       },
       { flush: "post" }
@@ -312,11 +348,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       () => motion.phase.value,
       (phase) => {
         var _a, _b;
-        if (phase === "entered" && props.open && isTopmostOpenModal(modalStackId)) {
+        if (phase === "entered" && props.open && isModalTopmost()) {
           void vue.nextTick(() => focusDialog());
           return;
         }
         if (phase === "hidden" && !props.open && pendingCloseCompletion) {
+          unregisterModalOverlay();
           pendingCloseCompletion = false;
           emit("afterOpenChange", false);
           emit("afterClose");
@@ -344,16 +381,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return Object.keys(merged).length > 0 ? merged : void 0;
     };
     const captureTriggerElement = () => {
-      triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      var _a;
+      const ownerDocument = getModalDocument();
+      const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
+      const pointerTarget = overlayController.getRecentPointerTarget(ownerDocument);
+      triggerElement.value = HTMLElementConstructor && pointerTarget instanceof HTMLElementConstructor ? pointerTarget : HTMLElementConstructor && ownerDocument.activeElement instanceof HTMLElementConstructor ? ownerDocument.activeElement : null;
     };
     const restoreTriggerFocus = () => {
       const target = triggerElement.value;
-      if (!shouldFocusTriggerAfterClose.value || !target || !document.contains(target)) {
+      if (!shouldFocusTriggerAfterClose.value || !target || !target.ownerDocument.contains(target)) {
         return;
       }
       target.focus();
     };
-    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element instanceof HTMLInputElement && element.type === "hidden");
+    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element.tagName === "INPUT" && element.type === "hidden");
     const getFocusableElements = () => {
       const dialog = dialogRef.value;
       if (!dialog) {
@@ -371,22 +412,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     vue.onBeforeMount(() => {
       if (props.open)
-        registerOpenModal(modalStackId);
+        registerModalOverlay();
     });
     vue.onMounted(() => {
-      document.addEventListener("keydown", handleEnteringKeydown);
-      if (!props.open || !isTopmostOpenModal(modalStackId)) {
+      overlayController.prepareOverlayDocument(getModalDocument());
+      if (!props.open || !isModalTopmost()) {
         return;
       }
       captureTriggerElement();
       focusDialog();
     });
     vue.onBeforeUnmount(() => {
-      document.removeEventListener("keydown", handleEnteringKeydown);
-      unregisterOpenModal(modalStackId);
+      unregisterModalOverlay();
     });
     const handleTrapTab = (event) => {
-      if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
+      if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== "Tab") {
         return;
       }
       const dialog = dialogRef.value;
@@ -396,7 +436,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const focusableElements = getFocusableElements();
       const firstElement = focusableElements[0] ?? dialog;
       const lastElement = focusableElements[focusableElements.length - 1] ?? dialog;
-      const activeElement = document.activeElement;
+      const activeElement = dialog.ownerDocument.activeElement;
       if (event.shiftKey) {
         if (activeElement === firstElement || !dialog.contains(activeElement)) {
           event.preventDefault();
@@ -436,17 +476,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         close();
       }
     };
-    const handleEnteringKeydown = (event) => {
-      if (!props.open || !props.keyboard || event.key !== "Escape" || motion.phase.value !== "enter" || document.activeElement !== triggerElement.value || !isTopmostOpenModal(modalStackId)) {
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-      close();
-    };
     const handleKeydown = (event) => {
       handleTrapTab(event);
-      if (props.keyboard && event.key === "Escape" && isTopmostOpenModal(modalStackId)) {
+      const ownerDocument = overlayDocument ?? getModalDocument();
+      if (!event.composedPath().includes(ownerDocument) && props.open && props.keyboard && event.key === "Escape" && isModalTopmost()) {
         event.preventDefault();
         event.stopPropagation();
         close();

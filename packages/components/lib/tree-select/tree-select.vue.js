@@ -8,9 +8,10 @@ const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const useControllableState = require("../utils/use-controllable-state.js");
+const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 require("./style.css.js");
-const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby"];
+const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-tree-select__value aheart-tree-select__tags"
@@ -21,7 +22,8 @@ const _hoisted_5 = {
   key: 0,
   class: "aheart-tree-select__tag aheart-tree-select__tag--rest"
 };
-const _hoisted_6 = {
+const _hoisted_6 = ["aria-labelledby", "aria-describedby", "aria-label"];
+const _hoisted_7 = {
   key: 1,
   class: "aheart-tree-select__empty",
   role: "status"
@@ -52,6 +54,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const attrs = vue.useAttrs();
+    const instanceId = useStableId.useStableId(void 0, "aheart-tree-select").value;
+    const panelId = `aheart-tree-select-panel-${instanceId}`;
+    const treeId = `aheart-tree-select-tree-${instanceId}`;
     const emit = __emit;
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
@@ -60,6 +65,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const resolvedAriaLabelledby = vue.computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
+    const resolvedAriaDescribedby = vue.computed(() => attrs["aria-describedby"]);
     const openState = useControllableState.useControllableState({
       controlled: () => props.open,
       isControlled: isOpenControlled,
@@ -105,6 +111,34 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const query = searchText.value.trim().toLowerCase();
       return query ? filterNodes(props.treeData, query) : props.treeData;
     });
+    const activeKey = vue.ref();
+    const nodeId = (key) => `${instanceId}-node-${encodeURIComponent(String(key)).replaceAll("%", "_")}`;
+    const activeNodeId = vue.computed(() => {
+      if (!mergedOpen.value || activeKey.value === void 0)
+        return void 0;
+      return flattenNodes(filteredTreeData.value).some((node) => String(node.key) === String(activeKey.value)) ? nodeId(activeKey.value) : void 0;
+    });
+    const syncTreeNodeIds = () => {
+      var _a;
+      for (const element of Array.from(((_a = panelRef.value) == null ? void 0 : _a.querySelectorAll("[data-tree-key]")) ?? [])) {
+        const key = element.dataset.treeKey;
+        if (key !== void 0)
+          element.id = nodeId(key);
+      }
+    };
+    vue.watch([filteredTreeData, mergedOpen], ([, open]) => {
+      if (open)
+        void vue.nextTick(syncTreeNodeIds);
+    }, { flush: "post" });
+    const handleTreeFocusin = (event) => {
+      var _a;
+      const node = event.target.closest("[data-tree-key]");
+      if ((node == null ? void 0 : node.dataset.treeKey) !== void 0) {
+        const key = node.dataset.treeKey;
+        activeKey.value = ((_a = flattenNodes(filteredTreeData.value).find((item) => String(item.key) === key)) == null ? void 0 : _a.key) ?? key;
+        syncTreeNodeIds();
+      }
+    };
     const searchExpandedKeys = vue.computed(() => flattenNodes(filteredTreeData.value).filter((node) => {
       var _a;
       return (_a = node.children) == null ? void 0 : _a.length;
@@ -141,8 +175,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         event.preventDefault();
         requestOpen(true);
         void vue.nextTick(() => {
-          var _a, _b;
-          return (_b = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-key][tabindex="0"]')) == null ? void 0 : _b.focus();
+          var _a;
+          syncTreeNodeIds();
+          const node = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-key][tabindex="0"]');
+          if ((node == null ? void 0 : node.dataset.treeKey) !== void 0)
+            activeKey.value = node.dataset.treeKey;
+          node == null ? void 0 : node.focus();
         });
       } else if (event.key === "Escape" && mergedOpen.value) {
         event.preventDefault();
@@ -204,6 +242,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": __props.disabled ? "true" : void 0,
           "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-controls": panelId,
+          "aria-activedescendant": activeNodeId.value,
+          "aria-describedby": resolvedAriaDescribedby.value,
           "aria-haspopup": "tree",
           onClick: toggleOpen,
           onKeydown: handleTriggerKeydown
@@ -262,7 +303,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             ref_key: "panelRef",
             ref: panelRef,
             class: vue.normalizeClass(["aheart-tree-select__panel", panelClass.value]),
-            style: vue.normalizeStyle(panelStyle.value)
+            style: vue.normalizeStyle(panelStyle.value),
+            id: panelId,
+            role: "dialog",
+            "aria-labelledby": resolvedAriaLabelledby.value || void 0,
+            "aria-describedby": resolvedAriaDescribedby.value || void 0,
+            "aria-label": resolvedAriaLabelledby.value ? void 0 : "树选择",
+            onFocusin: handleTreeFocusin
           }, [
             __props.showSearch ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("input", {
               key: 0,
@@ -275,6 +322,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               [vue.vModelText, searchText.value]
             ]) : vue.createCommentVNode("", true),
             vue.createVNode(vue.unref(index.default), {
+              id: treeId,
               "tree-data": filteredTreeData.value,
               "selected-keys": selectedKeys.value,
               "expanded-keys": searchText.value ? searchExpandedKeys.value : void 0,
@@ -282,8 +330,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               disabled: __props.disabled,
               "onUpdate:selectedKeys": handleSelect
             }, null, 8, ["tree-data", "selected-keys", "expanded-keys", "multiple", "disabled"]),
-            searchText.value.trim() && filteredTreeData.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_6, "暂无匹配节点")) : vue.createCommentVNode("", true)
-          ], 6)), [
+            searchText.value.trim() && filteredTreeData.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_7, "暂无匹配节点")) : vue.createCommentVNode("", true)
+          ], 46, _hoisted_6)), [
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

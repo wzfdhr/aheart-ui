@@ -10,6 +10,7 @@
     <span
       ref="triggerRef"
       class="aheart-tooltip__trigger"
+      :aria-describedby="hasTitle ? popupId : undefined"
       :class="triggerClass"
       :style="triggerStyle"
       @mouseenter="handleMouseEnter"
@@ -27,12 +28,14 @@
         v-show="motion.phase.value !== 'hidden'"
         ref="popupRef"
         class="aheart-tooltip__popup"
+        :id="popupId"
         :class="popupClass"
         :style="popupStyle"
         role="tooltip"
         :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
         @mouseenter="handleMouseEnter"
         @mouseleave="handleMouseLeave"
+        @focusout="handleFocusOut"
       >
         <span
           v-if="showArrow"
@@ -62,6 +65,8 @@ import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { useTeleportReady } from '../utils/use-teleport-ready'
+import { useStableId } from '../utils/use-stable-id'
+import { useTriggerAria } from '../utils/use-trigger-aria'
 import {
   tooltipEmits,
   tooltipProps,
@@ -100,12 +105,16 @@ const innerOpen = ref(props.defaultOpen)
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const popupRef = ref<HTMLElement | null>(null)
+const popupId = useStableId(undefined, 'aheart-tooltip')
 const arrowRef = ref<HTMLElement | null>(null)
 const effectivePlacement = ref<FloatingPlacement>(props.placement)
 const isControlled = computed(() => props.open !== undefined)
 const mergedOpen = computed(() => props.open ?? innerOpen.value)
 const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)))
 const hasTitle = computed(() => Boolean(slots.title) || hasTitleContent(props.title))
+useTriggerAria(triggerRef, () => ({
+  'aria-describedby': hasTitle.value ? popupId.value : undefined
+}))
 const visible = computed(() => hasTitle.value && mergedOpen.value)
 const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide)
 const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 })
@@ -256,24 +265,32 @@ const handleMouseLeave = (event: MouseEvent) => {
 
 const handleFocusIn = () => {
   if (normalizedTriggers.value.has('focus')) {
+    clearTimers()
     requestOpen(true)
   }
 }
 
-const handleFocusOut = () => {
+const handleFocusOut = (event: FocusEvent) => {
   if (normalizedTriggers.value.has('focus')) {
+    clearTimers()
+    const nextTarget = event.relatedTarget
+    if (nextTarget instanceof Node && (rootRef.value?.contains(nextTarget) || popupRef.value?.contains(nextTarget))) {
+      return
+    }
     requestOpen(false)
   }
 }
 
 const handleClick = () => {
   if (normalizedTriggers.value.has('click')) {
+    clearTimers()
     requestOpen(!mergedOpen.value)
   }
 }
 
 const handleContextmenu = (event: MouseEvent) => {
   if (normalizedTriggers.value.has('contextMenu')) {
+    clearTimers()
     event.preventDefault()
     requestOpen(true)
   }

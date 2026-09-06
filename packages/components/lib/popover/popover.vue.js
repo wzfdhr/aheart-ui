@@ -7,9 +7,13 @@ const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
+const useStableId = require("../utils/use-stable-id.js");
+const useTriggerAria = require("../utils/use-trigger-aria.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["aria-hidden"];
+const _hoisted_1 = ["aria-controls", "aria-expanded"];
+const _hoisted_2 = ["id", "aria-labelledby", "aria-hidden"];
+const _hoisted_3 = ["id"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "APopover"
@@ -38,6 +42,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const popupRef = vue.ref(null);
+    const popupId = useStableId.useStableId(void 0, "aheart-popover");
+    const titleId = useStableId.useStableId(void 0, "aheart-popover-title");
     const arrowRef = vue.ref(null);
     const effectivePlacement = vue.ref(props.placement);
     let mouseEnterTimer;
@@ -46,6 +52,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = vue.computed(() => new Set(floatingCore.normalizeFloatingTriggers(props.trigger)));
     const hasTitle = vue.computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    useTriggerAria.useTriggerAria(triggerRef, () => ({
+      "aria-controls": popupId.value,
+      "aria-expanded": mergedOpen.value ? "true" : "false"
+    }));
     const hasContent = vue.computed(() => Boolean(slots.content) || hasRenderable(props.content));
     const hasPopupContent = vue.computed(() => hasTitle.value || hasContent.value);
     const visible = vue.computed(() => hasPopupContent.value && mergedOpen.value);
@@ -204,21 +214,30 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleFocusIn = () => {
       if (normalizedTriggers.value.has("focus")) {
+        clearHoverTimers();
         requestOpen(true);
       }
     };
-    const handleFocusOut = () => {
+    const handleFocusOut = (event) => {
+      var _a, _b;
       if (normalizedTriggers.value.has("focus")) {
+        clearHoverTimers();
+        const nextTarget = event.relatedTarget;
+        if (nextTarget instanceof Node && (((_a = rootRef.value) == null ? void 0 : _a.contains(nextTarget)) || ((_b = popupRef.value) == null ? void 0 : _b.contains(nextTarget)))) {
+          return;
+        }
         requestOpen(false);
       }
     };
     const handleClick = () => {
       if (normalizedTriggers.value.has("click")) {
+        clearHoverTimers();
         requestOpen(!mergedOpen.value);
       }
     };
     const handleContextmenu = (event) => {
       if (normalizedTriggers.value.has("contextMenu")) {
+        clearHoverTimers();
         event.preventDefault();
         requestOpen(true);
       }
@@ -245,6 +264,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: vue.normalizeClass(["aheart-popover__trigger", triggerClass.value]),
+          "aria-controls": vue.unref(popupId),
+          "aria-expanded": mergedOpen.value ? "true" : "false",
           style: vue.normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
@@ -254,7 +275,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onContextmenu: handleContextmenu
         }, [
           vue.renderSlot(_ctx.$slots, "default")
-        ], 38),
+        ], 46, _hoisted_1),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
           to: teleportTo.value,
           disabled: !shouldTeleport.value
@@ -264,11 +285,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             ref_key: "popupRef",
             ref: popupRef,
             class: vue.normalizeClass(["aheart-popover__popup", popupClass.value]),
+            id: vue.unref(popupId),
             style: vue.normalizeStyle(popupStyle.value),
             role: "dialog",
+            "aria-labelledby": hasTitle.value ? vue.unref(titleId) : void 0,
             "aria-hidden": vue.unref(motion).phase.value === "hidden" ? "true" : void 0,
             onMouseenter: handleMouseEnter,
-            onMouseleave: handleMouseLeave
+            onMouseleave: handleMouseLeave,
+            onFocusout: handleFocusOut
           }, [
             showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 0,
@@ -284,13 +308,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             }, [
               hasTitle.value ? (vue.openBlock(), vue.createElementBlock("span", {
                 key: 0,
+                id: vue.unref(titleId),
                 class: vue.normalizeClass(["aheart-popover__title", titleClass.value]),
                 style: vue.normalizeStyle(titleStyle.value)
               }, [
                 vue.renderSlot(_ctx.$slots, "title", {}, () => [
                   vue.createVNode(vue.unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
-              ], 6)) : vue.createCommentVNode("", true),
+              ], 14, _hoisted_3)) : vue.createCommentVNode("", true),
               hasContent.value ? (vue.openBlock(), vue.createElementBlock("span", {
                 key: 1,
                 class: vue.normalizeClass(["aheart-popover__content", contentClass.value]),
@@ -301,7 +326,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 ])
               ], 6)) : vue.createCommentVNode("", true)
             ], 6)
-          ], 46, _hoisted_1)), [
+          ], 46, _hoisted_2)), [
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

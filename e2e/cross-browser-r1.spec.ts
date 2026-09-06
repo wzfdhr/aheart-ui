@@ -176,6 +176,57 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
     await expect(trigger).toBeFocused()
   })
 
+  test('nested overlays close topmost-first and keep scroll and focus ownership', async ({ page }, testInfo) => {
+    const errors = await collectProductionErrors(page)
+    ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
+    await expectProductionRoute(page, 'modal')
+
+    const modalTrigger = page.getByRole('button', { name: 'Open overlay contract', exact: true })
+    await modalTrigger.click()
+    const outerModal = page.getByRole('dialog', { name: 'Overlay contract modal' })
+    await expect(outerModal).toBeVisible()
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('hidden')
+
+    const popoverTrigger = outerModal.getByRole('button', { name: 'Open nested popover', exact: true })
+    await popoverTrigger.click()
+    const nestedPopover = page.locator('.aheart-popover__popup').filter({ hasText: 'Nested popover' })
+    await expect(nestedPopover).toBeVisible()
+    await nestedPopover.getByRole('button', { name: 'Popover action' }).focus()
+    await expect(nestedPopover).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(nestedPopover).toBeHidden()
+    await expect(outerModal).toBeVisible()
+    await expect(popoverTrigger).toBeFocused()
+
+    const drawerTrigger = outerModal.getByRole('button', { name: 'Open nested drawer', exact: true })
+    await drawerTrigger.click()
+    const drawer = page.getByRole('dialog', { name: 'Nested drawer' })
+    await expect(drawer).toBeVisible()
+
+    const topModalTrigger = drawer.getByRole('button', { name: 'Open modal above drawer', exact: true })
+    await topModalTrigger.click()
+    const topModal = page.getByRole('dialog', { name: 'Modal above drawer' })
+    await expect(topModal).toBeVisible()
+    const topModalZIndex = await page.locator('.aheart-modal').filter({ has: topModal }).evaluate((element) => Number(getComputedStyle(element).zIndex))
+    const drawerZIndex = await page.locator('.aheart-drawer').filter({ has: drawer }).evaluate((element) => Number(getComputedStyle(element).zIndex))
+    expect(topModalZIndex).toBeGreaterThan(drawerZIndex)
+    await page.keyboard.press('Escape')
+    await expect(topModal).toBeHidden()
+    await expect(drawer).toBeVisible()
+    await expect(topModalTrigger).toBeFocused()
+
+    await page.keyboard.press('Escape')
+    await expect(drawer).toBeHidden()
+    await expect(outerModal).toBeVisible()
+    await expect(drawerTrigger).toBeFocused()
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden')
+
+    await page.keyboard.press('Escape')
+    await expect(outerModal).toBeHidden()
+    await expect(modalTrigger).toBeFocused()
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).not.toBe('hidden')
+  })
+
   test('DnD sorts by keyboard and Splitter resizes by keyboard', async ({ page }, testInfo) => {
     const errors = await collectProductionErrors(page)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors

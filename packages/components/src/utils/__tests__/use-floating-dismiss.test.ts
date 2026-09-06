@@ -107,4 +107,129 @@ describe('useFloatingDismiss', () => {
     expect(document.activeElement).toBe(popup)
     scope.stop()
   })
+
+  it('treats a teleported child popup as inside its parent overlay tree', async () => {
+    const parentOpen = ref(true)
+    const childOpen = ref(true)
+    const parentTrigger = document.createElement('button')
+    const parentPopup = document.createElement('div')
+    const childTrigger = document.createElement('button')
+    const childPopup = document.createElement('div')
+    const outside = document.createElement('button')
+    parentPopup.appendChild(childTrigger)
+    document.body.append(parentTrigger, parentPopup, childPopup, outside)
+    const dismissParent = vi.fn(() => {
+      parentOpen.value = false
+    })
+    const dismissChild = vi.fn(() => {
+      childOpen.value = false
+    })
+    const scope = effectScope()
+
+    scope.run(() => {
+      useFloatingDismiss({
+        open: parentOpen,
+        trigger: ref(parentTrigger),
+        floating: ref(parentPopup),
+        onDismiss: dismissParent
+      })
+      useFloatingDismiss({
+        open: childOpen,
+        trigger: ref(childTrigger),
+        floating: ref(childPopup),
+        onDismiss: dismissChild
+      })
+    })
+
+    childPopup.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, composed: true }))
+    expect(dismissParent).not.toHaveBeenCalled()
+    expect(dismissChild).not.toHaveBeenCalled()
+
+    outside.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, composed: true }))
+    expect(dismissChild).toHaveBeenCalledTimes(1)
+    expect(dismissParent).not.toHaveBeenCalled()
+    await nextTick()
+
+    outside.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, composed: true }))
+    expect(dismissParent).toHaveBeenCalledTimes(1)
+    scope.stop()
+  })
+
+  it('dismisses and restores focus for only the topmost nested overlay on Escape', async () => {
+    const parentOpen = ref(true)
+    const childOpen = ref(true)
+    const parentTrigger = document.createElement('button')
+    const parentPopup = document.createElement('div')
+    const childTrigger = document.createElement('button')
+    const childPopup = document.createElement('div')
+    parentPopup.appendChild(childTrigger)
+    document.body.append(parentTrigger, parentPopup, childPopup)
+    childPopup.tabIndex = 0
+    childPopup.focus()
+    const dismissParent = vi.fn(() => {
+      parentOpen.value = false
+    })
+    const dismissChild = vi.fn(() => {
+      childOpen.value = false
+    })
+    const scope = effectScope()
+
+    scope.run(() => {
+      useFloatingDismiss({
+        open: parentOpen,
+        trigger: ref(parentTrigger),
+        floating: ref(parentPopup),
+        onDismiss: dismissParent
+      })
+      useFloatingDismiss({
+        open: childOpen,
+        trigger: ref(childTrigger),
+        floating: ref(childPopup),
+        onDismiss: dismissChild
+      })
+    })
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(dismissChild).toHaveBeenCalledTimes(1)
+    expect(dismissParent).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(childTrigger)
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(dismissParent).toHaveBeenCalledTimes(1)
+    expect(document.activeElement).toBe(parentTrigger)
+    scope.stop()
+  })
+
+  it('keeps nested floating visuals in the same order as dismissal ownership', () => {
+    const parentPopup = document.createElement('div')
+    const childTrigger = document.createElement('button')
+    const childPopup = document.createElement('div')
+    parentPopup.style.zIndex = '1200'
+    childPopup.style.zIndex = '1100'
+    parentPopup.appendChild(childTrigger)
+    document.body.append(parentPopup, childPopup)
+    const scope = effectScope()
+
+    scope.run(() => {
+      useFloatingDismiss({
+        open: ref(true),
+        trigger: ref(document.createElement('button')),
+        floating: ref(parentPopup),
+        onDismiss: vi.fn()
+      })
+      useFloatingDismiss({
+        open: ref(true),
+        trigger: ref(childTrigger),
+        floating: ref(childPopup),
+        onDismiss: vi.fn()
+      })
+    })
+
+    expect(parentPopup.style.zIndex).toBe('1200')
+    expect(childPopup.style.zIndex).toBe('1210')
+    scope.stop()
+    expect(childPopup.style.zIndex).toBe('1100')
+  })
 })

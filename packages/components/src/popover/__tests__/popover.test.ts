@@ -1,7 +1,9 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Popover from '../popover.vue'
+
+enableAutoUnmount(afterEach)
 
 const createRect = ({ left, top, width, height }: { left: number; top: number; width: number; height: number }) =>
   ({
@@ -579,5 +581,45 @@ describe('Popover', () => {
     expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
     wrapper.unmount()
     outside.remove()
+  })
+
+  it('keeps focus popover open while focus moves into its teleported popup', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    const wrapper = mountPopover({
+      attachTo: document.body,
+      props: { title: 'Details', content: 'Content', trigger: 'focus' },
+      slots: { default: '<button>Open</button>', content: '<button class="popover-popup-focus">Content</button>' }
+    })
+    const trigger = wrapper.find('.aheart-popover__trigger')
+    await trigger.trigger('focusin')
+    const popup = wrapper.find('.aheart-popover__popup')
+    const popupButton = wrapper.find<HTMLElement>('.popover-popup-focus')
+    expect(trigger.attributes('aria-controls')).toBe(popup.attributes('id'))
+    expect(wrapper.get('.aheart-popover__trigger > button').attributes('aria-controls')).toBe(popup.attributes('id'))
+    expect(wrapper.get('.aheart-popover__trigger > button').attributes('aria-expanded')).toBe('true')
+    await trigger.trigger('focusout', { relatedTarget: popupButton.element })
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([true])
+    await popupButton.trigger('focusout', { relatedTarget: outside })
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    wrapper.unmount()
+    outside.remove()
+  })
+
+  it('cancels a pending hover open when click intent arrives', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mountPopover({
+        props: { content: 'Content', trigger: ['hover', 'click'], mouseEnterDelay: 0.2 },
+        slots: { default: '<button>Open</button>' }
+      })
+      const trigger = wrapper.find('.aheart-popover__trigger')
+      await trigger.trigger('mouseenter')
+      await trigger.trigger('click')
+      await vi.advanceTimersByTimeAsync(200)
+      expect(wrapper.emitted('openChange')?.filter(([open]) => open)).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

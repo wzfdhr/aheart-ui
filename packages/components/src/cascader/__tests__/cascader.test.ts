@@ -1,6 +1,8 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 import Cascader from '../cascader.vue'
+
+enableAutoUnmount(afterEach)
 
 const mountCascader = (options: Record<string, any> = {}) => mount(Cascader, {
   ...options,
@@ -20,6 +22,40 @@ const options = [
 ]
 
 describe('Cascader', () => {
+  it('connects the combobox to its panel and visible active option', async () => {
+    const wrapper = mountCascader({ attrs: { 'aria-labelledby': 'country-label', 'aria-describedby': 'country-help' }, props: { options } })
+    const trigger = wrapper.get('.aheart-cascader__trigger')
+    await trigger.trigger('click')
+    const panel = wrapper.get('.aheart-cascader__panel')
+    expect(trigger.attributes('aria-controls')).toBe(panel.attributes('id'))
+    expect(trigger.attributes('aria-labelledby')).toBe('country-label')
+    expect(trigger.attributes('aria-describedby')).toBe('country-help')
+    const first = wrapper.get('[data-cascader-value="zhejiang"]')
+    await first.trigger('focus')
+    const activeId = trigger.attributes('aria-activedescendant')
+    expect(activeId).toBe(first.attributes('id'))
+    expect(panel.element.querySelector(`#${activeId}`)).toBe(first.element)
+  })
+
+  it('supports Home/End and left/right column navigation', async () => {
+    const wrapper = mount(Cascader, { attachTo: document.body, props: { options } })
+    const getOption = (value: string) =>
+      document.querySelector<HTMLElement>(`.aheart-cascader__option[data-cascader-value="${value}"]`)!
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    getOption('zhejiang').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    await wrapper.vm.$nextTick()
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
+    const city = getOption('hangzhou')
+    expect(wrapper.get('.aheart-cascader__trigger').attributes('aria-activedescendant')).toBe(city.id)
+    city.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }))
+    const currentProvince = getOption('zhejiang')
+    expect(document.activeElement).toBe(currentProvince)
+    currentProvince.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+    expect(document.activeElement).toBe(currentProvince)
+    wrapper.unmount()
+  })
+
   it('emits a selected leaf path', async () => {
     const wrapper = mountCascader({ props: { options } })
 

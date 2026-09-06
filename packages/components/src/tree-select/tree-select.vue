@@ -9,6 +9,9 @@
       :aria-expanded="mergedOpen ? 'true' : 'false'"
       :aria-disabled="disabled ? 'true' : undefined"
       :aria-labelledby="resolvedAriaLabelledby"
+      :aria-controls="panelId"
+      :aria-activedescendant="activeNodeId"
+      :aria-describedby="resolvedAriaDescribedby"
       aria-haspopup="tree"
       @click="toggleOpen"
       @keydown="handleTriggerKeydown"
@@ -38,6 +41,12 @@
       class="aheart-tree-select__panel"
       :class="panelClass"
       :style="panelStyle"
+      :id="panelId"
+      role="dialog"
+      :aria-labelledby="resolvedAriaLabelledby || undefined"
+      :aria-describedby="resolvedAriaDescribedby || undefined"
+      :aria-label="resolvedAriaLabelledby ? undefined : '树选择'"
+      @focusin="handleTreeFocusin"
     >
       <input
         v-if="showSearch"
@@ -48,6 +57,7 @@
         aria-label="搜索树节点"
       />
       <ATree
+        :id="treeId"
         :tree-data="filteredTreeData"
         :selected-keys="selectedKeys"
         :expanded-keys="searchText ? searchExpandedKeys : undefined"
@@ -72,6 +82,7 @@ import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useControllableState } from '../utils/use-controllable-state'
+import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import './style.css'
 
@@ -104,6 +115,9 @@ const props = withDefaults(defineProps<{
   autoAdjustOverflow: true
 })
 const attrs = useAttrs()
+const instanceId = useStableId(undefined, 'aheart-tree-select').value
+const panelId = `aheart-tree-select-panel-${instanceId}`
+const treeId = `aheart-tree-select-tree-${instanceId}`
 const emit = defineEmits<{
   'update:modelValue': [value: TreeSelectValue]
   change: [value: TreeSelectValue]
@@ -118,6 +132,7 @@ const searchText = ref('')
 const isControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
+const resolvedAriaDescribedby = computed(() => attrs['aria-describedby'] as string | undefined)
 const openState = useControllableState({
   controlled: () => props.open,
   isControlled: isOpenControlled,
@@ -161,6 +176,31 @@ const filteredTreeData = computed(() => {
   const query = searchText.value.trim().toLowerCase()
   return query ? filterNodes(props.treeData, query) : props.treeData
 })
+const activeKey = ref<TreeKey | undefined>()
+const nodeId = (key: TreeKey) => `${instanceId}-node-${encodeURIComponent(String(key)).replaceAll('%', '_')}`
+const activeNodeId = computed(() => {
+  if (!mergedOpen.value || activeKey.value === undefined) return undefined
+  return flattenNodes(filteredTreeData.value).some((node) => String(node.key) === String(activeKey.value))
+    ? nodeId(activeKey.value)
+    : undefined
+})
+const syncTreeNodeIds = () => {
+  for (const element of Array.from(panelRef.value?.querySelectorAll<HTMLElement>('[data-tree-key]') ?? [])) {
+    const key = element.dataset.treeKey
+    if (key !== undefined) element.id = nodeId(key)
+  }
+}
+watch([filteredTreeData, mergedOpen], ([, open]) => {
+  if (open) void nextTick(syncTreeNodeIds)
+}, { flush: 'post' })
+const handleTreeFocusin = (event: FocusEvent) => {
+  const node = (event.target as HTMLElement).closest<HTMLElement>('[data-tree-key]')
+  if (node?.dataset.treeKey !== undefined) {
+    const key = node.dataset.treeKey
+    activeKey.value = flattenNodes(filteredTreeData.value).find((item) => String(item.key) === key)?.key ?? key
+    syncTreeNodeIds()
+  }
+}
 const searchExpandedKeys = computed(() => flattenNodes(filteredTreeData.value)
   .filter((node) => node.children?.length)
   .map((node) => node.key))
@@ -192,7 +232,12 @@ const handleTriggerKeydown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
     requestOpen(true)
-    void nextTick(() => panelRef.value?.querySelector<HTMLElement>('[data-tree-key][tabindex="0"]')?.focus())
+    void nextTick(() => {
+      syncTreeNodeIds()
+      const node = panelRef.value?.querySelector<HTMLElement>('[data-tree-key][tabindex="0"]')
+      if (node?.dataset.treeKey !== undefined) activeKey.value = node.dataset.treeKey
+      node?.focus()
+    })
   } else if (event.key === 'Escape' && mergedOpen.value) {
     event.preventDefault()
     requestOpen(false)

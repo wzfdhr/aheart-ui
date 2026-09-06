@@ -4,24 +4,12 @@ import Skeleton from "../skeleton/index.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { modalProps, modalEmits } from "./types.js";
+import { getRecentPointerTarget, prepareOverlayDocument, isTopmost, registerOverlay, lockBodyScroll, refreshOverlayStack, unregisterOverlay, unlockBodyScroll } from "../utils/overlay-controller.js";
 import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];
 const _hoisted_3 = ["disabled", "aria-label"];
-const openModalStack = [];
-const registerOpenModal = (id) => {
-  const previousIndex = openModalStack.indexOf(id);
-  if (previousIndex >= 0)
-    openModalStack.splice(previousIndex, 1);
-  openModalStack.push(id);
-};
-const unregisterOpenModal = (id) => {
-  const index = openModalStack.indexOf(id);
-  if (index >= 0)
-    openModalStack.splice(index, 1);
-};
-const isTopmostOpenModal = (id) => openModalStack[openModalStack.length - 1] === id;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AModal"
@@ -55,6 +43,44 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const modalStackId = Symbol("aheart-modal");
     const titleId = `aheart-modal-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
     let pendingCloseCompletion = false;
+    let overlayRegistered = false;
+    let overlayDocument = null;
+    const effectiveZIndex = ref(props.zIndex);
+    const getModalDocument = () => {
+      var _a, _b;
+      const target = teleportTarget.value;
+      return ((_a = dialogRef.value) == null ? void 0 : _a.ownerDocument) ?? ((_b = triggerElement.value) == null ? void 0 : _b.ownerDocument) ?? (typeof target === "object" && target ? target.ownerDocument : document);
+    };
+    const isModalTopmost = () => isTopmost(modalStackId, overlayDocument ?? getModalDocument());
+    const registerModalOverlay = () => {
+      if (overlayRegistered)
+        return;
+      const ownerDocument = getModalDocument();
+      registerOverlay({
+        id: modalStackId,
+        document: ownerDocument,
+        getTrigger: () => triggerElement.value,
+        getContent: () => dialogRef.value,
+        escapeEnabled: () => props.open && props.keyboard,
+        getBaseZIndex: () => props.zIndex,
+        onZIndexChange: (zIndex) => {
+          effectiveZIndex.value = zIndex;
+        },
+        onEscape: close
+      });
+      lockBodyScroll(ownerDocument);
+      overlayDocument = ownerDocument;
+      overlayRegistered = true;
+    };
+    const unregisterModalOverlay = () => {
+      if (!overlayRegistered)
+        return;
+      const ownerDocument = overlayDocument ?? getModalDocument();
+      unregisterOverlay(modalStackId, ownerDocument);
+      unlockBodyScroll(ownerDocument);
+      overlayDocument = null;
+      overlayRegistered = false;
+    };
     const AModalRenderNode = defineComponent({
       name: "AModalRenderNode",
       props: {
@@ -136,7 +162,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootStyle = computed(() => ({
       ...props.rootStyle,
       ...semanticStyle("root"),
-      zIndex: props.zIndex
+      zIndex: effectiveZIndex.value
     }));
     const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
     const hasHeader = computed(() => hasTitle.value || showCloseButton.value);
@@ -275,22 +301,23 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a;
+        var _a, _b;
         if (open && !previousOpen) {
-          registerOpenModal(modalStackId);
           pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
             captureTriggerElement();
+          registerModalOverlay();
           emit("afterOpenChange", true);
         }
         if (!open) {
-          unregisterOpenModal(modalStackId);
           pendingCloseCompletion = true;
-          const activeElement = document.activeElement;
-          leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = dialogRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
+          const ownerDocument = overlayDocument ?? getModalDocument();
+          const activeElement = ownerDocument.activeElement;
+          const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
+          leaveFocusElement.value = HTMLElementConstructor && activeElement instanceof HTMLElementConstructor && ((_b = dialogRef.value) == null ? void 0 : _b.contains(activeElement)) ? activeElement : null;
           void nextTick(() => {
-            if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+            if (motion.phase.value === "leave" && leaveFocusElement.value && ownerDocument.contains(leaveFocusElement.value)) {
               leaveFocusElement.value.focus();
             }
           });
@@ -299,9 +326,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       { flush: "sync" }
     );
     watch(
+      () => props.zIndex,
+      (zIndex) => {
+        if (overlayRegistered)
+          refreshOverlayStack(overlayDocument ?? getModalDocument());
+        else
+          effectiveZIndex.value = zIndex;
+      }
+    );
+    watch(
       () => props.open,
       (open) => {
-        if (open && isTopmostOpenModal(modalStackId))
+        if (open && isModalTopmost())
           focusDialog();
       },
       { flush: "post" }
@@ -310,11 +346,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       () => motion.phase.value,
       (phase) => {
         var _a, _b;
-        if (phase === "entered" && props.open && isTopmostOpenModal(modalStackId)) {
+        if (phase === "entered" && props.open && isModalTopmost()) {
           void nextTick(() => focusDialog());
           return;
         }
         if (phase === "hidden" && !props.open && pendingCloseCompletion) {
+          unregisterModalOverlay();
           pendingCloseCompletion = false;
           emit("afterOpenChange", false);
           emit("afterClose");
@@ -342,16 +379,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return Object.keys(merged).length > 0 ? merged : void 0;
     };
     const captureTriggerElement = () => {
-      triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      var _a;
+      const ownerDocument = getModalDocument();
+      const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
+      const pointerTarget = getRecentPointerTarget(ownerDocument);
+      triggerElement.value = HTMLElementConstructor && pointerTarget instanceof HTMLElementConstructor ? pointerTarget : HTMLElementConstructor && ownerDocument.activeElement instanceof HTMLElementConstructor ? ownerDocument.activeElement : null;
     };
     const restoreTriggerFocus = () => {
       const target = triggerElement.value;
-      if (!shouldFocusTriggerAfterClose.value || !target || !document.contains(target)) {
+      if (!shouldFocusTriggerAfterClose.value || !target || !target.ownerDocument.contains(target)) {
         return;
       }
       target.focus();
     };
-    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element instanceof HTMLInputElement && element.type === "hidden");
+    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element.tagName === "INPUT" && element.type === "hidden");
     const getFocusableElements = () => {
       const dialog = dialogRef.value;
       if (!dialog) {
@@ -369,22 +410,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     onBeforeMount(() => {
       if (props.open)
-        registerOpenModal(modalStackId);
+        registerModalOverlay();
     });
     onMounted(() => {
-      document.addEventListener("keydown", handleEnteringKeydown);
-      if (!props.open || !isTopmostOpenModal(modalStackId)) {
+      prepareOverlayDocument(getModalDocument());
+      if (!props.open || !isModalTopmost()) {
         return;
       }
       captureTriggerElement();
       focusDialog();
     });
     onBeforeUnmount(() => {
-      document.removeEventListener("keydown", handleEnteringKeydown);
-      unregisterOpenModal(modalStackId);
+      unregisterModalOverlay();
     });
     const handleTrapTab = (event) => {
-      if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
+      if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== "Tab") {
         return;
       }
       const dialog = dialogRef.value;
@@ -394,7 +434,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const focusableElements = getFocusableElements();
       const firstElement = focusableElements[0] ?? dialog;
       const lastElement = focusableElements[focusableElements.length - 1] ?? dialog;
-      const activeElement = document.activeElement;
+      const activeElement = dialog.ownerDocument.activeElement;
       if (event.shiftKey) {
         if (activeElement === firstElement || !dialog.contains(activeElement)) {
           event.preventDefault();
@@ -434,17 +474,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         close();
       }
     };
-    const handleEnteringKeydown = (event) => {
-      if (!props.open || !props.keyboard || event.key !== "Escape" || motion.phase.value !== "enter" || document.activeElement !== triggerElement.value || !isTopmostOpenModal(modalStackId)) {
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-      close();
-    };
     const handleKeydown = (event) => {
       handleTrapTab(event);
-      if (props.keyboard && event.key === "Escape" && isTopmostOpenModal(modalStackId)) {
+      const ownerDocument = overlayDocument ?? getModalDocument();
+      if (!event.composedPath().includes(ownerDocument) && props.open && props.keyboard && event.key === "Escape" && isModalTopmost()) {
         event.preventDefault();
         event.stopPropagation();
         close();

@@ -10,6 +10,8 @@
     <span
       ref="triggerRef"
       class="aheart-popconfirm__trigger"
+      :aria-controls="popupId"
+      :aria-expanded="mergedOpen ? 'true' : 'false'"
       :class="triggerClass"
       :style="triggerStyle"
       @mouseenter="handleMouseEnter"
@@ -27,12 +29,15 @@
         v-show="motion.phase.value !== 'hidden'"
         ref="popupRef"
         class="aheart-popconfirm__popup"
+        :id="popupId"
         :class="popupClass"
         :style="popupStyle"
         role="dialog"
+        :aria-labelledby="hasTitle ? titleId : undefined"
         :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
         @mouseenter="handleMouseEnter"
         @mouseleave="handleMouseLeave"
+        @focusout="handleFocusOut"
         @click="handlePopupClick"
       >
         <span
@@ -57,7 +62,7 @@
               </slot>
             </span>
             <span class="aheart-popconfirm__text" :class="textClass" :style="textStyle">
-              <span v-if="hasTitle" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
+              <span v-if="hasTitle" :id="titleId" class="aheart-popconfirm__title" :class="titleClass" :style="titleStyle">
                 <slot name="title">
                   <ARenderNode :node="title" />
                 </slot>
@@ -110,6 +115,8 @@ import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { useTeleportReady } from '../utils/use-teleport-ready'
+import { useStableId } from '../utils/use-stable-id'
+import { useTriggerAria } from '../utils/use-trigger-aria'
 import {
   popconfirmEmits,
   popconfirmProps,
@@ -147,6 +154,8 @@ const innerOpen = ref(props.defaultOpen)
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const popupRef = ref<HTMLElement | null>(null)
+const popupId = useStableId(undefined, 'aheart-popconfirm')
+const titleId = useStableId(undefined, 'aheart-popconfirm-title')
 const arrowRef = ref<HTMLElement | null>(null)
 const effectivePlacement = ref<FloatingPlacement>(props.placement)
 const isControlled = computed(() => props.open !== undefined)
@@ -181,6 +190,10 @@ const floatingPosition = useFloatingPosition({
 const resolvedIcon = computed<PopconfirmContent>(() => (props.icon === undefined ? '!' : props.icon))
 const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value))
 const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title))
+useTriggerAria(triggerRef, () => ({
+  'aria-controls': popupId.value,
+  'aria-expanded': mergedOpen.value ? 'true' : 'false'
+}))
 const hasDescription = computed(() => Boolean(slots.description) || hasRenderable(props.description))
 const semanticInfo = computed<PopconfirmSemanticInfo>(() => ({
   open: visible.value,
@@ -365,24 +378,32 @@ const handleMouseLeave = (event: MouseEvent) => {
 
 const handleFocusIn = () => {
   if (normalizedTriggers.value.has('focus')) {
+    clearHoverTimers()
     requestOpen(true)
   }
 }
 
-const handleFocusOut = () => {
+const handleFocusOut = (event: FocusEvent) => {
   if (normalizedTriggers.value.has('focus')) {
+    clearHoverTimers()
+    const nextTarget = event.relatedTarget
+    if (nextTarget instanceof Node && (rootRef.value?.contains(nextTarget) || popupRef.value?.contains(nextTarget))) {
+      return
+    }
     requestOpen(false)
   }
 }
 
 const handleClick = () => {
   if (normalizedTriggers.value.has('click')) {
+    clearHoverTimers()
     requestOpen(!mergedOpen.value)
   }
 }
 
 const handleContextmenu = (event: MouseEvent) => {
   if (normalizedTriggers.value.has('contextMenu')) {
+    clearHoverTimers()
     event.preventDefault()
     requestOpen(true)
   }

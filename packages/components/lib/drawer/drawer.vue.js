@@ -5,6 +5,7 @@ const index = require("../skeleton/index.js");
 const usePointerDrag = require("../utils/use-pointer-drag.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
+const overlayController = require("../utils/overlay-controller.js");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["aria-hidden"];
@@ -68,10 +69,48 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const leaveFocusElement = vue.ref(null);
     const titleId = `aheart-drawer-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
     let pendingCloseCompletion = false;
+    let overlayRegistered = false;
+    const drawerId = Symbol("ADrawer");
+    let overlayDocument = null;
+    const effectiveZIndex = vue.ref(props.zIndex);
     const resizedSize = vue.ref();
     const resizeStart = vue.ref(null);
+    const getDrawerDocument = () => {
+      var _a, _b;
+      const target = teleportTarget.value;
+      return ((_a = panelRef.value) == null ? void 0 : _a.ownerDocument) ?? ((_b = triggerElement.value) == null ? void 0 : _b.ownerDocument) ?? (typeof target === "object" && target ? target.ownerDocument : document);
+    };
+    const isDrawerTopmost = () => overlayController.isTopmost(drawerId, overlayDocument ?? getDrawerDocument());
+    const registerDrawerOverlay = () => {
+      if (overlayRegistered)
+        return;
+      const ownerDocument = getDrawerDocument();
+      overlayController.registerOverlay({
+        id: drawerId,
+        document: ownerDocument,
+        getTrigger: () => triggerElement.value,
+        getContent: () => panelRef.value,
+        escapeEnabled: () => props.open && props.keyboard,
+        getBaseZIndex: () => props.zIndex,
+        onZIndexChange: (zIndex) => {
+          effectiveZIndex.value = zIndex;
+        },
+        onEscape: close
+      });
+      overlayController.lockBodyScroll(ownerDocument);
+      overlayDocument = ownerDocument;
+      overlayRegistered = true;
+    };
+    const unregisterDrawerOverlay = () => {
+      if (!overlayRegistered)
+        return;
+      const ownerDocument = overlayDocument ?? getDrawerDocument();
+      overlayController.unregisterOverlay(drawerId, ownerDocument);
+      overlayController.unlockBodyScroll(ownerDocument);
+      overlayDocument = null;
+      overlayRegistered = false;
+    };
     const parentPushContext = vue.inject(DRAWER_PUSH_CONTEXT, null);
-    const drawerId = Symbol("ADrawer");
     const openChildDrawers = vue.ref(/* @__PURE__ */ new Map());
     const setChildOpen = (id, open) => {
       const nextOpenChildren = new Map(openChildDrawers.value);
@@ -243,7 +282,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootStyle = vue.computed(() => ({
       ...props.rootStyle,
       ...semanticStyle("root"),
-      zIndex: props.zIndex
+      zIndex: effectiveZIndex.value
     }));
     const mergedMaskStyle = vue.computed(() => ({
       ...props.maskStyle,
@@ -297,20 +336,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a;
+        var _a, _b;
         if (open && !previousOpen) {
           pendingCloseCompletion = false;
           leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
             captureTriggerElement();
+          registerDrawerOverlay();
           emit("afterOpenChange", true);
         }
         if (!open) {
           pendingCloseCompletion = true;
-          const activeElement = document.activeElement;
-          leaveFocusElement.value = activeElement instanceof HTMLElement && ((_a = panelRef.value) == null ? void 0 : _a.contains(activeElement)) ? activeElement : null;
+          const ownerDocument = overlayDocument ?? getDrawerDocument();
+          const activeElement = ownerDocument.activeElement;
+          const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
+          leaveFocusElement.value = HTMLElementConstructor && activeElement instanceof HTMLElementConstructor && ((_b = panelRef.value) == null ? void 0 : _b.contains(activeElement)) ? activeElement : null;
           void vue.nextTick(() => {
-            if (motion.phase.value === "leave" && leaveFocusElement.value && document.contains(leaveFocusElement.value)) {
+            if (motion.phase.value === "leave" && leaveFocusElement.value && ownerDocument.contains(leaveFocusElement.value)) {
               leaveFocusElement.value.focus();
             }
           });
@@ -319,13 +361,24 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       { flush: "sync" }
     );
     vue.watch(
+      () => props.zIndex,
+      (zIndex) => {
+        if (overlayRegistered)
+          overlayController.refreshOverlayStack(overlayDocument ?? getDrawerDocument());
+        else
+          effectiveZIndex.value = zIndex;
+      }
+    );
+    vue.watch(
       () => motion.phase.value,
       (phase) => {
         if (phase === "entered" && props.open) {
-          void vue.nextTick(() => focusPanel());
+          if (isDrawerTopmost())
+            void vue.nextTick(() => focusPanel());
           return;
         }
         if (phase === "hidden" && !props.open && pendingCloseCompletion) {
+          unregisterDrawerOverlay();
           pendingCloseCompletion = false;
           emit("afterOpenChange", false);
           void vue.nextTick(() => restoreTriggerFocus());
@@ -340,7 +393,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       },
       { immediate: true }
     );
+    vue.onBeforeMount(() => {
+      if (props.open)
+        registerDrawerOverlay();
+    });
     vue.onBeforeUnmount(() => {
+      unregisterDrawerOverlay();
       parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, false);
     });
     const resolveSemanticConfig = (config, part) => {
@@ -350,16 +408,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
     const semanticStyle = (part) => resolveSemanticConfig(props.styles, part);
     const captureTriggerElement = () => {
-      triggerElement.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      var _a;
+      const ownerDocument = getDrawerDocument();
+      const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
+      const pointerTarget = overlayController.getRecentPointerTarget(ownerDocument);
+      triggerElement.value = HTMLElementConstructor && pointerTarget instanceof HTMLElementConstructor ? pointerTarget : HTMLElementConstructor && ownerDocument.activeElement instanceof HTMLElementConstructor ? ownerDocument.activeElement : null;
     };
     const restoreTriggerFocus = () => {
       const target = triggerElement.value;
-      if (!shouldFocusTriggerAfterClose.value || !target || !document.contains(target)) {
+      if (!shouldFocusTriggerAfterClose.value || !target || !target.ownerDocument.contains(target)) {
         return;
       }
       target.focus();
     };
-    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element instanceof HTMLInputElement && element.type === "hidden");
+    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element.tagName === "INPUT" && element.type === "hidden");
     const getFocusableElements = () => {
       const panel = panelRef.value;
       if (!panel) {
@@ -368,7 +430,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return Array.from(panel.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
     };
     const focusPanel = () => {
-      if (!props.open) {
+      if (!props.open || !isDrawerTopmost()) {
         return;
       }
       const panel = panelRef.value;
@@ -376,6 +438,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       target == null ? void 0 : target.focus();
     };
     vue.onMounted(() => {
+      overlayController.prepareOverlayDocument(getDrawerDocument());
       if (!props.open) {
         return;
       }
@@ -383,7 +446,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       focusPanel();
     });
     const handleTrapTab = (event) => {
-      if (!props.open || !shouldTrapFocus.value || event.key !== "Tab") {
+      if (!props.open || !isDrawerTopmost() || !shouldTrapFocus.value || event.key !== "Tab") {
         return;
       }
       const panel = panelRef.value;
@@ -393,7 +456,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const focusableElements = getFocusableElements();
       const firstElement = focusableElements[0] ?? panel;
       const lastElement = focusableElements[focusableElements.length - 1] ?? panel;
-      const activeElement = document.activeElement;
+      const activeElement = panel.ownerDocument.activeElement;
       if (event.shiftKey) {
         if (activeElement === firstElement || !panel.contains(activeElement)) {
           event.preventDefault();
@@ -485,7 +548,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleKeydown = (event) => {
       handleTrapTab(event);
-      if (props.keyboard && event.key === "Escape") {
+      const ownerDocument = overlayDocument ?? getDrawerDocument();
+      if (!event.composedPath().includes(ownerDocument) && props.open && props.keyboard && event.key === "Escape" && isDrawerTopmost()) {
+        event.preventDefault();
+        event.stopPropagation();
         close();
       }
     };

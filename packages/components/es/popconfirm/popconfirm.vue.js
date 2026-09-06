@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, unref, createCommentVNode, createVNode, mergeProps, withCtx, createTextVNode, toDisplayString, vShow } from "vue";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, unref, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, mergeProps, withCtx, createTextVNode, toDisplayString, vShow } from "vue";
 import Button from "../button/index.js";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating-core.js";
 import "../utils/floating.css.js";
@@ -6,9 +6,13 @@ import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
+import { useStableId } from "../utils/use-stable-id.js";
+import { useTriggerAria } from "../utils/use-trigger-aria.js";
 import { popconfirmProps, popconfirmEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["aria-hidden"];
+const _hoisted_1 = ["aria-controls", "aria-expanded"];
+const _hoisted_2 = ["id", "aria-labelledby", "aria-hidden"];
+const _hoisted_3 = ["id"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "APopconfirm"
@@ -37,6 +41,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const popupRef = ref(null);
+    const popupId = useStableId(void 0, "aheart-popconfirm");
+    const titleId = useStableId(void 0, "aheart-popconfirm-title");
     const arrowRef = ref(null);
     const effectivePlacement = ref(props.placement);
     const isControlled = computed(() => props.open !== void 0);
@@ -73,6 +79,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const resolvedIcon = computed(() => props.icon === void 0 ? "!" : props.icon);
     const hasIcon = computed(() => Boolean(slots.icon) || hasRenderable(resolvedIcon.value));
     const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    useTriggerAria(triggerRef, () => ({
+      "aria-controls": popupId.value,
+      "aria-expanded": mergedOpen.value ? "true" : "false"
+    }));
     const hasDescription = computed(() => Boolean(slots.description) || hasRenderable(props.description));
     const semanticInfo = computed(() => ({
       open: visible.value,
@@ -237,21 +247,30 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleFocusIn = () => {
       if (normalizedTriggers.value.has("focus")) {
+        clearHoverTimers();
         requestOpen(true);
       }
     };
-    const handleFocusOut = () => {
+    const handleFocusOut = (event) => {
+      var _a, _b;
       if (normalizedTriggers.value.has("focus")) {
+        clearHoverTimers();
+        const nextTarget = event.relatedTarget;
+        if (nextTarget instanceof Node && (((_a = rootRef.value) == null ? void 0 : _a.contains(nextTarget)) || ((_b = popupRef.value) == null ? void 0 : _b.contains(nextTarget)))) {
+          return;
+        }
         requestOpen(false);
       }
     };
     const handleClick = () => {
       if (normalizedTriggers.value.has("click")) {
+        clearHoverTimers();
         requestOpen(!mergedOpen.value);
       }
     };
     const handleContextmenu = (event) => {
       if (normalizedTriggers.value.has("contextMenu")) {
+        clearHoverTimers();
         event.preventDefault();
         requestOpen(true);
       }
@@ -289,6 +308,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: normalizeClass(["aheart-popconfirm__trigger", triggerClass.value]),
+          "aria-controls": unref(popupId),
+          "aria-expanded": mergedOpen.value ? "true" : "false",
           style: normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
@@ -298,7 +319,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onContextmenu: handleContextmenu
         }, [
           renderSlot(_ctx.$slots, "default")
-        ], 38),
+        ], 46, _hoisted_1),
         (openBlock(), createBlock(Teleport, {
           to: teleportTo.value,
           disabled: !shouldTeleport.value
@@ -308,11 +329,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ref_key: "popupRef",
             ref: popupRef,
             class: normalizeClass(["aheart-popconfirm__popup", popupClass.value]),
+            id: unref(popupId),
             style: normalizeStyle(popupStyle.value),
             role: "dialog",
+            "aria-labelledby": hasTitle.value ? unref(titleId) : void 0,
             "aria-hidden": unref(motion).phase.value === "hidden" ? "true" : void 0,
             onMouseenter: handleMouseEnter,
             onMouseleave: handleMouseLeave,
+            onFocusout: handleFocusOut,
             onClick: handlePopupClick
           }, [
             showArrow.value ? (openBlock(), createElementBlock("span", {
@@ -347,13 +371,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 }, [
                   hasTitle.value ? (openBlock(), createElementBlock("span", {
                     key: 0,
+                    id: unref(titleId),
                     class: normalizeClass(["aheart-popconfirm__title", titleClass.value]),
                     style: normalizeStyle(titleStyle.value)
                   }, [
                     renderSlot(_ctx.$slots, "title", {}, () => [
                       createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
                     ])
-                  ], 6)) : createCommentVNode("", true),
+                  ], 14, _hoisted_3)) : createCommentVNode("", true),
                   hasDescription.value ? (openBlock(), createElementBlock("span", {
                     key: 1,
                     class: normalizeClass(["aheart-popconfirm__description", descriptionClass.value]),
@@ -391,7 +416,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 }, 16, ["class", "style"])
               ], 6)
             ], 6)
-          ], 46, _hoisted_1)), [
+          ], 46, _hoisted_2)), [
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

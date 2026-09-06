@@ -7,6 +7,10 @@
       :tabindex="disabled ? -1 : 0"
       :aria-expanded="mergedOpen ? 'true' : 'false'"
       :aria-disabled="disabled ? 'true' : undefined"
+      :aria-controls="panelId"
+      :aria-activedescendant="activeDescendantId"
+      :aria-labelledby="resolvedAriaLabelledby"
+      :aria-describedby="resolvedAriaDescribedby"
       aria-haspopup="dialog"
       @click="toggleOpen"
       @keydown="handleTriggerKeydown"
@@ -37,7 +41,10 @@
       :class="panelClass"
       :style="panelStyle"
       role="dialog"
-      aria-label="级联选择"
+      :id="panelId"
+      :aria-labelledby="resolvedAriaLabelledby || undefined"
+      :aria-describedby="resolvedAriaDescribedby || undefined"
+      :aria-label="resolvedAriaLabelledby ? undefined : '级联选择'"
     >
       <input
         v-if="showSearch"
@@ -70,9 +77,12 @@
             :class="{ 'is-active': activePath[columnIndex] === option.value, 'is-selected': isSelected(columnIndex, option), 'is-loading': isLoading(columnIndex, option) }"
             type="button"
             :data-cascader-value="option.value"
+            :id="optionId(option, columnIndex)"
+            :data-cascader-column="columnIndex"
             :disabled="disabled || option.disabled || isLoading(columnIndex, option)"
             :aria-busy="isLoading(columnIndex, option) ? 'true' : undefined"
             @click="handleOption(option, columnIndex)"
+            @focus="handleOptionFocus(option, columnIndex)"
             @keydown="handleOptionKeydown"
           >
             <span>{{ option.label }}</span>
@@ -87,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useAttrs, watch } from 'vue'
 import AIcon from '../icon/icon.vue'
 import type { FloatingPlacement } from '../utils/floating-core'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
@@ -95,6 +105,7 @@ import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useControllableState } from '../utils/use-controllable-state'
+import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import type { CascaderKey, CascaderOption, CascaderPath, CascaderValue } from './types'
 import './style.css'
@@ -134,12 +145,15 @@ const cloneOptions = (options: CascaderOption[]): CascaderOption[] => options.ma
   ...option,
   children: option.children ? cloneOptions(option.children) : undefined
 }))
+const instanceId = useStableId(undefined, 'aheart-cascader').value
+const panelId = `aheart-cascader-panel-${instanceId}`
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 const columnsRef = ref<HTMLElement | null>(null)
 const searchText = ref('')
 const activePath = ref<CascaderPath>([])
+const focusedPath = ref<CascaderPath>([])
 const loadingPaths = ref<CascaderPath[]>([])
 const innerOptions = ref<CascaderOption[]>(cloneOptions(props.options))
 const isControlled = usePropPresence('modelValue', 'model-value')
@@ -239,6 +253,19 @@ const searchResults = computed(() => {
   const query = searchText.value.trim().toLowerCase()
   return collectLeaves(innerOptions.value).filter((result) => result.labels.join(' / ').toLowerCase().includes(query))
 })
+const attrs = useAttrs()
+const resolvedAriaLabelledby = computed(() => attrs['aria-labelledby'] as string | undefined)
+const resolvedAriaDescribedby = computed(() => attrs['aria-describedby'] as string | undefined)
+const optionId = (option: CascaderOption, columnIndex: number) =>
+  `${instanceId}-option-${columnIndex}-${Math.max(0, columns.value[columnIndex]?.indexOf(option) ?? 0)}`
+const activeDescendantId = computed(() => {
+  if (!mergedOpen.value || searchText.value.trim()) return undefined
+  const path = focusedPath.value
+  if (!path.length) return undefined
+  const option = findOption(path.slice(0, -1))?.children?.find((item) => item.value === path.at(-1)) ?? (path.length === 1 ? innerOptions.value.find((item) => item.value === path[0]) : undefined)
+  if (!option || !columns.value[path.length - 1]?.includes(option)) return undefined
+  return optionId(option, path.length - 1)
+})
 const isSelected = (columnIndex: number, option: CascaderOption) => selectedPaths.value.some((path) => path[columnIndex] === option.value && path.length === columnIndex + 1)
 const isLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const requestOpen = (open: boolean) => {
@@ -304,6 +331,9 @@ const handleOption = async (option: CascaderOption, columnIndex: number) => {
     }
   }
 }
+const handleOptionFocus = (option: CascaderOption, columnIndex: number) => {
+  focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value]
+}
 
 const handleTriggerKeydown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
@@ -320,6 +350,8 @@ const handleOptionKeydown = (event: KeyboardEvent) => {
   const current = event.currentTarget as HTMLButtonElement
   const options = Array.from(current.parentElement?.querySelectorAll<HTMLButtonElement>('.aheart-cascader__option:not(:disabled)') ?? [])
   const index = options.indexOf(current)
+  const columnIndex = Number(current.dataset.cascaderColumn)
+  const option = columns.value[columnIndex]?.find((item) => String(item.value) === current.dataset.cascaderValue)
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     options[(index + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length]?.focus()
@@ -327,6 +359,17 @@ const handleOptionKeydown = (event: KeyboardEvent) => {
     event.preventDefault()
     requestOpen(false)
     void nextTick(() => triggerRef.value?.focus())
+  } else if (event.key === 'Home' || event.key === 'End') {
+    event.preventDefault()
+    options[event.key === 'Home' ? 0 : options.length - 1]?.focus()
+  } else if (event.key === 'ArrowRight' && option && isBranch(option)) {
+    event.preventDefault()
+    void handleOption(option, columnIndex).then(() => nextTick(() => panelRef.value?.querySelector<HTMLElement>(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)?.focus()))
+  } else if (event.key === 'ArrowLeft' && columnIndex > 0) {
+    event.preventDefault()
+    const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1]
+    Array.from(panelRef.value?.querySelectorAll<HTMLElement>(`[data-cascader-column="${columnIndex - 1}"]`) ?? [])
+      .find((element) => element.dataset.cascaderValue === String(parentValue))?.focus()
   }
 }
 

@@ -221,6 +221,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!triggerSet.value.has("click")) {
         return;
       }
+      clearHoverTimers();
       setOpen(!mergedOpen.value, { source: "trigger" });
     };
     const handleMouseEnter = () => {
@@ -239,6 +240,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleContextmenu = (event) => {
       if (triggerSet.value.has("contextMenu")) {
+        clearHoverTimers();
         event.preventDefault();
         setOpen(true, { source: "trigger" });
       }
