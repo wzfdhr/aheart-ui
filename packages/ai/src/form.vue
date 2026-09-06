@@ -1,10 +1,16 @@
 <template>
-  <form
+  <AForm
     v-if="validation.valid && validation.schema"
     ref="formElement"
     class="aheart-ai-form"
+    :model="formModel"
+    :disabled="disabled || submitting"
+    :required-mark="false"
+    :layout="'vertical'"
     :aria-busy="submitting ? 'true' : 'false'"
-    @submit.prevent="submit"
+    @submit="handleSubmit"
+    @finish="handleFinish"
+    @finish-failed="handleFinishFailed"
   >
     <header v-if="validation.schema.title || validation.schema.description" class="aheart-ai-form__header">
       <h2 v-if="validation.schema.title">{{ validation.schema.title }}</h2>
@@ -31,16 +37,16 @@
         <span>{{ section.group.title }}</span>
         <small v-if="section.group.description">{{ section.group.description }}</small>
       </legend>
-      <AIFormField
-        v-for="field in section.fields"
-        :key="fieldKey(field)"
-        :ref="(instance) => setFieldRef(field.key, instance)"
-        :field="field"
-        :value="fieldValue(field)"
-        :disabled="isDisabled(field)"
-        :error="errors[field.key]"
-        @update="update(field.key, $event)"
-      />
+        <AFormItem v-for="field in section.fields" :key="fieldKey(field)" :name="field.key" :rules="fieldRules(field)" no-style>
+          <AIFormField
+            :ref="(instance) => setFieldRef(field.key, instance)"
+            :field="field"
+            :value="fieldValue(field)"
+            :disabled="isDisabled(field)"
+            :error="errors[field.key]"
+            @update="update(field.key, $event)"
+          />
+        </AFormItem>
     </component>
 
     <p v-if="submitError" class="aheart-ai-form__submit-error" role="alert">{{ submitError }}</p>
@@ -49,7 +55,7 @@
         {{ submitText }}
       </AButton>
     </footer>
-  </form>
+  </AForm>
   <div v-else class="aheart-ai-form__error" role="alert">
     <strong>表单配置无效</strong>
     <ul>
@@ -60,7 +66,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, reactive, watch } from 'vue'
-import { Button as AButton } from 'aheart-ui'
+import { Button as AButton, Form as AForm, FormItem as AFormItem, type FormRule } from 'aheart-ui'
 import AIFormField from './form-field.vue'
 import {
   type AIFormCondition,
@@ -112,6 +118,7 @@ const resolvedValues = computed(() =>
   )
 )
 const errors = reactive<Record<string, string>>({})
+const formModel = reactive<Record<string, unknown>>({})
 const fieldRevisions = reactive<Record<string, number>>({})
 const fieldRefs = new Map<string, FieldRef>()
 
@@ -121,6 +128,17 @@ watch(
     if (!result.valid) emit('schema-error', result.errors)
   },
   { immediate: true }
+)
+
+watch(
+  resolvedValues,
+  (next) => {
+    Object.keys(formModel).forEach((key) => {
+      if (!Object.prototype.hasOwnProperty.call(next, key)) delete formModel[key]
+    })
+    Object.assign(formModel, next)
+  },
+  { immediate: true, deep: true }
 )
 
 const matches = (condition?: AIFormCondition) => {
@@ -206,21 +224,43 @@ const update = async (key: string, value: unknown) => {
   await nextTick()
   if (values.value[key] !== value) fieldRevisions[key] = (fieldRevisions[key] ?? 0) + 1
 }
-const submit = async () => {
+
+const fieldRules = (field: AIFormFieldV1): FormRule[] => {
+  if (!field.required || isDisabled(field)) return []
+  const message = `${field.label}为必填项`
+  return [
+    { required: true, message },
+    {
+      message,
+      validator: (_rule, value) => (isMissingRequiredValue(field, value) ? message : undefined)
+    }
+  ]
+}
+
+const handleSubmit = () => {
   if (props.disabled || props.submitting) return
   Object.keys(errors).forEach((key) => delete errors[key])
-  const validationErrors = visibleFields.value
-    .filter((field) => field.required && !isDisabled(field) && isMissingRequiredValue(field, resolvedValues.value[field.key]))
-    .map((field) => ({ key: field.key, message: `${field.label}为必填项` }))
-  validationErrors.forEach((error) => {
-    errors[error.key] = error.message
-  })
+}
+
+const handleFinish = (result: Record<string, unknown>) => {
+  if (props.disabled || props.submitting) return
+  emit('submit', { ...result })
+}
+
+const handleFinishFailed = (info: { errorFields: Array<{ name: string | readonly (string | number)[]; errors: string[] }> }) => {
+  if (props.disabled || props.submitting) return
+  const validationErrors = info.errorFields
+    .map((error) => {
+      const key = typeof error.name === 'string' ? error.name : String(error.name[0])
+      const field = validation.value.schema?.fields.find((candidate) => candidate.key === key)
+      const message = error.errors[0] || `${field?.label ?? key}为必填项`
+      return { key, message }
+    })
+    .filter((error) => visibleFields.value.some((field) => field.key === error.key) && !isDisabled(validation.value.schema!.fields.find((field) => field.key === error.key)!))
+  validationErrors.forEach((error) => { errors[error.key] = error.message })
   if (validationErrors.length) {
     emit('validation-error', validationErrors)
-    await nextTick()
-    focusField(validationErrors[0].key)
-    return
+    void nextTick(() => focusField(validationErrors[0].key))
   }
-  emit('submit', { ...resolvedValues.value })
 }
 </script>
