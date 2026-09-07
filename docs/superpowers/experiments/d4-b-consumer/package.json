@@ -1,0 +1,1 @@
+{"name":"aheart-d4-virtual-consumer","private":true,"type":"module","dependencies":{"aheart-ui":"file:./aheart-ui-1.0.0.tgz","@tanstack/vue-virtual":"3.13.36","vue":"3.5.38","@vue/server-renderer":"3.5.38"},"devDependencies":{"vite":"5.0.12","@playwright/test":"1.61.1"}}

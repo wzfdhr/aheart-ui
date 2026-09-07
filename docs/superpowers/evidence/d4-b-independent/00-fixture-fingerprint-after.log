@@ -1,0 +1,16 @@
+{
+  "files": 10,
+  "sha256": "50309ddc5d6292e520cd4cb656ef7b8b4eb2db1a79da78e073f01b2e2c958c56",
+  "names": [
+    "App.js",
+    "README.md",
+    "baseline.js",
+    "disabled.js",
+    "engine-size.mjs",
+    "main.js",
+    "measure.mjs",
+    "package-lock.json",
+    "package.json",
+    "unused.js"
+  ]
+}

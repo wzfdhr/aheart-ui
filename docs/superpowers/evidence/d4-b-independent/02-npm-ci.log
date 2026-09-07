@@ -1,0 +1,165 @@
+npm error code EUSAGE
+npm error
+npm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.
+npm error
+npm error Missing: @playwright/test@1.61.1 from lock file
+npm error Missing: @tanstack/vue-virtual@3.13.36 from lock file
+npm error Missing: vue@3.5.38 from lock file
+npm error Missing: @vue/server-renderer@3.5.38 from lock file
+npm error Missing: aheart-ui@1.0.0 from lock file
+npm error Missing: vite@5.0.12 from lock file
+npm error Missing: playwright@1.61.1 from lock file
+npm error Missing: @tanstack/virtual-core@3.17.8 from lock file
+npm error Missing: @vue/compiler-ssr@3.5.38 from lock file
+npm error Missing: @vue/shared@3.5.38 from lock file
+npm error Missing: @vue/compiler-dom@3.5.38 from lock file
+npm error Missing: @vue/compiler-core@3.5.38 from lock file
+npm error Missing: @babel/parser@7.29.8 from lock file
+npm error Missing: entities@7.0.1 from lock file
+npm error Missing: estree-walker@2.0.2 from lock file
+npm error Missing: source-map-js@1.2.1 from lock file
+npm error Missing: @babel/types@7.29.8 from lock file
+npm error Missing: @babel/helper-string-parser@7.29.7 from lock file
+npm error Missing: @babel/helper-validator-identifier@7.29.7 from lock file
+npm error Missing: @floating-ui/dom@1.8.0 from lock file
+npm error Missing: @lucide/vue@1.41.0 from lock file
+npm error Missing: dayjs@1.11.23 from lock file
+npm error Missing: @floating-ui/core@1.8.0 from lock file
+npm error Missing: @floating-ui/utils@0.2.12 from lock file
+npm error Missing: fsevents@2.3.2 from lock file
+npm error Missing: playwright-core@1.61.1 from lock file
+npm error Missing: esbuild@0.19.12 from lock file
+npm error Missing: fsevents@2.3.3 from lock file
+npm error Missing: postcss@8.5.28 from lock file
+npm error Missing: rollup@4.63.1 from lock file
+npm error Missing: @esbuild/aix-ppc64@0.19.12 from lock file
+npm error Missing: @esbuild/android-arm@0.19.12 from lock file
+npm error Missing: @esbuild/android-arm64@0.19.12 from lock file
+npm error Missing: @esbuild/android-x64@0.19.12 from lock file
+npm error Missing: @esbuild/darwin-arm64@0.19.12 from lock file
+npm error Missing: @esbuild/darwin-x64@0.19.12 from lock file
+npm error Missing: @esbuild/freebsd-arm64@0.19.12 from lock file
+npm error Missing: @esbuild/freebsd-x64@0.19.12 from lock file
+npm error Missing: @esbuild/linux-arm@0.19.12 from lock file
+npm error Missing: @esbuild/linux-arm64@0.19.12 from lock file
+npm error Missing: @esbuild/linux-ia32@0.19.12 from lock file
+npm error Missing: @esbuild/linux-loong64@0.19.12 from lock file
+npm error Missing: @esbuild/linux-mips64el@0.19.12 from lock file
+npm error Missing: @esbuild/linux-ppc64@0.19.12 from lock file
+npm error Missing: @esbuild/linux-riscv64@0.19.12 from lock file
+npm error Missing: @esbuild/linux-s390x@0.19.12 from lock file
+npm error Missing: @esbuild/linux-x64@0.19.12 from lock file
+npm error Missing: @esbuild/netbsd-x64@0.19.12 from lock file
+npm error Missing: @esbuild/openbsd-x64@0.19.12 from lock file
+npm error Missing: @esbuild/sunos-x64@0.19.12 from lock file
+npm error Missing: @esbuild/win32-arm64@0.19.12 from lock file
+npm error Missing: @esbuild/win32-ia32@0.19.12 from lock file
+npm error Missing: @esbuild/win32-x64@0.19.12 from lock file
+npm error Missing: nanoid@3.3.18 from lock file
+npm error Missing: picocolors@1.1.1 from lock file
+npm error Missing: @napi-rs/lzma-linux-x64-gnu@1.5.1 from lock file
+npm error Missing: @rollup/rollup-android-arm-eabi@4.63.1 from lock file
+npm error Missing: @rollup/rollup-android-arm64@4.63.1 from lock file
+npm error Missing: @rollup/rollup-darwin-arm64@4.63.1 from lock file
+npm error Missing: @rollup/rollup-darwin-x64@4.63.1 from lock file
+npm error Missing: @rollup/rollup-freebsd-arm64@4.63.1 from lock file
+npm error Missing: @rollup/rollup-freebsd-x64@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-arm-gnueabihf@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-arm-musleabihf@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-arm64-gnu@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-arm64-musl@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-loong64-gnu@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-loong64-musl@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-ppc64-gnu@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-ppc64-musl@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-riscv64-gnu@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-riscv64-musl@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-s390x-gnu@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-x64-gnu@4.63.1 from lock file
+npm error Missing: @rollup/rollup-linux-x64-musl@4.63.1 from lock file
+npm error Missing: @rollup/rollup-openbsd-x64@4.63.1 from lock file
+npm error Missing: @rollup/rollup-openharmony-arm64@4.63.1 from lock file
+npm error Missing: @rollup/rollup-win32-arm64-msvc@4.63.1 from lock file
+npm error Missing: @rollup/rollup-win32-ia32-msvc@4.63.1 from lock file
+npm error Missing: @rollup/rollup-win32-x64-gnu@4.63.1 from lock file
+npm error Missing: @rollup/rollup-win32-x64-msvc@4.63.1 from lock file
+npm error Missing: @types/estree@1.0.9 from lock file
+npm error Missing: @vue/compiler-sfc@3.5.38 from lock file
+npm error Missing: @vue/runtime-dom@3.5.38 from lock file
+npm error Missing: magic-string@0.30.21 from lock file
+npm error Missing: @vue/reactivity@3.5.38 from lock file
+npm error Missing: @vue/runtime-core@3.5.38 from lock file
+npm error Missing: csstype@3.2.3 from lock file
+npm error Missing: @jridgewell/sourcemap-codec@1.6.0 from lock file
+npm error
+npm error Clean install a project
+npm error
+npm error Usage:
+npm error npm ci
+npm error
+npm error Options:
+npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts]
+npm error [--allow-git <all|none|root>] [--no-audit] [--no-bin-links] [--no-fund]
+npm error [--dry-run]
+npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+npm error [--workspaces] [--include-workspace-root] [--install-links]
+npm error
+npm error   --install-strategy
+npm error     Sets the strategy for installing packages in node_modules.
+npm error
+npm error   --legacy-bundling
+npm error     Instead of hoisting package installs in `node_modules`, install packages
+npm error
+npm error   --global-style
+npm error     Only install direct dependencies in the top level `node_modules`,
+npm error
+npm error   --omit
+npm error     Dependency types to omit from the installation tree on disk.
+npm error
+npm error   --include
+npm error     Option that allows for defining which types of dependencies to install.
+npm error
+npm error   --strict-peer-deps
+npm error     If set to `true`, and `--legacy-peer-deps` is not set, then _any_
+npm error
+npm error   --foreground-scripts
+npm error     Run all build scripts (ie, `preinstall`, `install`, and
+npm error
+npm error   --ignore-scripts
+npm error     If true, npm does not run scripts specified in package.json files.
+npm error
+npm error   --allow-git
+npm error     Limits the ability for npm to fetch dependencies from git references.
+npm error
+npm error   --audit
+npm error     When "true" submit audit reports alongside the current npm command to the
+npm error
+npm error   --bin-links
+npm error     Tells npm to create symlinks (or `.cmd` shims on Windows) for package
+npm error
+npm error   --fund
+npm error     When "true" displays the message at the end of each `npm install`
+npm error
+npm error   --dry-run
+npm error     Indicates that you don't want npm to make any changes and that it should
+npm error
+npm error   -w|--workspace
+npm error     Enable running a command in the context of the configured workspaces of the
+npm error
+npm error   --workspaces
+npm error     Set to true to run the command in the context of **all** configured
+npm error
+npm error   --include-workspace-root
+npm error     Include the workspace root when workspaces are enabled for a command.
+npm error
+npm error   --install-links
+npm error     When set file: protocol dependencies will be packed and installed as
+npm error
+npm error
+npm error aliases: clean-install, ic, install-clean, isntall-clean
+npm error
+npm error Run "npm help ci" for more info
+npm error A complete log of this run can be found in: /Users/start/.npm/_logs/2026-09-07T05_07_01_281Z-debug-0.log
