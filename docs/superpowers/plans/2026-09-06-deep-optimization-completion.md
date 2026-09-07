@@ -6,14 +6,14 @@
 
 - 每阶段：开发实施 → 开发经理复审 → 测试经理测试 → 设计审核 → 产品经理验收 → PR → 合并 master。
 - P1/P2 未清零不得合并；公开 API、包边界、主要依赖、全局设计基础或三个以上组件交互模型变更按原用户约定专项评审。
-- 当前已核实 master 为 `3dc64ff1734004c2e51cc2a5e6a99a59c85ae1a2`，D3 PR #17 已合并，CI 34015092054 / Pages 34016159317 success。
+- 收尾核实的 master 为 `1587b4e4d63dc34bf13239712243c698a88ffd83`：D4 PR #18 已合并，随后安全依赖 PR #9/#14 已合并；该主线 CI 34113272892 / Pages 34115362807 均 success。见[D4 收尾记录](../reviews/2026-09-07-d4-closeout.md)。此 SHA 是收尾证据基线，不是文档后续提交的 SHA。
 - D0–D3 既有交付在最终阶段仍需按原要求逐条复核，不仅沿用“已完成”标签。D3 延后的 Form.List 纳入下方待办。
 
 ## D4 选择与树形组件
 
-当前：A兼容API、B隔离评估、C仅Select虚拟化已分别通过产品验收，见[逐项交付矩阵](../reviews/2026-09-07-d4-delivery-matrix.md)。这不改变原总目标；剩余范围必须明示，Draft PR只是已授权留存，不是完整D4/合并放行。
+当前：A兼容API、B隔离评估、C仅Select虚拟化及三项Select合并补证已完成交付；用户明确授权后PR #18合并，主线CI/Pages验证完成，见[逐项交付矩阵](../reviews/2026-09-07-d4-delivery-matrix.md)。已批准增量已收尾；剩余三组件虚拟化仍待范围决定，不宣称原D4总体完成。
 
-最新合并范围裁定：PR18仅为已授权A/B/C增量；未授权的Tree/TreeSelect/Cascader虚拟化不阻塞它，且未实现不等于已获延期。原宽泛checkbox不是四组件虚拟化批准。本PR补证仅限三个Select契约，完成并且当前head远端CI全绿后交产品经理最终裁定。
+合并范围裁定：PR18仅为已授权A/B/C增量；未授权的Tree/TreeSelect/Cascader虚拟化不阻塞它，且未实现不等于已获延期。原宽泛checkbox不是四组件虚拟化批准。三个Select契约补证及当前候选CI已通过；用户随后明确要求“提交pr吧”“过了就合并”，已据此执行合并，不伪称无法送达的产品经理任务另行给过最终裁定。
 
 - [x] Tree 共用 typed key 节点索引、父子关系、可见节点列表。
 - [x] 实际焦点节点承担 treeitem；aria-level/posinset/setsize 完整。
@@ -31,9 +31,10 @@
   - [x] Select子集已批准并实现：静态TanStack、默认false、height/estimateSize/overscan；真实生产体积/36场景/4组hydrate与产品验收完成。
   - [ ] Tree、TreeSelect、Cascader虚拟化未授权且未实现，仍由后续范围决定；非PR18合并阻断，不表述为已批准延期。
 - [x] 成熟引擎优先选型：初评比较三方案，B已完成TanStack隔离评估，C已获准并完成仅Select静态接入。各阶段“当时尚未安装”属于历史，不是当前状态。
-- [x] [Draft PR #18](https://github.com/wzfdhr/aheart-ui/pull/18)留存；正文及矩阵明确本批与未完成范围，不等于合并放行。
-- [ ] 远端CI全绿及完整D4剩余范围裁定（见PR checks和产品经理后续决定）。
-- [ ] 产品经理最终合并裁定，以及获准合并后的master CI/Pages验证；不提前开始D5。
+- [x] [PR #18](https://github.com/wzfdhr/aheart-ui/pull/18)已正式提交并合并，merge commit `22d60d4`；本批范围与未完成范围分别记录。
+- [x] PR18最终head `933d8b1`远端CI全绿；用户明确授权合并，master `22d60d4`及后续`1587b4e`的CI/Pages验证通过。
+- [ ] 完整D4剩余范围裁定：Tree/TreeSelect/Cascader虚拟化继续实施还是正式延期，尚待明确决定；本次收尾不擅自实施或批准延期。
+- [ ] 原D4总体关闭及后续阶段启动决定；不自动启动D5。
 
 ## D5 Table / Pagination
 
