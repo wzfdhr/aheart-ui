@@ -1,5 +1,7 @@
 # D4 大列表性能基线与虚拟化选项
 
+最新授权：用户“按照你规划继续”已批准成熟引擎优先的B组隔离适配验证，允许在隔离目录安装评估所需依赖；按A实施验收→B隔离验证执行。本文件涉及的核心正式依赖、virtual props/default策略、四组件接入仍未批准。
+
 ## 当前基线
 
 `scripts/d4-browser-performance.mjs` 使用临时 Vite harness，将仓库中的 `select.vue` 与 `cascader.vue` 直接加载到真实 Chromium 页面，覆盖 1,000、5,000、10,000 个选项。Select 分别测量固定单行和交错多行 `optionRender`，Cascader 测量平面叶子选项；每个规模测量浏览器内 `createApp.mount` 至 `nextTick`/一帧、打开、搜索过滤，并对 Select 追加 20 次 ArrowDown。结果 JSON 保存在 `docs/superpowers/evidence/d4-performance/`。这是固定 1440x900 桌面环境的单轮、非统计性基线，不是绝对耗时门槛，也不代表移动端或生产构建。
@@ -89,7 +91,7 @@ Registry实查unpackedSize：Vue Virtual适配器18,928字节，核心410,424字
 
 ### 当前待决策与推荐
 
-- **D4 Tree/Cascader兼容API组**：推荐批准产品经理已提出的checkStrictly默认true、派生半选、Tree loadData(signal)、TreeSelect对应能力和Cascader signal；保持现有默认行为，显式使用新能力后增加契约与异步生命周期测试。此组尚未收到用户回复。
-- **虚拟化独立组**：推荐批准“成熟引擎优先的隔离验证”，首选TanStack，比较上表备选后再批准运行时依赖与最终props。默认不开启，不按数量自动切换；暂不直接批准四组件全部接入、自研动态引擎或新增包边界。若选择继续不新增依赖，则保留当前全量DOM行为并明确大列表性能限制。
+- **D4 Tree/Cascader兼容API组**：用户已批准checkStrictly默认true、派生半选、Tree loadData(signal)、TreeSelect对应能力和Cascader signal；已进入A实施与验收。
+- **虚拟化独立组**：用户已批准“成熟引擎优先的隔离验证”，首选TanStack，比较上表备选后再决定核心运行时依赖与最终props。允许隔离目录评估依赖安装；默认不开启，不按数量自动切换，不直接批准四组件全部接入、自研动态引擎或新增包边界。
 
-已授权内部代码修复、完整门禁、真实浏览器基线与方案准备已执行；本次核对未识别额外独立于上述决策的未完成内部实施项。剩余功能实施分别需要上述确认，之后才有新的候选完整审核/PR/主线CI/Pages门禁。当前停在可核验检查点，不在后台持续实施待批能力。
+前批内部代码修复、完整门禁、真实浏览器基线与初始方案准备已完成；A与B现按本次授权继续执行，不再重复索要同一确认。A当前冻结候选和角色门禁以status文件为准；B结果出来后再提交核心接入具体方案。PR/主线CI/Pages及D5仍按完整D4验收门禁执行。

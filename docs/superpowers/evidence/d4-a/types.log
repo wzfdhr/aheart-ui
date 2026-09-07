@@ -1,0 +1,16 @@
+
+> aheart-ui-workspace@1.0.0 typecheck /Users/start/.codex/worktrees/091b/aheart-ui
+> corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter @aheart-ui/dnd typecheck && corepack pnpm --filter @aheart-ui/ai typecheck
+
+
+> aheart-ui@1.0.0 typecheck /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vue-tsc --noEmit -p tsconfig.json
+
+
+> @aheart-ui/dnd@1.0.0 typecheck /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+> vue-tsc --noEmit -p tsconfig.json
+
+
+> @aheart-ui/ai@1.0.0 typecheck /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+> vue-tsc --noEmit -p tsconfig.json
+

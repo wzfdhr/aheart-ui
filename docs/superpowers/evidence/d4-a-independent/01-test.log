@@ -1,0 +1,223 @@
+
+> aheart-ui-workspace@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui
+> corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test && node --test scripts/*.test.mjs
+
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/input-number/__tests__/input-number.test.ts  (57 tests) 210ms
+ ✓ src/drawer/__tests__/drawer.test.ts  (52 tests) 493ms
+ ✓ src/form/__tests__/form.test.ts  (39 tests) 341ms
+ ✓ src/tooltip/__tests__/tooltip.test.ts  (26 tests) 709ms
+ ✓ src/modal/__tests__/modal.test.ts  (60 tests) 738ms
+ ✓ src/select/__tests__/select.test.ts  (39 tests) 891ms
+ ✓ src/popconfirm/__tests__/popconfirm.test.ts  (26 tests) 947ms
+ ✓ src/dropdown/__tests__/dropdown.test.ts  (32 tests) 1069ms
+ ✓ src/table/__tests__/table.test.ts  (29 tests) 195ms
+ ✓ src/splitter/__tests__/splitter.test.ts  (17 tests) 82ms
+ ✓ src/popover/__tests__/popover.test.ts  (22 tests) 702ms
+ ✓ src/button/__tests__/button.test.ts  (26 tests) 148ms
+ ✓ src/date-picker/__tests__/date-picker.test.ts  (50 tests) 1805ms
+ ✓ src/cascader/__tests__/cascader.test.ts  (25 tests) 1189ms
+ ✓ src/card/__tests__/card.test.ts  (26 tests) 113ms
+ ✓ src/tree/__tests__/tree.test.ts  (21 tests) 179ms
+ ✓ src/message/__tests__/message.test.ts  (20 tests) 138ms
+ ✓ src/menu/__tests__/menu.test.ts  (16 tests) 235ms
+ ✓ src/input/__tests__/input.test.ts  (19 tests) 78ms
+ ✓ src/pagination/__tests__/pagination.test.ts  (18 tests) 115ms
+ ✓ src/config-provider/__tests__/config-provider.test.ts  (9 tests) 110ms
+ ✓ src/radio/__tests__/radio.test.ts  (17 tests) 113ms
+ ✓ src/time-picker/__tests__/time-picker.test.ts  (26 tests) 1572ms
+ ✓ src/date-picker/__tests__/date-range-picker.test.ts  (25 tests) 1646ms
+ ✓ src/checkbox/__tests__/checkbox.test.ts  (17 tests) 127ms
+ ✓ src/textarea/__tests__/textarea.test.ts  (20 tests) 143ms
+ ✓ src/form/__tests__/engine.test.ts  (20 tests) 73ms
+ ✓ src/tree-select/__tests__/tree-select.test.ts  (15 tests) 469ms
+ ✓ src/upload/__tests__/upload.test.ts  (14 tests) 232ms
+ ✓ src/tabs/__tests__/tabs.test.ts  (13 tests) 111ms
+ ✓ src/typography/__tests__/typography.test.ts  (14 tests) 157ms
+ ✓ src/alert/__tests__/alert.test.ts  (12 tests) 56ms
+ ✓ src/utils/__tests__/use-floating-position.test.ts  (20 tests) 8ms
+ ✓ src/steps/__tests__/steps.test.ts  (12 tests) 89ms
+ ✓ src/breadcrumb/__tests__/breadcrumb.test.ts  (8 tests) 59ms
+ ✓ src/descriptions/__tests__/descriptions.test.ts  (7 tests) 88ms
+ ✓ src/time-picker/__tests__/time-range-picker.test.ts  (17 tests) 1289ms
+ ✓ src/utils/__tests__/use-floating-dismiss.test.ts  (7 tests) 102ms
+ ✓ src/switch/__tests__/switch.test.ts  (16 tests) 152ms
+ ✓ src/tag/__tests__/tag.test.ts  (9 tests) 134ms
+ ✓ src/badge/__tests__/badge.test.ts  (12 tests) 80ms
+ ✓ src/spin/__tests__/spin.test.ts  (10 tests) 80ms
+ ✓ src/utils/__tests__/use-pointer-drag.test.ts  (10 tests) 81ms
+ ✓ src/empty/__tests__/empty.test.ts  (13 tests) 82ms
+ ✓ src/utils/__tests__/overlay-controller.test.ts  (6 tests) 11ms
+ ✓ src/skeleton/__tests__/skeleton.test.ts  (6 tests) 61ms
+ ✓ src/space/__tests__/space.test.ts  (7 tests) 56ms
+ ✓ src/tree/__tests__/tree-lazy.test.ts  (7 tests) 151ms
+ ✓ src/input/__tests__/form-integration.test.ts  (6 tests) 207ms
+ ✓ src/utils/__tests__/use-controllable-state.test.ts  (5 tests) 19ms
+ ✓ src/utils/__tests__/use-async-task.test.ts  (5 tests) 19ms
+ ✓ src/picker-core/__tests__/codec.test.ts  (10 tests) 28ms
+ ✓ src/tree/__tests__/tree-index.test.ts  (7 tests) 12ms
+ ✓ src/icon/__tests__/icon.test.ts  (10 tests) 35ms
+ ✓ src/divider/__tests__/divider.test.ts  (6 tests) 96ms
+ ✓ src/form/__tests__/form-item-protocol.test.ts  (4 tests) 75ms
+ ✓ src/flex/__tests__/flex.test.ts  (4 tests) 32ms
+ ✓ src/picker-core/__tests__/selection.test.ts  (9 tests) 6ms
+ ✓ src/tree/__tests__/tree-check.test.ts  (5 tests) 50ms
+ ✓ src/utils/__tests__/use-roving-focus.test.ts  (3 tests) 12ms
+ ✓ src/grid/__tests__/grid.test.ts  (6 tests) 41ms
+ ✓ src/utils/__tests__/use-stable-id.test.ts  (4 tests) 16ms
+ ✓ src/utils/__tests__/use-collection.test.ts  (2 tests) 5ms
+ ✓ src/tree/__tests__/tree-linked.test.ts  (3 tests) 62ms
+ ✓ src/splitter/__tests__/solver.test.ts  (5 tests) 3ms
+ ✓ src/tree-select/__tests__/tree-checkable.test.ts  (3 tests) 203ms
+ ✓ src/picker-core/__tests__/calendar.test.ts  (3 tests) 4ms
+ ✓ src/date-picker/__tests__/date-picker.ssr.test.ts  (3 tests) 29ms
+ ✓ src/utils/__tests__/use-floating-position.ssr.test.ts  (1 test) 4ms
+ ✓ src/utils/__tests__/use-trigger-aria.test.ts  (2 tests) 9ms
+ ✓ src/date-picker/__tests__/date-utils.test.ts  (3 tests) 2ms
+ ✓ src/utils/__tests__/use-prop-presence.test.ts  (1 test) 10ms
+ ✓ src/cascader/__tests__/overlay-controls.ssr.test.ts  (2 tests) 11ms
+ ✓ src/time-picker/__tests__/time-picker.ssr.test.ts  (1 test) 9ms
+
+ Test Files  74 passed (74)
+      Tests  1102 passed (1102)
+   Start at  12:34:49
+   Duration  6.82s (transform 2.88s, setup 8ms, collect 11.18s, tests 18.71s, environment 19.73s, prepare 3.80s)
+
+
+> @aheart-ui/dnd@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+
+ ✓ src/__tests__/sortable-list-live-region.test.ts  (5 tests) 49ms
+ ✓ src/__tests__/dnd.test.ts  (39 tests) 115ms
+
+ Test Files  2 passed (2)
+      Tests  44 passed (44)
+   Start at  12:34:57
+   Duration  511ms (transform 157ms, setup 0ms, collect 270ms, tests 164ms, environment 284ms, prepare 58ms)
+
+
+> @aheart-ui/ai@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+
+ ✓ src/__tests__/package.test.ts  (1 test) 1ms
+ ✓ src/__tests__/qg4-a11y-guardrails.test.ts  (4 tests) 5ms
+ ✓ src/__tests__/form-schema.test.ts  (10 tests) 3ms
+ ✓ src/__tests__/primitives.test.ts  (5 tests) 21ms
+ ✓ src/__tests__/chat-panel.test.ts  (10 tests) 78ms
+ ✓ src/__tests__/form.test.ts  (21 tests) 150ms
+ ✓ src/__tests__/agent-workbench.test.ts  (15 tests) 176ms
+
+ Test Files  7 passed (7)
+      Tests  66 passed (66)
+   Start at  12:34:58
+   Duration  1.10s (transform 511ms, setup 0ms, collect 1.48s, tests 434ms, environment 1.56s, prepare 354ms)
+
+✔ temporary gate repository pins the workspace package manager (212.682167ms)
+✔ real orchestration runs both builds with the installed workspace pnpm while Corepack is cold and offline (1064.455834ms)
+✔ snapshots every file in all generated directories with relative paths and SHA-256 (3.989208ms)
+✔ identical snapshots produce no differences regardless of insertion order (0.140375ms)
+✔ identifies added, removed, and changed files in deterministic order (0.0985ms)
+✔ mismatched snapshots throw a readable status report with paths (0.203583ms)
+✔ preflight rejects a staged change even when the worktree is restored to HEAD (221.809167ms)
+✔ preflight rejects a staged new file before a build can delete it (217.763709ms)
+✔ preflight rejects an ignored generated file before a build can delete it (247.026875ms)
+✔ writes sorted SHA-256 manifests and a readable comparison when builds differ (779.750542ms)
+✔ persists and tees build 1 stdout, stderr, exit status, and accurate failure stage (568.713959ms)
+✔ persists and tees build 2 failure after recording the completed first build (830.428208ms)
+✔ reports snapshot 1 capture failure after build 1 completes successfully (511.292208ms)
+✔ reports snapshot 2 capture failure after both builds complete successfully (799.099708ms)
+✔ preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts (344.27325ms)
+✔ reports postflight failure after two matching snapshots and preserves both build results (877.955292ms)
+✔ accepts an empty generated-file list (0.754583ms)
+✔ rejects untracked generated files (1.256958ms)
+✔ rejects staged tracked changes in generated directories (406.428ms)
+✔ rejects unstaged tracked changes in generated directories (387.89225ms)
+✔ rejects ignored untracked files in generated directories (314.165208ms)
+✔ uploads both tracked diff layers and build manifests on build gate failure (1.868667ms)
+✔ keeps the quality plan entry point aligned with the four-role gate (0.1465ms)
+✔ retains uniquely named e2e evidence for successful and failed runs (0.182375ms)
+✔ runs QG5 production specs in independent browser project shards (0.418375ms)
+✔ always uploads per-project QG5 Playwright evidence with run identity (0.263917ms)
+✔ allows repeatable QG5 baseline collection on master without weakening push and PR checks (0.1055ms)
+✔ exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point (0.093792ms)
+✔ Chinese docs shell and component status copy stay localized (13.104375ms)
+✔ DnD docs use visible handles and assign physical iOS touch evidence to QG5 (0.891042ms)
+✔ D2 overlay helpers stay internal and ship paired ESM and CommonJS files (1.508208ms)
+✔ components loads through ESM and CommonJS entrypoints (199.044291ms)
+✔ dnd loads through ESM and CommonJS entrypoints (19.502584ms)
+✔ ai loads through ESM and CommonJS entrypoints (14.069291ms)
+✔ dnd package exports resolve consumer types for business records and standalone values (539.160083ms)
+✔ Pages deploys only an exact master SHA whose CI workflow succeeded (7.023209ms)
+✔ picker core loads through native ESM with external Dayjs plugins (16.009083ms)
+✔ public picker types do not expose internal Dayjs helpers (0.573417ms)
+✔ builds the docs and serves the production preview on the requested port (1.168625ms)
+✔ uses AHEART_E2E_PORT with 5173 as the default everywhere (0.314792ms)
+✔ never reuses an unknown local server for production verification (0.135167ms)
+✔ runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit (1.160375ms)
+✔ gives the production preview enough time to build before readiness checks (0.236792ms)
+✔ retains failure diagnostics and uses the HTML reporter (0.1505ms)
+✔ disables the macOS system proxy for local Firefox verification (0.09175ms)
+✔ CI installs all browsers and uploads test results and the Playwright report (0.14175ms)
+✔ documents physical iOS Safari evidence without equating it to mobile WebKit automation (1.057625ms)
+✔ documents the two-stage master stability gate and exposes the guide in Chinese navigation (0.181959ms)
+✔ describes always-retained and failure-only browser evidence accurately (0.286125ms)
+✔ accepts complete physical iOS Safari evidence bound to the reviewed commit (14.590333ms)
+✔ rejects simulator and scripted touch evidence (2.590708ms)
+✔ rejects evidence for another commit and missing artifact integrity (3.494417ms)
+✔ rejects incomplete observable task outcomes (1.527875ms)
+✔ requires before and after screenshots plus a session video for every physical task (1.431042ms)
+✔ rejects duplicate before and after media references (1.63125ms)
+✔ rejects symlinks that can escape the evidence directory (2.783375ms)
+✔ binds evidence to the expected repository and branch (1.974625ms)
+✔ rejects artifact MIME metadata that does not match its evidence kind and extension (1.362667ms)
+✔ rejects evidence IDs that can escape the JSON evidence directory (3.154292ms)
+✔ normalizes GitHub workflow runs and preserves every attempt for flaky detection (1.836583ms)
+✔ keeps missing QG5 project evidence observable instead of silently dropping a run (0.097583ms)
+✔ collects paginated runs and jobs while filtering to the requested master SHA (1.021209ms)
+✔ retries transient GitHub failures with a bounded attempt count (3.17175ms)
+✔ accepts ten consecutive healthy master runs with zero flaky reruns (3.413917ms)
+✔ rejects an insufficient post-QG5 master window (0.261084ms)
+✔ rejects a run with a missing or failed browser project (0.486125ms)
+✔ counts a failed attempt followed by success as one flaky run (0.474708ms)
+✔ filters non-master and pre-QG5 runs instead of treating them as passing evidence (0.374584ms)
+✔ rejects incomplete historical attempts instead of hiding them as stable (0.352042ms)
+✔ only accepts runs for the expected master SHA (0.212625ms)
+✔ rejects duplicate or non-contiguous attempt numbers (0.2535ms)
+✔ QG5 production suite guards resources, hydration, overlays, and viewport containment (0.404208ms)
+✔ collects production errors through a teardown fixture that always attaches evidence (0.169ms)
+✔ settles prefetch work before navigation and never hides generic cancelled resource failures (0.096291ms)
+✔ quality matrix registers every Ready component exactly once with release evidence (161.108041ms)
+✔ QG4 matrix records only component-specific accessibility and visual evidence (2.697ms)
+✔ quality matrix uses the planned mutually exclusive risk mapping (0.258291ms)
+✔ R1 records have current component evidence and product task metadata (0.161292ms)
+✔ pull request template requires product task and quality matrix review (0.821292ms)
+✔ accepts a complete packed package contract (1.185916ms)
+✔ reports missing public metadata and required files (0.11125ms)
+✔ rejects unresolved workspace dependency protocols (0.068542ms)
+✔ rejects unexpected packed dependency ranges (0.068958ms)
+✔ rejects Pragmatic DnD auto-scroll dependency drift (0.081833ms)
+✔ rejects source and test files from the tarball (0.051875ms)
+✔ D1 state helpers stay internal and ship paired ESM and CommonJS files (1.275625ms)
+ℹ tests 86
+ℹ suites 0
+ℹ pass 86
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7074.196

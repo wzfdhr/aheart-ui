@@ -1,0 +1,98 @@
+
+[WebServer] (node:11825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:11836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:11851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:12602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:12613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 25 tests using 5 workers
+
+
+(node:12621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:12623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:12624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:12620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:12622) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/25] [mobile] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[2/25] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[3/25] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[4/25] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[5/25] [desktop] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[6/25] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[7/25] [desktop] › e2e/d4-selection.spec.ts:24:5 › D4 TreeSelect searching retains the full linked selection model
+[8/25] [mobile] › e2e/d4-selection.spec.ts:24:5 › D4 TreeSelect searching retains the full linked selection model
+[9/25] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[10/25] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+
+(node:12665) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[11/25] [desktop-firefox] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+
+(node:12666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[12/25] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[13/25] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[14/25] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+
+(node:12690) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[15/25] [desktop-webkit] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[16/25] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+
+(node:12704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[17/25] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[18/25] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[19/25] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[20/25] [desktop-webkit] › e2e/d4-selection.spec.ts:24:5 › D4 TreeSelect searching retains the full linked selection model
+[21/25] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[22/25] [desktop-firefox] › e2e/d4-selection.spec.ts:24:5 › D4 TreeSelect searching retains the full linked selection model
+
+(node:12730) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[23/25] [mobile-webkit] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[24/25] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[25/25] [mobile-webkit] › e2e/d4-selection.spec.ts:24:5 › D4 TreeSelect searching retains the full linked selection model
+  25 passed (23.6s)
