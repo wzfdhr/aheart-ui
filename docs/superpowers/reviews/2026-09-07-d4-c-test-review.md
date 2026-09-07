@@ -39,3 +39,26 @@
 - 产品放行：不作产品裁定。
 
 本报告保留旧 56e 候选的真实门禁与失败证据；consumer 稳定字节/模块及 36 场景通过不抵消全量 E2E 未通过，也不替代新 P2 修复后的最终候选测试。
+
+## 最终修正版候选独立复验
+
+最终冻结候选：HEAD `8b099c8` / code `56debe7`，122 文件，指纹 `1f7b2f227d72235319f21c08fd308648eac447f7edcbb6d761f621394f505bd9`。执行前后 `node scripts/d4-candidate-fingerprint.mjs docs/superpowers/evidence/d4-c/final-candidate.json` 均一致；日志：[00-candidate-fingerprint-after.log](../evidence/d4-c-final-independent/00-candidate-fingerprint-after.log)。
+
+门禁结果：
+
+- components：77 files、1121/1121 passed（`--maxWorkers=2 --minWorkers=1`）。
+- dnd：44/44；ai：66/66；scripts：86/86。
+- 三包 typecheck：退出码 0。
+- build determinism：双构建退出码 0。
+- release pack：components 971、dnd 71、ai 111。
+- 新 tarball SHA-256：`0d14f00fcedf0c53244ddcadb39548ee2403570465befc850040c9064edd9162`，与预期一致；[00-tarball-sha-after.log](../evidence/d4-c-final-independent/00-tarball-sha-after.log)。
+
+全部独立日志位于 [d4-c-final-independent](../evidence/d4-c-final-independent/)。
+
+最终 consumer 以 `final-new-lock.json` 重跑：1k/5k/10k × fixed/dynamic × 3 rounds 的 36/36 场景通过，4 组 hydration、CJS SSR、empty-visible、bytes/modules 对照全部通过；新旧稳定字段与 `final-results.json` 一致。[final-results.json](../evidence/d4-c-final-independent/final-results.json)、[11-consumer-stable-compare.log](../evidence/d4-c-final-independent/11-consumer-stable-compare.log)。
+
+最终完整 E2E 实际命令：`AHEART_E2E_PORT=5215 corepack pnpm exec playwright test --workers=2 --reporter=line --output=/tmp/aheart-d4-c-final-independent`。结果：576 tests，449 passed、127 skipped、0 failed，退出码 0；docs preview 未崩溃。新增 no-results、tail/disabled/HomeEnd/dynamic、ownerDocument iframe/unmount、splitter remount 场景均随五项目执行。[10-playwright.log](../evidence/d4-c-final-independent/10-playwright.log)
+
+最终截图示例：`/tmp/aheart-d4-c-final-independent/d4-select-virtual-Select-v-59507-ible-and-search-can-recover-desktop-firefox/select-virtual-empty.png`、`/tmp/aheart-d4-c-final-independent/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-desktop/select-virtual-tail.png`。
+
+最终候选未观察技术 P1/P2；此前空结果高度 P2 已由本候选验证关闭。旧 56e 候选的 376/106 失败历史保留，不与最终 449/127 结果混用。产品视觉/交互及产品 API 仍不由独立技术测试放行。
