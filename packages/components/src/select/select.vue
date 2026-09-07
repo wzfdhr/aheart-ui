@@ -81,7 +81,6 @@
           @compositionstart="handleCompositionStart"
           @compositionend="handleCompositionEnd"
           @click.stop="openPopup"
-          @keydown="handleKeydown"
         />
         <span v-else-if="!isMultiple" class="aheart-select__value" :class="{ 'is-placeholder': !selectedOption }">
           {{ selectedOption?.label ?? placeholder ?? '' }}
@@ -556,6 +555,23 @@ useFloatingDismiss({
 watch(filteredOptions, () => {
   if (mergedOpen.value) setInitialActive()
 })
+watch(activeOptionId, () => {
+  void nextTick(() => {
+    const popup = popupRef.value
+    const id = activeOptionId.value
+    const option = id && popup?.ownerDocument.getElementById(id)
+    if (!popup || !option || !popup.contains(option)) return
+    const bounds = popup.getBoundingClientRect()
+    const row = option.getBoundingClientRect()
+    // Account for entry animation scale and measured, potentially multi-line rows.
+    const scale = popup.offsetHeight ? bounds.height / popup.offsetHeight : 1
+    if (!scale) return
+    const top = bounds.top + popup.clientTop * scale
+    const bottom = top + popup.clientHeight * scale
+    if (row.top < top) popup.scrollTop += (row.top - top) / scale
+    else if (row.bottom > bottom) popup.scrollTop += (row.bottom - bottom) / scale
+  })
+}, { flush: 'post' })
 const focus = () => (isSearchable.value ? searchRef.value : selectorRef.value)?.focus()
 const blur = () => {
   searchRef.value?.blur()

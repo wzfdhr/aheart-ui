@@ -1,4 +1,4 @@
-import { defineComponent, useSlots, useAttrs, ref, computed, watch, openBlock, createElementBlock, mergeProps, createElementVNode, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, withModifiers, toDisplayString, createBlock, Teleport, withDirectives, vShow, nextTick } from "vue";
+import { defineComponent, useSlots, useAttrs, ref, computed, watch, nextTick, openBlock, createElementBlock, mergeProps, createElementVNode, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, withModifiers, toDisplayString, createBlock, Teleport, withDirectives, vShow } from "vue";
 import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
@@ -423,6 +423,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (mergedOpen.value)
         setInitialActive();
     });
+    watch(activeOptionId, () => {
+      void nextTick(() => {
+        const popup = popupRef.value;
+        const id = activeOptionId.value;
+        const option = id && (popup == null ? void 0 : popup.ownerDocument.getElementById(id));
+        if (!popup || !option || !popup.contains(option))
+          return;
+        const bounds = popup.getBoundingClientRect();
+        const row = option.getBoundingClientRect();
+        const scale = popup.offsetHeight ? bounds.height / popup.offsetHeight : 1;
+        if (!scale)
+          return;
+        const top = bounds.top + popup.clientTop * scale;
+        const bottom = top + popup.clientHeight * scale;
+        if (row.top < top)
+          popup.scrollTop += (row.top - top) / scale;
+        else if (row.bottom > bottom)
+          popup.scrollTop += (row.bottom - bottom) / scale;
+      });
+    }, { flush: "post" });
     const focus = () => {
       var _a;
       return (_a = isSearchable.value ? searchRef.value : selectorRef.value) == null ? void 0 : _a.focus();
@@ -527,8 +547,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               onInput: handleSearch,
               onCompositionstart: handleCompositionStart,
               onCompositionend: handleCompositionEnd,
-              onClick: withModifiers(openPopup, ["stop"]),
-              onKeydown: handleKeydown
+              onClick: withModifiers(openPopup, ["stop"])
             }), null, 16, _hoisted_5)) : !isMultiple.value ? (openBlock(), createElementBlock("span", {
               key: 2,
               class: normalizeClass(["aheart-select__value", { "is-placeholder": !selectedOption.value }])

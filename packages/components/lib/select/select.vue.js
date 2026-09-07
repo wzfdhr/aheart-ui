@@ -425,6 +425,26 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (mergedOpen.value)
         setInitialActive();
     });
+    vue.watch(activeOptionId, () => {
+      void vue.nextTick(() => {
+        const popup = popupRef.value;
+        const id = activeOptionId.value;
+        const option = id && (popup == null ? void 0 : popup.ownerDocument.getElementById(id));
+        if (!popup || !option || !popup.contains(option))
+          return;
+        const bounds = popup.getBoundingClientRect();
+        const row = option.getBoundingClientRect();
+        const scale = popup.offsetHeight ? bounds.height / popup.offsetHeight : 1;
+        if (!scale)
+          return;
+        const top = bounds.top + popup.clientTop * scale;
+        const bottom = top + popup.clientHeight * scale;
+        if (row.top < top)
+          popup.scrollTop += (row.top - top) / scale;
+        else if (row.bottom > bottom)
+          popup.scrollTop += (row.bottom - bottom) / scale;
+      });
+    }, { flush: "post" });
     const focus = () => {
       var _a;
       return (_a = isSearchable.value ? searchRef.value : selectorRef.value) == null ? void 0 : _a.focus();
@@ -529,8 +549,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onInput: handleSearch,
               onCompositionstart: handleCompositionStart,
               onCompositionend: handleCompositionEnd,
-              onClick: vue.withModifiers(openPopup, ["stop"]),
-              onKeydown: handleKeydown
+              onClick: vue.withModifiers(openPopup, ["stop"])
             }), null, 16, _hoisted_5)) : !isMultiple.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 2,
               class: vue.normalizeClass(["aheart-select__value", { "is-placeholder": !selectedOption.value }])

@@ -20,6 +20,16 @@ const mountSelect = (options: Record<string, any> = {}) => mount(Select, {
 })
 
 describe('Select', () => {
+  it('handles each searchable arrow and multiple selection Enter exactly once', async () => {
+    const wrapper = mountSelect({ props: { options, showSearch: true, mode: 'multiple' } })
+    const search = wrapper.get('.aheart-select__search')
+    await search.trigger('keydown', { key: 'ArrowDown' })
+    expect(wrapper.get('.aheart-select__option.is-active').text()).toBe('Apple')
+    await search.trigger('keydown', { key: 'ArrowDown' })
+    expect(wrapper.get('.aheart-select__option.is-active').text()).toBe('Banana')
+    await search.trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('update:modelValue')).toEqual([[['banana']]])
+  })
   it('keeps iframe focus, restores it on Escape, and clears unmounted overlay behavior', async () => {
     const iframe = document.createElement('iframe')
     document.body.appendChild(iframe)
