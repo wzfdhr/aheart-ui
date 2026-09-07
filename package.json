@@ -38,5 +38,10 @@
     "vite": "^5.0.12",
     "vite-plugin-dts": "^3.7.2",
     "vue-tsc": "^2.0.29"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.18"
+    }
   }
 }
