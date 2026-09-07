@@ -1,0 +1,25 @@
+{
+  "baseline": {
+    "raw": 31,
+    "gzip": 51,
+    "brotli": 35,
+    "modules": []
+  },
+  "unused": {
+    "raw": 31,
+    "gzip": 51,
+    "brotli": 35,
+    "modules": []
+  },
+  "engine": {
+    "raw": 23060,
+    "gzip": 6970,
+    "brotli": 6334,
+    "modules": [
+      "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+      "@tanstack/virtual-core/dist/esm/utils.js",
+      "@tanstack/virtual-core/dist/esm/index.js",
+      "@tanstack/vue-virtual/dist/esm/index.js"
+    ]
+  }
+}

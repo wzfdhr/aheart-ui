@@ -19,6 +19,7 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   }, unhandledRejectionsKey)
 
   await page.goto('/components/tree')
+  await page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
 
   const workbench = page.getByRole('region', { name: '树交互工作台', exact: true })
   await expect(workbench).toBeVisible()
@@ -26,12 +27,15 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   await expect(tree).toBeVisible()
   await expect(tree.getByRole('treeitem')).toHaveCount(2)
 
-  const directNode = (item: ReturnType<typeof tree.getByRole>) => item.locator(':scope > .aheart-tree__node')
+  const directNode = (item: ReturnType<typeof tree.getByRole>) => item
   const rootItem = tree.getByRole('treeitem', { name: /根节点/ }).first()
   const root = directNode(rootItem)
   const leafItem = tree.getByRole('treeitem', { name: /可选叶节点/ }).first()
   const leaf = directNode(leafItem)
   const state = workbench.getByTestId('tree-state')
+  await expect(rootItem).toHaveAttribute('aria-level', '1')
+  await expect(rootItem).toHaveAttribute('aria-posinset', '1')
+  await expect(rootItem).toHaveAttribute('aria-setsize', '2')
 
   await workbench.getByRole('button', { name: '拒绝展开更新', exact: true }).click()
   await root.focus()
@@ -46,6 +50,7 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
   await expect(directNode(tree.getByRole('treeitem', { name: /一级子节点/ }).first())).toBeFocused()
 
   const firstChild = directNode(tree.getByRole('treeitem', { name: /一级子节点/ }).first())
+  await expect(firstChild).toHaveAttribute('aria-level', '2')
   const secondChild = directNode(tree.getByRole('treeitem', { name: /二级子节点/ }).first())
   await firstChild.press('ArrowRight')
   await expect(secondChild).toBeFocused()
@@ -86,15 +91,17 @@ test('Tree workbench keeps controlled keys, focus, keyboard navigation, and disa
 
   const disabledLeafItem = tree.getByRole('treeitem', { name: /禁用叶节点/ }).first()
   const disabledLeaf = directNode(disabledLeafItem)
-  await disabledLeaf.click()
+  await expect(disabledLeaf).toBeDisabled()
+  await disabledLeaf.click({ force: true })
   await expect(state).toContainText('select-events=4')
   await workbench.getByRole('button', { name: '禁用整树', exact: true }).click()
   await expect(tree.getByRole('checkbox').first()).toBeDisabled()
-  await disabledLeaf.click()
+  await disabledLeaf.click({ force: true })
   await expect(state).toContainText('select-events=4')
 
   await workbench.getByRole('button', { name: '外部折叠', exact: true }).click()
-  await expect(directNode(tree.getByRole('treeitem').first())).toBeFocused()
+  await expect(workbench.getByRole('button', { name: '外部折叠', exact: true })).toBeFocused()
+  await expect(directNode(tree.getByRole('treeitem').first())).toHaveAttribute('tabindex', '0')
   await expect(tree.getByRole('treeitem').first()).toHaveAttribute('aria-expanded', 'false')
   await expect(tree.getByRole('treeitem', { name: /一级子节点/ })).toHaveCount(0)
   await expect(state).toContainText('expanded=[]')

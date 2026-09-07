@@ -83,18 +83,18 @@ const ensureListeners = (ownerDocument) => {
   if (listeners.has(ownerDocument))
     return;
   const keydown = (event) => {
-    var _a;
+    var _a, _b;
     recentPointerTargets.delete(ownerDocument);
-    if (event.key !== "Escape")
+    if (event.key !== "Escape" || event.isComposing || event.keyCode === 229)
       return;
     const stack = getRecords(ownerDocument);
     const top = stack[stack.length - 1];
-    if (!top)
+    if (!top || ((_a = top.ignoreEscape) == null ? void 0 : _a.call(top)))
       return;
     event.preventDefault();
     event.stopPropagation();
     if (isEscapeEnabled(top))
-      (_a = top.onEscape) == null ? void 0 : _a.call(top, event);
+      (_b = top.onEscape) == null ? void 0 : _b.call(top, event);
   };
   const pointerdown = (event) => {
     var _a, _b, _c;

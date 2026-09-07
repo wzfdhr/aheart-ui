@@ -5,7 +5,10 @@ const qg2Only = /dnd-splitter\.spec\.ts/
 const qg5Only = /cross-browser-production\.spec\.ts/
 const qg5R1Only = /cross-browser-r1\.spec\.ts/
 const formEngineOnly = /form-engine\.spec\.ts/
-const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly]
+const d4IframeOnly = /d4-iframe\.spec\.ts/
+const d4SelectionOnly = /d4-selection\.spec\.ts/
+const d4VirtualOnly = /d4-select-virtual\.spec\.ts/
+const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly]
 const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 
 export default defineConfig({

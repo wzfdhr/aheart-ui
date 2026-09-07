@@ -1,0 +1,15 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/select/__tests__/virtual-options.test.ts  (7 tests) 15ms
+ ✓ src/select/__tests__/select-virtual.ssr.test.ts  (3 tests) 40ms
+ ✓ src/select/__tests__/select-virtual-tags.test.ts  (3 tests) 142ms
+ ✓ src/select/__tests__/select.test.ts  (39 tests) 429ms
+ ✓ src/select/__tests__/select-virtual.test.ts  (8 tests) 583ms
+
+ Test Files  5 passed (5)
+      Tests  60 passed (60)
+   Start at  16:32:46
+   Duration  1.23s (transform 402ms, setup 0ms, collect 1.03s, tests 1.21s, environment 1.18s, prepare 240ms)
+

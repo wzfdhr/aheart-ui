@@ -1,0 +1,195 @@
+
+> aheart-ui-workspace@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui
+> corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test && node --test scripts/*.test.mjs
+
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/input-number/__tests__/input-number.test.ts  (57 tests) 355ms
+ ✓ src/drawer/__tests__/drawer.test.ts  (52 tests) 784ms
+ ✓ src/form/__tests__/form.test.ts  (39 tests) 535ms
+ ✓ src/modal/__tests__/modal.test.ts  (60 tests) 988ms
+ ✓ src/tooltip/__tests__/tooltip.test.ts  (26 tests) 1034ms
+ ✓ src/popconfirm/__tests__/popconfirm.test.ts  (26 tests) 1231ms
+ ✓ src/select/__tests__/select.test.ts  (39 tests) 1255ms
+ ✓ src/dropdown/__tests__/dropdown.test.ts  (32 tests) 1527ms
+ ✓ src/table/__tests__/table.test.ts  (29 tests) 221ms
+ ✓ src/splitter/__tests__/splitter.test.ts  (17 tests) 158ms
+ ✓ src/popover/__tests__/popover.test.ts  (22 tests) 890ms
+ ✓ src/date-picker/__tests__/date-picker.test.ts  (50 tests) 2330ms
+ ✓ src/button/__tests__/button.test.ts  (26 tests) 242ms
+ ✓ src/card/__tests__/card.test.ts  (26 tests) 165ms
+ ✓ src/tree/__tests__/tree.test.ts  (21 tests) 314ms
+ ✓ src/cascader/__tests__/cascader.test.ts  (25 tests) 1829ms
+ ✓ src/message/__tests__/message.test.ts  (20 tests) 290ms
+ ✓ src/menu/__tests__/menu.test.ts  (16 tests) 396ms
+ ✓ src/config-provider/__tests__/config-provider.test.ts  (9 tests) 210ms
+ ✓ src/pagination/__tests__/pagination.test.ts  (18 tests) 226ms
+ ✓ src/input/__tests__/input.test.ts  (19 tests) 207ms
+ ✓ src/radio/__tests__/radio.test.ts  (17 tests) 215ms
+ ✓ src/textarea/__tests__/textarea.test.ts  (20 tests) 205ms
+ ✓ src/time-picker/__tests__/time-picker.test.ts  (26 tests) 2751ms
+ ✓ src/checkbox/__tests__/checkbox.test.ts  (17 tests) 201ms
+ ✓ src/upload/__tests__/upload.test.ts  (14 tests) 286ms
+ ✓ src/tree-select/__tests__/tree-select.test.ts  (15 tests) 807ms
+ ✓ src/form/__tests__/engine.test.ts  (20 tests) 146ms
+ ✓ src/date-picker/__tests__/date-range-picker.test.ts  (25 tests) 2799ms
+ ✓ src/tabs/__tests__/tabs.test.ts  (13 tests) 229ms
+ ✓ src/alert/__tests__/alert.test.ts  (12 tests) 305ms
+ ✓ src/typography/__tests__/typography.test.ts  (14 tests) 468ms
+ ✓ src/steps/__tests__/steps.test.ts  (12 tests) 557ms
+ ✓ src/breadcrumb/__tests__/breadcrumb.test.ts  (8 tests) 186ms
+ ✓ src/descriptions/__tests__/descriptions.test.ts  (7 tests) 281ms
+ ✓ src/utils/__tests__/use-floating-position.test.ts  (20 tests) 19ms
+ ✓ src/switch/__tests__/switch.test.ts  (16 tests) 370ms
+ ✓ src/utils/__tests__/use-floating-dismiss.test.ts  (7 tests) 150ms
+ ✓ src/time-picker/__tests__/time-range-picker.test.ts  (17 tests) 2967ms
+ ✓ src/tag/__tests__/tag.test.ts  (9 tests) 247ms
+ ✓ src/badge/__tests__/badge.test.ts  (12 tests) 347ms
+ ✓ src/spin/__tests__/spin.test.ts  (10 tests) 322ms
+ ✓ src/utils/__tests__/use-pointer-drag.test.ts  (10 tests) 205ms
+ ✓ src/empty/__tests__/empty.test.ts  (13 tests) 206ms
+ ✓ src/tree/__tests__/tree-lazy.test.ts  (8 tests) 194ms
+ ✓ src/skeleton/__tests__/skeleton.test.ts  (6 tests) 90ms
+ ✓ src/utils/__tests__/overlay-controller.test.ts  (6 tests) 43ms
+ ✓ src/space/__tests__/space.test.ts  (7 tests) 183ms
+ ✓ src/input/__tests__/form-integration.test.ts  (6 tests) 418ms
+ ✓ src/picker-core/__tests__/codec.test.ts  (10 tests) 9ms
+ ✓ src/utils/__tests__/use-controllable-state.test.ts  (5 tests) 91ms
+ ✓ src/icon/__tests__/icon.test.ts  (10 tests) 188ms
+ ✓ src/utils/__tests__/use-async-task.test.ts  (5 tests) 71ms
+ ✓ src/tree/__tests__/tree-index.test.ts  (7 tests) 40ms
+ ✓ src/divider/__tests__/divider.test.ts  (6 tests) 124ms
+ ✓ src/form/__tests__/form-item-protocol.test.ts  (4 tests) 117ms
+ ✓ src/picker-core/__tests__/selection.test.ts  (9 tests) 6ms
+ ✓ src/flex/__tests__/flex.test.ts  (4 tests) 65ms
+ ✓ src/tree/__tests__/tree-check.test.ts  (5 tests) 153ms
+ ✓ src/grid/__tests__/grid.test.ts  (6 tests) 64ms
+ ✓ src/utils/__tests__/use-roving-focus.test.ts  (3 tests) 5ms
+ ✓ src/select/__tests__/virtual-options.test.ts  (6 tests) 17ms
+ ✓ src/utils/__tests__/use-stable-id.test.ts  (4 tests) 96ms
+ ✓ src/utils/__tests__/use-collection.test.ts  (2 tests) 8ms
+ ✓ src/tree-select/__tests__/tree-checkable.test.ts  (3 tests) 306ms
+ ✓ src/splitter/__tests__/solver.test.ts  (5 tests) 4ms
+ ✓ src/tree/__tests__/tree-linked.test.ts  (3 tests) 83ms
+ ✓ src/picker-core/__tests__/calendar.test.ts  (3 tests) 7ms
+ ✓ src/date-picker/__tests__/date-picker.ssr.test.ts  (3 tests) 78ms
+ ✓ src/utils/__tests__/use-trigger-aria.test.ts  (2 tests) 14ms
+ ✓ src/utils/__tests__/use-floating-position.ssr.test.ts  (1 test) 7ms
+ ✓ src/date-picker/__tests__/date-utils.test.ts  (3 tests) 3ms
+ ✓ src/select/__tests__/select-virtual.test.ts  (7 tests) 2933ms
+ ✓ src/select/__tests__/select-virtual.ssr.test.ts  (3 tests) 70ms
+ ✓ src/utils/__tests__/use-prop-presence.test.ts  (1 test) 33ms
+ ✓ src/cascader/__tests__/overlay-controls.ssr.test.ts  (2 tests) 35ms
+ ✓ src/time-picker/__tests__/time-picker.ssr.test.ts  (1 test) 19ms
+
+ Test Files  77 passed (77)
+      Tests  1119 passed (1119)
+   Start at  14:04:58
+   Duration  12.47s (transform 4.25s, setup 5ms, collect 18.34s, tests 35.03s, environment 39.38s, prepare 6.30s)
+
+FATAL ERROR: v8::ToLocalChecked Empty MaybeLocal
+----- Native stack trace -----
+
+ 1: 0x104139fac node::OnFatalError(char const*, char const*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+ 2: 0x10439675c v8::Utils::ReportApiFailure(char const*, char const*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+ 3: 0x10411d5b0 node::cjs_lexer::Parse(v8::FunctionCallbackInfo<v8::Value> const&) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+ 4: 0x105012818 Builtins_CallApiCallbackGeneric [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+ 5: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+ 6: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+ 7: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+ 8: 0x3500518f0 
+ 9: 0x350051c2c 
+10: 0x350051f08 
+11: 0x35004c0bc 
+12: 0x35004c798 
+13: 0x35004cd04 
+14: 0x350048600 
+15: 0x3500558f0 
+16: 0x350055d98 
+17: 0x10500d978 Builtins_JSConstructStubGeneric [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+18: 0x35004c44c 
+19: 0x35004c798 
+20: 0x35004cd04 
+21: 0x350048600 
+22: 0x3500558f0 
+23: 0x350055d98 
+24: 0x10500d978 Builtins_JSConstructStubGeneric [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+25: 0x35004c44c 
+26: 0x35004c798 
+27: 0x35004cd04 
+28: 0x350048600 
+29: 0x3500558f0 
+30: 0x350055d98 
+31: 0x10500d978 Builtins_JSConstructStubGeneric [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+32: 0x35004c44c 
+33: 0x35004c798 
+34: 0x35004cd04 
+35: 0x350048600 
+36: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+37: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+38: 0x10500d978 Builtins_JSConstructStubGeneric [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+39: 0x35004c44c 
+40: 0x35004c798 
+41: 0x35004cd04 
+42: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+43: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+44: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+45: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+46: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+47: 0x10500e8cc Builtins_JSEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+48: 0x10500e570 Builtins_JSEntry [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+49: 0x104539be8 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+50: 0x10453954c v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>, v8::base::Vector<v8::internal::DirectHandle<v8::internal::Object> const>) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+51: 0x1043adfcc v8::Function::Call(v8::Isolate*, v8::Local<v8::Context>, v8::Local<v8::Value>, int, v8::Local<v8::Value>*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+52: 0x1040de424 node::loader::ImportModuleDynamicallyWithPhase(v8::Local<v8::Context>, v8::Local<v8::Data>, v8::Local<v8::Value>, v8::Local<v8::String>, v8::ModuleImportPhase, v8::Local<v8::FixedArray>) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+53: 0x104559ea4 v8::internal::Isolate::RunHostImportModuleDynamicallyCallback(v8::internal::MaybeDirectHandle<v8::internal::Script>, v8::internal::Handle<v8::internal::Object>, v8::ModuleImportPhase, v8::internal::MaybeDirectHandle<v8::internal::Object>) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+54: 0x104a5da9c v8::internal::Runtime_DynamicImportCall(int, unsigned long*, v8::internal::Isolate*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+55: 0x1050ae088 Builtins_CEntry_Return1_ArgvInRegister_NoBuiltinExit [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+56: 0x1051a0b14 Builtins_CallRuntimeHandler [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+57: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+58: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+59: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+60: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+61: 0x105010bec Builtins_InterpreterEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+62: 0x10500e8cc Builtins_JSEntryTrampoline [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+63: 0x10500e570 Builtins_JSEntry [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+64: 0x104539be8 v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+65: 0x10453954c v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>, v8::base::Vector<v8::internal::DirectHandle<v8::internal::Object> const>) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+66: 0x1043adfcc v8::Function::Call(v8::Isolate*, v8::Local<v8::Context>, v8::Local<v8::Value>, int, v8::Local<v8::Value>*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+67: 0x10401b3d8 node::InternalMakeCallback(node::Environment*, v8::Local<v8::Object>, v8::Local<v8::Object>, v8::Local<v8::Function>, int, v8::Local<v8::Value>*, node::async_context, v8::Local<v8::Value>) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+68: 0x104033dd0 node::AsyncWrap::MakeCallback(v8::Local<v8::Function>, int, v8::Local<v8::Value>*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+69: 0x104197740 node::worker::MessagePort::OnMessage(node::worker::MessagePort::MessageProcessingMode) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+70: 0x104fed9c8 uv__async_io [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+71: 0x1050022c0 uv__io_poll [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+72: 0x104fee31c uv_run [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+73: 0x10401c6a8 node::SpinEventLoopInternal(node::Environment*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+74: 0x104269560 node::worker::Worker::Run() [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+75: 0x10426ddf4 node::worker::Worker::StartThread(v8::FunctionCallbackInfo<v8::Value> const&)::$_0::__invoke(void*) [/Users/start/.nvm/versions/node/v24.17.0/bin/node]
+76: 0x183425c58 _pthread_start [/usr/lib/system/libsystem_pthread.dylib]
+77: 0x183420c1c thread_start [/usr/lib/system/libsystem_pthread.dylib]
+
+----- JavaScript stack trace -----
+
+1: cjsPreparseModuleExports (node:internal/modules/esm/translators:397:44)
+2: createCJSModuleWrap (node:internal/modules/esm/translators:212:35)
+3: commonjsStrategy (node:internal/modules/esm/translators:353:10)
+4: #translate (node:internal/modules/esm/loader:435:20)
+5: afterLoad (node:internal/modules/esm/loader:491:29)
+6: loadAndTranslate (node:internal/modules/esm/loader:496:12)
+7: #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:549:36)
+8: afterResolve (node:internal/modules/esm/loader:597:52)
+9: getOrCreateModuleJob (node:internal/modules/esm/loader:603:12)
+10: syncLink (node:internal/modules/esm/module_job:163:33)
+
+
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  aheart-ui@1.0.0 test: `vitest run --environment jsdom`
+Command failed with signal "SIGABRT"
+sh: line 1: 34629 Abort trap: 6           corepack pnpm --filter ./packages/components test
+ ELIFECYCLE  Test failed. See above for more details.

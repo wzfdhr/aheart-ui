@@ -4,6 +4,7 @@ export interface OverlayRegistration {
     getTrigger?: () => Element | null | undefined;
     getContent?: () => Element | null | undefined;
     escapeEnabled?: boolean | (() => boolean);
+    ignoreEscape?: () => boolean;
     getBaseZIndex?: () => number;
     onZIndexChange?: (zIndex: number) => void;
     onEscape?: (event: KeyboardEvent) => void;

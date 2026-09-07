@@ -25,6 +25,15 @@ export type SelectTagRender = (info: SelectTagRenderInfo) => VNodeChild;
 export type SelectSemanticPart = 'root' | 'prefix' | 'search' | 'selector' | 'option' | 'notFound' | 'clear' | 'suffix' | 'loading' | 'selection' | 'tag' | 'tagRemove' | 'popup' | 'list';
 export type SelectClassNames = Partial<Record<SelectSemanticPart, string>>;
 export type SelectStyles = Partial<Record<SelectSemanticPart, StyleValue>>;
+export interface SelectVirtualConfig {
+    /** Popup outer height limit in CSS pixels. Defaults to 288. */
+    height?: number;
+    /** Initial estimate, not a forced row height. Defaults to 32. */
+    estimateSize?: number;
+    /** Extra rows on either side of the viewport. Defaults to 3. */
+    overscan?: number;
+}
+export type SelectVirtual = boolean | SelectVirtualConfig;
 export interface SelectOption {
     label: string;
     value: SelectPrimitiveValue;
@@ -42,6 +51,10 @@ export interface SelectFilterSortInfo {
 }
 export type SelectFilterSort = (optionA: SelectOption, optionB: SelectOption, info: SelectFilterSortInfo) => number;
 export declare const selectProps: {
+    readonly virtual: {
+        readonly type: PropType<SelectVirtual>;
+        readonly default: false;
+    };
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;

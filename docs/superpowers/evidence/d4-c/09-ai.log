@@ -1,0 +1,21 @@
+
+> @aheart-ui/ai@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+
+ ✓ src/__tests__/package.test.ts  (1 test) 2ms
+ ✓ src/__tests__/qg4-a11y-guardrails.test.ts  (4 tests) 6ms
+ ✓ src/__tests__/form-schema.test.ts  (10 tests) 5ms
+ ✓ src/__tests__/primitives.test.ts  (5 tests) 23ms
+ ✓ src/__tests__/chat-panel.test.ts  (10 tests) 84ms
+ ✓ src/__tests__/form.test.ts  (21 tests) 171ms
+ ✓ src/__tests__/agent-workbench.test.ts  (15 tests) 205ms
+
+ Test Files  7 passed (7)
+      Tests  66 passed (66)
+   Start at  14:07:30
+   Duration  1.21s (transform 564ms, setup 0ms, collect 1.59s, tests 496ms, environment 1.84s, prepare 402ms)
+

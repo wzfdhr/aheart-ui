@@ -1,0 +1,278 @@
+
+> aheart-ui-workspace@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui
+> corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test && node --test scripts/*.test.mjs
+
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/input-number/__tests__/input-number.test.ts  (57 tests) 389ms
+ ✓ src/drawer/__tests__/drawer.test.ts  (52 tests) 717ms
+ ✓ src/form/__tests__/form.test.ts  (39 tests) 435ms
+ ✓ src/modal/__tests__/modal.test.ts  (60 tests) 978ms
+ ✓ src/tooltip/__tests__/tooltip.test.ts  (26 tests) 1001ms
+ ✓ src/select/__tests__/select.test.ts  (38 tests) 1167ms
+ ✓ src/popconfirm/__tests__/popconfirm.test.ts  (26 tests) 1331ms
+ ✓ src/dropdown/__tests__/dropdown.test.ts  (32 tests) 1477ms
+ ✓ src/table/__tests__/table.test.ts  (29 tests) 254ms
+ ✓ src/popover/__tests__/popover.test.ts  (22 tests) 994ms
+ ✓ src/splitter/__tests__/splitter.test.ts  (17 tests) 161ms
+ ✓ src/card/__tests__/card.test.ts  (26 tests) 109ms
+ ✓ src/tree/__tests__/tree.test.ts  (21 tests) 240ms
+ ✓ src/button/__tests__/button.test.ts  (26 tests) 156ms
+ ✓ src/date-picker/__tests__/date-picker.test.ts  (50 tests) 2315ms
+ ✓ src/message/__tests__/message.test.ts  (20 tests) 186ms
+ ✓ src/cascader/__tests__/cascader.test.ts  (21 tests) 1261ms
+ ✓ src/menu/__tests__/menu.test.ts  (16 tests) 308ms
+ ✓ src/config-provider/__tests__/config-provider.test.ts  (9 tests) 86ms
+ ✓ src/pagination/__tests__/pagination.test.ts  (18 tests) 156ms
+ ✓ src/input/__tests__/input.test.ts  (19 tests) 147ms
+ ✓ src/radio/__tests__/radio.test.ts  (17 tests) 177ms
+ ✓ src/checkbox/__tests__/checkbox.test.ts  (17 tests) 153ms
+ ✓ src/textarea/__tests__/textarea.test.ts  (20 tests) 178ms
+ ✓ src/time-picker/__tests__/time-picker.test.ts  (26 tests) 2213ms
+ ✓ src/date-picker/__tests__/date-range-picker.test.ts  (25 tests) 2134ms
+ ✓ src/upload/__tests__/upload.test.ts  (14 tests) 278ms
+ ✓ src/form/__tests__/engine.test.ts  (20 tests) 82ms
+ ✓ src/tree-select/__tests__/tree-select.test.ts  (15 tests) 652ms
+ ✓ src/tabs/__tests__/tabs.test.ts  (13 tests) 193ms
+ ✓ src/alert/__tests__/alert.test.ts  (12 tests) 141ms
+ ✓ src/typography/__tests__/typography.test.ts  (14 tests) 151ms
+ ✓ src/steps/__tests__/steps.test.ts  (12 tests) 128ms
+ ✓ src/utils/__tests__/use-floating-position.test.ts  (20 tests) 11ms
+ ✓ src/time-picker/__tests__/time-range-picker.test.ts  (17 tests) 1647ms
+ ✓ src/breadcrumb/__tests__/breadcrumb.test.ts  (8 tests) 93ms
+ ✓ src/descriptions/__tests__/descriptions.test.ts  (7 tests) 94ms
+ ✓ src/switch/__tests__/switch.test.ts  (16 tests) 142ms
+ ✓ src/utils/__tests__/use-floating-dismiss.test.ts  (7 tests) 126ms
+ ✓ src/tag/__tests__/tag.test.ts  (9 tests) 134ms
+ ✓ src/badge/__tests__/badge.test.ts  (12 tests) 84ms
+ ✓ src/spin/__tests__/spin.test.ts  (10 tests) 123ms
+ ✓ src/empty/__tests__/empty.test.ts  (13 tests) 70ms
+ ✓ src/utils/__tests__/use-pointer-drag.test.ts  (10 tests) 75ms
+ ✓ src/utils/__tests__/overlay-controller.test.ts  (6 tests) 18ms
+ ✓ src/space/__tests__/space.test.ts  (7 tests) 100ms
+ ✓ src/skeleton/__tests__/skeleton.test.ts  (6 tests) 88ms
+ ✓ src/utils/__tests__/use-controllable-state.test.ts  (5 tests) 42ms
+ ✓ src/input/__tests__/form-integration.test.ts  (6 tests) 274ms
+ ✓ src/picker-core/__tests__/codec.test.ts  (10 tests) 7ms
+ ✓ src/icon/__tests__/icon.test.ts  (10 tests) 67ms
+ ✓ src/utils/__tests__/use-async-task.test.ts  (5 tests) 20ms
+ ✓ src/tree/__tests__/tree-index.test.ts  (7 tests) 16ms
+ ✓ src/flex/__tests__/flex.test.ts  (4 tests) 50ms
+ ✓ src/form/__tests__/form-item-protocol.test.ts  (4 tests) 90ms
+ ✓ src/picker-core/__tests__/selection.test.ts  (9 tests) 5ms
+ ✓ src/divider/__tests__/divider.test.ts  (6 tests) 259ms
+ ✓ src/utils/__tests__/use-roving-focus.test.ts  (3 tests) 7ms
+ ✓ src/utils/__tests__/use-stable-id.test.ts  (4 tests) 18ms
+ ✓ src/grid/__tests__/grid.test.ts  (6 tests) 33ms
+ ✓ src/utils/__tests__/use-collection.test.ts  (2 tests) 10ms
+ ✓ src/splitter/__tests__/solver.test.ts  (5 tests) 6ms
+ ✓ src/picker-core/__tests__/calendar.test.ts  (3 tests) 5ms
+ ✓ src/utils/__tests__/use-floating-position.ssr.test.ts  (1 test) 3ms
+ ✓ src/date-picker/__tests__/date-utils.test.ts  (3 tests) 1ms
+ ✓ src/date-picker/__tests__/date-picker.ssr.test.ts  (3 tests) 29ms
+ ✓ src/utils/__tests__/use-trigger-aria.test.ts  (2 tests) 12ms
+ ✓ src/cascader/__tests__/overlay-controls.ssr.test.ts  (2 tests) 12ms
+ ✓ src/time-picker/__tests__/time-picker.ssr.test.ts  (1 test) 10ms
+ ✓ src/utils/__tests__/use-prop-presence.test.ts  (1 test) 12ms
+
+ Test Files  70 passed (70)
+      Tests  1079 passed (1079)
+   Start at  11:28:28
+   Duration  8.05s (transform 3.11s, setup 3ms, collect 12.44s, tests 24.14s, environment 23.69s, prepare 3.73s)
+
+
+> @aheart-ui/dnd@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+
+ ✓ src/__tests__/sortable-list-live-region.test.ts  (5 tests) 77ms
+ ✓ src/__tests__/dnd.test.ts  (39 tests) 172ms
+
+ Test Files  2 passed (2)
+      Tests  44 passed (44)
+   Start at  11:28:37
+   Duration  727ms (transform 207ms, setup 0ms, collect 390ms, tests 249ms, environment 405ms, prepare 94ms)
+
+
+> @aheart-ui/ai@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+
+ ✓ src/__tests__/form-schema.test.ts  (10 tests) 6ms
+ ✓ src/__tests__/package.test.ts  (1 test) 3ms
+ ✓ src/__tests__/qg4-a11y-guardrails.test.ts  (4 tests) 8ms
+ ✓ src/__tests__/primitives.test.ts  (5 tests) 26ms
+ ✓ src/__tests__/chat-panel.test.ts  (10 tests) 107ms
+ ✓ src/__tests__/form.test.ts  (21 tests) 166ms
+ ✓ src/__tests__/agent-workbench.test.ts  (15 tests) 194ms
+
+ Test Files  7 passed (7)
+      Tests  66 passed (66)
+   Start at  11:28:39
+   Duration  1.43s (transform 621ms, setup 0ms, collect 1.79s, tests 510ms, environment 2.19s, prepare 534ms)
+
+✔ temporary gate repository pins the workspace package manager (188.55ms)
+✔ real orchestration runs both builds with the installed workspace pnpm while Corepack is cold and offline (1117.052875ms)
+✔ snapshots every file in all generated directories with relative paths and SHA-256 (4.614792ms)
+✔ identical snapshots produce no differences regardless of insertion order (0.238792ms)
+✔ identifies added, removed, and changed files in deterministic order (0.110708ms)
+✔ mismatched snapshots throw a readable status report with paths (0.210875ms)
+✔ preflight rejects a staged change even when the worktree is restored to HEAD (234.860583ms)
+✔ preflight rejects a staged new file before a build can delete it (229.973458ms)
+✔ preflight rejects an ignored generated file before a build can delete it (263.761459ms)
+✔ writes sorted SHA-256 manifests and a readable comparison when builds differ (824.387375ms)
+✔ persists and tees build 1 stdout, stderr, exit status, and accurate failure stage (600.517625ms)
+✔ persists and tees build 2 failure after recording the completed first build (878.439583ms)
+✔ reports snapshot 1 capture failure after build 1 completes successfully (547.480458ms)
+✔ reports snapshot 2 capture failure after both builds complete successfully (833.257292ms)
+✔ preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts (356.212792ms)
+✔ reports postflight failure after two matching snapshots and preserves both build results (900.668125ms)
+✔ accepts an empty generated-file list (0.787334ms)
+✔ rejects untracked generated files (1.383375ms)
+✔ rejects staged tracked changes in generated directories (416.419042ms)
+✔ rejects unstaged tracked changes in generated directories (397.768041ms)
+✔ rejects ignored untracked files in generated directories (338.133916ms)
+✔ uploads both tracked diff layers and build manifests on build gate failure (1.612167ms)
+✔ keeps the quality plan entry point aligned with the four-role gate (0.09775ms)
+✔ retains uniquely named e2e evidence for successful and failed runs (0.154083ms)
+✔ runs QG5 production specs in independent browser project shards (0.302125ms)
+✔ always uploads per-project QG5 Playwright evidence with run identity (0.074875ms)
+✔ allows repeatable QG5 baseline collection on master without weakening push and PR checks (0.243958ms)
+✔ exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point (0.224625ms)
+✔ Chinese docs shell and component status copy stay localized (13.90125ms)
+✔ DnD docs use visible handles and assign physical iOS touch evidence to QG5 (0.697167ms)
+✔ D2 overlay helpers stay internal and ship paired ESM and CommonJS files (1.331666ms)
+✔ components loads through ESM and CommonJS entrypoints (214.248042ms)
+✔ dnd loads through ESM and CommonJS entrypoints (22.913125ms)
+✔ ai loads through ESM and CommonJS entrypoints (15.015125ms)
+✔ dnd package exports resolve consumer types for business records and standalone values (751.16775ms)
+✔ Pages deploys only an exact master SHA whose CI workflow succeeded (2.499417ms)
+✔ picker core loads through native ESM with external Dayjs plugins (15.078792ms)
+✔ public picker types do not expose internal Dayjs helpers (0.577ms)
+✔ builds the docs and serves the production preview on the requested port (1.008666ms)
+✔ uses AHEART_E2E_PORT with 5173 as the default everywhere (0.365125ms)
+✔ never reuses an unknown local server for production verification (0.226083ms)
+✖ runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit (1.620875ms)
+✔ gives the production preview enough time to build before readiness checks (0.188708ms)
+✔ retains failure diagnostics and uses the HTML reporter (0.23125ms)
+✔ disables the macOS system proxy for local Firefox verification (0.152583ms)
+✔ CI installs all browsers and uploads test results and the Playwright report (0.308708ms)
+✔ documents physical iOS Safari evidence without equating it to mobile WebKit automation (1.031667ms)
+✔ documents the two-stage master stability gate and exposes the guide in Chinese navigation (0.273583ms)
+✔ describes always-retained and failure-only browser evidence accurately (0.370083ms)
+✔ accepts complete physical iOS Safari evidence bound to the reviewed commit (16.243333ms)
+✔ rejects simulator and scripted touch evidence (2.538834ms)
+✔ rejects evidence for another commit and missing artifact integrity (3.405ms)
+✔ rejects incomplete observable task outcomes (2.255375ms)
+✔ requires before and after screenshots plus a session video for every physical task (1.780959ms)
+✔ rejects duplicate before and after media references (1.64575ms)
+✔ rejects symlinks that can escape the evidence directory (2.583375ms)
+✔ binds evidence to the expected repository and branch (2.45825ms)
+✔ rejects artifact MIME metadata that does not match its evidence kind and extension (2.012833ms)
+✔ rejects evidence IDs that can escape the JSON evidence directory (1.687917ms)
+✔ normalizes GitHub workflow runs and preserves every attempt for flaky detection (2.223583ms)
+✔ keeps missing QG5 project evidence observable instead of silently dropping a run (0.239292ms)
+✔ collects paginated runs and jobs while filtering to the requested master SHA (0.656083ms)
+✔ retries transient GitHub failures with a bounded attempt count (6.09925ms)
+✔ accepts ten consecutive healthy master runs with zero flaky reruns (5.201333ms)
+✔ rejects an insufficient post-QG5 master window (0.36ms)
+✔ rejects a run with a missing or failed browser project (0.229209ms)
+✔ counts a failed attempt followed by success as one flaky run (0.148208ms)
+✔ filters non-master and pre-QG5 runs instead of treating them as passing evidence (0.086458ms)
+✔ rejects incomplete historical attempts instead of hiding them as stable (0.0915ms)
+✔ only accepts runs for the expected master SHA (0.067791ms)
+✔ rejects duplicate or non-contiguous attempt numbers (0.111084ms)
+✔ QG5 production suite guards resources, hydration, overlays, and viewport containment (0.776416ms)
+✔ collects production errors through a teardown fixture that always attaches evidence (0.367834ms)
+✔ settles prefetch work before navigation and never hides generic cancelled resource failures (0.195917ms)
+✔ quality matrix registers every Ready component exactly once with release evidence (170.261167ms)
+✔ QG4 matrix records only component-specific accessibility and visual evidence (2.60825ms)
+✔ quality matrix uses the planned mutually exclusive risk mapping (0.270292ms)
+✔ R1 records have current component evidence and product task metadata (0.17025ms)
+✔ pull request template requires product task and quality matrix review (1.209542ms)
+✔ accepts a complete packed package contract (1.933458ms)
+✔ reports missing public metadata and required files (0.136333ms)
+✔ rejects unresolved workspace dependency protocols (0.066958ms)
+✔ rejects unexpected packed dependency ranges (0.069125ms)
+✔ rejects Pragmatic DnD auto-scroll dependency drift (0.08075ms)
+✔ rejects source and test files from the tarball (0.052417ms)
+✔ D1 state helpers stay internal and ship paired ESM and CommonJS files (1.062958ms)
+ℹ tests 86
+ℹ suites 0
+ℹ pass 85
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7392.7215
+
+✖ failing tests:
+
+test at scripts/playwright-config.test.mjs:29:1
+✖ runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit (1.620875ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly\]/. Input:
+  
+  "import { defineConfig, devices } from '@playwright/test'\n" +
+    '\n' +
+    "const port = process.env.AHEART_E2E_PORT ?? '5173'\n" +
+    'const qg2Only = /dnd-splitter\\.spec\\.ts/\n' +
+    'const qg5Only = /cross-browser-production\\.spec\\.ts/\n' +
+    'const qg5R1Only = /cross-browser-r1\\.spec\\.ts/\n' +
+    'const formEngineOnly = /form-engine\\.spec\\.ts/\n' +
+    'const d4IframeOnly = /d4-iframe\\.spec\\.ts/\n' +
+    'const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly]\n' +
+    "const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }\n" +
+    '\n' +
+    'export default defineConfig({\n' +
+    "  testDir: './e2e',\n" +
+    '  timeout: 30_000,\n' +
+    '  workers: process.env.CI ? 1 : undefined,\n' +
+    "  reporter: 'html',\n" +
+    '  use: {\n' +
+    '    baseURL: `http://127.0.0.1:${port}`,\n' +
+    "    trace: 'retain-on-failure',\n" +
+    "    video: 'retain-on-failure',\n" +
+    "    screenshot: 'only-on-failure'\n" +
+    '  },\n' +
+    '  projects: [\n' +
+    "    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },\n" +
+    "    { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },\n" +
+    "    { name: 'desktop-firefox', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },\n" +
+    "    { name: 'desktop-webkit', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },\n" +
+    "    { name: 'mobile-webkit', testMatch: crossBrowserTests, use: { ...devices['iPhone 13'], browserName: 'webkit' } }\n" +
+    '  ],\n' +
+    '  webServer: {\n' +
+    '    command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,\n' +
+    '    url: `http://127.0.0.1:${port}`,\n' +
+    '    reuseExistingServer: false,\n' +
+    '    timeout: 120_000\n' +
+    '  }\n' +
+    '})\n'
+  
+      at TestContext.<anonymous> (file:///Users/start/.codex/worktrees/091b/aheart-ui/scripts/playwright-config.test.mjs:34:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "import { defineConfig, devices } from '@playwright/test'\n\nconst port = process.env.AHEART_E2E_PORT ?? '5173'\nconst qg2Only = /dnd-splitter\\.spec\\.ts/\nconst qg5Only = /cross-browser-production\\.spec\\.ts/\nconst qg5R1Only = /cross-browser-r1\\.spec\\.ts/\nconst formEngineOnly = /form-engine\\.spec\\.ts/\nconst d4IframeOnly = /d4-iframe\\.spec\\.ts/\nconst crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly]\nconst firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }\n\nexport default defineConfig({\n  testDir: './e2e',\n  timeout: 30_000,\n  workers: process.env.CI ? 1 : undefined,\n  reporter: 'html',\n  use: {\n    baseURL: `http://127.0.0.1:${port}`,\n    trace: 'retain-on-failure',\n    video: 'retain-on-failure',\n    screenshot: 'only-on-failure'\n  },\n  projects: [\n    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },\n    { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },\n    { name: 'desktop-firefox', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },\n    { name: 'desktop-webkit', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },\n    { name: 'mobile-webkit', testMatch: crossBrowserTests, use: { ...devices['iPhone 13'], browserName: 'webkit' } }\n  ],\n  webServer: {\n    command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,\n    url: `http://127.0.0.1:${port}`,\n    reuseExistingServer: false,\n    timeout: 120_000\n  }\n})\n",
+    expected: /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly\]/,
+    operator: 'match',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Test failed. See above for more details.

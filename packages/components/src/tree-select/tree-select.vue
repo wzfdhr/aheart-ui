@@ -18,8 +18,8 @@
       @keydown="handleTriggerKeydown"
       @focusout="handleTriggerFocusout"
     >
-      <span v-if="multiple && selectedTags.length" class="aheart-tree-select__value aheart-tree-select__tags">
-        <span v-for="tag in visibleSelectedTags" :key="String(tag.key)" class="aheart-tree-select__tag">
+      <span v-if="isMultiple && selectedTags.length" class="aheart-tree-select__value aheart-tree-select__tags">
+        <span v-for="tag in visibleSelectedTags" :key="treeKeyToken(tag.key)" class="aheart-tree-select__tag">
           <span class="aheart-tree-select__tag-label">{{ tag.title }}</span>
           <button v-if="!disabled" class="aheart-tree-select__tag-remove" type="button" :aria-label="`移除 ${tag.title}`" @click.stop="removeKey(tag.key)"><AIcon name="close" :size="12" /></button>
         </span>
@@ -62,11 +62,16 @@
       <ATree
         :id="treeId"
         :tree-data="filteredTreeData"
-        :selected-keys="selectedKeys"
+        :selected-keys="treeCheckable ? [] : selectedKeys"
+        :checked-keys="treeCheckable ? selectedKeys : undefined"
+        :checkable="treeCheckable"
+        :check-strictly="treeCheckStrictly"
+        :selectable="!treeCheckable"
         :expanded-keys="searchText ? searchExpandedKeys : undefined"
-        :multiple="multiple"
+        :multiple="isMultiple"
         :disabled="disabled"
         @update:selected-keys="handleSelect"
+        @update:checked-keys="handleCheck"
       />
       <div v-if="searchText.trim() && filteredTreeData.length === 0" class="aheart-tree-select__empty" role="status">暂无匹配节点</div>
     </div>
@@ -75,11 +80,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useAttrs, watch } from 'vue'
+import { computed, nextTick, provide, ref, useAttrs, watch } from 'vue'
 import AIcon from '../icon/icon.vue'
 import { mergeAriaIds, useFormControl } from '../form/control-context'
 import ATree from '../tree'
-import type { TreeKey, TreeNodeData } from '../tree'
+import type { TreeKey, TreeLoadData, TreeNodeData } from '../tree'
+import { treeModelKey, useTreeLoader } from '../tree/use-tree-loader'
+import { deriveTreeCheckState, toggleTreeCheck } from '../tree/tree-check'
+import { createTreeIndex, filterTreeIndex, treeKeyToken } from '../tree/tree-index'
 import type { FloatingPlacement } from '../utils/floating-core'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
@@ -102,6 +110,9 @@ const props = withDefaults(defineProps<{
   modelValue?: TreeSelectValue
   defaultValue?: TreeSelectValue
   multiple?: boolean
+  treeCheckable?: boolean
+  treeCheckStrictly?: boolean
+  loadData?: TreeLoadData
   showSearch?: boolean
   placeholder?: string
   disabled?: boolean
@@ -114,6 +125,7 @@ const props = withDefaults(defineProps<{
   getPopupContainer?: (triggerNode: HTMLElement) => HTMLElement
 }>(), {
   treeData: () => [],
+  treeCheckStrictly: true,
   placeholder: '请选择',
   placement: 'bottomLeft',
   autoAdjustOverflow: true
@@ -162,63 +174,49 @@ const valueState = useControllableState<TreeSelectValue>({
 })
 const mergedOpen = computed(() => Boolean(openState.state.value))
 const mergedValue = valueState.state
-const selectedKeys = computed<TreeKey[]>(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === undefined ? [] : [mergedValue.value])
-const flattenNodes = (nodes: TreeNodeData[]): TreeNodeData[] => nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])])
+const isMultiple = computed(() => props.multiple || props.treeCheckable)
+const rawSelectedKeys = computed<TreeKey[]>(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === undefined ? [] : [mergedValue.value])
+const loader = useTreeLoader(() => props.treeData, () => props.loadData, () => Boolean(props.disabled))
+const treeIndex = computed(() => createTreeIndex(loader.data.value, Boolean(props.disabled)))
+const selectedKeys = computed(() => props.treeCheckable ? deriveTreeCheckState(treeIndex.value, rawSelectedKeys.value, props.treeCheckStrictly).checkedKeys : rawSelectedKeys.value)
+provide(treeModelKey, { loader, index: treeIndex })
+watch(mergedOpen, open => { if (!open) loader.cancelAll() }, { flush: 'sync' })
 const displayLabel = computed(() => selectedKeys.value
-  .map((key) => flattenNodes(props.treeData).find((node) => node.key === key)?.title)
+  .map((key) => treeIndex.value.nodes.get(key)?.node.title)
   .filter((title): title is string => Boolean(title))
   .join(', '))
 const selectedTags = computed(() => selectedKeys.value.map((key) => ({
   key,
-  title: flattenNodes(props.treeData).find((node) => node.key === key)?.title ?? String(key)
+  title: treeIndex.value.nodes.get(key)?.node.title ?? String(key)
 })))
 const visibleSelectedTags = computed(() => props.maxTagCount === undefined
   ? selectedTags.value
   : selectedTags.value.slice(0, Math.max(0, props.maxTagCount)))
 const hiddenTagCount = computed(() => selectedTags.value.length - visibleSelectedTags.value.length)
-const filterNodes = (nodes: TreeNodeData[], query: string): TreeNodeData[] => nodes.flatMap((node) => {
-  const children = filterNodes(node.children ?? [], query)
-  if (node.title.toLowerCase().includes(query) || children.length) return [{ ...node, children }]
-  return []
-})
 const filteredTreeData = computed(() => {
   const query = searchText.value.trim().toLowerCase()
-  return query ? filterNodes(props.treeData, query) : props.treeData
+  return query ? filterTreeIndex(treeIndex.value, (node) => node.title.toLowerCase().includes(query)) : loader.data.value
 })
+const filteredTreeIndex = computed(() => createTreeIndex(filteredTreeData.value, Boolean(props.disabled)))
 const activeKey = ref<TreeKey | undefined>()
-const nodeId = (key: TreeKey) => `${instanceId}-node-${encodeURIComponent(String(key)).replaceAll('%', '_')}`
+const nodeId = (key: TreeKey) => `${treeId}-node-${treeKeyToken(key)}`
 const activeNodeId = computed(() => {
   if (!mergedOpen.value || activeKey.value === undefined) return undefined
-  return flattenNodes(filteredTreeData.value).some((node) => String(node.key) === String(activeKey.value))
-    ? nodeId(activeKey.value)
-    : undefined
+  return filteredTreeIndex.value.nodes.has(activeKey.value) ? nodeId(activeKey.value) : undefined
 })
-const syncTreeNodeIds = () => {
-  for (const element of Array.from(panelRef.value?.querySelectorAll<HTMLElement>('[data-tree-key]') ?? [])) {
-    const key = element.dataset.treeKey
-    if (key !== undefined) element.id = nodeId(key)
-  }
-}
-watch([filteredTreeData, mergedOpen], ([, open]) => {
-  if (open) void nextTick(syncTreeNodeIds)
-}, { flush: 'post' })
 const handleTreeFocusin = (event: FocusEvent) => {
-  const node = (event.target as HTMLElement).closest<HTMLElement>('[data-tree-key]')
-  if (node?.dataset.treeKey !== undefined) {
-    const key = node.dataset.treeKey
-    activeKey.value = flattenNodes(filteredTreeData.value).find((item) => String(item.key) === key)?.key ?? key
-    syncTreeNodeIds()
-  }
+  const token = (event.target as HTMLElement).closest<HTMLElement>('[data-tree-token]')?.dataset.treeToken
+  if (token === undefined) return
+  activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token)
 }
 const handleTriggerFocusout = () => {
   void nextTick(() => {
-    const active = document.activeElement
+    const active = triggerRef.value?.ownerDocument.activeElement ?? null
     if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
   })
 }
-const searchExpandedKeys = computed(() => flattenNodes(filteredTreeData.value)
-  .filter((node) => node.children?.length)
-  .map((node) => node.key))
+const searchExpandedKeys = computed(() => filteredTreeIndex.value.order
+  .filter((key) => Boolean(filteredTreeIndex.value.nodes.get(key)?.children.length)))
 const toggleOpen = () => {
   requestOpen(!mergedOpen.value)
 }
@@ -231,27 +229,29 @@ const emitValue = (value: TreeSelectValue) => {
   formControl?.change()
 }
 const handleSelect = (keys: TreeKey[]) => {
-  const value: TreeSelectValue = props.multiple ? keys : keys[0]
+  if (props.treeCheckable) return
+  const value: TreeSelectValue = isMultiple.value ? keys : keys[0]
   emitValue(value)
-  if (!props.multiple) requestOpen(false)
+  if (!isMultiple.value) requestOpen(false)
 }
+const handleCheck = (keys: TreeKey[]) => { if (props.treeCheckable) emitValue(keys) }
 const clearValue = () => {
-  emitValue(props.multiple ? [] : undefined)
+  emitValue(isMultiple.value ? [] : undefined)
   searchText.value = ''
   emit('clear')
 }
 const removeKey = (key: TreeKey) => {
   if (props.disabled) return
-  emitValue(selectedKeys.value.filter((current) => current !== key))
+  emitValue(props.treeCheckable ? toggleTreeCheck(treeIndex.value, rawSelectedKeys.value, key, props.treeCheckStrictly).checkedKeys : selectedKeys.value.filter((current) => current !== key))
 }
 const handleTriggerKeydown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
     requestOpen(true)
     void nextTick(() => {
-      syncTreeNodeIds()
-      const node = panelRef.value?.querySelector<HTMLElement>('[data-tree-key][tabindex="0"]')
-      if (node?.dataset.treeKey !== undefined) activeKey.value = node.dataset.treeKey
+      const node = panelRef.value?.querySelector<HTMLElement>('[data-tree-token][tabindex="0"]')
+      const token = node?.dataset.treeToken
+      if (token !== undefined) activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token)
       node?.focus()
     })
   } else if (event.key === 'Escape' && mergedOpen.value) {
@@ -265,7 +265,7 @@ const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 
 const teleportReady = useTeleportReady()
 const popupContainer = computed(() => {
   if (props.getPopupContainer && triggerRef.value) return props.getPopupContainer(triggerRef.value)
-  return typeof document === 'undefined' ? false : document.body
+  return triggerRef.value?.ownerDocument.body ?? false
 })
 const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)

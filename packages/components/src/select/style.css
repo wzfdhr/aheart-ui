@@ -229,6 +229,11 @@
   background: var(--aheart-color-fill);
 }
 
+.aheart-select__list.is-virtual .aheart-select__option-content {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .aheart-select__option.is-selected {
   color: #003eb3;
   font-weight: 500;

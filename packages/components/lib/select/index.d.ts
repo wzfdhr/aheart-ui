@@ -1,5 +1,9 @@
 declare const Select: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
+        readonly virtual: {
+            readonly type: import("vue").PropType<import("./types").SelectVirtual>;
+            readonly default: false;
+        };
         readonly id: StringConstructor;
         readonly labelledBy: StringConstructor;
         readonly ariaLabelledby: StringConstructor;
@@ -113,6 +117,7 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         readonly defaultOpen: boolean;
         readonly allowClear: import("./types").SelectAllowClear;
         readonly autoAdjustOverflow: boolean;
+        readonly virtual: import("./types").SelectVirtual;
         readonly popupMatchSelectWidth: number | boolean;
         readonly optionFilterProp: string;
         readonly filterOption: import("./types").SelectFilterOption;
@@ -125,6 +130,10 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         M: {};
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
+        readonly virtual: {
+            readonly type: import("vue").PropType<import("./types").SelectVirtual>;
+            readonly default: false;
+        };
         readonly id: StringConstructor;
         readonly labelledBy: StringConstructor;
         readonly ariaLabelledby: StringConstructor;
@@ -230,6 +239,7 @@ declare const Select: import("../utils/install").SFCWithInstall<{
         readonly defaultOpen: boolean;
         readonly allowClear: import("./types").SelectAllowClear;
         readonly autoAdjustOverflow: boolean;
+        readonly virtual: import("./types").SelectVirtual;
         readonly popupMatchSelectWidth: number | boolean;
         readonly optionFilterProp: string;
         readonly filterOption: import("./types").SelectFilterOption;
@@ -239,6 +249,10 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     __isTeleport?: undefined;
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
+    readonly virtual: {
+        readonly type: import("vue").PropType<import("./types").SelectVirtual>;
+        readonly default: false;
+    };
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
@@ -352,6 +366,7 @@ declare const Select: import("../utils/install").SFCWithInstall<{
     readonly defaultOpen: boolean;
     readonly allowClear: import("./types").SelectAllowClear;
     readonly autoAdjustOverflow: boolean;
+    readonly virtual: import("./types").SelectVirtual;
     readonly popupMatchSelectWidth: number | boolean;
     readonly optionFilterProp: string;
     readonly filterOption: import("./types").SelectFilterOption;

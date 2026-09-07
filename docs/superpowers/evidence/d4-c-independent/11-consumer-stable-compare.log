@@ -1,0 +1,11 @@
+{
+  "counts": [
+    1000,
+    5000,
+    10000
+  ],
+  "rounds": 3,
+  "newStableEqual": true,
+  "oldStableEqual": true,
+  "newScenarioCount": 36
+}

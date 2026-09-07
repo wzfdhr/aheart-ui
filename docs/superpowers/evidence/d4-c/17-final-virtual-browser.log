@@ -1,0 +1,68 @@
+
+[WebServer] (node:42560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:42572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:42586) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:43627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:43641) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 2 workers
+
+
+(node:43653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:43652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/15] [desktop] › e2e/d4-select-virtual.spec.ts:3:5 › Select virtual no-results message remains visible and search can recover
+[2/15] [mobile] › e2e/d4-select-virtual.spec.ts:3:5 › Select virtual no-results message remains visible and search can recover
+[3/15] [desktop] › e2e/d4-select-virtual.spec.ts:36:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[4/15] [mobile] › e2e/d4-select-virtual.spec.ts:36:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[5/15] [desktop] › e2e/d4-select-virtual.spec.ts:109:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[6/15] [mobile] › e2e/d4-select-virtual.spec.ts:109:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:43804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[7/15] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:3:5 › Select virtual no-results message remains visible and search can recover
+
+(node:43828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[8/15] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:3:5 › Select virtual no-results message remains visible and search can recover
+[9/15] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:36:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[10/15] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:109:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[11/15] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:36:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[12/15] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:109:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:44202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[13/15] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:3:5 › Select virtual no-results message remains visible and search can recover
+[14/15] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:36:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[15/15] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:109:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  15 passed (55.8s)

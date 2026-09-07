@@ -50,6 +50,7 @@ function useFloatingDismiss(options) {
       getTrigger: () => toValue(options.trigger),
       getContent: () => toValue(options.floating),
       escapeEnabled: () => toValue(options.open),
+      ignoreEscape: () => toValue(options.ignoreEscape) === true,
       getBaseZIndex: () => baseZIndex,
       onZIndexChange: (zIndex) => {
         const content = toValue(options.floating);

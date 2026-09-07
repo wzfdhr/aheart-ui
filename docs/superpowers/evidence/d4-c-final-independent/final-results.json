@@ -1,0 +1,2885 @@
+{
+  "generatedAt": "2026-09-07T06:47:55.015Z",
+  "counts": [
+    1000,
+    5000,
+    10000
+  ],
+  "rounds": 3,
+  "note": "Cold means first popup open on a fresh page; hot excludes close animation. Timings include Playwright and two animation frames. Heap is not forced-GC or a leak metric. Long tasks assigned by startTime.",
+  "candidates": [
+    {
+      "root": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-E7qxz6",
+      "tarball": "/tmp/aheart-d4-c-final-pack.FrBetu/aheart-ui-1.0.0.tgz",
+      "tarballSHA256": "0d14f00fcedf0c53244ddcadb39548ee2403570465befc850040c9064edd9162",
+      "lockSHA256": "523a662735987c1ec752848950749ec15da601d51dc792e6d51c4e34b4e5b83f",
+      "label": "new",
+      "versions": {
+        "node": "v24.17.0",
+        "vue": "3.5.38",
+        "vite": "5.0.12"
+      },
+      "symlink": false,
+      "sizes": {
+        "default-false": {
+          "js": {
+            "raw": 168207,
+            "gzip": 60759,
+            "brotli": 54169
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        },
+        "virtual-true": {
+          "js": {
+            "raw": 168207,
+            "gzip": 60759,
+            "brotli": 54237
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        },
+        "unused-button": {
+          "js": {
+            "raw": 83748,
+            "gzip": 31093,
+            "brotli": 27891
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        }
+      },
+      "modules": {
+        "default-false": [
+          "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+          "@tanstack/virtual-core/dist/esm/utils.js",
+          "@tanstack/virtual-core/dist/esm/index.js",
+          "@tanstack/vue-virtual/dist/esm/index.js"
+        ],
+        "virtual-true": [
+          "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+          "@tanstack/virtual-core/dist/esm/utils.js",
+          "@tanstack/virtual-core/dist/esm/index.js",
+          "@tanstack/vue-virtual/dist/esm/index.js"
+        ],
+        "unused-button": []
+      },
+      "hydration": [
+        {
+          "variant": "default-false",
+          "dynamic": false,
+          "errors": []
+        },
+        {
+          "variant": "default-false",
+          "dynamic": true,
+          "errors": []
+        },
+        {
+          "variant": "virtual-true",
+          "dynamic": false,
+          "errors": []
+        },
+        {
+          "variant": "virtual-true",
+          "dynamic": true,
+          "errors": []
+        }
+      ],
+      "scenarios": [
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 1000,
+          "heights": [
+            31.80859375,
+            31.8125,
+            31.810546875,
+            31.8095703125,
+            31.81005859375,
+            31.810302734375,
+            31.8101806640625,
+            31.810150146484375,
+            31.81024169921875,
+            31.810211181640625,
+            31.810226440429688
+          ],
+          "markers": {
+            "cold": [
+              12.700000017881393,
+              124.7000000178814
+            ],
+            "hot": [
+              264.90000000596046,
+              348.80000001192093
+            ],
+            "keys": [
+              349.2000000178814,
+              514.5999999940395
+            ],
+            "search": [
+              515.3000000119209,
+              548.2000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 21621588,
+            "totalSize": 34275328,
+            "embedderHeapUsedSize": 27413168,
+            "backingStorageSize": 176176
+          },
+          "heapAfter": {
+            "usedSize": 23558924,
+            "totalSize": 68288512,
+            "embedderHeapUsedSize": 9203776,
+            "backingStorageSize": 171066
+          },
+          "coldOpenMs": 112,
+          "hotOpenMs": 83.90000000596046,
+          "searchMs": 32.900000005960464,
+          "twentyKeysMs": 165.39999997615814
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": false,
+          "round": 1,
+          "dom": 1000,
+          "heights": [
+            31.8359375,
+            31.83203125,
+            31.837890625,
+            31.833984375,
+            31.8330078125,
+            31.8349609375,
+            31.83642578125,
+            31.83544921875,
+            31.835693359375,
+            31.8355712890625,
+            31.83551025390625,
+            31.835540771484375,
+            31.835548400878906,
+            31.83554458618164
+          ],
+          "markers": {
+            "cold": [
+              17.399999976158142,
+              86.09999999403954
+            ],
+            "hot": [
+              225.19999998807907,
+              304.39999997615814
+            ],
+            "keys": [
+              304.69999998807907,
+              461.19999998807907
+            ],
+            "search": [
+              461.7999999821186,
+              497.69999998807907
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 25112004,
+            "totalSize": 68616192,
+            "embedderHeapUsedSize": 8889640,
+            "backingStorageSize": 338831
+          },
+          "heapAfter": {
+            "usedSize": 12927568,
+            "totalSize": 75628544,
+            "embedderHeapUsedSize": 9237176,
+            "backingStorageSize": 170894
+          },
+          "coldOpenMs": 68.7000000178814,
+          "hotOpenMs": 79.19999998807907,
+          "searchMs": 35.900000005960464,
+          "twentyKeysMs": 156.5
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": false,
+          "round": 2,
+          "dom": 1000,
+          "heights": [
+            31.9453125,
+            31.94921875,
+            31.947265625,
+            31.9462890625,
+            31.94580078125,
+            31.94677734375,
+            31.946533203125,
+            31.9464111328125,
+            31.946319580078125,
+            31.94635009765625,
+            31.946334838867188,
+            31.94634246826172,
+            31.946346282958984
+          ],
+          "markers": {
+            "cold": [
+              14.099999994039536,
+              110
+            ],
+            "hot": [
+              244.90000000596046,
+              316.90000000596046
+            ],
+            "keys": [
+              317.2999999821186,
+              479
+            ],
+            "search": [
+              479.40000000596046,
+              504.59999999403954
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 14491016,
+            "totalSize": 75956224,
+            "embedderHeapUsedSize": 9118776,
+            "backingStorageSize": 338659
+          },
+          "heapAfter": {
+            "usedSize": 28480760,
+            "totalSize": 81395712,
+            "embedderHeapUsedSize": 8650008,
+            "backingStorageSize": 170608
+          },
+          "coldOpenMs": 95.90000000596046,
+          "hotOpenMs": 72,
+          "searchMs": 25.19999998807907,
+          "twentyKeysMs": 161.7000000178814
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 1000,
+          "heights": [
+            31.80078125,
+            45.71484375,
+            45.7109375,
+            31.8046875,
+            31.802734375,
+            45.712890625,
+            31.7998046875,
+            45.7138671875,
+            31.8017578125,
+            45.71337890625,
+            45.713623046875,
+            45.7137451171875,
+            31.8009033203125,
+            45.71380615234375,
+            31.80084228515625,
+            45.71379089355469,
+            31.800872802734375,
+            45.713775634765625,
+            31.800888061523438,
+            45.71376037597656
+          ],
+          "markers": {
+            "cold": [
+              13.900000005960464,
+              105.5
+            ],
+            "hot": [
+              235.40000000596046,
+              309
+            ],
+            "keys": [
+              309.30000001192093,
+              468.69999998807907
+            ],
+            "search": [
+              469.30000001192093,
+              494.30000001192093
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 30043800,
+            "totalSize": 81723392,
+            "embedderHeapUsedSize": 8499208,
+            "backingStorageSize": 338367
+          },
+          "heapAfter": {
+            "usedSize": 10209864,
+            "totalSize": 79298560,
+            "embedderHeapUsedSize": 10307552,
+            "backingStorageSize": 170813
+          },
+          "coldOpenMs": 91.59999999403954,
+          "hotOpenMs": 73.59999999403954,
+          "searchMs": 25,
+          "twentyKeysMs": 159.39999997615814
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": true,
+          "round": 1,
+          "dom": 1000,
+          "heights": [
+            31.6875,
+            45.5546875,
+            31.69140625,
+            45.55078125,
+            45.552734375,
+            31.689453125,
+            31.6904296875,
+            45.5537109375,
+            31.6884765625,
+            31.68896484375,
+            45.55322265625,
+            31.689208984375,
+            45.552978515625,
+            45.5531005859375,
+            31.6890869140625,
+            31.68914794921875,
+            45.55308532714844,
+            31.689117431640625,
+            31.689102172851562,
+            31.689109802246094,
+            45.55309295654297
+          ],
+          "markers": {
+            "cold": [
+              14.100000023841858,
+              89
+            ],
+            "hot": [
+              229.60000002384186,
+              328.7000000178814
+            ],
+            "keys": [
+              329.40000000596046,
+              496.90000000596046
+            ],
+            "search": [
+              497.40000000596046,
+              513.7000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 11771916,
+            "totalSize": 79626240,
+            "embedderHeapUsedSize": 10212816,
+            "backingStorageSize": 338572
+          },
+          "heapAfter": {
+            "usedSize": 12251856,
+            "totalSize": 83492864,
+            "embedderHeapUsedSize": 11829992,
+            "backingStorageSize": 170869
+          },
+          "coldOpenMs": 74.89999997615814,
+          "hotOpenMs": 99.09999999403954,
+          "searchMs": 16.30000001192093,
+          "twentyKeysMs": 167.5
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": true,
+          "round": 2,
+          "dom": 1000,
+          "heights": [
+            31.921875,
+            45.8828125,
+            45.88671875,
+            31.91796875,
+            45.884765625,
+            31.919921875,
+            45.8857421875,
+            31.9208984375,
+            45.88525390625,
+            31.92041015625,
+            45.885498046875,
+            31.920166015625,
+            45.88543701171875,
+            31.9202880859375,
+            45.88555908203125,
+            31.920379638671875,
+            45.885528564453125,
+            31.920372009277344,
+            45.885536193847656,
+            31.92034912109375
+          ],
+          "markers": {
+            "cold": [
+              14.199999988079071,
+              95
+            ],
+            "hot": [
+              237.89999997615814,
+              306.59999999403954
+            ],
+            "keys": [
+              306.89999997615814,
+              469.19999998807907
+            ],
+            "search": [
+              470,
+              492
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 13813664,
+            "totalSize": 83820544,
+            "embedderHeapUsedSize": 11785296,
+            "backingStorageSize": 338628
+          },
+          "heapAfter": {
+            "usedSize": 12837564,
+            "totalSize": 83755008,
+            "embedderHeapUsedSize": 11646104,
+            "backingStorageSize": 170925
+          },
+          "coldOpenMs": 80.80000001192093,
+          "hotOpenMs": 68.7000000178814,
+          "searchMs": 22,
+          "twentyKeysMs": 162.30000001192093
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 5000,
+          "heights": [
+            31.84375,
+            31.828125,
+            31.8359375,
+            31.83984375,
+            31.841796875,
+            31.8388671875,
+            31.8408203125,
+            31.83935546875,
+            31.84033203125,
+            31.839599609375,
+            31.840087890625,
+            31.8399658203125,
+            31.83990478515625,
+            31.839828491210938,
+            31.839874267578125,
+            31.839859008789062,
+            31.83985137939453,
+            31.839855194091797
+          ],
+          "markers": {
+            "cold": [
+              14.200000017881393,
+              190.09999999403954
+            ],
+            "hot": [
+              330.59999999403954,
+              502.40000000596046
+            ],
+            "keys": [
+              502.7000000178814,
+              1133.0999999940395
+            ],
+            "search": [
+              1133.5,
+              1166.5999999940395
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 32.70000001788139,
+                "duration": 93
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 362.2000000178814,
+                "duration": 74
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 14962720,
+            "totalSize": 84082688,
+            "embedderHeapUsedSize": 11544336,
+            "backingStorageSize": 338690
+          },
+          "heapAfter": {
+            "usedSize": 39230168,
+            "totalSize": 122322944,
+            "embedderHeapUsedSize": 35010376,
+            "backingStorageSize": 209108
+          },
+          "coldOpenMs": 175.89999997615814,
+          "hotOpenMs": 171.80000001192093,
+          "searchMs": 33.099999994039536,
+          "twentyKeysMs": 630.3999999761581
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": false,
+          "round": 1,
+          "dom": 5000,
+          "heights": [
+            31.765625,
+            31.78125,
+            31.7734375,
+            31.76953125,
+            31.767578125,
+            31.7685546875,
+            31.76806640625,
+            31.767822265625,
+            31.7679443359375,
+            31.76788330078125,
+            31.767852783203125,
+            31.767837524414062,
+            31.767868041992188,
+            31.767860412597656,
+            31.76785659790039
+          ],
+          "markers": {
+            "cold": [
+              15,
+              187.5
+            ],
+            "hot": [
+              330.69999998807907,
+              490.69999998807907
+            ],
+            "keys": [
+              491.09999999403954,
+              1137.7999999821186
+            ],
+            "search": [
+              1138.2999999821186,
+              1174.2999999821186
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 39.69999998807907,
+                "duration": 92
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 358.90000000596046,
+                "duration": 65
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 41269288,
+            "totalSize": 122650624,
+            "embedderHeapUsedSize": 33515504,
+            "backingStorageSize": 376873
+          },
+          "heapAfter": {
+            "usedSize": 52819264,
+            "totalSize": 99483648,
+            "embedderHeapUsedSize": 33556592,
+            "backingStorageSize": 209167
+          },
+          "coldOpenMs": 172.5,
+          "hotOpenMs": 160,
+          "searchMs": 36,
+          "twentyKeysMs": 646.6999999880791
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": false,
+          "round": 2,
+          "dom": 5000,
+          "heights": [
+            31.84375,
+            31.859375,
+            31.8515625,
+            31.84765625,
+            31.85546875,
+            31.849609375,
+            31.853515625,
+            31.8525390625,
+            31.85107421875,
+            31.85205078125,
+            31.851806640625,
+            31.8519287109375,
+            31.85186767578125,
+            31.851882934570312,
+            31.851898193359375,
+            31.851913452148438,
+            31.85190200805664,
+            31.851905822753906
+          ],
+          "markers": {
+            "cold": [
+              15,
+              188.90000000596046
+            ],
+            "hot": [
+              326.7000000178814,
+              499.30000001192093
+            ],
+            "keys": [
+              499.60000002384186,
+              1144.5
+            ],
+            "search": [
+              1144.9000000059605,
+              1196
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 39.10000002384186,
+                "duration": 95
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 354.2000000178814,
+                "duration": 67
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 54824824,
+            "totalSize": 99811328,
+            "embedderHeapUsedSize": 33699696,
+            "backingStorageSize": 376932
+          },
+          "heapAfter": {
+            "usedSize": 60834364,
+            "totalSize": 129925120,
+            "embedderHeapUsedSize": 34333912,
+            "backingStorageSize": 209344
+          },
+          "coldOpenMs": 173.90000000596046,
+          "hotOpenMs": 172.59999999403954,
+          "searchMs": 51.099999994039536,
+          "twentyKeysMs": 644.8999999761581
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 5000,
+          "heights": [
+            31.78125,
+            45.6875,
+            31.796875,
+            45.703125,
+            45.6796875,
+            45.6953125,
+            31.7890625,
+            31.79296875,
+            45.68359375,
+            31.78515625,
+            45.69140625,
+            31.783203125,
+            45.689453125,
+            45.6865234375,
+            31.7822265625,
+            45.6884765625,
+            45.68798828125,
+            31.78271484375,
+            45.687744140625,
+            31.782958984375,
+            45.688232421875,
+            45.6881103515625,
+            31.7830810546875,
+            45.68817138671875,
+            31.78302001953125,
+            45.68815612792969,
+            31.783050537109375,
+            31.783065795898438,
+            45.68816375732422,
+            31.78307342529297
+          ],
+          "markers": {
+            "cold": [
+              15.099999994039536,
+              198.2999999821186
+            ],
+            "hot": [
+              342.5,
+              527.5999999940395
+            ],
+            "keys": [
+              527.7999999821186,
+              1146.7999999821186
+            ],
+            "search": [
+              1147.5,
+              1183.0999999940395
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 37.5,
+                "duration": 101
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 370.19999998807907,
+                "duration": 77
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 62926096,
+            "totalSize": 130252800,
+            "embedderHeapUsedSize": 34454896,
+            "backingStorageSize": 377103
+          },
+          "heapAfter": {
+            "usedSize": 72266752,
+            "totalSize": 130973696,
+            "embedderHeapUsedSize": 38856872,
+            "backingStorageSize": 209422
+          },
+          "coldOpenMs": 183.19999998807907,
+          "hotOpenMs": 185.09999999403954,
+          "searchMs": 35.599999994039536,
+          "twentyKeysMs": 619
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": true,
+          "round": 1,
+          "dom": 5000,
+          "heights": [
+            31.828125,
+            45.75,
+            45.765625,
+            31.84375,
+            31.8359375,
+            45.7578125,
+            31.83203125,
+            45.76171875,
+            31.830078125,
+            45.759765625,
+            31.833984375,
+            45.7607421875,
+            31.8330078125,
+            45.76220703125,
+            45.76123046875,
+            31.83349609375,
+            45.760986328125,
+            31.833740234375,
+            45.76129150390625,
+            31.8338623046875,
+            31.83392333984375,
+            45.76116943359375,
+            31.833892822265625,
+            45.761199951171875,
+            31.833877563476562,
+            45.761207580566406,
+            31.833885192871094,
+            45.76121520996094
+          ],
+          "markers": {
+            "cold": [
+              14.899999976158142,
+              195.19999998807907
+            ],
+            "hot": [
+              336.69999998807907,
+              508.09999999403954
+            ],
+            "keys": [
+              508.2999999821186,
+              1127.2999999821186
+            ],
+            "search": [
+              1128,
+              1172.5999999940395
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 35.69999998807907,
+                "duration": 102
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 354.5,
+                "duration": 73
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 74292892,
+            "totalSize": 131301376,
+            "embedderHeapUsedSize": 38973416,
+            "backingStorageSize": 377181
+          },
+          "heapAfter": {
+            "usedSize": 72111572,
+            "totalSize": 129400832,
+            "embedderHeapUsedSize": 42828720,
+            "backingStorageSize": 209422
+          },
+          "coldOpenMs": 180.30000001192093,
+          "hotOpenMs": 171.40000000596046,
+          "searchMs": 44.599999994039536,
+          "twentyKeysMs": 619
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": true,
+          "round": 2,
+          "dom": 5000,
+          "heights": [
+            31.84375,
+            45.765625,
+            31.828125,
+            45.78125,
+            45.7734375,
+            31.8359375,
+            45.77734375,
+            31.83984375,
+            45.76953125,
+            45.771484375,
+            31.841796875,
+            31.8408203125,
+            45.7724609375,
+            45.77294921875,
+            31.84130859375,
+            45.77197265625,
+            45.771240234375,
+            31.841064453125,
+            45.771728515625,
+            31.8411865234375,
+            45.7716064453125,
+            45.77154541015625,
+            31.84112548828125,
+            45.77156066894531,
+            31.841094970703125,
+            45.771575927734375,
+            31.841110229492188,
+            45.77159118652344,
+            45.77159881591797
+          ],
+          "markers": {
+            "cold": [
+              14.400000005960464,
+              207.40000000596046
+            ],
+            "hot": [
+              358.59999999403954,
+              545.0999999940395
+            ],
+            "keys": [
+              545.3000000119209,
+              1196.0999999940395
+            ],
+            "search": [
+              1196.699999988079,
+              1241.199999988079
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 44.099999994039536,
+                "duration": 99
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 392.30000001192093,
+                "duration": 73
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 74169444,
+            "totalSize": 129728512,
+            "embedderHeapUsedSize": 42912416,
+            "backingStorageSize": 377181
+          },
+          "heapAfter": {
+            "usedSize": 72134160,
+            "totalSize": 129925120,
+            "embedderHeapUsedSize": 44184848,
+            "backingStorageSize": 209422
+          },
+          "coldOpenMs": 193,
+          "hotOpenMs": 186.5,
+          "searchMs": 44.5,
+          "twentyKeysMs": 650.7999999821186
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 10000,
+          "heights": [
+            31.90625,
+            31.9375,
+            31.921875,
+            31.9453125,
+            31.9296875,
+            31.93359375,
+            31.931640625,
+            31.9326171875,
+            31.93212890625,
+            31.931884765625,
+            31.9322509765625,
+            31.9320068359375,
+            31.93206787109375,
+            31.932083129882812,
+            31.932098388671875,
+            31.932106018066406,
+            31.932113647460938
+          ],
+          "markers": {
+            "cold": [
+              15.5,
+              337.69999998807907
+            ],
+            "hot": [
+              509.39999997615814,
+              778.1999999880791
+            ],
+            "keys": [
+              778.5,
+              2022
+            ],
+            "search": [
+              2022.5999999940395,
+              2076.5
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 52.599999994039536,
+                "duration": 184
+              },
+              {
+                "startTime": 237.39999997615814,
+                "duration": 65
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 529.7999999821186,
+                "duration": 147
+              },
+              {
+                "startTime": 677.5999999940395,
+                "duration": 66
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 74843372,
+            "totalSize": 130514944,
+            "embedderHeapUsedSize": 44329344,
+            "backingStorageSize": 377189
+          },
+          "heapAfter": {
+            "usedSize": 46083424,
+            "totalSize": 172572672,
+            "embedderHeapUsedSize": 62546000,
+            "backingStorageSize": 249040
+          },
+          "coldOpenMs": 322.19999998807907,
+          "hotOpenMs": 268.80000001192093,
+          "searchMs": 53.900000005960464,
+          "twentyKeysMs": 1243.5
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": false,
+          "round": 1,
+          "dom": 10000,
+          "heights": [
+            31.90625,
+            31.875,
+            31.859375,
+            31.890625,
+            31.8828125,
+            31.88671875,
+            31.884765625,
+            31.8857421875,
+            31.885498046875,
+            31.885986328125,
+            31.88623046875,
+            31.8861083984375,
+            31.88604736328125,
+            31.886016845703125,
+            31.886024475097656,
+            31.886032104492188
+          ],
+          "markers": {
+            "cold": [
+              15.900000005960464,
+              337.7000000178814
+            ],
+            "hot": [
+              514.4000000059605,
+              785.3000000119209
+            ],
+            "keys": [
+              785.7000000178814,
+              2097
+            ],
+            "search": [
+              2097.5,
+              2141.300000011921
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 45,
+                "duration": 186
+              },
+              {
+                "startTime": 231.90000000596046,
+                "duration": 66
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 550.2000000178814,
+                "duration": 145
+              },
+              {
+                "startTime": 695.4000000059605,
+                "duration": 66
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 48838064,
+            "totalSize": 172900352,
+            "embedderHeapUsedSize": 59227912,
+            "backingStorageSize": 416807
+          },
+          "heapAfter": {
+            "usedSize": 46090492,
+            "totalSize": 182009856,
+            "embedderHeapUsedSize": 59004248,
+            "backingStorageSize": 249040
+          },
+          "coldOpenMs": 321.80000001192093,
+          "hotOpenMs": 270.90000000596046,
+          "searchMs": 43.80000001192093,
+          "twentyKeysMs": 1311.2999999821186
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": false,
+          "round": 2,
+          "dom": 10000,
+          "heights": [
+            31.9375,
+            31.96875,
+            31.953125,
+            31.9453125,
+            31.94140625,
+            31.947265625,
+            31.943359375,
+            31.9443359375,
+            31.94482421875,
+            31.945068359375,
+            31.9449462890625,
+            31.94500732421875,
+            31.945053100585938,
+            31.945037841796875,
+            31.945022583007812,
+            31.945030212402344,
+            31.94503402709961
+          ],
+          "markers": {
+            "cold": [
+              15,
+              357.5
+            ],
+            "hot": [
+              539.6999999880791,
+              811.8999999761581
+            ],
+            "keys": [
+              812.1999999880791,
+              2115.5999999940395
+            ],
+            "search": [
+              2116.2999999821186,
+              2173.2999999821186
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 51.5,
+                "duration": 191
+              },
+              {
+                "startTime": 242.7999999821186,
+                "duration": 68
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 566.8999999761581,
+                "duration": 145
+              },
+              {
+                "startTime": 711.8999999761581,
+                "duration": 68
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 48829596,
+            "totalSize": 182337536,
+            "embedderHeapUsedSize": 59058528,
+            "backingStorageSize": 416807
+          },
+          "heapAfter": {
+            "usedSize": 46076656,
+            "totalSize": 176504832,
+            "embedderHeapUsedSize": 62516136,
+            "backingStorageSize": 249040
+          },
+          "coldOpenMs": 342.5,
+          "hotOpenMs": 272.19999998807907,
+          "searchMs": 57,
+          "twentyKeysMs": 1303.4000000059605
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 10000,
+          "heights": [
+            31.90625,
+            45.875,
+            45.90625,
+            31.9375,
+            45.890625,
+            31.921875,
+            45.8828125,
+            31.9140625,
+            45.88671875,
+            31.91796875,
+            45.87890625,
+            45.880859375,
+            31.916015625,
+            31.9169921875,
+            45.8818359375,
+            31.91748046875,
+            45.88134765625,
+            31.917236328125,
+            45.881103515625,
+            45.8812255859375,
+            31.9173583984375,
+            45.88116455078125,
+            31.91741943359375,
+            45.88128662109375,
+            45.88127136230469,
+            31.917388916015625,
+            45.88124084472656,
+            45.881248474121094,
+            31.917396545410156,
+            45.881256103515625
+          ],
+          "markers": {
+            "cold": [
+              14.699999988079071,
+              369.7999999821186
+            ],
+            "hot": [
+              536.5999999940395,
+              813.5999999940395
+            ],
+            "keys": [
+              814,
+              2146
+            ],
+            "search": [
+              2147.9000000059605,
+              2217.5999999940395
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 52.400000005960464,
+                "duration": 205
+              },
+              {
+                "startTime": 258.19999998807907,
+                "duration": 73
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 557,
+                "duration": 161
+              },
+              {
+                "startTime": 718.5,
+                "duration": 73
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 48811104,
+            "totalSize": 176832512,
+            "embedderHeapUsedSize": 59003248,
+            "backingStorageSize": 416801
+          },
+          "heapAfter": {
+            "usedSize": 46289484,
+            "totalSize": 171261952,
+            "embedderHeapUsedSize": 66142464,
+            "backingStorageSize": 249059
+          },
+          "coldOpenMs": 355.09999999403954,
+          "hotOpenMs": 277,
+          "searchMs": 69.69999998807907,
+          "twentyKeysMs": 1332
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": true,
+          "round": 1,
+          "dom": 10000,
+          "heights": [
+            31.90625,
+            45.84375,
+            31.875,
+            45.875,
+            45.859375,
+            31.890625,
+            31.8984375,
+            45.8515625,
+            31.89453125,
+            45.84765625,
+            45.845703125,
+            31.892578125,
+            45.8447265625,
+            31.8916015625,
+            45.84521484375,
+            31.89208984375,
+            31.892333984375,
+            45.845458984375,
+            31.8924560546875,
+            45.8453369140625,
+            45.845306396484375,
+            31.89239501953125,
+            45.84527587890625,
+            31.892364501953125,
+            45.845245361328125,
+            31.892349243164062,
+            45.845252990722656,
+            45.845237731933594
+          ],
+          "markers": {
+            "cold": [
+              15.599999994039536,
+              352.69999998807907
+            ],
+            "hot": [
+              527.1999999880791,
+              803.0999999940395
+            ],
+            "keys": [
+              803.3999999761581,
+              2176.2999999821186
+            ],
+            "search": [
+              2176.899999976158,
+              2228.0999999940395
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 42.69999998807907,
+                "duration": 203
+              },
+              {
+                "startTime": 245.89999997615814,
+                "duration": 73
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 548.0999999940395,
+                "duration": 160
+              },
+              {
+                "startTime": 708.7999999821186,
+                "duration": 72
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 49039752,
+            "totalSize": 171589632,
+            "embedderHeapUsedSize": 66306056,
+            "backingStorageSize": 416820
+          },
+          "heapAfter": {
+            "usedSize": 46283036,
+            "totalSize": 163921920,
+            "embedderHeapUsedSize": 69145792,
+            "backingStorageSize": 249059
+          },
+          "coldOpenMs": 337.09999999403954,
+          "hotOpenMs": 275.90000000596046,
+          "searchMs": 51.20000001788139,
+          "twentyKeysMs": 1372.9000000059605
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": true,
+          "round": 2,
+          "dom": 10000,
+          "heights": [
+            31.9375,
+            45.9375,
+            45.90625,
+            31.96875,
+            45.921875,
+            31.953125,
+            31.9453125,
+            45.9296875,
+            45.92578125,
+            31.94921875,
+            45.923828125,
+            31.947265625,
+            45.9228515625,
+            31.9462890625,
+            45.92236328125,
+            31.94580078125,
+            31.9459228515625,
+            45.922607421875,
+            45.9227294921875,
+            31.9461669921875,
+            31.94622802734375,
+            45.92266845703125,
+            45.922698974609375,
+            31.946197509765625,
+            31.946212768554688,
+            45.922691345214844,
+            31.94622039794922,
+            45.92268371582031
+          ],
+          "markers": {
+            "cold": [
+              15.100000023841858,
+              364.7000000178814
+            ],
+            "hot": [
+              549.3000000119209,
+              833.5
+            ],
+            "keys": [
+              833.8000000119209,
+              2200
+            ],
+            "search": [
+              2200.5,
+              2248.5
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [
+              {
+                "startTime": 43.60000002384186,
+                "duration": 204
+              },
+              {
+                "startTime": 248.30000001192093,
+                "duration": 75
+              }
+            ],
+            "hot": [
+              {
+                "startTime": 578.2000000178814,
+                "duration": 161
+              },
+              {
+                "startTime": 739.2000000178814,
+                "duration": 74
+              }
+            ],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 49035324,
+            "totalSize": 164249600,
+            "embedderHeapUsedSize": 65622344,
+            "backingStorageSize": 416820
+          },
+          "heapAfter": {
+            "usedSize": 46289048,
+            "totalSize": 167329792,
+            "embedderHeapUsedSize": 69273552,
+            "backingStorageSize": 249059
+          },
+          "coldOpenMs": 349.59999999403954,
+          "hotOpenMs": 284.19999998807907,
+          "searchMs": 48,
+          "twentyKeysMs": 1366.199999988079
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 12,
+          "heights": [
+            31.360000610351562,
+            31.360008239746094,
+            31.3599853515625,
+            31.360015869140625
+          ],
+          "markers": {
+            "cold": [
+              10.700000017881393,
+              68.5
+            ],
+            "hot": [
+              196.60000002384186,
+              254.90000000596046
+            ],
+            "keys": [
+              255.2000000178814,
+              314.40000000596046
+            ],
+            "search": [
+              315,
+              344.2000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 5488416,
+            "totalSize": 9306112,
+            "embedderHeapUsedSize": 2556128,
+            "backingStorageSize": 201777
+          },
+          "heapAfter": {
+            "usedSize": 8055768,
+            "totalSize": 11665408,
+            "embedderHeapUsedSize": 4214336,
+            "backingStorageSize": 220423
+          },
+          "coldOpenMs": 57.79999998211861,
+          "hotOpenMs": 58.29999998211861,
+          "searchMs": 29.200000017881393,
+          "twentyKeysMs": 59.19999998807907
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": false,
+          "round": 1,
+          "dom": 12,
+          "heights": [
+            31.673446655273438,
+            31.673439025878906,
+            31.673431396484375,
+            31.6734619140625
+          ],
+          "markers": {
+            "cold": [
+              11.200000017881393,
+              63.70000001788139
+            ],
+            "hot": [
+              188.90000000596046,
+              252.5
+            ],
+            "keys": [
+              252.90000000596046,
+              313.10000002384186
+            ],
+            "search": [
+              313.80000001192093,
+              344.2000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 9505568,
+            "totalSize": 13041664,
+            "embedderHeapUsedSize": 4333040,
+            "backingStorageSize": 220423
+          },
+          "heapAfter": {
+            "usedSize": 10962592,
+            "totalSize": 16646144,
+            "embedderHeapUsedSize": 6084128,
+            "backingStorageSize": 236423
+          },
+          "coldOpenMs": 52.5,
+          "hotOpenMs": 63.599999994039536,
+          "searchMs": 30.400000005960464,
+          "twentyKeysMs": 60.20000001788139
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": false,
+          "round": 2,
+          "dom": 12,
+          "heights": [
+            31.675758361816406,
+            31.675762176513672,
+            31.675765991210938,
+            31.675750732421875,
+            31.67578125
+          ],
+          "markers": {
+            "cold": [
+              12.100000023841858,
+              72.7000000178814
+            ],
+            "hot": [
+              199.7000000178814,
+              263.7000000178814
+            ],
+            "keys": [
+              264.30000001192093,
+              344.2000000178814
+            ],
+            "search": [
+              344.7000000178814,
+              376.60000002384186
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 9741328,
+            "totalSize": 18546688,
+            "embedderHeapUsedSize": 6196592,
+            "backingStorageSize": 236423
+          },
+          "heapAfter": {
+            "usedSize": 10721756,
+            "totalSize": 19267584,
+            "embedderHeapUsedSize": 8027216,
+            "backingStorageSize": 252471
+          },
+          "coldOpenMs": 60.599999994039536,
+          "hotOpenMs": 64,
+          "searchMs": 31.900000005960464,
+          "twentyKeysMs": 79.90000000596046
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 10,
+          "heights": [
+            31.685317993164062,
+            45.547637939453125,
+            31.68531036376953,
+            45.547630310058594,
+            31.685302734375,
+            45.547607421875,
+            45.54766845703125
+          ],
+          "markers": {
+            "cold": [
+              10.799999982118607,
+              74.19999998807907
+            ],
+            "hot": [
+              204.89999997615814,
+              270.19999998807907
+            ],
+            "keys": [
+              270.89999997615814,
+              334.89999997615814
+            ],
+            "search": [
+              335.59999999403954,
+              365.89999997615814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 12172124,
+            "totalSize": 19857408,
+            "embedderHeapUsedSize": 8268520,
+            "backingStorageSize": 252495
+          },
+          "heapAfter": {
+            "usedSize": 12099648,
+            "totalSize": 21626880,
+            "embedderHeapUsedSize": 9855592,
+            "backingStorageSize": 268517
+          },
+          "coldOpenMs": 63.400000005960464,
+          "hotOpenMs": 65.30000001192093,
+          "searchMs": 30.299999982118607,
+          "twentyKeysMs": 64
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": true,
+          "round": 1,
+          "dom": 10,
+          "heights": [
+            31.69060516357422,
+            45.55525207519531,
+            45.55523681640625,
+            31.69061279296875,
+            31.690628051757812
+          ],
+          "markers": {
+            "cold": [
+              11.899999976158142,
+              76.39999997615814
+            ],
+            "hot": [
+              211.59999999403954,
+              277.7999999821186
+            ],
+            "keys": [
+              278.09999999403954,
+              345.69999998807907
+            ],
+            "search": [
+              346.59999999403954,
+              380
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 13560104,
+            "totalSize": 21954560,
+            "embedderHeapUsedSize": 10096456,
+            "backingStorageSize": 268517
+          },
+          "heapAfter": {
+            "usedSize": 15427108,
+            "totalSize": 22937600,
+            "embedderHeapUsedSize": 11990624,
+            "backingStorageSize": 284521
+          },
+          "coldOpenMs": 64.5,
+          "hotOpenMs": 66.19999998807907,
+          "searchMs": 33.400000005960464,
+          "twentyKeysMs": 67.59999999403954
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": true,
+          "round": 2,
+          "dom": 10,
+          "heights": [
+            31.69599151611328,
+            45.56298828125,
+            45.56298065185547,
+            31.69598388671875,
+            45.56297302246094
+          ],
+          "markers": {
+            "cold": [
+              13.400000005960464,
+              82.5
+            ],
+            "hot": [
+              218,
+              287.5
+            ],
+            "keys": [
+              287.80000001192093,
+              356.90000000596046
+            ],
+            "search": [
+              357.40000000596046,
+              389.40000000596046
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 16891784,
+            "totalSize": 23265280,
+            "embedderHeapUsedSize": 12205264,
+            "backingStorageSize": 284521
+          },
+          "heapAfter": {
+            "usedSize": 16085212,
+            "totalSize": 27656192,
+            "embedderHeapUsedSize": 13900264,
+            "backingStorageSize": 300521
+          },
+          "coldOpenMs": 69.09999999403954,
+          "hotOpenMs": 69.5,
+          "searchMs": 32,
+          "twentyKeysMs": 69.09999999403954
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 12,
+          "heights": [
+            31.72136688232422,
+            31.721363067626953,
+            31.721359252929688,
+            31.72137451171875,
+            31.721343994140625
+          ],
+          "markers": {
+            "cold": [
+              12,
+              80.2000000178814
+            ],
+            "hot": [
+              221.60000002384186,
+              291.10000002384186
+            ],
+            "keys": [
+              291.5,
+              361.2000000178814
+            ],
+            "search": [
+              361.7000000178814,
+              395.7000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 18049080,
+            "totalSize": 28246016,
+            "embedderHeapUsedSize": 14166032,
+            "backingStorageSize": 300550
+          },
+          "heapAfter": {
+            "usedSize": 18140408,
+            "totalSize": 33685504,
+            "embedderHeapUsedSize": 15901216,
+            "backingStorageSize": 380671
+          },
+          "coldOpenMs": 68.2000000178814,
+          "hotOpenMs": 69.5,
+          "searchMs": 34,
+          "twentyKeysMs": 69.7000000178814
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": false,
+          "round": 1,
+          "dom": 12,
+          "heights": [
+            31.70050048828125,
+            31.700496673583984,
+            31.700485229492188
+          ],
+          "markers": {
+            "cold": [
+              13.899999976158142,
+              79.2999999821186
+            ],
+            "hot": [
+              204,
+              275.19999998807907
+            ],
+            "keys": [
+              275.69999998807907,
+              348.19999998807907
+            ],
+            "search": [
+              348.89999997615814,
+              383.19999998807907
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 20103376,
+            "totalSize": 34013184,
+            "embedderHeapUsedSize": 16054192,
+            "backingStorageSize": 380671
+          },
+          "heapAfter": {
+            "usedSize": 20109660,
+            "totalSize": 35782656,
+            "embedderHeapUsedSize": 17727760,
+            "backingStorageSize": 460671
+          },
+          "coldOpenMs": 65.40000000596046,
+          "hotOpenMs": 71.19999998807907,
+          "searchMs": 34.30000001192093,
+          "twentyKeysMs": 72.5
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": false,
+          "round": 2,
+          "dom": 12,
+          "heights": [
+            31.728836059570312,
+            31.728832244873047,
+            31.72882843017578,
+            31.728851318359375,
+            31.72882080078125
+          ],
+          "markers": {
+            "cold": [
+              13.199999988079071,
+              83.89999997615814
+            ],
+            "hot": [
+              209.7999999821186,
+              284.5
+            ],
+            "keys": [
+              284.89999997615814,
+              355
+            ],
+            "search": [
+              355.39999997615814,
+              393.59999999403954
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 22080140,
+            "totalSize": 36110336,
+            "embedderHeapUsedSize": 17951552,
+            "backingStorageSize": 460671
+          },
+          "heapAfter": {
+            "usedSize": 22125596,
+            "totalSize": 38141952,
+            "embedderHeapUsedSize": 19695360,
+            "backingStorageSize": 540671
+          },
+          "coldOpenMs": 70.69999998807907,
+          "hotOpenMs": 74.7000000178814,
+          "searchMs": 38.20000001788139,
+          "twentyKeysMs": 70.10000002384186
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 10,
+          "heights": [
+            31.72887420654297,
+            45.610260009765625,
+            45.610252380371094,
+            31.728866577148438,
+            31.728851318359375,
+            45.6102294921875,
+            31.7288818359375
+          ],
+          "markers": {
+            "cold": [
+              13.900000005960464,
+              84
+            ],
+            "hot": [
+              213.80000001192093,
+              288.09999999403954
+            ],
+            "keys": [
+              288.59999999403954,
+              363.40000000596046
+            ],
+            "search": [
+              363.90000000596046,
+              398.69999998807907
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 24094992,
+            "totalSize": 38469632,
+            "embedderHeapUsedSize": 19695360,
+            "backingStorageSize": 540695
+          },
+          "heapAfter": {
+            "usedSize": 24254284,
+            "totalSize": 39976960,
+            "embedderHeapUsedSize": 21396944,
+            "backingStorageSize": 620714
+          },
+          "coldOpenMs": 70.09999999403954,
+          "hotOpenMs": 74.2999999821186,
+          "searchMs": 34.79999998211861,
+          "twentyKeysMs": 74.80000001192093
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": true,
+          "round": 1,
+          "dom": 10,
+          "heights": [
+            31.721031188964844,
+            45.59898376464844,
+            31.721038818359375,
+            31.721023559570312,
+            45.598968505859375,
+            45.5989990234375
+          ],
+          "markers": {
+            "cold": [
+              12.699999988079071,
+              88.19999998807907
+            ],
+            "hot": [
+              220.39999997615814,
+              295.7999999821186
+            ],
+            "keys": [
+              296.39999997615814,
+              373
+            ],
+            "search": [
+              373.59999999403954,
+              412.19999998807907
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 26235328,
+            "totalSize": 40566784,
+            "embedderHeapUsedSize": 21858312,
+            "backingStorageSize": 620714
+          },
+          "heapAfter": {
+            "usedSize": 33146352,
+            "totalSize": 42729472,
+            "embedderHeapUsedSize": 23613224,
+            "backingStorageSize": 700714
+          },
+          "coldOpenMs": 75.5,
+          "hotOpenMs": 75.40000000596046,
+          "searchMs": 38.599999994039536,
+          "twentyKeysMs": 76.60000002384186
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": true,
+          "round": 2,
+          "dom": 10,
+          "heights": [
+            31.757492065429688,
+            45.651390075683594,
+            45.651397705078125,
+            31.75750732421875,
+            45.6513671875,
+            45.65142822265625
+          ],
+          "markers": {
+            "cold": [
+              12.5,
+              94.2999999821186
+            ],
+            "hot": [
+              234.19999998807907,
+              314.7999999821186
+            ],
+            "keys": [
+              315.19999998807907,
+              394.19999998807907
+            ],
+            "search": [
+              394.69999998807907,
+              433.59999999403954
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 35114008,
+            "totalSize": 44630016,
+            "embedderHeapUsedSize": 23799320,
+            "backingStorageSize": 700714
+          },
+          "heapAfter": {
+            "usedSize": 30184924,
+            "totalSize": 50200576,
+            "embedderHeapUsedSize": 25508896,
+            "backingStorageSize": 780714
+          },
+          "coldOpenMs": 81.7999999821186,
+          "hotOpenMs": 80.59999999403954,
+          "searchMs": 38.900000005960464,
+          "twentyKeysMs": 79
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 12,
+          "heights": [
+            31.749862670898438,
+            31.749858856201172,
+            31.7498779296875,
+            31.749847412109375
+          ],
+          "markers": {
+            "cold": [
+              13.900000005960464,
+              94
+            ],
+            "hot": [
+              235.69999998807907,
+              316.59999999403954
+            ],
+            "keys": [
+              317.09999999403954,
+              398.19999998807907
+            ],
+            "search": [
+              399.09999999403954,
+              439
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 32840024,
+            "totalSize": 50528256,
+            "embedderHeapUsedSize": 25764536,
+            "backingStorageSize": 780745
+          },
+          "heapAfter": {
+            "usedSize": 40667104,
+            "totalSize": 55836672,
+            "embedderHeapUsedSize": 27469136,
+            "backingStorageSize": 940866
+          },
+          "coldOpenMs": 80.09999999403954,
+          "hotOpenMs": 80.90000000596046,
+          "searchMs": 39.900000005960464,
+          "twentyKeysMs": 81.09999999403954
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": false,
+          "round": 1,
+          "dom": 12,
+          "heights": [
+            31.761802673339844,
+            31.76180648803711,
+            31.761810302734375
+          ],
+          "markers": {
+            "cold": [
+              15.099999994039536,
+              93.90000000596046
+            ],
+            "hot": [
+              218.19999998807907,
+              302.5
+            ],
+            "keys": [
+              302.7999999821186,
+              387
+            ],
+            "search": [
+              387.7999999821186,
+              427.19999998807907
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 32566684,
+            "totalSize": 60489728,
+            "embedderHeapUsedSize": 27506200,
+            "backingStorageSize": 940866
+          },
+          "heapAfter": {
+            "usedSize": 40264088,
+            "totalSize": 61341696,
+            "embedderHeapUsedSize": 29181024,
+            "backingStorageSize": 1100866
+          },
+          "coldOpenMs": 78.80000001192093,
+          "hotOpenMs": 84.30000001192093,
+          "searchMs": 39.400000005960464,
+          "twentyKeysMs": 84.2000000178814
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": false,
+          "round": 2,
+          "dom": 12,
+          "heights": [
+            31.766281127929688,
+            31.766284942626953,
+            31.76628875732422,
+            31.76629638671875,
+            31.766265869140625
+          ],
+          "markers": {
+            "cold": [
+              14.099999994039536,
+              97.5
+            ],
+            "hot": [
+              224.40000000596046,
+              309.40000000596046
+            ],
+            "keys": [
+              309.7999999821186,
+              394.2999999821186
+            ],
+            "search": [
+              394.7999999821186,
+              436.69999998807907
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 42801628,
+            "totalSize": 61669376,
+            "embedderHeapUsedSize": 29402296,
+            "backingStorageSize": 1100866
+          },
+          "heapAfter": {
+            "usedSize": 39788544,
+            "totalSize": 64094208,
+            "embedderHeapUsedSize": 31254824,
+            "backingStorageSize": 1260866
+          },
+          "coldOpenMs": 83.40000000596046,
+          "hotOpenMs": 85,
+          "searchMs": 41.900000005960464,
+          "twentyKeysMs": 84.5
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 10,
+          "heights": [
+            31.750213623046875,
+            45.64093017578125,
+            31.750228881835938,
+            31.750244140625
+          ],
+          "markers": {
+            "cold": [
+              11.600000023841858,
+              101
+            ],
+            "hot": [
+              230,
+              319
+            ],
+            "keys": [
+              319.40000000596046,
+              383.90000000596046
+            ],
+            "search": [
+              384.40000000596046,
+              425.7000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 42297000,
+            "totalSize": 64421888,
+            "embedderHeapUsedSize": 31345704,
+            "backingStorageSize": 1260891
+          },
+          "heapAfter": {
+            "usedSize": 38653816,
+            "totalSize": 67502080,
+            "embedderHeapUsedSize": 33001568,
+            "backingStorageSize": 1420910
+          },
+          "coldOpenMs": 89.39999997615814,
+          "hotOpenMs": 89,
+          "searchMs": 41.30000001192093,
+          "twentyKeysMs": 64.5
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": true,
+          "round": 1,
+          "dom": 10,
+          "heights": [
+            31.770957946777344,
+            45.67076110839844,
+            31.770965576171875,
+            45.670753479003906,
+            31.770950317382812,
+            45.670745849609375,
+            31.77093505859375
+          ],
+          "markers": {
+            "cold": [
+              12.600000023841858,
+              102.10000002384186
+            ],
+            "hot": [
+              236.10000002384186,
+              322.5
+            ],
+            "keys": [
+              322.90000000596046,
+              410.80000001192093
+            ],
+            "search": [
+              411.30000001192093,
+              455.2000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 41180504,
+            "totalSize": 67829760,
+            "embedderHeapUsedSize": 33223640,
+            "backingStorageSize": 1420910
+          },
+          "heapAfter": {
+            "usedSize": 49909112,
+            "totalSize": 68419584,
+            "embedderHeapUsedSize": 35058336,
+            "backingStorageSize": 1580910
+          },
+          "coldOpenMs": 89.5,
+          "hotOpenMs": 86.39999997615814,
+          "searchMs": 43.900000005960464,
+          "twentyKeysMs": 87.90000000596046
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": true,
+          "round": 2,
+          "dom": 10,
+          "heights": [
+            31.770751953125,
+            45.67045593261719,
+            31.77075958251953,
+            45.67046356201172,
+            45.670440673828125,
+            45.67047119140625
+          ],
+          "markers": {
+            "cold": [
+              15.600000023841858,
+              103.60000002384186
+            ],
+            "hot": [
+              241.10000002384186,
+              304.40000000596046
+            ],
+            "keys": [
+              304.90000000596046,
+              368.7000000178814
+            ],
+            "search": [
+              369.2000000178814,
+              399.40000000596046
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 42149264,
+            "totalSize": 70647808,
+            "embedderHeapUsedSize": 35129344,
+            "backingStorageSize": 1580910
+          },
+          "heapAfter": {
+            "usedSize": 50950920,
+            "totalSize": 71237632,
+            "embedderHeapUsedSize": 37078368,
+            "backingStorageSize": 1740910
+          },
+          "coldOpenMs": 88,
+          "hotOpenMs": 63.29999998211861,
+          "searchMs": 30.19999998807907,
+          "twentyKeysMs": 63.80000001192093
+        }
+      ],
+      "cjsSSRRows": 13,
+      "browser": "149.0.7827.55",
+      "statistics": [
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 68.7000000178814,
+            "median": 95.90000000596046,
+            "max": 112
+          },
+          "hotOpenMs": {
+            "min": 72,
+            "median": 79.19999998807907,
+            "max": 83.90000000596046
+          },
+          "searchMs": {
+            "min": 25.19999998807907,
+            "median": 32.900000005960464,
+            "max": 35.900000005960464
+          },
+          "twentyKeysMs": {
+            "min": 156.5,
+            "median": 161.7000000178814,
+            "max": 165.39999997615814
+          }
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 74.89999997615814,
+            "median": 80.80000001192093,
+            "max": 91.59999999403954
+          },
+          "hotOpenMs": {
+            "min": 68.7000000178814,
+            "median": 73.59999999403954,
+            "max": 99.09999999403954
+          },
+          "searchMs": {
+            "min": 16.30000001192093,
+            "median": 22,
+            "max": 25
+          },
+          "twentyKeysMs": {
+            "min": 159.39999997615814,
+            "median": 162.30000001192093,
+            "max": 167.5
+          }
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 172.5,
+            "median": 173.90000000596046,
+            "max": 175.89999997615814
+          },
+          "hotOpenMs": {
+            "min": 160,
+            "median": 171.80000001192093,
+            "max": 172.59999999403954
+          },
+          "searchMs": {
+            "min": 33.099999994039536,
+            "median": 36,
+            "max": 51.099999994039536
+          },
+          "twentyKeysMs": {
+            "min": 630.3999999761581,
+            "median": 644.8999999761581,
+            "max": 646.6999999880791
+          }
+        },
+        {
+          "variant": "default-false",
+          "count": 5000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 180.30000001192093,
+            "median": 183.19999998807907,
+            "max": 193
+          },
+          "hotOpenMs": {
+            "min": 171.40000000596046,
+            "median": 185.09999999403954,
+            "max": 186.5
+          },
+          "searchMs": {
+            "min": 35.599999994039536,
+            "median": 44.5,
+            "max": 44.599999994039536
+          },
+          "twentyKeysMs": {
+            "min": 619,
+            "median": 619,
+            "max": 650.7999999821186
+          }
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 321.80000001192093,
+            "median": 322.19999998807907,
+            "max": 342.5
+          },
+          "hotOpenMs": {
+            "min": 268.80000001192093,
+            "median": 270.90000000596046,
+            "max": 272.19999998807907
+          },
+          "searchMs": {
+            "min": 43.80000001192093,
+            "median": 53.900000005960464,
+            "max": 57
+          },
+          "twentyKeysMs": {
+            "min": 1243.5,
+            "median": 1303.4000000059605,
+            "max": 1311.2999999821186
+          }
+        },
+        {
+          "variant": "default-false",
+          "count": 10000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 337.09999999403954,
+            "median": 349.59999999403954,
+            "max": 355.09999999403954
+          },
+          "hotOpenMs": {
+            "min": 275.90000000596046,
+            "median": 277,
+            "max": 284.19999998807907
+          },
+          "searchMs": {
+            "min": 48,
+            "median": 51.20000001788139,
+            "max": 69.69999998807907
+          },
+          "twentyKeysMs": {
+            "min": 1332,
+            "median": 1366.199999988079,
+            "max": 1372.9000000059605
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 52.5,
+            "median": 57.79999998211861,
+            "max": 60.599999994039536
+          },
+          "hotOpenMs": {
+            "min": 58.29999998211861,
+            "median": 63.599999994039536,
+            "max": 64
+          },
+          "searchMs": {
+            "min": 29.200000017881393,
+            "median": 30.400000005960464,
+            "max": 31.900000005960464
+          },
+          "twentyKeysMs": {
+            "min": 59.19999998807907,
+            "median": 60.20000001788139,
+            "max": 79.90000000596046
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 63.400000005960464,
+            "median": 64.5,
+            "max": 69.09999999403954
+          },
+          "hotOpenMs": {
+            "min": 65.30000001192093,
+            "median": 66.19999998807907,
+            "max": 69.5
+          },
+          "searchMs": {
+            "min": 30.299999982118607,
+            "median": 32,
+            "max": 33.400000005960464
+          },
+          "twentyKeysMs": {
+            "min": 64,
+            "median": 67.59999999403954,
+            "max": 69.09999999403954
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 65.40000000596046,
+            "median": 68.2000000178814,
+            "max": 70.69999998807907
+          },
+          "hotOpenMs": {
+            "min": 69.5,
+            "median": 71.19999998807907,
+            "max": 74.7000000178814
+          },
+          "searchMs": {
+            "min": 34,
+            "median": 34.30000001192093,
+            "max": 38.20000001788139
+          },
+          "twentyKeysMs": {
+            "min": 69.7000000178814,
+            "median": 70.10000002384186,
+            "max": 72.5
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 5000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 70.09999999403954,
+            "median": 75.5,
+            "max": 81.7999999821186
+          },
+          "hotOpenMs": {
+            "min": 74.2999999821186,
+            "median": 75.40000000596046,
+            "max": 80.59999999403954
+          },
+          "searchMs": {
+            "min": 34.79999998211861,
+            "median": 38.599999994039536,
+            "max": 38.900000005960464
+          },
+          "twentyKeysMs": {
+            "min": 74.80000001192093,
+            "median": 76.60000002384186,
+            "max": 79
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 78.80000001192093,
+            "median": 80.09999999403954,
+            "max": 83.40000000596046
+          },
+          "hotOpenMs": {
+            "min": 80.90000000596046,
+            "median": 84.30000001192093,
+            "max": 85
+          },
+          "searchMs": {
+            "min": 39.400000005960464,
+            "median": 39.900000005960464,
+            "max": 41.900000005960464
+          },
+          "twentyKeysMs": {
+            "min": 81.09999999403954,
+            "median": 84.2000000178814,
+            "max": 84.5
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 10000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 88,
+            "median": 89.39999997615814,
+            "max": 89.5
+          },
+          "hotOpenMs": {
+            "min": 63.29999998211861,
+            "median": 86.39999997615814,
+            "max": 89
+          },
+          "searchMs": {
+            "min": 30.19999998807907,
+            "median": 41.30000001192093,
+            "max": 43.900000005960464
+          },
+          "twentyKeysMs": {
+            "min": 63.80000001192093,
+            "median": 64.5,
+            "max": 87.90000000596046
+          }
+        }
+      ]
+    },
+    {
+      "root": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-gCht45",
+      "tarball": "docs/superpowers/evidence/d4-c/consumer/baseline.tgz",
+      "tarballSHA256": "378f59655efbaa9a4416bee112f6668c89353ba47147093e6461a9a24aaa703f",
+      "lockSHA256": "af7f85410507fa9ca72b74b9a4f7188de2903a88348391169b8839c48b65983c",
+      "label": "old-build-only",
+      "versions": {
+        "node": "v24.17.0",
+        "vue": "3.5.38",
+        "vite": "5.0.12"
+      },
+      "symlink": false,
+      "sizes": {
+        "default-false": {
+          "js": {
+            "raw": 139415,
+            "gzip": 52319,
+            "brotli": 46749
+          },
+          "css": {
+            "raw": 169303,
+            "gzip": 21914,
+            "brotli": 18129
+          }
+        },
+        "unused-button": {
+          "js": {
+            "raw": 83748,
+            "gzip": 31093,
+            "brotli": 27891
+          },
+          "css": {
+            "raw": 169303,
+            "gzip": 21914,
+            "brotli": 18129
+          }
+        }
+      },
+      "modules": {
+        "default-false": [],
+        "unused-button": []
+      },
+      "hydration": [],
+      "scenarios": [],
+      "cjsSSRRows": 1000,
+      "statistics": []
+    }
+  ]
+}

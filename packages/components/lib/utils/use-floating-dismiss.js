@@ -52,6 +52,7 @@ function useFloatingDismiss(options) {
       getTrigger: () => vue.toValue(options.trigger),
       getContent: () => vue.toValue(options.floating),
       escapeEnabled: () => vue.toValue(options.open),
+      ignoreEscape: () => vue.toValue(options.ignoreEscape) === true,
       getBaseZIndex: () => baseZIndex,
       onZIndexChange: (zIndex) => {
         const content = vue.toValue(options.floating);

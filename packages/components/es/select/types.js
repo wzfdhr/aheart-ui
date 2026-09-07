@@ -1,5 +1,9 @@
 import { floatingPlacements } from "../utils/floating-core.js";
 const selectProps = {
+  virtual: {
+    type: [Boolean, Object],
+    default: false
+  },
   id: String,
   labelledBy: String,
   ariaLabelledby: String,

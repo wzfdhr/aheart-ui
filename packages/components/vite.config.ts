@@ -87,7 +87,7 @@ export default defineConfig(
             //cssCodeSplit: true,
             rollupOptions: {
                 //忽略打包vue文件
-                external: ['vue', '@floating-ui/dom', '@lucide/vue', 'dayjs', /^dayjs\//],
+                external: ['vue', '@floating-ui/dom', '@lucide/vue', '@tanstack/vue-virtual', 'dayjs', /^dayjs\//],
                 input: {
                     index: 'src/index.ts',
                     'message/index': 'src/message/index.ts',

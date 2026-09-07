@@ -1,4 +1,4 @@
-import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import Cascader from '../cascader.vue'
 
@@ -22,6 +22,94 @@ const options = [
 ]
 
 describe('Cascader', () => {
+  it('aborts when switching to an already loaded branch and when replacing loadData', async () => {
+    let signal!: AbortSignal
+    let resolve!: (data: any[]) => void
+    const loadData = (_node: unknown, context: { signal: AbortSignal }) => {
+      signal = context.signal
+      return new Promise<any[]>(done => { resolve = done })
+    }
+    const wrapper = mountCascader({ props: {
+      options: [{ value: 'pending', label: 'Pending', isLeaf: false }, { value: 'ready', label: 'Ready', children: [{ value: 'child', label: 'Child' }] }], loadData
+    } })
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="pending"]').trigger('click')
+    await wrapper.get('[data-cascader-value="ready"]').trigger('click')
+    expect(signal.aborted).toBe(true)
+    resolve([{ value: 'late', label: 'Late' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="late"]').exists()).toBe(false)
+    await wrapper.get('[data-cascader-value="pending"]').trigger('click')
+    const second = signal
+    await wrapper.setProps({ loadData: async () => [] })
+    expect(second.aborted).toBe(true)
+  })
+  it('keeps iframe focus, restores it on Escape, and clears unmounted overlay behavior', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const ownerWindow = iframe.contentWindow! as Window & typeof globalThis
+    const openChanges: boolean[] = []
+    const wrapper = mount(Cascader, {
+      attachTo: ownerDocument.body,
+      props: { options, onOpenChange: (open: boolean) => openChanges.push(open) }
+    })
+    try {
+      const trigger = wrapper.get('.aheart-cascader__trigger').element as HTMLElement
+      trigger.focus()
+      expect(ownerDocument.activeElement).toBe(trigger)
+      expect(document.activeElement).toBe(iframe)
+      trigger.click()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      const panel = ownerDocument.querySelector<HTMLElement>('.aheart-cascader__panel')!
+      expect(panel).toBeTruthy()
+      expect(panel.parentElement).toBe(ownerDocument.body)
+      expect(document.querySelector('.aheart-cascader__panel')).toBeNull()
+      const innerTarget = panel.querySelector<HTMLElement>('.aheart-cascader__option')!
+      innerTarget.focus()
+      expect(ownerDocument.activeElement).toBe(innerTarget)
+      const foreignEscape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      document.dispatchEvent(foreignEscape)
+      await wrapper.vm.$nextTick()
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+      const escape = new ownerWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      ownerDocument.activeElement!.dispatchEvent(escape)
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(escape.defaultPrevented).toBe(true)
+      expect(trigger.getAttribute('aria-expanded')).toBe('false')
+      expect(ownerDocument.activeElement).toBe(trigger)
+      expect(wrapper.emitted('openChange')).toEqual([[true], [false]])
+
+      trigger.click()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(ownerDocument.querySelector('.aheart-cascader__panel')).toBeTruthy()
+      const callsBeforeUnmount = openChanges.length
+      wrapper.unmount()
+      expect(ownerDocument.querySelector('.aheart-cascader__panel')).toBeNull()
+      expect(document.querySelector('.aheart-cascader__panel')).toBeNull()
+
+      const outside = ownerDocument.createElement('button')
+      ownerDocument.body.appendChild(outside)
+      outside.focus()
+      const afterUnmount = new ownerWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      outside.dispatchEvent(afterUnmount)
+      outside.dispatchEvent(new ownerWindow.MouseEvent('pointerdown', { bubbles: true, cancelable: true }))
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(afterUnmount.defaultPrevented).toBe(false)
+      expect(ownerDocument.activeElement).toBe(outside)
+      expect(openChanges.length).toBe(callsBeforeUnmount)
+      expect(ownerDocument.querySelector('.aheart-cascader__panel')).toBeNull()
+    } finally {
+      if (wrapper.exists()) wrapper.unmount()
+      iframe.remove()
+    }
+  })
+
   it('connects the combobox to its panel and visible active option', async () => {
     const wrapper = mountCascader({ attrs: { 'aria-labelledby': 'country-label', 'aria-describedby': 'country-help' }, props: { options } })
     const trigger = wrapper.get('.aheart-cascader__trigger')
@@ -54,6 +142,31 @@ describe('Cascader', () => {
     currentProvince.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
     expect(document.activeElement).toBe(currentProvince)
     wrapper.unmount()
+  })
+
+  it('uses Enter to expand branches and select leaves', async () => {
+    const wrapper = mountCascader({ props: { options } })
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="zhejiang"]').trigger('keydown', { key: 'Enter' })
+    await wrapper.vm.$nextTick()
+    await wrapper.get('[data-cascader-value="ningbo"]').trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('update:modelValue')).toEqual([[['zhejiang', 'ningbo']]])
+  })
+
+  it('preserves typed key identity during keyboard navigation and selection', async () => {
+    const wrapper = mountCascader({
+      attachTo: document.body,
+      props: { options: [{ value: 1, label: 'Numeric' }, { value: '1', label: 'String' }] }
+    })
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    const nodes = wrapper.findAll('.aheart-cascader__option')
+    expect(nodes[0].attributes('data-cascader-token')).not.toBe(nodes[1].attributes('data-cascader-token'))
+    await nodes[0].trigger('focus')
+    expect(wrapper.get('.aheart-cascader__trigger').attributes('aria-activedescendant')).toBe(nodes[0].attributes('id'))
+    await nodes[1].trigger('focus')
+    expect(wrapper.get('.aheart-cascader__trigger').attributes('aria-activedescendant')).toBe(nodes[1].attributes('id'))
+    await nodes[1].trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('update:modelValue')).toEqual([[['1']]])
   })
 
   it('emits a selected leaf path', async () => {
@@ -206,6 +319,161 @@ describe('Cascader', () => {
     await Promise.resolve()
 
     expect(calls).toBe(1)
+  })
+
+  it('exposes lazy failures and allows click retry', async () => {
+    let calls = 0
+    const loadData = async () => {
+      calls += 1
+      throw new Error('offline')
+    }
+    const wrapper = mountCascader({
+      props: { options: [{ value: 'province', label: '省份', isLeaf: false }], loadData }
+    })
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    const option = wrapper.get('[data-cascader-value="province"]')
+    await option.trigger('click')
+    await flushPromises()
+    const failedOption = wrapper.get('[data-cascader-value="province"]')
+    expect(failedOption.classes()).toContain('is-error')
+    expect(failedOption.attributes('aria-label')).toContain('加载失败')
+    expect(failedOption.text()).toContain('重试')
+
+    await failedOption.trigger('click')
+    await flushPromises()
+    expect(calls).toBe(2)
+  })
+
+  it('discards a lazy response after options are replaced', async () => {
+    let resolveChildren: ((children: { value: string; label: string }[]) => void) | undefined
+    const loadData = () => new Promise<{ value: string; label: string }[]>((resolve) => {
+      resolveChildren = resolve
+    })
+    const wrapper = mountCascader({
+      props: { options: [{ value: 'province', label: '省份', isLeaf: false }], loadData }
+    })
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    await wrapper.setProps({ options: [{ value: 'replacement', label: '替换项' }] })
+    resolveChildren?.([{ value: 'stale-city', label: '过期城市' }])
+    await Promise.resolve()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[data-cascader-value="stale-city"]').exists()).toBe(false)
+    expect(wrapper.get('[data-cascader-value="replacement"]').text()).toContain('替换项')
+  })
+
+  it('discards a lazy response after the active branch changes', async () => {
+    let resolveFirst: ((children: { value: string; label: string }[]) => void) | undefined
+    const loadData = (option: { value: string | number }) => option.value === 'first'
+      ? new Promise<{ value: string; label: string }[]>((resolve) => { resolveFirst = resolve })
+      : Promise.resolve([{ value: 'second-child', label: '第二分支子项' }])
+    const wrapper = mountCascader({
+      props: {
+        options: [
+          { value: 'first', label: '第一分支', isLeaf: false },
+          { value: 'second', label: '第二分支', isLeaf: false }
+        ],
+        loadData
+      }
+    })
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="first"]').trigger('click')
+    await wrapper.get('[data-cascader-value="second"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('[data-cascader-value="second-child"]').text()).toContain('第二分支子项')
+
+    resolveFirst?.([{ value: 'stale-child', label: '过期子项' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="stale-child"]').exists()).toBe(false)
+  })
+
+  it('passes an AbortSignal and aborts stale work when options are replaced', async () => {
+    let resolveChildren: ((children: { value: string; label: string }[]) => void) | undefined
+    let receivedSignal: AbortSignal | undefined
+    const loadData = (_option: { value: string }, context?: { signal: AbortSignal }) => {
+      receivedSignal = context?.signal
+      return new Promise<{ value: string; label: string }[]>((resolve) => { resolveChildren = resolve })
+    }
+    const wrapper = mountCascader({
+      props: { options: [{ value: 'province', label: '省份', isLeaf: false }], loadData }
+    })
+
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    expect(receivedSignal?.aborted).toBe(false)
+    await wrapper.setProps({ options: [{ value: 'replacement', label: '替换项' }] })
+    expect(receivedSignal?.aborted).toBe(true)
+    resolveChildren?.([{ value: 'stale-city', label: '过期城市' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="stale-city"]').exists()).toBe(false)
+  })
+
+  it('aborts an away branch request and starts a fresh task when returning', async () => {
+    const signals: AbortSignal[] = []
+    const resolvers: Array<(children: { value: string; label: string }[]) => void> = []
+    let firstCalls = 0
+    const loadData = (option: { value: string }, context?: { signal: AbortSignal }) => {
+      signals.push(context!.signal)
+      if (option.value === 'first') {
+        firstCalls += 1
+        return new Promise<{ value: string; label: string }[]>((resolve) => { resolvers.push(resolve) })
+      }
+      return Promise.resolve([{ value: 'second-child', label: '第二分支子项' }])
+    }
+    const wrapper = mountCascader({
+      props: {
+        options: [
+          { value: 'first', label: '第一分支', isLeaf: false },
+          { value: 'second', label: '第二分支', isLeaf: false }
+        ],
+        loadData
+      }
+    })
+
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="first"]').trigger('click')
+    await wrapper.get('[data-cascader-value="second"]').trigger('click')
+    await flushPromises()
+    await wrapper.get('[data-cascader-value="first"]').trigger('click')
+    expect(firstCalls).toBe(2)
+    expect(signals[0]?.aborted).toBe(true)
+    expect(signals[1]?.aborted).toBe(false)
+    resolvers[0]?.([{ value: 'late-child', label: '迟到子项' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="late-child"]').exists()).toBe(false)
+    resolvers[1]?.([{ value: 'fresh-child', label: '新任务子项' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="fresh-child"]').exists()).toBe(true)
+  })
+
+  it('aborts lazy work on controlled close, disabled state, and unmount', async () => {
+    let resolveChildren: ((children: { value: string; label: string }[]) => void) | undefined
+    let receivedSignal: AbortSignal | undefined
+    const loadData = (_option: { value: string }, context?: { signal: AbortSignal }) => {
+      receivedSignal = context?.signal
+      return new Promise<{ value: string; label: string }[]>((resolve) => { resolveChildren = resolve })
+    }
+    const wrapper = mountCascader({
+      props: { open: true, options: [{ value: 'province', label: '省份', isLeaf: false }], loadData }
+    })
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    await wrapper.setProps({ open: false })
+    expect(receivedSignal?.aborted).toBe(true)
+    resolveChildren?.([{ value: 'stale-city', label: '过期城市' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="stale-city"]').exists()).toBe(false)
+
+    await wrapper.setProps({ open: true, disabled: false })
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    const signalBeforeDisable = receivedSignal
+    await wrapper.setProps({ disabled: true })
+    expect(signalBeforeDisable?.aborted).toBe(true)
+
+    await wrapper.setProps({ disabled: false, open: true })
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    const signalBeforeUnmount = receivedSignal
+    wrapper.unmount()
+    expect(signalBeforeUnmount?.aborted).toBe(true)
   })
 
   it('supports controlled open, placement, keyboard closing, and clear', async () => {

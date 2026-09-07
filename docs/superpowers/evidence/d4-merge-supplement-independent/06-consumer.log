@@ -1,0 +1,24 @@
+candidate new: /private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-OF0zNB
+new default-false count=1000 dynamic=false round=0 passed
+new default-false count=1000 dynamic=true round=0 passed
+new virtual-true count=1000 dynamic=false round=0 passed
+new virtual-true count=1000 dynamic=true round=0 passed
+candidate old-build-only: /private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-yI4ucA
+node:internal/fs/promises:1029
+  const result = await PromisePrototypeThen(
+                 ^
+
+Error: ENOENT: no such file or directory, lstat 'docs/superpowers/evidence/d4-merge-supplement/old-lock.json'
+    at async lstat (node:internal/fs/promises:1029:18)
+    at async Promise.all (index 0)
+    at async checkPaths (node:internal/fs/cp/cp:77:39)
+    at async cpFn (node:internal/fs/cp/cp:66:17)
+    at async candidate (file:///Users/start/.codex/worktrees/091b/aheart-ui/scripts/d4-select-virtual-consumer.mjs:49:15)
+    at async file:///Users/start/.codex/worktrees/091b/aheart-ui/scripts/d4-select-virtual-consumer.mjs:170:40 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'lstat',
+  path: 'docs/superpowers/evidence/d4-merge-supplement/old-lock.json'
+}
+
+Node.js v24.17.0

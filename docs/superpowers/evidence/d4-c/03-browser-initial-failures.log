@@ -1,0 +1,230 @@
+
+[WebServer] (node:26067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:26078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:26092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:26857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:26871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 2 workers
+
+
+(node:26882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:26883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/10] [mobile] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[2/10] [desktop] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[3/10] [desktop] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:26903) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[4/10] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[5/10] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  1) [mobile] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 134
+    Received:   134
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      48 |   const before = await first.evaluate(el => el.getBoundingClientRect().height)
+      49 |   await page.getByRole('button', { name: '切换首项高度' }).evaluate(element => (element as HTMLButtonElement).click())
+    > 50 |   await expect.poll(() => first.evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThan(before + 90)
+         |                                                                                    ^
+      51 |   await expect.poll(() => popup.evaluate((element, anchor) => {
+      52 |     const row = element.ownerDocument.getElementById(anchor.id)
+      53 |     return row ? Math.abs(row.getBoundingClientRect().top - element.getBoundingClientRect().top - anchor.offset) : 999
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d4-select-virtual.spec.ts:50:84
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:26924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[6/10] [mobile] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:26935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[7/10] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+  2) [desktop-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "ResizeObserver loop completed with undelivered notifications.",
+    + ]
+
+      59 |   await expect(trigger).toBeFocused()
+      60 |   await expect(popup).toHaveCount(0)
+    > 61 |   expect(errors).toEqual([])
+         |                  ^
+      62 | })
+      63 |
+      64 | test('Select virtual uses iframe realm and disposes after SPA unmount', async ({ page }) => {
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d4-select-virtual.spec.ts:61:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-desktop-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-desktop-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-desktop-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-desktop-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-desktop-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:26949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[8/10] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:27003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[9/10] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+  3) [desktop-firefox] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: frame.waitForFunction: Test timeout of 30000ms exceeded.
+
+      73 |   const handle = await page.locator('#virtual-frame').elementHandle()
+      74 |   const frame = (await handle!.contentFrame())!
+    > 75 |   await frame.waitForFunction(() => Boolean((document.querySelector('#app') as any)?.__vue_app__))
+         |               ^
+      76 |   const trigger = frame.locator('#select-virtual-demo')
+      77 |   await trigger.scrollIntoViewIfNeeded()
+      78 |   await trigger.click()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d4-select-virtual.spec.ts:75:15
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  4) [mobile-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 134
+    Received:   134
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      48 |   const before = await first.evaluate(el => el.getBoundingClientRect().height)
+      49 |   await page.getByRole('button', { name: '切换首项高度' }).evaluate(element => (element as HTMLButtonElement).click())
+    > 50 |   await expect.poll(() => first.evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThan(before + 90)
+         |                                                                                    ^
+      51 |   await expect.poll(() => popup.evaluate((element, anchor) => {
+      52 |     const row = element.ownerDocument.getElementById(anchor.id)
+      53 |     return row ? Math.abs(row.getBoundingClientRect().top - element.getBoundingClientRect().top - anchor.offset) : 999
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d4-select-virtual.spec.ts:50:84
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d4-c-browser-all/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:27018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[10/10] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  4 failed
+    [mobile] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+    [desktop-firefox] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount 
+    [desktop-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+    [mobile-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+  6 passed (1.2m)

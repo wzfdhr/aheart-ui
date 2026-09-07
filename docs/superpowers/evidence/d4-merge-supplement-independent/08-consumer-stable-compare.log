@@ -1,0 +1,84 @@
+{
+  "counts": [
+    1000
+  ],
+  "rounds": 1,
+  "newScenarioCount": 4,
+  "stableEqual": true,
+  "tarball": "70cf1c26eecd6f44226734c0dce0e6c61e40c0bf7b032121f205dc774355e3a1",
+  "sizes": {
+    "default-false": {
+      "js": {
+        "raw": 168416,
+        "gzip": 60843,
+        "brotli": 54232
+      },
+      "css": {
+        "raw": 169408,
+        "gzip": 21944,
+        "brotli": 18166
+      }
+    },
+    "virtual-true": {
+      "js": {
+        "raw": 168416,
+        "gzip": 60843,
+        "brotli": 54309
+      },
+      "css": {
+        "raw": 169408,
+        "gzip": 21944,
+        "brotli": 18166
+      }
+    },
+    "unused-button": {
+      "js": {
+        "raw": 83748,
+        "gzip": 31093,
+        "brotli": 27891
+      },
+      "css": {
+        "raw": 169408,
+        "gzip": 21944,
+        "brotli": 18166
+      }
+    }
+  },
+  "modules": {
+    "default-false": [
+      "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+      "@tanstack/virtual-core/dist/esm/utils.js",
+      "@tanstack/virtual-core/dist/esm/index.js",
+      "@tanstack/vue-virtual/dist/esm/index.js"
+    ],
+    "virtual-true": [
+      "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+      "@tanstack/virtual-core/dist/esm/utils.js",
+      "@tanstack/virtual-core/dist/esm/index.js",
+      "@tanstack/vue-virtual/dist/esm/index.js"
+    ],
+    "unused-button": []
+  },
+  "hydration": [
+    {
+      "variant": "default-false",
+      "dynamic": false,
+      "errors": []
+    },
+    {
+      "variant": "default-false",
+      "dynamic": true,
+      "errors": []
+    },
+    {
+      "variant": "virtual-true",
+      "dynamic": false,
+      "errors": []
+    },
+    {
+      "variant": "virtual-true",
+      "dynamic": true,
+      "errors": []
+    }
+  ]
+}

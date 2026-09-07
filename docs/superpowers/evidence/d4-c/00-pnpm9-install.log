@@ -1,0 +1,24 @@
+Scope: all 5 workspace projects
+(node:24107) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Recreating /Users/start/.codex/worktrees/091b/aheart-ui/node_modules
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 453, reused 371, downloaded 1, added 0
+Progress: resolved 465, reused 383, downloaded 2, added 0
+Progress: resolved 467, reused 385, downloaded 2, added 0
+ WARN  4 deprecated subdependencies found: glob@10.5.0, lodash.get@4.4.2, lodash.isequal@4.5.0, whatwg-encoding@3.1.1
+Packages: +388
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 467, reused 385, downloaded 2, added 387
+Progress: resolved 467, reused 385, downloaded 2, added 388, done
+
+devDependencies:
++ @axe-core/playwright 4.12.1
++ @playwright/test 1.61.1
++ @vitejs/plugin-vue 5.0.3
++ typescript 5.3.3 (7.0.2 is available)
++ vite 5.0.12
++ vite-plugin-dts 3.7.2
++ vue-tsc 2.2.12
+
+Done in 5.7s
