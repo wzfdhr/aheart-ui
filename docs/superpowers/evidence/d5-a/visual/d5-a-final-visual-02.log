@@ -1,0 +1,75 @@
+- region "D5 服务端请求":
+  - button "接受服务端请求" [disabled]
+  - status: 没有待接受请求
+  - table:
+    - rowgroup:
+      - row "服务端客户 Sort 服务端评分 服务端评分 filters":
+        - columnheader "服务端客户"
+        - columnheader "Sort 服务端评分 服务端评分 filters":
+          - button "Sort 服务端评分": 服务端评分
+          - button "只看高分"
+    - rowgroup:
+      - row "服务器先返回高分 90":
+        - cell "服务器先返回高分"
+        - cell "90"
+      - row "服务器后返回低分 20":
+        - cell "服务器后返回低分"
+        - cell "20"
+  - navigation "分页":
+    - button "上一页": ‹
+    - button "1"
+    - button "2"
+    - button "3"
+    - button "4"
+    - button "10"
+    - button "下一页": ›
+- region "D5 服务端请求":
+  - button "接受服务端请求"
+  - status: 待接受：sort，页码1
+  - table:
+    - rowgroup:
+      - row "服务端客户 Sort 服务端评分 服务端评分 filters":
+        - columnheader "服务端客户"
+        - columnheader "Sort 服务端评分 服务端评分 filters":
+          - button "Sort 服务端评分": 服务端评分
+          - button "只看高分"
+    - rowgroup:
+      - row "服务器先返回高分 90":
+        - cell "服务器先返回高分"
+        - cell "90"
+      - row "服务器后返回低分 20":
+        - cell "服务器后返回低分"
+        - cell "20"
+  - navigation "分页":
+    - button "上一页": ‹
+    - button "1"
+    - button "2"
+    - button "3"
+    - button "4"
+    - button "10"
+    - button "下一页": ›
+- region "D5 服务端请求":
+  - button "接受服务端请求" [disabled]
+  - status: 没有待接受请求
+  - table:
+    - rowgroup:
+      - row "服务端客户 Sort 服务端评分 descending 服务端评分 filters":
+        - columnheader "服务端客户"
+        - columnheader "Sort 服务端评分 descending 服务端评分 filters":
+          - button "Sort 服务端评分 descending": 服务端评分
+          - button "只看高分"
+    - rowgroup:
+      - row "服务器先返回高分 90":
+        - cell "服务器先返回高分"
+        - cell "90"
+      - row "服务器后返回低分 20":
+        - cell "服务器后返回低分"
+        - cell "20"
+  - navigation "分页":
+    - button "上一页" [disabled]: ‹
+    - button "1"
+    - button "2"
+    - button "3"
+    - button "10"
+    - button "下一页": ›
+{"file":"/Users/start/.codex/worktrees/091b/aheart-ui/docs/superpowers/evidence/d5-a/visual/02-server.png","geometry":{"width":686,"scrollWidth":686,"viewport":1440},"errors":[]}

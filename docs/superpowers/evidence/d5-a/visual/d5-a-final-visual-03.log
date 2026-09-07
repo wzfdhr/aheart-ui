@@ -1,0 +1,97 @@
+- region "D5 受控分页":
+  - button "接受分页更新"
+  - status: 当前页：5；每页：10；分页请求：0
+  - table:
+    - rowgroup:
+      - row "客户 Sort 评分":
+        - columnheader "客户"
+        - columnheader "Sort 评分":
+          - button "Sort 评分": 评分
+    - rowgroup:
+      - row "服务器先返回高分 90":
+        - cell "服务器先返回高分"
+        - cell "90"
+      - row "服务器后返回低分 20":
+        - cell "服务器后返回低分"
+        - cell "20"
+  - navigation "分页":
+    - button "上一页": ‹
+    - button "1"
+    - button "2"
+    - button "3"
+    - button "4"
+    - button "5"
+    - button "6"
+    - button "7"
+    - button "10"
+    - button "下一页": ›
+    - combobox "每页条数":
+      - option "10 条/页" [selected]
+      - option "20 条/页"
+      - option "50 条/页"
+    - text: 跳至
+    - spinbutton
+    - button "确定"
+- region "D5 受控分页":
+  - button "接受分页更新" [pressed]
+  - status: 当前页：5；每页：10；分页请求：0
+  - table:
+    - rowgroup:
+      - row "客户 Sort 评分":
+        - columnheader "客户"
+        - columnheader "Sort 评分":
+          - button "Sort 评分": 评分
+    - rowgroup:
+      - row "服务器先返回高分 90":
+        - cell "服务器先返回高分"
+        - cell "90"
+      - row "服务器后返回低分 20":
+        - cell "服务器后返回低分"
+        - cell "20"
+  - navigation "分页":
+    - button "上一页": ‹
+    - button "1"
+    - button "2"
+    - button "3"
+    - button "4"
+    - button "5"
+    - button "6"
+    - button "7"
+    - button "10"
+    - button "下一页": ›
+    - combobox "每页条数":
+      - option "10 条/页" [selected]
+      - option "20 条/页"
+      - option "50 条/页"
+    - text: 跳至
+    - spinbutton
+    - button "确定"
+- region "D5 受控分页":
+  - button "接受分页更新" [pressed]
+  - status: 当前页：2；每页：50；分页请求：1
+  - table:
+    - rowgroup:
+      - row "客户 Sort 评分":
+        - columnheader "客户"
+        - columnheader "Sort 评分":
+          - button "Sort 评分": 评分
+    - rowgroup:
+      - row "服务器先返回高分 90":
+        - cell "服务器先返回高分"
+        - cell "90"
+      - row "服务器后返回低分 20":
+        - cell "服务器后返回低分"
+        - cell "20"
+  - navigation "分页":
+    - button "上一页": ‹
+    - button "1"
+    - button "2"
+    - button "下一页" [disabled]: ›
+    - combobox "每页条数":
+      - option "10 条/页"
+      - option "20 条/页"
+      - option "50 条/页" [selected]
+    - text: 跳至
+    - spinbutton
+    - button "确定"
+{"file":"/Users/start/.codex/worktrees/091b/aheart-ui/docs/superpowers/evidence/d5-a/visual/03-mobile-pagination.png","geometry":{"width":340,"scrollWidth":340,"viewport":390},"errors":[]}

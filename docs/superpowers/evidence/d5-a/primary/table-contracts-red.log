@@ -1,0 +1,310 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts  (23 tests | 15 failed) 112ms
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > local mode derives total and pages from the local collection, ignoring pagination.total
+     → expected [ DOMWrapper{ …(3) }, …(3) ] to have a length of 2 but got 4
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > server mode preserves response order and emits a shallow currentDataSource copy
+     → expected [ 'Ada36Architect', …(1) ] to deeply equal [ 'Linus42Maintainer', …(1) ]
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > treats sortOrder null as controlled no-sort and uses the first controlled visible column
+     → expected { Object (column, columnKey, ...) } to match object { columnKey: 'name', order: 'ascend' }
+(7 matching properties omitted from actual)
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > does not reset an uncontrolled page when a controlled sort is rejected, then resets after acceptance
+     → expected '1' to be '2' // Object.is equality
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps a rejected controlled query and page stable, and accepts asynchronously without a second request
+     → Target cannot be null or undefined.
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > changes an uncontrolled page size in place and clamps only against the new page count
+     → Cannot call setValue on an empty DOMWrapper.
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > does not adopt a rejected controlled page size and reports one request per user operation
+     → Cannot call setValue on an empty DOMWrapper.
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > passes pagination size options and keeps the native select value in sync
+     → expected [ '10', '20', '50', '100' ] to deeply equal [ '10', '20', '50' ]
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > disables per-row checkboxes and selects only current-page enabled rows
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > reports half checked, all-disabled and radio semantics without a header select-all
+     → Cannot call element on an empty DOMWrapper.
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserves selected keys across page replacement and keeps selectAll order, deduplication, and arrays independent
+     → Cannot call setValue on an empty DOMWrapper.
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps default selection when selectedRowKeys is explicitly undefined, then hands off to controlled state
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps controlled selection when the parent rejects a select-all request
+     → Cannot call setValue on an empty DOMWrapper.
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserve=false clips only keys absent from raw dataSource, not filter or pagination views
+     → expected undefined to deeply equal [ [ 'grace' ] ]
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps Pagination and Table page-size normalization aligned at fractional and invalid values
+     → expected [ DOMWrapper{ …(3) }, …(3) ] to have a length of 2 but got 4
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > local mode derives total and pages from the local collection, ignoring pagination.total
+AssertionError: expected [ DOMWrapper{ …(3) }, …(3) ] to have a length of 2 but got 4
+
+- Expected
++ Received
+
+- 2
++ 4
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:36:41
+     34|     })
+     35| 
+     36|     expect(wrapper.findAll('tbody tr')).toHaveLength(2)
+       |                                         ^
+     37|     await wrapper.find('.aheart-pagination__next').trigger('click')
+     38|     expect(text(wrapper)).toEqual(expect.arrayContaining(['Linus42Main…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > server mode preserves response order and emits a shallow currentDataSource copy
+AssertionError: expected [ 'Ada36Architect', …(1) ] to deeply equal [ 'Linus42Maintainer', …(1) ]
+
+- Expected
++ Received
+
+  Array [
+-   "Linus42Maintainer",
+    "Ada36Architect",
++   "Linus42Maintainer",
+  ]
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:56:27
+     54|     await wrapper.findAll('th')[1].find('button').trigger('click')
+     55|     const change = wrapper.emitted('change')?.[0]
+     56|     expect(text(wrapper)).toEqual(['Linus42Maintainer', 'Ada36Architec…
+       |                           ^
+     57|     expect(change?.[3]).toMatchObject({ action: 'sort' })
+     58|     expect(change?.[3].currentDataSource).not.toBe(response)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > treats sortOrder null as controlled no-sort and uses the first controlled visible column
+AssertionError: expected { Object (column, columnKey, ...) } to match object { columnKey: 'name', order: 'ascend' }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "columnKey": "name",
++   "columnKey": "age",
+    "order": "ascend",
+  }
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:85:49
+     83|     expect(wrapper.findAll('th')[1].attributes('aria-sort')).toBe('non…
+     84|     await wrapper.findAll('th')[1].find('button').trigger('click')
+     85|     expect(wrapper.emitted('change')?.[0]?.[2]).toMatchObject({ column…
+       |                                                 ^
+     86|   })
+     87| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > does not reset an uncontrolled page when a controlled sort is rejected, then resets after acceptance
+AssertionError: expected '1' to be '2' // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:97:71
+     95|     })
+     96|     await wrapper.find('.aheart-table__sorter').trigger('click')
+     97|     expect(wrapper.find('.aheart-pagination__page.is-active').text()).…
+       |                                                                       ^
+     98|     await wrapper.setProps({
+     99|       columns: [{ title: 'Age', dataIndex: 'age', key: 'age', sorter: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps a rejected controlled query and page stable, and accepts asynchronously without a second request
+AssertionError: Target cannot be null or undefined.
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:126:39
+    124|     await nextTick()
+    125|     expect(wrapper.find('.aheart-pagination__page.is-active').text()).…
+    126|     expect(wrapper.emitted('change')).toHaveLength(1)
+       |                                       ^
+    127|   })
+    128| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > changes an uncontrolled page size in place and clamps only against the new page count
+Error: Cannot call setValue on an empty DOMWrapper.
+ ❯ Object.get ../../node_modules/.pnpm/@vue+test-utils@2.4.11_@vue+compiler-dom@3.5.38_@vue+server-renderer@3.5.38_vue@3.5.38_typesc_dhpi3e62ykslremjvdlxoyfqxa/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1482:27
+    1480|                     return () => false;
+    1481|                 default:
+    1482|                     throw new Error(`Cannot call ${String(prop)} on an…
+       |                           ^
+    1483|             }
+    1484|         }
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:153:58
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > does not adopt a rejected controlled page size and reports one request per user operation
+Error: Cannot call setValue on an empty DOMWrapper.
+ ❯ Object.get ../../node_modules/.pnpm/@vue+test-utils@2.4.11_@vue+compiler-dom@3.5.38_@vue+server-renderer@3.5.38_vue@3.5.38_typesc_dhpi3e62ykslremjvdlxoyfqxa/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1482:27
+    1480|                     return () => false;
+    1481|                 default:
+    1482|                     throw new Error(`Cannot call ${String(prop)} on an…
+       |                           ^
+    1483|             }
+    1484|         }
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:169:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > passes pagination size options and keeps the native select value in sync
+AssertionError: expected [ '10', '20', '50', '100' ] to deeply equal [ '10', '20', '50' ]
+
+- Expected
++ Received
+
+  Array [
+    "10",
+    "20",
+    "50",
++   "100",
+  ]
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:186:82
+    184|     const select = wrapper.find('.aheart-pagination__size-changer')
+    185|     expect(select.exists()).toBe(true)
+    186|     expect(select.findAll('option').map((option) => option.attributes(…
+       |                                                                                  ^
+    187|     await select.setValue('20')
+    188|     expect(wrapper.emitted('change')?.[0]?.[0]).toMatchObject({ curren…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > disables per-row checkboxes and selects only current-page enabled rows
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:209:66
+    207|     })
+    208|     const checkboxes = wrapper.findAll('tbody input[type="checkbox"]')
+    209|     expect((checkboxes[1].element as HTMLInputElement).disabled).toBe(…
+       |                                                                  ^
+    210|     await wrapper.find('thead input[type="checkbox"]').setValue(true)
+    211|     expect(wrapper.emitted('update:selectedRowKeys')?.[0]).toEqual([['…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > reports half checked, all-disabled and radio semantics without a header select-all
+Error: Cannot call element on an empty DOMWrapper.
+ ❯ Object.get ../../node_modules/.pnpm/@vue+test-utils@2.4.11_@vue+compiler-dom@3.5.38_@vue+server-renderer@3.5.38_vue@3.5.38_typesc_dhpi3e62ykslremjvdlxoyfqxa/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1482:27
+    1480|                     return () => false;
+    1481|                 default:
+    1482|                     throw new Error(`Cannot call ${String(prop)} on an…
+       |                           ^
+    1483|             }
+    1484|         }
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:220:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserves selected keys across page replacement and keeps selectAll order, deduplication, and arrays independent
+Error: Cannot call setValue on an empty DOMWrapper.
+ ❯ Object.get ../../node_modules/.pnpm/@vue+test-utils@2.4.11_@vue+compiler-dom@3.5.38_@vue+server-renderer@3.5.38_vue@3.5.38_typesc_dhpi3e62ykslremjvdlxoyfqxa/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1482:27
+    1480|                     return () => false;
+    1481|                 default:
+    1482|                     throw new Error(`Cannot call ${String(prop)} on an…
+       |                           ^
+    1483|             }
+    1484|         }
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:257:54
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps default selection when selectedRowKeys is explicitly undefined, then hands off to controlled state
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:273:96
+    271|       props: { columns, dataSource: rows, rowSelection: { defaultSelec…
+    272|     })
+    273|     expect((wrapper.find('tbody input[type="checkbox"]').element as HT…
+       |                                                                                                ^
+    274|     await wrapper.setProps({ rowSelection: { selectedRowKeys: ['linus'…
+    275|     expect(wrapper.findAll('tbody input[type="checkbox"]').map((input)…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps controlled selection when the parent rejects a select-all request
+Error: Cannot call setValue on an empty DOMWrapper.
+ ❯ Object.get ../../node_modules/.pnpm/@vue+test-utils@2.4.11_@vue+compiler-dom@3.5.38_@vue+server-renderer@3.5.38_vue@3.5.38_typesc_dhpi3e62ykslremjvdlxoyfqxa/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1482:27
+    1480|                     return () => false;
+    1481|                 default:
+    1482|                     throw new Error(`Cannot call ${String(prop)} on an…
+       |                           ^
+    1483|             }
+    1484|         }
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:283:54
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserve=false clips only keys absent from raw dataSource, not filter or pagination views
+AssertionError: expected undefined to deeply equal [ [ 'grace' ] ]
+
+- Expected: 
+Array [
+  Array [
+    "grace",
+  ],
+]
+
++ Received: 
+undefined
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:301:63
+    299|     await wrapper.setProps({ dataSource: rows.filter((row) => row.key …
+    300|     await nextTick()
+    301|     expect(wrapper.emitted('update:selectedRowKeys')?.at(-1)).toEqual(…
+       |                                                               ^
+    302|   })
+    303| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps Pagination and Table page-size normalization aligned at fractional and invalid values
+AssertionError: expected [ DOMWrapper{ …(3) }, …(3) ] to have a length of 2 but got 4
+
+- Expected
++ Received
+
+- 2
++ 4
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:331:39
+    329|     expect(table.find('.aheart-pagination__page.is-active').exists()).…
+    330|     expect(pagination.find('.aheart-pagination__page.is-active').text(…
+    331|     expect(table.findAll('tbody tr')).toHaveLength(2)
+       |                                       ^
+    332|     await pagination.find('.aheart-pagination__next').trigger('click')
+    333|     expect(pagination.emitted('change')?.[0]).toEqual([2, 2])
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/15]⎯
+
+ Test Files  1 failed (1)
+      Tests  15 failed | 8 passed (23)
+   Start at  06:58:20
+   Duration  629ms (transform 170ms, setup 0ms, collect 223ms, tests 112ms, environment 155ms, prepare 41ms)
+
+undefined
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run --environment jsdom src/table/__tests__/table-d5-contracts.test.ts

@@ -1,0 +1,440 @@
+TAP version 13
+# Subtest: temporary gate repository pins the workspace package manager
+ok 1 - temporary gate repository pins the workspace package manager
+  ---
+  duration_ms: 65.838958
+  ...
+# Subtest: real orchestration runs both builds with the installed workspace pnpm while Corepack is cold and offline
+ok 2 - real orchestration runs both builds with the installed workspace pnpm while Corepack is cold and offline
+  ---
+  duration_ms: 621.915708
+  ...
+# Subtest: snapshots every file in all generated directories with relative paths and SHA-256
+ok 3 - snapshots every file in all generated directories with relative paths and SHA-256
+  ---
+  duration_ms: 4.745041
+  ...
+# Subtest: identical snapshots produce no differences regardless of insertion order
+ok 4 - identical snapshots produce no differences regardless of insertion order
+  ---
+  duration_ms: 0.130625
+  ...
+# Subtest: identifies added, removed, and changed files in deterministic order
+ok 5 - identifies added, removed, and changed files in deterministic order
+  ---
+  duration_ms: 0.15425
+  ...
+# Subtest: mismatched snapshots throw a readable status report with paths
+ok 6 - mismatched snapshots throw a readable status report with paths
+  ---
+  duration_ms: 0.161541
+  ...
+# Subtest: preflight rejects a staged change even when the worktree is restored to HEAD
+ok 7 - preflight rejects a staged change even when the worktree is restored to HEAD
+  ---
+  duration_ms: 116.083625
+  ...
+# Subtest: preflight rejects a staged new file before a build can delete it
+ok 8 - preflight rejects a staged new file before a build can delete it
+  ---
+  duration_ms: 104.902833
+  ...
+# Subtest: preflight rejects an ignored generated file before a build can delete it
+ok 9 - preflight rejects an ignored generated file before a build can delete it
+  ---
+  duration_ms: 108.472791
+  ...
+# Subtest: writes sorted SHA-256 manifests and a readable comparison when builds differ
+ok 10 - writes sorted SHA-256 manifests and a readable comparison when builds differ
+  ---
+  duration_ms: 505.289292
+  ...
+# Subtest: persists and tees build 1 stdout, stderr, exit status, and accurate failure stage
+ok 11 - persists and tees build 1 stdout, stderr, exit status, and accurate failure stage
+  ---
+  duration_ms: 324.473333
+  ...
+# Subtest: persists and tees build 2 failure after recording the completed first build
+ok 12 - persists and tees build 2 failure after recording the completed first build
+  ---
+  duration_ms: 520.71025
+  ...
+# Subtest: reports snapshot 1 capture failure after build 1 completes successfully
+ok 13 - reports snapshot 1 capture failure after build 1 completes successfully
+  ---
+  duration_ms: 301.930916
+  ...
+# Subtest: reports snapshot 2 capture failure after both builds complete successfully
+ok 14 - reports snapshot 2 capture failure after both builds complete successfully
+  ---
+  duration_ms: 506.020958
+  ...
+# Subtest: preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts
+ok 15 - preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts
+  ---
+  duration_ms: 182.49325
+  ...
+# Subtest: reports postflight failure after two matching snapshots and preserves both build results
+ok 16 - reports postflight failure after two matching snapshots and preserves both build results
+  ---
+  duration_ms: 516.162417
+  ...
+# Subtest: accepts an empty generated-file list
+ok 17 - accepts an empty generated-file list
+  ---
+  duration_ms: 1.163625
+  ...
+# Subtest: rejects untracked generated files
+ok 18 - rejects untracked generated files
+  ---
+  duration_ms: 0.189042
+  ...
+# Subtest: rejects staged tracked changes in generated directories
+ok 19 - rejects staged tracked changes in generated directories
+  ---
+  duration_ms: 170.869792
+  ...
+# Subtest: rejects unstaged tracked changes in generated directories
+ok 20 - rejects unstaged tracked changes in generated directories
+  ---
+  duration_ms: 110.777875
+  ...
+# Subtest: rejects ignored untracked files in generated directories
+ok 21 - rejects ignored untracked files in generated directories
+  ---
+  duration_ms: 91.572208
+  ...
+# Subtest: uploads both tracked diff layers and build manifests on build gate failure
+ok 22 - uploads both tracked diff layers and build manifests on build gate failure
+  ---
+  duration_ms: 1.787125
+  ...
+# Subtest: keeps the quality plan entry point aligned with the four-role gate
+ok 23 - keeps the quality plan entry point aligned with the four-role gate
+  ---
+  duration_ms: 0.3365
+  ...
+# Subtest: retains uniquely named e2e evidence for successful and failed runs
+ok 24 - retains uniquely named e2e evidence for successful and failed runs
+  ---
+  duration_ms: 0.482625
+  ...
+# Subtest: runs QG5 production specs in independent browser project shards
+ok 25 - runs QG5 production specs in independent browser project shards
+  ---
+  duration_ms: 0.170292
+  ...
+# Subtest: always uploads per-project QG5 Playwright evidence with run identity
+ok 26 - always uploads per-project QG5 Playwright evidence with run identity
+  ---
+  duration_ms: 0.128834
+  ...
+# Subtest: allows repeatable QG5 baseline collection on master without weakening push and PR checks
+ok 27 - allows repeatable QG5 baseline collection on master without weakening push and PR checks
+  ---
+  duration_ms: 0.329417
+  ...
+# Subtest: exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point
+ok 28 - exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point
+  ---
+  duration_ms: 0.16
+  ...
+# Subtest: Chinese docs shell and component status copy stay localized
+ok 29 - Chinese docs shell and component status copy stay localized
+  ---
+  duration_ms: 16.253125
+  ...
+# Subtest: DnD docs use visible handles and assign physical iOS touch evidence to QG5
+ok 30 - DnD docs use visible handles and assign physical iOS touch evidence to QG5
+  ---
+  duration_ms: 4.802125
+  ...
+# Subtest: D2 overlay helpers stay internal and ship paired ESM and CommonJS files
+ok 31 - D2 overlay helpers stay internal and ship paired ESM and CommonJS files
+  ---
+  duration_ms: 0.913875
+  ...
+# Subtest: components loads through ESM and CommonJS entrypoints
+ok 32 - components loads through ESM and CommonJS entrypoints
+  ---
+  duration_ms: 309.604583
+  ...
+# Subtest: dnd loads through ESM and CommonJS entrypoints
+ok 33 - dnd loads through ESM and CommonJS entrypoints
+  ---
+  duration_ms: 17.319458
+  ...
+# Subtest: ai loads through ESM and CommonJS entrypoints
+ok 34 - ai loads through ESM and CommonJS entrypoints
+  ---
+  duration_ms: 9.486792
+  ...
+# Subtest: dnd package exports resolve consumer types for business records and standalone values
+ok 35 - dnd package exports resolve consumer types for business records and standalone values
+  ---
+  duration_ms: 582.908084
+  ...
+# Subtest: Pages deploys only an exact master SHA whose CI workflow succeeded
+ok 36 - Pages deploys only an exact master SHA whose CI workflow succeeded
+  ---
+  duration_ms: 5.157
+  ...
+# Subtest: picker core loads through native ESM with external Dayjs plugins
+ok 37 - picker core loads through native ESM with external Dayjs plugins
+  ---
+  duration_ms: 52.869292
+  ...
+# Subtest: public picker types do not expose internal Dayjs helpers
+ok 38 - public picker types do not expose internal Dayjs helpers
+  ---
+  duration_ms: 0.865875
+  ...
+# Subtest: builds the docs and serves the production preview on the requested port
+ok 39 - builds the docs and serves the production preview on the requested port
+  ---
+  duration_ms: 1.515083
+  ...
+# Subtest: uses AHEART_E2E_PORT with 5173 as the default everywhere
+ok 40 - uses AHEART_E2E_PORT with 5173 as the default everywhere
+  ---
+  duration_ms: 0.285125
+  ...
+# Subtest: never reuses an unknown local server for production verification
+ok 41 - never reuses an unknown local server for production verification
+  ---
+  duration_ms: 0.1095
+  ...
+# Subtest: runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit
+ok 42 - runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit
+  ---
+  duration_ms: 0.297292
+  ...
+# Subtest: gives the production preview enough time to build before readiness checks
+ok 43 - gives the production preview enough time to build before readiness checks
+  ---
+  duration_ms: 1.587375
+  ...
+# Subtest: retains failure diagnostics and uses the HTML reporter
+ok 44 - retains failure diagnostics and uses the HTML reporter
+  ---
+  duration_ms: 0.533833
+  ...
+# Subtest: disables the macOS system proxy for local Firefox verification
+ok 45 - disables the macOS system proxy for local Firefox verification
+  ---
+  duration_ms: 0.310625
+  ...
+# Subtest: CI installs all browsers and uploads test results and the Playwright report
+ok 46 - CI installs all browsers and uploads test results and the Playwright report
+  ---
+  duration_ms: 0.44625
+  ...
+# Subtest: documents physical iOS Safari evidence without equating it to mobile WebKit automation
+ok 47 - documents physical iOS Safari evidence without equating it to mobile WebKit automation
+  ---
+  duration_ms: 1.399542
+  ...
+# Subtest: documents the two-stage master stability gate and exposes the guide in Chinese navigation
+ok 48 - documents the two-stage master stability gate and exposes the guide in Chinese navigation
+  ---
+  duration_ms: 0.154417
+  ...
+# Subtest: describes always-retained and failure-only browser evidence accurately
+ok 49 - describes always-retained and failure-only browser evidence accurately
+  ---
+  duration_ms: 0.256042
+  ...
+# Subtest: accepts complete physical iOS Safari evidence bound to the reviewed commit
+ok 50 - accepts complete physical iOS Safari evidence bound to the reviewed commit
+  ---
+  duration_ms: 14.289875
+  ...
+# Subtest: rejects simulator and scripted touch evidence
+ok 51 - rejects simulator and scripted touch evidence
+  ---
+  duration_ms: 5.859458
+  ...
+# Subtest: rejects evidence for another commit and missing artifact integrity
+ok 52 - rejects evidence for another commit and missing artifact integrity
+  ---
+  duration_ms: 5.350792
+  ...
+# Subtest: rejects incomplete observable task outcomes
+ok 53 - rejects incomplete observable task outcomes
+  ---
+  duration_ms: 3.313417
+  ...
+# Subtest: requires before and after screenshots plus a session video for every physical task
+ok 54 - requires before and after screenshots plus a session video for every physical task
+  ---
+  duration_ms: 2.239958
+  ...
+# Subtest: rejects duplicate before and after media references
+ok 55 - rejects duplicate before and after media references
+  ---
+  duration_ms: 2.228125
+  ...
+# Subtest: rejects symlinks that can escape the evidence directory
+ok 56 - rejects symlinks that can escape the evidence directory
+  ---
+  duration_ms: 4.468375
+  ...
+# Subtest: binds evidence to the expected repository and branch
+ok 57 - binds evidence to the expected repository and branch
+  ---
+  duration_ms: 3.122333
+  ...
+# Subtest: rejects artifact MIME metadata that does not match its evidence kind and extension
+ok 58 - rejects artifact MIME metadata that does not match its evidence kind and extension
+  ---
+  duration_ms: 3.709375
+  ...
+# Subtest: rejects evidence IDs that can escape the JSON evidence directory
+ok 59 - rejects evidence IDs that can escape the JSON evidence directory
+  ---
+  duration_ms: 2.431166
+  ...
+# Subtest: normalizes GitHub workflow runs and preserves every attempt for flaky detection
+ok 60 - normalizes GitHub workflow runs and preserves every attempt for flaky detection
+  ---
+  duration_ms: 2.009792
+  ...
+# Subtest: keeps missing QG5 project evidence observable instead of silently dropping a run
+ok 61 - keeps missing QG5 project evidence observable instead of silently dropping a run
+  ---
+  duration_ms: 0.131
+  ...
+# Subtest: collects paginated runs and jobs while filtering to the requested master SHA
+ok 62 - collects paginated runs and jobs while filtering to the requested master SHA
+  ---
+  duration_ms: 1.246542
+  ...
+# Subtest: retries transient GitHub failures with a bounded attempt count
+ok 63 - retries transient GitHub failures with a bounded attempt count
+  ---
+  duration_ms: 6.911625
+  ...
+# Subtest: accepts ten consecutive healthy master runs with zero flaky reruns
+ok 64 - accepts ten consecutive healthy master runs with zero flaky reruns
+  ---
+  duration_ms: 2.926167
+  ...
+# Subtest: rejects an insufficient post-QG5 master window
+ok 65 - rejects an insufficient post-QG5 master window
+  ---
+  duration_ms: 2.128583
+  ...
+# Subtest: rejects a run with a missing or failed browser project
+ok 66 - rejects a run with a missing or failed browser project
+  ---
+  duration_ms: 0.517792
+  ...
+# Subtest: counts a failed attempt followed by success as one flaky run
+ok 67 - counts a failed attempt followed by success as one flaky run
+  ---
+  duration_ms: 0.873541
+  ...
+# Subtest: filters non-master and pre-QG5 runs instead of treating them as passing evidence
+ok 68 - filters non-master and pre-QG5 runs instead of treating them as passing evidence
+  ---
+  duration_ms: 0.336
+  ...
+# Subtest: rejects incomplete historical attempts instead of hiding them as stable
+ok 69 - rejects incomplete historical attempts instead of hiding them as stable
+  ---
+  duration_ms: 0.696
+  ...
+# Subtest: only accepts runs for the expected master SHA
+ok 70 - only accepts runs for the expected master SHA
+  ---
+  duration_ms: 0.133667
+  ...
+# Subtest: rejects duplicate or non-contiguous attempt numbers
+ok 71 - rejects duplicate or non-contiguous attempt numbers
+  ---
+  duration_ms: 0.152416
+  ...
+# Subtest: QG5 production suite guards resources, hydration, overlays, and viewport containment
+ok 72 - QG5 production suite guards resources, hydration, overlays, and viewport containment
+  ---
+  duration_ms: 1.165959
+  ...
+# Subtest: collects production errors through a teardown fixture that always attaches evidence
+ok 73 - collects production errors through a teardown fixture that always attaches evidence
+  ---
+  duration_ms: 0.226
+  ...
+# Subtest: settles prefetch work before navigation and never hides generic cancelled resource failures
+ok 74 - settles prefetch work before navigation and never hides generic cancelled resource failures
+  ---
+  duration_ms: 0.352959
+  ...
+# Subtest: quality matrix registers every Ready component exactly once with release evidence
+ok 75 - quality matrix registers every Ready component exactly once with release evidence
+  ---
+  duration_ms: 291.735875
+  ...
+# Subtest: QG4 matrix records only component-specific accessibility and visual evidence
+ok 76 - QG4 matrix records only component-specific accessibility and visual evidence
+  ---
+  duration_ms: 0.9605
+  ...
+# Subtest: quality matrix uses the planned mutually exclusive risk mapping
+ok 77 - quality matrix uses the planned mutually exclusive risk mapping
+  ---
+  duration_ms: 0.218375
+  ...
+# Subtest: R1 records have current component evidence and product task metadata
+ok 78 - R1 records have current component evidence and product task metadata
+  ---
+  duration_ms: 0.19225
+  ...
+# Subtest: pull request template requires product task and quality matrix review
+ok 79 - pull request template requires product task and quality matrix review
+  ---
+  duration_ms: 0.807375
+  ...
+# Subtest: accepts a complete packed package contract
+ok 80 - accepts a complete packed package contract
+  ---
+  duration_ms: 0.930333
+  ...
+# Subtest: reports missing public metadata and required files
+ok 81 - reports missing public metadata and required files
+  ---
+  duration_ms: 0.111
+  ...
+# Subtest: rejects unresolved workspace dependency protocols
+ok 82 - rejects unresolved workspace dependency protocols
+  ---
+  duration_ms: 0.324709
+  ...
+# Subtest: rejects unexpected packed dependency ranges
+ok 83 - rejects unexpected packed dependency ranges
+  ---
+  duration_ms: 0.195958
+  ...
+# Subtest: rejects Pragmatic DnD auto-scroll dependency drift
+ok 84 - rejects Pragmatic DnD auto-scroll dependency drift
+  ---
+  duration_ms: 0.181833
+  ...
+# Subtest: rejects source and test files from the tarball
+ok 85 - rejects source and test files from the tarball
+  ---
+  duration_ms: 0.312666
+  ...
+# Subtest: D1 state helpers stay internal and ship paired ESM and CommonJS files
+ok 86 - D1 state helpers stay internal and ship paired ESM and CommonJS files
+  ---
+  duration_ms: 1.989834
+  ...
+1..86
+# tests 86
+# suites 0
+# pass 86
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4242.29125

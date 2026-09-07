@@ -1,0 +1,12 @@
+{
+  "codeCommit": "15305d38cd8f5c479207f74977b557bed4b4e7fe",
+  "finalGateCommit": "b94252b2c1bdd339ca055cde9e13bb44771816ca",
+  "baseCommit": "92cbb52b470741be795b95f981e67f398c4cbc81",
+  "scope": "D5-A only: Table data modes, controlled state, row selection and Pagination integration",
+  "workspaceLockSHA256": "6be4e05b87455d707f8698bedbbf4686026f1b9cf74273d06771dec162a3fb90",
+  "primaryTarballSHA256": "f943ae0c03992637bc94ac8fef8d07d4fe56ec6a0ea1550eff2d1adcbe42c651",
+  "primaryConsumerLockSHA256": "b23b9c8428fb0c2b689eb326a19fbc66d3370bce3bc5106b5e99410d8da47879",
+  "primaryBrowserEvidence": "20 initial cases before adding the native-radio browser regression; retained as history",
+  "independentFinalGate": { "unitPassed": 1357, "e2ePassed": 484, "e2eSkipped": 127, "e2eFailed": 0, "d5Cases": 25, "consumerPassed": true, "sameTarballAndConsumerLock": true },
+  "notAuthorized": ["D5-B", "D5-C", "D4 deferred virtualization", "D6", "merge", "npm release"]
+}

@@ -1,0 +1,675 @@
+
+> aheart-ui-workspace@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui
+> corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test && node --test scripts/*.test.mjs
+
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/input-number/__tests__/input-number.test.ts  (57 tests) 922ms
+ ✓ src/drawer/__tests__/drawer.test.ts  (52 tests) 1306ms
+ ✓ src/form/__tests__/form.test.ts  (39 tests) 751ms
+ ✓ src/tooltip/__tests__/tooltip.test.ts  (26 tests) 1748ms
+ ✓ src/modal/__tests__/modal.test.ts  (60 tests) 1821ms
+ ✓ src/popconfirm/__tests__/popconfirm.test.ts  (26 tests) 2084ms
+ ✓ src/select/__tests__/select.test.ts  (39 tests) 2035ms
+ ✓ src/dropdown/__tests__/dropdown.test.ts  (32 tests) 2492ms
+ ✓ src/table/__tests__/table.test.ts  (29 tests) 506ms
+ ✓ src/popover/__tests__/popover.test.ts  (22 tests) 1507ms
+ ✓ src/table/__tests__/table-d5-contracts.test.ts  (23 tests) 840ms
+ ✓ src/splitter/__tests__/splitter.test.ts  (17 tests) 509ms
+ ✓ src/card/__tests__/card.test.ts  (26 tests) 460ms
+ ✓ src/date-picker/__tests__/date-picker.test.ts  (50 tests) 4401ms
+ ✓ src/cascader/__tests__/cascader.test.ts  (25 tests) 3082ms
+ ✓ src/button/__tests__/button.test.ts  (26 tests) 384ms
+ ✓ src/message/__tests__/message.test.ts  (20 tests) 228ms
+ ✓ src/tree/__tests__/tree.test.ts  (21 tests) 497ms
+ ✓ src/config-provider/__tests__/config-provider.test.ts  (9 tests) 279ms
+ ✓ src/menu/__tests__/menu.test.ts  (16 tests) 610ms
+ ✓ src/pagination/__tests__/pagination.test.ts  (18 tests) 258ms
+ ✓ src/input/__tests__/input.test.ts  (19 tests) 240ms
+ ✓ src/radio/__tests__/radio.test.ts  (17 tests) 226ms
+ ✓ src/time-picker/__tests__/time-picker.test.ts  (26 tests) 4310ms
+ ✓ src/checkbox/__tests__/checkbox.test.ts  (17 tests) 191ms
+ ✓ src/textarea/__tests__/textarea.test.ts  (20 tests) 274ms
+ ✓ src/date-picker/__tests__/date-range-picker.test.ts  (25 tests) 4351ms
+ ✓ src/upload/__tests__/upload.test.ts  (14 tests) 445ms
+ ✓ src/form/__tests__/engine.test.ts  (20 tests) 275ms
+ ✓ src/tree-select/__tests__/tree-select.test.ts  (15 tests) 1298ms
+ ✓ src/tabs/__tests__/tabs.test.ts  (13 tests) 408ms
+ ✓ src/typography/__tests__/typography.test.ts  (14 tests) 301ms
+ ✓ src/steps/__tests__/steps.test.ts  (12 tests) 235ms
+ ✓ src/alert/__tests__/alert.test.ts  (12 tests) 160ms
+ ✓ src/switch/__tests__/switch.test.ts  (16 tests) 156ms
+ ✓ src/time-picker/__tests__/time-range-picker.test.ts  (17 tests) 3026ms
+ ✓ src/utils/__tests__/use-floating-position.test.ts  (20 tests) 13ms
+ ✓ src/descriptions/__tests__/descriptions.test.ts  (7 tests) 156ms
+ ✓ src/breadcrumb/__tests__/breadcrumb.test.ts  (8 tests) 143ms
+ ✓ src/utils/__tests__/use-floating-dismiss.test.ts  (7 tests) 120ms
+ ✓ src/tag/__tests__/tag.test.ts  (9 tests) 195ms
+ ✓ src/badge/__tests__/badge.test.ts  (12 tests) 200ms
+ ✓ src/spin/__tests__/spin.test.ts  (10 tests) 182ms
+ ✓ src/utils/__tests__/use-pointer-drag.test.ts  (10 tests) 180ms
+ ✓ src/empty/__tests__/empty.test.ts  (13 tests) 219ms
+ ✓ src/skeleton/__tests__/skeleton.test.ts  (6 tests) 111ms
+ ✓ src/utils/__tests__/overlay-controller.test.ts  (6 tests) 20ms
+ ✓ src/tree/__tests__/tree-lazy.test.ts  (8 tests) 255ms
+ ✓ src/space/__tests__/space.test.ts  (7 tests) 146ms
+ ✓ src/input/__tests__/form-integration.test.ts  (6 tests) 360ms
+ ✓ src/utils/__tests__/use-controllable-state.test.ts  (5 tests) 36ms
+ ✓ src/picker-core/__tests__/codec.test.ts  (10 tests) 5ms
+ ✓ src/utils/__tests__/use-async-task.test.ts  (5 tests) 80ms
+ ✓ src/divider/__tests__/divider.test.ts  (6 tests) 225ms
+ ✓ src/icon/__tests__/icon.test.ts  (10 tests) 309ms
+ ✓ src/pagination/__tests__/pagination-state.test.ts  (5 tests) 147ms
+ ✓ src/select/__tests__/select-virtual-tags.test.ts  (3 tests) 1039ms
+ ✓ src/form/__tests__/form-item-protocol.test.ts  (4 tests) 137ms
+ ✓ src/tree/__tests__/tree-index.test.ts  (7 tests) 56ms
+ ✓ src/picker-core/__tests__/selection.test.ts  (9 tests) 3ms
+ ✓ src/flex/__tests__/flex.test.ts  (4 tests) 64ms
+ ✓ src/select/__tests__/virtual-options.test.ts  (7 tests) 90ms
+ ✓ src/tree/__tests__/tree-check.test.ts  (5 tests) 172ms
+ ✓ src/grid/__tests__/grid.test.ts  (6 tests) 39ms
+ ✓ src/utils/__tests__/use-roving-focus.test.ts  (3 tests) 6ms
+ ✓ src/select/__tests__/select-virtual.test.ts  (8 tests) 3674ms
+ ✓ src/utils/__tests__/use-stable-id.test.ts  (4 tests) 46ms
+ ✓ src/utils/__tests__/use-collection.test.ts  (2 tests) 5ms
+ ✓ src/tree-select/__tests__/tree-checkable.test.ts  (3 tests) 318ms
+ ✓ src/splitter/__tests__/solver.test.ts  (5 tests) 4ms
+ ✓ src/tree/__tests__/tree-linked.test.ts  (3 tests) 166ms
+ ✓ src/picker-core/__tests__/calendar.test.ts  (3 tests) 7ms
+ ✓ src/date-picker/__tests__/date-picker.ssr.test.ts  (3 tests) 72ms
+ ✓ src/utils/__tests__/use-floating-position.ssr.test.ts  (1 test) 7ms
+ ✓ src/utils/__tests__/use-trigger-aria.test.ts  (2 tests) 50ms
+ ✓ src/cascader/__tests__/overlay-controls.ssr.test.ts  (2 tests) 28ms
+ ✓ src/table/__tests__/table-radio-rejection.test.ts  (1 test) 79ms
+ ✓ src/select/__tests__/select-virtual.ssr.test.ts  (3 tests) 106ms
+ ✓ src/date-picker/__tests__/date-utils.test.ts  (3 tests) 3ms
+ ✓ src/time-picker/__tests__/time-picker.ssr.test.ts  (1 test) 26ms
+ ✓ src/utils/__tests__/use-prop-presence.test.ts  (1 test) 21ms
+
+ Test Files  81 passed (81)
+      Tests  1153 passed (1153)
+   Start at  07:07:21
+   Duration  17.39s (transform 5.01s, setup 51ms, collect 28.95s, tests 51.94s, environment 55.83s, prepare 6.02s)
+
+
+> @aheart-ui/dnd@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+
+ ✓ src/__tests__/sortable-list-live-region.test.ts  (5 tests) 142ms
+ ✓ src/__tests__/dnd.test.ts  (39 tests) 369ms
+
+ Test Files  2 passed (2)
+      Tests  44 passed (44)
+   Start at  07:07:40
+   Duration  1.98s (transform 516ms, setup 0ms, collect 1.14s, tests 511ms, environment 1.17s, prepare 325ms)
+
+
+> @aheart-ui/ai@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/ai
+
+ ✓ src/__tests__/package.test.ts  (1 test) 2ms
+ ✓ src/__tests__/qg4-a11y-guardrails.test.ts  (4 tests) 16ms
+ ✓ src/__tests__/form-schema.test.ts  (10 tests) 7ms
+ ✓ src/__tests__/primitives.test.ts  (5 tests) 27ms
+ ✓ src/__tests__/chat-panel.test.ts  (10 tests) 110ms
+ ✓ src/__tests__/form.test.ts  (21 tests) 204ms
+ ✓ src/__tests__/agent-workbench.test.ts  (15 tests) 268ms
+
+ Test Files  7 passed (7)
+      Tests  66 passed (66)
+   Start at  07:07:44
+   Duration  1.50s (transform 792ms, setup 0ms, collect 2.17s, tests 634ms, environment 2.06s, prepare 546ms)
+
+TAP version 13
+# Subtest: temporary gate repository pins the workspace package manager
+ok 1 - temporary gate repository pins the workspace package manager
+  ---
+  duration_ms: 72.079625
+  ...
+# Subtest: real orchestration runs both builds with the installed workspace pnpm while Corepack is cold and offline
+ok 2 - real orchestration runs both builds with the installed workspace pnpm while Corepack is cold and offline
+  ---
+  duration_ms: 639.007375
+  ...
+# Subtest: snapshots every file in all generated directories with relative paths and SHA-256
+ok 3 - snapshots every file in all generated directories with relative paths and SHA-256
+  ---
+  duration_ms: 5.850458
+  ...
+# Subtest: identical snapshots produce no differences regardless of insertion order
+ok 4 - identical snapshots produce no differences regardless of insertion order
+  ---
+  duration_ms: 0.163583
+  ...
+# Subtest: identifies added, removed, and changed files in deterministic order
+ok 5 - identifies added, removed, and changed files in deterministic order
+  ---
+  duration_ms: 0.21225
+  ...
+# Subtest: mismatched snapshots throw a readable status report with paths
+ok 6 - mismatched snapshots throw a readable status report with paths
+  ---
+  duration_ms: 0.219709
+  ...
+# Subtest: preflight rejects a staged change even when the worktree is restored to HEAD
+ok 7 - preflight rejects a staged change even when the worktree is restored to HEAD
+  ---
+  duration_ms: 143.679458
+  ...
+# Subtest: preflight rejects a staged new file before a build can delete it
+ok 8 - preflight rejects a staged new file before a build can delete it
+  ---
+  duration_ms: 108.86925
+  ...
+# Subtest: preflight rejects an ignored generated file before a build can delete it
+ok 9 - preflight rejects an ignored generated file before a build can delete it
+  ---
+  duration_ms: 116.104459
+  ...
+# Subtest: writes sorted SHA-256 manifests and a readable comparison when builds differ
+ok 10 - writes sorted SHA-256 manifests and a readable comparison when builds differ
+  ---
+  duration_ms: 535.9545
+  ...
+# Subtest: persists and tees build 1 stdout, stderr, exit status, and accurate failure stage
+ok 11 - persists and tees build 1 stdout, stderr, exit status, and accurate failure stage
+  ---
+  duration_ms: 349.927167
+  ...
+# Subtest: persists and tees build 2 failure after recording the completed first build
+ok 12 - persists and tees build 2 failure after recording the completed first build
+  ---
+  duration_ms: 541.559375
+  ...
+# Subtest: reports snapshot 1 capture failure after build 1 completes successfully
+ok 13 - reports snapshot 1 capture failure after build 1 completes successfully
+  ---
+  duration_ms: 321.0925
+  ...
+# Subtest: reports snapshot 2 capture failure after both builds complete successfully
+ok 14 - reports snapshot 2 capture failure after both builds complete successfully
+  ---
+  duration_ms: 529.838292
+  ...
+# Subtest: preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts
+ok 15 - preserves split UTF-8 stdout and stderr in both terminal mirror and artifacts
+  ---
+  duration_ms: 191.486083
+  ...
+# Subtest: reports postflight failure after two matching snapshots and preserves both build results
+ok 16 - reports postflight failure after two matching snapshots and preserves both build results
+  ---
+  duration_ms: 552.864167
+  ...
+# Subtest: accepts an empty generated-file list
+ok 17 - accepts an empty generated-file list
+  ---
+  duration_ms: 0.58075
+  ...
+# Subtest: rejects untracked generated files
+ok 18 - rejects untracked generated files
+  ---
+  duration_ms: 0.172209
+  ...
+# Subtest: rejects staged tracked changes in generated directories
+ok 19 - rejects staged tracked changes in generated directories
+  ---
+  duration_ms: 180.824375
+  ...
+# Subtest: rejects unstaged tracked changes in generated directories
+ok 20 - rejects unstaged tracked changes in generated directories
+  ---
+  duration_ms: 114.50125
+  ...
+# Subtest: rejects ignored untracked files in generated directories
+ok 21 - rejects ignored untracked files in generated directories
+  ---
+  duration_ms: 100.172708
+  ...
+# Subtest: uploads both tracked diff layers and build manifests on build gate failure
+ok 22 - uploads both tracked diff layers and build manifests on build gate failure
+  ---
+  duration_ms: 2.571958
+  ...
+# Subtest: keeps the quality plan entry point aligned with the four-role gate
+ok 23 - keeps the quality plan entry point aligned with the four-role gate
+  ---
+  duration_ms: 0.228208
+  ...
+# Subtest: retains uniquely named e2e evidence for successful and failed runs
+ok 24 - retains uniquely named e2e evidence for successful and failed runs
+  ---
+  duration_ms: 0.366833
+  ...
+# Subtest: runs QG5 production specs in independent browser project shards
+ok 25 - runs QG5 production specs in independent browser project shards
+  ---
+  duration_ms: 0.296083
+  ...
+# Subtest: always uploads per-project QG5 Playwright evidence with run identity
+ok 26 - always uploads per-project QG5 Playwright evidence with run identity
+  ---
+  duration_ms: 0.189916
+  ...
+# Subtest: allows repeatable QG5 baseline collection on master without weakening push and PR checks
+ok 27 - allows repeatable QG5 baseline collection on master without weakening push and PR checks
+  ---
+  duration_ms: 0.117875
+  ...
+# Subtest: exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point
+ok 28 - exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point
+  ---
+  duration_ms: 0.158
+  ...
+# Subtest: Chinese docs shell and component status copy stay localized
+ok 29 - Chinese docs shell and component status copy stay localized
+  ---
+  duration_ms: 17.25725
+  ...
+# Subtest: DnD docs use visible handles and assign physical iOS touch evidence to QG5
+ok 30 - DnD docs use visible handles and assign physical iOS touch evidence to QG5
+  ---
+  duration_ms: 4.061333
+  ...
+# Subtest: D2 overlay helpers stay internal and ship paired ESM and CommonJS files
+ok 31 - D2 overlay helpers stay internal and ship paired ESM and CommonJS files
+  ---
+  duration_ms: 2.383417
+  ...
+# Subtest: components loads through ESM and CommonJS entrypoints
+ok 32 - components loads through ESM and CommonJS entrypoints
+  ---
+  duration_ms: 297.654625
+  ...
+# Subtest: dnd loads through ESM and CommonJS entrypoints
+ok 33 - dnd loads through ESM and CommonJS entrypoints
+  ---
+  duration_ms: 20.174708
+  ...
+# Subtest: ai loads through ESM and CommonJS entrypoints
+ok 34 - ai loads through ESM and CommonJS entrypoints
+  ---
+  duration_ms: 16.168958
+  ...
+# Subtest: dnd package exports resolve consumer types for business records and standalone values
+ok 35 - dnd package exports resolve consumer types for business records and standalone values
+  ---
+  duration_ms: 805.554459
+  ...
+# Subtest: Pages deploys only an exact master SHA whose CI workflow succeeded
+ok 36 - Pages deploys only an exact master SHA whose CI workflow succeeded
+  ---
+  duration_ms: 4.64175
+  ...
+# Subtest: picker core loads through native ESM with external Dayjs plugins
+ok 37 - picker core loads through native ESM with external Dayjs plugins
+  ---
+  duration_ms: 25.564291
+  ...
+# Subtest: public picker types do not expose internal Dayjs helpers
+ok 38 - public picker types do not expose internal Dayjs helpers
+  ---
+  duration_ms: 1.227958
+  ...
+# Subtest: builds the docs and serves the production preview on the requested port
+ok 39 - builds the docs and serves the production preview on the requested port
+  ---
+  duration_ms: 1.4325
+  ...
+# Subtest: uses AHEART_E2E_PORT with 5173 as the default everywhere
+ok 40 - uses AHEART_E2E_PORT with 5173 as the default everywhere
+  ---
+  duration_ms: 0.157709
+  ...
+# Subtest: never reuses an unknown local server for production verification
+ok 41 - never reuses an unknown local server for production verification
+  ---
+  duration_ms: 0.075875
+  ...
+# Subtest: runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit
+not ok 42 - runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit
+  ---
+  duration_ms: 1.810375
+  location: '/Users/start/.codex/worktrees/091b/aheart-ui/scripts/playwright-config.test.mjs:29:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly\]/. Input:
+    
+    "import { defineConfig, devices } from '@playwright/test'\n" +
+      '\n' +
+      "const port = process.env.AHEART_E2E_PORT ?? '5173'\n" +
+      'const qg2Only = /dnd-splitter\\.spec\\.ts/\n' +
+      'const qg5Only = /cross-browser-production\\.spec\\.ts/\n' +
+      'const qg5R1Only = /cross-browser-r1\\.spec\\.ts/\n' +
+      'const formEngineOnly = /form-engine\\.spec\\.ts/\n' +
+      'const d4IframeOnly = /d4-iframe\\.spec\\.ts/\n' +
+      'const d4SelectionOnly = /d4-selection\\.spec\\.ts/\n' +
+      'const d4VirtualOnly = /d4-select-virtual\\.spec\\.ts/\n' +
+      'const d5TableOnly = /d5-table-pagination\\.spec\\.ts/\n' +
+      'const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly]\n' +
+      "const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }\n" +
+      '\n' +
+      'export default defineConfig({\n' +
+      "  testDir: './e2e',\n" +
+      '  timeout: 30_000,\n' +
+      '  workers: process.env.CI ? 1 : undefined,\n' +
+      "  reporter: 'html',\n" +
+      '  use: {\n' +
+      '    baseURL: `http://127.0.0.1:${port}`,\n' +
+      "    trace: 'retain-on-failure',\n" +
+      "    video: 'retain-on-failure',\n" +
+      "    screenshot: 'only-on-failure'\n" +
+      '  },\n' +
+      '  projects: [\n' +
+      "    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },\n" +
+      "    { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },\n" +
+      "    { name: 'desktop-firefox', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },\n" +
+      "    { name: 'desktop-webkit', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },\n" +
+      "    { name: 'mobile-webkit', testMatch: crossBrowserTests, use: { ...devices['iPhone 13'], browserName: 'webkit' } }\n" +
+      '  ],\n' +
+      '  webServer: {\n' +
+      '    command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,\n' +
+      '    url: `http://127.0.0.1:${port}`,\n' +
+      '    reuseExistingServer: false,\n' +
+      '    timeout: 120_000\n' +
+      '  }\n' +
+      '})\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    import { defineConfig, devices } from '@playwright/test'
+    
+    const port = process.env.AHEART_E2E_PORT ?? '5173'
+    const qg2Only = /dnd-splitter\.spec\.ts/
+    const qg5Only = /cross-browser-production\.spec\.ts/
+    const qg5R1Only = /cross-browser-r1\.spec\.ts/
+    const formEngineOnly = /form-engine\.spec\.ts/
+    const d4IframeOnly = /d4-iframe\.spec\.ts/
+    const d4SelectionOnly = /d4-selection\.spec\.ts/
+    const d4VirtualOnly = /d4-select-virtual\.spec\.ts/
+    const d5TableOnly = /d5-table-pagination\.spec\.ts/
+    const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly]
+    const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
+    
+    export default defineConfig({
+      testDir: './e2e',
+      timeout: 30_000,
+      workers: process.env.CI ? 1 : undefined,
+      reporter: 'html',
+      use: {
+        baseURL: `http://127.0.0.1:${port}`,
+        trace: 'retain-on-failure',
+        video: 'retain-on-failure',
+        screenshot: 'only-on-failure'
+      },
+      projects: [
+        { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+        { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
+        { name: 'desktop-firefox', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },
+        { name: 'desktop-webkit', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },
+        { name: 'mobile-webkit', testMatch: crossBrowserTests, use: { ...devices['iPhone 13'], browserName: 'webkit' } }
+      ],
+      webServer: {
+        command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,
+        url: `http://127.0.0.1:${port}`,
+        reuseExistingServer: false,
+        timeout: 120_000
+      }
+    })
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/start/.codex/worktrees/091b/aheart-ui/scripts/playwright-config.test.mjs:34:10)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: gives the production preview enough time to build before readiness checks
+ok 43 - gives the production preview enough time to build before readiness checks
+  ---
+  duration_ms: 0.65175
+  ...
+# Subtest: retains failure diagnostics and uses the HTML reporter
+ok 44 - retains failure diagnostics and uses the HTML reporter
+  ---
+  duration_ms: 0.290417
+  ...
+# Subtest: disables the macOS system proxy for local Firefox verification
+ok 45 - disables the macOS system proxy for local Firefox verification
+  ---
+  duration_ms: 0.16
+  ...
+# Subtest: CI installs all browsers and uploads test results and the Playwright report
+ok 46 - CI installs all browsers and uploads test results and the Playwright report
+  ---
+  duration_ms: 0.670458
+  ...
+# Subtest: documents physical iOS Safari evidence without equating it to mobile WebKit automation
+ok 47 - documents physical iOS Safari evidence without equating it to mobile WebKit automation
+  ---
+  duration_ms: 1.412125
+  ...
+# Subtest: documents the two-stage master stability gate and exposes the guide in Chinese navigation
+ok 48 - documents the two-stage master stability gate and exposes the guide in Chinese navigation
+  ---
+  duration_ms: 0.158916
+  ...
+# Subtest: describes always-retained and failure-only browser evidence accurately
+ok 49 - describes always-retained and failure-only browser evidence accurately
+  ---
+  duration_ms: 0.214292
+  ...
+# Subtest: accepts complete physical iOS Safari evidence bound to the reviewed commit
+ok 50 - accepts complete physical iOS Safari evidence bound to the reviewed commit
+  ---
+  duration_ms: 11.539042
+  ...
+# Subtest: rejects simulator and scripted touch evidence
+ok 51 - rejects simulator and scripted touch evidence
+  ---
+  duration_ms: 6.651709
+  ...
+# Subtest: rejects evidence for another commit and missing artifact integrity
+ok 52 - rejects evidence for another commit and missing artifact integrity
+  ---
+  duration_ms: 6.68325
+  ...
+# Subtest: rejects incomplete observable task outcomes
+ok 53 - rejects incomplete observable task outcomes
+  ---
+  duration_ms: 2.769125
+  ...
+# Subtest: requires before and after screenshots plus a session video for every physical task
+ok 54 - requires before and after screenshots plus a session video for every physical task
+  ---
+  duration_ms: 2.022792
+  ...
+# Subtest: rejects duplicate before and after media references
+ok 55 - rejects duplicate before and after media references
+  ---
+  duration_ms: 2.392375
+  ...
+# Subtest: rejects symlinks that can escape the evidence directory
+ok 56 - rejects symlinks that can escape the evidence directory
+  ---
+  duration_ms: 3.5965
+  ...
+# Subtest: binds evidence to the expected repository and branch
+ok 57 - binds evidence to the expected repository and branch
+  ---
+  duration_ms: 1.803542
+  ...
+# Subtest: rejects artifact MIME metadata that does not match its evidence kind and extension
+ok 58 - rejects artifact MIME metadata that does not match its evidence kind and extension
+  ---
+  duration_ms: 2.381125
+  ...
+# Subtest: rejects evidence IDs that can escape the JSON evidence directory
+ok 59 - rejects evidence IDs that can escape the JSON evidence directory
+  ---
+  duration_ms: 2.009375
+  ...
+# Subtest: normalizes GitHub workflow runs and preserves every attempt for flaky detection
+ok 60 - normalizes GitHub workflow runs and preserves every attempt for flaky detection
+  ---
+  duration_ms: 1.599916
+  ...
+# Subtest: keeps missing QG5 project evidence observable instead of silently dropping a run
+ok 61 - keeps missing QG5 project evidence observable instead of silently dropping a run
+  ---
+  duration_ms: 0.08325
+  ...
+# Subtest: collects paginated runs and jobs while filtering to the requested master SHA
+ok 62 - collects paginated runs and jobs while filtering to the requested master SHA
+  ---
+  duration_ms: 0.734875
+  ...
+# Subtest: retries transient GitHub failures with a bounded attempt count
+ok 63 - retries transient GitHub failures with a bounded attempt count
+  ---
+  duration_ms: 6.855417
+  ...
+# Subtest: accepts ten consecutive healthy master runs with zero flaky reruns
+ok 64 - accepts ten consecutive healthy master runs with zero flaky reruns
+  ---
+  duration_ms: 3.0135
+  ...
+# Subtest: rejects an insufficient post-QG5 master window
+ok 65 - rejects an insufficient post-QG5 master window
+  ---
+  duration_ms: 1.305209
+  ...
+# Subtest: rejects a run with a missing or failed browser project
+ok 66 - rejects a run with a missing or failed browser project
+  ---
+  duration_ms: 0.482125
+  ...
+# Subtest: counts a failed attempt followed by success as one flaky run
+ok 67 - counts a failed attempt followed by success as one flaky run
+  ---
+  duration_ms: 0.366792
+  ...
+# Subtest: filters non-master and pre-QG5 runs instead of treating them as passing evidence
+ok 68 - filters non-master and pre-QG5 runs instead of treating them as passing evidence
+  ---
+  duration_ms: 0.259375
+  ...
+# Subtest: rejects incomplete historical attempts instead of hiding them as stable
+ok 69 - rejects incomplete historical attempts instead of hiding them as stable
+  ---
+  duration_ms: 0.652708
+  ...
+# Subtest: only accepts runs for the expected master SHA
+ok 70 - only accepts runs for the expected master SHA
+  ---
+  duration_ms: 0.137541
+  ...
+# Subtest: rejects duplicate or non-contiguous attempt numbers
+ok 71 - rejects duplicate or non-contiguous attempt numbers
+  ---
+  duration_ms: 0.13925
+  ...
+# Subtest: QG5 production suite guards resources, hydration, overlays, and viewport containment
+ok 72 - QG5 production suite guards resources, hydration, overlays, and viewport containment
+  ---
+  duration_ms: 1.236834
+  ...
+# Subtest: collects production errors through a teardown fixture that always attaches evidence
+ok 73 - collects production errors through a teardown fixture that always attaches evidence
+  ---
+  duration_ms: 0.4825
+  ...
+# Subtest: settles prefetch work before navigation and never hides generic cancelled resource failures
+ok 74 - settles prefetch work before navigation and never hides generic cancelled resource failures
+  ---
+  duration_ms: 0.244458
+  ...
+# Subtest: quality matrix registers every Ready component exactly once with release evidence
+ok 75 - quality matrix registers every Ready component exactly once with release evidence
+  ---
+  duration_ms: 308.923291
+  ...
+# Subtest: QG4 matrix records only component-specific accessibility and visual evidence
+ok 76 - QG4 matrix records only component-specific accessibility and visual evidence
+  ---
+  duration_ms: 1.31825
+  ...
+# Subtest: quality matrix uses the planned mutually exclusive risk mapping
+ok 77 - quality matrix uses the planned mutually exclusive risk mapping
+  ---
+  duration_ms: 0.268708
+  ...
+# Subtest: R1 records have current component evidence and product task metadata
+ok 78 - R1 records have current component evidence and product task metadata
+  ---
+  duration_ms: 0.209916
+  ...
+# Subtest: pull request template requires product task and quality matrix review
+ok 79 - pull request template requires product task and quality matrix review
+  ---
+  duration_ms: 1.5575
+  ...
+# Subtest: accepts a complete packed package contract
+ok 80 - accepts a complete packed package contract
+  ---
+  duration_ms: 0.83475
+  ...
+# Subtest: reports missing public metadata and required files
+ok 81 - reports missing public metadata and required files
+  ---
+  duration_ms: 0.107583
+  ...
+# Subtest: rejects unresolved workspace dependency protocols
+ok 82 - rejects unresolved workspace dependency protocols
+  ---
+  duration_ms: 0.257208
+  ...
+# Subtest: rejects unexpected packed dependency ranges
+ok 83 - rejects unexpected packed dependency ranges
+  ---
+  duration_ms: 0.083834
+  ...
+# Subtest: rejects Pragmatic DnD auto-scroll dependency drift
+ok 84 - rejects Pragmatic DnD auto-scroll dependency drift
+  ---
+  duration_ms: 0.075959
+  ...
+# Subtest: rejects source and test files from the tarball
+ok 85 - rejects source and test files from the tarball
+  ---
+  duration_ms: 0.148959
+  ...
+# Subtest: D1 state helpers stay internal and ship paired ESM and CommonJS files
+ok 86 - D1 state helpers stay internal and ship paired ESM and CommonJS files
+  ---
+  duration_ms: 1.08375
+  ...
+1..86
+# tests 86
+# suites 0
+# pass 85
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4447.983917
+ ELIFECYCLE  Test failed. See above for more details.

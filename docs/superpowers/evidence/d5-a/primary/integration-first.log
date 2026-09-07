@@ -1,0 +1,155 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/pagination/__tests__/pagination-state.test.ts  (5 tests) 28ms
+ ✓ src/pagination/__tests__/pagination.test.ts  (18 tests) 82ms
+ ✓ src/table/__tests__/table.test.ts  (29 tests) 142ms
+ ❯ src/table/__tests__/table-d5-contracts.test.ts  (23 tests | 6 failed) 159ms
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > server mode preserves response order and emits a shallow currentDataSource copy
+     → expected { key: 'linus', name: 'Linus', …(2) } to be { key: 'linus', name: 'Linus', …(2) } // Object.is equality
+
+If it should pass with deep equality, replace "toBe" with "toStrictEqual"
+
+Expected: { key: 'linus', name: 'Linus', …(2) }
+Received: serializes to the same string
+
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > treats sortOrder null as controlled no-sort and uses the first controlled visible column
+     → expected { Object (column, columnKey, ...) } to match object { columnKey: 'name', order: 'ascend' }
+(7 matching properties omitted from actual)
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps a rejected controlled query and page stable, and accepts asynchronously without a second request
+     → Target cannot be null or undefined.
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserves selected keys across page replacement and keeps selectAll order, deduplication, and arrays independent
+     → expected <input type="checkbox" …(3)></input> to have property "checked" with value false
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps default selection when selectedRowKeys is explicitly undefined, then hands off to controlled state
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserve=false clips only keys absent from raw dataSource, not filter or pagination views
+     → expected undefined to deeply equal [ [ 'grace' ] ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > server mode preserves response order and emits a shallow currentDataSource copy
+AssertionError: expected { key: 'linus', name: 'Linus', …(2) } to be { key: 'linus', name: 'Linus', …(2) } // Object.is equality
+
+If it should pass with deep equality, replace "toBe" with "toStrictEqual"
+
+Expected: { key: 'linus', name: 'Linus', …(2) }
+Received: serializes to the same string
+
+
+Compared values have no visual difference.
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:60:46
+     58|     expect(change?.[3].currentDataSource).not.toBe(response)
+     59|     expect(change?.[3].currentDataSource).toEqual(response)
+     60|     expect(change?.[3].currentDataSource[0]).toBe(response[0])
+       |                                              ^
+     61|   })
+     62| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > treats sortOrder null as controlled no-sort and uses the first controlled visible column
+AssertionError: expected { Object (column, columnKey, ...) } to match object { columnKey: 'name', order: 'ascend' }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "columnKey": "name",
++   "columnKey": "age",
+    "order": "ascend",
+  }
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:85:49
+     83|     expect(wrapper.findAll('th')[1].attributes('aria-sort')).toBe('non…
+     84|     await wrapper.findAll('th')[1].find('button').trigger('click')
+     85|     expect(wrapper.emitted('change')?.[0]?.[2]).toMatchObject({ column…
+       |                                                 ^
+     86|   })
+     87| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps a rejected controlled query and page stable, and accepts asynchronously without a second request
+AssertionError: Target cannot be null or undefined.
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:126:39
+    124|     await nextTick()
+    125|     expect(wrapper.find('.aheart-pagination__page.is-active').text()).…
+    126|     expect(wrapper.emitted('change')).toHaveLength(1)
+       |                                       ^
+    127|   })
+    128| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserves selected keys across page replacement and keeps selectAll order, deduplication, and arrays independent
+AssertionError: expected <input type="checkbox" …(3)></input> to have property "checked" with value false
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:264:72
+    262|     firstSelectAll[2].push(rows[2])
+    263|     await wrapper.find('.aheart-pagination__next').trigger('click')
+    264|     expect(wrapper.findAll('tbody input[type="checkbox"]')[0].element)…
+       |                                                                        ^
+    265|     await wrapper.findAll('tbody input[type="checkbox"]')[0].setValue(…
+    266|     expect(wrapper.emitted('update:selectedRowKeys')?.at(-1)).toEqual(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > keeps default selection when selectedRowKeys is explicitly undefined, then hands off to controlled state
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:273:96
+    271|       props: { columns, dataSource: rows, rowSelection: { defaultSelec…
+    272|     })
+    273|     expect((wrapper.find('tbody input[type="checkbox"]').element as HT…
+       |                                                                                                ^
+    274|     await wrapper.setProps({ rowSelection: { selectedRowKeys: ['linus'…
+    275|     expect(wrapper.findAll('tbody input[type="checkbox"]').map((input)…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/table/__tests__/table-d5-contracts.test.ts > Table D5-A contracts > preserve=false clips only keys absent from raw dataSource, not filter or pagination views
+AssertionError: expected undefined to deeply equal [ [ 'grace' ] ]
+
+- Expected: 
+Array [
+  Array [
+    "grace",
+  ],
+]
+
++ Received: 
+undefined
+
+ ❯ src/table/__tests__/table-d5-contracts.test.ts:301:63
+    299|     await wrapper.setProps({ dataSource: rows.filter((row) => row.key …
+    300|     await nextTick()
+    301|     expect(wrapper.emitted('update:selectedRowKeys')?.at(-1)).toEqual(…
+       |                                                               ^
+    302|   })
+    303| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  6 failed | 69 passed (75)
+   Start at  06:59:54
+   Duration  826ms (transform 514ms, setup 0ms, collect 1.20s, tests 411ms, environment 825ms, prepare 235ms)
+
+undefined
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run src/table/__tests__ src/pagination/__tests__ --environment jsdom

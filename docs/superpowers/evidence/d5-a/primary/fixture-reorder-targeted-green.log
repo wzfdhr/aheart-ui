@@ -1,0 +1,46 @@
+
+[WebServer] (node:25870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:25882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] (node:25897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:26730) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:26748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+[1/12] [desktop] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[2/12] [desktop] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+[3/12] [desktop] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[4/12] [desktop] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+[5/12] [desktop] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[6/12] [desktop] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+[7/12] [mobile] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[8/12] [mobile] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+[9/12] [mobile] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[10/12] [mobile] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+[11/12] [mobile] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[12/12] [mobile] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+  3 skipped
+  9 passed (29.0s)
