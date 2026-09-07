@@ -239,6 +239,7 @@ test('coarse-pointer controls provide reachable touch targets and reveal cascade
   await expectTouchTarget('.aheart-tree__node')
 
   await page.goto('/components/cascader')
+  await waitForHydration(page)
   const cascader = page.locator('.aheart-demo-panel').first().locator('.aheart-cascader')
   await expectTouchTarget('.aheart-cascader__trigger')
   await cascader.getByRole('combobox').click()
