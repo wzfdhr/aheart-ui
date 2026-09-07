@@ -1,8 +1,18 @@
 # D4 API 与内部架构专项评审
 
+## 当前状态
+
+A兼容API、B隔离评估及C仅Select静态TanStack接入均已获对应产品验收；Select的virtual默认false及height/estimateSize/overscan已经实现，不再待批准。最终C指纹1f7b2f22…505bd9，完整本地E2E449通过/127既有skip。见[C产品裁定](../reviews/2026-09-07-d4-c-product-review.md)和[原D4交付矩阵](../reviews/2026-09-07-d4-delivery-matrix.md)。
+
+本次允许Draft PR留存并检查远端CI，未授权合并或D5。其他三组件虚拟化不是已完成项，也不因仅Select批准而变成用户已批准延期。桌面Web为主、手机网站辅助兼容，不新增原生App或额外物理设备门禁。
+
+## 原评审与实施锁定记录（历史）
+
+下文保留当时的分组授权、推荐契约和基线，不作为当前待批准清单；当前有效状态以上节及逐项交付矩阵为准。
+
 状态：用户回复“按照你规划继续”，A组下述兼容公共API已获授权，现进入失败测试→实现→验收。B组仅成熟引擎隔离适配验证获批，可在隔离目录安装评估依赖；核心包正式依赖、虚拟化props/default策略和自动开启仍未批准。执行顺序A验收→B隔离验证。
 
-## 推荐契约
+### 当时推荐契约
 
 1. Tree 新增 `checkStrictly`，默认 true，保持现有独立勾选；显式 false 开启父子联动和派生半选。`checkedKeys` 保持 key 数组，`check` 事件保留原 keys/node 参数并追加可选信息 `{ halfCheckedKeys }`。禁用节点作为联动边界，不改变其子树的值。
 2. TreeNodeData 新增 `isLeaf?: boolean`；Tree 新增 `loadData(node, { signal }) => Promise<TreeNodeData[] | void>`。返回 children 时存内部数据补丁，返回 void 时等待调用方更新 treeData。加载去重、失败可重试、数据替换/卸载使旧任务失效；不修改调用方 treeData。
@@ -11,7 +21,7 @@
 5. Select 首先修复 IME 与 typed-key 活动项，不改已有 props/events。大列表方案先测量原始渲染开销与虚拟化体积；必要的 virtual/listHeight/itemHeight API 和依赖只在精确评估后单独确认，不直接安装新依赖。
 6. DOM 身份区分数字 1 与字符串 '1'；不把 String(key) 当内部身份。实际 treeitem 具有稳定 ID、层级、位置与 setsize，TreeSelect 不再用运行时扫描给节点补 ID。
 
-## 审核与验收
+### 当时审核与验收
 
 - typed key、重复 key、深层数据、数据替换及祖先折叠的焦点恢复。
 - 父/子勾选、半选、strict 模式、禁用子树、受控父接受/拒绝。
@@ -22,14 +32,14 @@
 
 实施锁定：checkStrictly默认true；false下从已接受checkedKeys派生父子和半选，禁用节点及其后代是隔离边界，保留其原有显式keys；半选不进入checkedKeys。check事件保留(keys,node)并追加{halfCheckedKeys}。加载不修改输入树，按typed key去重；收起、替换数据/loader、禁用、卸载取消请求并忽略迟到结果；失败保持可重试，isLeaf=true不触发加载。返回void等待调用方更新treeData，不伪造children。受控父层拒绝展开/勾选时保持已接受UI状态。Tree模型先稳定，再由TreeSelect复用；不借搜索过滤改变原树联动边界。
 
-## 已完成的内部批次
+### 当时已完成的内部批次
 
 - Tree/TreeSelect 共用 typed-key 索引与迭代过滤，真实焦点节点承担完整 treeitem 语义；禁用祖先成为事件边界。
 - Select 使用稳定 value key 维持 active option，IME 期间不误选/关闭，compositionend 只提交最终搜索值。
 - Cascader 使用 typed path token，补齐 Enter/ArrowUp，options 替换和路径切换会隔离旧 lazy 结果，失败状态可见并可点击或 Enter 重试。
 - 窄屏 Cascader 两列适配视口，三列以上保留横向滚动；桌面与 390×844 运行时截图已复核。
 
-## 大列表测量与待批范围
+### 当时大列表测量与待批范围
 
 本机 jsdom 同进程基线（仅用于方案比较，不作为跨机器硬阈值）：
 

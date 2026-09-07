@@ -11,20 +11,26 @@
 
 ## D4 选择与树形组件
 
+当前：A兼容API、B隔离评估、C仅Select虚拟化已分别通过产品验收，见[逐项交付矩阵](../reviews/2026-09-07-d4-delivery-matrix.md)。这不改变原总目标；剩余范围必须明示，Draft PR只是已授权留存，不是完整D4/合并放行。
+
 - [x] Tree 共用 typed key 节点索引、父子关系、可见节点列表。
 - [x] 实际焦点节点承担 treeitem；aria-level/posinset/setsize 完整。
-- [ ] 父子联动勾选、半选、严格模式、禁用边界和异步加载。
+- [x] 父子联动勾选、半选、严格模式、禁用边界和异步加载（A批产品验收）。
 - [x] TreeSelect 复用 Tree 索引/状态，消除重复 flatten 与活动项 DOM 补丁。
 - [x] Cascader 左右、Enter、Home/End、活动路径恢复完整。
 - [x] Cascader lazy pending/error/retry 与过期响应隔离。
-- [ ] Cascader `loadData` AbortSignal 公共契约。
+- [x] Cascader `loadData` AbortSignal 公共契约（A批产品验收，保留旧一参回调兼容）。
 - [x] Select 稳定 active option、组合输入法与禁用项边界。
 - [x] 大列表基线已测量：10k Select/Cascader 首次展开约 1.44s/1.22s，均渲染 10k DOM；确认需要窗口化而非继续微调全量渲染。
 - [x] 真实Chromium开发模式1k/5k/10k基线与固定32px、动态32/46px对照，源码哈希/浏览器版本/截图已保存；不将此前jsdom耗时当成生产浏览器数据。
 - [x] 基线发现Select20键跳40项和活动项不可见，已内部修复；候选709de18通过独立开发、测试经理和设计复核，两项问题由2026-09-07-d4-select-keyboard-product-review.md正式批准关闭。
-- [x] 完整既定门禁已执行；修复前409 E2E通过/127平台skip，修复后按Select影响范围14 E2E、1080单测、确定性构建和pack重新独立验证，详见2026-09-07-d4-full-gates.md。
-- [ ] 虚拟化 API、依赖体积与实现方案审批；实施时保留键盘、SSR 与动态高度契约。
-- [x] 成熟引擎优先选型初评：TanStack Vue Virtual、vue-virtual-scroller与无依赖方案，已核对能力/包元数据并列实际适配成本、CJS风险、体积测量边界和推荐；尚未安装依赖或批准接入。
+- [x] 本地完整既定门禁已执行：最终C components1121、全量E2E449通过/127既有skip、types/确定性/pack通过。此前409 E2E、1080单测等保留于历史报告，不改标为当前结果。
+- [ ] 原D4虚拟化总体范围闭合：API、依赖体积与方案须按实际授权审批，保留键盘、SSR、动态高度契约。
+  - [x] Select子集已批准并实现：静态TanStack、默认false、height/estimateSize/overscan；真实生产体积/36场景/4组hydrate与产品验收完成。
+  - [ ] Tree、TreeSelect、Cascader虚拟化未实现；是否补齐或如何调整原D4范围仍待明确产品决定，不能当作用户已批准延期。
+- [x] 成熟引擎优先选型：初评比较三方案，B已完成TanStack隔离评估，C已获准并完成仅Select静态接入。各阶段“当时尚未安装”属于历史，不是当前状态。
+- [ ] Draft PR留存、远端CI全绿及完整D4剩余范围说明。
+- [ ] 产品经理最终合并裁定，以及获准合并后的master CI/Pages验证；不提前开始D5。
 
 ## D5 Table / Pagination
 

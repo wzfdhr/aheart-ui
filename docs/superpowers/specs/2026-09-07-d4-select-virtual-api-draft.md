@@ -1,14 +1,14 @@
-# Select virtual API 规格（正式Select接入已授权）
+# Select virtual API 规格（已实现并通过C批产品验收）
 
 ## 2026-09-07 正式授权与定稿
 
-用户对产品经理方案明确回复“是”：批准仅Select静态接入TanStack，默认false、显式开启、动态行高测量，并接受默认关闭仍可能有包成本。采用下文小范围`virtual`配置及288/32/3默认，数字校验/回退，不公开上游实例。依赖起点Vue Virtual3.13.36（核心解析3.17.8），使用pnpm9.15.4及既有ESM/CJS分发。以下早期“待选择/草案”段落保留为决策历史，现本节优先；不再重复索要同一授权。独立可选入口、自动开启、Tree/TreeSelect/Cascader不在本批；真实组件收益和最终D4合并仍须验证与产品裁定。
+用户已批准并完成仅Select静态TanStack接入，C批已通过[产品验收](../reviews/2026-09-07-d4-c-product-review.md)。virtual默认false、显式开启、动态测量，使用下文公开类型及288/32/3默认，数字校验/回退，不公开上游实例。依赖Vue Virtual3.13.36（核心3.17.8），pnpm9.15.4及既有ESM/CJS分发。独立可选入口、自动开启、Tree/TreeSelect/Cascader虚拟化不在已授权C批，不代表这些原路线图项已获批准延期。Draft PR留存已授权，完整D4范围与远端CI/合并裁定仍待核对。
 
-B隔离验证已获产品验收，不等于核心依赖/API/默认加载策略获准。用户仍需选择静态TanStack依赖或独立可选入口；本草案不安装依赖、不改源码或产物。先仅Select，其他三个组件不随本草案自动接入。
+当前证据：122文件指纹1f7b2f22…505bd9；components1121、完整E2E449通过/127既有skip、真实consumer36场景及4组hydrate通过。桌面Web专业工具为主，手机网站辅助兼容；保留本批矩阵，不新增原生App或额外实体手机门禁。
 
-## 推荐接口与本地风格
+## 已实现接口与本地风格
 
-沿用`select/types.ts`中`SelectXxx`类型命名、`selectProps`与根/组件barrel显式导出风格，拟定：
+沿用`select/types.ts`中`SelectXxx`类型命名、`selectProps`与根/组件barrel显式导出风格，当前接口：
 
 ```ts
 export interface SelectVirtualConfig {
@@ -20,9 +20,9 @@ export type SelectVirtual = boolean | SelectVirtualConfig
 // Select props: virtual?: SelectVirtual
 ```
 
-`virtual=false`为默认；未提供/undefined不启用。`true`与`{}`均显式启用默认配置。只解释该字段，不新增ConfigProvider自动全局开关，不根据options数量切换。名称是待审草案，不是现有可调用API，不直接暴露TanStack实例或上游所有参数。
+`virtual=false`为默认；未提供/undefined不启用。`true`与`{}`均显式启用默认配置。没有新增ConfigProvider自动全局开关，也不根据options数量切换。类型已从根/组件barrel导出并随es/lib分发，不直接暴露TanStack实例或上游所有参数。
 
-| 参数 | 草案默认 | 约束与语义 |
+| 参数 | 默认 | 约束与语义 |
 | --- | ---: | --- |
 | height | 288 | 有限正数，单位CSS px；窗口目标上限，不撑高空列表。实际高度同时受内容总高、popup可用空间和现有视口限制约束 |
 | estimateSize | 32 | 有限正数，单位CSS px；仅未测量选项的初始估计，不是固定行高，不覆盖用户optionRender内容 |
@@ -30,7 +30,7 @@ export type SelectVirtual = boolean | SelectVirtualConfig
 
 默认数字来自本地样式：`select/style.css`popup外框上限288px、桌面option最小32px。`height`沿用外框上限口径，内部窗口须扣除padding/border，不叠加第二个288px滚动容器；现有list的2px间距单独计入布局，不把它误算成option测量高度。移动粗指针option最小44px，不能强制32px裁切；首轮SSR/client共用32px估计，mount后以真实元素测量修正，调用方可显式使用相同的44px估计。`height`不会取消当前窄屏/可用空间上限。
 
-拟议无效输入处理：配置字段NaN/Infinity/非正高度/非整数overscan回退各自默认，开发模式告警，生产不因可选优化配置抛错；`virtual`为null/数组/其他错误运行时类型时回退false。类型检查与运行时校验都需测试；该容错规则同样待API审核。不开启时忽略配置且保留现有完整DOM路径，不改事件签名、modelValue或搜索/选中语义。
+无效输入处理：配置字段NaN/Infinity/非正高度/非整数overscan回退各自默认，开发源码模式告警，生产不因可选优化配置抛错；`virtual`为null/数组/其他错误运行时类型时回退false。类型与数值回退已验证。不开启时保留现有完整DOM路径，不改事件签名、modelValue或搜索/选中语义。
 
 ## 内部适配契约
 
@@ -41,13 +41,15 @@ export type SelectVirtual = boolean | SelectVirtualConfig
 - 服务端和客户端首轮使用相同初始窗口/ID/估算配置，不从window媒体查询生成不同首轮树。defaultOpen和已选尾项要单独验证hydrate再定位；不得共享跨SSR请求缓存。
 - 使用popup所在ownerDocument/defaultView，关闭/重开、禁用、移除及iframe卸载须停止观察和迟到定位；复用现有弹层焦点/事件边界。
 
-## 接入方式待选择
+## 已选择的静态接入与成本
 
-推荐静态TanStack适配作为最小单组件批次，但需明确接受默认消费引擎代码成本：`virtual=false`只保持运行行为，不保证构建移除依赖。B的external Vue入口约6.8KiB gzip不是未来真实Select增量承诺，正式产物必须复测。
+已采用用户批准的静态TanStack适配。`virtual=false`不保证构建移除依赖；真实同入口消费者默认关闭时JS gzip增加8440字节、CSS增加30字节。该口径含消费者与Vue，不是任意应用固定增量；B的external Vue约6.8KiB不再作为正式接入成本估算。只消费Button的入口未包含引擎。
 
-若用户要求默认入口零新增引擎成本，则先审可选入口/包边界方案，包括用户导入方式、ESM/CJS/types、CSS共享和SSR入口；不可在本轮自行新增包或以异步导入掩盖首开/SSR代价。这两个选择在用户决定前均不实施。
+独立可选入口是未采用的备选方案，没有在本批实施。后续如产品改为要求默认零新增成本，须重新评审导入方式、ESM/CJS/types、CSS共享和SSR入口，不能用当前默认false承诺零成本。
 
-## 获准后的RED→GREEN与验收清单
+## 实现与验证检查维度
+
+以下保留原检查维度，C受批准范围已经验收；逐项专项证据及仍需明确的范围以[交付矩阵](../reviews/2026-09-07-d4-delivery-matrix.md)为准，不因测试总数全绿就声称每个边界有独立专项覆盖。
 
 1. 参数与类型：false/true/空配置、边界和无效值、类型/barrel声明；默认路径DOM/事件不变。先写失败用例，再实现。
 2. 实际Select：固定与任意多行optionRender、single/multiple/tags、disabled、IME、Enter不重复提交、搜索重排/删除active、Home/End及既有支持的其他导航；每步断言active身份、可见性与焦点，不能只数DOM。
@@ -59,4 +61,8 @@ export type SelectVirtual = boolean | SelectVirtualConfig
 
 ## 剩余D4交付梳理
 
-A兼容API及B隔离可行性已获各自产品验收；旧iframe与Select键盘问题按既有产品记录关闭。尚未完成：用户正式接入选择、被批准批次的实现及上述门禁、完整D4最终产品/发布边界裁定、PR/主线CI/Pages验证。虚拟树与多列Cascader属于未来单独范围，不因Select草案默认为必做或已放行；是否纳入D4由产品明确。没有把局部通过当作完整D4合并许可，D5尚未启动。
+A/B/C已分别验收，旧iframe、Select键盘及虚拟空状态问题按产品记录关闭。待完成的是原D4清单剩余范围确认、Draft PR留存与远端CI、最终合并裁定，以及获准合并后的主线/Pages验证。其他三组件虚拟化未完成，不能改写成用户已经批准延期；详见交付矩阵。D5尚未启动。
+
+## 决策历史（已被上述授权与验收替代）
+
+B刚验收时，核心依赖/API/默认加载策略仍未获准，当时只允许准备本草案，曾对比“静态TanStack依赖”与“独立可选入口”。用户后来明确选择静态接入并接受默认包成本，C已实现及验收。保留此历史说明，但不再将“用户仍需选择/未安装依赖/接口不可调用”列为当前状态。

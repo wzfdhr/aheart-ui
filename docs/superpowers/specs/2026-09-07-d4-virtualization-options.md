@@ -1,5 +1,15 @@
 # D4 大列表性能基线与虚拟化选项
 
+## 当前有效结论
+
+B隔离评估与C正式Select静态TanStack接入均已获产品验收。Select的virtual默认false、height/estimateSize/overscan已经实现；默认false真实消费者gzip增量8440字节、CSS增量30字节（本夹具口径）。真实Select36场景及4组hydrate、最终本地完整E2E449通过/127既有skip已独立验证，见[C实施与最终数据](../reviews/2026-09-07-d4-c-implementation.md)。
+
+其他Tree/TreeSelect/Cascader虚拟化尚未完成，不能推断已批准延期；需逐条对照[原D4清单](../reviews/2026-09-07-d4-delivery-matrix.md)明确剩余范围。Draft PR留存已获授权，远端CI/完整D4合并裁定仍待交付检查，尚不合并或启动D5。
+
+## 选型与实验历史
+
+以下“未批准/尚未安装/待确认”等按当时阶段保留，不覆盖上面的当前有效结论。
+
 最新授权：用户“按照你规划继续”已批准成熟引擎优先的B组隔离适配验证，允许在隔离目录安装评估所需依赖；按A实施验收→B隔离验证执行。本文件涉及的核心正式依赖、virtual props/default策略、四组件接入仍未批准。
 
 ## 当前基线
