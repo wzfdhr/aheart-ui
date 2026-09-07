@@ -366,12 +366,15 @@
 .aheart-cascader__option.is-selected { background: var(--aheart-color-primary-bg); color: var(--aheart-color-primary); }
 .aheart-cascader__option:disabled { color: var(--aheart-color-text-secondary); cursor: not-allowed; opacity: .55; }
 .aheart-cascader__option.is-loading { opacity: 1; }
+.aheart-cascader__option.is-error { color: var(--aheart-color-danger); }
+.aheart-cascader__load-error { flex: none; color: var(--aheart-color-danger); font-size: var(--aheart-font-size-sm); }
 .aheart-cascader__search { box-sizing: border-box; inline-size: 100%; min-block-size: var(--aheart-control-height); margin-block-end: var(--aheart-spacing-sm); padding-inline: var(--aheart-spacing-sm); border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-radius); outline: 0; }
 .aheart-cascader__search:focus { border-color: var(--aheart-color-primary-hover); }
 .aheart-cascader__search-results { inline-size: 300px; }
 .aheart-cascader__empty { padding: 24px var(--aheart-spacing-sm); color: var(--aheart-color-text-secondary); text-align: center; }
 @media (prefers-reduced-motion: reduce) { .aheart-cascader__panel, .aheart-cascader__arrow { transition-duration: 0ms; } }
-@media (pointer: coarse) { .aheart-cascader__trigger { min-block-size: 44px; } .aheart-cascader__columns { max-inline-size: calc(100vw - 50px); scroll-behavior: auto; } .aheart-cascader__column { flex-basis: min(180px, calc(100vw - 66px)); inline-size: min(180px, calc(100vw - 66px)); } .aheart-cascader__option { min-block-size: 44px; } .aheart-cascader__clear::before, .aheart-cascader__tag-remove::before { position: absolute; inset: -13px; content: ''; } }
+@media (max-width: 600px) { .aheart-cascader__columns { max-inline-size: calc(100vw - 50px); } .aheart-cascader__column { flex-basis: min(180px, calc((100vw - 66px) / 2)); inline-size: min(180px, calc((100vw - 66px) / 2)); } }
+@media (pointer: coarse) { .aheart-cascader__trigger { min-block-size: 44px; } .aheart-cascader__columns { max-inline-size: calc(100vw - 50px); scroll-behavior: auto; } .aheart-cascader__column { flex-basis: min(180px, calc((100vw - 66px) / 2)); inline-size: min(180px, calc((100vw - 66px) / 2)); } .aheart-cascader__option { min-block-size: 44px; } .aheart-cascader__clear::before, .aheart-cascader__tag-remove::before { position: absolute; inset: -13px; content: ''; } }
 .aheart-config-provider {
   color: var(--aheart-color-text);
   font-size: var(--aheart-font-size);

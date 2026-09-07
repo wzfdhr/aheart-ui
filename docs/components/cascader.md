@@ -60,7 +60,7 @@ const loadData = async () => {
 <template><ACascader :options="options" :load-data="loadData" /></template>
 ```
 
-当选项设置 `isLeaf: false` 且未提供子节点时，组件调用 `loadData` 获取子节点；请求、缓存与错误提示由业务层负责。
+当选项设置 `isLeaf: false` 且未提供子节点时，组件调用 `loadData` 获取子节点。组件会显示加载状态，隔离切换路径、替换 `options`、关闭面板或卸载后的过期响应；失败后显示“重试”，可再次点击或按 Enter 重试。数据请求和持久缓存仍由业务层负责。
 
 ## API
 

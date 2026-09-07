@@ -1,7 +1,8 @@
-import { defineComponent, useAttrs, ref, computed, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow } from "vue";
+import { defineComponent, useAttrs, ref, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, unref, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFormControl, mergeAriaIds } from "../form/control-context.js";
 import Tree from "../tree/index.js";
+import { createTreeIndex, filterTreeIndex, treeKeyToken } from "../tree/tree-index.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
@@ -91,70 +92,51 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const mergedOpen = computed(() => Boolean(openState.state.value));
     const mergedValue = valueState.state;
     const selectedKeys = computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === void 0 ? [] : [mergedValue.value]);
-    const flattenNodes = (nodes) => nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])]);
+    const treeIndex = computed(() => createTreeIndex(props.treeData, Boolean(props.disabled)));
     const displayLabel = computed(() => selectedKeys.value.map((key) => {
       var _a;
-      return (_a = flattenNodes(props.treeData).find((node) => node.key === key)) == null ? void 0 : _a.title;
+      return (_a = treeIndex.value.nodes.get(key)) == null ? void 0 : _a.node.title;
     }).filter((title) => Boolean(title)).join(", "));
     const selectedTags = computed(() => selectedKeys.value.map((key) => {
       var _a;
       return {
         key,
-        title: ((_a = flattenNodes(props.treeData).find((node) => node.key === key)) == null ? void 0 : _a.title) ?? String(key)
+        title: ((_a = treeIndex.value.nodes.get(key)) == null ? void 0 : _a.node.title) ?? String(key)
       };
     }));
     const visibleSelectedTags = computed(() => props.maxTagCount === void 0 ? selectedTags.value : selectedTags.value.slice(0, Math.max(0, props.maxTagCount)));
     const hiddenTagCount = computed(() => selectedTags.value.length - visibleSelectedTags.value.length);
-    const filterNodes = (nodes, query) => nodes.flatMap((node) => {
-      const children = filterNodes(node.children ?? [], query);
-      if (node.title.toLowerCase().includes(query) || children.length)
-        return [{ ...node, children }];
-      return [];
-    });
     const filteredTreeData = computed(() => {
       const query = searchText.value.trim().toLowerCase();
-      return query ? filterNodes(props.treeData, query) : props.treeData;
+      return query ? filterTreeIndex(treeIndex.value, (node) => node.title.toLowerCase().includes(query)) : props.treeData;
     });
+    const filteredTreeIndex = computed(() => createTreeIndex(filteredTreeData.value, Boolean(props.disabled)));
     const activeKey = ref();
-    const nodeId = (key) => `${instanceId}-node-${encodeURIComponent(String(key)).replaceAll("%", "_")}`;
+    const nodeId = (key) => `${treeId}-node-${treeKeyToken(key)}`;
     const activeNodeId = computed(() => {
       if (!mergedOpen.value || activeKey.value === void 0)
         return void 0;
-      return flattenNodes(filteredTreeData.value).some((node) => String(node.key) === String(activeKey.value)) ? nodeId(activeKey.value) : void 0;
+      return filteredTreeIndex.value.nodes.has(activeKey.value) ? nodeId(activeKey.value) : void 0;
     });
-    const syncTreeNodeIds = () => {
-      var _a;
-      for (const element of Array.from(((_a = panelRef.value) == null ? void 0 : _a.querySelectorAll("[data-tree-key]")) ?? [])) {
-        const key = element.dataset.treeKey;
-        if (key !== void 0)
-          element.id = nodeId(key);
-      }
-    };
-    watch([filteredTreeData, mergedOpen], ([, open]) => {
-      if (open)
-        void nextTick(syncTreeNodeIds);
-    }, { flush: "post" });
     const handleTreeFocusin = (event) => {
       var _a;
-      const node = event.target.closest("[data-tree-key]");
-      if ((node == null ? void 0 : node.dataset.treeKey) !== void 0) {
-        const key = node.dataset.treeKey;
-        activeKey.value = ((_a = flattenNodes(filteredTreeData.value).find((item) => String(item.key) === key)) == null ? void 0 : _a.key) ?? key;
-        syncTreeNodeIds();
-      }
+      const token = (_a = event.target.closest("[data-tree-token]")) == null ? void 0 : _a.dataset.treeToken;
+      if (token === void 0)
+        return;
+      activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token);
     };
     const handleTriggerFocusout = () => {
       void nextTick(() => {
-        var _a, _b;
-        const active = document.activeElement;
-        if (!((_a = triggerRef.value) == null ? void 0 : _a.contains(active)) && !((_b = panelRef.value) == null ? void 0 : _b.contains(active)))
+        var _a, _b, _c;
+        const active = ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
           formControl == null ? void 0 : formControl.blur();
       });
     };
-    const searchExpandedKeys = computed(() => flattenNodes(filteredTreeData.value).filter((node) => {
+    const searchExpandedKeys = computed(() => filteredTreeIndex.value.order.filter((key) => {
       var _a;
-      return (_a = node.children) == null ? void 0 : _a.length;
-    }).map((node) => node.key));
+      return Boolean((_a = filteredTreeIndex.value.nodes.get(key)) == null ? void 0 : _a.children.length);
+    }));
     const toggleOpen = () => {
       requestOpen(!mergedOpen.value);
     };
@@ -189,10 +171,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpen(true);
         void nextTick(() => {
           var _a;
-          syncTreeNodeIds();
-          const node = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-key][tabindex="0"]');
-          if ((node == null ? void 0 : node.dataset.treeKey) !== void 0)
-            activeKey.value = node.dataset.treeKey;
+          const node = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-token][tabindex="0"]');
+          const token = node == null ? void 0 : node.dataset.treeToken;
+          if (token !== void 0)
+            activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token);
           node == null ? void 0 : node.focus();
         });
       } else if (event.key === "Escape" && mergedOpen.value) {
@@ -207,9 +189,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
     const teleportReady = useTeleportReady();
     const popupContainer = computed(() => {
+      var _a;
       if (props.getPopupContainer && triggerRef.value)
         return props.getPopupContainer(triggerRef.value);
-      return typeof document === "undefined" ? false : document.body;
+      return ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
     });
     const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
@@ -267,7 +250,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           __props.multiple && selectedTags.value.length ? (openBlock(), createElementBlock("span", _hoisted_2, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(visibleSelectedTags.value, (tag) => {
               return openBlock(), createElementBlock("span", {
-                key: String(tag.key),
+                key: unref(treeKeyToken)(tag.key),
                 class: "aheart-tree-select__tag"
               }, [
                 createElementVNode("span", _hoisted_3, toDisplayString(tag.title), 1),

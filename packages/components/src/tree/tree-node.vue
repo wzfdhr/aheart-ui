@@ -1,24 +1,34 @@
 <template>
   <li
     class="aheart-tree__treeitem"
-    role="treeitem"
-    :aria-label="node.title"
-    :aria-selected="selected"
-    :aria-expanded="hasChildren ? expanded : undefined"
-    :aria-disabled="isDisabled || undefined"
+    role="presentation"
   >
     <div
       class="aheart-tree__node"
+      :id="nodeId"
+      role="treeitem"
+      :aria-label="node.title"
+      :aria-selected="selected"
+      :aria-expanded="hasChildren ? expanded : undefined"
+      :aria-disabled="isDisabled || undefined"
+      :aria-checked="checkable ? checked : undefined"
+      :aria-level="metadata?.level"
+      :aria-posinset="metadata?.position"
+      :aria-setsize="metadata?.setSize"
+      :aria-owns="hasChildren && expanded ? `${nodeId}-group` : undefined"
       :class="{ 'is-expanded': expanded, 'is-selected': selected, 'is-checked': checked, 'is-disabled': isDisabled }"
       :data-tree-key="String(node.key)"
+      :data-tree-token="treeKeyToken(node.key)"
       :tabindex="focused ? 0 : -1"
       @click="$emit('select', node)"
       @keydown="$emit('keydown', $event, node)"
+      @focus="$emit('focus', node)"
     >
       <button
         v-if="hasChildren"
         class="aheart-tree__switcher"
         type="button"
+        tabindex="-1"
         :disabled="isDisabled"
         :aria-label="expanded ? 'Collapse node' : 'Expand node'"
         @click.stop="$emit('toggle', node)"
@@ -30,6 +40,7 @@
         v-if="checkable"
         class="aheart-tree__checkbox"
         type="checkbox"
+        tabindex="-1"
         :checked="checked"
         :disabled="isDisabled"
         :aria-label="`Select ${node.title}`"
@@ -38,7 +49,7 @@
       />
       <span class="aheart-tree__title">{{ node.title }}</span>
     </div>
-    <ul v-if="hasChildren && expanded" class="aheart-tree__group" role="group">
+    <ul v-if="hasChildren && expanded" :id="`${nodeId}-group`" class="aheart-tree__group" role="group">
       <ATreeNode
         v-for="child in node.children"
         :key="child.key"
@@ -49,10 +60,13 @@
         :focused-key="focusedKey"
         :checkable="checkable"
         :parent-disabled="isDisabled"
+        :node-index="nodeIndex"
+        :id-prefix="idPrefix"
         @toggle="$emit('toggle', $event)"
         @select="$emit('select', $event)"
         @check="$emit('check', $event)"
         @keydown="(event, childNode) => $emit('keydown', event, childNode)"
+        @focus="$emit('focus', $event)"
       />
     </ul>
   </li>
@@ -61,6 +75,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TreeKey, TreeNodeData } from './types'
+import { treeKeyToken, type TreeIndex } from './tree-index'
 
 defineOptions({ name: 'ATreeNode' })
 
@@ -72,6 +87,8 @@ const props = defineProps<{
   focusedKey?: TreeKey
   checkable: boolean
   parentDisabled?: boolean
+  nodeIndex: TreeIndex
+  idPrefix: string
 }>()
 
 defineEmits<{
@@ -79,9 +96,12 @@ defineEmits<{
   select: [node: TreeNodeData]
   check: [node: TreeNodeData]
   keydown: [event: KeyboardEvent, node: TreeNodeData]
+  focus: [node: TreeNodeData]
 }>()
 
 const hasChildren = computed(() => Boolean(props.node.children?.length))
+const metadata = computed(() => props.nodeIndex.nodes.get(props.node.key))
+const nodeId = computed(() => `${props.idPrefix}-node-${treeKeyToken(props.node.key)}`)
 const isDisabled = computed(() => Boolean(props.parentDisabled || props.node.disabled))
 const expanded = computed(() => props.expandedKeys.includes(props.node.key))
 const selected = computed(() => props.selectedKeys.includes(props.node.key))

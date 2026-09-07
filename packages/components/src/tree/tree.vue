@@ -11,18 +11,23 @@
         :focused-key="focusedKey"
         :checkable="checkable"
         :parent-disabled="isDisabled"
+        :node-index="treeIndex"
+        :id-prefix="treeId"
         @toggle="toggleExpanded"
         @select="selectNode"
         @check="checkNode"
         @keydown="handleKeydown"
+        @focus="(node) => focusedKey = node.key"
       />
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useAttrs, watch } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
+import { useStableId } from '../utils/use-stable-id'
+import { closestVisibleTreeKey, createTreeIndex, getVisibleTreeNodes, treeKeyToken } from './tree-index'
 import ATreeNode from './tree-node.vue'
 import { treeProps, type TreeKey, type TreeNodeData } from './types'
 import './style.css'
@@ -39,14 +44,16 @@ const emit = defineEmits<{
   check: [keys: TreeKey[], node: TreeNodeData]
 }>()
 const config = useAheartConfig()
+const attrs = useAttrs()
+const treeId = useStableId(() => attrs.id as string | undefined, 'aheart-tree')
+const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
+const treeIndex = computed(() => createTreeIndex(props.treeData, isDisabled.value))
 
-const collectKeys = (nodes: TreeNodeData[]): TreeKey[] => nodes.flatMap((node) => [node.key, ...collectKeys(node.children ?? [])])
-const innerExpandedKeys = ref<TreeKey[]>(props.defaultExpandAll ? collectKeys(props.treeData) : [...props.defaultExpandedKeys])
+const innerExpandedKeys = ref<TreeKey[]>(props.defaultExpandAll ? [...treeIndex.value.order] : [...props.defaultExpandedKeys])
 const innerSelectedKeys = ref<TreeKey[]>([...props.defaultSelectedKeys])
 const innerCheckedKeys = ref<TreeKey[]>([...props.defaultCheckedKeys])
 const focusedKey = ref<TreeKey | undefined>(props.treeData[0]?.key)
 const rootRef = ref<HTMLDivElement>()
-const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const mergedExpandedKeys = computed(() => props.expandedKeys ?? innerExpandedKeys.value)
 const mergedSelectedKeys = computed(() => props.selectedKeys ?? innerSelectedKeys.value)
 const mergedCheckedKeys = computed(() => props.checkedKeys ?? innerCheckedKeys.value)
@@ -54,56 +61,39 @@ const expandedControlled = computed(() => props.expandedKeys !== undefined)
 const selectedControlled = computed(() => props.selectedKeys !== undefined)
 const checkedControlled = computed(() => props.checkedKeys !== undefined)
 
-watch(() => props.treeData, (nodes) => {
-  const visibleNodes = getVisibleNodes(nodes)
-  if (!visibleNodes.some((node) => node.key === focusedKey.value)) {
-    focusedKey.value = visibleNodes[0]?.key
-  }
-})
-
 const hasKey = (keys: TreeKey[], key: TreeKey) => keys.includes(key)
 const replaceKey = (keys: TreeKey[], key: TreeKey, enabled: boolean) => enabled ? hasKey(keys, key) ? keys : [...keys, key] : keys.filter((current) => current !== key)
-const getVisibleNodes = (nodes: TreeNodeData[], output: TreeNodeData[] = []): TreeNodeData[] => {
-  for (const node of nodes) {
-    output.push(node)
-    if (mergedExpandedKeys.value.includes(node.key)) getVisibleNodes(node.children ?? [], output)
-  }
-  return output
+const isNodeDisabled = (key: TreeKey) => Boolean(treeIndex.value.nodes.get(key)?.disabled)
+const visibleNodes = computed(() => getVisibleTreeNodes(treeIndex.value, mergedExpandedKeys.value))
+const visiblePositions = computed(() => new Map(visibleNodes.value.map((entry, position) => [entry.key, position])))
+const findParent = (key: TreeKey) => {
+  const parentKey = treeIndex.value.nodes.get(key)?.parentKey
+  return parentKey === undefined ? undefined : treeIndex.value.nodes.get(parentKey)?.node
 }
-const findParent = (key: TreeKey, nodes = props.treeData, parent?: TreeNodeData): TreeNodeData | undefined => {
-  for (const node of nodes) {
-    if (node.key === key) return parent
-    const result = findParent(key, node.children ?? [], node)
-    if (result) return result
-  }
-}
-watch(mergedExpandedKeys, () => {
-  const visibleNodes = getVisibleNodes(props.treeData)
-  const activeElement = typeof document !== 'undefined' && rootRef.value?.contains(document.activeElement)
-    ? (document.activeElement as HTMLElement).dataset.treeKey
-    : undefined
-  const currentKey = activeElement ?? focusedKey.value
-  if (!visibleNodes.some((node) => String(node.key) === currentKey || node.key === currentKey)) {
-    let nextKey = currentKey === undefined ? undefined : (visibleNodes.find((node) => String(node.key) === currentKey)?.key ?? currentKey)
-    while (nextKey !== undefined && !visibleNodes.some((node) => node.key === nextKey)) {
-      nextKey = findParent(nextKey)?.key
-    }
-    focusedKey.value = nextKey ?? visibleNodes[0]?.key
-    if (focusedKey.value !== undefined) focusNode(focusedKey.value)
-  }
+watch([treeIndex, mergedExpandedKeys], ([index], previous) => {
+  const activeElement = rootRef.value?.ownerDocument.activeElement as HTMLElement | null
+  const hadFocus = Boolean(activeElement && rootRef.value?.contains(activeElement))
+  const oldIndex = previous?.[0] ?? index
+  const activeToken = hadFocus ? activeElement?.closest<HTMLElement>('[data-tree-token]')?.dataset.treeToken : undefined
+  const activeKey = activeToken === undefined ? focusedKey.value : oldIndex.order.find((key) => treeKeyToken(key) === activeToken)
+  const visible = new Set(visibleNodes.value.map((entry) => entry.key))
+  if (activeKey !== undefined && visible.has(activeKey)) return
+  const next = closestVisibleTreeKey(activeKey, index, visible) ?? closestVisibleTreeKey(activeKey, oldIndex, visible) ?? visibleNodes.value[0]?.key
+  focusedKey.value = next
+  if (hadFocus && next !== undefined) focusNode(next)
 })
 const focusNode = (key: TreeKey) => {
   focusedKey.value = key
   nextTick(() => {
     Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
-      .find((element) => element.dataset.treeKey === String(key))
+      .find((element) => element.dataset.treeToken === treeKeyToken(key))
       ?.focus()
   })
 }
 const syncCheckboxes = () => {
   for (const input of Array.from(rootRef.value?.querySelectorAll<HTMLInputElement>('.aheart-tree__checkbox') ?? [])) {
-    const key = input.closest<HTMLElement>('[data-tree-key]')?.dataset.treeKey
-    if (key !== undefined) input.checked = mergedCheckedKeys.value.some((current) => String(current) === key)
+    const token = input.closest<HTMLElement>('[data-tree-token]')?.dataset.treeToken
+    if (token !== undefined) input.checked = mergedCheckedKeys.value.some((key) => treeKeyToken(key) === token)
   }
 }
 const updateExpandedKeys = (keys: TreeKey[], node: TreeNodeData) => {
@@ -112,12 +102,12 @@ const updateExpandedKeys = (keys: TreeKey[], node: TreeNodeData) => {
   emit('expand', keys, node)
 }
 const toggleExpanded = (node: TreeNodeData, force?: boolean) => {
-  if (isDisabled.value || node.disabled || !node.children?.length) return
+  if (isNodeDisabled(node.key) || !node.children?.length) return
   const expanded = force ?? !mergedExpandedKeys.value.includes(node.key)
   updateExpandedKeys(replaceKey(mergedExpandedKeys.value, node.key, expanded), node)
 }
 const selectNode = (node: TreeNodeData) => {
-  if (isDisabled.value || node.disabled || !props.selectable) return
+  if (isNodeDisabled(node.key) || !props.selectable) return
   const selected = mergedSelectedKeys.value.includes(node.key)
   const nextKeys = props.multiple ? replaceKey(mergedSelectedKeys.value, node.key, !selected) : selected ? [] : [node.key]
   if (!selectedControlled.value) innerSelectedKeys.value = nextKeys
@@ -126,7 +116,7 @@ const selectNode = (node: TreeNodeData) => {
   emit('select', nextKeys, node)
 }
 const checkNode = (node: TreeNodeData) => {
-  if (isDisabled.value || node.disabled || !props.checkable) return
+  if (isNodeDisabled(node.key) || !props.checkable) return
   const nextKeys = replaceKey(mergedCheckedKeys.value, node.key, !mergedCheckedKeys.value.includes(node.key))
   if (!checkedControlled.value) innerCheckedKeys.value = nextKeys
   focusedKey.value = node.key
@@ -135,14 +125,14 @@ const checkNode = (node: TreeNodeData) => {
   nextTick(syncCheckboxes)
 }
 const handleKeydown = (event: KeyboardEvent, node: TreeNodeData) => {
-  const visibleNodes = getVisibleNodes(props.treeData)
-  const index = visibleNodes.findIndex((current) => current.key === node.key)
-  if (event.key === 'ArrowDown' && visibleNodes[index + 1]) {
+  const orderedNodes = visibleNodes.value
+  const index = visiblePositions.value.get(node.key) ?? -1
+  if (event.key === 'ArrowDown' && orderedNodes[index + 1]) {
     event.preventDefault()
-    focusNode(visibleNodes[index + 1].key)
-  } else if (event.key === 'ArrowUp' && visibleNodes[index - 1]) {
+    focusNode(orderedNodes[index + 1].key)
+  } else if (event.key === 'ArrowUp' && orderedNodes[index - 1]) {
     event.preventDefault()
-    focusNode(visibleNodes[index - 1].key)
+    focusNode(orderedNodes[index - 1].key)
   } else if (event.key === 'ArrowRight') {
     event.preventDefault()
     if (node.children?.length && !mergedExpandedKeys.value.includes(node.key)) {
@@ -167,7 +157,7 @@ const handleKeydown = (event: KeyboardEvent, node: TreeNodeData) => {
     else selectNode(node)
   } else if (event.key === 'Home' || event.key === 'End') {
     event.preventDefault()
-    const target = event.key === 'Home' ? visibleNodes[0] : visibleNodes.at(-1)
+    const target = event.key === 'Home' ? orderedNodes[0] : orderedNodes.at(-1)
     if (target) focusNode(target.key)
   }
 }

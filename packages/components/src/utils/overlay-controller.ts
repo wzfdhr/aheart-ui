@@ -4,6 +4,7 @@ export interface OverlayRegistration {
   getTrigger?: () => Element | null | undefined
   getContent?: () => Element | null | undefined
   escapeEnabled?: boolean | (() => boolean)
+  ignoreEscape?: () => boolean
   getBaseZIndex?: () => number
   onZIndexChange?: (zIndex: number) => void
   onEscape?: (event: KeyboardEvent) => void
@@ -114,10 +115,10 @@ const ensureListeners = (ownerDocument: Document) => {
   if (listeners.has(ownerDocument)) return
   const keydown = (event: KeyboardEvent) => {
     recentPointerTargets.delete(ownerDocument)
-    if (event.key !== 'Escape') return
+    if (event.key !== 'Escape' || event.isComposing || event.keyCode === 229) return
     const stack = getRecords(ownerDocument)
     const top = stack[stack.length - 1]
-    if (!top) return
+    if (!top || top.ignoreEscape?.()) return
     event.preventDefault()
     event.stopPropagation()
     if (isEscapeEnabled(top)) top.onEscape?.(event)

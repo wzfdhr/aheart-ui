@@ -78,6 +78,8 @@
           :aria-activedescendant="activeOptionId"
           :aria-busy="loading ? 'true' : undefined"
           @input="handleSearch"
+          @compositionstart="handleCompositionStart"
+          @compositionend="handleCompositionEnd"
           @click.stop="openPopup"
           @keydown="handleKeydown"
         />
@@ -135,13 +137,13 @@
         <div class="aheart-select__list" :class="classNames.list" :style="styles.list">
           <div
             v-for="(option, index) in filteredOptions"
-            :id="getOptionId(index)"
+            :id="getOptionId(option)"
             :key="getOptionKey(option.value)"
             class="aheart-select__option"
             :class="[
               classNames.option,
               {
-                'is-active': index === activeIndex,
+                'is-active': getOptionKey(option.value) === activeKey,
                 'is-selected': isValueSelected(option.value),
                 'is-disabled': isOptionDisabled(option)
               }
@@ -209,7 +211,9 @@ const selectorRef = ref<HTMLElement | null>(null)
 const searchRef = ref<HTMLInputElement | null>(null)
 const popupRef = ref<HTMLElement | null>(null)
 const internalSearchValue = ref('')
-const activeIndex = ref(-1)
+const activeKey = ref<string>()
+const isComposing = ref(false)
+let compositionInputValues: Set<string> | undefined
 const focused = ref(false)
 const listboxId = `${useStableId(undefined, 'aheart-select').value}-listbox`
 
@@ -327,14 +331,18 @@ const filteredOptions = computed(() => {
 const hasNoOptions = computed(() => filteredOptions.value.length === 0)
 const isOptionDisabled = (option: SelectOption) => Boolean(option.disabled)
 const isValueSelected = (value: SelectPrimitiveValue) => selectedValues.value.some((selected) => valueEquals(selected, value))
-const getOptionId = (index: number) => `${listboxId}-option-${index}`
-const activeOptionId = computed(() => activeIndex.value >= 0 && mergedOpen.value ? getOptionId(activeIndex.value) : undefined)
+const getOptionId = (option: SelectOption) => `${listboxId}-option-${Array.from(getOptionKey(option.value), (character) => character.codePointAt(0)!.toString(16)).join('-')}`
+const activeIndex = computed(() => filteredOptions.value.findIndex((option) => getOptionKey(option.value) === activeKey.value))
+const activeOptionId = computed(() => {
+  const option = filteredOptions.value[activeIndex.value]
+  return option && mergedOpen.value ? getOptionId(option) : undefined
+})
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
 const teleportReady = useTeleportReady()
 const popupContainer = computed(() => {
   if (props.getPopupContainer && selectorRef.value) return props.getPopupContainer(selectorRef.value)
-  return typeof document === 'undefined' ? false : document.body
+  return selectorRef.value?.ownerDocument.body ?? false
 })
 const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
@@ -381,8 +389,12 @@ const popupWidthStyle = computed(() => {
 const popupStyle = computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup])
 
 const setInitialActive = () => {
-  const selectedIndex = filteredOptions.value.findIndex((option) => isValueSelected(option.value) && !isOptionDisabled(option))
-  activeIndex.value = selectedIndex >= 0 ? selectedIndex : filteredOptions.value.findIndex((option) => !isOptionDisabled(option))
+  const current = filteredOptions.value.find((option) => getOptionKey(option.value) === activeKey.value && !isOptionDisabled(option))
+  if (current) return
+  const selected = filteredOptions.value.find((option) => isValueSelected(option.value) && !isOptionDisabled(option))
+  const firstEnabled = filteredOptions.value.find((option) => !isOptionDisabled(option))
+  const next = selected ?? firstEnabled
+  activeKey.value = next ? getOptionKey(next.value) : undefined
 }
 const requestOpen = (open: boolean) => {
   if (isDisabled.value) return
@@ -443,29 +455,49 @@ const renderTag = (option: SelectOption) => props.tagRender?.({
 }) ?? option.label
 
 const handleSearch = (event: Event) => {
+  if (isComposing.value || (event as InputEvent).isComposing) return
   const value = (event.target as HTMLInputElement).value
+  if (event.type === 'input' && compositionInputValues) {
+    const repeatedCommit = compositionInputValues.has(value)
+    compositionInputValues = undefined
+    if (repeatedCommit) return
+  }
   if (!isSearchControlled.value) internalSearchValue.value = value
   else (event.target as HTMLInputElement).value = currentSearchValue.value
   emit('search', value)
   openPopup()
   void nextTick(setInitialActive)
 }
+const handleCompositionStart = () => {
+  compositionInputValues = undefined
+  isComposing.value = true
+}
+const handleCompositionEnd = (event: CompositionEvent) => {
+  isComposing.value = false
+  const input = event.target as HTMLInputElement
+  const value = input.value
+  handleSearch(event)
+  compositionInputValues = new Set([value, input.value])
+}
 const setActiveIndex = (index: number) => {
-  if (!isOptionDisabled(filteredOptions.value[index])) activeIndex.value = index
+  const option = filteredOptions.value[index]
+  if (option && !isOptionDisabled(option)) activeKey.value = getOptionKey(option.value)
 }
 const moveActive = (direction: 1 | -1) => {
   if (filteredOptions.value.length === 0) return
   let index = activeIndex.value
+  if (index < 0) index = direction === 1 ? -1 : 0
   for (let attempts = 0; attempts < filteredOptions.value.length; attempts += 1) {
     index = (index + direction + filteredOptions.value.length) % filteredOptions.value.length
     if (!isOptionDisabled(filteredOptions.value[index])) {
-      activeIndex.value = index
+      activeKey.value = getOptionKey(filteredOptions.value[index].value)
       return
     }
   }
 }
 const handleKeydown = (event: KeyboardEvent) => {
   if (isDisabled.value) return
+  if (isComposing.value || event.isComposing || event.keyCode === 229) return
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     if (!mergedOpen.value) {
@@ -483,6 +515,12 @@ const handleKeydown = (event: KeyboardEvent) => {
       selectOption({ label: currentSearchValue.value.trim(), value: currentSearchValue.value.trim() })
     }
     return
+  }
+  if ((event.key === 'Home' || event.key === 'End') && !isSearchable.value && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+    event.preventDefault()
+    const enabled = filteredOptions.value.filter((option) => !isOptionDisabled(option))
+    const option = enabled[event.key === 'Home' ? 0 : enabled.length - 1]
+    activeKey.value = option ? getOptionKey(option.value) : undefined
   }
   if (event.key === 'Escape' && mergedOpen.value) {
     event.preventDefault()
@@ -511,6 +549,7 @@ useFloatingDismiss({
   open: mergedOpen,
   trigger: selectorRef,
   floating: popupRef,
+  ignoreEscape: isComposing,
   onDismiss: () => closePopup()
 })
 

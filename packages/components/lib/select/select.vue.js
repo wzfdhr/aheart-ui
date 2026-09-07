@@ -52,7 +52,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const searchRef = vue.ref(null);
     const popupRef = vue.ref(null);
     const internalSearchValue = vue.ref("");
-    const activeIndex = vue.ref(-1);
+    const activeKey = vue.ref();
+    const isComposing = vue.ref(false);
+    let compositionInputValues;
     const focused = vue.ref(false);
     const listboxId = `${useStableId.useStableId(void 0, "aheart-select").value}-listbox`;
     const ARenderNode = vue.defineComponent({
@@ -165,14 +167,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const hasNoOptions = vue.computed(() => filteredOptions.value.length === 0);
     const isOptionDisabled = (option) => Boolean(option.disabled);
     const isValueSelected = (value) => selectedValues.value.some((selected) => valueEquals(selected, value));
-    const getOptionId = (index) => `${listboxId}-option-${index}`;
-    const activeOptionId = vue.computed(() => activeIndex.value >= 0 && mergedOpen.value ? getOptionId(activeIndex.value) : void 0);
+    const getOptionId = (option) => `${listboxId}-option-${Array.from(getOptionKey(option.value), (character) => character.codePointAt(0).toString(16)).join("-")}`;
+    const activeIndex = vue.computed(() => filteredOptions.value.findIndex((option) => getOptionKey(option.value) === activeKey.value));
+    const activeOptionId = vue.computed(() => {
+      const option = filteredOptions.value[activeIndex.value];
+      return option && mergedOpen.value ? getOptionId(option) : void 0;
+    });
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
     const teleportReady = useTeleportReady.useTeleportReady();
     const popupContainer = vue.computed(() => {
+      var _a;
       if (props.getPopupContainer && selectorRef.value)
         return props.getPopupContainer(selectorRef.value);
-      return typeof document === "undefined" ? false : document.body;
+      return ((_a = selectorRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
     });
     const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
@@ -217,8 +224,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const popupStyle = vue.computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup]);
     const setInitialActive = () => {
-      const selectedIndex = filteredOptions.value.findIndex((option) => isValueSelected(option.value) && !isOptionDisabled(option));
-      activeIndex.value = selectedIndex >= 0 ? selectedIndex : filteredOptions.value.findIndex((option) => !isOptionDisabled(option));
+      const current = filteredOptions.value.find((option) => getOptionKey(option.value) === activeKey.value && !isOptionDisabled(option));
+      if (current)
+        return;
+      const selected = filteredOptions.value.find((option) => isValueSelected(option.value) && !isOptionDisabled(option));
+      const firstEnabled = filteredOptions.value.find((option) => !isOptionDisabled(option));
+      const next = selected ?? firstEnabled;
+      activeKey.value = next ? getOptionKey(next.value) : void 0;
     };
     const requestOpen = (open) => {
       if (isDisabled.value)
@@ -298,7 +310,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       })) ?? option.label;
     };
     const handleSearch = (event) => {
+      if (isComposing.value || event.isComposing)
+        return;
       const value = event.target.value;
+      if (event.type === "input" && compositionInputValues) {
+        const repeatedCommit = compositionInputValues.has(value);
+        compositionInputValues = void 0;
+        if (repeatedCommit)
+          return;
+      }
       if (!isSearchControlled.value)
         internalSearchValue.value = value;
       else
@@ -307,24 +327,40 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       openPopup();
       void vue.nextTick(setInitialActive);
     };
+    const handleCompositionStart = () => {
+      compositionInputValues = void 0;
+      isComposing.value = true;
+    };
+    const handleCompositionEnd = (event) => {
+      isComposing.value = false;
+      const input = event.target;
+      const value = input.value;
+      handleSearch(event);
+      compositionInputValues = /* @__PURE__ */ new Set([value, input.value]);
+    };
     const setActiveIndex = (index) => {
-      if (!isOptionDisabled(filteredOptions.value[index]))
-        activeIndex.value = index;
+      const option = filteredOptions.value[index];
+      if (option && !isOptionDisabled(option))
+        activeKey.value = getOptionKey(option.value);
     };
     const moveActive = (direction) => {
       if (filteredOptions.value.length === 0)
         return;
       let index = activeIndex.value;
+      if (index < 0)
+        index = direction === 1 ? -1 : 0;
       for (let attempts = 0; attempts < filteredOptions.value.length; attempts += 1) {
         index = (index + direction + filteredOptions.value.length) % filteredOptions.value.length;
         if (!isOptionDisabled(filteredOptions.value[index])) {
-          activeIndex.value = index;
+          activeKey.value = getOptionKey(filteredOptions.value[index].value);
           return;
         }
       }
     };
     const handleKeydown = (event) => {
       if (isDisabled.value)
+        return;
+      if (isComposing.value || event.isComposing || event.keyCode === 229)
         return;
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
@@ -344,6 +380,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           selectOption({ label: currentSearchValue.value.trim(), value: currentSearchValue.value.trim() });
         }
         return;
+      }
+      if ((event.key === "Home" || event.key === "End") && !isSearchable.value && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+        event.preventDefault();
+        const enabled = filteredOptions.value.filter((option2) => !isOptionDisabled(option2));
+        const option = enabled[event.key === "Home" ? 0 : enabled.length - 1];
+        activeKey.value = option ? getOptionKey(option.value) : void 0;
       }
       if (event.key === "Escape" && mergedOpen.value) {
         event.preventDefault();
@@ -376,6 +418,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       open: mergedOpen,
       trigger: selectorRef,
       floating: popupRef,
+      ignoreEscape: isComposing,
       onDismiss: () => closePopup()
     });
     vue.watch(filteredOptions, () => {
@@ -484,6 +527,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               "aria-activedescendant": activeOptionId.value,
               "aria-busy": _ctx.loading ? "true" : void 0,
               onInput: handleSearch,
+              onCompositionstart: handleCompositionStart,
+              onCompositionend: handleCompositionEnd,
               onClick: vue.withModifiers(openPopup, ["stop"]),
               onKeydown: handleKeydown
             }), null, 16, _hoisted_5)) : !isMultiple.value ? (vue.openBlock(), vue.createElementBlock("span", {
@@ -567,12 +612,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             }, [
               (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(filteredOptions.value, (option, index) => {
                 return vue.openBlock(), vue.createElementBlock("div", {
-                  id: getOptionId(index),
+                  id: getOptionId(option),
                   key: getOptionKey(option.value),
                   class: vue.normalizeClass(["aheart-select__option", [
                     _ctx.classNames.option,
                     {
-                      "is-active": index === activeIndex.value,
+                      "is-active": getOptionKey(option.value) === activeKey.value,
                       "is-selected": isValueSelected(option.value),
                       "is-disabled": isOptionDisabled(option)
                     }

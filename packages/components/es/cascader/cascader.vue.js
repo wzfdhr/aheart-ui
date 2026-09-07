@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, useAttrs, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
+import { defineComponent, ref, computed, watch, useAttrs, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
@@ -30,7 +30,12 @@ const _hoisted_9 = {
   class: "aheart-cascader__empty",
   role: "status"
 };
-const _hoisted_10 = ["data-cascader-value", "id", "data-cascader-column", "disabled", "aria-busy", "onClick", "onFocus"];
+const _hoisted_10 = ["data-cascader-value", "data-cascader-token", "id", "data-cascader-column", "disabled", "aria-busy", "aria-label", "onClick", "onFocus", "onKeydown"];
+const _hoisted_11 = {
+  key: 1,
+  class: "aheart-cascader__load-error",
+  "aria-hidden": "true"
+};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{ name: "ACascader" },
   __name: "cascader",
@@ -69,7 +74,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const activePath = ref([]);
     const focusedPath = ref([]);
     const loadingPaths = ref([]);
+    const errorPaths = ref([]);
     const innerOptions = ref(cloneOptions(props.options));
+    let loadGeneration = 0;
+    let loadSequence = 0;
+    const activeLoadIds = /* @__PURE__ */ new Map();
     const isControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const openState = useControllableState({
@@ -98,11 +107,35 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return Array.isArray(mergedValue.value) ? [mergedValue.value] : [];
     });
-    watch(() => props.options, (options) => {
-      innerOptions.value = cloneOptions(options);
-    });
     const pathKey = (path) => path.join("/");
+    const cascaderKeyToken = (key) => `${typeof key === "number" ? "n" : "s"}-${Array.from(String(key), (character) => character.codePointAt(0).toString(16)).join("-")}`;
+    const pathToken = (path) => path.map(cascaderKeyToken).join("--");
     const samePath = (left, right) => left.length === right.length && left.every((key, index) => key === right[index]);
+    const closestExistingPath = (path, options) => {
+      const existing = [];
+      let siblings = options;
+      for (const key of path) {
+        const option = siblings.find((candidate) => candidate.value === key);
+        if (!option)
+          break;
+        existing.push(key);
+        siblings = option.children ?? [];
+      }
+      return existing;
+    };
+    const invalidateLoads = () => {
+      loadGeneration += 1;
+      activeLoadIds.clear();
+      loadingPaths.value = [];
+    };
+    watch(() => props.options, (options) => {
+      const nextOptions = cloneOptions(options);
+      invalidateLoads();
+      innerOptions.value = nextOptions;
+      errorPaths.value = [];
+      activePath.value = closestExistingPath(activePath.value, nextOptions);
+      focusedPath.value = closestExistingPath(focusedPath.value, nextOptions);
+    });
     const isBranch = (option) => {
       var _a;
       return Boolean((_a = option.children) == null ? void 0 : _a.length) || option.isLeaf === false;
@@ -173,10 +206,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const attrs = useAttrs();
     const resolvedAriaLabelledby = computed(() => attrs["aria-labelledby"]);
     const resolvedAriaDescribedby = computed(() => attrs["aria-describedby"]);
-    const optionId = (option, columnIndex) => {
-      var _a;
-      return `${instanceId}-option-${columnIndex}-${Math.max(0, ((_a = columns.value[columnIndex]) == null ? void 0 : _a.indexOf(option)) ?? 0)}`;
-    };
+    const optionId = (columnIndex, optionIndex) => `${instanceId}-option-${columnIndex}-${optionIndex}`;
     const activeDescendantId = computed(() => {
       var _a, _b, _c;
       if (!mergedOpen.value || searchText.value.trim())
@@ -187,15 +217,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const option = ((_b = (_a = findOption(path.slice(0, -1))) == null ? void 0 : _a.children) == null ? void 0 : _b.find((item) => item.value === path.at(-1))) ?? (path.length === 1 ? innerOptions.value.find((item) => item.value === path[0]) : void 0);
       if (!option || !((_c = columns.value[path.length - 1]) == null ? void 0 : _c.includes(option)))
         return void 0;
-      return optionId(option, path.length - 1);
+      return optionId(path.length - 1, columns.value[path.length - 1].indexOf(option));
     });
     const isSelected = (columnIndex, option) => selectedPaths.value.some((path) => path[columnIndex] === option.value && path.length === columnIndex + 1);
     const isLoading = (columnIndex, option) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
+    const isLoadError = (columnIndex, option) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
     const requestOpen = (open) => {
       if (props.disabled)
         return;
       openState.setState(open, { force: true });
     };
+    watch(mergedOpen, (open, previousOpen) => {
+      if (previousOpen && !open)
+        invalidateLoads();
+    });
     const toggleOpen = () => requestOpen(!mergedOpen.value);
     const emitValue = (value) => {
       valueState.setState(value, { force: true });
@@ -247,16 +282,31 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       activePath.value = path;
       void revealLastColumn();
       if (!((_a = option.children) == null ? void 0 : _a.length) && props.loadData) {
-        if (loadingPaths.value.some((current) => samePath(current, path)))
+        const requestKey = pathToken(path);
+        if (activeLoadIds.has(requestKey))
           return;
+        const requestId = ++loadSequence;
+        const generation = loadGeneration;
+        activeLoadIds.set(requestKey, requestId);
+        errorPaths.value = errorPaths.value.filter((current) => !samePath(current, path));
         loadingPaths.value = [...loadingPaths.value, path];
         try {
           const children = await props.loadData(option);
+          if (generation !== loadGeneration || activeLoadIds.get(requestKey) !== requestId)
+            return;
+          if (!path.every((key, index) => activePath.value[index] === key))
+            return;
           innerOptions.value = replaceChildren(innerOptions.value, path, cloneOptions(children));
           void revealLastColumn();
         } catch {
+          if (generation === loadGeneration && activeLoadIds.get(requestKey) === requestId && path.every((key, index) => activePath.value[index] === key)) {
+            errorPaths.value = [...errorPaths.value.filter((current) => !samePath(current, path)), path];
+          }
         } finally {
-          loadingPaths.value = loadingPaths.value.filter((current) => !samePath(current, path));
+          if (activeLoadIds.get(requestKey) === requestId) {
+            activeLoadIds.delete(requestKey);
+            loadingPaths.value = loadingPaths.value.filter((current) => !samePath(current, path));
+          }
         }
       }
     };
@@ -264,7 +314,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value];
     };
     const handleTriggerKeydown = (event) => {
-      if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         requestOpen(true);
         void nextTick(() => {
@@ -280,16 +330,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         });
       }
     };
-    const handleOptionKeydown = (event) => {
-      var _a, _b, _c, _d, _e, _f;
+    const handleOptionKeydown = (event, option, columnIndex) => {
+      var _a, _b, _c, _d, _e;
       const current = event.currentTarget;
       const options = Array.from(((_a = current.parentElement) == null ? void 0 : _a.querySelectorAll(".aheart-cascader__option:not(:disabled)")) ?? []);
       const index = options.indexOf(current);
-      const columnIndex = Number(current.dataset.cascaderColumn);
-      const option = (_b = columns.value[columnIndex]) == null ? void 0 : _b.find((item) => String(item.value) === current.dataset.cascaderValue);
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
-        (_c = options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length]) == null ? void 0 : _c.focus();
+        (_b = options[(index + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length]) == null ? void 0 : _b.focus();
       } else if (event.key === "Escape") {
         event.preventDefault();
         requestOpen(false);
@@ -299,8 +347,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         });
       } else if (event.key === "Home" || event.key === "End") {
         event.preventDefault();
-        (_d = options[event.key === "Home" ? 0 : options.length - 1]) == null ? void 0 : _d.focus();
-      } else if (event.key === "ArrowRight" && option && isBranch(option)) {
+        (_c = options[event.key === "Home" ? 0 : options.length - 1]) == null ? void 0 : _c.focus();
+      } else if ((event.key === "Enter" || event.key === " ") && !option.disabled) {
+        event.preventDefault();
+        void handleOption(option, columnIndex).then(() => nextTick(() => {
+          var _a2, _b2;
+          if (isBranch(option))
+            (_b2 = (_a2 = panelRef.value) == null ? void 0 : _a2.querySelector(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)) == null ? void 0 : _b2.focus();
+        }));
+      } else if (event.key === "ArrowRight" && isBranch(option)) {
         event.preventDefault();
         void handleOption(option, columnIndex).then(() => nextTick(() => {
           var _a2, _b2;
@@ -309,15 +364,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       } else if (event.key === "ArrowLeft" && columnIndex > 0) {
         event.preventDefault();
         const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1];
-        (_f = Array.from(((_e = panelRef.value) == null ? void 0 : _e.querySelectorAll(`[data-cascader-column="${columnIndex - 1}"]`)) ?? []).find((element) => element.dataset.cascaderValue === String(parentValue))) == null ? void 0 : _f.focus();
+        (_e = Array.from(((_d = panelRef.value) == null ? void 0 : _d.querySelectorAll(`[data-cascader-column="${columnIndex - 1}"]`)) ?? []).find((element) => element.dataset.cascaderToken === cascaderKeyToken(parentValue))) == null ? void 0 : _e.focus();
       }
     };
+    onBeforeUnmount(invalidateLoads);
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
     const teleportReady = useTeleportReady();
     const popupContainer = computed(() => {
+      var _a;
       if (props.getPopupContainer && triggerRef.value)
         return props.getPopupContainer(triggerRef.value);
-      return typeof document === "undefined" ? false : document.body;
+      return ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
     });
     const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
@@ -366,7 +423,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           __props.multiple && selectedTags.value.length ? (openBlock(), createElementBlock("span", _hoisted_2, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(visibleSelectedTags.value, (tag) => {
               return openBlock(), createElementBlock("span", {
-                key: pathKey(tag.path),
+                key: pathToken(tag.path),
                 class: "aheart-cascader__tag"
               }, [
                 createElementVNode("span", _hoisted_3, toDisplayString(tag.label), 1),
@@ -437,7 +494,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             searchText.value.trim() ? (openBlock(), createElementBlock("div", _hoisted_7, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(searchResults.value, (result) => {
                 return openBlock(), createElementBlock("button", {
-                  key: pathKey(result.path),
+                  key: pathToken(result.path),
                   class: "aheart-cascader__option",
                   type: "button",
                   "data-cascader-path": pathKey(result.path),
@@ -457,19 +514,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   key: columnIndex,
                   class: "aheart-cascader__column"
                 }, [
-                  (openBlock(true), createElementBlock(Fragment, null, renderList(column, (option) => {
+                  (openBlock(true), createElementBlock(Fragment, null, renderList(column, (option, optionIndex) => {
                     return openBlock(), createElementBlock("button", {
-                      key: option.value,
-                      class: normalizeClass(["aheart-cascader__option", { "is-active": activePath.value[columnIndex] === option.value, "is-selected": isSelected(columnIndex, option), "is-loading": isLoading(columnIndex, option) }]),
+                      key: cascaderKeyToken(option.value),
+                      class: normalizeClass(["aheart-cascader__option", { "is-active": activePath.value[columnIndex] === option.value, "is-selected": isSelected(columnIndex, option), "is-loading": isLoading(columnIndex, option), "is-error": isLoadError(columnIndex, option) }]),
                       type: "button",
                       "data-cascader-value": option.value,
-                      id: optionId(option, columnIndex),
+                      "data-cascader-token": cascaderKeyToken(option.value),
+                      id: optionId(columnIndex, optionIndex),
                       "data-cascader-column": columnIndex,
                       disabled: __props.disabled || option.disabled || isLoading(columnIndex, option),
                       "aria-busy": isLoading(columnIndex, option) ? "true" : void 0,
+                      "aria-label": isLoadError(columnIndex, option) ? `${option.label}，加载失败，按回车或点击重试` : void 0,
                       onClick: ($event) => handleOption(option, columnIndex),
                       onFocus: ($event) => handleOptionFocus(option, columnIndex),
-                      onKeydown: handleOptionKeydown
+                      onKeydown: ($event) => handleOptionKeydown($event, option, columnIndex)
                     }, [
                       createElementVNode("span", null, toDisplayString(option.label), 1),
                       isLoading(columnIndex, option) ? (openBlock(), createBlock(_sfc_main$1, {
@@ -478,8 +537,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         size: 16,
                         spin: "",
                         "aria-hidden": "true"
-                      })) : isBranch(option) ? (openBlock(), createBlock(_sfc_main$1, {
-                        key: 1,
+                      })) : isLoadError(columnIndex, option) ? (openBlock(), createElementBlock("span", _hoisted_11, "重试")) : isBranch(option) ? (openBlock(), createBlock(_sfc_main$1, {
+                        key: 2,
                         name: "chevron-right",
                         size: 16,
                         "aria-hidden": "true"

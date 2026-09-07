@@ -11,6 +11,7 @@ export interface UseFloatingDismissOptions {
   floating: ElementSource
   onDismiss: (reason: FloatingDismissReason, event: Event) => void
   restoreFocus?: MaybeRefOrGetter<boolean | undefined>
+  ignoreEscape?: MaybeRefOrGetter<boolean>
 }
 
 export function useFloatingDismiss(options: UseFloatingDismissOptions) {
@@ -74,6 +75,7 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
       getTrigger: () => toValue(options.trigger),
       getContent: () => toValue(options.floating),
       escapeEnabled: () => toValue(options.open),
+      ignoreEscape: () => toValue(options.ignoreEscape) === true,
       getBaseZIndex: () => baseZIndex,
       onZIndexChange: (zIndex) => {
         const content = toValue(options.floating)

@@ -35,7 +35,7 @@ const toggle = (name: 'expand' | 'select' | 'check') => {
   if (name === 'check') { acceptCheck.value = !acceptCheck.value; announce(acceptCheck.value ? '勾选更新：接受' : '勾选更新：拒绝') }
 }
 const toggleDisabled = () => { treeDisabled.value = !treeDisabled.value; announce(treeDisabled.value ? '整树已禁用' : '整树已启用') }
-const collapseExternally = () => { expandedKeys.value = []; announce('外部折叠已执行，焦点回到最近可见祖先') }
+const collapseExternally = () => { expandedKeys.value = []; announce('外部折叠已执行，树内活动项回到最近可见祖先') }
 </script>
 
 # Tree 树形控件 <span class="aheart-status aheart-status--ready">已完成</span>
