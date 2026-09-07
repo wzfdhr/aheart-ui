@@ -7,9 +7,9 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 <div class="aheart-demo-panel">
   <AMenu
     :items="[
-      { key: 'dashboard', label: 'Dashboard' },
-      { key: 'workspace', label: 'Workspace' },
-      { key: 'settings', label: 'Settings' }
+      { key: 'dashboard', label: '仪表盘' },
+      { key: 'workspace', label: '工作台' },
+      { key: 'settings', label: '设置' }
     ]"
     :default-selected-keys="['dashboard']"
   />
@@ -19,9 +19,9 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 <template>
   <AMenu
     :items="[
-      { key: 'dashboard', label: 'Dashboard' },
-      { key: 'workspace', label: 'Workspace' },
-      { key: 'settings', label: 'Settings' }
+      { key: 'dashboard', label: '仪表盘' },
+      { key: 'workspace', label: '工作台' },
+      { key: 'settings', label: '设置' }
     ]"
     :default-selected-keys="['dashboard']"
   />
@@ -34,18 +34,18 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
   <AMenu
     :default-open-keys="['workspace']"
     :items="[
-      { key: 'dashboard', label: 'Dashboard' },
+      { key: 'dashboard', label: '仪表盘' },
       {
         key: 'workspace',
-        label: 'Workspace',
+        label: '工作台',
         children: [
-          { key: 'projects', label: 'Projects' },
-          { key: 'reports', label: 'Reports', disabled: true }
+          { key: 'projects', label: '项目' },
+          { key: 'reports', label: '报告', disabled: true }
         ]
       },
-      { type: 'group', key: 'manage', label: 'Manage', children: [{ key: 'users', label: 'Users' }] },
+      { type: 'group', key: 'manage', label: '管理', children: [{ key: 'users', label: '用户' }] },
       { type: 'divider', key: 'divider' },
-      { key: 'danger', label: 'Delete', danger: true }
+      { key: 'danger', label: '删除', danger: true }
     ]"
   />
 </div>
@@ -64,9 +64,9 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
     theme="dark"
     :default-selected-keys="['analytics']"
     :items="[
-      { key: 'overview', label: 'Overview' },
-      { key: 'analytics', label: 'Analytics' },
-      { key: 'exports', label: 'Exports' }
+      { key: 'overview', label: '概览' },
+      { key: 'analytics', label: '分析' },
+      { key: 'exports', label: '导出' }
     ]"
   />
 </div>
@@ -82,10 +82,10 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 <div class="aheart-demo-panel">
   <AMenu
     :items="[
-      { key: 'dashboard', icon: 'D', label: 'Dashboard', extra: 'New', title: 'Open dashboard' },
-      { key: 'command', icon: 'K', label: 'Command palette', extra: 'Ctrl K' },
+      { key: 'dashboard', icon: 'D', label: '仪表盘', extra: '新建', title: '打开仪表盘' },
+      { key: 'command', icon: 'K', label: '命令面板', extra: 'Ctrl K' },
       { type: 'divider', key: 'split', dashed: true },
-      { key: 'danger', label: 'Delete workspace', danger: true }
+      { key: 'danger', label: '删除工作区', danger: true }
     ]"
   />
 </div>
@@ -94,10 +94,10 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
 <template>
   <AMenu
     :items="[
-      { key: 'dashboard', icon: 'D', label: 'Dashboard', extra: 'New', title: 'Open dashboard' },
-      { key: 'command', icon: 'K', label: 'Command palette', extra: 'Ctrl K' },
+      { key: 'dashboard', icon: 'D', label: '仪表盘', extra: '新建', title: '打开仪表盘' },
+      { key: 'command', icon: 'K', label: '命令面板', extra: 'Ctrl K' },
       { type: 'divider', key: 'split', dashed: true },
-      { key: 'danger', label: 'Delete workspace', danger: true }
+      { key: 'danger', label: '删除工作区', danger: true }
     ]"
   />
 </template>
@@ -114,10 +114,10 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
     :items="[
       {
         key: 'workspace',
-        label: 'Workspace',
+        label: '工作台',
         children: [
-          { key: 'projects', label: 'Projects' },
-          { key: 'reports', label: 'Reports' }
+          { key: 'projects', label: '项目' },
+          { key: 'reports', label: '报告' }
         ]
       }
     ]"
@@ -144,8 +144,8 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
     :class-names="{ root: 'docs-menu-root', itemButton: 'docs-menu-button', extra: 'docs-menu-extra' }"
     :styles="{ root: { maxWidth: '320px' }, itemButton: { borderRadius: '8px' } }"
     :items="[
-      { key: 'inbox', label: 'Inbox', extra: '12' },
-      { key: 'archive', label: 'Archive' }
+      { key: 'inbox', label: '收件箱', extra: '12' },
+      { key: 'archive', label: '归档' }
     ]"
   />
 </div>
@@ -169,9 +169,9 @@ Menu renders navigation and action lists from an Ant-style `items` tree.
       multiple
       :default-selected-keys="['read', 'write']"
       :items="[
-        { key: 'read', label: 'Read' },
-        { key: 'write', label: 'Write' },
-        { key: 'admin', label: 'Admin' }
+        { key: 'read', label: '读取' },
+        { key: 'write', label: '编辑' },
+        { key: 'admin', label: '管理' }
       ]"
     />
   </AConfigProvider>

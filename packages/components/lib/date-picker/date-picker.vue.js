@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const controlContext = require("../form/control-context.js");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const calendar = require("../picker-core/calendar.js");
 const codec = require("../picker-core/codec.js");
@@ -9,7 +10,10 @@ const selection = require("../picker-core/selection.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useStableId = require("../utils/use-stable-id.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
@@ -69,21 +73,32 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const formControl = controlContext.useFormControl();
+    const attrs = vue.useAttrs();
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const inputRef = vue.ref(null);
     const panelRef = vue.ref(null);
-    const internalValue = vue.ref(props.defaultValue);
-    const internalOpen = vue.ref(props.defaultOpen);
     const draftValue = vue.ref();
     const inputText = vue.ref("");
     const activeCellKey = vue.ref("");
     const liveMessage = vue.ref("");
-    const instanceId = vue.useId().replace(/:/g, "");
-    const panelId = `aheart-date-picker-${instanceId}-panel`;
+    const panelId = `${useStableId.useStableId(void 0, "aheart-date-picker").value}-panel`;
     const isValueControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const isPanelControlled = usePropPresence.usePropPresence("pickerValue", "picker-value");
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = vue.defineComponent({
       name: "ADatePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -95,8 +110,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         };
       }
     });
-    const mergedValue = vue.computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = vue.computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const resolvedId = vue.computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const mergedAriaLabelledby = vue.computed(() => controlContext.mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = vue.computed(() => controlContext.mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = vue.computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = vue.computed(() => controlContext.formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const selectedValues = vue.computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value ? [mergedValue.value] : []);
     const effectiveShowTime = vue.computed(() => Boolean(props.showTime) && !props.multiple && props.picker === "date");
     const showTimeOptions = vue.computed(() => typeof props.showTime === "object" ? props.showTime : {});
@@ -129,7 +149,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootClass = vue.computed(() => [
       `aheart-date-picker--${resolvedSize.value}`,
       `aheart-date-picker--${resolvedVariant.value}`,
-      props.status && `aheart-date-picker--${props.status}`,
+      resolvedStatus.value && `aheart-date-picker--${resolvedStatus.value}`,
       { "is-open": mergedOpen.value, "is-disabled": isDisabled.value, "is-multiple": props.multiple }
     ]);
     const parseDateValue = (value) => value ? codec.parsePickerValue(
@@ -245,6 +265,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return (_a2 = activeCell.value) == null ? void 0 : _a2.id;
     });
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady.useTeleportReady();
     const popupContainer = vue.computed(() => {
       if (!triggerRef.value)
         return false;
@@ -252,7 +273,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return props.getPopupContainer(triggerRef.value);
       return typeof document === "undefined" ? false : document.body;
     });
-    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition.useFloatingPosition({
       reference: triggerRef,
@@ -290,9 +311,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       if (!nextOpen)
         restoreFocusOnClose = restoreFocus;
-      if (!isOpenControlled.value)
-        internalOpen.value = nextOpen;
-      emit("openChange", nextOpen);
+      openState.setState(nextOpen, { force: true });
     };
     let restoringFocus = false;
     const handleFocus = () => {
@@ -330,10 +349,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const commitValue = (value, close = true) => {
       const normalized = Array.isArray(value) ? selection.normalizeMultipleValues(value) : value;
-      if (!isValueControlled.value)
-        internalValue.value = normalized;
-      emit("update:modelValue", normalized);
+      valueState.setState(normalized, { force: true });
       emit("change", normalized);
+      formControl == null ? void 0 : formControl.change();
       if (isValueControlled.value) {
         void vue.nextTick(() => {
           inputText.value = committedInputText.value;
@@ -525,6 +543,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       target.value = masked;
       inputText.value = masked;
     };
+    const handleControlBlur = () => {
+      void vue.nextTick(() => {
+        var _a2, _b, _c;
+        const active = ((_a2 = rootRef.value) == null ? void 0 : _a2.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
     const restoreInput = async () => {
       inputText.value = "";
       await vue.nextTick();
@@ -639,6 +665,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return vue.openBlock(), vue.createElementBlock("span", {
         ref_key: "rootRef",
         ref: rootRef,
+        onFocusout: handleControlBlur,
         class: vue.normalizeClass(["aheart-date-picker", rootClass.value])
       }, [
         vue.createElementVNode("span", {
@@ -677,16 +704,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           vue.createElementVNode("input", {
             ref_key: "inputRef",
             ref: inputRef,
-            id: _ctx.id,
+            id: resolvedId.value,
             class: "aheart-date-picker__input",
             type: "text",
             inputmode: showTimeOptions.value.use12Hours ? "text" : "numeric",
             autocomplete: "off",
             role: "combobox",
             "aria-haspopup": "dialog",
-            "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
-            "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-            "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+            "aria-labelledby": mergedAriaLabelledby.value,
+            "aria-describedby": mergedAriaDescribedby.value,
+            "aria-invalid": resolvedAriaInvalid.value,
             "aria-controls": panelId,
             "aria-expanded": mergedOpen.value ? "true" : "false",
             "aria-activedescendant": mergedOpen.value ? activeCellId.value : void 0,
@@ -730,6 +757,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,
+            onFocusout: handleControlBlur,
             ref_key: "panelRef",
             ref: panelRef,
             id: panelId,
@@ -923,11 +951,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               ]),
               vue.createElementVNode("span", _hoisted_28, vue.toDisplayString(liveMessage.value), 1)
             ])
-          ], 14, _hoisted_7)), [
+          ], 46, _hoisted_7)), [
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
-      ], 2);
+      ], 34);
     };
   }
 });

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 const timePickerProps = {
   id: String,
   labelledBy: String,
@@ -24,7 +24,7 @@ const timePickerProps = {
   placement: {
     type: String,
     default: "bottomLeft",
-    validator: (value) => floating.floatingPlacements.includes(value)
+    validator: (value) => floatingCore.floatingPlacements.includes(value)
   },
   autoAdjustOverflow: { type: Boolean, default: true },
   getPopupContainer: Function,

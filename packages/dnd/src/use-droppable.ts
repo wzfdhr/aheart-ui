@@ -22,7 +22,10 @@ export function useDroppable(element: Ref<HTMLElement | undefined>, options: Use
         const acceptedTypes = Array.isArray(accept) ? accept : [accept]
         return acceptedTypes.length === 0 || acceptedTypes.includes(String(source.data.type ?? ''))
       },
-      onDrop: ({ source }) => options.onDrop?.(source.data as DragData)
+      onDrop: ({ source, location }) => {
+        if (location && location.current.dropTargets[0]?.element !== target) return
+        options.onDrop?.(source.data as DragData)
+      }
     })
     onCleanup(cleanup)
   })

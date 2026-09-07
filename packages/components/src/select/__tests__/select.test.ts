@@ -1,8 +1,9 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Select from '../select.vue'
+enableAutoUnmount(afterEach)
 
 const options = [
   { label: 'Apple', value: 'apple' },
@@ -19,6 +20,125 @@ const mountSelect = (options: Record<string, any> = {}) => mount(Select, {
 })
 
 describe('Select', () => {
+  it('handles each searchable arrow and multiple selection Enter exactly once', async () => {
+    const wrapper = mountSelect({ props: { options, showSearch: true, mode: 'multiple' } })
+    const search = wrapper.get('.aheart-select__search')
+    await search.trigger('keydown', { key: 'ArrowDown' })
+    expect(wrapper.get('.aheart-select__option.is-active').text()).toBe('Apple')
+    await search.trigger('keydown', { key: 'ArrowDown' })
+    expect(wrapper.get('.aheart-select__option.is-active').text()).toBe('Banana')
+    await search.trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('update:modelValue')).toEqual([[['banana']]])
+  })
+  it('keeps iframe focus, restores it on Escape, and clears unmounted overlay behavior', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const ownerWindow = iframe.contentWindow! as Window & typeof globalThis
+    const openChanges: boolean[] = []
+    const wrapper = mount(Select, {
+      attachTo: ownerDocument.body,
+      props: { options, onOpenChange: (open: boolean) => openChanges.push(open) }
+    })
+    try {
+      const trigger = wrapper.get('.aheart-select__selector').element as HTMLElement
+      trigger.focus()
+      expect(ownerDocument.activeElement).toBe(trigger)
+      expect(document.activeElement).toBe(iframe)
+      trigger.click()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      const panel = ownerDocument.querySelector<HTMLElement>('.aheart-select__popup')!
+      expect(panel).toBeTruthy()
+      expect(panel.parentElement).toBe(ownerDocument.body)
+      expect(document.querySelector('.aheart-select__popup')).toBeNull()
+      expect(ownerDocument.activeElement).toBe(trigger)
+      const foreignEscape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      document.dispatchEvent(foreignEscape)
+      await wrapper.vm.$nextTick()
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+      const escape = new ownerWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      ownerDocument.activeElement!.dispatchEvent(escape)
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(escape.defaultPrevented).toBe(true)
+      expect(trigger.getAttribute('aria-expanded')).toBe('false')
+      expect(ownerDocument.activeElement).toBe(trigger)
+      expect(wrapper.emitted('openChange')).toEqual([[true], [false]])
+
+      trigger.click()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(ownerDocument.querySelector('.aheart-select__popup')).toBeTruthy()
+      const callsBeforeUnmount = openChanges.length
+      wrapper.unmount()
+      expect(ownerDocument.querySelector('.aheart-select__popup')).toBeNull()
+      expect(document.querySelector('.aheart-select__popup')).toBeNull()
+
+      const outside = ownerDocument.createElement('button')
+      ownerDocument.body.appendChild(outside)
+      outside.focus()
+      const afterUnmount = new ownerWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      outside.dispatchEvent(afterUnmount)
+      outside.dispatchEvent(new ownerWindow.MouseEvent('pointerdown', { bubbles: true, cancelable: true }))
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(afterUnmount.defaultPrevented).toBe(false)
+      expect(ownerDocument.activeElement).toBe(outside)
+      expect(openChanges.length).toBe(callsBeforeUnmount)
+      expect(ownerDocument.querySelector('.aheart-select__popup')).toBeNull()
+    } finally {
+      if (wrapper.exists()) wrapper.unmount()
+      iframe.remove()
+    }
+  })
+
+  it('puts the accessible name on the interactive combobox', () => {
+    const wrapper = mountSelect({ attrs: { 'aria-label': 'Fruit' }, props: { options } })
+
+    expect(wrapper.get('[role="combobox"]').attributes('aria-label')).toBe('Fruit')
+    expect(wrapper.attributes('aria-label')).toBeUndefined()
+  })
+
+  it('preserves non-ARIA fallthrough attributes on the legacy root', () => {
+    const wrapper = mountSelect({
+      attrs: {
+        'data-testid': 'fruit-select',
+        class: 'legacy-select',
+        style: 'color: red'
+      },
+      props: { options }
+    })
+
+    expect(wrapper.attributes('data-testid')).toBe('fruit-select')
+    expect(wrapper.classes()).toContain('legacy-select')
+    expect(wrapper.attributes('style')).toContain('color: red')
+  })
+
+  it('routes searchable accessible labels only to the input combobox', () => {
+    const wrapper = mountSelect({
+      attrs: { 'aria-label': 'Fruit', 'aria-labelledby': 'fruit-label' },
+      props: { options, showSearch: true }
+    })
+    const selector = wrapper.get('.aheart-select__selector')
+    const search = wrapper.get('.aheart-select__search')
+
+    expect(selector.attributes('aria-label')).toBeUndefined()
+    expect(selector.attributes('aria-labelledby')).toBeUndefined()
+    expect(search.attributes('aria-label')).toBe('Fruit')
+    expect(search.attributes('aria-labelledby')).toBe('fruit-label')
+  })
+
+  it('keeps the searchable combobox focusable and exposes list autocomplete semantics', () => {
+    const wrapper = mountSelect({ props: { options, showSearch: true } })
+    const search = wrapper.get('.aheart-select__search')
+
+    expect(search.attributes('role')).toBe('combobox')
+    expect(search.attributes('aria-autocomplete')).toBe('list')
+    expect(search.attributes('tabindex')).toBeUndefined()
+  })
+
   it('renders an interactive combobox and opens a listbox instead of a native select', async () => {
     const wrapper = mountSelect({ props: { options, placeholder: 'Choose fruit' } })
 
@@ -94,6 +214,64 @@ describe('Select', () => {
     wrapper.unmount()
   })
 
+  it('supports Home and End without intercepting modified navigation', async () => {
+    const wrapper = mountSelect({ props: { options } })
+    const combobox = wrapper.get<HTMLElement>('[role="combobox"]')
+
+    await combobox.trigger('click')
+    await combobox.trigger('keydown', { key: 'End' })
+    expect(combobox.attributes('aria-activedescendant')).toBe(wrapper.findAll('[role="option"]')[1].attributes('id'))
+    await combobox.trigger('keydown', { key: 'Home', altKey: true })
+    expect(combobox.attributes('aria-activedescendant')).toBe(wrapper.findAll('[role="option"]')[1].attributes('id'))
+  })
+
+  it('does not select or close while an IME composition is active and submits only its final search', async () => {
+    const wrapper = mountSelect({ attachTo: document.body, props: { options, mode: 'tags', showSearch: true } })
+    const search = wrapper.get<HTMLInputElement>('.aheart-select__search')
+
+    await search.trigger('click')
+    await search.trigger('compositionstart')
+    await search.setValue('中')
+    await search.trigger('keydown', { key: 'ArrowDown', isComposing: true })
+    await search.trigger('keydown', { key: 'Enter', isComposing: true })
+    await search.trigger('keydown', { key: 'Escape', isComposing: true })
+    await search.trigger('keydown', { key: 'Escape', isComposing: false })
+
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('true')
+    expect(wrapper.emitted('search')).toBeUndefined()
+
+    await search.trigger('compositionend')
+    await search.trigger('input', { isComposing: false })
+    expect(wrapper.emitted('search')).toEqual([['中']])
+  })
+
+  it('keeps the active option attached to its value across reorder and disabled refreshes', async () => {
+    const wrapper = mountSelect({ props: { options } })
+    const combobox = wrapper.get<HTMLElement>('[role="combobox"]')
+
+    await combobox.trigger('click')
+    await wrapper.findAll('[role="option"]')[1].trigger('mouseenter')
+    const bananaId = combobox.attributes('aria-activedescendant')
+    expect(bananaId).toBe(wrapper.findAll('[role="option"]')[1].attributes('id'))
+
+    await wrapper.setProps({ options: [
+      { label: 'Cherry', value: 'cherry', disabled: true },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Apple', value: 'apple' }
+    ] })
+    expect(combobox.attributes('aria-activedescendant')).toBe(bananaId)
+
+    await wrapper.setProps({ options: [
+      { label: 'Cherry', value: 'cherry', disabled: true },
+      { label: 'Banana', value: 'banana', disabled: true },
+      { label: 'Apple', value: 'apple' }
+    ] })
+    const activeId = combobox.attributes('aria-activedescendant')
+    expect(activeId).toBe(wrapper.findAll('[role="option"]').find((option) => option.text() === 'Apple')?.attributes('id'))
+    expect(wrapper.findAll('[role="option"]').find((option) => option.attributes('id') === activeId)?.text()).toBe('Apple')
+  })
+
   it('renders removable multiple tags and clears the complete value', async () => {
     const wrapper = mountSelect({
       props: { options, modelValue: ['apple', 'banana'], mode: 'multiple', allowClear: true }
@@ -125,6 +303,18 @@ describe('Select', () => {
 
     await wrapper.findAll('[role="option"]')[0].trigger('click')
     expect(wrapper.get('.aheart-select__value').text()).toBe('Apple')
+  })
+
+  it('uses default props only for initialization', async () => {
+    const wrapper = mountSelect({ props: { options, defaultValue: 'banana', defaultOpen: true } })
+    await wrapper.findAll('[role="option"]')[0].trigger('click')
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Apple')
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('false')
+
+    await wrapper.setProps({ defaultValue: 'banana', defaultOpen: false })
+    await wrapper.setProps({ defaultOpen: true })
+    expect(wrapper.get('.aheart-select__value').text()).toBe('Apple')
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('false')
   })
 
   it('emits focus and blur and exposes imperative focus methods', async () => {
@@ -294,14 +484,34 @@ describe('Select', () => {
     await wrapper.get('[role="combobox"]').trigger('click')
 
     expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('true')
-    expect(wrapper.get('.aheart-select__empty').text()).toBe('Loading')
+    expect(wrapper.get('.aheart-select__empty').text()).toBe('加载中')
   })
 
   it('announces loading state from the combobox', () => {
     const wrapper = mountSelect({ props: { options, loading: true } })
 
     expect(wrapper.get('[role="combobox"]').attributes('aria-busy')).toBe('true')
-    expect(wrapper.get('[role="status"]').text()).toBe('Loading')
+    expect(wrapper.get('[role="status"]').text()).toBe('加载中')
+  })
+
+  it('uses the configured loading locale for status and empty feedback', async () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: { table: { loadingText: '正在加载' } } },
+      slots: { default: () => h(Select, { options: [], loading: true, defaultOpen: true }) },
+      global: { stubs: { Teleport: true } }
+    })
+
+    expect(wrapper.get('[role="status"]').text()).toBe('正在加载')
+    expect(wrapper.get('.aheart-select__empty').text()).toBe('正在加载')
+  })
+
+  it('gives clear and tag removal controls neutral accessible names', () => {
+    const wrapper = mountSelect({
+      props: { options, modelValue: ['apple'], mode: 'multiple', allowClear: true }
+    })
+
+    expect(wrapper.get('.aheart-select__clear').attributes('aria-label')).toBe('清除')
+    expect(wrapper.get('.aheart-select__tag-remove').attributes('aria-label')).toBe('移除 Apple')
   })
 
   it('does not submit values after an open popup becomes disabled', async () => {

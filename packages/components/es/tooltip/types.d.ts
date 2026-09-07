@@ -1,5 +1,5 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue';
-import { type FloatingPlacement, type FloatingTriggerProp } from '../utils/floating';
+import { type FloatingPlacement, type FloatingTriggerProp } from '../utils/floating-core';
 export interface TooltipArrowConfig {
     pointAtCenter?: boolean;
 }

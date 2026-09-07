@@ -1,4 +1,4 @@
-export type { CascaderKey, CascaderOption, CascaderPath, CascaderValue } from './types';
+export type { CascaderKey, CascaderOption, CascaderPath, CascaderValue, CascaderLoadContext } from './types';
 declare const _default: import("../utils/install").SFCWithInstall<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     open: {
         type: import("vue").PropType<boolean>;
@@ -47,7 +47,7 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
     loadData: {
-        type: import("vue").PropType<(option: import("./types").CascaderOption) => Promise<import("./types").CascaderOption[]>>;
+        type: import("vue").PropType<(option: import("./types").CascaderOption, context: import("./types").CascaderLoadContext) => Promise<import("./types").CascaderOption[]>>;
     };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: import("./types").CascaderValue) => void;
@@ -102,7 +102,7 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
     loadData: {
-        type: import("vue").PropType<(option: import("./types").CascaderOption) => Promise<import("./types").CascaderOption[]>>;
+        type: import("vue").PropType<(option: import("./types").CascaderOption, context: import("./types").CascaderLoadContext) => Promise<import("./types").CascaderOption[]>>;
     };
 }>> & Readonly<{
     onChange?: ((value: import("./types").CascaderValue) => any) | undefined;

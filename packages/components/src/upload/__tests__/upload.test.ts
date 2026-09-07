@@ -1,5 +1,8 @@
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
+import { enUS } from '../../config'
+import ConfigProvider from '../../config-provider/config-provider.vue'
 import Upload from '../upload.vue'
 
 const createFile = (name = 'report.txt') => new File(['report'], name, { type: 'text/plain' })
@@ -9,6 +12,30 @@ const selectFiles = async (input: ReturnType<ReturnType<typeof mount>['find']>, 
 }
 
 describe('Upload', () => {
+  it('uses Chinese defaults and follows the runtime English locale', () => {
+    const chinese = mount(Upload, {
+      props: { defaultFileList: [{ uid: 'ready', name: '报告.txt', status: 'ready' }] }
+    })
+    expect(chinese.find('.aheart-upload__trigger').text()).toBe('选择文件')
+    expect(chinese.find('.aheart-upload__start').text()).toBe('上传')
+
+    const english = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(Upload, {
+          defaultFileList: [
+            { uid: 'done', name: 'report.txt', status: 'done' },
+            { uid: 'error', name: 'failed.txt', status: 'error' }
+          ]
+        })
+      }
+    })
+    expect(english.find('.aheart-upload__trigger').text()).toBe('Select file')
+    expect(english.find('.aheart-upload__item.is-done').text()).toContain('Done')
+    expect(english.find('.aheart-upload__item.is-error').text()).toContain('Failed')
+    expect(english.find('.aheart-upload__remove').attributes('aria-label')).toBe('Remove report.txt')
+  })
+
   it('adds a selected file and reports a successful custom upload', async () => {
     const customRequest = vi.fn(async ({ onSuccess }: { onSuccess: (response?: unknown) => void }) => onSuccess({ ok: true }))
     const wrapper = mount(Upload, { props: { customRequest } })
@@ -32,6 +59,46 @@ describe('Upload', () => {
 
     expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'controlled.txt', status: 'done' }])
     expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+  })
+
+  it('treats an explicitly undefined fileList as controlled', async () => {
+    const wrapper = mount(Upload, { props: { fileList: undefined, defaultFileList: [{ uid: 'default', name: 'default.txt' }] } })
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('requested.txt')])
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'requested.txt' }])
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+  })
+
+  it('uses defaultFileList only for initialization', async () => {
+    const wrapper = mount(Upload, { props: { defaultFileList: [{ uid: 'first', name: 'first.txt' }] } })
+    await wrapper.find('.aheart-upload__remove').trigger('click')
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+
+    await wrapper.setProps({ defaultFileList: [{ uid: 'second', name: 'second.txt' }] })
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+  })
+
+  it('rebases an async beforeUpload result onto the latest controlled fileList', async () => {
+    let allowUpload: (() => void) | undefined
+    const beforeUpload = () => new Promise<boolean>((resolve) => {
+      allowUpload = () => resolve(false)
+    })
+    const wrapper = mount(Upload, {
+      props: {
+        fileList: [{ uid: 'owner-a', name: 'owner-a.txt' }],
+        beforeUpload
+      }
+    })
+
+    const change = selectFiles(wrapper.find('input[type="file"]'), [createFile('new.txt')])
+    await vi.waitFor(() => expect(allowUpload).toBeTypeOf('function'))
+    await wrapper.setProps({ fileList: [{ uid: 'owner-b', name: 'owner-b.txt' }] })
+    allowUpload?.()
+    await change
+
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0].map((file: { name: string }) => file.name))
+      .toEqual(['owner-b.txt', 'new.txt'])
   })
 
   it('allows manual upload after beforeUpload returns false', async () => {
@@ -78,6 +145,64 @@ describe('Upload', () => {
     ])
   })
 
+  it('clears the file input while a custom upload is still pending', async () => {
+    let completeUpload: (() => void) | undefined
+    const wrapper = mount(Upload, {
+      props: {
+        customRequest: ({ onSuccess }: { onSuccess: () => void }) => new Promise<void>((resolve) => {
+          completeUpload = () => {
+            onSuccess()
+            resolve()
+          }
+        })
+      }
+    })
+    const input = wrapper.find('input[type="file"]')
+    Object.defineProperty(input.element, 'files', { configurable: true, value: [createFile('pending.txt')] })
+    Object.defineProperty(input.element, 'value', { configurable: true, writable: true, value: 'C:\\fakepath\\pending.txt' })
+
+    const change = input.trigger('change')
+    await vi.waitFor(() => expect(wrapper.emitted('update:fileList')).toBeTruthy())
+
+    expect(input.element.value).toBe('')
+    completeUpload?.()
+    await change
+  })
+
+  it('emits a second same-name selection while the first custom upload is pending', async () => {
+    const pendingRequests: Array<{
+      file: { name: string; uid: string }
+      onSuccess: () => void
+      resolve: () => void
+    }> = []
+    const customRequest = vi.fn(({ file, onSuccess }: {
+      file: { name: string; uid: string }
+      onSuccess: () => void
+    }) => new Promise<void>((resolve) => {
+      pendingRequests.push({ file, onSuccess, resolve })
+    }))
+    const wrapper = mount(Upload, { props: { customRequest } })
+    const input = wrapper.find('input[type="file"]')
+
+    const firstChange = selectFiles(input, [createFile('same-name.txt')])
+    await vi.waitFor(() => expect(customRequest).toHaveBeenCalledOnce())
+
+    const secondChange = selectFiles(input, [createFile('same-name.txt')])
+    await vi.waitFor(() => expect(customRequest).toHaveBeenCalledTimes(2))
+
+    expect(pendingRequests[0].file.uid).not.toBe(pendingRequests[1].file.uid)
+    expect(wrapper.emitted('change')?.at(-1)?.[0]).toMatchObject([
+      { name: 'same-name.txt', status: 'uploading' },
+      { name: 'same-name.txt', status: 'uploading' }
+    ])
+
+    pendingRequests.forEach(({ onSuccess, resolve }) => {
+      onSuccess()
+      resolve()
+    })
+    await Promise.all([firstChange, secondChange])
+  })
+
   it('enforces maxCount and supports removal', async () => {
     const wrapper = mount(Upload, { props: { maxCount: 1 } })
     await selectFiles(wrapper.find('input[type="file"]'), [createFile('one.txt'), createFile('two.txt')])
@@ -85,6 +210,34 @@ describe('Upload', () => {
     expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(1)
     await wrapper.find('.aheart-upload__remove').trigger('click')
     expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toEqual([])
+  })
+
+  it('does not let a rejected controlled update consume maxCount capacity', async () => {
+    const parentUpdates: string[][] = []
+    const wrapper = mount(Upload, {
+      props: {
+        fileList: [],
+        maxCount: 1,
+        'onUpdate:fileList': async (files) => {
+          parentUpdates.push(files.map((file) => file.name))
+          if (files[0]?.name === 'accepted.txt') {
+            await wrapper.setProps({ fileList: files })
+          }
+        }
+      }
+    })
+
+    const input = wrapper.find('input[type="file"]')
+    await selectFiles(input, [createFile('rejected.txt')])
+
+    expect(parentUpdates).toContainEqual(['rejected.txt'])
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
+
+    await selectFiles(input, [createFile('accepted.txt')])
+
+    expect(parentUpdates).toContainEqual(['accepted.txt'])
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(1)
+    expect(wrapper.find('.aheart-upload__item').text()).toContain('accepted.txt')
   })
 
   it('does not restore a removed file when a pending request resolves', async () => {

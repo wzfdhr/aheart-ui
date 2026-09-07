@@ -2,7 +2,7 @@ import type { Component, ExtractPropTypes, ExtractPublicPropTypes, PropType, VNo
 import type { AheartSize, AheartVariant } from '../config'
 import type { PickerStatus } from '../picker-core/types'
 import type { PickerDisabledTime, PickerDisabledTimeConfig, PickerPreset, PickerSingleDisabledTime, RangePickerPart, RangePickerValue } from '../picker-core/types'
-import { floatingPlacements, type FloatingPlacement } from '../utils/floating'
+import { floatingPlacements, type FloatingPlacement } from '../utils/floating-core'
 
 export type DisabledTimeConfig = PickerDisabledTimeConfig
 

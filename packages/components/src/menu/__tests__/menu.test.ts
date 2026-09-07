@@ -1,4 +1,6 @@
 import { mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { h, nextTick } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ConfigProvider from '../../config-provider/config-provider.vue'
@@ -20,6 +22,23 @@ const items: MenuItem[] = [
   { key: 'danger', label: 'Delete', danger: true }
 ]
 
+const menuStyles = readFileSync(resolve(process.cwd(), 'src/menu/style.css'), 'utf8')
+
+function getCssColor(rule: string, property: string) {
+  const value = rule.match(new RegExp(`${property}\\s*:\\s*([^;]+)`, 'i'))?.[1]?.trim()
+  return value === 'var(--aheart-color-primary)' ? '#1677ff' : value
+}
+
+function relativeLuminance(hex: string) {
+  const channels = hex
+    .slice(1)
+    .match(/../g)!
+    .map((channel) => Number.parseInt(channel, 16) / 255)
+    .map((channel) => (channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4))
+
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+}
+
 describe('Menu', () => {
   afterEach(() => {
     vi.useRealTimers()
@@ -36,6 +55,57 @@ describe('Menu', () => {
     expect(wrapper.text()).toContain('Projects')
     expect(wrapper.text()).toContain('Manage')
     expect(wrapper.find('.aheart-menu__divider').exists()).toBe(true)
+  })
+
+  it('keeps the selected light item text at WCAG AA contrast', () => {
+    const selectedRule = menuStyles.match(
+      /\.aheart-menu__item\.is-selected > \.aheart-menu__item-button\s*\{([^}]+)\}/
+    )?.[1]
+    const foreground = getCssColor(selectedRule ?? '', 'color')
+    const background = getCssColor(selectedRule ?? '', 'background')
+
+    expect(foreground).toBeDefined()
+    expect(background).toBeDefined()
+
+    const contrast =
+      (Math.max(relativeLuminance(foreground!), relativeLuminance(background!)) + 0.05) /
+      (Math.min(relativeLuminance(foreground!), relativeLuminance(background!)) + 0.05)
+
+    expect(contrast).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('allows an accessible root label and links submenu triggers to their menus', () => {
+    const wrapper = mount(Menu, {
+      attrs: { 'aria-label': 'Workspace navigation' },
+      props: { items, defaultOpenKeys: ['workspace'] }
+    })
+    const trigger = wrapper.find('[data-submenu-key="workspace"]')
+    const submenu = wrapper.find('.aheart-menu__submenu-list')
+
+    expect(wrapper.attributes('aria-label')).toBe('Workspace navigation')
+    expect(trigger.attributes('aria-controls')).toBe(submenu.attributes('id'))
+    expect(submenu.attributes('aria-labelledby')).toBe(trigger.attributes('id'))
+  })
+
+  it('keeps submenu IDs unique and correctly linked across multiple menu instances', () => {
+    const wrapper = mount({
+      render: () =>
+        h('div', [
+          h(Menu, { items, defaultOpenKeys: ['workspace'] }),
+          h(Menu, { items, defaultOpenKeys: ['workspace'] })
+        ])
+    })
+    const triggers = wrapper.findAll('[data-submenu-key="workspace"]')
+    const submenus = wrapper.findAll('.aheart-menu__submenu-list')
+    const triggerIds = triggers.map((trigger) => trigger.attributes('id'))
+    const submenuIds = submenus.map((submenu) => submenu.attributes('id'))
+
+    expect(new Set(triggerIds).size).toBe(triggerIds.length)
+    expect(new Set(submenuIds).size).toBe(submenuIds.length)
+    triggers.forEach((trigger) => {
+      const submenu = wrapper.find(`#${trigger.attributes('aria-controls')}`)
+      expect(submenu.attributes('aria-labelledby')).toBe(trigger.attributes('id'))
+    })
   })
 
   it('selects an item and emits click and select', async () => {

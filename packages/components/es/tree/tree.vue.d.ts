@@ -1,4 +1,4 @@
-import { type TreeKey, type TreeNodeData } from './types';
+import { type TreeCheckInfo, type TreeKey, type TreeNodeData } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     treeData: {
         type: import("vue").PropType<TreeNodeData[]>;
@@ -26,10 +26,18 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
-    disabled: BooleanConstructor;
+    checkStrictly: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    loadData: import("vue").PropType<import("./types").TreeLoadData>;
+    disabled: {
+        type: BooleanConstructor;
+        default: undefined;
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     select: (keys: TreeKey[], node: TreeNodeData) => void;
-    check: (keys: TreeKey[], node: TreeNodeData) => void;
+    check: (keys: TreeKey[], node: TreeNodeData, info: TreeCheckInfo) => void;
     "update:selectedKeys": (keys: TreeKey[]) => void;
     expand: (keys: TreeKey[], node: TreeNodeData) => void;
     "update:expandedKeys": (keys: TreeKey[]) => void;
@@ -61,10 +69,18 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
-    disabled: BooleanConstructor;
+    checkStrictly: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    loadData: import("vue").PropType<import("./types").TreeLoadData>;
+    disabled: {
+        type: BooleanConstructor;
+        default: undefined;
+    };
 }>> & Readonly<{
     onSelect?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
-    onCheck?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
+    onCheck?: ((keys: TreeKey[], node: TreeNodeData, info: TreeCheckInfo) => any) | undefined;
     "onUpdate:selectedKeys"?: ((keys: TreeKey[]) => any) | undefined;
     onExpand?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
     "onUpdate:expandedKeys"?: ((keys: TreeKey[]) => any) | undefined;
@@ -79,5 +95,6 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     defaultExpandedKeys: TreeKey[];
     defaultCheckedKeys: TreeKey[];
     defaultExpandAll: boolean;
+    checkStrictly: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

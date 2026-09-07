@@ -6,7 +6,11 @@ const time = require("../picker-core/time.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
+const controlContext = require("../form/control-context.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useStableId = require("../utils/use-stable-id.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
@@ -64,6 +68,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const emit = __emit;
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const formControl = controlContext.useFormControl();
+    const attrs = vue.useAttrs();
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const panelRef = vue.ref(null);
@@ -71,14 +77,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const minuteColumnRef = vue.ref(null);
     const secondColumnRef = vue.ref(null);
     const periodColumnRef = vue.ref(null);
-    const internalValue = vue.ref(props.defaultValue ? [...props.defaultValue] : void 0);
-    const internalOpen = vue.ref(props.defaultOpen);
     const activePart = vue.ref("start");
     const activeColumn = vue.ref("hour");
     const draftValue = vue.ref();
     const draftParts = vue.ref([{ hour: 0, minute: 0, second: 0 }, { hour: 0, minute: 0, second: 0 }]);
     const liveMessage = vue.ref("");
-    const panelId = `aheart-time-range-${vue.useId().replace(/:/g, "")}-panel`;
+    const panelId = `${useStableId.useStableId(void 0, "aheart-time-range").value}-panel`;
+    const resolvedId = vue.computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const mergedAriaLabelledby = vue.computed(() => controlContext.mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = vue.computed(() => controlContext.mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = vue.computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = vue.computed(() => controlContext.formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const instanceId = panelId.replace("-panel", "");
     const partPanelId = `${instanceId}-part-panel`;
     const startTabId = `${instanceId}-start-tab`;
@@ -86,6 +95,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isValueControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const isFormatProvided = usePropPresence.usePropPresence("format");
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue ? [...props.defaultValue] : void 0,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = vue.defineComponent({
       name: "ATimeRangePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -97,8 +118,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         };
       }
     });
-    const mergedValue = vue.computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = vue.computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const resolvedLocale = vue.computed(() => {
       var _a;
       return { ...context.zhCN.timePicker, ...(_a = config.value.locale) == null ? void 0 : _a.timePicker };
@@ -109,7 +130,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const resolvedVariant = vue.computed(() => props.variant ?? config.value.variant ?? "outlined");
     const hasPrefix = vue.computed(() => props.prefix !== void 0 || Boolean(slots.prefix));
-    const rootClass = vue.computed(() => [`aheart-time-range-picker--${resolvedSize.value}`, `aheart-time-range-picker--${resolvedVariant.value}`, props.status && `aheart-time-range-picker--${props.status}`, { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }]);
+    const rootClass = vue.computed(() => [`aheart-time-range-picker--${resolvedSize.value}`, `aheart-time-range-picker--${resolvedVariant.value}`, resolvedStatus.value && `aheart-time-range-picker--${resolvedStatus.value}`, { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }]);
     const resolvedFormat = vue.computed(() => props.use12Hours && !isFormatProvided.value ? "hh:mm:ss A" : props.format);
     const meridiemLabels = vue.computed(() => ({ am: resolvedLocale.value.am, pm: resolvedLocale.value.pm }));
     const showSeconds = vue.computed(() => resolvedFormat.value.includes("ss"));
@@ -247,6 +268,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         (_b = (_a = column == null ? void 0 : column.querySelector(".is-selected")) == null ? void 0 : _a.scrollIntoView) == null ? void 0 : _b.call(_a, { block: "center" });
     };
     let scrollTimer;
+    vue.onBeforeUnmount(() => clearTimeout(scrollTimer));
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;
@@ -268,10 +290,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (isInteractionDisabled.value)
         return false;
       if (!value) {
-        if (!isValueControlled.value)
-          internalValue.value = void 0;
-        emit("update:modelValue", void 0);
+        valueState.setState(void 0, { force: true });
         emit("change", void 0);
+        formControl == null ? void 0 : formControl.change();
         if (close)
           requestOpen(false);
         return true;
@@ -284,15 +305,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         if (parts && isPartsDisabled(parts, index === 0 ? "start" : "end"))
           return false;
       }
-      if (!isValueControlled.value)
-        internalValue.value = [...normalized];
-      emit("update:modelValue", normalized);
+      valueState.setState([...normalized], { force: true });
       emit("change", normalized);
+      formControl == null ? void 0 : formControl.change();
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
       if (close)
         requestOpen(false);
       return true;
+    };
+    const handleControlBlur = () => {
+      void vue.nextTick(() => {
+        var _a, _b, _c;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
     };
     const commitInput = (part, event) => {
       var _a, _b, _c, _d;
@@ -391,8 +419,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         updateActiveDraft(next);
     };
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady.useTeleportReady();
     const popupContainer = vue.computed(() => props.getPopupContainer && triggerRef.value ? props.getPopupContainer(triggerRef.value) : typeof document === "undefined" ? false : document.body);
-    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition.useFloatingPosition({ reference: triggerRef, floating: panelRef, open: () => motion.isMounted.value && motion.phase.value !== "hidden", placement: () => props.placement, strategy: "fixed", offset: 4, autoAdjustOverflow: () => props.autoAdjustOverflow });
     const panelClass = vue.computed(() => {
@@ -404,9 +433,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (open && isInteractionDisabled.value)
         return;
       const wasOpen = mergedOpen.value;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open && !wasOpen)
         syncDraft();
     };
@@ -491,7 +518,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: "aheart-time-range-picker__selector",
-          onMousedown: handleSelectorMouseDown
+          onMousedown: handleSelectorMouseDown,
+          onFocusout: handleControlBlur
         }, [
           hasPrefix.value ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, [
             vue.renderSlot(_ctx.$slots, "prefix", {}, () => [
@@ -502,13 +530,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-time-range-picker__field", { "is-active": activePart.value === "start" && mergedOpen.value }])
           }, [
             vue.createElementVNode("input", {
-              id: _ctx.id ? `${_ctx.id}-start` : void 0,
+              id: resolvedId.value ? `${resolvedId.value}-start` : void 0,
               "data-range-part": "start",
               role: "combobox",
               "aria-haspopup": "dialog",
-              "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
-              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+              "aria-labelledby": mergedAriaLabelledby.value,
+              "aria-describedby": mergedAriaDescribedby.value,
+              "aria-invalid": resolvedAriaInvalid.value,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value,
               "aria-activedescendant": mergedOpen.value && activePart.value === "start" ? activeDescendantId.value : void 0,
@@ -555,13 +583,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             class: vue.normalizeClass(["aheart-time-range-picker__field", { "is-active": activePart.value === "end" && mergedOpen.value }])
           }, [
             vue.createElementVNode("input", {
-              id: _ctx.id ? `${_ctx.id}-end` : void 0,
+              id: resolvedId.value ? `${resolvedId.value}-end` : void 0,
               "data-range-part": "end",
               role: "combobox",
               "aria-haspopup": "dialog",
-              "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
-              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+              "aria-labelledby": mergedAriaLabelledby.value,
+              "aria-describedby": mergedAriaDescribedby.value,
+              "aria-invalid": resolvedAriaInvalid.value,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value,
               "aria-activedescendant": mergedOpen.value && activePart.value === "end" ? activeDescendantId.value : void 0,
@@ -630,6 +658,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,
+            onFocusout: handleControlBlur,
             ref_key: "panelRef",
             ref: panelRef,
             id: panelId,

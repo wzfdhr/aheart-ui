@@ -1,28 +1,32 @@
 <template>
-  <div class="aheart-upload" :class="{ 'is-disabled': disabled }">
+  <div ref="rootRef" v-bind="rootAttrs" class="aheart-upload" :class="{ 'is-disabled': disabled, 'is-error': formControl?.invalid.value }" @focusout="handleFocusOut">
     <label class="aheart-upload__trigger">
-      <input type="file" :disabled="disabled" :multiple="multiple" @change="handleChange" />
-      <slot><span>Select file</span></slot>
+      <input v-bind="inputAttrs" :id="resolvedId" type="file" :aria-labelledby="resolvedAriaLabelledby" :aria-describedby="resolvedAriaDescribedby" :aria-invalid="resolvedAriaInvalid" :disabled="disabled" :multiple="multiple" @change="handleChange" />
+      <slot><span>{{ copy.selectFile }}</span></slot>
     </label>
-    <button v-if="readyFiles.length" class="aheart-upload__start" type="button" :disabled="disabled" @click="uploadReadyFiles">Upload</button>
+    <button v-if="readyFiles.length" class="aheart-upload__start" type="button" :disabled="disabled" @click="uploadReadyFiles">{{ copy.upload }}</button>
     <ul v-if="mergedFileList.length" class="aheart-upload__list">
       <li v-for="file in mergedFileList" :key="file.uid" class="aheart-upload__item" :class="`is-${file.status ?? 'ready'}`">
         <span>{{ file.name }}</span>
         <span v-if="file.status === 'uploading'">{{ file.percent ?? 0 }}%</span>
-        <span v-else-if="file.status === 'done'">Done</span>
-        <span v-else-if="file.status === 'error'">Failed</span>
-        <button class="aheart-upload__remove" type="button" :disabled="disabled" :aria-label="`Remove ${file.name}`" @click="removeFile(file.uid)">Remove</button>
+        <span v-else-if="file.status === 'done'">{{ copy.done }}</span>
+        <span v-else-if="file.status === 'error'">{{ copy.failed }}</span>
+        <button class="aheart-upload__remove" type="button" :disabled="disabled" :aria-label="copy.remove(file.name)" @click="removeFile(file.uid)">{{ copy.removeAction }}</button>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useAttrs, watch } from 'vue'
+import { useAheartConfig } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
+import { useControllableState } from '../utils/use-controllable-state'
+import { usePropPresence } from '../utils/use-prop-presence'
 import type { UploadFile, UploadRequest } from './types'
 import './style.css'
 
-defineOptions({ name: 'AUpload' })
+defineOptions({ name: 'AUpload', inheritAttrs: false })
 
 const props = withDefaults(defineProps<{
   fileList?: UploadFile[]
@@ -42,22 +46,43 @@ const emit = defineEmits<{
   remove: [file: UploadFile]
 }>()
 
-const internalFileList = ref<UploadFile[]>([...props.defaultFileList])
-const mergedFileList = computed(() => props.fileList ?? internalFileList.value)
+const config = useAheartConfig()
+const attrs = useAttrs()
+const inputAttribute = (key: string) => key === 'id' || key === 'name' || key === 'accept' || key === 'capture' || key.startsWith('aria-')
+const inputAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => inputAttribute(key))))
+const rootAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => !inputAttribute(key))))
+const formControl = useFormControl()
+const rootRef = ref<HTMLElement | null>(null)
+const resolvedId = computed(() => attrs.id as string | undefined ?? formControl?.controlId.value)
+const resolvedAriaLabelledby = computed(() => mergeAriaIds(attrs['aria-labelledby'], formControl?.labelledBy.value))
+const resolvedAriaDescribedby = computed(() => mergeAriaIds(attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], formControl?.status.value))
+const copy = computed(() => config.value.locale?.datePicker?.locale === 'en-US'
+  ? { selectFile: 'Select file', upload: 'Upload', done: 'Done', failed: 'Failed', removeAction: 'Remove', remove: (name: string) => `Remove ${name}` }
+  : { selectFile: '选择文件', upload: '上传', done: '已完成', failed: '上传失败', removeAction: '移除', remove: (name: string) => `移除 ${name}` })
+
+const isFileListControlled = usePropPresence('fileList', 'file-list')
+const fileListState = useControllableState<UploadFile[]>({
+  controlled: () => props.fileList,
+  isControlled: isFileListControlled,
+  defaultValue: () => [...props.defaultFileList],
+  onChange: (files) => emit('update:fileList', files ?? [])
+})
+const mergedFileList = computed(() => fileListState.state.value ?? [])
 const readyFiles = computed(() => mergedFileList.value.filter((file) => file.status === 'ready'))
 const latestFileList = ref<UploadFile[]>([...(props.fileList ?? props.defaultFileList)])
 let uid = 0
 const activeUploadUids = new Set<string>()
 
 watch(() => props.fileList, (fileList) => {
-  if (fileList !== undefined) latestFileList.value = [...fileList]
+  if (isFileListControlled.value) latestFileList.value = [...(fileList ?? [])]
 }, { deep: true })
 
 const updateFileList = (files: UploadFile[]) => {
   latestFileList.value = files
-  if (props.fileList === undefined) internalFileList.value = files
-  emit('update:fileList', files)
+  fileListState.setState(files)
   emit('change', files)
+  formControl?.change()
 }
 const replaceFile = (file: UploadFile) => {
   const nextFiles = latestFileList.value.map((current) => current.uid === file.uid ? file : current)
@@ -109,19 +134,28 @@ const uploadReadyFiles = async () => {
   }
 }
 const handleChange = async (event: Event) => {
+  if (props.disabled) return
   const files = Array.from((event.target as HTMLInputElement).files ?? [])
-  const remaining = Math.max(0, props.maxCount - latestFileList.value.length)
-  let nextFiles = latestFileList.value
+  ;(event.target as HTMLInputElement).value = ''
+  let nextFiles = isFileListControlled.value ? [...(props.fileList ?? [])] : latestFileList.value
+  latestFileList.value = nextFiles
 
-  for (const rawFile of files.slice(0, remaining)) {
+  for (const rawFile of files) {
+    if (nextFiles.length >= props.maxCount) break
     const uploadFile = toUploadFile(rawFile)
     const shouldUpload = await props.beforeUpload?.(rawFile, [...nextFiles, uploadFile])
-    nextFiles = [...nextFiles, uploadFile]
+    const currentFiles = isFileListControlled.value ? [...(props.fileList ?? [])] : latestFileList.value
+    if (currentFiles.length >= props.maxCount) continue
+    nextFiles = [...currentFiles, uploadFile]
     updateFileList(nextFiles)
     if (shouldUpload !== false) nextFiles = await upload(uploadFile, nextFiles)
   }
-
-  ;(event.target as HTMLInputElement).value = ''
+}
+const handleFocusOut = () => {
+  void Promise.resolve().then(() => {
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
+    if (!rootRef.value?.contains(active)) formControl?.blur()
+  })
 }
 const removeFile = (uid: string) => {
   const file = mergedFileList.value.find((current) => current.uid === uid)

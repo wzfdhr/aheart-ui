@@ -194,7 +194,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return [
         {
           "--aheart-button-color": colorTokens[resolvedColor.value],
-          "--aheart-button-color-hover": resolvedColor.value === "default" ? "var(--aheart-color-primary-hover)" : colorTokens[resolvedColor.value]
+          "--aheart-button-color-hover": resolvedColor.value === "default" ? "var(--aheart-color-primary-hover)" : colorTokens[resolvedColor.value],
+          "--aheart-button-solid-background": resolvedColor.value === "primary" && resolvedVariant.value === "solid" ? "#0958d9" : void 0,
+          "--aheart-button-solid-background-hover": resolvedColor.value === "primary" && resolvedVariant.value === "solid" ? "#003eb3" : void 0
         },
         props.style,
         (_a = props.styles) == null ? void 0 : _a.root

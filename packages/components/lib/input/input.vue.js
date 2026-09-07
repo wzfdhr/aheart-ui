@@ -1,14 +1,16 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const controlContext = require("../form/control-context.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
-const _hoisted_2 = ["id", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
+const _hoisted_1 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
+const _hoisted_2 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
-    name: "AInput"
+    name: "AInput",
+    inheritAttrs: false
   },
   __name: "input",
   props: types.inputProps,
@@ -16,8 +18,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const attrs = vue.useAttrs();
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const formControl = controlContext.useFormControl();
+    const formRootRef = vue.ref();
+    const handleFormBlur = () => {
+      void vue.nextTick(() => {
+        const root = formRootRef.value;
+        if (root && !root.contains(root.ownerDocument.activeElement))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
+    const resolvedId = vue.computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const resolvedAriaLabelledby = vue.computed(() => controlContext.mergeAriaIds(attrs["aria-labelledby"], formControl == null ? void 0 : formControl.labelledBy.value));
+    const resolvedAriaDescribedby = vue.computed(() => controlContext.mergeAriaIds(attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = vue.computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = vue.computed(() => controlContext.formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const AInputRenderNode = vue.defineComponent({
       name: "AInputRenderNode",
       props: {
@@ -94,7 +111,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         props.rootClassName,
         (_a = props.classNames) == null ? void 0 : _a.root,
         {
-          [`aheart-input--${props.status}`]: props.status,
+          [`aheart-input--${resolvedStatus.value}`]: resolvedStatus.value,
           "is-disabled": isDisabled.value,
           "is-readonly": props.readOnly
         }
@@ -202,6 +219,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const value = getEventValue(event);
       emit("update:modelValue", value);
       emit("input", value);
+      formControl == null ? void 0 : formControl.change();
     };
     const handleChange = (event) => {
       emit("change", getEventValue(event));
@@ -215,12 +233,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("update:modelValue", "");
       emit("input", "");
       emit("clear");
+      formControl == null ? void 0 : formControl.change();
     };
     return (_ctx, _cache) => {
       return hasAddon.value ? (vue.openBlock(), vue.createElementBlock("span", {
         key: 0,
+        ref_key: "formRootRef",
+        ref: formRootRef,
         class: vue.normalizeClass(groupClass.value),
-        style: vue.normalizeStyle(groupStyle.value)
+        style: vue.normalizeStyle(groupStyle.value),
+        onFocusout: handleFormBlur
       }, [
         hasAddonBefore.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 0,
@@ -244,10 +266,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
             ])
           ], 6)) : vue.createCommentVNode("", true),
-          vue.createElementVNode("input", {
-            class: vue.normalizeClass(["aheart-input__control", controlClass.value]),
-            style: vue.normalizeStyle(controlStyle.value),
-            id: _ctx.id,
+          vue.createElementVNode("input", vue.mergeProps(vue.unref(attrs), {
+            class: ["aheart-input__control", controlClass.value],
+            style: controlStyle.value,
+            id: resolvedId.value,
+            "aria-labelledby": resolvedAriaLabelledby.value,
+            "aria-describedby": resolvedAriaDescribedby.value,
+            "aria-invalid": resolvedAriaInvalid.value,
             type: _ctx.type,
             value: currentValue.value,
             placeholder: _ctx.placeholder,
@@ -257,13 +282,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onInput: handleInput,
             onChange: handleChange,
             onKeydown: handleKeydown
-          }, null, 46, _hoisted_1),
+          }), null, 16, _hoisted_1),
           showClear.value ? (vue.openBlock(), vue.createElementBlock("button", {
             key: 1,
             class: vue.normalizeClass(clearClass.value),
             style: vue.normalizeStyle(clearStyle.value),
             type: "button",
-            "aria-label": "Clear",
+            "aria-label": "Clear input",
             onClick: handleClear
           }, [
             vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [
@@ -296,10 +321,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.addonAfter }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true)
-      ], 6)) : (vue.openBlock(), vue.createElementBlock("span", {
+      ], 38)) : (vue.openBlock(), vue.createElementBlock("span", {
         key: 1,
+        ref_key: "formRootRef",
+        ref: formRootRef,
         class: vue.normalizeClass(["aheart-input", inputClass.value]),
-        style: vue.normalizeStyle(rootStyle.value)
+        style: vue.normalizeStyle(rootStyle.value),
+        onFocusout: handleFormBlur
       }, [
         hasPrefix.value ? (vue.openBlock(), vue.createElementBlock("span", {
           key: 0,
@@ -310,10 +338,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.createVNode(vue.unref(AInputRenderNode), { node: _ctx.prefix }, null, 8, ["node"])
           ])
         ], 6)) : vue.createCommentVNode("", true),
-        vue.createElementVNode("input", {
-          class: vue.normalizeClass(["aheart-input__control", controlClass.value]),
-          style: vue.normalizeStyle(controlStyle.value),
-          id: _ctx.id,
+        vue.createElementVNode("input", vue.mergeProps(vue.unref(attrs), {
+          class: ["aheart-input__control", controlClass.value],
+          style: controlStyle.value,
+          id: resolvedId.value,
+          "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-describedby": resolvedAriaDescribedby.value,
+          "aria-invalid": resolvedAriaInvalid.value,
           type: _ctx.type,
           value: currentValue.value,
           placeholder: _ctx.placeholder,
@@ -323,13 +354,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onInput: handleInput,
           onChange: handleChange,
           onKeydown: handleKeydown
-        }, null, 46, _hoisted_2),
+        }), null, 16, _hoisted_2),
         showClear.value ? (vue.openBlock(), vue.createElementBlock("button", {
           key: 1,
           class: vue.normalizeClass(clearClass.value),
           style: vue.normalizeStyle(clearStyle.value),
           type: "button",
-          "aria-label": "Clear",
+          "aria-label": "Clear input",
           onClick: handleClear
         }, [
           vue.renderSlot(_ctx.$slots, "clearIcon", {}, () => [
@@ -352,7 +383,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           vue.createVNode(vue.unref(AInputRenderNode), { node: countText.value }, null, 8, ["node"])
         ], 6)) : vue.createCommentVNode("", true)
-      ], 6));
+      ], 38));
     };
   }
 });

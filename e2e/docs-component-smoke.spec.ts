@@ -20,9 +20,12 @@ const collectRuntimeErrors = (page: Page) => {
   return errors
 }
 
+const waitForHydration = (page: Page) => page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
+
 test('component lists and tables are isolated from VitePress content styles', async ({ page }) => {
   const errors = collectRuntimeErrors(page)
   await page.goto('/components/menu')
+  await waitForHydration(page)
 
   const horizontalDemo = page.locator('.menu-horizontal-dark-demo')
   const horizontalItem = horizontalDemo.locator('.aheart-menu__item').first()
@@ -33,14 +36,17 @@ test('component lists and tables are isolated from VitePress content styles', as
   await expect(horizontalDemo.locator('.aheart-menu__list')).toHaveCSS('flex-direction', 'row')
 
   await page.goto('/components/tree')
+  await waitForHydration(page)
   const treeNode = page.locator('.aheart-demo-panel .aheart-tree__treeitem').first()
   await expect(treeNode).toBeVisible()
   await expect(treeNode).toHaveCSS('list-style-type', 'none')
 
   await page.goto('/components/tree-select')
+  await waitForHydration(page)
   await expect(page.locator('.aheart-demo-panel .aheart-tree-select').first()).toBeVisible()
 
   await page.goto('/components/table')
+  await waitForHydration(page)
   const table = page.locator('.aheart-demo-panel .aheart-table table').first()
   await expect(table).toBeVisible()
   await expect(table).toHaveCSS('display', 'table')
@@ -51,6 +57,7 @@ test('form control demos update their visible state', async ({ page }) => {
   const errors = collectRuntimeErrors(page)
 
   await page.goto('/components/input-number')
+  await waitForHydration(page)
   const numberDemo = page.locator('.aheart-demo-panel').first()
   const numberInput = numberDemo.locator('input').first()
   await expect(numberInput).toHaveValue('4')
@@ -58,6 +65,7 @@ test('form control demos update their visible state', async ({ page }) => {
   await expect(numberInput).toHaveValue('5')
 
   await page.goto('/components/select')
+  await waitForHydration(page)
   const selectDemo = page.locator('.aheart-demo-panel').first()
   const selector = selectDemo.getByRole('combobox')
   await selector.click()
@@ -66,16 +74,19 @@ test('form control demos update their visible state', async ({ page }) => {
   await expect(selectDemo.locator('select')).toHaveCount(0)
 
   await page.goto('/components/checkbox')
+  await waitForHydration(page)
   const checkbox = page.locator('.aheart-demo-panel').first().getByRole('checkbox').first()
   await checkbox.click()
   await expect(checkbox).not.toBeChecked()
 
   await page.goto('/components/switch')
+  await waitForHydration(page)
   const switchControl = page.locator('.aheart-demo-panel').first().getByRole('switch').first()
   await switchControl.click()
   await expect(switchControl).not.toBeChecked()
 
   await page.goto('/components/pagination')
+  await waitForHydration(page)
   const pagination = page.locator('.aheart-demo-panel').first()
   await pagination.getByRole('button', { name: '3', exact: true }).click()
   await expect(pagination.getByRole('button', { name: '3', exact: true })).toHaveAttribute('aria-current', 'page')
@@ -87,10 +98,12 @@ test('feedback demos execute instead of throwing runtime errors', async ({ page 
   const errors = collectRuntimeErrors(page)
 
   await page.goto('/components/message')
+  await waitForHydration(page)
   await page.locator('.aheart-demo-panel').first().getByRole('button', { name: 'Success', exact: true }).click()
   await expect(page.locator('.aheart-message:not(.demo-message-host)').filter({ hasText: 'Saved' })).toBeVisible()
 
   await page.goto('/components/modal')
+  await waitForHydration(page)
   await page.getByRole('button', { name: 'Open modal', exact: true }).first().click()
   await expect(page.getByRole('dialog')).toBeVisible()
 
@@ -100,6 +113,7 @@ test('feedback demos execute instead of throwing runtime errors', async ({ page 
 test('icon documentation loads without runtime errors', async ({ page }) => {
   const errors = collectRuntimeErrors(page)
   await page.goto('/components/icon')
+  await waitForHydration(page)
   await expect(page.getByRole('heading', { name: /Icon 图标/ })).toBeVisible()
   const basicDemo = page.locator('.aheart-demo-panel').first()
   await expect(basicDemo.locator('svg.lucide')).toHaveCount(3)
@@ -113,7 +127,7 @@ test.describe('Chinese Ready component routes', () => {
       test.skip(testInfo.project.name !== 'desktop', 'The desktop crawl is the canonical runtime smoke check.')
 
       const errors = collectRuntimeErrors(page)
-      await page.goto(link, { waitUntil: 'networkidle' })
+      await page.goto(link, { waitUntil: 'domcontentloaded' })
       await expect(page.locator('.vp-doc h1'), `Missing component heading on ${link}`).toBeVisible()
       expect(errors, `Runtime errors on ${link}`).toEqual([])
     })

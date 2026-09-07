@@ -1,0 +1,13 @@
+# D4 B组隔离验证产品裁定
+
+结论：接受B组隔离引擎可行性验证，关闭该夹具锁文件不可移植的P1。没有批准核心正式依赖、虚拟化公共API或四组件接入，不等于完整D4或发布放行。
+
+产品经理实际核验最终manifest全部10文件的SHA-256，均匹配；manifest标识`21f3b0b4bdf200d0bee256f8ab684e74e7c40515dca3710136a3c3f80a3aea61`。A核心候选再次复算为`8317f0a95c7fdc565b67ca96858f14c0a160125894b662167af0a3b6d1f8402f`，未变化。读取独立开发复审、测试初次失败及修正版续验，核对独立engine-sizes.json；未冒称产品经理重跑全部隔离实验。
+
+独立续验已在全新临时目录完成tarball安装、ESM/CJS、SSR/hydration、固定/动态行高与键盘机制验证。依据是自建headless列表；Aheart Select仅作为小数据tarball共存检查，不能据此声称真实组件虚拟化完成或性能提升倍数。
+
+体积取舍：external Vue的adapter入口gzip6970字节，Brotli6334字节；这是隔离入口值，不是未来Select集成的固定增量。未使用import可移除，运行时enabled=false仍保留引擎。不能承诺默认virtual=false即默认包零成本。
+
+产品建议：下一批仅Select接入TanStack，默认关闭虚拟化、业务显式开启，动态内容采用测量而非裁切；接受默认消费者潜在静态引擎成本，以真实Select生产构建再测。与可选入口零默认成本方案相比，该方案接入简单且避免增加包/入口复杂性；这是建议，需用户最终选择。正式接入的props和参数须在同一批准范围明确，后续Tree/TreeSelect/Cascader保持分批验证。
+
+后续正式组件验收应覆盖全量/虚拟同内容对照、搜索重排/active被移除、disabled/多选/清除、五浏览器与iframe、SSR/hydration、动态高度、冷热打开及统计测量。本轮不把这些未覆盖任务写为完成。

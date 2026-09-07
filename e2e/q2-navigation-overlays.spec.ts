@@ -44,7 +44,7 @@ test('horizontal dark menu is marker-free and geometrically aligned', async ({ p
   await page.goto('/components/menu')
 
   const menu = page.locator('.menu-horizontal-dark-demo .aheart-menu')
-  const selected = menu.getByRole('menuitem', { name: 'Analytics' })
+  const selected = menu.getByRole('menuitem', { name: '分析' })
   await expect(menu).toBeVisible()
   await expect(selected).toBeVisible()
 
@@ -103,7 +103,7 @@ test('inline submenu keeps a measured leave transition', async ({ page }) => {
   await page.goto('/components/menu')
 
   const demo = page.locator('.aheart-demo-panel').nth(1)
-  const trigger = demo.getByRole('menuitem', { name: 'Workspace' })
+  const trigger = demo.getByRole('menuitem', { name: '工作台' })
   const submenu = demo.locator('.aheart-menu__submenu-list').first()
   await expect(trigger).toHaveAttribute('aria-expanded', 'true')
   await expect(submenu).toHaveCSS('opacity', '1')

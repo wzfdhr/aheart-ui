@@ -9,6 +9,16 @@
       <div class="aheart-ai-workbench__header-status">
         <span data-workbench-status :class="`is-${workbenchStatus.key}`">{{ workbenchStatus.label }}</span>
         <small class="aheart-ai-workbench__progress">{{ completedTaskCount }} / {{ tasks.length }} 已完成</small>
+        <button
+          v-if="pendingApprovalCount > 0"
+          type="button"
+          data-pending-approval-summary
+          class="aheart-ai-workbench__pending-summary"
+          :aria-label="pendingApprovalSummary"
+          @click="openPendingApproval"
+        >
+          {{ pendingApprovalSummary }}
+        </button>
       </div>
     </header>
     <div class="aheart-ai-workbench__desktop">
@@ -34,7 +44,7 @@
             </section>
           </aside>
         </ASplitterPanel>
-        <ASplitterPanel :min="240">
+        <ASplitterPanel :min="230">
           <main class="aheart-ai-workbench__chat">
             <AIChatPanel
               v-if="transport"
@@ -56,7 +66,7 @@
             <slot name="attachments" :attachments="attachments"><AIAttachments :items="attachments" /></slot>
           </main>
         </ASplitterPanel>
-        <ASplitterPanel :min="190" collapsible>
+        <ASplitterPanel :min="180" collapsible>
           <aside class="aheart-ai-workbench__execution" aria-label="执行与产物">
             <AgentExecution
               :tasks="tasks"
@@ -147,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onBeforeUpdate, ref } from 'vue'
+import { computed, getCurrentInstance, h, onBeforeUpdate, ref } from 'vue'
 import { Button as AButton, Drawer as ADrawer, Splitter as ASplitter, SplitterPanel as ASplitterPanel, Tabs as ATabs } from 'aheart-ui'
 import { SortableList as ASortableList } from '@aheart-ui/dnd'
 import AIAttachments from './attachments.vue'
@@ -227,16 +237,39 @@ onBeforeUpdate(() => {
 const chatMessageProps = computed(() => (hasMessagesProp.value
   ? { messages: props.messages }
   : { defaultMessages: props.messages }))
-const mobileTabs = [
+const pendingApprovalTasks = computed(() => props.tasks.filter((task) =>
+  task.approval && (!task.approval.status || task.approval.status === 'pending')
+))
+const pendingApprovalCount = computed(() => pendingApprovalTasks.value.length)
+const pendingApprovalSummary = computed(() => {
+  const task = pendingApprovalTasks.value[0]
+  const artifact = props.artifacts.find((item) => item.id === task?.approval?.artifactId)
+  if (!artifact) return `${pendingApprovalCount.value} 项待审批`
+  const prefix = pendingApprovalCount.value > 1 ? `${pendingApprovalCount.value} 项待审批` : '待审批'
+  return `${prefix}：${artifact.title}`
+})
+const openPendingApproval = () => {
+  mobileView.value = 'execution'
+  executionDrawerOpen.value = true
+}
+const mobileTabs = computed(() => [
   { key: 'conversations', label: '会话' },
   { key: 'chat', label: '对话' },
-  { key: 'execution', label: '执行' }
-]
+  {
+    key: 'execution',
+    label: h('span', { class: 'aheart-ai-workbench__mobile-tab-label' }, [
+      h('span', '执行'),
+      pendingApprovalCount.value > 0
+        ? h('span', { class: 'aheart-ai-workbench__pending-badge', 'aria-label': `${pendingApprovalCount.value} 项待审批` }, String(pendingApprovalCount.value))
+        : null
+    ])
+  }
+])
 const sortableContext = computed(() => props.contextItems as unknown as Record<string, unknown>[])
 const completedTaskCount = computed(() => props.tasks.filter((task) => task.status === 'complete').length)
 const workbenchStatus = computed(() => {
   if (props.tasks.some((task) => task.status === 'error')) return { key: 'error', label: '需要处理' }
-  if (props.tasks.some((task) => task.status === 'waiting-approval')) return { key: 'waiting', label: '等待人工审批' }
+  if (pendingApprovalCount.value > 0) return { key: 'waiting', label: '等待人工审批' }
   if (props.tasks.some((task) => task.status === 'running')) return { key: 'running', label: '执行中' }
   if (props.tasks.length && completedTaskCount.value === props.tasks.length) return { key: 'complete', label: '已完成' }
   return { key: 'idle', label: '待开始' }

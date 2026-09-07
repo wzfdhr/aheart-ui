@@ -504,6 +504,38 @@
   .aheart-date-range-picker__grid button.is-in-range { background: #12345d; color: #d6e8ff; }
 }
 
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker {
+  --aheart-text-color: #f2f4f7;
+  --aheart-border-color: #303640;
+  --aheart-background-color: #15181d;
+  --aheart-primary-color: #73b4ff;
+  color: #f2f4f7;
+}
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__panel {
+  border-color: #303640;
+  background: #15181d;
+  color: #f2f4f7;
+}
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__presets,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__calendar + .aheart-date-range-picker__calendar,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__times,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__footer { border-color: #303640; }
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__header button,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__weekdays span,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__times legend,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__separator,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__prefix,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__suffix { color: #aeb4bf; }
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__header button:hover,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__header button:focus-visible,
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__grid button:hover:not(:disabled),
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__grid button:focus-visible { background: #28384f; color: #73b4ff; }
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__grid button.is-in-range { background: #12345d; color: #d6e8ff; }
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__grid button.is-selected { background: #3b82f6; color: #fff; }
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__grid button.is-outside { color: #6f7682; }
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__grid button:disabled { color: #575d67; }
+:is(html.dark, [data-theme='dark']) .aheart-date-range-picker__footer { background: #15181d; }
+
 @media (prefers-reduced-motion: reduce) {
   .aheart-date-range-picker__selector,
   .aheart-date-range-picker__field::after,

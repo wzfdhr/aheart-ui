@@ -7,9 +7,12 @@ const createPointerEvent = (type: string, pointerId: number, init: MouseEventIni
   Object.assign(new MouseEvent(type, { bubbles: true, cancelable: true, ...init }), { pointerId }) as PointerEvent
 
 const createDriver = (onMove = vi.fn(), onEnd = vi.fn()) => {
+  let stop: (() => void) | undefined
   const TestDriver = defineComponent({
     setup() {
-      const { isDragging, start } = usePointerDrag({ onMove, onEnd, cursor: 'col-resize' })
+      const driver = usePointerDrag({ onMove, onEnd, cursor: 'col-resize' })
+      const { isDragging, start } = driver
+      stop = driver.stop
 
       return () => h('button', { class: 'drag-handle', 'data-dragging': String(isDragging.value), onPointerdown: start })
     }
@@ -18,6 +21,7 @@ const createDriver = (onMove = vi.fn(), onEnd = vi.fn()) => {
   return {
     onMove,
     onEnd,
+    stop: () => stop?.(),
     wrapper: mount(TestDriver, { attachTo: document.body })
   }
 }
@@ -80,6 +84,60 @@ describe('usePointerDrag', () => {
 
     expect(document.querySelector('[data-aheart-drag-shield]')).toBeNull()
     expect(onEnd).toHaveBeenCalledWith('unmount')
+  })
+
+  it.each([
+    ['pointerup', async (wrapper: ReturnType<typeof createDriver>['wrapper']) => {
+      await wrapper.find('.drag-handle').trigger('pointerup', { pointerId: 1 })
+    }],
+    ['pointercancel', async (wrapper: ReturnType<typeof createDriver>['wrapper']) => {
+      document.dispatchEvent(createPointerEvent('pointercancel', 1))
+    }],
+    ['window blur', async (wrapper: ReturnType<typeof createDriver>['wrapper']) => {
+      window.dispatchEvent(new Event('blur'))
+    }],
+    ['component unmount', async (wrapper: ReturnType<typeof createDriver>['wrapper']) => {
+      wrapper.unmount()
+    }]
+  ])('restores pre-existing body styles after %s', async (_reason, finish) => {
+    document.body.style.cursor = 'grab'
+    document.body.style.userSelect = 'text'
+    const { wrapper } = createDriver()
+
+    await wrapper.find('.drag-handle').trigger('pointerdown', { button: 0, pointerId: 1 })
+    await finish(wrapper)
+
+    expect(document.body.style.cursor).toBe('grab')
+    expect(document.body.style.userSelect).toBe('text')
+  })
+
+  it('does not deliver pointer events after stop', async () => {
+    vi.useFakeTimers()
+    const { wrapper, onMove, onEnd, stop } = createDriver()
+
+    await wrapper.find('.drag-handle').trigger('pointerdown', { button: 0, pointerId: 1 })
+    stop()
+    document.dispatchEvent(createPointerEvent('pointermove', 1, { clientX: 30 }))
+    document.dispatchEvent(createPointerEvent('pointerup', 1, { clientX: 40 }))
+    vi.runAllTimers()
+
+    expect(onMove).not.toHaveBeenCalled()
+    expect(onEnd).toHaveBeenCalledTimes(1)
+  })
+
+  it('releases pointer capture when the drag ends', async () => {
+    const { wrapper } = createDriver()
+    const handle = wrapper.find('.drag-handle').element as HTMLElement
+    const setPointerCapture = vi.fn()
+    const releasePointerCapture = vi.fn()
+    Object.defineProperty(handle, 'setPointerCapture', { configurable: true, value: setPointerCapture })
+    Object.defineProperty(handle, 'releasePointerCapture', { configurable: true, value: releasePointerCapture })
+
+    await wrapper.find('.drag-handle').trigger('pointerdown', { button: 0, pointerId: 1 })
+    document.dispatchEvent(createPointerEvent('pointerup', 1))
+
+    expect(setPointerCapture).toHaveBeenCalledWith(1)
+    expect(releasePointerCapture).toHaveBeenCalledWith(1)
   })
 
   it('does not replay a move already delivered by an animation frame on pointerup', async () => {

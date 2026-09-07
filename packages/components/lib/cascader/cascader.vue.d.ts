@@ -1,5 +1,5 @@
-import type { FloatingPlacement } from '../utils/floating';
-import type { CascaderOption, CascaderValue } from './types';
+import type { FloatingPlacement } from '../utils/floating-core';
+import type { CascaderLoadContext, CascaderOption, CascaderValue } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     options?: CascaderOption[] | undefined;
     modelValue?: CascaderValue;
@@ -15,7 +15,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     placement?: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom" | undefined;
     autoAdjustOverflow?: boolean | undefined;
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
-    loadData?: ((option: CascaderOption) => Promise<CascaderOption[]>) | undefined;
+    loadData?: ((option: CascaderOption, context: CascaderLoadContext) => Promise<CascaderOption[]>) | undefined;
 }>, {
     options: () => never[];
     placeholder: string;
@@ -41,7 +41,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     placement?: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom" | undefined;
     autoAdjustOverflow?: boolean | undefined;
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
-    loadData?: ((option: CascaderOption) => Promise<CascaderOption[]>) | undefined;
+    loadData?: ((option: CascaderOption, context: CascaderLoadContext) => Promise<CascaderOption[]>) | undefined;
 }>, {
     options: () => never[];
     placeholder: string;

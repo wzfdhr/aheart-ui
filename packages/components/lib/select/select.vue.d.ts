@@ -1,6 +1,10 @@
 import { type PropType, type VNodeChild } from 'vue';
 import { type SelectFieldNames, type SelectRawOption, type SelectValue } from './types';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
+    readonly virtual: {
+        readonly type: PropType<import("./types").SelectVirtual>;
+        readonly default: false;
+    };
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
@@ -94,6 +98,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     "update:modelValue": (value: SelectValue) => void;
     openChange: (open: boolean) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
+    readonly virtual: {
+        readonly type: PropType<import("./types").SelectVirtual>;
+        readonly default: false;
+    };
     readonly id: StringConstructor;
     readonly labelledBy: StringConstructor;
     readonly ariaLabelledby: StringConstructor;
@@ -196,6 +204,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly defaultOpen: boolean;
     readonly allowClear: import("./types").SelectAllowClear;
     readonly autoAdjustOverflow: boolean;
+    readonly virtual: import("./types").SelectVirtual;
     readonly popupMatchSelectWidth: number | boolean;
     readonly optionFilterProp: string;
     readonly filterOption: import("./types").SelectFilterOption;

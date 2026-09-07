@@ -1,10 +1,14 @@
-import { defineComponent, useAttrs, useSlots, ref, useId, isVNode, h, toRaw, computed, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, isVNode, h, toRaw, onBeforeUnmount, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, parseTimeValue, formatTimeValue } from "../picker-core/time.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useStableId } from "../utils/use-stable-id.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { timePickerProps, timePickerEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
@@ -45,6 +49,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const attrs = useAttrs();
     const slots = useSlots();
     const config = useAheartConfig();
+    const formControl = useFormControl();
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const inputRef = ref(null);
@@ -54,13 +59,28 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const secondColumnRef = ref(null);
     const periodColumnRef = ref(null);
     const activeColumn = ref("hour");
-    const internalValue = ref(props.defaultValue);
-    const internalOpen = ref(props.defaultOpen);
-    const instanceId = useId().replace(/:/g, "");
-    const panelId = `aheart-time-${instanceId}-panel`;
+    const instanceId = useStableId(void 0, "aheart-time").value;
+    const panelId = `${instanceId}-panel`;
+    const resolvedId = computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const isValueControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const isFormatProvided = usePropPresence("format");
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = defineComponent({
       name: "ATimePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -72,8 +92,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         };
       }
     });
-    const mergedValue = computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = computed(() => Boolean(openState.state.value));
     const resolvedLocale = computed(() => {
       var _a;
       return { ...zhCN.timePicker, ...(_a = config.value.locale) == null ? void 0 : _a.timePicker };
@@ -86,7 +106,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootClass = computed(() => [
       `aheart-time-picker--${resolvedSize.value}`,
       `aheart-time-picker--${resolvedVariant.value}`,
-      props.status && `aheart-time-picker--${props.status}`,
+      resolvedStatus.value && `aheart-time-picker--${resolvedStatus.value}`,
       { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }
     ]);
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
@@ -173,12 +193,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return isPartsDisabled({ ...draft.value, hour: hour12 + (period === "PM" ? 12 : 0) });
     };
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady();
     const popupContainer = computed(() => {
       if (props.getPopupContainer && triggerRef.value)
         return props.getPopupContainer(triggerRef.value);
       return typeof document === "undefined" ? false : document.body;
     });
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,
@@ -207,9 +228,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const requestOpen = (open) => {
       if (open && isInteractionDisabled.value)
         return;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open) {
         syncDraft();
         activeColumn.value = "hour";
@@ -219,15 +238,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (isInteractionDisabled.value || isPartsDisabled(parts))
         return false;
       const value = formatTime(parts, props.valueFormat);
-      if (!isValueControlled.value)
-        internalValue.value = value;
-      emit("update:modelValue", value);
+      valueState.setState(value, { force: true });
       emit("change", value);
+      formControl == null ? void 0 : formControl.change();
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
       if (close)
         requestOpen(false);
       return true;
+    };
+    const handleControlBlur = () => {
+      void nextTick(() => {
+        var _a, _b, _c;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
     };
     const selectHour = (hour) => {
       if (isInteractionDisabled.value || isHourDisabled(hour))
@@ -278,10 +304,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const clearValue = () => {
       if (isInteractionDisabled.value)
         return;
-      if (!isValueControlled.value)
-        internalValue.value = void 0;
-      emit("update:modelValue", void 0);
+      valueState.setState(void 0, { force: true });
       emit("change", void 0);
+      formControl == null ? void 0 : formControl.change();
       emit("clear");
       requestOpen(false);
     };
@@ -306,6 +331,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     let scrollTimer;
+    onBeforeUnmount(() => clearTimeout(scrollTimer));
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;
@@ -388,14 +414,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (open)
         void nextTick(scrollSelectedOptionsIntoView);
     }, { immediate: true });
-    watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("span", {
         ref_key: "rootRef",
         ref: rootRef,
+        onFocusout: handleControlBlur,
         class: normalizeClass(["aheart-time-picker", rootClass.value])
       }, [
         createElementVNode("span", {
@@ -412,15 +435,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ref_key: "inputRef",
             ref: inputRef,
             class: "aheart-time-picker__input",
-            id: _ctx.id,
+            id: resolvedId.value,
             value: displayValue.value,
             placeholder: resolvedPlaceholder.value,
             disabled: isDisabled.value,
             readonly: _ctx.readOnly,
             role: "combobox",
-            "aria-labelledby": resolvedAriaLabelledby.value,
-            "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-            "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+            "aria-labelledby": mergedAriaLabelledby.value,
+            "aria-describedby": mergedAriaDescribedby.value,
+            "aria-invalid": resolvedAriaInvalid.value,
             "aria-controls": panelId,
             "aria-expanded": mergedOpen.value ? "true" : "false",
             "aria-haspopup": "dialog",
@@ -466,6 +489,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,
+            onFocusout: handleControlBlur,
             ref_key: "panelRef",
             ref: panelRef,
             id: panelId,
@@ -602,7 +626,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
-      ], 2);
+      ], 34);
     };
   }
 });

@@ -1,5 +1,8 @@
 import { defineComponent, openBlock, createElementBlock, renderSlot } from "vue";
-const _hoisted_1 = { class: "aheart-splitter__panel" };
+const _hoisted_1 = {
+  class: "aheart-splitter__panel",
+  tabindex: "0"
+};
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ASplitterPanel"

@@ -6,8 +6,13 @@ export interface TreeNodeData {
   key: TreeKey
   title: string
   disabled?: boolean
+  isLeaf?: boolean
   children?: TreeNodeData[]
 }
+
+export interface TreeLoadContext { signal: AbortSignal }
+export type TreeLoadData = (node: TreeNodeData, context: TreeLoadContext) => Promise<TreeNodeData[] | void>
+export interface TreeCheckInfo { halfCheckedKeys: TreeKey[] }
 
 export const treeProps = {
   treeData: {
@@ -36,5 +41,11 @@ export const treeProps = {
   },
   multiple: Boolean,
   checkable: Boolean,
-  disabled: Boolean
+  checkStrictly: { type: Boolean, default: true },
+  loadData: Function as PropType<TreeLoadData>,
+  // `undefined` preserves ConfigProvider inheritance when the prop is omitted.
+  disabled: {
+    type: Boolean,
+    default: undefined
+  }
 }

@@ -7,6 +7,8 @@ export type FormLabelAlign = 'left' | 'right';
 export type FormValidateStatus = 'success' | 'warning' | 'error' | 'validating';
 export type FormRequiredMark = boolean | 'optional';
 export type FormValidateFirst = boolean | 'parallel';
+export type FormValidateTrigger = 'change' | 'blur';
+export type FormNamePath = string | readonly (string | number)[];
 export type FormVariant = AheartVariant;
 export type FormRenderable = VNodeChild;
 export type FormMessageVariables = Record<string, string | number>;
@@ -30,15 +32,20 @@ export interface FormRule {
     len?: number;
     pattern?: RegExp;
     validator?: FormRuleValidator;
+    validateTrigger?: FormValidateTrigger | FormValidateTrigger[] | false;
 }
 export type FormRules = Record<string, FormRule[]>;
 export interface FormValidationError {
-    name: string;
+    name: FormNamePath;
     errors: string[];
 }
 export interface FormFinishFailedInfo {
     values: FormModel;
     errorFields: FormValidationError[];
+}
+export interface FormValidationResult extends FormFinishFailedInfo {
+    /** The model, rules, or field lifecycle changed while validation was pending. */
+    outOfDate?: true;
 }
 export interface FormFieldState {
     errors: string[];
@@ -46,15 +53,24 @@ export interface FormFieldState {
     rules: FormRule[];
     validateFirst: FormValidateFirst;
     messageVariables: FormMessageVariables;
+    dependencies: FormNamePath[];
+    validateTrigger: FormValidateTrigger | FormValidateTrigger[] | false;
+    preserve: boolean;
 }
 export interface FormContext {
     requiredMark: ComputedRef<FormRequiredMark>;
     colon: ComputedRef<boolean>;
-    registerField: (name: string, rules: FormRule[], validateFirst: FormValidateFirst, messageVariables: FormMessageVariables) => void;
-    unregisterField: (name: string) => void;
-    getFieldErrors: (name: string) => string[];
-    isFieldValidating: (name: string) => boolean;
-    isFieldRequired: (name: string) => boolean;
+    registerField: (name: FormNamePath, rules: FormRule[], validateFirst: FormValidateFirst, messageVariables: FormMessageVariables, options?: {
+        dependencies?: FormNamePath[];
+        validateTrigger?: FormValidateTrigger | FormValidateTrigger[] | false;
+        preserve?: boolean;
+    }) => void;
+    unregisterField: (name: FormNamePath) => void;
+    getFieldErrors: (name: FormNamePath) => string[];
+    isFieldValidating: (name: FormNamePath) => boolean;
+    isFieldRequired: (name: FormNamePath) => boolean;
+    onFieldChange: (name: FormNamePath) => void;
+    onFieldBlur: (name: FormNamePath) => void;
 }
 export declare const formContextKey: InjectionKey<FormContext>;
 export declare const formProps: {
@@ -95,16 +111,24 @@ export declare const formProps: {
         readonly type: PropType<FormScrollToFirstError>;
         readonly default: false;
     };
+    readonly validateTrigger: {
+        readonly type: PropType<false | FormValidateTrigger | FormValidateTrigger[]>;
+        readonly default: false;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
 };
 export declare const formEmits: {
     submit: (event: Event) => boolean;
     finish: (values: FormModel) => boolean;
     finishFailed: (info: FormFinishFailedInfo) => boolean;
-    validate: (name: string, status: boolean, errors: string[]) => boolean;
+    validate: (name: FormNamePath, status: boolean, errors: string[]) => boolean;
 };
 export declare const formItemProps: {
     readonly label: PropType<VNodeChild>;
-    readonly name: StringConstructor;
+    readonly name: PropType<FormNamePath>;
     readonly colon: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -138,6 +162,15 @@ export declare const formItemProps: {
         default: undefined;
     };
     readonly hasFeedback: BooleanConstructor;
+    readonly dependencies: PropType<FormNamePath[]>;
+    readonly validateTrigger: {
+        readonly type: PropType<false | FormValidateTrigger | FormValidateTrigger[]>;
+        readonly default: undefined;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
 };
 export type FormProps = ExtractPropTypes<typeof formProps>;
 export type FormItemProps = ExtractPropTypes<typeof formItemProps>;

@@ -25,7 +25,14 @@ function useDraggable(element, options) {
         (_a = options.onDrop) == null ? void 0 : _a.call(options);
       }
     });
-    onCleanup(cleanup);
+    onCleanup(() => {
+      cleanup();
+      if (isDragging.value) {
+        dragState.cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
+        isDragging.value = false;
+        dragState.endDrag();
+      }
+    });
   });
   return { isDragging };
 }

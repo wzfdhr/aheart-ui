@@ -1,0 +1,14 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/utils/__tests__/use-floating-dismiss.test.ts  (7 tests) 41ms
+ ✓ src/tree-select/__tests__/tree-select.test.ts  (15 tests) 240ms
+ ✓ src/select/__tests__/select.test.ts  (38 tests) 366ms
+ ✓ src/cascader/__tests__/cascader.test.ts  (21 tests) 406ms
+
+ Test Files  4 passed (4)
+      Tests  81 passed (81)
+   Start at  11:43:15
+   Duration  1.06s (transform 457ms, setup 1ms, collect 963ms, tests 1.05s, environment 1.03s, prepare 168ms)
+

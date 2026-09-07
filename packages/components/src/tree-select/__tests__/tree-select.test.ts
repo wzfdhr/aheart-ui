@@ -1,6 +1,8 @@
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it } from 'vitest'
 import TreeSelect from '../tree-select.vue'
+
+enableAutoUnmount(afterEach)
 
 const mountTreeSelect = (options: Record<string, any> = {}) => mount(TreeSelect, {
   ...options,
@@ -13,6 +15,123 @@ const treeData = [
 ]
 
 describe('TreeSelect', () => {
+  it('keeps iframe focus, restores it on Escape, and clears unmounted overlay behavior', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const ownerWindow = iframe.contentWindow! as Window & typeof globalThis
+    const openChanges: boolean[] = []
+    const wrapper = mount(TreeSelect, {
+      attachTo: ownerDocument.body,
+      props: { treeData, onOpenChange: (open: boolean) => openChanges.push(open) }
+    })
+    try {
+      const trigger = wrapper.get('.aheart-tree-select__trigger').element as HTMLElement
+      trigger.focus()
+      expect(ownerDocument.activeElement).toBe(trigger)
+      expect(document.activeElement).toBe(iframe)
+      trigger.click()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      const panel = ownerDocument.querySelector<HTMLElement>('.aheart-tree-select__panel')!
+      expect(panel).toBeTruthy()
+      expect(panel.parentElement).toBe(ownerDocument.body)
+      expect(document.querySelector('.aheart-tree-select__panel')).toBeNull()
+      const innerTarget = panel.querySelector<HTMLElement>('[role="treeitem"]')!
+      innerTarget.focus()
+      expect(ownerDocument.activeElement).toBe(innerTarget)
+      const foreignEscape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      document.dispatchEvent(foreignEscape)
+      await wrapper.vm.$nextTick()
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+      const escape = new ownerWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      ownerDocument.activeElement!.dispatchEvent(escape)
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(escape.defaultPrevented).toBe(true)
+      expect(trigger.getAttribute('aria-expanded')).toBe('false')
+      expect(ownerDocument.activeElement).toBe(trigger)
+      expect(wrapper.emitted('openChange')).toEqual([[true], [false]])
+
+      trigger.click()
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(ownerDocument.querySelector('.aheart-tree-select__panel')).toBeTruthy()
+      const callsBeforeUnmount = openChanges.length
+      wrapper.unmount()
+      expect(ownerDocument.querySelector('.aheart-tree-select__panel')).toBeNull()
+      expect(document.querySelector('.aheart-tree-select__panel')).toBeNull()
+
+      const outside = ownerDocument.createElement('button')
+      ownerDocument.body.appendChild(outside)
+      outside.focus()
+      const afterUnmount = new ownerWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      outside.dispatchEvent(afterUnmount)
+      outside.dispatchEvent(new ownerWindow.MouseEvent('pointerdown', { bubbles: true, cancelable: true }))
+      await wrapper.vm.$nextTick()
+      await wrapper.vm.$nextTick()
+      expect(afterUnmount.defaultPrevented).toBe(false)
+      expect(ownerDocument.activeElement).toBe(outside)
+      expect(openChanges.length).toBe(callsBeforeUnmount)
+      expect(ownerDocument.querySelector('.aheart-tree-select__panel')).toBeNull()
+    } finally {
+      if (wrapper.exists()) wrapper.unmount()
+      iframe.remove()
+    }
+  })
+
+  it('connects combobox, dialog, and visible tree active descendant', async () => {
+    const wrapper = mountTreeSelect({ attrs: { 'aria-describedby': 'tree-help' }, props: { treeData } })
+    const trigger = wrapper.get('.aheart-tree-select__trigger')
+    await trigger.trigger('click')
+    const panel = wrapper.get('.aheart-tree-select__panel')
+    expect(trigger.attributes('aria-controls')).toBe(panel.attributes('id'))
+    expect(trigger.attributes('aria-describedby')).toBe('tree-help')
+    const node = wrapper.get('[data-tree-key="workspace"]')
+    await node.trigger('focusin')
+    const activeId = trigger.attributes('aria-activedescendant')
+    expect(activeId).toBe(node.attributes('id'))
+    expect(panel.element.querySelector(`#${activeId}`)).toBe(node.element)
+  })
+
+  it('clears a stale active descendant after search filters the focused node', async () => {
+    const wrapper = mountTreeSelect({ props: { treeData, showSearch: true } })
+    const trigger = wrapper.get('.aheart-tree-select__trigger')
+    await trigger.trigger('click')
+    const workspace = wrapper.get('[data-tree-key="workspace"]')
+    await workspace.trigger('focusin')
+    expect(trigger.attributes('aria-activedescendant')).toBe(workspace.attributes('id'))
+
+    await wrapper.get('input[type="search"]').setValue('Archive')
+    expect(trigger.attributes('aria-activedescendant')).toBeUndefined()
+    const archive = wrapper.get('[data-tree-key="archive"]')
+    await archive.trigger('focusin')
+    expect(trigger.attributes('aria-activedescendant')).toBe(archive.attributes('id'))
+  })
+
+  it('preserves typed-key identity in node ids, focus, and active descendant', async () => {
+    const wrapper = mount(TreeSelect, {
+      attachTo: document.body,
+      props: { treeData: [{ key: 1, title: 'Numeric' }, { key: '1', title: 'String' }] }
+    })
+    const trigger = wrapper.get('.aheart-tree-select__trigger')
+    await trigger.trigger('click')
+    await wrapper.vm.$nextTick()
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>(`#${trigger.attributes('aria-controls')} [role="treeitem"]`))
+    expect(nodes).toHaveLength(2)
+    expect(nodes[0].id).not.toBe(nodes[1].id)
+    nodes[0].focus()
+    await wrapper.vm.$nextTick()
+    expect(trigger.attributes('aria-activedescendant')).toBe(nodes[0].id)
+
+    nodes[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
+    expect(document.activeElement).toBe(nodes[1])
+    expect(trigger.attributes('aria-activedescendant')).toBe(nodes[1].id)
+  })
+
   it('opens a tree and emits a selected value', async () => {
     const wrapper = mountTreeSelect({ props: { treeData, placeholder: 'Choose a page' } })
 

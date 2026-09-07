@@ -7,6 +7,7 @@ export interface UseFloatingDismissOptions {
     floating: ElementSource;
     onDismiss: (reason: FloatingDismissReason, event: Event) => void;
     restoreFocus?: MaybeRefOrGetter<boolean | undefined>;
+    ignoreEscape?: MaybeRefOrGetter<boolean>;
 }
 export declare function useFloatingDismiss(options: UseFloatingDismissOptions): void;
 export {};

@@ -1,7 +1,12 @@
 import { existsSync, lstatSync } from 'node:fs'
 import path from 'node:path'
 import ts from 'typescript'
-import { e2ePolicyFor, qg1ComponentContractPath } from '../docs/.vitepress/data/quality-evidence-policy.mjs'
+import {
+  e2ePolicyFor,
+  qg1ComponentContractPath,
+  qg4EvidenceCoverage,
+  qg4EvidencePath
+} from '../docs/.vitepress/data/quality-evidence-policy.mjs'
 
 const packageRoot = {
   'aheart-ui': 'packages/components/',
@@ -147,10 +152,12 @@ const resolveEvidenceFile = (record, category, evidence, root) => {
 }
 
 const validateEvidenceItem = (record, category, evidence, root) => {
-  if (['a11y', 'visual'].includes(category) && evidence.kind !== 'planned') {
-    throw new Error(`${record.component}.${category} evidence must be planned for QG4`)
-  }
+  const isQG4Category = ['a11y', 'visual'].includes(category)
+  const hasCompletedQG4Evidence = isQG4Category && qg4EvidenceCoverage[category].includes(record.component)
   if (evidence.kind === 'notApplicable') {
+    if (isQG4Category) {
+      throw new Error(`${record.component}.${category} evidence must be planned for QG4 or use registered file evidence`)
+    }
     if (category === 'ssr' && canonicalSsrPath[record.component]) {
       throw new Error(`${record.component}.ssr has a dedicated SSR file and cannot be notApplicable`)
     }
@@ -159,6 +166,9 @@ const validateEvidenceItem = (record, category, evidence, root) => {
     return
   }
   if (evidence.kind === 'planned') {
+    if (hasCompletedQG4Evidence) {
+      throw new Error(`${record.component}.${category} completed QG4 evidence cannot remain planned`)
+    }
     if (category === 'ssr' && evidence.milestone === 'QG6' && evidence.status !== 'deferred') {
       throw new Error(`${record.component}.ssr SSR planned evidence must be deferred at QG6`)
     }
@@ -175,13 +185,16 @@ const validateEvidenceItem = (record, category, evidence, root) => {
   }
   if (evidence.kind !== 'file' || !evidence.path) throw new Error(`${record.component}.${category} has invalid evidence`)
   const resolved = resolveEvidenceFile(record, category, evidence, root)
+  if (isQG4Category && (!hasCompletedQG4Evidence || evidence.path !== qg4EvidencePath)) {
+    throw new Error(`${record.component}.${category} has unregistered QG4 evidence: ${evidence.path}`)
+  }
   if (['unit', 'ssr'].includes(category) && !isWithin(path.resolve(root, packageRoot[record.package]), resolved)) {
     throw new Error(`${record.component}.${category} crosses package boundary: ${evidence.path}`)
   }
   if (category === 'unit' && evidence.path !== canonicalUnitPath(record)) {
     throw new Error(`${record.component}.unit does not match the canonical component test: ${evidence.path}`)
   }
-  if (category === 'e2e' && !isWithin(path.resolve(root, 'e2e'), resolved)) {
+  if (['e2e', 'a11y', 'visual'].includes(category) && !isWithin(path.resolve(root, 'e2e'), resolved)) {
     throw new Error(`${record.component}.e2e evidence must be inside e2e/: ${evidence.path}`)
   }
 }

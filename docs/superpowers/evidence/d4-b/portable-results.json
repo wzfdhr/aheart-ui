@@ -1,0 +1,148 @@
+{
+  "environment": {
+    "node": "v24.17.0",
+    "mode": "production Vite 5.0.12",
+    "packages": {
+      "vue": "3.5.38",
+      "tanstackVue": "3.13.36",
+      "virtualCore": "3.17.8",
+      "aheart": "packed local 1.0.0"
+    },
+    "browser": "149.0.7827.55"
+  },
+  "commonjs": true,
+  "cjsSSR": true,
+  "requireEntry": "/private/tmp/aheart-d4-b-portable.CttbAO/node_modules/@tanstack/vue-virtual/dist/cjs/index.cjs",
+  "symlink": false,
+  "ssrRows": 12,
+  "ssrDynamicRows": 9,
+  "sizes": {
+    "baseline": {
+      "js": {
+        "raw": 124876,
+        "gzip": 46322,
+        "brotli": 41483
+      },
+      "css": {
+        "raw": 169303,
+        "gzip": 21914,
+        "brotli": 18129
+      }
+    },
+    "unused": {
+      "js": {
+        "raw": 124876,
+        "gzip": 46322,
+        "brotli": 41483
+      },
+      "css": {
+        "raw": 169303,
+        "gzip": 21914,
+        "brotli": 18129
+      }
+    },
+    "disabled": {
+      "js": {
+        "raw": 163228,
+        "gzip": 59392,
+        "brotli": 52900
+      },
+      "css": {
+        "raw": 169303,
+        "gzip": 21914,
+        "brotli": 18129
+      }
+    },
+    "virtual": {
+      "js": {
+        "raw": 163317,
+        "gzip": 59443,
+        "brotli": 52847
+      },
+      "css": {
+        "raw": 169303,
+        "gzip": 21914,
+        "brotli": 18129
+      }
+    }
+  },
+  "engineModules": {
+    "baseline": [],
+    "unused": [],
+    "disabled": [
+      "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+      "@tanstack/virtual-core/dist/esm/utils.js",
+      "@tanstack/virtual-core/dist/esm/index.js",
+      "@tanstack/vue-virtual/dist/esm/index.js"
+    ],
+    "virtual": [
+      "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+      "@tanstack/virtual-core/dist/esm/utils.js",
+      "@tanstack/virtual-core/dist/esm/index.js",
+      "@tanstack/vue-virtual/dist/esm/index.js"
+    ]
+  },
+  "scenarios": [
+    {
+      "dynamic": false,
+      "rows": 12,
+      "heights": [
+        32
+      ],
+      "active": "virtual-row-0",
+      "resizedHeights": null,
+      "end": "virtual-row-9999",
+      "hydrationErrors": [],
+      "navigation": {
+        "domContentLoaded": 70.7000000178814,
+        "load": 70.7000000178814
+      },
+      "twentyArrowDownMs": 66.1399580000002,
+      "heapBefore": {
+        "usedSize": 2973520,
+        "totalSize": 5832704,
+        "embedderHeapUsedSize": 1552560,
+        "backingStorageSize": 323594
+      },
+      "heapAfter": {
+        "usedSize": 5658924,
+        "totalSize": 7995392,
+        "embedderHeapUsedSize": 2388192,
+        "backingStorageSize": 324650
+      }
+    },
+    {
+      "dynamic": true,
+      "rows": 11,
+      "heights": [
+        32,
+        48
+      ],
+      "active": "virtual-row-0",
+      "resizedHeights": [
+        32,
+        80
+      ],
+      "end": "virtual-row-9999",
+      "hydrationErrors": [],
+      "navigation": {
+        "domContentLoaded": 27.299999982118607,
+        "load": 27.299999982118607
+      },
+      "twentyArrowDownMs": 76.05616700000019,
+      "heapBefore": {
+        "usedSize": 3093952,
+        "totalSize": 6094848,
+        "embedderHeapUsedSize": 1554848,
+        "backingStorageSize": 323645
+      },
+      "heapAfter": {
+        "usedSize": 4689596,
+        "totalSize": 9830400,
+        "embedderHeapUsedSize": 2874352,
+        "backingStorageSize": 325227
+      }
+    }
+  ],
+  "unusedImportTreeShaken": true
+}

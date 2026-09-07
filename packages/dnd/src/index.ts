@@ -7,6 +7,7 @@ import SortableItem from './sortable-item.vue'
 import SortableList from './sortable-list.vue'
 
 export type { DragData, DragType, DraggableOptions, DroppableOptions } from './types'
+export type { SortableHandleProps } from './sortable-context'
 export { useDraggable } from './use-draggable'
 export { useDroppable } from './use-droppable'
 export { useSortable } from './use-sortable'

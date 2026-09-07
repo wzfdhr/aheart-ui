@@ -41,3 +41,21 @@ test('Chinese docs shell and component status copy stay localized', async () => 
     assert.match(title, /aheart-status--ready">已完成<\/span>/, file)
   }
 })
+
+test('DnD docs use visible handles and assign physical iOS touch evidence to QG5', async () => {
+  const [dnd, qualityPlan] = await Promise.all([
+    readFile(path.join(docsRoot, 'components/dnd.md'), 'utf8'),
+    readFile(path.join(docsRoot, 'superpowers/plans/2026-07-15-full-functional-quality-plan.md'), 'utf8')
+  ])
+  const qg5 = qualityPlan.match(/## QG5：[\s\S]*?(?=\n## QG6：)/)?.[0] ?? ''
+
+  assert.match(dnd, /#item="\{ item, handleProps \}"/)
+  assert.match(dnd, /v-bind="handleProps"/)
+  assert.match(dnd, /<AIcon name="grip-vertical"/)
+  assert.equal(dnd.match(/<template #item="\{ item \}">/g)?.length, 1)
+  assert.match(dnd, /data-testid="dnd-legacy-list"[\s\S]*?<template #item="\{ item \}">/)
+  assert.match(dnd, /移动触摸/)
+  assert.match(dnd, /Alt \+ ArrowUp/)
+  assert.match(qg5, /真机 iOS/)
+  assert.match(qg5, /可信触摸/)
+})

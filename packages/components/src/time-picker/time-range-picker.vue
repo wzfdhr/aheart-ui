@@ -1,14 +1,14 @@
 <template>
   <span ref="rootRef" class="aheart-time-range-picker" :class="rootClass">
-    <span ref="triggerRef" class="aheart-time-range-picker__selector" @mousedown="handleSelectorMouseDown">
+    <span ref="triggerRef" class="aheart-time-range-picker__selector" @mousedown="handleSelectorMouseDown" @focusout="handleControlBlur">
       <span v-if="hasPrefix" class="aheart-time-range-picker__prefix"><slot name="prefix"><ARenderNode :node="prefix" /></slot></span>
       <span class="aheart-time-range-picker__field" :class="{ 'is-active': activePart === 'start' && mergedOpen }">
-        <input :id="id ? `${id}-start` : undefined" data-range-part="start" role="combobox" aria-haspopup="dialog" :aria-labelledby="labelledBy ?? ariaLabelledby" :aria-describedby="describedBy ?? ariaDescribedby" :aria-invalid="status === 'error' ? 'true' : undefined" :aria-controls="panelId" :aria-expanded="mergedOpen" :aria-activedescendant="mergedOpen && activePart === 'start' ? activeDescendantId : undefined" :value="displayValue(0)" :placeholder="resolvedPlaceholders[0]" :disabled="isDisabled" :readonly="readOnly" @focus="activatePart('start')" @change="commitInput('start', $event)" @keydown="handleKeydown" />
+        <input :id="resolvedId ? `${resolvedId}-start` : undefined" data-range-part="start" role="combobox" aria-haspopup="dialog" :aria-labelledby="mergedAriaLabelledby" :aria-describedby="mergedAriaDescribedby" :aria-invalid="resolvedAriaInvalid" :aria-controls="panelId" :aria-expanded="mergedOpen" :aria-activedescendant="mergedOpen && activePart === 'start' ? activeDescendantId : undefined" :value="displayValue(0)" :placeholder="resolvedPlaceholders[0]" :disabled="isDisabled" :readonly="readOnly" @focus="activatePart('start')" @change="commitInput('start', $event)" @keydown="handleKeydown" />
         <button v-if="allowClear && mergedOpen && draftValue?.[0] && allowEmpty[0] && !isInteractionDisabled" data-range-clear="start" type="button" :aria-label="resolvedLocale.clearStart" @click.stop="clearPart('start')"><slot name="clearIcon"><ARenderNode v-if="clearIcon" :node="clearIcon" /><AIcon v-else name="close" :size="12" /></slot></button>
       </span>
       <span class="aheart-time-range-picker__separator"><slot name="separator"><ARenderNode v-if="separator" :node="separator" /><AIcon v-else name="arrow-right" :size="14" /></slot></span>
       <span class="aheart-time-range-picker__field" :class="{ 'is-active': activePart === 'end' && mergedOpen }">
-        <input :id="id ? `${id}-end` : undefined" data-range-part="end" role="combobox" aria-haspopup="dialog" :aria-labelledby="labelledBy ?? ariaLabelledby" :aria-describedby="describedBy ?? ariaDescribedby" :aria-invalid="status === 'error' ? 'true' : undefined" :aria-controls="panelId" :aria-expanded="mergedOpen" :aria-activedescendant="mergedOpen && activePart === 'end' ? activeDescendantId : undefined" :value="displayValue(1)" :placeholder="resolvedPlaceholders[1]" :disabled="isDisabled" :readonly="readOnly" @focus="activatePart('end')" @change="commitInput('end', $event)" @keydown="handleKeydown" />
+        <input :id="resolvedId ? `${resolvedId}-end` : undefined" data-range-part="end" role="combobox" aria-haspopup="dialog" :aria-labelledby="mergedAriaLabelledby" :aria-describedby="mergedAriaDescribedby" :aria-invalid="resolvedAriaInvalid" :aria-controls="panelId" :aria-expanded="mergedOpen" :aria-activedescendant="mergedOpen && activePart === 'end' ? activeDescendantId : undefined" :value="displayValue(1)" :placeholder="resolvedPlaceholders[1]" :disabled="isDisabled" :readonly="readOnly" @focus="activatePart('end')" @change="commitInput('end', $event)" @keydown="handleKeydown" />
         <button v-if="allowClear && mergedOpen && draftValue?.[1] && allowEmpty[1] && !isInteractionDisabled" data-range-clear="end" type="button" :aria-label="resolvedLocale.clearEnd" @click.stop="clearPart('end')"><slot name="clearIcon"><ARenderNode v-if="clearIcon" :node="clearIcon" /><AIcon v-else name="close" :size="12" /></slot></button>
       </span>
       <button v-if="allowClear && hasRangeValue && !isInteractionDisabled" class="aheart-time-range-picker__clear" data-range-clear="all" type="button" :aria-label="resolvedLocale.clearRange" @click.stop="clearRange"><slot name="clearIcon"><ARenderNode v-if="clearIcon" :node="clearIcon" /><AIcon v-else name="close" :size="12" /></slot></button>
@@ -16,7 +16,7 @@
     </span>
 
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
-      <div v-if="motion.isMounted.value" v-show="motion.phase.value !== 'hidden'" ref="panelRef" :id="panelId" class="aheart-time-range-picker__panel" :class="panelClass" :style="panelStyle" role="dialog" :aria-label="`${resolvedPlaceholders[0]} - ${resolvedPlaceholders[1]}`" @mousedown.prevent>
+      <div v-if="motion.isMounted.value" v-show="motion.phase.value !== 'hidden'" @focusout="handleControlBlur" ref="panelRef" :id="panelId" class="aheart-time-range-picker__panel" :class="panelClass" :style="panelStyle" role="dialog" :aria-label="`${resolvedPlaceholders[0]} - ${resolvedPlaceholders[1]}`" @mousedown.prevent>
         <aside v-if="presets?.length" class="aheart-time-range-picker__presets" :aria-label="resolvedLocale.selectTime">
           <button v-for="(preset, index) in presets" :key="index" type="button" :data-preset-index="index" :disabled="isInteractionDisabled" @click="selectPreset(index)"><ARenderNode :node="preset.label" /></button>
         </aside>
@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, ref, toRaw, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds, type PickerTimeParts } from '../picker-core/time'
@@ -62,7 +62,11 @@ import type { PickerDisabledTimeConfig, RangePickerPart, RangePickerValue } from
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timeRangePickerEmits, timeRangePickerProps } from './types'
 import './style.css'
 
@@ -72,6 +76,8 @@ const props = defineProps(timeRangePickerProps)
 const emit = defineEmits(timeRangePickerEmits)
 const slots = useSlots()
 const config = useAheartConfig()
+const formControl = useFormControl()
+const attrs = useAttrs()
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
@@ -79,15 +85,18 @@ const hourColumnRef = ref<HTMLElement | null>(null)
 const minuteColumnRef = ref<HTMLElement | null>(null)
 const secondColumnRef = ref<HTMLElement | null>(null)
 const periodColumnRef = ref<HTMLElement | null>(null)
-const internalValue = ref<RangePickerValue>(props.defaultValue ? [...props.defaultValue] as RangePickerValue : undefined)
-const internalOpen = ref(props.defaultOpen)
 const activePart = ref<RangePickerPart>('start')
 type TimeColumn = 'hour' | 'minute' | 'second' | 'period'
 const activeColumn = ref<TimeColumn>('hour')
 const draftValue = ref<RangePickerValue>()
 const draftParts = ref<[PickerTimeParts, PickerTimeParts]>([{ hour: 0, minute: 0, second: 0 }, { hour: 0, minute: 0, second: 0 }])
 const liveMessage = ref('')
-const panelId = `aheart-time-range-${useId().replace(/:/g, '')}-panel`
+const panelId = `${useStableId(undefined, 'aheart-time-range').value}-panel`
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl?.labelledBy.value))
+const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
 const instanceId = panelId.replace('-panel', '')
 const partPanelId = `${instanceId}-part-panel`
 const startTabId = `${instanceId}-start-tab`
@@ -95,6 +104,18 @@ const endTabId = `${instanceId}-end-tab`
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isFormatProvided = usePropPresence('format')
+const valueState = useControllableState<RangePickerValue>({
+  controlled: () => props.modelValue,
+  isControlled: isValueControlled,
+  defaultValue: () => props.defaultValue ? [...props.defaultValue] as RangePickerValue : undefined,
+  onChange: (value) => emit('update:modelValue', value)
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
 
 const ARenderNode = defineComponent({
   name: 'ATimeRangePickerRenderNode',
@@ -108,8 +129,8 @@ const ARenderNode = defineComponent({
   }
 })
 
-const mergedValue = computed<RangePickerValue>(() => isValueControlled.value ? props.modelValue : internalValue.value)
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const mergedValue = valueState.state
+const mergedOpen = computed(() => Boolean(openState.state.value))
 const resolvedLocale = computed(() => ({ ...zhCN.timePicker, ...config.value.locale?.timePicker }) as Required<NonNullable<typeof zhCN.timePicker>>)
 const resolvedPlaceholders = computed<[string, string]>(() => props.placeholder ?? [resolvedLocale.value.startTime, resolvedLocale.value.endTime])
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -117,7 +138,7 @@ const isInteractionDisabled = computed(() => isDisabled.value || props.readOnly)
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const resolvedVariant = computed(() => props.variant ?? config.value.variant ?? 'outlined')
 const hasPrefix = computed(() => props.prefix !== undefined || Boolean(slots.prefix))
-const rootClass = computed(() => [`aheart-time-range-picker--${resolvedSize.value}`, `aheart-time-range-picker--${resolvedVariant.value}`, props.status && `aheart-time-range-picker--${props.status}`, { 'is-open': mergedOpen.value, 'is-disabled': isDisabled.value }])
+const rootClass = computed(() => [`aheart-time-range-picker--${resolvedSize.value}`, `aheart-time-range-picker--${resolvedVariant.value}`, resolvedStatus.value && `aheart-time-range-picker--${resolvedStatus.value}`, { 'is-open': mergedOpen.value, 'is-disabled': isDisabled.value }])
 const resolvedFormat = computed(() => props.use12Hours && !isFormatProvided.value ? 'hh:mm:ss A' : props.format)
 const meridiemLabels = computed(() => ({ am: resolvedLocale.value.am, pm: resolvedLocale.value.pm }))
 const showSeconds = computed(() => resolvedFormat.value.includes('ss'))
@@ -226,6 +247,7 @@ const scrollSelectedOptionsIntoView = () => {
   for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) column?.querySelector<HTMLElement>('.is-selected')?.scrollIntoView?.({ block: 'center' })
 }
 let scrollTimer: ReturnType<typeof setTimeout> | undefined
+onBeforeUnmount(() => clearTimeout(scrollTimer))
 const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) => {
   if (!props.changeOnScroll || isInteractionDisabled.value) return
   clearTimeout(scrollTimer)
@@ -242,9 +264,9 @@ const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) 
 const commitRange = (value: RangePickerValue, close = true) => {
   if (isInteractionDisabled.value) return false
   if (!value) {
-    if (!isValueControlled.value) internalValue.value = undefined
-    emit('update:modelValue', undefined)
+    valueState.setState(undefined, { force: true })
     emit('change', undefined)
+    formControl?.change()
     if (close) requestOpen(false)
     return true
   }
@@ -254,12 +276,18 @@ const commitRange = (value: RangePickerValue, close = true) => {
     const parts = parseTime(endpoint)
     if (parts && isPartsDisabled(parts, index === 0 ? 'start' : 'end')) return false
   }
-  if (!isValueControlled.value) internalValue.value = [...normalized] as RangePickerValue
-  emit('update:modelValue', normalized)
+  valueState.setState([...normalized] as RangePickerValue, { force: true })
   emit('change', normalized)
+  formControl?.change()
   if (isValueControlled.value && !props.needConfirm) syncDraft()
   if (close) requestOpen(false)
   return true
+}
+const handleControlBlur = () => {
+  void nextTick(() => {
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
+    if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
+  })
 }
 const commitInput = (part: RangePickerPart, event: Event) => {
   if (isInteractionDisabled.value) return
@@ -332,8 +360,9 @@ const selectNow = () => {
 }
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
+const teleportReady = useTeleportReady()
 const popupContainer = computed(() => props.getPopupContainer && triggerRef.value ? props.getPopupContainer(triggerRef.value) : typeof document === 'undefined' ? false : document.body)
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
 const floatingPosition = useFloatingPosition({ reference: triggerRef, floating: panelRef, open: () => motion.isMounted.value && motion.phase.value !== 'hidden', placement: () => props.placement, strategy: 'fixed', offset: 4, autoAdjustOverflow: () => props.autoAdjustOverflow })
 const panelClass = computed(() => [`aheart-floating--${floatingPosition.placement.value}`, `is-${motion.phase.value}`, { 'has-presets': props.presets?.length }])
@@ -341,8 +370,7 @@ const panelStyle = computed(() => floatingPosition.popupStyle.value)
 const requestOpen = (open: boolean) => {
   if (open && isInteractionDisabled.value) return
   const wasOpen = mergedOpen.value
-  if (!isOpenControlled.value) internalOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
   if (open && !wasOpen) syncDraft()
 }
 const updateLiveMessage = (value: RangePickerValue) => {

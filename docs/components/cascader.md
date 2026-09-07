@@ -60,7 +60,7 @@ const loadData = async () => {
 <template><ACascader :options="options" :load-data="loadData" /></template>
 ```
 
-当选项设置 `isLeaf: false` 且未提供子节点时，组件调用 `loadData` 获取子节点；请求、缓存与错误提示由业务层负责。
+当选项设置 `isLeaf: false` 且未提供子节点时，组件调用 `loadData` 获取子节点。组件会显示加载状态，隔离切换路径、替换 `options`、关闭面板或卸载后的过期响应；失败后显示“重试”，可再次点击或按 Enter 重试。数据请求和持久缓存仍由业务层负责。
 
 ## API
 
@@ -80,9 +80,11 @@ const loadData = async () => {
 | placement | 浮层位置 | `topLeft` \| `topRight` \| `bottomLeft` \| `bottomRight` | `bottomLeft` |
 | autoAdjustOverflow | 是否自动翻转与避让 | `boolean` | `true` |
 | getPopupContainer | 自定义浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
-| loadData | 按需加载子节点 | `(option) => Promise<CascaderOption[]>` | - |
+| loadData | 按需加载子节点；第二参数提供当前请求的 `AbortSignal` | `(option, { signal }) => Promise<CascaderOption[]>` | - |
 
 `CascaderOption` 包含 `value`、`label`、可选的 `children`、`disabled` 与 `isLeaf`。
+
+`loadData` 仍兼容只接收 `option` 的旧回调。需要主动取消网络请求时，可读取 `context?.signal`；组件会在切换路径、替换 `options`、关闭或禁用浮层以及卸载时将当前请求标记为 `aborted`。迟到的成功或失败结果不会修改新的路径状态，也不会抢回键盘焦点。
 
 | 事件 | 说明 |
 | --- | --- |

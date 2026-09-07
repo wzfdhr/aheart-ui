@@ -1,4 +1,4 @@
-import { defineComponent, ref, getCurrentInstance, onBeforeUpdate, computed, openBlock, createElementBlock, createElementVNode, toDisplayString, createCommentVNode, normalizeClass, createVNode, unref, withCtx, createTextVNode, createBlock, mergeProps, renderSlot, createSlots } from "vue";
+import { defineComponent, ref, getCurrentInstance, onBeforeUpdate, computed, h, openBlock, createElementBlock, createElementVNode, toDisplayString, createCommentVNode, normalizeClass, createVNode, unref, withCtx, createTextVNode, createBlock, mergeProps, renderSlot, createSlots } from "vue";
 import { Splitter, SplitterPanel, Button, Tabs, Drawer } from "aheart-ui";
 import { SortableList } from "@aheart-ui/dnd";
 import _sfc_main$4 from "./attachments.vue.js";
@@ -14,47 +14,48 @@ const _hoisted_2 = { class: "aheart-ai-workbench__header" };
 const _hoisted_3 = { key: 0 };
 const _hoisted_4 = { class: "aheart-ai-workbench__header-status" };
 const _hoisted_5 = { class: "aheart-ai-workbench__progress" };
-const _hoisted_6 = { class: "aheart-ai-workbench__desktop" };
-const _hoisted_7 = { class: "aheart-ai-workbench__sidebar" };
-const _hoisted_8 = {
+const _hoisted_6 = ["aria-label"];
+const _hoisted_7 = { class: "aheart-ai-workbench__desktop" };
+const _hoisted_8 = { class: "aheart-ai-workbench__sidebar" };
+const _hoisted_9 = {
   key: 0,
   class: "aheart-ai-workbench__context",
   "aria-label": "上下文"
 };
-const _hoisted_9 = ["data-context-id"];
-const _hoisted_10 = { key: 0 };
-const _hoisted_11 = { class: "aheart-ai-workbench__move-actions" };
-const _hoisted_12 = { class: "aheart-ai-workbench__chat" };
-const _hoisted_13 = {
+const _hoisted_10 = ["data-context-id"];
+const _hoisted_11 = { key: 0 };
+const _hoisted_12 = { class: "aheart-ai-workbench__move-actions" };
+const _hoisted_13 = { class: "aheart-ai-workbench__chat" };
+const _hoisted_14 = {
   key: 1,
   class: "aheart-ai-workbench__empty"
 };
-const _hoisted_14 = {
+const _hoisted_15 = {
   class: "aheart-ai-workbench__execution",
   "aria-label": "执行与产物"
 };
-const _hoisted_15 = { class: "aheart-ai-workbench__mobile" };
-const _hoisted_16 = {
+const _hoisted_16 = { class: "aheart-ai-workbench__mobile" };
+const _hoisted_17 = {
   key: 0,
   class: "aheart-ai-workbench__mobile-panel"
 };
-const _hoisted_17 = {
+const _hoisted_18 = {
   key: 0,
   class: "aheart-ai-workbench__context",
   "aria-label": "上下文"
 };
-const _hoisted_18 = ["data-context-id"];
-const _hoisted_19 = { key: 0 };
-const _hoisted_20 = { class: "aheart-ai-workbench__move-actions" };
-const _hoisted_21 = {
+const _hoisted_19 = ["data-context-id"];
+const _hoisted_20 = { key: 0 };
+const _hoisted_21 = { class: "aheart-ai-workbench__move-actions" };
+const _hoisted_22 = {
   key: 1,
   class: "aheart-ai-workbench__mobile-panel"
 };
-const _hoisted_22 = {
+const _hoisted_23 = {
   key: 1,
   class: "aheart-ai-workbench__empty"
 };
-const _hoisted_23 = {
+const _hoisted_24 = {
   key: 2,
   class: "aheart-ai-workbench__mobile-panel"
 };
@@ -91,16 +92,40 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       hasMessagesProp.value = readMessagesPresence();
     });
     const chatMessageProps = computed(() => hasMessagesProp.value ? { messages: props.messages } : { defaultMessages: props.messages });
-    const mobileTabs = [
+    const pendingApprovalTasks = computed(() => props.tasks.filter(
+      (task) => task.approval && (!task.approval.status || task.approval.status === "pending")
+    ));
+    const pendingApprovalCount = computed(() => pendingApprovalTasks.value.length);
+    const pendingApprovalSummary = computed(() => {
+      const task = pendingApprovalTasks.value[0];
+      const artifact = props.artifacts.find((item) => {
+        var _a;
+        return item.id === ((_a = task == null ? void 0 : task.approval) == null ? void 0 : _a.artifactId);
+      });
+      if (!artifact) return `${pendingApprovalCount.value} 项待审批`;
+      const prefix = pendingApprovalCount.value > 1 ? `${pendingApprovalCount.value} 项待审批` : "待审批";
+      return `${prefix}：${artifact.title}`;
+    });
+    const openPendingApproval = () => {
+      mobileView.value = "execution";
+      executionDrawerOpen.value = true;
+    };
+    const mobileTabs = computed(() => [
       { key: "conversations", label: "会话" },
       { key: "chat", label: "对话" },
-      { key: "execution", label: "执行" }
-    ];
+      {
+        key: "execution",
+        label: h("span", { class: "aheart-ai-workbench__mobile-tab-label" }, [
+          h("span", "执行"),
+          pendingApprovalCount.value > 0 ? h("span", { class: "aheart-ai-workbench__pending-badge", "aria-label": `${pendingApprovalCount.value} 项待审批` }, String(pendingApprovalCount.value)) : null
+        ])
+      }
+    ]);
     const sortableContext = computed(() => props.contextItems);
     const completedTaskCount = computed(() => props.tasks.filter((task) => task.status === "complete").length);
     const workbenchStatus = computed(() => {
       if (props.tasks.some((task) => task.status === "error")) return { key: "error", label: "需要处理" };
-      if (props.tasks.some((task) => task.status === "waiting-approval")) return { key: "waiting", label: "等待人工审批" };
+      if (pendingApprovalCount.value > 0) return { key: "waiting", label: "等待人工审批" };
       if (props.tasks.some((task) => task.status === "running")) return { key: "running", label: "执行中" };
       if (props.tasks.length && completedTaskCount.value === props.tasks.length) return { key: "complete", label: "已完成" };
       return { key: "idle", label: "待开始" };
@@ -152,10 +177,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "data-workbench-status": "",
               class: normalizeClass(`is-${workbenchStatus.value.key}`)
             }, toDisplayString(workbenchStatus.value.label), 3),
-            createElementVNode("small", _hoisted_5, toDisplayString(completedTaskCount.value) + " / " + toDisplayString(__props.tasks.length) + " 已完成", 1)
+            createElementVNode("small", _hoisted_5, toDisplayString(completedTaskCount.value) + " / " + toDisplayString(__props.tasks.length) + " 已完成", 1),
+            pendingApprovalCount.value > 0 ? (openBlock(), createElementBlock("button", {
+              key: 0,
+              type: "button",
+              "data-pending-approval-summary": "",
+              class: "aheart-ai-workbench__pending-summary",
+              "aria-label": pendingApprovalSummary.value,
+              onClick: openPendingApproval
+            }, toDisplayString(pendingApprovalSummary.value), 9, _hoisted_6)) : createCommentVNode("", true)
           ])
         ]),
-        createElementVNode("div", _hoisted_6, [
+        createElementVNode("div", _hoisted_7, [
           createVNode(unref(Splitter), {
             sizes: __props.panelSizes,
             "default-sizes": [150, "auto", 200],
@@ -167,14 +200,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 collapsible: ""
               }, {
                 default: withCtx(() => [
-                  createElementVNode("aside", _hoisted_7, [
+                  createElementVNode("aside", _hoisted_8, [
                     _cache[34] || (_cache[34] = createElementVNode("h2", null, "会话", -1)),
                     createVNode(_sfc_main$1, {
                       "model-value": __props.activeConversation,
                       conversations: __props.conversations,
                       "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => emit("update:activeConversation", $event))
                     }, null, 8, ["model-value", "conversations"]),
-                    __props.contextItems.length ? (openBlock(), createElementBlock("section", _hoisted_8, [
+                    __props.contextItems.length ? (openBlock(), createElementBlock("section", _hoisted_9, [
                       _cache[33] || (_cache[33] = createElementVNode("h3", null, "上下文", -1)),
                       createVNode(unref(SortableList), {
                         items: sortableContext.value,
@@ -189,8 +222,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                             "data-context-id": asContext(item).id
                           }, [
                             createElementVNode("span", null, toDisplayString(asContext(item).label), 1),
-                            asContext(item).description ? (openBlock(), createElementBlock("small", _hoisted_10, toDisplayString(asContext(item).description), 1)) : createCommentVNode("", true),
-                            createElementVNode("div", _hoisted_11, [
+                            asContext(item).description ? (openBlock(), createElementBlock("small", _hoisted_11, toDisplayString(asContext(item).description), 1)) : createCommentVNode("", true),
+                            createElementVNode("div", _hoisted_12, [
                               createVNode(unref(Button), {
                                 type: "text",
                                 disabled: isContextMoveDisabled(index, -1),
@@ -212,7 +245,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                                 _: 1
                               }, 8, ["disabled", "onClick"])
                             ])
-                          ], 8, _hoisted_9)
+                          ], 8, _hoisted_10)
                         ]),
                         _: 1
                       }, 8, ["items", "disabled"])
@@ -221,9 +254,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 ]),
                 _: 1
               }),
-              createVNode(unref(SplitterPanel), { min: 240 }, {
+              createVNode(unref(SplitterPanel), { min: 230 }, {
                 default: withCtx(() => [
-                  createElementVNode("main", _hoisted_12, [
+                  createElementVNode("main", _hoisted_13, [
                     __props.transport ? (openBlock(), createBlock(_sfc_main$2, mergeProps({ key: 0 }, chatMessageProps.value, {
                       transport: __props.transport,
                       "conversation-id": __props.activeConversation,
@@ -236,7 +269,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       onRegenerate: _cache[5] || (_cache[5] = ($event) => emit("chat-regenerate", $event)),
                       onEdit: forwardChatEdit,
                       onCopy: _cache[6] || (_cache[6] = ($event) => emit("chat-copy", $event))
-                    }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (openBlock(), createElementBlock("p", _hoisted_13, "业务层尚未提供对话传输适配器。")),
+                    }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (openBlock(), createElementBlock("p", _hoisted_14, "业务层尚未提供对话传输适配器。")),
                     renderSlot(_ctx.$slots, "sources", { sources: __props.sources }, () => [
                       createVNode(_sfc_main$3, { sources: __props.sources }, null, 8, ["sources"])
                     ]),
@@ -248,11 +281,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 _: 3
               }),
               createVNode(unref(SplitterPanel), {
-                min: 190,
+                min: 180,
                 collapsible: ""
               }, {
                 default: withCtx(() => [
-                  createElementVNode("aside", _hoisted_14, [
+                  createElementVNode("aside", _hoisted_15, [
                     createVNode(_sfc_main$5, {
                       tasks: __props.tasks,
                       artifacts: __props.artifacts,
@@ -299,19 +332,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             _: 3
           }, 8, ["sizes"])
         ]),
-        createElementVNode("div", _hoisted_15, [
+        createElementVNode("div", _hoisted_16, [
           createVNode(unref(Tabs), {
-            items: mobileTabs,
+            items: mobileTabs.value,
             "active-key": mobileView.value,
             "onUpdate:activeKey": _cache[14] || (_cache[14] = ($event) => mobileView.value = $event)
-          }, null, 8, ["active-key"]),
-          mobileView.value === "conversations" ? (openBlock(), createElementBlock("section", _hoisted_16, [
+          }, null, 8, ["items", "active-key"]),
+          mobileView.value === "conversations" ? (openBlock(), createElementBlock("section", _hoisted_17, [
             createVNode(_sfc_main$1, {
               "model-value": __props.activeConversation,
               conversations: __props.conversations,
               "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event) => emit("update:activeConversation", $event))
             }, null, 8, ["model-value", "conversations"]),
-            __props.contextItems.length ? (openBlock(), createElementBlock("section", _hoisted_17, [
+            __props.contextItems.length ? (openBlock(), createElementBlock("section", _hoisted_18, [
               _cache[37] || (_cache[37] = createElementVNode("h3", null, "上下文", -1)),
               createVNode(unref(SortableList), {
                 items: sortableContext.value,
@@ -326,8 +359,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     "data-context-id": asContext(item).id
                   }, [
                     createElementVNode("span", null, toDisplayString(asContext(item).label), 1),
-                    asContext(item).description ? (openBlock(), createElementBlock("small", _hoisted_19, toDisplayString(asContext(item).description), 1)) : createCommentVNode("", true),
-                    createElementVNode("div", _hoisted_20, [
+                    asContext(item).description ? (openBlock(), createElementBlock("small", _hoisted_20, toDisplayString(asContext(item).description), 1)) : createCommentVNode("", true),
+                    createElementVNode("div", _hoisted_21, [
                       createVNode(unref(Button), {
                         type: "text",
                         disabled: isContextMoveDisabled(index, -1),
@@ -349,12 +382,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         _: 1
                       }, 8, ["disabled", "onClick"])
                     ])
-                  ], 8, _hoisted_18)
+                  ], 8, _hoisted_19)
                 ]),
                 _: 1
               }, 8, ["items", "disabled"])
             ])) : createCommentVNode("", true)
-          ])) : mobileView.value === "chat" ? (openBlock(), createElementBlock("section", _hoisted_21, [
+          ])) : mobileView.value === "chat" ? (openBlock(), createElementBlock("section", _hoisted_22, [
             __props.transport ? (openBlock(), createBlock(_sfc_main$2, mergeProps({ key: 0 }, chatMessageProps.value, {
               transport: __props.transport,
               "conversation-id": __props.activeConversation,
@@ -367,14 +400,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               onRegenerate: _cache[20] || (_cache[20] = ($event) => emit("chat-regenerate", $event)),
               onEdit: forwardChatEdit,
               onCopy: _cache[21] || (_cache[21] = ($event) => emit("chat-copy", $event))
-            }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (openBlock(), createElementBlock("p", _hoisted_22, "业务层尚未提供对话传输适配器。")),
+            }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (openBlock(), createElementBlock("p", _hoisted_23, "业务层尚未提供对话传输适配器。")),
             renderSlot(_ctx.$slots, "sources", { sources: __props.sources }, () => [
               createVNode(_sfc_main$3, { sources: __props.sources }, null, 8, ["sources"])
             ]),
             renderSlot(_ctx.$slots, "attachments", { attachments: __props.attachments }, () => [
               createVNode(_sfc_main$4, { items: __props.attachments }, null, 8, ["items"])
             ])
-          ])) : (openBlock(), createElementBlock("section", _hoisted_23, [
+          ])) : (openBlock(), createElementBlock("section", _hoisted_24, [
             createVNode(unref(Button), {
               "data-action": "open-execution-drawer",
               type: "primary",

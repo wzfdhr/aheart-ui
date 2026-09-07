@@ -1,20 +1,38 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const port = process.env.AHEART_E2E_PORT ?? '5173'
+const qg2Only = /dnd-splitter\.spec\.ts/
+const qg5Only = /cross-browser-production\.spec\.ts/
+const qg5R1Only = /cross-browser-r1\.spec\.ts/
+const formEngineOnly = /form-engine\.spec\.ts/
+const d4IframeOnly = /d4-iframe\.spec\.ts/
+const d4SelectionOnly = /d4-selection\.spec\.ts/
+const d4VirtualOnly = /d4-select-virtual\.spec\.ts/
+const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly]
+const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
   use: {
-    baseURL: 'http://127.0.0.1:5173',
-    trace: 'retain-on-failure'
+    baseURL: `http://127.0.0.1:${port}`,
+    trace: 'retain-on-failure',
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure'
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } }
+    { name: 'mobile', use: { ...devices['iPhone 13'], browserName: 'chromium' } },
+    { name: 'desktop-firefox', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'firefox', launchOptions: firefoxLaunchOptions } },
+    { name: 'desktop-webkit', testMatch: crossBrowserTests, use: { ...devices['Desktop Chrome'], browserName: 'webkit' } },
+    { name: 'mobile-webkit', testMatch: crossBrowserTests, use: { ...devices['iPhone 13'], browserName: 'webkit' } }
   ],
   webServer: {
-    command: 'corepack pnpm --dir docs dev --host 127.0.0.1 --port 5173',
-    url: 'http://127.0.0.1:5173',
-    reuseExistingServer: true,
-    timeout: 30_000
+    command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,
+    url: `http://127.0.0.1:${port}`,
+    reuseExistingServer: false,
+    timeout: 120_000
   }
 })

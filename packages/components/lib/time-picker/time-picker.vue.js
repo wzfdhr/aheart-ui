@@ -1,12 +1,16 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
+const controlContext = require("../form/control-context.js");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const time = require("../picker-core/time.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
+const useStableId = require("../utils/use-stable-id.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
@@ -47,6 +51,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const attrs = vue.useAttrs();
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
+    const formControl = controlContext.useFormControl();
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const inputRef = vue.ref(null);
@@ -56,13 +61,28 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const secondColumnRef = vue.ref(null);
     const periodColumnRef = vue.ref(null);
     const activeColumn = vue.ref("hour");
-    const internalValue = vue.ref(props.defaultValue);
-    const internalOpen = vue.ref(props.defaultOpen);
-    const instanceId = vue.useId().replace(/:/g, "");
-    const panelId = `aheart-time-${instanceId}-panel`;
+    const instanceId = useStableId.useStableId(void 0, "aheart-time").value;
+    const panelId = `${instanceId}-panel`;
+    const resolvedId = vue.computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const mergedAriaLabelledby = vue.computed(() => controlContext.mergeAriaIds(resolvedAriaLabelledby.value, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = vue.computed(() => controlContext.mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = vue.computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = vue.computed(() => controlContext.formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const isValueControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const isFormatProvided = usePropPresence.usePropPresence("format");
+    const valueState = useControllableState.useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState.useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = vue.defineComponent({
       name: "ATimePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -74,8 +94,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         };
       }
     });
-    const mergedValue = vue.computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = vue.computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
     const resolvedLocale = vue.computed(() => {
       var _a;
       return { ...context.zhCN.timePicker, ...(_a = config.value.locale) == null ? void 0 : _a.timePicker };
@@ -88,7 +108,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootClass = vue.computed(() => [
       `aheart-time-picker--${resolvedSize.value}`,
       `aheart-time-picker--${resolvedVariant.value}`,
-      props.status && `aheart-time-picker--${props.status}`,
+      resolvedStatus.value && `aheart-time-picker--${resolvedStatus.value}`,
       { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }
     ]);
     const resolvedAriaLabelledby = vue.computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
@@ -175,12 +195,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return isPartsDisabled({ ...draft.value, hour: hour12 + (period === "PM" ? 12 : 0) });
     };
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady.useTeleportReady();
     const popupContainer = vue.computed(() => {
       if (props.getPopupContainer && triggerRef.value)
         return props.getPopupContainer(triggerRef.value);
       return typeof document === "undefined" ? false : document.body;
     });
-    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition.useFloatingPosition({
       reference: triggerRef,
@@ -209,9 +230,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open) => {
       if (open && isInteractionDisabled.value)
         return;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open) {
         syncDraft();
         activeColumn.value = "hour";
@@ -221,15 +240,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (isInteractionDisabled.value || isPartsDisabled(parts))
         return false;
       const value = formatTime(parts, props.valueFormat);
-      if (!isValueControlled.value)
-        internalValue.value = value;
-      emit("update:modelValue", value);
+      valueState.setState(value, { force: true });
       emit("change", value);
+      formControl == null ? void 0 : formControl.change();
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
       if (close)
         requestOpen(false);
       return true;
+    };
+    const handleControlBlur = () => {
+      void vue.nextTick(() => {
+        var _a, _b, _c;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
     };
     const selectHour = (hour) => {
       if (isInteractionDisabled.value || isHourDisabled(hour))
@@ -280,10 +306,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const clearValue = () => {
       if (isInteractionDisabled.value)
         return;
-      if (!isValueControlled.value)
-        internalValue.value = void 0;
-      emit("update:modelValue", void 0);
+      valueState.setState(void 0, { force: true });
       emit("change", void 0);
+      formControl == null ? void 0 : formControl.change();
       emit("clear");
       requestOpen(false);
     };
@@ -308,6 +333,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     let scrollTimer;
+    vue.onBeforeUnmount(() => clearTimeout(scrollTimer));
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;
@@ -390,14 +416,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (open)
         void vue.nextTick(scrollSelectedOptionsIntoView);
     }, { immediate: true });
-    vue.watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
         ref_key: "rootRef",
         ref: rootRef,
+        onFocusout: handleControlBlur,
         class: vue.normalizeClass(["aheart-time-picker", rootClass.value])
       }, [
         vue.createElementVNode("span", {
@@ -414,15 +437,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             ref_key: "inputRef",
             ref: inputRef,
             class: "aheart-time-picker__input",
-            id: _ctx.id,
+            id: resolvedId.value,
             value: displayValue.value,
             placeholder: resolvedPlaceholder.value,
             disabled: isDisabled.value,
             readonly: _ctx.readOnly,
             role: "combobox",
-            "aria-labelledby": resolvedAriaLabelledby.value,
-            "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-            "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+            "aria-labelledby": mergedAriaLabelledby.value,
+            "aria-describedby": mergedAriaDescribedby.value,
+            "aria-invalid": resolvedAriaInvalid.value,
             "aria-controls": panelId,
             "aria-expanded": mergedOpen.value ? "true" : "false",
             "aria-haspopup": "dialog",
@@ -468,6 +491,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         }, [
           vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,
+            onFocusout: handleControlBlur,
             ref_key: "panelRef",
             ref: panelRef,
             id: panelId,
@@ -604,7 +628,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))
-      ], 2);
+      ], 34);
     };
   }
 });

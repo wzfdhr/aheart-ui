@@ -1,0 +1,63 @@
+
+[WebServer] (node:33755) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:33766) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:33780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:34535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:34546) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 2 workers
+
+
+(node:34554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:34553) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/10] [desktop] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[2/10] [mobile] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[3/10] [desktop] › e2e/d4-select-virtual.spec.ts:88:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[4/10] [mobile] › e2e/d4-select-virtual.spec.ts:88:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:34570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[5/10] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+
+(node:34574) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[6/10] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[7/10] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:88:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[8/10] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:88:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:34601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[9/10] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[10/10] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:88:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  10 passed (42.6s)

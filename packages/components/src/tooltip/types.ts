@@ -4,7 +4,7 @@ import {
   isFloatingTriggerProp,
   type FloatingPlacement,
   type FloatingTriggerProp
-} from '../utils/floating'
+} from '../utils/floating-core'
 
 export interface TooltipArrowConfig {
   pointAtCenter?: boolean

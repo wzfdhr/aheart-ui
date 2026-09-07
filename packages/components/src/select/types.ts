@@ -1,6 +1,6 @@
 import type { ExtractPropTypes, PropType, StyleValue, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
-import { floatingPlacements, type FloatingPlacement } from '../utils/floating'
+import { floatingPlacements, type FloatingPlacement } from '../utils/floating-core'
 
 export type SelectStatus = 'error' | 'warning'
 export type SelectPrimitiveValue = string | number
@@ -39,6 +39,16 @@ export type SelectSemanticPart =
 export type SelectClassNames = Partial<Record<SelectSemanticPart, string>>
 export type SelectStyles = Partial<Record<SelectSemanticPart, StyleValue>>
 
+export interface SelectVirtualConfig {
+  /** Popup outer height limit in CSS pixels. Defaults to 288. */
+  height?: number
+  /** Initial estimate, not a forced row height. Defaults to 32. */
+  estimateSize?: number
+  /** Extra rows on either side of the viewport. Defaults to 3. */
+  overscan?: number
+}
+export type SelectVirtual = boolean | SelectVirtualConfig
+
 export interface SelectOption {
   label: string
   value: SelectPrimitiveValue
@@ -60,6 +70,10 @@ export interface SelectFilterSortInfo {
 export type SelectFilterSort = (optionA: SelectOption, optionB: SelectOption, info: SelectFilterSortInfo) => number
 
 export const selectProps = {
+  virtual: {
+    type: [Boolean, Object] as PropType<SelectVirtual>,
+    default: false
+  },
   id: String,
   labelledBy: String,
   ariaLabelledby: String,

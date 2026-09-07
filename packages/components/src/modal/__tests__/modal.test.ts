@@ -1,9 +1,11 @@
-import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { defineComponent, h, nextTick, ref } from 'vue'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Modal from '../modal.vue'
+
+enableAutoUnmount(afterEach)
 
 const mountModal = (options: Record<string, any> = {}) =>
   mount(Modal, {
@@ -18,6 +20,280 @@ const mountModal = (options: Record<string, any> = {}) =>
   })
 
 describe('Modal', () => {
+  it('opens from a real button entry point and renders the default actions', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(false)
+
+          return () =>
+            h('div', [
+              h('button', { type: 'button', onClick: () => (open.value = true) }, 'Open from user action'),
+              h(Modal, { open: open.value, title: 'User action modal', getContainer: false })
+            ])
+        }
+      })
+    )
+
+    await wrapper.get('button').trigger('click')
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    await nextTick()
+
+    expect(wrapper.text()).toContain('User action modal')
+    expect(wrapper.findAll('button').some((button) => button.text().replace(/\s/g, '') === '确定')).toBe(true)
+  })
+
+  it('marks the real confirm button busy and disabled while an async confirm is pending', async () => {
+    const resolveConfirm = ref<(() => void) | null>(null)
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(true)
+          const confirmLoading = ref(false)
+
+          const confirm = () => {
+            confirmLoading.value = true
+            return new Promise<void>((resolve) => {
+              resolveConfirm.value = () => {
+                confirmLoading.value = false
+                open.value = false
+                resolve()
+              }
+            })
+          }
+
+          return () =>
+            h(Modal, {
+              open: open.value,
+              title: 'Async confirm',
+              getContainer: false,
+              confirmLoading: confirmLoading.value,
+              onOk: confirm
+            })
+        }
+      })
+    )
+
+    const ok = wrapper.findAll('button').find((button) => button.text().replace(/\s/g, '') === '确定')!
+    await ok.trigger('click')
+    await nextTick()
+
+    expect(ok.attributes('disabled')).toBeDefined()
+    expect(ok.attributes('aria-busy')).toBe('true')
+
+    resolveConfirm.value?.()
+    await nextTick()
+    expect(wrapper.find('[role="presentation"]').classes()).toContain('is-leave')
+  })
+
+  it('keeps the modal open and focusable when a controlled parent rejects close', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(true)
+
+          return () =>
+            h(Modal, {
+              open: open.value,
+              title: 'Controlled close guard',
+              getContainer: false,
+              'onUpdate:open': () => undefined
+            })
+        }
+      }),
+      { attachTo: document.body }
+    )
+
+    await nextTick()
+    const dialog = wrapper.find('[role="dialog"]')
+    dialog.element.focus()
+    await dialog.trigger('keydown', { key: 'Escape' })
+    await nextTick()
+
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
+    expect(document.activeElement).toBe(dialog.element)
+
+    wrapper.unmount()
+  })
+
+  it('moves focus into the modal during the post-render enter phase so Escape is immediately available', async () => {
+    const trigger = document.createElement('button')
+    document.body.append(trigger)
+    trigger.focus()
+
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: {
+        open: false,
+        title: 'Immediate keyboard modal'
+      }
+    })
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: true })
+      await nextTick()
+
+      expect(wrapper.find('.aheart-modal').classes()).toContain('is-enter')
+      expect(wrapper.find('[role="dialog"]').element.contains(document.activeElement)).toBe(true)
+
+      await wrapper.find('[role="dialog"]').trigger('keydown', { key: 'Escape' })
+      expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    } finally {
+      vi.useRealTimers()
+      wrapper.unmount()
+      trigger.remove()
+    }
+  })
+
+  it.each(['teleport', 'inline'] as const)(
+    'closes only the inner %s modal on Escape and restores its trigger',
+    async (mode) => {
+      const innerAfterClose = vi.fn()
+      const outerCloseRequest = vi.fn()
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const outerOpen = ref(false)
+            const innerOpen = ref(false)
+
+            return () => h('div', [
+              h('button', { class: 'outer-trigger', onClick: () => (outerOpen.value = true) }, 'Open outer'),
+              h(Modal, {
+                open: outerOpen.value,
+                title: 'Outer modal',
+                getContainer: false,
+                'onUpdate:open': (open: boolean) => {
+                  outerCloseRequest(open)
+                  outerOpen.value = open
+                }
+              }, {
+                default: () => [
+                  h('button', { class: 'inner-trigger', onClick: () => (innerOpen.value = true) }, 'Open inner'),
+                  h(Modal, {
+                    open: innerOpen.value,
+                    title: 'Inner modal',
+                    getContainer: mode === 'inline' ? false : () => document.body,
+                    onAfterClose: innerAfterClose,
+                    'onUpdate:open': (open: boolean) => (innerOpen.value = open)
+                  })
+                ]
+              })
+            ])
+          }
+        }),
+        {
+          attachTo: document.body,
+          global: { stubs: { Teleport: false } }
+        }
+      )
+
+      vi.useFakeTimers()
+      try {
+        await wrapper.get('.outer-trigger').trigger('click')
+        await nextTick()
+        await vi.advanceTimersByTimeAsync(181)
+        await nextTick()
+        const innerTrigger = wrapper.get('.inner-trigger').element as HTMLButtonElement
+        innerTrigger.focus()
+        await wrapper.get('.inner-trigger').trigger('click')
+        await nextTick()
+
+        const dialogs = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"]'))
+        const dialogTitle = (dialog: HTMLElement) => document
+          .getElementById(dialog.getAttribute('aria-labelledby') ?? '')
+          ?.textContent
+        const outerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Outer modal')
+        const innerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Inner modal')
+        expect(outerDialog).toBeTruthy()
+        expect(innerDialog).toBeTruthy()
+        expect(innerDialog!.closest('.aheart-modal')?.classList.contains('is-enter')).toBe(true)
+
+        innerTrigger.focus()
+        innerTrigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        await nextTick()
+
+        expect(outerCloseRequest).not.toHaveBeenCalled()
+        expect(outerDialog!.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(false)
+        expect(innerDialog!.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(true)
+
+        await vi.advanceTimersByTimeAsync(181)
+        await nextTick()
+        expect(getComputedStyle(outerDialog!.closest('.aheart-modal')!).display).not.toBe('none')
+        expect(getComputedStyle(innerDialog!.closest('.aheart-modal')!).display).toBe('none')
+        expect(document.activeElement).toBe(innerTrigger)
+        expect(innerAfterClose).toHaveBeenCalledTimes(1)
+      } finally {
+        vi.useRealTimers()
+        wrapper.unmount()
+      }
+    }
+  )
+
+  it('treats an initially open nested modal as topmost regardless of mounted hook order', async () => {
+    const innerAfterClose = vi.fn()
+    const outerCloseRequest = vi.fn()
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const outerOpen = ref(true)
+          const innerOpen = ref(true)
+
+          return () => h(Modal, {
+            open: outerOpen.value,
+            title: 'Initially open outer',
+            getContainer: false,
+            'onUpdate:open': (open: boolean) => {
+              outerCloseRequest(open)
+              outerOpen.value = open
+            }
+          }, {
+            default: () => h(Modal, {
+              open: innerOpen.value,
+              title: 'Initially open inner',
+              getContainer: false,
+              onAfterClose: innerAfterClose,
+              'onUpdate:open': (open: boolean) => (innerOpen.value = open)
+            })
+          })
+        }
+      }),
+      {
+        attachTo: document.body,
+        global: { stubs: { Teleport: false } }
+      }
+    )
+
+    vi.useFakeTimers()
+    try {
+      await nextTick()
+      const dialogs = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"]'))
+      const dialogTitle = (dialog: HTMLElement) => document
+        .getElementById(dialog.getAttribute('aria-labelledby') ?? '')
+        ?.textContent
+      const outerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Initially open outer')!
+      const innerDialog = dialogs.find((dialog) => dialogTitle(dialog) === 'Initially open inner')!
+
+      expect(innerDialog.contains(document.activeElement)).toBe(true)
+      document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      await nextTick()
+
+      expect(outerCloseRequest).not.toHaveBeenCalled()
+      expect(outerDialog.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(false)
+      expect(innerDialog.closest('.aheart-modal')?.classList.contains('is-leave')).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
+      expect(innerAfterClose).toHaveBeenCalledTimes(1)
+      expect(getComputedStyle(outerDialog.closest('.aheart-modal')!).display).not.toBe('none')
+      expect(getComputedStyle(innerDialog.closest('.aheart-modal')!).display).toBe('none')
+    } finally {
+      vi.useRealTimers()
+      wrapper.unmount()
+    }
+  })
+
   it('renders title content footer centered state and width when open', () => {
     const wrapper = mountModal({
       props: { open: true, title: 'Edit profile', centered: true, width: 480 },
@@ -336,6 +612,37 @@ describe('Modal', () => {
     }
   })
 
+  it('holds the body scroll lock until the leave motion is hidden', async () => {
+    const wrapper = mountModal({ props: { open: true, title: 'Scroll lock' } })
+    expect(document.body.style.overflow).toBe('hidden')
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      expect(wrapper.find('.aheart-modal').classes()).toContain('is-leave')
+      expect(document.body.style.overflow).toBe('hidden')
+
+      await vi.advanceTimersByTimeAsync(181)
+      expect(document.body.style.overflow).toBe('')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('locks and restores the owner document for a custom container', () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const wrapper = mountModal({
+      props: { open: true, title: 'Custom document', getContainer: () => ownerDocument.body }
+    })
+
+    expect(ownerDocument.body.style.overflow).toBe('hidden')
+    wrapper.unmount()
+    expect(ownerDocument.body.style.overflow).toBe('')
+    iframe.remove()
+  })
+
   it('does not emit afterClose when open changes to true', async () => {
     const wrapper = mountModal({
       props: { open: false, forceRender: true, title: 'Opening' }
@@ -438,6 +745,7 @@ describe('Modal', () => {
     })
 
     await wrapper.setProps({ open: true })
+    await nextTick()
     const outside = document.createElement('button')
     document.body.append(outside)
     outside.focus()
@@ -461,6 +769,40 @@ describe('Modal', () => {
     outside.remove()
   })
 
+  it('restores focus to a pointer opener even when the browser does not focus buttons on click', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const open = ref(false)
+          return () => h('div', [
+            h('button', { class: 'pointer-opener', onClick: () => (open.value = true) }, [h('span', 'Open')]),
+            h(Modal, {
+              open: open.value,
+              title: 'Pointer modal',
+              getContainer: false,
+              'onUpdate:open': (value: boolean) => (open.value = value)
+            })
+          ])
+        }
+      }),
+      { attachTo: document.body }
+    )
+    const trigger = wrapper.get('.pointer-opener')
+    await trigger.get('span').trigger('pointerdown')
+    await trigger.trigger('click')
+    await nextTick()
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.get('.aheart-modal').trigger('keydown', { key: 'Escape' })
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
+      expect(document.activeElement).toBe(trigger.element)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('lets focusable config control trigger focus restoration', async () => {
     const trigger = document.createElement('button')
     const outside = document.createElement('button')
@@ -480,6 +822,7 @@ describe('Modal', () => {
     })
 
     await wrapper.setProps({ open: true })
+    await nextTick()
     outside.focus()
     vi.useFakeTimers()
     try {
@@ -515,6 +858,7 @@ describe('Modal', () => {
     })
 
     await wrapper.setProps({ open: true })
+    await nextTick()
     outside.focus()
     vi.useFakeTimers()
     try {
@@ -539,7 +883,8 @@ describe('Modal', () => {
         open: true,
         title: 'Trapped modal',
         closable: false,
-        footer: false
+        footer: false,
+        getContainer: false
       },
       slots: {
         default: '<button class="first-field">First</button><button class="last-field">Last</button>'
@@ -564,7 +909,8 @@ describe('Modal', () => {
         open: true,
         title: 'Reverse trap',
         closable: false,
-        footer: false
+        footer: false,
+        getContainer: false
       },
       slots: {
         default: '<button class="first-field">First</button><button class="last-field">Last</button>'
@@ -590,6 +936,7 @@ describe('Modal', () => {
         title: 'Trap disabled',
         closable: false,
         footer: false,
+        getContainer: false,
         focusable: {
           trap: false
         }
@@ -619,7 +966,8 @@ describe('Modal', () => {
         footer: false,
         mask: {
           enabled: false
-        }
+        },
+        getContainer: false
       },
       slots: {
         default: '<button class="first-field">First</button><button class="last-field">Last</button>'
@@ -645,6 +993,7 @@ describe('Modal', () => {
         closable: false,
         footer: false,
         mask: false,
+        getContainer: false,
         focusable: {
           trap: true
         }
@@ -833,6 +1182,15 @@ describe('Modal', () => {
     const locked = mountModal({ props: { open: true, keyboard: false } })
     await locked.find('.aheart-modal').trigger('keydown', { key: 'Escape' })
     expect(locked.emitted('update:open')).toBeUndefined()
+  })
+
+  it('emits one close request for an attached Escape when the controlled owner rejects it', async () => {
+    const wrapper = mountModal({ attachTo: document.body, props: { open: true } })
+    await wrapper.get('.aheart-modal').trigger('keydown', { key: 'Escape' })
+
+    expect(wrapper.emitted('update:open')).toEqual([[false]])
+    expect(wrapper.emitted('close')).toHaveLength(1)
+    expect(wrapper.props('open')).toBe(true)
   })
 
   it('renders custom closeIcon content and hides the close button when closeIcon is false', () => {

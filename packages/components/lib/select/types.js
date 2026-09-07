@@ -1,7 +1,11 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 const selectProps = {
+  virtual: {
+    type: [Boolean, Object],
+    default: false
+  },
   id: String,
   labelledBy: String,
   ariaLabelledby: String,
@@ -40,7 +44,7 @@ const selectProps = {
   placement: {
     type: String,
     default: "bottomLeft",
-    validator: (value) => floating.floatingPlacements.includes(value)
+    validator: (value) => floatingCore.floatingPlacements.includes(value)
   },
   autoAdjustOverflow: {
     type: Boolean,

@@ -37,46 +37,63 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
             readonly default: false;
         };
+        readonly validateTrigger: {
+            readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+            readonly default: false;
+        };
+        readonly preserve: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
     }>> & Readonly<{
         onSubmit?: ((event: Event) => any) | undefined;
         onFinish?: ((values: import("./types").FormModel) => any) | undefined;
         onFinishFailed?: ((info: import("./types").FormFinishFailedInfo) => any) | undefined;
-        onValidate?: ((name: string, status: boolean, errors: string[]) => any) | undefined;
+        onValidate?: ((name: import("./types").FormNamePath, status: boolean, errors: string[]) => any) | undefined;
     }>, {
         validate: () => {
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         } | Promise<{
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         }>;
-        validateFields: (names?: string[] | undefined) => {
+        validateFields: (names?: import("./types").FormNamePath[] | undefined) => {
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         } | Promise<{
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         }>;
-        resetFields: (names?: string[] | undefined) => void;
-        clearValidate: (names?: string[] | undefined) => void;
-        setFieldValue: (name: string, value: unknown) => void;
+        resetFields: (names?: import("./types").FormNamePath[] | undefined) => void;
+        clearValidate: (names?: import("./types").FormNamePath[] | undefined) => void;
+        setFieldValue: (name: import("./types").FormNamePath, value: unknown) => void;
         setFieldsValue: (values: import("./types").FormModel) => void;
-        getFieldValue: (name: string) => unknown;
-        getFieldsValue: (names?: true | string[] | undefined) => import("./types").FormModel;
-        getFieldError: (name: string) => string[];
-        getFieldsError: (names?: string[] | undefined) => {
-            name: string;
+        getFieldValue: (name: import("./types").FormNamePath) => unknown;
+        getFieldsValue: (names?: true | import("./types").FormNamePath[] | undefined) => import("./types").FormModel;
+        getFieldError: (name: import("./types").FormNamePath) => string[];
+        getFieldsError: (names?: import("./types").FormNamePath[] | undefined) => {
+            name: import("./types").FormNamePath;
             errors: string[];
         }[];
-        scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
+        scrollToField: (name: import("./types").FormNamePath, options?: ScrollIntoViewOptions | undefined) => void;
+        setFieldsErrors: (fields: {
+            name: import("./types").FormNamePath;
+            errors: string[];
+        }[]) => void;
     }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         submit: (event: Event) => void;
         finish: (values: import("./types").FormModel) => void;
         finishFailed: (info: import("./types").FormFinishFailedInfo) => void;
-        validate: (name: string, status: boolean, errors: string[]) => void;
+        validate: (name: import("./types").FormNamePath, status: boolean, errors: string[]) => void;
     }, import("vue").PublicProps, {
         readonly variant: import("../config").AheartVariant;
         readonly layout: import("./types").FormLayout;
+        readonly preserve: boolean;
         readonly disabled: boolean;
         readonly colon: boolean;
         readonly model: import("./types").FormModel;
@@ -84,6 +101,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly labelAlign: import("./types").FormLabelAlign;
         readonly requiredMark: import("./types").FormRequiredMark;
         readonly scrollToFirstError: import("./types").FormScrollToFirstError;
+        readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
         P: {};
         B: {};
@@ -129,41 +147,58 @@ declare const Form: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
             readonly default: false;
         };
+        readonly validateTrigger: {
+            readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+            readonly default: false;
+        };
+        readonly preserve: {
+            readonly type: BooleanConstructor;
+            readonly default: true;
+        };
     }>> & Readonly<{
         onSubmit?: ((event: Event) => any) | undefined;
         onFinish?: ((values: import("./types").FormModel) => any) | undefined;
         onFinishFailed?: ((info: import("./types").FormFinishFailedInfo) => any) | undefined;
-        onValidate?: ((name: string, status: boolean, errors: string[]) => any) | undefined;
+        onValidate?: ((name: import("./types").FormNamePath, status: boolean, errors: string[]) => any) | undefined;
     }>, {
         validate: () => {
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         } | Promise<{
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         }>;
-        validateFields: (names?: string[] | undefined) => {
+        validateFields: (names?: import("./types").FormNamePath[] | undefined) => {
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         } | Promise<{
+            outOfDate?: true | undefined;
             values: import("./types").FormModel;
             errorFields: import("./types").FormValidationError[];
         }>;
-        resetFields: (names?: string[] | undefined) => void;
-        clearValidate: (names?: string[] | undefined) => void;
-        setFieldValue: (name: string, value: unknown) => void;
+        resetFields: (names?: import("./types").FormNamePath[] | undefined) => void;
+        clearValidate: (names?: import("./types").FormNamePath[] | undefined) => void;
+        setFieldValue: (name: import("./types").FormNamePath, value: unknown) => void;
         setFieldsValue: (values: import("./types").FormModel) => void;
-        getFieldValue: (name: string) => unknown;
-        getFieldsValue: (names?: true | string[] | undefined) => import("./types").FormModel;
-        getFieldError: (name: string) => string[];
-        getFieldsError: (names?: string[] | undefined) => {
-            name: string;
+        getFieldValue: (name: import("./types").FormNamePath) => unknown;
+        getFieldsValue: (names?: true | import("./types").FormNamePath[] | undefined) => import("./types").FormModel;
+        getFieldError: (name: import("./types").FormNamePath) => string[];
+        getFieldsError: (names?: import("./types").FormNamePath[] | undefined) => {
+            name: import("./types").FormNamePath;
             errors: string[];
         }[];
-        scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
+        scrollToField: (name: import("./types").FormNamePath, options?: ScrollIntoViewOptions | undefined) => void;
+        setFieldsErrors: (fields: {
+            name: import("./types").FormNamePath;
+            errors: string[];
+        }[]) => void;
     }, {}, {}, {}, {
         readonly variant: import("../config").AheartVariant;
         readonly layout: import("./types").FormLayout;
+        readonly preserve: boolean;
         readonly disabled: boolean;
         readonly colon: boolean;
         readonly model: import("./types").FormModel;
@@ -171,6 +206,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly labelAlign: import("./types").FormLabelAlign;
         readonly requiredMark: import("./types").FormRequiredMark;
         readonly scrollToFirstError: import("./types").FormScrollToFirstError;
+        readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
     }>;
     __isFragment?: undefined;
     __isTeleport?: undefined;
@@ -213,46 +249,63 @@ declare const Form: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<import("./types").FormScrollToFirstError>;
         readonly default: false;
     };
+    readonly validateTrigger: {
+        readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+        readonly default: false;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: true;
+    };
 }>> & Readonly<{
     onSubmit?: ((event: Event) => any) | undefined;
     onFinish?: ((values: import("./types").FormModel) => any) | undefined;
     onFinishFailed?: ((info: import("./types").FormFinishFailedInfo) => any) | undefined;
-    onValidate?: ((name: string, status: boolean, errors: string[]) => any) | undefined;
+    onValidate?: ((name: import("./types").FormNamePath, status: boolean, errors: string[]) => any) | undefined;
 }>, {
     validate: () => {
+        outOfDate?: true | undefined;
         values: import("./types").FormModel;
         errorFields: import("./types").FormValidationError[];
     } | Promise<{
+        outOfDate?: true | undefined;
         values: import("./types").FormModel;
         errorFields: import("./types").FormValidationError[];
     }>;
-    validateFields: (names?: string[] | undefined) => {
+    validateFields: (names?: import("./types").FormNamePath[] | undefined) => {
+        outOfDate?: true | undefined;
         values: import("./types").FormModel;
         errorFields: import("./types").FormValidationError[];
     } | Promise<{
+        outOfDate?: true | undefined;
         values: import("./types").FormModel;
         errorFields: import("./types").FormValidationError[];
     }>;
-    resetFields: (names?: string[] | undefined) => void;
-    clearValidate: (names?: string[] | undefined) => void;
-    setFieldValue: (name: string, value: unknown) => void;
+    resetFields: (names?: import("./types").FormNamePath[] | undefined) => void;
+    clearValidate: (names?: import("./types").FormNamePath[] | undefined) => void;
+    setFieldValue: (name: import("./types").FormNamePath, value: unknown) => void;
     setFieldsValue: (values: import("./types").FormModel) => void;
-    getFieldValue: (name: string) => unknown;
-    getFieldsValue: (names?: true | string[] | undefined) => import("./types").FormModel;
-    getFieldError: (name: string) => string[];
-    getFieldsError: (names?: string[] | undefined) => {
-        name: string;
+    getFieldValue: (name: import("./types").FormNamePath) => unknown;
+    getFieldsValue: (names?: true | import("./types").FormNamePath[] | undefined) => import("./types").FormModel;
+    getFieldError: (name: import("./types").FormNamePath) => string[];
+    getFieldsError: (names?: import("./types").FormNamePath[] | undefined) => {
+        name: import("./types").FormNamePath;
         errors: string[];
     }[];
-    scrollToField: (name: string, options?: ScrollIntoViewOptions | undefined) => void;
+    scrollToField: (name: import("./types").FormNamePath, options?: ScrollIntoViewOptions | undefined) => void;
+    setFieldsErrors: (fields: {
+        name: import("./types").FormNamePath;
+        errors: string[];
+    }[]) => void;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     submit: (event: Event) => void;
     finish: (values: import("./types").FormModel) => void;
     finishFailed: (info: import("./types").FormFinishFailedInfo) => void;
-    validate: (name: string, status: boolean, errors: string[]) => void;
+    validate: (name: import("./types").FormNamePath, status: boolean, errors: string[]) => void;
 }, string, {
     readonly variant: import("../config").AheartVariant;
     readonly layout: import("./types").FormLayout;
+    readonly preserve: boolean;
     readonly disabled: boolean;
     readonly colon: boolean;
     readonly model: import("./types").FormModel;
@@ -260,6 +313,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
     readonly labelAlign: import("./types").FormLabelAlign;
     readonly requiredMark: import("./types").FormRequiredMark;
     readonly scrollToFirstError: import("./types").FormScrollToFirstError;
+    readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
         default?(_: {}): any;
@@ -268,7 +322,7 @@ declare const Form: import("../utils/install").SFCWithInstall<{
 export declare const FormItem: import("../utils/install").SFCWithInstall<{
     new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
         readonly label: import("vue").PropType<import("vue").VNodeChild>;
-        readonly name: StringConstructor;
+        readonly name: import("vue").PropType<import("./types").FormNamePath>;
         readonly colon: {
             readonly type: BooleanConstructor;
             readonly default: undefined;
@@ -302,13 +356,24 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
             default: undefined;
         };
         readonly hasFeedback: BooleanConstructor;
+        readonly dependencies: import("vue").PropType<import("./types").FormNamePath[]>;
+        readonly validateTrigger: {
+            readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+            readonly default: undefined;
+        };
+        readonly preserve: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
     }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
         readonly hidden: boolean;
         readonly help: import("vue").VNodeChild;
+        readonly preserve: boolean;
         readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
         readonly colon: boolean;
         readonly required: boolean;
+        readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
         readonly noStyle: boolean;
         readonly validateFirst: import("./types").FormValidateFirst;
         readonly messageVariables: import("./types").FormMessageVariables;
@@ -322,7 +387,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         Defaults: {};
     }, Readonly<import("vue").ExtractPropTypes<{
         readonly label: import("vue").PropType<import("vue").VNodeChild>;
-        readonly name: StringConstructor;
+        readonly name: import("vue").PropType<import("./types").FormNamePath>;
         readonly colon: {
             readonly type: BooleanConstructor;
             readonly default: undefined;
@@ -356,13 +421,24 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
             default: undefined;
         };
         readonly hasFeedback: BooleanConstructor;
+        readonly dependencies: import("vue").PropType<import("./types").FormNamePath[]>;
+        readonly validateTrigger: {
+            readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+            readonly default: undefined;
+        };
+        readonly preserve: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
     }>> & Readonly<{}>, {}, {}, {}, {}, {
         readonly hidden: boolean;
         readonly help: import("vue").VNodeChild;
+        readonly preserve: boolean;
         readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
         readonly colon: boolean;
         readonly required: boolean;
+        readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
         readonly noStyle: boolean;
         readonly validateFirst: import("./types").FormValidateFirst;
         readonly messageVariables: import("./types").FormMessageVariables;
@@ -373,7 +449,7 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     __isSuspense?: undefined;
 } & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
     readonly label: import("vue").PropType<import("vue").VNodeChild>;
-    readonly name: StringConstructor;
+    readonly name: import("vue").PropType<import("./types").FormNamePath>;
     readonly colon: {
         readonly type: BooleanConstructor;
         readonly default: undefined;
@@ -407,20 +483,30 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         default: undefined;
     };
     readonly hasFeedback: BooleanConstructor;
+    readonly dependencies: import("vue").PropType<import("./types").FormNamePath[]>;
+    readonly validateTrigger: {
+        readonly type: import("vue").PropType<false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[]>;
+        readonly default: undefined;
+    };
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
 }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
     readonly hidden: boolean;
     readonly help: import("vue").VNodeChild;
+    readonly preserve: boolean;
     readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: import("vue").VNodeChild;
     readonly colon: boolean;
     readonly required: boolean;
+    readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
     readonly noStyle: boolean;
     readonly validateFirst: import("./types").FormValidateFirst;
     readonly messageVariables: import("./types").FormMessageVariables;
     readonly hasFeedback: boolean;
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
     $slots: {
-        default?(_: {}): any;
         label?(_: {}): any;
         help?(_: {}): any;
         extra?(_: {}): any;

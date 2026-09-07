@@ -1,7 +1,9 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Popconfirm from '../popconfirm.vue'
+
+enableAutoUnmount(afterEach)
 
 const createRect = ({ left, top, width, height }: { left: number; top: number; width: number; height: number }) =>
   ({
@@ -700,5 +702,45 @@ describe('Popconfirm', () => {
     expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
     wrapper.unmount()
     outside.remove()
+  })
+
+  it('keeps focus popconfirm open while focus moves into its teleported popup', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside)
+    const wrapper = mountPopconfirm({
+      attachTo: document.body,
+      props: { title: 'Delete?', trigger: 'focus' },
+      slots: { default: '<button>Delete</button>' }
+    })
+    const trigger = wrapper.find('.aheart-popconfirm__trigger')
+    await trigger.trigger('focusin')
+    const popup = wrapper.find('.aheart-popconfirm__popup')
+    const popupButton = wrapper.find<HTMLElement>('.aheart-popconfirm__cancel')
+    expect(trigger.attributes('aria-controls')).toBe(popup.attributes('id'))
+    expect(wrapper.get('.aheart-popconfirm__trigger > button').attributes('aria-controls')).toBe(popup.attributes('id'))
+    expect(wrapper.get('.aheart-popconfirm__trigger > button').attributes('aria-expanded')).toBe('true')
+    await trigger.trigger('focusout', { relatedTarget: popupButton.element })
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([true])
+    await popupButton.trigger('focusout', { relatedTarget: outside })
+    expect(wrapper.emitted('update:open')?.at(-1)).toEqual([false])
+    wrapper.unmount()
+    outside.remove()
+  })
+
+  it('cancels a pending hover open when click intent arrives', async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = mountPopconfirm({
+        props: { title: 'Delete?', trigger: ['hover', 'click'], mouseEnterDelay: 0.2 },
+        slots: { default: '<button>Delete</button>' }
+      })
+      const trigger = wrapper.find('.aheart-popconfirm__trigger')
+      await trigger.trigger('mouseenter')
+      await trigger.trigger('click')
+      await vi.advanceTimersByTimeAsync(200)
+      expect(wrapper.emitted('openChange')?.filter(([open]) => open)).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

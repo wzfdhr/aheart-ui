@@ -58,12 +58,14 @@
     "vue": ">=3.4.0 <4"
   },
   "dependencies": {
+    "@tanstack/vue-virtual": "3.13.36",
     "@floating-ui/dom": "^1.8.0",
     "@lucide/vue": "^1.24.0",
     "dayjs": "^1.11.13"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",
+    "@vue/server-renderer": "^3.5.38",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.1",
     "vite": "^5.0.12",

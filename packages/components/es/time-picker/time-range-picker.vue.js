@@ -1,10 +1,14 @@
-import { defineComponent, useSlots, ref, useId, isVNode, h, toRaw, computed, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { defineComponent, useSlots, useAttrs, ref, computed, isVNode, h, toRaw, watch, onBeforeUnmount, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, withModifiers, createBlock, Teleport, withDirectives, normalizeStyle, Fragment, renderList, toDisplayString, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds } from "../picker-core/time.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
+import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useStableId } from "../utils/use-stable-id.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { timeRangePickerProps, timeRangePickerEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
@@ -62,6 +66,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const emit = __emit;
     const slots = useSlots();
     const config = useAheartConfig();
+    const formControl = useFormControl();
+    const attrs = useAttrs();
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const panelRef = ref(null);
@@ -69,14 +75,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const minuteColumnRef = ref(null);
     const secondColumnRef = ref(null);
     const periodColumnRef = ref(null);
-    const internalValue = ref(props.defaultValue ? [...props.defaultValue] : void 0);
-    const internalOpen = ref(props.defaultOpen);
     const activePart = ref("start");
     const activeColumn = ref("hour");
     const draftValue = ref();
     const draftParts = ref([{ hour: 0, minute: 0, second: 0 }, { hour: 0, minute: 0, second: 0 }]);
     const liveMessage = ref("");
-    const panelId = `aheart-time-range-${useId().replace(/:/g, "")}-panel`;
+    const panelId = `${useStableId(void 0, "aheart-time-range").value}-panel`;
+    const resolvedId = computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
+    const mergedAriaLabelledby = computed(() => mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl == null ? void 0 : formControl.labelledBy.value));
+    const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs["aria-describedby"], formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedStatus = computed(() => props.status ?? (formControl == null ? void 0 : formControl.status.value));
+    const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs["aria-invalid"], resolvedStatus.value));
     const instanceId = panelId.replace("-panel", "");
     const partPanelId = `${instanceId}-part-panel`;
     const startTabId = `${instanceId}-start-tab`;
@@ -84,6 +93,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isValueControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const isFormatProvided = usePropPresence("format");
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled: isValueControlled,
+      defaultValue: () => props.defaultValue ? [...props.defaultValue] : void 0,
+      onChange: (value) => emit("update:modelValue", value)
+    });
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => emit("openChange", Boolean(open))
+    });
     const ARenderNode = defineComponent({
       name: "ATimeRangePickerRenderNode",
       props: { node: { type: null, default: void 0 } },
@@ -95,8 +116,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         };
       }
     });
-    const mergedValue = computed(() => isValueControlled.value ? props.modelValue : internalValue.value);
-    const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value));
+    const mergedValue = valueState.state;
+    const mergedOpen = computed(() => Boolean(openState.state.value));
     const resolvedLocale = computed(() => {
       var _a;
       return { ...zhCN.timePicker, ...(_a = config.value.locale) == null ? void 0 : _a.timePicker };
@@ -107,7 +128,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const resolvedVariant = computed(() => props.variant ?? config.value.variant ?? "outlined");
     const hasPrefix = computed(() => props.prefix !== void 0 || Boolean(slots.prefix));
-    const rootClass = computed(() => [`aheart-time-range-picker--${resolvedSize.value}`, `aheart-time-range-picker--${resolvedVariant.value}`, props.status && `aheart-time-range-picker--${props.status}`, { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }]);
+    const rootClass = computed(() => [`aheart-time-range-picker--${resolvedSize.value}`, `aheart-time-range-picker--${resolvedVariant.value}`, resolvedStatus.value && `aheart-time-range-picker--${resolvedStatus.value}`, { "is-open": mergedOpen.value, "is-disabled": isDisabled.value }]);
     const resolvedFormat = computed(() => props.use12Hours && !isFormatProvided.value ? "hh:mm:ss A" : props.format);
     const meridiemLabels = computed(() => ({ am: resolvedLocale.value.am, pm: resolvedLocale.value.pm }));
     const showSeconds = computed(() => resolvedFormat.value.includes("ss"));
@@ -245,6 +266,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         (_b = (_a = column == null ? void 0 : column.querySelector(".is-selected")) == null ? void 0 : _a.scrollIntoView) == null ? void 0 : _b.call(_a, { block: "center" });
     };
     let scrollTimer;
+    onBeforeUnmount(() => clearTimeout(scrollTimer));
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;
@@ -266,10 +288,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (isInteractionDisabled.value)
         return false;
       if (!value) {
-        if (!isValueControlled.value)
-          internalValue.value = void 0;
-        emit("update:modelValue", void 0);
+        valueState.setState(void 0, { force: true });
         emit("change", void 0);
+        formControl == null ? void 0 : formControl.change();
         if (close)
           requestOpen(false);
         return true;
@@ -282,15 +303,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         if (parts && isPartsDisabled(parts, index === 0 ? "start" : "end"))
           return false;
       }
-      if (!isValueControlled.value)
-        internalValue.value = [...normalized];
-      emit("update:modelValue", normalized);
+      valueState.setState([...normalized], { force: true });
       emit("change", normalized);
+      formControl == null ? void 0 : formControl.change();
       if (isValueControlled.value && !props.needConfirm)
         syncDraft();
       if (close)
         requestOpen(false);
       return true;
+    };
+    const handleControlBlur = () => {
+      void nextTick(() => {
+        var _a, _b, _c;
+        const active = ((_a = rootRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
     };
     const commitInput = (part, event) => {
       var _a, _b, _c, _d;
@@ -389,8 +417,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         updateActiveDraft(next);
     };
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady();
     const popupContainer = computed(() => props.getPopupContainer && triggerRef.value ? props.getPopupContainer(triggerRef.value) : typeof document === "undefined" ? false : document.body);
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({ reference: triggerRef, floating: panelRef, open: () => motion.isMounted.value && motion.phase.value !== "hidden", placement: () => props.placement, strategy: "fixed", offset: 4, autoAdjustOverflow: () => props.autoAdjustOverflow });
     const panelClass = computed(() => {
@@ -402,9 +431,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (open && isInteractionDisabled.value)
         return;
       const wasOpen = mergedOpen.value;
-      if (!isOpenControlled.value)
-        internalOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
       if (open && !wasOpen)
         syncDraft();
     };
@@ -489,7 +516,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: "aheart-time-range-picker__selector",
-          onMousedown: handleSelectorMouseDown
+          onMousedown: handleSelectorMouseDown,
+          onFocusout: handleControlBlur
         }, [
           hasPrefix.value ? (openBlock(), createElementBlock("span", _hoisted_1, [
             renderSlot(_ctx.$slots, "prefix", {}, () => [
@@ -500,13 +528,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: normalizeClass(["aheart-time-range-picker__field", { "is-active": activePart.value === "start" && mergedOpen.value }])
           }, [
             createElementVNode("input", {
-              id: _ctx.id ? `${_ctx.id}-start` : void 0,
+              id: resolvedId.value ? `${resolvedId.value}-start` : void 0,
               "data-range-part": "start",
               role: "combobox",
               "aria-haspopup": "dialog",
-              "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
-              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+              "aria-labelledby": mergedAriaLabelledby.value,
+              "aria-describedby": mergedAriaDescribedby.value,
+              "aria-invalid": resolvedAriaInvalid.value,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value,
               "aria-activedescendant": mergedOpen.value && activePart.value === "start" ? activeDescendantId.value : void 0,
@@ -553,13 +581,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: normalizeClass(["aheart-time-range-picker__field", { "is-active": activePart.value === "end" && mergedOpen.value }])
           }, [
             createElementVNode("input", {
-              id: _ctx.id ? `${_ctx.id}-end` : void 0,
+              id: resolvedId.value ? `${resolvedId.value}-end` : void 0,
               "data-range-part": "end",
               role: "combobox",
               "aria-haspopup": "dialog",
-              "aria-labelledby": _ctx.labelledBy ?? _ctx.ariaLabelledby,
-              "aria-describedby": _ctx.describedBy ?? _ctx.ariaDescribedby,
-              "aria-invalid": _ctx.status === "error" ? "true" : void 0,
+              "aria-labelledby": mergedAriaLabelledby.value,
+              "aria-describedby": mergedAriaDescribedby.value,
+              "aria-invalid": resolvedAriaInvalid.value,
               "aria-controls": panelId,
               "aria-expanded": mergedOpen.value,
               "aria-activedescendant": mergedOpen.value && activePart.value === "end" ? activeDescendantId.value : void 0,
@@ -628,6 +656,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,
+            onFocusout: handleControlBlur,
             ref_key: "panelRef",
             ref: panelRef,
             id: panelId,

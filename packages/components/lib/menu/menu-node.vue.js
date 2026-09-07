@@ -7,8 +7,8 @@ const _hoisted_1 = {
   class: "aheart-menu__group-list",
   role: "group"
 };
-const _hoisted_2 = ["data-submenu-key", "disabled", "aria-expanded", "title"];
-const _hoisted_3 = ["data-open", "aria-hidden"];
+const _hoisted_2 = ["data-submenu-key", "disabled", "aria-expanded", "id", "aria-controls", "title"];
+const _hoisted_3 = ["id", "aria-labelledby", "data-open", "aria-hidden"];
 const _hoisted_4 = ["data-menu-key", "disabled", "aria-current", "title"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
@@ -53,6 +53,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const isSelected = vue.computed(() => props.selectedKeys.includes(props.item.key));
     const isDisabled = vue.computed(() => props.disabled || Boolean(props.item.disabled));
     const currentKeyPath = vue.computed(() => [...props.keyPath, props.item.key]);
+    const itemId = `aheart-menu-${vue.useId().replace(/[^a-zA-Z0-9_-]/g, "-")}-${props.level}-${props.item.key.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+    const submenuTriggerId = vue.computed(() => `${itemId}-trigger`);
+    const submenuId = vue.computed(() => `${itemId}-submenu`);
     const nodeLevelStyle = vue.computed(() => ({ "--aheart-menu-node-level": props.level }));
     const titleRef = vue.ref(null);
     const submenuRef = vue.ref(null);
@@ -226,6 +229,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           "data-submenu-key": __props.item.key,
           disabled: isDisabled.value,
           "aria-expanded": isOpen.value ? "true" : "false",
+          id: submenuTriggerId.value,
+          "aria-controls": submenuId.value,
           title: __props.item.title,
           onClick: handleSubmenuClick
         }, [
@@ -270,6 +275,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           class: vue.normalizeClass(["aheart-menu__submenu-list", submenuListClass.value]),
           style: vue.normalizeStyle(submenuListStyle.value),
           role: "menu",
+          id: submenuId.value,
+          "aria-labelledby": submenuTriggerId.value,
           "data-open": isOpen.value ? "true" : "false",
           "aria-hidden": isOpen.value ? void 0 : "true"
         }, [

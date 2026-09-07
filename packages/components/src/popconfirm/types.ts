@@ -5,7 +5,7 @@ import {
   isFloatingTriggerProp,
   type FloatingPlacement,
   type FloatingTriggerProp
-} from '../utils/floating'
+} from '../utils/floating-core'
 
 export type PopconfirmButtonProps = Partial<ButtonProps>
 export type PopconfirmRenderable = VNodeChild

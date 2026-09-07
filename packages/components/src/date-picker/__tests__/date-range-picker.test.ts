@@ -1,6 +1,7 @@
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
 import DatePicker, { DateRangePicker } from '../index'
 
 const mountPicker = (props: Record<string, unknown> = {}) =>
@@ -23,6 +24,12 @@ afterEach(() => {
 })
 
 describe('DateRangePicker', () => {
+  it('provides explicit dark-theme tokens for the range picker', () => {
+    const styles = readFileSync(`${process.cwd()}/src/date-picker/style.css`, 'utf8')
+
+    expect(styles).toMatch(/:is\(html\.dark,\s*\[data-theme='dark'\]\) \.aheart-date-range-picker\s*\{/)
+    expect(styles).toMatch(/:is\(html\.dark,\s*\[data-theme='dark'\]\) \.aheart-date-range-picker__grid button\.is-selected/)
+  })
   it('applies inherited ids, labels and validation feedback to both range inputs', () => {
     const wrapper = mountPicker({ id: 'delivery', labelledBy: 'delivery-label', describedBy: 'delivery-error', status: 'error' })
     const inputs = wrapper.findAll('input')

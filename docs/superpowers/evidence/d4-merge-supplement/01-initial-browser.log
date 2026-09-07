@@ -1,0 +1,83 @@
+
+[WebServer] (node:57247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:57258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:57272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:58042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:58053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+
+(node:58067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/2] [desktop] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+  1) [desktop] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      39 |   await expect.poll(async () => (await evidenceState(page)).width).toBeCloseTo(180, 0)
+      40 |   await expect.poll(async () => (await evidenceState(page)).height).toBeGreaterThan(before.height)
+    > 41 |   await expect.poll(async () => { const state = await evidenceState(page); return state.rowsValid && state.visible && state.key === before.key }).toBe(true)
+         |                                                                                                                                                   ^
+      42 |   const narrow = await evidenceState(page)
+      43 |   await externalUpdate(page, '大字体')
+      44 |   await expect.poll(async () => (await evidenceState(page)).height).toBeGreaterThan(narrow.height)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d4-select-virtual.spec.ts:41:147
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-supplement-first/d4-select-virtual-Select-v-ffab2-out-clipping-active-content-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-supplement-first/d4-select-virtual-Select-v-ffab2-out-clipping-active-content-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d4-supplement-first/d4-select-virtual-Select-v-ffab2-out-clipping-active-content-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-supplement-first/d4-select-virtual-Select-v-ffab2-out-clipping-active-content-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d4-supplement-first/d4-select-virtual-Select-v-ffab2-out-clipping-active-content-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:58082) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[2/2] [desktop] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+  1 failed
+    [desktop] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content 
+  1 passed (16.7s)

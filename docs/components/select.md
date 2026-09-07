@@ -1,11 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 const selectRef = ref<{ focus: () => void; blur: () => void }>()
 const selectValue = ref('banana')
 const selectValues = ref(['apple', 'banana'])
 const selectTagValues = ref(['apple'])
 const selectClearValue = ref('apple')
+const selectVirtualValue = ref('row-0999')
+const selectVirtualGrow = ref(false)
+const selectVirtualOptions = Array.from({ length: 1000 }, (_, index) => ({
+  label: index % 2 === 0 ? `Row ${String(index).padStart(4, '0')} · compact` : `Row ${String(index).padStart(4, '0')} · detail line`,
+  value: `row-${String(index).padStart(4, '0')}`,
+  disabled: index === 17
+}))
+const renderVirtualOption = (option: { label: string; value: string }) => h('span', [
+  option.label,
+  Number(option.value.slice(4)) % 2 ? h('br') : null,
+  Number(option.value.slice(4)) % 2 ? '动态内容第二行' : null,
+  option.value === 'row-0000' && selectVirtualGrow.value ? h('div', { style: 'height:100px' }, '增高的首项') : null
+])
+const selectEvidenceWidth = ref(360)
+const selectEvidenceFont = ref(14)
+const selectEvidenceValue = ref('probe-0500')
+const selectEvidenceOptions = ref(Array.from({ length: 1000 }, (_, index) => ({
+  label: `Entry ${String(index).padStart(4, '0')}`,
+  value: `probe-${String(index).padStart(4, '0')}`,
+  disabled: index === 0 || index === 501
+})))
+const renderEvidenceOption = (option: { label: string; value: string | number }) => h('span', {
+  'data-proof-key': option.value, style: 'display:block;white-space:normal;overflow-wrap:anywhere'
+}, `${option.label} — measured content wraps as its container changes width and font size.`)
+const insertEvidenceBefore = () => {
+  if (!selectEvidenceOptions.value.some(option => option.value === 'inserted-before')) {
+    selectEvidenceOptions.value = [{ label: 'Inserted before viewport', value: 'inserted-before', disabled: false }, ...selectEvidenceOptions.value]
+  }
+}
+const deleteEvidenceBefore = () => { selectEvidenceOptions.value = selectEvidenceOptions.value.filter(option => option.value !== 'inserted-before') }
+const reorderEvidence = () => { selectEvidenceOptions.value = [...selectEvidenceOptions.value.slice(700), ...selectEvidenceOptions.value.slice(0, 700)] }
+const deleteEvidenceActive = () => { selectEvidenceOptions.value = selectEvidenceOptions.value.filter(option => option.value !== 'probe-0500') }
 </script>
 
 # Select 选择器 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -15,8 +47,10 @@ Select lets users choose one or more values from a fixed option list, with searc
 ## 基础用法
 
 <div class="aheart-demo-panel">
+  <label id="select-basic-label">Choose fruit</label>
   <ASelect
     v-model="selectValue"
+    labelled-by="select-basic-label"
     placeholder="Choose fruit"
     :options="[
       { label: 'Apple', value: 'apple' },
@@ -28,8 +62,10 @@ Select lets users choose one or more values from a fixed option list, with searc
 
 ```vue
 <template>
+  <label id="select-basic-label">Choose fruit</label>
   <ASelect
     v-model="value"
+    labelled-by="select-basic-label"
     placeholder="Choose fruit"
     :options="[
       { label: 'Apple', value: 'apple' },
@@ -300,6 +336,73 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </template>
 ```
 
+## 大量选项与虚拟列表
+
+`virtual` 默认关闭。启用后 Select 只渲染视口附近的选项，适合 1000 项以上的静态列表；下面的示例保留稳定的字符串 id，并用交错文案模拟不同高度的行：
+
+<div class="aheart-demo-panel" role="region" aria-label="Select 虚拟列表示例">
+  <AButton @click="selectVirtualGrow = !selectVirtualGrow">切换首项高度</AButton>
+  <ASelect
+    id="select-virtual-demo"
+    aria-label="虚拟选项"
+    v-model="selectVirtualValue"
+    virtual
+    :options="selectVirtualOptions"
+    :option-render="renderVirtualOption"
+    style="width: 280px"
+  />
+</div>
+
+```vue
+<template>
+  <ASelect
+    v-model="value"
+    virtual
+    :options="options"
+    :option-render="(option) => option.label"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref('row-0999')
+const options = Array.from({ length: 1000 }, (_, index) => ({
+  label: index % 2 === 0 ? `Row ${index} · compact` : `Row ${index} · detail line`,
+  value: `row-${String(index).padStart(4, '0')}`
+}))
+</script>
+```
+
+### Virtual 配置
+
+搜索无匹配项时保留正常的空状态提示，不把提示压入零高度的虚拟窗口：
+
+<div class="aheart-demo-panel" role="region" aria-label="Select 虚拟搜索示例">
+  <ASelect id="select-virtual-search-demo" aria-label="虚拟搜索选项" virtual show-search :options="selectVirtualOptions" placeholder="搜索 Row 0999 或无匹配词" style="width: 280px" />
+</div>
+
+`virtual` 可以是布尔值或配置对象。`height` 是浮层外框的高度上限（默认 `288`），`estimateSize` 只是初始行高估计（默认 `32`），实际行高会动态测量，不会因估计值裁切内容；`overscan` 为视口两侧额外渲染的行数（默认 `3`）。无效字段会独立回退到默认值并在开发环境告警。
+
+虚拟列表只属于 Select，不会泛化到其他组件。它是静态依赖，关闭虚拟化仍会产生相应包体成本；默认关闭保持完整 DOM 与现有行为。
+
+### 打开期间的布局与数据变化
+
+下面的控制模拟外部布局和数据更新。宽度通过容器及 `popupMatchSelectWidth` 同步控制；字体通过既有 `styles.option` 设置。稳定 value 不随数组索引变化，重排并不承诺像素位置绝对不动。
+
+<div class="aheart-demo-panel" role="region" aria-label="Select 虚拟契约补证">
+  <AButton @click="selectEvidenceWidth = 180">窄容器</AButton>
+  <AButton @click="selectEvidenceFont = 20">大字体</AButton>
+  <AButton @click="insertEvidenceBefore">视口前插入</AButton>
+  <AButton @click="deleteEvidenceBefore">删除前置项</AButton>
+  <AButton @click="reorderEvidence">稳定key重排</AButton>
+  <AButton @click="deleteEvidenceActive">删除跟踪项</AButton>
+  <div data-select-evidence-container :style="{ width: `${selectEvidenceWidth}px`, maxWidth: '100%' }">
+    <ASelect id="select-virtual-evidence" aria-label="虚拟契约选项" v-model="selectEvidenceValue" virtual :options="selectEvidenceOptions" :option-render="renderEvidenceOption" :popup-match-select-width="selectEvidenceWidth" :styles="{ option: { fontSize: `${selectEvidenceFont}px`, lineHeight: `${selectEvidenceFont * 1.5}px` } }" style="width:100%" />
+  </div>
+  <output data-select-evidence-value>{{ selectEvidenceValue }}</output>
+</div>
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -328,6 +431,7 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | autoAdjustOverflow | 是否在视口边缘自动翻转和位移 | `boolean` | `true` |
 | getPopupContainer | 自定义浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | popupMatchSelectWidth | 浮层是否匹配触发器宽度，也可指定像素宽度 | `boolean` \| `number` | `true` |
+| virtual | 是否启用虚拟列表，也可配置浮层高度、行高估计与额外渲染行数 | `boolean` \| `SelectVirtualConfig` | `false` |
 | showSearch | 是否显示搜索输入 | `boolean` | `false` |
 | searchValue | 受控搜索文本 | `string` | - |
 | optionFilterProp | 默认搜索匹配的选项字段 | `string` | `label` |
@@ -353,6 +457,14 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | label | 选项文本 | `string` | - |
 | value | 选项值 | `string` \| `number` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
+
+### SelectVirtualConfig
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| height | 浮层外框高度上限（CSS 像素） | `number`（有限且大于 0） | `288` |
+| estimateSize | 初始行高估计，不强制行高 | `number`（有限且大于 0） | `32` |
+| overscan | 视口两侧额外渲染的行数 | `number`（非负安全整数） | `3` |
 
 ### SelectFieldNames
 

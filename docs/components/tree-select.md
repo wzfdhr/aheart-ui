@@ -7,6 +7,7 @@ const treeData = [
 ]
 const value = ref<string>()
 const values = ref<string[]>(['archive'])
+const checkedValues = ref<string[]>([])
 </script>
 
 # TreeSelect 树选择 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -35,6 +36,15 @@ const values = ref<string[]>(['archive'])
 
 搜索时会自动展开包含匹配节点的路径；清空搜索后恢复 Tree 原有展开状态。
 
+## 联动勾选
+
+<section class="aheart-demo-panel" aria-label="D4 树选择勾选示例">
+  <ATreeSelect v-model="checkedValues" :tree-data="treeData" tree-checkable :tree-check-strictly="false" show-search allow-clear aria-label="勾选页面" />
+  <p role="status">已勾选：{{ checkedValues.join(',') }}</p>
+</section>
+
+开启 `treeCheckable` 后值为完整已勾选key数组，半选不进入值，浮层保持打开。搜索只改变显示范围，联动始终使用完整逻辑树。`treeCheckStrictly` 默认true保留独立勾选；`loadData` 与 Tree 共用内部加载模型和取消契约，加载出的节点标签也用于展示已选值。关闭浮层取消仍在执行的加载。
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -46,6 +56,9 @@ const values = ref<string[]>(['archive'])
 | modelValue | 受控值 | `TreeKey \| TreeKey[]` | - |
 | defaultValue | 非受控初始值 | `TreeKey \| TreeKey[]` | - |
 | multiple | 是否多选 | `boolean` | `false` |
+| treeCheckable | 开启复选框选择，modelValue为key数组 | `boolean` | `false` |
+| treeCheckStrictly | 是否独立勾选；false启用联动 | `boolean` | `true` |
+| loadData | 可取消的按需加载回调 | `TreeLoadData` | - |
 | showSearch | 是否显示搜索框 | `boolean` | `false` |
 | placeholder | 无选中值时的提示文字 | `string` | `请选择` |
 | disabled | 是否禁用 | `boolean` | `false` |

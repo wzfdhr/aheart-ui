@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { validatePackageContract } from './release-contract.mjs'
+import { packageContracts, validatePackageContract } from './release-contract.mjs'
 
 const contract = {
   name: '@aheart-ui/example',
@@ -89,6 +89,24 @@ test('rejects unexpected packed dependency ranges', () => {
 
   assert.ok(errors.includes('@aheart-ui/example: dependency @aheart-ui/dnd must be ^1.0.0'))
   assert.ok(errors.includes('@aheart-ui/example: peer dependency aheart-ui must be ^1.0.0'))
+})
+
+test('rejects Pragmatic DnD auto-scroll dependency drift', () => {
+  const dndContract = packageContracts.find(({ name }) => name === '@aheart-ui/dnd')
+  const errors = validatePackageContract(
+    dndContract,
+    {
+      ...manifest,
+      name: '@aheart-ui/dnd',
+      dependencies: {
+        '@atlaskit/pragmatic-drag-and-drop': '2.0.1',
+        '@atlaskit/pragmatic-drag-and-drop-auto-scroll': '3.1.0'
+      }
+    },
+    dndContract.requiredFiles
+  )
+
+  assert.ok(errors.includes('@aheart-ui/dnd: dependency @atlaskit/pragmatic-drag-and-drop-auto-scroll must be 3.0.0'))
 })
 
 test('rejects source and test files from the tarball', () => {

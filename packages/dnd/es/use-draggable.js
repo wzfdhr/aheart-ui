@@ -1,6 +1,6 @@
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js";
 import { ref, watchEffect, toValue } from "vue";
-import { endDrag, startDrag } from "./drag-state.js";
+import { endDrag, startDrag, cancelNativeDrag } from "./drag-state.js";
 function useDraggable(element, options) {
   const isDragging = ref(false);
   watchEffect((onCleanup) => {
@@ -23,7 +23,14 @@ function useDraggable(element, options) {
         (_a = options.onDrop) == null ? void 0 : _a.call(options);
       }
     });
-    onCleanup(cleanup);
+    onCleanup(() => {
+      cleanup();
+      if (isDragging.value) {
+        cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
+        isDragging.value = false;
+        endDrag();
+      }
+    });
   });
   return { isDragging };
 }

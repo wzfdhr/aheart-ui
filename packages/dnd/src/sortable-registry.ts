@@ -11,7 +11,10 @@ const controllers = new Map<string, SortableListController>()
 
 export function registerSortableList(listId: string, controller: SortableListController) {
   controllers.set(listId, controller)
-  return () => controllers.delete(listId)
+  return () => {
+    if (controllers.get(listId) !== controller) return false
+    return controllers.delete(listId)
+  }
 }
 
 export function moveSortableItem(source: SortableItemData, targetListId: string, targetIndex: number) {

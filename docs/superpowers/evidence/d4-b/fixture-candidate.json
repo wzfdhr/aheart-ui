@@ -1,0 +1,47 @@
+{
+  "coreCandidate": "8317f0a95c7fdc565b67ca96858f14c0a160125894b662167af0a3b6d1f8402f",
+  "tarballSHA256": "378f59655efbaa9a4416bee112f6668c89353ba47147093e6461a9a24aaa703f",
+  "sha256": "21f3b0b4bdf200d0bee256f8ab684e74e7c40515dca3710136a3c3f80a3aea61",
+  "files": [
+    {
+      "path": "App.js",
+      "sha256": "8a80379dac2f791f6fc72f25710edd97b8ba7a0438fe00fb87a706ac153f19f8"
+    },
+    {
+      "path": "README.md",
+      "sha256": "3df7eb1c14c7ea75342e7ce39c92585113f135c02ec1b5e9f4d258a9df3ef6d5"
+    },
+    {
+      "path": "baseline.js",
+      "sha256": "cb7badea1b65ff8aa18baa323eb9ead82d0bc4bcc037ee2d9bc82bd07f35bc56"
+    },
+    {
+      "path": "disabled.js",
+      "sha256": "09b810817e4aaa9aa43fa44a13fed84d2cf40831511c782e64c8eb22d447973b"
+    },
+    {
+      "path": "engine-size.mjs",
+      "sha256": "7ef2b60eb1550d933dd685700f1ea5fd09206311fb214a22046150ce7cfec349"
+    },
+    {
+      "path": "main.js",
+      "sha256": "fae007d4ede8544364ab551de526cd67145a766fcdf7fa148722ebb1e8c11bf0"
+    },
+    {
+      "path": "measure.mjs",
+      "sha256": "37f42def80282d4247394b26a5744f5a6899db1986ba9e7a7e261f84cb363523"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "1af2e3a957e6edd429a0198ae8392c331b2544c7243392f7bda70470fa76f0aa"
+    },
+    {
+      "path": "package.json",
+      "sha256": "b14f8365627a97743ad17f76364c94055864a2060730d2c29013b022569e635d"
+    },
+    {
+      "path": "unused.js",
+      "sha256": "a57994bb53252a112d712938730868da6afd57a80ef56b0cbc259ebfabd3ac1c"
+    }
+  ]
+}

@@ -17,6 +17,18 @@ const asyncEmailValidator = async (_rule: unknown, value: unknown) => {
     throw new Error('该邮箱已被占用')
   }
 }
+const accountForm = reactive({ account: { email: '' }, password: '', confirm: '', address: { city: '' } })
+const accountRef = ref<{ setFieldsErrors: (fields: Array<{ name: string | string[]; errors: string[] }>) => void; resetFields: () => void }>()
+const showAddress = ref(true)
+const accountStatus = ref('请填写账户资料')
+const confirmPassword = (_rule: unknown, value: unknown, model: Record<string, unknown>) =>
+  value === model.password || '两次密码不一致'
+const saveAccount = () => {
+  if (accountForm.account.email === 'taken@example.com') {
+    accountRef.value?.setFieldsErrors([{ name: ['account', 'email'], errors: ['该邮箱已注册，请更换邮箱后重试'] }])
+    accountStatus.value = '保存失败，请修正邮箱'
+  } else accountStatus.value = '账户资料已保存'
+}
 </script>
 
 # Form 表单 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -455,6 +467,40 @@ const passwordTooltipIcon = h('span', 'i')
 </template>
 ```
 
+## 账户资料：依赖校验与保存恢复
+
+<section class="aheart-demo-panel d3-form-workbench" aria-label="账户资料表单">
+  <AForm ref="accountRef" :model="accountForm" layout="vertical" validate-trigger="blur" @finish="saveAccount" @finish-failed="accountStatus = '请先修正字段错误'">
+    <AFormItem :name="['account', 'email']" label="账户邮箱" extra="使用 taken@example.com 可体验服务端错误恢复" :rules="[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '请输入有效邮箱' }]">
+      <AInput v-model="accountForm.account.email" />
+    </AFormItem>
+    <AFormItem name="password" label="密码" :rules="[{ required: true, message: '请输入密码' }, { min: 6, message: '密码至少 6 位' }]">
+      <AInput v-model="accountForm.password" type="password" />
+    </AFormItem>
+    <AFormItem name="confirm" label="确认密码" :dependencies="['password']" :rules="[{ required: true, message: '请再次输入密码' }, { validator: confirmPassword }]">
+      <AInput v-model="accountForm.confirm" type="password" />
+    </AFormItem>
+    <AFormItem v-if="showAddress" :name="['address', 'city']" label="收货城市" :preserve="false">
+      <AInput v-model="accountForm.address.city" />
+    </AFormItem>
+    <div>
+      <AButton @click="showAddress = !showAddress">{{ showAddress ? '移除收货地址' : '添加收货地址' }}</AButton>
+      <AButton html-type="submit" type="primary">保存资料</AButton>
+    </div>
+    <p role="status">{{ accountStatus }}</p>
+  </AForm>
+</section>
+
+`name="account.email"` 仍表示同名顶层字段；嵌套数据用 `:name="['account', 'email']"`。批量校验两个字段用 `validateFields(['password', 'confirm'])`，校验一个嵌套字段用 `validateFields([['account', 'email']])`。
+
+默认仅在提交或调用校验方法时校验。配置 `validate-trigger` 后，控件提交有效变化或焦点离开整个控件时触发对应规则；Select/Picker 的弹层内部移动焦点不算离开字段。显式设置的控件 ID、描述和状态继续优先，FormItem 自动补充标签、帮助和错误关联。
+
+`preserve` 默认 `true`；`false` 会在字段卸载或改名时删除旧路径的值，数组不会因此自动移动其他索引。`hidden` 只是隐藏布局，字段仍参与校验。
+
+服务端返回的字段错误可用 `setFieldsErrors([{ name: ['account', 'email'], errors: ['该邮箱已注册'] }])` 写入。该字段值改变、`resetFields`、`clearValidate` 或空错误数组会清除错误；旧异步校验不能覆盖新错误。
+
+异步校验期间模型、规则或字段注册发生变化时，旧校验返回 `outOfDate: true`，应用应忽略该结果。进行中的旧提交不会再发出 finish/finishFailed；当前字段准备好后可重新提交。
+
 ## Form API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -469,6 +515,8 @@ const passwordTooltipIcon = h('span', 'i')
 | colon | 是否在 label 后显示冒号 | `boolean` | `true` |
 | variant | 内部控件默认变体 | `outlined` \| `borderless` \| `filled` \| `underlined` | - |
 | scrollToFirstError | 提交失败后滚动到首个错误字段 | `boolean` \| `ScrollIntoViewOptions` | `false` |
+| validateTrigger | 自动校验触发方式；false 仅提交或显式校验 | `false \| 'change' \| 'blur' \| Array<'change' \| 'blur'>` | `false` |
+| preserve | 字段卸载时保留模型值 | `boolean` | `true` |
 
 ## Form Events
 
@@ -477,14 +525,17 @@ const passwordTooltipIcon = h('span', 'i')
 | submit | 提交表单时触发 | `(event: Event) => void` |
 | finish | 校验成功后触发 | `(values: FormModel) => void` |
 | finishFailed | 校验失败后触发 | `(info: FormFinishFailedInfo) => void` |
-| validate | 字段校验完成时触发 | `(name: string, status: boolean, errors: string[]) => void` |
+| validate | 当前字段校验完成时触发，过期任务不发出结果 | `(name: FormNamePath, status: boolean, errors: string[]) => void` |
 
 ## FormItem API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | label | 标签内容；`label` 插槽优先级更高 | `VNodeChild` | - |
-| name | 字段名 | `string` | - |
+| name | 字符串字面字段名，或嵌套路径数组 | `FormNamePath` | - |
+| dependencies | 依赖值改变后重新校验当前字段 | `FormNamePath[]` | `[]` |
+| validateTrigger | 自动校验触发方式，覆盖 Form 配置 | `false \| 'change' \| 'blur' \| Array<'change' \| 'blur'>` | Form 配置 |
+| preserve | 卸载字段时是否保留模型值 | `boolean` | Form 配置 |
 | colon | 是否在当前表单项 label 后显示冒号，优先于 Form `colon` | `boolean` | Form colon |
 | htmlFor | 设置 label 的 `for` 属性 | `string` | - |
 | labelAlign | 当前表单项标签对齐方式，优先于 Form `labelAlign` | `left` \| `right` | Form labelAlign |
@@ -520,29 +571,31 @@ const passwordTooltipIcon = h('span', 'i')
 | len | 字符/数组固定长度，或数字固定值 | `number` | - |
 | pattern | 正则校验 | `RegExp` | - |
 | validator | 自定义同步或异步校验器；返回 `false`、错误字符串或 reject 表示失败 | `(rule, value, model) => void \| boolean \| string \| Promise` | - |
+| validateTrigger | 限定当前规则的自动触发方式；提交/显式校验仍执行全部规则 | `false \| 'change' \| 'blur' \| Array<'change' \| 'blur'>` | - |
 
 ## FormFinishFailedInfo
 
 | 字段 | 说明 | 类型 |
 | --- | --- | --- |
 | values | 当前表单数据 | `FormModel` |
-| errorFields | 错误字段列表 | `{ name: string; errors: string[] }[]` |
+| errorFields | 错误字段列表 | `{ name: FormNamePath; errors: string[] }[]` |
 
 ## Exposes
 
 | 名称 | 说明 | 类型 |
 | --- | --- | --- |
 | validate | 触发表单校验；含异步规则时返回 Promise | `() => FormValidationResult \| Promise<FormValidationResult>` |
-| validateFields | 触发指定字段或全部字段校验；含异步规则时返回 Promise | `(names?: string[]) => FormValidationResult \| Promise<FormValidationResult>` |
-| resetFields | 将指定字段或全部已注册字段恢复为初始值并清除校验状态 | `(names?: string[]) => void` |
-| clearValidate | 清除字段错误 | `(names?: string[]) => void` |
-| setFieldValue | 设置指定字段值并清除该字段错误 | `(name: string, value: unknown) => void` |
+| validateFields | 触发指定字段或全部字段校验；含异步规则时返回 Promise | `(names?: FormNamePath[]) => FormValidationResult \| Promise<FormValidationResult>` |
+| resetFields | 将指定字段或全部已注册字段恢复为初始值并清除校验状态 | `(names?: FormNamePath[]) => void` |
+| clearValidate | 清除字段错误 | `(names?: FormNamePath[]) => void` |
+| setFieldValue | 设置指定字段值并清除该字段错误 | `(name: FormNamePath, value: unknown) => void` |
 | setFieldsValue | 批量设置字段值并清除对应字段错误 | `(values: FormModel) => void` |
-| getFieldError | 读取指定字段当前错误 | `(name: string) => string[]` |
-| getFieldsError | 读取当前字段错误集合 | `(names?: string[]) => FormValidationError[]` |
-| getFieldValue | 读取指定字段的当前值 | `(name: string) => unknown` |
-| getFieldsValue | 读取当前字段值集合，传入 `true` 时返回完整 model 浅拷贝 | `(names?: string[] \| true) => FormModel` |
-| scrollToField | 滚动到指定字段 | `(name: string, options?: ScrollIntoViewOptions) => void` |
+| getFieldError | 读取指定字段当前错误 | `(name: FormNamePath) => string[]` |
+| getFieldsError | 读取当前字段错误集合 | `(names?: FormNamePath[]) => FormValidationError[]` |
+| getFieldValue | 读取指定字段的当前值 | `(name: FormNamePath) => unknown` |
+| getFieldsValue | 读取当前字段值集合，传入 `true` 时返回完整模型副本 | `(names?: FormNamePath[] \| true) => FormModel` |
+| scrollToField | 滚动到指定字段 | `(name: FormNamePath, options?: ScrollIntoViewOptions) => void` |
+| setFieldsErrors | 设置或清除服务端字段错误，并使旧校验失效 | `(fields: FormValidationError[]) => void` |
 
 ## Slots
 

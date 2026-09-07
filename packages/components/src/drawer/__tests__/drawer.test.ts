@@ -1,7 +1,11 @@
-import { mount } from '@vue/test-utils'
+import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { h, nextTick } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Drawer from '../drawer.vue'
+
+enableAutoUnmount(afterEach)
 
 const mountDrawer = (options: Record<string, any> = {}) =>
   mount(Drawer, {
@@ -16,6 +20,13 @@ const mountDrawer = (options: Record<string, any> = {}) =>
   })
 
 describe('Drawer', () => {
+  it('keeps side panels within a narrow inline container', () => {
+    const drawerStyle = readFileSync(resolve(process.cwd(), 'src/drawer/style.css'), 'utf8')
+
+    expect(drawerStyle).toMatch(/\.aheart-drawer__panel\s*\{[^}]*box-sizing:\s*border-box/s)
+    expect(drawerStyle).toMatch(/@media \(max-width: 575px\)[\s\S]*width:\s*min\(100%, 378px\)/)
+  })
+
   it('renders title content extra placement and width when open', () => {
     const wrapper = mountDrawer({
       props: { open: true, title: 'Filters', placement: 'left', width: 320 },
@@ -513,6 +524,37 @@ describe('Drawer', () => {
     }
   })
 
+  it('holds the body scroll lock until the leave motion is hidden', async () => {
+    const wrapper = mountDrawer({ props: { open: true, title: 'Scroll lock' } })
+    expect(document.body.style.overflow).toBe('hidden')
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: false })
+      expect(wrapper.find('.aheart-drawer').classes()).toContain('is-leave')
+      expect(document.body.style.overflow).toBe('hidden')
+
+      await vi.advanceTimersByTimeAsync(241)
+      expect(document.body.style.overflow).toBe('')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('locks and restores the owner document for a custom container', () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const wrapper = mountDrawer({
+      props: { open: true, title: 'Custom document', getContainer: () => ownerDocument.body }
+    })
+
+    expect(ownerDocument.body.style.overflow).toBe('hidden')
+    wrapper.unmount()
+    expect(ownerDocument.body.style.overflow).toBe('')
+    iframe.remove()
+  })
+
   it('treats destroyInactivePanel as a destroyOnHidden alias', async () => {
     const wrapper = mountDrawer({
       props: { open: true, destroyInactivePanel: true, title: 'Legacy destroy' },
@@ -671,7 +713,8 @@ describe('Drawer', () => {
     props: {
       open: true,
       title: 'Trap drawer',
-      closable: false
+      closable: false,
+      getContainer: false
     },
       slots: {
         default: '<button class="first-control">First</button><button class="last-control">Last</button>'
@@ -695,7 +738,8 @@ describe('Drawer', () => {
     props: {
       open: true,
       title: 'Reverse trap',
-      closable: false
+      closable: false,
+      getContainer: false
     },
       slots: {
         default: '<button class="first-control">First</button><button class="last-control">Last</button>'
@@ -720,6 +764,7 @@ describe('Drawer', () => {
       open: true,
       title: 'No trap',
       closable: false,
+      getContainer: false,
       focusable: {
         trap: false
       }
@@ -747,6 +792,7 @@ describe('Drawer', () => {
       title: 'Forced trap',
       closable: false,
       mask: false,
+      getContainer: false,
       focusable: {
         trap: true
         }
@@ -996,6 +1042,15 @@ describe('Drawer', () => {
     const locked = mountDrawer({ props: { open: true, keyboard: false } })
     await locked.find('.aheart-drawer').trigger('keydown', { key: 'Escape' })
     expect(locked.emitted('update:open')).toBeUndefined()
+  })
+
+  it('emits one close request for an attached Escape when the controlled owner rejects it', async () => {
+    const wrapper = mountDrawer({ attachTo: document.body, props: { open: true } })
+    await wrapper.get('.aheart-drawer').trigger('keydown', { key: 'Escape' })
+
+    expect(wrapper.emitted('update:open')).toEqual([[false]])
+    expect(wrapper.emitted('close')).toHaveLength(1)
+    expect(wrapper.props('open')).toBe(true)
   })
 
   it('does not render overlay nodes when closed', () => {

@@ -7,6 +7,7 @@ const iconComponents = {
   settings: vue.Settings,
   loading: vue.LoaderCircle,
   info: vue.Info,
+  "grip-vertical": vue.GripVertical,
   user: vue.User,
   plus: vue.Plus,
   check: vue.Check,

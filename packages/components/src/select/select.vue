@@ -1,20 +1,23 @@
 <template>
-  <span ref="rootRef" class="aheart-select" :class="selectClass" :style="rootStyle">
+  <span ref="rootRef" class="aheart-select" :class="selectClass" :style="rootStyle" v-bind="rootAttrs">
     <span
       ref="selectorRef"
       class="aheart-select__selector"
       :class="classNames.selector"
       :style="styles.selector"
-      :id="isSearchable ? undefined : id"
+      v-bind="isSearchable ? undefined : interactiveAriaAttrs"
+      :id="isSearchable ? undefined : resolvedId"
       :role="isSearchable ? undefined : 'combobox'"
       :tabindex="isSearchable || isDisabled ? undefined : 0"
-      :aria-controls="listboxId"
-      :aria-labelledby="resolvedAriaLabelledby"
-      :aria-expanded="mergedOpen ? 'true' : 'false'"
+      :aria-controls="isSearchable ? undefined : listboxId"
+      :aria-labelledby="isSearchable ? undefined : mergedAriaLabelledby"
+      :aria-describedby="isSearchable ? undefined : mergedAriaDescribedby"
+      :aria-invalid="isSearchable ? undefined : resolvedAriaInvalid"
+      :aria-expanded="isSearchable ? undefined : mergedOpen ? 'true' : 'false'"
       :aria-haspopup="isSearchable ? undefined : 'listbox'"
-      :aria-disabled="isDisabled ? 'true' : undefined"
-      :aria-busy="loading ? 'true' : undefined"
-      :aria-activedescendant="activeOptionId"
+      :aria-disabled="isSearchable ? undefined : isDisabled ? 'true' : undefined"
+      :aria-busy="isSearchable ? undefined : loading ? 'true' : undefined"
+      :aria-activedescendant="isSearchable ? undefined : activeOptionId"
       @click="handleSelectorClick"
       @keydown="handleKeydown"
       @focusin="handleFocusIn"
@@ -40,7 +43,7 @@
               :class="classNames.tagRemove"
               :style="styles.tagRemove"
               type="button"
-              :aria-label="`Remove ${option.label}`"
+              :aria-label="`移除 ${option.label}`"
               @click.stop="removeValue(option.value)"
             >
               ×
@@ -57,22 +60,27 @@
           class="aheart-select__search"
           :class="classNames.search"
           :style="styles.search"
-          :id="id"
+          :id="resolvedId"
           type="text"
           role="combobox"
           autocomplete="off"
           :value="currentSearchValue"
           :disabled="isDisabled"
           :placeholder="searchPlaceholder"
+          v-bind="isSearchable ? interactiveAriaAttrs : undefined"
           :aria-controls="listboxId"
-          :aria-labelledby="resolvedAriaLabelledby"
+          :aria-labelledby="mergedAriaLabelledby"
+          :aria-describedby="mergedAriaDescribedby"
+          :aria-invalid="resolvedAriaInvalid"
           :aria-expanded="mergedOpen ? 'true' : 'false'"
+          aria-autocomplete="list"
           aria-haspopup="listbox"
           :aria-activedescendant="activeOptionId"
           :aria-busy="loading ? 'true' : undefined"
           @input="handleSearch"
+          @compositionstart="handleCompositionStart"
+          @compositionend="handleCompositionEnd"
           @click.stop="openPopup"
-          @keydown="handleKeydown"
         />
         <span v-else-if="!isMultiple" class="aheart-select__value" :class="{ 'is-placeholder': !selectedOption }">
           {{ selectedOption?.label ?? placeholder ?? '' }}
@@ -90,7 +98,7 @@
         :class="classNames.clear"
         :style="styles.clear"
         type="button"
-        aria-label="Clear"
+        aria-label="清除"
         @click.stop="handleClear"
       >
         <slot name="clearIcon"><ARenderNode :node="clearIconContent" /></slot>
@@ -110,14 +118,14 @@
       </span>
     </span>
 
-    <span v-if="loading" class="aheart-select__status" role="status" aria-live="polite">Loading</span>
+    <span v-if="loading" class="aheart-select__status" role="status" aria-live="polite">{{ resolvedLoadingText }}</span>
 
     <Teleport :to="teleportTo" :disabled="!shouldTeleport">
       <div
         v-if="motion.isMounted.value"
         v-show="motion.phase.value !== 'hidden'"
         :id="listboxId"
-        ref="popupRef"
+        @focusout="handleFocusOut" ref="popupRef"
         class="aheart-select__popup"
         :class="popupClass"
         :style="popupStyle"
@@ -125,22 +133,26 @@
         :aria-multiselectable="isMultiple ? 'true' : undefined"
         :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
       >
-        <div class="aheart-select__list" :class="classNames.list" :style="styles.list">
+        <div class="aheart-select__list" :class="[classNames.list, { 'is-virtual': virtualList.config.value }]" :style="[styles.list, virtualList.listStyle.value]">
           <div
-            v-for="(option, index) in filteredOptions"
-            :id="getOptionId(index)"
+            v-for="{ option, index, item } in virtualList.rows.value"
+            :id="getOptionId(option)"
             :key="getOptionKey(option.value)"
             class="aheart-select__option"
             :class="[
               classNames.option,
               {
-                'is-active': index === activeIndex,
+                'is-active': getOptionKey(option.value) === activeKey,
                 'is-selected': isValueSelected(option.value),
                 'is-disabled': isOptionDisabled(option)
               }
             ]"
-            :style="styles.option"
+            :style="[styles.option, virtualList.rowStyle({ option, index, item })]"
+            :ref="virtualList.config.value ? virtualList.measure : undefined"
+            :data-index="virtualList.config.value ? index : undefined"
             role="option"
+            :aria-posinset="virtualList.config.value ? index + 1 : undefined"
+            :aria-setsize="virtualList.config.value ? filteredOptions.length : undefined"
             :aria-selected="isValueSelected(option.value) ? 'true' : 'false'"
             :aria-disabled="isOptionDisabled(option) ? 'true' : undefined"
             @mouseenter="setActiveIndex(index)"
@@ -158,7 +170,7 @@
             :class="classNames.notFound"
             :style="styles.notFound"
           >
-            {{ loading ? 'Loading' : notFoundContent }}
+            {{ loading ? resolvedLoadingText : resolvedNotFoundContent }}
           </div>
         </div>
       </div>
@@ -167,13 +179,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, nextTick, ref, useAttrs, useId, useSlots, watch, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, nextTick, ref, useAttrs, useSlots, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
+import { useTeleportReady } from '../utils/use-teleport-ready'
+import { useSelectVirtual } from './use-select-virtual'
 import {
   selectEmits,
   selectProps,
@@ -185,24 +202,24 @@ import {
 } from './types'
 import './style.css'
 
-defineOptions({ name: 'ASelect' })
+defineOptions({ name: 'ASelect', inheritAttrs: false })
 
 const props = defineProps(selectProps)
 const emit = defineEmits(selectEmits)
 const slots = useSlots()
 const attrs = useAttrs()
 const config = useAheartConfig()
+const formControl = useFormControl()
 const rootRef = ref<HTMLElement | null>(null)
 const selectorRef = ref<HTMLElement | null>(null)
 const searchRef = ref<HTMLInputElement | null>(null)
 const popupRef = ref<HTMLElement | null>(null)
 const internalSearchValue = ref('')
-const internalValue = ref<SelectValue | undefined>(props.defaultValue)
-const internalOpen = ref(props.defaultOpen)
-const activeIndex = ref(-1)
+const activeKey = ref<string>()
+const isComposing = ref(false)
+let compositionInputValues: Set<string> | undefined
 const focused = ref(false)
-const instanceId = useId().replace(/:/g, '')
-const listboxId = `aheart-select-${instanceId}-listbox`
+const listboxId = `${useStableId(undefined, 'aheart-select').value}-listbox`
 
 const ARenderNode = defineComponent({
   name: 'ASelectRenderNode',
@@ -231,18 +248,50 @@ const normalizedOptions = computed(() => rawOptions.value.map(normalizeOption))
 const isMultiple = computed(() => props.mode === 'multiple' || props.mode === 'tags')
 const isSearchable = computed(() => props.showSearch || props.mode === 'tags')
 const isControlled = usePropPresence('modelValue', 'model-value')
-const mergedValue = computed(() => (isControlled.value ? props.modelValue : internalValue.value))
 const isOpenControlled = usePropPresence('open')
 const isSearchControlled = usePropPresence('searchValue', 'search-value')
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const valueState = useControllableState<SelectValue>({
+  controlled: () => props.modelValue,
+  isControlled,
+  defaultValue: () => props.defaultValue,
+  onChange: (value) => {
+    if (value === undefined) return
+    emit('update:modelValue', value)
+    emit('change', value)
+  }
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
+const mergedValue = valueState.state
+const mergedOpen = computed(() => Boolean(openState.state.value) && (!props.virtual || !isDisabled.value))
 const currentSearchValue = computed(() => isSearchControlled.value ? props.searchValue ?? '' : internalSearchValue.value)
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl?.labelledBy.value))
+const mergedAriaDescribedby = computed(() => mergeAriaIds(attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const resolvedVariant = computed(() => props.variant ?? (props.bordered === false ? 'borderless' : config.value.variant ?? 'outlined'))
 const hasPrefix = computed(() => Boolean(props.prefix !== undefined || slots.prefix))
 const allowClearConfig = computed(() => (typeof props.allowClear === 'object' ? props.allowClear : undefined))
 const clearIconContent = computed(() => allowClearConfig.value?.clearIcon ?? '×')
+const interactiveAriaAttrs = computed(() => Object.fromEntries(
+  Object.entries(attrs).filter(([key]) => key.startsWith('aria-'))
+))
+const rootAttrs = computed(() => Object.fromEntries(
+  Object.entries(attrs).filter(([key]) => !key.startsWith('aria-'))
+))
+const resolvedLoadingText = computed(() => config.value.locale?.table?.loadingText ?? 'Loading')
+const hasNotFoundContent = usePropPresence('notFoundContent', 'not-found-content')
+const resolvedNotFoundContent = computed(() =>
+  hasNotFoundContent.value ? props.notFoundContent : config.value.locale?.empty?.description ?? props.notFoundContent
+)
 const getOptionKey = (value: SelectPrimitiveValue) => `${typeof value}:${String(value)}`
 const valueEquals = (left: SelectPrimitiveValue, right: SelectPrimitiveValue) => left === right
 const selectedValues = computed<SelectPrimitiveValue[]>(() =>
@@ -286,15 +335,20 @@ const filteredOptions = computed(() => {
 const hasNoOptions = computed(() => filteredOptions.value.length === 0)
 const isOptionDisabled = (option: SelectOption) => Boolean(option.disabled)
 const isValueSelected = (value: SelectPrimitiveValue) => selectedValues.value.some((selected) => valueEquals(selected, value))
-const getOptionId = (index: number) => `${listboxId}-option-${index}`
-const activeOptionId = computed(() => activeIndex.value >= 0 && mergedOpen.value ? getOptionId(activeIndex.value) : undefined)
+const getOptionId = (option: SelectOption) => `${listboxId}-option-${Array.from(getOptionKey(option.value), (character) => character.codePointAt(0)!.toString(16)).join('-')}`
+const activeIndex = computed(() => filteredOptions.value.findIndex((option) => getOptionKey(option.value) === activeKey.value))
+const activeOptionId = computed(() => {
+  const option = filteredOptions.value[activeIndex.value]
+  return option && mergedOpen.value ? getOptionId(option) : undefined
+})
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
+const teleportReady = useTeleportReady()
 const popupContainer = computed(() => {
   if (props.getPopupContainer && selectorRef.value) return props.getPopupContainer(selectorRef.value)
-  return typeof document === 'undefined' ? false : document.body
+  return selectorRef.value?.ownerDocument.body ?? false
 })
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
 const floatingPosition = useFloatingPosition({
   reference: selectorRef,
@@ -313,7 +367,7 @@ const selectClass = computed(() => [
   `aheart-select--${resolvedSize.value}`,
   `aheart-select--${resolvedVariant.value}`,
   {
-    [`aheart-select--${props.status}`]: props.status,
+    [`aheart-select--${resolvedStatus.value}`]: resolvedStatus.value,
     'is-disabled': isDisabled.value,
     'is-loading': props.loading,
     'is-multiple': isMultiple.value,
@@ -336,16 +390,33 @@ const popupWidthStyle = computed(() => {
     : selectorRef.value?.getBoundingClientRect().width
   return width ? { width: `${width}px` } : {}
 })
-const popupStyle = computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup])
+const popupStyle = computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup, virtualList.popupStyle.value])
 
 const setInitialActive = () => {
-  const selectedIndex = filteredOptions.value.findIndex((option) => isValueSelected(option.value) && !isOptionDisabled(option))
-  activeIndex.value = selectedIndex >= 0 ? selectedIndex : filteredOptions.value.findIndex((option) => !isOptionDisabled(option))
+  const current = filteredOptions.value.find((option) => getOptionKey(option.value) === activeKey.value && !isOptionDisabled(option))
+  if (current) return
+  const selected = filteredOptions.value.find((option) => isValueSelected(option.value) && !isOptionDisabled(option))
+  const firstEnabled = filteredOptions.value.find((option) => !isOptionDisabled(option))
+  const next = selected ?? firstEnabled
+  activeKey.value = next ? getOptionKey(next.value) : undefined
 }
+// Opt-in defaultOpen / controlled-open must have the same initial active item on server and client.
+watch([mergedOpen, () => props.virtual], () => {
+  if (props.virtual && mergedOpen.value) setInitialActive()
+}, { immediate: true })
+const virtualList = useSelectVirtual({
+  config: () => props.virtual,
+  open: mergedOpen,
+  disabled: isDisabled,
+  popup: popupRef,
+  options: filteredOptions,
+  activeIndex,
+  activeKey,
+  key: (option) => getOptionKey(option.value)
+})
 const requestOpen = (open: boolean) => {
   if (isDisabled.value) return
-  if (!isOpenControlled.value) internalOpen.value = open
-  emit('openChange', open)
+  openState.setState(open, { force: true })
   if (open) setInitialActive()
 }
 const openPopup = () => {
@@ -359,9 +430,8 @@ const handleSelectorClick = () => {
 }
 
 const emitValue = (value: SelectValue) => {
-  if (!isControlled.value) internalValue.value = value
-  emit('update:modelValue', value)
-  emit('change', value)
+  valueState.setState(value, { force: true })
+  formControl?.change()
 }
 const clearSearch = () => {
   if (!isSearchControlled.value) internalSearchValue.value = ''
@@ -403,29 +473,49 @@ const renderTag = (option: SelectOption) => props.tagRender?.({
 }) ?? option.label
 
 const handleSearch = (event: Event) => {
+  if (isComposing.value || (event as InputEvent).isComposing) return
   const value = (event.target as HTMLInputElement).value
+  if (event.type === 'input' && compositionInputValues) {
+    const repeatedCommit = compositionInputValues.has(value)
+    compositionInputValues = undefined
+    if (repeatedCommit) return
+  }
   if (!isSearchControlled.value) internalSearchValue.value = value
   else (event.target as HTMLInputElement).value = currentSearchValue.value
   emit('search', value)
   openPopup()
   void nextTick(setInitialActive)
 }
+const handleCompositionStart = () => {
+  compositionInputValues = undefined
+  isComposing.value = true
+}
+const handleCompositionEnd = (event: CompositionEvent) => {
+  isComposing.value = false
+  const input = event.target as HTMLInputElement
+  const value = input.value
+  handleSearch(event)
+  compositionInputValues = new Set([value, input.value])
+}
 const setActiveIndex = (index: number) => {
-  if (!isOptionDisabled(filteredOptions.value[index])) activeIndex.value = index
+  const option = filteredOptions.value[index]
+  if (option && !isOptionDisabled(option)) activeKey.value = getOptionKey(option.value)
 }
 const moveActive = (direction: 1 | -1) => {
   if (filteredOptions.value.length === 0) return
   let index = activeIndex.value
+  if (index < 0) index = direction === 1 ? -1 : 0
   for (let attempts = 0; attempts < filteredOptions.value.length; attempts += 1) {
     index = (index + direction + filteredOptions.value.length) % filteredOptions.value.length
     if (!isOptionDisabled(filteredOptions.value[index])) {
-      activeIndex.value = index
+      activeKey.value = getOptionKey(filteredOptions.value[index].value)
       return
     }
   }
 }
 const handleKeydown = (event: KeyboardEvent) => {
   if (isDisabled.value) return
+  if (isComposing.value || event.isComposing || event.keyCode === 229) return
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault()
     if (!mergedOpen.value) {
@@ -444,6 +534,12 @@ const handleKeydown = (event: KeyboardEvent) => {
     }
     return
   }
+  if ((event.key === 'Home' || event.key === 'End') && !isSearchable.value && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+    event.preventDefault()
+    const enabled = filteredOptions.value.filter((option) => !isOptionDisabled(option))
+    const option = enabled[event.key === 'Home' ? 0 : enabled.length - 1]
+    activeKey.value = option ? getOptionKey(option.value) : undefined
+  }
   if (event.key === 'Escape' && mergedOpen.value) {
     event.preventDefault()
     closePopup()
@@ -458,10 +554,11 @@ const handleFocusIn = (event: FocusEvent) => {
 }
 const handleFocusOut = (event: FocusEvent) => {
   void nextTick(() => {
-    const active = document.activeElement
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
     if (rootRef.value?.contains(active) || popupRef.value?.contains(active)) return
     focused.value = false
     emit('blur', event)
+    formControl?.blur()
     closePopup()
   })
 }
@@ -470,16 +567,31 @@ useFloatingDismiss({
   open: mergedOpen,
   trigger: selectorRef,
   floating: popupRef,
+  ignoreEscape: isComposing,
   onDismiss: () => closePopup()
 })
 
 watch(filteredOptions, () => {
   if (mergedOpen.value) setInitialActive()
 })
-watch(() => props.defaultOpen, (open) => {
-  if (!isOpenControlled.value) internalOpen.value = open
-})
-
+watch(activeOptionId, () => {
+  if (virtualList.config.value) return
+  void nextTick(() => {
+    const popup = popupRef.value
+    const id = activeOptionId.value
+    const option = id && popup?.ownerDocument.getElementById(id)
+    if (!popup || !option || !popup.contains(option)) return
+    const bounds = popup.getBoundingClientRect()
+    const row = option.getBoundingClientRect()
+    // Account for entry animation scale and measured, potentially multi-line rows.
+    const scale = popup.offsetHeight ? bounds.height / popup.offsetHeight : 1
+    if (!scale) return
+    const top = bounds.top + popup.clientTop * scale
+    const bottom = top + popup.clientHeight * scale
+    if (row.top < top) popup.scrollTop += (row.top - top) / scale
+    else if (row.bottom > bottom) popup.scrollTop += (row.bottom - bottom) / scale
+  })
+}, { flush: 'post' })
 const focus = () => (isSearchable.value ? searchRef.value : selectorRef.value)?.focus()
 const blur = () => {
   searchRef.value?.blur()

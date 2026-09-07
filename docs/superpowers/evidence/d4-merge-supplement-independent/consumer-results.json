@@ -1,0 +1,496 @@
+{
+  "generatedAt": "2026-09-07T08:35:44.596Z",
+  "counts": [
+    1000
+  ],
+  "rounds": 1,
+  "note": "Cold means first popup open on a fresh page; hot excludes close animation. Timings include Playwright and two animation frames. Heap is not forced-GC or a leak metric. Long tasks assigned by startTime.",
+  "candidates": [
+    {
+      "root": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-hRFlCh",
+      "tarball": "/tmp/aheart-d4-merge-pack.InSagN/aheart-ui-1.0.0.tgz",
+      "tarballSHA256": "70cf1c26eecd6f44226734c0dce0e6c61e40c0bf7b032121f205dc774355e3a1",
+      "lockSHA256": "01f219294ae7a463d85536db6fd75654ff9a60b7409958a6b457689f699941ee",
+      "label": "new",
+      "versions": {
+        "node": "v24.17.0",
+        "vue": "3.5.38",
+        "vite": "5.0.12"
+      },
+      "symlink": false,
+      "sizes": {
+        "default-false": {
+          "js": {
+            "raw": 168416,
+            "gzip": 60843,
+            "brotli": 54232
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        },
+        "virtual-true": {
+          "js": {
+            "raw": 168416,
+            "gzip": 60843,
+            "brotli": 54309
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        },
+        "unused-button": {
+          "js": {
+            "raw": 83748,
+            "gzip": 31093,
+            "brotli": 27891
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        }
+      },
+      "modules": {
+        "default-false": [
+          "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+          "@tanstack/virtual-core/dist/esm/utils.js",
+          "@tanstack/virtual-core/dist/esm/index.js",
+          "@tanstack/vue-virtual/dist/esm/index.js"
+        ],
+        "virtual-true": [
+          "@tanstack/virtual-core/dist/esm/lazy-measurements.js",
+          "@tanstack/virtual-core/dist/esm/utils.js",
+          "@tanstack/virtual-core/dist/esm/index.js",
+          "@tanstack/vue-virtual/dist/esm/index.js"
+        ],
+        "unused-button": []
+      },
+      "hydration": [
+        {
+          "variant": "default-false",
+          "dynamic": false,
+          "errors": []
+        },
+        {
+          "variant": "default-false",
+          "dynamic": true,
+          "errors": []
+        },
+        {
+          "variant": "virtual-true",
+          "dynamic": false,
+          "errors": []
+        },
+        {
+          "variant": "virtual-true",
+          "dynamic": true,
+          "errors": []
+        }
+      ],
+      "scenarios": [
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 1000,
+          "heights": [
+            31.84375,
+            31.83984375,
+            31.841796875,
+            31.8408203125,
+            31.84130859375,
+            31.84033203125,
+            31.840576171875,
+            31.8404541015625,
+            31.84051513671875,
+            31.840545654296875,
+            31.840560913085938,
+            31.840557098388672
+          ],
+          "markers": {
+            "cold": [
+              11.700000017881393,
+              112.2000000178814
+            ],
+            "hot": [
+              252.90000000596046,
+              335.10000002384186
+            ],
+            "keys": [
+              335.60000002384186,
+              490
+            ],
+            "search": [
+              490.80000001192093,
+              526.7000000178814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 21600620,
+            "totalSize": 34275328,
+            "embedderHeapUsedSize": 27411384,
+            "backingStorageSize": 176385
+          },
+          "heapAfter": {
+            "usedSize": 10164896,
+            "totalSize": 74317824,
+            "embedderHeapUsedSize": 10057120,
+            "backingStorageSize": 170935
+          },
+          "coldOpenMs": 100.5,
+          "hotOpenMs": 82.2000000178814,
+          "searchMs": 35.900000005960464,
+          "twentyKeysMs": 154.39999997615814
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 1000,
+          "heights": [
+            31.8359375,
+            45.765625,
+            45.76171875,
+            31.83984375,
+            45.763671875,
+            31.837890625,
+            31.8369140625,
+            45.7646484375,
+            45.76513671875,
+            31.83740234375,
+            45.765869140625,
+            31.837158203125,
+            45.765380859375,
+            31.8370361328125,
+            45.7655029296875,
+            45.76556396484375,
+            45.76554870605469,
+            31.836929321289062,
+            45.76557159423828,
+            45.765594482421875
+          ],
+          "markers": {
+            "cold": [
+              13.199999988079071,
+              91.19999998807907
+            ],
+            "hot": [
+              236.09999999403954,
+              336.09999999403954
+            ],
+            "keys": [
+              336.59999999403954,
+              487.19999998807907
+            ],
+            "search": [
+              487.89999997615814,
+              510.39999997615814
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 11748588,
+            "totalSize": 74645504,
+            "embedderHeapUsedSize": 9741304,
+            "backingStorageSize": 338907
+          },
+          "heapAfter": {
+            "usedSize": 18432332,
+            "totalSize": 73531392,
+            "embedderHeapUsedSize": 11601144,
+            "backingStorageSize": 171190
+          },
+          "coldOpenMs": 78,
+          "hotOpenMs": 100,
+          "searchMs": 22.5,
+          "twentyKeysMs": 150.59999999403954
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": false,
+          "round": 0,
+          "dom": 12,
+          "heights": [
+            31.360000610351562,
+            31.360008239746094,
+            31.3599853515625,
+            31.360015869140625
+          ],
+          "markers": {
+            "cold": [
+              10.599999994039536,
+              77.40000000596046
+            ],
+            "hot": [
+              219.5,
+              270.69999998807907
+            ],
+            "keys": [
+              270.90000000596046,
+              325.7999999821186
+            ],
+            "search": [
+              326.2999999821186,
+              359.7999999821186
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 5494116,
+            "totalSize": 9568256,
+            "embedderHeapUsedSize": 2555944,
+            "backingStorageSize": 201986
+          },
+          "heapAfter": {
+            "usedSize": 8326844,
+            "totalSize": 11927552,
+            "embedderHeapUsedSize": 4219520,
+            "backingStorageSize": 220632
+          },
+          "coldOpenMs": 66.80000001192093,
+          "hotOpenMs": 51.19999998807907,
+          "searchMs": 33.5,
+          "twentyKeysMs": 54.89999997615814
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": true,
+          "round": 0,
+          "dom": 10,
+          "heights": [
+            31.58995819091797,
+            45.410560607910156,
+            45.41056823730469,
+            31.589950561523438,
+            45.410552978515625,
+            31.5899658203125,
+            45.41058349609375,
+            31.589935302734375,
+            45.4105224609375
+          ],
+          "markers": {
+            "cold": [
+              10.099999994039536,
+              54.19999998807907
+            ],
+            "hot": [
+              181.09999999403954,
+              225.5
+            ],
+            "keys": [
+              225.80000001192093,
+              283
+            ],
+            "search": [
+              283.59999999403954,
+              302.5
+            ]
+          },
+          "longtaskSegments": {
+            "cold": [],
+            "hot": [],
+            "keys": [],
+            "search": []
+          },
+          "emptyVisible": true,
+          "heapBefore": {
+            "usedSize": 9788528,
+            "totalSize": 13303808,
+            "embedderHeapUsedSize": 4339032,
+            "backingStorageSize": 220656
+          },
+          "heapAfter": {
+            "usedSize": 9281520,
+            "totalSize": 16908288,
+            "embedderHeapUsedSize": 6280904,
+            "backingStorageSize": 236727
+          },
+          "coldOpenMs": 44.099999994039536,
+          "hotOpenMs": 44.400000005960464,
+          "searchMs": 18.900000005960464,
+          "twentyKeysMs": 57.19999998807907
+        }
+      ],
+      "cjsSSRRows": 13,
+      "browser": "149.0.7827.55",
+      "statistics": [
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 100.5,
+            "median": 100.5,
+            "max": 100.5
+          },
+          "hotOpenMs": {
+            "min": 82.2000000178814,
+            "median": 82.2000000178814,
+            "max": 82.2000000178814
+          },
+          "searchMs": {
+            "min": 35.900000005960464,
+            "median": 35.900000005960464,
+            "max": 35.900000005960464
+          },
+          "twentyKeysMs": {
+            "min": 154.39999997615814,
+            "median": 154.39999997615814,
+            "max": 154.39999997615814
+          }
+        },
+        {
+          "variant": "default-false",
+          "count": 1000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 78,
+            "median": 78,
+            "max": 78
+          },
+          "hotOpenMs": {
+            "min": 100,
+            "median": 100,
+            "max": 100
+          },
+          "searchMs": {
+            "min": 22.5,
+            "median": 22.5,
+            "max": 22.5
+          },
+          "twentyKeysMs": {
+            "min": 150.59999999403954,
+            "median": 150.59999999403954,
+            "max": 150.59999999403954
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": false,
+          "coldOpenMs": {
+            "min": 66.80000001192093,
+            "median": 66.80000001192093,
+            "max": 66.80000001192093
+          },
+          "hotOpenMs": {
+            "min": 51.19999998807907,
+            "median": 51.19999998807907,
+            "max": 51.19999998807907
+          },
+          "searchMs": {
+            "min": 33.5,
+            "median": 33.5,
+            "max": 33.5
+          },
+          "twentyKeysMs": {
+            "min": 54.89999997615814,
+            "median": 54.89999997615814,
+            "max": 54.89999997615814
+          }
+        },
+        {
+          "variant": "virtual-true",
+          "count": 1000,
+          "dynamic": true,
+          "coldOpenMs": {
+            "min": 44.099999994039536,
+            "median": 44.099999994039536,
+            "max": 44.099999994039536
+          },
+          "hotOpenMs": {
+            "min": 44.400000005960464,
+            "median": 44.400000005960464,
+            "max": 44.400000005960464
+          },
+          "searchMs": {
+            "min": 18.900000005960464,
+            "median": 18.900000005960464,
+            "max": 18.900000005960464
+          },
+          "twentyKeysMs": {
+            "min": 57.19999998807907,
+            "median": 57.19999998807907,
+            "max": 57.19999998807907
+          }
+        }
+      ]
+    },
+    {
+      "root": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-PWgXuQ",
+      "tarball": "docs/superpowers/evidence/d4-c/consumer/baseline.tgz",
+      "tarballSHA256": "378f59655efbaa9a4416bee112f6668c89353ba47147093e6461a9a24aaa703f",
+      "lockSHA256": "af7f85410507fa9ca72b74b9a4f7188de2903a88348391169b8839c48b65983c",
+      "label": "old-build-only",
+      "versions": {
+        "node": "v24.17.0",
+        "vue": "3.5.38",
+        "vite": "5.0.12"
+      },
+      "symlink": false,
+      "sizes": {
+        "default-false": {
+          "js": {
+            "raw": 139415,
+            "gzip": 52319,
+            "brotli": 46749
+          },
+          "css": {
+            "raw": 169303,
+            "gzip": 21914,
+            "brotli": 18129
+          }
+        },
+        "unused-button": {
+          "js": {
+            "raw": 83748,
+            "gzip": 31093,
+            "brotli": 27891
+          },
+          "css": {
+            "raw": 169303,
+            "gzip": 21914,
+            "brotli": 18129
+          }
+        }
+      },
+      "modules": {
+        "default-false": [],
+        "unused-button": []
+      },
+      "hydration": [],
+      "scenarios": [],
+      "cjsSSRRows": 1000,
+      "statistics": []
+    }
+  ]
+}

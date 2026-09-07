@@ -1,12 +1,17 @@
-import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, Teleport, withDirectives, unref, createCommentVNode, createVNode, vShow } from "vue";
-import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating.js";
+import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, unref, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, vShow } from "vue";
+import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating-core.js";
 import "../utils/floating.css.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
+import { useStableId } from "../utils/use-stable-id.js";
+import { useTriggerAria } from "../utils/use-trigger-aria.js";
 import { popoverProps, popoverEmits } from "./types.js";
 import "./style.css.js";
-const _hoisted_1 = ["aria-hidden"];
+const _hoisted_1 = ["aria-controls", "aria-expanded"];
+const _hoisted_2 = ["id", "aria-labelledby", "aria-hidden"];
+const _hoisted_3 = ["id"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "APopover"
@@ -35,6 +40,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const popupRef = ref(null);
+    const popupId = useStableId(void 0, "aheart-popover");
+    const titleId = useStableId(void 0, "aheart-popover-title");
     const arrowRef = ref(null);
     const effectivePlacement = ref(props.placement);
     let mouseEnterTimer;
@@ -43,11 +50,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const mergedOpen = computed(() => props.open ?? innerOpen.value);
     const normalizedTriggers = computed(() => new Set(normalizeFloatingTriggers(props.trigger)));
     const hasTitle = computed(() => Boolean(slots.title) || hasRenderable(props.title));
+    useTriggerAria(triggerRef, () => ({
+      "aria-controls": popupId.value,
+      "aria-expanded": mergedOpen.value ? "true" : "false"
+    }));
     const hasContent = computed(() => Boolean(slots.content) || hasRenderable(props.content));
     const hasPopupContent = computed(() => hasTitle.value || hasContent.value);
     const visible = computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
     const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const teleportReady = useTeleportReady();
     const shouldRenderPopup = computed(() => hasPopupContent.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = computed(() => {
@@ -56,7 +68,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return getDefaultPopupContainer();
     });
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,
@@ -200,21 +212,30 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleFocusIn = () => {
       if (normalizedTriggers.value.has("focus")) {
+        clearHoverTimers();
         requestOpen(true);
       }
     };
-    const handleFocusOut = () => {
+    const handleFocusOut = (event) => {
+      var _a, _b;
       if (normalizedTriggers.value.has("focus")) {
+        clearHoverTimers();
+        const nextTarget = event.relatedTarget;
+        if (nextTarget instanceof Node && (((_a = rootRef.value) == null ? void 0 : _a.contains(nextTarget)) || ((_b = popupRef.value) == null ? void 0 : _b.contains(nextTarget)))) {
+          return;
+        }
         requestOpen(false);
       }
     };
     const handleClick = () => {
       if (normalizedTriggers.value.has("click")) {
+        clearHoverTimers();
         requestOpen(!mergedOpen.value);
       }
     };
     const handleContextmenu = (event) => {
       if (normalizedTriggers.value.has("contextMenu")) {
+        clearHoverTimers();
         event.preventDefault();
         requestOpen(true);
       }
@@ -241,6 +262,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: normalizeClass(["aheart-popover__trigger", triggerClass.value]),
+          "aria-controls": unref(popupId),
+          "aria-expanded": mergedOpen.value ? "true" : "false",
           style: normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
@@ -250,7 +273,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           onContextmenu: handleContextmenu
         }, [
           renderSlot(_ctx.$slots, "default")
-        ], 38),
+        ], 46, _hoisted_1),
         (openBlock(), createBlock(Teleport, {
           to: teleportTo.value,
           disabled: !shouldTeleport.value
@@ -260,11 +283,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ref_key: "popupRef",
             ref: popupRef,
             class: normalizeClass(["aheart-popover__popup", popupClass.value]),
+            id: unref(popupId),
             style: normalizeStyle(popupStyle.value),
             role: "dialog",
+            "aria-labelledby": hasTitle.value ? unref(titleId) : void 0,
             "aria-hidden": unref(motion).phase.value === "hidden" ? "true" : void 0,
             onMouseenter: handleMouseEnter,
-            onMouseleave: handleMouseLeave
+            onMouseleave: handleMouseLeave,
+            onFocusout: handleFocusOut
           }, [
             showArrow.value ? (openBlock(), createElementBlock("span", {
               key: 0,
@@ -280,13 +306,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             }, [
               hasTitle.value ? (openBlock(), createElementBlock("span", {
                 key: 0,
+                id: unref(titleId),
                 class: normalizeClass(["aheart-popover__title", titleClass.value]),
                 style: normalizeStyle(titleStyle.value)
               }, [
                 renderSlot(_ctx.$slots, "title", {}, () => [
                   createVNode(unref(ARenderNode), { node: _ctx.title }, null, 8, ["node"])
                 ])
-              ], 6)) : createCommentVNode("", true),
+              ], 14, _hoisted_3)) : createCommentVNode("", true),
               hasContent.value ? (openBlock(), createElementBlock("span", {
                 key: 1,
                 class: normalizeClass(["aheart-popover__content", contentClass.value]),
@@ -297,7 +324,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 ])
               ], 6)) : createCommentVNode("", true)
             ], 6)
-          ], 46, _hoisted_1)), [
+          ], 46, _hoisted_2)), [
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

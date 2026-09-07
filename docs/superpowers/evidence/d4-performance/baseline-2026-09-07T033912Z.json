@@ -1,0 +1,1633 @@
+{
+  "schema": "d4-browser-performance/v1",
+  "generatedAt": "2026-09-07T03:39:12.407Z",
+  "environment": {
+    "browser": "Chromium (Playwright headless)",
+    "viewport": "1440x900",
+    "node": "v24.17.0",
+    "platform": "darwin",
+    "note": "Single desktop run; non-statistical baseline, not an absolute pass/fail threshold."
+  },
+  "reproduction": "corepack pnpm exec node scripts/d4-browser-performance.mjs",
+  "components": [
+    "packages/components/src/select/select.vue",
+    "packages/components/src/cascader/cascader.vue"
+  ],
+  "timingMethod": "mount is browser createApp.mount to nextTick+requestAnimationFrame; open/search/keyboard include Playwright action round-trip and are reported as such.",
+  "scenarios": [
+    {
+      "mode": "select",
+      "variant": "fixed",
+      "size": 1000,
+      "mountMs": 13.5,
+      "openMs": 96,
+      "searchMs": 9.699999988079071,
+      "keyboard20Ms": 245,
+      "optionDomCount": 1000,
+      "dynamicRenderCount": 0,
+      "activeOptionCount": 1,
+      "activeDescendant": "aheart-select-v-0-listbox-option-6e-75-6d-62-65-72-3a-34-30",
+      "optionHeights": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "activeRect": {
+        "top": 1409,
+        "bottom": 1441,
+        "viewportTop": 49,
+        "viewportBottom": 34047,
+        "fullyVisible": true
+      },
+      "longTasks": [],
+      "longTasksAfterMount": []
+    },
+    {
+      "mode": "select",
+      "variant": "fixed",
+      "size": 5000,
+      "mountMs": 7.0999999940395355,
+      "openMs": 211,
+      "searchMs": 16.200000002980232,
+      "keyboard20Ms": 1136.8999999910593,
+      "optionDomCount": 5000,
+      "dynamicRenderCount": 0,
+      "activeOptionCount": 1,
+      "activeDescendant": "aheart-select-v-0-listbox-option-6e-75-6d-62-65-72-3a-34-30",
+      "optionHeights": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "activeRect": {
+        "top": 1409,
+        "bottom": 1441,
+        "viewportTop": 49,
+        "viewportBottom": 170047,
+        "fullyVisible": true
+      },
+      "longTasks": [
+        {
+          "startTime": 72.40000000596046,
+          "duration": 129
+        },
+        {
+          "startTime": 201.5,
+          "duration": 51
+        },
+        {
+          "startTime": 277.20000000298023,
+          "duration": 78
+        },
+        {
+          "startTime": 737.2000000029802,
+          "duration": 56
+        }
+      ],
+      "longTasksAfterMount": [
+        {
+          "startTime": 72.40000000596046,
+          "duration": 129
+        },
+        {
+          "startTime": 201.5,
+          "duration": 51
+        },
+        {
+          "startTime": 277.20000000298023,
+          "duration": 78
+        },
+        {
+          "startTime": 737.2000000029802,
+          "duration": 56
+        }
+      ]
+    },
+    {
+      "mode": "select",
+      "variant": "fixed",
+      "size": 10000,
+      "mountMs": 7.899999991059303,
+      "openMs": 379,
+      "searchMs": 30.100000008940697,
+      "keyboard20Ms": 2222,
+      "optionDomCount": 10000,
+      "dynamicRenderCount": 0,
+      "activeOptionCount": 1,
+      "activeDescendant": "aheart-select-v-0-listbox-option-6e-75-6d-62-65-72-3a-34-30",
+      "optionHeights": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "activeRect": {
+        "top": 1409,
+        "bottom": 1441,
+        "viewportTop": 49,
+        "viewportBottom": 340047,
+        "fullyVisible": true
+      },
+      "longTasks": [
+        {
+          "startTime": 79.5,
+          "duration": 244
+        },
+        {
+          "startTime": 323.79999999701977,
+          "duration": 86
+        },
+        {
+          "startTime": 460.90000000596046,
+          "duration": 157
+        },
+        {
+          "startTime": 664.2999999970198,
+          "duration": 92
+        },
+        {
+          "startTime": 783.7000000029802,
+          "duration": 87
+        },
+        {
+          "startTime": 901.4000000059605,
+          "duration": 103
+        },
+        {
+          "startTime": 1032.4000000059605,
+          "duration": 90
+        },
+        {
+          "startTime": 1144.6000000089407,
+          "duration": 87
+        },
+        {
+          "startTime": 1254.9000000059605,
+          "duration": 85
+        },
+        {
+          "startTime": 1363.7000000029802,
+          "duration": 84
+        },
+        {
+          "startTime": 1469.9000000059605,
+          "duration": 86
+        },
+        {
+          "startTime": 1577.5,
+          "duration": 83
+        },
+        {
+          "startTime": 1681.4000000059605,
+          "duration": 83
+        },
+        {
+          "startTime": 1787.9000000059605,
+          "duration": 84
+        },
+        {
+          "startTime": 1893,
+          "duration": 82
+        },
+        {
+          "startTime": 1998.5,
+          "duration": 82
+        },
+        {
+          "startTime": 2102.1000000089407,
+          "duration": 83
+        },
+        {
+          "startTime": 2209.2999999970198,
+          "duration": 82
+        },
+        {
+          "startTime": 2312.9000000059605,
+          "duration": 83
+        },
+        {
+          "startTime": 2420.7000000029802,
+          "duration": 84
+        },
+        {
+          "startTime": 2534,
+          "duration": 110
+        },
+        {
+          "startTime": 2669.2000000029802,
+          "duration": 86
+        },
+        {
+          "startTime": 2777.1000000089407,
+          "duration": 82
+        }
+      ],
+      "longTasksAfterMount": [
+        {
+          "startTime": 79.5,
+          "duration": 244
+        },
+        {
+          "startTime": 323.79999999701977,
+          "duration": 86
+        },
+        {
+          "startTime": 460.90000000596046,
+          "duration": 157
+        },
+        {
+          "startTime": 664.2999999970198,
+          "duration": 92
+        },
+        {
+          "startTime": 783.7000000029802,
+          "duration": 87
+        },
+        {
+          "startTime": 901.4000000059605,
+          "duration": 103
+        },
+        {
+          "startTime": 1032.4000000059605,
+          "duration": 90
+        },
+        {
+          "startTime": 1144.6000000089407,
+          "duration": 87
+        },
+        {
+          "startTime": 1254.9000000059605,
+          "duration": 85
+        },
+        {
+          "startTime": 1363.7000000029802,
+          "duration": 84
+        },
+        {
+          "startTime": 1469.9000000059605,
+          "duration": 86
+        },
+        {
+          "startTime": 1577.5,
+          "duration": 83
+        },
+        {
+          "startTime": 1681.4000000059605,
+          "duration": 83
+        },
+        {
+          "startTime": 1787.9000000059605,
+          "duration": 84
+        },
+        {
+          "startTime": 1893,
+          "duration": 82
+        },
+        {
+          "startTime": 1998.5,
+          "duration": 82
+        },
+        {
+          "startTime": 2102.1000000089407,
+          "duration": 83
+        },
+        {
+          "startTime": 2209.2999999970198,
+          "duration": 82
+        },
+        {
+          "startTime": 2312.9000000059605,
+          "duration": 83
+        },
+        {
+          "startTime": 2420.7000000029802,
+          "duration": 84
+        },
+        {
+          "startTime": 2534,
+          "duration": 110
+        },
+        {
+          "startTime": 2669.2000000029802,
+          "duration": 86
+        },
+        {
+          "startTime": 2777.1000000089407,
+          "duration": 82
+        }
+      ]
+    },
+    {
+      "mode": "select",
+      "variant": "dynamic",
+      "size": 1000,
+      "mountMs": 7,
+      "openMs": 94,
+      "searchMs": 6.700000002980232,
+      "keyboard20Ms": 250.20000000298023,
+      "optionDomCount": 1000,
+      "dynamicRenderCount": 1000,
+      "activeOptionCount": 1,
+      "activeDescendant": "aheart-select-v-0-listbox-option-6e-75-6d-62-65-72-3a-34-30",
+      "optionHeights": [
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32
+      ],
+      "activeRect": {
+        "top": 1689,
+        "bottom": 1735,
+        "viewportTop": 49,
+        "viewportBottom": 41047,
+        "fullyVisible": true
+      },
+      "longTasks": [],
+      "longTasksAfterMount": []
+    },
+    {
+      "mode": "select",
+      "variant": "dynamic",
+      "size": 5000,
+      "mountMs": 7.5999999940395355,
+      "openMs": 247,
+      "searchMs": 18.900000005960464,
+      "keyboard20Ms": 1209.0999999940395,
+      "optionDomCount": 5000,
+      "dynamicRenderCount": 5000,
+      "activeOptionCount": 1,
+      "activeDescendant": "aheart-select-v-0-listbox-option-6e-75-6d-62-65-72-3a-34-30",
+      "optionHeights": [
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32
+      ],
+      "activeRect": {
+        "top": 1689,
+        "bottom": 1735,
+        "viewportTop": 49,
+        "viewportBottom": 205047,
+        "fullyVisible": true
+      },
+      "longTasks": [
+        {
+          "startTime": 83.5,
+          "duration": 140
+        },
+        {
+          "startTime": 223.59999999403954,
+          "duration": 60
+        },
+        {
+          "startTime": 317,
+          "duration": 90
+        },
+        {
+          "startTime": 433.40000000596046,
+          "duration": 50
+        },
+        {
+          "startTime": 693,
+          "duration": 60
+        },
+        {
+          "startTime": 825.2000000029802,
+          "duration": 51
+        },
+        {
+          "startTime": 889.4000000059605,
+          "duration": 50
+        }
+      ],
+      "longTasksAfterMount": [
+        {
+          "startTime": 83.5,
+          "duration": 140
+        },
+        {
+          "startTime": 223.59999999403954,
+          "duration": 60
+        },
+        {
+          "startTime": 317,
+          "duration": 90
+        },
+        {
+          "startTime": 433.40000000596046,
+          "duration": 50
+        },
+        {
+          "startTime": 693,
+          "duration": 60
+        },
+        {
+          "startTime": 825.2000000029802,
+          "duration": 51
+        },
+        {
+          "startTime": 889.4000000059605,
+          "duration": 50
+        }
+      ]
+    },
+    {
+      "mode": "select",
+      "variant": "dynamic",
+      "size": 10000,
+      "mountMs": 8.200000002980232,
+      "openMs": 417,
+      "searchMs": 30.299999997019768,
+      "keyboard20Ms": 2435.5999999940395,
+      "optionDomCount": 10000,
+      "dynamicRenderCount": 10000,
+      "activeOptionCount": 1,
+      "activeDescendant": "aheart-select-v-0-listbox-option-6e-75-6d-62-65-72-3a-34-30",
+      "optionHeights": [
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32,
+        46,
+        32
+      ],
+      "activeRect": {
+        "top": 1689,
+        "bottom": 1735,
+        "viewportTop": 49,
+        "viewportBottom": 410047,
+        "fullyVisible": true
+      },
+      "longTasks": [
+        {
+          "startTime": 79.40000000596046,
+          "duration": 265
+        },
+        {
+          "startTime": 345,
+          "duration": 100
+        },
+        {
+          "startTime": 497.59999999403954,
+          "duration": 190
+        },
+        {
+          "startTime": 757.5,
+          "duration": 99
+        },
+        {
+          "startTime": 887.2000000029802,
+          "duration": 94
+        },
+        {
+          "startTime": 1014.2000000029802,
+          "duration": 88
+        },
+        {
+          "startTime": 1135.5999999940395,
+          "duration": 88
+        },
+        {
+          "startTime": 1251.2000000029802,
+          "duration": 90
+        },
+        {
+          "startTime": 1369.2999999970198,
+          "duration": 88
+        },
+        {
+          "startTime": 1486.2999999970198,
+          "duration": 92
+        },
+        {
+          "startTime": 1606.7999999970198,
+          "duration": 89
+        },
+        {
+          "startTime": 1724,
+          "duration": 90
+        },
+        {
+          "startTime": 1842.2999999970198,
+          "duration": 88
+        },
+        {
+          "startTime": 1974,
+          "duration": 118
+        },
+        {
+          "startTime": 2122.4000000059605,
+          "duration": 96
+        },
+        {
+          "startTime": 2244.4000000059605,
+          "duration": 129
+        },
+        {
+          "startTime": 2398.5999999940395,
+          "duration": 86
+        },
+        {
+          "startTime": 2510.5,
+          "duration": 87
+        },
+        {
+          "startTime": 2624.2000000029802,
+          "duration": 84
+        },
+        {
+          "startTime": 2735.7999999970198,
+          "duration": 87
+        },
+        {
+          "startTime": 2848.4000000059605,
+          "duration": 86
+        },
+        {
+          "startTime": 2958.7000000029802,
+          "duration": 88
+        },
+        {
+          "startTime": 3071.2999999970198,
+          "duration": 86
+        }
+      ],
+      "longTasksAfterMount": [
+        {
+          "startTime": 79.40000000596046,
+          "duration": 265
+        },
+        {
+          "startTime": 345,
+          "duration": 100
+        },
+        {
+          "startTime": 497.59999999403954,
+          "duration": 190
+        },
+        {
+          "startTime": 757.5,
+          "duration": 99
+        },
+        {
+          "startTime": 887.2000000029802,
+          "duration": 94
+        },
+        {
+          "startTime": 1014.2000000029802,
+          "duration": 88
+        },
+        {
+          "startTime": 1135.5999999940395,
+          "duration": 88
+        },
+        {
+          "startTime": 1251.2000000029802,
+          "duration": 90
+        },
+        {
+          "startTime": 1369.2999999970198,
+          "duration": 88
+        },
+        {
+          "startTime": 1486.2999999970198,
+          "duration": 92
+        },
+        {
+          "startTime": 1606.7999999970198,
+          "duration": 89
+        },
+        {
+          "startTime": 1724,
+          "duration": 90
+        },
+        {
+          "startTime": 1842.2999999970198,
+          "duration": 88
+        },
+        {
+          "startTime": 1974,
+          "duration": 118
+        },
+        {
+          "startTime": 2122.4000000059605,
+          "duration": 96
+        },
+        {
+          "startTime": 2244.4000000059605,
+          "duration": 129
+        },
+        {
+          "startTime": 2398.5999999940395,
+          "duration": 86
+        },
+        {
+          "startTime": 2510.5,
+          "duration": 87
+        },
+        {
+          "startTime": 2624.2000000029802,
+          "duration": 84
+        },
+        {
+          "startTime": 2735.7999999970198,
+          "duration": 87
+        },
+        {
+          "startTime": 2848.4000000059605,
+          "duration": 86
+        },
+        {
+          "startTime": 2958.7000000029802,
+          "duration": 88
+        },
+        {
+          "startTime": 3071.2999999970198,
+          "duration": 86
+        }
+      ]
+    },
+    {
+      "mode": "cascader",
+      "variant": "fixed",
+      "size": 1000,
+      "mountMs": 5.700000002980232,
+      "openMs": 84,
+      "searchMs": 6.5999999940395355,
+      "keyboard20Ms": null,
+      "optionDomCount": 1000,
+      "dynamicRenderCount": 0,
+      "activeOptionCount": 0,
+      "activeDescendant": "aheart-cascader-v-0-option-0-20",
+      "optionHeights": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "activeRect": null,
+      "longTasks": [],
+      "longTasksAfterMount": []
+    },
+    {
+      "mode": "cascader",
+      "variant": "fixed",
+      "size": 5000,
+      "mountMs": 5.799999997019768,
+      "openMs": 177,
+      "searchMs": 16.400000005960464,
+      "keyboard20Ms": null,
+      "optionDomCount": 5000,
+      "dynamicRenderCount": 0,
+      "activeOptionCount": 0,
+      "activeDescendant": "aheart-cascader-v-0-option-0-20",
+      "optionHeights": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "activeRect": null,
+      "longTasks": [
+        {
+          "startTime": 82,
+          "duration": 91
+        },
+        {
+          "startTime": 242.1000000089407,
+          "duration": 52
+        }
+      ],
+      "longTasksAfterMount": [
+        {
+          "startTime": 82,
+          "duration": 91
+        },
+        {
+          "startTime": 242.1000000089407,
+          "duration": 52
+        }
+      ]
+    },
+    {
+      "mode": "cascader",
+      "variant": "fixed",
+      "size": 10000,
+      "mountMs": 6.399999991059303,
+      "openMs": 274,
+      "searchMs": 28.900000005960464,
+      "keyboard20Ms": null,
+      "optionDomCount": 10000,
+      "dynamicRenderCount": 0,
+      "activeOptionCount": 0,
+      "activeDescendant": "aheart-cascader-v-0-option-0-20",
+      "optionHeights": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "activeRect": null,
+      "longTasks": [
+        {
+          "startTime": 72.6000000089407,
+          "duration": 175
+        },
+        {
+          "startTime": 248.1000000089407,
+          "duration": 63
+        },
+        {
+          "startTime": 350.90000000596046,
+          "duration": 111
+        },
+        {
+          "startTime": 661.4000000059605,
+          "duration": 62
+        }
+      ],
+      "longTasksAfterMount": [
+        {
+          "startTime": 72.6000000089407,
+          "duration": 175
+        },
+        {
+          "startTime": 248.1000000089407,
+          "duration": 63
+        },
+        {
+          "startTime": 350.90000000596046,
+          "duration": 111
+        },
+        {
+          "startTime": 661.4000000059605,
+          "duration": 62
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const _hoisted_1 = { class: "aheart-splitter__panel" };
+const _hoisted_1 = {
+  class: "aheart-splitter__panel",
+  tabindex: "0"
+};
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ASplitterPanel"

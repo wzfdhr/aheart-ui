@@ -1,6 +1,6 @@
 import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { ref, toValue, watchEffect, type MaybeRefOrGetter, type Ref } from 'vue'
-import { endDrag, startDrag } from './drag-state'
+import { cancelNativeDrag, endDrag, startDrag } from './drag-state'
 import type { DragData } from './types'
 
 export interface UseDraggableOptions {
@@ -31,7 +31,14 @@ export function useDraggable(element: Ref<HTMLElement | undefined>, options: Use
         options.onDrop?.()
       }
     })
-    onCleanup(cleanup)
+    onCleanup(() => {
+      cleanup()
+      if (isDragging.value) {
+        cancelNativeDrag(target.ownerDocument.defaultView ?? undefined)
+        isDragging.value = false
+        endDrag()
+      }
+    })
   })
 
   return { isDragging }

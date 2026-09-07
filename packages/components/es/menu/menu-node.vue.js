@@ -1,12 +1,12 @@
-import { defineComponent, computed, ref, watch, nextTick, onMounted, onBeforeUnmount, resolveComponent, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, createVNode, unref, Fragment, renderList, createBlock, createCommentVNode, withDirectives, vShow } from "vue";
+import { defineComponent, computed, useId, ref, watch, nextTick, onMounted, onBeforeUnmount, resolveComponent, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, createVNode, unref, Fragment, renderList, createBlock, createCommentVNode, withDirectives, vShow } from "vue";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 const _hoisted_1 = {
   class: "aheart-menu__group-list",
   role: "group"
 };
-const _hoisted_2 = ["data-submenu-key", "disabled", "aria-expanded", "title"];
-const _hoisted_3 = ["data-open", "aria-hidden"];
+const _hoisted_2 = ["data-submenu-key", "disabled", "aria-expanded", "id", "aria-controls", "title"];
+const _hoisted_3 = ["id", "aria-labelledby", "data-open", "aria-hidden"];
 const _hoisted_4 = ["data-menu-key", "disabled", "aria-current", "title"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
@@ -51,6 +51,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const isSelected = computed(() => props.selectedKeys.includes(props.item.key));
     const isDisabled = computed(() => props.disabled || Boolean(props.item.disabled));
     const currentKeyPath = computed(() => [...props.keyPath, props.item.key]);
+    const itemId = `aheart-menu-${useId().replace(/[^a-zA-Z0-9_-]/g, "-")}-${props.level}-${props.item.key.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+    const submenuTriggerId = computed(() => `${itemId}-trigger`);
+    const submenuId = computed(() => `${itemId}-submenu`);
     const nodeLevelStyle = computed(() => ({ "--aheart-menu-node-level": props.level }));
     const titleRef = ref(null);
     const submenuRef = ref(null);
@@ -224,6 +227,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "data-submenu-key": __props.item.key,
           disabled: isDisabled.value,
           "aria-expanded": isOpen.value ? "true" : "false",
+          id: submenuTriggerId.value,
+          "aria-controls": submenuId.value,
           title: __props.item.title,
           onClick: handleSubmenuClick
         }, [
@@ -268,6 +273,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           class: normalizeClass(["aheart-menu__submenu-list", submenuListClass.value]),
           style: normalizeStyle(submenuListStyle.value),
           role: "menu",
+          id: submenuId.value,
+          "aria-labelledby": submenuTriggerId.value,
           "data-open": isOpen.value ? "true" : "false",
           "aria-hidden": isOpen.value ? void 0 : "true"
         }, [

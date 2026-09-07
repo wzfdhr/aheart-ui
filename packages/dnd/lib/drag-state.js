@@ -10,6 +10,13 @@ const startDrag = (data) => {
 const endDrag = () => {
   activeDragData.value = void 0;
 };
+const cancelNativeDrag = (ownerWindow) => {
+  if (!ownerWindow) return;
+  const event = ownerWindow.document.createEvent("MouseEvent");
+  event.initEvent("dragend", true, true);
+  ownerWindow.dispatchEvent(event);
+};
+exports.cancelNativeDrag = cancelNativeDrag;
 exports.currentDragData = currentDragData;
 exports.endDrag = endDrag;
 exports.isDragActive = isDragActive;

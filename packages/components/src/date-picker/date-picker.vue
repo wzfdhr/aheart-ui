@@ -1,5 +1,5 @@
 <template>
-  <span ref="rootRef" class="aheart-date-picker" :class="rootClass">
+  <span ref="rootRef" @focusout="handleControlBlur" class="aheart-date-picker" :class="rootClass">
     <span ref="triggerRef" class="aheart-date-picker__selector" @mousedown="handleSelectorMouseDown">
       <span v-if="hasPrefix" class="aheart-date-picker__prefix">
         <slot name="prefix"><ARenderNode :node="prefix" /></slot>
@@ -16,16 +16,16 @@
 
       <input
         ref="inputRef"
-        :id="id"
+        :id="resolvedId"
         class="aheart-date-picker__input"
         type="text"
         :inputmode="showTimeOptions.use12Hours ? 'text' : 'numeric'"
         autocomplete="off"
         role="combobox"
         aria-haspopup="dialog"
-        :aria-labelledby="labelledBy ?? ariaLabelledby"
-        :aria-describedby="describedBy ?? ariaDescribedby"
-        :aria-invalid="status === 'error' ? 'true' : undefined"
+        :aria-labelledby="mergedAriaLabelledby"
+        :aria-describedby="mergedAriaDescribedby"
+        :aria-invalid="resolvedAriaInvalid"
         :aria-controls="panelId"
         :aria-expanded="mergedOpen ? 'true' : 'false'"
         :aria-activedescendant="mergedOpen ? activeCellId : undefined"
@@ -57,7 +57,7 @@
       <div
         v-if="motion.isMounted.value"
         v-show="motion.phase.value !== 'hidden'"
-        ref="panelRef"
+        @focusout="handleControlBlur" ref="panelRef"
         :id="panelId"
         class="aheart-date-picker__panel"
         :class="panelClass"
@@ -185,8 +185,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useId, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
+import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
 import { createDateMatrix, isPickerDateDisabled } from '../picker-core/calendar'
 import { defaultValueFormat, formatPickerValue, normalizeFormats, parsePickerValue } from '../picker-core/codec'
@@ -196,7 +197,10 @@ import type { DatePickerValue, DatePickerCellRenderInfo } from './types'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
+import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
+import { useStableId } from '../utils/use-stable-id'
+import { useTeleportReady } from '../utils/use-teleport-ready'
 import { datePickerEmits, datePickerProps } from './types'
 import './style.css'
 
@@ -206,21 +210,32 @@ const props = defineProps(datePickerProps)
 const emit = defineEmits(datePickerEmits)
 const slots = useSlots()
 const config = useAheartConfig()
+const formControl = useFormControl()
+const attrs = useAttrs()
 const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLInputElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
-const internalValue = ref<DatePickerValue>(props.defaultValue)
-const internalOpen = ref(props.defaultOpen)
 const draftValue = ref<DatePickerValue>()
 const inputText = ref('')
 const activeCellKey = ref('')
 const liveMessage = ref('')
-const instanceId = useId().replace(/:/g, '')
-const panelId = `aheart-date-picker-${instanceId}-panel`
+const panelId = `${useStableId(undefined, 'aheart-date-picker').value}-panel`
 const isValueControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const isPanelControlled = usePropPresence('pickerValue', 'picker-value')
+const valueState = useControllableState<DatePickerValue>({
+  controlled: () => props.modelValue,
+  isControlled: isValueControlled,
+  defaultValue: () => props.defaultValue,
+  onChange: (value) => emit('update:modelValue', value)
+})
+const openState = useControllableState<boolean>({
+  controlled: () => props.open,
+  isControlled: isOpenControlled,
+  defaultValue: () => props.defaultOpen,
+  onChange: (open) => emit('openChange', Boolean(open))
+})
 
 const ARenderNode = defineComponent({
   name: 'ADatePickerRenderNode',
@@ -234,8 +249,13 @@ const ARenderNode = defineComponent({
   }
 })
 
-const mergedValue = computed<DatePickerValue>(() => isValueControlled.value ? props.modelValue : internalValue.value)
-const mergedOpen = computed(() => Boolean(isOpenControlled.value ? props.open : internalOpen.value))
+const mergedValue = valueState.state
+const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
+const mergedAriaLabelledby = computed(() => mergeAriaIds(props.labelledBy ?? props.ariaLabelledby, formControl?.labelledBy.value))
+const mergedAriaDescribedby = computed(() => mergeAriaIds(props.describedBy ?? props.ariaDescribedby, attrs['aria-describedby'], formControl?.describedBy.value))
+const resolvedStatus = computed(() => props.status ?? formControl?.status.value)
+const resolvedAriaInvalid = computed(() => formAriaInvalid(attrs['aria-invalid'], resolvedStatus.value))
+const mergedOpen = computed(() => Boolean(openState.state.value))
 const selectedValues = computed(() => Array.isArray(mergedValue.value)
   ? mergedValue.value
   : mergedValue.value ? [mergedValue.value] : [])
@@ -271,7 +291,7 @@ const hasDraftValue = computed(() => Array.isArray(draftValue.value) ? draftValu
 const rootClass = computed(() => [
   `aheart-date-picker--${resolvedSize.value}`,
   `aheart-date-picker--${resolvedVariant.value}`,
-  props.status && `aheart-date-picker--${props.status}`,
+  resolvedStatus.value && `aheart-date-picker--${resolvedStatus.value}`,
   { 'is-open': mergedOpen.value, 'is-disabled': isDisabled.value, 'is-multiple': props.multiple }
 ])
 
@@ -406,12 +426,13 @@ const activeCell = computed(() => panelCells.value.find((cell) => cell.key === a
 const activeCellId = computed(() => activeCell.value?.id)
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
+const teleportReady = useTeleportReady()
 const popupContainer = computed(() => {
   if (!triggerRef.value) return false
   if (props.getPopupContainer && triggerRef.value) return props.getPopupContainer(triggerRef.value)
   return typeof document === 'undefined' ? false : document.body
 })
-const shouldTeleport = computed(() => popupContainer.value !== false)
+const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
 const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
 const floatingPosition = useFloatingPosition({
   reference: triggerRef,
@@ -444,8 +465,7 @@ let restoreFocusOnClose = false
 const requestOpen = (nextOpen: boolean, restoreFocus = false) => {
   if (nextOpen && (isDisabled.value || props.readOnly)) return
   if (!nextOpen) restoreFocusOnClose = restoreFocus
-  if (!isOpenControlled.value) internalOpen.value = nextOpen
-  emit('openChange', nextOpen)
+  openState.setState(nextOpen, { force: true })
 }
 let restoringFocus = false
 const handleFocus = () => {
@@ -480,9 +500,9 @@ useFloatingDismiss({
 
 const commitValue = (value: DatePickerValue, close = true) => {
   const normalized = Array.isArray(value) ? normalizeMultipleValues(value) : value
-  if (!isValueControlled.value) internalValue.value = normalized
-  emit('update:modelValue', normalized)
+  valueState.setState(normalized, { force: true })
   emit('change', normalized)
+  formControl?.change()
   if (isValueControlled.value) {
     void nextTick(() => { inputText.value = committedInputText.value })
   }
@@ -674,6 +694,12 @@ const handleInput = (event: Event) => {
   const masked = applyInputMask(target.value)
   target.value = masked
   inputText.value = masked
+}
+const handleControlBlur = () => {
+  void nextTick(() => {
+    const active = rootRef.value?.ownerDocument.activeElement ?? null
+    if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
+  })
 }
 const restoreInput = async () => {
   inputText.value = ''

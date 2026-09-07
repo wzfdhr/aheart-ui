@@ -1,0 +1,42 @@
+
+[WebServer] (node:59175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:59190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:59205) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:59960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:59971) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+
+(node:59985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[2/5] [desktop] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[3/5] [desktop] › e2e/d4-select-virtual.spec.ts:74:5 › Select virtual no-results message remains visible and search can recover
+[4/5] [desktop] › e2e/d4-select-virtual.spec.ts:107:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[5/5] [desktop] › e2e/d4-select-virtual.spec.ts:180:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  5 passed (16.0s)

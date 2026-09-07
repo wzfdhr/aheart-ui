@@ -258,6 +258,7 @@
 - [ ] 按 browser/project 分片并设置合理重试，禁止用重试掩盖稳定复现问题。
 - [ ] 归档 HTML report、trace、video（仅失败）、截图和控制台日志。
 - [ ] 对 Floating UI、Pointer Events、ResizeObserver、Teleport 和 sticky/overflow 做浏览器专项。
+- [ ] 在真机 iOS Safari 验证 DnD 拖动柄的可信触摸排序与正文滚动；QG2 的 mobile-webkit 脚本 PointerEvent 仅作为引擎状态机回归，不替代该证据。
 
 ### 退出条件
 

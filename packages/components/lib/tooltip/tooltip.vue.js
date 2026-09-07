@@ -1,14 +1,18 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 require("../utils/floating.css.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
+const useTeleportReady = require("../utils/use-teleport-ready.js");
+const useStableId = require("../utils/use-stable-id.js");
+const useTriggerAria = require("../utils/use-trigger-aria.js");
 const types = require("./types.js");
 require("./style.css.js");
-const _hoisted_1 = ["aria-hidden"];
+const _hoisted_1 = ["aria-describedby"];
+const _hoisted_2 = ["id", "aria-hidden"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ATooltip"
@@ -37,15 +41,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const rootRef = vue.ref(null);
     const triggerRef = vue.ref(null);
     const popupRef = vue.ref(null);
+    const popupId = useStableId.useStableId(void 0, "aheart-tooltip");
     const arrowRef = vue.ref(null);
     const effectivePlacement = vue.ref(props.placement);
     const isControlled = vue.computed(() => props.open !== void 0);
     const mergedOpen = vue.computed(() => props.open ?? innerOpen.value);
-    const normalizedTriggers = vue.computed(() => new Set(floating.normalizeFloatingTriggers(props.trigger)));
+    const normalizedTriggers = vue.computed(() => new Set(floatingCore.normalizeFloatingTriggers(props.trigger)));
     const hasTitle = vue.computed(() => Boolean(slots.title) || hasTitleContent(props.title));
+    useTriggerAria.useTriggerAria(triggerRef, () => ({
+      "aria-describedby": hasTitle.value ? popupId.value : void 0
+    }));
     const visible = vue.computed(() => hasTitle.value && mergedOpen.value);
     const shouldDestroyOnHidden = vue.computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
     const motion = useMotionPresence.useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
+    const teleportReady = useTeleportReady.useTeleportReady();
     const shouldRenderPopup = vue.computed(() => hasTitle.value && motion.isMounted.value);
     const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
     const popupContainer = vue.computed(() => {
@@ -54,7 +63,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return getDefaultPopupContainer();
     });
-    const shouldTeleport = vue.computed(() => popupContainer.value !== false);
+    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition.useFloatingPosition({
       reference: triggerRef,
@@ -99,7 +108,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     ]);
     const popupStyle = vue.computed(() => [
       floatingPosition.popupStyle.value,
-      floating.getFloatingPopupStyle(props.color, props.zIndex),
+      floatingCore.getFloatingPopupStyle(props.color, props.zIndex),
       props.overlayStyle,
       resolvedStyles.value.popup
     ]);
@@ -180,21 +189,30 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleFocusIn = () => {
       if (normalizedTriggers.value.has("focus")) {
+        clearTimers();
         requestOpen(true);
       }
     };
-    const handleFocusOut = () => {
+    const handleFocusOut = (event) => {
+      var _a, _b;
       if (normalizedTriggers.value.has("focus")) {
+        clearTimers();
+        const nextTarget = event.relatedTarget;
+        if (nextTarget instanceof Node && (((_a = rootRef.value) == null ? void 0 : _a.contains(nextTarget)) || ((_b = popupRef.value) == null ? void 0 : _b.contains(nextTarget)))) {
+          return;
+        }
         requestOpen(false);
       }
     };
     const handleClick = () => {
       if (normalizedTriggers.value.has("click")) {
+        clearTimers();
         requestOpen(!mergedOpen.value);
       }
     };
     const handleContextmenu = (event) => {
       if (normalizedTriggers.value.has("contextMenu")) {
+        clearTimers();
         event.preventDefault();
         requestOpen(true);
       }
@@ -219,6 +237,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: vue.normalizeClass(["aheart-tooltip__trigger", triggerClass.value]),
+          "aria-describedby": hasTitle.value ? vue.unref(popupId) : void 0,
           style: vue.normalizeStyle(triggerStyle.value),
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
@@ -228,7 +247,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onContextmenu: handleContextmenu
         }, [
           vue.renderSlot(_ctx.$slots, "default")
-        ], 38),
+        ], 46, _hoisted_1),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
           to: teleportTo.value,
           disabled: !shouldTeleport.value
@@ -238,11 +257,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             ref_key: "popupRef",
             ref: popupRef,
             class: vue.normalizeClass(["aheart-tooltip__popup", popupClass.value]),
+            id: vue.unref(popupId),
             style: vue.normalizeStyle(popupStyle.value),
             role: "tooltip",
             "aria-hidden": vue.unref(motion).phase.value === "hidden" ? "true" : void 0,
             onMouseenter: handleMouseEnter,
-            onMouseleave: handleMouseLeave
+            onMouseleave: handleMouseLeave,
+            onFocusout: handleFocusOut
           }, [
             showArrow.value ? (vue.openBlock(), vue.createElementBlock("span", {
               key: 0,
@@ -265,7 +286,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 ])
               ], 6)
             ], 6)
-          ], 46, _hoisted_1)), [
+          ], 46, _hoisted_2)), [
             [vue.vShow, vue.unref(motion).phase.value !== "hidden"]
           ]) : vue.createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

@@ -23,7 +23,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly trigger: {
-        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating-core").FloatingTriggerProp>;
         readonly default: "click";
         readonly validator: (value: unknown) => boolean;
     };
@@ -107,7 +107,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly default: true;
     };
     readonly trigger: {
-        readonly type: PropType<import("../utils/floating").FloatingTriggerProp>;
+        readonly type: PropType<import("../utils/floating-core").FloatingTriggerProp>;
         readonly default: "click";
         readonly validator: (value: unknown) => boolean;
     };
@@ -181,7 +181,7 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
     readonly destroyOnHidden: boolean;
-    readonly trigger: import("../utils/floating").FloatingTriggerProp;
+    readonly trigger: import("../utils/floating-core").FloatingTriggerProp;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyTooltipOnHide: boolean;

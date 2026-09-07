@@ -1,6 +1,8 @@
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { createSSRApp, defineComponent, h, nextTick } from 'vue'
+import { renderToString } from '@vue/server-renderer'
+import { describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Table from '../table.vue'
@@ -26,6 +28,14 @@ const dataSource: Person[] = [
 ]
 
 describe('Table', () => {
+  it('uses theme tokens for row states and disables motion for reduced-motion users', () => {
+    const styles = readFileSync(`${process.cwd()}/src/table/style.css`, 'utf8')
+
+    expect(styles).toContain('background: var(--aheart-color-bg-hover, #fafafa)')
+    expect(styles).toContain('background: var(--aheart-color-primary-bg, #e6f4ff)')
+    expect(styles).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.aheart-table th,[\s\S]*?transition-duration:\s*0ms/)
+  })
+
   it('renders columns and rows from dataSource', () => {
     const wrapper = mount(Table, {
       props: { columns, dataSource }
@@ -149,6 +159,28 @@ describe('Table', () => {
     expect(wrapper.emitted('change')?.[0]?.[2]).toMatchObject({ columnKey: 'age', order: 'ascend' })
   })
 
+  it('exposes sortable column semantics and an accessible sort action', async () => {
+    const wrapper = mount(Table, { props: { columns, dataSource } })
+    const headers = wrapper.findAll('th')
+    const ageHeader = headers[1]
+    const sortButton = ageHeader.find('button')
+
+    expect(headers[0].attributes('aria-sort')).toBeUndefined()
+    expect(ageHeader.attributes('aria-sort')).toBe('none')
+    expect(sortButton.attributes('aria-label')).toBe('Sort Age')
+
+    await sortButton.trigger('click')
+    expect(ageHeader.attributes('aria-sort')).toBe('ascending')
+    expect(sortButton.attributes('aria-label')).toBe('Sort Age descending')
+
+    await sortButton.trigger('click')
+    expect(ageHeader.attributes('aria-sort')).toBe('descending')
+    expect(sortButton.attributes('aria-label')).toBe('Clear sort for Age')
+
+    await sortButton.trigger('click')
+    expect(ageHeader.attributes('aria-sort')).toBe('none')
+  })
+
   it('applies defaultSortOrder on initial render', () => {
     const wrapper = mount(Table, {
       props: {
@@ -262,6 +294,46 @@ describe('Table', () => {
     expect(wrapper.emitted('select')?.[0]?.[0]).toBe('grace')
   })
 
+  it('does not let changed default selection overwrite runtime state', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        rowSelection: { defaultSelectedRowKeys: ['ada'] }
+      }
+    })
+    await wrapper.findAll('tbody input[type="checkbox"]')[1].setValue(true)
+    expect(wrapper.emitted('update:selectedRowKeys')?.at(-1)).toEqual([['ada', 'grace']])
+
+    await wrapper.setProps({ rowSelection: { defaultSelectedRowKeys: ['linus'] } })
+    const checked = wrapper.findAll('tbody input[type="checkbox"]')
+      .map((input) => (input.element as HTMLInputElement).checked)
+    expect(checked).toEqual([true, true, false])
+  })
+
+  it('supports runtime controlled handoff and explicit undefined selection', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        rowSelection: { defaultSelectedRowKeys: ['ada'] }
+      }
+    })
+    await wrapper.findAll('tbody input[type="checkbox"]')[1].setValue(true)
+
+    await wrapper.setProps({ rowSelection: { selectedRowKeys: ['linus'] } })
+    let checked = wrapper.findAll('tbody input[type="checkbox"]')
+      .map((input) => (input.element as HTMLInputElement).checked)
+    expect(checked).toEqual([false, false, true])
+    await wrapper.findAll('tbody input[type="checkbox"]')[0].setValue(true)
+    expect(wrapper.emitted('update:selectedRowKeys')?.at(-1)).toEqual([['linus', 'ada']])
+
+    await wrapper.setProps({ rowSelection: { selectedRowKeys: undefined, defaultSelectedRowKeys: ['ada'] } })
+    checked = wrapper.findAll('tbody input[type="checkbox"]')
+      .map((input) => (input.element as HTMLInputElement).checked)
+    expect(checked).toEqual([false, false, false])
+  })
+
   it('supports radio row selection', async () => {
     const wrapper = mount(Table, {
       props: {
@@ -274,6 +346,47 @@ describe('Table', () => {
     await wrapper.findAll('tbody input[type="radio"]')[2].setValue(true)
 
     expect(wrapper.emitted('update:selectedRowKeys')?.[0]).toEqual([['linus']])
+  })
+
+  it('uses unique SSR-stable radio group names without runtime randomness', () => {
+    const random = vi.spyOn(Math, 'random')
+    const wrapper = mount({
+      render: () => h('div', [
+        h(Table, { columns, dataSource, rowSelection: { type: 'radio' } }),
+        h(Table, { columns, dataSource, rowSelection: { type: 'radio' } })
+      ])
+    })
+
+    const names = wrapper.findAll('tbody input[type="radio"]').map((input) => input.attributes('name'))
+
+    expect(names[0]).toMatch(/^aheart-table-selection-/)
+    expect(names[3]).toMatch(/^aheart-table-selection-/)
+    expect(names[0]).not.toBe(names[3])
+    expect(random).not.toHaveBeenCalled()
+    random.mockRestore()
+  })
+
+  it('keeps radio group names stable across SSR and hydration', async () => {
+    const App = defineComponent({
+      setup: () => () => h(Table, { columns, dataSource, rowSelection: { type: 'radio' } })
+    })
+    const html = await renderToString(createSSRApp(App))
+    const serverName = html.match(/<input[^>]*type="radio"[^>]*name="([^"]+)"/)?.[1]
+    expect(serverName).toMatch(/^aheart-table-selection-/)
+
+    const host = document.createElement('div')
+    host.innerHTML = html
+    document.body.replaceChildren(host)
+    const warnings: string[] = []
+    const clientApp = createSSRApp(App)
+    clientApp.config.warnHandler = (message) => warnings.push(message)
+    clientApp.mount(host, true)
+    await nextTick()
+
+    expect(host.querySelector('input[type="radio"]')?.getAttribute('name')).toBe(serverName)
+    expect(warnings).toEqual([])
+    clientApp.unmount()
+    host.remove()
   })
 
   it('expands rows with custom expanded content', async () => {
@@ -415,6 +528,21 @@ describe('Table', () => {
     expect(wrapper.find('tbody tr').text()).toContain('Ada')
     expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('1')
     expect(wrapper.emitted('change')?.[0]?.[0]).toMatchObject({ current: 2, pageSize: 1 })
+  })
+
+  it('keeps the last accepted page when the parent releases pagination control', async () => {
+    const wrapper = mount(Table, {
+      props: {
+        columns,
+        dataSource,
+        pagination: { current: 2, defaultCurrent: 1, pageSize: 1 }
+      }
+    })
+    expect(wrapper.find('tbody tr').text()).toContain('Grace')
+
+    await wrapper.setProps({ pagination: { defaultCurrent: 1, pageSize: 1 } })
+    expect(wrapper.find('tbody tr').text()).toContain('Grace')
+    expect(wrapper.find('.aheart-pagination__page.is-active').text()).toBe('2')
   })
 
   it('renders server-provided page records without slicing them a second time', () => {

@@ -10,6 +10,7 @@
 .aheart-tree__switcher--empty { flex: 0 0 20px; }
 .aheart-tree__checkbox { margin: 0 6px 0 2px; }
 .aheart-tree__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aheart-tree__retry { margin-inline-start: 8px; color: var(--aheart-color-danger); border: 0; background: transparent; cursor: pointer; }
 
 @media (pointer: coarse) {
   .aheart-tree__node { min-block-size: 44px; }

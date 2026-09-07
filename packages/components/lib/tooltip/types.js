@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const floating = require("../utils/floating.js");
+const floatingCore = require("../utils/floating-core.js");
 const titleProp = {
   type: null,
   default: void 0
@@ -10,7 +10,7 @@ const tooltipProps = {
   placement: {
     type: String,
     default: "top",
-    validator: (value) => floating.floatingPlacements.includes(value)
+    validator: (value) => floatingCore.floatingPlacements.includes(value)
   },
   autoAdjustOverflow: {
     type: Boolean,
@@ -19,7 +19,7 @@ const tooltipProps = {
   trigger: {
     type: [String, Array],
     default: "hover",
-    validator: floating.isFloatingTriggerProp
+    validator: floatingCore.isFloatingTriggerProp
   },
   open: {
     type: Boolean,

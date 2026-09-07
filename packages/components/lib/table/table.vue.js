@@ -2,6 +2,8 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const index = require("../pagination/index.js");
+const useControllableState = require("../utils/use-controllable-state.js");
+const useStableId = require("../utils/use-stable-id.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
@@ -18,33 +20,34 @@ const _hoisted_5 = {
   class: "aheart-table__expand-cell",
   scope: "col"
 };
-const _hoisted_6 = { class: "aheart-table__head-content" };
-const _hoisted_7 = ["disabled", "onClick"];
-const _hoisted_8 = ["data-sort"];
-const _hoisted_9 = {
+const _hoisted_6 = ["aria-sort"];
+const _hoisted_7 = { class: "aheart-table__head-content" };
+const _hoisted_8 = ["disabled", "aria-label", "onClick"];
+const _hoisted_9 = ["data-sort"];
+const _hoisted_10 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_10 = ["aria-label"];
-const _hoisted_11 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_12 = {
+const _hoisted_11 = ["aria-label"];
+const _hoisted_12 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_13 = {
   key: 0,
   class: "aheart-table__selection-cell"
 };
-const _hoisted_13 = ["type", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_14 = {
+const _hoisted_14 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_15 = {
   key: 1,
   class: "aheart-table__expand-cell"
 };
-const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_16 = {
+const _hoisted_16 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_17 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_17 = ["colspan"];
-const _hoisted_18 = { key: 0 };
-const _hoisted_19 = ["colspan"];
-const _hoisted_20 = {
+const _hoisted_18 = ["colspan"];
+const _hoisted_19 = { key: 0 };
+const _hoisted_20 = ["colspan"];
+const _hoisted_21 = {
   key: 0,
   class: "aheart-table__loading",
   role: "status",
@@ -58,7 +61,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   props: types.tableProps,
   emits: types.tableEmits,
   setup(__props, { emit: __emit }) {
-    var _a, _b;
     const ARenderNode = vue.defineComponent({
       name: "ATableRenderNode",
       props: {
@@ -74,55 +76,76 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const props = __props;
     const emit = __emit;
     const config = context.useAheartConfig();
-    const innerSelectedRowKeys = vue.ref(((_a = props.rowSelection) == null ? void 0 : _a.defaultSelectedRowKeys) ?? []);
-    const innerExpandedRowKeys = vue.ref(((_b = props.expandable) == null ? void 0 : _b.defaultExpandedRowKeys) ?? []);
-    const innerCurrent = vue.ref(props.pagination && typeof props.pagination === "object" ? props.pagination.defaultCurrent ?? props.pagination.current ?? 1 : 1);
+    const hasOwn = (value, key) => Boolean(value && Object.prototype.hasOwnProperty.call(value, key));
+    const selectedState = useControllableState.useControllableState({
+      controlled: () => {
+        var _a;
+        return (_a = props.rowSelection) == null ? void 0 : _a.selectedRowKeys;
+      },
+      isControlled: () => hasOwn(props.rowSelection, "selectedRowKeys"),
+      defaultValue: () => {
+        var _a;
+        return [...((_a = props.rowSelection) == null ? void 0 : _a.defaultSelectedRowKeys) ?? []];
+      },
+      onChange: (keys) => emit("update:selectedRowKeys", keys ?? [])
+    });
+    const expandedState = useControllableState.useControllableState({
+      controlled: () => {
+        var _a;
+        return (_a = props.expandable) == null ? void 0 : _a.expandedRowKeys;
+      },
+      isControlled: () => hasOwn(props.expandable, "expandedRowKeys"),
+      defaultValue: () => {
+        var _a;
+        return [...((_a = props.expandable) == null ? void 0 : _a.defaultExpandedRowKeys) ?? []];
+      },
+      onChange: (keys) => emit("update:expandedRowKeys", keys ?? [])
+    });
+    const currentState = useControllableState.useControllableState({
+      controlled: () => props.pagination && typeof props.pagination === "object" ? props.pagination.current : void 0,
+      isControlled: () => Boolean(props.pagination && typeof props.pagination === "object" && hasOwn(props.pagination, "current")),
+      defaultValue: () => props.pagination && typeof props.pagination === "object" ? props.pagination.defaultCurrent ?? props.pagination.current ?? 1 : 1
+    });
     const innerSort = vue.ref({});
     const innerFilters = vue.ref({});
     const hasInitializedSort = vue.ref(false);
     const initializedFilterKeys = vue.ref(/* @__PURE__ */ new Set());
-    const radioName = `aheart-table-selection-${Math.random().toString(36).slice(2)}`;
+    const radioName = useStableId.useStableId(void 0, "aheart-table-selection").value;
     const normalizedColumns = vue.computed(() => (props.columns ?? []).filter((column) => !column.hidden));
     const normalizedData = vue.computed(() => props.dataSource ?? []);
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const hasSelection = vue.computed(() => Boolean(props.rowSelection));
     const hasExpandable = vue.computed(() => {
-      var _a2;
-      return Boolean((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowRender);
+      var _a;
+      return Boolean((_a = props.expandable) == null ? void 0 : _a.expandedRowRender);
     });
     const selectionType = vue.computed(() => {
-      var _a2;
-      return ((_a2 = props.rowSelection) == null ? void 0 : _a2.type) ?? "checkbox";
+      var _a;
+      return ((_a = props.rowSelection) == null ? void 0 : _a.type) ?? "checkbox";
     });
     const isSelectionDisabled = vue.computed(() => {
-      var _a2;
-      return isDisabled.value || Boolean((_a2 = props.rowSelection) == null ? void 0 : _a2.disabled);
+      var _a;
+      return isDisabled.value || Boolean((_a = props.rowSelection) == null ? void 0 : _a.disabled);
     });
-    const selectedKeys = vue.computed(() => {
-      var _a2;
-      return ((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) ?? innerSelectedRowKeys.value;
-    });
-    const expandedKeys = vue.computed(() => {
-      var _a2;
-      return ((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys) ?? innerExpandedRowKeys.value;
-    });
+    const selectedKeys = vue.computed(() => selectedState.state.value ?? []);
+    const expandedKeys = vue.computed(() => expandedState.state.value ?? []);
     const resolvedEmptyText = vue.computed(
       () => {
-        var _a2, _b2, _c, _d;
-        return hasRenderableContent(props.emptyText) ? props.emptyText : ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.table) == null ? void 0 : _b2.emptyText) ?? ((_d = (_c = config.value.locale) == null ? void 0 : _c.empty) == null ? void 0 : _d.description) ?? "No Data";
+        var _a, _b, _c, _d;
+        return hasRenderableContent(props.emptyText) ? props.emptyText : ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.emptyText) ?? ((_d = (_c = config.value.locale) == null ? void 0 : _c.empty) == null ? void 0 : _d.description) ?? "No Data";
       }
     );
     const resolvedLoadingText = vue.computed(() => {
-      var _a2, _b2;
-      return ((_b2 = (_a2 = config.value.locale) == null ? void 0 : _a2.table) == null ? void 0 : _b2.loadingText) ?? "加载中";
+      var _a, _b;
+      return ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.loadingText) ?? "加载中";
     });
     const paginationConfig = vue.computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
     const pageSize = vue.computed(() => {
       const value = paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10;
       return Number.isFinite(value) && value > 0 ? Math.max(1, Math.trunc(value)) : 1;
     });
-    const rawCurrentPage = vue.computed(() => paginationConfig.value.current ?? innerCurrent.value);
+    const rawCurrentPage = vue.computed(() => currentState.state.value ?? 1);
     const paginationTotal = vue.computed(() => paginationConfig.value.total ?? sortedData.value.length);
     const pageCount = vue.computed(() => Math.max(1, Math.ceil(Math.max(0, paginationTotal.value) / pageSize.value)));
     const currentPage = vue.computed(() => Math.min(Math.max(rawCurrentPage.value, 1), pageCount.value));
@@ -177,18 +200,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return allRows.value.slice(start, start + pageSize.value);
     });
     vue.watch(
-      () => {
-        var _a2;
-        return (_a2 = props.rowSelection) == null ? void 0 : _a2.defaultSelectedRowKeys;
-      },
-      (keys) => {
-        var _a2;
-        if (!((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) && keys) {
-          innerSelectedRowKeys.value = keys;
-        }
-      }
-    );
-    vue.watch(
       normalizedColumns,
       (columns) => {
         if (!hasInitializedSort.value) {
@@ -204,13 +215,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         const nextFilters = { ...innerFilters.value };
         let shouldUpdateFilters = false;
         columns.forEach((column) => {
-          var _a2;
+          var _a;
           const key = getColumnKey(column);
           if (initializedFilterKeys.value.has(key)) {
             return;
           }
           initializedFilterKeys.value.add(key);
-          if (column.filteredValue === void 0 && ((_a2 = column.defaultFilteredValue) == null ? void 0 : _a2.length)) {
+          if (column.filteredValue === void 0 && ((_a = column.defaultFilteredValue) == null ? void 0 : _a.length)) {
             nextFilters[key] = [...column.defaultFilteredValue];
             shouldUpdateFilters = true;
           }
@@ -222,8 +233,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       { immediate: true }
     );
     vue.watch(pageCount, (count) => {
-      if (paginationConfig.value.current === void 0 && innerCurrent.value > count) {
-        innerCurrent.value = count;
+      if (!currentState.isControlled.value && (currentState.state.value ?? 1) > count) {
+        currentState.setState(count);
       }
     });
     function getColumnKey(column) {
@@ -299,20 +310,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return text === void 0 || text === null ? "" : String(text);
     };
     const renderExpanded = (record, index2) => {
-      var _a2, _b2;
-      return ((_b2 = (_a2 = props.expandable) == null ? void 0 : _a2.expandedRowRender) == null ? void 0 : _b2.call(_a2, record, index2)) ?? "";
+      var _a, _b;
+      return ((_b = (_a = props.expandable) == null ? void 0 : _a.expandedRowRender) == null ? void 0 : _b.call(_a, record, index2)) ?? "";
     };
     const columnStyle = (column) => ({
       width: typeof column.width === "number" ? `${column.width}px` : column.width
     });
     const columnClass = (column) => {
-      var _a2;
+      var _a;
       return [
         column.className,
         column.align ? `aheart-table__cell--${column.align}` : void 0,
         {
           "is-sortable": Boolean(column.sorter),
-          "is-filtered": Boolean((_a2 = activeFilters.value[getColumnKey(column)]) == null ? void 0 : _a2.length),
+          "is-filtered": Boolean((_a = activeFilters.value[getColumnKey(column)]) == null ? void 0 : _a.length),
           "is-ellipsis": column.ellipsis
         }
       ];
@@ -331,6 +342,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return activeSort.value.order;
     };
+    const getColumnLabel = (column) => typeof column.title === "string" ? column.title : getColumnKey(column);
+    const getAriaSort = (column) => {
+      const state = getSortState(column);
+      return state === "ascend" ? "ascending" : state === "descend" ? "descending" : "none";
+    };
+    const getSortActionLabel = (column) => {
+      const label = getColumnLabel(column);
+      const state = getSortState(column);
+      return state === "ascend" ? `Sort ${label} descending` : state === "descend" ? `Clear sort for ${label}` : `Sort ${label}`;
+    };
     const toggleSort = (column) => {
       if (isDisabled.value) {
         return;
@@ -346,8 +367,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emitTableChange("sort", 1, pageSize.value, activeFilters.value, nextSort);
     };
     const isFilterActive = (column, value) => {
-      var _a2;
-      return Boolean((_a2 = activeFilters.value[getColumnKey(column)]) == null ? void 0 : _a2.includes(value));
+      var _a;
+      return Boolean((_a = activeFilters.value[getColumnKey(column)]) == null ? void 0 : _a.includes(value));
     };
     const toggleFilter = (column, value) => {
       if (isDisabled.value) {
@@ -368,45 +389,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emitTableChange("filter", 1, pageSize.value, nextFilters, activeSort.value);
     };
     const resetInnerCurrent = () => {
-      if (paginationConfig.value.current === void 0) {
-        innerCurrent.value = 1;
-      }
+      currentState.setState(1);
     };
     const isSelected = (key) => selectedKeys.value.includes(key);
     const toggleSelection = (record, key, checked) => {
-      var _a2;
       if (isSelectionDisabled.value) {
         return;
       }
       const nextKeys = selectionType.value === "radio" ? checked ? [key] : [] : checked ? Array.from(/* @__PURE__ */ new Set([...selectedKeys.value, key])) : selectedKeys.value.filter((currentKey) => currentKey !== key);
-      if (((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) === void 0) {
-        innerSelectedRowKeys.value = nextKeys;
-      }
-      emit("update:selectedRowKeys", nextKeys);
+      selectedState.setState(nextKeys);
       emit("select", key, checked, record, nextKeys);
     };
     const isRowExpandable = (record) => {
-      var _a2, _b2;
-      return ((_b2 = (_a2 = props.expandable) == null ? void 0 : _a2.rowExpandable) == null ? void 0 : _b2.call(_a2, record)) ?? true;
+      var _a, _b;
+      return ((_b = (_a = props.expandable) == null ? void 0 : _a.rowExpandable) == null ? void 0 : _b.call(_a, record)) ?? true;
     };
     const isExpanded = (key) => expandedKeys.value.includes(key);
     const toggleExpand = (record, key) => {
-      var _a2;
       if (isDisabled.value) {
         return;
       }
       const nextExpanded = !isExpanded(key);
       const nextKeys = nextExpanded ? [...expandedKeys.value, key] : expandedKeys.value.filter((currentKey) => currentKey !== key);
-      if (((_a2 = props.expandable) == null ? void 0 : _a2.expandedRowKeys) === void 0) {
-        innerExpandedRowKeys.value = nextKeys;
-      }
-      emit("update:expandedRowKeys", nextKeys);
+      expandedState.setState(nextKeys);
       emit("expand", nextExpanded, record, key);
     };
     const handlePageChange = (current, nextPageSize) => {
-      if (paginationConfig.value.current === void 0) {
-        innerCurrent.value = current;
-      }
+      currentState.setState(current);
       emitTableChange("paginate", current, nextPageSize, activeFilters.value, activeSort.value);
     };
     const emitTableChange = (action, current, nextPageSize, filters, sortState) => {
@@ -430,14 +439,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       );
     };
     const getEventChecked = (event) => {
-      var _a2;
-      return Boolean((_a2 = event.target) == null ? void 0 : _a2.checked);
+      var _a;
+      return Boolean((_a = event.target) == null ? void 0 : _a.checked);
     };
     const handleSelectionChange = (event, record, key) => {
-      var _a2;
+      var _a;
       const input = event.target;
       toggleSelection(record, key, getEventChecked(event));
-      if (input && ((_a2 = props.rowSelection) == null ? void 0 : _a2.selectedRowKeys) !== void 0) {
+      if (input && ((_a = props.rowSelection) == null ? void 0 : _a.selectedRowKeys) !== void 0) {
         input.checked = isSelected(key);
       }
     };
@@ -463,19 +472,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   }, null, -1)
                 ])])) : vue.createCommentVNode("", true),
                 (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
-                  var _a2;
+                  var _a;
                   return vue.openBlock(), vue.createElementBlock("th", {
                     key: getColumnKey(column),
                     class: vue.normalizeClass(columnClass(column)),
                     style: vue.normalizeStyle(columnStyle(column)),
+                    "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                     scope: "col"
                   }, [
-                    vue.createElementVNode("div", _hoisted_6, [
+                    vue.createElementVNode("div", _hoisted_7, [
                       column.sorter ? (vue.openBlock(), vue.createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__sorter",
                         type: "button",
                         disabled: isDisabled.value,
+                        "aria-label": getSortActionLabel(column),
                         onClick: ($event) => toggleSort(column)
                       }, [
                         vue.createElementVNode("span", null, [
@@ -487,13 +498,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           class: "aheart-table__sort-icon",
                           "data-sort": getSortState(column),
                           "aria-hidden": "true"
-                        }, null, 8, _hoisted_8)
-                      ], 8, _hoisted_7)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_9, [
+                        }, null, 8, _hoisted_9)
+                      ], 8, _hoisted_8)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_10, [
                         vue.createVNode(vue.unref(ARenderNode), {
                           node: column.title
                         }, null, 8, ["node"])
                       ])),
-                      ((_a2 = column.filters) == null ? void 0 : _a2.length) ? (vue.openBlock(), vue.createElementBlock("div", {
+                      ((_a = column.filters) == null ? void 0 : _a.length) ? (vue.openBlock(), vue.createElementBlock("div", {
                         key: 2,
                         class: "aheart-table__filters",
                         "aria-label": `${column.title} filters`
@@ -510,11 +521,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                             vue.createVNode(vue.unref(ARenderNode), {
                               node: filter.text
                             }, null, 8, ["node"])
-                          ], 10, _hoisted_11);
+                          ], 10, _hoisted_12);
                         }), 128))
-                      ], 8, _hoisted_10)) : vue.createCommentVNode("", true)
+                      ], 8, _hoisted_11)) : vue.createCommentVNode("", true)
                     ])
-                  ], 6);
+                  ], 14, _hoisted_6);
                 }), 128))
               ])
             ])) : vue.createCommentVNode("", true),
@@ -526,17 +537,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   vue.createElementVNode("tr", {
                     class: vue.normalizeClass({ "is-selected": isSelected(row.key) })
                   }, [
-                    hasSelection.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_12, [
+                    hasSelection.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_13, [
                       vue.createElementVNode("input", {
                         type: selectionType.value,
-                        name: radioName,
+                        name: vue.unref(radioName),
                         checked: isSelected(row.key),
                         disabled: isSelectionDisabled.value,
                         "aria-label": `Select row ${row.key}`,
                         onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                      }, null, 40, _hoisted_13)
+                      }, null, 40, _hoisted_14)
                     ])) : vue.createCommentVNode("", true),
-                    hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_14, [
+                    hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", _hoisted_15, [
                       isRowExpandable(row.record) ? (vue.openBlock(), vue.createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__expand-button",
@@ -544,7 +555,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         "aria-expanded": isExpanded(row.key),
                         disabled: isDisabled.value,
                         onClick: ($event) => toggleExpand(row.record, row.key)
-                      }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : vue.createCommentVNode("", true)
+                      }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_16)) : vue.createCommentVNode("", true)
                     ])) : vue.createCommentVNode("", true),
                     (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
                       return vue.openBlock(), vue.createElementBlock("td", {
@@ -558,7 +569,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       ], 6);
                     }), 128))
                   ], 2),
-                  hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_16, [
+                  hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_17, [
                     vue.createElementVNode("td", {
                       colspan: columnCount.value,
                       class: "aheart-table__expanded-cell"
@@ -566,21 +577,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       vue.createVNode(vue.unref(ARenderNode), {
                         node: renderExpanded(row.record, row.index)
                       }, null, 8, ["node"])
-                    ], 8, _hoisted_17)
+                    ], 8, _hoisted_18)
                   ])) : vue.createCommentVNode("", true)
                 ], 64);
               }), 128)),
-              !_ctx.loading && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_18, [
+              !_ctx.loading && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_19, [
                 vue.createElementVNode("td", {
                   colspan: columnCount.value,
                   class: "aheart-table__empty"
                 }, [
                   vue.createVNode(vue.unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                ], 8, _hoisted_19)
+                ], 8, _hoisted_20)
               ])) : vue.createCommentVNode("", true)
             ])
           ]),
-          _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_20, [
+          _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_21, [
             _cache[2] || (_cache[2] = vue.createElementVNode("span", {
               class: "aheart-table__loading-dot",
               "aria-hidden": "true"

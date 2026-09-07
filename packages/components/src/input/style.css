@@ -2,6 +2,8 @@
   display: inline-flex;
   align-items: stretch;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   color: var(--aheart-color-text);
   font-size: var(--aheart-font-size);
   line-height: var(--aheart-line-height);
@@ -11,6 +13,8 @@
   display: inline-flex;
   align-items: center;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: var(--aheart-control-height);
   padding: 0 var(--aheart-spacing-sm);
   border: 1px solid var(--aheart-color-border);
@@ -155,7 +159,9 @@
   border: 1px solid var(--aheart-color-border);
   background: var(--aheart-color-fill);
   color: var(--aheart-color-text-secondary);
-  white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .aheart-input__addon--before {
@@ -164,4 +170,11 @@
 
 .aheart-input__addon--after {
   border-left: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aheart-input,
+  .aheart-input__clear {
+    transition-duration: 0ms;
+  }
 }

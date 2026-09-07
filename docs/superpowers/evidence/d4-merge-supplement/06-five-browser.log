@@ -1,0 +1,78 @@
+
+[WebServer] (node:60125) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:60136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:60150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:60929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:60940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 25 tests using 2 workers
+
+
+(node:60955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:60954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/25] [desktop] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[2/25] [mobile] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[3/25] [desktop] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[4/25] [mobile] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[5/25] [desktop] › e2e/d4-select-virtual.spec.ts:74:5 › Select virtual no-results message remains visible and search can recover
+[6/25] [mobile] › e2e/d4-select-virtual.spec.ts:74:5 › Select virtual no-results message remains visible and search can recover
+[7/25] [desktop] › e2e/d4-select-virtual.spec.ts:107:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[8/25] [mobile] › e2e/d4-select-virtual.spec.ts:107:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[9/25] [desktop] › e2e/d4-select-virtual.spec.ts:180:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[10/25] [mobile] › e2e/d4-select-virtual.spec.ts:180:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:60991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[11/25] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+
+(node:60993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[12/25] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[13/25] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[14/25] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[15/25] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:74:5 › Select virtual no-results message remains visible and search can recover
+[16/25] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:107:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[17/25] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:74:5 › Select virtual no-results message remains visible and search can recover
+[18/25] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:180:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[19/25] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:107:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[20/25] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:180:5 › Select virtual uses iframe realm and disposes after SPA unmount
+
+(node:61042) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[21/25] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[22/25] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[23/25] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:74:5 › Select virtual no-results message remains visible and search can recover
+[24/25] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:107:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[25/25] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:180:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  25 passed (54.3s)

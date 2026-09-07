@@ -1,8 +1,6 @@
-import _sfc_main from "./message.vue.js";
-import { withInstall } from "../utils/install.js";
+import { default as default2 } from "./public.js";
 import { message } from "./service.js";
-const Message = withInstall(_sfc_main, "AMessage");
 export {
-  Message as default,
+  default2 as default,
   message
 };

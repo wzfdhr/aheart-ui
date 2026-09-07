@@ -1,0 +1,33 @@
+{
+  "newStableEqual": true,
+  "oldStableEqual": true,
+  "counts": [
+    1000,
+    5000,
+    10000
+  ],
+  "rounds": 3,
+  "newScenarioCount": 36,
+  "hydration": [
+    {
+      "variant": "default-false",
+      "dynamic": false,
+      "errors": []
+    },
+    {
+      "variant": "default-false",
+      "dynamic": true,
+      "errors": []
+    },
+    {
+      "variant": "virtual-true",
+      "dynamic": false,
+      "errors": []
+    },
+    {
+      "variant": "virtual-true",
+      "dynamic": true,
+      "errors": []
+    }
+  ]
+}

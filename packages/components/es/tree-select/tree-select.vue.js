@@ -1,12 +1,19 @@
-import { defineComponent, useAttrs, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
+import { defineComponent, useAttrs, ref, computed, provide, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, unref, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
+import { useFormControl, mergeAriaIds } from "../form/control-context.js";
 import Tree from "../tree/index.js";
+import { useTreeLoader, treeModelKey } from "../tree/use-tree-loader.js";
+import { deriveTreeCheckState, toggleTreeCheck } from "../tree/tree-check.js";
+import { createTreeIndex, filterTreeIndex, treeKeyToken } from "../tree/tree-index.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
+import { useControllableState } from "../utils/use-controllable-state.js";
+import { useStableId } from "../utils/use-stable-id.js";
+import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import "./style.css.js";
-const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby"];
+const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby", "aria-invalid"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-tree-select__value aheart-tree-select__tags"
@@ -17,7 +24,8 @@ const _hoisted_5 = {
   key: 0,
   class: "aheart-tree-select__tag aheart-tree-select__tag--rest"
 };
-const _hoisted_6 = {
+const _hoisted_6 = ["aria-labelledby", "aria-describedby", "aria-label"];
+const _hoisted_7 = {
   key: 1,
   class: "aheart-tree-select__empty",
   role: "status"
@@ -33,6 +41,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     modelValue: {},
     defaultValue: {},
     multiple: { type: Boolean },
+    treeCheckable: { type: Boolean },
+    treeCheckStrictly: { type: Boolean, default: true },
+    loadData: {},
     showSearch: { type: Boolean },
     placeholder: { default: "请选择" },
     disabled: { type: Boolean },
@@ -48,86 +59,142 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const attrs = useAttrs();
+    const formControl = useFormControl();
+    const instanceId = useStableId(void 0, "aheart-tree-select").value;
+    const panelId = `aheart-tree-select-panel-${instanceId}`;
+    const treeId = `aheart-tree-select-tree-${instanceId}`;
     const emit = __emit;
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const panelRef = ref(null);
-    const innerOpen = ref(props.defaultOpen);
     const searchText = ref("");
-    const innerValue = ref(props.defaultValue);
     const isControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
-    const mergedOpen = computed(() => isOpenControlled.value ? props.open : innerOpen.value);
+    const resolvedId = computed(() => props.id ?? attrs.id ?? (formControl == null ? void 0 : formControl.controlId.value));
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
-    const mergedValue = computed(() => isControlled.value ? props.modelValue : innerValue.value);
-    const selectedKeys = computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === void 0 ? [] : [mergedValue.value]);
-    const flattenNodes = (nodes) => nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])]);
+    const mergedAriaLabelledby = computed(() => mergeAriaIds(resolvedAriaLabelledby.value, formControl == null ? void 0 : formControl.labelledBy.value));
+    const resolvedAriaDescribedby = computed(() => attrs["aria-describedby"]);
+    const mergedAriaDescribedby = computed(() => mergeAriaIds(resolvedAriaDescribedby.value, formControl == null ? void 0 : formControl.describedBy.value));
+    const resolvedAriaInvalid = computed(() => attrs["aria-invalid"] ?? ((formControl == null ? void 0 : formControl.invalid.value) ? true : void 0));
+    const openState = useControllableState({
+      controlled: () => props.open,
+      isControlled: isOpenControlled,
+      defaultValue: () => props.defaultOpen,
+      onChange: (open) => {
+        const nextOpen = Boolean(open);
+        emit("openChange", nextOpen);
+      }
+    });
+    const valueState = useControllableState({
+      controlled: () => props.modelValue,
+      isControlled,
+      defaultValue: () => props.defaultValue,
+      onChange: (value) => {
+        emit("update:modelValue", value);
+        emit("change", value);
+      }
+    });
+    const mergedOpen = computed(() => Boolean(openState.state.value));
+    const mergedValue = valueState.state;
+    const isMultiple = computed(() => props.multiple || props.treeCheckable);
+    const rawSelectedKeys = computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === void 0 ? [] : [mergedValue.value]);
+    const loader = useTreeLoader(() => props.treeData, () => props.loadData, () => Boolean(props.disabled));
+    const treeIndex = computed(() => createTreeIndex(loader.data.value, Boolean(props.disabled)));
+    const selectedKeys = computed(() => props.treeCheckable ? deriveTreeCheckState(treeIndex.value, rawSelectedKeys.value, props.treeCheckStrictly).checkedKeys : rawSelectedKeys.value);
+    provide(treeModelKey, { loader, index: treeIndex });
+    watch(mergedOpen, (open) => {
+      if (!open)
+        loader.cancelAll();
+    }, { flush: "sync" });
     const displayLabel = computed(() => selectedKeys.value.map((key) => {
       var _a;
-      return (_a = flattenNodes(props.treeData).find((node) => node.key === key)) == null ? void 0 : _a.title;
+      return (_a = treeIndex.value.nodes.get(key)) == null ? void 0 : _a.node.title;
     }).filter((title) => Boolean(title)).join(", "));
     const selectedTags = computed(() => selectedKeys.value.map((key) => {
       var _a;
       return {
         key,
-        title: ((_a = flattenNodes(props.treeData).find((node) => node.key === key)) == null ? void 0 : _a.title) ?? String(key)
+        title: ((_a = treeIndex.value.nodes.get(key)) == null ? void 0 : _a.node.title) ?? String(key)
       };
     }));
     const visibleSelectedTags = computed(() => props.maxTagCount === void 0 ? selectedTags.value : selectedTags.value.slice(0, Math.max(0, props.maxTagCount)));
     const hiddenTagCount = computed(() => selectedTags.value.length - visibleSelectedTags.value.length);
-    const filterNodes = (nodes, query) => nodes.flatMap((node) => {
-      const children = filterNodes(node.children ?? [], query);
-      if (node.title.toLowerCase().includes(query) || children.length)
-        return [{ ...node, children }];
-      return [];
-    });
     const filteredTreeData = computed(() => {
       const query = searchText.value.trim().toLowerCase();
-      return query ? filterNodes(props.treeData, query) : props.treeData;
+      return query ? filterTreeIndex(treeIndex.value, (node) => node.title.toLowerCase().includes(query)) : loader.data.value;
     });
-    const searchExpandedKeys = computed(() => flattenNodes(filteredTreeData.value).filter((node) => {
+    const filteredTreeIndex = computed(() => createTreeIndex(filteredTreeData.value, Boolean(props.disabled)));
+    const activeKey = ref();
+    const nodeId = (key) => `${treeId}-node-${treeKeyToken(key)}`;
+    const activeNodeId = computed(() => {
+      if (!mergedOpen.value || activeKey.value === void 0)
+        return void 0;
+      return filteredTreeIndex.value.nodes.has(activeKey.value) ? nodeId(activeKey.value) : void 0;
+    });
+    const handleTreeFocusin = (event) => {
       var _a;
-      return (_a = node.children) == null ? void 0 : _a.length;
-    }).map((node) => node.key));
+      const token = (_a = event.target.closest("[data-tree-token]")) == null ? void 0 : _a.dataset.treeToken;
+      if (token === void 0)
+        return;
+      activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token);
+    };
+    const handleTriggerFocusout = () => {
+      void nextTick(() => {
+        var _a, _b, _c;
+        const active = ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
+        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+          formControl == null ? void 0 : formControl.blur();
+      });
+    };
+    const searchExpandedKeys = computed(() => filteredTreeIndex.value.order.filter((key) => {
+      var _a;
+      return Boolean((_a = filteredTreeIndex.value.nodes.get(key)) == null ? void 0 : _a.children.length);
+    }));
     const toggleOpen = () => {
       requestOpen(!mergedOpen.value);
     };
     const requestOpen = (open) => {
       if (props.disabled)
         return;
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
-      emit("openChange", open);
+      openState.setState(open, { force: true });
     };
     const emitValue = (value) => {
-      if (!isControlled.value)
-        innerValue.value = value;
-      emit("update:modelValue", value);
-      emit("change", value);
+      valueState.setState(value, { force: true });
+      formControl == null ? void 0 : formControl.change();
     };
     const handleSelect = (keys) => {
-      const value = props.multiple ? keys : keys[0];
+      if (props.treeCheckable)
+        return;
+      const value = isMultiple.value ? keys : keys[0];
       emitValue(value);
-      if (!props.multiple)
+      if (!isMultiple.value)
         requestOpen(false);
     };
+    const handleCheck = (keys) => {
+      if (props.treeCheckable)
+        emitValue(keys);
+    };
     const clearValue = () => {
-      emitValue(props.multiple ? [] : void 0);
+      emitValue(isMultiple.value ? [] : void 0);
       searchText.value = "";
       emit("clear");
     };
     const removeKey = (key) => {
       if (props.disabled)
         return;
-      emitValue(selectedKeys.value.filter((current) => current !== key));
+      emitValue(props.treeCheckable ? toggleTreeCheck(treeIndex.value, rawSelectedKeys.value, key, props.treeCheckStrictly).checkedKeys : selectedKeys.value.filter((current) => current !== key));
     };
     const handleTriggerKeydown = (event) => {
       if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         requestOpen(true);
         void nextTick(() => {
-          var _a, _b;
-          return (_b = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-key][tabindex="0"]')) == null ? void 0 : _b.focus();
+          var _a;
+          const node = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-token][tabindex="0"]');
+          const token = node == null ? void 0 : node.dataset.treeToken;
+          if (token !== void 0)
+            activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token);
+          node == null ? void 0 : node.focus();
         });
       } else if (event.key === "Escape" && mergedOpen.value) {
         event.preventDefault();
@@ -139,12 +206,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
+    const teleportReady = useTeleportReady();
     const popupContainer = computed(() => {
+      var _a;
       if (props.getPopupContainer && triggerRef.value)
         return props.getPopupContainer(triggerRef.value);
-      return typeof document === "undefined" ? false : document.body;
+      return ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
     });
-    const shouldTeleport = computed(() => popupContainer.value !== false);
+    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
     const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,
@@ -172,10 +241,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       floating: panelRef,
       onDismiss: () => requestOpen(false)
     });
-    watch(() => props.defaultOpen, (open) => {
-      if (!isOpenControlled.value)
-        innerOpen.value = open;
-    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         ref_key: "rootRef",
@@ -186,20 +251,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: "aheart-tree-select__trigger",
-          id: __props.id,
+          id: resolvedId.value,
           role: "combobox",
           tabindex: __props.disabled ? -1 : 0,
           "aria-expanded": mergedOpen.value ? "true" : "false",
           "aria-disabled": __props.disabled ? "true" : void 0,
-          "aria-labelledby": resolvedAriaLabelledby.value,
+          "aria-labelledby": mergedAriaLabelledby.value,
+          "aria-controls": panelId,
+          "aria-activedescendant": activeNodeId.value,
+          "aria-describedby": mergedAriaDescribedby.value,
+          "aria-invalid": resolvedAriaInvalid.value,
           "aria-haspopup": "tree",
           onClick: toggleOpen,
-          onKeydown: handleTriggerKeydown
+          onKeydown: handleTriggerKeydown,
+          onFocusout: handleTriggerFocusout
         }, [
-          __props.multiple && selectedTags.value.length ? (openBlock(), createElementBlock("span", _hoisted_2, [
+          isMultiple.value && selectedTags.value.length ? (openBlock(), createElementBlock("span", _hoisted_2, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(visibleSelectedTags.value, (tag) => {
               return openBlock(), createElementBlock("span", {
-                key: String(tag.key),
+                key: unref(treeKeyToken)(tag.key),
                 class: "aheart-tree-select__tag"
               }, [
                 createElementVNode("span", _hoisted_3, toDisplayString(tag.title), 1),
@@ -250,7 +320,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             ref_key: "panelRef",
             ref: panelRef,
             class: normalizeClass(["aheart-tree-select__panel", panelClass.value]),
-            style: normalizeStyle(panelStyle.value)
+            style: normalizeStyle(panelStyle.value),
+            id: panelId,
+            role: "dialog",
+            "aria-labelledby": resolvedAriaLabelledby.value || void 0,
+            "aria-describedby": resolvedAriaDescribedby.value || void 0,
+            "aria-label": resolvedAriaLabelledby.value ? void 0 : "树选择",
+            onFocusin: handleTreeFocusin,
+            onFocusout: handleTriggerFocusout
           }, [
             __props.showSearch ? withDirectives((openBlock(), createElementBlock("input", {
               key: 0,
@@ -263,15 +340,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               [vModelText, searchText.value]
             ]) : createCommentVNode("", true),
             createVNode(unref(Tree), {
+              id: treeId,
               "tree-data": filteredTreeData.value,
-              "selected-keys": selectedKeys.value,
+              "selected-keys": __props.treeCheckable ? [] : selectedKeys.value,
+              "checked-keys": __props.treeCheckable ? selectedKeys.value : void 0,
+              checkable: __props.treeCheckable,
+              "check-strictly": __props.treeCheckStrictly,
+              selectable: !__props.treeCheckable,
               "expanded-keys": searchText.value ? searchExpandedKeys.value : void 0,
-              multiple: __props.multiple,
+              multiple: isMultiple.value,
               disabled: __props.disabled,
-              "onUpdate:selectedKeys": handleSelect
-            }, null, 8, ["tree-data", "selected-keys", "expanded-keys", "multiple", "disabled"]),
-            searchText.value.trim() && filteredTreeData.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_6, "暂无匹配节点")) : createCommentVNode("", true)
-          ], 6)), [
+              "onUpdate:selectedKeys": handleSelect,
+              "onUpdate:checkedKeys": handleCheck
+            }, null, 8, ["tree-data", "selected-keys", "checked-keys", "checkable", "check-strictly", "selectable", "expanded-keys", "multiple", "disabled"]),
+            searchText.value.trim() && filteredTreeData.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_7, "暂无匹配节点")) : createCommentVNode("", true)
+          ], 46, _hoisted_6)), [
             [vShow, unref(motion).phase.value !== "hidden"]
           ]) : createCommentVNode("", true)
         ], 8, ["to", "disabled"]))

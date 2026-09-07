@@ -1,5 +1,5 @@
-import type { TreeKey, TreeNodeData } from '../tree';
-import type { FloatingPlacement } from '../utils/floating';
+import type { TreeKey, TreeLoadData, TreeNodeData } from '../tree';
+import type { FloatingPlacement } from '../utils/floating-core';
 type TreeSelectValue = TreeKey | TreeKey[] | undefined;
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     treeData?: TreeNodeData[] | undefined;
@@ -9,6 +9,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     modelValue?: TreeSelectValue;
     defaultValue?: TreeSelectValue;
     multiple?: boolean | undefined;
+    treeCheckable?: boolean | undefined;
+    treeCheckStrictly?: boolean | undefined;
+    loadData?: TreeLoadData | undefined;
     showSearch?: boolean | undefined;
     placeholder?: string | undefined;
     disabled?: boolean | undefined;
@@ -21,6 +24,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
 }>, {
     treeData: () => never[];
+    treeCheckStrictly: boolean;
     placeholder: string;
     placement: string;
     autoAdjustOverflow: boolean;
@@ -37,6 +41,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     modelValue?: TreeSelectValue;
     defaultValue?: TreeSelectValue;
     multiple?: boolean | undefined;
+    treeCheckable?: boolean | undefined;
+    treeCheckStrictly?: boolean | undefined;
+    loadData?: TreeLoadData | undefined;
     showSearch?: boolean | undefined;
     placeholder?: string | undefined;
     disabled?: boolean | undefined;
@@ -49,6 +56,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
 }>, {
     treeData: () => never[];
+    treeCheckStrictly: boolean;
     placeholder: string;
     placement: string;
     autoAdjustOverflow: boolean;
@@ -62,6 +70,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     placement: FloatingPlacement;
     autoAdjustOverflow: boolean;
     treeData: TreeNodeData[];
+    treeCheckStrictly: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
