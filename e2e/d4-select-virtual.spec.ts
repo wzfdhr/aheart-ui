@@ -1,5 +1,79 @@
 import { expect, test, type Frame, type Page } from '@playwright/test'
 
+async function evidenceState(page: Page) {
+  return page.locator('#select-virtual-evidence').evaluate(trigger => {
+    const active = trigger.ownerDocument.getElementById(trigger.getAttribute('aria-activedescendant') ?? '')
+    const popup = active?.closest<HTMLElement>('[role="listbox"]')
+    if (!active || !popup) return { exists: false, visible: false, key: '', id: '', index: -1, rowsValid: false, height: 0, width: 0, scrollTop: 0, scrollHeight: 0 }
+    const box = popup.getBoundingClientRect(), rect = active.getBoundingClientRect()
+    const rows = Array.from(popup.querySelectorAll<HTMLElement>('[role="option"]'))
+    const rowsValid = rows.every((row, index) => {
+      const content = row.querySelector<HTMLElement>('.aheart-select__option-content')!
+      const previous = rows[index - 1]
+      return content.scrollHeight <= content.clientHeight + 1 && (!previous || row.getBoundingClientRect().top >= previous.getBoundingClientRect().bottom - 0.75)
+    })
+    return { exists: true, visible: rect.top >= box.top - 1 && rect.bottom <= box.bottom + 1,
+      key: active.querySelector('[data-proof-key]')?.getAttribute('data-proof-key') ?? '', id: active.id,
+      index: Number(active.getAttribute('data-index')), rowsValid, height: rect.height, width: box.width,
+      scrollTop: popup.scrollTop, scrollHeight: popup.scrollHeight }
+  })
+}
+
+async function externalUpdate(page: Page, label: string) {
+  // Simulate an external reactive update while focus stays in the open Select.
+  // A synthetic click invokes the fixture's actual Vue handler without an unrelated outside pointer dismissal.
+  await page.getByRole('region', { name: 'Select 虚拟契约补证' }).getByRole('button', { name: label, exact: true }).evaluate(element => (element as HTMLButtonElement).click())
+}
+
+test('Select virtual remeasures wrapping width and font changes without clipping active content', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/components/select')
+  await page.waitForFunction(() => Boolean((document.querySelector('#app') as any)?.__vue_app__))
+  const trigger = page.locator('#select-virtual-evidence')
+  await trigger.click()
+  await expect.poll(async () => (await evidenceState(page)).visible).toBe(true)
+  const before = await evidenceState(page)
+  expect(before.key).toBe('probe-0500')
+  await externalUpdate(page, '窄容器')
+  await expect.poll(async () => (await evidenceState(page)).width).toBeCloseTo(180, 0)
+  await expect.poll(async () => (await evidenceState(page)).height).toBeGreaterThan(before.height)
+  await expect.poll(() => evidenceState(page)).toMatchObject({ rowsValid: true, visible: true, key: before.key })
+  const narrow = await evidenceState(page)
+  await externalUpdate(page, '大字体')
+  await expect.poll(async () => (await evidenceState(page)).height).toBeGreaterThan(narrow.height)
+  await expect.poll(() => evidenceState(page)).toMatchObject({ rowsValid: true, visible: true, key: before.key })
+  await trigger.press('ArrowDown')
+  await expect.poll(async () => { const state = await evidenceState(page); return state.key === 'probe-0502' && state.visible && state.rowsValid }).toBe(true)
+  await page.screenshot({ path: test.info().outputPath('select-width-font.png') })
+  expect(errors).toEqual([])
+})
+
+test('Select virtual preserves stable middle keys through insertion deletion reorder and active removal', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/components/select')
+  await page.waitForFunction(() => Boolean((document.querySelector('#app') as any)?.__vue_app__))
+  await page.locator('#select-virtual-evidence').click()
+  await expect.poll(async () => (await evidenceState(page)).visible).toBe(true)
+  const before = await evidenceState(page)
+  expect(before.key).toBe('probe-0500')
+  expect(before.index).toBe(500)
+  expect(before.scrollTop).toBeGreaterThan(before.scrollHeight * 0.2)
+  expect(before.scrollTop).toBeLessThan(before.scrollHeight * 0.8)
+  for (const [label, index] of [['视口前插入', 501], ['删除前置项', 500], ['稳定key重排', 800]] as const) {
+    await externalUpdate(page, label)
+    await expect.poll(async () => { const state = await evidenceState(page); return state.key === before.key && state.id === before.id && state.index === index && state.visible && state.rowsValid }).toBe(true)
+    await expect(page.locator('[data-select-evidence-value]')).toHaveText('probe-0500')
+  }
+  await externalUpdate(page, '删除跟踪项')
+  await expect.poll(async () => { const state = await evidenceState(page); return state.exists && state.key === 'probe-0700' && state.id !== before.id && state.visible && state.rowsValid }).toBe(true)
+  await expect(page.locator(`[id="${before.id}"]`)).toHaveCount(0)
+  await expect(page.locator('[data-select-evidence-value]')).toHaveText('probe-0500')
+  await page.screenshot({ path: test.info().outputPath('select-data-revision.png') })
+  expect(errors).toEqual([])
+})
+
 test('Select virtual no-results message remains visible and search can recover', async ({ page }) => {
   await page.goto('/components/select')
   await page.waitForFunction(() => Boolean((document.querySelector('#app') as any)?.__vue_app__))

@@ -122,12 +122,18 @@ export function useSelectVirtual(input: {
       if (!alive || !enabled.value) { pending.clear(); return }
       virtualizer.value.measureElement(null)
       for (const row of observed) if (!row.isConnected) observed.delete(row)
+      const popup = input.popup.value
+      const active = virtualizer.value.getVirtualItems().find(item => item.index === input.activeIndex.value)
+      // Cached geometry is still the pre-measure layout. Keep a previously visible active
+      // item visible after reflow, but never pull back an active item the user scrolled away from.
+      const keepActiveVisible = popup && active && active.start >= popup.scrollTop - 2 && active.end <= popup.scrollTop + popup.clientHeight + 2
       for (const row of pending) {
         if (!row.isConnected || !input.popup.value?.contains(row)) continue
         const index = Number(row.dataset.index)
         if (Number.isInteger(index) && index >= 0 && index < input.options.value.length) virtualizer.value.resizeItem(index, row.offsetHeight)
       }
       pending.clear()
+      if (keepActiveVisible && !activeScroll) activeScroll = { version: scrollVersion, index: input.activeIndex.value }
       // A deferred measured height can change the first tail target after scrollToIndex's
       // initial estimate. Reconcile only a requested keyboard/open target, never a user's scroll.
       void nextTick(() => {

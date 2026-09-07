@@ -19,6 +19,25 @@ const renderVirtualOption = (option: { label: string; value: string }) => h('spa
   Number(option.value.slice(4)) % 2 ? '动态内容第二行' : null,
   option.value === 'row-0000' && selectVirtualGrow.value ? h('div', { style: 'height:100px' }, '增高的首项') : null
 ])
+const selectEvidenceWidth = ref(360)
+const selectEvidenceFont = ref(14)
+const selectEvidenceValue = ref('probe-0500')
+const selectEvidenceOptions = ref(Array.from({ length: 1000 }, (_, index) => ({
+  label: `Entry ${String(index).padStart(4, '0')}`,
+  value: `probe-${String(index).padStart(4, '0')}`,
+  disabled: index === 0 || index === 501
+})))
+const renderEvidenceOption = (option: { label: string; value: string | number }) => h('span', {
+  'data-proof-key': option.value, style: 'display:block;white-space:normal;overflow-wrap:anywhere'
+}, `${option.label} — measured content wraps as its container changes width and font size.`)
+const insertEvidenceBefore = () => {
+  if (!selectEvidenceOptions.value.some(option => option.value === 'inserted-before')) {
+    selectEvidenceOptions.value = [{ label: 'Inserted before viewport', value: 'inserted-before', disabled: false }, ...selectEvidenceOptions.value]
+  }
+}
+const deleteEvidenceBefore = () => { selectEvidenceOptions.value = selectEvidenceOptions.value.filter(option => option.value !== 'inserted-before') }
+const reorderEvidence = () => { selectEvidenceOptions.value = [...selectEvidenceOptions.value.slice(700), ...selectEvidenceOptions.value.slice(0, 700)] }
+const deleteEvidenceActive = () => { selectEvidenceOptions.value = selectEvidenceOptions.value.filter(option => option.value !== 'probe-0500') }
 </script>
 
 # Select 选择器 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -366,6 +385,23 @@ const options = Array.from({ length: 1000 }, (_, index) => ({
 `virtual` 可以是布尔值或配置对象。`height` 是浮层外框的高度上限（默认 `288`），`estimateSize` 只是初始行高估计（默认 `32`），实际行高会动态测量，不会因估计值裁切内容；`overscan` 为视口两侧额外渲染的行数（默认 `3`）。无效字段会独立回退到默认值并在开发环境告警。
 
 虚拟列表只属于 Select，不会泛化到其他组件。它是静态依赖，关闭虚拟化仍会产生相应包体成本；默认关闭保持完整 DOM 与现有行为。
+
+### 打开期间的布局与数据变化
+
+下面的控制模拟外部布局和数据更新。宽度通过容器及 `popupMatchSelectWidth` 同步控制；字体通过既有 `styles.option` 设置。稳定 value 不随数组索引变化，重排并不承诺像素位置绝对不动。
+
+<div class="aheart-demo-panel" role="region" aria-label="Select 虚拟契约补证">
+  <AButton @click="selectEvidenceWidth = 180">窄容器</AButton>
+  <AButton @click="selectEvidenceFont = 20">大字体</AButton>
+  <AButton @click="insertEvidenceBefore">视口前插入</AButton>
+  <AButton @click="deleteEvidenceBefore">删除前置项</AButton>
+  <AButton @click="reorderEvidence">稳定key重排</AButton>
+  <AButton @click="deleteEvidenceActive">删除跟踪项</AButton>
+  <div data-select-evidence-container :style="{ width: `${selectEvidenceWidth}px`, maxWidth: '100%' }">
+    <ASelect id="select-virtual-evidence" aria-label="虚拟契约选项" v-model="selectEvidenceValue" virtual :options="selectEvidenceOptions" :option-render="renderEvidenceOption" :popup-match-select-width="selectEvidenceWidth" :styles="{ option: { fontSize: `${selectEvidenceFont}px`, lineHeight: `${selectEvidenceFont * 1.5}px` } }" style="width:100%" />
+  </div>
+  <output data-select-evidence-value>{{ selectEvidenceValue }}</output>
+</div>
 
 ## API
 

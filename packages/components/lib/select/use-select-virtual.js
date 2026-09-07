@@ -152,6 +152,9 @@ function useSelectVirtual(input) {
       for (const row of observed)
         if (!row.isConnected)
           observed.delete(row);
+      const popup = input.popup.value;
+      const active = virtualizer.value.getVirtualItems().find((item) => item.index === input.activeIndex.value);
+      const keepActiveVisible = popup && active && active.start >= popup.scrollTop - 2 && active.end <= popup.scrollTop + popup.clientHeight + 2;
       for (const row of pending) {
         if (!row.isConnected || !((_a = input.popup.value) == null ? void 0 : _a.contains(row)))
           continue;
@@ -160,14 +163,16 @@ function useSelectVirtual(input) {
           virtualizer.value.resizeItem(index, row.offsetHeight);
       }
       pending.clear();
+      if (keepActiveVisible && !activeScroll)
+        activeScroll = { version: scrollVersion, index: input.activeIndex.value };
       void vue.nextTick(() => {
-        const target = activeScroll, popup = input.popup.value;
-        if (!target || target.version !== scrollVersion || !alive || !enabled.value || !popup)
+        const target = activeScroll, popup2 = input.popup.value;
+        if (!target || target.version !== scrollVersion || !alive || !enabled.value || !popup2)
           return;
         virtualizer.value.scrollToIndex(target.index, { align: "auto" });
-        const row = popup.querySelector(`[data-index="${target.index}"]`);
+        const row = popup2.querySelector(`[data-index="${target.index}"]`);
         if (row) {
-          const r = row.getBoundingClientRect(), p = popup.getBoundingClientRect();
+          const r = row.getBoundingClientRect(), p = popup2.getBoundingClientRect();
           if (r.top >= p.top && r.bottom <= p.bottom)
             activeScroll = void 0;
         }
