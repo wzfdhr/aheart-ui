@@ -27,6 +27,8 @@ const treeProps = {
   },
   multiple: Boolean,
   checkable: Boolean,
+  checkStrictly: { type: Boolean, default: true },
+  loadData: Function,
   // `undefined` preserves ConfigProvider inheritance when the prop is omitted.
   disabled: {
     type: Boolean,

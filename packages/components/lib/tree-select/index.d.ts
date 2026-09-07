@@ -44,6 +44,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     getPopupContainer: {
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
+    loadData: {
+        type: import("vue").PropType<import("..").TreeLoadData>;
+    };
     labelledBy: {
         type: import("vue").PropType<string>;
     };
@@ -53,6 +56,13 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     treeData: {
         type: import("vue").PropType<import("..").TreeNodeData[]>;
         default: () => never[];
+    };
+    treeCheckable: {
+        type: import("vue").PropType<boolean>;
+    };
+    treeCheckStrictly: {
+        type: import("vue").PropType<boolean>;
+        default: boolean;
     };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     change: (value: import("..").TreeKey | import("..").TreeKey[] | undefined) => void;
@@ -105,6 +115,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     getPopupContainer: {
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
+    loadData: {
+        type: import("vue").PropType<import("..").TreeLoadData>;
+    };
     labelledBy: {
         type: import("vue").PropType<string>;
     };
@@ -114,6 +127,13 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     treeData: {
         type: import("vue").PropType<import("..").TreeNodeData[]>;
         default: () => never[];
+    };
+    treeCheckable: {
+        type: import("vue").PropType<boolean>;
+    };
+    treeCheckStrictly: {
+        type: import("vue").PropType<boolean>;
+        default: boolean;
     };
 }>> & Readonly<{
     onChange?: ((value: import("..").TreeKey | import("..").TreeKey[] | undefined) => any) | undefined;
@@ -125,5 +145,6 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     autoAdjustOverflow: boolean;
     treeData: import("..").TreeNodeData[];
+    treeCheckStrictly: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default _default;

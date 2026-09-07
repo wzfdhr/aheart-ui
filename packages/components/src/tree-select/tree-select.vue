@@ -18,7 +18,7 @@
       @keydown="handleTriggerKeydown"
       @focusout="handleTriggerFocusout"
     >
-      <span v-if="multiple && selectedTags.length" class="aheart-tree-select__value aheart-tree-select__tags">
+      <span v-if="isMultiple && selectedTags.length" class="aheart-tree-select__value aheart-tree-select__tags">
         <span v-for="tag in visibleSelectedTags" :key="treeKeyToken(tag.key)" class="aheart-tree-select__tag">
           <span class="aheart-tree-select__tag-label">{{ tag.title }}</span>
           <button v-if="!disabled" class="aheart-tree-select__tag-remove" type="button" :aria-label="`移除 ${tag.title}`" @click.stop="removeKey(tag.key)"><AIcon name="close" :size="12" /></button>
@@ -62,11 +62,16 @@
       <ATree
         :id="treeId"
         :tree-data="filteredTreeData"
-        :selected-keys="selectedKeys"
+        :selected-keys="treeCheckable ? [] : selectedKeys"
+        :checked-keys="treeCheckable ? selectedKeys : undefined"
+        :checkable="treeCheckable"
+        :check-strictly="treeCheckStrictly"
+        :selectable="!treeCheckable"
         :expanded-keys="searchText ? searchExpandedKeys : undefined"
-        :multiple="multiple"
+        :multiple="isMultiple"
         :disabled="disabled"
         @update:selected-keys="handleSelect"
+        @update:checked-keys="handleCheck"
       />
       <div v-if="searchText.trim() && filteredTreeData.length === 0" class="aheart-tree-select__empty" role="status">暂无匹配节点</div>
     </div>
@@ -75,11 +80,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, useAttrs, watch } from 'vue'
+import { computed, nextTick, provide, ref, useAttrs, watch } from 'vue'
 import AIcon from '../icon/icon.vue'
 import { mergeAriaIds, useFormControl } from '../form/control-context'
 import ATree from '../tree'
-import type { TreeKey, TreeNodeData } from '../tree'
+import type { TreeKey, TreeLoadData, TreeNodeData } from '../tree'
+import { treeModelKey, useTreeLoader } from '../tree/use-tree-loader'
+import { deriveTreeCheckState, toggleTreeCheck } from '../tree/tree-check'
 import { createTreeIndex, filterTreeIndex, treeKeyToken } from '../tree/tree-index'
 import type { FloatingPlacement } from '../utils/floating-core'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
@@ -103,6 +110,9 @@ const props = withDefaults(defineProps<{
   modelValue?: TreeSelectValue
   defaultValue?: TreeSelectValue
   multiple?: boolean
+  treeCheckable?: boolean
+  treeCheckStrictly?: boolean
+  loadData?: TreeLoadData
   showSearch?: boolean
   placeholder?: string
   disabled?: boolean
@@ -115,6 +125,7 @@ const props = withDefaults(defineProps<{
   getPopupContainer?: (triggerNode: HTMLElement) => HTMLElement
 }>(), {
   treeData: () => [],
+  treeCheckStrictly: true,
   placeholder: '请选择',
   placement: 'bottomLeft',
   autoAdjustOverflow: true
@@ -163,8 +174,13 @@ const valueState = useControllableState<TreeSelectValue>({
 })
 const mergedOpen = computed(() => Boolean(openState.state.value))
 const mergedValue = valueState.state
-const selectedKeys = computed<TreeKey[]>(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === undefined ? [] : [mergedValue.value])
-const treeIndex = computed(() => createTreeIndex(props.treeData, Boolean(props.disabled)))
+const isMultiple = computed(() => props.multiple || props.treeCheckable)
+const rawSelectedKeys = computed<TreeKey[]>(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === undefined ? [] : [mergedValue.value])
+const loader = useTreeLoader(() => props.treeData, () => props.loadData, () => Boolean(props.disabled))
+const treeIndex = computed(() => createTreeIndex(loader.data.value, Boolean(props.disabled)))
+const selectedKeys = computed(() => props.treeCheckable ? deriveTreeCheckState(treeIndex.value, rawSelectedKeys.value, props.treeCheckStrictly).checkedKeys : rawSelectedKeys.value)
+provide(treeModelKey, { loader, index: treeIndex })
+watch(mergedOpen, open => { if (!open) loader.cancelAll() }, { flush: 'sync' })
 const displayLabel = computed(() => selectedKeys.value
   .map((key) => treeIndex.value.nodes.get(key)?.node.title)
   .filter((title): title is string => Boolean(title))
@@ -179,7 +195,7 @@ const visibleSelectedTags = computed(() => props.maxTagCount === undefined
 const hiddenTagCount = computed(() => selectedTags.value.length - visibleSelectedTags.value.length)
 const filteredTreeData = computed(() => {
   const query = searchText.value.trim().toLowerCase()
-  return query ? filterTreeIndex(treeIndex.value, (node) => node.title.toLowerCase().includes(query)) : props.treeData
+  return query ? filterTreeIndex(treeIndex.value, (node) => node.title.toLowerCase().includes(query)) : loader.data.value
 })
 const filteredTreeIndex = computed(() => createTreeIndex(filteredTreeData.value, Boolean(props.disabled)))
 const activeKey = ref<TreeKey | undefined>()
@@ -213,18 +229,20 @@ const emitValue = (value: TreeSelectValue) => {
   formControl?.change()
 }
 const handleSelect = (keys: TreeKey[]) => {
-  const value: TreeSelectValue = props.multiple ? keys : keys[0]
+  if (props.treeCheckable) return
+  const value: TreeSelectValue = isMultiple.value ? keys : keys[0]
   emitValue(value)
-  if (!props.multiple) requestOpen(false)
+  if (!isMultiple.value) requestOpen(false)
 }
+const handleCheck = (keys: TreeKey[]) => { if (props.treeCheckable) emitValue(keys) }
 const clearValue = () => {
-  emitValue(props.multiple ? [] : undefined)
+  emitValue(isMultiple.value ? [] : undefined)
   searchText.value = ''
   emit('clear')
 }
 const removeKey = (key: TreeKey) => {
   if (props.disabled) return
-  emitValue(selectedKeys.value.filter((current) => current !== key))
+  emitValue(props.treeCheckable ? toggleTreeCheck(treeIndex.value, rawSelectedKeys.value, key, props.treeCheckStrictly).checkedKeys : selectedKeys.value.filter((current) => current !== key))
 }
 const handleTriggerKeydown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {

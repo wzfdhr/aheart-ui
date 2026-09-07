@@ -110,7 +110,7 @@ import { usePropPresence } from '../utils/use-prop-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
-import type { CascaderKey, CascaderOption, CascaderPath, CascaderValue } from './types'
+import type { CascaderKey, CascaderLoadContext, CascaderOption, CascaderPath, CascaderValue } from './types'
 import './style.css'
 
 defineOptions({ name: 'ACascader' })
@@ -130,7 +130,7 @@ const props = withDefaults(defineProps<{
   placement?: FloatingPlacement
   autoAdjustOverflow?: boolean
   getPopupContainer?: (triggerNode: HTMLElement) => HTMLElement
-  loadData?: (option: CascaderOption) => Promise<CascaderOption[]>
+  loadData?: (option: CascaderOption, context: CascaderLoadContext) => Promise<CascaderOption[]>
 }>(), {
   options: () => [],
   placeholder: '请选择',
@@ -162,7 +162,9 @@ const errorPaths = ref<CascaderPath[]>([])
 const innerOptions = ref<CascaderOption[]>(cloneOptions(props.options))
 let loadGeneration = 0
 let loadSequence = 0
+let navigationVersion = 0
 const activeLoadIds = new Map<string, number>()
+const activeLoadControllers = new Map<string, AbortController>()
 const isControlled = usePropPresence('modelValue', 'model-value')
 const isOpenControlled = usePropPresence('open')
 const openState = useControllableState({
@@ -212,8 +214,19 @@ const closestExistingPath = (path: CascaderPath, options: CascaderOption[]) => {
 }
 const invalidateLoads = () => {
   loadGeneration += 1
+  activeLoadControllers.forEach((controller) => controller.abort())
+  activeLoadControllers.clear()
   activeLoadIds.clear()
   loadingPaths.value = []
+}
+const cancelOtherLoads = (requestKey: string) => {
+  activeLoadControllers.forEach((controller, key) => {
+    if (key === requestKey) return
+    controller.abort()
+    activeLoadControllers.delete(key)
+    activeLoadIds.delete(key)
+  })
+  loadingPaths.value = loadingPaths.value.filter((path) => pathToken(path) === requestKey)
 }
 watch(() => props.options, (options) => {
   const nextOptions = cloneOptions(options)
@@ -223,6 +236,10 @@ watch(() => props.options, (options) => {
   activePath.value = closestExistingPath(activePath.value, nextOptions)
   focusedPath.value = closestExistingPath(focusedPath.value, nextOptions)
 })
+watch(() => props.disabled, (disabled) => {
+  if (disabled) invalidateLoads()
+})
+watch(() => props.loadData, invalidateLoads, { flush: 'sync' })
 const isBranch = (option: CascaderOption) => Boolean(option.children?.length) || option.isLeaf === false
 const columns = computed(() => {
   const result: CascaderOption[][] = [innerOptions.value]
@@ -343,7 +360,9 @@ const revealLastColumn = async () => {
 }
 const handleOption = async (option: CascaderOption, columnIndex: number) => {
   if (props.disabled || option.disabled) return
+  navigationVersion++
   const path = [...activePath.value.slice(0, columnIndex), option.value]
+  cancelOtherLoads(pathToken(path))
   if (!isBranch(option)) {
     selectPath(path)
     return
@@ -355,11 +374,13 @@ const handleOption = async (option: CascaderOption, columnIndex: number) => {
     if (activeLoadIds.has(requestKey)) return
     const requestId = ++loadSequence
     const generation = loadGeneration
+    const controller = new AbortController()
     activeLoadIds.set(requestKey, requestId)
+    activeLoadControllers.set(requestKey, controller)
     errorPaths.value = errorPaths.value.filter((current) => !samePath(current, path))
     loadingPaths.value = [...loadingPaths.value, path]
     try {
-      const children = await props.loadData(option)
+      const children = await props.loadData(option, { signal: controller.signal })
       if (generation !== loadGeneration || activeLoadIds.get(requestKey) !== requestId) return
       if (!path.every((key, index) => activePath.value[index] === key)) return
       innerOptions.value = replaceChildren(innerOptions.value, path, cloneOptions(children))
@@ -371,6 +392,7 @@ const handleOption = async (option: CascaderOption, columnIndex: number) => {
     } finally {
       if (activeLoadIds.get(requestKey) === requestId) {
         activeLoadIds.delete(requestKey)
+        activeLoadControllers.delete(requestKey)
         loadingPaths.value = loadingPaths.value.filter((current) => !samePath(current, path))
       }
     }
@@ -378,6 +400,20 @@ const handleOption = async (option: CascaderOption, columnIndex: number) => {
 }
 const handleOptionFocus = (option: CascaderOption, columnIndex: number) => {
   focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value]
+}
+let keyboardRequest = 0
+const enterChildColumn = async (option: CascaderOption, columnIndex: number, current: HTMLElement) => {
+  const request = ++keyboardRequest
+  const path = [...activePath.value.slice(0, columnIndex), option.value]
+  const generation = loadGeneration
+  const pending = handleOption(option, columnIndex)
+  const navigation = navigationVersion
+  await pending
+  await nextTick()
+  const active = current.ownerDocument.activeElement
+  if (request !== keyboardRequest || generation !== loadGeneration || navigation !== navigationVersion || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path)) return
+  if (active !== current && active !== current.ownerDocument.body) return
+  if (isBranch(option)) panelRef.value?.querySelector<HTMLElement>(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)?.focus()
 }
 
 const handleTriggerKeydown = (event: KeyboardEvent) => {
@@ -407,12 +443,10 @@ const handleOptionKeydown = (event: KeyboardEvent, option: CascaderOption, colum
     options[event.key === 'Home' ? 0 : options.length - 1]?.focus()
   } else if ((event.key === 'Enter' || event.key === ' ') && !option.disabled) {
     event.preventDefault()
-    void handleOption(option, columnIndex).then(() => nextTick(() => {
-      if (isBranch(option)) panelRef.value?.querySelector<HTMLElement>(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)?.focus()
-    }))
+    void enterChildColumn(option, columnIndex, current)
   } else if (event.key === 'ArrowRight' && isBranch(option)) {
     event.preventDefault()
-    void handleOption(option, columnIndex).then(() => nextTick(() => panelRef.value?.querySelector<HTMLElement>(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)?.focus()))
+    void enterChildColumn(option, columnIndex, current)
   } else if (event.key === 'ArrowLeft' && columnIndex > 0) {
     event.preventDefault()
     const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1]

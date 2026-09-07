@@ -22,6 +22,28 @@ const options = [
 ]
 
 describe('Cascader', () => {
+  it('aborts when switching to an already loaded branch and when replacing loadData', async () => {
+    let signal!: AbortSignal
+    let resolve!: (data: any[]) => void
+    const loadData = (_node: unknown, context: { signal: AbortSignal }) => {
+      signal = context.signal
+      return new Promise<any[]>(done => { resolve = done })
+    }
+    const wrapper = mountCascader({ props: {
+      options: [{ value: 'pending', label: 'Pending', isLeaf: false }, { value: 'ready', label: 'Ready', children: [{ value: 'child', label: 'Child' }] }], loadData
+    } })
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="pending"]').trigger('click')
+    await wrapper.get('[data-cascader-value="ready"]').trigger('click')
+    expect(signal.aborted).toBe(true)
+    resolve([{ value: 'late', label: 'Late' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="late"]').exists()).toBe(false)
+    await wrapper.get('[data-cascader-value="pending"]').trigger('click')
+    const second = signal
+    await wrapper.setProps({ loadData: async () => [] })
+    expect(second.aborted).toBe(true)
+  })
   it('keeps iframe focus, restores it on Escape, and clears unmounted overlay behavior', async () => {
     const iframe = document.createElement('iframe')
     document.body.appendChild(iframe)
@@ -363,6 +385,95 @@ describe('Cascader', () => {
     resolveFirst?.([{ value: 'stale-child', label: '过期子项' }])
     await flushPromises()
     expect(wrapper.find('[data-cascader-value="stale-child"]').exists()).toBe(false)
+  })
+
+  it('passes an AbortSignal and aborts stale work when options are replaced', async () => {
+    let resolveChildren: ((children: { value: string; label: string }[]) => void) | undefined
+    let receivedSignal: AbortSignal | undefined
+    const loadData = (_option: { value: string }, context?: { signal: AbortSignal }) => {
+      receivedSignal = context?.signal
+      return new Promise<{ value: string; label: string }[]>((resolve) => { resolveChildren = resolve })
+    }
+    const wrapper = mountCascader({
+      props: { options: [{ value: 'province', label: '省份', isLeaf: false }], loadData }
+    })
+
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    expect(receivedSignal?.aborted).toBe(false)
+    await wrapper.setProps({ options: [{ value: 'replacement', label: '替换项' }] })
+    expect(receivedSignal?.aborted).toBe(true)
+    resolveChildren?.([{ value: 'stale-city', label: '过期城市' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="stale-city"]').exists()).toBe(false)
+  })
+
+  it('aborts an away branch request and starts a fresh task when returning', async () => {
+    const signals: AbortSignal[] = []
+    const resolvers: Array<(children: { value: string; label: string }[]) => void> = []
+    let firstCalls = 0
+    const loadData = (option: { value: string }, context?: { signal: AbortSignal }) => {
+      signals.push(context!.signal)
+      if (option.value === 'first') {
+        firstCalls += 1
+        return new Promise<{ value: string; label: string }[]>((resolve) => { resolvers.push(resolve) })
+      }
+      return Promise.resolve([{ value: 'second-child', label: '第二分支子项' }])
+    }
+    const wrapper = mountCascader({
+      props: {
+        options: [
+          { value: 'first', label: '第一分支', isLeaf: false },
+          { value: 'second', label: '第二分支', isLeaf: false }
+        ],
+        loadData
+      }
+    })
+
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await wrapper.get('[data-cascader-value="first"]').trigger('click')
+    await wrapper.get('[data-cascader-value="second"]').trigger('click')
+    await flushPromises()
+    await wrapper.get('[data-cascader-value="first"]').trigger('click')
+    expect(firstCalls).toBe(2)
+    expect(signals[0]?.aborted).toBe(true)
+    expect(signals[1]?.aborted).toBe(false)
+    resolvers[0]?.([{ value: 'late-child', label: '迟到子项' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="late-child"]').exists()).toBe(false)
+    resolvers[1]?.([{ value: 'fresh-child', label: '新任务子项' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="fresh-child"]').exists()).toBe(true)
+  })
+
+  it('aborts lazy work on controlled close, disabled state, and unmount', async () => {
+    let resolveChildren: ((children: { value: string; label: string }[]) => void) | undefined
+    let receivedSignal: AbortSignal | undefined
+    const loadData = (_option: { value: string }, context?: { signal: AbortSignal }) => {
+      receivedSignal = context?.signal
+      return new Promise<{ value: string; label: string }[]>((resolve) => { resolveChildren = resolve })
+    }
+    const wrapper = mountCascader({
+      props: { open: true, options: [{ value: 'province', label: '省份', isLeaf: false }], loadData }
+    })
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    await wrapper.setProps({ open: false })
+    expect(receivedSignal?.aborted).toBe(true)
+    resolveChildren?.([{ value: 'stale-city', label: '过期城市' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="stale-city"]').exists()).toBe(false)
+
+    await wrapper.setProps({ open: true, disabled: false })
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    const signalBeforeDisable = receivedSignal
+    await wrapper.setProps({ disabled: true })
+    expect(signalBeforeDisable?.aborted).toBe(true)
+
+    await wrapper.setProps({ disabled: false, open: true })
+    await wrapper.get('[data-cascader-value="province"]').trigger('click')
+    const signalBeforeUnmount = receivedSignal
+    wrapper.unmount()
+    expect(signalBeforeUnmount?.aborted).toBe(true)
   })
 
   it('supports controlled open, placement, keyboard closing, and clear', async () => {

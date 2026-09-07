@@ -3,6 +3,8 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const useStableId = require("../utils/use-stable-id.js");
 const treeIndex = require("./tree-index.js");
+const useTreeLoader = require("./use-tree-loader.js");
+const treeCheck = require("./tree-check.js");
 const treeNode_vue_vue_type_script_setup_true_lang = require("./tree-node.vue.js");
 const types = require("./types.js");
 require("./style.css.js");
@@ -22,7 +24,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const attrs = vue.useAttrs();
     const treeId = useStableId.useStableId(() => attrs.id, "aheart-tree");
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const treeIndex$1 = vue.computed(() => treeIndex.createTreeIndex(props.treeData, isDisabled.value));
+    const sharedModel = vue.inject(useTreeLoader.treeModelKey, void 0);
+    const loader = (sharedModel == null ? void 0 : sharedModel.loader) ?? useTreeLoader.useTreeLoader(() => props.treeData, () => props.loadData, () => isDisabled.value);
+    const renderData = vue.computed(() => sharedModel ? props.treeData : loader.data.value);
+    const treeIndex$1 = vue.computed(() => treeIndex.createTreeIndex(renderData.value, isDisabled.value));
+    const checkIndex = vue.computed(() => (sharedModel == null ? void 0 : sharedModel.index.value) ?? treeIndex$1.value);
     const innerExpandedKeys = vue.ref(props.defaultExpandAll ? [...treeIndex$1.value.order] : [...props.defaultExpandedKeys]);
     const innerSelectedKeys = vue.ref([...props.defaultSelectedKeys]);
     const innerCheckedKeys = vue.ref([...props.defaultCheckedKeys]);
@@ -31,6 +37,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const mergedExpandedKeys = vue.computed(() => props.expandedKeys ?? innerExpandedKeys.value);
     const mergedSelectedKeys = vue.computed(() => props.selectedKeys ?? innerSelectedKeys.value);
     const mergedCheckedKeys = vue.computed(() => props.checkedKeys ?? innerCheckedKeys.value);
+    const checkState = vue.computed(() => treeCheck.deriveTreeCheckState(checkIndex.value, mergedCheckedKeys.value, props.checkStrictly));
     const expandedControlled = vue.computed(() => props.expandedKeys !== void 0);
     const selectedControlled = vue.computed(() => props.selectedKeys !== void 0);
     const checkedControlled = vue.computed(() => props.checkedKeys !== void 0);
@@ -73,8 +80,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a2, _b;
       for (const input of Array.from(((_a2 = rootRef.value) == null ? void 0 : _a2.querySelectorAll(".aheart-tree__checkbox")) ?? [])) {
         const token = (_b = input.closest("[data-tree-token]")) == null ? void 0 : _b.dataset.treeToken;
-        if (token !== void 0)
-          input.checked = mergedCheckedKeys.value.some((key) => treeIndex.treeKeyToken(key) === token);
+        if (token !== void 0) {
+          input.checked = checkState.value.checkedKeys.some((key) => treeIndex.treeKeyToken(key) === token);
+          input.indeterminate = checkState.value.halfCheckedKeys.some((key) => treeIndex.treeKeyToken(key) === token);
+        }
       }
     };
     const updateExpandedKeys = (keys, node) => {
@@ -85,7 +94,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const toggleExpanded = (node, force) => {
       var _a2;
-      if (isNodeDisabled(node.key) || !((_a2 = node.children) == null ? void 0 : _a2.length))
+      if (isNodeDisabled(node.key) || !((_a2 = node.children) == null ? void 0 : _a2.length) && node.isLeaf !== false)
         return;
       const expanded = force ?? !mergedExpandedKeys.value.includes(node.key);
       updateExpandedKeys(replaceKey(mergedExpandedKeys.value, node.key, expanded), node);
@@ -104,12 +113,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const checkNode = (node) => {
       if (isNodeDisabled(node.key) || !props.checkable)
         return;
-      const nextKeys = replaceKey(mergedCheckedKeys.value, node.key, !mergedCheckedKeys.value.includes(node.key));
+      const next = treeCheck.toggleTreeCheck(checkIndex.value, mergedCheckedKeys.value, node.key, props.checkStrictly);
+      const nextKeys = next.checkedKeys;
       if (!checkedControlled.value)
         innerCheckedKeys.value = nextKeys;
       focusedKey.value = node.key;
       emit("update:checkedKeys", nextKeys);
-      emit("check", nextKeys, node);
+      emit("check", nextKeys, node, { halfCheckedKeys: next.halfCheckedKeys });
       vue.nextTick(syncCheckboxes);
     };
     const handleKeydown = (event, node) => {
@@ -124,7 +134,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         focusNode(orderedNodes[index - 1].key);
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
-        if (((_a2 = node.children) == null ? void 0 : _a2.length) && !mergedExpandedKeys.value.includes(node.key)) {
+        if ((((_a2 = node.children) == null ? void 0 : _a2.length) || node.isLeaf === false) && !mergedExpandedKeys.value.includes(node.key)) {
           toggleExpanded(node, true);
           vue.nextTick(() => {
             var _a3;
@@ -158,6 +168,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           focusNode(target.key);
       }
     };
+    let mounted = false;
+    const syncLoads = () => {
+      if (!mounted)
+        return;
+      const visible = new Set(visibleNodes.value.map((node) => node.key));
+      for (const key of loader.loadingKeys.value) {
+        if (!visible.has(key) || !mergedExpandedKeys.value.includes(key))
+          loader.cancel(key);
+      }
+      for (const key of mergedExpandedKeys.value) {
+        if (visible.has(key))
+          void loader.load(key);
+      }
+    };
+    vue.watch([treeIndex$1, mergedExpandedKeys, loader.version], syncLoads, { flush: "post" });
+    vue.onMounted(() => {
+      mounted = true;
+      syncLoads();
+    });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
         ref_key: "rootRef",
@@ -167,13 +196,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         "aria-multiselectable": _ctx.multiple || void 0
       }, [
         vue.createElementVNode("ul", _hoisted_2, [
-          (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(_ctx.treeData, (node) => {
+          (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(renderData.value, (node) => {
             return vue.openBlock(), vue.createBlock(treeNode_vue_vue_type_script_setup_true_lang.default, {
               key: node.key,
               node,
               "expanded-keys": mergedExpandedKeys.value,
               "selected-keys": mergedSelectedKeys.value,
-              "checked-keys": mergedCheckedKeys.value,
+              "checked-keys": checkState.value.checkedKeys,
+              "half-checked-keys": checkState.value.halfCheckedKeys,
+              "loading-keys": vue.unref(loader).loadingKeys.value,
+              "error-keys": vue.unref(loader).errorKeys.value,
               "focused-key": focusedKey.value,
               checkable: _ctx.checkable,
               "parent-disabled": isDisabled.value,
@@ -182,9 +214,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onToggle: toggleExpanded,
               onSelect: selectNode,
               onCheck: checkNode,
+              onRetry: (node2) => vue.unref(loader).load(node2.key, true),
               onKeydown: handleKeydown,
               onFocus: (node2) => focusedKey.value = node2.key
-            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "onFocus"]);
+            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "onRetry", "onFocus"]);
           }), 128))
         ])
       ], 10, _hoisted_1);

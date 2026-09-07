@@ -1,6 +1,8 @@
-import { defineComponent, useAttrs, computed, ref, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, createBlock, unref } from "vue";
+import { defineComponent, useAttrs, computed, inject, ref, watch, nextTick, onMounted, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, createBlock, unref } from "vue";
 import { useStableId } from "../utils/use-stable-id.js";
 import { createTreeIndex, getVisibleTreeNodes, treeKeyToken, closestVisibleTreeKey } from "./tree-index.js";
+import { treeModelKey, useTreeLoader } from "./use-tree-loader.js";
+import { deriveTreeCheckState, toggleTreeCheck } from "./tree-check.js";
 import _sfc_main$1 from "./tree-node.vue.js";
 import { treeProps } from "./types.js";
 import "./style.css.js";
@@ -20,7 +22,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const attrs = useAttrs();
     const treeId = useStableId(() => attrs.id, "aheart-tree");
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
-    const treeIndex = computed(() => createTreeIndex(props.treeData, isDisabled.value));
+    const sharedModel = inject(treeModelKey, void 0);
+    const loader = (sharedModel == null ? void 0 : sharedModel.loader) ?? useTreeLoader(() => props.treeData, () => props.loadData, () => isDisabled.value);
+    const renderData = computed(() => sharedModel ? props.treeData : loader.data.value);
+    const treeIndex = computed(() => createTreeIndex(renderData.value, isDisabled.value));
+    const checkIndex = computed(() => (sharedModel == null ? void 0 : sharedModel.index.value) ?? treeIndex.value);
     const innerExpandedKeys = ref(props.defaultExpandAll ? [...treeIndex.value.order] : [...props.defaultExpandedKeys]);
     const innerSelectedKeys = ref([...props.defaultSelectedKeys]);
     const innerCheckedKeys = ref([...props.defaultCheckedKeys]);
@@ -29,6 +35,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const mergedExpandedKeys = computed(() => props.expandedKeys ?? innerExpandedKeys.value);
     const mergedSelectedKeys = computed(() => props.selectedKeys ?? innerSelectedKeys.value);
     const mergedCheckedKeys = computed(() => props.checkedKeys ?? innerCheckedKeys.value);
+    const checkState = computed(() => deriveTreeCheckState(checkIndex.value, mergedCheckedKeys.value, props.checkStrictly));
     const expandedControlled = computed(() => props.expandedKeys !== void 0);
     const selectedControlled = computed(() => props.selectedKeys !== void 0);
     const checkedControlled = computed(() => props.checkedKeys !== void 0);
@@ -71,8 +78,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a2, _b;
       for (const input of Array.from(((_a2 = rootRef.value) == null ? void 0 : _a2.querySelectorAll(".aheart-tree__checkbox")) ?? [])) {
         const token = (_b = input.closest("[data-tree-token]")) == null ? void 0 : _b.dataset.treeToken;
-        if (token !== void 0)
-          input.checked = mergedCheckedKeys.value.some((key) => treeKeyToken(key) === token);
+        if (token !== void 0) {
+          input.checked = checkState.value.checkedKeys.some((key) => treeKeyToken(key) === token);
+          input.indeterminate = checkState.value.halfCheckedKeys.some((key) => treeKeyToken(key) === token);
+        }
       }
     };
     const updateExpandedKeys = (keys, node) => {
@@ -83,7 +92,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const toggleExpanded = (node, force) => {
       var _a2;
-      if (isNodeDisabled(node.key) || !((_a2 = node.children) == null ? void 0 : _a2.length))
+      if (isNodeDisabled(node.key) || !((_a2 = node.children) == null ? void 0 : _a2.length) && node.isLeaf !== false)
         return;
       const expanded = force ?? !mergedExpandedKeys.value.includes(node.key);
       updateExpandedKeys(replaceKey(mergedExpandedKeys.value, node.key, expanded), node);
@@ -102,12 +111,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const checkNode = (node) => {
       if (isNodeDisabled(node.key) || !props.checkable)
         return;
-      const nextKeys = replaceKey(mergedCheckedKeys.value, node.key, !mergedCheckedKeys.value.includes(node.key));
+      const next = toggleTreeCheck(checkIndex.value, mergedCheckedKeys.value, node.key, props.checkStrictly);
+      const nextKeys = next.checkedKeys;
       if (!checkedControlled.value)
         innerCheckedKeys.value = nextKeys;
       focusedKey.value = node.key;
       emit("update:checkedKeys", nextKeys);
-      emit("check", nextKeys, node);
+      emit("check", nextKeys, node, { halfCheckedKeys: next.halfCheckedKeys });
       nextTick(syncCheckboxes);
     };
     const handleKeydown = (event, node) => {
@@ -122,7 +132,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         focusNode(orderedNodes[index - 1].key);
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
-        if (((_a2 = node.children) == null ? void 0 : _a2.length) && !mergedExpandedKeys.value.includes(node.key)) {
+        if ((((_a2 = node.children) == null ? void 0 : _a2.length) || node.isLeaf === false) && !mergedExpandedKeys.value.includes(node.key)) {
           toggleExpanded(node, true);
           nextTick(() => {
             var _a3;
@@ -156,6 +166,25 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           focusNode(target.key);
       }
     };
+    let mounted = false;
+    const syncLoads = () => {
+      if (!mounted)
+        return;
+      const visible = new Set(visibleNodes.value.map((node) => node.key));
+      for (const key of loader.loadingKeys.value) {
+        if (!visible.has(key) || !mergedExpandedKeys.value.includes(key))
+          loader.cancel(key);
+      }
+      for (const key of mergedExpandedKeys.value) {
+        if (visible.has(key))
+          void loader.load(key);
+      }
+    };
+    watch([treeIndex, mergedExpandedKeys, loader.version], syncLoads, { flush: "post" });
+    onMounted(() => {
+      mounted = true;
+      syncLoads();
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         ref_key: "rootRef",
@@ -165,13 +194,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         "aria-multiselectable": _ctx.multiple || void 0
       }, [
         createElementVNode("ul", _hoisted_2, [
-          (openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.treeData, (node) => {
+          (openBlock(true), createElementBlock(Fragment, null, renderList(renderData.value, (node) => {
             return openBlock(), createBlock(_sfc_main$1, {
               key: node.key,
               node,
               "expanded-keys": mergedExpandedKeys.value,
               "selected-keys": mergedSelectedKeys.value,
-              "checked-keys": mergedCheckedKeys.value,
+              "checked-keys": checkState.value.checkedKeys,
+              "half-checked-keys": checkState.value.halfCheckedKeys,
+              "loading-keys": unref(loader).loadingKeys.value,
+              "error-keys": unref(loader).errorKeys.value,
               "focused-key": focusedKey.value,
               checkable: _ctx.checkable,
               "parent-disabled": isDisabled.value,
@@ -180,9 +212,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               onToggle: toggleExpanded,
               onSelect: selectNode,
               onCheck: checkNode,
+              onRetry: (node2) => unref(loader).load(node2.key, true),
               onKeydown: handleKeydown,
               onFocus: (node2) => focusedKey.value = node2.key
-            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "onFocus"]);
+            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "onRetry", "onFocus"]);
           }), 128))
         ])
       ], 10, _hoisted_1);

@@ -80,7 +80,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const innerOptions = vue.ref(cloneOptions(props.options));
     let loadGeneration = 0;
     let loadSequence = 0;
+    let navigationVersion = 0;
     const activeLoadIds = /* @__PURE__ */ new Map();
+    const activeLoadControllers = /* @__PURE__ */ new Map();
     const isControlled = usePropPresence.usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence.usePropPresence("open");
     const openState = useControllableState.useControllableState({
@@ -127,8 +129,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const invalidateLoads = () => {
       loadGeneration += 1;
+      activeLoadControllers.forEach((controller) => controller.abort());
+      activeLoadControllers.clear();
       activeLoadIds.clear();
       loadingPaths.value = [];
+    };
+    const cancelOtherLoads = (requestKey) => {
+      activeLoadControllers.forEach((controller, key) => {
+        if (key === requestKey)
+          return;
+        controller.abort();
+        activeLoadControllers.delete(key);
+        activeLoadIds.delete(key);
+      });
+      loadingPaths.value = loadingPaths.value.filter((path) => pathToken(path) === requestKey);
     };
     vue.watch(() => props.options, (options) => {
       const nextOptions = cloneOptions(options);
@@ -138,6 +152,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       activePath.value = closestExistingPath(activePath.value, nextOptions);
       focusedPath.value = closestExistingPath(focusedPath.value, nextOptions);
     });
+    vue.watch(() => props.disabled, (disabled) => {
+      if (disabled)
+        invalidateLoads();
+    });
+    vue.watch(() => props.loadData, invalidateLoads, { flush: "sync" });
     const isBranch = (option) => {
       var _a;
       return Boolean((_a = option.children) == null ? void 0 : _a.length) || option.isLeaf === false;
@@ -276,7 +295,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       if (props.disabled || option.disabled)
         return;
+      navigationVersion++;
       const path = [...activePath.value.slice(0, columnIndex), option.value];
+      cancelOtherLoads(pathToken(path));
       if (!isBranch(option)) {
         selectPath(path);
         return;
@@ -289,11 +310,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           return;
         const requestId = ++loadSequence;
         const generation = loadGeneration;
+        const controller = new AbortController();
         activeLoadIds.set(requestKey, requestId);
+        activeLoadControllers.set(requestKey, controller);
         errorPaths.value = errorPaths.value.filter((current) => !samePath(current, path));
         loadingPaths.value = [...loadingPaths.value, path];
         try {
-          const children = await props.loadData(option);
+          const children = await props.loadData(option, { signal: controller.signal });
           if (generation !== loadGeneration || activeLoadIds.get(requestKey) !== requestId)
             return;
           if (!path.every((key, index) => activePath.value[index] === key))
@@ -307,6 +330,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         } finally {
           if (activeLoadIds.get(requestKey) === requestId) {
             activeLoadIds.delete(requestKey);
+            activeLoadControllers.delete(requestKey);
             loadingPaths.value = loadingPaths.value.filter((current) => !samePath(current, path));
           }
         }
@@ -314,6 +338,24 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleOptionFocus = (option, columnIndex) => {
       focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value];
+    };
+    let keyboardRequest = 0;
+    const enterChildColumn = async (option, columnIndex, current) => {
+      var _a, _b;
+      const request = ++keyboardRequest;
+      const path = [...activePath.value.slice(0, columnIndex), option.value];
+      const generation = loadGeneration;
+      const pending = handleOption(option, columnIndex);
+      const navigation = navigationVersion;
+      await pending;
+      await vue.nextTick();
+      const active = current.ownerDocument.activeElement;
+      if (request !== keyboardRequest || generation !== loadGeneration || navigation !== navigationVersion || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path))
+        return;
+      if (active !== current && active !== current.ownerDocument.body)
+        return;
+      if (isBranch(option))
+        (_b = (_a = panelRef.value) == null ? void 0 : _a.querySelector(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)) == null ? void 0 : _b.focus();
     };
     const handleTriggerKeydown = (event) => {
       if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") {
@@ -352,17 +394,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         (_c = options[event.key === "Home" ? 0 : options.length - 1]) == null ? void 0 : _c.focus();
       } else if ((event.key === "Enter" || event.key === " ") && !option.disabled) {
         event.preventDefault();
-        void handleOption(option, columnIndex).then(() => vue.nextTick(() => {
-          var _a2, _b2;
-          if (isBranch(option))
-            (_b2 = (_a2 = panelRef.value) == null ? void 0 : _a2.querySelector(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)) == null ? void 0 : _b2.focus();
-        }));
+        void enterChildColumn(option, columnIndex, current);
       } else if (event.key === "ArrowRight" && isBranch(option)) {
         event.preventDefault();
-        void handleOption(option, columnIndex).then(() => vue.nextTick(() => {
-          var _a2, _b2;
-          return (_b2 = (_a2 = panelRef.value) == null ? void 0 : _a2.querySelector(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)) == null ? void 0 : _b2.focus();
-        }));
+        void enterChildColumn(option, columnIndex, current);
       } else if (event.key === "ArrowLeft" && columnIndex > 0) {
         event.preventDefault();
         const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1];

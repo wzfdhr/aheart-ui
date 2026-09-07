@@ -36,6 +36,21 @@ const toggle = (name: 'expand' | 'select' | 'check') => {
 }
 const toggleDisabled = () => { treeDisabled.value = !treeDisabled.value; announce(treeDisabled.value ? '整树已禁用' : '整树已启用') }
 const collapseExternally = () => { expandedKeys.value = []; announce('外部折叠已执行，树内活动项回到最近可见祖先') }
+const linkedData: TreeNodeData[] = [{ key: 'group', title: '研发组', children: [{ key: 'frontend', title: '前端' }, { key: 'backend', title: '后端' }, { key: 'locked', title: '受限节点', disabled: true }] }]
+const linkedChecked = ref<TreeKey[]>(['frontend'])
+const halfChecked = ref<TreeKey[]>(['group'])
+const lazyData: TreeNodeData[] = [{ key: 'lazy', title: '按需加载组', isLeaf: false }]
+let loadAttempts = 0
+const loadTreeChildren = async (_node: TreeNodeData, { signal }: { signal: AbortSignal }) => {
+  loadAttempts++
+  await new Promise<void>((resolve, reject) => {
+    const abort = () => { clearTimeout(timer); reject(new Error('cancelled')) }
+    const timer = setTimeout(() => { signal.removeEventListener('abort', abort); resolve() }, 200)
+    signal.addEventListener('abort', abort, { once: true })
+  })
+  if (loadAttempts === 1) throw new Error('演示首次失败')
+  return [{ key: 'loaded', title: '已加载节点' }]
+}
 </script>
 
 # Tree 树形控件 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -94,6 +109,21 @@ const collapseExternally = () => { expandedKeys.value = []; announce('外部折�
 
 方向键在可见节点间移动焦点；→ 先展开分支，确认展开后进入第一个子节点；← 收起或移至父节点；Home/End 跳到首/末可见节点；Enter 选择，Space 在 `checkable` 时勾选。
 
+## 联动勾选与按需加载
+
+<section class="aheart-demo-panel" aria-label="D4 树联动示例">
+  <ATree :tree-data="linkedData" v-model:checked-keys="linkedChecked" :default-expanded-keys="['group']" checkable :check-strictly="false" @check="(_keys, _node, info) => halfChecked = info.halfCheckedKeys" />
+  <p role="status">已勾选：{{ linkedChecked.join(',') }}；半选：{{ halfChecked.join(',') }}</p>
+</section>
+
+`checkStrictly` 默认为 `true`，保留独立勾选。显式设为 `false` 后父子联动，禁用节点及其子树作为边界；半选仅通过第三个事件参数 `info.halfCheckedKeys` 提供，不进入 `checkedKeys`。受控值被父层拒绝时，复选框和半选状态回到已接受的值。
+
+<section class="aheart-demo-panel" aria-label="D4 树加载示例">
+  <ATree :tree-data="lazyData" :load-data="loadTreeChildren" />
+</section>
+
+此示例第一次请求失败，点击“重试”后加载子节点。`isLeaf: false` 表示尚可加载的分支；返回数组存入组件内部补丁，返回空数组后成为叶节点，返回 `void` 则等待调用方更新 `treeData`。同节点请求去重；收起、禁用、数据/loader替换及卸载会取消，并隔离忽略取消的迟到结果。SSR阶段不主动请求数据。异步加载期间焦点保持当前节点，加载后可继续用方向键进入子节点。
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -107,6 +137,8 @@ const collapseExternally = () => { expandedKeys.value = []; announce('外部折�
 | multiple | 是否支持多选 | `boolean` | `false` |
 | selectable | 是否可选择 | `boolean` | `true` |
 | checkable | 是否显示勾选框 | `boolean` | `false` |
+| checkStrictly | 是否独立勾选；false启用联动与半选 | `boolean` | `true` |
+| loadData | 可取消的按需加载回调 | `(node, { signal }) => Promise<TreeNodeData[] \| void>` | - |
 | checkedKeys | 受控勾选节点 | `TreeKey[]` | - |
 | defaultCheckedKeys | 非受控初始勾选节点 | `TreeKey[]` | `[]` |
 | disabled | 是否禁用整棵树 | `boolean` | ConfigProvider disabled |
@@ -117,10 +149,11 @@ const collapseExternally = () => { expandedKeys.value = []; announce('外部折�
 | --- | --- | --- |
 | key | 节点唯一标识 | `string \| number` |
 | title | 节点文本 | `string` |
-| disabled | 是否禁用节点 | `boolean` |
+| disabled | 是否禁用节点及其子树 | `boolean` |
+| isLeaf | true明确叶子，false为可按需加载分支 | `boolean` |
 | children | 子节点 | `TreeNodeData[]` |
 
-首版勾选仅改变当前节点，不自动级联父节点或子节点。
+默认勾选仅改变当前节点；启用联动时按完整逻辑树派生父子状态，number/string key保持不同身份。
 
 ### 事件
 

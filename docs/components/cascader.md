@@ -80,9 +80,11 @@ const loadData = async () => {
 | placement | 浮层位置 | `topLeft` \| `topRight` \| `bottomLeft` \| `bottomRight` | `bottomLeft` |
 | autoAdjustOverflow | 是否自动翻转与避让 | `boolean` | `true` |
 | getPopupContainer | 自定义浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
-| loadData | 按需加载子节点 | `(option) => Promise<CascaderOption[]>` | - |
+| loadData | 按需加载子节点；第二参数提供当前请求的 `AbortSignal` | `(option, { signal }) => Promise<CascaderOption[]>` | - |
 
 `CascaderOption` 包含 `value`、`label`、可选的 `children`、`disabled` 与 `isLeaf`。
+
+`loadData` 仍兼容只接收 `option` 的旧回调。需要主动取消网络请求时，可读取 `context?.signal`；组件会在切换路径、替换 `options`、关闭或禁用浮层以及卸载时将当前请求标记为 `aborted`。迟到的成功或失败结果不会修改新的路径状态，也不会抢回键盘焦点。
 
 | 事件 | 说明 |
 | --- | --- |

@@ -5,6 +5,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     expandedKeys: TreeKey[];
     selectedKeys: TreeKey[];
     checkedKeys: TreeKey[];
+    halfCheckedKeys: TreeKey[];
+    loadingKeys: Set<TreeKey>;
+    errorKeys: Set<TreeKey>;
     focusedKey?: TreeKey | undefined;
     checkable: boolean;
     parentDisabled?: boolean | undefined;
@@ -16,11 +19,15 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     select: (node: TreeNodeData) => void;
     toggle: (node: TreeNodeData) => void;
     check: (node: TreeNodeData) => void;
+    retry: (node: TreeNodeData) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_TypePropsToRuntimeProps<{
     node: TreeNodeData;
     expandedKeys: TreeKey[];
     selectedKeys: TreeKey[];
     checkedKeys: TreeKey[];
+    halfCheckedKeys: TreeKey[];
+    loadingKeys: Set<TreeKey>;
+    errorKeys: Set<TreeKey>;
     focusedKey?: TreeKey | undefined;
     checkable: boolean;
     parentDisabled?: boolean | undefined;
@@ -32,6 +39,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     onSelect?: ((node: TreeNodeData) => any) | undefined;
     onToggle?: ((node: TreeNodeData) => any) | undefined;
     onCheck?: ((node: TreeNodeData) => any) | undefined;
+    onRetry?: ((node: TreeNodeData) => any) | undefined;
 }>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;

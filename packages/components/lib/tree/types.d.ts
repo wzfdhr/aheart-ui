@@ -4,7 +4,15 @@ export interface TreeNodeData {
     key: TreeKey;
     title: string;
     disabled?: boolean;
+    isLeaf?: boolean;
     children?: TreeNodeData[];
+}
+export interface TreeLoadContext {
+    signal: AbortSignal;
+}
+export type TreeLoadData = (node: TreeNodeData, context: TreeLoadContext) => Promise<TreeNodeData[] | void>;
+export interface TreeCheckInfo {
+    halfCheckedKeys: TreeKey[];
 }
 export declare const treeProps: {
     treeData: {
@@ -33,6 +41,11 @@ export declare const treeProps: {
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
+    checkStrictly: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    loadData: PropType<TreeLoadData>;
     disabled: {
         type: BooleanConstructor;
         default: undefined;

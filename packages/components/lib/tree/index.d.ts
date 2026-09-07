@@ -1,4 +1,4 @@
-export type { TreeKey, TreeNodeData } from './types';
+export type { TreeKey, TreeNodeData, TreeLoadContext, TreeLoadData, TreeCheckInfo } from './types';
 declare const _default: import("../utils/install").SFCWithInstall<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     treeData: {
         type: import("vue").PropType<import("./types").TreeNodeData[]>;
@@ -26,13 +26,18 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
+    checkStrictly: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    loadData: import("vue").PropType<import("./types").TreeLoadData>;
     disabled: {
         type: BooleanConstructor;
         default: undefined;
     };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     select: (keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => void;
-    check: (keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => void;
+    check: (keys: import("./types").TreeKey[], node: import("./types").TreeNodeData, info: import("./types").TreeCheckInfo) => void;
     "update:selectedKeys": (keys: import("./types").TreeKey[]) => void;
     expand: (keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => void;
     "update:expandedKeys": (keys: import("./types").TreeKey[]) => void;
@@ -64,13 +69,18 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     multiple: BooleanConstructor;
     checkable: BooleanConstructor;
+    checkStrictly: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
+    loadData: import("vue").PropType<import("./types").TreeLoadData>;
     disabled: {
         type: BooleanConstructor;
         default: undefined;
     };
 }>> & Readonly<{
     onSelect?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => any) | undefined;
-    onCheck?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => any) | undefined;
+    onCheck?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData, info: import("./types").TreeCheckInfo) => any) | undefined;
     "onUpdate:selectedKeys"?: ((keys: import("./types").TreeKey[]) => any) | undefined;
     onExpand?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => any) | undefined;
     "onUpdate:expandedKeys"?: ((keys: import("./types").TreeKey[]) => any) | undefined;
@@ -85,5 +95,6 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     defaultExpandedKeys: import("./types").TreeKey[];
     defaultCheckedKeys: import("./types").TreeKey[];
     defaultExpandAll: boolean;
+    checkStrictly: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default _default;
