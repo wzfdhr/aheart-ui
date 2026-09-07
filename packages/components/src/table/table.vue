@@ -5,7 +5,18 @@
         <thead v-if="showHeader">
           <tr>
             <th v-if="hasSelection" class="aheart-table__selection-cell" scope="col">
-              <span class="aheart-table__selection-title" aria-hidden="true" />
+              <input
+                v-if="selectionType === 'checkbox'"
+                class="aheart-table__select-all"
+                type="checkbox"
+                aria-label="Select all rows on current page"
+                :checked="allPageSelected"
+                :indeterminate="somePageSelected && !allPageSelected"
+                :aria-checked="somePageSelected && !allPageSelected ? 'mixed' : allPageSelected"
+                :disabled="isSelectionDisabled || selectableRows.length === 0"
+                @change="handleSelectAll"
+              />
+              <span v-else class="aheart-table__selection-title" aria-hidden="true" />
             </th>
             <th v-if="hasExpandable" class="aheart-table__expand-cell" scope="col">
               <span class="aheart-table__expand-title" aria-hidden="true" />
@@ -61,7 +72,7 @@
                   :type="selectionType"
                   :name="radioName"
                   :checked="isSelected(row.key)"
-                  :disabled="isSelectionDisabled"
+                  :disabled="isRowSelectionDisabled(row.record)"
                   :aria-label="`Select row ${row.key}`"
                   @change="handleSelectionChange($event, row.record, row.key)"
                 />
@@ -114,6 +125,10 @@
       :simple="paginationConfig.simple"
       :hide-on-single-page="paginationConfig.hideOnSinglePage"
       :show-total="paginationConfig.showTotal"
+      :show-size-changer="paginationConfig.showSizeChanger"
+      :page-size-options="paginationConfig.pageSizeOptions"
+      :show-quick-jumper="paginationConfig.showQuickJumper"
+      :total-boundary-show-size-changer="paginationConfig.totalBoundaryShowSizeChanger"
       :disabled="isDisabled"
       :size="resolvedSize"
       @change="handlePageChange"
@@ -125,6 +140,7 @@
 import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import APagination from '../pagination'
+import { getPageCount, normalizeCurrent, normalizePageSize, normalizeTotal } from '../pagination/pagination-state'
 import { useControllableState } from '../utils/use-controllable-state'
 import { useStableId } from '../utils/use-stable-id'
 import {
@@ -177,14 +193,13 @@ const hasOwn = (value: object | undefined, key: string) => Boolean(value && Obje
 const selectedState = useControllableState<TableKey[]>({
   controlled: () => props.rowSelection?.selectedRowKeys,
   isControlled: () => hasOwn(props.rowSelection, 'selectedRowKeys'),
-  defaultValue: () => [...(props.rowSelection?.defaultSelectedRowKeys ?? [])],
-  onChange: (keys) => emit('update:selectedRowKeys', keys ?? [])
+  defaultValue: () => [...(props.rowSelection?.defaultSelectedRowKeys ?? [])]
 })
 const expandedState = useControllableState<TableKey[]>({
   controlled: () => props.expandable?.expandedRowKeys,
   isControlled: () => hasOwn(props.expandable, 'expandedRowKeys'),
   defaultValue: () => [...(props.expandable?.defaultExpandedRowKeys ?? [])],
-  onChange: (keys) => emit('update:expandedRowKeys', keys ?? [])
+  onChange: (keys) => emit('update:expandedRowKeys', [...(keys ?? [])])
 })
 const currentState = useControllableState<number>({
   controlled: () => props.pagination && typeof props.pagination === 'object' ? props.pagination.current : undefined,
@@ -192,6 +207,13 @@ const currentState = useControllableState<number>({
   defaultValue: () => props.pagination && typeof props.pagination === 'object'
     ? props.pagination.defaultCurrent ?? props.pagination.current ?? 1
     : 1
+})
+const pageSizeState = useControllableState<number>({
+  controlled: () => props.pagination && typeof props.pagination === 'object' ? props.pagination.pageSize : undefined,
+  isControlled: () => Boolean(props.pagination && typeof props.pagination === 'object' && hasOwn(props.pagination, 'pageSize')),
+  defaultValue: () => props.pagination && typeof props.pagination === 'object'
+    ? props.pagination.defaultPageSize ?? 10
+    : 10
 })
 const innerSort = ref<InternalSortState>({})
 const innerFilters = ref<TableFilters>({})
@@ -217,15 +239,12 @@ const resolvedEmptyText = computed<TableRenderable>(() =>
 const resolvedLoadingText = computed(() => config.value.locale?.table?.loadingText ?? '加载中')
 
 const paginationConfig = computed(() => (props.pagination && typeof props.pagination === 'object' ? props.pagination : {}))
-const pageSize = computed(() => {
-  const value = paginationConfig.value.pageSize ?? paginationConfig.value.defaultPageSize ?? 10
-  return Number.isFinite(value) && value > 0 ? Math.max(1, Math.trunc(value)) : 1
-})
+const pageSize = computed(() => normalizePageSize(pageSizeState.state.value ?? 10))
 const rawCurrentPage = computed(() => currentState.state.value ?? 1)
-const paginationTotal = computed(() => paginationConfig.value.total ?? sortedData.value.length)
-const pageCount = computed(() => Math.max(1, Math.ceil(Math.max(0, paginationTotal.value) / pageSize.value)))
-const currentPage = computed(() => Math.min(Math.max(rawCurrentPage.value, 1), pageCount.value))
-const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== undefined || sortedData.value.length > pageSize.value))
+const paginationTotal = computed(() => getTotal(sortedData.value.length))
+const pageCount = computed(() => getPageCount(paginationTotal.value, pageSize.value))
+const currentPage = computed(() => normalizeCurrent(rawCurrentPage.value, paginationTotal.value, pageSize.value))
+const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== undefined || paginationTotal.value > pageSize.value))
 const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0))
 
 const controlledSort = computed<InternalSortState | undefined>(() => {
@@ -237,7 +256,7 @@ const controlledSort = computed<InternalSortState | undefined>(() => {
 
   return {
     columnKey: getColumnKey(column),
-    order: column.sortOrder
+    order: column.sortOrder ?? undefined
   }
 })
 
@@ -282,13 +301,24 @@ const pagedRows = computed(() => {
     return allRows.value
   }
 
-  if (paginationConfig.value.total !== undefined) {
+  if (props.dataMode === 'server' || (props.dataMode === undefined && paginationConfig.value.total !== undefined)) {
     return allRows.value
   }
 
   const start = (currentPage.value - 1) * pageSize.value
   return allRows.value.slice(start, start + pageSize.value)
 })
+
+const selectableRows = computed(() => pagedRows.value.filter((row) => !isRowSelectionDisabled(row.record)))
+const allPageSelected = computed(() => selectableRows.value.length > 0 && selectableRows.value.every((row) => selectedKeys.value.includes(row.key)))
+const somePageSelected = computed(() => selectableRows.value.some((row) => selectedKeys.value.includes(row.key)))
+
+// Only accepted query state resets an uncontrolled page. Rejected controlled
+// requests never change this signature; equivalent prop arrays do not reset it.
+const querySignature = computed(() => JSON.stringify([
+  activeSort.value.order ? [activeSort.value.columnKey, activeSort.value.order] : null,
+  Object.entries(activeFilters.value)
+]))
 
 watch(
   normalizedColumns,
@@ -331,11 +361,39 @@ watch(
   { immediate: true }
 )
 
+watch(querySignature, () => currentState.setState(1))
+
 watch(pageCount, (count) => {
   if (!currentState.isControlled.value && (currentState.state.value ?? 1) > count) {
     currentState.setState(count)
   }
 })
+
+const knownRowKeys = computed(() => normalizedData.value.map((record, index) => getRowKey(record, index)))
+watch([knownRowKeys, () => props.rowSelection?.preserveSelectedRowKeys, selectedState.isControlled], () => {
+  if (selectedState.isControlled.value || props.rowSelection?.preserveSelectedRowKeys !== false) return
+  const known = new Set(knownRowKeys.value)
+  const next = selectedKeys.value.filter((key) => known.has(key))
+  // Data-derived pruning is silent; it is not a user selection request.
+  if (next.length !== selectedKeys.value.length) selectedState.setState(next)
+}, { immediate: true })
+
+if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) {
+  watch(() => normalizedData.value.map((record) => typeof props.rowKey === 'function' ? props.rowKey(record) : record[props.rowKey]), (keys) => {
+    const valid = keys.every((key) => typeof key === 'string' || (typeof key === 'number' && Number.isFinite(key)))
+    if (!valid || new Set(keys).size !== keys.length) {
+      console.warn('[ATable] rowKey must be stable and unique; index fallback cannot preserve identity across data changes.')
+    }
+  }, { immediate: true })
+}
+
+function getTotal(localTotal: number) {
+  return normalizeTotal(props.dataMode === 'local' ? localTotal : paginationConfig.value.total ?? localTotal)
+}
+
+function isRowSelectionDisabled(record: TableRecord) {
+  return isSelectionDisabled.value || Boolean(props.rowSelection?.getCheckboxProps?.(record)?.disabled)
+}
 
 function getColumnKey(column: TableColumn) {
   return column.key ?? String(Array.isArray(column.dataIndex) ? column.dataIndex.join('.') : column.dataIndex ?? column.title)
@@ -346,12 +404,8 @@ function hasRenderableContent(value: TableRenderable | undefined): value is Tabl
 }
 
 function getRowKey(record: TableRecord, index: number): TableKey {
-  if (typeof props.rowKey === 'function') {
-    return props.rowKey(record)
-  }
-
-  const key = record[props.rowKey]
-  return typeof key === 'string' || typeof key === 'number' ? key : index
+  const key = typeof props.rowKey === 'function' ? props.rowKey(record) : record[props.rowKey]
+  return typeof key === 'string' || (typeof key === 'number' && Number.isFinite(key)) ? key : index
 }
 
 function getValueByDataIndex(record: TableRecord, dataIndex?: TableColumn['dataIndex']) {
@@ -385,6 +439,7 @@ function getFilteredRecords(filters: TableFilters) {
 }
 
 function getSortedRecords(filters: TableFilters, sortState: InternalSortState) {
+  if (props.dataMode === 'server') return [...normalizedData.value]
   const records = getFilteredRecords(filters)
   const activeColumn = normalizedColumns.value.find((column) => getColumnKey(column) === sortState.columnKey)
 
@@ -491,11 +546,10 @@ const toggleSort = (column: TableColumn) => {
   const nextOrder: TableSortOrder | undefined = currentOrder === undefined ? 'ascend' : currentOrder === 'ascend' ? 'descend' : undefined
   const nextSort: InternalSortState = { columnKey: nextOrder ? key : undefined, order: nextOrder }
 
-  if (column.sortOrder === undefined) {
+  if (controlledSort.value === undefined) {
     innerSort.value = nextSort
   }
 
-  resetInnerCurrent()
   emitTableChange('sort', 1, pageSize.value, activeFilters.value, nextSort)
 }
 
@@ -528,18 +582,13 @@ const toggleFilter = (column: TableColumn, value: TableFilterValue) => {
     innerFilters.value = nextFilters
   }
 
-  resetInnerCurrent()
   emitTableChange('filter', 1, pageSize.value, nextFilters, activeSort.value)
-}
-
-const resetInnerCurrent = () => {
-  currentState.setState(1)
 }
 
 const isSelected = (key: TableKey) => selectedKeys.value.includes(key)
 
 const toggleSelection = (record: TableRecord, key: TableKey, checked: boolean) => {
-  if (isSelectionDisabled.value) {
+  if (isRowSelectionDisabled(record)) {
     return
   }
 
@@ -551,8 +600,28 @@ const toggleSelection = (record: TableRecord, key: TableKey, checked: boolean) =
       ? Array.from(new Set([...selectedKeys.value, key]))
       : selectedKeys.value.filter((currentKey) => currentKey !== key)
 
-  selectedState.setState(nextKeys)
-  emit('select', key, checked, record, nextKeys)
+  selectedState.setState([...nextKeys])
+  emit('update:selectedRowKeys', [...nextKeys])
+  emit('select', key, checked, record, [...nextKeys])
+}
+
+const handleSelectAll = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const checked = input.checked
+  if (!isSelectionDisabled.value && selectionType.value === 'checkbox') {
+    const changedRows = selectableRows.value.filter((row) => isSelected(row.key) !== checked)
+    if (changedRows.length > 0) {
+      const visible = new Set(selectableRows.value.map((row) => row.key))
+      const nextKeys = checked
+        ? [...new Set([...selectedKeys.value, ...selectableRows.value.map((row) => row.key)])]
+        : selectedKeys.value.filter((key) => !visible.has(key))
+      selectedState.setState([...nextKeys])
+      emit('update:selectedRowKeys', [...nextKeys])
+      emit('selectAll', checked, [...nextKeys], changedRows.map((row) => row.record))
+    }
+  }
+  input.checked = allPageSelected.value
+  input.indeterminate = somePageSelected.value && !allPageSelected.value
 }
 
 const isRowExpandable = (record: TableRecord) => props.expandable?.rowExpandable?.(record) ?? true
@@ -571,9 +640,14 @@ const toggleExpand = (record: TableRecord, key: TableKey) => {
 }
 
 const handlePageChange = (current: number, nextPageSize: number) => {
-  currentState.setState(current)
-
-  emitTableChange('paginate', current, nextPageSize, activeFilters.value, activeSort.value)
+  if (isDisabled.value) return
+  const nextSize = normalizePageSize(nextPageSize)
+  const nextCurrent = normalizeCurrent(current, paginationTotal.value, nextSize)
+  const sizeChanged = nextSize !== pageSize.value
+  pageSizeState.setState(nextSize)
+  // A rejected controlled size must not commit its proposed page clamp.
+  if (!sizeChanged || !pageSizeState.isControlled.value) currentState.setState(nextCurrent)
+  emitTableChange('paginate', nextCurrent, nextSize, activeFilters.value, activeSort.value)
 }
 
 const emitTableChange = (
@@ -589,7 +663,7 @@ const emitTableChange = (
 
   emit(
     'change',
-    { current, pageSize: nextPageSize, total: paginationConfig.value.total ?? currentDataSource.length },
+    { current, pageSize: nextPageSize, total: getTotal(currentDataSource.length) },
     normalizedFilters,
     {
       column: activeColumn,
@@ -612,8 +686,14 @@ const handleSelectionChange = (event: Event, record: TableRecord, key: TableKey)
   const input = event.target as HTMLInputElement | null
   toggleSelection(record, key, getEventChecked(event))
 
-  if (input && props.rowSelection?.selectedRowKeys !== undefined) {
+  if (input) {
     input.checked = isSelected(key)
+    // A native radio click also clears its previously checked sibling. When
+    // the parent rejects the request Vue may not rerender, so restore the group.
+    if (selectionType.value === 'radio') {
+      input.closest('table')?.querySelectorAll<HTMLInputElement>(':scope > tbody > tr > .aheart-table__selection-cell > input[type="radio"]')
+        .forEach((rowInput, index) => { rowInput.checked = isSelected(pagedRows.value[index]?.key) })
+    }
   }
 }
 </script>

@@ -3,6 +3,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const tableProps = {
   columns: Array,
   dataSource: Array,
+  dataMode: String,
   rowKey: {
     type: [String, Function],
     default: "key"
@@ -34,6 +35,7 @@ const tableEmits = {
   "update:selectedRowKeys": (keys) => Array.isArray(keys),
   "update:expandedRowKeys": (keys) => Array.isArray(keys),
   select: (_key, _selected, _record, _selectedRowKeys) => true,
+  selectAll: (_selected, keys, rows) => Array.isArray(keys) && Array.isArray(rows),
   expand: (_expanded, _record, _key) => true
 };
 exports.tableEmits = tableEmits;

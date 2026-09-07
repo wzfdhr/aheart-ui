@@ -1,6 +1,7 @@
 declare const Table: import("../utils/install").SFCWithInstall<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly columns: import("vue").PropType<import("./types").TableColumn<import("./types").TableRecord>[]>;
     readonly dataSource: import("vue").PropType<import("./types").TableRecord[]>;
+    readonly dataMode: import("vue").PropType<import("./types").TableDataMode>;
     readonly rowKey: {
         readonly type: import("vue").PropType<string | ((record: import("./types").TableRecord) => import("./types").TableKey)>;
         readonly default: "key";
@@ -16,7 +17,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
         readonly type: import("vue").PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection>;
+    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection<import("./types").TableRecord>>;
     readonly expandable: import("vue").PropType<import("./types").TableExpandable<import("./types").TableRecord>>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
@@ -31,10 +32,12 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     select: (_key: import("./types").TableKey, _selected: boolean, _record: import("./types").TableRecord, _selectedRowKeys: import("./types").TableKey[]) => void;
     "update:selectedRowKeys": (keys: import("./types").TableKey[]) => void;
     "update:expandedRowKeys": (keys: import("./types").TableKey[]) => void;
+    selectAll: (_selected: boolean, keys: import("./types").TableKey[], rows: import("./types").TableRecord[]) => void;
     expand: (_expanded: boolean, _record: import("./types").TableRecord, _key: import("./types").TableKey) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly columns: import("vue").PropType<import("./types").TableColumn<import("./types").TableRecord>[]>;
     readonly dataSource: import("vue").PropType<import("./types").TableRecord[]>;
+    readonly dataMode: import("vue").PropType<import("./types").TableDataMode>;
     readonly rowKey: {
         readonly type: import("vue").PropType<string | ((record: import("./types").TableRecord) => import("./types").TableKey)>;
         readonly default: "key";
@@ -50,7 +53,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
         readonly type: import("vue").PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection>;
+    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection<import("./types").TableRecord>>;
     readonly expandable: import("vue").PropType<import("./types").TableExpandable<import("./types").TableRecord>>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
@@ -65,6 +68,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     onSelect?: ((_key: import("./types").TableKey, _selected: boolean, _record: import("./types").TableRecord, _selectedRowKeys: import("./types").TableKey[]) => any) | undefined;
     "onUpdate:selectedRowKeys"?: ((keys: import("./types").TableKey[]) => any) | undefined;
     "onUpdate:expandedRowKeys"?: ((keys: import("./types").TableKey[]) => any) | undefined;
+    onSelectAll?: ((_selected: boolean, keys: import("./types").TableKey[], rows: import("./types").TableRecord[]) => any) | undefined;
     onExpand?: ((_expanded: boolean, _record: import("./types").TableRecord, _key: import("./types").TableKey) => any) | undefined;
 }>, {
     readonly disabled: boolean;

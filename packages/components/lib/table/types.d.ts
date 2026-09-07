@@ -1,11 +1,13 @@
 import type { ExtractPropTypes, PropType, VNodeChild } from 'vue';
 import type { AheartSize } from '../config';
+import type { PaginationQuickJumperConfig } from '../pagination/types';
 export type TableKey = string | number;
 export type TableRecord = Record<string, unknown>;
 export type TableSize = AheartSize;
 export type TableSortOrder = 'ascend' | 'descend';
 export type TableSelectionType = 'checkbox' | 'radio';
 export type TableColumnAlign = 'left' | 'center' | 'right';
+export type TableDataMode = 'local' | 'server';
 export type TableDataIndex = string | number | Array<string | number>;
 export type TableFilterValue = string | number | boolean;
 export type TableChangeAction = 'paginate' | 'sort' | 'filter';
@@ -23,7 +25,7 @@ export interface TableColumn<T extends TableRecord = TableRecord> {
     className?: string;
     hidden?: boolean;
     sorter?: boolean | ((a: T, b: T) => number);
-    sortOrder?: TableSortOrder;
+    sortOrder?: TableSortOrder | null;
     defaultSortOrder?: TableSortOrder;
     filters?: TableColumnFilter[];
     filteredValue?: TableFilterValue[];
@@ -46,6 +48,10 @@ export interface TablePaginationConfig {
     simple?: boolean;
     hideOnSinglePage?: boolean;
     showTotal?: boolean;
+    showSizeChanger?: boolean;
+    totalBoundaryShowSizeChanger?: number;
+    pageSizeOptions?: Array<number | string>;
+    showQuickJumper?: boolean | PaginationQuickJumperConfig;
 }
 export interface TableSorter<T extends TableRecord = TableRecord> {
     column?: TableColumn<T>;
@@ -63,11 +69,15 @@ export interface TableChangeExtra<T extends TableRecord = TableRecord> {
     currentDataSource: T[];
     action: TableChangeAction;
 }
-export interface TableRowSelection {
+export interface TableRowSelection<T extends TableRecord = TableRecord> {
     selectedRowKeys?: TableKey[];
     defaultSelectedRowKeys?: TableKey[];
     type?: TableSelectionType;
     disabled?: boolean;
+    getCheckboxProps?: (record: T) => {
+        disabled?: boolean;
+    };
+    preserveSelectedRowKeys?: boolean;
 }
 export interface TableExpandable<T extends TableRecord = TableRecord> {
     expandedRowKeys?: TableKey[];
@@ -78,6 +88,7 @@ export interface TableExpandable<T extends TableRecord = TableRecord> {
 export declare const tableProps: {
     readonly columns: PropType<TableColumn<TableRecord>[]>;
     readonly dataSource: PropType<TableRecord[]>;
+    readonly dataMode: PropType<TableDataMode>;
     readonly rowKey: {
         readonly type: PropType<string | ((record: TableRecord) => TableKey)>;
         readonly default: "key";
@@ -93,7 +104,7 @@ export declare const tableProps: {
         readonly type: PropType<false | TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: PropType<TableRowSelection>;
+    readonly rowSelection: PropType<TableRowSelection<TableRecord>>;
     readonly expandable: PropType<TableExpandable<TableRecord>>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
@@ -109,6 +120,7 @@ export declare const tableEmits: {
     'update:selectedRowKeys': (keys: TableKey[]) => boolean;
     'update:expandedRowKeys': (keys: TableKey[]) => boolean;
     select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => boolean;
+    selectAll: (_selected: boolean, keys: TableKey[], rows: TableRecord[]) => boolean;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => boolean;
 };
 export type TableProps = ExtractPropTypes<typeof tableProps>;

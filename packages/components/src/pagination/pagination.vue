@@ -86,6 +86,7 @@
 import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { paginationEmits, paginationProps, type PaginationItemType, type PaginationQuickJumperConfig } from './types'
+import { getPageCount, normalizeCurrent, normalizePageSize, normalizeTotal } from './pagination-state'
 import './style.css'
 
 defineOptions({
@@ -114,11 +115,10 @@ const innerPageSize = ref(props.defaultPageSize)
 const quickJumpValue = ref('')
 const isControlled = computed(() => props.current !== undefined)
 const isPageSizeControlled = computed(() => props.pageSize !== undefined)
-const normalizePageSize = (pageSize: number) =>
-  Number.isFinite(pageSize) && pageSize > 0 ? Math.max(1, Math.trunc(pageSize)) : 1
 const mergedPageSize = computed(() => normalizePageSize(props.pageSize ?? innerPageSize.value))
-const pageCount = computed(() => getPageCount(props.total, mergedPageSize.value))
-const mergedCurrent = computed(() => Math.min(Math.max(props.current ?? innerCurrent.value, 1), pageCount.value))
+const normalizedTotal = computed(() => normalizeTotal(props.total))
+const pageCount = computed(() => getPageCount(normalizedTotal.value, mergedPageSize.value))
+const mergedCurrent = computed(() => normalizeCurrent(props.current ?? innerCurrent.value, normalizedTotal.value, mergedPageSize.value))
 const shouldRender = computed(() => !(props.hideOnSinglePage && pageCount.value <= 1))
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
@@ -131,7 +131,7 @@ const normalizedPageSizeOptions = computed(() => {
 })
 const normalizedSizeChangerBoundary = computed(() => Math.max(0, props.totalBoundaryShowSizeChanger))
 const shouldShowSizeChanger = computed(
-  () => props.showSizeChanger ?? props.total > normalizedSizeChangerBoundary.value
+  () => props.showSizeChanger ?? normalizedTotal.value > normalizedSizeChangerBoundary.value
 )
 const isQuickJumperConfig = (value: boolean | PaginationQuickJumperConfig): value is PaginationQuickJumperConfig =>
   typeof value === 'object' && value !== null
@@ -179,22 +179,22 @@ const quickJumperStyle = computed(() => props.styles?.quickJumper)
 type PageItem = { key: string; type: 'page'; page: number } | { key: string; type: 'ellipsis' }
 
 const currentRange = computed<[number, number]>(() => {
-  if (props.total <= 0) {
+  if (normalizedTotal.value <= 0) {
     return [0, 0]
   }
 
   const start = (mergedCurrent.value - 1) * mergedPageSize.value + 1
-  const end = Math.min(mergedCurrent.value * mergedPageSize.value, props.total)
+  const end = Math.min(mergedCurrent.value * mergedPageSize.value, normalizedTotal.value)
   return [start, end]
 })
 
 const showTotalContent = computed(() => Boolean(props.showTotal))
 const totalText = computed(() => {
   if (typeof props.showTotal === 'function') {
-    return props.showTotal(props.total, currentRange.value)
+    return props.showTotal(normalizedTotal.value, currentRange.value)
   }
 
-  return paginationLocale.value.total(props.total, currentRange.value)
+  return paginationLocale.value.total(normalizedTotal.value, currentRange.value)
 })
 
 const pageItems = computed<PageItem[]>(() => {
@@ -243,7 +243,7 @@ const prevLabel = computed(() => renderItem(Math.max(mergedCurrent.value - 1, 1)
 const nextLabel = computed(() => renderItem(Math.min(mergedCurrent.value + 1, pageCount.value), 'next', '›'))
 
 watch(
-  () => [props.total, mergedPageSize.value],
+  () => [normalizedTotal.value, mergedPageSize.value],
   () => {
     if (!isControlled.value && innerCurrent.value > pageCount.value) {
       innerCurrent.value = pageCount.value
@@ -251,16 +251,12 @@ watch(
   }
 )
 
-const getPageCount = (total: number, pageSize: number) => Math.max(1, Math.ceil(total / pageSize))
-
-const normalizeCurrent = (nextCurrent: number) => Math.min(Math.max(nextCurrent, 1), pageCount.value)
-
 const setCurrent = (nextCurrent: number) => {
   if (isDisabled.value) {
     return
   }
 
-  const normalizedCurrent = normalizeCurrent(nextCurrent)
+  const normalizedCurrent = normalizeCurrent(nextCurrent, normalizedTotal.value, mergedPageSize.value)
 
   if (normalizedCurrent === mergedCurrent.value) {
     return
@@ -300,8 +296,9 @@ const handlePageSizeChange = (event: Event) => {
     return
   }
 
-  const nextPageCount = getPageCount(props.total, nextPageSize)
-  const nextCurrent = Math.min(mergedCurrent.value, nextPageCount)
+  const nextPageCount = getPageCount(normalizedTotal.value, nextPageSize)
+  const previousCurrent = mergedCurrent.value
+  const nextCurrent = Math.min(previousCurrent, nextPageCount)
 
   if (!isPageSizeControlled.value) {
     innerPageSize.value = nextPageSize
@@ -311,7 +308,7 @@ const handlePageSizeChange = (event: Event) => {
     innerCurrent.value = nextCurrent
   }
 
-  if (nextCurrent !== mergedCurrent.value) {
+  if (nextCurrent !== previousCurrent) {
     emit('update:current', nextCurrent)
   }
 

@@ -1,5 +1,6 @@
 import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, toDisplayString, createCommentVNode, createElementVNode, Fragment, renderList, withDirectives, withKeys, vModelText, createVNode, unref } from "vue";
 import { paginationProps, paginationEmits } from "./types.js";
+import { normalizePageSize, normalizeTotal, getPageCount, normalizeCurrent } from "./pagination-state.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-label"];
@@ -48,10 +49,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const quickJumpValue = ref("");
     const isControlled = computed(() => props.current !== void 0);
     const isPageSizeControlled = computed(() => props.pageSize !== void 0);
-    const normalizePageSize = (pageSize) => Number.isFinite(pageSize) && pageSize > 0 ? Math.max(1, Math.trunc(pageSize)) : 1;
     const mergedPageSize = computed(() => normalizePageSize(props.pageSize ?? innerPageSize.value));
-    const pageCount = computed(() => getPageCount(props.total, mergedPageSize.value));
-    const mergedCurrent = computed(() => Math.min(Math.max(props.current ?? innerCurrent.value, 1), pageCount.value));
+    const normalizedTotal = computed(() => normalizeTotal(props.total));
+    const pageCount = computed(() => getPageCount(normalizedTotal.value, mergedPageSize.value));
+    const mergedCurrent = computed(() => normalizeCurrent(props.current ?? innerCurrent.value, normalizedTotal.value, mergedPageSize.value));
     const shouldRender = computed(() => !(props.hideOnSinglePage && pageCount.value <= 1));
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
@@ -61,7 +62,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const normalizedSizeChangerBoundary = computed(() => Math.max(0, props.totalBoundaryShowSizeChanger));
     const shouldShowSizeChanger = computed(
-      () => props.showSizeChanger ?? props.total > normalizedSizeChangerBoundary.value
+      () => props.showSizeChanger ?? normalizedTotal.value > normalizedSizeChangerBoundary.value
     );
     const isQuickJumperConfig = (value) => typeof value === "object" && value !== null;
     const hasRenderable = (value) => value !== void 0 && value !== null && value !== false && value !== "";
@@ -149,19 +150,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return (_a = props.styles) == null ? void 0 : _a.quickJumper;
     });
     const currentRange = computed(() => {
-      if (props.total <= 0) {
+      if (normalizedTotal.value <= 0) {
         return [0, 0];
       }
       const start = (mergedCurrent.value - 1) * mergedPageSize.value + 1;
-      const end = Math.min(mergedCurrent.value * mergedPageSize.value, props.total);
+      const end = Math.min(mergedCurrent.value * mergedPageSize.value, normalizedTotal.value);
       return [start, end];
     });
     const showTotalContent = computed(() => Boolean(props.showTotal));
     const totalText = computed(() => {
       if (typeof props.showTotal === "function") {
-        return props.showTotal(props.total, currentRange.value);
+        return props.showTotal(normalizedTotal.value, currentRange.value);
       }
-      return paginationLocale.value.total(props.total, currentRange.value);
+      return paginationLocale.value.total(normalizedTotal.value, currentRange.value);
     });
     const pageItems = computed(() => {
       const count = pageCount.value;
@@ -201,20 +202,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const prevLabel = computed(() => renderItem(Math.max(mergedCurrent.value - 1, 1), "prev", "‹"));
     const nextLabel = computed(() => renderItem(Math.min(mergedCurrent.value + 1, pageCount.value), "next", "›"));
     watch(
-      () => [props.total, mergedPageSize.value],
+      () => [normalizedTotal.value, mergedPageSize.value],
       () => {
         if (!isControlled.value && innerCurrent.value > pageCount.value) {
           innerCurrent.value = pageCount.value;
         }
       }
     );
-    const getPageCount = (total, pageSize) => Math.max(1, Math.ceil(total / pageSize));
-    const normalizeCurrent = (nextCurrent) => Math.min(Math.max(nextCurrent, 1), pageCount.value);
     const setCurrent = (nextCurrent) => {
       if (isDisabled.value) {
         return;
       }
-      const normalizedCurrent = normalizeCurrent(nextCurrent);
+      const normalizedCurrent = normalizeCurrent(nextCurrent, normalizedTotal.value, mergedPageSize.value);
       if (normalizedCurrent === mergedCurrent.value) {
         return;
       }
@@ -251,15 +250,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!Number.isInteger(nextPageSize) || nextPageSize <= 0 || nextPageSize === mergedPageSize.value) {
         return;
       }
-      const nextPageCount = getPageCount(props.total, nextPageSize);
-      const nextCurrent = Math.min(mergedCurrent.value, nextPageCount);
+      const nextPageCount = getPageCount(normalizedTotal.value, nextPageSize);
+      const previousCurrent = mergedCurrent.value;
+      const nextCurrent = Math.min(previousCurrent, nextPageCount);
       if (!isPageSizeControlled.value) {
         innerPageSize.value = nextPageSize;
       }
       if (!isControlled.value && !isPageSizeControlled.value) {
         innerCurrent.value = nextCurrent;
       }
-      if (nextCurrent !== mergedCurrent.value) {
+      if (nextCurrent !== previousCurrent) {
         emit("update:current", nextCurrent);
       }
       emit("update:pageSize", nextPageSize);

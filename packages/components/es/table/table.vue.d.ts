@@ -3,6 +3,7 @@ import { type TableColumn, type TableFilters, type TableKey, type TableRecord } 
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     readonly columns: PropType<TableColumn<TableRecord>[]>;
     readonly dataSource: PropType<TableRecord[]>;
+    readonly dataMode: PropType<import("./types").TableDataMode>;
     readonly rowKey: {
         readonly type: PropType<string | ((record: TableRecord) => TableKey)>;
         readonly default: "key";
@@ -18,7 +19,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: PropType<import("./types").TableRowSelection>;
+    readonly rowSelection: PropType<import("./types").TableRowSelection<TableRecord>>;
     readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
@@ -33,10 +34,12 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => void;
     "update:selectedRowKeys": (keys: TableKey[]) => void;
     "update:expandedRowKeys": (keys: TableKey[]) => void;
+    selectAll: (_selected: boolean, keys: TableKey[], rows: TableRecord[]) => void;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly columns: PropType<TableColumn<TableRecord>[]>;
     readonly dataSource: PropType<TableRecord[]>;
+    readonly dataMode: PropType<import("./types").TableDataMode>;
     readonly rowKey: {
         readonly type: PropType<string | ((record: TableRecord) => TableKey)>;
         readonly default: "key";
@@ -52,7 +55,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: PropType<import("./types").TableRowSelection>;
+    readonly rowSelection: PropType<import("./types").TableRowSelection<TableRecord>>;
     readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
@@ -67,6 +70,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     onSelect?: ((_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => any) | undefined;
     "onUpdate:selectedRowKeys"?: ((keys: TableKey[]) => any) | undefined;
     "onUpdate:expandedRowKeys"?: ((keys: TableKey[]) => any) | undefined;
+    onSelectAll?: ((_selected: boolean, keys: TableKey[], rows: TableRecord[]) => any) | undefined;
     onExpand?: ((_expanded: boolean, _record: TableRecord, _key: TableKey) => any) | undefined;
 }>, {
     readonly disabled: boolean;

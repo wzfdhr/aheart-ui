@@ -1,8 +1,61 @@
 <script setup lang="ts">
-import { h, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 
 const tablePage = ref(1)
 const tableServerPage = ref(5)
+
+const d5Rows = [
+  { key: 1, name: '数字键客户', score: 60 },
+  { key: '1', name: '字符串键客户', score: 20 },
+  { key: 2, name: '禁止选择客户', score: 90, locked: true },
+  { key: 3, name: '第二页客户甲', score: 40 },
+  { key: 4, name: '第二页客户乙', score: 80 },
+  { key: 5, name: '第二页客户丙', score: 10 }
+]
+const d5Columns = [{ title: '客户', key: 'name', dataIndex: 'name' }, { title: '评分', key: 'score', dataIndex: 'score', sorter: true }]
+const d5Selected = ref<Array<string | number>>([])
+const d5AcceptSelection = ref(true)
+const d5SelectionRequests = ref(0)
+const d5Selection = computed(() => ({
+  selectedRowKeys: d5Selected.value,
+  getCheckboxProps: (row: { locked?: boolean }) => ({ disabled: Boolean(row.locked) }),
+  preserveSelectedRowKeys: true
+}))
+function d5Select(keys: Array<string | number>) {
+  d5SelectionRequests.value++
+  if (d5AcceptSelection.value) d5Selected.value = [...keys]
+}
+const d5ServerRows = [{ key: 'remote-a', name: '服务器先返回高分', score: 90 }, { key: 'remote-b', name: '服务器后返回低分', score: 20 }]
+const d5ServerPage = ref(2)
+const d5ServerOrder = ref<'ascend' | 'descend' | null>(null)
+const d5ServerFilters = ref<Array<number>>([])
+const d5ServerColumns = computed(() => [
+  { title: '服务端客户', key: 'name', dataIndex: 'name' },
+  { title: '服务端评分', key: 'score', dataIndex: 'score', sorter: true, sortOrder: d5ServerOrder.value, filters: [{ text: '只看高分', value: 90 }], filteredValue: d5ServerFilters.value }
+])
+const d5Pending = ref<{ current: number; order: 'ascend' | 'descend' | null; filters: number[]; action: string } | null>(null)
+function d5ServerChange(pagination: { current: number }, filters: Record<string, number[]>, sorter: { order?: 'ascend' | 'descend' }, extra: { action: string }) {
+  d5Pending.value = { current: pagination.current, order: sorter.order ?? null, filters: [...(filters.score ?? [])], action: extra.action }
+}
+function d5AcceptServer() {
+  if (!d5Pending.value) return
+  d5ServerPage.value = d5Pending.value.current
+  d5ServerOrder.value = d5Pending.value.order
+  d5ServerFilters.value = [...d5Pending.value.filters]
+  d5Pending.value = null
+}
+const d5Size = ref(10)
+const d5Page = ref(5)
+const d5AcceptPagination = ref(false)
+const d5PageRequests = ref(0)
+const d5RadioRequests = ref(0)
+function d5PageChange(pagination: { current: number; pageSize: number }) {
+  d5PageRequests.value++
+  if (d5AcceptPagination.value) {
+    d5Page.value = pagination.current
+    d5Size.value = pagination.pageSize
+  }
+}
 
 const tableRenderableColumns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -334,12 +387,56 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 设置 `pagination.total` 后，`dataSource` 视为业务层已加载的当前页数据，Table 不会再次本地切片；分页事件仍通过 `change` 交给业务层请求下一页。
 
+## D5-A 数据与受控行为
+
+以下示例用于验证D5-A的数据/选择/分页契约，不表示筛选浮层、固定列、错误态或Table虚拟滚动已经完成。
+
+### 本地分页、行禁用与跨页全选
+
+<section class="aheart-demo-panel d5-table-selection" aria-label="D5 本地客户选择">
+  <AButton :aria-pressed="!d5AcceptSelection" @click="d5AcceptSelection = !d5AcceptSelection">拒绝选择更新</AButton>
+  <p role="status">已选：{{ d5Selected.map(key => `${typeof key}:${key}`).join('、') || '无' }}；选择请求：{{ d5SelectionRequests }}</p>
+  <ATable data-mode="local" :columns="d5Columns" :data-source="d5Rows" :pagination="{ defaultPageSize: 3, total: 999, showSizeChanger: false }" :row-selection="d5Selection" @update:selected-row-keys="d5Select" />
+</section>
+
+显式`local`忽略传入的`pagination.total`，按本地筛选结果分页。全选仅改变当前页可选行，禁用行排除，其他页已选key保留；数字`1`与字符串`'1'`是两个不同身份。服务端/跨页场景必须提供稳定唯一的`rowKey`，不能依靠数组索引。
+
+### 受控单选拒绝后恢复整组状态
+
+<section class="aheart-demo-panel d5-table-radio" aria-label="D5 受控单选">
+  <p role="status">父层保持第一个客户；单选请求：{{ d5RadioRequests }}</p>
+  <ATable data-mode="local" :columns="d5Columns" :data-source="d5Rows.slice(0, 2)" :pagination="false" :row-selection="{ type: 'radio', selectedRowKeys: [1] }" @update:selected-row-keys="d5RadioRequests++" />
+</section>
+
+### 服务端数据只按响应顺序展示
+
+<section class="aheart-demo-panel d5-table-server" aria-label="D5 服务端请求">
+  <AButton :disabled="!d5Pending" @click="d5AcceptServer">接受服务端请求</AButton>
+  <p role="status">{{ d5Pending ? `待接受：${d5Pending.action}，页码${d5Pending.current}` : '没有待接受请求' }}</p>
+  <ATable data-mode="server" :columns="d5ServerColumns" :data-source="d5ServerRows" :pagination="{ current: d5ServerPage, pageSize: 2, total: 20, showSizeChanger: false }" @change="d5ServerChange" />
+</section>
+
+`server`不在浏览器内排序、筛选或二次切页；`change`只提出请求。受控字段未被父层接受前保持原值。此例用按钮模拟父层接受，不发真实网络请求；数据始终按当前传入响应顺序显示。
+
+### 受控页大小：拒绝与接受
+
+<section class="aheart-demo-panel d5-table-pagination" aria-label="D5 受控分页">
+  <AButton :aria-pressed="d5AcceptPagination" @click="d5AcceptPagination = !d5AcceptPagination">接受分页更新</AButton>
+  <p role="status">当前页：{{ d5Page }}；每页：{{ d5Size }}；分页请求：{{ d5PageRequests }}</p>
+  <ATable data-mode="server" :columns="d5Columns" :data-source="d5ServerRows" :pagination="{ current: d5Page, pageSize: d5Size, total: 95, showSizeChanger: true, pageSizeOptions: [10, 20, 50], showQuickJumper: true }" @change="d5PageChange" />
+</section>
+
+`pageSize`被拒绝时，选择器和页码回到父层值；接受后Table与独立Pagination使用同一整数归一化边界。`loading`的交互策略本批保持原行为，`disabled`仍禁用用户操作。
+
+新用法请明确填写`dataMode='local'`或`'server'`。省略时保留历史兼容：始终本地排序/筛选，存在`pagination.total`时不再切片；不要将该混合路径视为推荐的服务端模式。
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | columns | 表格列配置 | `TableColumn[]` | `[]` |
 | dataSource | 数据数组 | `Record<string, unknown>[]` | `[]` |
+| dataMode | 显式数据模式；省略保留历史兼容路径 | `local` \| `server` | - |
 | rowKey | 行 key | `string` \| `(record) => string \| number` | `key` |
 | bordered | 是否显示边框 | `boolean` | `false` |
 | loading | 是否显示加载遮罩 | `boolean` | `false` |
@@ -363,7 +460,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | className | 自定义类名 | `string` | - |
 | hidden | 是否隐藏该列 | `boolean` | `false` |
 | sorter | 是否按列值排序，或本地排序函数 | `boolean` \| `(a, b) => number` | - |
-| sortOrder | 受控排序方向 | `ascend` \| `descend` | - |
+| sortOrder | 受控排序方向，null明确无排序；undefined为未受控 | `ascend` \| `descend` \| `null` | - |
 | defaultSortOrder | 默认排序方向 | `ascend` \| `descend` | - |
 | filters | 筛选项 | `TableColumnFilter[]` | - |
 | filteredValue | 受控筛选值 | `(string \| number \| boolean)[]` | - |
@@ -387,6 +484,8 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | defaultSelectedRowKeys | 默认选中 keys | `(string \| number)[]` | `[]` |
 | type | 选择类型 | `checkbox` \| `radio` | `checkbox` |
 | disabled | 是否禁用选择 | `boolean` | `false` |
+| getCheckboxProps | 当前行是否禁止选择 | `(record) => { disabled?: boolean }` | - |
+| preserveSelectedRowKeys | 保留当前dataSource之外的keys；false只裁剪未受控选择，不因本地筛选/换页裁剪 | `boolean` | `true` |
 
 ### TableExpandable
 
@@ -409,6 +508,10 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | simple | 是否简洁模式 | `boolean` | `false` |
 | hideOnSinglePage | 只有一页时隐藏 | `boolean` | `false` |
 | showTotal | 是否显示总数 | `boolean` | `false` |
+| showSizeChanger | 显示页大小选择器，省略时使用Pagination的总数边界策略 | `boolean` | - |
+| totalBoundaryShowSizeChanger | 自动显示页大小选择器的总数边界 | `number` | `50` |
+| pageSizeOptions | 可选页大小 | `(number \| string)[]` | `[10,20,50,100]` |
+| showQuickJumper | 快速跳页，使用Pagination现有配置 | `boolean` \| `PaginationQuickJumperConfig` | `false` |
 
 ## Events
 
@@ -417,6 +520,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | change | 分页、筛选或排序变化时触发 | `(pagination, filters, sorter, extra) => void` |
 | update:selectedRowKeys | 选择项变化时触发 | `(keys) => void` |
 | select | 选择某一行时触发 | `(key, selected, record, selectedRowKeys) => void` |
+| selectAll | 当前页全选/取消，keys为请求后的完整集合，changedRows只含本次改变的可选行 | `(selected, selectedRowKeys, changedRows) => void` |
 | expand | 展开状态变化时触发 | `(expanded, record, key) => void` |
 | update:expandedRowKeys | 展开 keys 变化时触发，可用于受控展开状态 | `(keys) => void` |
 
@@ -424,7 +528,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 | 字段 | 说明 | 类型 |
 | --- | --- | --- |
-| currentDataSource | 当前筛选和排序后的数据 | `Record<string, unknown>[]` |
+| currentDataSource | local/历史路径为筛选排序后数据；server为当前dataSource数组的浅拷贝，不伪造下一页 | `Record<string, unknown>[]` |
 | action | 触发来源 | `paginate` \| `sort` \| `filter` |
 
 ## Theme Tokens

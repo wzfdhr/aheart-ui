@@ -1,5 +1,6 @@
 import type { ExtractPropTypes, PropType, VNodeChild } from 'vue'
 import type { AheartSize } from '../config'
+import type { PaginationQuickJumperConfig } from '../pagination/types'
 
 export type TableKey = string | number
 export type TableRecord = Record<string, unknown>
@@ -7,6 +8,7 @@ export type TableSize = AheartSize
 export type TableSortOrder = 'ascend' | 'descend'
 export type TableSelectionType = 'checkbox' | 'radio'
 export type TableColumnAlign = 'left' | 'center' | 'right'
+export type TableDataMode = 'local' | 'server'
 export type TableDataIndex = string | number | Array<string | number>
 export type TableFilterValue = string | number | boolean
 export type TableChangeAction = 'paginate' | 'sort' | 'filter'
@@ -26,7 +28,7 @@ export interface TableColumn<T extends TableRecord = TableRecord> {
   className?: string
   hidden?: boolean
   sorter?: boolean | ((a: T, b: T) => number)
-  sortOrder?: TableSortOrder
+  sortOrder?: TableSortOrder | null
   defaultSortOrder?: TableSortOrder
   filters?: TableColumnFilter[]
   filteredValue?: TableFilterValue[]
@@ -45,6 +47,10 @@ export interface TablePaginationConfig {
   simple?: boolean
   hideOnSinglePage?: boolean
   showTotal?: boolean
+  showSizeChanger?: boolean
+  totalBoundaryShowSizeChanger?: number
+  pageSizeOptions?: Array<number | string>
+  showQuickJumper?: boolean | PaginationQuickJumperConfig
 }
 
 export interface TableSorter<T extends TableRecord = TableRecord> {
@@ -67,11 +73,13 @@ export interface TableChangeExtra<T extends TableRecord = TableRecord> {
   action: TableChangeAction
 }
 
-export interface TableRowSelection {
+export interface TableRowSelection<T extends TableRecord = TableRecord> {
   selectedRowKeys?: TableKey[]
   defaultSelectedRowKeys?: TableKey[]
   type?: TableSelectionType
   disabled?: boolean
+  getCheckboxProps?: (record: T) => { disabled?: boolean }
+  preserveSelectedRowKeys?: boolean
 }
 
 export interface TableExpandable<T extends TableRecord = TableRecord> {
@@ -84,6 +92,7 @@ export interface TableExpandable<T extends TableRecord = TableRecord> {
 export const tableProps = {
   columns: Array as PropType<TableColumn[]>,
   dataSource: Array as PropType<TableRecord[]>,
+  dataMode: String as PropType<TableDataMode>,
   rowKey: {
     type: [String, Function] as PropType<string | ((record: TableRecord) => TableKey)>,
     default: 'key'
@@ -116,6 +125,7 @@ export const tableEmits = {
   'update:selectedRowKeys': (keys: TableKey[]) => Array.isArray(keys),
   'update:expandedRowKeys': (keys: TableKey[]) => Array.isArray(keys),
   select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => true,
+  selectAll: (_selected: boolean, keys: TableKey[], rows: TableRecord[]) => Array.isArray(keys) && Array.isArray(rows),
   expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => true
 }
 
