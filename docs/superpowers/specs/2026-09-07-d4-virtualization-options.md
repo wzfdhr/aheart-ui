@@ -41,14 +41,14 @@ corepack pnpm exec node scripts/d4-browser-performance.mjs
 - 键盘 active 项必须始终有可查询的 DOM 节点（或等价的稳定 active 语义）；`aria-activedescendant` 不得指向已卸载节点。
 - active 项变化要滚动到可见区域，鼠标 hover、PageUp/PageDown、Home/End 与搜索后的首项保持一致。
 - SSR 与 hydration 的初始窗口、option id 和 active 语义必须一致，不能因客户端首次测量造成 hydration mismatch。
-- 不新增运行时依赖；优先组件内部实现，必要的公开 props、事件和类型另行评审。
+- 当前未授权新增运行时依赖；选型先评估成熟引擎，再比较无依赖实现。若推荐引入依赖，和必要公开 props、事件、类型一起专项确认，不默认自研。
 - Select 与 Cascader 的平面/多列语义不能混用；Cascader 需要单独定义每列窗口、展开路径和 lazy load 行为。
 - Long Task记录保留startTime；`longTasksAfterMount`过滤mount起点之前条目，但并未将全部条目精确归因至单次键盘或绘制，不据此声称某一具体操作造成全部长任务。
 
 ## 可审查实施选择（均未批准）
 
 1. 保持全量DOM：不增加API，保留任意内容/SSR契约；10k初次展开和逐键仍有全量更新成本。本次已修复可见性及重复事件，不声称解决全部大列表性能。
-2. 推荐先评审显式启用的固定高度窗口：默认`virtual=false`，不根据数量自动切换。可讨论`listHeight/itemHeight/overscan`，不新增依赖。仅在消费者保证固定高度时窗口化；自定义多行内容继续全量，不能裁掉用户内容作为性能优化。
+2. 推荐先评审显式启用的窗口能力及成熟引擎适配：默认`virtual=false`，不根据数量自动切换。可讨论`listHeight/itemHeight/overscan`；依赖选择见下节。固定高度路径先覆盖已知高度，自定义多行内容不能因优化被裁掉。
 3. 动态高度窗口作为后续独立子阶段：ResizeObserver测量+高度前缀和/二分定位，锚定首个可见key及行内偏移；重排、文本/字体/宽度变化重算高度。优点是保留任意内容，代价是未知高度估算、跳动与测试复杂度，尚未实现。
 
 固定窗口候选算法：flatten后按typed key保存索引；可见区加overscan，键盘目标不在窗口时先更新窗口/scrollTop，再在nextTick后更新active-descendant或焦点。禁用项不参与导航；active DOM引用不得出现已卸载ID。Cascader每列独立窗口，路径切换丢弃对应列位置；Tree展开收起先重新计算visible序列，再恢复最近可见祖先。
@@ -59,8 +59,37 @@ SSR候选契约：服务端与客户端首轮使用相同初始窗口（起点0�
 
 ## 待确认 API 问题
 
+以下是评审清单，尚未要求实现或批准；具体推荐与决策分组见下节。
+
 1. 是否公开 `virtual`、`itemHeight`、`overscan`，还是先提供内部实验开关？默认值和兼容策略是什么？
 2. 动态 `optionRender` 是否允许任意高度；若允许，是否接受测量抖动和首屏预估高度？
 3. 10k 选项的搜索过滤是否仍在主线程；是否需要异步/外部数据源契约？
 4. SSR 项目是否要求稳定的服务端窗口；组件如何避免随机 id、窗口大小和 hydration 不一致？
 5. 何种浏览器矩阵和证据（桌面、移动 H5、iframe）才足以进入 API 评审？
+
+## 成熟引擎优先比较（2026-09-07实查）
+
+只读查询：`npm view @tanstack/vue-virtual version dependencies peerDependencies dist.unpackedSize exports license --json`，对`@tanstack/virtual-core`与`vue-virtual-scroller`同样查询。没有安装包、修改锁文件或接入引擎。
+
+| 方案 | 已核验包形态及能力 | Aheart需承担的工作 | 主要成本/风险 |
+| --- | --- | --- | --- |
+| 首选评估：@tanstack/vue-virtual 3.13.36 + virtual-core 3.17.8 | MIT；Vue适配器调用核心Virtualizer；提供import/require入口。initialRect、getItemKey、measureElement、rangeExtractor支持初始尺寸、稳定key、动态测量及自定义渲染范围 | 在现有popup/column上挂接headless引擎；typed key与活动项固定渲染；Tree可见列表及Cascader各列映射；SSR初始范围一致 | 引入适配器+核心两包；动态高度锚点、焦点/ARIA、容器生命周期仍由本库验证，并非安装即获得完整可访问性 |
+| 备选：vue-virtual-scroller 3.0.5 | MIT；Vue ^3.3.0；RecycleScroller/DynamicScroller及headless composables；ESM-only | 可选headless保留现有DOM；如用组件式API需整合其CSS和复用节点生命周期；验证焦点节点身份不随回收错配 | 本库CJS产物不能直接假设可require该ESM包，需额外评估bundling/消费端兼容；组件复用带来额外焦点/样式适配 |
+| 比较基线：无依赖自研 | 无新增外部包；固定行高窗口可直接使用typed索引 | 固定窗口、overscan、滚动锚点、ResizeObserver动态测量、缓存失效、SSR、跨Document销毁与定位都需自行实现维护 | 固定路径代码较少不代表动态路径便宜；上游引擎已解决的测量/滚动边界将变成本库长期负担，不作默认选择 |
+
+能力来源：[TanStack Vue adapter](https://tanstack.com/virtual/latest/docs/framework/vue/vue-virtual)、[Virtualizer API](https://tanstack.com/virtual/latest/docs/api/virtualizer)、[vue-virtual-scroller官方指南](https://github.com/Akryum/vue-virtual-scroller/blob/master/docs/guide/index.md)。选型推荐为对上述能力与本库既有ESM/CJS、typed-key和ARIA契约的工程判断，并非已运行两引擎对比测试。
+
+### 体积与维护成本
+
+Registry实查unpackedSize：Vue Virtual适配器18,928字节，核心410,424字节，合计429,352字节；vue-virtual-scroller 462,625字节。该口径包含分发源码、声明、map等，**不是浏览器min+gzip体积，不能用于断言谁更轻**。包元数据可由上述npm view命令复查；MIT许可仅是元数据核对，不代表完成全部依赖审查。
+
+进入获批的隔离适配验证时，三方案用同一个生产Vite消费者构建、external Vue、关闭sourceMap，并比较raw/gzip/Brotli增量、CSS、ESM/CJS导入、未启用virtual时的tree-shaking结果。固定和动态场景分别记录冷开/热开、键盘单步、布局稳定、内存与DOM数量；不以当前开发模式基线推算引擎收益。
+
+工作量判断（非工期承诺）：三个方案都需完成同一套键盘、SSR、五浏览器、iframe验收。TanStack额外工作主要为四组件适配；vue-virtual-scroller还需先解决CJS策略与节点回收/样式适配；自研则额外负责动态测量缓存、前缀和索引、锚点修正与长期维护。先做TanStack固定+动态各一份隔离验证，若CJS/动态测量/体积不达要求再比较备选，避免直接投入完整自研。
+
+### 当前待决策与推荐
+
+- **D4 Tree/Cascader兼容API组**：推荐批准产品经理已提出的checkStrictly默认true、派生半选、Tree loadData(signal)、TreeSelect对应能力和Cascader signal；保持现有默认行为，显式使用新能力后增加契约与异步生命周期测试。此组尚未收到用户回复。
+- **虚拟化独立组**：推荐批准“成熟引擎优先的隔离验证”，首选TanStack，比较上表备选后再批准运行时依赖与最终props。默认不开启，不按数量自动切换；暂不直接批准四组件全部接入、自研动态引擎或新增包边界。若选择继续不新增依赖，则保留当前全量DOM行为并明确大列表性能限制。
+
+已授权内部代码修复、完整门禁、真实浏览器基线与方案准备已执行；本次核对未识别额外独立于上述决策的未完成内部实施项。剩余功能实施分别需要上述确认，之后才有新的候选完整审核/PR/主线CI/Pages门禁。当前停在可核验检查点，不在后台持续实施待批能力。

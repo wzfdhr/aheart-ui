@@ -26,4 +26,4 @@
 
 新候选709de18：Components1080/1080、scripts86/86、typecheck、确定性双构建、docs build、三包pack、Select受影响浏览器14/14、真实Chromium严格基线9/9通过；前后指纹17de1fad…e1a285ad一致。日志 `docs/superpowers/evidence/d4-select-test/`。14项包含Select五浏览器iframe；TreeSelect/Cascader无运行时修改，不重复其已批准专项。
 
-产品待裁定：本次新发现的Select重复键盘事件及活动项不可见修复；不将开发/测试技术P1/P2结论升级为产品关闭，不宣布完整D4完成。
+产品裁定：本次Select重复键盘事件及活动项不可见两项修复已正式批准关闭，见 [产品报告](./2026-09-07-d4-select-keyboard-product-review.md)。仅关闭这两项，不放行完整D4、合并或D5。
