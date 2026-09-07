@@ -18,6 +18,13 @@ const create = (props: Record<string, unknown> = {}) => mount(Select, {
 })
 
 describe('Select virtual integration', () => {
+  it('keeps the no-results content in normal flow instead of a zero-height window', async () => {
+    const wrapper = create({ virtual: true, showSearch: true })
+    await wrapper.get('input[role="combobox"]').setValue('no-match-anywhere')
+    expect(wrapper.get('.aheart-select__empty').text()).toBeTruthy()
+    expect((wrapper.get('.aheart-select__list').element as HTMLElement).style.height).toBe('')
+    expect(wrapper.get('input[role="combobox"]').attributes('aria-activedescendant')).toBeUndefined()
+  })
   it('keeps the default full DOM path and explicitly windows the same options', () => {
     expect(create().findAll('[role="option"]')).toHaveLength(1000)
     const virtual = create({ virtual: true })

@@ -179,7 +179,7 @@ function useSelectVirtual(input) {
   watch([enabled, input.popup], resetMeasurements, { flush: "sync" });
   onBeforeUnmount(resetMeasurements);
   const rows = computed(() => config.value ? virtualizer.value.getVirtualItems().map((item) => ({ option: input.options.value[item.index], index: item.index, item })) : input.options.value.map((option, index) => ({ option, index, item: void 0 })));
-  const listStyle = computed(() => config.value ? { height: `${virtualizer.value.getTotalSize()}px`, position: "relative", display: "block" } : void 0);
+  const listStyle = computed(() => config.value && input.options.value.length > 0 ? { height: `${virtualizer.value.getTotalSize()}px`, position: "relative", display: "block" } : void 0);
   const popupStyle = computed(() => config.value ? { maxHeight: `min(${config.value.height}px, calc(100dvh - 16px))`, overflowAnchor: "none" } : void 0);
   const rowStyle = (row) => row.item ? {
     position: "absolute",

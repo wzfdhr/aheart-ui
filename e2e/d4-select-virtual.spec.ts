@@ -1,5 +1,26 @@
 import { expect, test, type Frame, type Page } from '@playwright/test'
 
+test('Select virtual no-results message remains visible and search can recover', async ({ page }) => {
+  await page.goto('/components/select')
+  await page.waitForFunction(() => Boolean((document.querySelector('#app') as any)?.__vue_app__))
+  const input = page.locator('#select-virtual-search-demo')
+  await input.click()
+  await input.fill('no-match-anywhere')
+  const popup = page.locator('.aheart-select__popup:has(.is-virtual)')
+  await expect(popup.locator('.aheart-select__empty')).toBeVisible()
+  await expect(input).not.toHaveAttribute('aria-activedescendant')
+  await expect.poll(() => popup.evaluate(element => {
+    const empty = element.querySelector('.aheart-select__empty')!.getBoundingClientRect()
+    const panel = element.getBoundingClientRect()
+    return panel.height > 40 && empty.top >= panel.top && empty.bottom <= panel.bottom
+  })).toBe(true)
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('.aheart-select__popup')!).opacity === '1')
+  await page.screenshot({ path: test.info().outputPath('select-virtual-empty.png') })
+  await input.fill('Row 0999')
+  await expect(popup.getByRole('option')).toHaveCount(1)
+  await expect(input).toHaveAttribute('aria-activedescendant', /option/)
+})
+
 async function checkActive(context: Page | Frame, suffix: string) {
   const trigger = context.locator('#select-virtual-demo')
   await expect.poll(() => trigger.getAttribute('aria-activedescendant')).toBeTruthy()

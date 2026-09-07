@@ -357,6 +357,12 @@ const options = Array.from({ length: 1000 }, (_, index) => ({
 
 ### Virtual 配置
 
+搜索无匹配项时保留正常的空状态提示，不把提示压入零高度的虚拟窗口：
+
+<div class="aheart-demo-panel" role="region" aria-label="Select 虚拟搜索示例">
+  <ASelect id="select-virtual-search-demo" aria-label="虚拟搜索选项" virtual show-search :options="selectVirtualOptions" placeholder="搜索 Row 0999 或无匹配词" style="width: 280px" />
+</div>
+
 `virtual` 可以是布尔值或配置对象。`height` 是浮层外框的高度上限（默认 `288`），`estimateSize` 只是初始行高估计（默认 `32`），实际行高会动态测量，不会因估计值裁切内容；`overscan` 为视口两侧额外渲染的行数（默认 `3`）。无效字段会独立回退到默认值并在开发环境告警。
 
 虚拟列表只属于 Select，不会泛化到其他组件。它是静态依赖，关闭虚拟化仍会产生相应包体成本；默认关闭保持完整 DOM 与现有行为。

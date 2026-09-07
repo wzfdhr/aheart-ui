@@ -181,7 +181,7 @@ function useSelectVirtual(input) {
   vue.watch([enabled, input.popup], resetMeasurements, { flush: "sync" });
   vue.onBeforeUnmount(resetMeasurements);
   const rows = vue.computed(() => config.value ? virtualizer.value.getVirtualItems().map((item) => ({ option: input.options.value[item.index], index: item.index, item })) : input.options.value.map((option, index) => ({ option, index, item: void 0 })));
-  const listStyle = vue.computed(() => config.value ? { height: `${virtualizer.value.getTotalSize()}px`, position: "relative", display: "block" } : void 0);
+  const listStyle = vue.computed(() => config.value && input.options.value.length > 0 ? { height: `${virtualizer.value.getTotalSize()}px`, position: "relative", display: "block" } : void 0);
   const popupStyle = vue.computed(() => config.value ? { maxHeight: `min(${config.value.height}px, calc(100dvh - 16px))`, overflowAnchor: "none" } : void 0);
   const rowStyle = (row) => row.item ? {
     position: "absolute",

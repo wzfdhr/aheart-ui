@@ -136,8 +136,15 @@ async function candidate(tarball, label, evaluateRuntime) {
         assert.ok((await page.locator('[role="option"]').textContent()).startsWith(`Row ${count - 1}`))
         const longtasks = await page.evaluate(() => window.__longtasks)
         const longtaskSegments = Object.fromEntries(Object.entries(markers).map(([name, [start, end]]) => [name, longtasks.filter(task => task.startTime >= start && task.startTime <= end)]))
+        await input.fill('no-match-anywhere')
+        await page.waitForSelector('.aheart-select__empty')
+        const emptyVisible = await page.locator('[role="listbox"]').evaluate(element => {
+          const empty = element.querySelector('.aheart-select__empty')
+          return empty && element.clientHeight >= empty.getBoundingClientRect().height
+        })
+        assert.ok(emptyVisible, 'Empty state was clipped by the virtual window')
         assert.deepEqual(errors, [])
-        record.scenarios.push({ variant, count, dynamic, round, ...snapshot, markers, longtaskSegments, heapBefore, heapAfter: await cdp.send('Runtime.getHeapUsage'), coldOpenMs: markers.cold[1] - markers.cold[0], hotOpenMs: markers.hot[1] - markers.hot[0], searchMs: markers.search[1] - markers.search[0], twentyKeysMs: markers.keys[1] - markers.keys[0] })
+        record.scenarios.push({ variant, count, dynamic, round, ...snapshot, markers, longtaskSegments, emptyVisible, heapBefore, heapAfter: await cdp.send('Runtime.getHeapUsage'), coldOpenMs: markers.cold[1] - markers.cold[0], hotOpenMs: markers.hot[1] - markers.hot[0], searchMs: markers.search[1] - markers.search[0], twentyKeysMs: markers.keys[1] - markers.keys[0] })
         console.log(`${label} ${variant} count=${count} dynamic=${dynamic} round=${round} passed`)
       }
       await page.screenshot({ path: path.join(root, `proof-${variant}.png`) })
