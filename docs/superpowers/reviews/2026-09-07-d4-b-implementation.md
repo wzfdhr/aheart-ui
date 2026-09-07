@@ -49,4 +49,4 @@ unused产物内无TanStack模块，且大小与baseline一致。disabled仍有4�
 
 该批验收应先以同一个真实Select切换全量/虚拟模式，匹配内容和交互后测1k/5k/10k生产冷开、热开、搜索、逐键、长任务和内存；再跑既有五浏览器、SSR/hydration与iframe门禁。默认非虚拟路径回归必须单独通过。数据与门禁通过后才考虑Tree/TreeSelect的可见树扁平化与每列Cascader，不能从本次custom listbox结果推断这些适配已完成。
 
-独立开发复审见[报告](2026-09-07-d4-b-dev-review.md)；[独立测试修正版续验](2026-09-07-d4-b-test-review.md)已在另一全新临时目录通过pack/npm ci/engine-size/measure，体积及模块集合一致，关闭锁文件可移植性P1。[独立动态截图](../evidence/d4-b-independent-success/production-dynamic.png)亦由整合者实际打开复核。B产品最终裁定尚待回报，不以实施者或测试经理替代产品验收。
+独立开发复审见[报告](2026-09-07-d4-b-dev-review.md)；[独立测试修正版续验](2026-09-07-d4-b-test-review.md)已在另一全新临时目录通过pack/npm ci/engine-size/measure，体积及模块集合一致，关闭锁文件可移植性P1。[独立动态截图](../evidence/d4-b-independent-success/production-dynamic.png)亦由整合者实际打开复核。[B产品验收现已接受](2026-09-07-d4-b-product-review.md)，仅限隔离可行性。正式接入选择仍待用户决定；[精确API草案与测试清单](../specs/2026-09-07-d4-select-virtual-api-draft.md)仅文档准备，不构成实施授权。
