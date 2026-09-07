@@ -133,9 +133,9 @@
         :aria-multiselectable="isMultiple ? 'true' : undefined"
         :aria-hidden="motion.phase.value === 'hidden' ? 'true' : undefined"
       >
-        <div class="aheart-select__list" :class="classNames.list" :style="styles.list">
+        <div class="aheart-select__list" :class="[classNames.list, { 'is-virtual': virtualList.config.value }]" :style="[styles.list, virtualList.listStyle.value]">
           <div
-            v-for="(option, index) in filteredOptions"
+            v-for="{ option, index, item } in virtualList.rows.value"
             :id="getOptionId(option)"
             :key="getOptionKey(option.value)"
             class="aheart-select__option"
@@ -147,8 +147,12 @@
                 'is-disabled': isOptionDisabled(option)
               }
             ]"
-            :style="styles.option"
+            :style="[styles.option, virtualList.rowStyle({ option, index, item })]"
+            :ref="virtualList.config.value ? virtualList.measure : undefined"
+            :data-index="virtualList.config.value ? index : undefined"
             role="option"
+            :aria-posinset="virtualList.config.value ? index + 1 : undefined"
+            :aria-setsize="virtualList.config.value ? filteredOptions.length : undefined"
             :aria-selected="isValueSelected(option.value) ? 'true' : 'false'"
             :aria-disabled="isOptionDisabled(option) ? 'true' : undefined"
             @mouseenter="setActiveIndex(index)"
@@ -186,6 +190,7 @@ import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
+import { useSelectVirtual } from './use-select-virtual'
 import {
   selectEmits,
   selectProps,
@@ -262,7 +267,7 @@ const openState = useControllableState<boolean>({
   onChange: (open) => emit('openChange', Boolean(open))
 })
 const mergedValue = valueState.state
-const mergedOpen = computed(() => Boolean(openState.state.value))
+const mergedOpen = computed(() => Boolean(openState.state.value) && (!props.virtual || !isDisabled.value))
 const currentSearchValue = computed(() => isSearchControlled.value ? props.searchValue ?? '' : internalSearchValue.value)
 const resolvedId = computed(() => props.id ?? formControl?.controlId.value)
 const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs['aria-labelledby'] as string | undefined)
@@ -385,7 +390,7 @@ const popupWidthStyle = computed(() => {
     : selectorRef.value?.getBoundingClientRect().width
   return width ? { width: `${width}px` } : {}
 })
-const popupStyle = computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup])
+const popupStyle = computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup, virtualList.popupStyle.value])
 
 const setInitialActive = () => {
   const current = filteredOptions.value.find((option) => getOptionKey(option.value) === activeKey.value && !isOptionDisabled(option))
@@ -395,6 +400,20 @@ const setInitialActive = () => {
   const next = selected ?? firstEnabled
   activeKey.value = next ? getOptionKey(next.value) : undefined
 }
+// Opt-in defaultOpen / controlled-open must have the same initial active item on server and client.
+watch([mergedOpen, () => props.virtual], () => {
+  if (props.virtual && mergedOpen.value) setInitialActive()
+}, { immediate: true })
+const virtualList = useSelectVirtual({
+  config: () => props.virtual,
+  open: mergedOpen,
+  disabled: isDisabled,
+  popup: popupRef,
+  options: filteredOptions,
+  activeIndex,
+  activeKey,
+  key: (option) => getOptionKey(option.value)
+})
 const requestOpen = (open: boolean) => {
   if (isDisabled.value) return
   openState.setState(open, { force: true })
@@ -556,6 +575,7 @@ watch(filteredOptions, () => {
   if (mergedOpen.value) setInitialActive()
 })
 watch(activeOptionId, () => {
+  if (virtualList.config.value) return
   void nextTick(() => {
     const popup = popupRef.value
     const id = activeOptionId.value

@@ -10,6 +10,7 @@ const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
+const useSelectVirtual = require("./use-select-virtual.js");
 const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
@@ -33,7 +34,7 @@ const _hoisted_8 = {
   "aria-live": "polite"
 };
 const _hoisted_9 = ["aria-multiselectable", "aria-hidden"];
-const _hoisted_10 = ["id", "aria-selected", "aria-disabled", "onMouseenter", "onClick"];
+const _hoisted_10 = ["id", "data-index", "aria-posinset", "aria-setsize", "aria-selected", "aria-disabled", "onMouseenter", "onClick"];
 const _hoisted_11 = { class: "aheart-select__option-content" };
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{ name: "ASelect", inheritAttrs: false },
@@ -101,7 +102,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       onChange: (open) => emit("openChange", Boolean(open))
     });
     const mergedValue = valueState.state;
-    const mergedOpen = vue.computed(() => Boolean(openState.state.value));
+    const mergedOpen = vue.computed(() => Boolean(openState.state.value) && (!props.virtual || !isDisabled.value));
     const currentSearchValue = vue.computed(() => isSearchControlled.value ? props.searchValue ?? "" : internalSearchValue.value);
     const resolvedId = vue.computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
     const resolvedAriaLabelledby = vue.computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
@@ -222,7 +223,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const width = typeof props.popupMatchSelectWidth === "number" ? props.popupMatchSelectWidth : (_a = selectorRef.value) == null ? void 0 : _a.getBoundingClientRect().width;
       return width ? { width: `${width}px` } : {};
     });
-    const popupStyle = vue.computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup]);
+    const popupStyle = vue.computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup, virtualList.popupStyle.value]);
     const setInitialActive = () => {
       const current = filteredOptions.value.find((option) => getOptionKey(option.value) === activeKey.value && !isOptionDisabled(option));
       if (current)
@@ -232,6 +233,20 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const next = selected ?? firstEnabled;
       activeKey.value = next ? getOptionKey(next.value) : void 0;
     };
+    vue.watch([mergedOpen, () => props.virtual], () => {
+      if (props.virtual && mergedOpen.value)
+        setInitialActive();
+    }, { immediate: true });
+    const virtualList = useSelectVirtual.useSelectVirtual({
+      config: () => props.virtual,
+      open: mergedOpen,
+      disabled: isDisabled,
+      popup: popupRef,
+      options: filteredOptions,
+      activeIndex,
+      activeKey,
+      key: (option) => getOptionKey(option.value)
+    });
     const requestOpen = (open) => {
       if (isDisabled.value)
         return;
@@ -426,6 +441,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         setInitialActive();
     });
     vue.watch(activeOptionId, () => {
+      if (virtualList.config.value)
+        return;
       void vue.nextTick(() => {
         const popup = popupRef.value;
         const id = activeOptionId.value;
@@ -626,10 +643,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             "aria-hidden": vue.unref(motion).phase.value === "hidden" ? "true" : void 0
           }, [
             vue.createElementVNode("div", {
-              class: vue.normalizeClass(["aheart-select__list", _ctx.classNames.list]),
-              style: vue.normalizeStyle(_ctx.styles.list)
+              class: vue.normalizeClass(["aheart-select__list", [_ctx.classNames.list, { "is-virtual": vue.unref(virtualList).config.value }]]),
+              style: vue.normalizeStyle([_ctx.styles.list, vue.unref(virtualList).listStyle.value])
             }, [
-              (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(filteredOptions.value, (option, index) => {
+              (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(vue.unref(virtualList).rows.value, ({ option, index, item }) => {
                 return vue.openBlock(), vue.createElementBlock("div", {
                   id: getOptionId(option),
                   key: getOptionKey(option.value),
@@ -641,8 +658,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       "is-disabled": isOptionDisabled(option)
                     }
                   ]]),
-                  style: vue.normalizeStyle(_ctx.styles.option),
+                  style: vue.normalizeStyle([_ctx.styles.option, vue.unref(virtualList).rowStyle({ option, index, item })]),
+                  ref_for: true,
+                  ref: vue.unref(virtualList).config.value ? vue.unref(virtualList).measure : void 0,
+                  "data-index": vue.unref(virtualList).config.value ? index : void 0,
                   role: "option",
+                  "aria-posinset": vue.unref(virtualList).config.value ? index + 1 : void 0,
+                  "aria-setsize": vue.unref(virtualList).config.value ? filteredOptions.value.length : void 0,
                   "aria-selected": isValueSelected(option.value) ? "true" : "false",
                   "aria-disabled": isOptionDisabled(option) ? "true" : void 0,
                   onMouseenter: ($event) => setActiveIndex(index),

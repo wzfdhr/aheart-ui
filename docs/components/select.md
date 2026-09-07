@@ -1,11 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 const selectRef = ref<{ focus: () => void; blur: () => void }>()
 const selectValue = ref('banana')
 const selectValues = ref(['apple', 'banana'])
 const selectTagValues = ref(['apple'])
 const selectClearValue = ref('apple')
+const selectVirtualValue = ref('row-0999')
+const selectVirtualGrow = ref(false)
+const selectVirtualOptions = Array.from({ length: 1000 }, (_, index) => ({
+  label: index % 2 === 0 ? `Row ${String(index).padStart(4, '0')} · compact` : `Row ${String(index).padStart(4, '0')} · detail line`,
+  value: `row-${String(index).padStart(4, '0')}`,
+  disabled: index === 17
+}))
+const renderVirtualOption = (option: { label: string; value: string }) => h('span', [
+  option.label,
+  Number(option.value.slice(4)) % 2 ? h('br') : null,
+  Number(option.value.slice(4)) % 2 ? '动态内容第二行' : null,
+  option.value === 'row-0000' && selectVirtualGrow.value ? h('div', { style: 'height:100px' }, '增高的首项') : null
+])
 </script>
 
 # Select 选择器 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -304,6 +317,50 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 </template>
 ```
 
+## 大量选项与虚拟列表
+
+`virtual` 默认关闭。启用后 Select 只渲染视口附近的选项，适合 1000 项以上的静态列表；下面的示例保留稳定的字符串 id，并用交错文案模拟不同高度的行：
+
+<div class="aheart-demo-panel" role="region" aria-label="Select 虚拟列表示例">
+  <AButton @click="selectVirtualGrow = !selectVirtualGrow">切换首项高度</AButton>
+  <ASelect
+    id="select-virtual-demo"
+    aria-label="虚拟选项"
+    v-model="selectVirtualValue"
+    virtual
+    :options="selectVirtualOptions"
+    :option-render="renderVirtualOption"
+    style="width: 280px"
+  />
+</div>
+
+```vue
+<template>
+  <ASelect
+    v-model="value"
+    virtual
+    :options="options"
+    :option-render="(option) => option.label"
+  />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref('row-0999')
+const options = Array.from({ length: 1000 }, (_, index) => ({
+  label: index % 2 === 0 ? `Row ${index} · compact` : `Row ${index} · detail line`,
+  value: `row-${String(index).padStart(4, '0')}`
+}))
+</script>
+```
+
+### Virtual 配置
+
+`virtual` 可以是布尔值或配置对象。`height` 是浮层外框的高度上限（默认 `288`），`estimateSize` 只是初始行高估计（默认 `32`），实际行高会动态测量，不会因估计值裁切内容；`overscan` 为视口两侧额外渲染的行数（默认 `3`）。无效字段会独立回退到默认值并在开发环境告警。
+
+虚拟列表只属于 Select，不会泛化到其他组件。它是静态依赖，关闭虚拟化仍会产生相应包体成本；默认关闭保持完整 DOM 与现有行为。
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -332,6 +389,7 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | autoAdjustOverflow | 是否在视口边缘自动翻转和位移 | `boolean` | `true` |
 | getPopupContainer | 自定义浮层挂载容器 | `(triggerNode: HTMLElement) => HTMLElement` | `document.body` |
 | popupMatchSelectWidth | 浮层是否匹配触发器宽度，也可指定像素宽度 | `boolean` \| `number` | `true` |
+| virtual | 是否启用虚拟列表，也可配置浮层高度、行高估计与额外渲染行数 | `boolean` \| `SelectVirtualConfig` | `false` |
 | showSearch | 是否显示搜索输入 | `boolean` | `false` |
 | searchValue | 受控搜索文本 | `string` | - |
 | optionFilterProp | 默认搜索匹配的选项字段 | `string` | `label` |
@@ -357,6 +415,14 @@ const selectRef = ref<{ focus: () => void; blur: () => void }>()
 | label | 选项文本 | `string` | - |
 | value | 选项值 | `string` \| `number` | - |
 | disabled | 是否禁用 | `boolean` | `false` |
+
+### SelectVirtualConfig
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| height | 浮层外框高度上限（CSS 像素） | `number`（有限且大于 0） | `288` |
+| estimateSize | 初始行高估计，不强制行高 | `number`（有限且大于 0） | `32` |
+| overscan | 视口两侧额外渲染的行数 | `number`（非负安全整数） | `3` |
 
 ### SelectFieldNames
 

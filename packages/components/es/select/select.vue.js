@@ -8,6 +8,7 @@ import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
+import { useSelectVirtual } from "./use-select-virtual.js";
 import { selectProps, selectEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
@@ -31,7 +32,7 @@ const _hoisted_8 = {
   "aria-live": "polite"
 };
 const _hoisted_9 = ["aria-multiselectable", "aria-hidden"];
-const _hoisted_10 = ["id", "aria-selected", "aria-disabled", "onMouseenter", "onClick"];
+const _hoisted_10 = ["id", "data-index", "aria-posinset", "aria-setsize", "aria-selected", "aria-disabled", "onMouseenter", "onClick"];
 const _hoisted_11 = { class: "aheart-select__option-content" };
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{ name: "ASelect", inheritAttrs: false },
@@ -99,7 +100,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       onChange: (open) => emit("openChange", Boolean(open))
     });
     const mergedValue = valueState.state;
-    const mergedOpen = computed(() => Boolean(openState.state.value));
+    const mergedOpen = computed(() => Boolean(openState.state.value) && (!props.virtual || !isDisabled.value));
     const currentSearchValue = computed(() => isSearchControlled.value ? props.searchValue ?? "" : internalSearchValue.value);
     const resolvedId = computed(() => props.id ?? (formControl == null ? void 0 : formControl.controlId.value));
     const resolvedAriaLabelledby = computed(() => props.labelledBy ?? props.ariaLabelledby ?? attrs["aria-labelledby"]);
@@ -220,7 +221,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const width = typeof props.popupMatchSelectWidth === "number" ? props.popupMatchSelectWidth : (_a = selectorRef.value) == null ? void 0 : _a.getBoundingClientRect().width;
       return width ? { width: `${width}px` } : {};
     });
-    const popupStyle = computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup]);
+    const popupStyle = computed(() => [floatingPosition.popupStyle.value, popupWidthStyle.value, props.styles.popup, virtualList.popupStyle.value]);
     const setInitialActive = () => {
       const current = filteredOptions.value.find((option) => getOptionKey(option.value) === activeKey.value && !isOptionDisabled(option));
       if (current)
@@ -230,6 +231,20 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const next = selected ?? firstEnabled;
       activeKey.value = next ? getOptionKey(next.value) : void 0;
     };
+    watch([mergedOpen, () => props.virtual], () => {
+      if (props.virtual && mergedOpen.value)
+        setInitialActive();
+    }, { immediate: true });
+    const virtualList = useSelectVirtual({
+      config: () => props.virtual,
+      open: mergedOpen,
+      disabled: isDisabled,
+      popup: popupRef,
+      options: filteredOptions,
+      activeIndex,
+      activeKey,
+      key: (option) => getOptionKey(option.value)
+    });
     const requestOpen = (open) => {
       if (isDisabled.value)
         return;
@@ -424,6 +439,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         setInitialActive();
     });
     watch(activeOptionId, () => {
+      if (virtualList.config.value)
+        return;
       void nextTick(() => {
         const popup = popupRef.value;
         const id = activeOptionId.value;
@@ -624,10 +641,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             "aria-hidden": unref(motion).phase.value === "hidden" ? "true" : void 0
           }, [
             createElementVNode("div", {
-              class: normalizeClass(["aheart-select__list", _ctx.classNames.list]),
-              style: normalizeStyle(_ctx.styles.list)
+              class: normalizeClass(["aheart-select__list", [_ctx.classNames.list, { "is-virtual": unref(virtualList).config.value }]]),
+              style: normalizeStyle([_ctx.styles.list, unref(virtualList).listStyle.value])
             }, [
-              (openBlock(true), createElementBlock(Fragment, null, renderList(filteredOptions.value, (option, index) => {
+              (openBlock(true), createElementBlock(Fragment, null, renderList(unref(virtualList).rows.value, ({ option, index, item }) => {
                 return openBlock(), createElementBlock("div", {
                   id: getOptionId(option),
                   key: getOptionKey(option.value),
@@ -639,8 +656,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       "is-disabled": isOptionDisabled(option)
                     }
                   ]]),
-                  style: normalizeStyle(_ctx.styles.option),
+                  style: normalizeStyle([_ctx.styles.option, unref(virtualList).rowStyle({ option, index, item })]),
+                  ref_for: true,
+                  ref: unref(virtualList).config.value ? unref(virtualList).measure : void 0,
+                  "data-index": unref(virtualList).config.value ? index : void 0,
                   role: "option",
+                  "aria-posinset": unref(virtualList).config.value ? index + 1 : void 0,
+                  "aria-setsize": unref(virtualList).config.value ? filteredOptions.value.length : void 0,
                   "aria-selected": isValueSelected(option.value) ? "true" : "false",
                   "aria-disabled": isOptionDisabled(option) ? "true" : void 0,
                   onMouseenter: ($event) => setActiveIndex(index),
