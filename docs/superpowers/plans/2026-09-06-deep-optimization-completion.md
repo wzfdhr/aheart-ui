@@ -29,7 +29,8 @@
   - [x] Select子集已批准并实现：静态TanStack、默认false、height/estimateSize/overscan；真实生产体积/36场景/4组hydrate与产品验收完成。
   - [ ] Tree、TreeSelect、Cascader虚拟化未实现；是否补齐或如何调整原D4范围仍待明确产品决定，不能当作用户已批准延期。
 - [x] 成熟引擎优先选型：初评比较三方案，B已完成TanStack隔离评估，C已获准并完成仅Select静态接入。各阶段“当时尚未安装”属于历史，不是当前状态。
-- [ ] Draft PR留存、远端CI全绿及完整D4剩余范围说明。
+- [x] [Draft PR #18](https://github.com/wzfdhr/aheart-ui/pull/18)留存；正文及矩阵明确本批与未完成范围，不等于合并放行。
+- [ ] 远端CI全绿及完整D4剩余范围裁定（见PR checks和产品经理后续决定）。
 - [ ] 产品经理最终合并裁定，以及获准合并后的master CI/Pages验证；不提前开始D5。
 
 ## D5 Table / Pagination
