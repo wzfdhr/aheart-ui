@@ -1,0 +1,6 @@
+{
+  "phase": "执行前冻结参考",
+  "expectedSha256": "56e5623a5d98ce69b9204b4c4bc5b93b415746aa8de42bd4c3c26dc0a8cb626b",
+  "files": 122,
+  "base": "3dc64ff1734004c2e51cc2a5e6a99a59c85ae1a2"
+}

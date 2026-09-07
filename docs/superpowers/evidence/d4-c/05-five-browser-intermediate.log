@@ -1,0 +1,187 @@
+
+[WebServer] (node:30280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:30291) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:30305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:31064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:31078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 35 tests using 2 workers
+
+
+(node:31089) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:31090) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/35] [desktop] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[2/35] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[3/35] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[4/35] [desktop] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[5/35] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[6/35] [desktop] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+
+(node:31123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[7/35] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[8/35] [desktop] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+[9/35] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+
+(node:31139) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[10/35] [mobile] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[11/35] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[12/35] [mobile] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[13/35] [mobile] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+
+(node:31155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[14/35] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[15/35] [mobile] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+
+(node:31166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[16/35] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[17/35] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[18/35] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[19/35] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[20/35] [desktop-firefox] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[21/35] [desktop-firefox] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+
+(node:31189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[22/35] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[23/35] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[24/35] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[25/35] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[26/35] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  1) [desktop-firefox] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: frame.waitForFunction: Test timeout of 30000ms exceeded.
+
+      73 |   const handle = await page.locator('#virtual-frame').elementHandle()
+      74 |   const frame = (await handle!.contentFrame())!
+    > 75 |   await frame.waitForFunction(() => Boolean((document.querySelector('#app') as any)?.__vue_app__))
+         |               ^
+      76 |   const trigger = frame.locator('#select-virtual-demo')
+      77 |   await trigger.scrollIntoViewIfNeeded()
+      78 |   await trigger.click()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d4-select-virtual.spec.ts:75:15
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-69c9e--disposes-after-SPA-unmount-desktop-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:31263) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[27/35] [desktop-webkit] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+
+(node:31264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[28/35] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[29/35] [desktop-webkit] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+[30/35] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+
+(node:31295) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[31/35] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[32/35] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[33/35] [mobile-webkit] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[34/35] [mobile-webkit] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+  2) [mobile-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 3
+    Received:   76
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      52 |     const row = element.ownerDocument.getElementById(anchor.id)
+      53 |     return row ? Math.abs(row.getBoundingClientRect().top - element.getBoundingClientRect().top - anchor.offset) : 999
+    > 54 |   }, anchor)).toBeLessThan(3)
+         |               ^
+      55 |   await trigger.press('End')
+      56 |   await checkActive(page, 'Row 0999')
+      57 |   await page.screenshot({ path: test.info().outputPath('select-virtual-tail.png') })
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d4-select-virtual.spec.ts:54:15
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d4-c-browser-five/d4-select-virtual-Select-v-5eb26-height-and-scroll-anchoring-mobile-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:31319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[35/35] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount
+  2 failed
+    [desktop-firefox] › e2e/d4-select-virtual.spec.ts:64:5 › Select virtual uses iframe realm and disposes after SPA unmount 
+    [mobile-webkit] › e2e/d4-select-virtual.spec.ts:15:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring 
+  33 passed (1.5m)

@@ -1,0 +1,33 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/select/__tests__/select-virtual.test.ts  (8 tests | 1 failed | 7 skipped) 63ms
+   ❯ src/select/__tests__/select-virtual.test.ts > Select virtual integration > keeps the no-results content in normal flow instead of a zero-height window
+     → expected '0px' to be '' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/select/__tests__/select-virtual.test.ts > Select virtual integration > keeps the no-results content in normal flow instead of a zero-height window
+AssertionError: expected '0px' to be '' // Object.is equality
+
+- Expected
++ Received
+
++ 0px
+
+ ❯ src/select/__tests__/select-virtual.test.ts:25:87
+     23|     await wrapper.get('input[role="combobox"]').setValue('no-match-any…
+     24|     expect(wrapper.get('.aheart-select__empty').text()).toBeTruthy()
+     25|     expect((wrapper.get('.aheart-select__list').element as HTMLElement…
+       |                                                                                       ^
+     26|     expect(wrapper.get('input[role="combobox"]').attributes('aria-acti…
+     27|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  14:33:08
+   Duration  906ms (transform 233ms, setup 0ms, collect 342ms, tests 63ms, environment 335ms, prepare 49ms)
+
