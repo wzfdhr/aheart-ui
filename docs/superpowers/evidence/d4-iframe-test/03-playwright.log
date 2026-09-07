@@ -1,0 +1,68 @@
+
+[WebServer] (node:96394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:96405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:96419) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:97474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:97485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 5 workers
+
+
+(node:97493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:97496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:97495) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:97494) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:97492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/15] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[2/15] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[3/15] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[4/15] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[5/15] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[6/15] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[7/15] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[8/15] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[9/15] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[10/15] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[11/15] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[12/15] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[13/15] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[14/15] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[15/15] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+  15 passed (26.5s)

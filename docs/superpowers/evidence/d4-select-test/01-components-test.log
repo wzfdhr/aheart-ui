@@ -1,0 +1,84 @@
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/input-number/__tests__/input-number.test.ts  (57 tests) 338ms
+ ✓ src/drawer/__tests__/drawer.test.ts  (52 tests) 644ms
+ ✓ src/form/__tests__/form.test.ts  (39 tests) 438ms
+ ✓ src/modal/__tests__/modal.test.ts  (60 tests) 794ms
+ ✓ src/tooltip/__tests__/tooltip.test.ts  (26 tests) 860ms
+ ✓ src/select/__tests__/select.test.ts  (39 tests) 1029ms
+ ✓ src/popconfirm/__tests__/popconfirm.test.ts  (26 tests) 1076ms
+ ✓ src/table/__tests__/table.test.ts  (29 tests) 195ms
+ ✓ src/dropdown/__tests__/dropdown.test.ts  (32 tests) 1327ms
+ ✓ src/popover/__tests__/popover.test.ts  (22 tests) 743ms
+ ✓ src/splitter/__tests__/splitter.test.ts  (17 tests) 116ms
+ ✓ src/card/__tests__/card.test.ts  (26 tests) 88ms
+ ✓ src/date-picker/__tests__/date-picker.test.ts  (50 tests) 1991ms
+ ✓ src/tree/__tests__/tree.test.ts  (21 tests) 205ms
+ ✓ src/button/__tests__/button.test.ts  (26 tests) 161ms
+ ✓ src/message/__tests__/message.test.ts  (20 tests) 155ms
+ ✓ src/cascader/__tests__/cascader.test.ts  (21 tests) 1006ms
+ ✓ src/menu/__tests__/menu.test.ts  (16 tests) 287ms
+ ✓ src/input/__tests__/input.test.ts  (19 tests) 90ms
+ ✓ src/config-provider/__tests__/config-provider.test.ts  (9 tests) 92ms
+ ✓ src/pagination/__tests__/pagination.test.ts  (18 tests) 131ms
+ ✓ src/radio/__tests__/radio.test.ts  (17 tests) 153ms
+ ✓ src/textarea/__tests__/textarea.test.ts  (20 tests) 114ms
+ ✓ src/time-picker/__tests__/time-picker.test.ts  (26 tests) 1848ms
+ ✓ src/tree-select/__tests__/tree-select.test.ts  (15 tests) 502ms
+ ✓ src/checkbox/__tests__/checkbox.test.ts  (17 tests) 116ms
+ ✓ src/form/__tests__/engine.test.ts  (20 tests) 86ms
+ ✓ src/upload/__tests__/upload.test.ts  (14 tests) 252ms
+ ✓ src/tabs/__tests__/tabs.test.ts  (13 tests) 113ms
+ ✓ src/date-picker/__tests__/date-range-picker.test.ts  (25 tests) 1803ms
+ ✓ src/typography/__tests__/typography.test.ts  (14 tests) 106ms
+ ✓ src/alert/__tests__/alert.test.ts  (12 tests) 88ms
+ ✓ src/steps/__tests__/steps.test.ts  (12 tests) 103ms
+ ✓ src/switch/__tests__/switch.test.ts  (16 tests) 99ms
+ ✓ src/utils/__tests__/use-floating-position.test.ts  (20 tests) 17ms
+ ✓ src/descriptions/__tests__/descriptions.test.ts  (7 tests) 87ms
+ ✓ src/time-picker/__tests__/time-range-picker.test.ts  (17 tests) 1332ms
+ ✓ src/utils/__tests__/use-floating-dismiss.test.ts  (7 tests) 63ms
+ ✓ src/breadcrumb/__tests__/breadcrumb.test.ts  (8 tests) 124ms
+ ✓ src/tag/__tests__/tag.test.ts  (9 tests) 123ms
+ ✓ src/spin/__tests__/spin.test.ts  (10 tests) 104ms
+ ✓ src/badge/__tests__/badge.test.ts  (12 tests) 78ms
+ ✓ src/utils/__tests__/use-pointer-drag.test.ts  (10 tests) 53ms
+ ✓ src/utils/__tests__/overlay-controller.test.ts  (6 tests) 11ms
+ ✓ src/empty/__tests__/empty.test.ts  (13 tests) 63ms
+ ✓ src/skeleton/__tests__/skeleton.test.ts  (6 tests) 44ms
+ ✓ src/space/__tests__/space.test.ts  (7 tests) 68ms
+ ✓ src/input/__tests__/form-integration.test.ts  (6 tests) 166ms
+ ✓ src/picker-core/__tests__/codec.test.ts  (10 tests) 10ms
+ ✓ src/utils/__tests__/use-controllable-state.test.ts  (5 tests) 19ms
+ ✓ src/utils/__tests__/use-async-task.test.ts  (5 tests) 26ms
+ ✓ src/icon/__tests__/icon.test.ts  (10 tests) 63ms
+ ✓ src/divider/__tests__/divider.test.ts  (6 tests) 74ms
+ ✓ src/tree/__tests__/tree-index.test.ts  (7 tests) 29ms
+ ✓ src/form/__tests__/form-item-protocol.test.ts  (4 tests) 85ms
+ ✓ src/flex/__tests__/flex.test.ts  (4 tests) 70ms
+ ✓ src/picker-core/__tests__/selection.test.ts  (9 tests) 4ms
+ ✓ src/grid/__tests__/grid.test.ts  (6 tests) 32ms
+ ✓ src/utils/__tests__/use-roving-focus.test.ts  (3 tests) 8ms
+ ✓ src/utils/__tests__/use-stable-id.test.ts  (4 tests) 37ms
+ ✓ src/splitter/__tests__/solver.test.ts  (5 tests) 3ms
+ ✓ src/utils/__tests__/use-collection.test.ts  (2 tests) 6ms
+ ✓ src/picker-core/__tests__/calendar.test.ts  (3 tests) 10ms
+ ✓ src/utils/__tests__/use-floating-position.ssr.test.ts  (1 test) 4ms
+ ✓ src/date-picker/__tests__/date-picker.ssr.test.ts  (3 tests) 27ms
+ ✓ src/utils/__tests__/use-trigger-aria.test.ts  (2 tests) 9ms
+ ✓ src/date-picker/__tests__/date-utils.test.ts  (3 tests) 2ms
+ ✓ src/cascader/__tests__/overlay-controls.ssr.test.ts  (2 tests) 12ms
+ ✓ src/time-picker/__tests__/time-picker.ssr.test.ts  (1 test) 9ms
+ ✓ src/utils/__tests__/use-prop-presence.test.ts  (1 test) 10ms
+
+ Test Files  70 passed (70)
+      Tests  1080 passed (1080)
+   Start at  11:54:48
+   Duration  6.95s (transform 2.85s, setup 6ms, collect 11.04s, tests 20.03s, environment 19.49s, prepare 3.70s)
+

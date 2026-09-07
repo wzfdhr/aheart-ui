@@ -1,0 +1,99 @@
+
+[WebServer] (node:7723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:7734) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:7748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:8500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:8511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 5 workers
+
+
+(node:8522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8520) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/14] [desktop] › e2e/q3-form-controls.spec.ts:23:5 › Select supports real popup selection, multiple removal, clear, and loading feedback
+[2/14] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[3/14] [desktop] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+[4/14] [desktop] › e2e/a11y-visual.spec.ts:200:7 › QG4 accessibility and visual regression gates › Select opens, selects with the keyboard, and restores focus on Escape
+[5/14] [mobile] › e2e/a11y-visual.spec.ts:200:7 › QG4 accessibility and visual regression gates › Select opens, selects with the keyboard, and restores focus on Escape
+
+(node:8548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[6/14] [mobile] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+
+(node:8549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[7/14] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[8/14] [mobile] › e2e/q3-form-controls.spec.ts:23:5 › Select supports real popup selection, multiple removal, clear, and loading feedback
+
+(node:8564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[9/14] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+
+(node:8566) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[10/14] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+
+(node:8577) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:8578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[11/14] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+[12/14] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+
+(node:8582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[13/14] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+
+(node:8623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[14/14] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+  14 passed (19.3s)
