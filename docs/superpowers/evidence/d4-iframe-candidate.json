@@ -1,0 +1,190 @@
+{
+  "base": "3dc64ff1734004c2e51cc2a5e6a99a59c85ae1a2",
+  "sha256": "c81258c59f8da5bef1cc9d67740ca8fad44f80154fef6fdb7198ef119b697c6c",
+  "files": [
+    {
+      "path": "docs/components/cascader.md",
+      "sha256": "e9af0f9f8dc7038d9d2a6c5b3b35f9e0b2058aa9132b5062a35b635f01979acd"
+    },
+    {
+      "path": "docs/components/tree.md",
+      "sha256": "12dec24b31214c8d53489b65c938f0f34f3638e9eef6c75f43a0a3e92fc354ec"
+    },
+    {
+      "path": "e2e/d4-iframe.spec.ts",
+      "sha256": "068f4446e10c225d8e5a43f5e27daab38bd1d8eb8e626213fa2833d65d7c550c"
+    },
+    {
+      "path": "e2e/tree.spec.ts",
+      "sha256": "cfcb92917576feb910b9a3438fbb09620bf53909c936858bfa98cb7879c3214a"
+    },
+    {
+      "path": "packages/components/es/cascader/cascader.vue.js",
+      "sha256": "25ec044543d6ae699ef016463f81431667d32839e0984ed9d409a24d5bcd33df"
+    },
+    {
+      "path": "packages/components/es/select/select.vue.js",
+      "sha256": "1d0891535cb209e3793cdd4054dac7802e97aecdaed9e57701c4bd08ae99c527"
+    },
+    {
+      "path": "packages/components/es/style.css",
+      "sha256": "3bf86fbd7287984435aacadf87ff8036372dce3bf79951748d7237f3b124a91f"
+    },
+    {
+      "path": "packages/components/es/tree-select/tree-select.vue.js",
+      "sha256": "3ed16922ea6d30b0b4d458c53daff859689d7821dbff8b625c44cc3789b7571d"
+    },
+    {
+      "path": "packages/components/es/tree/tree-index.d.ts",
+      "sha256": "00159fc67c0e7e32c35b2ef5309c92fd33749a4ca28e564593a11d8a6873cb8c"
+    },
+    {
+      "path": "packages/components/es/tree/tree-index.js",
+      "sha256": "582aafae478a2be60351d7c13fed8b570dd6793bf0c6e74312b050ba133e342c"
+    },
+    {
+      "path": "packages/components/es/tree/tree-node.vue.d.ts",
+      "sha256": "7be5979c84ecd4d13813172cc798df64f30af08193d711697eab2da8acdc0841"
+    },
+    {
+      "path": "packages/components/es/tree/tree-node.vue.js",
+      "sha256": "602f99a218da4966383f94c290ee5437fcdc649cecd4d2004d75124032c2470c"
+    },
+    {
+      "path": "packages/components/es/tree/tree.vue.js",
+      "sha256": "4fffc3fd8e0424a8af047fd935fbae253ad3761d914c9093853b062fc6439239"
+    },
+    {
+      "path": "packages/components/es/utils/overlay-controller.d.ts",
+      "sha256": "65096b99c4eb633e1c712d0c940fff3f5142ccab40c55d5cac54f0f20b75563a"
+    },
+    {
+      "path": "packages/components/es/utils/overlay-controller.js",
+      "sha256": "06c972014487c86cde30e05b48e5537edca6c41095a981d2765e64b464b457cf"
+    },
+    {
+      "path": "packages/components/es/utils/use-floating-dismiss.d.ts",
+      "sha256": "87b976f2c1543b20a1bd937b8d8a6882d7a61325761062a0cd49403e30daa93b"
+    },
+    {
+      "path": "packages/components/es/utils/use-floating-dismiss.js",
+      "sha256": "f4d2a1369191be5266ca90e35c86fb220a73b91001ac08946f75bfc1bad0f13e"
+    },
+    {
+      "path": "packages/components/lib/cascader/cascader.vue.js",
+      "sha256": "799518f50288915913b54f3eb519237ffc0aea366afa5932f58606c29cd5ce79"
+    },
+    {
+      "path": "packages/components/lib/select/select.vue.js",
+      "sha256": "ebb8a2a0afca8a35d54497b1301b5a87d8712011d9bbd2ac5ecb571898259f09"
+    },
+    {
+      "path": "packages/components/lib/style.css",
+      "sha256": "3bf86fbd7287984435aacadf87ff8036372dce3bf79951748d7237f3b124a91f"
+    },
+    {
+      "path": "packages/components/lib/tree-select/tree-select.vue.js",
+      "sha256": "3f7d3fab973ade03722b7e3cea5942f1f21cb7968f5d32f0899fe5298a012754"
+    },
+    {
+      "path": "packages/components/lib/tree/tree-index.d.ts",
+      "sha256": "00159fc67c0e7e32c35b2ef5309c92fd33749a4ca28e564593a11d8a6873cb8c"
+    },
+    {
+      "path": "packages/components/lib/tree/tree-index.js",
+      "sha256": "fb18db763d8b8ccf31125271258c86f4c5cf08a1a4f21c2fb5493ac0c476090d"
+    },
+    {
+      "path": "packages/components/lib/tree/tree-node.vue.d.ts",
+      "sha256": "7be5979c84ecd4d13813172cc798df64f30af08193d711697eab2da8acdc0841"
+    },
+    {
+      "path": "packages/components/lib/tree/tree-node.vue.js",
+      "sha256": "09091ea644f85b55c07f47e7ad1460c1b98cd38a2986253954eb49a30620a3ea"
+    },
+    {
+      "path": "packages/components/lib/tree/tree.vue.js",
+      "sha256": "34399424d2995061d7505600c8aa259697890867cafb706e519512dd43851d17"
+    },
+    {
+      "path": "packages/components/lib/utils/overlay-controller.d.ts",
+      "sha256": "65096b99c4eb633e1c712d0c940fff3f5142ccab40c55d5cac54f0f20b75563a"
+    },
+    {
+      "path": "packages/components/lib/utils/overlay-controller.js",
+      "sha256": "7f44ba2c938030113d0281baf6d20408bca9221d8eb72f6a45041db1b21aec0a"
+    },
+    {
+      "path": "packages/components/lib/utils/use-floating-dismiss.d.ts",
+      "sha256": "87b976f2c1543b20a1bd937b8d8a6882d7a61325761062a0cd49403e30daa93b"
+    },
+    {
+      "path": "packages/components/lib/utils/use-floating-dismiss.js",
+      "sha256": "2d628521aadfed05939dd009454ccd3dd6f5b730f8b5421a0f3a9b124677c472"
+    },
+    {
+      "path": "packages/components/src/cascader/__tests__/cascader.test.ts",
+      "sha256": "de7362dfa4913de6224596a461cdc5d7797350662992996c683e2fa5589b0854"
+    },
+    {
+      "path": "packages/components/src/cascader/cascader.vue",
+      "sha256": "03b67c081c22b1739bc0617b0ee8466722fd3a1971fb3a400e79b3779b15f757"
+    },
+    {
+      "path": "packages/components/src/cascader/style.css",
+      "sha256": "54d6dfc6eb6c912b5f124968561aacad1bbf517ad1d9742403a9257010576c3a"
+    },
+    {
+      "path": "packages/components/src/select/__tests__/select.test.ts",
+      "sha256": "ef00737eba870898cc7021992243a986ebf5e21d3fac64bf8915da00b3d8cc77"
+    },
+    {
+      "path": "packages/components/src/select/select.vue",
+      "sha256": "5e07b7a3fcbded21020944feab69af47b4bd8ce3154644a00e23f0b493c4ec86"
+    },
+    {
+      "path": "packages/components/src/tree-select/__tests__/tree-select.test.ts",
+      "sha256": "29a883d6dc1b7aa2dd304d4088e67dbdf51f4601c73beda503378955401cf3f4"
+    },
+    {
+      "path": "packages/components/src/tree-select/tree-select.vue",
+      "sha256": "0526436f6c29884e918f6c373e5dff321e62e8630613d972e387bf52f8b9558c"
+    },
+    {
+      "path": "packages/components/src/tree/__tests__/tree-index.test.ts",
+      "sha256": "ba7caf5742bd44a725c4698c7e19c9e724ca27026d54ecd494218733672501f9"
+    },
+    {
+      "path": "packages/components/src/tree/__tests__/tree.test.ts",
+      "sha256": "f1002ba84531c59e1800d3488132b6562067cc3589e9b89004278989b9630da0"
+    },
+    {
+      "path": "packages/components/src/tree/tree-index.ts",
+      "sha256": "9ff9e7cecc6298aa122172e9ebc344977af38a24a52fff1e52ebd59053b32e15"
+    },
+    {
+      "path": "packages/components/src/tree/tree-node.vue",
+      "sha256": "112945494e2dc015bbb992ad87410d25bfc4174ad0be06802492f4e7c4fe2c1e"
+    },
+    {
+      "path": "packages/components/src/tree/tree.vue",
+      "sha256": "8a68147a092c55154595aa21e4a1c88bab741a743318d3a755410666e05b8277"
+    },
+    {
+      "path": "packages/components/src/utils/overlay-controller.ts",
+      "sha256": "5e9955b82c1d0cbab73515488a14a6dd9104ed28b9bc800b77ee7c8a2c757722"
+    },
+    {
+      "path": "packages/components/src/utils/use-floating-dismiss.ts",
+      "sha256": "a75fdeea6a6f22ff0763cba470887fc8c358cc43b526fd1d64ab20df443b615e"
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "7428a1c5088aa9756a065c365d70a76c3916786c3bfda7b82cffd1e3e1cba5cc"
+    },
+    {
+      "path": "scripts/d4-candidate-fingerprint.mjs",
+      "sha256": "e7f78b641b00adb48b0544d82c0f4465f95923b50a1c74f5cec113bc77a622ea"
+    }
+  ]
+}
