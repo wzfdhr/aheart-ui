@@ -1,0 +1,36 @@
+# D5 分批实施与交付矩阵
+
+状态：已按用户“继续执行d5”启动；基线完成，D5-A公开API专项方案待批准，组件实现尚未开始。方案以[D5 API草案](../specs/2026-09-08-d5-table-pagination-design.md)为准。
+
+## 原始清单逐项跟踪
+
+| 原始要求 | 基线事实 | 批次 | 退出证据 |
+| --- | --- | --- | --- |
+| 显式local/server dataMode | 仅有pagination.total隐式禁用切页；仍本地排序/筛选 | A | 类型测试、三路径单测、真实服务端当前页不二次变换、change快照。 |
+| 排序/筛选/分页/选择/展开受控拒绝 | 部分已有测试；空排序与混合受控查询/分页需补充 | A | 每维度接受/拒绝/再次点击/异步接受；原生DOM与父prop一致。 |
+| 行禁用、全选、跨页保留 | 仅全局selection.disabled；无表头全选；key数组现有隐式保留 | A | typed key、当前页可选集合、半选/全禁用、受控拒绝、跨页及数据替换。 |
+| 可交互筛选浮层 | 表头内联filter按钮，无草稿/确认/open | B | API专项、键盘/焦点/取消/重置/受控open、必要设计截图。 |
+| 固定表头/列、横滚/稳定列宽 | 仅overflow-x:auto和width，无sticky模型 | B | 固定区域几何、滚动和遮挡、移动窄屏、表格语义。 |
+| empty/loading/error分离 | empty和loading已有；无error契约 | B | 状态优先级、保留旧数据策略、重试和交互边界、运行时视觉。 |
+| Table与Pagination统一 | 现有Table current受控；pageSize仅computed，缺少若干透传 | A | 共用归一化、大小变更请求/接受、边界对照、键盘/disabled、SSR。 |
+| Table虚拟滚动单独审核 | 未启动 | C | 先基线测量与API/依赖方案批准，再针对分页/展开/固定列/选择/SSR验收。 |
+
+所有原始项仍未验收，不因创建此矩阵自动勾选。A/B/C分别冻结候选、收集证据；D5整体关闭必须覆盖全部项或取得明确范围调整。
+
+## A 实施顺序（待批准）
+
+1. 先补现有分页非法输入、页大小接受/拒绝和混合受控查询的失败测试；通过的既有行为只记补证。
+2. 内部分页归一化/状态复用：Table与Pagination共同使用，不增加公共helper导出。
+3. 实现显式dataMode和sortOrder=null的受控空状态，兼容未传模式的旧行为；单独验证事件请求快照。
+4. 实现行禁用/当前页全选/preserve策略及类型，复用现有selectedState，不混改其他组件。
+5. 为中文Table/Pagination演示增加可交互验收fixture，再用真实浏览器验证；必要更新原E2E但不放宽断言。
+6. 重建组件es/lib，执行types、相关及全仓单测、确定性构建、docs、pack和受影响五浏览器；验证真实包消费者的类型/ESM/CJS/SSR受影响部分。
+7. 开发经理独立复审→测试经理独立测试→必要设计审核→产品经理验收→PR→当前head CI→明确授权合并。候选变化后重审受影响证据，P1/P2为零才能放行。
+
+## 隔离与基线
+
+- 分支`codex/d5-table-pagination`，起点`92cbb52b470741be795b95f981e67f398c4cbc81`。
+- 冻结安装：pnpm9.15.4，Node20.20.2；Table29 + Pagination18 = 47项原单测通过，组件typecheck通过。
+- 两个Luna只读子任务分别核对Table与Pagination；没有代写实现或修改用户工作区。
+- 用户桌面主工作区的Table SSR测试/config/logo资产未提交变更保持原样。本工作树Table已使用useStableId，不能将用户目录的未提交测试误记为本次D5新增实现。
+- D4三组件虚拟化延期任务、D6以后功能、D9 CI改造、npm发布、全局主题及其他组件API均不混入本阶段。
