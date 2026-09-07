@@ -4,15 +4,15 @@
 
 ## 当前合并范围裁定
 
-收尾更新：PR #18最终head `933d8b1`的CI通过后，用户明确授权合并，merge commit为`22d60d4`；该主线及后续依赖升级主线`1587b4e`的CI/Pages均成功，见[收尾记录](./2026-09-07-d4-closeout.md)。已批准增量交付门禁已闭合，以下原始checkbox和阶段候选保留历史口径；剩余三组件虚拟化范围仍待决定。
+收尾更新：PR #18最终head `933d8b1`的CI通过后，用户明确授权合并，merge commit为`22d60d4`；该主线及后续依赖升级主线`1587b4e`的CI/Pages均成功，见[收尾记录](./2026-09-07-d4-closeout.md)。2026-09-07用户明确批准三组件虚拟化延期为后续独立任务，本轮D4按调整后的范围关闭。以下原始checkbox和阶段候选保留历史口径，不把延期实现改写为已交付。
 
-产品经理已明确：PR18是已授权A/B/C增量交付，未授权的Tree/TreeSelect/Cascader虚拟化不阻塞本PR；未实现仍如实保留，也不改写为获批延期。原第13项是宽泛的审批/方案跟踪文字，不能解释成用户已经批准四组件虚拟化。
+合并时产品经理已明确：PR18是已授权A/B/C增量交付，当时未授权的Tree/TreeSelect/Cascader虚拟化不阻塞本PR，且当时未获批延期。原第13项是宽泛的审批/方案跟踪文字，不能解释成用户已经批准四组件虚拟化。本次后续收尾问答才正式批准延期，不追溯改写此前授权状态。
 
 合并前补证只锁定三个Select契约：打开期间宽度/字体尺寸重排、中部稳定key数据更新、virtual+tags及父拒绝。其余PageUp/PageDown新快捷键、所有hover排列、实体设备/读屏不追加为本批门禁。三项证据及修复见[合并补证](./2026-09-07-d4-merge-supplement.md)。
 
 主来源是 [`2026-09-06-deep-optimization-completion.md`](../plans/2026-09-06-deep-optimization-completion.md) 的 D4 段（原始 14 个 checkbox）。选择/树 API 的语义以 [`2026-09-06-d4-selection-tree-design.md`](../specs/2026-09-06-d4-selection-tree-design.md) 的“当时推荐契约”“当时审核与验收”“当时大列表测量与待批范围”章节为补充；Select 虚拟化的当前授权与覆盖边界以 [`2026-09-07-d4-select-virtual-api-draft.md`](../specs/2026-09-07-d4-select-virtual-api-draft.md) 为准。以下保留原 checkbox，不以总测试数替代逐项源码、测试和产品证据。
 
-状态含义：`完成且本批验收`、`已有能力非本批`、`未完成待产品定范围`、`超出已授权 C 不得实施`。第一列保留最初14项的checkbox快照；当前完成清单已依据A证据更新第3/7项，并将第13项拆为已验收的Select子项与未裁定的总体范围，未改写为全D4完成。
+状态含义：`完成且本批验收`、`已有能力非本批`、`未实现且已批准延期`。第一列保留最初14项的checkbox快照；当前完成清单已依据A证据更新第3/7项，并将第13项拆为已验收的Select子项与用户批准的延期任务；本轮范围关闭不等于全部原始实现均已完成。
 
 ## D4 原始 14 项逐条映射
 
@@ -30,7 +30,7 @@
 | 10. `[x]` 真实 Chromium 开发模式 1k/5k/10k 基线与固定 32px、动态 32/46px 对照，保存哈希/浏览器/截图 | `docs/superpowers/evidence/d4-performance/` 保存基线 JSON 与 Select/Cascader 运行截图；`d4-select-keyboard-product-review.md` 及 D4 full-gates 记录 Select 影响范围验证。C 后续生产动态行高使用真实测量，不以开发模式数据计算 SLA。 | 已有能力非本批；作为 C 之前的基线证据保留。 |
 | 11. `[x]` 基线发现 Select 20 键跳 40 项和活动项不可见，已内部修复；候选 709de18 获独立复核与产品关闭 | `packages/components/src/select/select.vue` 的 active/scroll 修复、Select 定向单测与 `scripts/d4-browser-performance.mjs`、`e2e/d4-iframe.spec.ts`；产品关闭记录为 `2026-09-07-d4-select-keyboard-product-review.md`。 | 已有能力非本批；C 依赖并回归该能力，不重新计为 C 的独立新问题。 |
 | 12. `[x]` 完整既定门禁已执行；修复前 409 E2E/127 skip，修复后按 Select 影响范围 14 E2E、1080 单测、确定性构建和 pack 独立验证 | 当前 C 最终候选 `56debe7` 的独立报告记录 components 1121、DnD 44、AI 66、scripts 86、三包 typecheck/确定性/pack，以及完整 E2E 449 passed / 127 既有 skip；历史失败与最终指纹分开保存。 | 完成且本批验收（技术门禁口径）。不等于远端 CI、合并或发布完成。 |
-| 13. `[ ]` 虚拟化 API、依赖体积与实现方案审批；实施时保留键盘、SSR 与动态高度契约 | **Select 子项已完成：** C 实现 `SelectVirtual` (`boolean | SelectVirtualConfig`)、默认 false、`height/estimateSize/overscan` 校验回退，TanStack 静态接入、动态 `measureElement`、SSR/hydration、iframe ownerDocument；对应 `src/select/virtual-options.ts`、`use-select-virtual.ts`、`select-virtual.ssr.test.ts`、`e2e/d4-select-virtual.spec.ts` 及 C 产品验收。**但原清单的泛化项不能勾满：** Tree/TreeSelect/Cascader 虚拟化未实施，且没有用户批准延期记录。 | Select 子项：完成且本批验收。D4 泛化虚拟化项：未完成待产品定范围；三组件虚拟化同时属于超出已授权 C 不得实施。 |
+| 13. `[ ]` 虚拟化 API、依赖体积与实现方案审批；实施时保留键盘、SSR 与动态高度契约 | **Select 子项已完成：** C 实现 `SelectVirtual` (`boolean | SelectVirtualConfig`)、默认 false、`height/estimateSize/overscan` 校验回退，TanStack 静态接入、动态 `measureElement`、SSR/hydration、iframe ownerDocument；对应 `src/select/virtual-options.ts`、`use-select-virtual.ts`、`select-virtual.ssr.test.ts`、`e2e/d4-select-virtual.spec.ts` 及 C 产品验收。**三组件实现未完成：** Tree/TreeSelect/Cascader虚拟化由用户于2026-09-07明确批准延期，见[收尾记录](./2026-09-07-d4-closeout.md)。 | Select子项：完成且本批验收。三组件：未实现且已批准延期，后续具体实施仍须评审授权；不能把本轮范围关闭当作其实现完成。 |
 | 14. `[x]` 成熟引擎优先选型初评：TanStack Vue Virtual、vue-virtual-scroller、无依赖方案，核对能力/元数据/适配成本/CJS 风险/体积边界与推荐 | B 的隔离 consumer 记录 TanStack 生产 ESM/CJS、SSR/hydration、动态行高和包体评估；`d4-b-product-review.md` 接受隔离可行性。C 随后按授权正式采用 TanStack 3.13.36/core 3.17.8。 | 完成且本批验收（选型/Select 接入）；B 隔离自建 listbox 不代表其他组件已虚拟化。 |
 
 ## C Select API 的专项覆盖与未覆盖维度
@@ -43,11 +43,11 @@
 
 任意字体文件、所有tags/hover排列与PageUp/PageDown新快捷键并非这三项的扩大门禁。物理设备和读屏不从现有证据推断通过，也不追加为PR18阻断；继续按明确的已批准范围验收，而非“全部边界无缺口”的无穷目标。
 
-## 仍未闭合的 D4 交付边界
+## 已批准延期与关闭边界
 
-1. **Tree、TreeSelect、Cascader 虚拟化未完成。** A 只验收兼容 API、树索引/勾选/懒加载和 Cascader 键盘/lazy；B 只是隔离引擎验证；C 的正式授权只覆盖 Select。没有用户批准延期记录，不能把三组件改写为“已完成”或“已延期获批”。
-2. **原始 D4 范围跟踪与本PR合并分开。** Select子项已实现并验收；宽泛第13项不代表四组件授权。保留其他组件的未授权/未实现状态，不把它们设为PR18的合并阻断，也不宣称完整D4自动关闭。
-3. **已批准增量交付门禁已闭合。** [PR #18](https://github.com/wzfdhr/aheart-ui/pull/18)已合并，PR最终候选CI和主线CI/Pages已通过，证据见[收尾记录](./2026-09-07-d4-closeout.md)。执行依据是用户直接授权；没有把未送达的产品经理任务回报写成最终裁定。这不是npm版本发布，也不关闭三组件虚拟化的范围决定。
+1. **Tree、TreeSelect、Cascader 虚拟化未完成且已批准延期。** A只验收兼容API、树索引/勾选/懒加载和Cascader键盘/lazy；B只是隔离引擎验证；C正式授权只覆盖Select。用户在本次收尾明确批准三组件延期到后续独立任务，不把它们改写为“已实现”。
+2. **原始 D4 范围跟踪与本PR合并分开。** Select子项已实现并验收；宽泛第13项不代表四组件实施授权。本轮D4关闭依据是已交付范围的验收/合并/部署证据，以及用户后续明确批准的范围调整；延期任务保留在总清单，不自动实施。
+3. **已批准增量交付门禁已闭合。** [PR #18](https://github.com/wzfdhr/aheart-ui/pull/18)已合并，PR最终候选CI和主线CI/Pages已通过，证据见[收尾记录](./2026-09-07-d4-closeout.md)。执行依据是用户直接授权；没有把未送达的产品经理任务回报写成最终裁定。这不是npm版本发布，也不关闭三组件延期实现的待办。
 4. **范围定位保持不变。** C 产品报告将桌面 Web 专业工具作为主要场景、手机网站作为辅助响应式兼容，不新增原生移动 App 门禁。
 
-结论：当前准确表述是“D4 A/B/C及Select补证已完成验收、用户授权合并和主线CI/Pages验证，已批准增量已收尾；原D4的三组件虚拟化仍待范围决定，整体D4不标记完成”。
+结论：D4 A/B/C及Select补证已完成验收、用户授权合并和主线CI/Pages验证；用户明确批准三组件虚拟化延期，本轮D4按调整后的范围正式收尾。延期项未实现，后续单独评审，不自动进入D5。
