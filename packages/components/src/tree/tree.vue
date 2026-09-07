@@ -19,7 +19,7 @@
         @toggle="toggleExpanded"
         @select="selectNode"
         @check="checkNode"
-        @retry="(node) => loader.load(node.key, true)"
+        @retry="retryNode"
         @keydown="handleKeydown"
         @focus="(node) => focusedKey = node.key"
       />
@@ -100,6 +100,11 @@ const focusNode = (key: TreeKey) => {
       .find((element) => element.dataset.treeToken === treeKeyToken(key))
       ?.focus()
   })
+}
+const retryNode = (node: TreeNodeData) => {
+  if (isNodeDisabled(node.key)) return
+  void loader.load(node.key, true)
+  focusNode(node.key)
 }
 const syncCheckboxes = () => {
   for (const input of Array.from(rootRef.value?.querySelectorAll<HTMLInputElement>('.aheart-tree__checkbox') ?? [])) {

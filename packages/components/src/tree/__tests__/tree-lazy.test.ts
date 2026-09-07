@@ -6,6 +6,19 @@ enableAutoUnmount(afterEach)
 const treeData = [{ key: 'root', title: 'Root', isLeaf: false }]
 
 describe('Tree lazy loading', () => {
+  it('keeps keyboard focus on the owning node when retry removes the error button', async () => {
+    const loadData = vi.fn().mockRejectedValueOnce(new Error('offline')).mockImplementationOnce(() => new Promise(() => {}))
+    const wrapper = mount(Tree, { attachTo: document.body, props: { treeData, loadData } })
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushPromises()
+    const retry = wrapper.get('[aria-label="重试加载 Root"]').element as HTMLButtonElement
+    retry.focus()
+    expect(document.activeElement).toBe(retry)
+    retry.click()
+    await flushPromises()
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="root"]').element)
+    expect(wrapper.get('[role="treeitem"]').attributes('aria-busy')).toBe('true')
+  })
   it('accepts void completion without repeat calls and awaits caller-owned children', async () => {
     const loadData = vi.fn(async () => undefined)
     const wrapper = mount(Tree, { props: { treeData, loadData } })

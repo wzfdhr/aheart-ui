@@ -76,6 +76,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         (_b = Array.from(((_a2 = rootRef.value) == null ? void 0 : _a2.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeIndex.treeKeyToken(key))) == null ? void 0 : _b.focus();
       });
     };
+    const retryNode = (node) => {
+      if (isNodeDisabled(node.key))
+        return;
+      void loader.load(node.key, true);
+      focusNode(node.key);
+    };
     const syncCheckboxes = () => {
       var _a2, _b;
       for (const input of Array.from(((_a2 = rootRef.value) == null ? void 0 : _a2.querySelectorAll(".aheart-tree__checkbox")) ?? [])) {
@@ -214,10 +220,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onToggle: toggleExpanded,
               onSelect: selectNode,
               onCheck: checkNode,
-              onRetry: (node2) => vue.unref(loader).load(node2.key, true),
+              onRetry: retryNode,
               onKeydown: handleKeydown,
               onFocus: (node2) => focusedKey.value = node2.key
-            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "onRetry", "onFocus"]);
+            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "onFocus"]);
           }), 128))
         ])
       ], 10, _hoisted_1);
