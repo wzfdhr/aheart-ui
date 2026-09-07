@@ -20,16 +20,6 @@ const d5Requests = ref(0)
 
 Pagination navigates paged data with controlled or uncontrolled current page state.
 
-## D5-A 受控拒绝与禁用
-
-<section class="aheart-demo-panel d5-pagination-controlled" aria-label="D5 独立分页">
-  <AButton :aria-pressed="d5Disabled" @click="d5Disabled = !d5Disabled">禁用分页</AButton>
-  <p role="status">父层保持第{{ d5Current }}页，每页{{ d5Size }}条；请求{{ d5Requests }}次</p>
-  <APagination :current="d5Current" :page-size="d5Size" :total="95" :disabled="d5Disabled" show-size-changer :page-size-options="[10,20,50]" show-quick-jumper @change="d5Requests++" />
-</section>
-
-本例刻意不接受更新请求：操作会发事件，当前页和页大小仍以父层为准。Table和Pagination共用内部整数归一化；非法总数回退0，非法页大小回退1，正小数页大小取整，页码取整数并限制在合法范围。纯prop归一化不发送更新事件。
-
 ## 基础用法
 
 <div class="aheart-demo-panel q4-pagination-basic-demo">
@@ -201,6 +191,16 @@ import { enUS } from 'aheart-ui'
   </AConfigProvider>
 </template>
 ```
+
+## D5-A 受控拒绝与禁用
+
+<section class="aheart-demo-panel d5-pagination-controlled" aria-label="D5 独立分页">
+  <AButton :aria-pressed="d5Disabled" @click="d5Disabled = !d5Disabled">禁用分页</AButton>
+  <p role="status">父层保持第{{ d5Current }}页，每页{{ d5Size }}条；请求{{ d5Requests }}次</p>
+  <APagination :current="d5Current" :page-size="d5Size" :total="95" :disabled="d5Disabled" show-size-changer :page-size-options="[10,20,50]" show-quick-jumper @change="d5Requests++" />
+</section>
+
+本例刻意不接受更新请求：操作会发事件，当前页和页大小仍以父层为准。Table和Pagination共用内部整数归一化；非法总数回退0，非法页大小回退1，正小数页大小取整，页码取整数并限制在合法范围。纯prop归一化不发送更新事件。
 
 ## API
 
