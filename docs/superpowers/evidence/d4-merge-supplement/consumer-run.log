@@ -1,0 +1,113 @@
+candidate new: /private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-IZlesR
+new default-false count=1000 dynamic=false round=0 passed
+new default-false count=1000 dynamic=false round=1 passed
+new default-false count=1000 dynamic=false round=2 passed
+new default-false count=1000 dynamic=true round=0 passed
+new default-false count=1000 dynamic=true round=1 passed
+new default-false count=1000 dynamic=true round=2 passed
+new default-false count=5000 dynamic=false round=0 passed
+new default-false count=5000 dynamic=false round=1 passed
+new default-false count=5000 dynamic=false round=2 passed
+new default-false count=5000 dynamic=true round=0 passed
+new default-false count=5000 dynamic=true round=1 passed
+new default-false count=5000 dynamic=true round=2 passed
+new default-false count=10000 dynamic=false round=0 passed
+new default-false count=10000 dynamic=false round=1 passed
+new default-false count=10000 dynamic=false round=2 passed
+new default-false count=10000 dynamic=true round=0 passed
+new default-false count=10000 dynamic=true round=1 passed
+new default-false count=10000 dynamic=true round=2 passed
+new virtual-true count=1000 dynamic=false round=0 passed
+new virtual-true count=1000 dynamic=false round=1 passed
+new virtual-true count=1000 dynamic=false round=2 passed
+new virtual-true count=1000 dynamic=true round=0 passed
+new virtual-true count=1000 dynamic=true round=1 passed
+new virtual-true count=1000 dynamic=true round=2 passed
+new virtual-true count=5000 dynamic=false round=0 passed
+new virtual-true count=5000 dynamic=false round=1 passed
+new virtual-true count=5000 dynamic=false round=2 passed
+new virtual-true count=5000 dynamic=true round=0 passed
+new virtual-true count=5000 dynamic=true round=1 passed
+new virtual-true count=5000 dynamic=true round=2 passed
+new virtual-true count=10000 dynamic=false round=0 passed
+new virtual-true count=10000 dynamic=false round=1 passed
+new virtual-true count=10000 dynamic=false round=2 passed
+new virtual-true count=10000 dynamic=true round=0 passed
+new virtual-true count=10000 dynamic=true round=1 passed
+new virtual-true count=10000 dynamic=true round=2 passed
+candidate old-build-only: /private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d4-c-m3ghfZ
+{
+  "output": "/tmp/d4-supplement-consumer.json",
+  "sizes": [
+    {
+      "label": "new",
+      "sizes": {
+        "default-false": {
+          "js": {
+            "raw": 168416,
+            "gzip": 60843,
+            "brotli": 54232
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        },
+        "virtual-true": {
+          "js": {
+            "raw": 168416,
+            "gzip": 60843,
+            "brotli": 54309
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        },
+        "unused-button": {
+          "js": {
+            "raw": 83748,
+            "gzip": 31093,
+            "brotli": 27891
+          },
+          "css": {
+            "raw": 169408,
+            "gzip": 21944,
+            "brotli": 18166
+          }
+        }
+      }
+    },
+    {
+      "label": "old-build-only",
+      "sizes": {
+        "default-false": {
+          "js": {
+            "raw": 139415,
+            "gzip": 52319,
+            "brotli": 46749
+          },
+          "css": {
+            "raw": 169303,
+            "gzip": 21914,
+            "brotli": 18129
+          }
+        },
+        "unused-button": {
+          "js": {
+            "raw": 83748,
+            "gzip": 31093,
+            "brotli": 27891
+          },
+          "css": {
+            "raw": 169303,
+            "gzip": 21914,
+            "brotli": 18129
+          }
+        }
+      }
+    }
+  ]
+}

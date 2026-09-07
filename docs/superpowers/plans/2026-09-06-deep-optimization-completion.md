@@ -13,6 +13,8 @@
 
 当前：A兼容API、B隔离评估、C仅Select虚拟化已分别通过产品验收，见[逐项交付矩阵](../reviews/2026-09-07-d4-delivery-matrix.md)。这不改变原总目标；剩余范围必须明示，Draft PR只是已授权留存，不是完整D4/合并放行。
 
+最新合并范围裁定：PR18仅为已授权A/B/C增量；未授权的Tree/TreeSelect/Cascader虚拟化不阻塞它，且未实现不等于已获延期。原宽泛checkbox不是四组件虚拟化批准。本PR补证仅限三个Select契约，完成并且当前head远端CI全绿后交产品经理最终裁定。
+
 - [x] Tree 共用 typed key 节点索引、父子关系、可见节点列表。
 - [x] 实际焦点节点承担 treeitem；aria-level/posinset/setsize 完整。
 - [x] 父子联动勾选、半选、严格模式、禁用边界和异步加载（A批产品验收）。
@@ -27,7 +29,7 @@
 - [x] 本地完整既定门禁已执行：最终C components1121、全量E2E449通过/127既有skip、types/确定性/pack通过。此前409 E2E、1080单测等保留于历史报告，不改标为当前结果。
 - [ ] 原D4虚拟化总体范围闭合：API、依赖体积与方案须按实际授权审批，保留键盘、SSR、动态高度契约。
   - [x] Select子集已批准并实现：静态TanStack、默认false、height/estimateSize/overscan；真实生产体积/36场景/4组hydrate与产品验收完成。
-  - [ ] Tree、TreeSelect、Cascader虚拟化未实现；是否补齐或如何调整原D4范围仍待明确产品决定，不能当作用户已批准延期。
+  - [ ] Tree、TreeSelect、Cascader虚拟化未授权且未实现，仍由后续范围决定；非PR18合并阻断，不表述为已批准延期。
 - [x] 成熟引擎优先选型：初评比较三方案，B已完成TanStack隔离评估，C已获准并完成仅Select静态接入。各阶段“当时尚未安装”属于历史，不是当前状态。
 - [x] [Draft PR #18](https://github.com/wzfdhr/aheart-ui/pull/18)留存；正文及矩阵明确本批与未完成范围，不等于合并放行。
 - [ ] 远端CI全绿及完整D4剩余范围裁定（见PR checks和产品经理后续决定）。

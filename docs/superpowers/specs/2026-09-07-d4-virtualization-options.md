@@ -2,9 +2,9 @@
 
 ## 当前有效结论
 
-B隔离评估与C正式Select静态TanStack接入均已获产品验收。Select的virtual默认false、height/estimateSize/overscan已经实现；默认false真实消费者gzip增量8440字节、CSS增量30字节（本夹具口径）。真实Select36场景及4组hydrate、最终本地完整E2E449通过/127既有skip已独立验证，见[C实施与最终数据](../reviews/2026-09-07-d4-c-implementation.md)。
+B隔离评估与C正式Select静态TanStack接入均已获产品验收。Select的virtual默认false、height/estimateSize/overscan已经实现；C基线真实消费者gzip增量8440字节，三项合并补证修复后为8524字节，CSS仍增量30字节（本夹具口径）。基线36场景/4组hydrate和完整E2E449通过/127既有skip见[C记录](../reviews/2026-09-07-d4-c-implementation.md)，最新受影响回归见[补证记录](../reviews/2026-09-07-d4-merge-supplement.md)，不混用候选。
 
-其他Tree/TreeSelect/Cascader虚拟化尚未完成，不能推断已批准延期；需逐条对照[原D4清单](../reviews/2026-09-07-d4-delivery-matrix.md)明确剩余范围。Draft PR留存已获授权，远端CI/完整D4合并裁定仍待交付检查，尚不合并或启动D5。
+其他Tree/TreeSelect/Cascader虚拟化未授权且未完成，不推断已批准延期，也不阻塞本次A/B/C增量PR18；见[交付矩阵](../reviews/2026-09-07-d4-delivery-matrix.md)。当前仅待新head CI与产品最终合并裁定，尚不合并或启动D5。
 
 ## 选型与实验历史
 

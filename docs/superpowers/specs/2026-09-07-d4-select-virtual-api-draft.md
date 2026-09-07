@@ -4,7 +4,7 @@
 
 用户已批准并完成仅Select静态TanStack接入，C批已通过[产品验收](../reviews/2026-09-07-d4-c-product-review.md)。virtual默认false、显式开启、动态测量，使用下文公开类型及288/32/3默认，数字校验/回退，不公开上游实例。依赖Vue Virtual3.13.36（核心3.17.8），pnpm9.15.4及既有ESM/CJS分发。独立可选入口、自动开启、Tree/TreeSelect/Cascader虚拟化不在已授权C批，不代表这些原路线图项已获批准延期。Draft PR留存已授权，完整D4范围与远端CI/合并裁定仍待核对。
 
-当前证据：122文件指纹1f7b2f22…505bd9；components1121、完整E2E449通过/127既有skip、真实consumer36场景及4组hydrate通过。桌面Web专业工具为主，手机网站辅助兼容；保留本批矩阵，不新增原生App或额外实体手机门禁。
+已验收C基线：122文件指纹1f7b2f22…505bd9；components1121、完整E2E449通过/127既有skip、真实consumer36场景及4组hydrate通过。合并补证代码4e546e3 / 123文件a6e6597e…c5da664另有Select60、五浏览器25和消费验证，见[三项补证](../reviews/2026-09-07-d4-merge-supplement.md)。PR18只交付已授权A/B/C，未授权三组件virtual不阻塞本PR。桌面Web为主、手机网站辅助兼容，不新增原生App或额外实体手机门禁。
 
 ## 已实现接口与本地风格
 
@@ -43,7 +43,7 @@ export type SelectVirtual = boolean | SelectVirtualConfig
 
 ## 已选择的静态接入与成本
 
-已采用用户批准的静态TanStack适配。`virtual=false`不保证构建移除依赖；真实同入口消费者默认关闭时JS gzip增加8440字节、CSS增加30字节。该口径含消费者与Vue，不是任意应用固定增量；B的external Vue约6.8KiB不再作为正式接入成本估算。只消费Button的入口未包含引擎。
+已采用用户批准的静态TanStack适配。`virtual=false`不保证构建移除依赖；C基线默认关闭JS gzip增加8440字节，合并补证修复后为8524字节，CSS仍增加30字节。该口径含消费者与Vue，不是任意应用固定增量；B的external Vue约6.8KiB不作为正式接入固定成本。只消费Button的入口未包含引擎。
 
 独立可选入口是未采用的备选方案，没有在本批实施。后续如产品改为要求默认零新增成本，须重新评审导入方式、ESM/CJS/types、CSS共享和SSR入口，不能用当前默认false承诺零成本。
 
