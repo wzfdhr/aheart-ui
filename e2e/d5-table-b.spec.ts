@@ -80,6 +80,10 @@ test('D5-B fixed columns, utility offsets, sticky header, y scroll, and narrow x
   const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
   await waitForTableLayout(demo)
   const table = demo.locator('table')
+  const containerBox = await demo.locator('.aheart-table__container').boundingBox()
+  expect(containerBox).not.toBeNull()
+  if (!containerBox) return
+  const fixedExpected = containerBox.width >= 528
   await expect(table).toHaveCount(1)
   await expect(table.locator('colgroup col')).toHaveCount(5)
   const headerGeometry = await table.locator('thead th').evaluateAll(nodes => nodes.map(node => {
@@ -87,10 +91,10 @@ test('D5-B fixed columns, utility offsets, sticky header, y scroll, and narrow x
     const rect = node.getBoundingClientRect()
     return { position: style.position, left: style.left, right: style.right, top: style.top, x: rect.x, width: rect.width }
   }))
-  expect(headerGeometry.some(item => item.position === 'sticky' && Number.parseFloat(item.left) >= 0)).toBe(true)
-  expect(headerGeometry.some(item => item.position === 'sticky' && item.right === '0px')).toBe(true)
+  expect(headerGeometry.some(item => item.position === 'sticky' && Number.parseFloat(item.left) >= 0)).toBe(fixedExpected)
+  expect(headerGeometry.some(item => item.position === 'sticky' && item.right === '0px')).toBe(fixedExpected)
   expect(headerGeometry.every(item => item.position === 'sticky' && item.top === '8px')).toBe(true)
-  expect(headerGeometry[2].x).toBeGreaterThanOrEqual(headerGeometry[0].x + headerGeometry[0].width)
+  if (fixedExpected) expect(headerGeometry[2].x).toBeGreaterThanOrEqual(headerGeometry[0].x + headerGeometry[0].width)
   await expect(demo.locator('.aheart-table__container')).toHaveCSS('overflow-y', 'auto')
   await expect(demo.locator('.aheart-table__container')).toHaveCSS('max-height', '180px')
 
@@ -133,6 +137,10 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
   await waitForTableLayout(demo)
   const table = demo.locator('table')
+  const initialContainer = await demo.locator('.aheart-table__container').boundingBox()
+  expect(initialContainer).not.toBeNull()
+  if (!initialContainer) return
+  const fixedExpected = initialContainer.width >= 528
   const geometry = await table.locator('thead th').evaluateAll(nodes => nodes.map(node => {
     const style = getComputedStyle(node)
     const rect = node.getBoundingClientRect()
@@ -150,7 +158,7 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
     const style = getComputedStyle(node)
     return { position: style.position, top: style.top }
   })
-  expect(bodyStyle.position).toBe('sticky')
+  expect(bodyStyle.position === 'sticky').toBe(fixedExpected)
   expect(bodyStyle.top).toBe('auto')
   const nonFixedBodyStyle = await table.locator('tbody tr').first().locator('td').nth(3).evaluate(node => {
     const style = getComputedStyle(node)
@@ -158,13 +166,17 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   })
   expect(nonFixedBodyStyle.position).not.toBe('sticky')
   expect(geometry.every(item => item.position === 'sticky' && item.top === '8px')).toBe(true)
-  for (const index of [0, 1, 2]) {
-    const offset = Number.parseFloat(geometry[index].left)
-    expect(Math.abs(geometry[index].x - tableRect.x - offset)).toBeLessThan(4)
+  if (fixedExpected) {
+    for (const index of [0, 1, 2]) {
+      const offset = Number.parseFloat(geometry[index].left)
+      expect(Math.abs(geometry[index].x - tableRect.x - offset)).toBeLessThan(4)
+    }
+    expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[0].x + geometry[0].width - 2)
+    expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[1].x + geometry[1].width - 2)
+    expect(geometry[4].right).toBe('0px')
+  } else {
+    expect(geometry.every(item => item.position === 'sticky' && item.top === '8px' && item.left === 'auto' && item.right === 'auto')).toBe(true)
   }
-  expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[0].x + geometry[0].width - 2)
-  expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[1].x + geometry[1].width - 2)
-  expect(geometry[4].right).toBe('0px')
 
   await expect(table).toHaveAttribute('data-table-layout-ready', 'true')
   const beforeColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
@@ -173,6 +185,9 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   expect(afterLongColumns).toEqual(beforeColumns)
   await demo.getByRole('button', { name: '恢复短内容' }).click()
   await page.setViewportSize({ width: 390, height: 844 })
+  const narrowContainer = demo.locator('.aheart-table__container')
+  const narrowBox = await narrowContainer.boundingBox()
+  if (narrowBox && narrowBox.width < 528) await narrowContainer.evaluate(element => { element.scrollLeft = 0 })
   const overflow = await demo.locator('.aheart-table__container').evaluate(node => ({ scrollWidth: node.scrollWidth, clientWidth: node.clientWidth }))
   expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth)
 
