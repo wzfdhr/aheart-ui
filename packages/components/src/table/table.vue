@@ -1442,6 +1442,27 @@ const handleRowFocusout = (event: FocusEvent, sourceKey: TableKey) => {
 const tabbableSelector = 'button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])'
 const rowsForToken = (token: string) => Array.from(tableRoot.value?.querySelectorAll<HTMLElement>('tr[data-aheart-virtual-key]') ?? []).filter(row => row.dataset.aheartVirtualKey === token)
 const tabbablesForKey = (key: TableKey) => rowsForToken(rowToken(key)).flatMap(row => Array.from(row.querySelectorAll<HTMLElement>(tabbableSelector)))
+const isActuallyTabbable = (element: HTMLElement) => {
+  if (element.matches('[hidden], [inert], [aria-hidden="true"]') || element.closest('[hidden], [inert], [aria-hidden="true"]')) return false
+  if ('disabled' in element && Boolean((element as HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement).disabled)) return false
+  if (element.getAttribute('aria-disabled') === 'true') return false
+  const style = element.ownerDocument.defaultView?.getComputedStyle(element)
+  return style?.display !== 'none' && style?.visibility !== 'hidden'
+}
+const focusOutsideTable = (forward: boolean) => {
+  const root = tableRoot.value
+  const doc = root?.ownerDocument
+  if (!root || !doc) return false
+  const candidates = Array.from(doc.querySelectorAll<HTMLElement>(tabbableSelector)).filter(isActuallyTabbable).filter(element => !root.contains(element))
+  const related = candidates.filter(element => {
+    const position = root.compareDocumentPosition(element)
+    return forward ? Boolean(position & 4) : Boolean(position & 2)
+  })
+  const target = forward ? related[0] : related.at(-1)
+  if (!target) return false
+  target.focus({ preventScroll: true })
+  return true
+}
 const mayHaveTabbable = (row: InternalRow) => {
   if (hasSelection.value && !isRowSelectionDisabled(row.record)) return true
   if (hasExpandable.value && isRowExpandable(row.record)) return true
@@ -1487,15 +1508,17 @@ const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
   // temporarily, then only take over native Tab if rendering exposes a real
   // enabled tabbable. Otherwise continue in the same direction.
   event.preventDefault()
-  virtualController.setPinnedIndexes([candidate.virtualIndex])
+  virtualController.setPinnedIndexes([sourceIndex, candidate.virtualIndex])
   const settle = (row: InternalRow) => {
     if (focusCandidate(row)) return
     const next = findCandidate(row.virtualIndex + direction)
     if (!next) {
+      focusedRowKey.value = undefined
       virtualController.setPinnedIndexes([])
+      focusOutsideTable(!event.shiftKey)
       return
     }
-    virtualController.setPinnedIndexes([next.virtualIndex])
+    virtualController.setPinnedIndexes([sourceIndex, next.virtualIndex])
     void nextTick(() => settle(next))
   }
   void nextTick(() => settle(candidate))

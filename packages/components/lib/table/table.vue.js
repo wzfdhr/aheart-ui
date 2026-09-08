@@ -1346,6 +1346,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return Array.from(((_a = tableRoot.value) == null ? void 0 : _a.querySelectorAll("tr[data-aheart-virtual-key]")) ?? []).filter((row) => row.dataset.aheartVirtualKey === token);
     };
     const tabbablesForKey = (key) => rowsForToken(rowToken(key)).flatMap((row) => Array.from(row.querySelectorAll(tabbableSelector)));
+    const isActuallyTabbable = (element) => {
+      var _a;
+      if (element.matches('[hidden], [inert], [aria-hidden="true"]') || element.closest('[hidden], [inert], [aria-hidden="true"]'))
+        return false;
+      if ("disabled" in element && Boolean(element.disabled))
+        return false;
+      if (element.getAttribute("aria-disabled") === "true")
+        return false;
+      const style = (_a = element.ownerDocument.defaultView) == null ? void 0 : _a.getComputedStyle(element);
+      return (style == null ? void 0 : style.display) !== "none" && (style == null ? void 0 : style.visibility) !== "hidden";
+    };
+    const focusOutsideTable = (forward) => {
+      const root = tableRoot.value;
+      const doc = root == null ? void 0 : root.ownerDocument;
+      if (!root || !doc)
+        return false;
+      const candidates = Array.from(doc.querySelectorAll(tabbableSelector)).filter(isActuallyTabbable).filter((element) => !root.contains(element));
+      const related = candidates.filter((element) => {
+        const position = root.compareDocumentPosition(element);
+        return forward ? Boolean(position & 4) : Boolean(position & 2);
+      });
+      const target = forward ? related[0] : related.at(-1);
+      if (!target)
+        return false;
+      target.focus({ preventScroll: true });
+      return true;
+    };
     const mayHaveTabbable = (row) => {
       if (hasSelection.value && !isRowSelectionDisabled(row.record))
         return true;
@@ -1398,16 +1425,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       }
       event.preventDefault();
-      virtualController.setPinnedIndexes([candidate.virtualIndex]);
+      virtualController.setPinnedIndexes([sourceIndex, candidate.virtualIndex]);
       const settle = (row) => {
         if (focusCandidate(row))
           return;
         const next = findCandidate(row.virtualIndex + direction);
         if (!next) {
+          focusedRowKey.value = void 0;
           virtualController.setPinnedIndexes([]);
+          focusOutsideTable(!event.shiftKey);
           return;
         }
-        virtualController.setPinnedIndexes([next.virtualIndex]);
+        virtualController.setPinnedIndexes([sourceIndex, next.virtualIndex]);
         void vue.nextTick(() => settle(next));
       };
       void vue.nextTick(() => settle(candidate));
