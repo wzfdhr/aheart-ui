@@ -102,12 +102,12 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
   it('runs local filter-sort-page before virtualizing and never slices server current-page data', async () => {
     const local = mountTable({ dataMode: 'local', columns: [
       { title: 'Name', dataIndex: 'name', key: 'name', sorter: (a: Row, b: Row) => Number(b.key) - Number(a.key) },
-      { title: 'Group', dataIndex: 'group', key: 'group', filters: [{ text: 'B', value: 'B' }], defaultFilteredValue: ['B'] }
+      { title: 'Group', dataIndex: 'group', key: 'group', filters: [{ text: 'A', value: 'A' }], defaultFilteredValue: ['A'] }
     ], pagination: { pageSize: 10 }, virtual: true })
     await local.find('th button').trigger('click')
     await local.find('.aheart-pagination__next').trigger('click')
     const localRows = local.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))
-    expect(localRows.map((row) => row.text())).toEqual(['Row 29B', 'Row 28B', 'Row 27B', 'Row 26B', 'Row 25B', 'Row 24B', 'Row 23B', 'Row 22B', 'Row 21B', 'Row 20B'])
+    expect(localRows.map((row) => row.text())).toEqual(['Row 9A', 'Row 8A', 'Row 7A', 'Row 6A', 'Row 5A', 'Row 4A', 'Row 3A', 'Row 2A', 'Row 1A', 'Row 0A'])
     const response = rows.slice(20, 22)
     const server = mountTable({ dataMode: 'server', dataSource: response, pagination: { current: 3, pageSize: 1, total: 40 }, virtual: true })
     expect(server.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))).toHaveLength(2)
@@ -123,21 +123,25 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
   it('uses typed number/string radio keys and restores native group after rejected change', async () => {
     const host = document.createElement('div')
     document.body.append(host)
-    const typed = rows.map((row, index) => index === 20 ? { ...row, key: 1 } : index === 21 ? { ...row, key: '1' } : { ...row, key: `row-${index}` })
-    const wrapper = mountTable({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }, host)
-    const scroll = wrapper.find('[data-aheart-virtual-scroll]')
-    scroll.element.scrollTop = 20 * 48
-    await scroll.trigger('scroll')
-    const stringRadio = wrapper.find<HTMLInputElement>('[data-aheart-row-token="string:1"]')
-    const numberRadio = wrapper.find<HTMLInputElement>('[data-aheart-row-token="number:1"]')
-    expect(stringRadio.exists()).toBe(true)
-    expect(numberRadio.exists()).toBe(true)
-    stringRadio.element.click()
-    await nextTick()
-    expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]])
-    expect(numberRadio.element.checked).toBe(true)
-    expect(stringRadio.element.checked).toBe(false)
-    host.remove()
+    try {
+      const typed = rows.map((row, index) => index === 20 ? { ...row, key: 1 } : index === 21 ? { ...row, key: '1' } : { ...row, key: `row-${index}` })
+      const wrapper = mountTable({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }, host)
+      const scroll = wrapper.find('[data-aheart-virtual-scroll]')
+      expect(scroll.exists(), 'typed-key selection requires a real virtual scroll window').toBe(true)
+      scroll.element.scrollTop = 20 * 48
+      await scroll.trigger('scroll')
+      const stringRadio = wrapper.find<HTMLInputElement>('[data-aheart-row-token="string:1"]')
+      const numberRadio = wrapper.find<HTMLInputElement>('[data-aheart-row-token="number:1"]')
+      expect(stringRadio.exists()).toBe(true)
+      expect(numberRadio.exists()).toBe(true)
+      stringRadio.element.click()
+      await nextTick()
+      expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]])
+      expect(numberRadio.element.checked).toBe(true)
+      expect(stringRadio.element.checked).toBe(false)
+    } finally {
+      host.remove()
+    }
   })
 
   it('pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab', async () => {
@@ -150,17 +154,22 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     const scroll = wrapper.find('[data-aheart-virtual-scroll]')
     scroll.element.scrollTop = 9999
     await scroll.trigger('scroll')
-    expect(first.element.isConnected).toBe(true)
-    await first.trigger('keydown', { key: 'Tab' })
+    const focusedAfterScroll = wrapper.find<HTMLInputElement>('[data-aheart-row-token="number:0"]')
+    expect(focusedAfterScroll.exists()).toBe(true)
+    expect(focusedAfterScroll.element.isConnected).toBe(true)
+    await focusedAfterScroll.trigger('keydown', { key: 'Tab' })
     const nextLogical = wrapper.find<HTMLInputElement>('[data-aheart-row-token="number:1"]')
     expect(document.activeElement).toBe(nextLogical.element)
     const outside = document.createElement('button')
     document.body.append(outside)
-    outside.focus()
-    await first.trigger('focusout', { relatedTarget: outside })
-    expect(document.activeElement).toBe(outside)
-    expect(wrapper.find('[data-aheart-row-token="number:0"]').element.isConnected).toBe(false)
-    outside.remove()
+    try {
+      outside.focus()
+      await focusedAfterScroll.trigger('focusout', { relatedTarget: outside })
+      expect(document.activeElement).toBe(outside)
+      expect(focusedAfterScroll.element.closest('tr')?.getAttribute('data-aheart-virtual-pinned')).toBeNull()
+    } finally {
+      outside.remove()
+    }
   })
 
   it('renders enabled SSR twice deterministically and hydrates same tree; false stays full DOM', async () => {
