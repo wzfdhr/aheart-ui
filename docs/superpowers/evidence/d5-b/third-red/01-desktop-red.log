@@ -1,11 +1,11 @@
 
-[WebServer] (node:12984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:17012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
-[WebServer] (node:12995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:17023) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
-[WebServer] (node:13009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:17037) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
 [WebServer] - building client + server bundles...
@@ -22,58 +22,56 @@
 
 [WebServer] ✓ rendering pages...
 
-[WebServer] (node:13760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:17787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
-[WebServer] (node:13771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:17798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
-Running 2 tests using 1 worker
+Running 1 test using 1 worker
 
 
-(node:13778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:17805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
 
-[1/2] [desktop] › e2e/d5-table-b.spec.ts:105:5 › D5-B review geometry, natural-width freeze, external sticky scroll, popup anchoring, and iframe outside boundary
-[2/2] [desktop] › e2e/d5-table-b.spec.ts:194:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table
+[1/1] [desktop] › e2e/d5-table-b.spec.ts:194:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table
   1) [desktop] › e2e/d5-table-b.spec.ts:194:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 
 
     Error: expect(received).toBe(expected) // Object.is equality
 
-    Expected: 8
-    Received: 1
+    Expected: 9
+    Received: 16
 
     Call Log:
     - Timeout 5000ms exceeded while waiting on the predicate
 
-      204 |     if (!container || !header) return -1
-      205 |     return Math.round(header.y - container.y)
-    > 206 |   }).toBe(8)
+      206 |     if (!container || !headerBox) return -1
+      207 |     return Math.round(headerBox.y - container.y)
+    > 208 |   }).toBe(clientTop + 8)
           |      ^
-      207 |   const container = await scroller.boundingBox()
-      208 |   const header = await table.locator('thead').boundingBox()
-      209 |   const tableBox = await table.boundingBox()
-        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:206:6
+      209 |   const container = await scroller.boundingBox()
+      210 |   const headerBox = await header.boundingBox()
+      211 |   const tableBox = await table.boundingBox()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:208:6
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ../../../../../../tmp/d5b-second-red/browser-5231/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/test-failed-1.png
+    ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ../../../../../../tmp/d5b-second-red/browser-5231/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/video.webm
+    ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ../../../../../../tmp/d5b-second-red/browser-5231/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/error-context.md
+    Error Context: ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/error-context.md
 
     attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ../../../../../../tmp/d5b-second-red/browser-5231/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+    ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
     Usage:
 
-        pnpm exec playwright show-trace ../../../../../../tmp/d5b-second-red/browser-5231/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
 
   1 failed
     [desktop] › e2e/d5-table-b.spec.ts:194:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 
-  1 passed (14.0s)

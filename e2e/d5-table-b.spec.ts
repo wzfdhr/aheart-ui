@@ -196,21 +196,23 @@ test('D5-B external ancestor scroll keeps no-y sticky header at the offset and i
   const region = page.getByRole('region', { name: 'D5-B 外部滚动 sticky' })
   const scroller = region.locator('.d5b-external-scroll')
   const table = region.locator('table')
+  const header = table.locator('thead th').first()
   await expect(table).toHaveCount(1)
   await scroller.evaluate(node => { node.scrollTop = 180 })
+  const clientTop = await scroller.evaluate(node => node.clientTop)
   await expect.poll(async () => {
     const container = await scroller.boundingBox()
-    const header = await table.locator('thead').boundingBox()
-    if (!container || !header) return -1
-    return Math.round(header.y - container.y)
-  }).toBe(8)
+    const headerBox = await header.boundingBox()
+    if (!container || !headerBox) return -1
+    return Math.round(headerBox.y - container.y)
+  }).toBe(clientTop + 8)
   const container = await scroller.boundingBox()
-  const header = await table.locator('thead').boundingBox()
+  const headerBox = await header.boundingBox()
   const tableBox = await table.boundingBox()
   expect(container).not.toBeNull()
-  expect(header).not.toBeNull()
+  expect(headerBox).not.toBeNull()
   expect(tableBox).not.toBeNull()
-  if (!container || !header || !tableBox) return
-  expect(Math.abs(header.y - (container.y + 8))).toBeLessThan(2)
-  expect(header.y + header.height).toBeLessThanOrEqual(tableBox.bottom + 1)
+  if (!container || !headerBox || !tableBox) return
+  expect(Math.abs(headerBox.y - (container.y + clientTop + 8))).toBeLessThan(2)
+  expect(headerBox.y + headerBox.height).toBeLessThanOrEqual(tableBox.bottom + 1)
 })
