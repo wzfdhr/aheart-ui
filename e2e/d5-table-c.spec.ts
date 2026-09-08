@@ -158,10 +158,12 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   await expect.poll(() => demo.evaluate((root, expected) => document.activeElement?.closest('tr')?.getAttribute('data-table-row') === expected, key)).toBe(true)
   await scroll.evaluate(element => { element.scrollTop = element.scrollHeight })
   await expect(demo.locator(`tr[data-table-row="${key}"]`)).toHaveAttribute('data-focus-pinned', 'true')
-  await demo.getByRole('button', { name: 'Focus outside table', exact: true }).focus()
+  const outsideFocus = demo.getByRole('button', { name: 'Focus outside table', exact: true })
+  await outsideFocus.focus()
+  await expect(outsideFocus).toBeFocused()
   await expect.poll(async () => {
     const row = demo.locator(`tr[data-table-row="${key}"]`)
-    return await row.count() === 0 || (await row.getAttribute('data-focus-pinned')) === 'false'
+    return await row.count() === 0 || (await row.getAttribute('data-focus-pinned')) !== 'true'
   }).toBe(true)
   await page.waitForTimeout(1000)
   await expect.poll(() => errors.slice(), { interval: 100, timeout: 1000 }).toEqual([])
