@@ -1,10 +1,13 @@
 <template>
-  <section class="aheart-table" :class="tableClass" :aria-busy="loading || undefined">
-    <div class="aheart-table__container">
-      <table>
+  <section ref="tableRoot" class="aheart-table" :class="tableClass" :aria-busy="loading || undefined" @click.capture="handleTableCapture">
+    <div class="aheart-table__container" :style="containerStyle">
+      <table :style="tableStyle">
+        <colgroup>
+          <col v-for="column in layoutColumns" :key="column.id" :style="{ width: column.width }" />
+        </colgroup>
         <thead v-if="showHeader">
           <tr>
-            <th v-if="hasSelection" class="aheart-table__selection-cell" scope="col">
+            <th v-if="hasSelection" class="aheart-table__selection-cell" scope="col" :style="utilityStyle('selection')">
               <input
                 v-if="selectionType === 'checkbox'"
                 class="aheart-table__select-all"
@@ -18,7 +21,7 @@
               />
               <span v-else class="aheart-table__selection-title" aria-hidden="true" />
             </th>
-            <th v-if="hasExpandable" class="aheart-table__expand-cell" scope="col">
+            <th v-if="hasExpandable" class="aheart-table__expand-cell" scope="col" :style="utilityStyle('expand')">
               <span class="aheart-table__expand-title" aria-hidden="true" />
             </th>
             <th
@@ -34,7 +37,7 @@
                   v-if="column.sorter"
                   class="aheart-table__sorter"
                   type="button"
-                  :disabled="isDisabled"
+                  :disabled="isInteractionLocked"
                   :aria-label="getSortActionLabel(column)"
                   @click="toggleSort(column)"
                 >
@@ -46,6 +49,19 @@
                 <span v-else class="aheart-table__title">
                   <ARenderNode :node="column.title" />
                 </span>
+                <button
+                  v-if="column.filterDropdown"
+                  class="aheart-table__filter-trigger"
+                  type="button"
+                  aria-haspopup="dialog"
+                  :data-table-filter-trigger="getColumnKey(column)"
+                  :aria-expanded="isFilterPopupOpen(column)"
+                  :disabled="isInteractionLocked"
+                  @click="toggleFilterPopup(column, $event.currentTarget as HTMLElement)"
+                >
+                  <span aria-hidden="true">⌄</span>
+                  <span class="sr-only">Filter {{ getColumnLabel(column) }}</span>
+                </button>
                 <div v-if="column.filters?.length" class="aheart-table__filters" :aria-label="`${column.title} filters`">
                   <button
                     v-for="filter in column.filters"
@@ -54,7 +70,7 @@
                     :class="{ 'is-active': isFilterActive(column, filter.value) }"
                     type="button"
                     :aria-pressed="isFilterActive(column, filter.value)"
-                    :disabled="isDisabled"
+                    :disabled="isInteractionLocked"
                     @click="toggleFilter(column, filter.value)"
                   >
                     <ARenderNode :node="filter.text" />
@@ -67,7 +83,7 @@
         <tbody>
           <template v-for="row in pagedRows" :key="row.key">
             <tr :class="{ 'is-selected': isSelected(row.key) }">
-              <td v-if="hasSelection" class="aheart-table__selection-cell">
+              <td v-if="hasSelection" class="aheart-table__selection-cell" :style="utilityStyle('selection')">
                 <input
                   :type="selectionType"
                   :name="radioName"
@@ -77,13 +93,13 @@
                   @change="handleSelectionChange($event, row.record, row.key)"
                 />
               </td>
-              <td v-if="hasExpandable" class="aheart-table__expand-cell">
+              <td v-if="hasExpandable" class="aheart-table__expand-cell" :style="utilityStyle('expand')">
                 <button
                   v-if="isRowExpandable(row.record)"
                   class="aheart-table__expand-button"
                   type="button"
                   :aria-expanded="isExpanded(row.key)"
-                  :disabled="isDisabled"
+                  :disabled="isInteractionLocked"
                   @click="toggleExpand(row.record, row.key)"
                 >
                   {{ isExpanded(row.key) ? '−' : '+' }}
@@ -115,6 +131,12 @@
         <span class="aheart-table__loading-dot" aria-hidden="true" />
         <span>{{ resolvedLoadingText }}</span>
       </div>
+      <div v-else-if="error" class="aheart-table__error" role="alert">
+        <ARenderNode :node="errorMessage" />
+        <button type="button" data-table-retry :disabled="isDisabled" @click="emit('retry')">
+          <ARenderNode :node="errorRetryText" />
+        </button>
+      </div>
     </div>
     <APagination
       v-if="shouldShowPagination"
@@ -129,15 +151,18 @@
       :page-size-options="paginationConfig.pageSizeOptions"
       :show-quick-jumper="paginationConfig.showQuickJumper"
       :total-boundary-show-size-changer="paginationConfig.totalBoundaryShowSizeChanger"
-      :disabled="isDisabled"
+      :disabled="isInteractionLocked"
       :size="resolvedSize"
       @change="handlePageChange"
     />
+    <Teleport v-if="activeFilterColumn && activeFilterPopupNode" :to="popupTarget" :disabled="popupTargetDisabled">
+      <ARenderNode :node="activeFilterPopupNode" />
+    </Teleport>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
+import { cloneVNode, computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch, type CSSProperties, type PropType, type VNodeChild, type VNode } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import APagination from '../pagination'
 import { getPageCount, normalizeCurrent, normalizePageSize, normalizeTotal } from '../pagination/pagination-state'
@@ -148,6 +173,7 @@ import {
   tableProps,
   type TableChangeAction,
   type TableColumn,
+  type TableFilterDropdownContext,
   type TableFilterValue,
   type TableFilters,
   type TableKey,
@@ -217,18 +243,29 @@ const pageSizeState = useControllableState<number>({
 })
 const innerSort = ref<InternalSortState>({})
 const innerFilters = ref<TableFilters>({})
+const activeFilterKey = ref<string | null>(null)
+const filterDraft = ref<TableFilterValue[]>([])
+const filterTriggerElement = ref<HTMLElement | null>(null)
+const filterPopupElement = ref<HTMLElement | null>(null)
+const tableRoot = ref<HTMLElement | null>(null)
 const hasInitializedSort = ref(false)
 const initializedFilterKeys = ref(new Set<string>())
 const radioName = useStableId(undefined, 'aheart-table-selection').value
 
 const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden))
 const normalizedData = computed(() => props.dataSource ?? [])
+const initialFilterColumn = (props.columns ?? []).find((column) => !column.hidden && (column.defaultFilterDropdownOpen === true || column.filterDropdownOpen === true) && column.filterDropdown)
+if (initialFilterColumn) {
+  activeFilterKey.value = initialFilterColumn.key ?? String(Array.isArray(initialFilterColumn.dataIndex) ? initialFilterColumn.dataIndex.join('.') : initialFilterColumn.dataIndex ?? initialFilterColumn.title)
+  filterDraft.value = [...(initialFilterColumn.filteredValue ?? initialFilterColumn.defaultFilteredValue ?? [])]
+}
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const hasSelection = computed(() => Boolean(props.rowSelection))
 const hasExpandable = computed(() => Boolean(props.expandable?.expandedRowRender))
 const selectionType = computed(() => props.rowSelection?.type ?? 'checkbox')
-const isSelectionDisabled = computed(() => isDisabled.value || Boolean(props.rowSelection?.disabled))
+const isInteractionLocked = computed(() => isDisabled.value || props.loading || Boolean(props.error))
+const isSelectionDisabled = computed(() => isInteractionLocked.value || Boolean(props.rowSelection?.disabled))
 const selectedKeys = computed(() => selectedState.state.value ?? [])
 const expandedKeys = computed(() => expandedState.state.value ?? [])
 const resolvedEmptyText = computed<TableRenderable>(() =>
@@ -237,6 +274,13 @@ const resolvedEmptyText = computed<TableRenderable>(() =>
     : config.value.locale?.table?.emptyText ?? config.value.locale?.empty?.description ?? 'No Data'
 )
 const resolvedLoadingText = computed(() => config.value.locale?.table?.loadingText ?? '加载中')
+const handleTableCapture = (event: MouseEvent) => {
+  if (!isInteractionLocked.value || (event.target as HTMLElement | null)?.closest('[data-table-retry]')) return
+  event.preventDefault()
+  event.stopPropagation()
+}
+const errorMessage = computed<TableRenderable>(() => typeof props.error === 'object' && props.error.message !== undefined ? props.error.message : '加载失败')
+const errorRetryText = computed<TableRenderable>(() => typeof props.error === 'object' && props.error.retryText !== undefined ? props.error.retryText : '重试')
 
 const paginationConfig = computed(() => (props.pagination && typeof props.pagination === 'object' ? props.pagination : {}))
 const pageSize = computed(() => normalizePageSize(pageSizeState.state.value ?? 10))
@@ -246,6 +290,66 @@ const pageCount = computed(() => getPageCount(paginationTotal.value, pageSize.va
 const currentPage = computed(() => normalizeCurrent(rawCurrentPage.value, paginationTotal.value, pageSize.value))
 const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== undefined || paginationTotal.value > pageSize.value))
 const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0))
+
+type LayoutColumn = { id: string; width?: string; source?: TableColumn; utility?: 'selection' | 'expand'; fixed?: 'left' | 'right'; left?: number; right?: number }
+const pxWidth = (value: unknown) => {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value
+  if (typeof value === 'string' && /^\s*(\d+(?:\.\d+)?)px\s*$/i.test(value)) {
+    const parsed = Number.parseFloat(value)
+    return parsed > 0 ? parsed : undefined
+  }
+  return undefined
+}
+const layoutColumns = computed<LayoutColumn[]>(() => {
+  const data: LayoutColumn[] = []
+  if (hasSelection.value) data.push({ id: '__selection', utility: 'selection', width: '48px' })
+  if (hasExpandable.value) data.push({ id: '__expand', utility: 'expand', width: '48px' })
+  normalizedColumns.value.forEach((column) => data.push({ id: getColumnKey(column), source: column, width: pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === 'string' ? column.width : undefined, fixed: column.fixed }))
+  const dataColumns = data.filter((item) => item.source)
+  const leftCount = dataColumns.filter((item) => item.fixed === 'left').length
+  const rightCount = dataColumns.filter((item) => item.fixed === 'right').length
+  const leftStart = data.findIndex((item) => item.fixed === 'left')
+  const rightStart = data.length - rightCount
+  const leftValid = leftCount === 0 || leftStart === (hasSelection.value ? 1 + (hasExpandable.value ? 1 : 0) : 0) && data.slice(leftStart, leftStart + leftCount).every((item) => item.fixed === 'left' && pxWidth(item.source?.width) !== undefined)
+  const rightValid = rightCount === 0 || rightStart >= 0 && data.slice(rightStart).every((item) => item.fixed === 'right' && pxWidth(item.source?.width) !== undefined)
+  const leftEnabled = leftValid && leftCount > 0
+  const rightEnabled = rightValid && rightCount > 0
+  let left = 0
+  if (leftEnabled) {
+    // Utility columns occupy the leading cells and therefore are part of the
+    // fixed-prefix offset, even though they do not have a public `fixed` flag.
+    data.slice(0, leftStart).forEach((item) => { item.fixed = 'left' })
+    data.forEach((item, index) => { if (item.fixed === 'left') { item.left = left; left += pxWidth(item.source?.width) ?? (item.width ? Number.parseFloat(item.width) : 0) } else if (index >= leftStart && index < leftStart + leftCount) item.fixed = undefined })
+  }
+  let right = 0
+  if (rightEnabled) [...data].reverse().forEach((item) => { if (item.fixed === 'right') { item.right = right; right += pxWidth(item.source?.width) ?? 0 } })
+  return data
+})
+const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])))
+const stickyOffset = computed(() => typeof props.sticky === 'object' && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0)
+const isSticky = computed(() => Boolean(props.sticky))
+const columnLayout = (column: TableColumn) => layoutById.value.get(getColumnKey(column))
+const utilityStyle = (utility: 'selection' | 'expand') => {
+  const item = layoutById.value.get(`__${utility}`)
+  return item ? cellLayoutStyle(item) : undefined
+}
+const cellLayoutStyle = (item: LayoutColumn): CSSProperties => ({
+  ...(item.width ? { width: item.width } : {}),
+  ...(item.fixed === 'left' && item.left !== undefined ? { position: 'sticky', left: `${item.left}px`, zIndex: 2 } : {}),
+  ...(item.fixed === 'right' && item.right !== undefined ? { position: 'sticky', right: `${item.right}px`, zIndex: 2 } : {}),
+  ...(isSticky.value ? { position: 'sticky', top: `${stickyOffset.value}px`, zIndex: 2 } : {})
+})
+const tableStyle = computed<CSSProperties | undefined>(() => {
+  const x = props.scroll?.x
+  const minWidth = x === true ? 'max-content' : typeof x === 'number' && Number.isFinite(x) ? `${x}px` : typeof x === 'string' ? x : undefined
+  return minWidth ? { minWidth } : undefined
+})
+const containerStyle = computed<CSSProperties | undefined>(() => {
+  const y = props.scroll?.y
+  if (y === undefined) return undefined
+  const value = typeof y === 'number' && Number.isFinite(y) ? `${y}px` : y
+  return { maxHeight: value, overflowY: 'auto' as const }
+})
 
 const controlledSort = computed<InternalSortState | undefined>(() => {
   const column = normalizedColumns.value.find((currentColumn) => currentColumn.sortOrder !== undefined)
@@ -491,9 +595,7 @@ const renderExpanded = (record: TableRecord, index: number) => {
   return props.expandable?.expandedRowRender?.(record, index) ?? ''
 }
 
-const columnStyle = (column: TableColumn) => ({
-  width: typeof column.width === 'number' ? `${column.width}px` : column.width
-})
+const columnStyle = (column: TableColumn) => cellLayoutStyle(columnLayout(column) ?? { id: getColumnKey(column), source: column })
 
 const columnClass = (column: TableColumn) => [
   column.className,
@@ -524,6 +626,132 @@ const getSortState = (column: TableColumn) => {
 }
 
 const getColumnLabel = (column: TableColumn) => typeof column.title === 'string' ? column.title : getColumnKey(column)
+
+const activeFilterColumn = computed(() => normalizedColumns.value.find((column) => getColumnKey(column) === activeFilterKey.value))
+const popupTargetDisabled = computed(() => {
+  const trigger = filterTriggerElement.value
+  return Boolean(trigger && props.getPopupContainer?.(trigger) === false)
+})
+const popupTarget = computed<HTMLElement | string>(() => {
+  const trigger = filterTriggerElement.value
+  if (!trigger) return typeof document === 'undefined' ? 'body' : document.body
+  const target = props.getPopupContainer?.(trigger)
+  return target === false ? trigger.ownerDocument.body : target ?? trigger.ownerDocument.body
+})
+const isFilterPopupOpen = (column: TableColumn) => activeFilterKey.value === getColumnKey(column)
+const activeFilterPopupNode = computed(() => {
+  const column = activeFilterColumn.value
+  if (!column?.filterDropdown) return null
+  const context: TableFilterDropdownContext = {
+    selectedKeys: filterDraft.value,
+    setSelectedKeys: (keys) => { filterDraft.value = [...keys] },
+    confirm: () => confirmFilter(column),
+    clearFilters: () => resetFilter(column),
+    close: () => closeFilter()
+  }
+  const node = column.filterDropdown(context) as VNode
+  return cloneVNode(node, {
+    class: ['aheart-table__filter-popup', (node as any).props?.class],
+    role: 'dialog',
+    tabindex: -1,
+    'data-table-filter-popup': getColumnKey(column),
+    onKeydown: handleFilterPopupKeydown,
+    onVnodeMounted: (vnode: VNode) => { filterPopupElement.value = vnode.el as HTMLElement | null }
+  })
+})
+const activeFilterValues = (column: TableColumn) => column.filteredValue ?? activeFilters.value[getColumnKey(column)] ?? []
+const requestFilterOpen = (column: TableColumn, open: boolean) => emit('filterDropdownOpenChange', getColumnKey(column), open)
+const toggleFilterPopup = (column: TableColumn, trigger: HTMLElement) => {
+  if (isInteractionLocked.value) return
+  const key = getColumnKey(column)
+  filterTriggerElement.value = trigger
+  if (activeFilterKey.value === key) {
+    requestFilterOpen(column, false)
+    if (column.filterDropdownOpen === undefined) closeFilter()
+    return
+  }
+  if (activeFilterKey.value) {
+    const previous = normalizedColumns.value.find((item) => getColumnKey(item) === activeFilterKey.value)
+    if (previous) requestFilterOpen(previous, false)
+    closeFilter(false)
+  }
+  filterDraft.value = [...activeFilterValues(column)]
+  activeFilterKey.value = key
+  requestFilterOpen(column, true)
+  if (column.filterDropdownOpen !== undefined && !column.filterDropdownOpen) activeFilterKey.value = null
+  else nextTick(() => filterPopupElement.value?.focus())
+}
+const closeFilter = (restoreFocus = true) => {
+  const column = activeFilterColumn.value
+  activeFilterKey.value = null
+  filterDraft.value = []
+  if (restoreFocus) nextTick(() => filterTriggerElement.value?.focus())
+  if (column?.filterDropdownOpen !== undefined) requestFilterOpen(column, false)
+}
+const commitFilter = (column: TableColumn, values: TableFilterValue[]) => {
+  const key = getColumnKey(column)
+  const nextFilters = { ...activeFilters.value }
+  if (values.length) nextFilters[key] = [...values]
+  else delete nextFilters[key]
+  if (column.filteredValue === undefined) innerFilters.value = nextFilters
+  emitTableChange('filter', 1, pageSize.value, nextFilters, activeSort.value)
+}
+const confirmFilter = (column: TableColumn) => {
+  if (isInteractionLocked.value) return
+  commitFilter(column, filterDraft.value)
+  closeFilter()
+}
+const resetFilter = (column: TableColumn) => {
+  if (isInteractionLocked.value) return
+  filterDraft.value = []
+  commitFilter(column, [])
+  closeFilter()
+}
+const handleFilterPopupKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeFilter()
+    return
+  }
+  if (event.key !== 'Tab' || !filterPopupElement.value) return
+  const controls = Array.from(filterPopupElement.value.querySelectorAll<HTMLElement>('input,button,select,textarea,[tabindex]:not([tabindex="-1"])'))
+  if (!controls.length) return
+  const current = filterPopupElement.value.ownerDocument.activeElement
+  const index = controls.indexOf(current as HTMLElement)
+  const next = event.shiftKey ? (index <= 0 ? controls.length - 1 : index - 1) : (index >= controls.length - 1 ? 0 : index + 1)
+  event.preventDefault()
+  controls[next]?.focus()
+}
+const handleFilterDocumentKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && activeFilterKey.value) {
+    event.preventDefault()
+    closeFilter()
+  }
+}
+const handleFilterOutside = (event: Event) => {
+  if (!activeFilterKey.value || filterPopupElement.value?.contains(event.target as Node) || filterTriggerElement.value?.contains(event.target as Node)) return
+  closeFilter()
+}
+watch([normalizedColumns, activeFilterKey], () => {
+  const openColumn = normalizedColumns.value.find((column) => column.filterDropdownOpen === true)
+  if (!activeFilterKey.value && openColumn && !isInteractionLocked.value) {
+    filterDraft.value = [...activeFilterValues(openColumn)]
+    activeFilterKey.value = getColumnKey(openColumn)
+    nextTick(() => filterPopupElement.value?.focus())
+  }
+  if (activeFilterKey.value && normalizedColumns.value.some((column) => getColumnKey(column) === activeFilterKey.value && column.filterDropdownOpen === false)) closeFilter(false)
+}, { immediate: true, deep: true })
+onMounted(() => {
+  if (activeFilterKey.value) filterTriggerElement.value = tableRoot.value?.querySelector<HTMLElement>(`[data-table-filter-trigger="${activeFilterKey.value}"]`) ?? null
+  const doc = filterTriggerElement.value?.ownerDocument ?? document
+  doc.addEventListener('keydown', handleFilterDocumentKeydown)
+  doc.addEventListener('pointerdown', handleFilterOutside)
+})
+onBeforeUnmount(() => {
+  const doc = filterTriggerElement.value?.ownerDocument ?? document
+  doc.removeEventListener('keydown', handleFilterDocumentKeydown)
+  doc.removeEventListener('pointerdown', handleFilterOutside)
+})
 
 const getAriaSort = (column: TableColumn) => {
   const state = getSortState(column)

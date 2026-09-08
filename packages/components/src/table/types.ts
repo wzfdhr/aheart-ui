@@ -13,6 +13,16 @@ export type TableDataIndex = string | number | Array<string | number>
 export type TableFilterValue = string | number | boolean
 export type TableChangeAction = 'paginate' | 'sort' | 'filter'
 export type TableRenderable = VNodeChild
+export type TableColumnFixed = 'left' | 'right'
+export type TableScroll = { x?: boolean | number | string; y?: number | string }
+export type TableSticky = boolean | { offsetHeader?: number }
+export type TableFilterDropdownContext = {
+  selectedKeys: TableFilterValue[]
+  setSelectedKeys: (keys: TableFilterValue[]) => void
+  confirm: () => void
+  clearFilters: () => void
+  close: () => void
+}
 
 export interface TableColumnFilter {
   text: TableRenderable
@@ -34,6 +44,10 @@ export interface TableColumn<T extends TableRecord = TableRecord> {
   filteredValue?: TableFilterValue[]
   defaultFilteredValue?: TableFilterValue[]
   filterMultiple?: boolean
+  filterDropdown?: (context: TableFilterDropdownContext) => VNodeChild
+  filterDropdownOpen?: boolean
+  defaultFilterDropdownOpen?: boolean
+  fixed?: TableColumnFixed
   ellipsis?: boolean
   customRender?: (context: { text: unknown; record: T; index: number; column: TableColumn<T> }) => VNodeChild
 }
@@ -110,6 +124,10 @@ export const tableProps = {
   },
   rowSelection: Object as PropType<TableRowSelection>,
   expandable: Object as PropType<TableExpandable>,
+  scroll: Object as PropType<TableScroll>,
+  sticky: [Boolean, Object] as PropType<TableSticky>,
+  error: [Boolean, Object] as PropType<boolean | { message?: TableRenderable; retryText?: TableRenderable }>,
+  getPopupContainer: Function as PropType<(triggerNode: HTMLElement) => HTMLElement | false>,
   showHeader: {
     type: Boolean,
     default: true
@@ -126,7 +144,9 @@ export const tableEmits = {
   'update:expandedRowKeys': (keys: TableKey[]) => Array.isArray(keys),
   select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => true,
   selectAll: (_selected: boolean, keys: TableKey[], rows: TableRecord[]) => Array.isArray(keys) && Array.isArray(rows),
-  expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => true
+  expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => true,
+  filterDropdownOpenChange: (_columnKey: string, _open: boolean) => true,
+  retry: () => true
 }
 
 export type TableProps = ExtractPropTypes<typeof tableProps>
