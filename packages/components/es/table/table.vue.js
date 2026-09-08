@@ -537,55 +537,55 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const positionPopupAndFocus = async () => {
       var _a, _b;
       const generation = ++popupGeneration;
+      const activeKey = activeFilterKey.value;
       popupPositioned.value = false;
       await nextTick();
-      if (!popupOpen.value || generation !== popupGeneration)
+      if (!popupOpen.value || generation !== popupGeneration || activeFilterKey.value !== activeKey)
         return;
       await updateFloatingPosition();
       const ownerWindow = (_a = filterPopupElement.value) == null ? void 0 : _a.ownerDocument.defaultView;
       await new Promise((resolve) => {
         if (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame)
           ownerWindow.requestAnimationFrame(() => resolve());
+        else if (ownerWindow == null ? void 0 : ownerWindow.setTimeout)
+          ownerWindow.setTimeout(resolve, 0);
         else
-          setTimeout(resolve, 0);
+          resolve();
       });
-      if (!popupOpen.value || generation !== popupGeneration)
+      if (!popupOpen.value || generation !== popupGeneration || activeFilterKey.value !== activeKey)
         return;
       popupPositioned.value = true;
       await nextTick();
-      if (generation === popupGeneration)
+      if (popupOpen.value && generation === popupGeneration && activeFilterKey.value === activeKey) {
         (_b = filterPopupElement.value) == null ? void 0 : _b.focus({ preventScroll: true });
+      }
     };
     useFloatingDismiss({
       open: popupOpen,
       trigger: filterTriggerElement,
       floating: filterPopupElement,
       onDismiss: (reason, event) => {
-        var _a, _b;
         if (reason === "outside")
           event.preventDefault();
-        const trigger = filterTriggerElement.value;
-        const restore = () => trigger == null ? void 0 : trigger.focus({ preventScroll: true });
+        const dismissalGeneration = popupGeneration;
+        const dismissalKey = activeFilterKey.value;
+        const dismissalTrigger = filterTriggerElement.value;
         const dismiss = () => {
-          if (!isInteractionLocked.value)
+          if (!isInteractionLocked.value && popupGeneration === dismissalGeneration && activeFilterKey.value === dismissalKey && filterTriggerElement.value === dismissalTrigger) {
             closeFilter();
+          }
         };
         if (reason === "outside") {
-          const ownerWindow = (_a = filterTriggerElement.value) == null ? void 0 : _a.ownerDocument.defaultView;
+          const ownerWindow = dismissalTrigger == null ? void 0 : dismissalTrigger.ownerDocument.defaultView;
           const closeOutside = () => {
-            var _a2;
+            if (popupGeneration !== dismissalGeneration || activeFilterKey.value !== dismissalKey || filterTriggerElement.value !== dismissalTrigger || !popupOpen.value)
+              return;
             dismiss();
-            const trigger2 = filterTriggerElement.value;
-            (_a2 = trigger2 == null ? void 0 : trigger2.ownerDocument.defaultView) == null ? void 0 : _a2.setTimeout(() => trigger2.focus({ preventScroll: true }), 100);
           };
-          if (ownerWindow == null ? void 0 : ownerWindow.navigator.userAgent.includes("jsdom"))
-            closeOutside();
-          else
-            ownerWindow == null ? void 0 : ownerWindow.setTimeout(closeOutside, 32);
-        } else {
+          if (ownerWindow == null ? void 0 : ownerWindow.setTimeout)
+            ownerWindow.setTimeout(closeOutside, 32);
+        } else
           dismiss();
-          (_b = trigger == null ? void 0 : trigger.ownerDocument.defaultView) == null ? void 0 : _b.setTimeout(restore, 100);
-        }
       },
       restoreFocus: true
     });
@@ -696,17 +696,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       closeRequestPending.value = false;
       if (restoreFocus) {
         const triggerKey = column ? getColumnKey(column) : void 0;
+        const closeGeneration = popupGeneration;
+        const restoreTrigger = filterTriggerElement.value;
         void nextTick(() => {
           var _a;
-          const trigger = triggerKey ? ((_a = tableRoot.value) == null ? void 0 : _a.querySelector(`[data-table-filter-trigger="${triggerKey}"]`)) ?? filterTriggerElement.value : filterTriggerElement.value;
+          const trigger = triggerKey ? ((_a = tableRoot.value) == null ? void 0 : _a.querySelector(`[data-table-filter-trigger="${triggerKey}"]`)) ?? restoreTrigger : restoreTrigger;
           const ownerWindow = trigger == null ? void 0 : trigger.ownerDocument.defaultView;
-          const focus = () => trigger == null ? void 0 : trigger.focus({ preventScroll: true });
+          const focus = () => {
+            if (popupGeneration !== closeGeneration || popupOpen.value || activeFilterKey.value !== null)
+              return;
+            trigger == null ? void 0 : trigger.focus({ preventScroll: true });
+          };
           if (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame)
-            ownerWindow.requestAnimationFrame(() => {
-              focus();
-              ownerWindow.setTimeout(focus, 0);
-              ownerWindow.setTimeout(focus, 50);
-            });
+            ownerWindow.requestAnimationFrame(focus);
           else
             focus();
         });
@@ -821,7 +823,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (stickyRaf)
         return;
       const ownerWindow = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.defaultView;
-      const request = (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame) ?? ((callback) => setTimeout(callback, 0));
+      const request = (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame) ?? ((ownerWindow == null ? void 0 : ownerWindow.setTimeout) ? (callback) => ownerWindow.setTimeout(callback, 0) : void 0);
+      if (!request) {
+        measureLayout();
+        updateStickyGeometry();
+        return;
+      }
       stickyRaf = request(() => {
         stickyRaf = 0;
         measureLayout();

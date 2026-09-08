@@ -718,19 +718,23 @@ const { popupStyle, update: updateFloatingPosition } = useFloatingPosition({
 })
 const positionPopupAndFocus = async () => {
   const generation = ++popupGeneration
+  const activeKey = activeFilterKey.value
   popupPositioned.value = false
   await nextTick()
-  if (!popupOpen.value || generation !== popupGeneration) return
+  if (!popupOpen.value || generation !== popupGeneration || activeFilterKey.value !== activeKey) return
   await updateFloatingPosition()
   const ownerWindow = filterPopupElement.value?.ownerDocument.defaultView
   await new Promise<void>((resolve) => {
     if (ownerWindow?.requestAnimationFrame) ownerWindow.requestAnimationFrame(() => resolve())
-    else setTimeout(resolve, 0)
+    else if (ownerWindow?.setTimeout) ownerWindow.setTimeout(resolve, 0)
+    else resolve()
   })
-  if (!popupOpen.value || generation !== popupGeneration) return
+  if (!popupOpen.value || generation !== popupGeneration || activeFilterKey.value !== activeKey) return
   popupPositioned.value = true
   await nextTick()
-  if (generation === popupGeneration) filterPopupElement.value?.focus({ preventScroll: true })
+  if (popupOpen.value && generation === popupGeneration && activeFilterKey.value === activeKey) {
+    filterPopupElement.value?.focus({ preventScroll: true })
+  }
 }
 useFloatingDismiss({
   open: popupOpen,
@@ -738,23 +742,23 @@ useFloatingDismiss({
   floating: filterPopupElement,
   onDismiss: (reason, event) => {
     if (reason === 'outside') event.preventDefault()
-    const trigger = filterTriggerElement.value
-    const restore = () => trigger?.focus({ preventScroll: true })
-    const dismiss = () => { if (!isInteractionLocked.value) closeFilter() }
-    if (reason === 'outside') {
-      const ownerWindow = filterTriggerElement.value?.ownerDocument.defaultView
-      const closeOutside = () => {
-      dismiss()
-      const trigger = filterTriggerElement.value
-      trigger?.ownerDocument.defaultView?.setTimeout(() => trigger.focus({ preventScroll: true }), 100)
+    const dismissalGeneration = popupGeneration
+    const dismissalKey = activeFilterKey.value
+    const dismissalTrigger = filterTriggerElement.value
+    const dismiss = () => {
+      if (!isInteractionLocked.value && popupGeneration === dismissalGeneration && activeFilterKey.value === dismissalKey && filterTriggerElement.value === dismissalTrigger) {
+        closeFilter()
       }
-      if (ownerWindow?.navigator.userAgent.includes('jsdom')) closeOutside()
-      else ownerWindow?.setTimeout(closeOutside, 32)
     }
-    else {
-      dismiss()
-      trigger?.ownerDocument.defaultView?.setTimeout(restore, 100)
+    if (reason === 'outside') {
+      const ownerWindow = dismissalTrigger?.ownerDocument.defaultView
+      const closeOutside = () => {
+        if (popupGeneration !== dismissalGeneration || activeFilterKey.value !== dismissalKey || filterTriggerElement.value !== dismissalTrigger || !popupOpen.value) return
+        dismiss()
+      }
+      if (ownerWindow?.setTimeout) ownerWindow.setTimeout(closeOutside, 32)
     }
+    else dismiss()
   },
   restoreFocus: true
 })
@@ -847,17 +851,18 @@ const closeFilter = (restoreFocus = true) => {
   closeRequestPending.value = false
   if (restoreFocus) {
     const triggerKey = column ? getColumnKey(column) : undefined
+    const closeGeneration = popupGeneration
+    const restoreTrigger = filterTriggerElement.value
     void nextTick(() => {
       const trigger = triggerKey
-        ? tableRoot.value?.querySelector<HTMLElement>(`[data-table-filter-trigger="${triggerKey}"]`) ?? filterTriggerElement.value
-        : filterTriggerElement.value
+        ? tableRoot.value?.querySelector<HTMLElement>(`[data-table-filter-trigger="${triggerKey}"]`) ?? restoreTrigger
+        : restoreTrigger
       const ownerWindow = trigger?.ownerDocument.defaultView
-      const focus = () => trigger?.focus({ preventScroll: true })
-      if (ownerWindow?.requestAnimationFrame) ownerWindow.requestAnimationFrame(() => {
-        focus()
-        ownerWindow.setTimeout(focus, 0)
-        ownerWindow.setTimeout(focus, 50)
-      })
+      const focus = () => {
+        if (popupGeneration !== closeGeneration || popupOpen.value || activeFilterKey.value !== null) return
+        trigger?.focus({ preventScroll: true })
+      }
+      if (ownerWindow?.requestAnimationFrame) ownerWindow.requestAnimationFrame(focus)
       else focus()
     })
   }
@@ -955,7 +960,13 @@ const updateStickyGeometry = () => {
 const scheduleStickyGeometry = () => {
   if (stickyRaf) return
   const ownerWindow = tableRoot.value?.ownerDocument.defaultView
-  const request = ownerWindow?.requestAnimationFrame ?? ((callback: FrameRequestCallback) => setTimeout(callback, 0) as unknown as number)
+  const request = ownerWindow?.requestAnimationFrame
+    ?? (ownerWindow?.setTimeout ? ((callback: FrameRequestCallback) => ownerWindow.setTimeout(callback, 0) as unknown as number) : undefined)
+  if (!request) {
+    measureLayout()
+    updateStickyGeometry()
+    return
+  }
   stickyRaf = request(() => {
     stickyRaf = 0
     measureLayout()
