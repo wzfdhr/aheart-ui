@@ -7,6 +7,15 @@ function pageErrors(page: Page) {
   return errors
 }
 
+async function waitForTableLayout(demo: ReturnType<Page['locator']>) {
+  const tables = demo.locator('table[data-table-layout-ready]')
+  const count = await tables.count()
+  expect(count).toBeGreaterThan(0)
+  for (let index = 0; index < count; index += 1) {
+    await expect(tables.nth(index)).toHaveAttribute('data-table-layout-ready', 'true')
+  }
+}
+
 async function openFilter(page: Page, demo: ReturnType<Page['locator']>, index = 0) {
   const triggers = demo.locator('button[aria-haspopup="dialog"]')
   await triggers.nth(index).click()
@@ -19,6 +28,7 @@ test('D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlle
   const errors = pageErrors(page)
   await page.goto('/components/table')
   const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  await waitForTableLayout(demo)
 
   let popup = await openFilter(page, demo)
   await popup.locator('[data-d5b-filter-input]').fill('Ada')
@@ -55,6 +65,7 @@ test('D5-B fixed columns, utility offsets, sticky header, y scroll, and narrow x
   const errors = pageErrors(page)
   await page.goto('/components/table')
   const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  await waitForTableLayout(demo)
   const table = demo.locator('table')
   await expect(table).toHaveCount(1)
   await expect(table.locator('colgroup col')).toHaveCount(5)
@@ -80,6 +91,7 @@ test('D5-B loading keeps old rows and locks actions, error only retries, and emp
   const errors = pageErrors(page)
   await page.goto('/components/table')
   const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  await waitForTableLayout(demo)
   const rowCount = await demo.locator('tbody tr').count()
   await demo.getByRole('button', { name: '开始 loading' }).click()
   await expect(demo.locator('p[role="status"]')).toContainText('筛选值：无')
@@ -106,6 +118,7 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   const errors = pageErrors(page)
   await page.goto('/components/table')
   const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  await waitForTableLayout(demo)
   const table = demo.locator('table')
   const geometry = await table.locator('thead th').evaluateAll(nodes => nodes.map(node => {
     const style = getComputedStyle(node)
