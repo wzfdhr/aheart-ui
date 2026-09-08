@@ -386,6 +386,13 @@ test('D5-B utility columns use measured widths for fixed offsets', async ({ page
   const table = region.locator('table')
   await expect(table).toHaveAttribute('data-table-layout-ready', 'true')
   const tableBox = await table.boundingBox()
+  const isNarrowLeft = await region.locator('[data-table-narrow-left]').count() > 0
+  const colWidths = await table.locator('colgroup col').evaluateAll(nodes => nodes.slice(0, 2).map(node => {
+    const cssWidth = Number.parseFloat(getComputedStyle(node).width)
+    const inlineWidth = Number.parseFloat(node.style.width)
+    const rectWidth = node.getBoundingClientRect().width
+    return Number.isFinite(cssWidth) && cssWidth > 0 ? cssWidth : Number.isFinite(inlineWidth) && inlineWidth > 0 ? inlineWidth : rectWidth
+  }))
   const utilities = await table.locator('thead th').evaluateAll(nodes => nodes.slice(0, 2).map(node => {
     const style = getComputedStyle(node)
     const rect = node.getBoundingClientRect()
@@ -396,9 +403,18 @@ test('D5-B utility columns use measured widths for fixed offsets', async ({ page
   expect(firstData).not.toBeNull()
   expect(utilities).toHaveLength(2)
   if (!tableBox || !firstData || utilities.length !== 2) return
-  expect(utilities.every(item => item.width >= 80)).toBe(true)
+  expect(colWidths.every(width => width > 0)).toBe(true)
+  expect(utilities.every((item, index) => Math.abs(item.width - colWidths[index]) <= 8)).toBe(true)
+  if (!isNarrowLeft) expect(utilities.every(item => item.width >= 80)).toBe(true)
   const utilityWidth = utilities.reduce((total, item) => total + item.width, 0)
   expect(Math.abs(firstData.x - (tableBox.x + utilityWidth))).toBeLessThan(4)
+  const roleTrigger = region.locator('button[aria-haspopup="dialog"]').nth(1)
+  await roleTrigger.scrollIntoViewIfNeeded()
+  await roleTrigger.click()
+  const rolePopup = page.locator('[data-table-filter-popup]')
+  await expect(rolePopup).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(rolePopup).toHaveCount(0)
 })
 
 test('D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table', async ({ page }) => {
