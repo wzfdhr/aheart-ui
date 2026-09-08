@@ -28,6 +28,15 @@ const d5bRows = [
   { key: 'b-4', name: 'Margaret', role: 'Engineer', score: 91 },
   { key: 'b-5', name: 'James', role: 'Architect', score: 83 }
 ]
+const d5bLongContent = ref(false)
+const d5bDisplayRows = computed(() => d5bLongContent.value
+  ? d5bRows.map(row => ({ ...row, score: `${row.score} ${'长内容'.repeat(420)}` }))
+  : d5bRows)
+const d5bExternalRows = Array.from({ length: 18 }, (_, index) => ({ key: `external-${index}`, name: `外部滚动行 ${index + 1}`, score: index + 1 }))
+const d5bExternalColumns = [
+  { title: '外部姓名', dataIndex: 'name', key: 'name', width: 180 },
+  { title: '外部评分', dataIndex: 'score', key: 'score', width: 120 }
+]
 const d5bFilterDropdown = ({ selectedKeys, setSelectedKeys, confirm, clearFilters, close }: any) => h(
   'div',
   { class: 'd5b-filter-controls' },
@@ -48,7 +57,7 @@ const d5bFilterDropdown = ({ selectedKeys, setSelectedKeys, confirm, clearFilter
 )
 const d5bColumns = computed(() => [
   { title: '姓名', dataIndex: 'name', key: 'name', width: 160, fixed: 'left' as const, filterDropdown: d5bFilterDropdown, filterDropdownOpen: d5bFilterOpen.value },
-  { title: '评分', dataIndex: 'score', key: 'score', width: 140, sorter: true, customRender: ({ text }: { text: unknown }) => h('button', { type: 'button', 'data-d5b-custom-action': true, onClick: () => d5bCustomActionCount.value++ }, String(text)) },
+  { title: '评分', dataIndex: 'score', key: 'score', sorter: true, customRender: ({ text }: { text: unknown }) => h('button', { type: 'button', 'data-d5b-custom-action': true, onClick: () => d5bCustomActionCount.value++ }, String(text)) },
   { title: '角色', dataIndex: 'role', key: 'role', width: 160, fixed: 'right' as const, filterDropdown: d5bFilterDropdown, filterDropdownOpen: d5bFilterOpen.value }
 ])
 function d5bFilterOpenChange(_key: string, open: boolean) {
@@ -487,11 +496,12 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
     <AButton :aria-pressed="d5bLoading" @click="d5bLoading = !d5bLoading">{{ d5bLoading ? '结束 loading' : '开始 loading' }}</AButton>
     <AButton :aria-pressed="d5bError" :disabled="d5bLoading" @click="d5bError = !d5bError">{{ d5bError ? '清除 error' : '显示 error' }}</AButton>
     <AButton :aria-pressed="d5bEmpty" :disabled="d5bLoading || d5bError" @click="d5bEmpty = !d5bEmpty">{{ d5bEmpty ? '显示数据' : '显示 empty' }}</AButton>
+    <AButton :aria-pressed="d5bLongContent" @click="d5bLongContent = !d5bLongContent">{{ d5bLongContent ? '恢复短内容' : '切换长内容' }}</AButton>
   </div>
   <p role="status">筛选值：{{ d5bFilterValue || '无' }}；retry：{{ d5bRetryCount }}；自定义操作：{{ d5bCustomActionCount }}；打开：{{ d5bFilterOpen ? '是' : '否' }}</p>
   <ATable
     :columns="d5bColumns"
-    :data-source="d5bEmpty ? [] : d5bRows"
+    :data-source="d5bEmpty ? [] : d5bDisplayRows"
     :loading="d5bLoading"
     :error="d5bError ? { message: '当前数据加载失败', retryText: '重试数据请求' } : false"
     :scroll="{ x: true, y: 180 }"
@@ -501,6 +511,15 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
     @filter-dropdown-open-change="d5bFilterOpenChange"
     @retry="d5bRetry"
   />
+</section>
+
+<section class="aheart-demo-panel d5-table-b-external-sticky" aria-label="D5-B 外部滚动 sticky">
+  <p>无 scroll.y 的外部滚动容器；滚动后表头应贴合容器顶部偏移。</p>
+  <div class="d5b-external-scroll" style="height: 260px; overflow: auto; border: 1px solid var(--aheart-color-border);">
+    <div style="height: 180px;" aria-hidden="true"></div>
+    <ATable :columns="d5bExternalColumns" :data-source="d5bExternalRows" :pagination="false" :sticky="{ offsetHeader: 8 }" />
+    <div style="height: 260px;" aria-hidden="true"></div>
+  </div>
 </section>
 
 `fixed: 'left'` 和 `fixed: 'right'` 只对连续的左前缀/右后缀生效，并且要求正数或可解析的 px 宽度；不合法的一组会整体降级为普通列。固定布局使用单个原生 `table` 与 `colgroup`，selection/expand utility 列参与固定偏移。`sticky` 可配 `offsetHeader`；有 `scroll.y` 时表内滚动，无 `y` 时依赖页面或祖先滚动容器。

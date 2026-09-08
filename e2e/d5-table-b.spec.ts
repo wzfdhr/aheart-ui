@@ -141,10 +141,10 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   expect(geometry[4].right).toBe('0px')
 
   const beforeColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
-  await demo.getByRole('button', { name: '显示 empty' }).click()
-  await demo.getByRole('button', { name: '显示数据' }).click()
-  const afterColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
-  expect(afterColumns).toEqual(beforeColumns)
+  await demo.getByRole('button', { name: '切换长内容' }).click()
+  const afterLongColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
+  expect(afterLongColumns).toEqual(beforeColumns)
+  await demo.getByRole('button', { name: '恢复短内容' }).click()
   await page.setViewportSize({ width: 390, height: 844 })
   const overflow = await demo.locator('.aheart-table__container').evaluate(node => ({ scrollWidth: node.scrollWidth, clientWidth: node.clientWidth }))
   expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth)
@@ -189,4 +189,28 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   await frame.locator('body').click({ position: { x: 4, y: 4 } })
   await expect(framePopup).toHaveCount(0)
   expect(errors.filter(error => !error.startsWith('D5FLOATDBG'))).toEqual([])
+})
+
+test('D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table', async ({ page }) => {
+  await page.goto('/components/table')
+  const region = page.getByRole('region', { name: 'D5-B 外部滚动 sticky' })
+  const scroller = region.locator('.d5b-external-scroll')
+  const table = region.locator('table')
+  await expect(table).toHaveCount(1)
+  await scroller.evaluate(node => { node.scrollTop = 180 })
+  await expect.poll(async () => {
+    const container = await scroller.boundingBox()
+    const header = await table.locator('thead').boundingBox()
+    if (!container || !header) return -1
+    return Math.round(header.y - container.y)
+  }).toBe(8)
+  const container = await scroller.boundingBox()
+  const header = await table.locator('thead').boundingBox()
+  const tableBox = await table.boundingBox()
+  expect(container).not.toBeNull()
+  expect(header).not.toBeNull()
+  expect(tableBox).not.toBeNull()
+  if (!container || !header || !tableBox) return
+  expect(Math.abs(header.y - (container.y + 8))).toBeLessThan(2)
+  expect(header.y + header.height).toBeLessThanOrEqual(tableBox.bottom + 1)
 })
