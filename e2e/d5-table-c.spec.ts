@@ -124,10 +124,11 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
         range.selectNodeContents(node)
         const rect = range.getBoundingClientRect()
         const center = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
-        return { text: (node.textContent ?? '').trim(), left: rect.left, right: rect.right, blocked: Boolean(center?.closest('td[data-fixed="left"]')) }
+        return { text: (node.textContent ?? '').trim(), left: rect.left, right: rect.right, textAlign: getComputedStyle(element).textAlign, blocked: Boolean(center?.closest('td[data-fixed="left"]')) }
       })
       expect(textBox).not.toBeNull()
       expect(textBox!.text).toContain('ready')
+      expect(textBox!.textAlign).toBe('right')
       expect(textBox!.left).toBeGreaterThanOrEqual(leftBoundary + 1)
       expect(textBox!.right).toBeLessThanOrEqual(containerBox!.x + containerBox!.width + 1)
       expect(textBox!.blocked).toBe(false)
