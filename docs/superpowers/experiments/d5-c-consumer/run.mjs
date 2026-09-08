@@ -44,8 +44,9 @@ const cases = {
   local: { dataMode: 'local', dataSource: rows, pagination: false },
   server: { dataMode: 'server', dataSource: serverRows, pagination: { current: 2, pageSize: 20, total: 10000 } },
   virtual: { dataMode: 'local', dataSource: rows, virtual: { height: 320, overscan: 4, estimateSize: 40 }, pagination: false },
-  fixed: { dataMode: 'local', dataSource: rows, columns: fixedColumns, scroll: { x: 600 }, pagination: false },
-  expanded: { dataMode: 'local', dataSource: rows, expandable: { defaultExpandedRowKeys: [expandedRow.key], expandedRowRender: row => `Details for ${row.name}` }, pagination: false }
+  fixed: { dataMode: 'local', dataSource: rows, columns: fixedColumns, scroll: { x: 900 }, virtual: { height: 320, overscan: 4, estimateSize: 40 }, pagination: false },
+  expanded: { dataMode: 'local', dataSource: rows, expandable: { defaultExpandedRowKeys: [expandedRow.key], expandedRowRender: row => `Details for ${row.name}` }, virtual: { height: 320, overscan: 4, estimateSize: 40 }, pagination: false },
+  'fixed-expanded': { dataMode: 'local', dataSource: rows, columns: fixedColumns, scroll: { x: 900 }, expandable: { defaultExpandedRowKeys: [expandedRow.key], expandedRowRender: row => `Details for ${row.name}` }, virtual: { height: 320, overscan: 4, estimateSize: 40 }, pagination: false }
 }
 const renderCase = (settings, caseColumns = columns) => renderer.renderToString(vue.createSSRApp({ render: () => vue.h(probe.Table, { columns: caseColumns, rowKey: 'key', ...settings }) }))
 const hydrationProps = { columns, rowKey: 'key', ...cases.virtual }
@@ -53,12 +54,13 @@ const ssr = await renderCase(cases.virtual)
 assert.match(ssr, /<table|data-table/, 'SSR did not render a Table')
 assert.equal((ssr.match(/data-table-row/g) ?? []).length <= 20, true, 'virtual SSR window must be <=20')
 for (const [name, settings] of Object.entries(cases)) {
-  const html = await renderCase(settings, name === 'fixed' ? fixedColumns : columns)
+  const html = await renderCase(settings, name === 'fixed' || name === 'fixed-expanded' ? fixedColumns : columns)
   assert.match(html, /<table|data-table/, `${name} SSR did not render a native table`)
   if (name === 'virtual') assert.match(html, /data-table-virtual-spacer/, 'virtual case must expose spacer')
   if (name === 'server') for (let i = 1001; i <= 1020; i++) assert.match(html, new RegExp(`Server row ${i}`), `server SSR lost row ${i}`)
   if (name === 'fixed') { assert.match(html, /width/, 'fixed SSR must preserve positive widths'); assert.match(html, /scroll/, 'fixed SSR must preserve horizontal scroll contract') }
   if (name === 'expanded') assert.match(html, /Details for Row 5000/, 'expanded SSR must include default expanded details')
+  if (name === 'fixed-expanded') { assert.match(html, /Details for Row 5000/); assert.match(html, /data-fixed/, 'fixed-expanded SSR must expose fixed output') }
 }
 const serializedProps = JSON.stringify(hydrationProps)
 await writeFile(path.join(root, 'index.html'), '<!doctype html><html><body><div id="app">' + ssr + '</div><script type="module" src="/main.js"></script></body></html>')

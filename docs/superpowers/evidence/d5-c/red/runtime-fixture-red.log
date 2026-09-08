@@ -29,5 +29,13 @@ Third-review verification:
   10000, full 10000/no spacer, virtual <=20/exactly two spacers, LongTask/CLS,
   and explicit gzipped D5-A/candidate Table-only files with hashes.
 
+Fourth-review verification:
+- docs build: PASS
+- full desktop run before iframe virtual assertion: 7 failed / 1 passed;
+  the sole pass was the real iframe ownerDocument/unmount path.
+- iframe now also requires aria-rowcount=100, <=20 virtual rows, and exactly
+  two spacers; targeted desktop run exits RED at missing aria-rowcount (no
+  fixture timeout), so the final expected matrix is 8/8 RED at runtime gates.
+
 No production Table, generated es/lib, unit test, or unrelated docs changes
 were included in this fixture commit.

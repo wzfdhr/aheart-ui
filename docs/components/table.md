@@ -140,8 +140,6 @@ const d5cSelected = ref<Array<string | number>>([])
 const d5cIframe = ref<HTMLIFrameElement | null>(null)
 const d5cIframeUnmounted = ref(false)
 let d5cIframeApp: ReturnType<typeof createApp> | null = null
-let d5cIframeLoadHandler: (() => void) | null = null
-let d5cIframePoll: number | null = null
 const d5cRows = (count: number, offset = 0) => Array.from({ length: count }, (_, index) => ({ key: `d5c-${offset + index + 1}`, name: `Row ${offset + index + 1}`, status: 'ready' }))
 const d5cFallbackRows = (reason: string) => {
   const rows = d5cRows(100)
@@ -155,38 +153,28 @@ const d5cFallbackColumns = (reason: string) => reason === 'rowspan'
 const d5cColumns = [{ title: 'Name', dataIndex: 'name', key: 'name', width: 180 }, { title: 'Status', dataIndex: 'status', key: 'status', width: 180 }]
 const d5cFixedColumns = [
   { ...d5cColumns[0], fixed: 'left' as const, width: 180 },
-  { title: 'Focus', key: 'focus', width: 140, customRender: ({ record }: any) => h('button', { type: 'button', 'aria-label': `Focus row ${record.key}` }, 'Focus') },
-  { ...d5cColumns[1], fixed: 'right' as const, width: 180 }
+  { title: 'Focus', key: 'focus', width: 180, customRender: ({ record }: any) => h('button', { type: 'button', 'aria-label': `Focus row ${record.key}` }, 'Focus') },
+  { ...d5cColumns[1], fixed: 'right' as const, width: 320 }
 ]
-const d5cExpandable = { defaultExpandedRowKeys: ['d5c-5000'], expandedRowRender: (row: { name: string }) => `Details for ${row.name}` }
+const d5cExpandable = { expandedRowRender: (row: { name: string }) => `Details for ${row.name}` }
 const d5cUnmountIframe = () => {
-  if (d5cIframePoll !== null) window.clearTimeout(d5cIframePoll)
-  if (d5cIframe.value && d5cIframeLoadHandler) d5cIframe.value.removeEventListener('load', d5cIframeLoadHandler)
   d5cIframeApp?.unmount()
   d5cIframeApp = null
   if (d5cIframe.value) d5cIframe.value.srcdoc = ''
   d5cIframeUnmounted.value = true
+}
+const d5cHandleIframeLoad = (event: Event) => {
+  const frame = event.currentTarget as HTMLIFrameElement
+  const target = frame.contentDocument?.getElementById('d5c-iframe-app')
+  if (!target || target.hasChildNodes()) return
+  d5cIframeApp = createApp({ render: () => h('div', { 'data-owner-document': 'iframe', 'data-table-scroll': true, style: { height: '200px', overflow: 'auto' } }, [h(RuntimeTable, { columns: d5cColumns, dataSource: d5cRows(100), rowKey: 'key', pagination: false, virtual: { height: 200, overscan: 2, estimateSize: 40 } })]) })
+  d5cIframeApp.mount(target)
 }
 onMounted(() => {
   d5cLocal10k.value = d5cRows(10000)
   d5cLocal1k.value = d5cRows(1000)
   d5cServerRows.value = d5cRows(20, 1000).map(row => ({ ...row, name: `Server row ${Number(row.key.toString().replace('d5c-', ''))}` }))
   d5cFixedRows.value = d5cRows(10000)
-  const frame = d5cIframe.value
-  if (!frame) return
-  const mountIframe = () => {
-    const target = frame.contentDocument?.getElementById('d5c-iframe-app')
-    if (!target) { d5cIframePoll = window.setTimeout(mountIframe, 10); return }
-    if (target.hasChildNodes()) return
-    const mountHost = document.createElement('div')
-    d5cIframeApp = createApp({ render: () => h('div', { 'data-owner-document': 'iframe', 'data-table-scroll': true, style: { height: '200px', overflow: 'auto' } }, [h(RuntimeTable, { columns: d5cColumns, dataSource: d5cRows(100), rowKey: 'key', pagination: false, virtual: { height: 200, overscan: 2, estimateSize: 40 } })]) })
-    d5cIframeApp.mount(mountHost)
-    target.append(...Array.from(mountHost.childNodes))
-  }
-  d5cIframeLoadHandler = mountIframe
-  frame.addEventListener('load', d5cIframeLoadHandler, { once: true })
-  frame.srcdoc = '<!doctype html><html><body><div id="d5c-iframe-app"></div></body></html>'
-  mountIframe()
 })
 onBeforeUnmount(() => {
   d5cUnmountIframe()
@@ -561,7 +549,7 @@ D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列
     <span data-table-data-mode="server">server</span><span data-table-current-page="2">2</span>
     <ATable data-mode="server" row-key="key" :columns="d5cColumns" :data-source="d5cServerRows" :pagination="{ current: 2, pageSize: 20, total: 10000, showSizeChanger: false }" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
   </section>
-  <section class="aheart-demo-panel" role="region" aria-label="D5-C 固定列展开选择组合">
+  <section class="aheart-demo-panel d5c-fixed-region" role="region" aria-label="D5-C 固定列展开选择组合" style="max-width: 540px">
     <ATable data-mode="local" row-key="key" :columns="d5cFixedColumns" :data-source="d5cFixedRows" :scroll="{ x: 600, y: 320 }" :pagination="false" :row-selection="{ selectedRowKeys: d5cSelected }" :expandable="d5cExpandable" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" @update:selected-row-keys="d5cSelected = $event" />
     <button type="button" data-d5c-outside-focus>Focus outside table</button>
   </section>
@@ -571,7 +559,7 @@ D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列
     </div>
   </section>
   <section class="aheart-demo-panel" role="region" aria-label="D5-C SSR 与嵌入式容器">
-    <iframe ref="d5cIframe" data-table-owner-document title="D5-C iframe owner document" style="width: 100%; height: 220px"></iframe>
+    <iframe ref="d5cIframe" data-table-owner-document title="D5-C iframe owner document" srcdoc="<!doctype html><html><body><div id='d5c-iframe-app'></div></body></html>" @load="d5cHandleIframeLoad" style="width: 100%; height: 220px"></iframe>
     <button type="button" data-d5c-unmount-iframe @click="d5cUnmountIframe">Unmount iframe table</button>
     <span data-iframe-listener-cleanup>{{ d5cIframeUnmounted ? 'ok' : 'mounted' }}</span>
   </section>
