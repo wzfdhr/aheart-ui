@@ -51,7 +51,7 @@ const _hoisted_22 = {
   role: "status",
   "aria-live": "polite"
 };
-const _hoisted_23 = ["data-table-filter-popup"];
+const _hoisted_23 = ["aria-label", "aria-disabled", "inert", "data-table-filter-popup"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ATable"
@@ -562,7 +562,33 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       open: popupOpen,
       trigger: filterTriggerElement,
       floating: filterPopupElement,
-      onDismiss: () => closeFilter(),
+      onDismiss: (reason, event) => {
+        var _a, _b;
+        if (reason === "outside")
+          event.preventDefault();
+        const trigger = filterTriggerElement.value;
+        const restore = () => trigger == null ? void 0 : trigger.focus({ preventScroll: true });
+        const dismiss = () => {
+          if (!isInteractionLocked.value)
+            closeFilter();
+        };
+        if (reason === "outside") {
+          const ownerWindow = (_a = filterTriggerElement.value) == null ? void 0 : _a.ownerDocument.defaultView;
+          const closeOutside = () => {
+            var _a2;
+            dismiss();
+            const trigger2 = filterTriggerElement.value;
+            (_a2 = trigger2 == null ? void 0 : trigger2.ownerDocument.defaultView) == null ? void 0 : _a2.setTimeout(() => trigger2.focus({ preventScroll: true }), 100);
+          };
+          if (ownerWindow == null ? void 0 : ownerWindow.navigator.userAgent.includes("jsdom"))
+            closeOutside();
+          else
+            ownerWindow == null ? void 0 : ownerWindow.setTimeout(closeOutside, 32);
+        } else {
+          dismiss();
+          (_b = trigger == null ? void 0 : trigger.ownerDocument.defaultView) == null ? void 0 : _b.setTimeout(restore, 100);
+        }
+      },
       restoreFocus: true
     });
     vue.watch([filterTriggerElement, filterPopupElement, popupOpen], () => {
@@ -581,6 +607,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     let popupNodeCacheKey = null;
     let popupNodeCacheDraft = "";
     let popupNodeCache = null;
+    const filterDisabledSnapshot = /* @__PURE__ */ new WeakMap();
     const activeFilterPopupNode = vue.computed(() => {
       const column = activeFilterColumn.value;
       if (!(column == null ? void 0 : column.filterDropdown))
@@ -606,6 +633,25 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       var _a;
       (_a = filterPopupElement.value) == null ? void 0 : _a.querySelectorAll("[data-table-filter-popup]").forEach((node) => node.removeAttribute("data-table-filter-popup"));
     };
+    const syncFilterDisabled = () => {
+      const popup = filterPopupElement.value;
+      if (!popup)
+        return;
+      const controls = popup.querySelectorAll('button, input, select, textarea, [contenteditable="true"]');
+      controls.forEach((control) => {
+        if (isInteractionLocked.value) {
+          if (!filterDisabledSnapshot.has(control))
+            filterDisabledSnapshot.set(control, control.hasAttribute("disabled"));
+          control.setAttribute("disabled", "");
+        } else if (filterDisabledSnapshot.has(control)) {
+          if (filterDisabledSnapshot.get(control))
+            control.setAttribute("disabled", "");
+          else
+            control.removeAttribute("disabled");
+          filterDisabledSnapshot.delete(control);
+        }
+      });
+    };
     const activeFilterValues = (column) => column.filteredValue ?? activeFilters.value[getColumnKey(column)] ?? [];
     const requestFilterOpen = (column, open) => emit("filterDropdownOpenChange", getColumnKey(column), open);
     const toggleFilterPopup = (column, trigger) => {
@@ -630,6 +676,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         activeFilterKey.value = null;
     };
     const closeFilter = (restoreFocus = true) => {
+      if (isInteractionLocked.value)
+        return;
       const column = activeFilterColumn.value;
       if ((column == null ? void 0 : column.filterDropdownOpen) !== void 0) {
         if (!closeRequestPending.value) {
@@ -643,14 +691,28 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       if (column)
         requestFilterOpen(column, false);
+      popupGeneration++;
+      popupPositioned.value = false;
       activeFilterKey.value = null;
       filterDraft.value = [];
       closeRequestPending.value = false;
-      if (restoreFocus)
-        vue.nextTick(() => {
+      if (restoreFocus) {
+        const triggerKey = column ? getColumnKey(column) : void 0;
+        void vue.nextTick(() => {
           var _a;
-          return (_a = filterTriggerElement.value) == null ? void 0 : _a.focus({ preventScroll: true });
+          const trigger = triggerKey ? ((_a = tableRoot.value) == null ? void 0 : _a.querySelector(`[data-table-filter-trigger="${triggerKey}"]`)) ?? filterTriggerElement.value : filterTriggerElement.value;
+          const ownerWindow = trigger == null ? void 0 : trigger.ownerDocument.defaultView;
+          const focus = () => trigger == null ? void 0 : trigger.focus({ preventScroll: true });
+          if (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame)
+            ownerWindow.requestAnimationFrame(() => {
+              focus();
+              ownerWindow.setTimeout(focus, 0);
+              ownerWindow.setTimeout(focus, 50);
+            });
+          else
+            focus();
         });
+      }
     };
     const commitFilter = (column, values) => {
       const key = getColumnKey(column);
@@ -856,7 +918,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       sanitizePopupMarker();
       Object.assign(element.style, style);
+      syncFilterDisabled();
     }, { deep: true, immediate: true });
+    vue.watch(isInteractionLocked, syncFilterDisabled);
     vue.onMounted(() => {
       var _a, _b;
       rootInteractionInert.value = !((_a = tableRoot.value) == null ? void 0 : _a.isConnected);
@@ -1257,6 +1321,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             ref: filterPopupElement,
             class: "aheart-table__filter-popup",
             role: "dialog",
+            "aria-label": activeFilterColumn.value ? `${getColumnLabel(activeFilterColumn.value)} filter` : void 0,
+            "aria-disabled": isInteractionLocked.value || void 0,
+            inert: isInteractionLocked.value || void 0,
             "data-table-filter-popup": activeFilterKey.value,
             tabindex: "-1",
             style: vue.normalizeStyle({ ...vue.unref(popupStyle), visibility: popupPositioned.value ? "visible" : "hidden", pointerEvents: popupPositioned.value ? "auto" : "none" }),

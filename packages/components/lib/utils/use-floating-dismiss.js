@@ -69,8 +69,15 @@ function useFloatingDismiss(options) {
         options.onDismiss("escape", event);
         if (vue.toValue(options.restoreFocus) !== false) {
           void vue.nextTick(() => {
-            if (!vue.toValue(options.open))
+            var _a2;
+            if (!vue.toValue(options.open)) {
               focusTrigger();
+              const ownerWindow = (_a2 = vue.toValue(options.trigger)) == null ? void 0 : _a2.ownerDocument.defaultView;
+              ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame(() => {
+                if (!vue.toValue(options.open))
+                  focusTrigger();
+              });
+            }
           });
         }
       }

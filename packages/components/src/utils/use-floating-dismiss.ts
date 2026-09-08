@@ -92,7 +92,13 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
 
         if (toValue(options.restoreFocus) !== false) {
           void nextTick(() => {
-            if (!toValue(options.open)) focusTrigger()
+            if (!toValue(options.open)) {
+              focusTrigger()
+              const ownerWindow = toValue(options.trigger)?.ownerDocument.defaultView
+              ownerWindow?.requestAnimationFrame(() => {
+                if (!toValue(options.open)) focusTrigger()
+              })
+            }
           })
         }
       }

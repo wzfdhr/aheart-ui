@@ -6599,6 +6599,10 @@ kbd.aheart-typography-text {
   max-width: calc(100dvw - 16px);
 }
 
+.aheart-table__filter-popup[aria-disabled="true"] {
+  opacity: 0.65;
+}
+
 .aheart-table__filter-content {
   display: flex;
   flex-direction: column;

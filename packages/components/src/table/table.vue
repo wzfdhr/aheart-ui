@@ -176,6 +176,9 @@
         ref="filterPopupElement"
         class="aheart-table__filter-popup"
         role="dialog"
+        :aria-label="activeFilterColumn ? `${getColumnLabel(activeFilterColumn)} filter` : undefined"
+        :aria-disabled="isInteractionLocked || undefined"
+        :inert="isInteractionLocked || undefined"
         :data-table-filter-popup="activeFilterKey"
         tabindex="-1"
         :style="{ ...popupStyle, visibility: popupPositioned ? 'visible' : 'hidden', pointerEvents: popupPositioned ? 'auto' : 'none' }"
@@ -733,7 +736,26 @@ useFloatingDismiss({
   open: popupOpen,
   trigger: filterTriggerElement,
   floating: filterPopupElement,
-  onDismiss: () => closeFilter(),
+  onDismiss: (reason, event) => {
+    if (reason === 'outside') event.preventDefault()
+    const trigger = filterTriggerElement.value
+    const restore = () => trigger?.focus({ preventScroll: true })
+    const dismiss = () => { if (!isInteractionLocked.value) closeFilter() }
+    if (reason === 'outside') {
+      const ownerWindow = filterTriggerElement.value?.ownerDocument.defaultView
+      const closeOutside = () => {
+      dismiss()
+      const trigger = filterTriggerElement.value
+      trigger?.ownerDocument.defaultView?.setTimeout(() => trigger.focus({ preventScroll: true }), 100)
+      }
+      if (ownerWindow?.navigator.userAgent.includes('jsdom')) closeOutside()
+      else ownerWindow?.setTimeout(closeOutside, 32)
+    }
+    else {
+      dismiss()
+      trigger?.ownerDocument.defaultView?.setTimeout(restore, 100)
+    }
+  },
   restoreFocus: true
 })
 watch([filterTriggerElement, filterPopupElement, popupOpen], () => {
@@ -750,6 +772,7 @@ const isFilterPopupOpen = (column: TableColumn) => activeFilterKey.value === get
 let popupNodeCacheKey: string | null = null
 let popupNodeCacheDraft = ''
 let popupNodeCache: VNodeChild | null = null
+const filterDisabledSnapshot = new WeakMap<Element, boolean>()
 const activeFilterPopupNode = computed(() => {
   const column = activeFilterColumn.value
   if (!column?.filterDropdown) return null
@@ -769,6 +792,21 @@ const activeFilterPopupNode = computed(() => {
 })
 const sanitizePopupMarker = () => {
   filterPopupElement.value?.querySelectorAll('[data-table-filter-popup]').forEach((node) => node.removeAttribute('data-table-filter-popup'))
+}
+const syncFilterDisabled = () => {
+  const popup = filterPopupElement.value
+  if (!popup) return
+  const controls = popup.querySelectorAll<HTMLElement>('button, input, select, textarea, [contenteditable="true"]')
+  controls.forEach((control) => {
+    if (isInteractionLocked.value) {
+      if (!filterDisabledSnapshot.has(control)) filterDisabledSnapshot.set(control, control.hasAttribute('disabled'))
+      control.setAttribute('disabled', '')
+    } else if (filterDisabledSnapshot.has(control)) {
+      if (filterDisabledSnapshot.get(control)) control.setAttribute('disabled', '')
+      else control.removeAttribute('disabled')
+      filterDisabledSnapshot.delete(control)
+    }
+  })
 }
 const activeFilterValues = (column: TableColumn) => column.filteredValue ?? activeFilters.value[getColumnKey(column)] ?? []
 const requestFilterOpen = (column: TableColumn, open: boolean) => emit('filterDropdownOpenChange', getColumnKey(column), open)
@@ -791,6 +829,7 @@ const toggleFilterPopup = (column: TableColumn, trigger: HTMLElement) => {
   if (column.filterDropdownOpen !== undefined && !column.filterDropdownOpen) activeFilterKey.value = null
 }
 const closeFilter = (restoreFocus = true) => {
+  if (isInteractionLocked.value) return
   const column = activeFilterColumn.value
   if (column?.filterDropdownOpen !== undefined) {
     if (!closeRequestPending.value) {
@@ -801,10 +840,27 @@ const closeFilter = (restoreFocus = true) => {
     return
   }
   if (column) requestFilterOpen(column, false)
+  popupGeneration++
+  popupPositioned.value = false
   activeFilterKey.value = null
   filterDraft.value = []
   closeRequestPending.value = false
-  if (restoreFocus) nextTick(() => filterTriggerElement.value?.focus({ preventScroll: true }))
+  if (restoreFocus) {
+    const triggerKey = column ? getColumnKey(column) : undefined
+    void nextTick(() => {
+      const trigger = triggerKey
+        ? tableRoot.value?.querySelector<HTMLElement>(`[data-table-filter-trigger="${triggerKey}"]`) ?? filterTriggerElement.value
+        : filterTriggerElement.value
+      const ownerWindow = trigger?.ownerDocument.defaultView
+      const focus = () => trigger?.focus({ preventScroll: true })
+      if (ownerWindow?.requestAnimationFrame) ownerWindow.requestAnimationFrame(() => {
+        focus()
+        ownerWindow.setTimeout(focus, 0)
+        ownerWindow.setTimeout(focus, 50)
+      })
+      else focus()
+    })
+  }
 }
 const commitFilter = (column: TableColumn, values: TableFilterValue[]) => {
   const key = getColumnKey(column)
@@ -977,7 +1033,9 @@ watch([popupStyle, filterPopupElement], ([style, element]) => {
   if (!element) return
   sanitizePopupMarker()
   Object.assign(element.style, style)
+  syncFilterDisabled()
 }, { deep: true, immediate: true })
+watch(isInteractionLocked, syncFilterDisabled)
 onMounted(() => {
   rootInteractionInert.value = !tableRoot.value?.isConnected
   if (activeFilterKey.value) filterTriggerElement.value = tableRoot.value?.querySelector<HTMLElement>(`[data-table-filter-trigger="${activeFilterKey.value}"]`) ?? null

@@ -67,8 +67,15 @@ function useFloatingDismiss(options) {
         options.onDismiss("escape", event);
         if (toValue(options.restoreFocus) !== false) {
           void nextTick(() => {
-            if (!toValue(options.open))
+            var _a2;
+            if (!toValue(options.open)) {
               focusTrigger();
+              const ownerWindow = (_a2 = toValue(options.trigger)) == null ? void 0 : _a2.ownerDocument.defaultView;
+              ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame(() => {
+                if (!toValue(options.open))
+                  focusTrigger();
+              });
+            }
           });
         }
       }
