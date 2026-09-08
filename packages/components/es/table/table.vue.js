@@ -179,6 +179,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return Boolean((_a = props.expandable) == null ? void 0 : _a.expandedRowRender);
     });
+    const hasCustomRenderColumn = computed(() => normalizedColumns.value.some((column) => typeof column.customRender === "function"));
     const selectionType = computed(() => {
       var _a;
       return ((_a = props.rowSelection) == null ? void 0 : _a.type) ?? "checkbox";
@@ -1347,6 +1348,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (hasSelection.value && !isRowSelectionDisabled(row.record))
         return true;
       if (hasExpandable.value && isRowExpandable(row.record))
+        return true;
+      if (hasCustomRenderColumn.value)
         return true;
       return false;
     };

@@ -346,6 +346,7 @@ const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const hasSelection = computed(() => Boolean(props.rowSelection))
 const hasExpandable = computed(() => Boolean(props.expandable?.expandedRowRender))
+const hasCustomRenderColumn = computed(() => normalizedColumns.value.some(column => typeof column.customRender === 'function'))
 const selectionType = computed(() => props.rowSelection?.type ?? 'checkbox')
 const isInteractionLocked = computed(() => isDisabled.value || props.loading || Boolean(props.error))
 const isSelectionDisabled = computed(() => isInteractionLocked.value || Boolean(props.rowSelection?.disabled))
@@ -1444,6 +1445,7 @@ const tabbablesForKey = (key: TableKey) => rowsForToken(rowToken(key)).flatMap(r
 const mayHaveTabbable = (row: InternalRow) => {
   if (hasSelection.value && !isRowSelectionDisabled(row.record)) return true
   if (hasExpandable.value && isRowExpandable(row.record)) return true
+  if (hasCustomRenderColumn.value) return true
   return false
 }
 const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
