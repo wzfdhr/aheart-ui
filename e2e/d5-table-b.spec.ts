@@ -192,6 +192,27 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   expect(errors.filter(error => !error.startsWith('D5FLOATDBG'))).toEqual([])
 })
 
+test('D5-B utility columns use measured widths for fixed offsets', async ({ page }) => {
+  await page.goto('/components/table')
+  const region = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  const table = region.locator('table')
+  await expect(table).toHaveAttribute('data-table-layout-ready', 'true')
+  const tableBox = await table.boundingBox()
+  const utilities = await table.locator('thead th').evaluateAll(nodes => nodes.slice(0, 2).map(node => {
+    const style = getComputedStyle(node)
+    const rect = node.getBoundingClientRect()
+    return { width: rect.width, x: rect.x, left: Number.parseFloat(style.left) }
+  }))
+  const firstData = await table.locator('thead th').nth(2).boundingBox()
+  expect(tableBox).not.toBeNull()
+  expect(firstData).not.toBeNull()
+  expect(utilities).toHaveLength(2)
+  if (!tableBox || !firstData || utilities.length !== 2) return
+  expect(utilities.every(item => item.width >= 80)).toBe(true)
+  const utilityWidth = utilities.reduce((total, item) => total + item.width, 0)
+  expect(Math.abs(firstData.x - (tableBox.x + utilityWidth))).toBeLessThan(4)
+})
+
 test('D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table', async ({ page }) => {
   await page.goto('/components/table')
   const region = page.getByRole('region', { name: 'D5-B 外部滚动 sticky' })
@@ -199,7 +220,7 @@ test('D5-B external ancestor scroll keeps no-y sticky header at the offset and i
   const table = region.locator('table')
   const header = table.locator('thead th').first()
   await expect(table).toHaveCount(1)
-  await scroller.evaluate(node => { node.scrollTop = 180 })
+  await scroller.evaluate(node => { node.scrollTop = node.scrollHeight - node.clientHeight })
   const clientTop = await scroller.evaluate(node => node.clientTop)
   await expect.poll(async () => {
     const container = await scroller.boundingBox()

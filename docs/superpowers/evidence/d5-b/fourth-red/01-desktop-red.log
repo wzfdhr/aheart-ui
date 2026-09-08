@@ -1,0 +1,118 @@
+
+[WebServer] (node:36545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:36556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:36570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:37323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:37334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+
+(node:37341) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/2] [desktop] › e2e/d5-table-b.spec.ts:195:5 › D5-B utility columns use measured widths for fixed offsets
+  1) [desktop] › e2e/d5-table-b.spec.ts:195:5 › D5-B utility columns use measured widths for fixed offsets 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      209 |   expect(utilities).toHaveLength(2)
+      210 |   if (!tableBox || !firstData || utilities.length !== 2) return
+    > 211 |   expect(utilities.every(item => item.width >= 80)).toBe(true)
+          |                                                     ^
+      212 |   const utilityWidth = utilities.reduce((total, item) => total + item.width, 0)
+      213 |   expect(Math.abs(firstData.x - (tableBox.x + utilityWidth))).toBeLessThan(4)
+      214 | })
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:211:53
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-utility-co-41da4-ed-widths-for-fixed-offsets-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-utility-co-41da4-ed-widths-for-fixed-offsets-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-utility-co-41da4-ed-widths-for-fixed-offsets-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-utility-co-41da4-ed-widths-for-fixed-offsets-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-utility-co-41da4-ed-widths-for-fixed-offsets-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:37347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[2/2] [desktop] › e2e/d5-table-b.spec.ts:216:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table
+  2) [desktop] › e2e/d5-table-b.spec.ts:216:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 9
+    Received: -49
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      228 |     if (!container || !headerBox) return -1
+      229 |     return Math.round(headerBox.y - container.y)
+    > 230 |   }).toBe(clientTop + 8)
+          |      ^
+      231 |   const container = await scroller.boundingBox()
+      232 |   const headerBox = await header.boundingBox()
+      233 |   const tableBox = await table.boundingBox()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:230:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-fourth-red/browser/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2 failed
+    [desktop] › e2e/d5-table-b.spec.ts:195:5 › D5-B utility columns use measured widths for fixed offsets 
+    [desktop] › e2e/d5-table-b.spec.ts:216:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 

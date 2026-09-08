@@ -490,7 +490,14 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 下面的交互工作台覆盖 D5-B 的真实 DOM 行为：筛选草稿的确认、Reset、Cancel、Escape 和 outside 关闭；受控打开被父层拒绝时保持关闭；固定列与 selection/expand utility 列的连续偏移；`scroll.x` 窄屏横向滚动、`scroll.y` 表内滚动和 sticky 表头；loading 保留旧行并锁定交互，error 保留旧行且只允许 retry，empty 显示空态。该批不包含 D5-C 虚拟滚动。
 
-<section class="aheart-demo-panel d5-table-b" aria-label="D5-B 筛选布局状态">
+<style>
+.d5-table-b-utility-width .aheart-table__selection-cell,
+.d5-table-b-utility-width .aheart-table__expand-cell {
+  min-width: 80px !important;
+}
+</style>
+
+<section class="aheart-demo-panel d5-table-b d5-table-b-utility-width" aria-label="D5-B 筛选布局状态">
   <div class="d5-table-b__actions">
     <AButton :aria-pressed="d5bRejectFilterOpen" @click="d5bRejectFilterOpen = !d5bRejectFilterOpen">{{ d5bRejectFilterOpen ? '允许筛选打开' : '拒绝筛选打开' }}</AButton>
     <AButton :aria-pressed="d5bLoading" @click="d5bLoading = !d5bLoading">{{ d5bLoading ? '结束 loading' : '开始 loading' }}</AButton>
@@ -517,7 +524,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
   <p>无 scroll.y 的外部滚动容器；滚动后表头应贴合容器顶部偏移。</p>
   <div class="d5b-external-scroll" style="height: 260px; overflow: auto; border: 1px solid var(--aheart-color-border);">
     <div style="height: 180px;" aria-hidden="true"></div>
-    <ATable :columns="d5bExternalColumns" :data-source="d5bExternalRows" :pagination="false" :sticky="{ offsetHeader: 8 }" />
+    <ATable :columns="d5bExternalColumns" :data-source="d5bExternalRows" :pagination="{ pageSize: 10 }" :sticky="{ offsetHeader: 8 }" />
     <div style="height: 260px;" aria-hidden="true"></div>
   </div>
 </section>
