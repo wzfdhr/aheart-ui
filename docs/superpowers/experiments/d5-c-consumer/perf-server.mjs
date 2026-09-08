@@ -16,7 +16,7 @@ performance.mark('d5c:mountStart')
 const virtual = new URLSearchParams(location.search).get('mode') === 'virtual'
 const rows = Array.from({ length: 10000 }, (_, i) => ({ key: 'row-' + (i + 1), name: 'Row ' + (i + 1), status: 'ready' }))
 const columns = [{ title: 'Name', dataIndex: 'name', key: 'name' }, { title: 'Status', dataIndex: 'status', key: 'status' }]
-const props = { columns, rowKey: 'key', dataMode: 'local', dataSource: rows, pagination: false, ...(virtual ? { virtual: { height: 320, overscan: 4, estimateSize: 48 } } : {}) }
+const props = { columns, rowKey: 'key', dataMode: 'local', dataSource: rows, pagination: false, ...(virtual ? { virtual: true } : {}) }
 const clicked = { value: false }
 createApp({ render: () => h('div', [h('button', { id: 'fixture-action', onClick: () => { clicked.value = true } }, 'Confirm'), h(Table, props)]) }).mount('#app')
 await nextTick()

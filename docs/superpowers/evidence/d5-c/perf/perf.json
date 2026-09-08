@@ -1,24 +1,25 @@
 {
   "status": "failed",
-  "measuredAt": "2026-09-08T16:45:15.716Z",
+  "measuredAt": "2026-09-08T16:48:15.425Z",
   "rounds": 5,
   "results": [
     {
       "mode": "full-dom",
       "round": 1,
-      "interactiveMs": 288.69999998807907,
+      "interactiveMs": 287,
       "logicalRows": 10000,
       "fullDomRows": 10000,
       "ariaRowCount": null,
       "spacerCount": 0,
       "longTaskMax": 0,
       "cls": 0,
-      "scrollTrace": []
+      "scrollTrace": [],
+      "longTasks": []
     },
     {
       "mode": "virtual",
       "round": 1,
-      "interactiveMs": 25.900000005960464,
+      "interactiveMs": 37.900000005960464,
       "logicalRows": 11,
       "fullDomRows": 13,
       "ariaRowCount": 10000,
@@ -32,8 +33,8 @@
           "windowRows": 11
         },
         {
-          "scrollTop": 240013,
-          "first": "4996",
+          "scrollTop": 239853,
+          "first": "4993",
           "windowRows": 16
         },
         {
@@ -46,11 +47,166 @@
           "first": "0",
           "windowRows": 11
         }
-      ]
+      ],
+      "longTasks": []
     },
     {
       "mode": "virtual",
       "round": 2,
+      "interactiveMs": 24.099999994039536,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 2,
+      "interactiveMs": 247.7999999821186,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 3,
+      "interactiveMs": 244.30000001192093,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 3,
+      "interactiveMs": 24,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 4,
+      "interactiveMs": 34.099999994039536,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 4,
+      "interactiveMs": 259.90000000596046,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 5,
+      "interactiveMs": 248.89999997615814,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 5,
       "interactiveMs": 24.900000005960464,
       "logicalRows": 11,
       "fullDomRows": 13,
@@ -65,8 +221,8 @@
           "windowRows": 11
         },
         {
-          "scrollTop": 240013,
-          "first": "4996",
+          "scrollTop": 239853,
+          "first": "4993",
           "windowRows": 16
         },
         {
@@ -79,159 +235,13 @@
           "first": "0",
           "windowRows": 11
         }
-      ]
-    },
-    {
-      "mode": "full-dom",
-      "round": 2,
-      "interactiveMs": 259.7999999821186,
-      "logicalRows": 10000,
-      "fullDomRows": 10000,
-      "ariaRowCount": null,
-      "spacerCount": 0,
-      "longTaskMax": 0,
-      "cls": 0,
-      "scrollTrace": []
-    },
-    {
-      "mode": "full-dom",
-      "round": 3,
-      "interactiveMs": 283.40000000596046,
-      "logicalRows": 10000,
-      "fullDomRows": 10000,
-      "ariaRowCount": null,
-      "spacerCount": 0,
-      "longTaskMax": 0,
-      "cls": 0,
-      "scrollTrace": []
-    },
-    {
-      "mode": "virtual",
-      "round": 3,
-      "interactiveMs": 24.5,
-      "logicalRows": 11,
-      "fullDomRows": 13,
-      "ariaRowCount": 10000,
-      "spacerCount": 2,
-      "longTaskMax": 0,
-      "cls": 0.3530747743457433,
-      "scrollTrace": [
-        {
-          "scrollTop": 0,
-          "first": "0",
-          "windowRows": 11
-        },
-        {
-          "scrollTop": 240013,
-          "first": "4996",
-          "windowRows": 16
-        },
-        {
-          "scrollTop": 479685,
-          "first": "9990",
-          "windowRows": 10
-        },
-        {
-          "scrollTop": 0,
-          "first": "0",
-          "windowRows": 11
-        }
-      ]
-    },
-    {
-      "mode": "virtual",
-      "round": 4,
-      "interactiveMs": 24.69999998807907,
-      "logicalRows": 11,
-      "fullDomRows": 13,
-      "ariaRowCount": 10000,
-      "spacerCount": 2,
-      "longTaskMax": 0,
-      "cls": 0.3530747743457433,
-      "scrollTrace": [
-        {
-          "scrollTop": 0,
-          "first": "0",
-          "windowRows": 11
-        },
-        {
-          "scrollTop": 240013,
-          "first": "4996",
-          "windowRows": 16
-        },
-        {
-          "scrollTop": 479685,
-          "first": "9990",
-          "windowRows": 10
-        },
-        {
-          "scrollTop": 0,
-          "first": "0",
-          "windowRows": 11
-        }
-      ]
-    },
-    {
-      "mode": "full-dom",
-      "round": 4,
-      "interactiveMs": 251.19999998807907,
-      "logicalRows": 10000,
-      "fullDomRows": 10000,
-      "ariaRowCount": null,
-      "spacerCount": 0,
-      "longTaskMax": 0,
-      "cls": 0,
-      "scrollTrace": []
-    },
-    {
-      "mode": "full-dom",
-      "round": 5,
-      "interactiveMs": 278.19999998807907,
-      "logicalRows": 10000,
-      "fullDomRows": 10000,
-      "ariaRowCount": null,
-      "spacerCount": 0,
-      "longTaskMax": 0,
-      "cls": 0,
-      "scrollTrace": []
-    },
-    {
-      "mode": "virtual",
-      "round": 5,
-      "interactiveMs": 24.19999998807907,
-      "logicalRows": 11,
-      "fullDomRows": 13,
-      "ariaRowCount": 10000,
-      "spacerCount": 2,
-      "longTaskMax": 0,
-      "cls": 0.3530747743457433,
-      "scrollTrace": [
-        {
-          "scrollTop": 0,
-          "first": "0",
-          "windowRows": 11
-        },
-        {
-          "scrollTop": 240013,
-          "first": "4996",
-          "windowRows": 16
-        },
-        {
-          "scrollTop": 479685,
-          "first": "9990",
-          "windowRows": 10
-        },
-        {
-          "scrollTop": 0,
-          "first": "0",
-          "windowRows": 11
-        }
-      ]
+      ],
+      "longTasks": []
     }
   ],
   "summary": {
     "full-dom": {
-      "medianInteractiveMs": 278.19999998807907,
+      "medianInteractiveMs": 248.89999997615814,
       "medianLogicalRows": 10000,
       "medianFullDomRows": 10000,
       "maxLongTaskMs": 0,
@@ -245,7 +255,7 @@
       ]
     },
     "virtual": {
-      "medianInteractiveMs": 24.69999998807907,
+      "medianInteractiveMs": 24.900000005960464,
       "medianLogicalRows": 11,
       "medianFullDomRows": 13,
       "maxLongTaskMs": 0,

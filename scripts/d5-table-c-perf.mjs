@@ -24,25 +24,32 @@ try {
     await page.addInitScript(() => {
       window.__d5c = { longTasks: [], cls: 0 }
       new PerformanceObserver(list => window.__d5c.longTasks.push(...list.getEntries().map(e => e.duration))).observe({ type: 'longtask', buffered: true })
-      new PerformanceObserver(list => { for (const e of list.getEntries()) if (!e.hadRecentInput) window.__d5c.cls += e.value }).observe({ type: 'layout-shift', buffered: true })
+      new PerformanceObserver(list => { for (const e of list.getEntries()) if (!e.hadRecentInput) { window.__d5c.cls += e.value; window.__d5c.shiftEntries.push({ startTime: e.startTime, value: e.value, sources: e.sources?.map(s => s.node?.tagName ?? 'unknown') ?? [] }) } }).observe({ type: 'layout-shift', buffered: true })
     })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await page.waitForFunction(() => window.__fixtureReady === true && performance.getEntriesByName('d5c:mountStart', 'mark').length > 0 && performance.getEntriesByName('d5c:interactive', 'mark').length > 0)
-    await page.evaluate(async mode => {
-      window.__d5c.longTasks = []; window.__d5c.cls = 0
-      if (mode !== 'virtual') return
-      const scroller = document.querySelector('[data-aheart-virtual-scroll]')
-      const points = [0, Math.max(0, scroller.scrollHeight / 2), scroller.scrollHeight, 0]
-      window.__d5c.scrollTrace = []
-      for (const top of points) { scroller.scrollTop = top; await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); await new Promise(r => setTimeout(r, 50)); window.__d5c.scrollTrace.push({ scrollTop: scroller.scrollTop, first: document.querySelector('tr[data-table-row]')?.getAttribute('data-aheart-virtual-logical-item'), windowRows: document.querySelectorAll('tr[data-table-row]').length }) }
-    }, mode)
+    await page.waitForTimeout(250)
+    await page.evaluate(() => { window.__d5c.longTasks = []; window.__d5c.cls = 0; window.__d5c.scrollTrace = []; window.__d5c.shiftEntries = [] })
+    if (mode === 'virtual') {
+      const box = await page.locator('[data-aheart-virtual-scroll]').boundingBox()
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      const maxScroll = await page.locator('[data-aheart-virtual-scroll]').evaluate(el => Math.max(0, el.scrollHeight - el.clientHeight))
+      let current = 0
+      for (const target of [0, maxScroll / 2, maxScroll, 0]) {
+        await page.mouse.wheel(0, target - current); current = target
+        await page.waitForFunction(() => true)
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+        await page.waitForTimeout(50)
+        await page.evaluate(() => { const scroller = document.querySelector('[data-aheart-virtual-scroll]'); window.__d5c.scrollTrace.push({ scrollTop: scroller.scrollTop, first: document.querySelector('tr[data-table-row]')?.getAttribute('data-aheart-virtual-logical-item'), windowRows: document.querySelectorAll('tr[data-table-row]').length }) })
+      }
+    }
     const metrics = await page.evaluate(() => {
       const mount = performance.getEntriesByName('d5c:mountStart', 'mark').at(-1), interactive = performance.getEntriesByName('d5c:interactive', 'mark').at(-1)
       const rows = document.querySelectorAll('tbody tr[data-table-row]'), table = document.querySelector('table'), ariaRaw = table?.getAttribute('aria-rowcount')
       if (!mount || !interactive || !rows.length || !table || !window.__d5c) return null
       const interactiveMs = interactive.startTime - mount.startTime, ariaRowCount = ariaRaw === null ? null : Number(ariaRaw)
       if (!Number.isFinite(interactive.startTime) || !Number.isFinite(mount.startTime) || interactiveMs < 0 || (ariaRowCount !== null && !Number.isFinite(ariaRowCount))) return null
-      return { interactiveMs, logicalRows: rows.length, fullDomRows: document.querySelectorAll('tbody tr').length, ariaRowCount, spacerCount: document.querySelectorAll('[data-table-virtual-spacer]').length, longTaskMax: Math.max(0, ...window.__d5c.longTasks), cls: window.__d5c.cls, scrollTrace: window.__d5c.scrollTrace ?? [] }
+      return { interactiveMs, logicalRows: rows.length, fullDomRows: document.querySelectorAll('tbody tr').length, ariaRowCount, spacerCount: document.querySelectorAll('[data-table-virtual-spacer]').length, longTaskMax: Math.max(0, ...window.__d5c.longTasks), cls: window.__d5c.cls, scrollTrace: window.__d5c.scrollTrace ?? [], longTasks: window.__d5c.longTasks }
     })
     await page.close()
     if (!metrics) throw new Error(`${mode} round ${round + 1}: missing/invalid fixture marks or required metrics`)
