@@ -101,3 +101,81 @@ test('D5-B loading keeps old rows and locks actions, error only retries, and emp
   await expect(demo.locator('tbody')).toContainText('暂无数据')
   expect(errors).toEqual([])
 })
+
+test('D5-B review geometry, natural-width freeze, external sticky scroll, popup anchoring, and iframe outside boundary', async ({ page }) => {
+  const errors = pageErrors(page)
+  await page.goto('/components/table')
+  const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  const table = demo.locator('table')
+  const geometry = await table.locator('thead th').evaluateAll(nodes => nodes.map(node => {
+    const style = getComputedStyle(node)
+    const rect = node.getBoundingClientRect()
+    return {
+      position: style.position,
+      top: style.top,
+      left: style.left,
+      right: style.right,
+      x: rect.x,
+      width: rect.width
+    }
+  }))
+  const tableRect = await table.evaluate(node => node.getBoundingClientRect())
+  const bodyStyle = await table.locator('tbody td').first().evaluate(node => {
+    const style = getComputedStyle(node)
+    return { position: style.position, top: style.top }
+  })
+  expect(bodyStyle.position).not.toBe('sticky')
+  expect(bodyStyle.top).toBe('auto')
+  expect(geometry.every(item => item.position === 'sticky' && item.top === '8px')).toBe(true)
+  for (const index of [0, 1, 2]) {
+    const offset = Number.parseFloat(geometry[index].left)
+    expect(Math.abs(geometry[index].x - tableRect.x - offset)).toBeLessThan(4)
+  }
+  expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[0].x + geometry[0].width - 2)
+  expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[1].x + geometry[1].width - 2)
+  expect(geometry[4].x).toBeGreaterThanOrEqual(geometry[3].x + geometry[3].width - 2)
+
+  const beforeColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
+  await demo.getByRole('button', { name: '显示 empty' }).click()
+  await demo.getByRole('button', { name: '显示数据' }).click()
+  const afterColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
+  expect(afterColumns).toEqual(beforeColumns)
+  await page.setViewportSize({ width: 390, height: 844 })
+  const overflow = await demo.locator('.aheart-table__container').evaluate(node => ({ scrollWidth: node.scrollWidth, clientWidth: node.clientWidth }))
+  expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth)
+
+  const trigger = demo.locator('button[aria-haspopup="dialog"]').first()
+  await trigger.click()
+  const popup = page.locator('[data-table-filter-popup]')
+  await expect(popup).toBeVisible()
+  const triggerRect = await trigger.boundingBox()
+  const popupRect = await popup.boundingBox()
+  expect(triggerRect).not.toBeNull()
+  expect(popupRect).not.toBeNull()
+  if (!triggerRect || !popupRect) return
+  expect(Math.abs(popupRect.x - triggerRect.x)).toBeLessThan(24)
+  expect(Math.abs(popupRect.y - (triggerRect.y + triggerRect.height))).toBeLessThan(24)
+
+  await page.goto('/')
+  await page.evaluate(src => {
+    const iframe = document.createElement('iframe')
+    iframe.dataset.reviewTableIframe = 'true'
+    iframe.src = src
+    iframe.style.cssText = 'width: 100%; height: 720px; border: 0;'
+    document.body.append(iframe)
+  }, '/components/table')
+  const iframe = page.locator('iframe[data-review-table-iframe]')
+  await expect(iframe).toHaveCount(1)
+  const frame = await iframe.elementHandle().then(handle => handle?.contentFrame())
+  if (!frame) throw new Error('review iframe did not expose a same-origin frame')
+  const frameDemo = frame.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  const frameTrigger = frameDemo.locator('button[aria-haspopup="dialog"]').first()
+  await frameTrigger.click()
+  const framePopup = frame.locator('[data-table-filter-popup]')
+  await expect(framePopup).toBeVisible()
+  await page.mouse.click(4, 4)
+  await expect(framePopup).toBeVisible()
+  await frame.locator('body').click({ position: { x: 4, y: 4 } })
+  await expect(framePopup).toHaveCount(0)
+  expect(errors).toEqual([])
+})

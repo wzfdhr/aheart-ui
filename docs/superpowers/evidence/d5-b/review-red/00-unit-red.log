@@ -1,0 +1,142 @@
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom "src/table/__tests__/table-d5b-review-regressions.test.ts" "src/utils/__tests__/use-floating-position-realm.test.ts"
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/utils/__tests__/use-floating-position-realm.test.ts  (1 test) 11ms
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts  (7 tests | 6 failed) 35ms
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > only the header is sticky: tbody cells must not receive the header top offset
+     → expected 'position: sticky; top: 8px; z-index: …' not to contain 'position: sticky'
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > includes an expand-only utility column in left fixed offsets
+     → expected 'width: 48px;' to contain 'left: 0px'
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > makes custom button and input inert in loading state
+     → expected undefined not to be undefined
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > makes custom button and input inert in error state
+     → expected undefined not to be undefined
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > preserves a draft when a controlled close request is rejected and emits one close request
+     → expected '' to be 'Ada' // Object.is equality
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > renders null, string, and array filter VNodeChild values during SSR without throwing
+     → promise rejected "TypeError: Cannot read properties of null…" instead of resolving
+stderr | src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > renders null, string, and array filter VNodeChild values during SSR without throwing
+[Vue warn]: Unhandled error during execution of render function 
+  at <ATable columns= [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+    filterDropdown: [Function: filterDropdown],
+    defaultFilterDropdownOpen: true
+  }
+] dataSource= [
+  { key: 'ada', name: 'Ada', score: 96 },
+  { key: 'grace', name: 'Grace', score: 88 }
+] > 
+  at <App>
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > only the header is sticky: tbody cells must not receive the header top offset
+AssertionError: expected 'position: sticky; top: 8px; z-index: …' not to contain 'position: sticky'
+
+- Expected
++ Received
+
+- position: sticky
++ position: sticky; top: 8px; z-index: 2;
+
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:52:27
+     50|     expect(headerStyle).toContain('position: sticky')
+     51|     expect(headerStyle).toContain('top: 8px')
+     52|     expect(bodyStyle).not.toContain('position: sticky')
+       |                           ^
+     53|     expect(bodyStyle).not.toContain('top: 8px')
+     54|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > includes an expand-only utility column in left fixed offsets
+AssertionError: expected 'width: 48px;' to contain 'left: 0px'
+
+- Expected
++ Received
+
+- left: 0px
++ width: 48px;
+
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:66:50
+     64|     const headers = wrapper.findAll('thead th')
+     65|     expect(headers).toHaveLength(3)
+     66|     expect(headers[0].attributes('style') ?? '').toContain('left: 0px')
+       |                                                  ^
+     67|     expect(headers[1].attributes('style') ?? '').toContain('left: 48px…
+     68|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > makes custom button and input inert in loading state
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > makes custom button and input inert in error state
+AssertionError: expected undefined not to be undefined
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:90:63
+     88|       } as any
+     89|     })
+     90|     expect(wrapper.find('.aheart-table').attributes('inert')).toBeDefi…
+       |                                                               ^
+     91|     const customInput = wrapper.find('[data-review-custom-input]')
+     92|     const customButton = wrapper.find('[data-review-custom-button]')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > preserves a draft when a controlled close request is rejected and emits one close request
+AssertionError: expected '' to be 'Ada' // Object.is equality
+
+- Expected
++ Received
+
+- Ada
+
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:128:29
+    126|     expect(closeRequests).toEqual([false])
+    127|     const retained = document.querySelector<HTMLInputElement>('[data-r…
+    128|     expect(retained?.value).toBe('Ada')
+       |                             ^
+    129|     wrapper.unmount()
+    130|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > renders null, string, and array filter VNodeChild values during SSR without throwing
+AssertionError: promise rejected "TypeError: Cannot read properties of null…" instead of resolving
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:141:53
+    139|         } as any)
+    140|       })
+    141|       await expect(renderToString(createSSRApp(App))).resolves.toConta…
+       |                                                     ^
+    142|     }
+    143|   })
+
+Caused by: TypeError: Cannot read properties of null (reading 'props')
+ ❯ ComputedRefImpl.fn src/table/table.vue:654:57
+ ❯ refreshComputed ../../node_modules/.pnpm/@vue+reactivity@3.5.38/node_modules/@vue/reactivity/dist/reactivity.cjs.js:418:28
+ ❯ ComputedRefImpl.get value [as value] ../../node_modules/.pnpm/@vue+reactivity@3.5.38/node_modules/@vue/reactivity/dist/reactivity.cjs.js:1739:5
+ ❯ unref ../../node_modules/.pnpm/@vue+reactivity@3.5.38/node_modules/@vue/reactivity/dist/reactivity.cjs.js:1564:45
+ ❯ Object.get ../../node_modules/.pnpm/@vue+reactivity@3.5.38/node_modules/@vue/reactivity/dist/reactivity.cjs.js:1570:64
+ ❯ Proxy._sfc_render src/table/table.vue:158:43
+ ❯ renderComponentRoot ../../node_modules/.pnpm/@vue+runtime-core@3.5.38/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4558:16
+ ❯ renderComponentSubTree ../../node_modules/.pnpm/@vue+server-renderer@3.5.38_vue@3.5.38_typescript@5.3.3_/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:762:28
+ ❯ renderComponentVNode ../../node_modules/.pnpm/@vue+server-renderer@3.5.38_vue@3.5.38_typescript@5.3.3_/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:694:12
+ ❯ renderVNode ../../node_modules/.pnpm/@vue+server-renderer@3.5.38_vue@3.5.38_typescript@5.3.3_/node_modules/@vue/server-renderer/dist/server-renderer.cjs.js:809:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  6 failed | 2 passed (8)
+   Start at  11:16:39
+   Duration  708ms (transform 204ms, setup 0ms, collect 270ms, tests 46ms, environment 554ms, prepare 89ms)
+
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  aheart-ui@1.0.0 test: `vitest run --environment jsdom "src/table/__tests__/table-d5b-review-regressions.test.ts" "src/utils/__tests__/use-floating-position-realm.test.ts"`
+Exit status 1
