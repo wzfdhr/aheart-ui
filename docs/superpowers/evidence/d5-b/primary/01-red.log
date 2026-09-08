@@ -1,0 +1,286 @@
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom "src/table/__tests__/table-d5b-filter.test.ts" "src/table/__tests__/table-d5b-layout-state.test.ts" "src/utils/__tests__/use-floating-position-realm.test.ts"
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/utils/__tests__/use-floating-position-realm.test.ts  (1 test | 1 failed) 15ms
+   ❯ src/utils/__tests__/use-floating-position-realm.test.ts > useFloatingPosition owner-document realm > uses the trigger owner viewport for iframe collision placement
+     → expected { placement: 'bottom-start', …(2) } to match object { placement: 'bottom-end' }
+(2 matching properties omitted from actual)
+ ❯ src/table/__tests__/table-d5b-filter.test.ts  (7 tests | 7 failed) 30ms
+   ❯ src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > keeps a draft through cancel, then confirms it and resets page/filter state
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > reset clears the draft immediately and closes the single popup
+     → expected null not to be null
+   ❯ src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > dismisses the draft on escape without confirming it
+     → expected null not to be null
+   ❯ src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > dismisses the draft on outside without confirming it
+     → expected null not to be null
+   ❯ src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > keeps Tab navigation inside the open filter popup and restores focus to its trigger
+     → expected null not to be null
+   ❯ src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > honors controlled open rejection, asynchronous acceptance, and one visible popup
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > mounts by default in the trigger owner body and honors getPopupContainer
+     → expected null not to be null
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts  (8 tests | 7 failed) 41ms
+   ❯ src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps current data while loading and locks sort, pagination, selection, and customRender actions
+     → expected undefined not to be undefined
+   ❯ src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps current data in error state, renders configured message/retryText, and emits retry
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > renders one native table with a colgroup for utility and data columns
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > applies continuous fixed-prefix/suffix offsets and rejects an invalid fixed sequence as a group
+     → expected 'width: 80px;' to contain 'position: sticky'
+   ❯ src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > supports scroll x true/number/string, y, and sticky offset structure without nested native tables
+     → expected '' to contain 'max-height: 240px'
+   ❯ src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps sticky headers usable without y and with an ancestor scroll container
+     → expected '' to contain 'position: sticky'
+   ❯ src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps layout structure SSR-stable and does not require browser globals
+     → expected '<section class="aheart-table aheart-t…' to contain '<colgroup>'
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > keeps a draft through cancel, then confirms it and resets page/filter state
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5b-filter.test.ts:56:36
+     54| 
+     55|     const filterTrigger = trigger(wrapper)
+     56|     expect(filterTrigger.exists()).toBe(true)
+       |                                    ^
+     57|     if (!filterTrigger.exists()) return
+     58| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > reset clears the draft immediately and closes the single popup
+AssertionError: expected null not to be null
+ ❯ src/table/__tests__/table-d5b-filter.test.ts:103:27
+    101| 
+    102|     const openPopup = popup()
+    103|     expect(openPopup).not.toBeNull()
+       |                           ^
+    104|     if (!openPopup) return
+    105|     openPopup.querySelector<HTMLElement>('[data-filter-action="reset"]…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > dismisses the draft on escape without confirming it
+ FAIL  src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > dismisses the draft on outside without confirming it
+AssertionError: expected null not to be null
+ ❯ src/table/__tests__/table-d5b-filter.test.ts:121:27
+    119|     })
+    120|     const openPopup = popup()
+    121|     expect(openPopup).not.toBeNull()
+       |                           ^
+    122|     if (!openPopup) return
+    123| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > keeps Tab navigation inside the open filter popup and restores focus to its trigger
+AssertionError: expected null not to be null
+ ❯ src/table/__tests__/table-d5b-filter.test.ts:143:27
+    141|     })
+    142|     const openPopup = popup()
+    143|     expect(openPopup).not.toBeNull()
+       |                           ^
+    144|     if (!openPopup) return
+    145|     const controls = openPopup.querySelectorAll<HTMLElement>('input,bu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > honors controlled open rejection, asynchronous acceptance, and one visible popup
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5b-filter.test.ts:175:35
+    173|     }))
+    174|     const firstTrigger = trigger(wrapper)
+    175|     expect(firstTrigger.exists()).toBe(true)
+       |                                   ^
+    176|     if (!firstTrigger.exists()) return
+    177|     await firstTrigger.trigger('click')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-filter.test.ts > Table D5-B filter dropdown contract > mounts by default in the trigger owner body and honors getPopupContainer
+AssertionError: expected null not to be null
+ ❯ src/table/__tests__/table-d5b-filter.test.ts:210:25
+    208|     })
+    209|     await nextTick()
+    210|     expect(popup()).not.toBeNull()
+       |                         ^
+    211|     if (!popup()) return
+    212|     expect(popup()?.parentElement).toBe(container)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps current data while loading and locks sort, pagination, selection, and customRender actions
+AssertionError: expected undefined not to be undefined
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts:51:74
+     49|     expect(wrapper.find('[role="status"]').exists()).toBe(true)
+     50|     expect(wrapper.findAll('tbody tr')).toHaveLength(2)
+     51|     expect(wrapper.find('.aheart-table__sorter').attributes('disabled'…
+       |                                                                          ^
+     52|     expect(wrapper.find('thead input[type="checkbox"]').attributes('di…
+     53|     expect(wrapper.find('.aheart-pagination__next').attributes('disabl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps current data in error state, renders configured message/retryText, and emits retry
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts:74:28
+     72|     expect(wrapper.findAll('tbody tr')).toHaveLength(2)
+     73|     const alert = wrapper.find('[role="alert"]')
+     74|     expect(alert.exists()).toBe(true)
+       |                            ^
+     75|     if (!alert.exists()) return
+     76|     expect(alert.text()).toContain('Could not load rows')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > renders one native table with a colgroup for utility and data columns
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts:114:51
+    112|     const nativeTable = table(wrapper)
+    113|     expect(nativeTable.exists()).toBe(true)
+    114|     expect(nativeTable.find('colgroup').exists()).toBe(true)
+       |                                                   ^
+    115|     expect(nativeTable.findAll('colgroup col')).toHaveLength(4)
+    116|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > applies continuous fixed-prefix/suffix offsets and rejects an invalid fixed sequence as a group
+AssertionError: expected 'width: 80px;' to contain 'position: sticky'
+
+- Expected
++ Received
+
+- position: sticky
++ width: 80px;
+
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts:131:55
+    129|     const validHeaders = valid.findAll('thead th')
+    130|     expect(validHeaders).toHaveLength(3)
+    131|     expect(validHeaders[0].attributes('style') ?? '').toContain('posit…
+       |                                                       ^
+    132|     expect(validHeaders[0].attributes('style') ?? '').toContain('left:…
+    133|     expect(validHeaders[1].attributes('style') ?? '').toContain('left:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > supports scroll x true/number/string, y, and sticky offset structure without nested native tables
+AssertionError: expected '' to contain 'max-height: 240px'
+
+- Expected
++ Received
+
+- max-height: 240px
+
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts:160:49
+    158|     expect(wrapper.findAll('table')).toHaveLength(1)
+    159|     const container = wrapper.find('.aheart-table__container')
+    160|     expect(container.attributes('style') ?? '').toContain('max-height:…
+       |                                                 ^
+    161|     expect(container.attributes('style') ?? '').toContain('overflow-y:…
+    162|     expect(table(wrapper).attributes('style') ?? '').toContain('min-wi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps sticky headers usable without y and with an ancestor scroll container
+AssertionError: expected '' to contain 'position: sticky'
+
+- Expected
++ Received
+
+- position: sticky
+
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts:175:64
+    173|       props: { columns, dataSource: rows, sticky: true } as any
+    174|     })
+    175|     expect(wrapper.find('thead th').attributes('style') ?? '').toConta…
+       |                                                                ^
+    176|     expect(wrapper.find('.aheart-table__container').attributes('style'…
+    177|     wrapper.unmount()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  src/table/__tests__/table-d5b-layout-state.test.ts > Table D5-B layout and status contract > keeps layout structure SSR-stable and does not require browser globals
+AssertionError: expected '<section class="aheart-table aheart-t…' to contain '<colgroup>'
+
+- Expected
++ Received
+
+- <colgroup>
++ <section class="aheart-table aheart-table--middle"><div class="aheart-table__container"><table><thead><tr><!--v-if--><!--v-if--><!--[--><th class="" style="width:120px;" scope="col"><div class="aheart-table__head-content"><span class="aheart-table__title">Name</span><!--v-if--></div></th><!--]--></tr></thead><tbody><!--[--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="width:120px;">One</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="width:120px;">Two</td><!--]--></tr><!--v-if--><!--]--><!--]--><!--v-if--></tbody></table><!--v-if--></div><!--v-if--></section>
+
+ ❯ src/table/__tests__/table-d5b-layout-state.test.ts:193:19
+    191|     const second = await renderToString(createSSRApp(App))
+    192|     expect(first).toContain('<table')
+    193|     expect(first).toContain('<colgroup>')
+       |                   ^
+    194|     expect(first).toBe(second)
+    195|     await nextTick()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  src/utils/__tests__/use-floating-position-realm.test.ts > useFloatingPosition owner-document realm > uses the trigger owner viewport for iframe collision placement
+AssertionError: expected { placement: 'bottom-start', …(2) } to match object { placement: 'bottom-end' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  Object {
+-   "placement": "bottom-end",
++   "placement": "bottom-start",
+  }
+
+ ❯ src/utils/__tests__/use-floating-position-realm.test.ts:75:56
+     73| 
+     74|     expect(computePositionMock).toHaveBeenCalled()
+     75|     expect(computePositionMock.mock.calls.at(-1)?.[2]).toMatchObject({…
+       |                                                        ^
+     76|     scope.stop()
+     77|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ Test Files  3 failed (3)
+      Tests  15 failed | 1 passed (16)
+   Start at  10:12:25
+   Duration  536ms (transform 200ms, setup 0ms, collect 443ms, tests 86ms, environment 498ms, prepare 116ms)
+
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  aheart-ui@1.0.0 test: `vitest run --environment jsdom "src/table/__tests__/table-d5b-filter.test.ts" "src/table/__tests__/table-d5b-layout-state.test.ts" "src/utils/__tests__/use-floating-position-realm.test.ts"`
+Exit status 1
