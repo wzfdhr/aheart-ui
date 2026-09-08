@@ -1,12 +1,16 @@
 const trackers = new WeakMap()
 const requestMetadata = new WeakMap()
-const assetPattern = /^\/assets\/(.+)\.md\.[\w-]+\.js$/
+const assetPattern = /^\/assets\/(.+)\.md\.([\w-]+)(\.lean)?\.js$/
 
 export const normalizeRoute = value => {
   const path = new URL(value, 'http://127.0.0.1').pathname
   return path.replace(/\.html$/, '').replace(/\/+$/, '') || '/'
 }
 const routeStem = route => normalizeRoute(route).replace(/^\/+/, '').replaceAll('/', '_')
+const parseAsset = pathname => {
+  const match = assetPattern.exec(pathname)
+  return match ? { stem: match[1], hash: match[2], canonical: `${match[1]}:${match[2]}` } : null
+}
 
 export class VitePressRequestTracker {
   activeRoute = ''
@@ -32,10 +36,11 @@ export class VitePressRequestTracker {
     const metadata = requestMetadata.get(request)
     if (!metadata) return
     const parsed = new URL(response.url())
-    if (!assetPattern.test(parsed.pathname)) return
+    const asset = parseAsset(parsed.pathname)
+    if (!asset) return
     try {
       const finishedError = await response.finished()
-      if (finishedError === null && response.ok()) this.completedUrls.add(response.url())
+      if (finishedError === null && response.ok()) this.completedUrls.add(asset.canonical)
     } catch { /* cancelled/body failure is not a successful transfer */ }
   }
   async isIgnorable(request, errorText) {
@@ -54,9 +59,9 @@ export function setActiveVitePressRoute(page, route) { trackers.get(page)?.setAc
 export function isIgnorableCancelledVitePressPrefetch(projectName, metadata, request, errorText, completedUrls = new Set()) {
   if (projectName !== 'desktop-webkit' || errorText.trim().toLowerCase() !== 'load request cancelled' || !metadata?.frame || metadata.method !== 'GET' || metadata.resourceType !== 'xhr' || metadata.secFetchDest !== 'empty' || !metadata.referer || metadata.referer !== normalizeRoute(metadata.activeRoute)) return false
   const url = new URL(request.url())
-  const match = url.hostname === '127.0.0.1' ? assetPattern.exec(url.pathname) : null
+  const match = url.hostname === '127.0.0.1' ? parseAsset(url.pathname) : null
   if (!match) return false
   const currentStem = routeStem(metadata.activeRoute)
-  if (match[1] !== currentStem) return true
-  return completedUrls.has(url.href)
+  if (match.stem !== currentStem) return true
+  return completedUrls.has(match.canonical)
 }
