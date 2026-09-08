@@ -47,7 +47,7 @@ const _hoisted_19 = ["data-table-filter-trigger", "aria-expanded", "disabled", "
 const _hoisted_20 = { class: "sr-only" };
 const _hoisted_21 = ["aria-label"];
 const _hoisted_22 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_23 = ["data-measured-height", "data-aheart-virtual-measured-height"];
+const _hoisted_23 = ["data-before", "data-after", "data-table-virtual-spacer", "data-table-spacer-position", "data-measured-height", "data-aheart-virtual-measured-height"];
 const _hoisted_24 = ["colspan"];
 const _hoisted_25 = ["data-table-row", "data-aheart-virtual-logical-item", "data-aheart-virtual-measured-height", "data-aheart-virtual-pinned", "data-focus-pinned", "aria-rowindex", "onFocusin"];
 const _hoisted_26 = ["type", "name", "checked", "data-aheart-row-token", "disabled", "aria-label", "onKeydown", "onChange"];
@@ -55,17 +55,15 @@ const _hoisted_27 = ["aria-expanded", "aria-label", "disabled", "onClick"];
 const _hoisted_28 = ["data-fixed"];
 const _hoisted_29 = ["data-table-expanded-row", "data-aheart-virtual-expanded-item", "data-aheart-virtual-key"];
 const _hoisted_30 = ["colspan"];
-const _hoisted_31 = ["data-measured-height", "data-aheart-virtual-measured-height"];
+const _hoisted_31 = { key: 0 };
 const _hoisted_32 = ["colspan"];
-const _hoisted_33 = { key: 2 };
-const _hoisted_34 = ["colspan"];
-const _hoisted_35 = {
+const _hoisted_33 = {
   key: 1,
   class: "aheart-table__loading",
   role: "status",
   "aria-live": "polite"
 };
-const _hoisted_36 = ["aria-label", "aria-disabled", "inert", "data-table-filter-popup"];
+const _hoisted_34 = ["aria-label", "aria-disabled", "inert", "data-table-filter-popup"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATable"
@@ -301,7 +299,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return ((_a = item.source) == null ? void 0 : _a.fixed) === "left" || ((_b = item.source) == null ? void 0 : _b.fixed) === "right";
       }).reduce((total, item) => total + usedWidth(item), 0);
       const leftEnabled = leftValid && leftCount > 0;
-      const rightEnabled = rightValid && rightCount > 0 && (virtualRuntime.value.enabled || layoutViewportWidth.value === 0 || layoutViewportWidth.value >= fixedWidth);
+      const rightEnabled = rightValid && rightCount > 0 && (layoutViewportWidth.value === 0 || layoutViewportWidth.value >= fixedWidth);
       let left = 0;
       if (leftEnabled) {
         data.slice(0, leftStart).forEach((item) => {
@@ -477,33 +475,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const virtualMeasuredDisplay = computed(() => virtualMeasuredTotal.value);
     const virtualMeasuredFor = (index) => virtualController.measured.value.get(virtualKeys.value[index]);
     const virtualSegments = computed(() => {
-      var _a, _b;
       if (!virtualRuntime.value.enabled)
-        return [{ start: 0, end: pagedRows.value.length, top: 0, bottom: 0 }];
+        return [{ kind: "rows", rows: pagedRows.value, key: "all" }];
       const items = [...virtualController.items.value].sort((a, b) => a.index - b.index);
       const segments = [];
       let cursor = 0;
+      let group = [];
+      const flush = () => {
+        if (!group.length)
+          return;
+        const first = group[0];
+        if (first.start > cursor)
+          segments.push({ kind: "gap", position: segments.length ? "middle" : "before", height: first.start - cursor, key: `gap-${first.index}` });
+        segments.push({ kind: "rows", rows: group.map((item) => pagedRows.value[item.index]).filter((row) => Boolean(row)), key: `rows-${first.index}` });
+        cursor = group.at(-1).end;
+        group = [];
+      };
       for (const item of items) {
-        const previous = segments.at(-1);
-        if (previous && item.index <= previous.end) {
-          previous.end = Math.max(previous.end, item.index + 1);
-          previous.bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - item.end);
-          continue;
-        }
-        if (previous)
-          previous.bottom = Math.max(0, item.start - (((_a = virtualController.items.value.find((candidate) => candidate.index === previous.end - 1)) == null ? void 0 : _a.end) ?? item.start));
-        segments.push({ start: item.index, end: item.index + 1, top: Math.max(0, item.start - cursor), bottom: 0 });
-        cursor = item.end;
+        if (group.length && item.index > group.at(-1).index + 1)
+          flush();
+        group.push(item);
       }
+      flush();
+      const total = virtualController.virtualizer.value.getTotalSize();
       if (segments.length)
-        segments.at(-1).bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - (((_b = items.at(-1)) == null ? void 0 : _b.end) ?? 0));
+        segments.push({ kind: "gap", position: "after", height: Math.max(0, total - cursor), key: "gap-after" });
+      else {
+        segments.push({ kind: "gap", position: "before", height: total, key: "gap-before" });
+        segments.push({ kind: "gap", position: "after", height: 0, key: "gap-after" });
+      }
       return segments;
-    });
-    const virtualRange = computed(() => {
-      const segments = virtualSegments.value;
-      const first = segments[0];
-      const last = segments.at(-1);
-      return { start: (first == null ? void 0 : first.start) ?? 0, end: (last == null ? void 0 : last.end) ?? 0, top: (first == null ? void 0 : first.top) ?? 0, bottom: (last == null ? void 0 : last.bottom) ?? 0 };
     });
     watch([focusedRowKey, pagedRows, selectedKeys, selectionType], () => {
       const index = focusedRowKey.value === void 0 ? void 0 : pagedRows.value.findIndex((row) => row.key === focusedRowKey.value);
@@ -1633,122 +1634,112 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 ])
               ], 4)) : createCommentVNode("", true),
               createElementVNode("tbody", null, [
-                virtualRuntime.value.enabled ? (openBlock(), createElementBlock("tr", {
-                  key: 0,
-                  "data-aheart-virtual-spacer": "true",
-                  "data-before": "",
-                  "data-table-virtual-spacer": "before",
-                  "data-table-spacer-position": "before",
-                  style: normalizeStyle({ height: `${virtualRange.value.top}px` }),
-                  "data-measured-height": virtualMeasuredDisplay.value,
-                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0,
-                  "aria-hidden": "true"
-                }, [
-                  createElementVNode("td", {
-                    colspan: columnCount.value,
-                    style: normalizeStyle({ height: `${virtualRange.value.top}px` })
-                  }, null, 12, _hoisted_24)
-                ], 12, _hoisted_23)) : createCommentVNode("", true),
-                (openBlock(true), createElementBlock(Fragment, null, renderList(visibleRows.value, (row) => {
+                (openBlock(true), createElementBlock(Fragment, null, renderList(virtualSegments.value, (segment) => {
                   return openBlock(), createElementBlock(Fragment, {
-                    key: row.key
+                    key: segment.key
                   }, [
-                    createElementVNode("tr", {
-                      "data-table-row": String(row.key),
-                      "data-aheart-virtual-logical-item": row.index,
-                      "data-aheart-virtual-measured-height": virtualMeasuredFor(row.index) || void 0,
-                      "data-aheart-virtual-pinned": focusedRowKey.value === row.key ? "true" : void 0,
-                      "data-focus-pinned": focusedRowKey.value === row.key ? "true" : void 0,
-                      "aria-rowindex": virtualRuntime.value.enabled ? row.index + 1 : void 0,
-                      class: normalizeClass({ "is-selected": isSelected(row.key) }),
-                      onFocusin: ($event) => handleRowFocusin(row.key, $event),
-                      onFocusout: handleRowFocusout
-                    }, [
-                      hasSelection.value ? (openBlock(), createElementBlock("td", {
-                        key: 0,
-                        class: "aheart-table__selection-cell",
-                        style: normalizeStyle(utilityStyle("selection", false))
-                      }, [
-                        createElementVNode("input", {
-                          type: selectionType.value,
-                          name: unref(radioName),
-                          checked: isSelected(row.key),
-                          "data-aheart-row-token": rowToken(row.key),
-                          disabled: isRowSelectionDisabled(row.record),
-                          "aria-label": `Select row ${row.key}`,
-                          onKeydown: ($event) => handleRowKeydown($event, row.key),
-                          onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                        }, null, 40, _hoisted_26)
-                      ], 4)) : createCommentVNode("", true),
-                      hasExpandable.value ? (openBlock(), createElementBlock("td", {
-                        key: 1,
-                        class: "aheart-table__expand-cell",
-                        style: normalizeStyle(utilityStyle("expand", false))
-                      }, [
-                        isRowExpandable(row.record) ? (openBlock(), createElementBlock("button", {
-                          key: 0,
-                          class: "aheart-table__expand-button",
-                          type: "button",
-                          "aria-expanded": isExpanded(row.key),
-                          "aria-label": `${isExpanded(row.key) ? "Collapse" : "Expand"} row ${row.key}`,
-                          disabled: isInteractionLocked.value,
-                          onClick: ($event) => toggleExpand(row.record, row.key)
-                        }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_27)) : createCommentVNode("", true)
-                      ], 4)) : createCommentVNode("", true),
-                      (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
-                        return openBlock(), createElementBlock("td", {
-                          key: getColumnKey(column),
-                          class: normalizeClass(columnCellClass(column)),
-                          "data-fixed": column.fixed || void 0,
-                          style: normalizeStyle(bodyColumnStyle(column))
-                        }, [
-                          createVNode(unref(ARenderNode), {
-                            node: renderCell(column, row.record, row.index)
-                          }, null, 8, ["node"])
-                        ], 14, _hoisted_28);
-                      }), 128))
-                    ], 42, _hoisted_25),
-                    hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", {
+                    segment.kind === "gap" ? (openBlock(), createElementBlock("tr", {
                       key: 0,
-                      "data-table-expanded-row": String(row.key),
-                      "data-aheart-virtual-expanded-item": row.index,
-                      "data-aheart-virtual-key": rowToken(row.key),
-                      class: "aheart-table__expanded-row"
+                      "data-aheart-virtual-spacer": "true",
+                      "data-before": segment.position === "before" ? "" : void 0,
+                      "data-after": segment.position === "after" ? "" : void 0,
+                      "data-table-virtual-spacer": segment.position,
+                      "data-table-spacer-position": segment.position,
+                      style: normalizeStyle({ height: `${segment.height}px` }),
+                      "data-measured-height": virtualMeasuredDisplay.value,
+                      "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0,
+                      "aria-hidden": "true"
                     }, [
                       createElementVNode("td", {
                         colspan: columnCount.value,
-                        class: "aheart-table__expanded-cell"
+                        style: normalizeStyle({ height: `${segment.height}px` })
+                      }, null, 12, _hoisted_24)
+                    ], 12, _hoisted_23)) : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList(segment.rows, (row) => {
+                      return openBlock(), createElementBlock(Fragment, {
+                        key: row.key
                       }, [
-                        createVNode(unref(ARenderNode), {
-                          node: renderExpanded(row.record, row.index)
-                        }, null, 8, ["node"])
-                      ], 8, _hoisted_30)
-                    ], 8, _hoisted_29)) : createCommentVNode("", true)
+                        createElementVNode("tr", {
+                          "data-table-row": String(row.key),
+                          "data-aheart-virtual-logical-item": row.index,
+                          "data-aheart-virtual-measured-height": virtualMeasuredFor(row.index) || void 0,
+                          "data-aheart-virtual-pinned": focusedRowKey.value === row.key ? "true" : void 0,
+                          "data-focus-pinned": focusedRowKey.value === row.key ? "true" : void 0,
+                          "aria-rowindex": virtualRuntime.value.enabled ? row.index + 1 : void 0,
+                          class: normalizeClass({ "is-selected": isSelected(row.key) }),
+                          onFocusin: ($event) => handleRowFocusin(row.key, $event),
+                          onFocusout: handleRowFocusout
+                        }, [
+                          hasSelection.value ? (openBlock(), createElementBlock("td", {
+                            key: 0,
+                            class: "aheart-table__selection-cell",
+                            style: normalizeStyle(utilityStyle("selection", false))
+                          }, [
+                            createElementVNode("input", {
+                              type: selectionType.value,
+                              name: unref(radioName),
+                              checked: isSelected(row.key),
+                              "data-aheart-row-token": rowToken(row.key),
+                              disabled: isRowSelectionDisabled(row.record),
+                              "aria-label": `Select row ${row.key}`,
+                              onKeydown: ($event) => handleRowKeydown($event, row.key),
+                              onChange: ($event) => handleSelectionChange($event, row.record, row.key)
+                            }, null, 40, _hoisted_26)
+                          ], 4)) : createCommentVNode("", true),
+                          hasExpandable.value ? (openBlock(), createElementBlock("td", {
+                            key: 1,
+                            class: "aheart-table__expand-cell",
+                            style: normalizeStyle(utilityStyle("expand", false))
+                          }, [
+                            isRowExpandable(row.record) ? (openBlock(), createElementBlock("button", {
+                              key: 0,
+                              class: "aheart-table__expand-button",
+                              type: "button",
+                              "aria-expanded": isExpanded(row.key),
+                              "aria-label": `${isExpanded(row.key) ? "Collapse" : "Expand"} row ${row.key}`,
+                              disabled: isInteractionLocked.value,
+                              onClick: ($event) => toggleExpand(row.record, row.key)
+                            }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_27)) : createCommentVNode("", true)
+                          ], 4)) : createCommentVNode("", true),
+                          (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
+                            return openBlock(), createElementBlock("td", {
+                              key: getColumnKey(column),
+                              class: normalizeClass(columnCellClass(column)),
+                              "data-fixed": column.fixed || void 0,
+                              style: normalizeStyle(bodyColumnStyle(column))
+                            }, [
+                              createVNode(unref(ARenderNode), {
+                                node: renderCell(column, row.record, row.index)
+                              }, null, 8, ["node"])
+                            ], 14, _hoisted_28);
+                          }), 128))
+                        ], 42, _hoisted_25),
+                        hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", {
+                          key: 0,
+                          "data-table-expanded-row": String(row.key),
+                          "data-aheart-virtual-expanded-item": row.index,
+                          "data-aheart-virtual-key": rowToken(row.key),
+                          class: "aheart-table__expanded-row"
+                        }, [
+                          createElementVNode("td", {
+                            colspan: columnCount.value,
+                            class: "aheart-table__expanded-cell"
+                          }, [
+                            createVNode(unref(ARenderNode), {
+                              node: renderExpanded(row.record, row.index)
+                            }, null, 8, ["node"])
+                          ], 8, _hoisted_30)
+                        ], 8, _hoisted_29)) : createCommentVNode("", true)
+                      ], 64);
+                    }), 128))
                   ], 64);
                 }), 128)),
-                virtualRuntime.value.enabled ? (openBlock(), createElementBlock("tr", {
-                  key: 1,
-                  "data-aheart-virtual-spacer": "true",
-                  "data-after": "",
-                  "data-table-virtual-spacer": "after",
-                  "data-table-spacer-position": "after",
-                  style: normalizeStyle({ height: `${virtualRange.value.bottom}px` }),
-                  "data-measured-height": virtualMeasuredDisplay.value,
-                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0,
-                  "aria-hidden": "true"
-                }, [
-                  createElementVNode("td", {
-                    colspan: columnCount.value,
-                    style: normalizeStyle({ height: `${virtualRange.value.bottom}px` })
-                  }, null, 12, _hoisted_32)
-                ], 12, _hoisted_31)) : createCommentVNode("", true),
-                !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_33, [
+                !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_31, [
                   createElementVNode("td", {
                     colspan: columnCount.value,
                     class: "aheart-table__empty"
                   }, [
                     createVNode(unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                  ], 8, _hoisted_34)
+                  ], 8, _hoisted_32)
                 ])) : createCommentVNode("", true)
               ])
             ], 16, _hoisted_11)
@@ -1771,7 +1762,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onChange: handlePageChange
           }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : createCommentVNode("", true)
         ], 40, _hoisted_4),
-        _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_35, [
+        _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_33, [
           _cache[5] || (_cache[5] = createElementVNode("span", {
             class: "aheart-table__loading-dot",
             "aria-hidden": "true"
@@ -1797,7 +1788,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onKeydown: handleFilterPopupKeydown
           }, [
             createVNode(unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
-          ], 44, _hoisted_36)
+          ], 44, _hoisted_34)
         ], 8, ["to", "disabled"])) : createCommentVNode("", true)
       ], 10, _hoisted_1);
     };

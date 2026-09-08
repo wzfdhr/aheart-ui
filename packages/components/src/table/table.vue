@@ -114,8 +114,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="virtualRuntime.enabled" data-aheart-virtual-spacer="true" data-before data-table-virtual-spacer="before" data-table-spacer-position="before" :style="{ height: `${virtualRange.top}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" aria-hidden="true"><td :colspan="columnCount" :style="{ height: `${virtualRange.top}px` }" /></tr>
-          <template v-for="row in visibleRows" :key="row.key">
+          <template v-for="segment in virtualSegments" :key="segment.key">
+          <tr v-if="segment.kind === 'gap'" data-aheart-virtual-spacer="true" :data-before="segment.position === 'before' ? '' : undefined" :data-after="segment.position === 'after' ? '' : undefined" :data-table-virtual-spacer="segment.position" :data-table-spacer-position="segment.position" :style="{ height: `${segment.height}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" aria-hidden="true"><td :colspan="columnCount" :style="{ height: `${segment.height}px` }" /></tr>
+          <template v-else v-for="row in segment.rows" :key="row.key">
             <tr :data-table-row="String(row.key)" :data-aheart-virtual-logical-item="row.index" :data-aheart-virtual-measured-height="virtualMeasuredFor(row.index) || undefined" :data-aheart-virtual-pinned="focusedRowKey === row.key ? 'true' : undefined" :data-focus-pinned="focusedRowKey === row.key ? 'true' : undefined" :aria-rowindex="virtualRuntime.enabled ? row.index + 1 : undefined" :class="{ 'is-selected': isSelected(row.key) }" @focusin="handleRowFocusin(row.key, $event)" @focusout="handleRowFocusout">
               <td v-if="hasSelection" class="aheart-table__selection-cell" :style="utilityStyle('selection', false)">
                 <input
@@ -158,7 +159,7 @@
               </td>
             </tr>
           </template>
-          <tr v-if="virtualRuntime.enabled" data-aheart-virtual-spacer="true" data-after data-table-virtual-spacer="after" data-table-spacer-position="after" :style="{ height: `${virtualRange.bottom}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" aria-hidden="true"><td :colspan="columnCount" :style="{ height: `${virtualRange.bottom}px` }" /></tr>
+          </template>
           <tr v-if="!loading && !error && pagedRows.length === 0">
             <td :colspan="columnCount" class="aheart-table__empty">
               <ARenderNode :node="resolvedEmptyText" />
@@ -436,7 +437,7 @@ const layoutColumns = computed<LayoutColumn[]>(() => {
   const rightValid = rightCount === 0 || rightStart >= 0 && data.slice(rightStart).every((item) => item.fixed === 'right' && pxWidth(item.source?.width) !== undefined)
   const fixedWidth = data.filter((item) => item.source?.fixed === 'left' || item.source?.fixed === 'right').reduce((total, item) => total + usedWidth(item), 0)
   const leftEnabled = leftValid && leftCount > 0
-  const rightEnabled = rightValid && rightCount > 0 && (virtualRuntime.value.enabled || layoutViewportWidth.value === 0 || layoutViewportWidth.value >= fixedWidth)
+  const rightEnabled = rightValid && rightCount > 0 && (layoutViewportWidth.value === 0 || layoutViewportWidth.value >= fixedWidth)
   let left = 0
   if (leftEnabled) {
     // Utility columns occupy the leading cells and therefore are part of the
@@ -600,30 +601,33 @@ const handleVirtualScroll = () => {
 const virtualMeasuredTotal = computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0))
 const virtualMeasuredDisplay = computed(() => virtualMeasuredTotal.value)
 const virtualMeasuredFor = (index: number) => virtualController.measured.value.get(virtualKeys.value[index])
-const virtualSegments = computed(() => {
-  if (!virtualRuntime.value.enabled) return [{ start: 0, end: pagedRows.value.length, top: 0, bottom: 0 }]
+type VirtualRenderSegment = { kind: 'gap'; position: 'before' | 'middle' | 'after'; height: number; key: string } | { kind: 'rows'; rows: InternalRow[]; key: string }
+const virtualSegments = computed<VirtualRenderSegment[]>(() => {
+  if (!virtualRuntime.value.enabled) return [{ kind: 'rows', rows: pagedRows.value, key: 'all' }]
   const items = [...virtualController.items.value].sort((a, b) => a.index - b.index)
-  const segments: Array<{ start: number; end: number; top: number; bottom: number }> = []
+  const segments: VirtualRenderSegment[] = []
   let cursor = 0
-  for (const item of items) {
-    const previous = segments.at(-1)
-    if (previous && item.index <= previous.end) {
-      previous.end = Math.max(previous.end, item.index + 1)
-      previous.bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - item.end)
-      continue
-    }
-    if (previous) previous.bottom = Math.max(0, item.start - (virtualController.items.value.find((candidate) => candidate.index === previous.end - 1)?.end ?? item.start))
-    segments.push({ start: item.index, end: item.index + 1, top: Math.max(0, item.start - cursor), bottom: 0 })
-    cursor = item.end
+  let group: typeof items = []
+  const flush = () => {
+    if (!group.length) return
+    const first = group[0]
+    if (first.start > cursor) segments.push({ kind: 'gap', position: segments.length ? 'middle' : 'before', height: first.start - cursor, key: `gap-${first.index}` })
+    segments.push({ kind: 'rows', rows: group.map((item) => pagedRows.value[item.index]).filter((row): row is InternalRow => Boolean(row)), key: `rows-${first.index}` })
+    cursor = group.at(-1)!.end
+    group = []
   }
-  if (segments.length) segments.at(-1)!.bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - (items.at(-1)?.end ?? 0))
+  for (const item of items) {
+    if (group.length && item.index > group.at(-1)!.index + 1) flush()
+    group.push(item)
+  }
+  flush()
+  const total = virtualController.virtualizer.value.getTotalSize()
+  if (segments.length) segments.push({ kind: 'gap', position: 'after', height: Math.max(0, total - cursor), key: 'gap-after' })
+  else {
+    segments.push({ kind: 'gap', position: 'before', height: total, key: 'gap-before' })
+    segments.push({ kind: 'gap', position: 'after', height: 0, key: 'gap-after' })
+  }
   return segments
-})
-const virtualRange = computed(() => {
-  const segments = virtualSegments.value
-  const first = segments[0]
-  const last = segments.at(-1)
-  return { start: first?.start ?? 0, end: last?.end ?? 0, top: first?.top ?? 0, bottom: last?.bottom ?? 0 }
 })
 watch([focusedRowKey, pagedRows, selectedKeys, selectionType], () => {
   const index = focusedRowKey.value === undefined ? undefined : pagedRows.value.findIndex((row) => row.key === focusedRowKey.value)
