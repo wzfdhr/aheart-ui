@@ -128,6 +128,7 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
       const wrapper = mountTable({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }, host)
       const scroll = wrapper.find('[data-aheart-virtual-scroll]')
       expect(scroll.exists(), 'typed-key selection requires a real virtual scroll window').toBe(true)
+      await nextTick()
       scroll.element.scrollTop = 20 * 48
       await scroll.trigger('scroll')
       const stringRadio = wrapper.find<HTMLInputElement>('[data-aheart-row-token="string:1"]')
