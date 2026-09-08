@@ -16,5 +16,12 @@ The preceding desktop capture in /tmp/d5c-fixture-red.log was 6 failed / 2
 passed because it predated removal of the SSR fake-marker assertion; it is
 retained only as historical comparison, not as final evidence.
 
+Follow-up fixture correction: the three fallback attributes were removed from
+the docs wrapper; tests now require markers emitted by Table runtime itself.
+Rowspan is supplied through a real unsupported column shape, invalid and
+duplicate keys through real data. Fixed focus is an in-row custom-rendered
+button, and iframe cleanup calls the saved Vue app unmount plus listener
+removal. This follow-up was not rerun after the correction in this turn.
+
 No production Table, generated es/lib, unit test, or unrelated docs changes
 were included in this fixture commit.

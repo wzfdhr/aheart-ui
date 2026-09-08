@@ -36,7 +36,7 @@ test('D5-C native table exposes logical aria count and a small default DOM windo
   await expect.poll(async () => demo.locator('tbody tr[data-table-row]').allTextContents()).toEqual(expect.arrayContaining([expect.stringMatching(/Row 4\d{3}|Row 5\d{3}|Row 6\d{3}/)]))
   const windowRows = await rows.evaluateAll(items => items.map(item => Number(item.getAttribute('data-table-row'))).filter(Number.isFinite))
   expect(windowRows.some(index => index >= 4000 && index <= 6000)).toBe(true)
-  expect(errors).toEqual([])
+  await expect.poll(() => errors.slice(), { interval: 100, timeout: 1000 }).toEqual([])
 })
 
 test('D5-C server current-page data virtualizes after pagination without a second slice', async ({ page }) => {
@@ -49,7 +49,7 @@ test('D5-C server current-page data virtualizes after pagination without a secon
   await expect(demo.locator('tbody')).toContainText('Server row 1001')
   await demo.locator('[data-table-scroll]').evaluate(element => { element.scrollTop = element.scrollHeight })
   await expect(demo.locator('tbody')).toContainText('Server row 1020')
-  expect(errors).toEqual([])
+  await expect.poll(() => errors.slice(), { interval: 100, timeout: 1000 }).toEqual([])
 })
 
 test('D5-C preserves fixed columns, selection, expanded companion rows, and focus pinning', async ({ page }) => {
@@ -77,8 +77,11 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   await scroll.evaluate(element => { element.scrollTop = element.scrollHeight })
   await expect(demo.locator(`tr[data-table-row="${key}"]`)).toHaveAttribute('data-focus-pinned', 'true')
   await demo.getByRole('button', { name: 'Focus outside table', exact: true }).focus()
-  await expect.poll(() => demo.locator(`tr[data-table-row="${key}"]`).getAttribute('data-focus-pinned')).toMatch(/false|null/)
-  expect(errors).toEqual([])
+  await expect.poll(async () => {
+    const row = demo.locator(`tr[data-table-row="${key}"]`)
+    return await row.count() === 0 || (await row.getAttribute('data-focus-pinned')) === 'false'
+  }).toBe(true)
+  await expect.poll(() => errors.slice(), { interval: 100, timeout: 1000 }).toEqual([])
 })
 
 for (const [reason, name] of [['rowspan', 'D5-C 回退 rowspan'], ['invalid-row-key', 'D5-C 回退 invalid rowKey'], ['duplicate-key', 'D5-C 回退 duplicate key']] as const) test(`D5-C fallback: ${reason}`, async ({ page }) => {
@@ -104,7 +107,7 @@ test('D5-C SSR hydration, iframe ownerDocument, mobile and zoom stay error free'
   await page.setViewportSize({ width: 390, height: 844 })
   await page.evaluate(() => { document.body.style.zoom = '1.25' })
   await expect(demo.locator('[data-table-scroll]')).toBeVisible()
-  await expect.poll(() => errors.slice()).toEqual([])
+  await expect.poll(() => errors.slice(), { interval: 100, timeout: 1000 }).toEqual([])
 })
 
 test('D5-C 1k local virtual table keeps the same bounded native window', async ({ page }) => {
