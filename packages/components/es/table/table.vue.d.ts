@@ -1,7 +1,7 @@
 import { type PropType, type VNodeChild } from 'vue';
-import { type TableColumn, type TableFilters, type TableKey, type TableRecord } from './types';
+import { type TableFilters, type TableKey, type TableRecord } from './types';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly columns: PropType<TableColumn<TableRecord>[]>;
+    readonly columns: PropType<any[]>;
     readonly dataSource: PropType<TableRecord[]>;
     readonly dataMode: PropType<import("./types").TableDataMode>;
     readonly rowKey: {
@@ -19,8 +19,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: PropType<import("./types").TableRowSelection<TableRecord>>;
-    readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
+    readonly rowSelection: PropType<any>;
+    readonly expandable: PropType<any>;
     readonly scroll: PropType<import("./types").TableScroll>;
     readonly sticky: PropType<import("./types").TableSticky>;
     readonly error: PropType<boolean | {
@@ -46,7 +46,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     filterDropdownOpenChange: (_columnKey: string, _open: boolean) => void;
     retry: () => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly columns: PropType<TableColumn<TableRecord>[]>;
+    readonly columns: PropType<any[]>;
     readonly dataSource: PropType<TableRecord[]>;
     readonly dataMode: PropType<import("./types").TableDataMode>;
     readonly rowKey: {
@@ -64,8 +64,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         readonly type: PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: PropType<import("./types").TableRowSelection<TableRecord>>;
-    readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
+    readonly rowSelection: PropType<any>;
+    readonly expandable: PropType<any>;
     readonly scroll: PropType<import("./types").TableScroll>;
     readonly sticky: PropType<import("./types").TableSticky>;
     readonly error: PropType<boolean | {

@@ -103,8 +103,14 @@ export interface TableExpandable<T extends TableRecord = TableRecord> {
   rowExpandable?: (record: T) => boolean
 }
 
+// Vue's runtime PropType boundary cannot carry the component's row generic;
+// keep that boundary permissive while preserving the exported typed interfaces.
+type TableComponentColumn = any
+type TableComponentRowSelection = any
+type TableComponentExpandable = any
+
 export const tableProps = {
-  columns: Array as PropType<TableColumn[]>,
+  columns: Array as PropType<TableComponentColumn[]>,
   dataSource: Array as PropType<TableRecord[]>,
   dataMode: String as PropType<TableDataMode>,
   rowKey: {
@@ -122,8 +128,8 @@ export const tableProps = {
     type: [Boolean, Object] as PropType<false | TablePaginationConfig>,
     default: undefined
   },
-  rowSelection: Object as PropType<TableRowSelection>,
-  expandable: Object as PropType<TableExpandable>,
+  rowSelection: Object as PropType<TableComponentRowSelection>,
+  expandable: Object as PropType<TableComponentExpandable>,
   scroll: Object as PropType<TableScroll>,
   sticky: [Boolean, Object] as PropType<TableSticky>,
   error: [Boolean, Object] as PropType<boolean | { message?: TableRenderable; retryText?: TableRenderable }>,

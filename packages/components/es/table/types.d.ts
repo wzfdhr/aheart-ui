@@ -105,7 +105,7 @@ export interface TableExpandable<T extends TableRecord = TableRecord> {
     rowExpandable?: (record: T) => boolean;
 }
 export declare const tableProps: {
-    readonly columns: PropType<TableColumn<TableRecord>[]>;
+    readonly columns: PropType<any[]>;
     readonly dataSource: PropType<TableRecord[]>;
     readonly dataMode: PropType<TableDataMode>;
     readonly rowKey: {
@@ -123,8 +123,8 @@ export declare const tableProps: {
         readonly type: PropType<false | TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: PropType<TableRowSelection<TableRecord>>;
-    readonly expandable: PropType<TableExpandable<TableRecord>>;
+    readonly rowSelection: PropType<any>;
+    readonly expandable: PropType<any>;
     readonly scroll: PropType<TableScroll>;
     readonly sticky: PropType<TableSticky>;
     readonly error: PropType<boolean | {

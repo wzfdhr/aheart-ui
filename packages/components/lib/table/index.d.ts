@@ -1,5 +1,5 @@
 declare const Table: import("../utils/install").SFCWithInstall<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
-    readonly columns: import("vue").PropType<import("./types").TableColumn<import("./types").TableRecord>[]>;
+    readonly columns: import("vue").PropType<any[]>;
     readonly dataSource: import("vue").PropType<import("./types").TableRecord[]>;
     readonly dataMode: import("vue").PropType<import("./types").TableDataMode>;
     readonly rowKey: {
@@ -17,8 +17,8 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
         readonly type: import("vue").PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection<import("./types").TableRecord>>;
-    readonly expandable: import("vue").PropType<import("./types").TableExpandable<import("./types").TableRecord>>;
+    readonly rowSelection: import("vue").PropType<any>;
+    readonly expandable: import("vue").PropType<any>;
     readonly scroll: import("vue").PropType<import("./types").TableScroll>;
     readonly sticky: import("vue").PropType<import("./types").TableSticky>;
     readonly error: import("vue").PropType<boolean | {
@@ -44,7 +44,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     filterDropdownOpenChange: (_columnKey: string, _open: boolean) => void;
     retry: () => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
-    readonly columns: import("vue").PropType<import("./types").TableColumn<import("./types").TableRecord>[]>;
+    readonly columns: import("vue").PropType<any[]>;
     readonly dataSource: import("vue").PropType<import("./types").TableRecord[]>;
     readonly dataMode: import("vue").PropType<import("./types").TableDataMode>;
     readonly rowKey: {
@@ -62,8 +62,8 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
         readonly type: import("vue").PropType<false | import("./types").TablePaginationConfig>;
         readonly default: undefined;
     };
-    readonly rowSelection: import("vue").PropType<import("./types").TableRowSelection<import("./types").TableRecord>>;
-    readonly expandable: import("vue").PropType<import("./types").TableExpandable<import("./types").TableRecord>>;
+    readonly rowSelection: import("vue").PropType<any>;
+    readonly expandable: import("vue").PropType<any>;
     readonly scroll: import("vue").PropType<import("./types").TableScroll>;
     readonly sticky: import("vue").PropType<import("./types").TableSticky>;
     readonly error: import("vue").PropType<boolean | {
