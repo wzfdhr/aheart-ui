@@ -489,7 +489,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列、展开伴随行和选择组合。入口必须提供以下五个可审计区域：`D5-C 10k 本地虚拟表格`、`D5-C 服务端分页虚拟表格`、`D5-C 固定列展开选择组合`、`D5-C 兼容性回退`、`D5-C SSR 与嵌入式容器`。它们由 `e2e/d5-table-c.spec.ts` 驱动，移动视口、125% zoom、iframe ownerDocument 和 SSR hydration 也必须无控制台错误。
 
-虚拟配置的冻结默认值为：`virtual.height` 优先于 `scroll.y`；没有 `virtual.height` 时，解析后的 `scroll.y` 必须严格大于 `320` 才启用虚拟化，`scroll.y <= 320` 回退 full DOM。估算行高为 `small=40`、`middle=48`、`large=56`，可用 `virtual.estimateSize` 覆盖为 number；`overscan=4`。`height` 与 `scroll.y` 冲突必须在开发环境告警。`virtual` 默认 `false`，显式 `true` 使用上述默认值。每个虚拟表必须公开逻辑 `aria-rowcount`、上下 spacer row；一个展开基础行及其 companion row 必须作为同一个 logical item，展开内容通过 `ResizeObserver` 动态测量并更新该 item 高度。`rowspan`、非法或重复 `rowKey` 必须告警并回退 full DOM。
+虚拟配置的冻结优先级为：`virtual.height` > 可解析的 `scroll.y` > 默认 `320px`（此处 `>` 表示优先级，不是数值阈值）。任意合法正数或可解析长度的 `scroll.y`（例如 `180`、`'240px'`）都可作为虚拟高度；缺失或不可解析时回退 `320px`。估算行高为 `small=40`、`middle=48`、`large=56`，可用 `virtual.estimateSize` 覆盖为 number；`overscan=4`。`height` 与 `scroll.y` 冲突必须在开发环境告警。`virtual` 默认 `false`，显式 `true` 使用上述默认值。每个虚拟表必须公开逻辑 `aria-rowcount`、上下 spacer row；一个展开基础行及其 companion row 必须作为同一个 logical item，展开内容通过 `ResizeObserver` 动态测量并更新该 item 高度。`rowspan`、非法或重复 `rowKey` 必须告警并回退 full DOM。
 
 虚拟化是 Table 的公开行为契约，不公开 TanStack 实例、`scrollToIndex` 或基于滚动阈值的 `auto` 模式；消费者只配置 `virtual`、`height`、`estimateSize` 与 `overscan`。
 

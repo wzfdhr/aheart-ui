@@ -28,11 +28,20 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     expect(marker.attributes('data-value')).toBe(String(estimate))
   })
 
-  it('parses scroll.y, allows only parsed scroll.y > 320, and gives numeric virtual.height precedence', () => {
+  it.each([
+    [{ y: 180 }, '180'],
+    [{ y: '240px' }, '240'],
+    [{ y: 'not-a-length' }, '320']
+  ])('resolves parsed scroll.y %j as virtual height %s when virtual.height is absent', (scroll, expected) => {
+    const wrapper = mountTable({ scroll, virtual: true })
+    const height = wrapper.find('[data-aheart-virtual-height]')
+    expect(height.exists(), 'virtual runtime must expose resolved scroll.y height').toBe(true)
+    expect(height.attributes('data-value')).toBe(expected)
+  })
+
+  it('gives numeric virtual.height precedence over any parsed scroll.y', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const short = mountTable({ scroll: { y: '320' }, virtual: true })
-    expect(short.find('[data-aheart-virtual-spacer]').exists()).toBe(false)
-    const wrapper = mountTable({ scroll: { y: '321' }, virtual: { height: 500, estimateSize: 52, overscan: 8 } })
+    const wrapper = mountTable({ scroll: { y: '240px' }, virtual: { height: 500, estimateSize: 52, overscan: 8 } })
     const height = wrapper.find('[data-aheart-virtual-height]')
     expect(height.exists(), 'virtual runtime must expose normalized height').toBe(true)
     expect(height.attributes('data-value')).toBe('500')
