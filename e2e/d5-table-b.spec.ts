@@ -240,7 +240,8 @@ test('D5-B external ancestor scroll keeps no-y sticky header at the offset and i
     const header = table?.querySelector('thead')
     if (!table || !header) return
     const hold = Math.min(120, Math.max(1, table.offsetHeight - header.getBoundingClientRect().height - 40))
-    node.scrollTop = Math.min(node.scrollHeight - node.clientHeight, table.offsetTop + hold)
+    const tableTopInScroller = table.getBoundingClientRect().top - node.getBoundingClientRect().top + node.scrollTop
+    node.scrollTop = Math.min(node.scrollHeight - node.clientHeight, tableTopInScroller + hold)
   })
   await expect.poll(async () => {
     const value = await geometry()
@@ -251,7 +252,8 @@ test('D5-B external ancestor scroll keeps no-y sticky header at the offset and i
     const table = node.querySelector('table')
     if (!table) return
     const maxScroll = node.scrollHeight - node.clientHeight
-    node.scrollTop = Math.min(maxScroll, table.offsetTop + table.offsetHeight)
+    const tableTopInScroller = table.getBoundingClientRect().top - node.getBoundingClientRect().top + node.scrollTop
+    node.scrollTop = Math.min(maxScroll, tableTopInScroller + table.offsetHeight)
   })
   await expect.poll(async () => {
     const value = await geometry()
