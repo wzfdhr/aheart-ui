@@ -158,6 +158,35 @@ describe('Table D5-B review regressions', () => {
     wrapper.unmount()
   })
 
+  it('locks an already-open popup when loading/error props change without an outside click', async () => {
+    const action = vi.fn()
+    const render = () => h('button', { type: 'button', 'data-review-state-action': 'true', onClick: action }, 'Apply')
+    const wrapper = mount(Table, {
+      props: {
+        columns: [{ ...columns[0], filterDropdown: render, defaultFilterDropdownOpen: true }],
+        dataSource: rows
+      } as any
+    })
+    await nextTick()
+    const isLockedOrClosed = () => {
+      const current = document.querySelector<HTMLElement>('[data-table-filter-popup]')
+      if (!current) return true
+      const button = current.querySelector<HTMLButtonElement>('[data-review-state-action]')
+      return current.hasAttribute('inert') || current.getAttribute('aria-disabled') === 'true' || Boolean(button?.disabled)
+    }
+    await wrapper.setProps({ loading: true })
+    await nextTick()
+    expect(isLockedOrClosed()).toBe(true)
+    document.querySelector<HTMLElement>('[data-review-state-action]')?.click()
+    expect(action).not.toHaveBeenCalled()
+    await wrapper.setProps({ loading: false, error: { message: 'failed', retryText: 'retry' } })
+    await nextTick()
+    expect(isLockedOrClosed()).toBe(true)
+    document.querySelector<HTMLElement>('[data-review-state-action]')?.click()
+    expect(action).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
   it('tabs across enabled focusables, skips a disabled button, reverses with Shift, and is safe with none', async () => {
     const render = (context: any) => h('div', [
       h('input', { 'data-focus-first': 'true' }),

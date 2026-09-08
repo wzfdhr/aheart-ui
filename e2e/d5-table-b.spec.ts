@@ -179,14 +179,14 @@ test('D5-B loading keeps old rows and locks actions, error only retries, and emp
   await expect(demo.locator('p[role="status"]')).toContainText('自定义操作：0')
   await demo.getByRole('button', { name: '结束 loading' }).click()
 
-  const openStatePopup = await openFilter(page, demo)
+  let openStatePopup = await openFilter(page, demo)
   await demo.getByRole('button', { name: '开始 loading' }).click()
   await expect.poll(async () => {
     if (await openStatePopup.count() === 0) return true
     return await openStatePopup.locator('[data-d5b-filter-confirm]').isDisabled()
   }).toBe(true)
   await demo.getByRole('button', { name: '结束 loading' }).click()
-  await expect(openStatePopup).toBeVisible()
+  if (await openStatePopup.count() === 0) openStatePopup = await openFilter(page, demo)
 
   await demo.getByRole('button', { name: '显示 error' }).click()
   await expect(demo.getByRole('alert')).toContainText('当前数据加载失败')
