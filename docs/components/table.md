@@ -534,31 +534,37 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 `pageSize`被拒绝时，选择器和页码回到父层值；接受后Table与独立Pagination使用同一整数归一化边界。`loading`的交互策略本批保持原行为，`disabled`仍禁用用户操作。
 
-## D5-C 虚拟表格运行工作台（RED 契约）
+## D5-C 虚拟表格验收工作台
 
-D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列、展开伴随行和选择组合。入口必须提供以下五个可审计区域：`D5-C 10k 本地虚拟表格`、`D5-C 服务端分页虚拟表格`、`D5-C 固定列展开选择组合`、`D5-C 兼容性回退`、`D5-C SSR 与嵌入式容器`。它们由 `e2e/d5-table-c.spec.ts` 驱动，移动视口、125% zoom、iframe ownerDocument 和 SSR hydration 也必须无控制台错误。
+D5-C 验收工作台覆盖 1k/10k 行、本地/服务端当前页、固定列、展开伴随行和选择组合。入口提供以下可审计区域：`D5-C 10k 本地虚拟表格`、`D5-C 服务端分页虚拟表格`、`D5-C 固定列展开选择组合`、`D5-C 兼容性回退`、`D5-C SSR 与嵌入式容器`。它们由 `e2e/d5-table-c.spec.ts` 驱动，覆盖移动视口、125% zoom、iframe ownerDocument 和 SSR hydration。
 
 <ClientOnly>
   <section class="aheart-demo-panel" role="region" aria-label="D5-C 10k 本地虚拟表格">
+    <h3>10k 本地虚拟表格</h3><p class="aheart-demo-panel__status">验收：10,000 rows · local · virtual</p>
     <ATable data-mode="local" row-key="key" :columns="d5cColumns" :data-source="d5cLocal10k" :pagination="false" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
   </section>
   <section class="aheart-demo-panel" role="region" aria-label="D5-C 1k 本地虚拟表格">
+    <h3>1k 本地虚拟表格</h3><p class="aheart-demo-panel__status">验收：1,000 rows · local · virtual</p>
     <ATable data-mode="local" row-key="key" :columns="d5cColumns" :data-source="d5cLocal1k" :pagination="false" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
   </section>
   <section class="aheart-demo-panel" role="region" aria-label="D5-C 服务端分页虚拟表格">
+    <h3>服务端当前页虚拟表格</h3><p class="aheart-demo-panel__status">验收：server · page 2 · 20 of 10,000</p>
     <span data-table-data-mode="server">server</span><span data-table-current-page="2">2</span>
     <ATable data-mode="server" row-key="key" :columns="d5cColumns" :data-source="d5cServerRows" :pagination="{ current: 2, pageSize: 20, total: 10000, showSizeChanger: false }" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
   </section>
   <section class="aheart-demo-panel d5c-fixed-region" role="region" aria-label="D5-C 固定列展开选择组合" style="max-width: 720px">
+    <h3>固定列、展开、选择与焦点</h3><p class="aheart-demo-panel__status">验收：fixed columns · expanded row · selection · focus pin</p>
     <ATable data-mode="local" row-key="key" :columns="d5cFixedColumns" :data-source="d5cFixedRows" :scroll="{ x: 600, y: 320 }" :pagination="false" :row-selection="{ selectedRowKeys: d5cSelected }" :expandable="d5cExpandable" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" @update:selected-row-keys="d5cSelected = $event" />
     <button type="button" data-d5c-outside-focus>Focus outside table</button>
   </section>
   <section v-for="fallback in [{ reason: 'rowspan', label: 'D5-C 回退 rowspan' }, { reason: 'rowKey', label: 'D5-C 回退 invalid rowKey' }, { reason: 'duplicate', label: 'D5-C 回退 duplicate key' }]" :key="fallback.reason" class="aheart-demo-panel" role="region" :aria-label="fallback.label">
+    <h3>{{ fallback.label }}</h3><p class="aheart-demo-panel__status">验收：unsupported {{ fallback.reason }} · full-DOM fallback</p>
     <div>
       <ATable row-key="key" :columns="d5cFallbackColumns(fallback.reason)" :data-source="d5cFallbackRows(fallback.reason)" :pagination="false" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
     </div>
   </section>
   <section class="aheart-demo-panel" role="region" aria-label="D5-C SSR 与嵌入式容器">
+    <h3>iframe ownerDocument 与清理</h3><p class="aheart-demo-panel__status">验收：iframe mount · ownerDocument · unmount cleanup</p>
     <iframe ref="d5cIframe" data-table-owner-document title="D5-C iframe owner document" srcdoc="<!doctype html><html><body><div id='d5c-iframe-app'></div></body></html>" @load="d5cHandleIframeLoad" style="width: 100%; height: 220px"></iframe>
     <button type="button" data-d5c-unmount-iframe @click="d5cUnmountIframe">Unmount iframe table</button>
     <span data-iframe-listener-cleanup>{{ d5cIframeUnmounted ? 'ok' : 'mounted' }}</span>
