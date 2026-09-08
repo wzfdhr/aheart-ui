@@ -107,35 +107,32 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   expect(key).toBeTruthy()
   await demo.getByRole('checkbox', { name: new RegExp(`Select row ${key}$`) }).check()
   await scroll.evaluate(element => { element.scrollLeft = element.scrollWidth })
-  await expect.poll(() => scroll.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
+  await expect.poll(() => scroll.evaluate(element => Math.abs(element.scrollLeft - (element.scrollWidth - element.clientWidth)) <= 1)).toBe(true)
   if (/mobile/.test(testInfo.project.name) && requestedRightWidth > 0) {
-    const rightCells = [
-      demo.locator(`tr[data-table-row="${key}"] td[data-fixed="right"], tr[data-table-row="${key}"] td.is-fixed-right`).first(),
-      demo.locator(`tr[data-table-row]:not([data-table-row="${key}"]) td[data-fixed="right"], tr[data-table-row]:not([data-table-row="${key}"]) td.is-fixed-right`).first()
-    ]
-    const leftBoundary = await demo.locator('th[data-fixed="left"], th.is-fixed-left, td[data-fixed="left"], td.is-fixed-left').evaluateAll(cells => Math.max(...cells.map(cell => cell.getBoundingClientRect().right)))
-    const containerBox = await scroll.boundingBox()
-    expect(containerBox).not.toBeNull()
-    for (const rightCell of rightCells) {
-      const textBox = await rightCell.evaluate(element => {
-        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+    const readBodySnapshot = () => demo.evaluate((root, selectedKey) => {
+      const container = root.querySelector('.aheart-table__container')
+      const selected = root.querySelector(`tr[data-table-row="${selectedKey}"]`)
+      const ordinary = [...root.querySelectorAll('tr[data-table-row]')].find(row => row.getAttribute('data-table-row') !== selectedKey)
+      const leftCells = [...root.querySelectorAll('th[data-fixed="left"], th.is-fixed-left, td[data-fixed="left"], td.is-fixed-left')]
+      const leftBoundary = Math.max(...leftCells.map(cell => cell.getBoundingClientRect().right))
+      const containerRight = container?.getBoundingClientRect().right ?? NaN
+      const inspect = (row: Element | undefined) => {
+        const cell = row?.querySelector('td[data-fixed="right"], td.is-fixed-right')
+        if (!cell) return null
+        const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT)
         let node: Node | null = walker.nextNode()
         while (node && !node.textContent?.trim()) node = walker.nextNode()
         if (!node) return null
-        const range = document.createRange()
-        range.selectNodeContents(node)
+        const range = document.createRange(); range.selectNodeContents(node)
         const rect = range.getBoundingClientRect()
         const center = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
-        const textStyle = getComputedStyle(node.parentElement ?? element)
-        return { text: (node.textContent ?? '').trim(), left: rect.left, right: rect.right, textAlign: textStyle.textAlign || getComputedStyle(element).textAlign, blocked: Boolean(center?.closest('td[data-fixed="left"]')) }
-      })
-      expect(textBox).not.toBeNull()
-      expect(textBox!.text).toContain('ready')
-      expect(textBox!.textAlign).toBe('right')
-      expect(textBox!.left).toBeGreaterThanOrEqual(leftBoundary + 1)
-      expect(textBox!.right).toBeLessThanOrEqual(containerBox!.x + containerBox!.width + 1)
-      expect(textBox!.blocked).toBe(false)
-    }
+        const textStyle = getComputedStyle(node.parentElement ?? cell)
+        return { text: (node.textContent ?? '').trim(), left: rect.left, right: rect.right, width: rect.width, height: rect.height, textAlign: textStyle.textAlign || getComputedStyle(cell).textAlign, blocked: Boolean(center?.closest('td[data-fixed="left"]')) }
+      }
+      const cells = [inspect(selected), inspect(ordinary)]
+      return { leftBoundary, containerRight, cells, valid: Number.isFinite(leftBoundary) && Number.isFinite(containerRight) && cells.every(cell => cell && cell.width > 0 && cell.height > 0 && cell.text === 'ready' && cell.textAlign === 'right' && cell.left >= leftBoundary + 1 && cell.right <= containerRight + 1 && !cell.blocked) }
+    }, key)
+    await expect.poll(readBodySnapshot, { interval: 100, timeout: 5000 }).toMatchObject({ valid: true })
   }
   const expand = demo.getByRole('button', { name: new RegExp(`Expand row ${key}$`) })
   if (await expand.getAttribute('aria-expanded') !== 'true') await expand.click()
