@@ -163,8 +163,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       event.preventDefault();
       event.stopPropagation();
     };
-    const errorMessage = computed(() => typeof props.error === "object" && props.error.message !== void 0 ? props.error.message : "加载失败");
-    const errorRetryText = computed(() => typeof props.error === "object" && props.error.retryText !== void 0 ? props.error.retryText : "重试");
+    const errorMessage = computed(
+      () => {
+        var _a, _b;
+        return typeof props.error === "object" && props.error.message !== void 0 ? props.error.message : ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.errorText) ?? "加载失败";
+      }
+    );
+    const errorRetryText = computed(
+      () => {
+        var _a, _b;
+        return typeof props.error === "object" && props.error.retryText !== void 0 ? props.error.retryText : ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.retryText) ?? "重试";
+      }
+    );
     const paginationConfig = computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
     const pageSize = computed(() => normalizePageSize(pageSizeState.state.value ?? 10));
     const rawCurrentPage = computed(() => currentState.state.value ?? 1);

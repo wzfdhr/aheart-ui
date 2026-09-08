@@ -314,8 +314,16 @@ const handleTableCapture = (event: Event) => {
   event.preventDefault()
   event.stopPropagation()
 }
-const errorMessage = computed<TableRenderable>(() => typeof props.error === 'object' && props.error.message !== undefined ? props.error.message : '加载失败')
-const errorRetryText = computed<TableRenderable>(() => typeof props.error === 'object' && props.error.retryText !== undefined ? props.error.retryText : '重试')
+const errorMessage = computed<TableRenderable>(() =>
+  typeof props.error === 'object' && props.error.message !== undefined
+    ? props.error.message
+    : config.value.locale?.table?.errorText ?? '加载失败'
+)
+const errorRetryText = computed<TableRenderable>(() =>
+  typeof props.error === 'object' && props.error.retryText !== undefined
+    ? props.error.retryText
+    : config.value.locale?.table?.retryText ?? '重试'
+)
 
 const paginationConfig = computed(() => (props.pagination && typeof props.pagination === 'object' ? props.pagination : {}))
 const pageSize = computed(() => normalizePageSize(pageSizeState.state.value ?? 10))

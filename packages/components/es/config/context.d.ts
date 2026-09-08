@@ -24,6 +24,8 @@ export interface AheartLocale {
     table?: {
         emptyText?: string;
         loadingText?: string;
+        errorText?: string;
+        retryText?: string;
     };
     datePicker?: {
         locale?: 'zh-CN' | 'en-US';

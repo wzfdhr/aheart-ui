@@ -165,8 +165,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       event.preventDefault();
       event.stopPropagation();
     };
-    const errorMessage = vue.computed(() => typeof props.error === "object" && props.error.message !== void 0 ? props.error.message : "加载失败");
-    const errorRetryText = vue.computed(() => typeof props.error === "object" && props.error.retryText !== void 0 ? props.error.retryText : "重试");
+    const errorMessage = vue.computed(
+      () => {
+        var _a, _b;
+        return typeof props.error === "object" && props.error.message !== void 0 ? props.error.message : ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.errorText) ?? "加载失败";
+      }
+    );
+    const errorRetryText = vue.computed(
+      () => {
+        var _a, _b;
+        return typeof props.error === "object" && props.error.retryText !== void 0 ? props.error.retryText : ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.retryText) ?? "重试";
+      }
+    );
     const paginationConfig = vue.computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
     const pageSize = vue.computed(() => paginationState.normalizePageSize(pageSizeState.state.value ?? 10));
     const rawCurrentPage = vue.computed(() => currentState.state.value ?? 1);
