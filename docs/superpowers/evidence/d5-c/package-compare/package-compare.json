@@ -1,0 +1,142 @@
+{
+  "status": "passed",
+  "started": "2026-09-08T17:10:52.249Z",
+  "completed": "2026-09-08T17:10:59.466Z",
+  "baselineCommit": "7f29bb5",
+  "node": "v24.17.0",
+  "configuration": {
+    "vue": "3.5.38",
+    "serverRenderer": "3.5.38",
+    "vite": "5.0.12",
+    "build": "Vite production, configFile:false, minify:true, sourcemap:false; same consumer source"
+  },
+  "tarballs": {
+    "baseline": {
+      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-vC1H7E/baseline-pack/aheart-ui-1.0.0.tgz",
+      "sha256": "1bb62625f139b7acf8639eb3b3066c9905028c6e0286bf4aa8e5c58e96b42fe4",
+      "rawBytes": 440973
+    },
+    "candidate": {
+      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-vC1H7E/candidate-pack/aheart-ui-1.0.0.tgz",
+      "sha256": "8e215c8042d1088947629ff1d26f8dd9d10c185f54040db5a35d7ff450c8544d",
+      "rawBytes": 470317
+    }
+  },
+  "bundles": {
+    "baseline": {
+      "rawBytes": 656347,
+      "gzipBytes": 167142
+    },
+    "candidate": {
+      "rawBytes": 692543,
+      "gzipBytes": 178026
+    },
+    "gzipDeltaBytes": 10884,
+    "rawDeltaBytes": 36196,
+    "files": [
+      {
+        "file": "assets/index-2WFH8Wg5.js",
+        "baseline": {
+          "file": "assets/index-2WFH8Wg5.js",
+          "sha256": "358ae2531d034f0c0f2938ae65d11c358ccb97c2d38bfdb4a84a7bca4b5fdf63",
+          "rawBytes": 486939,
+          "gzipBytes": 145198
+        },
+        "candidate": null,
+        "rawDelta": -486939,
+        "gzipDelta": -145198
+      },
+      {
+        "file": "assets/index-B5JLj3Zb.js",
+        "baseline": null,
+        "candidate": {
+          "file": "assets/index-B5JLj3Zb.js",
+          "sha256": "8ce454c7cf3e7839c89ccb19c0842177d02e1e2b1e04f8e9c30936b468dee05e",
+          "rawBytes": 520261,
+          "gzipBytes": 155631
+        },
+        "rawDelta": 520261,
+        "gzipDelta": 155631
+      },
+      {
+        "file": "assets/index-Cj6jzt97.css",
+        "baseline": {
+          "file": "assets/index-Cj6jzt97.css",
+          "sha256": "3262f1d808b3c3a32147361e1dc5565d78b81054c2eafd210ca32964d3e488df",
+          "rawBytes": 169408,
+          "gzipBytes": 21944
+        },
+        "candidate": null,
+        "rawDelta": -169408,
+        "gzipDelta": -21944
+      },
+      {
+        "file": "assets/index-DNo0MLfD.css",
+        "baseline": null,
+        "candidate": {
+          "file": "assets/index-DNo0MLfD.css",
+          "sha256": "769700a0b93c53c6f09e733a1454e1300f3a8265354393ba99b70c980d79d43d",
+          "rawBytes": 172282,
+          "gzipBytes": 22395
+        },
+        "rawDelta": 172282,
+        "gzipDelta": 22395
+      }
+    ]
+  },
+  "ssr": {
+    "baseline": {
+      "default": {
+        "htmlBytes": 1379395,
+        "sha256": "ef46d03cfdc97679c622241f73f4a532725c5fa1da5d1d07c90bd7df58ab45ce",
+        "rowCount": 10000,
+        "cellCount": 20000,
+        "markers": 0,
+        "firstRow": 505,
+        "lastRow": 1379260,
+        "nativeTable": true
+      }
+    },
+    "candidate": {
+      "default": {
+        "htmlBytes": 2616258,
+        "sha256": "9ff4afe23a686f466907b97167120f0f18728c469294d8a78c906b3d8c32d5f4",
+        "rowCount": 10000,
+        "cellCount": 20000,
+        "markers": 0,
+        "firstRow": 784,
+        "lastRow": 2616102,
+        "nativeTable": true
+      },
+      "false": {
+        "htmlBytes": 2616258,
+        "sha256": "9ff4afe23a686f466907b97167120f0f18728c469294d8a78c906b3d8c32d5f4",
+        "rowCount": 10000,
+        "cellCount": 20000,
+        "markers": 0,
+        "firstRow": 784,
+        "lastRow": 2616102,
+        "nativeTable": true
+      }
+    }
+  },
+  "checks": {
+    "tarballsReal": true,
+    "noWorkspaceSymlinks": true,
+    "esmCjsCss": true,
+    "candidateDefaultFalseNormalizedDOMHashEqual": true,
+    "baselineNative10k20kNoMarkers": true,
+    "candidateNative10k20kNoMarkers": true,
+    "gzipDeltaWithinBudget": true
+  },
+  "consumers": {
+    "baseline": {
+      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-vC1H7E/baseline-consumer-MXdedQ",
+      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-vC1H7E/baseline-consumer-MXdedQ/node_modules/aheart-ui"
+    },
+    "candidate": {
+      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-vC1H7E/candidate-consumer-IJRcMu",
+      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-vC1H7E/candidate-consumer-IJRcMu/node_modules/aheart-ui"
+    }
+  }
+}
