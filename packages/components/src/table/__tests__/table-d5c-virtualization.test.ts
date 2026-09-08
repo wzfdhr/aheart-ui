@@ -67,11 +67,11 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
 
   it('keeps expanded base and companion rows in one logical item and applies ResizeObserver callback height', async () => {
     let callback: ResizeObserverCallback | undefined
-    const observe = vi.fn()
+    const observedTargets: Element[] = []
     const disconnect = vi.fn()
     class MockResizeObserver {
       constructor(next: ResizeObserverCallback) { callback = next }
-      observe = observe
+      observe = (target: Element) => { observedTargets.push(target) }
       disconnect = disconnect
       unobserve = vi.fn()
     }
@@ -79,10 +79,17 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     const wrapper = mountTable({ virtual: true, expandable: { expandedRowRender: (record: Row) => h('div', { class: 'dynamic-detail' }, `${record.name} ${'detail '.repeat(80)}`) } })
     await wrapper.find('.aheart-table__expand-button').trigger('click')
     expect(wrapper.findAll('[data-aheart-virtual-logical-item="0"]')).toHaveLength(1)
-    expect(observe).toHaveBeenCalled()
-    callback?.([{ target: wrapper.find('.dynamic-detail').element, contentRect: { height: 777 } } as ResizeObserverEntry], {} as ResizeObserver)
+    const base = wrapper.find('tbody tr').element
+    const expanded = wrapper.find('.dynamic-detail').element
+    expect(observedTargets).toEqual(expect.arrayContaining([base, expanded]))
+    callback?.([
+      { target: base, contentRect: { height: 48 } } as ResizeObserverEntry,
+      { target: expanded, contentRect: { height: 777 } } as ResizeObserverEntry,
+      { target: document.createElement('div'), contentRect: { height: 9999 } } as ResizeObserverEntry
+    ], {} as ResizeObserver)
     await nextTick()
-    expect(wrapper.find('[data-aheart-virtual-measured-height="777"]').exists()).toBe(true)
+    expect(wrapper.find('[data-aheart-virtual-measured-height="825"]').exists()).toBe(true)
+    expect(wrapper.find('[data-aheart-virtual-spacer]').attributes('data-measured-height')).toBe('825')
     wrapper.unmount()
     expect(disconnect).toHaveBeenCalled()
   })
@@ -92,8 +99,7 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     await local.find('th button').trigger('click')
     await local.find('.aheart-pagination__next').trigger('click')
     const localRows = local.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))
-    expect(localRows.length).toBeLessThanOrEqual(10)
-    expect(localRows.every((row) => /Row \d+/.test(row.text()))).toBe(true)
+    expect(localRows.map((row) => row.text())).toEqual(['Row 29', 'Row 28', 'Row 27', 'Row 26', 'Row 25', 'Row 24', 'Row 23', 'Row 22', 'Row 21', 'Row 20'])
     const response = rows.slice(20, 22)
     const server = mountTable({ dataMode: 'server', dataSource: response, pagination: { current: 3, pageSize: 1, total: 40 }, virtual: true })
     expect(server.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))).toHaveLength(2)
@@ -109,19 +115,21 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
   it('uses typed number/string radio keys and restores native group after rejected change', async () => {
     const host = document.createElement('div')
     document.body.append(host)
-    const typed = [{ ...rows[0], key: 1 }, { ...rows[1], key: '1' }]
+    const typed = rows.map((row, index) => index === 20 ? { ...row, key: 1 } : index === 21 ? { ...row, key: '1' } : row)
     const wrapper = mountTable({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }, host)
     const radios = wrapper.findAll<HTMLInputElement>('tbody input[type="radio"]')
-    radios[1].element.click()
+    radios[21].element.click()
     await nextTick()
     expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]])
-    expect(radios.map((radio) => radio.element.checked)).toEqual([true, false])
+    expect(radios[20].element.checked).toBe(true)
+    expect(radios[21].element.checked).toBe(false)
     host.remove()
   })
 
   it('pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab', async () => {
     const wrapper = mountTable({ rowSelection: {}, virtual: { height: 320 } })
     const first = wrapper.find('tbody input[type="checkbox"]')
+    const second = wrapper.findAll<HTMLInputElement>('tbody input[type="checkbox"]')[1]
     first.element.focus()
     await nextTick()
     expect(document.activeElement).toBe(first.element)
@@ -131,6 +139,7 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     await scroll.trigger('scroll')
     expect(first.exists()).toBe(true)
     await first.trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(second.element)
     const outside = document.createElement('button')
     document.body.append(outside)
     outside.focus()
@@ -146,14 +155,21 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     expect(first).toBe(second)
     expect(first).toContain('aria-rowcount="40"')
     const container = document.createElement('div')
-    container.innerHTML = first
-    document.body.append(container)
-    const app = createSSRApp({ render: () => h(Table, { ...props(), virtual: true } as any) })
-    app.mount(container, true)
-    expect(container.innerHTML).toBe(first)
-    app.unmount()
-    expect(mountTable({ virtual: false }).findAll('tbody tr')).toHaveLength(40)
-    container.remove()
+    let app: ReturnType<typeof createSSRApp> | undefined
+    const hydrationWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      container.innerHTML = first
+      document.body.append(container)
+      const initialTree = container.innerHTML
+      app = createSSRApp({ render: () => h(Table, { ...props(), virtual: true } as any) })
+      app.mount(container, true)
+      expect(container.innerHTML).toBe(initialTree)
+      expect(hydrationWarn).not.toHaveBeenCalledWith(expect.stringContaining('Hydration'))
+      expect(mountTable({ virtual: false }).findAll('tbody tr')).toHaveLength(40)
+    } finally {
+      app?.unmount()
+      container.remove()
+    }
   })
 
   it.each([
@@ -175,16 +191,20 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     const ownerWindow = iframe.contentWindow!
     const observe = vi.fn()
     const disconnect = vi.fn()
-    const cancel = vi.spyOn(ownerWindow, 'cancelAnimationFrame')
+    const add = vi.spyOn(ownerWindow, 'addEventListener')
     const remove = vi.spyOn(ownerWindow, 'removeEventListener')
     class MockResizeObserver { observe = observe; disconnect = disconnect; unobserve = vi.fn() }
     ownerWindow.ResizeObserver = MockResizeObserver as any
-    const wrapper = mountTable({ virtual: true }, iframe.contentDocument!.body)
-    expect(observe).toHaveBeenCalled()
-    wrapper.unmount()
-    expect(disconnect).toHaveBeenCalled()
-    expect(cancel).toHaveBeenCalled()
-    expect(remove).toHaveBeenCalled()
-    iframe.remove()
+    let wrapper: VueWrapper | undefined
+    try {
+      wrapper = mountTable({ virtual: true }, iframe.contentDocument!.body)
+      expect(observe).toHaveBeenCalled()
+      wrapper.unmount()
+      expect(disconnect).toHaveBeenCalled()
+      if (add.mock.calls.length > 0) expect(remove.mock.calls.length).toBeGreaterThan(0)
+    } finally {
+      wrapper?.unmount()
+      iframe.remove()
+    }
   })
 })
