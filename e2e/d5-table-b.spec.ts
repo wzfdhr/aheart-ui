@@ -53,6 +53,34 @@ test('D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlle
   const anchoredClick = page.locator('[data-table-filter-popup]')
   await anchoredTrigger.click()
   await expect(anchoredClick).toBeVisible()
+  const namedFilterInput = anchoredClick.getByRole('textbox', { name: '筛选姓名' })
+  await expect(namedFilterInput).toHaveCount(1)
+  const actionBoxes = await Promise.all([
+    anchoredClick.locator('[data-d5b-filter-confirm]').boundingBox(),
+    anchoredClick.locator('[data-d5b-filter-reset]').boundingBox(),
+    anchoredClick.locator('[data-d5b-filter-cancel]').boundingBox()
+  ])
+  const inputBox = await namedFilterInput.boundingBox()
+  const popupBoxForControls = await anchoredClick.boundingBox()
+  expect(inputBox).not.toBeNull()
+  expect(popupBoxForControls).not.toBeNull()
+  if (!inputBox || !popupBoxForControls || actionBoxes.some(box => !box)) return
+  for (const box of actionBoxes) {
+    if (!box) continue
+    expect(box.x).toBeGreaterThanOrEqual(popupBoxForControls.x)
+    expect(box.x + box.width).toBeLessThanOrEqual(popupBoxForControls.x + popupBoxForControls.width)
+    expect(box.y).toBeGreaterThanOrEqual(popupBoxForControls.y)
+    expect(box.y + box.height).toBeLessThanOrEqual(popupBoxForControls.y + popupBoxForControls.height)
+  }
+  for (let index = 0; index < actionBoxes.length - 1; index += 1) {
+    const current = actionBoxes[index]
+    const next = actionBoxes[index + 1]
+    if (!current || !next) continue
+    const horizontalGap = next.x - (current.x + current.width)
+    const verticalGap = next.y - (current.y + current.height)
+    expect(horizontalGap >= 6 || verticalGap >= 6).toBe(true)
+    expect(current.x + current.width <= next.x || current.y + current.height <= next.y).toBe(true)
+  }
   const viewport = await page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }))
   await expect.poll(async () => {
     const triggerBox = await anchoredTrigger.boundingBox()
@@ -153,7 +181,20 @@ test('D5-B loading keeps old rows and locks actions, error only retries, and emp
   await demo.getByRole('button', { name: '显示 error' }).click()
   await expect(demo.getByRole('alert')).toContainText('当前数据加载失败')
   await expect(demo.locator('tbody tr')).toHaveCount(rowCount)
+  const staleRow = demo.locator('tbody tr').first()
+  await expect(staleRow).toBeVisible()
+  const staleRowVisibility = await staleRow.evaluate(row => {
+    const rect = row.getBoundingClientRect()
+    const hit = document.elementFromPoint(rect.left + Math.min(4, rect.width / 2), rect.top + Math.min(4, rect.height / 2))
+    const style = getComputedStyle(row)
+    return { hitInside: Boolean(hit && row.contains(hit)), opacity: style.opacity, visibility: style.visibility }
+  })
+  expect(staleRowVisibility.hitInside).toBe(true)
+  expect(staleRowVisibility.opacity).not.toBe('0')
+  expect(staleRowVisibility.visibility).toBe('visible')
+  expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
   await expect(demo.locator('button[aria-haspopup="dialog"]').first()).toBeDisabled()
+  await expect(demo.getByRole('button', { name: '重试数据请求' })).toBeVisible()
   await demo.getByRole('button', { name: '重试数据请求' }).click()
   await expect(demo.getByRole('alert')).toHaveCount(0)
   await expect(demo.locator('p[role="status"]')).toContainText('retry：1')

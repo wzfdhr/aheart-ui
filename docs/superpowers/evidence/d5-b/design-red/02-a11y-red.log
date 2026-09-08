@@ -1,0 +1,488 @@
+
+[WebServer] (node:88647) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:88658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:88672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:89429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:89443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 5 workers
+
+
+(node:89455) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:89454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:89458) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:89457) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:89456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/10] [mobile-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[2/10] [desktop] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[3/10] [mobile] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[4/10] [desktop-firefox] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[5/10] [desktop-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+  1) [mobile-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      55 |   await expect(anchoredClick).toBeVisible()
+      56 |   const namedFilterInput = anchoredClick.getByRole('textbox', { name: '筛选姓名' })
+    > 57 |   await expect(namedFilterInput).toHaveCount(1)
+         |                                  ^
+      58 |   const actionBoxes = await Promise.all([
+      59 |     anchoredClick.locator('[data-d5b-filter-confirm]').boundingBox(),
+      60 |     anchoredClick.locator('[data-d5b-filter-reset]').boundingBox(),
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:57:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2) [desktop-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      55 |   await expect(anchoredClick).toBeVisible()
+      56 |   const namedFilterInput = anchoredClick.getByRole('textbox', { name: '筛选姓名' })
+    > 57 |   await expect(namedFilterInput).toHaveCount(1)
+         |                                  ^
+      58 |   const actionBoxes = await Promise.all([
+      59 |     anchoredClick.locator('[data-d5b-filter-confirm]').boundingBox(),
+      60 |     anchoredClick.locator('[data-d5b-filter-reset]').boundingBox(),
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:57:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:89513) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[6/10] [mobile-webkit] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible
+
+(node:89514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[7/10] [desktop-webkit] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible
+  3) [desktop] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      55 |   await expect(anchoredClick).toBeVisible()
+      56 |   const namedFilterInput = anchoredClick.getByRole('textbox', { name: '筛选姓名' })
+    > 57 |   await expect(namedFilterInput).toHaveCount(1)
+         |                                  ^
+      58 |   const actionBoxes = await Promise.all([
+      59 |     anchoredClick.locator('[data-d5b-filter-confirm]').boundingBox(),
+      60 |     anchoredClick.locator('[data-d5b-filter-reset]').boundingBox(),
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:57:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  4) [mobile] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      55 |   await expect(anchoredClick).toBeVisible()
+      56 |   const namedFilterInput = anchoredClick.getByRole('textbox', { name: '筛选姓名' })
+    > 57 |   await expect(namedFilterInput).toHaveCount(1)
+         |                                  ^
+      58 |   const actionBoxes = await Promise.all([
+      59 |     anchoredClick.locator('[data-d5b-filter-confirm]').boundingBox(),
+      60 |     anchoredClick.locator('[data-d5b-filter-reset]').boundingBox(),
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:57:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:89539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[8/10] [desktop] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible
+
+(node:89540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[9/10] [mobile] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible
+  5) [mobile-webkit] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      190 |     return { hitInside: Boolean(hit && row.contains(hit)), opacity: style.opacity, visibility: style.visibility }
+      191 |   })
+    > 192 |   expect(staleRowVisibility.hitInside).toBe(true)
+          |                                        ^
+      193 |   expect(staleRowVisibility.opacity).not.toBe('0')
+      194 |   expect(staleRowVisibility.visibility).toBe('visible')
+      195 |   expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:192:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  6) [desktop-webkit] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      190 |     return { hitInside: Boolean(hit && row.contains(hit)), opacity: style.opacity, visibility: style.visibility }
+      191 |   })
+    > 192 |   expect(staleRowVisibility.hitInside).toBe(true)
+          |                                        ^
+      193 |   expect(staleRowVisibility.opacity).not.toBe('0')
+      194 |   expect(staleRowVisibility.visibility).toBe('visible')
+      195 |   expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:192:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  7) [desktop-firefox] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('[data-table-filter-popup]').getByRole('textbox', { name: '筛选姓名' })
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      55 |   await expect(anchoredClick).toBeVisible()
+      56 |   const namedFilterInput = anchoredClick.getByRole('textbox', { name: '筛选姓名' })
+    > 57 |   await expect(namedFilterInput).toHaveCount(1)
+         |                                  ^
+      58 |   const actionBoxes = await Promise.all([
+      59 |     anchoredClick.locator('[data-d5b-filter-confirm]').boundingBox(),
+      60 |     anchoredClick.locator('[data-d5b-filter-reset]').boundingBox(),
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:57:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:89551) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[10/10] [desktop-firefox] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible
+  8) [desktop] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      190 |     return { hitInside: Boolean(hit && row.contains(hit)), opacity: style.opacity, visibility: style.visibility }
+      191 |   })
+    > 192 |   expect(staleRowVisibility.hitInside).toBe(true)
+          |                                        ^
+      193 |   expect(staleRowVisibility.opacity).not.toBe('0')
+      194 |   expect(staleRowVisibility.visibility).toBe('visible')
+      195 |   expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:192:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  9) [mobile] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      190 |     return { hitInside: Boolean(hit && row.contains(hit)), opacity: style.opacity, visibility: style.visibility }
+      191 |   })
+    > 192 |   expect(staleRowVisibility.hitInside).toBe(true)
+          |                                        ^
+      193 |   expect(staleRowVisibility.opacity).not.toBe('0')
+      194 |   expect(staleRowVisibility.visibility).toBe('visible')
+      195 |   expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:192:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  10) [desktop-firefox] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      190 |     return { hitInside: Boolean(hit && row.contains(hit)), opacity: style.opacity, visibility: style.visibility }
+      191 |   })
+    > 192 |   expect(staleRowVisibility.hitInside).toBe(true)
+          |                                        ^
+      193 |   expect(staleRowVisibility.opacity).not.toBe('0')
+      194 |   expect(staleRowVisibility.visibility).toBe('visible')
+      195 |   expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:192:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/a11y-artifacts/d5-table-b-D5-B-loading-ke-57831-etries-and-empty-is-visible-desktop-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  10 failed
+    [desktop] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+    [desktop] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+    [mobile] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+    [mobile] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+    [desktop-firefox] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+    [desktop-firefox] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+    [desktop-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+    [desktop-webkit] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
+    [mobile-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+    [mobile-webkit] › e2e/d5-table-b.spec.ts:167:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible 
