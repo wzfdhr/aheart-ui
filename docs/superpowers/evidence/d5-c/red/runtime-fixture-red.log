@@ -16,12 +16,18 @@ The preceding desktop capture in /tmp/d5c-fixture-red.log was 6 failed / 2
 passed because it predated removal of the SSR fake-marker assertion; it is
 retained only as historical comparison, not as final evidence.
 
-Follow-up fixture correction: the three fallback attributes were removed from
-the docs wrapper; tests now require markers emitted by Table runtime itself.
-Rowspan is supplied through a real unsupported column shape, invalid and
-duplicate keys through real data. Fixed focus is an in-row custom-rendered
-button, and iframe cleanup calls the saved Vue app unmount plus listener
-removal. This follow-up was not rerun after the correction in this turn.
+Third-review verification:
+- docs build: PASS (vitepress build)
+- desktop D5-C: exit 1, 8 failed / 0 passed; no region/fixture-missing pass
+- failures are at virtual aria/window, server virtual row marker, fixed sticky
+  output, three runtime fallback markers, iframe owner-document/table runtime,
+  and 1k virtual aria/window.
+- fallback markers are required from Table runtime, not docs wrappers.
+- fixed focus is an in-row custom-rendered button; iframe cleanup owns and
+  unmounts the saved app and removes its load handler.
+- perf runner now validates every round: finite ordered marks, ariaRowCount
+  10000, full 10000/no spacer, virtual <=20/exactly two spacers, LongTask/CLS,
+  and explicit gzipped D5-A/candidate Table-only files with hashes.
 
 No production Table, generated es/lib, unit test, or unrelated docs changes
 were included in this fixture commit.

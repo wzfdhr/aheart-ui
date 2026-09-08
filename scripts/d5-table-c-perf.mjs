@@ -30,12 +30,17 @@ try {
     await page.waitForFunction(() => window.__fixtureReady === true && performance.getEntriesByName('d5c:mountStart', 'mark').length > 0 && performance.getEntriesByName('d5c:interactive', 'mark').length > 0)
     const metrics = await page.evaluate(() => {
       const mount = performance.getEntriesByName('d5c:mountStart', 'mark').at(-1), interactive = performance.getEntriesByName('d5c:interactive', 'mark').at(-1)
-      const rows = document.querySelectorAll('tbody tr[data-table-row]'), table = document.querySelector('table')
-      if (!mount || !interactive || !rows.length || !table || !window.__d5c) return null
-      return { interactiveMs: interactive.startTime - mount.startTime, logicalRows: rows.length, fullDomRows: document.querySelectorAll('tbody tr').length, ariaRowCount: Number(table.getAttribute('aria-rowcount')), spacerCount: document.querySelectorAll('[data-table-virtual-spacer]').length, longTaskMax: Math.max(0, ...window.__d5c.longTasks), cls: window.__d5c.cls }
+      const rows = document.querySelectorAll('tbody tr[data-table-row]'), table = document.querySelector('table'), ariaRaw = table?.getAttribute('aria-rowcount')
+      if (!mount || !interactive || !rows.length || !table || ariaRaw === null || !window.__d5c) return null
+      const interactiveMs = interactive.startTime - mount.startTime, ariaRowCount = Number(ariaRaw)
+      if (!Number.isFinite(interactive.startTime) || !Number.isFinite(mount.startTime) || interactiveMs < 0 || !Number.isFinite(ariaRowCount)) return null
+      return { interactiveMs, logicalRows: rows.length, fullDomRows: document.querySelectorAll('tbody tr').length, ariaRowCount, spacerCount: document.querySelectorAll('[data-table-virtual-spacer]').length, longTaskMax: Math.max(0, ...window.__d5c.longTasks), cls: window.__d5c.cls }
     })
     await page.close()
-    if (!metrics) throw new Error(`${mode} round ${round + 1}: missing fixture marks or required metrics`)
+    if (!metrics) throw new Error(`${mode} round ${round + 1}: missing/invalid fixture marks or required metrics`)
+    if (metrics.ariaRowCount !== 10000) throw new Error(`${mode} round ${round + 1}: ariaRowCount must equal 10000`)
+    if (mode === 'full-dom' && (metrics.logicalRows !== 10000 || metrics.spacerCount !== 0)) throw new Error(`${mode} round ${round + 1}: expected 10000 rows and no spacer`)
+    if (mode === 'virtual' && (metrics.logicalRows > 20 || metrics.spacerCount !== 2)) throw new Error(`${mode} round ${round + 1}: expected <=20 rows and exactly two main spacers`)
     results.push({ mode, round: round + 1, ...metrics })
   }
 } finally { await browser.close() }
