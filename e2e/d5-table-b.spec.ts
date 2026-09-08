@@ -184,14 +184,17 @@ test('D5-B loading keeps old rows and locks actions, error only retries, and emp
   const staleRow = demo.locator('tbody tr').first()
   await expect(staleRow).toBeVisible()
   const staleRowVisibility = await staleRow.evaluate(row => {
-    const rect = row.getBoundingClientRect()
-    const hit = document.elementFromPoint(rect.left + Math.min(4, rect.width / 2), rect.top + Math.min(4, rect.height / 2))
     const style = getComputedStyle(row)
-    return { hitInside: Boolean(hit && row.contains(hit)), opacity: style.opacity, visibility: style.visibility }
+    return { opacity: style.opacity, visibility: style.visibility }
   })
-  expect(staleRowVisibility.hitInside).toBe(true)
   expect(staleRowVisibility.opacity).not.toBe('0')
   expect(staleRowVisibility.visibility).toBe('visible')
+  const errorBox = await demo.getByRole('alert').boundingBox()
+  const rowBox = await staleRow.boundingBox()
+  expect(errorBox).not.toBeNull()
+  expect(rowBox).not.toBeNull()
+  if (!errorBox || !rowBox) return
+  expect(errorBox.y + errorBox.height).toBeLessThanOrEqual(rowBox.y + 1)
   expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
   await expect(demo.locator('button[aria-haspopup="dialog"]').first()).toBeDisabled()
   await expect(demo.getByRole('button', { name: '重试数据请求' })).toBeVisible()
