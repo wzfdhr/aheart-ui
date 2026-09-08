@@ -1,48 +1,62 @@
 const trackers = new WeakMap()
-const requestRoutes = new WeakMap()
-const isRouteAsset = pathname => /^\/assets\/.+\.md\.[\w-]+\.js$/.test(pathname)
-const routeStems = route => {
-  const value = route.replace(/^\/+/, '')
-  return [`${value.replaceAll('/', '_')}.md.`, `${value.replaceAll('/', '-')}.md.`]
+const requestMetadata = new WeakMap()
+const assetPattern = /^\/assets\/(.+)\.md\.[\w-]+\.js$/
+
+export const normalizeRoute = value => {
+  const path = new URL(value, 'http://127.0.0.1').pathname
+  return path.replace(/\.html$/, '').replace(/\/+$/, '') || '/'
 }
-const assetBelongsToRoute = (pathname, route) => Boolean(route && routeStems(route).some(stem => pathname.includes(`/assets/${stem}`)))
+const routeStem = route => normalizeRoute(route).replace(/^\/+/, '').replaceAll('/', '_')
 
 export class VitePressRequestTracker {
   activeRoute = ''
   completedUrls = new Set()
-  constructor(readonlyProjectName) { this.projectName = readonlyProjectName }
-  setActiveRoute(route) { this.activeRoute = route }
-  attach(page) {
-    page.on('request', request => requestRoutes.set(request, { route: this.activeRoute, url: request.url() }))
+  constructor(projectName, page) { this.projectName = projectName; this.page = page }
+  setActiveRoute(route) { this.activeRoute = normalizeRoute(route) }
+  async recordRequest(request) {
+    try {
+      const headers = await request.allHeaders()
+      requestMetadata.set(request, {
+        frame: request.frame() === this.page.mainFrame(),
+        method: request.method(),
+        resourceType: request.resourceType(),
+        secFetchDest: headers['sec-fetch-dest'],
+        referer: headers.referer ? normalizeRoute(headers.referer) : '',
+        activeRoute: this.activeRoute
+      })
+    } catch { requestMetadata.set(request, null) }
   }
+  attach(page) { page.on('request', request => { void this.recordRequest(request) }) }
   async recordCompletedResponse(response) {
     const request = response.request()
-    const snapshot = requestRoutes.get(request)
-    if (!snapshot || !isRouteAsset(new URL(response.url()).pathname)) return
+    const metadata = requestMetadata.get(request)
+    if (!metadata) return
+    const parsed = new URL(response.url())
+    if (!assetPattern.test(parsed.pathname)) return
     try {
       const finishedError = await response.finished()
       if (finishedError === null && response.ok()) this.completedUrls.add(response.url())
-    } catch { /* cancelled or body failure is deliberately not a success */ }
+    } catch { /* cancelled/body failure is not a successful transfer */ }
   }
-  isIgnorable(request, errorText) {
-    const snapshot = requestRoutes.get(request)
-    return isIgnorableCancelledVitePressPrefetch(this.projectName, snapshot, request, errorText, this.completedUrls)
+  async isIgnorable(request, errorText) {
+    return isIgnorableCancelledVitePressPrefetch(this.projectName, requestMetadata.get(request), request, errorText, this.completedUrls)
   }
 }
 
 export function installVitePressRequestTracker(page, projectName) {
-  const tracker = new VitePressRequestTracker(projectName)
+  const tracker = new VitePressRequestTracker(projectName, page)
   trackers.set(page, tracker)
   tracker.attach(page)
   return tracker
 }
-
 export function setActiveVitePressRoute(page, route) { trackers.get(page)?.setActiveRoute(route) }
 
-export function isIgnorableCancelledVitePressPrefetch(projectName, snapshot, request, errorText, completedUrls = new Set()) {
-  if (projectName !== 'desktop-webkit' || errorText.trim().toLowerCase() !== 'load request cancelled' || request.resourceType() !== 'script') return false
+export function isIgnorableCancelledVitePressPrefetch(projectName, metadata, request, errorText, completedUrls = new Set()) {
+  if (projectName !== 'desktop-webkit' || errorText.trim().toLowerCase() !== 'load request cancelled' || !metadata?.frame || metadata.method !== 'GET' || metadata.resourceType !== 'xhr' || metadata.secFetchDest !== 'empty' || !metadata.referer || metadata.referer !== normalizeRoute(metadata.activeRoute)) return false
   const url = new URL(request.url())
-  if (url.hostname !== '127.0.0.1' || !isRouteAsset(url.pathname) || !snapshot?.route) return false
-  if (!assetBelongsToRoute(url.pathname, snapshot.route)) return true
+  const match = url.hostname === '127.0.0.1' ? assetPattern.exec(url.pathname) : null
+  if (!match) return false
+  const currentStem = routeStem(metadata.activeRoute)
+  if (match[1] !== currentStem) return true
   return completedUrls.has(url.href)
 }

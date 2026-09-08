@@ -23,10 +23,10 @@ const test = base.extend<ProductionErrorFixture>({
       }
       void tracker.recordCompletedResponse(response)
     })
-    page.on('requestfailed', (request) => {
+    page.on('requestfailed', async (request) => {
       const url = new URL(request.url())
       const errorText = request.failure()?.errorText ?? 'unknown'
-      if (tracker.isIgnorable(request, errorText)) return
+      if (await tracker.isIgnorable(request, errorText)) return
       if (url.hostname === '127.0.0.1' && !/ABORTED/i.test(errorText)) {
         errors.push(`requestfailed: ${url.pathname} (${errorText})`)
       }
