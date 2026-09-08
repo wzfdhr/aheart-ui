@@ -162,6 +162,37 @@ test('D5-B outside close followed by immediate reopen keeps the new popup alive'
   expect(errors).toEqual([])
 })
 
+test('D5-B 430px transition degrades right fixed while keeping Role filter reachable', async ({ page }) => {
+  const errors = pageErrors(page)
+  await page.goto('/components/table')
+  await page.setViewportSize({ width: 430, height: 844 })
+  const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  await waitForTableLayout(demo)
+  const container = demo.locator('.aheart-table__container')
+  const table = demo.locator('table')
+  const trigger = demo.locator('button[aria-haspopup="dialog"]').nth(1)
+  await container.evaluate(element => { element.scrollLeft = element.scrollWidth })
+  const boundary = await demo.locator('thead th').nth(2).boundingBox()
+  const triggerBox = await trigger.boundingBox()
+  const containerBox = await container.boundingBox()
+  const rightHeader = await demo.locator('thead th').nth(4).evaluate(element => getComputedStyle(element).right)
+  expect(boundary).not.toBeNull()
+  expect(triggerBox).not.toBeNull()
+  expect(containerBox).not.toBeNull()
+  expect(rightHeader).toBe('auto')
+  if (!boundary || !triggerBox || !containerBox) return
+  expect(triggerBox.x - (boundary.x + boundary.width)).toBeGreaterThanOrEqual(8)
+  expect(triggerBox.x + triggerBox.width).toBeLessThanOrEqual(containerBox.x + containerBox.width + 1)
+  const hitInside = await trigger.evaluate((element, point) => {
+    const hit = element.ownerDocument.elementFromPoint(point.x, point.y)
+    return hit === element || Boolean(hit && element.contains(hit))
+  }, { x: triggerBox.x + triggerBox.width / 2, y: triggerBox.y + triggerBox.height / 2 })
+  expect(hitInside).toBe(true)
+  await trigger.click()
+  await expect(page.locator('[data-table-filter-popup]')).toBeVisible()
+  expect(errors).toEqual([])
+})
+
 test('D5-B fixed columns, utility offsets, sticky header, y scroll, and narrow x scroll', async ({ page }) => {
   const errors = pageErrors(page)
   await page.goto('/components/table')
