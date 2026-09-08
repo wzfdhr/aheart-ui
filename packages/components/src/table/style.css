@@ -73,6 +73,11 @@
   margin-left: 0;
 }
 
+.aheart-table[data-table-right-downgraded] td[data-fixed="right"] {
+  padding-left: 0;
+  text-align: right;
+}
+
 .aheart-table[data-table-right-downgraded] th[data-fixed="right"] .aheart-table__title,
 .aheart-table[data-table-right-downgraded] th[data-fixed="right"] .aheart-table__sorter {
   text-align: right;
