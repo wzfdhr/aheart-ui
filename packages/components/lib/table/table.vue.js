@@ -578,14 +578,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           }
         };
         if (reason === "outside") {
-          const ownerWindow = dismissalTrigger == null ? void 0 : dismissalTrigger.ownerDocument.defaultView;
           const closeOutside = () => {
             if (popupGeneration !== dismissalGeneration || activeFilterKey.value !== dismissalKey || filterTriggerElement.value !== dismissalTrigger || !popupOpen.value)
               return;
             dismiss();
           };
-          if (ownerWindow == null ? void 0 : ownerWindow.setTimeout)
-            ownerWindow.setTimeout(closeOutside, 32);
+          closeOutside();
         } else
           dismiss();
       },

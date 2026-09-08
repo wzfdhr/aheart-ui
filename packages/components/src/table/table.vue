@@ -751,12 +751,11 @@ useFloatingDismiss({
       }
     }
     if (reason === 'outside') {
-      const ownerWindow = dismissalTrigger?.ownerDocument.defaultView
       const closeOutside = () => {
         if (popupGeneration !== dismissalGeneration || activeFilterKey.value !== dismissalKey || filterTriggerElement.value !== dismissalTrigger || !popupOpen.value) return
         dismiss()
       }
-      if (ownerWindow?.setTimeout) ownerWindow.setTimeout(closeOutside, 32)
+      closeOutside()
     }
     else dismiss()
   },
