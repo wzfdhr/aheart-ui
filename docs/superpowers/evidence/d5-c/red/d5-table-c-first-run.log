@@ -1,0 +1,278 @@
+
+[WebServer] (node:47472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:47483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:47497) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:48259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:48271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+
+(node:48284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop] › e2e/d5-table-c.spec.ts:21:5 › D5-C native table exposes logical aria count and a small default DOM window
+  1) [desktop] › e2e/d5-table-c.spec.ts:21:5 › D5-C native table exposes logical aria count and a small default DOM window 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'D5-C 10k 本地虚拟表格' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('region', { name: 'D5-C 10k 本地虚拟表格' })
+
+
+      15 |   await page.goto('/components/table')
+      16 |   const region = page.getByRole('region', { name })
+    > 17 |   await expect(region).toBeVisible()
+         |                        ^
+      18 |   return region
+      19 | }
+      20 |
+        at openWorkbench (/Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:17:24)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:23:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-native-tab-1cfb2--a-small-default-DOM-window-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-native-tab-1cfb2--a-small-default-DOM-window-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/d5-table-c-D5-C-native-tab-1cfb2--a-small-default-DOM-window-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-native-tab-1cfb2--a-small-default-DOM-window-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/d5-table-c-D5-C-native-tab-1cfb2--a-small-default-DOM-window-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:48306) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[2/5] [desktop] › e2e/d5-table-c.spec.ts:34:5 › D5-C server current-page data virtualizes after pagination without a second slice
+  2) [desktop] › e2e/d5-table-c.spec.ts:34:5 › D5-C server current-page data virtualizes after pagination without a second slice 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'D5-C 服务端分页虚拟表格' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('region', { name: 'D5-C 服务端分页虚拟表格' })
+
+
+      15 |   await page.goto('/components/table')
+      16 |   const region = page.getByRole('region', { name })
+    > 17 |   await expect(region).toBeVisible()
+         |                        ^
+      18 |   return region
+      19 | }
+      20 |
+        at openWorkbench (/Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:17:24)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:36:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-server-cur-5658f-tion-without-a-second-slice-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-server-cur-5658f-tion-without-a-second-slice-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/d5-table-c-D5-C-server-cur-5658f-tion-without-a-second-slice-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-server-cur-5658f-tion-without-a-second-slice-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/d5-table-c-D5-C-server-cur-5658f-tion-without-a-second-slice-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:48312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[3/5] [desktop] › e2e/d5-table-c.spec.ts:46:5 › D5-C preserves fixed columns, selection, expanded companion rows, and focus pinning
+  3) [desktop] › e2e/d5-table-c.spec.ts:46:5 › D5-C preserves fixed columns, selection, expanded companion rows, and focus pinning 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'D5-C 固定列展开选择组合' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('region', { name: 'D5-C 固定列展开选择组合' })
+
+
+      15 |   await page.goto('/components/table')
+      16 |   const region = page.getByRole('region', { name })
+    > 17 |   await expect(region).toBeVisible()
+         |                        ^
+      18 |   return region
+      19 | }
+      20 |
+        at openWorkbench (/Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:17:24)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:48:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-preserves--7409a-nion-rows-and-focus-pinning-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-preserves--7409a-nion-rows-and-focus-pinning-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/d5-table-c-D5-C-preserves--7409a-nion-rows-and-focus-pinning-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-preserves--7409a-nion-rows-and-focus-pinning-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/d5-table-c-D5-C-preserves--7409a-nion-rows-and-focus-pinning-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:48324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[4/5] [desktop] › e2e/d5-table-c.spec.ts:60:5 › D5-C warns and falls back to full DOM for unsupported rowspan and invalid row keys
+  4) [desktop] › e2e/d5-table-c.spec.ts:60:5 › D5-C warns and falls back to full DOM for unsupported rowspan and invalid row keys 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'D5-C 兼容性回退' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('region', { name: 'D5-C 兼容性回退' })
+
+
+      15 |   await page.goto('/components/table')
+      16 |   const region = page.getByRole('region', { name })
+    > 17 |   await expect(region).toBeVisible()
+         |                        ^
+      18 |   return region
+      19 | }
+      20 |
+        at openWorkbench (/Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:17:24)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:63:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-warns-and--00ede-owspan-and-invalid-row-keys-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-warns-and--00ede-owspan-and-invalid-row-keys-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/d5-table-c-D5-C-warns-and--00ede-owspan-and-invalid-row-keys-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-warns-and--00ede-owspan-and-invalid-row-keys-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/d5-table-c-D5-C-warns-and--00ede-owspan-and-invalid-row-keys-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:48345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[5/5] [desktop] › e2e/d5-table-c.spec.ts:69:5 › D5-C SSR hydration, iframe ownerDocument, mobile and zoom stay error free
+  5) [desktop] › e2e/d5-table-c.spec.ts:69:5 › D5-C SSR hydration, iframe ownerDocument, mobile and zoom stay error free 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'D5-C SSR 与嵌入式容器' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('region', { name: 'D5-C SSR 与嵌入式容器' })
+
+
+      15 |   await page.goto('/components/table')
+      16 |   const region = page.getByRole('region', { name })
+    > 17 |   await expect(region).toBeVisible()
+         |                        ^
+      18 |   return region
+      19 | }
+      20 |
+        at openWorkbench (/Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:17:24)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-c.spec.ts:71:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-SSR-hydrat-45a33-le-and-zoom-stay-error-free-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-SSR-hydrat-45a33-le-and-zoom-stay-error-free-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/d5-table-c-D5-C-SSR-hydrat-45a33-le-and-zoom-stay-error-free-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/d5-table-c-D5-C-SSR-hydrat-45a33-le-and-zoom-stay-error-free-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/d5-table-c-D5-C-SSR-hydrat-45a33-le-and-zoom-stay-error-free-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  5 failed
+    [desktop] › e2e/d5-table-c.spec.ts:21:5 › D5-C native table exposes logical aria count and a small default DOM window 
+    [desktop] › e2e/d5-table-c.spec.ts:34:5 › D5-C server current-page data virtualizes after pagination without a second slice 
+    [desktop] › e2e/d5-table-c.spec.ts:46:5 › D5-C preserves fixed columns, selection, expanded companion rows, and focus pinning 
+    [desktop] › e2e/d5-table-c.spec.ts:60:5 › D5-C warns and falls back to full DOM for unsupported rowspan and invalid row keys 
+    [desktop] › e2e/d5-table-c.spec.ts:69:5 › D5-C SSR hydration, iframe ownerDocument, mobile and zoom stay error free 

@@ -485,6 +485,14 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 `pageSize`被拒绝时，选择器和页码回到父层值；接受后Table与独立Pagination使用同一整数归一化边界。`loading`的交互策略本批保持原行为，`disabled`仍禁用用户操作。
 
+## D5-C 虚拟表格运行工作台（RED 契约）
+
+D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列、展开伴随行和选择组合。入口必须提供以下五个可审计区域：`D5-C 10k 本地虚拟表格`、`D5-C 服务端分页虚拟表格`、`D5-C 固定列展开选择组合`、`D5-C 兼容性回退`、`D5-C SSR 与嵌入式容器`。它们由 `e2e/d5-table-c.spec.ts` 驱动，移动视口、125% zoom、iframe ownerDocument 和 SSR hydration 也必须无控制台错误。
+
+虚拟配置的冻结默认值为：`height` 优先于 `scroll.y`，没有显式高度时仅接受 `scroll.y > 320`；估算行高为 `small=40`、`middle=48`、`large=56`；`overscan=4`。冲突配置必须在开发环境告警。每个虚拟表必须公开逻辑 `aria-rowcount`、上下 spacer row，并将展开基础行与 companion row 作为两个逻辑 item。`rowspan`、非法或重复 `rowKey` 必须告警并回退 full DOM。
+
+消费者与性能入口位于 `docs/superpowers/experiments/d5-c-consumer/` 和 `scripts/d5-table-c-perf.mjs`。性能脚本只接受真实构建消费者 URL，不会把缺失测量伪报为通过；目标门禁为 10k 首次虚拟化 ≤500ms、相对 full-DOM 中位数 ≤50%、long task ≤100ms、CLS ≤0.1，以及相对 D5-A gzip 增量 ≤12KB。
+
 新用法请明确填写`dataMode='local'`或`'server'`。省略时保留历史兼容：始终本地排序/筛选，存在`pagination.total`时不再切片；不要将该混合路径视为推荐的服务端模式。
 
 ## D5-B 筛选、布局与韧性状态

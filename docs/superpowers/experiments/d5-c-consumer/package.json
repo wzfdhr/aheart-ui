@@ -1,0 +1,8 @@
+{
+  "name": "aheart-d5-c-consumer",
+  "private": true,
+  "type": "module",
+  "scripts": { "perf": "node ../../../../scripts/d5-table-c-perf.mjs" },
+  "dependencies": { "aheart-ui": "file:./aheart-ui.tgz", "@vue/server-renderer": "^3.5.0", "vue": "^3.5.0" },
+  "devDependencies": { "@playwright/test": "^1.61.1" }
+}

@@ -1,0 +1,46 @@
+
+[WebServer] (node:49264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:49275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:49289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:50053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:50064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+
+(node:50080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/7] [desktop] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[2/7] [desktop] › e2e/d5-table-b.spec.ts:138:5 › D5-B outside close followed by immediate reopen keeps the new popup alive
+[3/7] [desktop] › e2e/d5-table-b.spec.ts:160:5 › D5-B fixed columns, utility offsets, sticky header, y scroll, and narrow x scroll
+[4/7] [desktop] › e2e/d5-table-b.spec.ts:190:5 › D5-B loading keeps old rows and locks actions, error only retries, and empty is visible
+[5/7] [desktop] › e2e/d5-table-b.spec.ts:246:5 › D5-B review geometry, natural-width freeze, external sticky scroll, popup anchoring, and iframe outside boundary
+[6/7] [desktop] › e2e/d5-table-b.spec.ts:348:5 › D5-B utility columns use measured widths for fixed offsets
+[7/7] [desktop] › e2e/d5-table-b.spec.ts:369:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table
+  7 passed (18.5s)
+
+exit=0
