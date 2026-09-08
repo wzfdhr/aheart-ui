@@ -140,6 +140,7 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
   expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[1].x + geometry[1].width - 2)
   expect(geometry[4].right).toBe('0px')
 
+  await expect(table).toHaveAttribute('data-table-layout-ready', 'true')
   const beforeColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
   await demo.getByRole('button', { name: '切换长内容' }).click()
   const afterLongColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
