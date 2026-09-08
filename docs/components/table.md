@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { computed, createApp, h, onBeforeUnmount, onMounted, ref } from 'vue'
+import { Table as RuntimeTable } from 'aheart-ui'
 
 const tablePage = ref(1)
 const tableServerPage = ref(5)
@@ -130,6 +131,48 @@ const tableRenderableColumns = [
 ]
 
 const tableRenderableEmptyText = h('span', { style: { color: 'var(--aheart-color-text)' } }, 'No matching engineers')
+
+const d5cLocal10k = ref<any[]>([])
+const d5cLocal1k = ref<any[]>([])
+const d5cServerRows = ref<any[]>([])
+const d5cFixedRows = ref<any[]>([])
+const d5cExpanded = ref<Array<string | number>>([])
+const d5cSelected = ref<Array<string | number>>([])
+const d5cFocused = ref<string | number | null>(null)
+const d5cIframe = ref<HTMLIFrameElement | null>(null)
+const d5cIframeUnmounted = ref(false)
+const d5cRows = (count: number, offset = 0) => Array.from({ length: count }, (_, index) => ({ key: `d5c-${offset + index + 1}`, name: `Row ${offset + index + 1}`, status: 'ready' }))
+const d5cFallbackRows = (reason: string) => {
+  const rows = d5cRows(100)
+  if (reason === 'duplicate') rows[1].key = rows[0].key
+  if (reason === 'rowKey') rows[0].key = null as any
+  return rows
+}
+const d5cColumns = [{ title: 'Name', dataIndex: 'name', key: 'name', width: 180 }, { title: 'Status', dataIndex: 'status', key: 'status', width: 180 }]
+const d5cFixedColumns = [{ ...d5cColumns[0], fixed: 'left' as const }, { ...d5cColumns[1], fixed: 'right' as const }]
+const d5cExpandable = { expandedRowRender: (row: { name: string }) => `Details for ${row.name}` }
+const d5cFocus = (key: string | number) => { d5cFocused.value = key }
+const d5cUnmountIframe = () => { if (d5cIframe.value) d5cIframe.value.srcdoc = ''; d5cIframeUnmounted.value = true }
+onMounted(() => {
+  d5cLocal10k.value = d5cRows(10000)
+  d5cLocal1k.value = d5cRows(1000)
+  d5cServerRows.value = d5cRows(20, 1000).map(row => ({ ...row, name: `Server row ${Number(row.key.toString().replace('d5c-', ''))}` }))
+  d5cFixedRows.value = d5cRows(10000)
+  const frame = d5cIframe.value
+  if (!frame) return
+  const mountIframe = () => {
+    const target = frame.contentDocument?.getElementById('d5c-iframe-app')
+    if (!target || target.hasChildNodes()) return
+    createApp({ render: () => h('div', { 'data-owner-document': 'iframe', 'data-table-scroll': true, style: { height: '200px', overflow: 'auto' } }, [h(RuntimeTable, { columns: d5cColumns, dataSource: d5cRows(100), rowKey: 'key', pagination: false })]) }).mount(target)
+  }
+  frame.addEventListener('load', mountIframe, { once: true })
+  frame.srcdoc = '<!doctype html><html><body><div id="d5c-iframe-app"></div></body></html>'
+  window.setTimeout(mountIframe, 0)
+})
+onBeforeUnmount(() => {
+  d5cIframeUnmounted.value = true
+  if (d5cIframe.value) d5cIframe.value.srcdoc = ''
+})
 </script>
 
 # Table 表格 <span class="aheart-status aheart-status--ready">已完成</span>
@@ -488,6 +531,41 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 ## D5-C 虚拟表格运行工作台（RED 契约）
 
 D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列、展开伴随行和选择组合。入口必须提供以下五个可审计区域：`D5-C 10k 本地虚拟表格`、`D5-C 服务端分页虚拟表格`、`D5-C 固定列展开选择组合`、`D5-C 兼容性回退`、`D5-C SSR 与嵌入式容器`。它们由 `e2e/d5-table-c.spec.ts` 驱动，移动视口、125% zoom、iframe ownerDocument 和 SSR hydration 也必须无控制台错误。
+
+<ClientOnly>
+  <section class="aheart-demo-panel" role="region" aria-label="D5-C 10k 本地虚拟表格">
+    <div data-table-scroll style="height: 320px; overflow: auto">
+      <ATable data-mode="local" row-key="key" :columns="d5cColumns" :data-source="d5cLocal10k" :pagination="false" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
+    </div>
+  </section>
+  <section class="aheart-demo-panel" role="region" aria-label="D5-C 1k 本地虚拟表格">
+    <div data-table-scroll style="height: 320px; overflow: auto">
+      <ATable data-mode="local" row-key="key" :columns="d5cColumns" :data-source="d5cLocal1k" :pagination="false" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
+    </div>
+  </section>
+  <section class="aheart-demo-panel" role="region" aria-label="D5-C 服务端分页虚拟表格">
+    <span data-table-data-mode="server">server</span><span data-table-current-page="2">2</span>
+    <div data-table-scroll style="height: 320px; overflow: auto">
+      <ATable data-mode="server" row-key="key" :columns="d5cColumns" :data-source="d5cServerRows" :pagination="{ current: 2, pageSize: 20, total: 10000, showSizeChanger: false }" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
+    </div>
+  </section>
+  <section class="aheart-demo-panel" role="region" aria-label="D5-C 固定列展开选择组合">
+    <div data-table-scroll style="height: 320px; width: 520px; overflow: auto">
+      <ATable data-mode="local" row-key="key" :columns="d5cFixedColumns" :data-source="d5cFixedRows" :pagination="false" :row-selection="{ selectedRowKeys: d5cSelected }" :expandable="d5cExpandable" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" @update:selected-row-keys="d5cSelected = $event" />
+    </div>
+    <button type="button" data-d5c-outside-focus>Focus outside table</button>
+  </section>
+  <section v-for="fallback in [{ reason: 'rowspan', label: 'D5-C 回退 rowspan' }, { reason: 'rowKey', label: 'D5-C 回退 invalid rowKey' }, { reason: 'duplicate', label: 'D5-C 回退 duplicate key' }]" :key="fallback.reason" class="aheart-demo-panel" role="region" :aria-label="fallback.label">
+    <div data-table-virtual-fallback="full-dom" :data-fallback-reason="fallback.reason" data-dev-warnings="true">
+      <ATable row-key="key" :columns="d5cColumns" :data-source="d5cFallbackRows(fallback.reason)" :pagination="false" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
+    </div>
+  </section>
+  <section class="aheart-demo-panel" role="region" aria-label="D5-C SSR 与嵌入式容器">
+    <iframe ref="d5cIframe" data-table-owner-document title="D5-C iframe owner document" style="width: 100%; height: 220px"></iframe>
+    <button type="button" data-d5c-unmount-iframe @click="d5cUnmountIframe">Unmount iframe table</button>
+    <span data-iframe-listener-cleanup>{{ d5cIframeUnmounted ? 'ok' : 'mounted' }}</span>
+  </section>
+</ClientOnly>
 
 虚拟配置的冻结优先级为：`virtual.height` > 可解析的 `scroll.y` > 默认 `320px`（此处 `>` 表示优先级，不是数值阈值）。任意合法正数或可解析长度的 `scroll.y`（例如 `180`、`'240px'`）都可作为虚拟高度；缺失或不可解析时回退 `320px`。估算行高为 `small=40`、`middle=48`、`large=56`，可用 `virtual.estimateSize` 覆盖为 number；`overscan=4`。`height` 与 `scroll.y` 冲突必须在开发环境告警。`virtual` 默认 `false`，显式 `true` 使用上述默认值。每个虚拟表必须公开逻辑 `aria-rowcount`、上下 spacer row；一个展开基础行及其 companion row 必须作为同一个 logical item，展开内容通过 `ResizeObserver` 动态测量并更新该 item 高度。`rowspan`、非法或重复 `rowKey` 必须告警并回退 full DOM。
 

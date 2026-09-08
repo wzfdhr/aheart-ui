@@ -1,0 +1,20 @@
+D5-C runtime fixture RED evidence
+Date: 2026-09-08
+
+Completed desktop run after adding real D5-C regions:
+- docs build: PASS
+- Playwright desktop D5-C: exit 1, 5 failed, 3 passed
+- Passed baseline fallback cases: rowspan, invalid rowKey, duplicate-key (full-DOM
+  fallback wrapper contains 100 real ATable rows; these are not virtual passes).
+- Expected RED at current Table implementation:
+  - 10k and 1k native tables have no aria-rowcount and no data-table-row window
+  - server current-page virtual rows are not exposed with the virtual row marker
+  - fixed header cells do not expose fixed-column marker/sticky contract
+  - iframe mount/owner-document interaction was not yet green in this run
+
+The preceding desktop capture in /tmp/d5c-fixture-red.log was 6 failed / 2
+passed because it predated removal of the SSR fake-marker assertion; it is
+retained only as historical comparison, not as final evidence.
+
+No production Table, generated es/lib, unit test, or unrelated docs changes
+were included in this fixture commit.
