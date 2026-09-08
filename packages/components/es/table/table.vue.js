@@ -189,7 +189,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         data.push({ id: "__selection", utility: "selection", width: "48px" });
       if (hasExpandable.value)
         data.push({ id: "__expand", utility: "expand", width: "48px" });
-      normalizedColumns.value.forEach((column) => data.push({ id: getColumnKey(column), source: column, width: pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === "string" ? column.width : void 0, fixed: column.fixed }));
+      normalizedColumns.value.forEach((column) => {
+        const id = getColumnKey(column);
+        const declaredWidth = pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === "string" ? column.width : void 0;
+        data.push({ id, source: column, width: widthSnapshot.value[id] ?? declaredWidth, fixed: column.fixed });
+      });
       const dataColumns = data.filter((item) => item.source);
       const leftCount = dataColumns.filter((item) => item.fixed === "left").length;
       const rightCount = dataColumns.filter((item) => item.fixed === "right").length;
@@ -580,9 +584,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         if (!closeRequestPending.value) {
           closeRequestPending.value = true;
           requestFilterOpen(column, false);
+          queueMicrotask(() => {
+            closeRequestPending.value = false;
+          });
         }
         return;
       }
+      if (column)
+        requestFilterOpen(column, false);
       activeFilterKey.value = null;
       filterDraft.value = [];
       closeRequestPending.value = false;
@@ -625,7 +634,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       if (event.key !== "Tab" || !filterPopupElement.value)
         return;
-      const controls = Array.from(filterPopupElement.value.querySelectorAll('input,button,select,textarea,[tabindex]:not([tabindex="-1"])'));
+      const controls = Array.from(filterPopupElement.value.querySelectorAll([
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "select:not([disabled])",
+        "textarea:not([disabled])",
+        "a[href]",
+        '[tabindex]:not([tabindex="-1"])'
+      ].join(","))).filter((element) => !element.matches("[hidden], [inert]") && !element.closest("[hidden], [inert]"));
       if (!controls.length)
         return;
       const current = filterPopupElement.value.ownerDocument.activeElement;
@@ -637,13 +653,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         var _a2;
         return (_a2 = controls[next]) == null ? void 0 : _a2.focus();
       });
-    };
-    const handleFilterDocumentKeydown = (event) => {
-      if (event.key !== "Tab" || !filterPopupElement.value || !activeFilterKey.value)
-        return;
-      if (!filterPopupElement.value.contains(event.target))
-        return;
-      handleFilterPopupKeydown(event);
     };
     let stickyResizeObserver;
     let stickyOwnerWindow;
@@ -674,7 +683,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const measureLayout = () => {
       var _a;
-      if (((_a = props.scroll) == null ? void 0 : _a.x) !== true || !tableRoot.value)
+      if (((_a = props.scroll) == null ? void 0 : _a.x) === void 0 || !tableRoot.value)
         return;
       const cells = Array.from(tableRoot.value.querySelectorAll("thead th"));
       const next = { ...widthSnapshot.value };
@@ -741,12 +750,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       Object.assign(element.style, style);
     }, { deep: true, immediate: true });
     onMounted(() => {
-      var _a, _b, _c;
+      var _a, _b;
       rootInteractionInert.value = !((_a = tableRoot.value) == null ? void 0 : _a.isConnected);
       if (activeFilterKey.value)
         filterTriggerElement.value = ((_b = tableRoot.value) == null ? void 0 : _b.querySelector(`[data-table-filter-trigger="${activeFilterKey.value}"]`)) ?? null;
-      const ownerDocument = (_c = tableRoot.value) == null ? void 0 : _c.ownerDocument;
-      ownerDocument == null ? void 0 : ownerDocument.addEventListener("keydown", handleFilterDocumentKeydown, true);
       void nextTick(() => {
         sanitizePopupMarker();
         measureLayout();
@@ -755,8 +762,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       });
     });
     onBeforeUnmount(() => {
-      var _a;
-      (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.removeEventListener("keydown", handleFilterDocumentKeydown, true);
       unbindStickyObservers();
     });
     const getAriaSort = (column) => {

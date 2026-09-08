@@ -154,10 +154,10 @@ function useFloatingPosition(options) {
       });
     }
     if (shouldAdjustOverflow && requestedPlacement === configuredPlacement) {
-      middleware.push(dom.flip({ padding: vue.toValue(options.viewportPadding) ?? 0 }));
+      middleware.push(dom.flip({ padding: vue.toValue(options.viewportPadding) ?? 8 }));
     }
     if (vue.toValue(options.shift) !== false) {
-      middleware.push(dom.shift({ padding: vue.toValue(options.viewportPadding) ?? 0 }));
+      middleware.push(dom.shift({ padding: vue.toValue(options.viewportPadding) ?? 8 }));
     }
     if (arrowElement) {
       middleware.push(dom.arrow({ element: arrowElement, padding: 4 }));

@@ -221,11 +221,11 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
     }
 
     if (shouldAdjustOverflow && requestedPlacement === configuredPlacement) {
-      middleware.push(flip({ padding: toValue(options.viewportPadding) ?? 0 }))
+      middleware.push(flip({ padding: toValue(options.viewportPadding) ?? 8 }))
     }
 
     if (toValue(options.shift) !== false) {
-      middleware.push(floatingShift({ padding: toValue(options.viewportPadding) ?? 0 }))
+      middleware.push(floatingShift({ padding: toValue(options.viewportPadding) ?? 8 }))
     }
 
     if (arrowElement) {

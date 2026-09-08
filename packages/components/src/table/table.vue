@@ -336,7 +336,11 @@ const layoutColumns = computed<LayoutColumn[]>(() => {
   const data: LayoutColumn[] = []
   if (hasSelection.value) data.push({ id: '__selection', utility: 'selection', width: '48px' })
   if (hasExpandable.value) data.push({ id: '__expand', utility: 'expand', width: '48px' })
-  normalizedColumns.value.forEach((column) => data.push({ id: getColumnKey(column), source: column, width: pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === 'string' ? column.width : undefined, fixed: column.fixed }))
+  normalizedColumns.value.forEach((column) => {
+    const id = getColumnKey(column)
+    const declaredWidth = pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === 'string' ? column.width : undefined
+    data.push({ id, source: column, width: widthSnapshot.value[id] ?? declaredWidth, fixed: column.fixed })
+  })
   const dataColumns = data.filter((item) => item.source)
   const leftCount = dataColumns.filter((item) => item.fixed === 'left').length
   const rightCount = dataColumns.filter((item) => item.fixed === 'right').length
@@ -748,9 +752,11 @@ const closeFilter = (restoreFocus = true) => {
     if (!closeRequestPending.value) {
       closeRequestPending.value = true
       requestFilterOpen(column, false)
+      queueMicrotask(() => { closeRequestPending.value = false })
     }
     return
   }
+  if (column) requestFilterOpen(column, false)
   activeFilterKey.value = null
   filterDraft.value = []
   closeRequestPending.value = false
@@ -782,7 +788,14 @@ const handleFilterPopupKeydown = (event: KeyboardEvent) => {
     return
   }
   if (event.key !== 'Tab' || !filterPopupElement.value) return
-  const controls = Array.from(filterPopupElement.value.querySelectorAll<HTMLElement>('input,button,select,textarea,[tabindex]:not([tabindex="-1"])'))
+  const controls = Array.from(filterPopupElement.value.querySelectorAll<HTMLElement>([
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'a[href]',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(','))).filter((element) => !element.matches('[hidden], [inert]') && !element.closest('[hidden], [inert]'))
   if (!controls.length) return
   const current = filterPopupElement.value.ownerDocument.activeElement
   const index = controls.indexOf(current as HTMLElement)
@@ -790,11 +803,6 @@ const handleFilterPopupKeydown = (event: KeyboardEvent) => {
   event.preventDefault()
   controls[next]?.focus()
   void nextTick(() => controls[next]?.focus())
-}
-const handleFilterDocumentKeydown = (event: KeyboardEvent) => {
-  if (event.key !== 'Tab' || !filterPopupElement.value || !activeFilterKey.value) return
-  if (!filterPopupElement.value.contains(event.target as Node)) return
-  handleFilterPopupKeydown(event)
 }
 let stickyResizeObserver: ResizeObserver | undefined
 let stickyOwnerWindow: Window | undefined
@@ -821,7 +829,7 @@ const scheduleStickyGeometry = () => {
   })
 }
 const measureLayout = () => {
-  if (props.scroll?.x !== true || !tableRoot.value) return
+  if (props.scroll?.x === undefined || !tableRoot.value) return
   const cells = Array.from(tableRoot.value.querySelectorAll<HTMLElement>('thead th'))
   const next = { ...widthSnapshot.value }
   cells.forEach((cell, index) => {
@@ -882,8 +890,6 @@ watch([popupStyle, filterPopupElement], ([style, element]) => {
 onMounted(() => {
   rootInteractionInert.value = !tableRoot.value?.isConnected
   if (activeFilterKey.value) filterTriggerElement.value = tableRoot.value?.querySelector<HTMLElement>(`[data-table-filter-trigger="${activeFilterKey.value}"]`) ?? null
-  const ownerDocument = tableRoot.value?.ownerDocument
-  ownerDocument?.addEventListener('keydown', handleFilterDocumentKeydown, true)
   void nextTick(() => {
     sanitizePopupMarker()
     measureLayout()
@@ -892,7 +898,6 @@ onMounted(() => {
   })
 })
 onBeforeUnmount(() => {
-  tableRoot.value?.ownerDocument.removeEventListener('keydown', handleFilterDocumentKeydown, true)
   unbindStickyObservers()
 })
 

@@ -152,10 +152,10 @@ function useFloatingPosition(options) {
       });
     }
     if (shouldAdjustOverflow && requestedPlacement === configuredPlacement) {
-      middleware.push(flip({ padding: toValue(options.viewportPadding) ?? 0 }));
+      middleware.push(flip({ padding: toValue(options.viewportPadding) ?? 8 }));
     }
     if (toValue(options.shift) !== false) {
-      middleware.push(shift({ padding: toValue(options.viewportPadding) ?? 0 }));
+      middleware.push(shift({ padding: toValue(options.viewportPadding) ?? 8 }));
     }
     if (arrowElement) {
       middleware.push(arrow({ element: arrowElement, padding: 4 }));
