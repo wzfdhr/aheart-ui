@@ -1,12 +1,12 @@
 {
   "status": "passed",
-  "measuredAt": "2026-09-08T17:02:35.906Z",
+  "measuredAt": "2026-09-08T18:14:35.696Z",
   "rounds": 5,
   "results": [
     {
       "mode": "full-dom",
       "round": 1,
-      "interactiveMs": 287.5,
+      "interactiveMs": 286.69999998807907,
       "logicalRows": 10000,
       "fullDomRows": 10000,
       "ariaRowCount": null,
@@ -20,7 +20,7 @@
     {
       "mode": "virtual",
       "round": 1,
-      "interactiveMs": 26.19999998807907,
+      "interactiveMs": 27.399999976158142,
       "logicalRows": 11,
       "fullDomRows": 13,
       "ariaRowCount": 10000,
@@ -29,7 +29,7 @@
       "cls": 0.0014698360741383744,
       "shiftEntries": [
         {
-          "startTime": 693.1000000238419,
+          "startTime": 695.3999999761581,
           "value": 0.0014698360741383744,
           "hadRecentInput": false,
           "scrollTop": 0,
@@ -109,7 +109,7 @@
     {
       "mode": "virtual",
       "round": 2,
-      "interactiveMs": 24.19999998807907,
+      "interactiveMs": 25.19999998807907,
       "logicalRows": 11,
       "fullDomRows": 13,
       "ariaRowCount": 10000,
@@ -118,7 +118,7 @@
       "cls": 0.0014698360741383744,
       "shiftEntries": [
         {
-          "startTime": 734.8999999761581,
+          "startTime": 740.7000000476837,
           "value": 0.0014698360741383744,
           "hadRecentInput": false,
           "scrollTop": 0,
@@ -198,7 +198,7 @@
     {
       "mode": "full-dom",
       "round": 2,
-      "interactiveMs": 263.4000000357628,
+      "interactiveMs": 308.0999999642372,
       "logicalRows": 10000,
       "fullDomRows": 10000,
       "ariaRowCount": null,
@@ -212,7 +212,7 @@
     {
       "mode": "full-dom",
       "round": 3,
-      "interactiveMs": 241.5,
+      "interactiveMs": 251.79999995231628,
       "logicalRows": 10000,
       "fullDomRows": 10000,
       "ariaRowCount": null,
@@ -226,7 +226,7 @@
     {
       "mode": "virtual",
       "round": 3,
-      "interactiveMs": 37.80000001192093,
+      "interactiveMs": 24.099999964237213,
       "logicalRows": 11,
       "fullDomRows": 13,
       "ariaRowCount": 10000,
@@ -235,7 +235,7 @@
       "cls": 0.0014698360741383744,
       "shiftEntries": [
         {
-          "startTime": 737.7999999523163,
+          "startTime": 699.1000000238419,
           "value": 0.0014698360741383744,
           "hadRecentInput": false,
           "scrollTop": 0,
@@ -315,7 +315,7 @@
     {
       "mode": "virtual",
       "round": 4,
-      "interactiveMs": 25.099999964237213,
+      "interactiveMs": 26.299999952316284,
       "logicalRows": 11,
       "fullDomRows": 13,
       "ariaRowCount": 10000,
@@ -324,7 +324,7 @@
       "cls": 0.0014698360741383744,
       "shiftEntries": [
         {
-          "startTime": 717,
+          "startTime": 712.8999999761581,
           "value": 0.0014698360741383744,
           "hadRecentInput": false,
           "scrollTop": 0,
@@ -404,7 +404,7 @@
     {
       "mode": "full-dom",
       "round": 4,
-      "interactiveMs": 254,
+      "interactiveMs": 268.5,
       "logicalRows": 10000,
       "fullDomRows": 10000,
       "ariaRowCount": null,
@@ -418,7 +418,7 @@
     {
       "mode": "full-dom",
       "round": 5,
-      "interactiveMs": 276.39999997615814,
+      "interactiveMs": 260.0999999642372,
       "logicalRows": 10000,
       "fullDomRows": 10000,
       "ariaRowCount": null,
@@ -432,7 +432,7 @@
     {
       "mode": "virtual",
       "round": 5,
-      "interactiveMs": 36.5,
+      "interactiveMs": 27.80000001192093,
       "logicalRows": 11,
       "fullDomRows": 13,
       "ariaRowCount": 10000,
@@ -441,7 +441,7 @@
       "cls": 0.0014698360741383744,
       "shiftEntries": [
         {
-          "startTime": 723.0999999642372,
+          "startTime": 681.5999999642372,
           "value": 0.0014698360741383744,
           "hadRecentInput": false,
           "scrollTop": 0,
@@ -521,7 +521,7 @@
   ],
   "summary": {
     "full-dom": {
-      "medianInteractiveMs": 263.4000000357628,
+      "medianInteractiveMs": 268.5,
       "medianLogicalRows": 10000,
       "medianFullDomRows": 10000,
       "maxLongTaskMs": 0,
@@ -535,7 +535,7 @@
       ]
     },
     "virtual": {
-      "medianInteractiveMs": 26.19999998807907,
+      "medianInteractiveMs": 26.299999952316284,
       "medianLogicalRows": 11,
       "medianFullDomRows": 13,
       "maxLongTaskMs": 0,
@@ -575,7 +575,7 @@
     },
     "candidate": {
       "file": "/Users/start/.codex/worktrees/091b/aheart-ui/packages/components/es/table/table.vue.js",
-      "sha256": "eb8a207c82fe0df1054794d679e6931a4d01030c70ef828d1fd70a67cd1340f0",
+      "sha256": "e1c6f6ed44de1d289bb7e3688eee9e29664b2b0aa7181859f9e63ccf5acd0b98",
       "rawBytes": 98672,
       "gzipBytes": 18773
     },
