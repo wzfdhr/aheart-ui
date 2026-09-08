@@ -489,7 +489,9 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列、展开伴随行和选择组合。入口必须提供以下五个可审计区域：`D5-C 10k 本地虚拟表格`、`D5-C 服务端分页虚拟表格`、`D5-C 固定列展开选择组合`、`D5-C 兼容性回退`、`D5-C SSR 与嵌入式容器`。它们由 `e2e/d5-table-c.spec.ts` 驱动，移动视口、125% zoom、iframe ownerDocument 和 SSR hydration 也必须无控制台错误。
 
-虚拟配置的冻结默认值为：`height` 优先于 `scroll.y`，没有显式高度时仅接受 `scroll.y > 320`；估算行高为 `small=40`、`middle=48`、`large=56`；`overscan=4`。冲突配置必须在开发环境告警。每个虚拟表必须公开逻辑 `aria-rowcount`、上下 spacer row，并将展开基础行与 companion row 作为两个逻辑 item。`rowspan`、非法或重复 `rowKey` 必须告警并回退 full DOM。
+虚拟配置的冻结默认值为：`virtual.height` 优先于 `scroll.y`；没有 `virtual.height` 时，解析后的 `scroll.y` 必须严格大于 `320` 才启用虚拟化，`scroll.y <= 320` 回退 full DOM。估算行高为 `small=40`、`middle=48`、`large=56`，可用 `virtual.estimateSize` 覆盖为 number；`overscan=4`。`height` 与 `scroll.y` 冲突必须在开发环境告警。`virtual` 默认 `false`，显式 `true` 使用上述默认值。每个虚拟表必须公开逻辑 `aria-rowcount`、上下 spacer row；一个展开基础行及其 companion row 必须作为同一个 logical item，展开内容通过 `ResizeObserver` 动态测量并更新该 item 高度。`rowspan`、非法或重复 `rowKey` 必须告警并回退 full DOM。
+
+虚拟化是 Table 的公开行为契约，不公开 TanStack 实例、`scrollToIndex` 或基于滚动阈值的 `auto` 模式；消费者只配置 `virtual`、`height`、`estimateSize` 与 `overscan`。
 
 消费者与性能入口位于 `docs/superpowers/experiments/d5-c-consumer/` 和 `scripts/d5-table-c-perf.mjs`。性能脚本只接受真实构建消费者 URL，不会把缺失测量伪报为通过；目标门禁为 10k 首次虚拟化 ≤500ms、相对 full-DOM 中位数 ≤50%、long task ≤100ms、CLS ≤0.1，以及相对 D5-A gzip 增量 ≤12KB。
 
@@ -595,6 +597,7 @@ D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列
 | rowSelection | 行选择配置 | `TableRowSelection` | - |
 | expandable | 展开行配置 | `TableExpandable` | - |
 | scroll | 横向/纵向滚动；`x: true` 冻结自然宽度 | `{ x?: true \| number \| string; y?: number \| string }` | - |
+| virtual | 是否启用虚拟化；对象模式可配置高度、估算行高和 overscan | `boolean \| { height?: number \| string; estimateSize?: number; overscan?: number }` | `false` |
 | sticky | 固定表头，支持表头偏移 | `boolean \| { offsetHeader?: number }` | `false` |
 | error | 错误状态及 retry 文案 | `boolean \| { message?: VNodeChild; retryText?: VNodeChild }` | `false` |
 | getPopupContainer | 返回筛选浮层容器；默认是触发器 owner body | `(triggerNode) => HTMLElement \| false` | - |
