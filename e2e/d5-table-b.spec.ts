@@ -53,6 +53,7 @@ test('D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlle
   const anchoredClick = page.locator('[data-table-filter-popup]')
   await anchoredTrigger.click()
   await expect(anchoredClick).toBeVisible()
+  await expect(anchoredClick).toHaveAccessibleName(/筛选|姓名/)
   const namedFilterInput = anchoredClick.getByRole('textbox', { name: '筛选姓名' })
   await expect(namedFilterInput).toHaveCount(1)
   const actionBoxes = await Promise.all([
@@ -178,6 +179,15 @@ test('D5-B loading keeps old rows and locks actions, error only retries, and emp
   await expect(demo.locator('p[role="status"]')).toContainText('自定义操作：0')
   await demo.getByRole('button', { name: '结束 loading' }).click()
 
+  const openStatePopup = await openFilter(page, demo)
+  await demo.getByRole('button', { name: '开始 loading' }).click()
+  await expect.poll(async () => {
+    if (await openStatePopup.count() === 0) return true
+    return await openStatePopup.locator('[data-d5b-filter-confirm]').isDisabled()
+  }).toBe(true)
+  await demo.getByRole('button', { name: '结束 loading' }).click()
+  await expect(openStatePopup).toBeVisible()
+
   await demo.getByRole('button', { name: '显示 error' }).click()
   await expect(demo.getByRole('alert')).toContainText('当前数据加载失败')
   await expect(demo.locator('tbody tr')).toHaveCount(rowCount)
@@ -198,6 +208,10 @@ test('D5-B loading keeps old rows and locks actions, error only retries, and emp
   expect(demo.locator('.aheart-table__empty')).toHaveCount(0)
   await expect(demo.locator('button[aria-haspopup="dialog"]').first()).toBeDisabled()
   await expect(demo.getByRole('button', { name: '重试数据请求' })).toBeVisible()
+  await expect.poll(async () => {
+    if (await openStatePopup.count() === 0) return true
+    return await openStatePopup.locator('[data-d5b-filter-confirm]').isDisabled()
+  }).toBe(true)
   await demo.getByRole('button', { name: '重试数据请求' }).click()
   await expect(demo.getByRole('alert')).toHaveCount(0)
   await expect(demo.locator('p[role="status"]')).toContainText('retry：1')
