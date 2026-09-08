@@ -1,6 +1,6 @@
 import { effectScope, nextTick, ref } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { autoUpdate, computePosition } from '@floating-ui/dom'
+import { autoUpdate, computePosition, flip, shift } from '@floating-ui/dom'
 import { useFloatingPosition } from '../use-floating-position'
 
 vi.mock('@floating-ui/dom', () => ({
@@ -14,6 +14,8 @@ vi.mock('@floating-ui/dom', () => ({
 
 const computePositionMock = vi.mocked(computePosition)
 const autoUpdateMock = vi.mocked(autoUpdate)
+const flipMock = vi.mocked(flip)
+const shiftMock = vi.mocked(shift)
 let originalWindowWidth = 0
 
 describe('useFloatingPosition owner-document realm', () => {
@@ -73,6 +75,23 @@ describe('useFloatingPosition owner-document realm', () => {
 
     expect(computePositionMock).toHaveBeenCalled()
     expect(computePositionMock.mock.calls.at(-1)?.[2]).toMatchObject({ placement: 'bottom-end' })
+    scope.stop()
+  })
+
+  it('keeps the legacy 8px viewport padding when viewportPadding is omitted', async () => {
+    const reference = ref(document.createElement('button'))
+    const floating = ref(document.createElement('div'))
+    computePositionMock.mockResolvedValue({ x: 0, y: 0, placement: 'bottom-start', strategy: 'absolute', middlewareData: {} })
+    autoUpdateMock.mockImplementation((_reference, _floating, update) => {
+      void update()
+      return vi.fn()
+    })
+    const scope = effectScope()
+    const result = scope.run(() => useFloatingPosition({ reference, floating, open: ref(true) }))!
+    await nextTick()
+    await result.update()
+    expect(flipMock).toHaveBeenCalledWith({ padding: 8 })
+    expect(shiftMock).toHaveBeenCalledWith({ padding: 8 })
     scope.stop()
   })
 })

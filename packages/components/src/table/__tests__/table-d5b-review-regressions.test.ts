@@ -2,7 +2,7 @@ import { defineComponent, h, nextTick, ref } from 'vue'
 import { createSSRApp } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Table from '../table.vue'
 import type { TableColumn, TableScroll } from '../types'
 
@@ -36,6 +36,10 @@ const filterDropdown = (context: any) => h(
 )
 
 describe('Table D5-B review regressions', () => {
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
   it('only the header is sticky: tbody cells must not receive the header top offset', () => {
     const wrapper = mount(Table, {
       props: {
@@ -126,6 +130,60 @@ describe('Table D5-B review regressions', () => {
     expect(closeRequests).toEqual([false])
     const retained = document.querySelector<HTMLInputElement>('[data-review-filter-input]')
     expect(retained?.value).toBe('Ada')
+    retained?.closest('[data-table-filter-popup]')?.querySelector<HTMLElement>('[data-review-close]')?.click()
+    await nextTick()
+    expect(closeRequests).toEqual([false, false])
+    open.value = false
+    await nextTick()
+    expect(closeRequests).toEqual([false, false])
+    wrapper.unmount()
+  })
+
+  it('emits one false close request for an uncontrolled Cancel', async () => {
+    const closeRequests: Array<[string, boolean]> = []
+    const wrapper = mount(Table, {
+      props: {
+        columns: [{ ...columns[0], filterDropdown, defaultFilterDropdownOpen: true }],
+        dataSource: rows,
+        onFilterDropdownOpenChange: (key: string, open: boolean) => closeRequests.push([key, open])
+      } as any
+    })
+    await nextTick()
+    const popup = document.querySelector<HTMLElement>('[data-table-filter-popup]')
+    expect(popup).not.toBeNull()
+    if (!popup) return
+    popup.querySelector<HTMLElement>('[data-review-close]')?.click()
+    await nextTick()
+    expect(closeRequests).toEqual([['name', false]])
+    wrapper.unmount()
+  })
+
+  it('tabs across enabled focusables, skips a disabled button, reverses with Shift, and is safe with none', async () => {
+    const render = (context: any) => h('div', [
+      h('input', { 'data-focus-first': 'true' }),
+      h('button', { type: 'button', disabled: true, 'data-focus-disabled': 'true' }, 'Disabled'),
+      h('a', { href: '#focus-link', 'data-focus-link': 'true' }, 'Link'),
+      h('button', { type: 'button', 'data-focus-close': 'true', onClick: context.close }, 'Close')
+    ])
+    const wrapper = mount(Table, {
+      props: { columns: [{ ...columns[0], filterDropdown: render, defaultFilterDropdownOpen: true }], dataSource: rows } as any
+    })
+    await nextTick()
+    const popup = document.querySelector<HTMLElement>('[data-table-filter-popup]')
+    expect(popup).not.toBeNull()
+    if (!popup) return
+    const first = popup.querySelector<HTMLElement>('[data-focus-first]')!
+    const link = popup.querySelector<HTMLElement>('[data-focus-link]')!
+    expect(first).not.toBeNull()
+    expect(link).not.toBeNull()
+    if (!first || !link) return
+    first.focus()
+    first.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }))
+    await nextTick()
+    expect(document.activeElement).toBe(link)
+    link.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }))
+    await nextTick()
+    expect(document.activeElement).toBe(first)
     wrapper.unmount()
   })
 
