@@ -89,7 +89,7 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
     if (requestedRightWidth > 0 && geometry.required > availableWidth) {
       await expect(rightFixed).toHaveCount(1)
       const leftBoundary = await demo.locator('th[data-fixed="left"], td[data-fixed="left"]').evaluateAll(cells => Math.max(...cells.map(cell => cell.getBoundingClientRect().right)))
-      const rightTitle = rightFixed.locator('.aheart-table__head-content')
+      const rightTitle = rightFixed.locator('.aheart-table__title')
       const rightBox = await rightTitle.boundingBox()
       const containerBox = await scroll.boundingBox()
       expect(rightBox).not.toBeNull()
@@ -107,7 +107,22 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   if (await expand.getAttribute('aria-expanded') !== 'true') await expand.click()
   await expect(demo.locator(`tr[data-table-row="${key}"]`)).toBeVisible()
   await expect(demo.locator(`tr[data-table-expanded-row="${key}"]`)).toBeVisible()
-  await expect(demo.locator(`tr[data-table-expanded-row="${key}"] td`)).toHaveAttribute('colspan', /[1-9]/)
+  const expandedCell = demo.locator(`tr[data-table-expanded-row="${key}"] td`)
+  await expect(expandedCell).toHaveAttribute('colspan', /[1-9]/)
+  const regularCell = demo.locator(`tr[data-table-row="${key}"] td`).first()
+  const expandedColors = await expandedCell.evaluate(element => {
+    const token = getComputedStyle(document.documentElement).getPropertyValue('--aheart-color-bg-hover').trim()
+    const probe = document.createElement('span')
+    probe.style.backgroundColor = token
+    document.body.append(probe)
+    const expected = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    return { actual: getComputedStyle(element).backgroundColor, expected, token }
+  })
+  const regularBackground = await regularCell.evaluate(element => getComputedStyle(element).backgroundColor)
+  expect(expandedColors.token).not.toBe('')
+  expect(expandedColors.actual).toBe(expandedColors.expected)
+  expect(expandedColors.actual).not.toBe(regularBackground)
   await demo.getByRole('button', { name: new RegExp(`Focus row ${key}$`) }).click()
   await expect(demo.locator(`tr[data-table-row="${key}"]`)).toHaveAttribute('data-focus-pinned', 'true')
   await expect.poll(() => demo.evaluate((root, expected) => document.activeElement?.closest('tr')?.getAttribute('data-table-row') === expected, key)).toBe(true)
