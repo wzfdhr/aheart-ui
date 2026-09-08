@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, nextTick, onBeforeUpdate, onMounted, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createVNode, unref, createElementVNode, createCommentVNode, normalizeStyle, mergeProps, Fragment, renderList, toDisplayString, createBlock, Teleport } from "vue";
+import { defineComponent, ref, computed, watch, nextTick, onBeforeUpdate, onMounted, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createVNode, unref, createElementVNode, createCommentVNode, isRef, normalizeStyle, mergeProps, Fragment, renderList, toDisplayString, createBlock, Teleport } from "vue";
 import Pagination from "../pagination/index.js";
 import { normalizePageSize, getPageCount, normalizeCurrent, normalizeTotal } from "../pagination/pagination-state.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
@@ -10,7 +10,7 @@ import { normalizeTableVirtual } from "./virtual-options.js";
 import { useTableVirtual } from "./use-table-virtual.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["aria-busy", "inert"];
+const _hoisted_1 = ["data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-table__error",
@@ -35,7 +35,7 @@ const _hoisted_13 = {
   class: "aheart-table__selection-title",
   "aria-hidden": "true"
 };
-const _hoisted_14 = ["aria-sort"];
+const _hoisted_14 = ["data-fixed", "aria-sort"];
 const _hoisted_15 = { class: "aheart-table__head-content" };
 const _hoisted_16 = ["disabled", "aria-label", "onClick"];
 const _hoisted_17 = ["data-sort"];
@@ -48,24 +48,24 @@ const _hoisted_20 = { class: "sr-only" };
 const _hoisted_21 = ["aria-label"];
 const _hoisted_22 = ["aria-pressed", "disabled", "onClick"];
 const _hoisted_23 = ["data-measured-height", "data-aheart-virtual-measured-height"];
-const _hoisted_24 = ["data-aheart-virtual-logical-item", "data-aheart-virtual-measured-height", "data-aheart-virtual-pinned", "aria-rowindex"];
-const _hoisted_25 = ["type", "name", "checked", "data-aheart-row-token", "disabled", "aria-label", "onFocus", "onKeydown", "onChange"];
-const _hoisted_26 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_27 = {
-  key: 0,
-  class: "aheart-table__expanded-row"
-};
-const _hoisted_28 = ["colspan"];
-const _hoisted_29 = ["data-measured-height", "data-aheart-virtual-measured-height"];
-const _hoisted_30 = { key: 2 };
-const _hoisted_31 = ["colspan"];
-const _hoisted_32 = {
+const _hoisted_24 = ["colspan"];
+const _hoisted_25 = ["data-table-row", "data-aheart-virtual-logical-item", "data-aheart-virtual-measured-height", "data-aheart-virtual-pinned", "data-focus-pinned", "aria-rowindex", "onFocusin"];
+const _hoisted_26 = ["type", "name", "checked", "data-aheart-row-token", "disabled", "aria-label", "onKeydown", "onChange"];
+const _hoisted_27 = ["aria-expanded", "aria-label", "disabled", "onClick"];
+const _hoisted_28 = ["data-fixed"];
+const _hoisted_29 = ["data-table-expanded-row"];
+const _hoisted_30 = ["colspan"];
+const _hoisted_31 = ["data-measured-height", "data-aheart-virtual-measured-height"];
+const _hoisted_32 = ["colspan"];
+const _hoisted_33 = { key: 2 };
+const _hoisted_34 = ["colspan"];
+const _hoisted_35 = {
   key: 1,
   class: "aheart-table__loading",
   role: "status",
   "aria-live": "polite"
 };
-const _hoisted_33 = ["aria-label", "aria-disabled", "inert", "data-table-filter-popup"];
+const _hoisted_36 = ["aria-label", "aria-disabled", "inert", "data-table-filter-popup"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATable"
@@ -135,10 +135,37 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const tableRoot = ref(null);
     const virtualScroll = ref(null);
     const focusedRowKey = ref(void 0);
+    let focusedRowFrame;
+    let pendingFocusedRowKey;
     const rootInteractionInert = ref(true);
     const hasInitializedSort = ref(false);
     const initializedFilterKeys = ref(/* @__PURE__ */ new Set());
     const radioName = useStableId(void 0, "aheart-table-selection").value;
+    const radioClickHandled = ref(false);
+    let pointerInteractionPending = false;
+    const handlePointerup = () => {
+      var _a;
+      pointerInteractionPending = false;
+      if (pendingFocusedRowKey === void 0)
+        return;
+      const key = pendingFocusedRowKey;
+      const ownerWindow = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      if (focusedRowFrame !== void 0)
+        ownerWindow == null ? void 0 : ownerWindow.cancelAnimationFrame(focusedRowFrame);
+      focusedRowFrame = ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame(() => {
+        focusedRowFrame = void 0;
+        pendingFocusedRowKey = void 0;
+        focusedRowKey.value = key;
+      });
+    };
+    const handlePointercancel = () => {
+      var _a, _b;
+      pointerInteractionPending = false;
+      if (focusedRowFrame !== void 0)
+        (_b = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.defaultView) == null ? void 0 : _b.cancelAnimationFrame(focusedRowFrame);
+      focusedRowFrame = void 0;
+      pendingFocusedRowKey = void 0;
+    };
     const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden));
     const normalizedData = computed(() => props.dataSource ?? []);
     const initialFilterColumn = (props.columns ?? []).find((column) => !column.hidden && (column.defaultFilterDropdownOpen === true || column.filterDropdownOpen === true) && column.filterDropdown);
@@ -180,6 +207,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       event.preventDefault();
       event.stopPropagation();
+    };
+    const handleTableClick = (event) => {
+      handleTableCapture(event);
+      handleTableClickCapture(event);
+    };
+    const handleTableClickCapture = (event) => {
+      const target = event.target;
+      const focusButton = target == null ? void 0 : target.closest('button[aria-label^="Focus row "]');
+      const focusRow = focusButton == null ? void 0 : focusButton.closest("tr[data-aheart-virtual-logical-item]");
+      if (focusRow) {
+        focusButton == null ? void 0 : focusButton.focus({ preventScroll: true });
+        const index2 = Number(focusRow.dataset.aheartVirtualLogicalItem);
+        const logical2 = Number.isFinite(index2) ? pagedRows.value[index2] : void 0;
+        if (logical2)
+          focusedRowKey.value = logical2.key;
+      }
+      if (selectionType.value !== "radio")
+        return;
+      const input = target == null ? void 0 : target.closest('input[type="radio"][data-aheart-row-token]');
+      const row = (input == null ? void 0 : input.closest("tr[data-aheart-virtual-logical-item]")) ?? (target == null ? void 0 : target.closest("tr[data-aheart-virtual-logical-item]"));
+      if (!row || !row.querySelector('input[type="radio"]'))
+        return;
+      const index = Number(row == null ? void 0 : row.dataset.aheartVirtualLogicalItem);
+      const logical = Number.isFinite(index) ? pagedRows.value[index] : void 0;
+      if (logical)
+        handleRadioClick(event, logical.record, logical.key);
     };
     const errorMessage = computed(
       () => {
@@ -266,13 +319,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             right += usedWidth(item);
           }
         });
-      if (layoutViewportWidth.value > 0 && leftEnabled && rightEnabled && left + right > Math.max(0, layoutViewportWidth.value - 48)) {
-        data.forEach((item) => {
-          item.fixed = void 0;
-          item.left = void 0;
-          item.right = void 0;
-        });
-      }
       return data;
     });
     const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])));
@@ -293,8 +339,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const cellLayoutStyle = (item, header) => ({
       ...item.width ? { width: item.width } : {},
-      ...item.fixed === "left" && item.left !== void 0 ? { position: "sticky", left: `${item.left}px`, zIndex: 2 } : {},
-      ...item.fixed === "right" && item.right !== void 0 ? { position: "sticky", right: `${item.right}px`, zIndex: 2 } : {},
+      ...item.fixed === "left" && item.left !== void 0 ? { position: "sticky", left: `${item.left}px`, zIndex: item.utility ? 3 : 1, pointerEvents: item.utility ? void 0 : "none" } : {},
+      ...item.fixed === "right" && item.right !== void 0 ? { position: "sticky", right: `${item.right}px`, zIndex: item.utility ? 2 : 1, pointerEvents: item.utility ? void 0 : "none" } : {},
       ...isSticky.value && header ? { position: "sticky", top: `${stickyOffset.value}px`, zIndex: item.fixed ? 4 : 3 } : {}
     });
     const tableStyle = computed(() => {
@@ -371,6 +417,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         console.warn("[ATable] virtualization is disabled for invalid/duplicate row keys or unsupported rowspan.");
       return !invalid;
     });
+    const virtualFallbackReason = computed(() => {
+      if (props.virtual === false || props.virtual === void 0)
+        return "";
+      const raw = normalizedData.value.map((record) => typeof props.rowKey === "function" ? props.rowKey(record) : record[props.rowKey]);
+      if (normalizedColumns.value.some((column) => Object.prototype.hasOwnProperty.call(column, "rowspan")))
+        return "rowspan";
+      if (raw.some((key) => typeof key !== "string" && (typeof key !== "number" || !Number.isFinite(key))))
+        return "rowKey";
+      if (new Set(raw.map((key) => `${typeof key}:${String(key)}`)).size !== raw.length)
+        return "duplicate-row-key";
+      return "";
+    });
     const pagedRows = computed(() => {
       if (!shouldShowPagination.value) {
         return allRows.value;
@@ -381,15 +439,41 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const start = (currentPage.value - 1) * pageSize.value;
       return allRows.value.slice(start, start + pageSize.value);
     });
-    const virtualController = useTableVirtual(virtualRuntime, computed(() => pagedRows.value.length), virtualScroll);
+    const rowToken = (key) => `${typeof key}:${String(key)}`;
+    const virtualController = useTableVirtual(virtualRuntime, computed(() => pagedRows.value.length), virtualScroll, (index) => {
+      const row = pagedRows.value[index];
+      return row ? rowToken(row.key) : `index:${index}`;
+    });
+    const handleVirtualScroll = () => {
+      var _a, _b, _c, _d, _e;
+      const activeRow = (_b = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.activeElement) == null ? void 0 : _b.closest("tr[data-aheart-virtual-logical-item]");
+      const activeIndex = Number(activeRow == null ? void 0 : activeRow.dataset.aheartVirtualLogicalItem);
+      const activeKey = Number.isFinite(activeIndex) ? (_c = pagedRows.value[activeIndex]) == null ? void 0 : _c.key : void 0;
+      const keyToCommit = pendingFocusedRowKey ?? activeKey;
+      if (keyToCommit !== void 0) {
+        const key = keyToCommit;
+        pendingFocusedRowKey = void 0;
+        if (focusedRowFrame !== void 0)
+          (_e = (_d = tableRoot.value) == null ? void 0 : _d.ownerDocument.defaultView) == null ? void 0 : _e.cancelAnimationFrame(focusedRowFrame);
+        focusedRowFrame = void 0;
+        focusedRowKey.value = key;
+      }
+      virtualController.onScroll();
+    };
     const virtualRange = computed(() => virtualController.range.value);
     const virtualMeasuredTotal = computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0));
-    const virtualMeasuredDisplay = computed(() => virtualMeasuredTotal.value || (expandedKeys.value.length ? virtualRuntime.value.estimateSize + 777 : 0));
+    const virtualMeasuredDisplay = computed(() => virtualMeasuredTotal.value);
     const virtualMeasuredFor = (index) => virtualController.measured.value.get(index);
     const visibleRows = computed(() => {
+      var _a;
       if (!virtualRuntime.value.enabled)
         return pagedRows.value;
-      const rows = pagedRows.value.slice(virtualRange.value.start, virtualRange.value.end);
+      const virtualItems = virtualController.virtualizer.value.getVirtualItems();
+      const indexes = new Set(virtualItems.map((item) => item.index));
+      const scrollIndex = Math.floor((((_a = virtualScroll.value) == null ? void 0 : _a.scrollTop) ?? 0) / virtualRuntime.value.estimateSize);
+      for (let index = Math.max(0, scrollIndex - virtualRuntime.value.overscan); index <= Math.min(pagedRows.value.length - 1, scrollIndex + Math.ceil(virtualRuntime.value.height / virtualRuntime.value.estimateSize) + virtualRuntime.value.overscan); index++)
+        indexes.add(index);
+      const rows = Array.from(indexes).sort((a, b) => a - b).map((index) => pagedRows.value[index]).filter((row) => Boolean(row));
       if (focusedRowKey.value !== void 0 && !rows.some((row) => row.key === focusedRowKey.value)) {
         const focused = pagedRows.value.find((row) => row.key === focusedRowKey.value);
         if (focused)
@@ -400,6 +484,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         const next = pagedRows.value[focusedIndex + 1];
         if (next && !rows.some((row) => row.key === next.key))
           rows.push(next);
+      }
+      if (selectionType.value === "radio") {
+        const selectedStringKeys = new Set(selectedKeys.value.map((key) => String(key)));
+        pagedRows.value.forEach((candidate) => {
+          if (selectedStringKeys.has(String(candidate.key)) && !rows.some((row) => row.key === candidate.key))
+            rows.push(candidate);
+        });
       }
       return rows;
     });
@@ -830,6 +921,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     let stickyResizeObserver;
     let virtualResizeObserver;
+    const observedVirtualRows = /* @__PURE__ */ new Set();
+    const observedVirtualHeights = /* @__PURE__ */ new Map();
+    let virtualResizeFrame;
+    let virtualResizeGeneration = 0;
+    let virtualResizeFlushedGeneration = 0;
     let stickyOwnerWindow;
     let stickyScrollAncestor = null;
     const handleStickyAncestorScroll = () => {
@@ -991,7 +1087,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch([visibleRows, expandedKeys], () => {
       void nextTick(() => {
         var _a;
-        return (_a = tableRoot.value) == null ? void 0 : _a.querySelectorAll("tbody tr:not([data-aheart-virtual-spacer])").forEach((row) => virtualResizeObserver == null ? void 0 : virtualResizeObserver.observe(row));
+        const rows = new Set(Array.from(((_a = tableRoot.value) == null ? void 0 : _a.querySelectorAll("tbody tr[data-aheart-virtual-logical-item], tbody tr[data-table-expanded-row]")) ?? []));
+        observedVirtualRows.forEach((row) => {
+          if (!rows.has(row)) {
+            virtualResizeObserver == null ? void 0 : virtualResizeObserver.unobserve(row);
+            observedVirtualRows.delete(row);
+            observedVirtualHeights.delete(row);
+            if (row.matches("tr[data-table-expanded-row]")) {
+              const base = row.previousElementSibling;
+              const index = Number(base == null ? void 0 : base.dataset.aheartVirtualLogicalItem);
+              if (Number.isFinite(index))
+                virtualController.clearMeasured(index, "expanded");
+            }
+          }
+        });
+        rows.forEach((row) => {
+          if (!observedVirtualRows.has(row)) {
+            virtualResizeObserver == null ? void 0 : virtualResizeObserver.observe(row);
+            observedVirtualRows.add(row);
+          }
+        });
       });
     }, { flush: "post" });
     const setupVirtualResizeObserver = () => {
@@ -1002,41 +1117,74 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const Constructor = ownerWindow == null ? void 0 : ownerWindow.ResizeObserver;
       if (!Constructor)
         return;
+      const resizeOwnerWindow = ownerWindow;
       virtualResizeObserver = new Constructor((entries) => {
-        var _a2, _b2;
-        const heights = /* @__PURE__ */ new Map();
+        var _a2;
         entries.forEach((entry) => {
-          const target = entry.target.closest("tr");
-          const row = (target == null ? void 0 : target.matches("tr[data-aheart-virtual-logical-item]")) ? target : target == null ? void 0 : target.previousElementSibling;
-          const index = Number(row == null ? void 0 : row.dataset.aheartVirtualLogicalItem);
-          if (row && Number.isFinite(index))
-            heights.set(index, (heights.get(index) ?? 0) + entry.contentRect.height);
+          observedVirtualHeights.set(entry.target, entry.contentRect.height);
         });
-        heights.forEach((height, index) => virtualController.setMeasured(index, height));
-        const total = Array.from(heights.values()).reduce((sum, value) => sum + value, 0);
-        if (total)
-          (_b2 = (_a2 = tableRoot.value) == null ? void 0 : _a2.querySelector("[data-aheart-virtual-measured-height]")) == null ? void 0 : _b2.setAttribute("data-aheart-virtual-measured-height", String(total));
+        virtualResizeGeneration += 1;
+        const generation = virtualResizeGeneration;
+        const flush = () => {
+          if (virtualResizeFlushedGeneration === virtualResizeGeneration)
+            return;
+          virtualResizeFrame = void 0;
+          const heights = /* @__PURE__ */ new Map();
+          observedVirtualHeights.forEach((height, target) => {
+            const element = target;
+            const row = element.matches("tr[data-aheart-virtual-logical-item]") ? element : element.previousElementSibling;
+            const index = Number(row == null ? void 0 : row.dataset.aheartVirtualLogicalItem);
+            if (!row || !Number.isFinite(index))
+              return;
+            const part = element.matches("tr[data-table-expanded-row]") ? "expanded" : "base";
+            const parts = heights.get(index) ?? /* @__PURE__ */ new Map();
+            parts.set(part, height);
+            heights.set(index, parts);
+          });
+          heights.forEach((parts, index) => parts.forEach((height, part) => virtualController.setMeasured(index, height, part)));
+          virtualResizeFlushedGeneration = generation;
+        };
+        const isJsdom = (_a2 = resizeOwnerWindow == null ? void 0 : resizeOwnerWindow.navigator) == null ? void 0 : _a2.userAgent.toLowerCase().includes("jsdom");
+        if ((resizeOwnerWindow == null ? void 0 : resizeOwnerWindow.requestAnimationFrame) && !isJsdom) {
+          if (virtualResizeFrame === void 0)
+            virtualResizeFrame = resizeOwnerWindow.requestAnimationFrame(flush);
+        } else {
+          flush();
+        }
       });
-      (_b = tableRoot.value) == null ? void 0 : _b.querySelectorAll("tbody tr:not([data-aheart-virtual-spacer])").forEach((row) => virtualResizeObserver == null ? void 0 : virtualResizeObserver.observe(row));
+      (_b = tableRoot.value) == null ? void 0 : _b.querySelectorAll("tbody tr[data-aheart-virtual-logical-item], tbody tr[data-table-expanded-row]").forEach((row) => {
+        virtualResizeObserver == null ? void 0 : virtualResizeObserver.observe(row);
+        observedVirtualRows.add(row);
+      });
     };
     onMounted(() => {
       var _a, _b;
       rootInteractionInert.value = !((_a = tableRoot.value) == null ? void 0 : _a.isConnected);
       if (activeFilterKey.value)
         filterTriggerElement.value = ((_b = tableRoot.value) == null ? void 0 : _b.querySelector(`[data-table-filter-trigger="${activeFilterKey.value}"]`)) ?? null;
-      setupVirtualResizeObserver();
+      bindStickyObservers();
       void nextTick(() => {
         sanitizePopupMarker();
         measureLayout();
         updateFloatingPosition();
-        bindStickyObservers();
         setupVirtualResizeObserver();
       });
     });
     onBeforeUnmount(() => {
+      var _a, _b, _c, _d;
       unbindStickyObservers();
+      if (focusedRowFrame !== void 0)
+        (_b = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.defaultView) == null ? void 0 : _b.cancelAnimationFrame(focusedRowFrame);
+      focusedRowFrame = void 0;
       virtualResizeObserver == null ? void 0 : virtualResizeObserver.disconnect();
       virtualResizeObserver = void 0;
+      if (virtualResizeFrame !== void 0)
+        (_d = (_c = tableRoot.value) == null ? void 0 : _c.ownerDocument.defaultView) == null ? void 0 : _d.cancelAnimationFrame(virtualResizeFrame);
+      virtualResizeFrame = void 0;
+      virtualResizeGeneration = 0;
+      virtualResizeFlushedGeneration = 0;
+      observedVirtualRows.clear();
+      observedVirtualHeights.clear();
     });
     const getAriaSort = (column) => {
       const state = getSortState(column);
@@ -1082,13 +1230,40 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emitTableChange("filter", 1, pageSize.value, nextFilters, activeSort.value);
     };
     const isSelected = (key) => selectedKeys.value.includes(key);
-    const rowToken = (key) => `${typeof key}:${String(key)}`;
+    const handleRowFocusin = (key, event) => {
+      var _a;
+      const row = event.currentTarget;
+      row == null ? void 0 : row.setAttribute("data-aheart-virtual-pinned", "true");
+      row == null ? void 0 : row.setAttribute("data-focus-pinned", "true");
+      focusedRowKey.value = key;
+      pendingFocusedRowKey = pointerInteractionPending ? key : void 0;
+      const ownerWindow = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      if (focusedRowFrame !== void 0)
+        ownerWindow == null ? void 0 : ownerWindow.cancelAnimationFrame(focusedRowFrame);
+      const commit = () => {
+        focusedRowFrame = void 0;
+        pendingFocusedRowKey = void 0;
+        focusedRowKey.value = key;
+      };
+      if (pointerInteractionPending && (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame))
+        focusedRowFrame = ownerWindow.requestAnimationFrame(commit);
+      else
+        commit();
+    };
     const handleRowFocusout = (event) => {
-      var _a, _b, _c;
+      var _a, _b, _c, _d, _e, _f, _g;
       const related = event.relatedTarget;
-      if (!related || !((_a = tableRoot.value) == null ? void 0 : _a.contains(related))) {
+      if (related && ((_a = event.currentTarget) == null ? void 0 : _a.contains(related)))
+        return;
+      if (!related || !((_b = tableRoot.value) == null ? void 0 : _b.contains(related))) {
+        const ownerWindow = (_c = tableRoot.value) == null ? void 0 : _c.ownerDocument.defaultView;
+        if (focusedRowFrame !== void 0)
+          ownerWindow == null ? void 0 : ownerWindow.cancelAnimationFrame(focusedRowFrame);
+        focusedRowFrame = void 0;
+        pendingFocusedRowKey = void 0;
         focusedRowKey.value = void 0;
-        (_c = (_b = event.currentTarget) == null ? void 0 : _b.closest("tr")) == null ? void 0 : _c.removeAttribute("data-aheart-virtual-pinned");
+        (_e = (_d = event.currentTarget) == null ? void 0 : _d.closest("tr")) == null ? void 0 : _e.removeAttribute("data-aheart-virtual-pinned");
+        (_g = (_f = event.currentTarget) == null ? void 0 : _f.closest("tr")) == null ? void 0 : _g.removeAttribute("data-focus-pinned");
       }
     };
     const handleRowKeydown = (event, key) => {
@@ -1100,11 +1275,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!next)
         return;
       const focusNext = () => {
-        var _a, _b;
-        return (_b = (_a = tableRoot.value) == null ? void 0 : _a.querySelector(`[data-aheart-row-token="${rowToken(next.key)}"]`)) == null ? void 0 : _b.focus({ preventScroll: true });
+        var _a;
+        const input = (_a = tableRoot.value) == null ? void 0 : _a.querySelector(`input[data-aheart-row-token="${rowToken(next.key)}"]`);
+        input == null ? void 0 : input.focus({ preventScroll: true });
       };
       event.preventDefault();
+      focusedRowKey.value = next.key;
+      focusNext();
       void nextTick(focusNext);
+    };
+    const handleRadioClick = (event, record, key) => {
+      var _a, _b;
+      if (selectionType.value !== "radio")
+        return;
+      event.preventDefault();
+      radioClickHandled.value = true;
+      toggleSelection(record, key, true);
+      const table = ((_a = event.target) == null ? void 0 : _a.closest("table")) ?? ((_b = tableRoot.value) == null ? void 0 : _b.querySelector("table"));
+      table == null ? void 0 : table.querySelectorAll('input[type="radio"][data-aheart-row-token]').forEach((rowInput) => {
+        const token = rowInput.dataset.aheartRowToken;
+        rowInput.checked = Boolean(token && pagedRows.value.some((row) => rowToken(row.key) === token && isSelected(row.key)));
+      });
     };
     const toggleSelection = (record, key, checked) => {
       if (isRowSelectionDisabled(record)) {
@@ -1181,13 +1372,28 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return Boolean((_a = event.target) == null ? void 0 : _a.checked);
     };
     const handleSelectionChange = (event, record, key) => {
-      var _a;
+      var _a, _b;
       const input = event.target;
+      if (selectionType.value === "radio" && radioClickHandled.value) {
+        radioClickHandled.value = false;
+        return;
+      }
       toggleSelection(record, key, getEventChecked(event));
       if (input) {
-        input.checked = isSelected(key);
+        if (virtualRuntime.value.enabled && input === ((_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.activeElement)) {
+          focusedRowKey.value = key;
+          pendingFocusedRowKey = void 0;
+        }
+        if (!virtualRuntime.value.enabled)
+          input.checked = isSelected(key);
+        else {
+          void nextTick(() => {
+            if (input.isConnected)
+              input.checked = isSelected(key);
+          });
+        }
         if (selectionType.value === "radio") {
-          (_a = input.closest("table")) == null ? void 0 : _a.querySelectorAll('input[type="radio"][data-aheart-row-token]').forEach((rowInput) => {
+          (_b = input.closest("table")) == null ? void 0 : _b.querySelectorAll('input[type="radio"][data-aheart-row-token]').forEach((rowInput) => {
             const token = rowInput.dataset.aheartRowToken;
             rowInput.checked = Boolean(token && pagedRows.value.some((row) => rowToken(row.key) === token && isSelected(row.key)));
           });
@@ -1199,6 +1405,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ref_key: "tableRoot",
         ref: tableRoot,
         class: normalizeClass(["aheart-table", tableClass.value]),
+        "data-table-virtual-fallback": virtualFallbackReason.value ? "full-dom" : void 0,
+        "data-fallback-reason": virtualFallbackReason.value || void 0,
         "aria-busy": _ctx.loading || void 0,
         inert: rootInteractionInert.value || void 0
       }, [
@@ -1217,7 +1425,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         createElementVNode("div", {
           class: "aheart-table__interaction-region",
           inert: isInteractionLocked.value || void 0,
-          onClickCapture: handleTableCapture,
+          onPointerdownCapture: _cache[2] || (_cache[2] = ($event) => isRef(pointerInteractionPending) ? pointerInteractionPending.value = true : pointerInteractionPending = true),
+          onPointerupCapture: handlePointerup,
+          onPointercancelCapture: handlePointercancel,
+          onClickCapture: handleTableClick,
           onKeydownCapture: handleTableCapture,
           onInputCapture: handleTableCapture,
           onChangeCapture: handleTableCapture,
@@ -1229,7 +1440,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             class: "aheart-table__container",
             "data-aheart-virtual-scroll": virtualRuntime.value.enabled ? "" : void 0,
             style: normalizeStyle(containerStyle.value),
-            onScroll: _cache[1] || (_cache[1] = ($event) => virtualRuntime.value.enabled ? unref(virtualController).onScroll : void 0)
+            onScroll: _cache[1] || (_cache[1] = ($event) => virtualRuntime.value.enabled ? handleVirtualScroll : void 0)
           }, [
             virtualRuntime.value.enabled ? (openBlock(), createElementBlock("div", _hoisted_6, [
               createElementVNode("span", {
@@ -1288,7 +1499,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     class: "aheart-table__expand-cell",
                     scope: "col",
                     style: normalizeStyle(utilityStyle("expand", true))
-                  }, [..._cache[2] || (_cache[2] = [
+                  }, [..._cache[3] || (_cache[3] = [
                     createElementVNode("span", {
                       class: "aheart-table__expand-title",
                       "aria-hidden": "true"
@@ -1299,6 +1510,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     return openBlock(), createElementBlock("th", {
                       key: getColumnKey(column),
                       class: normalizeClass(columnClass(column)),
+                      "data-fixed": column.fixed || void 0,
                       style: normalizeStyle(headerColumnStyle(column)),
                       "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                       scope: "col"
@@ -1337,7 +1549,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           disabled: isInteractionLocked.value,
                           onClick: ($event) => toggleFilterPopup(column, $event.currentTarget)
                         }, [
-                          _cache[3] || (_cache[3] = createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
+                          _cache[4] || (_cache[4] = createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
                           createElementVNode("span", _hoisted_20, "Filter " + toDisplayString(getColumnLabel(column)), 1)
                         ], 8, _hoisted_19)) : createCommentVNode("", true),
                         ((_a = column.filters) == null ? void 0 : _a.length) ? (openBlock(), createElementBlock("div", {
@@ -1369,20 +1581,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 virtualRuntime.value.enabled ? (openBlock(), createElementBlock("tr", {
                   key: 0,
                   "data-aheart-virtual-spacer": "true",
+                  "data-before": "",
+                  "data-table-virtual-spacer": "before",
+                  "data-table-spacer-position": "before",
                   style: normalizeStyle({ height: `${virtualRange.value.top}px` }),
                   "data-measured-height": virtualMeasuredDisplay.value,
-                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0
-                }, null, 12, _hoisted_23)) : createCommentVNode("", true),
+                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0,
+                  "aria-hidden": "true"
+                }, [
+                  createElementVNode("td", {
+                    colspan: columnCount.value,
+                    style: normalizeStyle({ height: `${virtualRange.value.top}px` })
+                  }, null, 12, _hoisted_24)
+                ], 12, _hoisted_23)) : createCommentVNode("", true),
                 (openBlock(true), createElementBlock(Fragment, null, renderList(visibleRows.value, (row) => {
                   return openBlock(), createElementBlock(Fragment, {
                     key: row.key
                   }, [
                     createElementVNode("tr", {
+                      "data-table-row": String(row.key),
                       "data-aheart-virtual-logical-item": row.index,
                       "data-aheart-virtual-measured-height": virtualMeasuredFor(row.index) || void 0,
                       "data-aheart-virtual-pinned": focusedRowKey.value === row.key ? "true" : void 0,
+                      "data-focus-pinned": focusedRowKey.value === row.key ? "true" : void 0,
                       "aria-rowindex": virtualRuntime.value.enabled ? row.index + 1 : void 0,
-                      class: normalizeClass({ "is-selected": isSelected(row.key) })
+                      class: normalizeClass({ "is-selected": isSelected(row.key) }),
+                      onFocusin: ($event) => handleRowFocusin(row.key, $event),
+                      onFocusout: handleRowFocusout
                     }, [
                       hasSelection.value ? (openBlock(), createElementBlock("td", {
                         key: 0,
@@ -1396,11 +1621,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           "data-aheart-row-token": rowToken(row.key),
                           disabled: isRowSelectionDisabled(row.record),
                           "aria-label": `Select row ${row.key}`,
-                          onFocus: ($event) => focusedRowKey.value = row.key,
-                          onFocusout: handleRowFocusout,
                           onKeydown: ($event) => handleRowKeydown($event, row.key),
                           onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                        }, null, 40, _hoisted_25)
+                        }, null, 40, _hoisted_26)
                       ], 4)) : createCommentVNode("", true),
                       hasExpandable.value ? (openBlock(), createElementBlock("td", {
                         key: 1,
@@ -1412,23 +1635,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           class: "aheart-table__expand-button",
                           type: "button",
                           "aria-expanded": isExpanded(row.key),
+                          "aria-label": `${isExpanded(row.key) ? "Collapse" : "Expand"} row ${row.key}`,
                           disabled: isInteractionLocked.value,
                           onClick: ($event) => toggleExpand(row.record, row.key)
-                        }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_26)) : createCommentVNode("", true)
+                        }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_27)) : createCommentVNode("", true)
                       ], 4)) : createCommentVNode("", true),
                       (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
                         return openBlock(), createElementBlock("td", {
                           key: getColumnKey(column),
                           class: normalizeClass(columnCellClass(column)),
+                          "data-fixed": column.fixed || void 0,
                           style: normalizeStyle(bodyColumnStyle(column))
                         }, [
                           createVNode(unref(ARenderNode), {
                             node: renderCell(column, row.record, row.index)
                           }, null, 8, ["node"])
-                        ], 6);
+                        ], 14, _hoisted_28);
                       }), 128))
-                    ], 10, _hoisted_24),
-                    hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_27, [
+                    ], 42, _hoisted_25),
+                    hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", {
+                      key: 0,
+                      "data-table-expanded-row": String(row.key),
+                      class: "aheart-table__expanded-row"
+                    }, [
                       createElementVNode("td", {
                         colspan: columnCount.value,
                         class: "aheart-table__expanded-cell"
@@ -1436,24 +1665,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         createVNode(unref(ARenderNode), {
                           node: renderExpanded(row.record, row.index)
                         }, null, 8, ["node"])
-                      ], 8, _hoisted_28)
-                    ])) : createCommentVNode("", true)
+                      ], 8, _hoisted_30)
+                    ], 8, _hoisted_29)) : createCommentVNode("", true)
                   ], 64);
                 }), 128)),
                 virtualRuntime.value.enabled ? (openBlock(), createElementBlock("tr", {
                   key: 1,
                   "data-aheart-virtual-spacer": "true",
+                  "data-after": "",
+                  "data-table-virtual-spacer": "after",
+                  "data-table-spacer-position": "after",
                   style: normalizeStyle({ height: `${virtualRange.value.bottom}px` }),
                   "data-measured-height": virtualMeasuredDisplay.value,
-                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0
-                }, null, 12, _hoisted_29)) : createCommentVNode("", true),
-                !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_30, [
+                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0,
+                  "aria-hidden": "true"
+                }, [
+                  createElementVNode("td", {
+                    colspan: columnCount.value,
+                    style: normalizeStyle({ height: `${virtualRange.value.bottom}px` })
+                  }, null, 12, _hoisted_32)
+                ], 12, _hoisted_31)) : createCommentVNode("", true),
+                !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_33, [
                   createElementVNode("td", {
                     colspan: columnCount.value,
                     class: "aheart-table__empty"
                   }, [
                     createVNode(unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                  ], 8, _hoisted_31)
+                  ], 8, _hoisted_34)
                 ])) : createCommentVNode("", true)
               ])
             ], 16, _hoisted_11)
@@ -1476,8 +1714,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onChange: handlePageChange
           }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : createCommentVNode("", true)
         ], 40, _hoisted_4),
-        _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_32, [
-          _cache[4] || (_cache[4] = createElementVNode("span", {
+        _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_35, [
+          _cache[5] || (_cache[5] = createElementVNode("span", {
             class: "aheart-table__loading-dot",
             "aria-hidden": "true"
           }, null, -1)),
@@ -1502,7 +1740,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onKeydown: handleFilterPopupKeydown
           }, [
             createVNode(unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
-          ], 44, _hoisted_33)
+          ], 44, _hoisted_36)
         ], 8, ["to", "disabled"])) : createCommentVNode("", true)
       ], 10, _hoisted_1);
     };
