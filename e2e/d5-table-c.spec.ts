@@ -58,13 +58,19 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   const errors = runtimeErrors(page)
   const demo = await openWorkbench(page, 'D5-C 固定列展开选择组合')
   await expect(demo.locator('th[data-fixed="left"]')).toHaveCSS('position', 'sticky')
-  await expect(demo.locator('th[data-fixed="right"]')).toHaveCSS('position', 'sticky')
   const scroll = demo.locator('.aheart-table__container')
+  const availableWidth = await scroll.evaluate(element => element.clientWidth)
+  const rightFixed = demo.locator('th[data-fixed="right"]')
+  if (availableWidth >= 596) {
+    await expect(rightFixed).toHaveCSS('position', 'sticky')
+  } else if (await rightFixed.count()) {
+    await expect(rightFixed).not.toHaveCSS('position', 'sticky')
+  }
   await expect.poll(() => scroll.evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true)
   await scroll.evaluate(element => { element.scrollLeft = element.scrollWidth })
   await expect.poll(() => scroll.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
   await expect(demo.locator('th[data-fixed="left"]')).toHaveCSS('position', 'sticky')
-  await expect(demo.locator('th[data-fixed="right"]')).toHaveCSS('position', 'sticky')
+  if (availableWidth >= 596) await expect(rightFixed).toHaveCSS('position', 'sticky')
   await scroll.evaluate(element => { element.scrollTop = element.scrollHeight / 2 })
   const target = demo.locator('tr[data-table-row]').filter({ hasText: /Row 5\d{3}/ }).first()
   const key = await target.getAttribute('data-table-row')

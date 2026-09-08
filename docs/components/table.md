@@ -549,7 +549,7 @@ D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列
     <span data-table-data-mode="server">server</span><span data-table-current-page="2">2</span>
     <ATable data-mode="server" row-key="key" :columns="d5cColumns" :data-source="d5cServerRows" :pagination="{ current: 2, pageSize: 20, total: 10000, showSizeChanger: false }" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" />
   </section>
-  <section class="aheart-demo-panel d5c-fixed-region" role="region" aria-label="D5-C 固定列展开选择组合" style="max-width: 540px">
+  <section class="aheart-demo-panel d5c-fixed-region" role="region" aria-label="D5-C 固定列展开选择组合" style="max-width: 720px">
     <ATable data-mode="local" row-key="key" :columns="d5cFixedColumns" :data-source="d5cFixedRows" :scroll="{ x: 600, y: 320 }" :pagination="false" :row-selection="{ selectedRowKeys: d5cSelected }" :expandable="d5cExpandable" :virtual="{ height: 320, overscan: 4, estimateSize: 40 }" @update:selected-row-keys="d5cSelected = $event" />
     <button type="button" data-d5c-outside-focus>Focus outside table</button>
   </section>
