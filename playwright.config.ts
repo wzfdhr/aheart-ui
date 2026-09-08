@@ -9,7 +9,8 @@ const d4IframeOnly = /d4-iframe\.spec\.ts/
 const d4SelectionOnly = /d4-selection\.spec\.ts/
 const d4VirtualOnly = /d4-select-virtual\.spec\.ts/
 const d5TableOnly = /d5-table-pagination\.spec\.ts/
-const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly]
+const d5TableBOnly = /d5-table-b\.spec\.ts/
+const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly]
 const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 
 export default defineConfig({

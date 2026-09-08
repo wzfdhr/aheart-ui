@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, createCommentVNode, Fragment, renderList, normalizeStyle, createVNode, unref, toDisplayString, createBlock } from "vue";
+import { defineComponent, ref, computed, watch, cloneVNode, nextTick, onMounted, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, normalizeStyle, Fragment, renderList, createCommentVNode, createVNode, unref, toDisplayString, createBlock, Teleport } from "vue";
 import Pagination from "../pagination/index.js";
 import { normalizePageSize, getPageCount, normalizeCurrent, normalizeTotal } from "../pagination/pagination-state.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
@@ -7,57 +7,46 @@ import { tableProps, tableEmits } from "./types.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-busy"];
-const _hoisted_2 = { class: "aheart-table__container" };
-const _hoisted_3 = { key: 0 };
+const _hoisted_2 = { key: 0 };
+const _hoisted_3 = ["checked", "indeterminate", "aria-checked", "disabled"];
 const _hoisted_4 = {
-  key: 0,
-  class: "aheart-table__selection-cell",
-  scope: "col"
-};
-const _hoisted_5 = ["checked", "indeterminate", "aria-checked", "disabled"];
-const _hoisted_6 = {
   key: 1,
   class: "aheart-table__selection-title",
   "aria-hidden": "true"
 };
-const _hoisted_7 = {
-  key: 1,
-  class: "aheart-table__expand-cell",
-  scope: "col"
-};
-const _hoisted_8 = ["aria-sort"];
-const _hoisted_9 = { class: "aheart-table__head-content" };
-const _hoisted_10 = ["disabled", "aria-label", "onClick"];
-const _hoisted_11 = ["data-sort"];
-const _hoisted_12 = {
+const _hoisted_5 = ["aria-sort"];
+const _hoisted_6 = { class: "aheart-table__head-content" };
+const _hoisted_7 = ["disabled", "aria-label", "onClick"];
+const _hoisted_8 = ["data-sort"];
+const _hoisted_9 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_13 = ["aria-label"];
-const _hoisted_14 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_15 = {
-  key: 0,
-  class: "aheart-table__selection-cell"
-};
-const _hoisted_16 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_17 = {
-  key: 1,
-  class: "aheart-table__expand-cell"
-};
-const _hoisted_18 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_19 = {
+const _hoisted_10 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
+const _hoisted_11 = { class: "sr-only" };
+const _hoisted_12 = ["aria-label"];
+const _hoisted_13 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_14 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_16 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_20 = ["colspan"];
-const _hoisted_21 = { key: 0 };
-const _hoisted_22 = ["colspan"];
-const _hoisted_23 = {
+const _hoisted_17 = ["colspan"];
+const _hoisted_18 = { key: 0 };
+const _hoisted_19 = ["colspan"];
+const _hoisted_20 = {
   key: 0,
   class: "aheart-table__loading",
   role: "status",
   "aria-live": "polite"
 };
+const _hoisted_21 = {
+  key: 1,
+  class: "aheart-table__error",
+  role: "alert"
+};
+const _hoisted_22 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATable"
@@ -117,11 +106,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const innerSort = ref({});
     const innerFilters = ref({});
+    const activeFilterKey = ref(null);
+    const filterDraft = ref([]);
+    const filterTriggerElement = ref(null);
+    const filterPopupElement = ref(null);
+    const tableRoot = ref(null);
     const hasInitializedSort = ref(false);
     const initializedFilterKeys = ref(/* @__PURE__ */ new Set());
     const radioName = useStableId(void 0, "aheart-table-selection").value;
     const normalizedColumns = computed(() => (props.columns ?? []).filter((column) => !column.hidden));
     const normalizedData = computed(() => props.dataSource ?? []);
+    const initialFilterColumn = (props.columns ?? []).find((column) => !column.hidden && (column.defaultFilterDropdownOpen === true || column.filterDropdownOpen === true) && column.filterDropdown);
+    if (initialFilterColumn) {
+      activeFilterKey.value = initialFilterColumn.key ?? String(Array.isArray(initialFilterColumn.dataIndex) ? initialFilterColumn.dataIndex.join(".") : initialFilterColumn.dataIndex ?? initialFilterColumn.title);
+      filterDraft.value = [...initialFilterColumn.filteredValue ?? initialFilterColumn.defaultFilteredValue ?? []];
+    }
     const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, "middle"));
     const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false));
     const hasSelection = computed(() => Boolean(props.rowSelection));
@@ -133,9 +132,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return ((_a = props.rowSelection) == null ? void 0 : _a.type) ?? "checkbox";
     });
+    const isInteractionLocked = computed(() => isDisabled.value || props.loading || Boolean(props.error));
     const isSelectionDisabled = computed(() => {
       var _a;
-      return isDisabled.value || Boolean((_a = props.rowSelection) == null ? void 0 : _a.disabled);
+      return isInteractionLocked.value || Boolean((_a = props.rowSelection) == null ? void 0 : _a.disabled);
     });
     const selectedKeys = computed(() => selectedState.state.value ?? []);
     const expandedKeys = computed(() => expandedState.state.value ?? []);
@@ -149,6 +149,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a, _b;
       return ((_b = (_a = config.value.locale) == null ? void 0 : _a.table) == null ? void 0 : _b.loadingText) ?? "加载中";
     });
+    const handleTableCapture = (event) => {
+      var _a;
+      if (!isInteractionLocked.value || ((_a = event.target) == null ? void 0 : _a.closest("[data-table-retry]")))
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    const errorMessage = computed(() => typeof props.error === "object" && props.error.message !== void 0 ? props.error.message : "加载失败");
+    const errorRetryText = computed(() => typeof props.error === "object" && props.error.retryText !== void 0 ? props.error.retryText : "重试");
     const paginationConfig = computed(() => props.pagination && typeof props.pagination === "object" ? props.pagination : {});
     const pageSize = computed(() => normalizePageSize(pageSizeState.state.value ?? 10));
     const rawCurrentPage = computed(() => currentState.state.value ?? 1);
@@ -157,6 +166,90 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const currentPage = computed(() => normalizeCurrent(rawCurrentPage.value, paginationTotal.value, pageSize.value));
     const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== void 0 || paginationTotal.value > pageSize.value));
     const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
+    const pxWidth = (value) => {
+      if (typeof value === "number" && Number.isFinite(value) && value > 0)
+        return value;
+      if (typeof value === "string" && /^\s*(\d+(?:\.\d+)?)px\s*$/i.test(value)) {
+        const parsed = Number.parseFloat(value);
+        return parsed > 0 ? parsed : void 0;
+      }
+      return void 0;
+    };
+    const layoutColumns = computed(() => {
+      const data = [];
+      if (hasSelection.value)
+        data.push({ id: "__selection", utility: "selection", width: "48px" });
+      if (hasExpandable.value)
+        data.push({ id: "__expand", utility: "expand", width: "48px" });
+      normalizedColumns.value.forEach((column) => data.push({ id: getColumnKey(column), source: column, width: pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === "string" ? column.width : void 0, fixed: column.fixed }));
+      const dataColumns = data.filter((item) => item.source);
+      const leftCount = dataColumns.filter((item) => item.fixed === "left").length;
+      const rightCount = dataColumns.filter((item) => item.fixed === "right").length;
+      const leftStart = data.findIndex((item) => item.fixed === "left");
+      const rightStart = data.length - rightCount;
+      const leftValid = leftCount === 0 || leftStart === (hasSelection.value ? 1 + (hasExpandable.value ? 1 : 0) : 0) && data.slice(leftStart, leftStart + leftCount).every((item) => {
+        var _a;
+        return item.fixed === "left" && pxWidth((_a = item.source) == null ? void 0 : _a.width) !== void 0;
+      });
+      const rightValid = rightCount === 0 || rightStart >= 0 && data.slice(rightStart).every((item) => {
+        var _a;
+        return item.fixed === "right" && pxWidth((_a = item.source) == null ? void 0 : _a.width) !== void 0;
+      });
+      const leftEnabled = leftValid && leftCount > 0;
+      const rightEnabled = rightValid && rightCount > 0;
+      let left = 0;
+      if (leftEnabled) {
+        data.slice(0, leftStart).forEach((item) => {
+          item.fixed = "left";
+        });
+        data.forEach((item, index) => {
+          var _a;
+          if (item.fixed === "left") {
+            item.left = left;
+            left += pxWidth((_a = item.source) == null ? void 0 : _a.width) ?? (item.width ? Number.parseFloat(item.width) : 0);
+          } else if (index >= leftStart && index < leftStart + leftCount)
+            item.fixed = void 0;
+        });
+      }
+      let right = 0;
+      if (rightEnabled)
+        [...data].reverse().forEach((item) => {
+          var _a;
+          if (item.fixed === "right") {
+            item.right = right;
+            right += pxWidth((_a = item.source) == null ? void 0 : _a.width) ?? 0;
+          }
+        });
+      return data;
+    });
+    const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])));
+    const stickyOffset = computed(() => typeof props.sticky === "object" && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0);
+    const isSticky = computed(() => Boolean(props.sticky));
+    const columnLayout = (column) => layoutById.value.get(getColumnKey(column));
+    const utilityStyle = (utility) => {
+      const item = layoutById.value.get(`__${utility}`);
+      return item ? cellLayoutStyle(item) : void 0;
+    };
+    const cellLayoutStyle = (item) => ({
+      ...item.width ? { width: item.width } : {},
+      ...item.fixed === "left" && item.left !== void 0 ? { position: "sticky", left: `${item.left}px`, zIndex: 2 } : {},
+      ...item.fixed === "right" && item.right !== void 0 ? { position: "sticky", right: `${item.right}px`, zIndex: 2 } : {},
+      ...isSticky.value ? { position: "sticky", top: `${stickyOffset.value}px`, zIndex: 2 } : {}
+    });
+    const tableStyle = computed(() => {
+      var _a;
+      const x = (_a = props.scroll) == null ? void 0 : _a.x;
+      const minWidth = x === true ? "max-content" : typeof x === "number" && Number.isFinite(x) ? `${x}px` : typeof x === "string" ? x : void 0;
+      return minWidth ? { minWidth } : void 0;
+    });
+    const containerStyle = computed(() => {
+      var _a;
+      const y = (_a = props.scroll) == null ? void 0 : _a.y;
+      if (y === void 0)
+        return void 0;
+      const value = typeof y === "number" && Number.isFinite(y) ? `${y}px` : y;
+      return { maxHeight: value, overflowY: "auto" };
+    });
     const controlledSort = computed(() => {
       const column = normalizedColumns.value.find((currentColumn) => currentColumn.sortOrder !== void 0);
       if (!column) {
@@ -346,9 +439,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a, _b;
       return ((_b = (_a = props.expandable) == null ? void 0 : _a.expandedRowRender) == null ? void 0 : _b.call(_a, record, index)) ?? "";
     };
-    const columnStyle = (column) => ({
-      width: typeof column.width === "number" ? `${column.width}px` : column.width
-    });
+    const columnStyle = (column) => cellLayoutStyle(columnLayout(column) ?? { id: getColumnKey(column), source: column });
     const columnClass = (column) => {
       var _a;
       return [
@@ -376,6 +467,170 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return activeSort.value.order;
     };
     const getColumnLabel = (column) => typeof column.title === "string" ? column.title : getColumnKey(column);
+    const activeFilterColumn = computed(() => normalizedColumns.value.find((column) => getColumnKey(column) === activeFilterKey.value));
+    const popupTargetDisabled = computed(() => {
+      var _a;
+      const trigger = filterTriggerElement.value;
+      return Boolean(trigger && ((_a = props.getPopupContainer) == null ? void 0 : _a.call(props, trigger)) === false);
+    });
+    const popupTarget = computed(() => {
+      var _a;
+      const trigger = filterTriggerElement.value;
+      if (!trigger)
+        return typeof document === "undefined" ? "body" : document.body;
+      const target = (_a = props.getPopupContainer) == null ? void 0 : _a.call(props, trigger);
+      return target === false ? trigger.ownerDocument.body : target ?? trigger.ownerDocument.body;
+    });
+    const isFilterPopupOpen = (column) => activeFilterKey.value === getColumnKey(column);
+    const activeFilterPopupNode = computed(() => {
+      var _a;
+      const column = activeFilterColumn.value;
+      if (!(column == null ? void 0 : column.filterDropdown))
+        return null;
+      const context = {
+        selectedKeys: filterDraft.value,
+        setSelectedKeys: (keys) => {
+          filterDraft.value = [...keys];
+        },
+        confirm: () => confirmFilter(column),
+        clearFilters: () => resetFilter(column),
+        close: () => closeFilter()
+      };
+      const node = column.filterDropdown(context);
+      return cloneVNode(node, {
+        class: ["aheart-table__filter-popup", (_a = node.props) == null ? void 0 : _a.class],
+        role: "dialog",
+        tabindex: -1,
+        "data-table-filter-popup": getColumnKey(column),
+        onKeydown: handleFilterPopupKeydown,
+        onVnodeMounted: (vnode) => {
+          filterPopupElement.value = vnode.el;
+        }
+      });
+    });
+    const activeFilterValues = (column) => column.filteredValue ?? activeFilters.value[getColumnKey(column)] ?? [];
+    const requestFilterOpen = (column, open) => emit("filterDropdownOpenChange", getColumnKey(column), open);
+    const toggleFilterPopup = (column, trigger) => {
+      if (isInteractionLocked.value)
+        return;
+      const key = getColumnKey(column);
+      filterTriggerElement.value = trigger;
+      if (activeFilterKey.value === key) {
+        requestFilterOpen(column, false);
+        if (column.filterDropdownOpen === void 0)
+          closeFilter();
+        return;
+      }
+      if (activeFilterKey.value) {
+        const previous = normalizedColumns.value.find((item) => getColumnKey(item) === activeFilterKey.value);
+        if (previous)
+          requestFilterOpen(previous, false);
+        closeFilter(false);
+      }
+      filterDraft.value = [...activeFilterValues(column)];
+      activeFilterKey.value = key;
+      requestFilterOpen(column, true);
+      if (column.filterDropdownOpen !== void 0 && !column.filterDropdownOpen)
+        activeFilterKey.value = null;
+      else
+        nextTick(() => {
+          var _a;
+          return (_a = filterPopupElement.value) == null ? void 0 : _a.focus();
+        });
+    };
+    const closeFilter = (restoreFocus = true) => {
+      const column = activeFilterColumn.value;
+      activeFilterKey.value = null;
+      filterDraft.value = [];
+      if (restoreFocus)
+        nextTick(() => {
+          var _a;
+          return (_a = filterTriggerElement.value) == null ? void 0 : _a.focus();
+        });
+      if ((column == null ? void 0 : column.filterDropdownOpen) !== void 0)
+        requestFilterOpen(column, false);
+    };
+    const commitFilter = (column, values) => {
+      const key = getColumnKey(column);
+      const nextFilters = { ...activeFilters.value };
+      if (values.length)
+        nextFilters[key] = [...values];
+      else
+        delete nextFilters[key];
+      if (column.filteredValue === void 0)
+        innerFilters.value = nextFilters;
+      emitTableChange("filter", 1, pageSize.value, nextFilters, activeSort.value);
+    };
+    const confirmFilter = (column) => {
+      if (isInteractionLocked.value)
+        return;
+      commitFilter(column, filterDraft.value);
+      closeFilter();
+    };
+    const resetFilter = (column) => {
+      if (isInteractionLocked.value)
+        return;
+      filterDraft.value = [];
+      commitFilter(column, []);
+      closeFilter();
+    };
+    const handleFilterPopupKeydown = (event) => {
+      var _a;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeFilter();
+        return;
+      }
+      if (event.key !== "Tab" || !filterPopupElement.value)
+        return;
+      const controls = Array.from(filterPopupElement.value.querySelectorAll('input,button,select,textarea,[tabindex]:not([tabindex="-1"])'));
+      if (!controls.length)
+        return;
+      const current = filterPopupElement.value.ownerDocument.activeElement;
+      const index = controls.indexOf(current);
+      const next = event.shiftKey ? index <= 0 ? controls.length - 1 : index - 1 : index >= controls.length - 1 ? 0 : index + 1;
+      event.preventDefault();
+      (_a = controls[next]) == null ? void 0 : _a.focus();
+    };
+    const handleFilterDocumentKeydown = (event) => {
+      if (event.key === "Escape" && activeFilterKey.value) {
+        event.preventDefault();
+        closeFilter();
+      }
+    };
+    const handleFilterOutside = (event) => {
+      var _a, _b;
+      if (!activeFilterKey.value || ((_a = filterPopupElement.value) == null ? void 0 : _a.contains(event.target)) || ((_b = filterTriggerElement.value) == null ? void 0 : _b.contains(event.target)))
+        return;
+      closeFilter();
+    };
+    watch([normalizedColumns, activeFilterKey], () => {
+      const openColumn = normalizedColumns.value.find((column) => column.filterDropdownOpen === true);
+      if (!activeFilterKey.value && openColumn && !isInteractionLocked.value) {
+        filterDraft.value = [...activeFilterValues(openColumn)];
+        activeFilterKey.value = getColumnKey(openColumn);
+        nextTick(() => {
+          var _a;
+          return (_a = filterPopupElement.value) == null ? void 0 : _a.focus();
+        });
+      }
+      if (activeFilterKey.value && normalizedColumns.value.some((column) => getColumnKey(column) === activeFilterKey.value && column.filterDropdownOpen === false))
+        closeFilter(false);
+    }, { immediate: true, deep: true });
+    onMounted(() => {
+      var _a, _b;
+      if (activeFilterKey.value)
+        filterTriggerElement.value = ((_a = tableRoot.value) == null ? void 0 : _a.querySelector(`[data-table-filter-trigger="${activeFilterKey.value}"]`)) ?? null;
+      const doc = ((_b = filterTriggerElement.value) == null ? void 0 : _b.ownerDocument) ?? document;
+      doc.addEventListener("keydown", handleFilterDocumentKeydown);
+      doc.addEventListener("pointerdown", handleFilterOutside);
+    });
+    onBeforeUnmount(() => {
+      var _a;
+      const doc = ((_a = filterTriggerElement.value) == null ? void 0 : _a.ownerDocument) ?? document;
+      doc.removeEventListener("keydown", handleFilterDocumentKeydown);
+      doc.removeEventListener("pointerdown", handleFilterOutside);
+    });
     const getAriaSort = (column) => {
       const state = getSortState(column);
       return state === "ascend" ? "ascending" : state === "descend" ? "descending" : "none";
@@ -510,14 +765,35 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("section", {
+        ref_key: "tableRoot",
+        ref: tableRoot,
         class: normalizeClass(["aheart-table", tableClass.value]),
-        "aria-busy": _ctx.loading || void 0
+        "aria-busy": _ctx.loading || void 0,
+        onClickCapture: handleTableCapture
       }, [
-        createElementVNode("div", _hoisted_2, [
-          createElementVNode("table", null, [
-            _ctx.showHeader ? (openBlock(), createElementBlock("thead", _hoisted_3, [
+        createElementVNode("div", {
+          class: "aheart-table__container",
+          style: normalizeStyle(containerStyle.value)
+        }, [
+          createElementVNode("table", {
+            style: normalizeStyle(tableStyle.value)
+          }, [
+            createElementVNode("colgroup", null, [
+              (openBlock(true), createElementBlock(Fragment, null, renderList(layoutColumns.value, (column) => {
+                return openBlock(), createElementBlock("col", {
+                  key: column.id,
+                  style: normalizeStyle({ width: column.width })
+                }, null, 4);
+              }), 128))
+            ]),
+            _ctx.showHeader ? (openBlock(), createElementBlock("thead", _hoisted_2, [
               createElementVNode("tr", null, [
-                hasSelection.value ? (openBlock(), createElementBlock("th", _hoisted_4, [
+                hasSelection.value ? (openBlock(), createElementBlock("th", {
+                  key: 0,
+                  class: "aheart-table__selection-cell",
+                  scope: "col",
+                  style: normalizeStyle(utilityStyle("selection"))
+                }, [
                   selectionType.value === "checkbox" ? (openBlock(), createElementBlock("input", {
                     key: 0,
                     class: "aheart-table__select-all",
@@ -528,14 +804,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     "aria-checked": somePageSelected.value && !allPageSelected.value ? "mixed" : allPageSelected.value,
                     disabled: isSelectionDisabled.value || selectableRows.value.length === 0,
                     onChange: handleSelectAll
-                  }, null, 40, _hoisted_5)) : (openBlock(), createElementBlock("span", _hoisted_6))
-                ])) : createCommentVNode("", true),
-                hasExpandable.value ? (openBlock(), createElementBlock("th", _hoisted_7, [..._cache[0] || (_cache[0] = [
+                  }, null, 40, _hoisted_3)) : (openBlock(), createElementBlock("span", _hoisted_4))
+                ], 4)) : createCommentVNode("", true),
+                hasExpandable.value ? (openBlock(), createElementBlock("th", {
+                  key: 1,
+                  class: "aheart-table__expand-cell",
+                  scope: "col",
+                  style: normalizeStyle(utilityStyle("expand"))
+                }, [..._cache[1] || (_cache[1] = [
                   createElementVNode("span", {
                     class: "aheart-table__expand-title",
                     "aria-hidden": "true"
                   }, null, -1)
-                ])])) : createCommentVNode("", true),
+                ])], 4)) : createCommentVNode("", true),
                 (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
                   var _a;
                   return openBlock(), createElementBlock("th", {
@@ -545,12 +826,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                     scope: "col"
                   }, [
-                    createElementVNode("div", _hoisted_9, [
+                    createElementVNode("div", _hoisted_6, [
                       column.sorter ? (openBlock(), createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__sorter",
                         type: "button",
-                        disabled: isDisabled.value,
+                        disabled: isInteractionLocked.value,
                         "aria-label": getSortActionLabel(column),
                         onClick: ($event) => toggleSort(column)
                       }, [
@@ -563,14 +844,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           class: "aheart-table__sort-icon",
                           "data-sort": getSortState(column),
                           "aria-hidden": "true"
-                        }, null, 8, _hoisted_11)
-                      ], 8, _hoisted_10)) : (openBlock(), createElementBlock("span", _hoisted_12, [
+                        }, null, 8, _hoisted_8)
+                      ], 8, _hoisted_7)) : (openBlock(), createElementBlock("span", _hoisted_9, [
                         createVNode(unref(ARenderNode), {
                           node: column.title
                         }, null, 8, ["node"])
                       ])),
-                      ((_a = column.filters) == null ? void 0 : _a.length) ? (openBlock(), createElementBlock("div", {
+                      column.filterDropdown ? (openBlock(), createElementBlock("button", {
                         key: 2,
+                        class: "aheart-table__filter-trigger",
+                        type: "button",
+                        "aria-haspopup": "dialog",
+                        "data-table-filter-trigger": getColumnKey(column),
+                        "aria-expanded": isFilterPopupOpen(column),
+                        disabled: isInteractionLocked.value,
+                        onClick: ($event) => toggleFilterPopup(column, $event.currentTarget)
+                      }, [
+                        _cache[2] || (_cache[2] = createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
+                        createElementVNode("span", _hoisted_11, "Filter " + toDisplayString(getColumnLabel(column)), 1)
+                      ], 8, _hoisted_10)) : createCommentVNode("", true),
+                      ((_a = column.filters) == null ? void 0 : _a.length) ? (openBlock(), createElementBlock("div", {
+                        key: 3,
                         class: "aheart-table__filters",
                         "aria-label": `${column.title} filters`
                       }, [
@@ -580,17 +874,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                             class: normalizeClass(["aheart-table__filter-option", { "is-active": isFilterActive(column, filter.value) }]),
                             type: "button",
                             "aria-pressed": isFilterActive(column, filter.value),
-                            disabled: isDisabled.value,
+                            disabled: isInteractionLocked.value,
                             onClick: ($event) => toggleFilter(column, filter.value)
                           }, [
                             createVNode(unref(ARenderNode), {
                               node: filter.text
                             }, null, 8, ["node"])
-                          ], 10, _hoisted_14);
+                          ], 10, _hoisted_13);
                         }), 128))
-                      ], 8, _hoisted_13)) : createCommentVNode("", true)
+                      ], 8, _hoisted_12)) : createCommentVNode("", true)
                     ])
-                  ], 14, _hoisted_8);
+                  ], 14, _hoisted_5);
                 }), 128))
               ])
             ])) : createCommentVNode("", true),
@@ -602,7 +896,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   createElementVNode("tr", {
                     class: normalizeClass({ "is-selected": isSelected(row.key) })
                   }, [
-                    hasSelection.value ? (openBlock(), createElementBlock("td", _hoisted_15, [
+                    hasSelection.value ? (openBlock(), createElementBlock("td", {
+                      key: 0,
+                      class: "aheart-table__selection-cell",
+                      style: normalizeStyle(utilityStyle("selection"))
+                    }, [
                       createElementVNode("input", {
                         type: selectionType.value,
                         name: unref(radioName),
@@ -610,18 +908,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         disabled: isRowSelectionDisabled(row.record),
                         "aria-label": `Select row ${row.key}`,
                         onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                      }, null, 40, _hoisted_16)
-                    ])) : createCommentVNode("", true),
-                    hasExpandable.value ? (openBlock(), createElementBlock("td", _hoisted_17, [
+                      }, null, 40, _hoisted_14)
+                    ], 4)) : createCommentVNode("", true),
+                    hasExpandable.value ? (openBlock(), createElementBlock("td", {
+                      key: 1,
+                      class: "aheart-table__expand-cell",
+                      style: normalizeStyle(utilityStyle("expand"))
+                    }, [
                       isRowExpandable(row.record) ? (openBlock(), createElementBlock("button", {
                         key: 0,
                         class: "aheart-table__expand-button",
                         type: "button",
                         "aria-expanded": isExpanded(row.key),
-                        disabled: isDisabled.value,
+                        disabled: isInteractionLocked.value,
                         onClick: ($event) => toggleExpand(row.record, row.key)
-                      }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_18)) : createCommentVNode("", true)
-                    ])) : createCommentVNode("", true),
+                      }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : createCommentVNode("", true)
+                    ], 4)) : createCommentVNode("", true),
                     (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
                       return openBlock(), createElementBlock("td", {
                         key: getColumnKey(column),
@@ -634,7 +936,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       ], 6);
                     }), 128))
                   ], 2),
-                  hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_19, [
+                  hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_16, [
                     createElementVNode("td", {
                       colspan: columnCount.value,
                       class: "aheart-table__expanded-cell"
@@ -642,28 +944,38 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       createVNode(unref(ARenderNode), {
                         node: renderExpanded(row.record, row.index)
                       }, null, 8, ["node"])
-                    ], 8, _hoisted_20)
+                    ], 8, _hoisted_17)
                   ])) : createCommentVNode("", true)
                 ], 64);
               }), 128)),
-              !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_21, [
+              !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_18, [
                 createElementVNode("td", {
                   colspan: columnCount.value,
                   class: "aheart-table__empty"
                 }, [
                   createVNode(unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                ], 8, _hoisted_22)
+                ], 8, _hoisted_19)
               ])) : createCommentVNode("", true)
             ])
-          ]),
-          _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_23, [
-            _cache[1] || (_cache[1] = createElementVNode("span", {
+          ], 4),
+          _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_20, [
+            _cache[3] || (_cache[3] = createElementVNode("span", {
               class: "aheart-table__loading-dot",
               "aria-hidden": "true"
             }, null, -1)),
             createElementVNode("span", null, toDisplayString(resolvedLoadingText.value), 1)
+          ])) : _ctx.error ? (openBlock(), createElementBlock("div", _hoisted_21, [
+            createVNode(unref(ARenderNode), { node: errorMessage.value }, null, 8, ["node"]),
+            createElementVNode("button", {
+              type: "button",
+              "data-table-retry": "",
+              disabled: isDisabled.value,
+              onClick: _cache[0] || (_cache[0] = ($event) => emit("retry"))
+            }, [
+              createVNode(unref(ARenderNode), { node: errorRetryText.value }, null, 8, ["node"])
+            ], 8, _hoisted_22)
           ])) : createCommentVNode("", true)
-        ]),
+        ], 4),
         shouldShowPagination.value ? (openBlock(), createBlock(unref(Pagination), {
           key: 0,
           class: "aheart-table__pagination",
@@ -677,11 +989,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "page-size-options": paginationConfig.value.pageSizeOptions,
           "show-quick-jumper": paginationConfig.value.showQuickJumper,
           "total-boundary-show-size-changer": paginationConfig.value.totalBoundaryShowSizeChanger,
-          disabled: isDisabled.value,
+          disabled: isInteractionLocked.value,
           size: resolvedSize.value,
           onChange: handlePageChange
-        }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : createCommentVNode("", true)
-      ], 10, _hoisted_1);
+        }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : createCommentVNode("", true),
+        activeFilterColumn.value && activeFilterPopupNode.value ? (openBlock(), createBlock(Teleport, {
+          key: 1,
+          to: popupTarget.value,
+          disabled: popupTargetDisabled.value
+        }, [
+          createVNode(unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
+        ], 8, ["to", "disabled"])) : createCommentVNode("", true)
+      ], 42, _hoisted_1);
     };
   }
 });

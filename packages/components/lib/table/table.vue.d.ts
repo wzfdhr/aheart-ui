@@ -21,6 +21,13 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly rowSelection: PropType<import("./types").TableRowSelection<TableRecord>>;
     readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
+    readonly scroll: PropType<import("./types").TableScroll>;
+    readonly sticky: PropType<import("./types").TableSticky>;
+    readonly error: PropType<boolean | {
+        message?: VNodeChild;
+        retryText?: VNodeChild;
+    }>;
+    readonly getPopupContainer: PropType<(triggerNode: HTMLElement) => false | HTMLElement>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -36,6 +43,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "update:expandedRowKeys": (keys: TableKey[]) => void;
     selectAll: (_selected: boolean, keys: TableKey[], rows: TableRecord[]) => void;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => void;
+    filterDropdownOpenChange: (_columnKey: string, _open: boolean) => void;
+    retry: () => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<{
     readonly columns: PropType<TableColumn<TableRecord>[]>;
     readonly dataSource: PropType<TableRecord[]>;
@@ -57,6 +66,13 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly rowSelection: PropType<import("./types").TableRowSelection<TableRecord>>;
     readonly expandable: PropType<import("./types").TableExpandable<TableRecord>>;
+    readonly scroll: PropType<import("./types").TableScroll>;
+    readonly sticky: PropType<import("./types").TableSticky>;
+    readonly error: PropType<boolean | {
+        message?: VNodeChild;
+        retryText?: VNodeChild;
+    }>;
+    readonly getPopupContainer: PropType<(triggerNode: HTMLElement) => false | HTMLElement>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -72,6 +88,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     "onUpdate:expandedRowKeys"?: ((keys: TableKey[]) => any) | undefined;
     onSelectAll?: ((_selected: boolean, keys: TableKey[], rows: TableRecord[]) => any) | undefined;
     onExpand?: ((_expanded: boolean, _record: TableRecord, _key: TableKey) => any) | undefined;
+    onFilterDropdownOpenChange?: ((_columnKey: string, _open: boolean) => any) | undefined;
+    onRetry?: (() => any) | undefined;
 }>, {
     readonly disabled: boolean;
     readonly emptyText: VNodeChild;

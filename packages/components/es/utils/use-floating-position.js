@@ -51,12 +51,13 @@ const getPlacementAlign = (placement) => {
   return "";
 };
 const resolveViewportPlacement = (reference, floating, requestedPlacement, enabled) => {
-  if (!enabled || typeof window === "undefined")
+  const ownerWindow = reference.ownerDocument.defaultView;
+  if (!enabled || !ownerWindow)
     return requestedPlacement;
   const referenceRect = reference.getBoundingClientRect();
   const floatingRect = floating.getBoundingClientRect();
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
-  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+  const viewportWidth = ownerWindow.innerWidth || reference.ownerDocument.documentElement.clientWidth || 0;
+  const viewportHeight = ownerWindow.innerHeight || reference.ownerDocument.documentElement.clientHeight || 0;
   let side = getPlacementSide(requestedPlacement);
   let align = getPlacementAlign(requestedPlacement);
   if (floatingRect.height > 0 && viewportHeight > 0) {
@@ -126,7 +127,7 @@ function useFloatingPosition(options) {
   const update = async () => {
     const reference = toValue(options.reference);
     const floating = toValue(options.floating);
-    if (typeof window === "undefined" || toValue(options.open) === false || !reference || !floating) {
+    if (toValue(options.open) === false || !reference || !floating || !reference.ownerDocument.defaultView) {
       return;
     }
     const currentUpdateId = ++updateId;
@@ -210,7 +211,7 @@ function useFloatingPosition(options) {
     toValue(options.arrowSize);
     if (options.arrow)
       toValue(options.arrow);
-    if (typeof window === "undefined" || !open || !reference || !floating) {
+    if (!open || !reference || !floating || !reference.ownerDocument.defaultView) {
       return;
     }
     const cleanup = autoUpdate(

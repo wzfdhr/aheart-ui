@@ -12,6 +12,21 @@ export type TableDataIndex = string | number | Array<string | number>;
 export type TableFilterValue = string | number | boolean;
 export type TableChangeAction = 'paginate' | 'sort' | 'filter';
 export type TableRenderable = VNodeChild;
+export type TableColumnFixed = 'left' | 'right';
+export type TableScroll = {
+    x?: boolean | number | string;
+    y?: number | string;
+};
+export type TableSticky = boolean | {
+    offsetHeader?: number;
+};
+export type TableFilterDropdownContext = {
+    selectedKeys: TableFilterValue[];
+    setSelectedKeys: (keys: TableFilterValue[]) => void;
+    confirm: () => void;
+    clearFilters: () => void;
+    close: () => void;
+};
 export interface TableColumnFilter {
     text: TableRenderable;
     value: TableFilterValue;
@@ -31,6 +46,10 @@ export interface TableColumn<T extends TableRecord = TableRecord> {
     filteredValue?: TableFilterValue[];
     defaultFilteredValue?: TableFilterValue[];
     filterMultiple?: boolean;
+    filterDropdown?: (context: TableFilterDropdownContext) => VNodeChild;
+    filterDropdownOpen?: boolean;
+    defaultFilterDropdownOpen?: boolean;
+    fixed?: TableColumnFixed;
     ellipsis?: boolean;
     customRender?: (context: {
         text: unknown;
@@ -106,6 +125,13 @@ export declare const tableProps: {
     };
     readonly rowSelection: PropType<TableRowSelection<TableRecord>>;
     readonly expandable: PropType<TableExpandable<TableRecord>>;
+    readonly scroll: PropType<TableScroll>;
+    readonly sticky: PropType<TableSticky>;
+    readonly error: PropType<boolean | {
+        message?: TableRenderable;
+        retryText?: TableRenderable;
+    }>;
+    readonly getPopupContainer: PropType<(triggerNode: HTMLElement) => HTMLElement | false>;
     readonly showHeader: {
         readonly type: BooleanConstructor;
         readonly default: true;
@@ -122,5 +148,7 @@ export declare const tableEmits: {
     select: (_key: TableKey, _selected: boolean, _record: TableRecord, _selectedRowKeys: TableKey[]) => boolean;
     selectAll: (_selected: boolean, keys: TableKey[], rows: TableRecord[]) => boolean;
     expand: (_expanded: boolean, _record: TableRecord, _key: TableKey) => boolean;
+    filterDropdownOpenChange: (_columnKey: string, _open: boolean) => boolean;
+    retry: () => boolean;
 };
 export type TableProps = ExtractPropTypes<typeof tableProps>;

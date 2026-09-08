@@ -19,6 +19,10 @@ const tableProps = {
   },
   rowSelection: Object,
   expandable: Object,
+  scroll: Object,
+  sticky: [Boolean, Object],
+  error: [Boolean, Object],
+  getPopupContainer: Function,
   showHeader: {
     type: Boolean,
     default: true
@@ -34,7 +38,9 @@ const tableEmits = {
   "update:expandedRowKeys": (keys) => Array.isArray(keys),
   select: (_key, _selected, _record, _selectedRowKeys) => true,
   selectAll: (_selected, keys, rows) => Array.isArray(keys) && Array.isArray(rows),
-  expand: (_expanded, _record, _key) => true
+  expand: (_expanded, _record, _key) => true,
+  filterDropdownOpenChange: (_columnKey, _open) => true,
+  retry: () => true
 };
 export {
   tableEmits,

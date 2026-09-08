@@ -6555,6 +6555,85 @@ kbd.aheart-typography-text {
   border-radius: var(--aheart-radius);
 }
 
+.aheart-table__container > table {
+  position: relative;
+}
+
+.aheart-table__filter-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  padding: 0;
+  color: var(--aheart-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--aheart-radius-sm);
+}
+
+.aheart-table__filter-trigger:hover:not(:disabled),
+.aheart-table__filter-trigger[aria-expanded="true"] {
+  color: var(--aheart-color-primary);
+  border-color: var(--aheart-color-primary);
+}
+
+.aheart-table__filter-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.aheart-table__filter-popup {
+  position: absolute;
+  z-index: 1100;
+  min-width: 180px;
+  padding: var(--aheart-spacing-sm);
+  background: var(--aheart-color-bg);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  box-shadow: var(--aheart-shadow-md, 0 4px 16px rgb(0 0 0 / 12%));
+}
+
+.aheart-table__filter-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--aheart-spacing-sm);
+}
+
+.aheart-table__error {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--aheart-spacing-sm);
+  color: var(--aheart-color-danger, #b42318);
+  background: var(--aheart-color-bg);
+}
+
+.aheart-table__error button {
+  padding: 4px 10px;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid currentcolor;
+  border-radius: var(--aheart-radius-sm);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .aheart-table table {
   width: 100%;
   min-width: 100%;
@@ -6780,6 +6859,7 @@ kbd.aheart-typography-text {
 .aheart-table__loading {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;

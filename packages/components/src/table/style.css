@@ -60,6 +60,7 @@
 .aheart-table__error {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -313,6 +314,7 @@
 .aheart-table__loading {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -12,6 +12,53 @@ const d5Rows = [
   { key: 4, name: '第二页客户乙', score: 80 },
   { key: 5, name: '第二页客户丙', score: 10 }
 ]
+
+const d5bFilterOpen = ref(false)
+const d5bRejectFilterOpen = ref(false)
+const d5bLoading = ref(false)
+const d5bError = ref(false)
+const d5bEmpty = ref(false)
+const d5bRetryCount = ref(0)
+const d5bCustomActionCount = ref(0)
+const d5bFilterValue = ref('')
+const d5bRows = [
+  { key: 'b-1', name: 'Ada', role: 'Architect', score: 96 },
+  { key: 'b-2', name: 'Grace', role: 'Engineer', score: 88 },
+  { key: 'b-3', name: 'Linus', role: 'Maintainer', score: 78 },
+  { key: 'b-4', name: 'Margaret', role: 'Engineer', score: 91 },
+  { key: 'b-5', name: 'James', role: 'Architect', score: 83 }
+]
+const d5bFilterDropdown = ({ selectedKeys, setSelectedKeys, confirm, clearFilters, close }: any) => h(
+  'div',
+  { class: 'd5b-filter-controls' },
+  [
+    h('input', {
+      'data-d5b-filter-input': true,
+      value: selectedKeys?.[0] ?? '',
+      placeholder: '输入姓名',
+      onInput: (event: Event) => {
+        const value = (event.target as HTMLInputElement).value
+        setSelectedKeys(value ? [value] : [])
+      }
+    }),
+    h('button', { type: 'button', 'data-d5b-filter-confirm': true, onClick: () => { d5bFilterValue.value = selectedKeys?.[0] ?? ''; confirm() } }, '确认'),
+    h('button', { type: 'button', 'data-d5b-filter-reset': true, onClick: () => { d5bFilterValue.value = ''; clearFilters() } }, 'Reset'),
+    h('button', { type: 'button', 'data-d5b-filter-cancel': true, onClick: close }, 'Cancel')
+  ]
+)
+const d5bColumns = computed(() => [
+  { title: '姓名', dataIndex: 'name', key: 'name', width: 160, fixed: 'left' as const, filterDropdown: d5bFilterDropdown, filterDropdownOpen: d5bFilterOpen.value },
+  { title: '评分', dataIndex: 'score', key: 'score', width: 140, sorter: true, customRender: ({ text }: { text: unknown }) => h('button', { type: 'button', 'data-d5b-custom-action': true, onClick: () => d5bCustomActionCount.value++ }, String(text)) },
+  { title: '角色', dataIndex: 'role', key: 'role', width: 160, fixed: 'right' as const, filterDropdown: d5bFilterDropdown, filterDropdownOpen: d5bFilterOpen.value }
+])
+function d5bFilterOpenChange(_key: string, open: boolean) {
+  if (open && d5bRejectFilterOpen.value) return
+  d5bFilterOpen.value = open
+}
+function d5bRetry() {
+  d5bRetryCount.value++
+  d5bError.value = false
+}
 const d5Columns = [{ title: '客户', key: 'name', dataIndex: 'name' }, { title: '评分', key: 'score', dataIndex: 'score', sorter: true }]
 const d5Selected = ref<Array<string | number>>([])
 const d5AcceptSelection = ref(true)
@@ -430,6 +477,38 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 
 新用法请明确填写`dataMode='local'`或`'server'`。省略时保留历史兼容：始终本地排序/筛选，存在`pagination.total`时不再切片；不要将该混合路径视为推荐的服务端模式。
 
+## D5-B 筛选、布局与韧性状态
+
+下面的交互工作台覆盖 D5-B 的真实 DOM 行为：筛选草稿的确认、Reset、Cancel、Escape 和 outside 关闭；受控打开被父层拒绝时保持关闭；固定列与 selection/expand utility 列的连续偏移；`scroll.x` 窄屏横向滚动、`scroll.y` 表内滚动和 sticky 表头；loading 保留旧行并锁定交互，error 保留旧行且只允许 retry，empty 显示空态。该批不包含 D5-C 虚拟滚动。
+
+<section class="aheart-demo-panel d5-table-b" aria-label="D5-B 筛选布局状态">
+  <div class="d5-table-b__actions">
+    <AButton :aria-pressed="d5bRejectFilterOpen" @click="d5bRejectFilterOpen = !d5bRejectFilterOpen">{{ d5bRejectFilterOpen ? '允许筛选打开' : '拒绝筛选打开' }}</AButton>
+    <AButton :aria-pressed="d5bLoading" @click="d5bLoading = !d5bLoading">{{ d5bLoading ? '结束 loading' : '开始 loading' }}</AButton>
+    <AButton :aria-pressed="d5bError" :disabled="d5bLoading" @click="d5bError = !d5bError">{{ d5bError ? '清除 error' : '显示 error' }}</AButton>
+    <AButton :aria-pressed="d5bEmpty" :disabled="d5bLoading || d5bError" @click="d5bEmpty = !d5bEmpty">{{ d5bEmpty ? '显示数据' : '显示 empty' }}</AButton>
+  </div>
+  <p role="status">筛选值：{{ d5bFilterValue || '无' }}；retry：{{ d5bRetryCount }}；自定义操作：{{ d5bCustomActionCount }}；打开：{{ d5bFilterOpen ? '是' : '否' }}</p>
+  <ATable
+    :columns="d5bColumns"
+    :data-source="d5bEmpty ? [] : d5bRows"
+    :loading="d5bLoading"
+    :error="d5bError ? { message: '当前数据加载失败', retryText: '重试数据请求' } : false"
+    :scroll="{ x: true, y: 180 }"
+    :sticky="{ offsetHeader: 8 }"
+    :row-selection="{}"
+    :expandable="{ expandedRowRender: row => `详情：${row.name}` }"
+    @filter-dropdown-open-change="d5bFilterOpenChange"
+    @retry="d5bRetry"
+  />
+</section>
+
+`fixed: 'left'` 和 `fixed: 'right'` 只对连续的左前缀/右后缀生效，并且要求正数或可解析的 px 宽度；不合法的一组会整体降级为普通列。固定布局使用单个原生 `table` 与 `colgroup`，selection/expand utility 列参与固定偏移。`sticky` 可配 `offsetHeader`；有 `scroll.y` 时表内滚动，无 `y` 时依赖页面或祖先滚动容器。
+
+`filterDropdown` 接收 `{ selectedKeys, setSelectedKeys, confirm, clearFilters, close }` 草稿上下文。`filterDropdownOpen` 是受控状态，`defaultFilterDropdownOpen` 只设置初始状态；Table 同时只显示一个浮层，并以触发器的 `ownerDocument` 作为 Teleport 容器和事件边界。父层拒绝打开请求时，DOM 保持关闭。
+
+`loading` 优先于 `error`，保留父层传入的当前 `dataSource`，并锁定查询、分页、选择、展开和自定义操作。`error` 仅提供 retry 入口，不替换旧行；retry 事件由业务层决定何时恢复数据。
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
@@ -445,6 +524,10 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | pagination | 分页配置，设为 `false` 时隐藏 | `false` \| `TablePaginationConfig` | 自动 |
 | rowSelection | 行选择配置 | `TableRowSelection` | - |
 | expandable | 展开行配置 | `TableExpandable` | - |
+| scroll | 横向/纵向滚动；`x: true` 冻结自然宽度 | `{ x?: boolean | number | string; y?: number | string }` | - |
+| sticky | 固定表头，支持表头偏移 | `boolean | { offsetHeader?: number }` | `false` |
+| error | 错误状态及 retry 文案 | `boolean | { message?: VNodeChild; retryText?: VNodeChild }` | `false` |
+| getPopupContainer | 返回筛选浮层容器；默认是触发器 owner body | `(triggerNode) => HTMLElement | false` | - |
 | showHeader | 是否显示表头 | `boolean` | `true` |
 | emptyText | 空状态内容 | `VNodeChild` | ConfigProvider locale.empty.description |
 
@@ -466,6 +549,10 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | filteredValue | 受控筛选值 | `(string \| number \| boolean)[]` | - |
 | defaultFilteredValue | 默认筛选值 | `(string \| number \| boolean)[]` | - |
 | filterMultiple | 是否允许多选筛选 | `boolean` | `true` |
+| filterDropdown | 自定义筛选浮层，接收草稿上下文 | `(context) => VNodeChild` | - |
+| filterDropdownOpen | 受控筛选浮层打开状态 | `boolean` | - |
+| defaultFilterDropdownOpen | 非受控初始打开状态 | `boolean` | `false` |
+| fixed | 连续左前缀/右后缀固定方向 | `left` | `right` | - |
 | ellipsis | 是否省略文本 | `boolean` | `false` |
 | customRender | 自定义单元格渲染函数，返回内容会作为节点渲染 | `(context) => VNodeChild` | - |
 
@@ -523,6 +610,8 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | selectAll | 当前页全选/取消，keys为请求后的完整集合，changedRows只含本次改变的可选行 | `(selected, selectedRowKeys, changedRows) => void` |
 | expand | 展开状态变化时触发 | `(expanded, record, key) => void` |
 | update:expandedRowKeys | 展开 keys 变化时触发，可用于受控展开状态 | `(keys) => void` |
+| filterDropdownOpenChange | 筛选浮层请求打开/关闭 | `(columnKey, open) => void` |
+| retry | 错误态请求重试 | `() => void` |
 
 ### TableChangeExtra
 
