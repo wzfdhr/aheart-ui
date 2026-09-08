@@ -475,15 +475,42 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       virtualController.onScroll();
     };
-    const virtualRange = vue.computed(() => virtualController.range.value);
     const virtualMeasuredTotal = vue.computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0));
     const virtualMeasuredDisplay = vue.computed(() => virtualMeasuredTotal.value);
     const virtualMeasuredFor = (index2) => virtualController.measured.value.get(virtualKeys.value[index2]);
+    const virtualSegments = vue.computed(() => {
+      var _a, _b;
+      if (!virtualRuntime.value.enabled)
+        return [{ start: 0, end: pagedRows.value.length, top: 0, bottom: 0 }];
+      const items = [...virtualController.items.value].sort((a, b) => a.index - b.index);
+      const segments = [];
+      let cursor = 0;
+      for (const item of items) {
+        const previous = segments.at(-1);
+        if (previous && item.index <= previous.end) {
+          previous.end = Math.max(previous.end, item.index + 1);
+          previous.bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - item.end);
+          continue;
+        }
+        if (previous)
+          previous.bottom = Math.max(0, item.start - (((_a = virtualController.items.value.find((candidate) => candidate.index === previous.end - 1)) == null ? void 0 : _a.end) ?? item.start));
+        segments.push({ start: item.index, end: item.index + 1, top: Math.max(0, item.start - cursor), bottom: 0 });
+        cursor = item.end;
+      }
+      if (segments.length)
+        segments.at(-1).bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - (((_b = items.at(-1)) == null ? void 0 : _b.end) ?? 0));
+      return segments;
+    });
+    const virtualRange = vue.computed(() => {
+      const segments = virtualSegments.value;
+      const first = segments[0];
+      const last = segments.at(-1);
+      return { start: (first == null ? void 0 : first.start) ?? 0, end: (last == null ? void 0 : last.end) ?? 0, top: (first == null ? void 0 : first.top) ?? 0, bottom: (last == null ? void 0 : last.bottom) ?? 0 };
+    });
     vue.watch([focusedRowKey, pagedRows, selectedKeys, selectionType], () => {
       const index2 = focusedRowKey.value === void 0 ? void 0 : pagedRows.value.findIndex((row) => row.key === focusedRowKey.value);
       virtualController.setPinnedIndex(index2 !== void 0 && index2 >= 0 ? index2 : void 0);
-      const selectedPins = selectionType.value === "radio" ? pagedRows.value.flatMap((row, rowIndex) => selectedKeys.value.some((selected) => selected === row.key || typeof selected !== typeof row.key && String(selected) === String(row.key)) ? [rowIndex] : []) : [];
-      virtualController.setPinnedIndexes(index2 !== void 0 && index2 >= 0 ? [index2, index2 + 1, ...selectedPins] : selectedPins);
+      virtualController.setPinnedIndexes(index2 !== void 0 && index2 >= 0 ? [index2, index2 + 1] : []);
     }, { immediate: true, flush: "post" });
     const visibleRows = vue.computed(() => {
       if (!virtualRuntime.value.enabled)

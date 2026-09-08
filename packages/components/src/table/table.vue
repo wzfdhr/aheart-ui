@@ -597,17 +597,38 @@ const handleVirtualScroll = () => {
   }
   virtualController.onScroll()
 }
-const virtualRange = computed(() => virtualController.range.value)
 const virtualMeasuredTotal = computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0))
 const virtualMeasuredDisplay = computed(() => virtualMeasuredTotal.value)
 const virtualMeasuredFor = (index: number) => virtualController.measured.value.get(virtualKeys.value[index])
+const virtualSegments = computed(() => {
+  if (!virtualRuntime.value.enabled) return [{ start: 0, end: pagedRows.value.length, top: 0, bottom: 0 }]
+  const items = [...virtualController.items.value].sort((a, b) => a.index - b.index)
+  const segments: Array<{ start: number; end: number; top: number; bottom: number }> = []
+  let cursor = 0
+  for (const item of items) {
+    const previous = segments.at(-1)
+    if (previous && item.index <= previous.end) {
+      previous.end = Math.max(previous.end, item.index + 1)
+      previous.bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - item.end)
+      continue
+    }
+    if (previous) previous.bottom = Math.max(0, item.start - (virtualController.items.value.find((candidate) => candidate.index === previous.end - 1)?.end ?? item.start))
+    segments.push({ start: item.index, end: item.index + 1, top: Math.max(0, item.start - cursor), bottom: 0 })
+    cursor = item.end
+  }
+  if (segments.length) segments.at(-1)!.bottom = Math.max(0, virtualController.virtualizer.value.getTotalSize() - (items.at(-1)?.end ?? 0))
+  return segments
+})
+const virtualRange = computed(() => {
+  const segments = virtualSegments.value
+  const first = segments[0]
+  const last = segments.at(-1)
+  return { start: first?.start ?? 0, end: last?.end ?? 0, top: first?.top ?? 0, bottom: last?.bottom ?? 0 }
+})
 watch([focusedRowKey, pagedRows, selectedKeys, selectionType], () => {
   const index = focusedRowKey.value === undefined ? undefined : pagedRows.value.findIndex((row) => row.key === focusedRowKey.value)
   virtualController.setPinnedIndex(index !== undefined && index >= 0 ? index : undefined)
-  const selectedPins = selectionType.value === 'radio'
-    ? pagedRows.value.flatMap((row, rowIndex) => selectedKeys.value.some((selected) => selected === row.key || (typeof selected !== typeof row.key && String(selected) === String(row.key))) ? [rowIndex] : [])
-    : []
-  virtualController.setPinnedIndexes(index !== undefined && index >= 0 ? [index, index + 1, ...selectedPins] : selectedPins)
+  virtualController.setPinnedIndexes(index !== undefined && index >= 0 ? [index, index + 1] : [])
 }, { immediate: true, flush: 'post' })
 const visibleRows = computed(() => {
   if (!virtualRuntime.value.enabled) return pagedRows.value
