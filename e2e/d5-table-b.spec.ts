@@ -18,6 +18,19 @@ async function waitForTableLayout(demo: ReturnType<Page['locator']>) {
 
 async function openFilter(page: Page, demo: ReturnType<Page['locator']>, index = 0) {
   const triggers = demo.locator('button[aria-haspopup="dialog"]')
+  if (index > 0) {
+    const container = demo.locator('.aheart-table__container')
+    await container.evaluate(element => { element.scrollLeft = element.scrollWidth })
+    const fixedBoundary = demo.locator('thead th').nth(2)
+    await expect.poll(async () => {
+      const containerBox = await container.boundingBox()
+      const boundaryBox = await fixedBoundary.boundingBox()
+      const triggerBox = await triggers.nth(index).boundingBox()
+      if (!containerBox || !boundaryBox || !triggerBox) return false
+      return triggerBox.x >= boundaryBox.x + boundaryBox.width - 1 &&
+        triggerBox.x + triggerBox.width <= containerBox.x + containerBox.width + 1
+    }).toBe(true)
+  }
   await triggers.nth(index).click()
   const popup = page.locator('[data-table-filter-popup]')
   await expect(popup).toBeVisible()
