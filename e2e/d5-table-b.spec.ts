@@ -135,6 +135,24 @@ test('D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlle
   expect(errors).toEqual([])
 })
 
+test('D5-B outside close followed by immediate reopen keeps the new popup alive', async ({ page }) => {
+  await page.goto('/components/table')
+  const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
+  await waitForTableLayout(demo)
+  const trigger = demo.locator('button[aria-haspopup="dialog"]').first()
+  await trigger.scrollIntoViewIfNeeded()
+  await trigger.click()
+  const popup = page.locator('[data-table-filter-popup]')
+  await expect(popup).toBeVisible()
+  await page.mouse.click(4, 4)
+  await expect(popup).toHaveCount(0)
+  await trigger.click()
+  await expect(popup).toBeVisible()
+  await page.waitForTimeout(40)
+  await expect(popup).toHaveCount(1)
+  await expect(demo.locator('p[role="status"]')).toContainText('打开：是')
+})
+
 test('D5-B fixed columns, utility offsets, sticky header, y scroll, and narrow x scroll', async ({ page }) => {
   const errors = pageErrors(page)
   await page.goto('/components/table')

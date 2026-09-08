@@ -139,6 +139,31 @@ describe('Table D5-B review regressions', () => {
     wrapper.unmount()
   })
 
+  it('keeps a controlled popup open and focused after Escape is rejected', async () => {
+    const open = ref(true)
+    const wrapper = mount(defineComponent({
+      setup: () => () => h(Table, {
+        columns: [{ ...columns[0], filterDropdown, filterDropdownOpen: open.value }],
+        dataSource: rows,
+        onFilterDropdownOpenChange: () => undefined
+      } as any)
+    }))
+    await nextTick()
+    const popup = document.querySelector<HTMLElement>('[data-table-filter-popup]')
+    expect(popup).not.toBeNull()
+    if (!popup) return
+    const input = popup.querySelector<HTMLInputElement>('[data-review-filter-input]')
+    expect(input).not.toBeNull()
+    if (!input) return
+    input.focus()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+    await new Promise(resolve => setTimeout(resolve, 160))
+    const retained = document.querySelector<HTMLElement>('[data-table-filter-popup]')
+    expect(retained).not.toBeNull()
+    expect(retained?.contains(document.activeElement)).toBe(true)
+    wrapper.unmount()
+  })
+
   it('emits one false close request for an uncontrolled Cancel', async () => {
     const closeRequests: Array<[string, boolean]> = []
     const wrapper = mount(Table, {
