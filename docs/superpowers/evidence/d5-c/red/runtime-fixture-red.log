@@ -37,5 +37,9 @@ Fourth-review verification:
   two spacers; targeted desktop run exits RED at missing aria-rowcount (no
   fixture timeout), so the final expected matrix is 8/8 RED at runtime gates.
 
+Fifth-review consumer correction: expanded and fixed-expanded SSR now target
+the first visible Row 1, and assert `Details for Row 1`; no offscreen Row 5000
+is required during initial SSR.
+
 No production Table, generated es/lib, unit test, or unrelated docs changes
 were included in this fixture commit.

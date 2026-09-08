@@ -39,7 +39,7 @@ const rows = Array.from({ length: 10000 }, (_, i) => ({ key: `row-${i + 1}`, nam
 const columns = [{ title: 'Name', dataIndex: 'name', key: 'name' }, { title: 'Status', dataIndex: 'status', key: 'status' }]
 const serverRows = rows.slice(1000, 1020).map((row, index) => ({ ...row, name: `Server row ${1001 + index}` }))
 const fixedColumns = [{ ...columns[0], fixed: 'left', width: 180 }, { title: 'Focus', key: 'focus', width: 140 }, { ...columns[1], fixed: 'right', width: 180 }]
-const expandedRow = rows[4999]
+const expandedRow = rows[0]
 const cases = {
   local: { dataMode: 'local', dataSource: rows, pagination: false },
   server: { dataMode: 'server', dataSource: serverRows, pagination: { current: 2, pageSize: 20, total: 10000 } },
@@ -59,8 +59,8 @@ for (const [name, settings] of Object.entries(cases)) {
   if (name === 'virtual') assert.match(html, /data-table-virtual-spacer/, 'virtual case must expose spacer')
   if (name === 'server') for (let i = 1001; i <= 1020; i++) assert.match(html, new RegExp(`Server row ${i}`), `server SSR lost row ${i}`)
   if (name === 'fixed') { assert.match(html, /width/, 'fixed SSR must preserve positive widths'); assert.match(html, /scroll/, 'fixed SSR must preserve horizontal scroll contract') }
-  if (name === 'expanded') assert.match(html, /Details for Row 5000/, 'expanded SSR must include default expanded details')
-  if (name === 'fixed-expanded') { assert.match(html, /Details for Row 5000/); assert.match(html, /data-fixed/, 'fixed-expanded SSR must expose fixed output') }
+  if (name === 'expanded') assert.match(html, /Details for Row 1/, 'expanded SSR must include default expanded details')
+  if (name === 'fixed-expanded') { assert.match(html, /Details for Row 1/); assert.match(html, /data-fixed/, 'fixed-expanded SSR must expose fixed output') }
 }
 const serializedProps = JSON.stringify(hydrationProps)
 await writeFile(path.join(root, 'index.html'), '<!doctype html><html><body><div id="app">' + ssr + '</div><script type="module" src="/main.js"></script></body></html>')
