@@ -2,13 +2,14 @@ import { computed, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 import { defaultRangeExtractor, observeElementRect, useVirtualizer } from '@tanstack/vue-virtual'
 import type { NormalizedTableVirtual } from './virtual-options'
 
-export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref<number>, scrollElement: Ref<HTMLElement | null>, getItemKey: (index: number) => string = index => String(index)) {
+export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref<number>, scrollElement: Ref<HTMLElement | null>, getItemKey: (index: number) => string = index => String(index), itemKeys?: Ref<readonly string[]>) {
   const pinnedIndex = ref<number | undefined>()
+  const pinnedIndexes = ref<number[]>([])
   // Keep each logical row's measured parts independently. Expanded rows are
   // companions of the base row, and ResizeObserver may report either side on
   // a later callback. The logical index is the stable virtual identity.
-  const measuredParts = new Map<number, Map<string, number>>()
-  const measured = ref(new Map<number, number>())
+  const measuredParts = new Map<string, Map<string, number>>()
+  const measured = ref(new Map<string, number>())
   const alive = ref(true)
   const observeRect: typeof observeElementRect = (instance, callback) => {
     const view = instance.scrollElement?.ownerDocument.defaultView
@@ -30,18 +31,20 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
     estimateSize: () => options.value.estimateSize,
     initialRect: { width: 0, height: Math.max(1, options.value.height) },
     overscan: options.value.overscan,
-    getItemKey,
+    getItemKey: (index: number) => itemKeys?.value[index] ?? getItemKey(index),
+    // Make key changes observable to TanStack when pagination/data changes.
+    itemKeys: itemKeys?.value,
     observeElementRect: observeRect,
     rangeExtractor: (range: Parameters<typeof defaultRangeExtractor>[0]) => {
       const indexes = defaultRangeExtractor(range)
-      if (pinnedIndex.value !== undefined && pinnedIndex.value >= 0 && pinnedIndex.value < count.value && !indexes.includes(pinnedIndex.value)) indexes.push(pinnedIndex.value)
+      const pins = pinnedIndexes.value.length ? pinnedIndexes.value : pinnedIndex.value === undefined ? [] : [pinnedIndex.value]
+      pins.forEach((pin) => { if (pin >= 0 && pin < count.value && !indexes.includes(pin)) indexes.push(pin) })
       return indexes.sort((a, b) => a - b)
     }
   })))
   const onScroll = () => {
     const offset = scrollElement.value?.scrollTop ?? 0
     virtualizer.value.scrollToOffset(offset)
-    virtualizer.value.measure()
   }
   const range = computed(() => {
     if (!options.value.enabled) return { start: 0, end: count.value, top: 0, bottom: 0 }
@@ -50,34 +53,38 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
     const end = (items[items.length - 1]?.index ?? -1) + 1
     return { start, end, top: items[0]?.start ?? 0, bottom: Math.max(0, virtualizer.value.getTotalSize() - (items.at(-1)?.end ?? 0)) }
   })
+  const items = computed(() => options.value.enabled ? virtualizer.value.getVirtualItems() : [])
   const setPinnedIndex = (index: number | undefined) => { pinnedIndex.value = index; virtualizer.value.measure() }
+  const setPinnedIndexes = (indexes: number[]) => { pinnedIndexes.value = indexes; virtualizer.value.measure() }
   const setMeasured = (index: number, height: number, part = 'base') => {
     if (!alive.value || !options.value.enabled || height <= 0) return
-    const parts = new Map(measuredParts.get(index) ?? [])
+    const key = getItemKey(index)
+    const parts = new Map(measuredParts.get(key) ?? [])
     parts.set(part, height)
-    measuredParts.set(index, parts)
+    measuredParts.set(key, parts)
     const next = new Map(measured.value)
-    next.set(index, Array.from(parts.values()).reduce((sum, value) => sum + value, 0))
+    next.set(key, Array.from(parts.values()).reduce((sum, value) => sum + value, 0))
     measured.value = next
-    virtualizer.value.resizeItem(index, next.get(index)!)
+    virtualizer.value.resizeItem(index, next.get(key)!)
   }
   const clearMeasured = (index: number, part?: string) => {
-    const parts = measuredParts.get(index)
+    const key = getItemKey(index)
+    const parts = measuredParts.get(key)
     if (!parts) return
     if (part) parts.delete(part)
     else parts.clear()
     const next = new Map(measured.value)
     if (parts.size === 0) {
-      measuredParts.delete(index)
-      next.delete(index)
+      measuredParts.delete(key)
+      next.delete(key)
     } else {
-      measuredParts.set(index, parts)
-      next.set(index, Array.from(parts.values()).reduce((sum, value) => sum + value, 0))
+      measuredParts.set(key, parts)
+      next.set(key, Array.from(parts.values()).reduce((sum, value) => sum + value, 0))
     }
     measured.value = next
     virtualizer.value.measure()
   }
-  watch([options, scrollElement], () => virtualizer.value.measure(), { flush: 'sync' })
+  watch([options, scrollElement, ...(itemKeys ? [itemKeys] : [])], () => virtualizer.value.measure(), { flush: 'sync' })
   onBeforeUnmount(() => { alive.value = false; measuredParts.clear(); virtualizer.value.setOptions({ ...virtualizer.value.options, enabled: false }) })
-  return { virtualizer, range, measured, setMeasured, clearMeasured, setPinnedIndex, onScroll, pinnedIndex }
+  return { virtualizer, range, items, measured, setMeasured, clearMeasured, setPinnedIndex, setPinnedIndexes, onScroll, pinnedIndex }
 }

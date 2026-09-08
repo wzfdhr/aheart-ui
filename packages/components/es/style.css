@@ -6829,6 +6829,19 @@ kbd.aheart-typography-text {
   text-align: center;
 }
 
+.aheart-table tr[data-aheart-virtual-spacer] {
+  padding: 0;
+  border: 0;
+  line-height: 0;
+}
+
+.aheart-table tr[data-aheart-virtual-spacer] > td {
+  height: 0;
+  padding: 0;
+  border: 0;
+  line-height: 0;
+}
+
 .aheart-table__selection-cell input {
   width: 16px;
   height: 16px;

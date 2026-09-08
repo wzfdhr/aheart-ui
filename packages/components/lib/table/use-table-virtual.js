@@ -2,8 +2,9 @@
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const vue = require("vue");
 const vueVirtual = require("@tanstack/vue-virtual");
-function useTableVirtual(options, count, scrollElement, getItemKey = (index) => String(index)) {
+function useTableVirtual(options, count, scrollElement, getItemKey = (index) => String(index), itemKeys) {
   const pinnedIndex = vue.ref();
+  const pinnedIndexes = vue.ref([]);
   const measuredParts = /* @__PURE__ */ new Map();
   const measured = vue.ref(/* @__PURE__ */ new Map());
   const alive = vue.ref(true);
@@ -38,12 +39,17 @@ function useTableVirtual(options, count, scrollElement, getItemKey = (index) => 
     estimateSize: () => options.value.estimateSize,
     initialRect: { width: 0, height: Math.max(1, options.value.height) },
     overscan: options.value.overscan,
-    getItemKey,
+    getItemKey: (index) => (itemKeys == null ? void 0 : itemKeys.value[index]) ?? getItemKey(index),
+    // Make key changes observable to TanStack when pagination/data changes.
+    itemKeys: itemKeys == null ? void 0 : itemKeys.value,
     observeElementRect: observeRect,
     rangeExtractor: (range2) => {
       const indexes = vueVirtual.defaultRangeExtractor(range2);
-      if (pinnedIndex.value !== void 0 && pinnedIndex.value >= 0 && pinnedIndex.value < count.value && !indexes.includes(pinnedIndex.value))
-        indexes.push(pinnedIndex.value);
+      const pins = pinnedIndexes.value.length ? pinnedIndexes.value : pinnedIndex.value === void 0 ? [] : [pinnedIndex.value];
+      pins.forEach((pin) => {
+        if (pin >= 0 && pin < count.value && !indexes.includes(pin))
+          indexes.push(pin);
+      });
       return indexes.sort((a, b) => a - b);
     }
   })));
@@ -51,34 +57,40 @@ function useTableVirtual(options, count, scrollElement, getItemKey = (index) => 
     var _a;
     const offset = ((_a = scrollElement.value) == null ? void 0 : _a.scrollTop) ?? 0;
     virtualizer.value.scrollToOffset(offset);
-    virtualizer.value.measure();
   };
   const range = vue.computed(() => {
     var _a, _b, _c, _d;
     if (!options.value.enabled)
       return { start: 0, end: count.value, top: 0, bottom: 0 };
-    const items = virtualizer.value.getVirtualItems();
-    const start = ((_a = items[0]) == null ? void 0 : _a.index) ?? 0;
-    const end = (((_b = items[items.length - 1]) == null ? void 0 : _b.index) ?? -1) + 1;
-    return { start, end, top: ((_c = items[0]) == null ? void 0 : _c.start) ?? 0, bottom: Math.max(0, virtualizer.value.getTotalSize() - (((_d = items.at(-1)) == null ? void 0 : _d.end) ?? 0)) };
+    const items2 = virtualizer.value.getVirtualItems();
+    const start = ((_a = items2[0]) == null ? void 0 : _a.index) ?? 0;
+    const end = (((_b = items2[items2.length - 1]) == null ? void 0 : _b.index) ?? -1) + 1;
+    return { start, end, top: ((_c = items2[0]) == null ? void 0 : _c.start) ?? 0, bottom: Math.max(0, virtualizer.value.getTotalSize() - (((_d = items2.at(-1)) == null ? void 0 : _d.end) ?? 0)) };
   });
+  const items = vue.computed(() => options.value.enabled ? virtualizer.value.getVirtualItems() : []);
   const setPinnedIndex = (index) => {
     pinnedIndex.value = index;
+    virtualizer.value.measure();
+  };
+  const setPinnedIndexes = (indexes) => {
+    pinnedIndexes.value = indexes;
     virtualizer.value.measure();
   };
   const setMeasured = (index, height, part = "base") => {
     if (!alive.value || !options.value.enabled || height <= 0)
       return;
-    const parts = new Map(measuredParts.get(index) ?? []);
+    const key = getItemKey(index);
+    const parts = new Map(measuredParts.get(key) ?? []);
     parts.set(part, height);
-    measuredParts.set(index, parts);
+    measuredParts.set(key, parts);
     const next = new Map(measured.value);
-    next.set(index, Array.from(parts.values()).reduce((sum, value) => sum + value, 0));
+    next.set(key, Array.from(parts.values()).reduce((sum, value) => sum + value, 0));
     measured.value = next;
-    virtualizer.value.resizeItem(index, next.get(index));
+    virtualizer.value.resizeItem(index, next.get(key));
   };
   const clearMeasured = (index, part) => {
-    const parts = measuredParts.get(index);
+    const key = getItemKey(index);
+    const parts = measuredParts.get(key);
     if (!parts)
       return;
     if (part)
@@ -87,21 +99,21 @@ function useTableVirtual(options, count, scrollElement, getItemKey = (index) => 
       parts.clear();
     const next = new Map(measured.value);
     if (parts.size === 0) {
-      measuredParts.delete(index);
-      next.delete(index);
+      measuredParts.delete(key);
+      next.delete(key);
     } else {
-      measuredParts.set(index, parts);
-      next.set(index, Array.from(parts.values()).reduce((sum, value) => sum + value, 0));
+      measuredParts.set(key, parts);
+      next.set(key, Array.from(parts.values()).reduce((sum, value) => sum + value, 0));
     }
     measured.value = next;
     virtualizer.value.measure();
   };
-  vue.watch([options, scrollElement], () => virtualizer.value.measure(), { flush: "sync" });
+  vue.watch([options, scrollElement, ...itemKeys ? [itemKeys] : []], () => virtualizer.value.measure(), { flush: "sync" });
   vue.onBeforeUnmount(() => {
     alive.value = false;
     measuredParts.clear();
     virtualizer.value.setOptions({ ...virtualizer.value.options, enabled: false });
   });
-  return { virtualizer, range, measured, setMeasured, clearMeasured, setPinnedIndex, onScroll, pinnedIndex };
+  return { virtualizer, range, items, measured, setMeasured, clearMeasured, setPinnedIndex, setPinnedIndexes, onScroll, pinnedIndex };
 }
 exports.useTableVirtual = useTableVirtual;
