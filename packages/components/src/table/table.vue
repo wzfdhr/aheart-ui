@@ -436,13 +436,13 @@ const narrowLeftConstrained = computed(() => {
   const utilityWidth = (utility: 'selection' | 'expand') => Number.parseFloat(widthSnapshot.value[`__${utility}`] ?? '48') || 48
   const requestedUtilities = (hasSelection.value ? utilityWidth('selection') : 0) + (hasExpandable.value ? utilityWidth('expand') : 0)
   const leftSourceWidth = columns.filter((column) => column.fixed === 'left').reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? '0') || 0)), 0)
-  return requestedUtilities + leftSourceWidth + 44 > viewport && viewport - leftSourceWidth - 44 >= utilityCount * 30
+  return requestedUtilities + leftSourceWidth + 64 > viewport && viewport - leftSourceWidth - 64 >= utilityCount * 30
 })
 const narrowUtilityWidth = computed(() => {
   const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0)
   if (!utilityCount) return '0px'
   const leftSourceWidth = normalizedColumns.value.filter((column) => column.fixed === 'left').reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? '0') || 0)), 0)
-  return `${Math.max(30, Math.floor((layoutViewportWidth.value - leftSourceWidth - 44) / utilityCount))}px`
+  return `${Math.max(30, Math.floor((layoutViewportWidth.value - leftSourceWidth - 64) / utilityCount))}px`
 })
 const layoutColumns = computed<LayoutColumn[]>(() => {
   const data: LayoutColumn[] = []
