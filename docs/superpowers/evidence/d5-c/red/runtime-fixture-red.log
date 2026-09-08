@@ -41,5 +41,11 @@ Fifth-review consumer correction: expanded and fixed-expanded SSR now target
 the first visible Row 1, and assert `Details for Row 1`; no offscreen Row 5000
 is required during initial SSR.
 
+Fixed-column follow-up: the E2E now derives required collision width from
+rendered header bounding boxes (selection/expand utility plus requested left and
+right columns) and compares it with the actual Table container width. The
+previous hard-coded 596px threshold was removed; desktop/mobile downgrade is
+now geometry-driven.
+
 No production Table, generated es/lib, unit test, or unrelated docs changes
 were included in this fixture commit.
