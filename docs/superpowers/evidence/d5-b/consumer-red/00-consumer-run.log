@@ -1,0 +1,62 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+Error: Command failed: npx tsc --noEmit --strict --skipLibCheck --moduleResolution Bundler --module ESNext --target ES2022 types.ts
+
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at ChildProcess.exithandler (node:child_process:417:12)
+    at ChildProcess.emit (node:events:509:28)
+    at maybeClose (node:internal/child_process:1124:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:306:5) {
+  code: 2,
+  killed: false,
+  signal: null,
+  cmd: 'npx tsc --noEmit --strict --skipLibCheck --moduleResolution Bundler --module ESNext --target ES2022 types.ts',
+  stdout: 'types.ts(51,3): error TS2769: No overload matches this call.\n' +
+    '  The last overload gave the following error.\n' +
+    "    Type 'TableColumn<User>[]' is not assignable to type 'TableColumn<TableRecord>[]'.\n" +
+    "      Type 'TableColumn<User>' is not assignable to type 'TableColumn<TableRecord>'.\n" +
+    "        Types of property 'sorter' are incompatible.\n" +
+    "          Type 'boolean | ((a: User, b: User) => number) | undefined' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.\n" +
+    "            Type '(a: User, b: User) => number' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.\n" +
+    "              Type '(a: User, b: User) => number' is not assignable to type '(a: TableRecord, b: TableRecord) => number'.\n" +
+    "                Types of parameters 'a' and 'a' are incompatible.\n" +
+    "                  Type 'TableRecord' is not assignable to type 'User'.\n" +
+    "                    Type 'TableRowSelection<User>' is not assignable to type 'TableRowSelection<TableRecord>'.\n" +
+    "                      Type 'TableRecord' is not assignable to type 'User'.\n" +
+    "                        Type 'TableExpandable<User>' is not assignable to type 'TableExpandable<TableRecord>'.\n" +
+    "                          Type 'TableRecord' is not assignable to type 'User'.\n" +
+    'types.ts(53,3): error TS2769: No overload matches this call.\n' +
+    '  The last overload gave the following error.\n' +
+    "    Type 'TableColumn<User>[]' is not assignable to type 'TableColumn<TableRecord>[]'.\n" +
+    "      Type 'TableColumn<User>' is not assignable to type 'TableColumn<TableRecord>'.\n" +
+    "        Types of property 'sorter' are incompatible.\n" +
+    "          Type 'boolean | ((a: User, b: User) => number) | undefined' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.\n" +
+    "            Type '(a: User, b: User) => number' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.\n" +
+    "              Type '(a: User, b: User) => number' is not assignable to type '(a: TableRecord, b: TableRecord) => number'.\n" +
+    "                Types of parameters 'a' and 'a' are incompatible.\n" +
+    "                  Type 'TableRecord' is not assignable to type 'User'.\n" +
+    "                    Type 'TableRowSelection<User>' is not assignable to type 'TableRowSelection<TableRecord>'.\n" +
+    "                      Type 'TableRecord' is not assignable to type 'User'.\n" +
+    "                        Type 'TableExpandable<User>' is not assignable to type 'TableExpandable<TableRecord>'.\n" +
+    "                          Type 'TableRecord' is not assignable to type 'User'.\n" +
+    'types.ts(54,3): error TS2769: No overload matches this call.\n' +
+    '  The last overload gave the following error.\n' +
+    "    Type 'TableColumn<User>[]' is not assignable to type 'TableColumn<TableRecord>[]'.\n" +
+    "      Type 'TableColumn<User>' is not assignable to type 'TableColumn<TableRecord>'.\n" +
+    "        Types of property 'sorter' are incompatible.\n" +
+    "          Type 'boolean | ((a: User, b: User) => number) | undefined' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.\n" +
+    "            Type '(a: User, b: User) => number' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.\n" +
+    "              Type '(a: User, b: User) => number' is not assignable to type '(a: TableRecord, b: TableRecord) => number'.\n" +
+    "                Types of parameters 'a' and 'a' are incompatible.\n" +
+    "                  Type 'TableRecord' is not assignable to type 'User'.\n" +
+    "                    Type 'TableRowSelection<User>' is not assignable to type 'TableRowSelection<TableRecord>'.\n" +
+    "                      Type 'TableRecord' is not assignable to type 'User'.\n" +
+    "                        Type 'TableExpandable<User>' is not assignable to type 'TableExpandable<TableRecord>'.\n" +
+    "                          Type 'TableRecord' is not assignable to type 'User'.\n",
+  stderr: ''
+}
+
+Node.js v24.17.0
