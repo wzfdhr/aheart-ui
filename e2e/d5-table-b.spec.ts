@@ -214,5 +214,5 @@ test('D5-B external ancestor scroll keeps no-y sticky header at the offset and i
   expect(tableBox).not.toBeNull()
   if (!container || !headerBox || !tableBox) return
   expect(Math.abs(headerBox.y - (container.y + clientTop + 8))).toBeLessThan(2)
-  expect(headerBox.y + headerBox.height).toBeLessThanOrEqual(tableBox.bottom + 1)
+  expect(headerBox.y + headerBox.height).toBeLessThanOrEqual(tableBox.y + tableBox.height + 1)
 })
