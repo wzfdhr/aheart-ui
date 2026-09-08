@@ -30,3 +30,9 @@ Astra 架构终审的六轮 RED 拦截已逐轮清零。最终生产修复 `3737
 ## 放行边界
 
 本报告只表示 D5-C 独立开发技术复审在最终候选内无 P0/P1/P2。它不放行产品，不批准 PR、远端 CI、合并、部署或发布；D5 总体关闭仍需分别核对产品验收及其他阶段门禁。
+
+## 9d01fe3 预产品复验同步
+
+后续预产品复验保留了移动端 `Status` body 不可读的 P1 历史：`25a24a9` / `5a52b3b` 保留 RED 约束，`12a3f49` 修正降级右侧单元格对齐，`db66681` / `2f71948` 稳定行交互后的 fixed body 几何采样；`9d01fe3` 绑定最终视觉复拍，确认 `Status` body 的 `ready` 文案完整可读、无透明透底。该链路不抹除早期失败。
+
+在 `9d01fe3` 预产品复验范围内，D5-A/B/C 五项目浏览器矩阵最终为 `100/100`；性能最终为 virtual median `25.2 ms`、full-DOM 约 `260 ms`、最大 CLS `0.00147`、long-task `0 ms`，虚拟窗口 `11` 行、`2` 个 spacer。package compare 的 gzip delta 为 `10925` bytes；候选 tgz 为 `c1ed529f51daf360767b9f327d54608b479965f6f8184660dd5edf76dc88c751`。全仓 unit、typecheck/build、docs 与 pack 门禁均保持通过。以上是技术/性能/设计同步，不构成产品验收通过。

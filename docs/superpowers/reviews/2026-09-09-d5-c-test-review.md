@@ -30,3 +30,9 @@ package compare 的最终 gzip bundle delta 为 `10859` bytes，低于 `12288` b
 ## 放行边界
 
 本报告仅证明独立测试技术门禁通过，不放行产品，不批准 PR、合并、部署或发布。远端 CI、PR 状态、用户产品验收以及 D5-A/B/C 的更高层关闭仍须分别核对。
+
+## 9d01fe3 预产品复验同步
+
+针对移动端 `Status` body 不可读 P1，保留 `25a24a9` / `5a52b3b` 的 RED 约束及 `12a3f49`、`db66681`、`2f71948` 的修复/稳定链；最终 `9d01fe3` 视觉复拍确认 body 文案完整可读。历史 P1 不以最终绿色结果覆盖。
+
+受影响最终复验结果为：D5-A/B/C 五项目浏览器矩阵 `100/100`，性能 virtual median `25.2 ms`、full-DOM 约 `260 ms`、最大 CLS `0.00147`、long-task `0 ms`，`11` 个虚拟行与 `2` 个 spacer；package compare gzip delta `10925` bytes，候选 tgz compare SHA `c1ed529f51daf360767b9f327d54608b479965f6f8184660dd5edf76dc88c751`。全仓 unit、typecheck/build、docs、pack 均通过。产品复验仍待执行，本段不构成产品放行。
