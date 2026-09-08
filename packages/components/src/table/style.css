@@ -11,6 +11,15 @@
   border-radius: var(--aheart-radius);
 }
 
+.aheart-table__container[data-aheart-virtual-scroll] {
+  overflow-anchor: none;
+}
+
+.aheart-table__container [data-aheart-virtual-spacer="true"],
+.aheart-table__container [data-aheart-virtual-spacer="true"] > td {
+  visibility: hidden;
+}
+
 .aheart-table__container > table {
   position: relative;
 }
