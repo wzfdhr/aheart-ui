@@ -1,0 +1,243 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts  (16 tests | 12 failed) 122ms
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size small uses the frozen estimateSize default
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size middle uses the frozen estimateSize default
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size large uses the frozen estimateSize default
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > normalizes height before scroll.y, accepts only scroll.y > 320, and warns on conflicts
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses a numeric estimateSize override and a boolean virtual=false/true default contract
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders native rows, bounded overscan and logical aria rowcount with spacers
+     → expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > keeps an expanded base row and companion row in one logical item and measures dynamic content
+     → expected [] to have a length of 1 but got +0
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > preserves typed row tokens and rejects controlled radio changes by key, never visible index
+     → expected undefined to deeply equal [ [ [ '1' ] ] ]
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > pins focused row through virtualization, releases on blur, and bridges Tab to the next logical row
+     → expected undefined to be 'true' // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > warns and falls back to full DOM for unsupported rowspan
+     → expected "warn" to be called at least once
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > warns on duplicate keys and restores full DOM
+     → expected "warn" to be called with arguments: [ StringContaining "duplicate" ]
+
+Received:
+
+  1st warn call:
+
+  Array [
+-   StringContaining "duplicate",
++   "[ATable] rowKey must be stable and unique; index fallback cannot preserve identity across data changes.",
+  ]
+
+
+Number of calls: 1
+
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses ownerDocument defaultView observers and cleans RAF/observers on unmount
+     → expected "spy" to be called at least once
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size small uses the frozen estimateSize default
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size middle uses the frozen estimateSize default
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size large uses the frozen estimateSize default
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:32:29
+     30|     const wrapper = mount(Table, { props: props({ size, virtual: { hei…
+     31|     const marker = wrapper.find('[data-aheart-virtual-estimate-size]')
+     32|     expect(marker.exists()).toBe(true)
+       |                             ^
+     33|     expect(marker.attributes('data-value')).toBe(String(estimate))
+     34|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > normalizes height before scroll.y, accepts only scroll.y > 320, and warns on conflicts
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:41:29
+     39|     const height = wrapper.find('[data-aheart-virtual-height]')
+     40|     const overscan = wrapper.find('[data-aheart-virtual-overscan]')
+     41|     expect(height.exists()).toBe(true)
+       |                             ^
+     42|     expect(overscan.exists()).toBe(true)
+     43|     expect(height.attributes('data-value')).toBe('500')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses a numeric estimateSize override and a boolean virtual=false/true default contract
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:54:29
+     52|     const enabled = mount(Table, { props: props({ virtual: { height: 4…
+     53|     const marker = enabled.find('[data-aheart-virtual-estimate-size]')
+     54|     expect(marker.exists()).toBe(true)
+       |                             ^
+     55|     expect(marker.attributes('data-value')).toBe('72')
+     56|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders native rows, bounded overscan and logical aria rowcount with spacers
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:62:28
+     60|     expect(wrapper.find('table').exists()).toBe(true)
+     61|     const table = wrapper.find('[aria-rowcount]')
+     62|     expect(table.exists()).toBe(true)
+       |                            ^
+     63|     expect(table.attributes('aria-rowcount')).toBe('40')
+     64|     expect(wrapper.findAll('tbody tr').length).toBeLessThanOrEqual(20)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > keeps an expanded base row and companion row in one logical item and measures dynamic content
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:82:71
+     80|     })
+     81|     await wrapper.find('.aheart-table__expand-button').trigger('click')
+     82|     expect(wrapper.findAll('[data-aheart-virtual-logical-item="0"]')).…
+       |                                                                       ^
+     83|     expect(resize).toHaveBeenCalled()
+     84|     vi.unstubAllGlobals()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > preserves typed row tokens and rejects controlled radio changes by key, never visible index
+AssertionError: expected undefined to deeply equal [ [ [ '1' ] ] ]
+
+- Expected:
+Array [
+  Array [
+    Array [
+      "1",
+    ],
+  ],
+]
+
++ Received:
+undefined
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:113:55
+    111|     radios[1].element.click()
+    112|     await nextTick()
+    113|     expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]…
+       |                                                       ^
+    114|     expect(radios.map((radio) => radio.element.checked)).toEqual([true…
+    115|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > pins focused row through virtualization, releases on blur, and bridges Tab to the next logical row
+AssertionError: expected undefined to be 'true' // Object.is equality
+
+- Expected:
+"true"
+
++ Received:
+undefined
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:121:60
+    119|     const first = wrapper.find('tbody tr:not([data-aheart-virtual-spac…
+    120|     await first.trigger('focusin')
+    121|     expect(first.attributes('data-aheart-virtual-pinned')).toBe('true')
+       |                                                            ^
+    122|     await first.trigger('keydown', { key: 'Tab' })
+    123|     await first.trigger('focusout')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > warns and falls back to full DOM for unsupported rowspan
+AssertionError: expected "warn" to be called at least once
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:142:18
+    140|     const dataSource = kind === 'invalid key' ? [{ name: 'missing key'…
+    141|     const wrapper = mount(Table, { props: props({ columns: testColumns…
+    142|     expect(warn).toHaveBeenCalled()
+       |                  ^
+    143|     expect(wrapper.find('[data-aheart-virtual-spacer]').exists()).toBe…
+    144|     warn.mockRestore()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > warns on duplicate keys and restores full DOM
+AssertionError: expected "warn" to be called with arguments: [ StringContaining "duplicate" ]
+
+Received:
+
+  1st warn call:
+
+  Array [
+-   StringContaining "duplicate",
++   "[ATable] rowKey must be stable and unique; index fallback cannot preserve identity across data changes.",
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:150:18
+    148|     const warn = vi.spyOn(console, 'warn').mockImplementation(() => un…
+    149|     const wrapper = mount(Table, { props: props({ dataSource: [{ ...ro…
+    150|     expect(warn).toHaveBeenCalledWith(expect.stringContaining('duplica…
+       |                  ^
+    151|     expect(wrapper.find('[data-aheart-virtual-spacer]').exists()).toBe…
+    152|     warn.mockRestore()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses ownerDocument defaultView observers and cleans RAF/observers on unmount
+AssertionError: expected "spy" to be called at least once
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:164:21
+    162|     })
+    163|     const wrapper = mount(Table, { props: props({ virtual: { height: 4…
+    164|     expect(observe).toHaveBeenCalled()
+       |                     ^
+    165|     wrapper.unmount()
+    166|     expect(cancel).toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 4 passed (16)
+   Start at  17:53:41
+   Duration  585ms (transform 157ms, setup 0ms, collect 199ms, tests 122ms, environment 136ms, prepare 25ms)
+
+undefined
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run src/table/__tests__/table-d5c-virtualization.test.ts --environment jsdom

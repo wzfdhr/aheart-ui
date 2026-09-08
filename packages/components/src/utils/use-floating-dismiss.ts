@@ -31,18 +31,19 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
     if (!trigger) return
 
     const focusableSelector = [
-      'button:not([disabled])',
-      'a[href]',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
+      'button:not([disabled]):not([hidden]):not([inert])',
+      'a[href]:not([hidden]):not([inert])',
+      'input:not([disabled]):not([hidden]):not([inert])',
+      'select:not([disabled]):not([hidden]):not([inert])',
+      'textarea:not([disabled]):not([hidden]):not([inert])',
+      '[tabindex]:not([tabindex="-1"]):not([hidden]):not([inert])'
     ].join(',')
-    const target = trigger.matches(focusableSelector)
+    const isFocusable = (element: Element) => !element.closest('[hidden], [inert]') && element.matches(focusableSelector)
+    const target = isFocusable(trigger)
       ? trigger
-      : trigger.querySelector<HTMLElement>(focusableSelector)
+      : Array.from(trigger.querySelectorAll<HTMLElement>(focusableSelector)).find(isFocusable)
 
-    target?.focus()
+    target?.focus({ preventScroll: true })
   }
 
   watchEffect((onCleanup) => {
@@ -91,7 +92,13 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
 
         if (toValue(options.restoreFocus) !== false) {
           void nextTick(() => {
-            if (!toValue(options.open)) focusTrigger()
+            if (!toValue(options.open)) {
+              focusTrigger()
+              const ownerWindow = toValue(options.trigger)?.ownerDocument.defaultView
+              ownerWindow?.requestAnimationFrame(() => {
+                if (!toValue(options.open)) focusTrigger()
+              })
+            }
           })
         }
       }

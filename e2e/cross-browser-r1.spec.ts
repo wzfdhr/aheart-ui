@@ -1,9 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
+import { installVitePressRequestTracker, setActiveVitePressRoute } from './qg5-request-failures.mjs'
 
 const unhandledRejectionsKey = '__qg5R1UnhandledRejections__'
 
-const collectProductionErrors = async (page: Page) => {
+const collectProductionErrors = async (page: Page, projectName: string) => {
   const errors: string[] = []
+  const tracker = installVitePressRequestTracker(page, projectName)
 
   page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`))
   page.on('console', (message) => {
@@ -16,10 +18,12 @@ const collectProductionErrors = async (page: Page) => {
     if (url.hostname === '127.0.0.1' && response.status() >= 400) {
       errors.push(`response ${response.status()}: ${url.pathname}`)
     }
+    void tracker.recordCompletedResponse(response)
   })
-  page.on('requestfailed', (request) => {
+  page.on('requestfailed', async (request) => {
     const url = new URL(request.url())
     const errorText = request.failure()?.errorText ?? 'unknown'
+    if (await tracker.isIgnorable(request, errorText)) return
     if (url.hostname === '127.0.0.1' && !/ABORTED/i.test(errorText)) {
       errors.push(`requestfailed: ${url.pathname} (${errorText})`)
     }
@@ -34,6 +38,7 @@ const collectProductionErrors = async (page: Page) => {
 }
 
 const expectProductionRoute = async (page: Page, route: string) => {
+  setActiveVitePressRoute(page, `/components/${route}`)
   await page.goto(`/components/${route}`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
   await expect(page.locator('.vp-doc h1')).toBeVisible()
@@ -60,7 +65,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('Form completes async validation, correction, and reset', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'form')
 
@@ -78,7 +83,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('Select selects, clears multiple values, and closes by keyboard', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'select')
 
@@ -102,7 +107,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('DatePicker commits a date-time draft and cancels a later edit', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'date-picker')
 
@@ -121,7 +126,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('Table sorts, selects, expands, and paginates records', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'table')
 
@@ -139,7 +144,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('Upload reports progress, recovers a failure, and enforces disabled state', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'upload')
 
@@ -162,7 +167,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('Modal opens, cancels by keyboard, and restores its trigger', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'modal')
 
@@ -177,7 +182,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('nested overlays close topmost-first and keep scroll and focus ownership', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'modal')
 
@@ -228,7 +233,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('DnD sorts by keyboard and Splitter resizes by keyboard', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'dnd')
 
@@ -249,7 +254,7 @@ test.describe('QG5 R1 production cross-browser smoke', () => {
   })
 
   test('AI Workbench retries a task, completes approval, and previews an artifact', async ({ page }, testInfo) => {
-    const errors = await collectProductionErrors(page)
+    const errors = await collectProductionErrors(page, testInfo.project.name)
     ;(testInfo as typeof testInfo & { __qg5Errors?: string[] }).__qg5Errors = errors
     await expectProductionRoute(page, 'ai-agent-workbench')
 

@@ -15,15 +15,16 @@ function useFloatingDismiss(options) {
     if (!trigger)
       return;
     const focusableSelector = [
-      "button:not([disabled])",
-      "a[href]",
-      "input:not([disabled])",
-      "select:not([disabled])",
-      "textarea:not([disabled])",
-      '[tabindex]:not([tabindex="-1"])'
+      "button:not([disabled]):not([hidden]):not([inert])",
+      "a[href]:not([hidden]):not([inert])",
+      "input:not([disabled]):not([hidden]):not([inert])",
+      "select:not([disabled]):not([hidden]):not([inert])",
+      "textarea:not([disabled]):not([hidden]):not([inert])",
+      '[tabindex]:not([tabindex="-1"]):not([hidden]):not([inert])'
     ].join(",");
-    const target = trigger.matches(focusableSelector) ? trigger : trigger.querySelector(focusableSelector);
-    target == null ? void 0 : target.focus();
+    const isFocusable = (element) => !element.closest("[hidden], [inert]") && element.matches(focusableSelector);
+    const target = isFocusable(trigger) ? trigger : Array.from(trigger.querySelectorAll(focusableSelector)).find(isFocusable);
+    target == null ? void 0 : target.focus({ preventScroll: true });
   };
   watchEffect((onCleanup) => {
     var _a, _b;
@@ -66,8 +67,15 @@ function useFloatingDismiss(options) {
         options.onDismiss("escape", event);
         if (toValue(options.restoreFocus) !== false) {
           void nextTick(() => {
-            if (!toValue(options.open))
+            var _a2;
+            if (!toValue(options.open)) {
               focusTrigger();
+              const ownerWindow = (_a2 = toValue(options.trigger)) == null ? void 0 : _a2.ownerDocument.defaultView;
+              ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame(() => {
+                if (!toValue(options.open))
+                  focusTrigger();
+              });
+            }
           });
         }
       }

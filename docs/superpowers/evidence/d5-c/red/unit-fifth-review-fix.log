@@ -1,0 +1,246 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts  (19 tests | 15 failed) 188ms
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=small exposes numeric estimateSize default
+     → virtual runtime must expose estimateSize: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=middle exposes numeric estimateSize default
+     → virtual runtime must expose estimateSize: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=large exposes numeric estimateSize default
+     → virtual runtime must expose estimateSize: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > resolves parsed scroll.y {"y":180} as virtual height 180 when virtual.height is absent
+     → virtual runtime must expose resolved scroll.y height: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > resolves parsed scroll.y {"y":"240px"} as virtual height 240 when virtual.height is absent
+     → virtual runtime must expose resolved scroll.y height: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > resolves parsed scroll.y {"y":"not-a-length"} as virtual height 320 when virtual.height is absent
+     → virtual runtime must expose resolved scroll.y height: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > gives numeric virtual.height precedence over any parsed scroll.y
+     → virtual runtime must expose normalized height: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > rejects non-numeric virtual.height, supports virtual=false, and uses defaults for virtual=true
+     → expected "warn" to be called with arguments: [ StringContaining "height" ]
+
+Received:
+
+
+
+Number of calls: 0
+
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders native rows, bounded data-row overscan, logical aria-rowcount, and two spacers
+     → virtual table must expose logical rowcount: expected false to be true // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > keeps expanded base and companion rows in one logical item and applies ResizeObserver callback height
+     → expected [] to have a length of 1 but got +0
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses typed number/string radio keys and restores native group after rejected change
+     → Cannot call element on an empty DOMWrapper.
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab
+     → expected null to be 'true' // Object.is equality
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders enabled SSR twice deterministically and hydrates same tree; false stays full DOM
+     → expected '<section class="aheart-table aheart-t…' to contain 'aria-rowcount="40"'
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > warns and falls back to full DOM for rowspan
+     → expected "warn" to be called at least once
+   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses iframe ownerDocument defaultView observers/RAF and cleans disconnect, cancel, and listeners
+     → expected "spy" to be called at least once
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=small exposes numeric estimateSize default
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=middle exposes numeric estimateSize default
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=large exposes numeric estimateSize default
+AssertionError: virtual runtime must expose estimateSize: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:27:73
+     25|   it.each([['small', 'small', 40], ['middle', 'middle', 48], ['large',…
+     26|     const marker = mountTable({ size, virtual: { height: 400 } }).find…
+     27|     expect(marker.exists(), 'virtual runtime must expose estimateSize'…
+       |                                                                         ^
+     28|     expect(marker.attributes('data-value')).toBe(String(estimate))
+     29|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > resolves parsed scroll.y {"y":180} as virtual height 180 when virtual.height is absent
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > resolves parsed scroll.y {"y":"240px"} as virtual height 240 when virtual.height is absent
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > resolves parsed scroll.y {"y":"not-a-length"} as virtual height 320 when virtual.height is absent
+AssertionError: virtual runtime must expose resolved scroll.y height: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:38:85
+     36|     const wrapper = mountTable({ scroll, virtual: true })
+     37|     const height = wrapper.find('[data-aheart-virtual-height]')
+     38|     expect(height.exists(), 'virtual runtime must expose resolved scro…
+       |                                                                                     ^
+     39|     expect(height.attributes('data-value')).toBe(expected)
+     40|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > gives numeric virtual.height precedence over any parsed scroll.y
+AssertionError: virtual runtime must expose normalized height: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:46:78
+     44|     const wrapper = mountTable({ scroll: { y: '240px' }, virtual: { he…
+     45|     const height = wrapper.find('[data-aheart-virtual-height]')
+     46|     expect(height.exists(), 'virtual runtime must expose normalized he…
+       |                                                                              ^
+     47|     expect(height.attributes('data-value')).toBe('500')
+     48|     expect(wrapper.find('[data-aheart-virtual-overscan]').attributes('…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > rejects non-numeric virtual.height, supports virtual=false, and uses defaults for virtual=true
+AssertionError: expected "warn" to be called with arguments: [ StringContaining "height" ]
+
+Received:
+
+
+
+Number of calls: 0
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:55:18
+     53|     const warn = vi.spyOn(console, 'warn').mockImplementation(() => un…
+     54|     const invalid = mountTable({ virtual: { height: '400' } })
+     55|     expect(warn).toHaveBeenCalledWith(expect.stringContaining('height'…
+       |                  ^
+     56|     const fallbackHeight = invalid.find('[data-aheart-virtual-height]')
+     57|     expect(fallbackHeight.exists(), 'invalid height must use a normali…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders native rows, bounded data-row overscan, logical aria-rowcount, and two spacers
+AssertionError: virtual table must expose logical rowcount: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:66:74
+     64|     const wrapper = mountTable({ virtual: { height: 400, overscan: 4 }…
+     65|     const table = wrapper.find('[aria-rowcount]')
+     66|     expect(table.exists(), 'virtual table must expose logical rowcount…
+       |                                                                          ^
+     67|     expect(table.attributes('aria-rowcount')).toBe('40')
+     68|     const dataRows = wrapper.findAll('tbody tr').filter((row) => !row.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > keeps expanded base and companion rows in one logical item and applies ResizeObserver callback height
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:86:71
+     84|     const wrapper = mountTable({ virtual: true, expandable: { expanded…
+     85|     await wrapper.find('.aheart-table__expand-button').trigger('click')
+     86|     expect(wrapper.findAll('[data-aheart-virtual-logical-item="0"]')).…
+       |                                                                       ^
+     87|     const base = wrapper.find('.aheart-table__expand-button').element.…
+     88|     const expanded = wrapper.find('.dynamic-detail').element.closest('…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses typed number/string radio keys and restores native group after rejected change
+Error: Cannot call element on an empty DOMWrapper.
+ ❯ Object.get ../../node_modules/.pnpm/@vue+test-utils@2.4.11_@vue+compiler-dom@3.5.38_@vue+server-renderer@3.5.38_vue@3.5.38_typesc_dhpi3e62ykslremjvdlxoyfqxa/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1482:27
+    1480|                     return () => false;
+    1481|                 default:
+    1482|                     throw new Error(`Cannot call ${String(prop)} on an…
+       |                           ^
+    1483|             }
+    1484|         }
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:130:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab
+AssertionError: expected null to be 'true' // Object.is equality
+
+- Expected:
+"true"
+
++ Received:
+null
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:152:85
+    150|     await nextTick()
+    151|     expect(document.activeElement).toBe(first.element)
+    152|     expect(first.element.closest('tr')?.getAttribute('data-aheart-virt…
+       |                                                                                     ^
+    153|     const scroll = wrapper.find('[data-aheart-virtual-scroll]')
+    154|     scroll.element.scrollTop = 9999
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders enabled SSR twice deterministically and hydrates same tree; false stays full DOM
+AssertionError: expected '<section class="aheart-table aheart-t…' to contain 'aria-rowcount="40"'
+
+- Expected
++ Received
+
+- aria-rowcount="40"
++ <section class="aheart-table aheart-table--middle" inert virtual="true"><!--v-if--><div class="aheart-table__interaction-region"><div class="aheart-table__container" style=""><table><colgroup><!--[--><col style=""><!--]--></colgroup><thead style=""><tr><!--v-if--><!--v-if--><!--[--><th class="" style="" scope="col"><div class="aheart-table__head-content"><span class="aheart-table__title">Name</span><!--v-if--><!--v-if--></div></th><!--]--></tr></thead><tbody><!--[--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 0</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 1</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 2</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 3</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 4</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 5</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 6</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 7</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 8</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 9</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 10</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 11</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 12</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 13</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 14</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 15</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 16</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 17</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 18</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 19</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 20</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 21</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 22</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 23</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 24</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 25</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 26</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 27</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 28</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 29</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 30</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 31</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 32</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 33</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 34</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 35</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 36</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 37</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 38</td><!--]--></tr><!--v-if--><!--]--><!--[--><tr class=""><!--v-if--><!--v-if--><!--[--><td class="" style="">Row 39</td><!--]--></tr><!--v-if--><!--]--><!--]--><!--v-if--></tbody></table></div><!--v-if--></div><!--v-if--><!--v-if--></section>
+
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:178:19
+    176|     const [first, second] = await Promise.all([renderEnabled(), render…
+    177|     expect(first).toBe(second)
+    178|     expect(first).toContain('aria-rowcount="40"')
+       |                   ^
+    179|     const container = document.createElement('div')
+    180|     let app: ReturnType<typeof createSSRApp> | undefined
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > warns and falls back to full DOM for rowspan
+AssertionError: expected "warn" to be called at least once
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:204:18
+    202|     const warn = vi.spyOn(console, 'warn').mockImplementation(() => un…
+    203|     const wrapper = mountTable({ columns: testColumns, dataSource, vir…
+    204|     expect(warn).toHaveBeenCalled()
+       |                  ^
+    205|     expect(wrapper.find('[data-aheart-virtual-spacer]').exists()).toBe…
+    206|     expect(wrapper.findAll('tbody tr')).toHaveLength(dataSource.length)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses iframe ownerDocument defaultView observers/RAF and cleans disconnect, cancel, and listeners
+AssertionError: expected "spy" to be called at least once
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts:223:23
+    221|     try {
+    222|       wrapper = mountTable({ virtual: true }, iframe.contentDocument!.…
+    223|       expect(observe).toHaveBeenCalled()
+       |                       ^
+    224|       wrapper.unmount()
+    225|       expect(disconnect).toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ Test Files  1 failed (1)
+      Tests  15 failed | 4 passed (19)
+   Start at  19:14:23
+   Duration  802ms (transform 200ms, setup 0ms, collect 248ms, tests 188ms, environment 237ms, prepare 36ms)
+
+undefined
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run src/table/__tests__/table-d5c-virtualization.test.ts --environment jsdom

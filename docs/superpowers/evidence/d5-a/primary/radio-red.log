@@ -1,0 +1,40 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/table/__tests__/table-radio-rejection.test.ts  (1 test | 1 failed) 20ms
+   ❯ src/table/__tests__/table-radio-rejection.test.ts > restores the whole native radio group when its controlled selection request is rejected
+     → expected [ false, false ] to deeply equal [ true, false ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-radio-rejection.test.ts > restores the whole native radio group when its controlled selection request is rejected
+AssertionError: expected [ false, false ] to deeply equal [ true, false ]
+
+- Expected
++ Received
+
+  Array [
+-   true,
++   false,
+    false,
+  ]
+
+ ❯ src/table/__tests__/table-radio-rejection.test.ts:22:56
+     20|     await nextTick()
+     21|     expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['seco…
+     22|     expect(inputs.map(input => input.element.checked)).toEqual([true, …
+       |                                                        ^
+     23|   } finally {
+     24|     wrapper.unmount()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  07:02:18
+   Duration  620ms (transform 193ms, setup 0ms, collect 250ms, tests 20ms, environment 181ms, prepare 51ms)
+
+undefined
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run src/table/__tests__/table-radio-rejection.test.ts --environment jsdom

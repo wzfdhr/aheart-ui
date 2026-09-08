@@ -21,7 +21,9 @@ const zhCN = {
   },
   table: {
     emptyText: "暂无数据",
-    loadingText: "加载中"
+    loadingText: "加载中",
+    errorText: "加载失败",
+    retryText: "重试"
   },
   datePicker: {
     locale: "zh-CN",
@@ -102,7 +104,9 @@ const enUS = {
   },
   table: {
     emptyText: "No Data",
-    loadingText: "Loading"
+    loadingText: "Loading",
+    errorText: "Load failed",
+    retryText: "Retry"
   },
   datePicker: {
     locale: "en-US",

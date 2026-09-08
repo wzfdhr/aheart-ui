@@ -1,0 +1,176 @@
+
+[WebServer] (node:85193) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:85204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:85218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:85973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:85987) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 5 workers
+
+
+(node:85999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:86001) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:86002) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:86000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:85998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[2/5] [mobile-webkit] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[3/5] [desktop] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[4/5] [mobile] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+[5/5] [desktop-firefox] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection
+  1) [desktop] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      70 |       popupBox.y >= 0 && popupBox.y + popupBox.height <= viewport.height &&
+      71 |       horizontalOverlap && verticalDistance < 24
+    > 72 |   }).toBe(true)
+         |      ^
+      73 |   await page.keyboard.press('Escape')
+      74 |   await expect(anchoredClick).toHaveCount(0)
+      75 |   expect(await page.evaluate(() => window.scrollY)).toBe(beforeScrollY)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:72:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2) [mobile] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      70 |       popupBox.y >= 0 && popupBox.y + popupBox.height <= viewport.height &&
+      71 |       horizontalOverlap && verticalDistance < 24
+    > 72 |   }).toBe(true)
+         |      ^
+      73 |   await page.keyboard.press('Escape')
+      74 |   await expect(anchoredClick).toHaveCount(0)
+      75 |   expect(await page.evaluate(() => window.scrollY)).toBe(beforeScrollY)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:72:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  3) [desktop-firefox] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      70 |       popupBox.y >= 0 && popupBox.y + popupBox.height <= viewport.height &&
+      71 |       horizontalOverlap && verticalDistance < 24
+    > 72 |   }).toBe(true)
+         |      ^
+      73 |   await page.keyboard.press('Escape')
+      74 |   await expect(anchoredClick).toHaveCount(0)
+      75 |   expect(await page.evaluate(() => window.scrollY)).toBe(beforeScrollY)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:72:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-design-red/filter-artifacts/d5-table-b-D5-B-filter-dra-eb0e9-de-and-controlled-rejection-desktop-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  3 failed
+    [desktop] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+    [mobile] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+    [desktop-firefox] › e2e/d5-table-b.spec.ts:40:5 › D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlled rejection 
+  2 passed (18.4s)

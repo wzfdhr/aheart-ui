@@ -1,0 +1,779 @@
+
+> aheart-ui-workspace@1.0.0 test:e2e /Users/start/.codex/worktrees/091b/aheart-ui
+> playwright test "--" "--workers=4"
+
+
+[WebServer] (node:23114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:23127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] (node:23143) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:24020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:24033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 611 tests using 5 workers
+
+[1/611] [desktop] › e2e/cross-browser-production.spec.ts:58:3 › QG5 production cross-browser gates › production assets load and interactive routes hydrate without runtime errors
+[2/611] [desktop] › e2e/agent-workbench.spec.ts:3:5 › desktop workbench renders resizable three-pane layout
+[3/611] [desktop] › e2e/cross-browser-r1.spec.ts:62:7 › QG5 R1 production cross-browser smoke › Form completes async validation, correction, and reset
+[4/611] [desktop] › e2e/config-provider.spec.ts:5:5 › ConfigProvider workbench updates real descendants across locale, size, disabled, theme, and nesting
+[5/611] [desktop] › e2e/a11y-visual.spec.ts:89:7 › QG4 accessibility and visual regression gates › critical and serious axe violations are zero for every target route
+[6/611] [desktop] › e2e/agent-workbench.spec.ts:12:5 › mobile workbench opens execution drawer from tabs
+[7/611] [desktop] › e2e/agent-workbench.spec.ts:22:5 › mobile workbench tabs provide 40px targets and arrow-key activation
+[8/611] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[9/611] [desktop] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[10/611] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[11/611] [desktop] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+[12/611] [desktop] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[13/611] [desktop] › e2e/cross-browser-production.spec.ts:71:3 › QG5 production cross-browser gates › Floating UI remains visible after scrolling, resizing, and edge adjustment
+[14/611] [desktop] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[15/611] [desktop] › e2e/d4-select-virtual.spec.ts:77:5 › Select virtual no-results message remains visible and search can recover
+[16/611] [desktop] › e2e/cross-browser-production.spec.ts:90:3 › QG5 production cross-browser gates › Teleport overlays close cleanly and restore focus
+[17/611] [desktop] › e2e/cross-browser-r1.spec.ts:104:7 › QG5 R1 production cross-browser smoke › DatePicker commits a date-time draft and cancels a later edit
+[18/611] [desktop] › e2e/d4-select-virtual.spec.ts:110:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[19/611] [desktop] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[20/611] [desktop] › e2e/cross-browser-production.spec.ts:108:3 › QG5 production cross-browser gates › mobile production surfaces stay within the viewport
+[21/611] [desktop] › e2e/d5-table-pagination.spec.ts:10:5 › local current-page selection excludes disabled rows, preserves typed keys and rejects parent updates
+[22/611] [desktop] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+[23/611] [desktop] › e2e/cross-browser-r1.spec.ts:123:7 › QG5 R1 production cross-browser smoke › Table sorts, selects, expands, and paginates records
+[24/611] [desktop] › e2e/d5-table-pagination.spec.ts:33:5 › native radio groups restore the accepted row after a rejected selection request
+[25/611] [desktop] › e2e/d4-select-virtual.spec.ts:183:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[26/611] [desktop] › e2e/date-picker.spec.ts:8:5 › DatePicker completes format, mode, multiple and preset workflows
+[27/611] [desktop] › e2e/d5-table-pagination.spec.ts:46:5 › server query controls wait for acceptance without reordering filtering or slicing the response
+[28/611] [desktop] › e2e/cross-browser-r1.spec.ts:141:7 › QG5 R1 production cross-browser smoke › Upload reports progress, recovers a failure, and enforces disabled state
+[29/611] [desktop] › e2e/date-range-picker.spec.ts:8:5 › DateRangePicker completes a range with one coordinated popup
+[30/611] [desktop] › e2e/d5-table-pagination.spec.ts:73:5 › Table page-size rejection restores the native select and accepted requests update both dimensions once
+[31/611] [desktop] › e2e/date-picker.spec.ts:45:5 › DatePicker keeps showTime as a confirmable draft and supports keyboard focus
+[32/611] [desktop] › e2e/a11y-visual.spec.ts:96:7 › QG4 accessibility and visual regression gates › critical and serious axe violations are zero for opened overlays
+[33/611] [desktop] › e2e/date-range-picker.spec.ts:33:5 › DateRangePicker keeps date-time edits draft-only until confirmation
+[34/611] [desktop] › e2e/cross-browser-r1.spec.ts:164:7 › QG5 R1 production cross-browser smoke › Modal opens, cancels by keyboard, and restores its trigger
+[35/611] [desktop] › e2e/d5-table-pagination.spec.ts:93:5 › standalone Pagination rejects keyboard and size requests and disables every control
+[36/611] [desktop] › e2e/date-picker.spec.ts:65:5 › DatePicker remains reachable on a narrow viewport
+[37/611] [desktop] › e2e/date-range-picker.spec.ts:53:5 › DateRangePicker stays within the mobile viewport with a fixed action area
+[38/611] [desktop] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[39/611] [desktop] › e2e/date-picker.spec.ts:105:5 › DatePicker does not widen the mobile page under wider font metrics
+[40/611] [desktop] › e2e/cross-browser-r1.spec.ts:179:7 › QG5 R1 production cross-browser smoke › nested overlays close topmost-first and keep scroll and focus ownership
+[41/611] [desktop] › e2e/docs-component-smoke.spec.ts:25:5 › component lists and tables are isolated from VitePress content styles
+[42/611] [desktop] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[43/611] [desktop] › e2e/date-picker.spec.ts:124:5 › DatePicker keeps the mobile showTime footer interactive under wider font metrics
+[44/611] [desktop] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[45/611] [desktop] › e2e/date-picker.spec.ts:142:5 › DatePicker uses a coherent dark popup surface
+[46/611] [desktop] › e2e/a11y-visual.spec.ts:117:7 › QG4 accessibility and visual regression gates › evidence manifest binds QG4 coverage to the project and reviewed commit
+[47/611] [desktop] › e2e/a11y-visual.spec.ts:137:7 › QG4 accessibility and visual regression gates › production routes hydrate without Vue warnings or hydration mismatches
+[48/611] [desktop] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[49/611] [desktop] › e2e/cross-browser-r1.spec.ts:230:7 › QG5 R1 production cross-browser smoke › DnD sorts by keyboard and Splitter resizes by keyboard
+[50/611] [desktop] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[51/611] [desktop] › e2e/docs-information-architecture.spec.ts:3:5 › desktop docs organizes components into eight capability domains
+[52/611] [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[53/611] [desktop] › e2e/docs-information-architecture.spec.ts:18:5 › component pages show product context and package ownership
+[54/611] [desktop] › e2e/cross-browser-r1.spec.ts:251:7 › QG5 R1 production cross-browser smoke › AI Workbench retries a task, completes approval, and previews an artifact
+[55/611] [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[56/611] [desktop] › e2e/docs-information-architecture.spec.ts:29:5 › mobile overview keeps capability domains readable
+[57/611] [desktop] › e2e/docs-information-architecture.spec.ts:40:5 › Chinese documentation shell and status copy stay localized
+[58/611] [desktop] › e2e/feedback-services.spec.ts:43:5 › Message workbench exercises real service entry, updates, stacking, destroy, and reset
+[59/611] [desktop] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[60/611] [desktop] › e2e/form-engine.spec.ts:3:5 › account form validates dependencies and recovers from server field errors
+[61/611] [desktop] › e2e/feedback-services.spec.ts:80:5 › Modal workbench covers async success, failure recovery, Escape focus, and controlled close rejection
+[62/611] [desktop] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[63/611] [desktop] › e2e/a11y-visual.spec.ts:193:7 › QG4 accessibility and visual regression gates › target routes expose visible keyboard focus
+[64/611] [desktop] › e2e/overlay-motion.spec.ts:11:7 › /components/modal uses a presence phase for its floating surface
+[65/611] [desktop] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+  1) [desktop] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.aheart-demo-panel').first().getByRole('button', { name: '3', exact: true })
+    Expected: "page"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for locator('.aheart-demo-panel').first().getByRole('button', { name: '3', exact: true })
+        14 × locator resolved to <button type="button" class="aheart-pagination__page">3</button>
+           - unexpected value "null"
+
+
+      90 |   const pagination = page.locator('.aheart-demo-panel').first()
+      91 |   await pagination.getByRole('button', { name: '3', exact: true }).click()
+    > 92 |   await expect(pagination.getByRole('button', { name: '3', exact: true })).toHaveAttribute('aria-current', 'page')
+         |                                                                            ^
+      93 |
+      94 |   expect(errors).toEqual([])
+      95 | })
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/docs-component-smoke.spec.ts:92:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/docs-component-smoke-form--4d554--update-their-visible-state-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/docs-component-smoke-form--4d554--update-their-visible-state-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/docs-component-smoke-form--4d554--update-their-visible-state-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/docs-component-smoke-form--4d554--update-their-visible-state-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/docs-component-smoke-form--4d554--update-their-visible-state-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[66/611] [desktop] › e2e/docs-component-smoke.spec.ts:97:5 › feedback demos execute instead of throwing runtime errors
+[67/611] [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[68/611] [desktop] › e2e/overlay-motion.spec.ts:11:7 › /components/drawer uses a presence phase for its floating surface
+[69/611] [desktop] › e2e/q2-navigation-overlays.spec.ts:19:5 › warning and danger buttons keep visible labels and accessible contrast
+[70/611] [desktop] › e2e/docs-component-smoke.spec.ts:113:5 › icon documentation loads without runtime errors
+[71/611] [desktop] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[72/611] [desktop] › e2e/overlay-motion.spec.ts:11:7 › /components/dropdown uses a presence phase for its floating surface
+[73/611] [desktop] › e2e/q2-navigation-overlays.spec.ts:43:5 › horizontal dark menu is marker-free and geometrically aligned
+[74/611] [desktop] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[75/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/config-provider loads without runtime errors
+[76/611] [desktop] › e2e/overlay-motion.spec.ts:11:7 › /components/popover uses a presence phase for its floating surface
+[77/611] [desktop] › e2e/q2-navigation-overlays.spec.ts:81:5 › steps connectors stay centered for small vertical and default horizontal layouts
+[78/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/typography loads without runtime errors
+[79/611] [desktop] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[80/611] [desktop] › e2e/overlay-motion.spec.ts:51:5 › reduced motion settles modal presence without a delayed leave phase
+[81/611] [desktop] › e2e/q2-navigation-overlays.spec.ts:102:5 › inline submenu keeps a measured leave transition
+[82/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/icon loads without runtime errors
+[83/611] [desktop] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[84/611] [desktop] › e2e/a11y-visual.spec.ts:200:7 › QG4 accessibility and visual regression gates › Select opens, selects with the keyboard, and restores focus on Escape
+[85/611] [desktop] › e2e/q3-form-controls.spec.ts:5:5 › InputNumber and Textarea demos expose live, editable state
+[86/611] [desktop] › e2e/q2-navigation-overlays.spec.ts:128:5 › dropdown uses real viewport coordinates and restores focus on Escape
+[87/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/button loads without runtime errors
+[88/611] [desktop] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[89/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/space loads without runtime errors
+[90/611] [desktop] › e2e/q2-navigation-overlays.spec.ts:157:5 › modal closes from the visible background and restores its trigger
+[91/611] [desktop] › e2e/q3-form-controls.spec.ts:23:5 › Select supports real popup selection, multiple removal, clear, and loading feedback
+[92/611] [desktop] › e2e/a11y-visual.spec.ts:221:7 › QG4 accessibility and visual regression gates › Menu supports real directional navigation, Enter selection, and Escape
+[93/611] [desktop] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[94/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/flex loads without runtime errors
+[95/611] [desktop] › e2e/q3-form-controls.spec.ts:44:5 › Checkbox and Switch expose native state, loading feedback, and keyboard operation
+[96/611] [desktop] › e2e/q2-navigation-overlays.spec.ts:174:5 › popconfirm renders readable confirmation actions
+[97/611] [desktop] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[98/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/grid loads without runtime errors
+[99/611] [desktop] › e2e/a11y-visual.spec.ts:239:7 › QG4 accessibility and visual regression gates › Table sort button responds to keyboard activation
+[100/611] [desktop] › e2e/q3-form-controls.spec.ts:70:5 › InputNumber spinner preserves the visual order of addons and controls
+[101/611] [desktop] › e2e/q4-data-forms.spec.ts:12:5 › Form waits for async validation, reports errors, succeeds, and resets
+[102/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/divider loads without runtime errors
+[103/611] [desktop] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[104/611] [desktop] › e2e/q3-form-controls.spec.ts:87:5 › TimePicker defaults to one-minute steps and supports configured steps and confirmation
+[105/611] [desktop] › e2e/a11y-visual.spec.ts:252:7 › QG4 accessibility and visual regression gates › Splitter separator adjusts from the keyboard and updates aria-valuenow
+[106/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/menu loads without runtime errors
+[107/611] [desktop] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[108/611] [desktop] › e2e/q4-data-forms.spec.ts:35:5 › Table supports sorting, selection, expansion, pagination, and server page records
+[109/611] [desktop] › e2e/q3-form-controls.spec.ts:118:5 › Cascader and TreeSelect overlays align controls and remain marker-free
+[110/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tabs loads without runtime errors
+[111/611] [desktop] › e2e/a11y-visual.spec.ts:265:7 › QG4 accessibility and visual regression gates › Splitter mobile separator keeps a visual line while exposing a touch hit area
+[112/611] [desktop] › e2e/q4-data-forms.spec.ts:63:5 › Pagination updates current, page size, and quick jump state without baseline drift
+[113/611] [desktop] › e2e/a11y-visual.spec.ts:288:7 › QG4 accessibility and visual regression gates › Chinese long copy remains within the viewport at 200 percent zoom
+[114/611] [desktop] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[115/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/breadcrumb loads without runtime errors
+[116/611] [desktop] › e2e/q3-form-controls.spec.ts:143:5 › Cascader reports lazy-loading progress before rendering loaded children
+[117/611] [desktop] › e2e/q4-data-forms.spec.ts:87:5 › Q4 layouts remain readable and keyboard-visible on narrow screens
+[118/611] [desktop] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[119/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/steps loads without runtime errors
+[120/611] [desktop] › e2e/q3-form-controls.spec.ts:156:5 › Q3 controls preserve sizing, status colors, theme states, and visible keyboard focus
+[121/611] [desktop] › e2e/q5-ai-product-suite.spec.ts:7:5 › AIChatPanel supports prompts, failure recovery, editing, and conversation switching
+[122/611] [desktop] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[123/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/dropdown loads without runtime errors
+[124/611] [desktop] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[125/611] [desktop] › e2e/q5-ai-product-suite.spec.ts:40:5 › AIChatPanel stops a live stream without accepting late output
+[126/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/input loads without runtime errors
+[127/611] [desktop] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+[128/611] [desktop] › e2e/qg1-quality-matrix.spec.ts:82:7 › QG1 quality matrix usability › desktop shows product tasks inside the component column without adding columns
+[129/611] [desktop] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[130/611] [desktop] › e2e/q5-ai-product-suite.spec.ts:52:5 › AIForm groups fields, focuses validation, and exposes async submission states
+[131/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/textarea loads without runtime errors
+[132/611] [desktop] › e2e/qg1-quality-matrix.spec.ts:96:7 › QG1 quality matrix usability › desktop matrix uses the available width and keeps every table discoverable
+[133/611] [desktop] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[134/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/input-number loads without runtime errors
+[135/611] [desktop] › e2e/a11y-visual.spec.ts:310:7 › QG4 accessibility and visual regression gates › target panel text and controls remain visible and operable at 200 percent zoom
+[136/611] [desktop] › e2e/qg1-quality-matrix.spec.ts:107:7 › QG1 quality matrix usability › mobile matrix exposes named regions and every table keeps context at max scroll
+[137/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › splitter exposes its Chinese product route and component entry
+[138/611] [desktop] › e2e/q5-ai-product-suite.spec.ts:72:5 › Agent workbench completes approval and controlled artifact preview workflows
+[139/611] [desktop] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[140/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/select loads without runtime errors
+[141/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › dropdown exposes its Chinese product route and component entry
+[142/611] [desktop] › e2e/q5-ai-product-suite.spec.ts:95:5 › AI product surfaces remain operable on mobile
+[143/611] [desktop] › e2e/time-picker-range.spec.ts:8:5 › TimePicker separates display and value formats and keeps disabled options out of the list
+[144/611] [desktop] › e2e/a11y-visual.spec.ts:323:7 › QG4 accessibility and visual regression gates › AI Workbench exposes the execution and artifact state on mobile
+[145/611] [desktop] › e2e/a11y-visual.spec.ts:353:7 › QG4 accessibility and visual regression gates › AI Workbench opens the pending approval directly from the mobile summary
+[146/611] [desktop] › e2e/a11y-visual.spec.ts:365:7 › QG4 accessibility and visual regression gates › desktop component surface screenshots match baselines
+[147/611] [desktop] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[148/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/checkbox loads without runtime errors
+[149/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › date-picker exposes its Chinese product route and component entry
+[150/611] [desktop] › e2e/time-picker-range.spec.ts:17:5 › TimeRangePicker completes one coordinated range draft
+[151/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/radio loads without runtime errors
+[152/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › time-picker exposes its Chinese product route and component entry
+[153/611] [desktop] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[154/611] [desktop] › e2e/time-picker-range.spec.ts:33:5 › TimeRangePicker remains reachable on mobile
+[155/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/switch loads without runtime errors
+[156/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › upload exposes its Chinese product route and component entry
+[157/611] [desktop] › e2e/tree.spec.ts:5:5 › Tree workbench keeps controlled keys, focus, keyboard navigation, and disabled states observable
+[158/611] [desktop] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[159/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › tree exposes its Chinese product route and component entry
+[160/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/date-picker loads without runtime errors
+[161/611] [desktop] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[162/611] [desktop] › e2e/upload.spec.ts:46:7 › QG3 Upload browser flows › uploads a real selected file through stable progress to success
+[163/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › tree-select exposes its Chinese product route and component entry
+[164/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/time-picker loads without runtime errors
+[165/611] [desktop] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[166/611] [desktop] › e2e/upload.spec.ts:56:7 › QG3 Upload browser flows › fails an upload and retries it through a visible control
+[167/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › cascader exposes its Chinese product route and component entry
+[168/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/cascader loads without runtime errors
+[169/611] [desktop] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[170/611] [desktop] › e2e/upload.spec.ts:70:7 › QG3 Upload browser flows › holds manual uploads until the user clicks the upload action
+[171/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › dnd exposes its Chinese product route and component entry
+[172/611] [desktop] › e2e/a11y-visual.spec.ts:377:7 › QG4 accessibility and visual regression gates › mobile component surface screenshots match baselines
+[173/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tree-select loads without runtime errors
+[174/611] [desktop] › e2e/upload.spec.ts:81:7 › QG3 Upload browser flows › does not restore an in-flight item after removal and a late callback
+[175/611] [mobile] › e2e/a11y-visual.spec.ts:89:7 › QG4 accessibility and visual regression gates › critical and serious axe violations are zero for every target route
+[176/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › select exposes its Chinese product route and component entry
+[177/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/upload loads without runtime errors
+[178/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › form exposes its Chinese product route and component entry
+[179/611] [desktop] › e2e/upload.spec.ts:92:7 › QG3 Upload browser flows › prevents selection and upload actions when disabled
+[180/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/form loads without runtime errors
+[181/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › table exposes its Chinese product route and component entry
+[182/611] [desktop] › e2e/upload.spec.ts:102:7 › QG3 Upload browser flows › caps accepted files at maxCount and frees capacity after removal
+[183/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/table loads without runtime errors
+[184/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › message exposes its Chinese product route and component entry
+[185/611] [desktop] › e2e/upload.spec.ts:115:7 › QG3 Upload browser flows › keeps a rejected controlled choice invisible without blocking the next accepted choice
+[186/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/pagination loads without runtime errors
+[187/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › modal exposes its Chinese product route and component entry
+[188/611] [mobile] › e2e/agent-workbench.spec.ts:3:5 › desktop workbench renders resizable three-pane layout
+[189/611] [mobile] › e2e/agent-workbench.spec.ts:12:5 › mobile workbench opens execution drawer from tabs
+[190/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tree loads without runtime errors
+[191/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › drawer exposes its Chinese product route and component entry
+[192/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/descriptions loads without runtime errors
+[193/611] [mobile] › e2e/agent-workbench.spec.ts:22:5 › mobile workbench tabs provide 40px targets and arrow-key activation
+[194/611] [desktop] › e2e/a11y-visual.spec.ts:389:7 › QG4 accessibility and visual regression gates › reduced motion disables transition and animation durations
+[195/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › tooltip exposes its Chinese product route and component entry
+[196/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/card loads without runtime errors
+[197/611] [mobile] › e2e/config-provider.spec.ts:5:5 › ConfigProvider workbench updates real descendants across locale, size, disabled, theme, and nesting
+[198/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › popover exposes its Chinese product route and component entry
+[199/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tag loads without runtime errors
+[200/611] [mobile] › e2e/cross-browser-production.spec.ts:58:3 › QG5 production cross-browser gates › production assets load and interactive routes hydrate without runtime errors
+[201/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › popconfirm exposes its Chinese product route and component entry
+[202/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/badge loads without runtime errors
+[203/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › ai exposes its Chinese product route and component entry
+[204/611] [mobile] › e2e/a11y-visual.spec.ts:96:7 › QG4 accessibility and visual regression gates › critical and serious axe violations are zero for opened overlays
+[205/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/empty loads without runtime errors
+[206/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › ai-form exposes its Chinese product route and component entry
+[207/611] [mobile] › e2e/cross-browser-production.spec.ts:71:3 › QG5 production cross-browser gates › Floating UI remains visible after scrolling, resizing, and edge adjustment
+[208/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/spin loads without runtime errors
+[209/611] [desktop] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › ai-agent-workbench exposes its Chinese product route and component entry
+[210/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/skeleton loads without runtime errors
+[211/611] [mobile] › e2e/cross-browser-production.spec.ts:90:3 › QG5 production cross-browser gates › Teleport overlays close cleanly and restore focus
+[212/611] [mobile] › e2e/cross-browser-r1.spec.ts:62:7 › QG5 R1 production cross-browser smoke › Form completes async validation, correction, and reset
+[213/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/alert loads without runtime errors
+[214/611] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[215/611] [mobile] › e2e/cross-browser-production.spec.ts:108:3 › QG5 production cross-browser gates › mobile production surfaces stay within the viewport
+[216/611] [mobile] › e2e/a11y-visual.spec.ts:117:7 › QG4 accessibility and visual regression gates › evidence manifest binds QG4 coverage to the project and reviewed commit
+[217/611] [mobile] › e2e/a11y-visual.spec.ts:137:7 › QG4 accessibility and visual regression gates › production routes hydrate without Vue warnings or hydration mismatches
+[218/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/message loads without runtime errors
+[219/611] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[220/611] [mobile] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[221/611] [mobile] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+[222/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/modal loads without runtime errors
+[223/611] [mobile] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[224/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/drawer loads without runtime errors
+[225/611] [mobile] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[226/611] [mobile] › e2e/cross-browser-r1.spec.ts:104:7 › QG5 R1 production cross-browser smoke › DatePicker commits a date-time draft and cancels a later edit
+[227/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tooltip loads without runtime errors
+[228/611] [mobile] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[229/611] [mobile] › e2e/d4-select-virtual.spec.ts:77:5 › Select virtual no-results message remains visible and search can recover
+[230/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/popover loads without runtime errors
+[231/611] [mobile] › e2e/a11y-visual.spec.ts:193:7 › QG4 accessibility and visual regression gates › target routes expose visible keyboard focus
+[232/611] [mobile] › e2e/d4-select-virtual.spec.ts:110:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[233/611] [mobile] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+[234/611] [mobile] › e2e/cross-browser-r1.spec.ts:123:7 › QG5 R1 production cross-browser smoke › Table sorts, selects, expands, and paginates records
+[235/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/popconfirm loads without runtime errors
+[236/611] [mobile] › e2e/d5-table-pagination.spec.ts:10:5 › local current-page selection excludes disabled rows, preserves typed keys and rejects parent updates
+[237/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/splitter loads without runtime errors
+[238/611] [mobile] › e2e/d4-select-virtual.spec.ts:183:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[239/611] [mobile] › e2e/cross-browser-r1.spec.ts:141:7 › QG5 R1 production cross-browser smoke › Upload reports progress, recovers a failure, and enforces disabled state
+[240/611] [mobile] › e2e/d5-table-pagination.spec.ts:33:5 › native radio groups restore the accepted row after a rejected selection request
+[241/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/dnd loads without runtime errors
+[242/611] [mobile] › e2e/date-picker.spec.ts:8:5 › DatePicker completes format, mode, multiple and preset workflows
+[243/611] [mobile] › e2e/d5-table-pagination.spec.ts:46:5 › server query controls wait for acceptance without reordering filtering or slicing the response
+[244/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/ai loads without runtime errors
+[245/611] [mobile] › e2e/cross-browser-r1.spec.ts:164:7 › QG5 R1 production cross-browser smoke › Modal opens, cancels by keyboard, and restores its trigger
+[246/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/ai-form loads without runtime errors
+[247/611] [mobile] › e2e/date-picker.spec.ts:45:5 › DatePicker keeps showTime as a confirmable draft and supports keyboard focus
+[248/611] [mobile] › e2e/d5-table-pagination.spec.ts:73:5 › Table page-size rejection restores the native select and accepted requests update both dimensions once
+[249/611] [mobile] › e2e/cross-browser-r1.spec.ts:179:7 › QG5 R1 production cross-browser smoke › nested overlays close topmost-first and keep scroll and focus ownership
+[250/611] [desktop] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/ai-agent-workbench loads without runtime errors
+[251/611] [mobile] › e2e/d5-table-pagination.spec.ts:93:5 › standalone Pagination rejects keyboard and size requests and disables every control
+[252/611] [mobile] › e2e/date-picker.spec.ts:65:5 › DatePicker remains reachable on a narrow viewport
+[253/611] [mobile] › e2e/a11y-visual.spec.ts:200:7 › QG4 accessibility and visual regression gates › Select opens, selects with the keyboard, and restores focus on Escape
+[254/611] [mobile] › e2e/date-range-picker.spec.ts:8:5 › DateRangePicker completes a range with one coordinated popup
+[255/611] [mobile] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[256/611] [mobile] › e2e/date-picker.spec.ts:105:5 › DatePicker does not widen the mobile page under wider font metrics
+[257/611] [mobile] › e2e/cross-browser-r1.spec.ts:230:7 › QG5 R1 production cross-browser smoke › DnD sorts by keyboard and Splitter resizes by keyboard
+[258/611] [mobile] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[259/611] [mobile] › e2e/date-picker.spec.ts:124:5 › DatePicker keeps the mobile showTime footer interactive under wider font metrics
+[260/611] [mobile] › e2e/date-range-picker.spec.ts:33:5 › DateRangePicker keeps date-time edits draft-only until confirmation
+[261/611] [mobile] › e2e/a11y-visual.spec.ts:221:7 › QG4 accessibility and visual regression gates › Menu supports real directional navigation, Enter selection, and Escape
+[262/611] [mobile] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[263/611] [mobile] › e2e/date-picker.spec.ts:142:5 › DatePicker uses a coherent dark popup surface
+[264/611] [mobile] › e2e/a11y-visual.spec.ts:239:7 › QG4 accessibility and visual regression gates › Table sort button responds to keyboard activation
+[265/611] [mobile] › e2e/cross-browser-r1.spec.ts:251:7 › QG5 R1 production cross-browser smoke › AI Workbench retries a task, completes approval, and previews an artifact
+[266/611] [mobile] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[267/611] [mobile] › e2e/date-range-picker.spec.ts:53:5 › DateRangePicker stays within the mobile viewport with a fixed action area
+[268/611] [mobile] › e2e/docs-component-smoke.spec.ts:25:5 › component lists and tables are isolated from VitePress content styles
+[269/611] [mobile] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[270/611] [mobile] › e2e/a11y-visual.spec.ts:252:7 › QG4 accessibility and visual regression gates › Splitter separator adjusts from the keyboard and updates aria-valuenow
+[271/611] [mobile] › e2e/docs-information-architecture.spec.ts:3:5 › desktop docs organizes components into eight capability domains
+[272/611] [mobile] › e2e/docs-information-architecture.spec.ts:18:5 › component pages show product context and package ownership
+[273/611] [mobile] › e2e/feedback-services.spec.ts:43:5 › Message workbench exercises real service entry, updates, stacking, destroy, and reset
+[274/611] [mobile] › e2e/docs-information-architecture.spec.ts:29:5 › mobile overview keeps capability domains readable
+[275/611] [mobile] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[276/611] [mobile] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state
+[277/611] [mobile] › e2e/docs-information-architecture.spec.ts:40:5 › Chinese documentation shell and status copy stay localized
+[278/611] [mobile] › e2e/a11y-visual.spec.ts:265:7 › QG4 accessibility and visual regression gates › Splitter mobile separator keeps a visual line while exposing a touch hit area
+[279/611] [mobile] › e2e/feedback-services.spec.ts:80:5 › Modal workbench covers async success, failure recovery, Escape focus, and controlled close rejection
+[280/611] [mobile] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[281/611] [mobile] › e2e/form-engine.spec.ts:3:5 › account form validates dependencies and recovers from server field errors
+[282/611] [mobile] › e2e/a11y-visual.spec.ts:288:7 › QG4 accessibility and visual regression gates › Chinese long copy remains within the viewport at 200 percent zoom
+[283/611] [mobile] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[284/611] [mobile] › e2e/overlay-motion.spec.ts:11:7 › /components/modal uses a presence phase for its floating surface
+[285/611] [mobile] › e2e/overlay-motion.spec.ts:11:7 › /components/drawer uses a presence phase for its floating surface
+[286/611] [mobile] › e2e/overlay-motion.spec.ts:11:7 › /components/dropdown uses a presence phase for its floating surface
+[287/611] [mobile] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[288/611] [mobile] › e2e/overlay-motion.spec.ts:11:7 › /components/popover uses a presence phase for its floating surface
+[289/611] [mobile] › e2e/overlay-motion.spec.ts:51:5 › reduced motion settles modal presence without a delayed leave phase
+[290/611] [mobile] › e2e/q2-navigation-overlays.spec.ts:19:5 › warning and danger buttons keep visible labels and accessible contrast
+[291/611] [mobile] › e2e/q3-form-controls.spec.ts:5:5 › InputNumber and Textarea demos expose live, editable state
+[292/611] [mobile] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[293/611] [mobile] › e2e/q2-navigation-overlays.spec.ts:43:5 › horizontal dark menu is marker-free and geometrically aligned
+[294/611] [mobile] › e2e/q3-form-controls.spec.ts:23:5 › Select supports real popup selection, multiple removal, clear, and loading feedback
+[295/611] [mobile] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[296/611] [mobile] › e2e/q2-navigation-overlays.spec.ts:81:5 › steps connectors stay centered for small vertical and default horizontal layouts
+[297/611] [mobile] › e2e/q3-form-controls.spec.ts:44:5 › Checkbox and Switch expose native state, loading feedback, and keyboard operation
+  2) [mobile] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('.aheart-demo-panel').first().getByRole('button', { name: '3', exact: true })
+    Expected: "page"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for locator('.aheart-demo-panel').first().getByRole('button', { name: '3', exact: true })
+        14 × locator resolved to <button type="button" class="aheart-pagination__page">3</button>
+           - unexpected value "null"
+
+
+      90 |   const pagination = page.locator('.aheart-demo-panel').first()
+      91 |   await pagination.getByRole('button', { name: '3', exact: true }).click()
+    > 92 |   await expect(pagination.getByRole('button', { name: '3', exact: true })).toHaveAttribute('aria-current', 'page')
+         |                                                                            ^
+      93 |
+      94 |   expect(errors).toEqual([])
+      95 | })
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/docs-component-smoke.spec.ts:92:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/docs-component-smoke-form--4d554--update-their-visible-state-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/docs-component-smoke-form--4d554--update-their-visible-state-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/docs-component-smoke-form--4d554--update-their-visible-state-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/docs-component-smoke-form--4d554--update-their-visible-state-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/docs-component-smoke-form--4d554--update-their-visible-state-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[298/611] [mobile] › e2e/q2-navigation-overlays.spec.ts:102:5 › inline submenu keeps a measured leave transition
+[299/611] [mobile] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[300/611] [mobile] › e2e/docs-component-smoke.spec.ts:97:5 › feedback demos execute instead of throwing runtime errors
+[301/611] [mobile] › e2e/q3-form-controls.spec.ts:70:5 › InputNumber spinner preserves the visual order of addons and controls
+[302/611] [mobile] › e2e/q2-navigation-overlays.spec.ts:128:5 › dropdown uses real viewport coordinates and restores focus on Escape
+[303/611] [mobile] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[304/611] [mobile] › e2e/docs-component-smoke.spec.ts:113:5 › icon documentation loads without runtime errors
+[305/611] [mobile] › e2e/a11y-visual.spec.ts:310:7 › QG4 accessibility and visual regression gates › target panel text and controls remain visible and operable at 200 percent zoom
+[306/611] [mobile] › e2e/q3-form-controls.spec.ts:87:5 › TimePicker defaults to one-minute steps and supports configured steps and confirmation
+[307/611] [mobile] › e2e/q2-navigation-overlays.spec.ts:157:5 › modal closes from the visible background and restores its trigger
+[308/611] [mobile] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[309/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/config-provider loads without runtime errors
+[310/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/typography loads without runtime errors
+[311/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/icon loads without runtime errors
+[312/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/button loads without runtime errors
+[313/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/space loads without runtime errors
+[314/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/flex loads without runtime errors
+[315/611] [mobile] › e2e/a11y-visual.spec.ts:323:7 › QG4 accessibility and visual regression gates › AI Workbench exposes the execution and artifact state on mobile
+[316/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/grid loads without runtime errors
+[317/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/divider loads without runtime errors
+[318/611] [mobile] › e2e/q3-form-controls.spec.ts:118:5 › Cascader and TreeSelect overlays align controls and remain marker-free
+[319/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/menu loads without runtime errors
+[320/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tabs loads without runtime errors
+[321/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/breadcrumb loads without runtime errors
+[322/611] [mobile] › e2e/q2-navigation-overlays.spec.ts:174:5 › popconfirm renders readable confirmation actions
+[323/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/steps loads without runtime errors
+[324/611] [mobile] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[325/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/dropdown loads without runtime errors
+[326/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/input loads without runtime errors
+[327/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/textarea loads without runtime errors
+[328/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/input-number loads without runtime errors
+[329/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/select loads without runtime errors
+[330/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/checkbox loads without runtime errors
+[331/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/radio loads without runtime errors
+[332/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/switch loads without runtime errors
+[333/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/date-picker loads without runtime errors
+[334/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/time-picker loads without runtime errors
+[335/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/cascader loads without runtime errors
+[336/611] [mobile] › e2e/q3-form-controls.spec.ts:143:5 › Cascader reports lazy-loading progress before rendering loaded children
+[337/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tree-select loads without runtime errors
+[338/611] [mobile] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[339/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/upload loads without runtime errors
+[340/611] [mobile] › e2e/q4-data-forms.spec.ts:12:5 › Form waits for async validation, reports errors, succeeds, and resets
+[341/611] [mobile] › e2e/a11y-visual.spec.ts:353:7 › QG4 accessibility and visual regression gates › AI Workbench opens the pending approval directly from the mobile summary
+[342/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/form loads without runtime errors
+[343/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/table loads without runtime errors
+[344/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/pagination loads without runtime errors
+[345/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tree loads without runtime errors
+[346/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/descriptions loads without runtime errors
+[347/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/card loads without runtime errors
+[348/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tag loads without runtime errors
+[349/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/badge loads without runtime errors
+[350/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/empty loads without runtime errors
+[351/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/spin loads without runtime errors
+[352/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/skeleton loads without runtime errors
+[353/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/alert loads without runtime errors
+[354/611] [mobile] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[355/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/message loads without runtime errors
+[356/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/modal loads without runtime errors
+[357/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/drawer loads without runtime errors
+[358/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/tooltip loads without runtime errors
+[359/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/popover loads without runtime errors
+[360/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/popconfirm loads without runtime errors
+[361/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/splitter loads without runtime errors
+[362/611] [mobile] › e2e/q3-form-controls.spec.ts:156:5 › Q3 controls preserve sizing, status colors, theme states, and visible keyboard focus
+[363/611] [mobile] › e2e/q4-data-forms.spec.ts:35:5 › Table supports sorting, selection, expansion, pagination, and server page records
+[364/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/dnd loads without runtime errors
+[365/611] [mobile] › e2e/a11y-visual.spec.ts:365:7 › QG4 accessibility and visual regression gates › desktop component surface screenshots match baselines
+[366/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/ai loads without runtime errors
+[367/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/ai-form loads without runtime errors
+[368/611] [mobile] › e2e/docs-component-smoke.spec.ts:126:9 › Chinese Ready component routes › /components/ai-agent-workbench loads without runtime errors
+[369/611] [mobile] › e2e/q5-ai-product-suite.spec.ts:7:5 › AIChatPanel supports prompts, failure recovery, editing, and conversation switching
+[370/611] [mobile] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[371/611] [mobile] › e2e/q4-data-forms.spec.ts:63:5 › Pagination updates current, page size, and quick jump state without baseline drift
+[372/611] [mobile] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[373/611] [mobile] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns
+[374/611] [mobile] › e2e/q5-ai-product-suite.spec.ts:40:5 › AIChatPanel stops a live stream without accepting late output
+[375/611] [mobile] › e2e/q4-data-forms.spec.ts:87:5 › Q4 layouts remain readable and keyboard-visible on narrow screens
+[376/611] [mobile] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[377/611] [mobile] › e2e/q5-ai-product-suite.spec.ts:52:5 › AIForm groups fields, focuses validation, and exposes async submission states
+[378/611] [mobile] › e2e/qg1-quality-matrix.spec.ts:82:7 › QG1 quality matrix usability › desktop shows product tasks inside the component column without adding columns
+[379/611] [mobile] › e2e/qg1-quality-matrix.spec.ts:96:7 › QG1 quality matrix usability › desktop matrix uses the available width and keeps every table discoverable
+[380/611] [mobile] › e2e/qg1-quality-matrix.spec.ts:107:7 › QG1 quality matrix usability › mobile matrix exposes named regions and every table keeps context at max scroll
+[381/611] [mobile] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[382/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › splitter exposes its Chinese product route and component entry
+[383/611] [mobile] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[384/611] [mobile] › e2e/q5-ai-product-suite.spec.ts:72:5 › Agent workbench completes approval and controlled artifact preview workflows
+[385/611] [mobile] › e2e/q5-ai-product-suite.spec.ts:95:5 › AI product surfaces remain operable on mobile
+[386/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › dropdown exposes its Chinese product route and component entry
+[387/611] [mobile] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[388/611] [mobile] › e2e/time-picker-range.spec.ts:8:5 › TimePicker separates display and value formats and keeps disabled options out of the list
+[389/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › date-picker exposes its Chinese product route and component entry
+[390/611] [mobile] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[391/611] [mobile] › e2e/time-picker-range.spec.ts:17:5 › TimeRangePicker completes one coordinated range draft
+[392/611] [mobile] › e2e/a11y-visual.spec.ts:377:7 › QG4 accessibility and visual regression gates › mobile component surface screenshots match baselines
+[393/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › time-picker exposes its Chinese product route and component entry
+[394/611] [mobile] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[395/611] [mobile] › e2e/time-picker-range.spec.ts:33:5 › TimeRangePicker remains reachable on mobile
+[396/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › upload exposes its Chinese product route and component entry
+[397/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › tree exposes its Chinese product route and component entry
+[398/611] [mobile] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[399/611] [mobile] › e2e/tree.spec.ts:5:5 › Tree workbench keeps controlled keys, focus, keyboard navigation, and disabled states observable
+[400/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › tree-select exposes its Chinese product route and component entry
+[401/611] [mobile] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[402/611] [mobile] › e2e/upload.spec.ts:46:7 › QG3 Upload browser flows › uploads a real selected file through stable progress to success
+[403/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › cascader exposes its Chinese product route and component entry
+[404/611] [mobile] › e2e/upload.spec.ts:56:7 › QG3 Upload browser flows › fails an upload and retries it through a visible control
+[405/611] [mobile] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[406/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › dnd exposes its Chinese product route and component entry
+[407/611] [mobile] › e2e/upload.spec.ts:70:7 › QG3 Upload browser flows › holds manual uploads until the user clicks the upload action
+[408/611] [mobile] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[409/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › select exposes its Chinese product route and component entry
+[410/611] [mobile] › e2e/upload.spec.ts:81:7 › QG3 Upload browser flows › does not restore an in-flight item after removal and a late callback
+[411/611] [mobile] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[412/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › form exposes its Chinese product route and component entry
+[413/611] [mobile] › e2e/upload.spec.ts:92:7 › QG3 Upload browser flows › prevents selection and upload actions when disabled
+[414/611] [mobile] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[415/611] [mobile] › e2e/a11y-visual.spec.ts:389:7 › QG4 accessibility and visual regression gates › reduced motion disables transition and animation durations
+[416/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › table exposes its Chinese product route and component entry
+[417/611] [mobile] › e2e/upload.spec.ts:102:7 › QG3 Upload browser flows › caps accepted files at maxCount and frees capacity after removal
+[418/611] [mobile] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[419/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › message exposes its Chinese product route and component entry
+[420/611] [mobile] › e2e/upload.spec.ts:115:7 › QG3 Upload browser flows › keeps a rejected controlled choice invisible without blocking the next accepted choice
+[421/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › modal exposes its Chinese product route and component entry
+[422/611] [desktop-firefox] › e2e/cross-browser-production.spec.ts:58:3 › QG5 production cross-browser gates › production assets load and interactive routes hydrate without runtime errors
+[423/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:62:7 › QG5 R1 production cross-browser smoke › Form completes async validation, correction, and reset
+[424/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › drawer exposes its Chinese product route and component entry
+[425/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › tooltip exposes its Chinese product route and component entry
+[426/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › popover exposes its Chinese product route and component entry
+[427/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+[428/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › popconfirm exposes its Chinese product route and component entry
+[429/611] [desktop-firefox] › e2e/cross-browser-production.spec.ts:71:3 › QG5 production cross-browser gates › Floating UI remains visible after scrolling, resizing, and edge adjustment
+[430/611] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[431/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › ai exposes its Chinese product route and component entry
+[432/611] [desktop-firefox] › e2e/cross-browser-production.spec.ts:90:3 › QG5 production cross-browser gates › Teleport overlays close cleanly and restore focus
+[433/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › ai-form exposes its Chinese product route and component entry
+[434/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:104:7 › QG5 R1 production cross-browser smoke › DatePicker commits a date-time draft and cancels a later edit
+[435/611] [mobile] › e2e/qg1-ready-component-contracts.spec.ts:48:9 › QG1 Ready component contracts › ai-agent-workbench exposes its Chinese product route and component entry
+[436/611] [desktop-firefox] › e2e/cross-browser-production.spec.ts:108:3 › QG5 production cross-browser gates › mobile production surfaces stay within the viewport
+[437/611] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[438/611] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+  3) [mobile] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('[data-cascader-value="zhejiang"]')
+
+
+      244 |   await cascader.getByRole('combobox').click()
+      245 |   const columns = page.locator('.aheart-cascader__columns')
+    > 246 |   await page.locator('[data-cascader-value="zhejiang"]').click()
+          |                                                          ^
+      247 |   await page.locator('[data-cascader-value="hangzhou"]').click()
+      248 |   await expect.poll(() => columns.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
+      249 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/q3-form-controls.spec.ts:246:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/q3-form-controls-coarse-po-c3e5f-and-reveal-cascader-columns-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/q3-form-controls-coarse-po-c3e5f-and-reveal-cascader-columns-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/q3-form-controls-coarse-po-c3e5f-and-reveal-cascader-columns-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/q3-form-controls-coarse-po-c3e5f-and-reveal-cascader-columns-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/q3-form-controls-coarse-po-c3e5f-and-reveal-cascader-columns-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[439/611] [desktop-firefox] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[440/611] [desktop-firefox] › e2e/d5-table-pagination.spec.ts:10:5 › local current-page selection excludes disabled rows, preserves typed keys and rejects parent updates
+[441/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:123:7 › QG5 R1 production cross-browser smoke › Table sorts, selects, expands, and paginates records
+[442/611] [desktop-firefox] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[443/611] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[444/611] [desktop-firefox] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+[445/611] [desktop-firefox] › e2e/d5-table-pagination.spec.ts:33:5 › native radio groups restore the accepted row after a rejected selection request
+[446/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:141:7 › QG5 R1 production cross-browser smoke › Upload reports progress, recovers a failure, and enforces disabled state
+[447/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[448/611] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:77:5 › Select virtual no-results message remains visible and search can recover
+[449/611] [desktop-firefox] › e2e/form-engine.spec.ts:3:5 › account form validates dependencies and recovers from server field errors
+[450/611] [desktop-firefox] › e2e/d5-table-pagination.spec.ts:46:5 › server query controls wait for acceptance without reordering filtering or slicing the response
+[451/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[452/611] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:110:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[453/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:164:7 › QG5 R1 production cross-browser smoke › Modal opens, cancels by keyboard, and restores its trigger
+[454/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[455/611] [desktop-firefox] › e2e/d5-table-pagination.spec.ts:73:5 › Table page-size rejection restores the native select and accepted requests update both dimensions once
+[456/611] [desktop-webkit] › e2e/cross-browser-production.spec.ts:58:3 › QG5 production cross-browser gates › production assets load and interactive routes hydrate without runtime errors
+[457/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[458/611] [desktop-firefox] › e2e/d4-select-virtual.spec.ts:183:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[459/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:179:7 › QG5 R1 production cross-browser smoke › nested overlays close topmost-first and keep scroll and focus ownership
+[460/611] [desktop-firefox] › e2e/d5-table-pagination.spec.ts:93:5 › standalone Pagination rejects keyboard and size requests and disables every control
+[461/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[462/611] [desktop-webkit] › e2e/cross-browser-production.spec.ts:71:3 › QG5 production cross-browser gates › Floating UI remains visible after scrolling, resizing, and edge adjustment
+[463/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[464/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:62:7 › QG5 R1 production cross-browser smoke › Form completes async validation, correction, and reset
+[465/611] [desktop-webkit] › e2e/cross-browser-production.spec.ts:90:3 › QG5 production cross-browser gates › Teleport overlays close cleanly and restore focus
+[466/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:230:7 › QG5 R1 production cross-browser smoke › DnD sorts by keyboard and Splitter resizes by keyboard
+[467/611] [desktop-webkit] › e2e/cross-browser-production.spec.ts:108:3 › QG5 production cross-browser gates › mobile production surfaces stay within the viewport
+[468/611] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[469/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[470/611] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[471/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+[472/611] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[473/611] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:77:5 › Select virtual no-results message remains visible and search can recover
+[474/611] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[475/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:104:7 › QG5 R1 production cross-browser smoke › DatePicker commits a date-time draft and cancels a later edit
+[476/611] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:110:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[477/611] [desktop-firefox] › e2e/cross-browser-r1.spec.ts:251:7 › QG5 R1 production cross-browser smoke › AI Workbench retries a task, completes approval, and previews an artifact
+[478/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[479/611] [desktop-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[480/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:123:7 › QG5 R1 production cross-browser smoke › Table sorts, selects, expands, and paginates records
+[481/611] [desktop-webkit] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[482/611] [desktop-webkit] › e2e/d4-select-virtual.spec.ts:183:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[483/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:141:7 › QG5 R1 production cross-browser smoke › Upload reports progress, recovers a failure, and enforces disabled state
+[484/611] [desktop-webkit] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+[485/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[486/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[487/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:164:7 › QG5 R1 production cross-browser smoke › Modal opens, cancels by keyboard, and restores its trigger
+[488/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[489/611] [desktop-webkit] › e2e/d5-table-pagination.spec.ts:10:5 › local current-page selection excludes disabled rows, preserves typed keys and rejects parent updates
+[490/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[491/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[492/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:179:7 › QG5 R1 production cross-browser smoke › nested overlays close topmost-first and keep scroll and focus ownership
+[493/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[494/611] [desktop-webkit] › e2e/d5-table-pagination.spec.ts:33:5 › native radio groups restore the accepted row after a rejected selection request
+[495/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[496/611] [desktop-webkit] › e2e/d5-table-pagination.spec.ts:46:5 › server query controls wait for acceptance without reordering filtering or slicing the response
+[497/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[498/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[499/611] [desktop-webkit] › e2e/d5-table-pagination.spec.ts:73:5 › Table page-size rejection restores the native select and accepted requests update both dimensions once
+[500/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[501/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[502/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:230:7 › QG5 R1 production cross-browser smoke › DnD sorts by keyboard and Splitter resizes by keyboard
+[503/611] [desktop-webkit] › e2e/d5-table-pagination.spec.ts:93:5 › standalone Pagination rejects keyboard and size requests and disables every control
+[504/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[505/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[506/611] [desktop-webkit] › e2e/form-engine.spec.ts:3:5 › account form validates dependencies and recovers from server field errors
+[507/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[508/611] [desktop-webkit] › e2e/cross-browser-r1.spec.ts:251:7 › QG5 R1 production cross-browser smoke › AI Workbench retries a task, completes approval, and previews an artifact
+[509/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[510/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[511/611] [mobile-webkit] › e2e/cross-browser-production.spec.ts:58:3 › QG5 production cross-browser gates › production assets load and interactive routes hydrate without runtime errors
+[512/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[513/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:62:7 › QG5 R1 production cross-browser smoke › Form completes async validation, correction, and reset
+[514/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[515/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[516/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[517/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[518/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[519/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[520/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:80:7 › QG5 R1 production cross-browser smoke › Select selects, clears multiple values, and closes by keyboard
+[521/611] [mobile-webkit] › e2e/cross-browser-production.spec.ts:71:3 › QG5 production cross-browser gates › Floating UI remains visible after scrolling, resizing, and edge adjustment
+[522/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[523/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[524/611] [mobile-webkit] › e2e/cross-browser-production.spec.ts:90:3 › QG5 production cross-browser gates › Teleport overlays close cleanly and restore focus
+[525/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[526/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:104:7 › QG5 R1 production cross-browser smoke › DatePicker commits a date-time draft and cancels a later edit
+[527/611] [mobile-webkit] › e2e/cross-browser-production.spec.ts:108:3 › QG5 production cross-browser gates › mobile production surfaces stay within the viewport
+[528/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[529/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[530/611] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Select focus, Escape restore, and SPA unmount cleanup
+[531/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[532/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:123:7 › QG5 R1 production cross-browser smoke › Table sorts, selects, expands, and paginates records
+[533/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[534/611] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe TreeSelect focus, Escape restore, and SPA unmount cleanup
+[535/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[536/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[537/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:141:7 › QG5 R1 production cross-browser smoke › Upload reports progress, recovers a failure, and enforces disabled state
+[538/611] [mobile-webkit] › e2e/d4-iframe.spec.ts:80:7 › same-origin iframe Cascader focus, Escape restore, and SPA unmount cleanup
+[539/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[540/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[541/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:164:7 › QG5 R1 production cross-browser smoke › Modal opens, cancels by keyboard, and restores its trigger
+[542/611] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:28:5 › Select virtual remeasures wrapping width and font changes without clipping active content
+[543/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[544/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[545/611] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:52:5 › Select virtual preserves stable middle keys through insertion deletion reorder and active removal
+[546/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:179:7 › QG5 R1 production cross-browser smoke › nested overlays close topmost-first and keep scroll and focus ownership
+[547/611] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:77:5 › Select virtual no-results message remains visible and search can recover
+[548/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[549/611] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:110:5 › Select virtual tail, disabled navigation, dynamic height and scroll anchoring
+[550/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[551/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[552/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[553/611] [mobile-webkit] › e2e/d4-selection.spec.ts:3:5 › D4 Tree linked checks expose mixed state and lazy failure retry
+[554/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:230:7 › QG5 R1 production cross-browser smoke › DnD sorts by keyboard and Splitter resizes by keyboard
+[555/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[556/611] [mobile-webkit] › e2e/d4-select-virtual.spec.ts:183:5 › Select virtual uses iframe realm and disposes after SPA unmount
+[557/611] [desktop-webkit] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[558/611] [mobile-webkit] › e2e/d4-selection.spec.ts:25:5 › D4 TreeSelect searching retains the full linked selection model
+[559/611] [mobile-webkit] › e2e/cross-browser-r1.spec.ts:251:7 › QG5 R1 production cross-browser smoke › AI Workbench retries a task, completes approval, and previews an artifact
+[560/611] [mobile-webkit] › e2e/d5-table-pagination.spec.ts:10:5 › local current-page selection excludes disabled rows, preserves typed keys and rejects parent updates
+[561/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[562/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[563/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[564/611] [mobile-webkit] › e2e/d5-table-pagination.spec.ts:33:5 › native radio groups restore the accepted row after a rejected selection request
+[565/611] [mobile-webkit] › e2e/form-engine.spec.ts:3:5 › account form validates dependencies and recovers from server field errors
+[566/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[567/611] [mobile-webkit] › e2e/d5-table-pagination.spec.ts:46:5 › server query controls wait for acceptance without reordering filtering or slicing the response
+[568/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[569/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[570/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[571/611] [mobile-webkit] › e2e/d5-table-pagination.spec.ts:73:5 › Table page-size rejection restores the native select and accepted requests update both dimensions once
+[572/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[573/611] [mobile-webkit] › e2e/d5-table-pagination.spec.ts:93:5 › standalone Pagination rejects keyboard and size requests and disables every control
+[574/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[575/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[576/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[577/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[578/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[579/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[580/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[581/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[582/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[583/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[584/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[585/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[586/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[587/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[588/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[589/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[590/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[591/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[592/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[593/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[594/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[595/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[596/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[597/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[598/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[599/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[600/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[601/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[602/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[603/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[604/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[605/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[606/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[607/611] [mobile-webkit] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[608/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[609/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[610/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[611/611] [desktop-firefox] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+  3 failed
+    [desktop] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state 
+    [mobile] › e2e/docs-component-smoke.spec.ts:56:5 › form control demos update their visible state 
+    [mobile] › e2e/q3-form-controls.spec.ts:204:5 › coarse-pointer controls provide reachable touch targets and reveal cascader columns 
+  127 skipped
+  481 passed (4.4m)
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,44 @@
+types.ts(51,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type 'TableColumn<User>[]' is not assignable to type 'TableColumn<TableRecord>[]'.
+      Type 'TableColumn<User>' is not assignable to type 'TableColumn<TableRecord>'.
+        Types of property 'sorter' are incompatible.
+          Type 'boolean | ((a: User, b: User) => number) | undefined' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.
+            Type '(a: User, b: User) => number' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.
+              Type '(a: User, b: User) => number' is not assignable to type '(a: TableRecord, b: TableRecord) => number'.
+                Types of parameters 'a' and 'a' are incompatible.
+                  Type 'TableRecord' is not assignable to type 'User'.
+                    Type 'TableRowSelection<User>' is not assignable to type 'TableRowSelection<TableRecord>'.
+                      Type 'TableRecord' is not assignable to type 'User'.
+                        Type 'TableExpandable<User>' is not assignable to type 'TableExpandable<TableRecord>'.
+                          Type 'TableRecord' is not assignable to type 'User'.
+types.ts(53,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type 'TableColumn<User>[]' is not assignable to type 'TableColumn<TableRecord>[]'.
+      Type 'TableColumn<User>' is not assignable to type 'TableColumn<TableRecord>'.
+        Types of property 'sorter' are incompatible.
+          Type 'boolean | ((a: User, b: User) => number) | undefined' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.
+            Type '(a: User, b: User) => number' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.
+              Type '(a: User, b: User) => number' is not assignable to type '(a: TableRecord, b: TableRecord) => number'.
+                Types of parameters 'a' and 'a' are incompatible.
+                  Type 'TableRecord' is not assignable to type 'User'.
+                    Type 'TableRowSelection<User>' is not assignable to type 'TableRowSelection<TableRecord>'.
+                      Type 'TableRecord' is not assignable to type 'User'.
+                        Type 'TableExpandable<User>' is not assignable to type 'TableExpandable<TableRecord>'.
+                          Type 'TableRecord' is not assignable to type 'User'.
+types.ts(54,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type 'TableColumn<User>[]' is not assignable to type 'TableColumn<TableRecord>[]'.
+      Type 'TableColumn<User>' is not assignable to type 'TableColumn<TableRecord>'.
+        Types of property 'sorter' are incompatible.
+          Type 'boolean | ((a: User, b: User) => number) | undefined' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.
+            Type '(a: User, b: User) => number' is not assignable to type 'boolean | ((a: TableRecord, b: TableRecord) => number) | undefined'.
+              Type '(a: User, b: User) => number' is not assignable to type '(a: TableRecord, b: TableRecord) => number'.
+                Types of parameters 'a' and 'a' are incompatible.
+                  Type 'TableRecord' is not assignable to type 'User'.
+                    Type 'TableRowSelection<User>' is not assignable to type 'TableRowSelection<TableRecord>'.
+                      Type 'TableRecord' is not assignable to type 'User'.
+                        Type 'TableExpandable<User>' is not assignable to type 'TableExpandable<TableRecord>'.
+                          Type 'TableRecord' is not assignable to type 'User'.
+
+exit=2

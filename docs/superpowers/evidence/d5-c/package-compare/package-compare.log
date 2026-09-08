@@ -1,0 +1,143 @@
+temp=/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB
+{
+  "status": "passed",
+  "started": "2026-09-08T19:28:24.180Z",
+  "completed": "2026-09-08T19:28:31.694Z",
+  "baselineCommit": "7f29bb5",
+  "node": "v24.17.0",
+  "configuration": {
+    "vue": "3.5.38",
+    "serverRenderer": "3.5.38",
+    "vite": "5.0.12",
+    "build": "Vite production, configFile:false, minify:true, sourcemap:false; same consumer source"
+  },
+  "tarballs": {
+    "baseline": {
+      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/baseline-pack/aheart-ui-1.0.0.tgz",
+      "sha256": "1bb62625f139b7acf8639eb3b3066c9905028c6e0286bf4aa8e5c58e96b42fe4",
+      "rawBytes": 440973
+    },
+    "candidate": {
+      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/candidate-pack/aheart-ui-1.0.0.tgz",
+      "sha256": "c1ed529f51daf360767b9f327d54608b479965f6f8184660dd5edf76dc88c751",
+      "rawBytes": 470389
+    }
+  },
+  "bundles": {
+    "baseline": {
+      "rawBytes": 656347,
+      "gzipBytes": 167142
+    },
+    "candidate": {
+      "rawBytes": 692949,
+      "gzipBytes": 178067
+    },
+    "gzipDeltaBytes": 10925,
+    "rawDeltaBytes": 36602,
+    "files": [
+      {
+        "file": "assets/index-2WFH8Wg5.js",
+        "baseline": {
+          "file": "assets/index-2WFH8Wg5.js",
+          "sha256": "358ae2531d034f0c0f2938ae65d11c358ccb97c2d38bfdb4a84a7bca4b5fdf63",
+          "rawBytes": 486939,
+          "gzipBytes": 145198
+        },
+        "candidate": null,
+        "rawDelta": -486939,
+        "gzipDelta": -145198
+      },
+      {
+        "file": "assets/index-B8WHfWU0.js",
+        "baseline": null,
+        "candidate": {
+          "file": "assets/index-B8WHfWU0.js",
+          "sha256": "f0798cbb6a9b69bf75332337088f3e14932622af77767025bde612c8f7d08cc3",
+          "rawBytes": 520261,
+          "gzipBytes": 155631
+        },
+        "rawDelta": 520261,
+        "gzipDelta": 155631
+      },
+      {
+        "file": "assets/index-BpfCMVw5.css",
+        "baseline": null,
+        "candidate": {
+          "file": "assets/index-BpfCMVw5.css",
+          "sha256": "138a2db7776f009533417573b66285636cfdda14e487e669ae6f57bc64a513bc",
+          "rawBytes": 172688,
+          "gzipBytes": 22436
+        },
+        "rawDelta": 172688,
+        "gzipDelta": 22436
+      },
+      {
+        "file": "assets/index-Cj6jzt97.css",
+        "baseline": {
+          "file": "assets/index-Cj6jzt97.css",
+          "sha256": "3262f1d808b3c3a32147361e1dc5565d78b81054c2eafd210ca32964d3e488df",
+          "rawBytes": 169408,
+          "gzipBytes": 21944
+        },
+        "candidate": null,
+        "rawDelta": -169408,
+        "gzipDelta": -21944
+      }
+    ]
+  },
+  "ssr": {
+    "baseline": {
+      "default": {
+        "htmlBytes": 1379395,
+        "sha256": "ef46d03cfdc97679c622241f73f4a532725c5fa1da5d1d07c90bd7df58ab45ce",
+        "rowCount": 10000,
+        "cellCount": 20000,
+        "markers": 0,
+        "firstRow": 505,
+        "lastRow": 1379260,
+        "nativeTable": true
+      }
+    },
+    "candidate": {
+      "default": {
+        "htmlBytes": 2616258,
+        "sha256": "9ff4afe23a686f466907b97167120f0f18728c469294d8a78c906b3d8c32d5f4",
+        "rowCount": 10000,
+        "cellCount": 20000,
+        "markers": 0,
+        "firstRow": 784,
+        "lastRow": 2616102,
+        "nativeTable": true
+      },
+      "false": {
+        "htmlBytes": 2616258,
+        "sha256": "9ff4afe23a686f466907b97167120f0f18728c469294d8a78c906b3d8c32d5f4",
+        "rowCount": 10000,
+        "cellCount": 20000,
+        "markers": 0,
+        "firstRow": 784,
+        "lastRow": 2616102,
+        "nativeTable": true
+      }
+    }
+  },
+  "checks": {
+    "tarballsReal": true,
+    "noWorkspaceSymlinks": true,
+    "esmCjsCss": true,
+    "candidateDefaultFalseNormalizedDOMHashEqual": true,
+    "baselineNative10k20kNoMarkers": true,
+    "candidateNative10k20kNoMarkers": true,
+    "gzipDeltaWithinBudget": true
+  },
+  "consumers": {
+    "baseline": {
+      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/baseline-consumer-l56PuY",
+      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/baseline-consumer-l56PuY/node_modules/aheart-ui"
+    },
+    "candidate": {
+      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/candidate-consumer-orGgkb",
+      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/candidate-consumer-orGgkb/node_modules/aheart-ui"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+- region "D5 本地客户选择":
+  - button "拒绝选择更新"
+  - status: 已选：无；选择请求：0
+  - table:
+    - rowgroup:
+      - row "Select all rows on current page 客户 Sort 评分":
+        - columnheader "Select all rows on current page":
+          - checkbox "Select all rows on current page"
+        - columnheader "客户"
+        - columnheader "Sort 评分":
+          - button "Sort 评分": 评分
+    - rowgroup:
+      - row "Select row 1 数字键客户 60":
+        - cell "Select row 1":
+          - checkbox "Select row 1"
+        - cell "数字键客户"
+        - cell "60"
+      - row "Select row 1 字符串键客户 20":
+        - cell "Select row 1":
+          - checkbox "Select row 1"
+        - cell "字符串键客户"
+        - cell "20"
+      - row "Select row 2 禁止选择客户 90":
+        - cell "Select row 2":
+          - checkbox "Select row 2" [disabled]
+        - cell "禁止选择客户"
+        - cell "90"
+  - navigation "分页":
+    - button "上一页" [disabled]: ‹
+    - button "1"
+    - button "2"
+    - button "下一页": ›
+- region "D5 本地客户选择":
+  - button "拒绝选择更新"
+  - status: 已选：number:1、string:1；选择请求：1
+  - table:
+    - rowgroup:
+      - row "Select all rows on current page 客户 Sort 评分":
+        - columnheader "Select all rows on current page":
+          - checkbox "Select all rows on current page" [checked]
+        - columnheader "客户"
+        - columnheader "Sort 评分":
+          - button "Sort 评分": 评分
+    - rowgroup:
+      - row "Select row 1 数字键客户 60":
+        - cell "Select row 1":
+          - checkbox "Select row 1" [checked]
+        - cell "数字键客户"
+        - cell "60"
+      - row "Select row 1 字符串键客户 20":
+        - cell "Select row 1":
+          - checkbox "Select row 1" [checked]
+        - cell "字符串键客户"
+        - cell "20"
+      - row "Select row 2 禁止选择客户 90":
+        - cell "Select row 2":
+          - checkbox "Select row 2" [disabled]
+        - cell "禁止选择客户"
+        - cell "90"
+  - navigation "分页":
+    - button "上一页" [disabled]: ‹
+    - button "1"
+    - button "2"
+    - button "下一页": ›
+{"file":"/Users/start/.codex/worktrees/091b/aheart-ui/docs/superpowers/evidence/d5-a/visual/01-selection.png","geometry":{"width":686,"scrollWidth":686,"viewport":1440},"errors":[]}

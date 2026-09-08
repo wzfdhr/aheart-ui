@@ -53,12 +53,13 @@ const getPlacementAlign = (placement) => {
   return "";
 };
 const resolveViewportPlacement = (reference, floating, requestedPlacement, enabled) => {
-  if (!enabled || typeof window === "undefined")
+  const ownerWindow = reference.ownerDocument.defaultView;
+  if (!enabled || !ownerWindow)
     return requestedPlacement;
   const referenceRect = reference.getBoundingClientRect();
   const floatingRect = floating.getBoundingClientRect();
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
-  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+  const viewportWidth = ownerWindow.innerWidth || reference.ownerDocument.documentElement.clientWidth || 0;
+  const viewportHeight = ownerWindow.innerHeight || reference.ownerDocument.documentElement.clientHeight || 0;
   let side = getPlacementSide(requestedPlacement);
   let align = getPlacementAlign(requestedPlacement);
   if (floatingRect.height > 0 && viewportHeight > 0) {
@@ -128,7 +129,7 @@ function useFloatingPosition(options) {
   const update = async () => {
     const reference = vue.toValue(options.reference);
     const floating = vue.toValue(options.floating);
-    if (typeof window === "undefined" || vue.toValue(options.open) === false || !reference || !floating) {
+    if (vue.toValue(options.open) === false || !reference || !floating || !reference.ownerDocument.defaultView) {
       return;
     }
     const currentUpdateId = ++updateId;
@@ -153,10 +154,10 @@ function useFloatingPosition(options) {
       });
     }
     if (shouldAdjustOverflow && requestedPlacement === configuredPlacement) {
-      middleware.push(dom.flip());
+      middleware.push(dom.flip({ padding: vue.toValue(options.viewportPadding) ?? 8 }));
     }
     if (vue.toValue(options.shift) !== false) {
-      middleware.push(dom.shift({ padding: 8 }));
+      middleware.push(dom.shift({ padding: vue.toValue(options.viewportPadding) ?? 8 }));
     }
     if (arrowElement) {
       middleware.push(dom.arrow({ element: arrowElement, padding: 4 }));
@@ -209,10 +210,11 @@ function useFloatingPosition(options) {
     vue.toValue(options.alignOffset);
     vue.toValue(options.autoAdjustOverflow);
     vue.toValue(options.shift);
+    vue.toValue(options.viewportPadding);
     vue.toValue(options.arrowSize);
     if (options.arrow)
       vue.toValue(options.arrow);
-    if (typeof window === "undefined" || !open || !reference || !floating) {
+    if (!open || !reference || !floating || !reference.ownerDocument.defaultView) {
       return;
     }
     const cleanup = dom.autoUpdate(

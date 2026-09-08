@@ -13,6 +13,7 @@ export interface UseFloatingPositionOptions {
     alignOffset?: MaybeRefOrGetter<readonly [number, number] | undefined>;
     autoAdjustOverflow?: MaybeRefOrGetter<boolean | undefined>;
     shift?: MaybeRefOrGetter<boolean | undefined>;
+    viewportPadding?: MaybeRefOrGetter<number | undefined>;
     arrowSize?: MaybeRefOrGetter<number | undefined>;
     autoUpdateOptions?: AutoUpdateOptions;
 }

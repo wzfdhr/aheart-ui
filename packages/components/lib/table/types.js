@@ -3,6 +3,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const tableProps = {
   columns: Array,
   dataSource: Array,
+  dataMode: String,
   rowKey: {
     type: [String, Function],
     default: "key"
@@ -20,6 +21,14 @@ const tableProps = {
   },
   rowSelection: Object,
   expandable: Object,
+  scroll: Object,
+  sticky: [Boolean, Object],
+  virtual: {
+    type: [Boolean, Object],
+    default: false
+  },
+  error: [Boolean, Object],
+  getPopupContainer: Function,
   showHeader: {
     type: Boolean,
     default: true
@@ -34,7 +43,10 @@ const tableEmits = {
   "update:selectedRowKeys": (keys) => Array.isArray(keys),
   "update:expandedRowKeys": (keys) => Array.isArray(keys),
   select: (_key, _selected, _record, _selectedRowKeys) => true,
-  expand: (_expanded, _record, _key) => true
+  selectAll: (_selected, keys, rows) => Array.isArray(keys) && Array.isArray(rows),
+  expand: (_expanded, _record, _key) => true,
+  filterDropdownOpenChange: (_columnKey, _open) => true,
+  retry: () => true
 };
 exports.tableEmits = tableEmits;
 exports.tableProps = tableProps;

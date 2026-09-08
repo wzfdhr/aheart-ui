@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-09-07T23:33:48.832Z",
+  "node": "v20.20.2",
+  "tarball": "/private/tmp/aheart-d5-a-independent-package/aheart-ui-1.0.0.tgz",
+  "tarballSHA256": "f943ae0c03992637bc94ac8fef8d07d4fe56ec6a0ea1550eff2d1adcbe42c651",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-a-nVfOaf",
+  "symlink": false,
+  "install": {
+    "code": 0,
+    "ciCode": 0,
+    "lockSHA256": "b23b9c8428fb0c2b689eb326a19fbc66d3370bce3bc5106b5e99410d8da47879",
+    "lockBytes": 43727
+  },
+  "typecheck": {
+    "code": 0,
+    "passed": true
+  },
+  "imports": {
+    "cjs": [
+      "Table",
+      "Pagination"
+    ],
+    "esm": [
+      "Table",
+      "Pagination"
+    ],
+    "esmExitCode": 0
+  },
+  "ssr": {
+    "serverOrder": [
+      "Linus",
+      "Ada"
+    ],
+    "localPage2": [
+      "Linus",
+      "Margaret"
+    ],
+    "headerSelection": true
+  },
+  "hydration": [
+    {
+      "mode": "server",
+      "warnings": []
+    },
+    {
+      "mode": "local",
+      "warnings": []
+    }
+  ],
+  "tarballSHA256After": "f943ae0c03992637bc94ac8fef8d07d4fe56ec6a0ea1550eff2d1adcbe42c651",
+  "status": "passed"
+}

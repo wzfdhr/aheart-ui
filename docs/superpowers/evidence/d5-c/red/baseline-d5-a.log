@@ -1,0 +1,44 @@
+
+[WebServer] (node:48391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:48402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:48416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:49182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:49193) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+
+(node:49207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop] › e2e/d5-table-pagination.spec.ts:10:5 › local current-page selection excludes disabled rows, preserves typed keys and rejects parent updates
+[2/5] [desktop] › e2e/d5-table-pagination.spec.ts:33:5 › native radio groups restore the accepted row after a rejected selection request
+[3/5] [desktop] › e2e/d5-table-pagination.spec.ts:46:5 › server query controls wait for acceptance without reordering filtering or slicing the response
+[4/5] [desktop] › e2e/d5-table-pagination.spec.ts:73:5 › Table page-size rejection restores the native select and accepted requests update both dimensions once
+[5/5] [desktop] › e2e/d5-table-pagination.spec.ts:93:5 › standalone Pagination rejects keyboard and size requests and disables every control
+  5 passed (14.8s)
+
+exit=0

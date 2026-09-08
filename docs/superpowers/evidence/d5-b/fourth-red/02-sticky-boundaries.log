@@ -1,0 +1,77 @@
+
+[WebServer] (node:45986) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:45997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:46011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:46762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:46773) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+
+(node:46780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/1] [desktop] › e2e/d5-table-b.spec.ts:216:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table
+  1) [desktop] › e2e/d5-table-b.spec.ts:216:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 60
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      246 |     const value = await geometry()
+      247 |     return value ? Math.round(value.headerTop - value.target) : -1
+    > 248 |   }).toBe(0)
+          |      ^
+      249 |
+      250 |   await scroller.evaluate(node => {
+      251 |     const table = node.querySelector('table')
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:248:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser-release/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser-release/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-fourth-red/browser-release/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-fourth-red/browser-release/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-fourth-red/browser-release/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [desktop] › e2e/d5-table-b.spec.ts:216:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 

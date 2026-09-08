@@ -1,0 +1,228 @@
+{
+  "status": "failed",
+  "measuredAt": "2026-09-08T16:54:06.135Z",
+  "rounds": 1,
+  "results": [
+    {
+      "mode": "full-dom",
+      "round": 1,
+      "interactiveMs": 306.59999999403954,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 1,
+      "interactiveMs": 38,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "shiftEntries": [
+        {
+          "startTime": 506.19999998807907,
+          "value": 0.35160493827160494,
+          "hadRecentInput": false,
+          "scrollTop": 239858,
+          "first": "4993",
+          "entryKeys": [
+            "4993",
+            "4994",
+            "4995",
+            "4996",
+            "4997",
+            "4998",
+            "4999",
+            "5000",
+            "5001",
+            "5002",
+            "5003",
+            "5004",
+            "5005",
+            "5006",
+            "5007"
+          ],
+          "sources": [
+            {
+              "tag": "TR",
+              "id": "",
+              "class": "",
+              "dataset": {
+                "aheartVirtualSpacer": "true",
+                "after": "",
+                "tableVirtualSpacer": "after",
+                "tableSpacerPosition": "after",
+                "measuredHeight": "517",
+                "aheartVirtualMeasuredHeight": "517"
+              },
+              "outerHTML": "<tr data-aheart-virtual-spacer=\"true\" data-after=\"\" data-table-virtual-spacer=\"after\" data-table-spacer-position=\"after\" data-measured-height=\"517\" aria-hidden=\"true\" data-aheart-virtual-measured-height=\"517\" style=\"height: 239616px;\"><td colspan=\"2\" style=\"height: 239616px;\"></td></tr>",
+              "isConnected": true,
+              "display": "table-row",
+              "position": "static",
+              "height": "239616px",
+              "previousRect": {
+                "x": 8,
+                "y": 29,
+                "width": 1424,
+                "height": 320,
+                "top": 29,
+                "right": 1432,
+                "bottom": 349,
+                "left": 8
+              },
+              "currentRect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        },
+        {
+          "startTime": 751.0999999940395,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "scrollTop": 0,
+          "first": "0",
+          "entryKeys": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "dataset": {},
+              "outerHTML": "<th class=\"\" scope=\"col\"><div class=\"aheart-table__head-content\"><span class=\"aheart-table__title\">Status</span><!----><!----></div></th>",
+              "isConnected": true,
+              "display": "table-cell",
+              "position": "static",
+              "height": "22px",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    }
+  ],
+  "summary": {
+    "full-dom": {
+      "medianInteractiveMs": 306.59999999403954,
+      "medianLogicalRows": 10000,
+      "medianFullDomRows": 10000,
+      "maxLongTaskMs": 0,
+      "maxCls": 0,
+      "spacerCounts": [
+        0
+      ]
+    },
+    "virtual": {
+      "medianInteractiveMs": 38,
+      "medianLogicalRows": 11,
+      "medianFullDomRows": 13,
+      "maxLongTaskMs": 0,
+      "maxCls": 0.3530747743457433,
+      "spacerCounts": [
+        2
+      ]
+    }
+  },
+  "thresholds": {
+    "virtualInteractiveMs": 500,
+    "virtualInteractiveRatio": 0.5,
+    "logicalRows": 20,
+    "longTaskMs": 100,
+    "cls": 0.1,
+    "tableGzipDeltaBytes": 12288
+  },
+  "checks": {
+    "virtualInteractive": true,
+    "fullDom10k": true,
+    "virtualWindow": true,
+    "aria10k": true,
+    "longTasks": true,
+    "cls": false,
+    "tableGzipDelta": true
+  },
+  "gzip": {
+    "baseline": {
+      "file": "/tmp/d5-a-table-7f29bb5.js",
+      "sha256": "41e37379e4e26bbdce3fdf638f3058d8f0ac9724c068c08ad4aa3ec4438752dc",
+      "rawBytes": 32649,
+      "gzipBytes": 6577
+    },
+    "candidate": {
+      "file": "/Users/start/.codex/worktrees/091b/aheart-ui/packages/components/es/table/table.vue.js",
+      "sha256": "eb8a207c82fe0df1054794d679e6931a4d01030c70ef828d1fd70a67cd1340f0",
+      "rawBytes": 98672,
+      "gzipBytes": 18773
+    },
+    "deltaBytes": 12196
+  }
+}

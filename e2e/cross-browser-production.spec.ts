@@ -1,4 +1,5 @@
 import { expect, test as base, type Page } from '@playwright/test'
+import { installVitePressRequestTracker, setActiveVitePressRoute } from './qg5-request-failures.mjs'
 
 type ProductionErrorFixture = {
   productionErrors: string[]
@@ -7,6 +8,7 @@ type ProductionErrorFixture = {
 const test = base.extend<ProductionErrorFixture>({
   productionErrors: async ({ page }, use, testInfo) => {
     const errors: string[] = []
+    const tracker = installVitePressRequestTracker(page, testInfo.project.name)
 
     page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`))
     page.on('console', (message) => {
@@ -19,10 +21,12 @@ const test = base.extend<ProductionErrorFixture>({
       if (url.hostname === '127.0.0.1' && response.status() >= 400) {
         errors.push(`response ${response.status()}: ${url.pathname}`)
       }
+      void tracker.recordCompletedResponse(response)
     })
-    page.on('requestfailed', (request) => {
+    page.on('requestfailed', async (request) => {
       const url = new URL(request.url())
       const errorText = request.failure()?.errorText ?? 'unknown'
+      if (await tracker.isIgnorable(request, errorText)) return
       if (url.hostname === '127.0.0.1' && !/ABORTED/i.test(errorText)) {
         errors.push(`requestfailed: ${url.pathname} (${errorText})`)
       }
@@ -58,6 +62,7 @@ test.describe('QG5 production cross-browser gates', () => {
   test('production assets load and interactive routes hydrate without runtime errors', async ({ page, productionErrors }) => {
 
     for (const route of ['select', 'modal', 'ai-agent-workbench'] as const) {
+      setActiveVitePressRoute(page, `/components/${route}`)
       await page.goto(`/components/${route}`, { waitUntil: 'domcontentloaded' })
       await page.waitForFunction(() => Boolean((document.querySelector('#app') as HTMLElement & { __vue_app__?: unknown } | null)?.__vue_app__))
       await expect(page.locator('.vp-doc h1')).toBeVisible()
@@ -69,6 +74,7 @@ test.describe('QG5 production cross-browser gates', () => {
   })
 
   test('Floating UI remains visible after scrolling, resizing, and edge adjustment', async ({ page, productionErrors }) => {
+    setActiveVitePressRoute(page, '/components/select')
     await page.goto('/components/select')
 
     const select = page.locator('.aheart-demo-panel').first().getByRole('combobox')
@@ -88,6 +94,7 @@ test.describe('QG5 production cross-browser gates', () => {
   })
 
   test('Teleport overlays close cleanly and restore focus', async ({ page, productionErrors }) => {
+    setActiveVitePressRoute(page, '/components/modal')
     await page.goto('/components/modal')
 
     const trigger = page.getByRole('button', { name: 'Open modal', exact: true }).first()
@@ -107,6 +114,7 @@ test.describe('QG5 production cross-browser gates', () => {
 
   test('mobile production surfaces stay within the viewport', async ({ page, productionErrors }, testInfo) => {
     test.skip(!testInfo.project.name.includes('mobile'), 'Mobile containment belongs to mobile projects.')
+    setActiveVitePressRoute(page, '/components/ai-agent-workbench')
     await page.goto('/components/ai-agent-workbench')
 
     const workbench = page.locator('.aheart-ai-workbench').first()

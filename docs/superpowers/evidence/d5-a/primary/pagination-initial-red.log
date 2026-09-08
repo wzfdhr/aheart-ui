@@ -1,0 +1,28 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/pagination/__tests__/pagination-state.test.ts  (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pagination/__tests__/pagination-state.test.ts [ src/pagination/__tests__/pagination-state.test.ts ]
+Error: Failed to resolve import "../pagination-state" from "src/pagination/__tests__/pagination-state.test.ts". Does the file exist?
+ ❯ TransformPluginContext._formatError ../../node_modules/.pnpm/vite@5.4.21/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49258:41
+ ❯ TransformPluginContext.error ../../node_modules/.pnpm/vite@5.4.21/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49253:16
+ ❯ normalizeUrl ../../node_modules/.pnpm/vite@5.4.21/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64307:23
+ ❯ async file:/Users/start/.codex/worktrees/091b/aheart-ui/node_modules/.pnpm/vite@5.4.21/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64439:39
+ ❯ TransformPluginContext.transform ../../node_modules/.pnpm/vite@5.4.21/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64366:7
+ ❯ PluginContainer.transform ../../node_modules/.pnpm/vite@5.4.21/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49099:18
+ ❯ loadAndTransform ../../node_modules/.pnpm/vite@5.4.21/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51978:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:55:38
+   Duration  307ms (transform 9ms, setup 0ms, collect 0ms, tests 0ms, environment 158ms, prepare 44ms)
+
+undefined
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: vitest run src/pagination/__tests__/pagination-state.test.ts --environment jsdom

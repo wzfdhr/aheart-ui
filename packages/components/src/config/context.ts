@@ -26,6 +26,8 @@ export interface AheartLocale {
   table?: {
     emptyText?: string
     loadingText?: string
+    errorText?: string
+    retryText?: string
   }
   datePicker?: {
     locale?: 'zh-CN' | 'en-US'
@@ -107,7 +109,9 @@ export const zhCN: AheartLocale = {
   },
   table: {
     emptyText: '暂无数据',
-    loadingText: '加载中'
+    loadingText: '加载中',
+    errorText: '加载失败',
+    retryText: '重试'
   },
   datePicker: {
     locale: 'zh-CN', weekStartsOn: 1, weekdaysShort: ['一', '二', '三', '四', '五', '六', '日'],
@@ -151,7 +155,9 @@ export const enUS: AheartLocale = {
   },
   table: {
     emptyText: 'No Data',
-    loadingText: 'Loading'
+    loadingText: 'Loading',
+    errorText: 'Load failed',
+    retryText: 'Retry'
   },
   datePicker: {
     locale: 'en-US', weekStartsOn: 0, weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

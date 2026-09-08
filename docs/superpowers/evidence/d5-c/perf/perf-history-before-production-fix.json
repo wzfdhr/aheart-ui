@@ -1,0 +1,639 @@
+{
+  "status": "failed",
+  "measuredAt": "2026-09-08T16:51:24.019Z",
+  "rounds": 5,
+  "results": [
+    {
+      "mode": "full-dom",
+      "round": 1,
+      "interactiveMs": 258,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 1,
+      "interactiveMs": 26.400000005960464,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "shiftEntries": [
+        {
+          "startTime": 489.69999998807907,
+          "value": 0.35160493827160494,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TR",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 8,
+                "y": 29,
+                "width": 1424,
+                "height": 320,
+                "top": 29,
+                "right": 1432,
+                "bottom": 349,
+                "left": 8
+              },
+              "currentRect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        },
+        {
+          "startTime": 764.5999999940395,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 2,
+      "interactiveMs": 25.900000005960464,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "shiftEntries": [
+        {
+          "startTime": 481.30000001192093,
+          "value": 0.35160493827160494,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TR",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 8,
+                "y": 29,
+                "width": 1424,
+                "height": 320,
+                "top": 29,
+                "right": 1432,
+                "bottom": 349,
+                "left": 8
+              },
+              "currentRect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        },
+        {
+          "startTime": 708.1000000238419,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 2,
+      "interactiveMs": 267.30000001192093,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 3,
+      "interactiveMs": 293.90000000596046,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 3,
+      "interactiveMs": 25.599999994039536,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "shiftEntries": [
+        {
+          "startTime": 484.90000000596046,
+          "value": 0.35160493827160494,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TR",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 8,
+                "y": 29,
+                "width": 1424,
+                "height": 320,
+                "top": 29,
+                "right": 1432,
+                "bottom": 349,
+                "left": 8
+              },
+              "currentRect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        },
+        {
+          "startTime": 718.0999999940395,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 4,
+      "interactiveMs": 38.599999994039536,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "shiftEntries": [
+        {
+          "startTime": 493.19999998807907,
+          "value": 0.35160493827160494,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TR",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 8,
+                "y": 29,
+                "width": 1424,
+                "height": 320,
+                "top": 29,
+                "right": 1432,
+                "bottom": 349,
+                "left": 8
+              },
+              "currentRect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        },
+        {
+          "startTime": 751.8000000119209,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 4,
+      "interactiveMs": 284.09999999403954,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 5,
+      "interactiveMs": 248.90000000596046,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 5,
+      "interactiveMs": 38.89999997615814,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.3530747743457433,
+      "shiftEntries": [
+        {
+          "startTime": 486.2999999821186,
+          "value": 0.35160493827160494,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TR",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 8,
+                "y": 29,
+                "width": 1424,
+                "height": 320,
+                "top": 29,
+                "right": 1432,
+                "bottom": 349,
+                "left": 8
+              },
+              "currentRect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        },
+        {
+          "startTime": 703.1999999880791,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    }
+  ],
+  "summary": {
+    "full-dom": {
+      "medianInteractiveMs": 267.30000001192093,
+      "medianLogicalRows": 10000,
+      "medianFullDomRows": 10000,
+      "maxLongTaskMs": 0,
+      "maxCls": 0,
+      "spacerCounts": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "virtual": {
+      "medianInteractiveMs": 26.400000005960464,
+      "medianLogicalRows": 11,
+      "medianFullDomRows": 13,
+      "maxLongTaskMs": 0,
+      "maxCls": 0.3530747743457433,
+      "spacerCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    }
+  },
+  "thresholds": {
+    "virtualInteractiveMs": 500,
+    "virtualInteractiveRatio": 0.5,
+    "logicalRows": 20,
+    "longTaskMs": 100,
+    "cls": 0.1,
+    "tableGzipDeltaBytes": 12288
+  },
+  "checks": {
+    "virtualInteractive": true,
+    "fullDom10k": true,
+    "virtualWindow": true,
+    "aria10k": true,
+    "longTasks": true,
+    "cls": false,
+    "tableGzipDelta": true
+  },
+  "gzip": {
+    "baseline": {
+      "file": "/tmp/d5-a-table-7f29bb5.js",
+      "sha256": "41e37379e4e26bbdce3fdf638f3058d8f0ac9724c068c08ad4aa3ec4438752dc",
+      "rawBytes": 32649,
+      "gzipBytes": 6577
+    },
+    "candidate": {
+      "file": "/Users/start/.codex/worktrees/091b/aheart-ui/packages/components/es/table/table.vue.js",
+      "sha256": "eb8a207c82fe0df1054794d679e6931a4d01030c70ef828d1fd70a67cd1340f0",
+      "rawBytes": 98672,
+      "gzipBytes": 18773
+    },
+    "deltaBytes": 12196
+  }
+}

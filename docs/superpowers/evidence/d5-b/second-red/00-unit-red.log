@@ -1,0 +1,160 @@
+
+> aheart-ui@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+> vitest run --environment jsdom "src/table/__tests__/table-d5b-review-regressions.test.ts" "src/utils/__tests__/use-floating-position-realm.test.ts"
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ❯ src/utils/__tests__/use-floating-position-realm.test.ts  (2 tests | 1 failed) 15ms
+   ❯ src/utils/__tests__/use-floating-position-realm.test.ts > useFloatingPosition owner-document realm > keeps the legacy 8px viewport padding when viewportPadding is omitted
+     → expected "spy" to be called with arguments: [ { padding: 8 } ]
+
+Received: 
+
+  1st spy call:
+
+  Array [
+    Object {
+-     "padding": 8,
++     "padding": 0,
+    },
+  ]
+
+  2nd spy call:
+
+  Array [
+    Object {
+-     "padding": 8,
++     "padding": 0,
+    },
+  ]
+
+
+Number of calls: 2
+
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts  (9 tests | 3 failed) 98ms
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > preserves a draft when a controlled close request is rejected and emits one close request
+     → expected [ false ] to deeply equal [ false, false ]
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > emits one false close request for an uncontrolled Cancel
+     → expected [] to deeply equal [ [ 'name', false ] ]
+   ❯ src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > tabs across enabled focusables, skips a disabled button, reverses with Shift, and is safe with none
+     → expected <input data-focus-first="true"></input> to be <a href="#focus-link" …(1)></a> // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > preserves a draft when a controlled close request is rejected and emits one close request
+AssertionError: expected [ false ] to deeply equal [ false, false ]
+
+- Expected
++ Received
+
+  Array [
+    false,
+-   false,
+  ]
+
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:135:27
+    133|     retained?.closest('[data-table-filter-popup]')?.querySelector<HTML…
+    134|     await nextTick()
+    135|     expect(closeRequests).toEqual([false, false])
+       |                           ^
+    136|     open.value = false
+    137|     await nextTick()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > emits one false close request for an uncontrolled Cancel
+AssertionError: expected [] to deeply equal [ [ 'name', false ] ]
+
+- Expected
++ Received
+
+- Array [
+-   Array [
+-     "name",
+-     false,
+-   ],
+- ]
++ Array []
+
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:157:27
+    155|     popup.querySelector<HTMLElement>('[data-review-close]')?.click()
+    156|     await nextTick()
+    157|     expect(closeRequests).toEqual([['name', false]])
+       |                           ^
+    158|     wrapper.unmount()
+    159|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/table/__tests__/table-d5b-review-regressions.test.ts > Table D5-B review regressions > tabs across enabled focusables, skips a disabled button, reverses with Shift, and is safe with none
+AssertionError: expected <input data-focus-first="true"></input> to be <a href="#focus-link" …(1)></a> // Object.is equality
+
+- Expected
++ Received
+
+- <a
+-   data-focus-link="true"
+-   href="#focus-link"
+- >
+-   Link
+- </a>
++ <input
++   data-focus-first="true"
++ />
+
+ ❯ src/table/__tests__/table-d5b-review-regressions.test.ts:183:36
+    181|     first.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bub…
+    182|     await nextTick()
+    183|     expect(document.activeElement).toBe(link)
+       |                                    ^
+    184|     link.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shif…
+    185|     await nextTick()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/utils/__tests__/use-floating-position-realm.test.ts > useFloatingPosition owner-document realm > keeps the legacy 8px viewport padding when viewportPadding is omitted
+AssertionError: expected "spy" to be called with arguments: [ { padding: 8 } ]
+
+Received: 
+
+  1st spy call:
+
+  Array [
+    Object {
+-     "padding": 8,
++     "padding": 0,
+    },
+  ]
+
+  2nd spy call:
+
+  Array [
+    Object {
+-     "padding": 8,
++     "padding": 0,
+    },
+  ]
+
+
+Number of calls: 2
+
+ ❯ src/utils/__tests__/use-floating-position-realm.test.ts:93:22
+     91|     await nextTick()
+     92|     await result.update()
+     93|     expect(flipMock).toHaveBeenCalledWith({ padding: 8 })
+       |                      ^
+     94|     expect(shiftMock).toHaveBeenCalledWith({ padding: 8 })
+     95|     scope.stop()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 7 passed (11)
+   Start at  12:15:29
+   Duration  632ms (transform 204ms, setup 0ms, collect 280ms, tests 113ms, environment 332ms, prepare 68ms)
+
+/Users/start/.codex/worktrees/091b/aheart-ui/packages/components:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  aheart-ui@1.0.0 test: `vitest run --environment jsdom "src/table/__tests__/table-d5b-review-regressions.test.ts" "src/utils/__tests__/use-floating-position-realm.test.ts"`
+Exit status 1

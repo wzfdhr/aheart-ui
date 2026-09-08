@@ -1,0 +1,584 @@
+{
+  "status": "passed",
+  "measuredAt": "2026-09-08T18:14:35.696Z",
+  "rounds": 5,
+  "results": [
+    {
+      "mode": "full-dom",
+      "round": 1,
+      "interactiveMs": 286.69999998807907,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 1,
+      "interactiveMs": 27.399999976158142,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.0014698360741383744,
+      "shiftEntries": [
+        {
+          "startTime": 695.3999999761581,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "scrollTop": 0,
+          "first": "0",
+          "entryKeys": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "dataset": {},
+              "outerHTML": "<th class=\"\" scope=\"col\"><div class=\"aheart-table__head-content\"><span class=\"aheart-table__title\">Status</span><!----><!----></div></th>",
+              "isConnected": true,
+              "display": "table-cell",
+              "position": "static",
+              "height": "22px",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 2,
+      "interactiveMs": 25.19999998807907,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.0014698360741383744,
+      "shiftEntries": [
+        {
+          "startTime": 740.7000000476837,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "scrollTop": 0,
+          "first": "0",
+          "entryKeys": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "dataset": {},
+              "outerHTML": "<th class=\"\" scope=\"col\"><div class=\"aheart-table__head-content\"><span class=\"aheart-table__title\">Status</span><!----><!----></div></th>",
+              "isConnected": true,
+              "display": "table-cell",
+              "position": "static",
+              "height": "22px",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 2,
+      "interactiveMs": 308.0999999642372,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 3,
+      "interactiveMs": 251.79999995231628,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 3,
+      "interactiveMs": 24.099999964237213,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.0014698360741383744,
+      "shiftEntries": [
+        {
+          "startTime": 699.1000000238419,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "scrollTop": 0,
+          "first": "0",
+          "entryKeys": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "dataset": {},
+              "outerHTML": "<th class=\"\" scope=\"col\"><div class=\"aheart-table__head-content\"><span class=\"aheart-table__title\">Status</span><!----><!----></div></th>",
+              "isConnected": true,
+              "display": "table-cell",
+              "position": "static",
+              "height": "22px",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 4,
+      "interactiveMs": 26.299999952316284,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.0014698360741383744,
+      "shiftEntries": [
+        {
+          "startTime": 712.8999999761581,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "scrollTop": 0,
+          "first": "0",
+          "entryKeys": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "dataset": {},
+              "outerHTML": "<th class=\"\" scope=\"col\"><div class=\"aheart-table__head-content\"><span class=\"aheart-table__title\">Status</span><!----><!----></div></th>",
+              "isConnected": true,
+              "display": "table-cell",
+              "position": "static",
+              "height": "22px",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 4,
+      "interactiveMs": 268.5,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "full-dom",
+      "round": 5,
+      "interactiveMs": 260.0999999642372,
+      "logicalRows": 10000,
+      "fullDomRows": 10000,
+      "ariaRowCount": null,
+      "spacerCount": 0,
+      "longTaskMax": 0,
+      "cls": 0,
+      "shiftEntries": [],
+      "scrollTrace": [],
+      "longTasks": []
+    },
+    {
+      "mode": "virtual",
+      "round": 5,
+      "interactiveMs": 27.80000001192093,
+      "logicalRows": 11,
+      "fullDomRows": 13,
+      "ariaRowCount": 10000,
+      "spacerCount": 2,
+      "longTaskMax": 0,
+      "cls": 0.0014698360741383744,
+      "shiftEntries": [
+        {
+          "startTime": 681.5999999642372,
+          "value": 0.0014698360741383744,
+          "hadRecentInput": false,
+          "scrollTop": 0,
+          "first": "0",
+          "entryKeys": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "sources": [
+            {
+              "tag": "TH",
+              "id": "",
+              "class": "",
+              "dataset": {},
+              "outerHTML": "<th class=\"\" scope=\"col\"><div class=\"aheart-table__head-content\"><span class=\"aheart-table__title\">Status</span><!----><!----></div></th>",
+              "isConnected": true,
+              "display": "table-cell",
+              "position": "static",
+              "height": "22px",
+              "previousRect": {
+                "x": 838.125,
+                "y": 29,
+                "width": 593.875,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 838.125
+              },
+              "currentRect": {
+                "x": 752.296875,
+                "y": 29,
+                "width": 679.703125,
+                "height": 47,
+                "top": 29,
+                "right": 1432,
+                "bottom": 76,
+                "left": 752.296875
+              }
+            }
+          ]
+        }
+      ],
+      "scrollTrace": [
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        },
+        {
+          "scrollTop": 239853,
+          "first": "4993",
+          "windowRows": 16
+        },
+        {
+          "scrollTop": 479685,
+          "first": "9990",
+          "windowRows": 10
+        },
+        {
+          "scrollTop": 0,
+          "first": "0",
+          "windowRows": 11
+        }
+      ],
+      "longTasks": []
+    }
+  ],
+  "summary": {
+    "full-dom": {
+      "medianInteractiveMs": 268.5,
+      "medianLogicalRows": 10000,
+      "medianFullDomRows": 10000,
+      "maxLongTaskMs": 0,
+      "maxCls": 0,
+      "spacerCounts": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "virtual": {
+      "medianInteractiveMs": 26.299999952316284,
+      "medianLogicalRows": 11,
+      "medianFullDomRows": 13,
+      "maxLongTaskMs": 0,
+      "maxCls": 0.0014698360741383744,
+      "spacerCounts": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    }
+  },
+  "thresholds": {
+    "virtualInteractiveMs": 500,
+    "virtualInteractiveRatio": 0.5,
+    "logicalRows": 20,
+    "longTaskMs": 100,
+    "cls": 0.1,
+    "tableGzipDeltaBytes": 12288
+  },
+  "checks": {
+    "virtualInteractive": true,
+    "fullDom10k": true,
+    "virtualWindow": true,
+    "aria10k": true,
+    "longTasks": true,
+    "cls": true,
+    "tableGzipDelta": true
+  },
+  "gzip": {
+    "baseline": {
+      "file": "/tmp/d5-a-table-7f29bb5.js",
+      "sha256": "41e37379e4e26bbdce3fdf638f3058d8f0ac9724c068c08ad4aa3ec4438752dc",
+      "rawBytes": 32649,
+      "gzipBytes": 6577
+    },
+    "candidate": {
+      "file": "/Users/start/.codex/worktrees/091b/aheart-ui/packages/components/es/table/table.vue.js",
+      "sha256": "e1c6f6ed44de1d289bb7e3688eee9e29664b2b0aa7181859f9e63ccf5acd0b98",
+      "rawBytes": 98672,
+      "gzipBytes": 18773
+    },
+    "deltaBytes": 12196
+  }
+}

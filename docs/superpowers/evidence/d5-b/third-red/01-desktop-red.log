@@ -1,0 +1,77 @@
+
+[WebServer] (node:17012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:17023) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:17037) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:17787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:17798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+
+(node:17805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/1] [desktop] › e2e/d5-table-b.spec.ts:194:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table
+  1) [desktop] › e2e/d5-table-b.spec.ts:194:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 9
+    Received: 16
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      206 |     if (!container || !headerBox) return -1
+      207 |     return Math.round(headerBox.y - container.y)
+    > 208 |   }).toBe(clientTop + 8)
+          |      ^
+      209 |   const container = await scroller.boundingBox()
+      210 |   const headerBox = await header.boundingBox()
+      211 |   const tableBox = await table.boundingBox()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d5-table-b.spec.ts:208:6
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../../../../../tmp/d5b-second-red/browser-probe/d5-table-b-D5-B-external-a-77414-offset-and-inside-the-table-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [desktop] › e2e/d5-table-b.spec.ts:194:5 › D5-B external ancestor scroll keeps no-y sticky header at the offset and inside the table 

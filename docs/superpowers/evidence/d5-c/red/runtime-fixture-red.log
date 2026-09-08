@@ -1,0 +1,51 @@
+D5-C runtime fixture RED evidence
+Date: 2026-09-08
+
+Completed desktop run after adding real D5-C regions:
+- docs build: PASS
+- Playwright desktop D5-C: exit 1, 5 failed, 3 passed
+- Passed baseline fallback cases: rowspan, invalid rowKey, duplicate-key (full-DOM
+  fallback wrapper contains 100 real ATable rows; these are not virtual passes).
+- Expected RED at current Table implementation:
+  - 10k and 1k native tables have no aria-rowcount and no data-table-row window
+  - server current-page virtual rows are not exposed with the virtual row marker
+  - fixed header cells do not expose fixed-column marker/sticky contract
+  - iframe mount/owner-document interaction was not yet green in this run
+
+The preceding desktop capture in /tmp/d5c-fixture-red.log was 6 failed / 2
+passed because it predated removal of the SSR fake-marker assertion; it is
+retained only as historical comparison, not as final evidence.
+
+Third-review verification:
+- docs build: PASS (vitepress build)
+- desktop D5-C: exit 1, 8 failed / 0 passed; no region/fixture-missing pass
+- failures are at virtual aria/window, server virtual row marker, fixed sticky
+  output, three runtime fallback markers, iframe owner-document/table runtime,
+  and 1k virtual aria/window.
+- fallback markers are required from Table runtime, not docs wrappers.
+- fixed focus is an in-row custom-rendered button; iframe cleanup owns and
+  unmounts the saved app and removes its load handler.
+- perf runner now validates every round: finite ordered marks, ariaRowCount
+  10000, full 10000/no spacer, virtual <=20/exactly two spacers, LongTask/CLS,
+  and explicit gzipped D5-A/candidate Table-only files with hashes.
+
+Fourth-review verification:
+- docs build: PASS
+- full desktop run before iframe virtual assertion: 7 failed / 1 passed;
+  the sole pass was the real iframe ownerDocument/unmount path.
+- iframe now also requires aria-rowcount=100, <=20 virtual rows, and exactly
+  two spacers; targeted desktop run exits RED at missing aria-rowcount (no
+  fixture timeout), so the final expected matrix is 8/8 RED at runtime gates.
+
+Fifth-review consumer correction: expanded and fixed-expanded SSR now target
+the first visible Row 1, and assert `Details for Row 1`; no offscreen Row 5000
+is required during initial SSR.
+
+Fixed-column follow-up: the E2E now derives required collision width from
+rendered header bounding boxes (selection/expand utility plus requested left and
+right columns) and compares it with the actual Table container width. The
+previous hard-coded 596px threshold was removed; desktop/mobile downgrade is
+now geometry-driven.
+
+No production Table, generated es/lib, unit test, or unrelated docs changes
+were included in this fixture commit.
