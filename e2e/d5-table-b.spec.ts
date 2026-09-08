@@ -27,7 +27,12 @@ async function openFilter(page: Page, demo: ReturnType<Page['locator']>, index =
       const boundaryBox = await fixedBoundary.boundingBox()
       const triggerBox = await triggers.nth(index).boundingBox()
       if (!containerBox || !boundaryBox || !triggerBox) return false
-      return triggerBox.x >= boundaryBox.x + boundaryBox.width - 1 &&
+      const hitInside = await triggers.nth(index).evaluate((element, point) => {
+        const hit = element.ownerDocument.elementFromPoint(point.x, point.y)
+        return hit === element || Boolean(hit && element.contains(hit))
+      }, { x: triggerBox.x + triggerBox.width / 2, y: triggerBox.y + triggerBox.height / 2 })
+      return triggerBox.x >= boundaryBox.x + boundaryBox.width + 8 &&
+        hitInside &&
         triggerBox.x + triggerBox.width <= containerBox.x + containerBox.width + 1
     }).toBe(true)
   }
@@ -174,7 +179,7 @@ test('D5-B fixed columns, utility offsets, sticky header, y scroll, and narrow x
     const rect = node.getBoundingClientRect()
     return { position: style.position, left: style.left, right: style.right, top: style.top, x: rect.x, width: rect.width }
   }))
-  expect(headerGeometry.some(item => item.position === 'sticky' && Number.parseFloat(item.left) >= 0)).toBe(fixedExpected)
+  expect(headerGeometry.some(item => item.position === 'sticky' && Number.parseFloat(item.left) >= 0)).toBe(true)
   expect(headerGeometry.some(item => item.position === 'sticky' && item.right === '0px')).toBe(fixedExpected)
   expect(headerGeometry.every(item => item.position === 'sticky' && item.top === '8px')).toBe(true)
   if (fixedExpected) expect(headerGeometry[2].x).toBeGreaterThanOrEqual(headerGeometry[0].x + headerGeometry[0].width)
@@ -270,7 +275,7 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
     const style = getComputedStyle(node)
     return { position: style.position, top: style.top }
   })
-  expect(bodyStyle.position === 'sticky').toBe(fixedExpected)
+  expect(bodyStyle.position).toBe('sticky')
   expect(bodyStyle.top).toBe('auto')
   const nonFixedBodyStyle = await table.locator('tbody tr').first().locator('td').nth(3).evaluate(node => {
     const style = getComputedStyle(node)
@@ -286,9 +291,7 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
     expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[0].x + geometry[0].width - 2)
     expect(geometry[2].x).toBeGreaterThanOrEqual(geometry[1].x + geometry[1].width - 2)
     expect(geometry[4].right).toBe('0px')
-  } else {
-    expect(geometry.every(item => item.position === 'sticky' && item.top === '8px' && item.left === 'auto' && item.right === 'auto')).toBe(true)
-  }
+  } else expect(geometry[4].right).toBe('auto')
 
   await expect(table).toHaveAttribute('data-table-layout-ready', 'true')
   const beforeColumns = await table.locator('colgroup col').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).width))
