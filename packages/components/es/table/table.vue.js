@@ -285,14 +285,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const utilityWidth = (utility) => Number.parseFloat(widthSnapshot.value[`__${utility}`] ?? "48") || 48;
       const requestedUtilities = (hasSelection.value ? utilityWidth("selection") : 0) + (hasExpandable.value ? utilityWidth("expand") : 0);
       const leftSourceWidth = columns.filter((column) => column.fixed === "left").reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? "0") || 0)), 0);
-      return requestedUtilities + leftSourceWidth > viewport && viewport - leftSourceWidth >= utilityCount * 30;
+      return requestedUtilities + leftSourceWidth > viewport && viewport - leftSourceWidth >= 44 + utilityCount * 30;
     });
     const narrowUtilityWidth = computed(() => {
       const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0);
       if (!utilityCount)
         return "0px";
       const leftSourceWidth = normalizedColumns.value.filter((column) => column.fixed === "left").reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? "0") || 0)), 0);
-      return `${Math.max(30, Math.floor((layoutViewportWidth.value - leftSourceWidth) / utilityCount))}px`;
+      return `${Math.max(30, Math.floor((layoutViewportWidth.value - leftSourceWidth - 44) / utilityCount))}px`;
     });
     const layoutColumns = computed(() => {
       const data = [];
@@ -366,6 +366,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const columnLayout = (column) => layoutById.value.get(getColumnKey(column));
     const usedWidth = (item) => {
       var _a;
+      if (narrowLeftConstrained.value && item.utility && item.width)
+        return Number.parseFloat(item.width) || 0;
       const snapshot = widthSnapshot.value[item.id];
       if (snapshot)
         return Number.parseFloat(snapshot) || 0;
