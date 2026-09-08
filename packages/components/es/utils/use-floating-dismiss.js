@@ -24,7 +24,7 @@ function useFloatingDismiss(options) {
     ].join(",");
     const isFocusable = (element) => !element.closest("[hidden], [inert]") && element.matches(focusableSelector);
     const target = isFocusable(trigger) ? trigger : Array.from(trigger.querySelectorAll(focusableSelector)).find(isFocusable);
-    target == null ? void 0 : target.focus();
+    target == null ? void 0 : target.focus({ preventScroll: true });
   };
   watchEffect((onCleanup) => {
     var _a, _b;

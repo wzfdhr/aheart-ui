@@ -43,7 +43,7 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
       ? trigger
       : Array.from(trigger.querySelectorAll<HTMLElement>(focusableSelector)).find(isFocusable)
 
-    target?.focus()
+    target?.focus({ preventScroll: true })
   }
 
   watchEffect((onCleanup) => {

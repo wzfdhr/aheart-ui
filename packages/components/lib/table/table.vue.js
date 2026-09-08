@@ -116,6 +116,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const closeRequestPending = vue.ref(false);
     const filterTriggerElement = vue.ref(null);
     const filterPopupElement = vue.ref(null);
+    const popupPositioned = vue.ref(false);
+    let popupGeneration = 0;
     const tableRoot = vue.ref(null);
     const rootInteractionInert = vue.ref(true);
     const hasInitializedSort = vue.ref(false);
@@ -534,6 +536,28 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       strategy: "absolute",
       viewportPadding: 8
     });
+    const positionPopupAndFocus = async () => {
+      var _a, _b;
+      const generation = ++popupGeneration;
+      popupPositioned.value = false;
+      await vue.nextTick();
+      if (!popupOpen.value || generation !== popupGeneration)
+        return;
+      await updateFloatingPosition();
+      const ownerWindow = (_a = filterPopupElement.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      await new Promise((resolve) => {
+        if (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame)
+          ownerWindow.requestAnimationFrame(() => resolve());
+        else
+          setTimeout(resolve, 0);
+      });
+      if (!popupOpen.value || generation !== popupGeneration)
+        return;
+      popupPositioned.value = true;
+      await vue.nextTick();
+      if (generation === popupGeneration)
+        (_b = filterPopupElement.value) == null ? void 0 : _b.focus({ preventScroll: true });
+    };
     useFloatingDismiss.useFloatingDismiss({
       open: popupOpen,
       trigger: filterTriggerElement,
@@ -545,6 +569,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (popupOpen.value)
         void vue.nextTick(updateFloatingPosition);
     }, { flush: "post" });
+    vue.watch(popupOpen, (open) => {
+      if (open)
+        void positionPopupAndFocus();
+      else {
+        popupGeneration++;
+        popupPositioned.value = false;
+      }
+    }, { flush: "post", immediate: true });
     const isFilterPopupOpen = (column) => activeFilterKey.value === getColumnKey(column);
     let popupNodeCacheKey = null;
     let popupNodeCacheDraft = "";
@@ -596,11 +628,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       requestFilterOpen(column, true);
       if (column.filterDropdownOpen !== void 0 && !column.filterDropdownOpen)
         activeFilterKey.value = null;
-      else
-        vue.nextTick(() => {
-          var _a;
-          return (_a = filterPopupElement.value) == null ? void 0 : _a.focus();
-        });
     };
     const closeFilter = (restoreFocus = true) => {
       const column = activeFilterColumn.value;
@@ -622,7 +649,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (restoreFocus)
         vue.nextTick(() => {
           var _a;
-          return (_a = filterTriggerElement.value) == null ? void 0 : _a.focus();
+          return (_a = filterTriggerElement.value) == null ? void 0 : _a.focus({ preventScroll: true });
         });
     };
     const commitFilter = (column, values) => {
@@ -672,10 +699,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const index2 = controls.indexOf(current);
       const next = event.shiftKey ? index2 <= 0 ? controls.length - 1 : index2 - 1 : index2 >= controls.length - 1 ? 0 : index2 + 1;
       event.preventDefault();
-      (_a = controls[next]) == null ? void 0 : _a.focus();
+      (_a = controls[next]) == null ? void 0 : _a.focus({ preventScroll: true });
       void vue.nextTick(() => {
         var _a2;
-        return (_a2 = controls[next]) == null ? void 0 : _a2.focus();
+        return (_a2 = controls[next]) == null ? void 0 : _a2.focus({ preventScroll: true });
       });
     };
     let stickyResizeObserver;
@@ -1231,7 +1258,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             role: "dialog",
             "data-table-filter-popup": activeFilterKey.value,
             tabindex: "-1",
-            style: vue.normalizeStyle(vue.unref(popupStyle)),
+            style: vue.normalizeStyle({ ...vue.unref(popupStyle), visibility: popupPositioned.value ? "visible" : "hidden", pointerEvents: popupPositioned.value ? "auto" : "none" }),
             onKeydown: handleFilterPopupKeydown
           }, [
             vue.createVNode(vue.unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])

@@ -114,6 +114,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const closeRequestPending = ref(false);
     const filterTriggerElement = ref(null);
     const filterPopupElement = ref(null);
+    const popupPositioned = ref(false);
+    let popupGeneration = 0;
     const tableRoot = ref(null);
     const rootInteractionInert = ref(true);
     const hasInitializedSort = ref(false);
@@ -532,6 +534,28 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       strategy: "absolute",
       viewportPadding: 8
     });
+    const positionPopupAndFocus = async () => {
+      var _a, _b;
+      const generation = ++popupGeneration;
+      popupPositioned.value = false;
+      await nextTick();
+      if (!popupOpen.value || generation !== popupGeneration)
+        return;
+      await updateFloatingPosition();
+      const ownerWindow = (_a = filterPopupElement.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      await new Promise((resolve) => {
+        if (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame)
+          ownerWindow.requestAnimationFrame(() => resolve());
+        else
+          setTimeout(resolve, 0);
+      });
+      if (!popupOpen.value || generation !== popupGeneration)
+        return;
+      popupPositioned.value = true;
+      await nextTick();
+      if (generation === popupGeneration)
+        (_b = filterPopupElement.value) == null ? void 0 : _b.focus({ preventScroll: true });
+    };
     useFloatingDismiss({
       open: popupOpen,
       trigger: filterTriggerElement,
@@ -543,6 +567,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (popupOpen.value)
         void nextTick(updateFloatingPosition);
     }, { flush: "post" });
+    watch(popupOpen, (open) => {
+      if (open)
+        void positionPopupAndFocus();
+      else {
+        popupGeneration++;
+        popupPositioned.value = false;
+      }
+    }, { flush: "post", immediate: true });
     const isFilterPopupOpen = (column) => activeFilterKey.value === getColumnKey(column);
     let popupNodeCacheKey = null;
     let popupNodeCacheDraft = "";
@@ -594,11 +626,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       requestFilterOpen(column, true);
       if (column.filterDropdownOpen !== void 0 && !column.filterDropdownOpen)
         activeFilterKey.value = null;
-      else
-        nextTick(() => {
-          var _a;
-          return (_a = filterPopupElement.value) == null ? void 0 : _a.focus();
-        });
     };
     const closeFilter = (restoreFocus = true) => {
       const column = activeFilterColumn.value;
@@ -620,7 +647,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (restoreFocus)
         nextTick(() => {
           var _a;
-          return (_a = filterTriggerElement.value) == null ? void 0 : _a.focus();
+          return (_a = filterTriggerElement.value) == null ? void 0 : _a.focus({ preventScroll: true });
         });
     };
     const commitFilter = (column, values) => {
@@ -670,10 +697,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const index = controls.indexOf(current);
       const next = event.shiftKey ? index <= 0 ? controls.length - 1 : index - 1 : index >= controls.length - 1 ? 0 : index + 1;
       event.preventDefault();
-      (_a = controls[next]) == null ? void 0 : _a.focus();
+      (_a = controls[next]) == null ? void 0 : _a.focus({ preventScroll: true });
       void nextTick(() => {
         var _a2;
-        return (_a2 = controls[next]) == null ? void 0 : _a2.focus();
+        return (_a2 = controls[next]) == null ? void 0 : _a2.focus({ preventScroll: true });
       });
     };
     let stickyResizeObserver;
@@ -1229,7 +1256,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             role: "dialog",
             "data-table-filter-popup": activeFilterKey.value,
             tabindex: "-1",
-            style: normalizeStyle(unref(popupStyle)),
+            style: normalizeStyle({ ...unref(popupStyle), visibility: popupPositioned.value ? "visible" : "hidden", pointerEvents: popupPositioned.value ? "auto" : "none" }),
             onKeydown: handleFilterPopupKeydown
           }, [
             createVNode(unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])

@@ -178,7 +178,7 @@
         role="dialog"
         :data-table-filter-popup="activeFilterKey"
         tabindex="-1"
-        :style="popupStyle"
+        :style="{ ...popupStyle, visibility: popupPositioned ? 'visible' : 'hidden', pointerEvents: popupPositioned ? 'auto' : 'none' }"
         @keydown="handleFilterPopupKeydown"
       >
         <ARenderNode :node="activeFilterPopupNode" />
@@ -276,6 +276,8 @@ const filterDraft = ref<TableFilterValue[]>([])
 const closeRequestPending = ref(false)
 const filterTriggerElement = ref<HTMLElement | null>(null)
 const filterPopupElement = ref<HTMLElement | null>(null)
+const popupPositioned = ref(false)
+let popupGeneration = 0
 const tableRoot = ref<HTMLElement | null>(null)
 const rootInteractionInert = ref(true)
 const hasInitializedSort = ref(false)
@@ -711,6 +713,22 @@ const { popupStyle, update: updateFloatingPosition } = useFloatingPosition({
   strategy: 'absolute',
   viewportPadding: 8
 })
+const positionPopupAndFocus = async () => {
+  const generation = ++popupGeneration
+  popupPositioned.value = false
+  await nextTick()
+  if (!popupOpen.value || generation !== popupGeneration) return
+  await updateFloatingPosition()
+  const ownerWindow = filterPopupElement.value?.ownerDocument.defaultView
+  await new Promise<void>((resolve) => {
+    if (ownerWindow?.requestAnimationFrame) ownerWindow.requestAnimationFrame(() => resolve())
+    else setTimeout(resolve, 0)
+  })
+  if (!popupOpen.value || generation !== popupGeneration) return
+  popupPositioned.value = true
+  await nextTick()
+  if (generation === popupGeneration) filterPopupElement.value?.focus({ preventScroll: true })
+}
 useFloatingDismiss({
   open: popupOpen,
   trigger: filterTriggerElement,
@@ -721,6 +739,13 @@ useFloatingDismiss({
 watch([filterTriggerElement, filterPopupElement, popupOpen], () => {
   if (popupOpen.value) void nextTick(updateFloatingPosition)
 }, { flush: 'post' })
+watch(popupOpen, (open) => {
+  if (open) void positionPopupAndFocus()
+  else {
+    popupGeneration++
+    popupPositioned.value = false
+  }
+}, { flush: 'post', immediate: true })
 const isFilterPopupOpen = (column: TableColumn) => activeFilterKey.value === getColumnKey(column)
 let popupNodeCacheKey: string | null = null
 let popupNodeCacheDraft = ''
@@ -764,7 +789,6 @@ const toggleFilterPopup = (column: TableColumn, trigger: HTMLElement) => {
   activeFilterKey.value = key
   requestFilterOpen(column, true)
   if (column.filterDropdownOpen !== undefined && !column.filterDropdownOpen) activeFilterKey.value = null
-  else nextTick(() => filterPopupElement.value?.focus())
 }
 const closeFilter = (restoreFocus = true) => {
   const column = activeFilterColumn.value
@@ -780,7 +804,7 @@ const closeFilter = (restoreFocus = true) => {
   activeFilterKey.value = null
   filterDraft.value = []
   closeRequestPending.value = false
-  if (restoreFocus) nextTick(() => filterTriggerElement.value?.focus())
+  if (restoreFocus) nextTick(() => filterTriggerElement.value?.focus({ preventScroll: true }))
 }
 const commitFilter = (column: TableColumn, values: TableFilterValue[]) => {
   const key = getColumnKey(column)
@@ -821,8 +845,8 @@ const handleFilterPopupKeydown = (event: KeyboardEvent) => {
   const index = controls.indexOf(current as HTMLElement)
   const next = event.shiftKey ? (index <= 0 ? controls.length - 1 : index - 1) : (index >= controls.length - 1 ? 0 : index + 1)
   event.preventDefault()
-  controls[next]?.focus()
-  void nextTick(() => controls[next]?.focus())
+  controls[next]?.focus({ preventScroll: true })
+  void nextTick(() => controls[next]?.focus({ preventScroll: true }))
 }
 let stickyResizeObserver: ResizeObserver | undefined
 let stickyOwnerWindow: Window | undefined
