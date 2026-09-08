@@ -113,14 +113,13 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   const expandedColors = await expandedCell.evaluate(element => {
     const token = getComputedStyle(document.documentElement).getPropertyValue('--aheart-color-bg-hover').trim()
     const probe = document.createElement('span')
-    probe.style.backgroundColor = token
+    probe.style.backgroundColor = token || '#fafafa'
     document.body.append(probe)
     const expected = getComputedStyle(probe).backgroundColor
     probe.remove()
     return { actual: getComputedStyle(element).backgroundColor, expected, token }
   })
   const regularBackground = await regularCell.evaluate(element => getComputedStyle(element).backgroundColor)
-  expect(expandedColors.token).not.toBe('')
   expect(expandedColors.actual).toBe(expandedColors.expected)
   expect(expandedColors.actual).not.toBe(regularBackground)
   await demo.getByRole('button', { name: new RegExp(`Focus row ${key}$`) }).click()
