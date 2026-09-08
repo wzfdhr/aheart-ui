@@ -18,7 +18,7 @@ const collectProductionErrors = async (page: Page, projectName: string) => {
     if (url.hostname === '127.0.0.1' && response.status() >= 400) {
       errors.push(`response ${response.status()}: ${url.pathname}`)
     }
-    tracker.recordSuccessfulResponse(response.url(), response.status())
+    void tracker.recordCompletedResponse(response)
   })
   page.on('requestfailed', (request) => {
     const url = new URL(request.url())
