@@ -117,7 +117,7 @@
           <template v-for="entry in virtualRenderEntries" :key="entry.key">
           <tr v-if="entry.kind === 'gap'" data-aheart-virtual-spacer="true" :data-before="entry.position === 'before' ? '' : undefined" :data-after="entry.position === 'after' ? '' : undefined" :data-table-virtual-spacer="entry.position" :data-table-spacer-position="entry.position" :style="{ height: `${entry.height}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" aria-hidden="true"><td :colspan="columnCount" :style="{ height: `${entry.height}px` }" /></tr>
           <template v-else>
-            <tr :data-table-row="String(entry.row.key)" :data-aheart-virtual-logical-item="entry.row.index" :data-aheart-virtual-measured-height="virtualMeasuredFor(entry.row.index) || undefined" :data-aheart-virtual-pinned="focusedRowKey === entry.row.key ? 'true' : undefined" :data-focus-pinned="focusedRowKey === entry.row.key ? 'true' : undefined" :aria-rowindex="virtualRuntime.enabled ? entry.row.index + 1 : undefined" :class="{ 'is-selected': isSelected(entry.row.key) }" @focusin="handleRowFocusin(entry.row.key, $event)" @focusout="handleRowFocusout">
+            <tr :data-table-row="String(entry.row.key)" :data-aheart-virtual-logical-item="entry.row.virtualIndex" :data-aheart-virtual-key="rowToken(entry.row.key)" :data-aheart-virtual-measured-height="virtualMeasuredFor(entry.row.virtualIndex) || undefined" :data-aheart-virtual-pinned="focusedRowKey === entry.row.key ? 'true' : undefined" :data-focus-pinned="focusedRowKey === entry.row.key ? 'true' : undefined" :aria-rowindex="virtualRuntime.enabled ? entry.row.virtualIndex + 1 : undefined" :class="{ 'is-selected': isSelected(entry.row.key) }" @focusin="handleRowFocusin(entry.row.key, $event)" @focusout="handleRowFocusout($event, entry.row.key)" @keydown="handleRowKeydown($event, entry.row.key)">
               <td v-if="hasSelection" class="aheart-table__selection-cell" :style="utilityStyle('selection', false)">
                 <input
                   :type="selectionType"
@@ -126,7 +126,6 @@
                     :data-aheart-row-token="rowToken(entry.row.key)"
                     :disabled="isRowSelectionDisabled(entry.row.record)"
                     :aria-label="`Select row ${entry.row.key}`"
-                    @keydown="handleRowKeydown($event, entry.row.key)"
                     @change="handleSelectionChange($event, entry.row.record, entry.row.key)"
                 />
               </td>
@@ -153,7 +152,7 @@
                 <ARenderNode :node="renderCell(column, entry.row.record, entry.row.index)" />
               </td>
             </tr>
-            <tr v-if="hasExpandable && isExpanded(entry.row.key)" :data-table-expanded-row="String(entry.row.key)" :data-aheart-virtual-expanded-item="entry.row.index" :data-aheart-virtual-key="rowToken(entry.row.key)" class="aheart-table__expanded-row">
+            <tr v-if="hasExpandable && isExpanded(entry.row.key)" :data-table-expanded-row="String(entry.row.key)" :data-aheart-virtual-expanded-item="entry.row.virtualIndex" :data-aheart-virtual-key="rowToken(entry.row.key)" class="aheart-table__expanded-row" @focusin="handleRowFocusin(entry.row.key, $event)" @focusout="handleRowFocusout($event, entry.row.key)" @keydown="handleRowKeydown($event, entry.row.key)">
               <td :colspan="columnCount" class="aheart-table__expanded-cell">
                 <ARenderNode :node="renderExpanded(entry.row.record, entry.row.index)" />
               </td>
@@ -256,10 +255,14 @@ const props = defineProps(tableProps)
 const emit = defineEmits(tableEmits)
 const config = useAheartConfig()
 
-interface InternalRow {
+interface BusinessRow {
   key: TableKey
   record: TableRecord
   index: number
+}
+
+interface InternalRow extends BusinessRow {
+  virtualIndex: number
 }
 
 interface InternalSortState {
@@ -540,7 +543,7 @@ const tableClass = computed(() => [
 
 const sortedData = computed(() => getSortedRecords(activeFilters.value, activeSort.value))
 
-const allRows = computed<InternalRow[]>(() =>
+const allRows = computed<BusinessRow[]>(() =>
   sortedData.value.map((record, index) => ({
     key: getRowKey(record, index),
     record,
@@ -566,16 +569,16 @@ const virtualFallbackReason = computed(() => {
 })
 
 const pagedRows = computed(() => {
+  let rows: BusinessRow[]
   if (!shouldShowPagination.value) {
-    return allRows.value
+    rows = allRows.value
+  } else if (props.dataMode === 'server' || (props.dataMode === undefined && paginationConfig.value.total !== undefined)) {
+    rows = allRows.value
+  } else {
+    const start = (currentPage.value - 1) * pageSize.value
+    rows = allRows.value.slice(start, start + pageSize.value)
   }
-
-  if (props.dataMode === 'server' || (props.dataMode === undefined && paginationConfig.value.total !== undefined)) {
-    return allRows.value
-  }
-
-  const start = (currentPage.value - 1) * pageSize.value
-  return allRows.value.slice(start, start + pageSize.value)
+  return rows.map((row, virtualIndex) => ({ ...row, virtualIndex }))
 })
 
 const rowToken = (key: TableKey) => `${typeof key}:${String(key)}`
@@ -1067,7 +1070,7 @@ const handleFilterPopupKeydown = (event: KeyboardEvent) => {
 }
 let stickyResizeObserver: ResizeObserver | undefined
 let virtualResizeObserver: ResizeObserver | undefined
-const observedVirtualRows = new Set<Element>()
+const observedVirtualRows = new Set<HTMLElement>()
 const observedVirtualHeights = new Map<Element, number>()
 let virtualResizeFrame: number | undefined
 let virtualResizeOwnerWindow: Window | undefined
@@ -1216,15 +1219,14 @@ watch([popupStyle, filterPopupElement], ([style, element]) => {
 watch(isInteractionLocked, syncFilterDisabled)
 watch([visibleRows, expandedKeys], () => {
   void nextTick(() => {
-    const rows = new Set<Element>(Array.from(tableRoot.value?.querySelectorAll<HTMLElement>('tbody tr[data-aheart-virtual-logical-item], tbody tr[data-aheart-virtual-expanded-item]') ?? []))
+    const rows = new Set<HTMLElement>(Array.from(tableRoot.value?.querySelectorAll<HTMLElement>('tbody tr[data-aheart-virtual-logical-item], tbody tr[data-aheart-virtual-expanded-item]') ?? []))
     observedVirtualRows.forEach((row) => {
       if (!rows.has(row)) {
         virtualResizeObserver?.unobserve(row)
         observedVirtualRows.delete(row)
         observedVirtualHeights.delete(row)
         if (row.matches('tr[data-table-expanded-row]')) {
-          const base = row.previousElementSibling as HTMLElement | null
-          const index = Number(base?.dataset.aheartVirtualLogicalItem)
+          const index = Number(row.dataset.aheartVirtualExpandedItem)
           if (Number.isFinite(index)) virtualController.clearMeasured(index, 'expanded')
         }
       }
@@ -1254,9 +1256,8 @@ const setupVirtualResizeObserver = () => {
       const heights = new Map<number, Map<string, number>>()
       observedVirtualHeights.forEach((height, target) => {
         const element = target as HTMLElement
-        const row = element.matches('tr[data-aheart-virtual-logical-item]') ? element : element.previousElementSibling as HTMLElement | null
-        const index = Number(row?.dataset.aheartVirtualLogicalItem)
-        if (!row || !Number.isFinite(index)) return
+        const index = Number(element.dataset.aheartVirtualLogicalItem ?? element.dataset.aheartVirtualExpandedItem)
+        if (!Number.isFinite(index)) return
         const part = element.matches('tr[data-table-expanded-row]') ? 'expanded' : 'base'
         const parts = heights.get(index) ?? new Map<string, number>()
         parts.set(part, height)
@@ -1401,23 +1402,25 @@ const handleRowFocusin = (key: TableKey, event: FocusEvent) => {
   if (pointerInteractionPending && ownerWindow?.requestAnimationFrame) focusedRowFrame = ownerWindow.requestAnimationFrame(commit)
   else commit()
 }
-const handleRowFocusout = (event: FocusEvent) => {
-  const row = (event.currentTarget as HTMLElement | null)?.closest<HTMLElement>('tr[data-table-row], tr[data-table-expanded-row]')
-  const key = row?.dataset.tableRow ?? row?.dataset.tableExpandedRow
+const handleRowFocusout = (event: FocusEvent, sourceKey: TableKey) => {
+  const sourceToken = rowToken(sourceKey)
+  const sourceRow = (event.currentTarget as HTMLElement | null)?.closest('tr')
+  sourceRow?.removeAttribute('data-aheart-virtual-pinned')
+  sourceRow?.removeAttribute('data-focus-pinned')
   const ownerDocument = tableRoot.value?.ownerDocument
   const ownerWindow = ownerDocument?.defaultView
   const clearIfOutsideGroup = () => {
+    if (focusedRowKey.value !== sourceKey) return
     const active = ownerDocument?.activeElement as HTMLElement | null
     const activeRow = active?.closest<HTMLElement>('tr[data-table-row], tr[data-table-expanded-row]')
-    const activeKey = activeRow?.dataset.tableRow ?? activeRow?.dataset.tableExpandedRow
-    if (key !== undefined && activeKey === key) return
+    if (activeRow?.dataset.aheartVirtualKey === sourceToken) return
     if (focusedRowFrame !== undefined) ownerWindow?.cancelAnimationFrame(focusedRowFrame)
     focusedRowFrame = undefined
     pendingFocusedRowKey = undefined
     focusedRowKey.value = undefined
     virtualController.setPinnedIndexes([])
     tableRoot.value?.querySelectorAll<HTMLElement>('tr[data-table-row], tr[data-table-expanded-row]').forEach((groupRow) => {
-      if (groupRow.dataset.tableRow !== key && groupRow.dataset.tableExpandedRow !== key) return
+      if (groupRow.dataset.aheartVirtualKey !== sourceToken) return
       groupRow.removeAttribute('data-aheart-virtual-pinned')
       groupRow.removeAttribute('data-focus-pinned')
     })
@@ -1435,30 +1438,32 @@ const handleRowFocusout = (event: FocusEvent) => {
     else if (!ownerWindow?.requestAnimationFrame) clearIfOutsideGroup()
   })
 }
+const tabbableSelector = 'button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])'
+const rowsForToken = (token: string) => Array.from(tableRoot.value?.querySelectorAll<HTMLElement>('tr[data-aheart-virtual-key]') ?? []).filter(row => row.dataset.aheartVirtualKey === token)
 const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
-  if (!virtualRuntime.value.enabled || event.key !== 'Tab' || event.shiftKey) return
-  const rows = pagedRows.value
-  const index = rows.findIndex((row) => row.key === key)
-  const next = rows[index + 1]
-  if (!next) return
-  const nextRow = tableRoot.value?.querySelector<HTMLElement>(`tr[data-table-row="${String(next.key)}"]`)
-  const tabbable = nextRow?.querySelector<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')
-  if (tabbable) {
-    event.preventDefault()
-    focusedRowKey.value = next.key
-    virtualController.setPinnedIndexes([index + 1])
-    tabbable.focus({ preventScroll: true })
-    return
-  }
-  const focusNext = () => {
-    const input = tableRoot.value?.querySelector<HTMLInputElement>(`input[data-aheart-row-token="${rowToken(next.key)}"]`)
-    input?.focus({ preventScroll: true })
-  }
+  if (!virtualRuntime.value.enabled || event.key !== 'Tab') return
+  const token = rowToken(key)
+  const groupTabbables = rowsForToken(token).flatMap(row => Array.from(row.querySelectorAll<HTMLElement>(tabbableSelector)))
+  const current = event.target as HTMLElement | null
+  const currentIndex = current ? groupTabbables.indexOf(current) : -1
+  if (currentIndex < 0) return
+  const atBoundary = event.shiftKey ? currentIndex === 0 : currentIndex === groupTabbables.length - 1
+  if (!atBoundary) return
+  const sourceRow = (event.currentTarget as HTMLElement | null)?.closest<HTMLElement>('tr[data-aheart-virtual-logical-item], tr[data-aheart-virtual-expanded-item]')
+  const sourceIndex = Number(sourceRow?.dataset.aheartVirtualLogicalItem ?? sourceRow?.dataset.aheartVirtualExpandedItem)
+  if (!Number.isFinite(sourceIndex)) return
+  const targetIndex = sourceIndex + (event.shiftKey ? -1 : 1)
+  const target = pagedRows.value[targetIndex]
+  if (!target) return
   event.preventDefault()
-  focusedRowKey.value = next.key
-  virtualController.setPinnedIndexes([index + 1])
-  focusNext()
-  void nextTick(focusNext)
+  focusedRowKey.value = target.key
+  virtualController.setPinnedIndexes([target.virtualIndex])
+  const focusTarget = () => {
+    const targetTabbables = rowsForToken(rowToken(target.key)).flatMap(row => Array.from(row.querySelectorAll<HTMLElement>(tabbableSelector)))
+    const next = event.shiftKey ? targetTabbables.at(-1) : targetTabbables[0]
+    next?.focus({ preventScroll: true })
+  }
+  void nextTick(focusTarget)
 }
 const handleRadioClick = (event: MouseEvent, record: TableRecord, key: TableKey) => {
   if (selectionType.value !== 'radio') return
