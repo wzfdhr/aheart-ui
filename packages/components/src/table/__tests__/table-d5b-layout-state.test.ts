@@ -3,6 +3,8 @@ import { mount } from '@vue/test-utils'
 import { createSSRApp } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it, vi } from 'vitest'
+import { enUS, zhCN } from '../../config'
+import ConfigProvider from '../../config-provider/config-provider.vue'
 import Table from '../table.vue'
 
 interface Row {
@@ -80,6 +82,59 @@ describe('Table D5-B layout and status contract', () => {
     expect(retry.text()).toContain('Try again')
     await retry.trigger('click')
     expect(wrapper.emitted('retry')).toEqual([[]])
+  })
+
+  it('provides localized default error and retry copy for zhCN and enUS', () => {
+    expect(zhCN.table?.errorText).toBe('加载失败')
+    expect(zhCN.table?.retryText).toBe('重试')
+    expect(enUS.table?.errorText).toBe('Load failed')
+    expect(enUS.table?.retryText).toBe('Retry')
+
+    const zhWrapper = mount(ConfigProvider, {
+      props: { locale: zhCN },
+      slots: { default: () => h(Table, { columns, dataSource: rows, error: true }) }
+    })
+    expect(zhWrapper.find('[role="alert"]').text()).toContain('加载失败')
+    expect(zhWrapper.find('button[data-table-retry]').text()).toContain('重试')
+
+    const enWrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: { default: () => h(Table, { columns, dataSource: rows, error: true }) }
+    })
+    expect(enWrapper.find('[role="alert"]').text()).toContain('Load failed')
+    expect(enWrapper.find('button[data-table-retry]').text()).toContain('Retry')
+  })
+
+  it('updates error and retry copy when the provider locale changes at runtime', async () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: zhCN },
+      slots: { default: () => h(Table, { columns, dataSource: rows, error: true }) }
+    })
+
+    expect(wrapper.find('[role="alert"]').text()).toContain('加载失败')
+    expect(wrapper.find('button[data-table-retry]').text()).toContain('重试')
+
+    await wrapper.setProps({ locale: enUS })
+    expect(wrapper.find('[role="alert"]').text()).toContain('Load failed')
+    expect(wrapper.find('button[data-table-retry]').text()).toContain('Retry')
+  })
+
+  it('lets explicit error message and retryText override provider locale copy', () => {
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(Table, {
+          columns,
+          dataSource: rows,
+          error: { message: 'Custom failure', retryText: 'Try again' }
+        })
+      }
+    })
+
+    expect(wrapper.find('[role="alert"]').text()).toContain('Custom failure')
+    expect(wrapper.find('[role="alert"]').text()).toContain('Try again')
+    expect(wrapper.find('[role="alert"]').text()).not.toContain('Load failed')
+    expect(wrapper.find('[role="alert"]').text()).not.toContain('Retry')
   })
 
   it('gives loading precedence over error and does not expose retry while loading', () => {
