@@ -6914,8 +6914,8 @@ kbd.aheart-typography-text {
   opacity: 0.55;
 }
 
-.aheart-table__expanded-row td,
-.aheart-table__expanded-cell {
+.aheart-table tbody .aheart-table__expanded-row td,
+.aheart-table tbody .aheart-table__expanded-cell {
   background: var(--aheart-color-bg-hover, #fafafa);
 }
 
