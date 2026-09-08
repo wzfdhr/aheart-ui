@@ -524,10 +524,10 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | pagination | 分页配置，设为 `false` 时隐藏 | `false` \| `TablePaginationConfig` | 自动 |
 | rowSelection | 行选择配置 | `TableRowSelection` | - |
 | expandable | 展开行配置 | `TableExpandable` | - |
-| scroll | 横向/纵向滚动；`x: true` 冻结自然宽度 | `{ x?: boolean | number | string; y?: number | string }` | - |
-| sticky | 固定表头，支持表头偏移 | `boolean | { offsetHeader?: number }` | `false` |
-| error | 错误状态及 retry 文案 | `boolean | { message?: VNodeChild; retryText?: VNodeChild }` | `false` |
-| getPopupContainer | 返回筛选浮层容器；默认是触发器 owner body | `(triggerNode) => HTMLElement | false` | - |
+| scroll | 横向/纵向滚动；`x: true` 冻结自然宽度 | `{ x?: true \| number \| string; y?: number \| string }` | - |
+| sticky | 固定表头，支持表头偏移 | `boolean \| { offsetHeader?: number }` | `false` |
+| error | 错误状态及 retry 文案 | `boolean \| { message?: VNodeChild; retryText?: VNodeChild }` | `false` |
+| getPopupContainer | 返回筛选浮层容器；默认是触发器 owner body | `(triggerNode) => HTMLElement \| false` | - |
 | showHeader | 是否显示表头 | `boolean` | `true` |
 | emptyText | 空状态内容 | `VNodeChild` | ConfigProvider locale.empty.description |
 
@@ -552,7 +552,7 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
 | filterDropdown | 自定义筛选浮层，接收草稿上下文 | `(context) => VNodeChild` | - |
 | filterDropdownOpen | 受控筛选浮层打开状态 | `boolean` | - |
 | defaultFilterDropdownOpen | 非受控初始打开状态 | `boolean` | `false` |
-| fixed | 连续左前缀/右后缀固定方向 | `left` | `right` | - |
+| fixed | 连续左前缀/右后缀固定方向 | `left` \| `right` | - |
 | ellipsis | 是否省略文本 | `boolean` | `false` |
 | customRender | 自定义单元格渲染函数，返回内容会作为节点渲染 | `(context) => VNodeChild` | - |
 

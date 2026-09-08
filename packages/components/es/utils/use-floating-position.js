@@ -152,10 +152,10 @@ function useFloatingPosition(options) {
       });
     }
     if (shouldAdjustOverflow && requestedPlacement === configuredPlacement) {
-      middleware.push(flip());
+      middleware.push(flip({ padding: toValue(options.viewportPadding) ?? 0 }));
     }
     if (toValue(options.shift) !== false) {
-      middleware.push(shift({ padding: 8 }));
+      middleware.push(shift({ padding: toValue(options.viewportPadding) ?? 0 }));
     }
     if (arrowElement) {
       middleware.push(arrow({ element: arrowElement, padding: 4 }));
@@ -208,6 +208,7 @@ function useFloatingPosition(options) {
     toValue(options.alignOffset);
     toValue(options.autoAdjustOverflow);
     toValue(options.shift);
+    toValue(options.viewportPadding);
     toValue(options.arrowSize);
     if (options.arrow)
       toValue(options.arrow);

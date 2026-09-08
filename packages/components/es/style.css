@@ -6544,6 +6544,7 @@ kbd.aheart-typography-text {
   }
 }
 .aheart-table {
+  position: relative;
   color: var(--aheart-color-text);
   font-size: var(--aheart-font-size);
   line-height: var(--aheart-line-height);
@@ -6594,6 +6595,8 @@ kbd.aheart-typography-text {
   border: 1px solid var(--aheart-color-border);
   border-radius: var(--aheart-radius);
   box-shadow: var(--aheart-shadow-md, 0 4px 16px rgb(0 0 0 / 12%));
+  box-sizing: border-box;
+  max-width: calc(100dvw - 16px);
 }
 
 .aheart-table__filter-content {
@@ -6612,11 +6615,24 @@ kbd.aheart-typography-text {
   gap: var(--aheart-spacing-sm);
   color: var(--aheart-color-danger, #b42318);
   background: var(--aheart-color-bg);
+  pointer-events: auto;
 }
 
 .aheart-table__error button {
   padding: 4px 10px;
   color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid currentcolor;
+  border-radius: var(--aheart-radius-sm);
+}
+
+.aheart-table__retry {
+  position: relative;
+  z-index: 4;
+  margin-top: var(--aheart-spacing-sm);
+  padding: 4px 10px;
+  color: var(--aheart-color-danger, #b42318);
   cursor: pointer;
   background: transparent;
   border: 1px solid currentcolor;

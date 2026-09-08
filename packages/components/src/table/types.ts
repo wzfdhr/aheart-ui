@@ -14,7 +14,7 @@ export type TableFilterValue = string | number | boolean
 export type TableChangeAction = 'paginate' | 'sort' | 'filter'
 export type TableRenderable = VNodeChild
 export type TableColumnFixed = 'left' | 'right'
-export type TableScroll = { x?: boolean | number | string; y?: number | string }
+export type TableScroll = { x?: true | number | string; y?: number | string }
 export type TableSticky = boolean | { offsetHeader?: number }
 export type TableFilterDropdownContext = {
   selectedKeys: TableFilterValue[]

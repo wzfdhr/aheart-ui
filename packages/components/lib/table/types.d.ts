@@ -14,7 +14,7 @@ export type TableChangeAction = 'paginate' | 'sort' | 'filter';
 export type TableRenderable = VNodeChild;
 export type TableColumnFixed = 'left' | 'right';
 export type TableScroll = {
-    x?: boolean | number | string;
+    x?: true | number | string;
     y?: number | string;
 };
 export type TableSticky = boolean | {

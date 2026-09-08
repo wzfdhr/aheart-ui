@@ -37,6 +37,7 @@ export interface UseFloatingPositionOptions {
   alignOffset?: MaybeRefOrGetter<readonly [number, number] | undefined>
   autoAdjustOverflow?: MaybeRefOrGetter<boolean | undefined>
   shift?: MaybeRefOrGetter<boolean | undefined>
+  viewportPadding?: MaybeRefOrGetter<number | undefined>
   arrowSize?: MaybeRefOrGetter<number | undefined>
   autoUpdateOptions?: AutoUpdateOptions
 }
@@ -220,11 +221,11 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
     }
 
     if (shouldAdjustOverflow && requestedPlacement === configuredPlacement) {
-      middleware.push(flip())
+      middleware.push(flip({ padding: toValue(options.viewportPadding) ?? 0 }))
     }
 
     if (toValue(options.shift) !== false) {
-      middleware.push(floatingShift({ padding: 8 }))
+      middleware.push(floatingShift({ padding: toValue(options.viewportPadding) ?? 0 }))
     }
 
     if (arrowElement) {
@@ -293,6 +294,7 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
     toValue(options.alignOffset)
     toValue(options.autoAdjustOverflow)
     toValue(options.shift)
+    toValue(options.viewportPadding)
     toValue(options.arrowSize)
     if (options.arrow) toValue(options.arrow)
 
