@@ -12,8 +12,14 @@ const parsedHeight = (value: unknown) => {
   if (positive(value)) return value
   if (typeof value === 'string') {
     const match = /^\s*(\d+(?:\.\d+)?)px\s*$/i.exec(value)
-    if (match) return Number(match[1])
-    if (/^\s*\d+(?:\.\d+)?\s*$/.test(value)) return Number(value)
+    if (match) {
+      const parsed = Number(match[1])
+      return parsed > 0 ? parsed : undefined
+    }
+    if (/^\s*\d+(?:\.\d+)?\s*$/.test(value)) {
+      const parsed = Number(value)
+      return parsed > 0 ? parsed : undefined
+    }
   }
   return undefined
 }

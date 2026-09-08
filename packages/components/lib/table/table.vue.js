@@ -298,10 +298,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       });
       const fixedWidth = data.filter((item) => {
         var _a, _b;
-        return ((_a = item.source) == null ? void 0 : _a.fixed) === "left" || ((_b = item.source) == null ? void 0 : _b.fixed) === "right";
+        return item.utility || ((_a = item.source) == null ? void 0 : _a.fixed) === "left" || ((_b = item.source) == null ? void 0 : _b.fixed) === "right";
       }).reduce((total, item) => total + usedWidth(item), 0);
       const leftEnabled = leftValid && leftCount > 0;
-      const rightEnabled = rightValid && rightCount > 0 && (layoutViewportWidth.value === 0 || layoutViewportWidth.value >= fixedWidth);
+      const rightEnabled = rightValid && rightCount > 0 && (layoutViewportWidth.value === 0 || layoutViewportWidth.value > fixedWidth);
       let left = 0;
       if (leftEnabled) {
         data.slice(0, leftStart).forEach((item) => {
@@ -471,48 +471,45 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         focusedRowFrame = void 0;
         focusedRowKey.value = key;
       }
-      virtualController.onScroll();
     };
     const virtualMeasuredTotal = vue.computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0));
     const virtualMeasuredDisplay = vue.computed(() => virtualMeasuredTotal.value);
     const virtualMeasuredFor = (index2) => virtualController.measured.value.get(virtualKeys.value[index2]);
-    const virtualSegments = vue.computed(() => {
+    const virtualRenderEntries = vue.computed(() => {
       if (!virtualRuntime.value.enabled)
-        return [{ kind: "rows", rows: pagedRows.value, key: "all" }];
+        return pagedRows.value.map((row) => ({ kind: "row", row, key: `row:${rowToken(row.key)}` }));
       const items = [...virtualController.items.value].sort((a, b) => a.index - b.index);
-      const segments = [];
+      const entries = [];
+      entries.push({ kind: "gap", position: "before", height: 0, key: "gap-before" });
       let cursor = 0;
-      let group = [];
+      let previousIndex = -1;
       const flush = () => {
-        if (!group.length)
+        if (previousIndex < 0)
           return;
-        const first = group[0];
-        if (first.start > cursor)
-          segments.push({ kind: "gap", position: segments.length ? "middle" : "before", height: first.start - cursor, key: `gap-${first.index}` });
-        segments.push({ kind: "rows", rows: group.map((item) => pagedRows.value[item.index]).filter((row) => Boolean(row)), key: `rows-${first.index}` });
-        cursor = group.at(-1).end;
-        group = [];
+        const item = items.find((candidate) => candidate.index === previousIndex);
+        if (item)
+          cursor = item.end;
       };
       for (const item of items) {
-        if (group.length && item.index > group.at(-1).index + 1)
+        if (previousIndex >= 0 && item.index > previousIndex + 1)
           flush();
-        group.push(item);
+        if (item.start > cursor)
+          entries.push({ kind: "gap", position: "middle", height: item.start - cursor, key: `gap-middle-${item.index}` });
+        const row = pagedRows.value[item.index];
+        if (row)
+          entries.push({ kind: "row", row, key: `row:${rowToken(row.key)}` });
+        cursor = item.end;
+        previousIndex = item.index;
       }
       flush();
       const total = virtualController.virtualizer.value.getTotalSize();
-      if (segments.length)
-        segments.push({ kind: "gap", position: "after", height: Math.max(0, total - cursor), key: "gap-after" });
-      else {
-        segments.push({ kind: "gap", position: "before", height: total, key: "gap-before" });
-        segments.push({ kind: "gap", position: "after", height: 0, key: "gap-after" });
-      }
-      return segments;
+      entries.push({ kind: "gap", position: "after", height: Math.max(0, total - cursor), key: "gap-after" });
+      return entries;
     });
     vue.watch([focusedRowKey, pagedRows, selectedKeys, selectionType], () => {
       const index2 = focusedRowKey.value === void 0 ? void 0 : pagedRows.value.findIndex((row) => row.key === focusedRowKey.value);
-      virtualController.setPinnedIndex(index2 !== void 0 && index2 >= 0 ? index2 : void 0);
-      virtualController.setPinnedIndexes(index2 !== void 0 && index2 >= 0 ? [index2, index2 + 1] : []);
-    }, { immediate: true, flush: "post" });
+      virtualController.setPinnedIndexes(index2 !== void 0 && index2 >= 0 ? [index2] : []);
+    }, { immediate: true, flush: "sync" });
     const visibleRows = vue.computed(() => {
       if (!virtualRuntime.value.enabled)
         return pagedRows.value;
@@ -1024,8 +1021,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (((_a = props.scroll) == null ? void 0 : _a.x) === void 0 || !tableRoot.value)
         return;
       const container = tableRoot.value.querySelector(".aheart-table__container");
-      if (container)
-        layoutViewportWidth.value = container.clientWidth;
+      if (container) {
+        const containerWidth = container.clientWidth || container.getBoundingClientRect().width;
+        const rootWidth = tableRoot.value.getBoundingClientRect().width || tableRoot.value.clientWidth;
+        layoutViewportWidth.value = rootWidth > 0 ? Math.min(containerWidth || rootWidth, rootWidth) : containerWidth;
+      }
       const cells = Array.from(tableRoot.value.querySelectorAll("thead th"));
       const cols = Array.from(tableRoot.value.querySelectorAll("colgroup col"));
       const next = { ...widthSnapshot.value };
@@ -1278,6 +1278,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       row == null ? void 0 : row.setAttribute("data-aheart-virtual-pinned", "true");
       row == null ? void 0 : row.setAttribute("data-focus-pinned", "true");
       focusedRowKey.value = key;
+      const focusedIndex = pagedRows.value.findIndex((row2) => row2.key === key);
+      virtualController.setPinnedIndexes(focusedIndex >= 0 ? [focusedIndex] : []);
       pendingFocusedRowKey = pointerInteractionPending ? key : void 0;
       const ownerWindow = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.defaultView;
       if (focusedRowFrame !== void 0)
@@ -1293,20 +1295,46 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         commit();
     };
     const handleRowFocusout = (event) => {
-      var _a, _b, _c, _d, _e, _f, _g;
-      const related = event.relatedTarget;
-      if (related && ((_a = event.currentTarget) == null ? void 0 : _a.contains(related)))
-        return;
-      if (!related || !((_b = tableRoot.value) == null ? void 0 : _b.contains(related))) {
-        const ownerWindow = (_c = tableRoot.value) == null ? void 0 : _c.ownerDocument.defaultView;
+      var _a, _b, _c;
+      const row = (_a = event.currentTarget) == null ? void 0 : _a.closest("tr[data-table-row], tr[data-table-expanded-row]");
+      const key = (row == null ? void 0 : row.dataset.tableRow) ?? (row == null ? void 0 : row.dataset.tableExpandedRow);
+      const ownerDocument = (_b = tableRoot.value) == null ? void 0 : _b.ownerDocument;
+      const ownerWindow = ownerDocument == null ? void 0 : ownerDocument.defaultView;
+      const clearIfOutsideGroup = () => {
+        var _a2, _b2, _c2, _d, _e;
+        const active = ownerDocument == null ? void 0 : ownerDocument.activeElement;
+        const activeRow = active == null ? void 0 : active.closest("tr[data-table-row], tr[data-table-expanded-row]");
+        const activeKey = (activeRow == null ? void 0 : activeRow.dataset.tableRow) ?? (activeRow == null ? void 0 : activeRow.dataset.tableExpandedRow);
+        if (key !== void 0 && activeKey === key)
+          return;
         if (focusedRowFrame !== void 0)
           ownerWindow == null ? void 0 : ownerWindow.cancelAnimationFrame(focusedRowFrame);
         focusedRowFrame = void 0;
         pendingFocusedRowKey = void 0;
         focusedRowKey.value = void 0;
-        (_e = (_d = event.currentTarget) == null ? void 0 : _d.closest("tr")) == null ? void 0 : _e.removeAttribute("data-aheart-virtual-pinned");
-        (_g = (_f = event.currentTarget) == null ? void 0 : _f.closest("tr")) == null ? void 0 : _g.removeAttribute("data-focus-pinned");
+        virtualController.setPinnedIndexes([]);
+        (_a2 = tableRoot.value) == null ? void 0 : _a2.querySelectorAll("tr[data-table-row], tr[data-table-expanded-row]").forEach((groupRow) => {
+          if (groupRow.dataset.tableRow !== key && groupRow.dataset.tableExpandedRow !== key)
+            return;
+          groupRow.removeAttribute("data-aheart-virtual-pinned");
+          groupRow.removeAttribute("data-focus-pinned");
+        });
+        (_c2 = (_b2 = event.currentTarget) == null ? void 0 : _b2.closest("tr")) == null ? void 0 : _c2.removeAttribute("data-aheart-virtual-pinned");
+        (_e = (_d = event.currentTarget) == null ? void 0 : _d.closest("tr")) == null ? void 0 : _e.removeAttribute("data-focus-pinned");
+      };
+      const related = event.relatedTarget;
+      if (related && !((_c = tableRoot.value) == null ? void 0 : _c.contains(related))) {
+        clearIfOutsideGroup();
+        return;
       }
+      void vue.nextTick(() => {
+        if (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame)
+          ownerWindow.requestAnimationFrame(clearIfOutsideGroup);
+        if (ownerWindow == null ? void 0 : ownerWindow.setTimeout)
+          ownerWindow.setTimeout(clearIfOutsideGroup, 0);
+        else if (!(ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame))
+          clearIfOutsideGroup();
+      });
     };
     const handleRowKeydown = (event, key) => {
       var _a;
@@ -1322,6 +1350,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (tabbable) {
         event.preventDefault();
         focusedRowKey.value = next.key;
+        virtualController.setPinnedIndexes([index2 + 1]);
         tabbable.focus({ preventScroll: true });
         return;
       }
@@ -1332,6 +1361,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       };
       event.preventDefault();
       focusedRowKey.value = next.key;
+      virtualController.setPinnedIndexes([index2 + 1]);
       focusNext();
       void vue.nextTick(focusNext);
     };
@@ -1636,103 +1666,99 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 ])
               ], 4)) : vue.createCommentVNode("", true),
               vue.createElementVNode("tbody", null, [
-                (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(virtualSegments.value, (segment) => {
+                (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(virtualRenderEntries.value, (entry) => {
                   return vue.openBlock(), vue.createElementBlock(vue.Fragment, {
-                    key: segment.key
+                    key: entry.key
                   }, [
-                    segment.kind === "gap" ? (vue.openBlock(), vue.createElementBlock("tr", {
+                    entry.kind === "gap" ? (vue.openBlock(), vue.createElementBlock("tr", {
                       key: 0,
                       "data-aheart-virtual-spacer": "true",
-                      "data-before": segment.position === "before" ? "" : void 0,
-                      "data-after": segment.position === "after" ? "" : void 0,
-                      "data-table-virtual-spacer": segment.position,
-                      "data-table-spacer-position": segment.position,
-                      style: vue.normalizeStyle({ height: `${segment.height}px` }),
+                      "data-before": entry.position === "before" ? "" : void 0,
+                      "data-after": entry.position === "after" ? "" : void 0,
+                      "data-table-virtual-spacer": entry.position,
+                      "data-table-spacer-position": entry.position,
+                      style: vue.normalizeStyle({ height: `${entry.height}px` }),
                       "data-measured-height": virtualMeasuredDisplay.value,
                       "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0,
                       "aria-hidden": "true"
                     }, [
                       vue.createElementVNode("td", {
                         colspan: columnCount.value,
-                        style: vue.normalizeStyle({ height: `${segment.height}px` })
+                        style: vue.normalizeStyle({ height: `${entry.height}px` })
                       }, null, 12, _hoisted_24)
-                    ], 12, _hoisted_23)) : (vue.openBlock(true), vue.createElementBlock(vue.Fragment, { key: 1 }, vue.renderList(segment.rows, (row) => {
-                      return vue.openBlock(), vue.createElementBlock(vue.Fragment, {
-                        key: row.key
+                    ], 12, _hoisted_23)) : (vue.openBlock(), vue.createElementBlock(vue.Fragment, { key: 1 }, [
+                      vue.createElementVNode("tr", {
+                        "data-table-row": String(entry.row.key),
+                        "data-aheart-virtual-logical-item": entry.row.index,
+                        "data-aheart-virtual-measured-height": virtualMeasuredFor(entry.row.index) || void 0,
+                        "data-aheart-virtual-pinned": focusedRowKey.value === entry.row.key ? "true" : void 0,
+                        "data-focus-pinned": focusedRowKey.value === entry.row.key ? "true" : void 0,
+                        "aria-rowindex": virtualRuntime.value.enabled ? entry.row.index + 1 : void 0,
+                        class: vue.normalizeClass({ "is-selected": isSelected(entry.row.key) }),
+                        onFocusin: ($event) => handleRowFocusin(entry.row.key, $event),
+                        onFocusout: handleRowFocusout
                       }, [
-                        vue.createElementVNode("tr", {
-                          "data-table-row": String(row.key),
-                          "data-aheart-virtual-logical-item": row.index,
-                          "data-aheart-virtual-measured-height": virtualMeasuredFor(row.index) || void 0,
-                          "data-aheart-virtual-pinned": focusedRowKey.value === row.key ? "true" : void 0,
-                          "data-focus-pinned": focusedRowKey.value === row.key ? "true" : void 0,
-                          "aria-rowindex": virtualRuntime.value.enabled ? row.index + 1 : void 0,
-                          class: vue.normalizeClass({ "is-selected": isSelected(row.key) }),
-                          onFocusin: ($event) => handleRowFocusin(row.key, $event),
-                          onFocusout: handleRowFocusout
-                        }, [
-                          hasSelection.value ? (vue.openBlock(), vue.createElementBlock("td", {
-                            key: 0,
-                            class: "aheart-table__selection-cell",
-                            style: vue.normalizeStyle(utilityStyle("selection", false))
-                          }, [
-                            vue.createElementVNode("input", {
-                              type: selectionType.value,
-                              name: vue.unref(radioName),
-                              checked: isSelected(row.key),
-                              "data-aheart-row-token": rowToken(row.key),
-                              disabled: isRowSelectionDisabled(row.record),
-                              "aria-label": `Select row ${row.key}`,
-                              onKeydown: ($event) => handleRowKeydown($event, row.key),
-                              onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                            }, null, 40, _hoisted_26)
-                          ], 4)) : vue.createCommentVNode("", true),
-                          hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", {
-                            key: 1,
-                            class: "aheart-table__expand-cell",
-                            style: vue.normalizeStyle(utilityStyle("expand", false))
-                          }, [
-                            isRowExpandable(row.record) ? (vue.openBlock(), vue.createElementBlock("button", {
-                              key: 0,
-                              class: "aheart-table__expand-button",
-                              type: "button",
-                              "aria-expanded": isExpanded(row.key),
-                              "aria-label": `${isExpanded(row.key) ? "Collapse" : "Expand"} row ${row.key}`,
-                              disabled: isInteractionLocked.value,
-                              onClick: ($event) => toggleExpand(row.record, row.key)
-                            }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_27)) : vue.createCommentVNode("", true)
-                          ], 4)) : vue.createCommentVNode("", true),
-                          (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
-                            return vue.openBlock(), vue.createElementBlock("td", {
-                              key: getColumnKey(column),
-                              class: vue.normalizeClass(columnCellClass(column)),
-                              "data-fixed": column.fixed || void 0,
-                              style: vue.normalizeStyle(bodyColumnStyle(column))
-                            }, [
-                              vue.createVNode(vue.unref(ARenderNode), {
-                                node: renderCell(column, row.record, row.index)
-                              }, null, 8, ["node"])
-                            ], 14, _hoisted_28);
-                          }), 128))
-                        ], 42, _hoisted_25),
-                        hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", {
+                        hasSelection.value ? (vue.openBlock(), vue.createElementBlock("td", {
                           key: 0,
-                          "data-table-expanded-row": String(row.key),
-                          "data-aheart-virtual-expanded-item": row.index,
-                          "data-aheart-virtual-key": rowToken(row.key),
-                          class: "aheart-table__expanded-row"
+                          class: "aheart-table__selection-cell",
+                          style: vue.normalizeStyle(utilityStyle("selection", false))
                         }, [
-                          vue.createElementVNode("td", {
-                            colspan: columnCount.value,
-                            class: "aheart-table__expanded-cell"
+                          vue.createElementVNode("input", {
+                            type: selectionType.value,
+                            name: vue.unref(radioName),
+                            checked: isSelected(entry.row.key),
+                            "data-aheart-row-token": rowToken(entry.row.key),
+                            disabled: isRowSelectionDisabled(entry.row.record),
+                            "aria-label": `Select row ${entry.row.key}`,
+                            onKeydown: ($event) => handleRowKeydown($event, entry.row.key),
+                            onChange: ($event) => handleSelectionChange($event, entry.row.record, entry.row.key)
+                          }, null, 40, _hoisted_26)
+                        ], 4)) : vue.createCommentVNode("", true),
+                        hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", {
+                          key: 1,
+                          class: "aheart-table__expand-cell",
+                          style: vue.normalizeStyle(utilityStyle("expand", false))
+                        }, [
+                          isRowExpandable(entry.row.record) ? (vue.openBlock(), vue.createElementBlock("button", {
+                            key: 0,
+                            class: "aheart-table__expand-button",
+                            type: "button",
+                            "aria-expanded": isExpanded(entry.row.key),
+                            "aria-label": `${isExpanded(entry.row.key) ? "Collapse" : "Expand"} row ${entry.row.key}`,
+                            disabled: isInteractionLocked.value,
+                            onClick: ($event) => toggleExpand(entry.row.record, entry.row.key)
+                          }, vue.toDisplayString(isExpanded(entry.row.key) ? "−" : "+"), 9, _hoisted_27)) : vue.createCommentVNode("", true)
+                        ], 4)) : vue.createCommentVNode("", true),
+                        (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
+                          return vue.openBlock(), vue.createElementBlock("td", {
+                            key: getColumnKey(column),
+                            class: vue.normalizeClass(columnCellClass(column)),
+                            "data-fixed": column.fixed || void 0,
+                            style: vue.normalizeStyle(bodyColumnStyle(column))
                           }, [
                             vue.createVNode(vue.unref(ARenderNode), {
-                              node: renderExpanded(row.record, row.index)
+                              node: renderCell(column, entry.row.record, entry.row.index)
                             }, null, 8, ["node"])
-                          ], 8, _hoisted_30)
-                        ], 8, _hoisted_29)) : vue.createCommentVNode("", true)
-                      ], 64);
-                    }), 128))
+                          ], 14, _hoisted_28);
+                        }), 128))
+                      ], 42, _hoisted_25),
+                      hasExpandable.value && isExpanded(entry.row.key) ? (vue.openBlock(), vue.createElementBlock("tr", {
+                        key: 0,
+                        "data-table-expanded-row": String(entry.row.key),
+                        "data-aheart-virtual-expanded-item": entry.row.index,
+                        "data-aheart-virtual-key": rowToken(entry.row.key),
+                        class: "aheart-table__expanded-row"
+                      }, [
+                        vue.createElementVNode("td", {
+                          colspan: columnCount.value,
+                          class: "aheart-table__expanded-cell"
+                        }, [
+                          vue.createVNode(vue.unref(ARenderNode), {
+                            node: renderExpanded(entry.row.record, entry.row.index)
+                          }, null, 8, ["node"])
+                        ], 8, _hoisted_30)
+                      ], 8, _hoisted_29)) : vue.createCommentVNode("", true)
+                    ], 64))
                   ], 64);
                 }), 128)),
                 !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_31, [

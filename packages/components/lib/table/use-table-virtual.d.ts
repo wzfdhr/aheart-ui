@@ -12,8 +12,7 @@ export declare function useTableVirtual(options: Ref<NormalizedTableVirtual>, co
     measured: Ref<Map<string, number> & Omit<Map<string, number>, keyof Map<any, any>>, Map<string, number> | (Map<string, number> & Omit<Map<string, number>, keyof Map<any, any>>)>;
     setMeasured: (index: number, height: number, part?: string) => void;
     clearMeasured: (index: number, part?: string) => void;
-    setPinnedIndex: (index: number | undefined) => void;
     setPinnedIndexes: (indexes: number[]) => void;
     onScroll: () => void;
-    pinnedIndex: Ref<number | undefined, number | undefined>;
+    pinnedIndexes: Ref<number[], number[]>;
 };

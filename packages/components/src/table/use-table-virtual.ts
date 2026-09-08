@@ -3,7 +3,6 @@ import { defaultRangeExtractor, observeElementRect, useVirtualizer } from '@tans
 import type { NormalizedTableVirtual } from './virtual-options'
 
 export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref<number>, scrollElement: Ref<HTMLElement | null>, getItemKey: (index: number) => string = index => String(index), itemKeys?: Ref<readonly string[]>) {
-  const pinnedIndex = ref<number | undefined>()
   const pinnedIndexes = ref<number[]>([])
   // Keep each logical row's measured parts independently. Expanded rows are
   // companions of the base row, and ResizeObserver may report either side on
@@ -24,7 +23,9 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
     })
     return () => { stop?.(); if (frame !== undefined) view?.cancelAnimationFrame(frame) }
   }
-  const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(computed(() => ({
+  const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(computed(() => {
+    const pins = [...pinnedIndexes.value]
+    return {
     count: options.value.enabled ? count.value : 0,
     enabled: options.value.enabled,
     getScrollElement: () => options.value.enabled ? scrollElement.value : null,
@@ -37,14 +38,15 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
     observeElementRect: observeRect,
     rangeExtractor: (range: Parameters<typeof defaultRangeExtractor>[0]) => {
       const indexes = defaultRangeExtractor(range)
-      const pins = pinnedIndexes.value.length ? pinnedIndexes.value : pinnedIndex.value === undefined ? [] : [pinnedIndex.value]
       pins.forEach((pin) => { if (pin >= 0 && pin < count.value && !indexes.includes(pin)) indexes.push(pin) })
       return indexes.sort((a, b) => a - b)
     }
-  })))
+    }
+  }))
   const onScroll = () => {
-    const offset = scrollElement.value?.scrollTop ?? 0
-    virtualizer.value.scrollToOffset(offset)
+    // TanStack owns the native scroll listener through observeElementOffset.
+    // Do not imperatively scroll/measure here; that can reset the observed
+    // range before the browser offset callback runs.
   }
   const range = computed(() => {
     if (!options.value.enabled) return { start: 0, end: count.value, top: 0, bottom: 0 }
@@ -54,8 +56,7 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
     return { start, end, top: items[0]?.start ?? 0, bottom: Math.max(0, virtualizer.value.getTotalSize() - (items.at(-1)?.end ?? 0)) }
   })
   const items = computed(() => options.value.enabled ? virtualizer.value.getVirtualItems() : [])
-  const setPinnedIndex = (index: number | undefined) => { pinnedIndex.value = index; virtualizer.value.measure() }
-  const setPinnedIndexes = (indexes: number[]) => { pinnedIndexes.value = indexes; virtualizer.value.measure() }
+  const setPinnedIndexes = (indexes: number[]) => { pinnedIndexes.value = [...new Set(indexes.filter((index) => index >= 0))] }
   const setMeasured = (index: number, height: number, part = 'base') => {
     if (!alive.value || !options.value.enabled || height <= 0) return
     const key = getItemKey(index)
@@ -84,7 +85,8 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
     measured.value = next
     virtualizer.value.measure()
   }
-  watch([options, scrollElement, ...(itemKeys ? [itemKeys] : [])], () => virtualizer.value.measure(), { flush: 'sync' })
+  watch([options, scrollElement], () => virtualizer.value.measure(), { flush: 'sync' })
+  if (itemKeys) watch(itemKeys, () => { measuredParts.clear(); measured.value = new Map(); virtualizer.value.measure() }, { flush: 'sync' })
   onBeforeUnmount(() => { alive.value = false; measuredParts.clear(); virtualizer.value.setOptions({ ...virtualizer.value.options, enabled: false }) })
-  return { virtualizer, range, items, measured, setMeasured, clearMeasured, setPinnedIndex, setPinnedIndexes, onScroll, pinnedIndex }
+  return { virtualizer, range, items, measured, setMeasured, clearMeasured, setPinnedIndexes, onScroll, pinnedIndexes }
 }

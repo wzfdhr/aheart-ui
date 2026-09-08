@@ -114,33 +114,33 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="segment in virtualSegments" :key="segment.key">
-          <tr v-if="segment.kind === 'gap'" data-aheart-virtual-spacer="true" :data-before="segment.position === 'before' ? '' : undefined" :data-after="segment.position === 'after' ? '' : undefined" :data-table-virtual-spacer="segment.position" :data-table-spacer-position="segment.position" :style="{ height: `${segment.height}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" aria-hidden="true"><td :colspan="columnCount" :style="{ height: `${segment.height}px` }" /></tr>
-          <template v-else v-for="row in segment.rows" :key="row.key">
-            <tr :data-table-row="String(row.key)" :data-aheart-virtual-logical-item="row.index" :data-aheart-virtual-measured-height="virtualMeasuredFor(row.index) || undefined" :data-aheart-virtual-pinned="focusedRowKey === row.key ? 'true' : undefined" :data-focus-pinned="focusedRowKey === row.key ? 'true' : undefined" :aria-rowindex="virtualRuntime.enabled ? row.index + 1 : undefined" :class="{ 'is-selected': isSelected(row.key) }" @focusin="handleRowFocusin(row.key, $event)" @focusout="handleRowFocusout">
+          <template v-for="entry in virtualRenderEntries" :key="entry.key">
+          <tr v-if="entry.kind === 'gap'" data-aheart-virtual-spacer="true" :data-before="entry.position === 'before' ? '' : undefined" :data-after="entry.position === 'after' ? '' : undefined" :data-table-virtual-spacer="entry.position" :data-table-spacer-position="entry.position" :style="{ height: `${entry.height}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" aria-hidden="true"><td :colspan="columnCount" :style="{ height: `${entry.height}px` }" /></tr>
+          <template v-else>
+            <tr :data-table-row="String(entry.row.key)" :data-aheart-virtual-logical-item="entry.row.index" :data-aheart-virtual-measured-height="virtualMeasuredFor(entry.row.index) || undefined" :data-aheart-virtual-pinned="focusedRowKey === entry.row.key ? 'true' : undefined" :data-focus-pinned="focusedRowKey === entry.row.key ? 'true' : undefined" :aria-rowindex="virtualRuntime.enabled ? entry.row.index + 1 : undefined" :class="{ 'is-selected': isSelected(entry.row.key) }" @focusin="handleRowFocusin(entry.row.key, $event)" @focusout="handleRowFocusout">
               <td v-if="hasSelection" class="aheart-table__selection-cell" :style="utilityStyle('selection', false)">
                 <input
                   :type="selectionType"
                     :name="radioName"
-                    :checked="isSelected(row.key)"
-                    :data-aheart-row-token="rowToken(row.key)"
-                    :disabled="isRowSelectionDisabled(row.record)"
-                    :aria-label="`Select row ${row.key}`"
-                    @keydown="handleRowKeydown($event, row.key)"
-                    @change="handleSelectionChange($event, row.record, row.key)"
+                    :checked="isSelected(entry.row.key)"
+                    :data-aheart-row-token="rowToken(entry.row.key)"
+                    :disabled="isRowSelectionDisabled(entry.row.record)"
+                    :aria-label="`Select row ${entry.row.key}`"
+                    @keydown="handleRowKeydown($event, entry.row.key)"
+                    @change="handleSelectionChange($event, entry.row.record, entry.row.key)"
                 />
               </td>
               <td v-if="hasExpandable" class="aheart-table__expand-cell" :style="utilityStyle('expand', false)">
                 <button
-                  v-if="isRowExpandable(row.record)"
+                  v-if="isRowExpandable(entry.row.record)"
                   class="aheart-table__expand-button"
                   type="button"
-                  :aria-expanded="isExpanded(row.key)"
-                  :aria-label="`${isExpanded(row.key) ? 'Collapse' : 'Expand'} row ${row.key}`"
+                  :aria-expanded="isExpanded(entry.row.key)"
+                  :aria-label="`${isExpanded(entry.row.key) ? 'Collapse' : 'Expand'} row ${entry.row.key}`"
                   :disabled="isInteractionLocked"
-                  @click="toggleExpand(row.record, row.key)"
+                  @click="toggleExpand(entry.row.record, entry.row.key)"
                 >
-                  {{ isExpanded(row.key) ? '−' : '+' }}
+                  {{ isExpanded(entry.row.key) ? '−' : '+' }}
                 </button>
               </td>
               <td
@@ -150,12 +150,12 @@
                 :data-fixed="column.fixed || undefined"
                 :style="bodyColumnStyle(column)"
               >
-                <ARenderNode :node="renderCell(column, row.record, row.index)" />
+                <ARenderNode :node="renderCell(column, entry.row.record, entry.row.index)" />
               </td>
             </tr>
-            <tr v-if="hasExpandable && isExpanded(row.key)" :data-table-expanded-row="String(row.key)" :data-aheart-virtual-expanded-item="row.index" :data-aheart-virtual-key="rowToken(row.key)" class="aheart-table__expanded-row">
+            <tr v-if="hasExpandable && isExpanded(entry.row.key)" :data-table-expanded-row="String(entry.row.key)" :data-aheart-virtual-expanded-item="entry.row.index" :data-aheart-virtual-key="rowToken(entry.row.key)" class="aheart-table__expanded-row">
               <td :colspan="columnCount" class="aheart-table__expanded-cell">
-                <ARenderNode :node="renderExpanded(row.record, row.index)" />
+                <ARenderNode :node="renderExpanded(entry.row.record, entry.row.index)" />
               </td>
             </tr>
           </template>
@@ -435,9 +435,9 @@ const layoutColumns = computed<LayoutColumn[]>(() => {
   const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0)
   const leftValid = leftCount === 0 || leftStart === utilityCount && data.slice(leftStart, leftStart + leftCount).every((item) => item.fixed === 'left' && (pxWidth(item.source?.width) !== undefined || widthSnapshot.value[item.id] !== undefined))
   const rightValid = rightCount === 0 || rightStart >= 0 && data.slice(rightStart).every((item) => item.fixed === 'right' && pxWidth(item.source?.width) !== undefined)
-  const fixedWidth = data.filter((item) => item.source?.fixed === 'left' || item.source?.fixed === 'right').reduce((total, item) => total + usedWidth(item), 0)
+  const fixedWidth = data.filter((item) => item.utility || item.source?.fixed === 'left' || item.source?.fixed === 'right').reduce((total, item) => total + usedWidth(item), 0)
   const leftEnabled = leftValid && leftCount > 0
-  const rightEnabled = rightValid && rightCount > 0 && (layoutViewportWidth.value === 0 || layoutViewportWidth.value >= fixedWidth)
+  const rightEnabled = rightValid && rightCount > 0 && (layoutViewportWidth.value === 0 || layoutViewportWidth.value > fixedWidth)
   let left = 0
   if (leftEnabled) {
     // Utility columns occupy the leading cells and therefore are part of the
@@ -596,44 +596,40 @@ const handleVirtualScroll = () => {
     focusedRowFrame = undefined
     focusedRowKey.value = key
   }
-  virtualController.onScroll()
 }
 const virtualMeasuredTotal = computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0))
 const virtualMeasuredDisplay = computed(() => virtualMeasuredTotal.value)
 const virtualMeasuredFor = (index: number) => virtualController.measured.value.get(virtualKeys.value[index])
-type VirtualRenderSegment = { kind: 'gap'; position: 'before' | 'middle' | 'after'; height: number; key: string } | { kind: 'rows'; rows: InternalRow[]; key: string }
-const virtualSegments = computed<VirtualRenderSegment[]>(() => {
-  if (!virtualRuntime.value.enabled) return [{ kind: 'rows', rows: pagedRows.value, key: 'all' }]
+type VirtualRenderEntry = { kind: 'gap'; position: 'before' | 'middle' | 'after'; height: number; key: string } | { kind: 'row'; row: InternalRow; key: string }
+const virtualRenderEntries = computed<VirtualRenderEntry[]>(() => {
+  if (!virtualRuntime.value.enabled) return pagedRows.value.map(row => ({ kind: 'row', row, key: `row:${rowToken(row.key)}` }))
   const items = [...virtualController.items.value].sort((a, b) => a.index - b.index)
-  const segments: VirtualRenderSegment[] = []
+  const entries: VirtualRenderEntry[] = []
+  entries.push({ kind: 'gap', position: 'before', height: 0, key: 'gap-before' })
   let cursor = 0
-  let group: typeof items = []
+  let previousIndex = -1
   const flush = () => {
-    if (!group.length) return
-    const first = group[0]
-    if (first.start > cursor) segments.push({ kind: 'gap', position: segments.length ? 'middle' : 'before', height: first.start - cursor, key: `gap-${first.index}` })
-    segments.push({ kind: 'rows', rows: group.map((item) => pagedRows.value[item.index]).filter((row): row is InternalRow => Boolean(row)), key: `rows-${first.index}` })
-    cursor = group.at(-1)!.end
-    group = []
+    if (previousIndex < 0) return
+    const item = items.find(candidate => candidate.index === previousIndex)
+    if (item) cursor = item.end
   }
   for (const item of items) {
-    if (group.length && item.index > group.at(-1)!.index + 1) flush()
-    group.push(item)
+    if (previousIndex >= 0 && item.index > previousIndex + 1) flush()
+    if (item.start > cursor) entries.push({ kind: 'gap', position: 'middle', height: item.start - cursor, key: `gap-middle-${item.index}` })
+    const row = pagedRows.value[item.index]
+    if (row) entries.push({ kind: 'row', row, key: `row:${rowToken(row.key)}` })
+    cursor = item.end
+    previousIndex = item.index
   }
   flush()
   const total = virtualController.virtualizer.value.getTotalSize()
-  if (segments.length) segments.push({ kind: 'gap', position: 'after', height: Math.max(0, total - cursor), key: 'gap-after' })
-  else {
-    segments.push({ kind: 'gap', position: 'before', height: total, key: 'gap-before' })
-    segments.push({ kind: 'gap', position: 'after', height: 0, key: 'gap-after' })
-  }
-  return segments
+  entries.push({ kind: 'gap', position: 'after', height: Math.max(0, total - cursor), key: 'gap-after' })
+  return entries
 })
 watch([focusedRowKey, pagedRows, selectedKeys, selectionType], () => {
   const index = focusedRowKey.value === undefined ? undefined : pagedRows.value.findIndex((row) => row.key === focusedRowKey.value)
-  virtualController.setPinnedIndex(index !== undefined && index >= 0 ? index : undefined)
-  virtualController.setPinnedIndexes(index !== undefined && index >= 0 ? [index, index + 1] : [])
-}, { immediate: true, flush: 'post' })
+  virtualController.setPinnedIndexes(index !== undefined && index >= 0 ? [index] : [])
+}, { immediate: true, flush: 'sync' })
 const visibleRows = computed(() => {
   if (!virtualRuntime.value.enabled) return pagedRows.value
   const rows = virtualController.items.value.map((item) => pagedRows.value[item.index])
@@ -1143,7 +1139,11 @@ const scheduleStickyGeometry = () => {
 const measureLayout = () => {
   if (props.scroll?.x === undefined || !tableRoot.value) return
   const container = tableRoot.value.querySelector<HTMLElement>('.aheart-table__container')
-  if (container) layoutViewportWidth.value = container.clientWidth
+  if (container) {
+    const containerWidth = container.clientWidth || container.getBoundingClientRect().width
+    const rootWidth = tableRoot.value.getBoundingClientRect().width || tableRoot.value.clientWidth
+    layoutViewportWidth.value = rootWidth > 0 ? Math.min(containerWidth || rootWidth, rootWidth) : containerWidth
+  }
   const cells = Array.from(tableRoot.value.querySelectorAll<HTMLElement>('thead th'))
   const cols = Array.from(tableRoot.value.querySelectorAll<HTMLElement>('colgroup col'))
   const next = { ...widthSnapshot.value }
@@ -1388,6 +1388,8 @@ const handleRowFocusin = (key: TableKey, event: FocusEvent) => {
   // Commit the pin before pointer/click handlers can trigger a virtual-window
   // update. This keeps the focused row mounted across fixed-column browsers.
   focusedRowKey.value = key
+  const focusedIndex = pagedRows.value.findIndex((row) => row.key === key)
+  virtualController.setPinnedIndexes(focusedIndex >= 0 ? [focusedIndex] : [])
   pendingFocusedRowKey = pointerInteractionPending ? key : undefined
   const ownerWindow = tableRoot.value?.ownerDocument.defaultView
   if (focusedRowFrame !== undefined) ownerWindow?.cancelAnimationFrame(focusedRowFrame)
@@ -1400,17 +1402,38 @@ const handleRowFocusin = (key: TableKey, event: FocusEvent) => {
   else commit()
 }
 const handleRowFocusout = (event: FocusEvent) => {
-  const related = event.relatedTarget as Node | null
-  if (related && (event.currentTarget as HTMLElement | null)?.contains(related)) return
-  if (!related || !tableRoot.value?.contains(related)) {
-    const ownerWindow = tableRoot.value?.ownerDocument.defaultView
+  const row = (event.currentTarget as HTMLElement | null)?.closest<HTMLElement>('tr[data-table-row], tr[data-table-expanded-row]')
+  const key = row?.dataset.tableRow ?? row?.dataset.tableExpandedRow
+  const ownerDocument = tableRoot.value?.ownerDocument
+  const ownerWindow = ownerDocument?.defaultView
+  const clearIfOutsideGroup = () => {
+    const active = ownerDocument?.activeElement as HTMLElement | null
+    const activeRow = active?.closest<HTMLElement>('tr[data-table-row], tr[data-table-expanded-row]')
+    const activeKey = activeRow?.dataset.tableRow ?? activeRow?.dataset.tableExpandedRow
+    if (key !== undefined && activeKey === key) return
     if (focusedRowFrame !== undefined) ownerWindow?.cancelAnimationFrame(focusedRowFrame)
     focusedRowFrame = undefined
     pendingFocusedRowKey = undefined
     focusedRowKey.value = undefined
+    virtualController.setPinnedIndexes([])
+    tableRoot.value?.querySelectorAll<HTMLElement>('tr[data-table-row], tr[data-table-expanded-row]').forEach((groupRow) => {
+      if (groupRow.dataset.tableRow !== key && groupRow.dataset.tableExpandedRow !== key) return
+      groupRow.removeAttribute('data-aheart-virtual-pinned')
+      groupRow.removeAttribute('data-focus-pinned')
+    })
     ;(event.currentTarget as HTMLElement | null)?.closest('tr')?.removeAttribute('data-aheart-virtual-pinned')
     ;(event.currentTarget as HTMLElement | null)?.closest('tr')?.removeAttribute('data-focus-pinned')
   }
+  const related = event.relatedTarget as Node | null
+  if (related && !tableRoot.value?.contains(related)) {
+    clearIfOutsideGroup()
+    return
+  }
+  void nextTick(() => {
+    if (ownerWindow?.requestAnimationFrame) ownerWindow.requestAnimationFrame(clearIfOutsideGroup)
+    if (ownerWindow?.setTimeout) ownerWindow.setTimeout(clearIfOutsideGroup, 0)
+    else if (!ownerWindow?.requestAnimationFrame) clearIfOutsideGroup()
+  })
 }
 const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
   if (!virtualRuntime.value.enabled || event.key !== 'Tab' || event.shiftKey) return
@@ -1423,6 +1446,7 @@ const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
   if (tabbable) {
     event.preventDefault()
     focusedRowKey.value = next.key
+    virtualController.setPinnedIndexes([index + 1])
     tabbable.focus({ preventScroll: true })
     return
   }
@@ -1432,6 +1456,7 @@ const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
   }
   event.preventDefault()
   focusedRowKey.value = next.key
+  virtualController.setPinnedIndexes([index + 1])
   focusNext()
   void nextTick(focusNext)
 }
