@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
-import { build, preview } from 'vite'
+import { createServer } from 'vite'
 import { chromium } from '@playwright/test'
 
 const run = promisify(execFile)
@@ -63,10 +63,10 @@ for (const [name, settings] of Object.entries(cases)) {
   if (name === 'fixed-expanded') { assert.match(html, /Details for Row 1/); assert.match(html, /data-fixed/, 'fixed-expanded SSR must expose fixed output') }
 }
 const serializedProps = JSON.stringify(hydrationProps)
-await writeFile(path.join(root, 'index.html'), '<!doctype html><html><body><div id="app">' + ssr + '</div><script type="module" src="/main.js"></script></body></html>')
+await writeFile(path.join(root, 'index.html'), '<!doctype html><html><body><div id="app">' + ssr + `</div><script type="module" src="/@fs${path.join(root, 'main.js')}"></script></body></html>`)
 await writeFile(path.join(root, 'main.js'), `import { createSSRApp, h } from 'vue'; import { Table } from 'aheart-ui'; import 'aheart-ui/style.css'; const props=${serializedProps}; const app=createSSRApp({render:()=>h(Table,props)}); app.mount('#app'); window.__fixtureReady=true`)
-await build({ root, configFile: false, logLevel: 'error', build: { outDir: 'dist', emptyOutDir: true } })
-const server = await preview({ root, configFile: false, preview: { host: '127.0.0.1', port: 0 } })
+const server = await createServer({ root, configFile: false, logLevel: 'error', define: { __VUE_OPTIONS_API__: true, __VUE_PROD_DEVTOOLS__: false, __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true }, server: { host: '127.0.0.1', port: 0, fs: { allow: [root] } } })
+await server.listen()
 const browser = await chromium.launch()
 let hydrated = false
 try {

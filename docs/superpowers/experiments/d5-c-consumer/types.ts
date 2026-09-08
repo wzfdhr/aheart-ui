@@ -1,4 +1,6 @@
-import type { TableProps } from 'aheart-ui'
+import { Table } from 'aheart-ui'
+type TableProps = InstanceType<typeof Table>['$props']
+type TableRecord = Record<string, unknown>
 
 const virtual: NonNullable<TableProps['virtual']> = {
   height: 320,
@@ -21,7 +23,7 @@ const fixedExpanded: TableProps = {
   ...local,
   virtual,
   columns: [{ title: 'Name', dataIndex: 'name', key: 'name', fixed: 'left' }, { title: 'Status', dataIndex: 'status', key: 'status', fixed: 'right' }],
-  expandable: { expandedRowRender: row => `Details for ${row.name}` }
+  expandable: { expandedRowRender: (row: TableRecord) => `Details for ${String(row.name)}` }
 }
 
 void [local, server, fixedExpanded]

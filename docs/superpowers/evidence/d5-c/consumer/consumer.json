@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-consumer-HJgocG",
+  "tarball": "/tmp/d5-c-tgz.7di3E7/aheart-ui-1.0.0.tgz",
+  "esm": true,
+  "cjs": true,
+  "cssBytes": 195335,
+  "symlink": false,
+  "scenarios": [
+    "local",
+    "server",
+    "virtual",
+    "fixed",
+    "expanded",
+    "fixed-expanded"
+  ],
+  "ssr": {
+    "rendered": true,
+    "rows": 10000
+  },
+  "hydration": true
+}
