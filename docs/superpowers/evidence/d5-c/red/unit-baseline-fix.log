@@ -1,0 +1,12 @@
+[33mThe CJS build of Vite's Node API is deprecated. See https://vitejs.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
+
+ ✓ src/table/__tests__/table-radio-rejection.test.ts  (1 test) 38ms
+ ✓ src/table/__tests__/table-d5-contracts.test.ts  (23 tests) 162ms
+ ✓ src/table/__tests__/table-d5b-review-regressions.test.ts  (11 tests) 294ms
+
+ Test Files  3 passed (3)
+      Tests  35 passed (35)
+   Start at  18:07:03
+   Duration  849ms (transform 217ms, setup 0ms, collect 700ms, tests 494ms, environment 626ms, prepare 102ms)

@@ -1,170 +1,182 @@
-import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
+import { mount, type VueWrapper } from '@vue/test-utils'
+import { createSSRApp, h, nextTick } from 'vue'
 import { renderToString } from '@vue/server-renderer'
-import { createSSRApp } from 'vue'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Table from '../table.vue'
 
 type Row = { key: string | number; name: string; group?: string; disabled?: boolean }
-const rows: Row[] = Array.from({ length: 40 }, (_, index) => ({
-  key: index,
-  name: `Row ${index}`,
-  group: index < 20 ? 'A' : 'B',
-  disabled: index === 2
-}))
+const rows: Row[] = Array.from({ length: 40 }, (_, index) => ({ key: index, name: `Row ${index}`, group: index < 20 ? 'A' : 'B', disabled: index === 2 }))
 const columns = [{ title: 'Name', dataIndex: 'name', key: 'name' }]
-const props = (extra: Record<string, unknown> = {}) => ({
-  columns,
-  dataSource: rows,
-  pagination: false,
-  virtual: { height: 320, overscan: 4 },
-  ...extra
+const wrappers: VueWrapper[] = []
+const props = (extra: Record<string, unknown> = {}) => ({ columns, dataSource: rows, pagination: false, virtual: { height: 320, overscan: 4 }, ...extra })
+const mountTable = (extra: Record<string, unknown> = {}, attachTo: HTMLElement = document.body) => {
+  const wrapper = mount(Table, { attachTo, props: props(extra) as any })
+  wrappers.push(wrapper)
+  return wrapper
+}
+
+afterEach(() => {
+  for (const wrapper of wrappers.splice(0)) wrapper.unmount()
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 
 describe('Table D5-C virtualization unit contract (RED)', () => {
-  it.each([
-    ['size small', 'small', 40],
-    ['size middle', 'middle', 48],
-    ['size large', 'large', 56]
-  ])('%s uses the frozen estimateSize default', (_label, size, estimate) => {
-    const wrapper = mount(Table, { props: props({ size, virtual: { height: 400 } }) as any })
-    const marker = wrapper.find('[data-aheart-virtual-estimate-size]')
-    expect(marker.exists()).toBe(true)
+  it.each([['small', 'small', 40], ['middle', 'middle', 48], ['large', 'large', 56]])('size=%s exposes numeric estimateSize default', (_label, size, estimate) => {
+    const marker = mountTable({ size, virtual: { height: 400 } }).find('[data-aheart-virtual-estimate-size]')
+    expect(marker.exists(), 'virtual runtime must expose estimateSize').toBe(true)
     expect(marker.attributes('data-value')).toBe(String(estimate))
   })
 
-  it('normalizes height before scroll.y, accepts only scroll.y > 320, and warns on conflicts', () => {
+  it('parses scroll.y, allows only parsed scroll.y > 320, and gives numeric virtual.height precedence', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const wrapper = mount(Table, { props: props({ scroll: { y: 321 }, virtual: { height: 500, estimateSize: 52, overscan: 8 } }) as any })
+    const short = mountTable({ scroll: { y: '320' }, virtual: true })
+    expect(short.find('[data-aheart-virtual-spacer]').exists()).toBe(false)
+    const wrapper = mountTable({ scroll: { y: '321' }, virtual: { height: 500, estimateSize: 52, overscan: 8 } })
     const height = wrapper.find('[data-aheart-virtual-height]')
-    const overscan = wrapper.find('[data-aheart-virtual-overscan]')
-    expect(height.exists()).toBe(true)
-    expect(overscan.exists()).toBe(true)
+    expect(height.exists(), 'virtual runtime must expose normalized height').toBe(true)
     expect(height.attributes('data-value')).toBe('500')
-    expect(overscan.attributes('data-value')).toBe('8')
+    expect(wrapper.find('[data-aheart-virtual-overscan]').attributes('data-value')).toBe('8')
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('height'))
-    warn.mockRestore()
   })
 
-  it('uses a numeric estimateSize override and a boolean virtual=false/true default contract', () => {
-    const disabled = mount(Table, { props: { ...props(), virtual: false } as any })
-    expect(disabled.find('[data-aheart-virtual-spacer]').exists()).toBe(false)
-    const enabled = mount(Table, { props: props({ virtual: { height: 400, estimateSize: 72 } }) as any })
-    const marker = enabled.find('[data-aheart-virtual-estimate-size]')
-    expect(marker.exists()).toBe(true)
-    expect(marker.attributes('data-value')).toBe('72')
+  it('rejects non-numeric virtual.height, supports virtual=false, and uses defaults for virtual=true', () => {
+    expect(mountTable({ virtual: { height: '400' } }).find('[data-aheart-virtual-spacer]').exists()).toBe(false)
+    expect(mountTable({ virtual: false }).find('[data-aheart-virtual-spacer]').exists()).toBe(false)
+    expect(mountTable({ virtual: true }).find('[data-aheart-virtual-estimate-size]').exists()).toBe(true)
   })
 
-  it('renders native rows, bounded overscan and logical aria rowcount with spacers', () => {
-    const wrapper = mount(Table, { props: props({ virtual: { height: 400, overscan: 4 } }) as any })
-    expect(wrapper.find('table').exists()).toBe(true)
+  it('renders native rows, bounded data-row overscan, logical aria-rowcount, and two spacers', () => {
+    const wrapper = mountTable({ virtual: { height: 400, overscan: 4 } })
     const table = wrapper.find('[aria-rowcount]')
-    expect(table.exists()).toBe(true)
+    expect(table.exists(), 'virtual table must expose logical rowcount').toBe(true)
     expect(table.attributes('aria-rowcount')).toBe('40')
-    expect(wrapper.findAll('tbody tr').length).toBeLessThanOrEqual(20)
+    const dataRows = wrapper.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))
+    expect(dataRows.length).toBeLessThanOrEqual(20)
     expect(wrapper.findAll('[data-aheart-virtual-spacer]')).toHaveLength(2)
   })
 
-  it('keeps an expanded base row and companion row in one logical item and measures dynamic content', async () => {
-    const resize = vi.fn()
-    vi.stubGlobal('ResizeObserver', class {
-      observe = resize
-      disconnect = vi.fn()
+  it('keeps expanded base and companion rows in one logical item and applies ResizeObserver callback height', async () => {
+    let callback: ResizeObserverCallback | undefined
+    const observe = vi.fn()
+    const disconnect = vi.fn()
+    class MockResizeObserver {
+      constructor(next: ResizeObserverCallback) { callback = next }
+      observe = observe
+      disconnect = disconnect
       unobserve = vi.fn()
-    })
-    const wrapper = mount(Table, {
-      props: props({
-        virtual: { height: 400 },
-        expandable: { expandedRowRender: (record: Row) => h('div', { class: 'dynamic-detail' }, `${record.name} ${'detail '.repeat(80)}`) }
-      }) as any
-    })
+    }
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+    const wrapper = mountTable({ virtual: true, expandable: { expandedRowRender: (record: Row) => h('div', { class: 'dynamic-detail' }, `${record.name} ${'detail '.repeat(80)}`) } })
     await wrapper.find('.aheart-table__expand-button').trigger('click')
     expect(wrapper.findAll('[data-aheart-virtual-logical-item="0"]')).toHaveLength(1)
-    expect(resize).toHaveBeenCalled()
-    vi.unstubAllGlobals()
+    expect(observe).toHaveBeenCalled()
+    callback?.([{ target: wrapper.find('.dynamic-detail').element, contentRect: { height: 777 } } as ResizeObserverEntry], {} as ResizeObserver)
+    await nextTick()
+    expect(wrapper.find('[data-aheart-virtual-measured-height="777"]').exists()).toBe(true)
+    wrapper.unmount()
+    expect(disconnect).toHaveBeenCalled()
   })
 
-  it('filters, sorts, and pages local data before virtualizing; server data is never sliced again', async () => {
-    const local = mount(Table, { props: props({ dataMode: 'local', pagination: { pageSize: 10 }, virtual: { height: 400 } }) as any })
-    expect(local.findAll('tbody tr').every((row) => rows.some((item) => row.text().includes(item.name)))).toBe(true)
+  it('runs local filter-sort-page before virtualizing and never slices server current-page data', async () => {
+    const local = mountTable({ dataMode: 'local', columns: [{ title: 'Name', dataIndex: 'name', key: 'name', sorter: (a: Row, b: Row) => Number(b.key) - Number(a.key) }], pagination: { pageSize: 10 }, virtual: true })
+    await local.find('th button').trigger('click')
+    await local.find('.aheart-pagination__next').trigger('click')
+    const localRows = local.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))
+    expect(localRows.length).toBeLessThanOrEqual(10)
+    expect(localRows.every((row) => /Row \d+/.test(row.text()))).toBe(true)
     const response = rows.slice(20, 22)
-    const server = mount(Table, { props: props({ dataMode: 'server', dataSource: response, pagination: { current: 3, pageSize: 1, total: 40 }, virtual: { height: 400 } }) as any })
-    expect(server.findAll('tbody tr').filter((row) => !row.classes('aheart-table__virtual-spacer-row'))).toHaveLength(2)
+    const server = mountTable({ dataMode: 'server', dataSource: response, pagination: { current: 3, pageSize: 1, total: 40 }, virtual: true })
+    expect(server.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))).toHaveLength(2)
   })
 
-  it('bases selection, select-all, disabled rows, and expansion on complete logical records', async () => {
-    const wrapper = mount(Table, {
-      props: props({
-        rowSelection: { defaultSelectedRowKeys: [0], getCheckboxProps: (row: Row) => ({ disabled: row.disabled }) },
-        expandable: { expandedRowRender: (row: Row) => row.name }
-      }) as any
-    })
+  it('bases select-all, disabled rows, and expansion on complete logical records', async () => {
+    const wrapper = mountTable({ rowSelection: { defaultSelectedRowKeys: [0], getCheckboxProps: (row: Row) => ({ disabled: row.disabled }) }, expandable: { expandedRowRender: (row: Row) => row.name } })
     await wrapper.find('thead input[type="checkbox"]').setValue(true)
     expect(wrapper.emitted('selectAll')?.[0]?.[1]).toEqual(rows.filter((row) => !row.disabled).map((row) => row.key))
     expect(wrapper.find('tbody input[type="checkbox"][disabled]').exists()).toBe(true)
   })
 
-  it('preserves typed row tokens and rejects controlled radio changes by key, never visible index', async () => {
+  it('uses typed number/string radio keys and restores native group after rejected change', async () => {
+    const host = document.createElement('div')
+    document.body.append(host)
     const typed = [{ ...rows[0], key: 1 }, { ...rows[1], key: '1' }]
-    const wrapper = mount(Table, { props: props({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }) as any })
+    const wrapper = mountTable({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }, host)
     const radios = wrapper.findAll<HTMLInputElement>('tbody input[type="radio"]')
     radios[1].element.click()
+    radios[1].element.dispatchEvent(new Event('change', { bubbles: true }))
     await nextTick()
     expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]])
     expect(radios.map((radio) => radio.element.checked)).toEqual([true, false])
+    host.remove()
   })
 
-  it('pins focused row through virtualization, releases on blur, and bridges Tab to the next logical row', async () => {
-    const wrapper = mount(Table, { props: props({ virtual: { height: 320 } }) as any })
-    const first = wrapper.find('tbody tr:not([data-aheart-virtual-spacer])')
-    await first.trigger('focusin')
-    expect(first.attributes('data-aheart-virtual-pinned')).toBe('true')
+  it('pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab', async () => {
+    const wrapper = mountTable({ rowSelection: {}, virtual: { height: 320 } })
+    const first = wrapper.find('tbody input[type="checkbox"]')
+    first.element.focus()
+    await nextTick()
+    expect(document.activeElement).toBe(first.element)
+    expect(first.element.closest('tr')?.getAttribute('data-aheart-virtual-pinned')).toBe('true')
+    const scroll = wrapper.find('[data-aheart-virtual-scroll]')
+    scroll.element.scrollTop = 9999
+    await scroll.trigger('scroll')
+    expect(first.exists()).toBe(true)
     await first.trigger('keydown', { key: 'Tab' })
-    await first.trigger('focusout')
-    expect(first.attributes('data-aheart-virtual-pinned')).toBeUndefined()
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    outside.focus()
+    await first.trigger('focusout', { relatedTarget: outside })
+    expect(document.activeElement).toBe(outside)
+    expect(first.element.closest('tr')?.getAttribute('data-aheart-virtual-pinned')).toBeNull()
+    outside.remove()
   })
 
-  it('keeps SSR deterministic with virtual=false and remains hydration-compatible', async () => {
-    const html = await renderToString(createSSRApp({ render: () => h(Table, { ...props(), virtual: false } as any) }))
-    expect(html).toContain('Row 0')
-    expect(html).not.toContain('data-aheart-virtual-spacer')
-    const wrapper = mount(Table, { props: { ...props(), virtual: false } as any })
-    expect(wrapper.findAll('tbody tr')).toHaveLength(40)
+  it('renders enabled SSR twice deterministically and hydrates same tree; false stays full DOM', async () => {
+    const renderEnabled = () => renderToString(createSSRApp({ render: () => h(Table, { ...props(), virtual: true } as any) }))
+    const [first, second] = await Promise.all([renderEnabled(), renderEnabled()])
+    expect(first).toBe(second)
+    expect(first).toContain('aria-rowcount="40"')
+    const container = document.createElement('div')
+    container.innerHTML = first
+    document.body.append(container)
+    const app = createSSRApp({ render: () => h(Table, { ...props(), virtual: true } as any) })
+    app.mount(container, true)
+    expect(container.innerHTML).toBe(first)
+    app.unmount()
+    expect(mountTable({ virtual: false }).findAll('tbody tr')).toHaveLength(40)
+    container.remove()
   })
 
   it.each([
-    ['rowspan', [{ title: 'Name', dataIndex: 'name', key: 'name', rowspan: 2 }]],
-    ['invalid key', [{ title: 'Name', dataIndex: 'name', key: 'name' }]]
-  ])('warns and falls back to full DOM for unsupported %s', (kind, testColumns) => {
+    ['rowspan', rows, [{ title: 'Name', dataIndex: 'name', key: 'name', rowspan: 2 }]],
+    ['invalid key', [{ name: 'missing key' }], columns],
+    ['duplicate key', [{ ...rows[0] }, { ...rows[1], key: rows[0].key }], columns]
+  ])('warns and falls back to full DOM for %s', (kind, dataSource, testColumns) => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const dataSource = kind === 'invalid key' ? [{ name: 'missing key' }] : rows
-    const wrapper = mount(Table, { props: props({ columns: testColumns, dataSource, virtual: { height: 400 } }) as any })
+    const wrapper = mountTable({ columns: testColumns, dataSource, virtual: { height: 400 } })
     expect(warn).toHaveBeenCalled()
     expect(wrapper.find('[data-aheart-virtual-spacer]').exists()).toBe(false)
-    warn.mockRestore()
+    expect(wrapper.findAll('tbody tr')).toHaveLength(dataSource.length)
+    expect(wrapper.find('tbody').text()).toContain(kind === 'invalid key' ? 'missing key' : 'Row 0')
   })
 
-  it('warns on duplicate keys and restores full DOM', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const wrapper = mount(Table, { props: props({ dataSource: [{ ...rows[0] }, { ...rows[1], key: rows[0].key }], virtual: { height: 400 } }) as any })
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('duplicate'))
-    expect(wrapper.find('[data-aheart-virtual-spacer]').exists()).toBe(false)
-    warn.mockRestore()
-  })
-
-  it('uses ownerDocument defaultView observers and cleans RAF/observers on unmount', () => {
+  it('uses iframe ownerDocument defaultView observers/RAF and cleans disconnect, cancel, and listeners', () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerWindow = iframe.contentWindow!
     const observe = vi.fn()
-    const cancel = vi.spyOn(window, 'cancelAnimationFrame')
-    vi.stubGlobal('ResizeObserver', class {
-      observe = observe
-      disconnect = vi.fn()
-      unobserve = vi.fn()
-    })
-    const wrapper = mount(Table, { props: props({ virtual: { height: 400 } }) as any })
+    const disconnect = vi.fn()
+    const cancel = vi.spyOn(ownerWindow, 'cancelAnimationFrame')
+    const remove = vi.spyOn(ownerWindow, 'removeEventListener')
+    class MockResizeObserver { observe = observe; disconnect = disconnect; unobserve = vi.fn() }
+    ownerWindow.ResizeObserver = MockResizeObserver as any
+    const wrapper = mountTable({ virtual: true }, iframe.contentDocument!.body)
     expect(observe).toHaveBeenCalled()
     wrapper.unmount()
+    expect(disconnect).toHaveBeenCalled()
     expect(cancel).toHaveBeenCalled()
-    vi.unstubAllGlobals()
-    cancel.mockRestore()
+    expect(remove).toHaveBeenCalled()
+    iframe.remove()
   })
 })

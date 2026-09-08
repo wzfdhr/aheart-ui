@@ -597,7 +597,7 @@ D5-C 的运行工作台覆盖 1k/10k 行、本地/服务端当前页、固定列
 | rowSelection | 行选择配置 | `TableRowSelection` | - |
 | expandable | 展开行配置 | `TableExpandable` | - |
 | scroll | 横向/纵向滚动；`x: true` 冻结自然宽度 | `{ x?: true \| number \| string; y?: number \| string }` | - |
-| virtual | 是否启用虚拟化；对象模式可配置高度、估算行高和 overscan | `boolean \| { height?: number \| string; estimateSize?: number; overscan?: number }` | `false` |
+| virtual | 是否启用虚拟化；对象模式可配置高度、估算行高和 overscan；`height` 只能是 number | `boolean \| { height?: number; estimateSize?: number; overscan?: number }` | `false` |
 | sticky | 固定表头，支持表头偏移 | `boolean \| { offsetHeader?: number }` | `false` |
 | error | 错误状态及 retry 文案 | `boolean \| { message?: VNodeChild; retryText?: VNodeChild }` | `false` |
 | getPopupContainer | 返回筛选浮层容器；默认是触发器 owner body | `(triggerNode) => HTMLElement \| false` | - |
