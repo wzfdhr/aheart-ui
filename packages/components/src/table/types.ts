@@ -16,6 +16,12 @@ export type TableRenderable = VNodeChild
 export type TableColumnFixed = 'left' | 'right'
 export type TableScroll = { x?: true | number | string; y?: number | string }
 export type TableSticky = boolean | { offsetHeader?: number }
+export interface TableVirtualConfig {
+  height?: number
+  estimateSize?: number
+  overscan?: number
+}
+export type TableVirtual = boolean | TableVirtualConfig
 export type TableFilterDropdownContext = {
   selectedKeys: TableFilterValue[]
   setSelectedKeys: (keys: TableFilterValue[]) => void
@@ -132,6 +138,10 @@ export const tableProps = {
   expandable: Object as PropType<TableComponentExpandable>,
   scroll: Object as PropType<TableScroll>,
   sticky: [Boolean, Object] as PropType<TableSticky>,
+  virtual: {
+    type: [Boolean, Object] as PropType<TableVirtual>,
+    default: false
+  },
   error: [Boolean, Object] as PropType<boolean | { message?: TableRenderable; retryText?: TableRenderable }>,
   getPopupContainer: Function as PropType<(triggerNode: HTMLElement) => HTMLElement | false>,
   showHeader: {

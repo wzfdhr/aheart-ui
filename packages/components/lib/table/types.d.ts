@@ -20,6 +20,12 @@ export type TableScroll = {
 export type TableSticky = boolean | {
     offsetHeader?: number;
 };
+export interface TableVirtualConfig {
+    height?: number;
+    estimateSize?: number;
+    overscan?: number;
+}
+export type TableVirtual = boolean | TableVirtualConfig;
 export type TableFilterDropdownContext = {
     selectedKeys: TableFilterValue[];
     setSelectedKeys: (keys: TableFilterValue[]) => void;
@@ -127,6 +133,10 @@ export declare const tableProps: {
     readonly expandable: PropType<any>;
     readonly scroll: PropType<TableScroll>;
     readonly sticky: PropType<TableSticky>;
+    readonly virtual: {
+        readonly type: PropType<TableVirtual>;
+        readonly default: false;
+    };
     readonly error: PropType<boolean | {
         message?: TableRenderable;
         retryText?: TableRenderable;

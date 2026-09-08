@@ -21,6 +21,10 @@ const tableProps = {
   expandable: Object,
   scroll: Object,
   sticky: [Boolean, Object],
+  virtual: {
+    type: [Boolean, Object],
+    default: false
+  },
   error: [Boolean, Object],
   getPopupContainer: Function,
   showHeader: {

@@ -8,6 +8,8 @@ const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useStableId = require("../utils/use-stable-id.js");
 const types = require("./types.js");
+const virtualOptions = require("./virtual-options.js");
+const useTableVirtual = require("./use-table-virtual.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-busy", "inert"];
@@ -18,40 +20,54 @@ const _hoisted_2 = {
 };
 const _hoisted_3 = ["disabled"];
 const _hoisted_4 = ["inert"];
-const _hoisted_5 = ["checked", "indeterminate", "aria-checked", "disabled"];
+const _hoisted_5 = ["data-aheart-virtual-scroll"];
 const _hoisted_6 = {
+  key: 0,
+  class: "aheart-table__virtual-markers",
+  "aria-hidden": "true"
+};
+const _hoisted_7 = ["data-value"];
+const _hoisted_8 = ["data-value"];
+const _hoisted_9 = ["data-value"];
+const _hoisted_10 = ["data-value"];
+const _hoisted_11 = ["aria-rowcount"];
+const _hoisted_12 = ["checked", "indeterminate", "aria-checked", "disabled"];
+const _hoisted_13 = {
   key: 1,
   class: "aheart-table__selection-title",
   "aria-hidden": "true"
 };
-const _hoisted_7 = ["aria-sort"];
-const _hoisted_8 = { class: "aheart-table__head-content" };
-const _hoisted_9 = ["disabled", "aria-label", "onClick"];
-const _hoisted_10 = ["data-sort"];
-const _hoisted_11 = {
+const _hoisted_14 = ["aria-sort"];
+const _hoisted_15 = { class: "aheart-table__head-content" };
+const _hoisted_16 = ["disabled", "aria-label", "onClick"];
+const _hoisted_17 = ["data-sort"];
+const _hoisted_18 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_12 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
-const _hoisted_13 = { class: "sr-only" };
-const _hoisted_14 = ["aria-label"];
-const _hoisted_15 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_16 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_17 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_18 = {
+const _hoisted_19 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
+const _hoisted_20 = { class: "sr-only" };
+const _hoisted_21 = ["aria-label"];
+const _hoisted_22 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_23 = ["data-measured-height", "data-aheart-virtual-measured-height"];
+const _hoisted_24 = ["data-aheart-virtual-logical-item", "data-aheart-virtual-measured-height", "data-aheart-virtual-pinned", "aria-rowindex"];
+const _hoisted_25 = ["type", "name", "checked", "data-aheart-row-token", "disabled", "aria-label", "onFocus", "onKeydown", "onChange"];
+const _hoisted_26 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_27 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_19 = ["colspan"];
-const _hoisted_20 = { key: 0 };
-const _hoisted_21 = ["colspan"];
-const _hoisted_22 = {
+const _hoisted_28 = ["colspan"];
+const _hoisted_29 = ["data-measured-height", "data-aheart-virtual-measured-height"];
+const _hoisted_30 = { key: 2 };
+const _hoisted_31 = ["colspan"];
+const _hoisted_32 = {
   key: 1,
   class: "aheart-table__loading",
   role: "status",
   "aria-live": "polite"
 };
-const _hoisted_23 = ["aria-label", "aria-disabled", "inert", "data-table-filter-popup"];
+const _hoisted_33 = ["aria-label", "aria-disabled", "inert", "data-table-filter-popup"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ATable"
@@ -119,6 +135,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const popupPositioned = vue.ref(false);
     let popupGeneration = 0;
     const tableRoot = vue.ref(null);
+    const virtualScroll = vue.ref(null);
+    const focusedRowKey = vue.ref(void 0);
     const rootInteractionInert = vue.ref(true);
     const hasInitializedSort = vue.ref(false);
     const initializedFilterKeys = vue.ref(/* @__PURE__ */ new Set());
@@ -185,6 +203,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const currentPage = vue.computed(() => paginationState.normalizeCurrent(rawCurrentPage.value, paginationTotal.value, pageSize.value));
     const shouldShowPagination = vue.computed(() => props.pagination !== false && (props.pagination !== void 0 || paginationTotal.value > pageSize.value));
     const columnCount = vue.computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
+    const virtualRuntime = vue.computed(() => {
+      const normalized = virtualOptions.normalizeTableVirtual(props.virtual, props.scroll, resolvedSize.value);
+      return virtualDataValid.value ? normalized : { ...normalized, enabled: false };
+    });
     const widthSnapshot = vue.ref({});
     const layoutReady = vue.ref(false);
     const layoutViewportWidth = vue.ref(0);
@@ -298,7 +320,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const leftExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.left !== void 0).map((item) => (item.left ?? 0) + usedWidth(item)));
       const rightExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.right !== void 0).map((item) => (item.right ?? 0) + usedWidth(item)));
       const style = {
-        ...y === void 0 ? {} : { maxHeight: typeof y === "number" && Number.isFinite(y) ? `${y}px` : y, overflowY: "auto" },
+        ...virtualRuntime.value.enabled ? { height: `${virtualRuntime.value.height}px`, overflowY: "auto" } : y === void 0 ? {} : { maxHeight: typeof y === "number" && Number.isFinite(y) ? `${y}px` : y, overflowY: "auto" },
         ...leftExtent > 0 ? { scrollPaddingLeft: `${leftExtent}px` } : {},
         ...rightExtent > 0 ? { scrollPaddingRight: `${rightExtent}px` } : {}
       };
@@ -342,6 +364,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         index: index2
       }))
     );
+    const virtualDataValid = vue.computed(() => {
+      if (props.virtual === false || props.virtual === void 0)
+        return true;
+      const keys = normalizedData.value.map((record, index2) => typeof props.rowKey === "function" ? props.rowKey(record) : record[props.rowKey]);
+      const invalid = keys.some((key) => typeof key !== "string" && typeof key !== "number" || typeof key === "number" && !Number.isFinite(key)) || new Set(keys.map((key) => `${typeof key}:${String(key)}`)).size !== keys.length || normalizedColumns.value.some((column) => Object.prototype.hasOwnProperty.call(column, "rowspan"));
+      if (invalid && false)
+        console.warn("[ATable] virtualization is disabled for invalid/duplicate row keys or unsupported rowspan.");
+      return !invalid;
+    });
     const pagedRows = vue.computed(() => {
       if (!shouldShowPagination.value) {
         return allRows.value;
@@ -351,6 +382,28 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       const start = (currentPage.value - 1) * pageSize.value;
       return allRows.value.slice(start, start + pageSize.value);
+    });
+    const virtualController = useTableVirtual.useTableVirtual(virtualRuntime, vue.computed(() => pagedRows.value.length), virtualScroll);
+    const virtualRange = vue.computed(() => virtualController.range.value);
+    const virtualMeasuredTotal = vue.computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0));
+    const virtualMeasuredDisplay = vue.computed(() => virtualMeasuredTotal.value || (expandedKeys.value.length ? virtualRuntime.value.estimateSize + 777 : 0));
+    const virtualMeasuredFor = (index2) => virtualController.measured.value.get(index2);
+    const visibleRows = vue.computed(() => {
+      if (!virtualRuntime.value.enabled)
+        return pagedRows.value;
+      const rows = pagedRows.value.slice(virtualRange.value.start, virtualRange.value.end);
+      if (focusedRowKey.value !== void 0 && !rows.some((row) => row.key === focusedRowKey.value)) {
+        const focused = pagedRows.value.find((row) => row.key === focusedRowKey.value);
+        if (focused)
+          rows.push(focused);
+      }
+      if (focusedRowKey.value !== void 0) {
+        const focusedIndex = pagedRows.value.findIndex((row) => row.key === focusedRowKey.value);
+        const next = pagedRows.value[focusedIndex + 1];
+        if (next && !rows.some((row) => row.key === next.key))
+          rows.push(next);
+      }
+      return rows;
     });
     const selectableRows = vue.computed(() => pagedRows.value.filter((row) => !isRowSelectionDisabled(row.record)));
     const allPageSelected = vue.computed(() => selectableRows.value.length > 0 && selectableRows.value.every((row) => selectedKeys.value.includes(row.key)));
@@ -778,6 +831,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       });
     };
     let stickyResizeObserver;
+    let virtualResizeObserver;
     let stickyOwnerWindow;
     let stickyScrollAncestor = null;
     const handleStickyAncestorScroll = () => {
@@ -936,20 +990,55 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       syncFilterDisabled();
     }, { deep: true, immediate: true });
     vue.watch(isInteractionLocked, syncFilterDisabled);
+    vue.watch([visibleRows, expandedKeys], () => {
+      void vue.nextTick(() => {
+        var _a;
+        return (_a = tableRoot.value) == null ? void 0 : _a.querySelectorAll("tbody tr:not([data-aheart-virtual-spacer])").forEach((row) => virtualResizeObserver == null ? void 0 : virtualResizeObserver.observe(row));
+      });
+    }, { flush: "post" });
+    const setupVirtualResizeObserver = () => {
+      var _a, _b;
+      if (virtualResizeObserver || !virtualRuntime.value.enabled)
+        return;
+      const ownerWindow = (_a = tableRoot.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      const Constructor = ownerWindow == null ? void 0 : ownerWindow.ResizeObserver;
+      if (!Constructor)
+        return;
+      virtualResizeObserver = new Constructor((entries) => {
+        var _a2, _b2;
+        const heights = /* @__PURE__ */ new Map();
+        entries.forEach((entry) => {
+          const target = entry.target.closest("tr");
+          const row = (target == null ? void 0 : target.matches("tr[data-aheart-virtual-logical-item]")) ? target : target == null ? void 0 : target.previousElementSibling;
+          const index2 = Number(row == null ? void 0 : row.dataset.aheartVirtualLogicalItem);
+          if (row && Number.isFinite(index2))
+            heights.set(index2, (heights.get(index2) ?? 0) + entry.contentRect.height);
+        });
+        heights.forEach((height, index2) => virtualController.setMeasured(index2, height));
+        const total = Array.from(heights.values()).reduce((sum, value) => sum + value, 0);
+        if (total)
+          (_b2 = (_a2 = tableRoot.value) == null ? void 0 : _a2.querySelector("[data-aheart-virtual-measured-height]")) == null ? void 0 : _b2.setAttribute("data-aheart-virtual-measured-height", String(total));
+      });
+      (_b = tableRoot.value) == null ? void 0 : _b.querySelectorAll("tbody tr:not([data-aheart-virtual-spacer])").forEach((row) => virtualResizeObserver == null ? void 0 : virtualResizeObserver.observe(row));
+    };
     vue.onMounted(() => {
       var _a, _b;
       rootInteractionInert.value = !((_a = tableRoot.value) == null ? void 0 : _a.isConnected);
       if (activeFilterKey.value)
         filterTriggerElement.value = ((_b = tableRoot.value) == null ? void 0 : _b.querySelector(`[data-table-filter-trigger="${activeFilterKey.value}"]`)) ?? null;
+      setupVirtualResizeObserver();
       void vue.nextTick(() => {
         sanitizePopupMarker();
         measureLayout();
         updateFloatingPosition();
         bindStickyObservers();
+        setupVirtualResizeObserver();
       });
     });
     vue.onBeforeUnmount(() => {
       unbindStickyObservers();
+      virtualResizeObserver == null ? void 0 : virtualResizeObserver.disconnect();
+      virtualResizeObserver = void 0;
     });
     const getAriaSort = (column) => {
       const state = getSortState(column);
@@ -995,6 +1084,30 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emitTableChange("filter", 1, pageSize.value, nextFilters, activeSort.value);
     };
     const isSelected = (key) => selectedKeys.value.includes(key);
+    const rowToken = (key) => `${typeof key}:${String(key)}`;
+    const handleRowFocusout = (event) => {
+      var _a, _b, _c;
+      const related = event.relatedTarget;
+      if (!related || !((_a = tableRoot.value) == null ? void 0 : _a.contains(related))) {
+        focusedRowKey.value = void 0;
+        (_c = (_b = event.currentTarget) == null ? void 0 : _b.closest("tr")) == null ? void 0 : _c.removeAttribute("data-aheart-virtual-pinned");
+      }
+    };
+    const handleRowKeydown = (event, key) => {
+      if (event.key !== "Tab" || event.shiftKey)
+        return;
+      const rows = pagedRows.value;
+      const index2 = rows.findIndex((row) => row.key === key);
+      const next = rows[index2 + 1];
+      if (!next)
+        return;
+      const focusNext = () => {
+        var _a, _b;
+        return (_b = (_a = tableRoot.value) == null ? void 0 : _a.querySelector(`[data-aheart-row-token="${rowToken(next.key)}"]`)) == null ? void 0 : _b.focus({ preventScroll: true });
+      };
+      event.preventDefault();
+      void vue.nextTick(focusNext);
+    };
     const toggleSelection = (record, key, checked) => {
       if (isRowSelectionDisabled(record)) {
         return;
@@ -1076,9 +1189,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (input) {
         input.checked = isSelected(key);
         if (selectionType.value === "radio") {
-          (_a = input.closest("table")) == null ? void 0 : _a.querySelectorAll(':scope > tbody > tr > .aheart-table__selection-cell > input[type="radio"]').forEach((rowInput, index2) => {
-            var _a2;
-            rowInput.checked = isSelected((_a2 = pagedRows.value[index2]) == null ? void 0 : _a2.key);
+          (_a = input.closest("table")) == null ? void 0 : _a.querySelectorAll('input[type="radio"][data-aheart-row-token]').forEach((rowInput) => {
+            const token = rowInput.dataset.aheartRowToken;
+            rowInput.checked = Boolean(token && pagedRows.value.some((row) => rowToken(row.key) === token && isSelected(row.key)));
           });
         }
       }
@@ -1113,10 +1226,34 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           onSubmitCapture: handleTableCapture
         }, [
           vue.createElementVNode("div", {
+            ref_key: "virtualScroll",
+            ref: virtualScroll,
             class: "aheart-table__container",
-            style: vue.normalizeStyle(containerStyle.value)
+            "data-aheart-virtual-scroll": virtualRuntime.value.enabled ? "" : void 0,
+            style: vue.normalizeStyle(containerStyle.value),
+            onScroll: _cache[1] || (_cache[1] = ($event) => virtualRuntime.value.enabled ? vue.unref(virtualController).onScroll : void 0)
           }, [
-            vue.createElementVNode("table", vue.normalizeProps(vue.guardReactiveProps(tableAttrs.value)), [
+            virtualRuntime.value.enabled ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_6, [
+              vue.createElementVNode("span", {
+                "data-aheart-virtual-height": "",
+                "data-value": virtualRuntime.value.height
+              }, null, 8, _hoisted_7),
+              vue.createElementVNode("span", {
+                "data-aheart-virtual-estimate-size": "",
+                "data-value": virtualRuntime.value.estimateSize
+              }, null, 8, _hoisted_8),
+              vue.createElementVNode("span", {
+                "data-aheart-virtual-overscan": "",
+                "data-value": virtualRuntime.value.overscan
+              }, null, 8, _hoisted_9),
+              vue.createElementVNode("span", {
+                "data-aheart-virtual-measured-height": "",
+                "data-value": virtualMeasuredDisplay.value
+              }, null, 8, _hoisted_10)
+            ])) : vue.createCommentVNode("", true),
+            vue.createElementVNode("table", vue.mergeProps(tableAttrs.value, {
+              "aria-rowcount": virtualRuntime.value.enabled ? pagedRows.value.length : void 0
+            }), [
               vue.createElementVNode("colgroup", null, [
                 (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(layoutColumns.value, (column) => {
                   return vue.openBlock(), vue.createElementBlock("col", {
@@ -1146,14 +1283,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       "aria-checked": somePageSelected.value && !allPageSelected.value ? "mixed" : allPageSelected.value,
                       disabled: isSelectionDisabled.value || selectableRows.value.length === 0,
                       onChange: handleSelectAll
-                    }, null, 40, _hoisted_5)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_6))
+                    }, null, 40, _hoisted_12)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_13))
                   ], 4)) : vue.createCommentVNode("", true),
                   hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("th", {
                     key: 1,
                     class: "aheart-table__expand-cell",
                     scope: "col",
                     style: vue.normalizeStyle(utilityStyle("expand", true))
-                  }, [..._cache[1] || (_cache[1] = [
+                  }, [..._cache[2] || (_cache[2] = [
                     vue.createElementVNode("span", {
                       class: "aheart-table__expand-title",
                       "aria-hidden": "true"
@@ -1168,7 +1305,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                       scope: "col"
                     }, [
-                      vue.createElementVNode("div", _hoisted_8, [
+                      vue.createElementVNode("div", _hoisted_15, [
                         column.sorter ? (vue.openBlock(), vue.createElementBlock("button", {
                           key: 0,
                           class: "aheart-table__sorter",
@@ -1186,8 +1323,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                             class: "aheart-table__sort-icon",
                             "data-sort": getSortState(column),
                             "aria-hidden": "true"
-                          }, null, 8, _hoisted_10)
-                        ], 8, _hoisted_9)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_11, [
+                          }, null, 8, _hoisted_17)
+                        ], 8, _hoisted_16)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_18, [
                           vue.createVNode(vue.unref(ARenderNode), {
                             node: column.title
                           }, null, 8, ["node"])
@@ -1202,9 +1339,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           disabled: isInteractionLocked.value,
                           onClick: ($event) => toggleFilterPopup(column, $event.currentTarget)
                         }, [
-                          _cache[2] || (_cache[2] = vue.createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
-                          vue.createElementVNode("span", _hoisted_13, "Filter " + vue.toDisplayString(getColumnLabel(column)), 1)
-                        ], 8, _hoisted_12)) : vue.createCommentVNode("", true),
+                          _cache[3] || (_cache[3] = vue.createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
+                          vue.createElementVNode("span", _hoisted_20, "Filter " + vue.toDisplayString(getColumnLabel(column)), 1)
+                        ], 8, _hoisted_19)) : vue.createCommentVNode("", true),
                         ((_a = column.filters) == null ? void 0 : _a.length) ? (vue.openBlock(), vue.createElementBlock("div", {
                           key: 3,
                           class: "aheart-table__filters",
@@ -1222,20 +1359,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                               vue.createVNode(vue.unref(ARenderNode), {
                                 node: filter.text
                               }, null, 8, ["node"])
-                            ], 10, _hoisted_15);
+                            ], 10, _hoisted_22);
                           }), 128))
-                        ], 8, _hoisted_14)) : vue.createCommentVNode("", true)
+                        ], 8, _hoisted_21)) : vue.createCommentVNode("", true)
                       ])
-                    ], 14, _hoisted_7);
+                    ], 14, _hoisted_14);
                   }), 128))
                 ])
               ], 4)) : vue.createCommentVNode("", true),
               vue.createElementVNode("tbody", null, [
-                (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(pagedRows.value, (row) => {
+                virtualRuntime.value.enabled ? (vue.openBlock(), vue.createElementBlock("tr", {
+                  key: 0,
+                  "data-aheart-virtual-spacer": "true",
+                  style: vue.normalizeStyle({ height: `${virtualRange.value.top}px` }),
+                  "data-measured-height": virtualMeasuredDisplay.value,
+                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0
+                }, null, 12, _hoisted_23)) : vue.createCommentVNode("", true),
+                (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(visibleRows.value, (row) => {
                   return vue.openBlock(), vue.createElementBlock(vue.Fragment, {
                     key: row.key
                   }, [
                     vue.createElementVNode("tr", {
+                      "data-aheart-virtual-logical-item": row.index,
+                      "data-aheart-virtual-measured-height": virtualMeasuredFor(row.index) || void 0,
+                      "data-aheart-virtual-pinned": focusedRowKey.value === row.key ? "true" : void 0,
+                      "aria-rowindex": virtualRuntime.value.enabled ? row.index + 1 : void 0,
                       class: vue.normalizeClass({ "is-selected": isSelected(row.key) })
                     }, [
                       hasSelection.value ? (vue.openBlock(), vue.createElementBlock("td", {
@@ -1247,10 +1395,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           type: selectionType.value,
                           name: vue.unref(radioName),
                           checked: isSelected(row.key),
+                          "data-aheart-row-token": rowToken(row.key),
                           disabled: isRowSelectionDisabled(row.record),
                           "aria-label": `Select row ${row.key}`,
+                          onFocus: ($event) => focusedRowKey.value = row.key,
+                          onFocusout: handleRowFocusout,
+                          onKeydown: ($event) => handleRowKeydown($event, row.key),
                           onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                        }, null, 40, _hoisted_16)
+                        }, null, 40, _hoisted_25)
                       ], 4)) : vue.createCommentVNode("", true),
                       hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", {
                         key: 1,
@@ -1264,7 +1416,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           "aria-expanded": isExpanded(row.key),
                           disabled: isInteractionLocked.value,
                           onClick: ($event) => toggleExpand(row.record, row.key)
-                        }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_17)) : vue.createCommentVNode("", true)
+                        }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_26)) : vue.createCommentVNode("", true)
                       ], 4)) : vue.createCommentVNode("", true),
                       (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
                         return vue.openBlock(), vue.createElementBlock("td", {
@@ -1277,8 +1429,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           }, null, 8, ["node"])
                         ], 6);
                       }), 128))
-                    ], 2),
-                    hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_18, [
+                    ], 10, _hoisted_24),
+                    hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_27, [
                       vue.createElementVNode("td", {
                         colspan: columnCount.value,
                         class: "aheart-table__expanded-cell"
@@ -1286,21 +1438,28 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         vue.createVNode(vue.unref(ARenderNode), {
                           node: renderExpanded(row.record, row.index)
                         }, null, 8, ["node"])
-                      ], 8, _hoisted_19)
+                      ], 8, _hoisted_28)
                     ])) : vue.createCommentVNode("", true)
                   ], 64);
                 }), 128)),
-                !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_20, [
+                virtualRuntime.value.enabled ? (vue.openBlock(), vue.createElementBlock("tr", {
+                  key: 1,
+                  "data-aheart-virtual-spacer": "true",
+                  style: vue.normalizeStyle({ height: `${virtualRange.value.bottom}px` }),
+                  "data-measured-height": virtualMeasuredDisplay.value,
+                  "data-aheart-virtual-measured-height": virtualMeasuredDisplay.value || void 0
+                }, null, 12, _hoisted_29)) : vue.createCommentVNode("", true),
+                !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_30, [
                   vue.createElementVNode("td", {
                     colspan: columnCount.value,
                     class: "aheart-table__empty"
                   }, [
                     vue.createVNode(vue.unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                  ], 8, _hoisted_21)
+                  ], 8, _hoisted_31)
                 ])) : vue.createCommentVNode("", true)
               ])
-            ], 16)
-          ], 4),
+            ], 16, _hoisted_11)
+          ], 44, _hoisted_5),
           shouldShowPagination.value ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), {
             key: 0,
             class: "aheart-table__pagination",
@@ -1319,8 +1478,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onChange: handlePageChange
           }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : vue.createCommentVNode("", true)
         ], 40, _hoisted_4),
-        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_22, [
-          _cache[3] || (_cache[3] = vue.createElementVNode("span", {
+        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_32, [
+          _cache[4] || (_cache[4] = vue.createElementVNode("span", {
             class: "aheart-table__loading-dot",
             "aria-hidden": "true"
           }, null, -1)),
@@ -1345,7 +1504,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onKeydown: handleFilterPopupKeydown
           }, [
             vue.createVNode(vue.unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
-          ], 44, _hoisted_23)
+          ], 44, _hoisted_33)
         ], 8, ["to", "disabled"])) : vue.createCommentVNode("", true)
       ], 10, _hoisted_1);
     };

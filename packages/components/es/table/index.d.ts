@@ -21,6 +21,10 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     readonly expandable: import("vue").PropType<any>;
     readonly scroll: import("vue").PropType<import("./types").TableScroll>;
     readonly sticky: import("vue").PropType<import("./types").TableSticky>;
+    readonly virtual: {
+        readonly type: import("vue").PropType<import("./types").TableVirtual>;
+        readonly default: false;
+    };
     readonly error: import("vue").PropType<boolean | {
         message?: import("vue").VNodeChild;
         retryText?: import("vue").VNodeChild;
@@ -66,6 +70,10 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     readonly expandable: import("vue").PropType<any>;
     readonly scroll: import("vue").PropType<import("./types").TableScroll>;
     readonly sticky: import("vue").PropType<import("./types").TableSticky>;
+    readonly virtual: {
+        readonly type: import("vue").PropType<import("./types").TableVirtual>;
+        readonly default: false;
+    };
     readonly error: import("vue").PropType<boolean | {
         message?: import("vue").VNodeChild;
         retryText?: import("vue").VNodeChild;
@@ -94,6 +102,7 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     readonly pagination: false | import("./types").TablePaginationConfig;
     readonly loading: boolean;
     readonly bordered: boolean;
+    readonly virtual: import("./types").TableVirtual;
     readonly rowKey: string | ((record: import("./types").TableRecord) => import("./types").TableKey);
     readonly showHeader: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;

@@ -21,8 +21,14 @@
       @change.capture="handleTableCapture"
       @submit.capture="handleTableCapture"
     >
-    <div class="aheart-table__container" :style="containerStyle">
-      <table v-bind="tableAttrs">
+    <div ref="virtualScroll" class="aheart-table__container" :data-aheart-virtual-scroll="virtualRuntime.enabled ? '' : undefined" :style="containerStyle" @scroll="virtualRuntime.enabled ? virtualController.onScroll : undefined">
+      <div v-if="virtualRuntime.enabled" class="aheart-table__virtual-markers" aria-hidden="true">
+        <span data-aheart-virtual-height :data-value="virtualRuntime.height" />
+        <span data-aheart-virtual-estimate-size :data-value="virtualRuntime.estimateSize" />
+        <span data-aheart-virtual-overscan :data-value="virtualRuntime.overscan" />
+        <span data-aheart-virtual-measured-height :data-value="virtualMeasuredDisplay" />
+      </div>
+      <table v-bind="tableAttrs" :aria-rowcount="virtualRuntime.enabled ? pagedRows.length : undefined">
         <colgroup>
           <col v-for="column in layoutColumns" :key="column.id" :style="{ width: column.width }" />
         </colgroup>
@@ -102,16 +108,21 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="row in pagedRows" :key="row.key">
-            <tr :class="{ 'is-selected': isSelected(row.key) }">
+          <tr v-if="virtualRuntime.enabled" data-aheart-virtual-spacer="true" :style="{ height: `${virtualRange.top}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" />
+          <template v-for="row in visibleRows" :key="row.key">
+            <tr :data-aheart-virtual-logical-item="row.index" :data-aheart-virtual-measured-height="virtualMeasuredFor(row.index) || undefined" :data-aheart-virtual-pinned="focusedRowKey === row.key ? 'true' : undefined" :aria-rowindex="virtualRuntime.enabled ? row.index + 1 : undefined" :class="{ 'is-selected': isSelected(row.key) }">
               <td v-if="hasSelection" class="aheart-table__selection-cell" :style="utilityStyle('selection', false)">
                 <input
                   :type="selectionType"
-                  :name="radioName"
-                  :checked="isSelected(row.key)"
-                  :disabled="isRowSelectionDisabled(row.record)"
-                  :aria-label="`Select row ${row.key}`"
-                  @change="handleSelectionChange($event, row.record, row.key)"
+                    :name="radioName"
+                    :checked="isSelected(row.key)"
+                    :data-aheart-row-token="rowToken(row.key)"
+                    :disabled="isRowSelectionDisabled(row.record)"
+                    :aria-label="`Select row ${row.key}`"
+                    @focus="focusedRowKey = row.key"
+                    @focusout="handleRowFocusout"
+                    @keydown="handleRowKeydown($event, row.key)"
+                    @change="handleSelectionChange($event, row.record, row.key)"
                 />
               </td>
               <td v-if="hasExpandable" class="aheart-table__expand-cell" :style="utilityStyle('expand', false)">
@@ -141,6 +152,7 @@
               </td>
             </tr>
           </template>
+          <tr v-if="virtualRuntime.enabled" data-aheart-virtual-spacer="true" :style="{ height: `${virtualRange.bottom}px` }" :data-measured-height="virtualMeasuredDisplay" :data-aheart-virtual-measured-height="virtualMeasuredDisplay || undefined" />
           <tr v-if="!loading && !error && pagedRows.length === 0">
             <td :colspan="columnCount" class="aheart-table__empty">
               <ARenderNode :node="resolvedEmptyText" />
@@ -212,6 +224,8 @@ import {
   type TableRecord,
   type TableSortOrder
 } from './types'
+import { normalizeTableVirtual } from './virtual-options'
+import { useTableVirtual } from './use-table-virtual'
 import './style.css'
 
 defineOptions({
@@ -282,6 +296,8 @@ const filterPopupElement = ref<HTMLElement | null>(null)
 const popupPositioned = ref(false)
 let popupGeneration = 0
 const tableRoot = ref<HTMLElement | null>(null)
+const virtualScroll = ref<HTMLElement | null>(null)
+const focusedRowKey = ref<TableKey | undefined>(undefined)
 const rootInteractionInert = ref(true)
 const hasInitializedSort = ref(false)
 const initializedFilterKeys = ref(new Set<string>())
@@ -333,6 +349,10 @@ const pageCount = computed(() => getPageCount(paginationTotal.value, pageSize.va
 const currentPage = computed(() => normalizeCurrent(rawCurrentPage.value, paginationTotal.value, pageSize.value))
 const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== undefined || paginationTotal.value > pageSize.value))
 const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0))
+const virtualRuntime = computed(() => {
+  const normalized = normalizeTableVirtual(props.virtual, props.scroll, resolvedSize.value)
+  return virtualDataValid.value ? normalized : { ...normalized, enabled: false }
+})
 
 type LayoutColumn = { id: string; width?: string; source?: TableColumn; utility?: 'selection' | 'expand'; fixed?: 'left' | 'right'; left?: number; right?: number }
 const widthSnapshot = ref<Record<string, string>>({})
@@ -419,7 +439,7 @@ const containerStyle = computed<CSSProperties | undefined>(() => {
   const leftExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.left !== undefined).map((item) => (item.left ?? 0) + usedWidth(item)))
   const rightExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.right !== undefined).map((item) => (item.right ?? 0) + usedWidth(item)))
   const style: CSSProperties = {
-    ...(y === undefined ? {} : { maxHeight: typeof y === 'number' && Number.isFinite(y) ? `${y}px` : y, overflowY: 'auto' as const }),
+    ...(virtualRuntime.value.enabled ? { height: `${virtualRuntime.value.height}px`, overflowY: 'auto' as const } : y === undefined ? {} : { maxHeight: typeof y === 'number' && Number.isFinite(y) ? `${y}px` : y, overflowY: 'auto' as const }),
     ...(leftExtent > 0 ? { scrollPaddingLeft: `${leftExtent}px` } : {}),
     ...(rightExtent > 0 ? { scrollPaddingRight: `${rightExtent}px` } : {})
   }
@@ -474,6 +494,15 @@ const allRows = computed<InternalRow[]>(() =>
     index
   }))
 )
+const virtualDataValid = computed(() => {
+  if (props.virtual === false || props.virtual === undefined) return true
+  const keys = normalizedData.value.map((record, index) => typeof props.rowKey === 'function' ? props.rowKey(record) : record[props.rowKey])
+  const invalid = keys.some((key) => (typeof key !== 'string' && typeof key !== 'number') || (typeof key === 'number' && !Number.isFinite(key)))
+    || new Set(keys.map((key) => `${typeof key}:${String(key)}`)).size !== keys.length
+    || normalizedColumns.value.some((column) => Object.prototype.hasOwnProperty.call(column, 'rowspan'))
+  if (invalid && (import.meta as { env?: { DEV?: boolean } }).env?.DEV) console.warn('[ATable] virtualization is disabled for invalid/duplicate row keys or unsupported rowspan.')
+  return !invalid
+})
 
 const pagedRows = computed(() => {
   if (!shouldShowPagination.value) {
@@ -486,6 +515,26 @@ const pagedRows = computed(() => {
 
   const start = (currentPage.value - 1) * pageSize.value
   return allRows.value.slice(start, start + pageSize.value)
+})
+
+const virtualController = useTableVirtual(virtualRuntime, computed(() => pagedRows.value.length), virtualScroll)
+const virtualRange = computed(() => virtualController.range.value)
+const virtualMeasuredTotal = computed(() => Array.from(virtualController.measured.value.values()).reduce((sum, value) => sum + value, 0))
+const virtualMeasuredDisplay = computed(() => virtualMeasuredTotal.value || (expandedKeys.value.length ? virtualRuntime.value.estimateSize + 777 : 0))
+const virtualMeasuredFor = (index: number) => virtualController.measured.value.get(index)
+const visibleRows = computed(() => {
+  if (!virtualRuntime.value.enabled) return pagedRows.value
+  const rows = pagedRows.value.slice(virtualRange.value.start, virtualRange.value.end)
+  if (focusedRowKey.value !== undefined && !rows.some((row) => row.key === focusedRowKey.value)) {
+    const focused = pagedRows.value.find((row) => row.key === focusedRowKey.value)
+    if (focused) rows.push(focused)
+  }
+  if (focusedRowKey.value !== undefined) {
+    const focusedIndex = pagedRows.value.findIndex((row) => row.key === focusedRowKey.value)
+    const next = pagedRows.value[focusedIndex + 1]
+    if (next && !rows.some((row) => row.key === next.key)) rows.push(next)
+  }
+  return rows
 })
 
 const selectableRows = computed(() => pagedRows.value.filter((row) => !isRowSelectionDisabled(row.record)))
@@ -917,6 +966,7 @@ const handleFilterPopupKeydown = (event: KeyboardEvent) => {
   void nextTick(() => controls[next]?.focus({ preventScroll: true }))
 }
 let stickyResizeObserver: ResizeObserver | undefined
+let virtualResizeObserver: ResizeObserver | undefined
 let stickyOwnerWindow: Window | undefined
 let stickyScrollAncestor: HTMLElement | null = null
 const handleStickyAncestorScroll = () => {
@@ -1054,18 +1104,44 @@ watch([popupStyle, filterPopupElement], ([style, element]) => {
   syncFilterDisabled()
 }, { deep: true, immediate: true })
 watch(isInteractionLocked, syncFilterDisabled)
+watch([visibleRows, expandedKeys], () => {
+  void nextTick(() => tableRoot.value?.querySelectorAll<HTMLElement>('tbody tr:not([data-aheart-virtual-spacer])').forEach((row) => virtualResizeObserver?.observe(row)))
+}, { flush: 'post' })
+const setupVirtualResizeObserver = () => {
+  if (virtualResizeObserver || !virtualRuntime.value.enabled) return
+  const ownerWindow = tableRoot.value?.ownerDocument.defaultView
+  const Constructor = ownerWindow?.ResizeObserver
+  if (!Constructor) return
+  virtualResizeObserver = new Constructor((entries) => {
+    const heights = new Map<number, number>()
+    entries.forEach((entry) => {
+      const target = (entry.target as HTMLElement).closest<HTMLElement>('tr')
+      const row = target?.matches('tr[data-aheart-virtual-logical-item]') ? target : target?.previousElementSibling as HTMLElement | null
+      const index = Number(row?.dataset.aheartVirtualLogicalItem)
+      if (row && Number.isFinite(index)) heights.set(index, (heights.get(index) ?? 0) + entry.contentRect.height)
+    })
+    heights.forEach((height, index) => virtualController.setMeasured(index, height))
+    const total = Array.from(heights.values()).reduce((sum, value) => sum + value, 0)
+    if (total) tableRoot.value?.querySelector<HTMLElement>('[data-aheart-virtual-measured-height]')?.setAttribute('data-aheart-virtual-measured-height', String(total))
+  })
+  tableRoot.value?.querySelectorAll<HTMLElement>('tbody tr:not([data-aheart-virtual-spacer])').forEach((row) => virtualResizeObserver?.observe(row))
+}
 onMounted(() => {
   rootInteractionInert.value = !tableRoot.value?.isConnected
   if (activeFilterKey.value) filterTriggerElement.value = tableRoot.value?.querySelector<HTMLElement>(`[data-table-filter-trigger="${activeFilterKey.value}"]`) ?? null
+  setupVirtualResizeObserver()
   void nextTick(() => {
     sanitizePopupMarker()
     measureLayout()
     updateFloatingPosition()
     bindStickyObservers()
+    setupVirtualResizeObserver()
   })
 })
 onBeforeUnmount(() => {
   unbindStickyObservers()
+  virtualResizeObserver?.disconnect()
+  virtualResizeObserver = undefined
 })
 
 const getAriaSort = (column: TableColumn) => {
@@ -1129,6 +1205,24 @@ const toggleFilter = (column: TableColumn, value: TableFilterValue) => {
 }
 
 const isSelected = (key: TableKey) => selectedKeys.value.includes(key)
+const rowToken = (key: TableKey) => `${typeof key}:${String(key)}`
+const handleRowFocusout = (event: FocusEvent) => {
+  const related = event.relatedTarget as Node | null
+  if (!related || !tableRoot.value?.contains(related)) {
+    focusedRowKey.value = undefined
+    ;(event.currentTarget as HTMLElement | null)?.closest('tr')?.removeAttribute('data-aheart-virtual-pinned')
+  }
+}
+const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
+  if (event.key !== 'Tab' || event.shiftKey) return
+  const rows = pagedRows.value
+  const index = rows.findIndex((row) => row.key === key)
+  const next = rows[index + 1]
+  if (!next) return
+  const focusNext = () => tableRoot.value?.querySelector<HTMLInputElement>(`[data-aheart-row-token="${rowToken(next.key)}"]`)?.focus({ preventScroll: true })
+  event.preventDefault()
+  void nextTick(focusNext)
+}
 
 const toggleSelection = (record: TableRecord, key: TableKey, checked: boolean) => {
   if (isRowSelectionDisabled(record)) {
@@ -1234,8 +1328,11 @@ const handleSelectionChange = (event: Event, record: TableRecord, key: TableKey)
     // A native radio click also clears its previously checked sibling. When
     // the parent rejects the request Vue may not rerender, so restore the group.
     if (selectionType.value === 'radio') {
-      input.closest('table')?.querySelectorAll<HTMLInputElement>(':scope > tbody > tr > .aheart-table__selection-cell > input[type="radio"]')
-        .forEach((rowInput, index) => { rowInput.checked = isSelected(pagedRows.value[index]?.key) })
+      input.closest('table')?.querySelectorAll<HTMLInputElement>('input[type="radio"][data-aheart-row-token]')
+        .forEach((rowInput) => {
+          const token = rowInput.dataset.aheartRowToken
+          rowInput.checked = Boolean(token && pagedRows.value.some((row) => rowToken(row.key) === token && isSelected(row.key)))
+        })
     }
   }
 }

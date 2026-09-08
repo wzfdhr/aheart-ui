@@ -23,6 +23,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly expandable: PropType<any>;
     readonly scroll: PropType<import("./types").TableScroll>;
     readonly sticky: PropType<import("./types").TableSticky>;
+    readonly virtual: {
+        readonly type: PropType<import("./types").TableVirtual>;
+        readonly default: false;
+    };
     readonly error: PropType<boolean | {
         message?: VNodeChild;
         retryText?: VNodeChild;
@@ -68,6 +72,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly expandable: PropType<any>;
     readonly scroll: PropType<import("./types").TableScroll>;
     readonly sticky: PropType<import("./types").TableSticky>;
+    readonly virtual: {
+        readonly type: PropType<import("./types").TableVirtual>;
+        readonly default: false;
+    };
     readonly error: PropType<boolean | {
         message?: VNodeChild;
         retryText?: VNodeChild;
@@ -96,6 +104,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly pagination: false | import("./types").TablePaginationConfig;
     readonly loading: boolean;
     readonly bordered: boolean;
+    readonly virtual: import("./types").TableVirtual;
     readonly rowKey: string | ((record: TableRecord) => TableKey);
     readonly showHeader: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
