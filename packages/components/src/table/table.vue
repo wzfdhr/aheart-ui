@@ -1440,10 +1440,16 @@ const handleRowFocusout = (event: FocusEvent, sourceKey: TableKey) => {
 }
 const tabbableSelector = 'button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])'
 const rowsForToken = (token: string) => Array.from(tableRoot.value?.querySelectorAll<HTMLElement>('tr[data-aheart-virtual-key]') ?? []).filter(row => row.dataset.aheartVirtualKey === token)
+const tabbablesForKey = (key: TableKey) => rowsForToken(rowToken(key)).flatMap(row => Array.from(row.querySelectorAll<HTMLElement>(tabbableSelector)))
+const mayHaveTabbable = (row: InternalRow) => {
+  if (hasSelection.value && !isRowSelectionDisabled(row.record)) return true
+  if (hasExpandable.value && isRowExpandable(row.record)) return true
+  return false
+}
 const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
   if (!virtualRuntime.value.enabled || event.key !== 'Tab') return
   const token = rowToken(key)
-  const groupTabbables = rowsForToken(token).flatMap(row => Array.from(row.querySelectorAll<HTMLElement>(tabbableSelector)))
+  const groupTabbables = tabbablesForKey(key)
   const current = event.target as HTMLElement | null
   const currentIndex = current ? groupTabbables.indexOf(current) : -1
   if (currentIndex < 0) return
@@ -1452,18 +1458,45 @@ const handleRowKeydown = (event: KeyboardEvent, key: TableKey) => {
   const sourceRow = (event.currentTarget as HTMLElement | null)?.closest<HTMLElement>('tr[data-aheart-virtual-logical-item], tr[data-aheart-virtual-expanded-item]')
   const sourceIndex = Number(sourceRow?.dataset.aheartVirtualLogicalItem ?? sourceRow?.dataset.aheartVirtualExpandedItem)
   if (!Number.isFinite(sourceIndex)) return
-  const targetIndex = sourceIndex + (event.shiftKey ? -1 : 1)
-  const target = pagedRows.value[targetIndex]
-  if (!target) return
-  event.preventDefault()
-  focusedRowKey.value = target.key
-  virtualController.setPinnedIndexes([target.virtualIndex])
-  const focusTarget = () => {
-    const targetTabbables = rowsForToken(rowToken(target.key)).flatMap(row => Array.from(row.querySelectorAll<HTMLElement>(tabbableSelector)))
-    const next = event.shiftKey ? targetTabbables.at(-1) : targetTabbables[0]
-    next?.focus({ preventScroll: true })
+  const direction = event.shiftKey ? -1 : 1
+  const findCandidate = (from: number): InternalRow | undefined => {
+    for (let index = from; index >= 0 && index < pagedRows.value.length; index += direction) {
+      const candidate = pagedRows.value[index]
+      if (mayHaveTabbable(candidate)) return candidate
+    }
+    return undefined
   }
-  void nextTick(focusTarget)
+  const candidate = findCandidate(sourceIndex + direction)
+  if (!candidate) return
+  const focusCandidate = (row: InternalRow): boolean => {
+    const targetTabbables = tabbablesForKey(row.key)
+    const next = event.shiftKey ? targetTabbables.at(-1) : targetTabbables[0]
+    if (!next) return false
+    focusedRowKey.value = row.key
+    virtualController.setPinnedIndexes([row.virtualIndex])
+    next.focus({ preventScroll: true })
+    return true
+  }
+  if (focusCandidate(candidate)) {
+    event.preventDefault()
+    return
+  }
+  // The first logical candidate may be outside the current window. Pin it
+  // temporarily, then only take over native Tab if rendering exposes a real
+  // enabled tabbable. Otherwise continue in the same direction.
+  event.preventDefault()
+  virtualController.setPinnedIndexes([candidate.virtualIndex])
+  const settle = (row: InternalRow) => {
+    if (focusCandidate(row)) return
+    const next = findCandidate(row.virtualIndex + direction)
+    if (!next) {
+      virtualController.setPinnedIndexes([])
+      return
+    }
+    virtualController.setPinnedIndexes([next.virtualIndex])
+    void nextTick(() => settle(next))
+  }
+  void nextTick(() => settle(candidate))
 }
 const handleRadioClick = (event: MouseEvent, record: TableRecord, key: TableKey) => {
   if (selectionType.value !== 'radio') return

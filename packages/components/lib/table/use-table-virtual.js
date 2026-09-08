@@ -84,8 +84,11 @@ function useTableVirtual(options, count, scrollElement, getItemKey = (index) => 
   const clearMeasured = (index, part) => {
     const key = getItemKey(index);
     const parts = measuredParts.get(key);
-    if (!parts)
+    if (!parts) {
+      if (alive.value && options.value.enabled)
+        virtualizer.value.resizeItem(index, options.value.estimateSize);
       return;
+    }
     if (part)
       parts.delete(part);
     else
@@ -99,7 +102,7 @@ function useTableVirtual(options, count, scrollElement, getItemKey = (index) => 
       next.set(key, Array.from(parts.values()).reduce((sum, value) => sum + value, 0));
     }
     measured.value = next;
-    virtualizer.value.measure();
+    virtualizer.value.resizeItem(index, parts.size === 0 ? options.value.estimateSize : next.get(key));
   };
   vue.watch([options, scrollElement], () => virtualizer.value.measure(), { flush: "sync" });
   if (itemKeys)

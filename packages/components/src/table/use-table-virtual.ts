@@ -71,7 +71,10 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
   const clearMeasured = (index: number, part?: string) => {
     const key = getItemKey(index)
     const parts = measuredParts.get(key)
-    if (!parts) return
+    if (!parts) {
+      if (alive.value && options.value.enabled) virtualizer.value.resizeItem(index, options.value.estimateSize)
+      return
+    }
     if (part) parts.delete(part)
     else parts.clear()
     const next = new Map(measured.value)
@@ -83,7 +86,7 @@ export function useTableVirtual(options: Ref<NormalizedTableVirtual>, count: Ref
       next.set(key, Array.from(parts.values()).reduce((sum, value) => sum + value, 0))
     }
     measured.value = next
-    virtualizer.value.measure()
+    virtualizer.value.resizeItem(index, parts.size === 0 ? options.value.estimateSize : next.get(key)!)
   }
   watch([options, scrollElement], () => virtualizer.value.measure(), { flush: 'sync' })
   if (itemKeys) watch(itemKeys, () => { measuredParts.clear(); measured.value = new Map(); virtualizer.value.measure() }, { flush: 'sync' })

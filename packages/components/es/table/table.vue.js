@@ -1342,12 +1342,19 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return Array.from(((_a = tableRoot.value) == null ? void 0 : _a.querySelectorAll("tr[data-aheart-virtual-key]")) ?? []).filter((row) => row.dataset.aheartVirtualKey === token);
     };
+    const tabbablesForKey = (key) => rowsForToken(rowToken(key)).flatMap((row) => Array.from(row.querySelectorAll(tabbableSelector)));
+    const mayHaveTabbable = (row) => {
+      if (hasSelection.value && !isRowSelectionDisabled(row.record))
+        return true;
+      if (hasExpandable.value && isRowExpandable(row.record))
+        return true;
+      return false;
+    };
     const handleRowKeydown = (event, key) => {
       var _a;
       if (!virtualRuntime.value.enabled || event.key !== "Tab")
         return;
-      const token = rowToken(key);
-      const groupTabbables = rowsForToken(token).flatMap((row) => Array.from(row.querySelectorAll(tabbableSelector)));
+      const groupTabbables = tabbablesForKey(key);
       const current = event.target;
       const currentIndex = current ? groupTabbables.indexOf(current) : -1;
       if (currentIndex < 0)
@@ -1359,19 +1366,46 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const sourceIndex = Number((sourceRow == null ? void 0 : sourceRow.dataset.aheartVirtualLogicalItem) ?? (sourceRow == null ? void 0 : sourceRow.dataset.aheartVirtualExpandedItem));
       if (!Number.isFinite(sourceIndex))
         return;
-      const targetIndex = sourceIndex + (event.shiftKey ? -1 : 1);
-      const target = pagedRows.value[targetIndex];
-      if (!target)
-        return;
-      event.preventDefault();
-      focusedRowKey.value = target.key;
-      virtualController.setPinnedIndexes([target.virtualIndex]);
-      const focusTarget = () => {
-        const targetTabbables = rowsForToken(rowToken(target.key)).flatMap((row) => Array.from(row.querySelectorAll(tabbableSelector)));
-        const next = event.shiftKey ? targetTabbables.at(-1) : targetTabbables[0];
-        next == null ? void 0 : next.focus({ preventScroll: true });
+      const direction = event.shiftKey ? -1 : 1;
+      const findCandidate = (from) => {
+        for (let index = from; index >= 0 && index < pagedRows.value.length; index += direction) {
+          const candidate2 = pagedRows.value[index];
+          if (mayHaveTabbable(candidate2))
+            return candidate2;
+        }
+        return void 0;
       };
-      void nextTick(focusTarget);
+      const candidate = findCandidate(sourceIndex + direction);
+      if (!candidate)
+        return;
+      const focusCandidate = (row) => {
+        const targetTabbables = tabbablesForKey(row.key);
+        const next = event.shiftKey ? targetTabbables.at(-1) : targetTabbables[0];
+        if (!next)
+          return false;
+        focusedRowKey.value = row.key;
+        virtualController.setPinnedIndexes([row.virtualIndex]);
+        next.focus({ preventScroll: true });
+        return true;
+      };
+      if (focusCandidate(candidate)) {
+        event.preventDefault();
+        return;
+      }
+      event.preventDefault();
+      virtualController.setPinnedIndexes([candidate.virtualIndex]);
+      const settle = (row) => {
+        if (focusCandidate(row))
+          return;
+        const next = findCandidate(row.virtualIndex + direction);
+        if (!next) {
+          virtualController.setPinnedIndexes([]);
+          return;
+        }
+        virtualController.setPinnedIndexes([next.virtualIndex]);
+        void nextTick(() => settle(next));
+      };
+      void nextTick(() => settle(candidate));
     };
     const handleRadioClick = (event, record, key) => {
       var _a, _b;
