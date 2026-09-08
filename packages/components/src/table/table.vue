@@ -324,6 +324,7 @@ const columnCount = computed(() => normalizedColumns.value.length + (hasSelectio
 type LayoutColumn = { id: string; width?: string; source?: TableColumn; utility?: 'selection' | 'expand'; fixed?: 'left' | 'right'; left?: number; right?: number }
 const widthSnapshot = ref<Record<string, string>>({})
 const layoutReady = ref(false)
+const layoutViewportWidth = ref(0)
 const headerShiftY = ref(0)
 const pxWidth = (value: unknown) => {
   if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value
@@ -335,8 +336,8 @@ const pxWidth = (value: unknown) => {
 }
 const layoutColumns = computed<LayoutColumn[]>(() => {
   const data: LayoutColumn[] = []
-  if (hasSelection.value) data.push({ id: '__selection', utility: 'selection', width: '48px' })
-  if (hasExpandable.value) data.push({ id: '__expand', utility: 'expand', width: '48px' })
+  if (hasSelection.value) data.push({ id: '__selection', utility: 'selection', width: widthSnapshot.value.__selection ?? '48px' })
+  if (hasExpandable.value) data.push({ id: '__expand', utility: 'expand', width: widthSnapshot.value.__expand ?? '48px' })
   normalizedColumns.value.forEach((column) => {
     const id = getColumnKey(column)
     const declaredWidth = pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === 'string' ? column.width : undefined
@@ -361,6 +362,9 @@ const layoutColumns = computed<LayoutColumn[]>(() => {
   }
   let right = 0
   if (rightEnabled) [...data].reverse().forEach((item) => { if (item.fixed === 'right') { item.right = right; right += usedWidth(item) } })
+  if (layoutViewportWidth.value > 0 && leftEnabled && rightEnabled && left + right > Math.max(0, layoutViewportWidth.value - 48)) {
+    data.forEach((item) => { item.fixed = undefined; item.left = undefined; item.right = undefined })
+  }
   return data
 })
 const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])))
@@ -381,7 +385,7 @@ const cellLayoutStyle = (item: LayoutColumn, header: boolean): CSSProperties => 
   ...(item.width ? { width: item.width } : {}),
   ...(item.fixed === 'left' && item.left !== undefined ? { position: 'sticky', left: `${item.left}px`, zIndex: 2 } : {}),
   ...(item.fixed === 'right' && item.right !== undefined ? { position: 'sticky', right: `${item.right}px`, zIndex: 2 } : {}),
-  ...(isSticky.value && header ? { position: 'sticky', top: `${stickyOffset.value}px`, zIndex: 2 } : {})
+  ...(isSticky.value && header ? { position: 'sticky', top: `${stickyOffset.value}px`, zIndex: item.fixed ? 4 : 3 } : {})
 })
 const tableStyle = computed<CSSProperties | undefined>(() => {
   const x = props.scroll?.x
@@ -399,9 +403,14 @@ const tableAttrs = computed(() => {
 })
 const containerStyle = computed<CSSProperties | undefined>(() => {
   const y = props.scroll?.y
-  if (y === undefined) return undefined
-  const value = typeof y === 'number' && Number.isFinite(y) ? `${y}px` : y
-  return { maxHeight: value, overflowY: 'auto' as const }
+  const leftExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.left !== undefined).map((item) => (item.left ?? 0) + usedWidth(item)))
+  const rightExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.right !== undefined).map((item) => (item.right ?? 0) + usedWidth(item)))
+  const style: CSSProperties = {
+    ...(y === undefined ? {} : { maxHeight: typeof y === 'number' && Number.isFinite(y) ? `${y}px` : y, overflowY: 'auto' as const }),
+    ...(leftExtent > 0 ? { scrollPaddingLeft: `${leftExtent}px` } : {}),
+    ...(rightExtent > 0 ? { scrollPaddingRight: `${rightExtent}px` } : {})
+  }
+  return Object.keys(style).length ? style : undefined
 })
 
 const controlledSort = computed<InternalSortState | undefined>(() => {
@@ -657,6 +666,7 @@ const columnClass = (column: TableColumn) => [
   {
     'is-sortable': Boolean(column.sorter),
     'is-filtered': Boolean(activeFilters.value[getColumnKey(column)]?.length),
+    'is-fixed-right': column.fixed === 'right',
     'is-ellipsis': column.ellipsis
   }
 ]
@@ -817,13 +827,17 @@ const handleFilterPopupKeydown = (event: KeyboardEvent) => {
 let stickyResizeObserver: ResizeObserver | undefined
 let stickyOwnerWindow: Window | undefined
 let stickyScrollAncestor: HTMLElement | null = null
+const handleStickyAncestorScroll = () => {
+  updateStickyGeometry()
+  scheduleStickyGeometry()
+}
 let stickyRaf = 0
 const findStickyScrollAncestor = (root: HTMLElement, ownerWindow: Window) => {
   let current = root.parentElement
   while (current) {
     const style = ownerWindow.getComputedStyle(current)
     const overflowY = style.overflowY
-    if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') && current.scrollHeight > current.clientHeight) return current
+    if (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') return current
     current = current.parentElement
   }
   return null
@@ -834,7 +848,12 @@ const updateStickyGeometry = () => {
     headerShiftY.value = 0
     return
   }
+  if (!stickyScrollAncestor) {
+    const ownerWindow = root.ownerDocument.defaultView
+    if (ownerWindow) stickyScrollAncestor = findStickyScrollAncestor(root, ownerWindow)
+  }
   const rect = root.getBoundingClientRect()
+  const tableRect = root.querySelector('table')?.getBoundingClientRect()
   const viewportHeight = root.ownerDocument.defaultView?.innerHeight ?? 0
   const header = root.querySelector<HTMLElement>('thead')
   const firstHeaderCell = root.querySelector<HTMLElement>('thead th')
@@ -848,7 +867,7 @@ const updateStickyGeometry = () => {
   const naturalHeaderTop = visualHeaderTop - headerShiftY.value
   const ancestorRect = stickyScrollAncestor?.getBoundingClientRect()
   const targetTop = (ancestorRect?.top ?? 0) + (stickyScrollAncestor?.clientTop ?? 0) + stickyOffset.value
-  const maxShift = rect.bottom - headerHeight - naturalHeaderTop
+  const maxShift = (tableRect?.bottom ?? rect.bottom) - headerHeight - naturalHeaderTop
   const desiredShift = targetTop - visualHeaderTop + headerShiftY.value
   const bounded = Math.max(0, Math.min(maxShift, desiredShift))
   headerShiftY.value = Number.isFinite(bounded) ? bounded : 0
@@ -865,6 +884,8 @@ const scheduleStickyGeometry = () => {
 }
 const measureLayout = () => {
   if (props.scroll?.x === undefined || !tableRoot.value) return
+  const container = tableRoot.value.querySelector<HTMLElement>('.aheart-table__container')
+  if (container) layoutViewportWidth.value = container.clientWidth
   const cells = Array.from(tableRoot.value.querySelectorAll<HTMLElement>('thead th'))
   const cols = Array.from(tableRoot.value.querySelectorAll<HTMLElement>('colgroup col'))
   const next = { ...widthSnapshot.value }
@@ -885,14 +906,16 @@ const bindStickyObservers = () => {
   stickyScrollAncestor = findStickyScrollAncestor(root, ownerWindow)
   ownerWindow.addEventListener('scroll', scheduleStickyGeometry, true)
   ownerWindow.addEventListener('resize', scheduleStickyGeometry)
-  stickyScrollAncestor?.addEventListener('scroll', scheduleStickyGeometry, { passive: true })
+  stickyScrollAncestor?.addEventListener('scroll', handleStickyAncestorScroll, { passive: true })
   const ResizeObserverConstructor = ownerWindow.ResizeObserver
-  if (ResizeObserverConstructor) {
+    if (ResizeObserverConstructor) {
     stickyResizeObserver = new ResizeObserverConstructor(() => {
       measureLayout()
       scheduleStickyGeometry()
     })
     stickyResizeObserver.observe(root)
+    const container = root.querySelector<HTMLElement>('.aheart-table__container')
+    if (container) stickyResizeObserver.observe(container)
     if (stickyScrollAncestor) stickyResizeObserver.observe(stickyScrollAncestor)
   }
   scheduleStickyGeometry()
@@ -902,7 +925,7 @@ const unbindStickyObservers = () => {
     stickyOwnerWindow.removeEventListener('scroll', scheduleStickyGeometry, true)
     stickyOwnerWindow.removeEventListener('resize', scheduleStickyGeometry)
   }
-  stickyScrollAncestor?.removeEventListener('scroll', scheduleStickyGeometry)
+  stickyScrollAncestor?.removeEventListener('scroll', handleStickyAncestorScroll)
   stickyScrollAncestor = null
   stickyResizeObserver?.disconnect()
   stickyResizeObserver = undefined

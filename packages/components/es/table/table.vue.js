@@ -173,6 +173,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
     const widthSnapshot = ref({});
     const layoutReady = ref(false);
+    const layoutViewportWidth = ref(0);
     const headerShiftY = ref(0);
     const pxWidth = (value) => {
       if (typeof value === "number" && Number.isFinite(value) && value > 0)
@@ -186,9 +187,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const layoutColumns = computed(() => {
       const data = [];
       if (hasSelection.value)
-        data.push({ id: "__selection", utility: "selection", width: "48px" });
+        data.push({ id: "__selection", utility: "selection", width: widthSnapshot.value.__selection ?? "48px" });
       if (hasExpandable.value)
-        data.push({ id: "__expand", utility: "expand", width: "48px" });
+        data.push({ id: "__expand", utility: "expand", width: widthSnapshot.value.__expand ?? "48px" });
       normalizedColumns.value.forEach((column) => {
         const id = getColumnKey(column);
         const declaredWidth = pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === "string" ? column.width : void 0;
@@ -231,6 +232,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             right += usedWidth(item);
           }
         });
+      if (layoutViewportWidth.value > 0 && leftEnabled && rightEnabled && left + right > Math.max(0, layoutViewportWidth.value - 48)) {
+        data.forEach((item) => {
+          item.fixed = void 0;
+          item.left = void 0;
+          item.right = void 0;
+        });
+      }
       return data;
     });
     const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])));
@@ -253,7 +261,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       ...item.width ? { width: item.width } : {},
       ...item.fixed === "left" && item.left !== void 0 ? { position: "sticky", left: `${item.left}px`, zIndex: 2 } : {},
       ...item.fixed === "right" && item.right !== void 0 ? { position: "sticky", right: `${item.right}px`, zIndex: 2 } : {},
-      ...isSticky.value && header ? { position: "sticky", top: `${stickyOffset.value}px`, zIndex: 2 } : {}
+      ...isSticky.value && header ? { position: "sticky", top: `${stickyOffset.value}px`, zIndex: item.fixed ? 4 : 3 } : {}
     });
     const tableStyle = computed(() => {
       var _a;
@@ -273,10 +281,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const containerStyle = computed(() => {
       var _a;
       const y = (_a = props.scroll) == null ? void 0 : _a.y;
-      if (y === void 0)
-        return void 0;
-      const value = typeof y === "number" && Number.isFinite(y) ? `${y}px` : y;
-      return { maxHeight: value, overflowY: "auto" };
+      const leftExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.left !== void 0).map((item) => (item.left ?? 0) + usedWidth(item)));
+      const rightExtent = Math.max(0, ...layoutColumns.value.filter((item) => item.right !== void 0).map((item) => (item.right ?? 0) + usedWidth(item)));
+      const style = {
+        ...y === void 0 ? {} : { maxHeight: typeof y === "number" && Number.isFinite(y) ? `${y}px` : y, overflowY: "auto" },
+        ...leftExtent > 0 ? { scrollPaddingLeft: `${leftExtent}px` } : {},
+        ...rightExtent > 0 ? { scrollPaddingRight: `${rightExtent}px` } : {}
+      };
+      return Object.keys(style).length ? style : void 0;
     });
     const controlledSort = computed(() => {
       const column = normalizedColumns.value.find((currentColumn) => currentColumn.sortOrder !== void 0);
@@ -477,6 +489,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         {
           "is-sortable": Boolean(column.sorter),
           "is-filtered": Boolean((_a = activeFilters.value[getColumnKey(column)]) == null ? void 0 : _a.length),
+          "is-fixed-right": column.fixed === "right",
           "is-ellipsis": column.ellipsis
         }
       ];
@@ -666,27 +679,37 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     let stickyResizeObserver;
     let stickyOwnerWindow;
     let stickyScrollAncestor = null;
+    const handleStickyAncestorScroll = () => {
+      updateStickyGeometry();
+      scheduleStickyGeometry();
+    };
     let stickyRaf = 0;
     const findStickyScrollAncestor = (root, ownerWindow) => {
       let current = root.parentElement;
       while (current) {
         const style = ownerWindow.getComputedStyle(current);
         const overflowY = style.overflowY;
-        if ((overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") && current.scrollHeight > current.clientHeight)
+        if (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay")
           return current;
         current = current.parentElement;
       }
       return null;
     };
     const updateStickyGeometry = () => {
-      var _a, _b;
+      var _a, _b, _c;
       const root = tableRoot.value;
       if (!root || !isSticky.value || ((_a = props.scroll) == null ? void 0 : _a.y) !== void 0) {
         headerShiftY.value = 0;
         return;
       }
+      if (!stickyScrollAncestor) {
+        const ownerWindow = root.ownerDocument.defaultView;
+        if (ownerWindow)
+          stickyScrollAncestor = findStickyScrollAncestor(root, ownerWindow);
+      }
       const rect = root.getBoundingClientRect();
-      ((_b = root.ownerDocument.defaultView) == null ? void 0 : _b.innerHeight) ?? 0;
+      const tableRect = (_b = root.querySelector("table")) == null ? void 0 : _b.getBoundingClientRect();
+      ((_c = root.ownerDocument.defaultView) == null ? void 0 : _c.innerHeight) ?? 0;
       const header = root.querySelector("thead");
       const firstHeaderCell = root.querySelector("thead th");
       const headerRect = header == null ? void 0 : header.getBoundingClientRect();
@@ -699,7 +722,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const naturalHeaderTop = visualHeaderTop - headerShiftY.value;
       const ancestorRect = stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.getBoundingClientRect();
       const targetTop = ((ancestorRect == null ? void 0 : ancestorRect.top) ?? 0) + ((stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.clientTop) ?? 0) + stickyOffset.value;
-      const maxShift = rect.bottom - headerHeight - naturalHeaderTop;
+      const maxShift = ((tableRect == null ? void 0 : tableRect.bottom) ?? rect.bottom) - headerHeight - naturalHeaderTop;
       const desiredShift = targetTop - visualHeaderTop + headerShiftY.value;
       const bounded = Math.max(0, Math.min(maxShift, desiredShift));
       headerShiftY.value = Number.isFinite(bounded) ? bounded : 0;
@@ -720,6 +743,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       if (((_a = props.scroll) == null ? void 0 : _a.x) === void 0 || !tableRoot.value)
         return;
+      const container = tableRoot.value.querySelector(".aheart-table__container");
+      if (container)
+        layoutViewportWidth.value = container.clientWidth;
       const cells = Array.from(tableRoot.value.querySelectorAll("thead th"));
       const cols = Array.from(tableRoot.value.querySelectorAll("colgroup col"));
       const next = { ...widthSnapshot.value };
@@ -748,7 +774,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       stickyScrollAncestor = findStickyScrollAncestor(root, ownerWindow);
       ownerWindow.addEventListener("scroll", scheduleStickyGeometry, true);
       ownerWindow.addEventListener("resize", scheduleStickyGeometry);
-      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.addEventListener("scroll", scheduleStickyGeometry, { passive: true });
+      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.addEventListener("scroll", handleStickyAncestorScroll, { passive: true });
       const ResizeObserverConstructor = ownerWindow.ResizeObserver;
       if (ResizeObserverConstructor) {
         stickyResizeObserver = new ResizeObserverConstructor(() => {
@@ -756,6 +782,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           scheduleStickyGeometry();
         });
         stickyResizeObserver.observe(root);
+        const container = root.querySelector(".aheart-table__container");
+        if (container)
+          stickyResizeObserver.observe(container);
         if (stickyScrollAncestor)
           stickyResizeObserver.observe(stickyScrollAncestor);
       }
@@ -766,7 +795,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         stickyOwnerWindow.removeEventListener("scroll", scheduleStickyGeometry, true);
         stickyOwnerWindow.removeEventListener("resize", scheduleStickyGeometry);
       }
-      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.removeEventListener("scroll", scheduleStickyGeometry);
+      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.removeEventListener("scroll", handleStickyAncestorScroll);
       stickyScrollAncestor = null;
       stickyResizeObserver == null ? void 0 : stickyResizeObserver.disconnect();
       stickyResizeObserver = void 0;
