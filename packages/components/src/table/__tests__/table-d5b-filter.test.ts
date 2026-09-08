@@ -133,27 +133,35 @@ describe('Table D5-B filter dropdown contract', () => {
   })
 
   it('keeps Tab navigation inside the open filter popup and restores focus to its trigger', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
     const wrapper = mount(Table, {
+      attachTo: host,
       props: {
         columns: [{ ...tableColumns(filterDropdown)[0], defaultFilterDropdownOpen: true }],
         dataSource: rows
       }
     })
-    const openPopup = popup()
-    expect(openPopup).not.toBeNull()
-    if (!openPopup) return
-    const controls = openPopup.querySelectorAll<HTMLElement>('input,button')
-    expect(controls.length).toBeGreaterThan(0)
-    if (controls.length === 0) return
+    try {
+      const openPopup = popup()
+      expect(openPopup).not.toBeNull()
+      if (!openPopup) return
+      const controls = openPopup.querySelectorAll<HTMLElement>('input,button')
+      expect(controls.length).toBeGreaterThan(0)
+      if (controls.length === 0) return
 
-    controls[0].focus()
-    controls[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
-    await nextTick()
-    expect(openPopup.contains(document.activeElement)).toBe(true)
+      controls[0].focus()
+      controls[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+      await nextTick()
+      expect(openPopup.contains(document.activeElement)).toBe(true)
 
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-    await nextTick()
-    expect(document.activeElement).toBe(trigger(wrapper).element)
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      await nextTick()
+      expect(document.activeElement).toBe(trigger(wrapper).element)
+    } finally {
+      wrapper.unmount()
+      host.remove()
+    }
   })
 
   it('honors controlled open rejection, asynchronous acceptance, and one visible popup', async () => {
