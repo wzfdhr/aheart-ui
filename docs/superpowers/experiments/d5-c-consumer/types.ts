@@ -3,7 +3,7 @@ import type { TableProps } from 'aheart-ui'
 const virtual: NonNullable<TableProps['virtual']> = {
   height: 320,
   overscan: 4,
-  estimatedRowHeight: 'middle'
+  estimatedRowHeight: 40
 }
 const local: TableProps = {
   columns: [{ title: 'Name', dataIndex: 'name', key: 'name' }],
@@ -17,4 +17,11 @@ const server: TableProps = {
   pagination: { current: 2, pageSize: 20, total: 10000 }
 }
 
-void [local, server]
+const fixedExpanded: TableProps = {
+  ...local,
+  virtual,
+  fixed: true,
+  expandable: { expandedRowRender: row => `Details for ${row.name}` }
+}
+
+void [local, server, fixedExpanded]

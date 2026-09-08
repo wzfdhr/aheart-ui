@@ -1,0 +1,15 @@
+D5-C runtime hardening verification (2026-09-08)
+
+PASS node --check scripts/d5-table-c-perf.mjs
+PASS node --check docs/superpowers/experiments/d5-c-consumer/run.mjs
+PASS playwright test e2e/d5-table-c.spec.ts --list
+  25 tests across desktop, mobile, desktop-firefox, desktop-webkit, mobile-webkit
+PASS git diff --check
+
+Runtime gates intentionally remain RED until the D5-C Table fixture/API exists:
+- virtual logical row window is >0 and <=20; expanded and spacer rows are counted separately
+- midpoint scrolling accepts a nearby window, not a fixed row number
+- native spacer/expanded rows require aria-hidden and colspan
+- fallback warnings are scoped to development evidence and include a reason marker
+- perf runner requires paired full-dom/virtual URLs, >=2 rounds, explicit ready marker,
+  median TTI, logical-row, LongTask, CLS, and Table-only gzip inputs; missing metrics fail
