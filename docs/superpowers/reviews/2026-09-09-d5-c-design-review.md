@@ -40,6 +40,7 @@ iframe 场景明确显示 `iframe ownerDocument 与清理`，表格内容正常�
 
 - 历史 final 文档曾使用 RED 状态，且工作台面板缺少可见标签；`e838843` 完成文档/工作台收口。
 - 移动 fixed 列曾出现透明透底与 `Status` 裁切（`38931f3` RED）；`507f4e8` 增加窄视口可读性与 `reserve64` 处理，最终移动截图中的 `Status` 完整且无透底。
+- 产品初验曾从场景 3 发现 `Status` body 不可读的 P1：`25a24a9` 与 `5a52b3b` 保留 RED 约束，`12a3f49` 修正降级右侧单元格对齐，`db66681` 与 `2f71948` 稳定行交互后的 fixed body 几何采样；最终场景 3 在 `5274` 复拍，主线程 `view_image` 确认 `Status` body 的 `ready` 文本完整可见且无透明透底。
 - expanded 行背景曾被基础 opaque 层覆盖（`cf70727` RED）；`3737849` 恢复 expanded cell 背景，`1e0f93e` 修正测试以允许可选 hover 背景 token。
 - CLS 调试曾定位到 spacer row 引发的视觉位移（`9593143` 证据，历史 CLS `0.3531`）；`d1d672e` 排除虚拟 spacer 的视觉位移，最终五轮结果为 `CLS 0.0014698361`，低于 `0.1` 门槛。
 
