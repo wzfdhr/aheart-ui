@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "started": "2026-09-08T18:17:28.058Z",
-  "completed": "2026-09-08T18:17:35.756Z",
+  "started": "2026-09-08T19:28:24.180Z",
+  "completed": "2026-09-08T19:28:31.694Z",
   "baselineCommit": "7f29bb5",
   "node": "v24.17.0",
   "configuration": {
@@ -12,33 +12,45 @@
   },
   "tarballs": {
     "baseline": {
-      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-7D9R15/baseline-pack/aheart-ui-1.0.0.tgz",
+      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/baseline-pack/aheart-ui-1.0.0.tgz",
       "sha256": "1bb62625f139b7acf8639eb3b3066c9905028c6e0286bf4aa8e5c58e96b42fe4",
       "rawBytes": 440973
     },
     "candidate": {
-      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-7D9R15/candidate-pack/aheart-ui-1.0.0.tgz",
-      "sha256": "c523d68c865ec9274f0263d46ad013522185610af3008e20f3ea3617f1860f06",
-      "rawBytes": 470368
+      "path": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/candidate-pack/aheart-ui-1.0.0.tgz",
+      "sha256": "c1ed529f51daf360767b9f327d54608b479965f6f8184660dd5edf76dc88c751",
+      "rawBytes": 470389
     }
   },
   "bundles": {
     "baseline": {
-      "rawBytes": 656387,
-      "gzipBytes": 167196
+      "rawBytes": 656347,
+      "gzipBytes": 167142
     },
     "candidate": {
-      "rawBytes": 692853,
-      "gzipBytes": 178055
+      "rawBytes": 692949,
+      "gzipBytes": 178067
     },
-    "gzipDeltaBytes": 10859,
-    "rawDeltaBytes": 36466,
+    "gzipDeltaBytes": 10925,
+    "rawDeltaBytes": 36602,
     "files": [
       {
-        "file": "assets/index-BzgE5uky.js",
+        "file": "assets/index-2WFH8Wg5.js",
+        "baseline": {
+          "file": "assets/index-2WFH8Wg5.js",
+          "sha256": "358ae2531d034f0c0f2938ae65d11c358ccb97c2d38bfdb4a84a7bca4b5fdf63",
+          "rawBytes": 486939,
+          "gzipBytes": 145198
+        },
+        "candidate": null,
+        "rawDelta": -486939,
+        "gzipDelta": -145198
+      },
+      {
+        "file": "assets/index-B8WHfWU0.js",
         "baseline": null,
         "candidate": {
-          "file": "assets/index-BzgE5uky.js",
+          "file": "assets/index-B8WHfWU0.js",
           "sha256": "f0798cbb6a9b69bf75332337088f3e14932622af77767025bde612c8f7d08cc3",
           "rawBytes": 520261,
           "gzipBytes": 155631
@@ -47,16 +59,16 @@
         "gzipDelta": 155631
       },
       {
-        "file": "assets/index-C14nvfJc.js",
-        "baseline": {
-          "file": "assets/index-C14nvfJc.js",
-          "sha256": "005641dbf389251368edbfcebe7aa0072cf41bd2028984afa18ddce7e8ab0b89",
-          "rawBytes": 486979,
-          "gzipBytes": 145252
+        "file": "assets/index-BpfCMVw5.css",
+        "baseline": null,
+        "candidate": {
+          "file": "assets/index-BpfCMVw5.css",
+          "sha256": "138a2db7776f009533417573b66285636cfdda14e487e669ae6f57bc64a513bc",
+          "rawBytes": 172688,
+          "gzipBytes": 22436
         },
-        "candidate": null,
-        "rawDelta": -486979,
-        "gzipDelta": -145252
+        "rawDelta": 172688,
+        "gzipDelta": 22436
       },
       {
         "file": "assets/index-Cj6jzt97.css",
@@ -69,18 +81,6 @@
         "candidate": null,
         "rawDelta": -169408,
         "gzipDelta": -21944
-      },
-      {
-        "file": "assets/index-XbKwO0Dn.css",
-        "baseline": null,
-        "candidate": {
-          "file": "assets/index-XbKwO0Dn.css",
-          "sha256": "223fab4e3077b956cb62961e4c75b221f2f1c5e3bf302f62c16590204fc491cc",
-          "rawBytes": 172592,
-          "gzipBytes": 22424
-        },
-        "rawDelta": 172592,
-        "gzipDelta": 22424
       }
     ]
   },
@@ -131,12 +131,12 @@
   },
   "consumers": {
     "baseline": {
-      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-7D9R15/baseline-consumer-FuSMsz",
-      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-7D9R15/baseline-consumer-FuSMsz/node_modules/aheart-ui"
+      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/baseline-consumer-l56PuY",
+      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/baseline-consumer-l56PuY/node_modules/aheart-ui"
     },
     "candidate": {
-      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-7D9R15/candidate-consumer-y65VOt",
-      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-7D9R15/candidate-consumer-y65VOt/node_modules/aheart-ui"
+      "root": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/candidate-consumer-orGgkb",
+      "packageRealpath": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d5-c-package-sIQIdB/candidate-consumer-orGgkb/node_modules/aheart-ui"
     }
   }
 }
