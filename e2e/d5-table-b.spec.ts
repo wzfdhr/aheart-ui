@@ -43,6 +43,38 @@ test('D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlle
   const demo = page.getByRole('region', { name: 'D5-B 筛选布局状态' })
   await waitForTableLayout(demo)
 
+  const anchoredTrigger = demo.locator('button[aria-haspopup="dialog"]').first()
+  await anchoredTrigger.scrollIntoViewIfNeeded()
+  const beforeScrollY = await page.evaluate(() => window.scrollY)
+  const triggerBefore = await anchoredTrigger.boundingBox()
+  expect(triggerBefore).not.toBeNull()
+  if (!triggerBefore) return
+  expect(triggerBefore.y).toBeGreaterThanOrEqual(0)
+  const anchoredClick = page.locator('[data-table-filter-popup]')
+  await anchoredTrigger.click()
+  await expect(anchoredClick).toBeVisible()
+  const viewport = await page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }))
+  await expect.poll(async () => {
+    const triggerBox = await anchoredTrigger.boundingBox()
+    const popupBox = await anchoredClick.boundingBox()
+    const scrollY = await page.evaluate(() => window.scrollY)
+    if (!triggerBox || !popupBox) return false
+    const horizontalOverlap = popupBox.x < triggerBox.x + triggerBox.width && popupBox.x + popupBox.width > triggerBox.x
+    const verticalDistance = Math.min(
+      Math.abs(popupBox.y - (triggerBox.y + triggerBox.height)),
+      Math.abs(popupBox.y + popupBox.height - triggerBox.y)
+    )
+    return Math.abs(scrollY - beforeScrollY) <= 2 &&
+      triggerBox.y >= 0 && triggerBox.y + triggerBox.height <= viewport.height &&
+      popupBox.x >= 0 && popupBox.x + popupBox.width <= viewport.width &&
+      popupBox.y >= 0 && popupBox.y + popupBox.height <= viewport.height &&
+      horizontalOverlap && verticalDistance < 24
+  }).toBe(true)
+  await page.keyboard.press('Escape')
+  await expect(anchoredClick).toHaveCount(0)
+  expect(await page.evaluate(() => window.scrollY)).toBe(beforeScrollY)
+  await expect(anchoredTrigger).toBeFocused()
+
   let popup = await openFilter(page, demo)
   await popup.locator('[data-d5b-filter-input]').fill('Ada')
   await popup.locator('[data-d5b-filter-cancel]').click()
