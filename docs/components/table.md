@@ -43,6 +43,7 @@ const d5bFilterDropdown = ({ selectedKeys, setSelectedKeys, confirm, clearFilter
   [
     h('input', {
       'data-d5b-filter-input': true,
+      'aria-label': '筛选姓名',
       value: selectedKeys?.[0] ?? '',
       placeholder: '输入姓名',
       onInput: (event: Event) => {
@@ -528,6 +529,41 @@ const emptyText = h('span', { class: 'empty-node' }, 'No matching engineers')
     <div style="height: 260px;" aria-hidden="true"></div>
   </div>
 </section>
+
+<style>
+.d5b-filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.d5b-filter-controls input {
+  flex: 1 1 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 8px;
+  color: var(--aheart-color-text);
+  background: var(--aheart-color-bg);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius-sm);
+}
+
+.d5b-filter-controls button {
+  min-height: 32px;
+  padding: 4px 10px;
+  color: var(--aheart-color-text);
+  background: var(--aheart-color-bg);
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius-sm);
+}
+
+.d5b-filter-controls input:focus-visible,
+.d5b-filter-controls button:focus-visible {
+  outline: 2px solid var(--aheart-color-primary);
+  outline-offset: 2px;
+}
+</style>
 
 `fixed: 'left'` 和 `fixed: 'right'` 只对连续的左前缀/右后缀生效，并且要求正数或可解析的 px 宽度；不合法的一组会整体降级为普通列。固定布局使用单个原生 `table` 与 `colgroup`，selection/expand utility 列参与固定偏移。`sticky` 可配 `offsetHeader`；有 `scroll.y` 时表内滚动，无 `y` 时依赖页面或祖先滚动容器。
 

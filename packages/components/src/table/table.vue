@@ -6,6 +6,12 @@
     :aria-busy="loading || undefined"
     :inert="rootInteractionInert || undefined"
   >
+    <div v-if="!loading && error" class="aheart-table__error" role="alert">
+      <ARenderNode :node="errorMessage" />
+      <button type="button" class="aheart-table__retry" data-table-retry :disabled="isDisabled" @click="emit('retry')">
+        <ARenderNode :node="errorRetryText" />
+      </button>
+    </div>
     <div
       class="aheart-table__interaction-region"
       :inert="isInteractionLocked || undefined"
@@ -135,7 +141,7 @@
               </td>
             </tr>
           </template>
-          <tr v-if="!loading && pagedRows.length === 0">
+          <tr v-if="!loading && !error && pagedRows.length === 0">
             <td :colspan="columnCount" class="aheart-table__empty">
               <ARenderNode :node="resolvedEmptyText" />
             </td>
@@ -164,12 +170,6 @@
     <div v-if="loading" class="aheart-table__loading" role="status" aria-live="polite">
       <span class="aheart-table__loading-dot" aria-hidden="true" />
       <span>{{ resolvedLoadingText }}</span>
-    </div>
-    <div v-else-if="error" class="aheart-table__error" role="alert">
-      <ARenderNode :node="errorMessage" />
-      <button type="button" class="aheart-table__retry" data-table-retry :disabled="isDisabled" @click="emit('retry')">
-        <ARenderNode :node="errorRetryText" />
-      </button>
     </div>
     <Teleport v-if="activeFilterColumn && activeFilterPopupNode !== null" :to="popupTarget" :disabled="popupTargetDisabled">
       <div

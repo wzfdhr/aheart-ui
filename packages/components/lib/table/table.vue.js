@@ -11,46 +11,46 @@ const types = require("./types.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-busy", "inert"];
-const _hoisted_2 = ["inert"];
-const _hoisted_3 = ["checked", "indeterminate", "aria-checked", "disabled"];
-const _hoisted_4 = {
+const _hoisted_2 = {
+  key: 0,
+  class: "aheart-table__error",
+  role: "alert"
+};
+const _hoisted_3 = ["disabled"];
+const _hoisted_4 = ["inert"];
+const _hoisted_5 = ["checked", "indeterminate", "aria-checked", "disabled"];
+const _hoisted_6 = {
   key: 1,
   class: "aheart-table__selection-title",
   "aria-hidden": "true"
 };
-const _hoisted_5 = ["aria-sort"];
-const _hoisted_6 = { class: "aheart-table__head-content" };
-const _hoisted_7 = ["disabled", "aria-label", "onClick"];
-const _hoisted_8 = ["data-sort"];
-const _hoisted_9 = {
+const _hoisted_7 = ["aria-sort"];
+const _hoisted_8 = { class: "aheart-table__head-content" };
+const _hoisted_9 = ["disabled", "aria-label", "onClick"];
+const _hoisted_10 = ["data-sort"];
+const _hoisted_11 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_10 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
-const _hoisted_11 = { class: "sr-only" };
-const _hoisted_12 = ["aria-label"];
-const _hoisted_13 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_14 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_16 = {
+const _hoisted_12 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
+const _hoisted_13 = { class: "sr-only" };
+const _hoisted_14 = ["aria-label"];
+const _hoisted_15 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_16 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_17 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_18 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_17 = ["colspan"];
-const _hoisted_18 = { key: 0 };
 const _hoisted_19 = ["colspan"];
-const _hoisted_20 = {
-  key: 0,
+const _hoisted_20 = { key: 0 };
+const _hoisted_21 = ["colspan"];
+const _hoisted_22 = {
+  key: 1,
   class: "aheart-table__loading",
   role: "status",
   "aria-live": "polite"
 };
-const _hoisted_21 = {
-  key: 1,
-  class: "aheart-table__error",
-  role: "alert"
-};
-const _hoisted_22 = ["disabled"];
 const _hoisted_23 = ["data-table-filter-popup"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
@@ -1012,6 +1012,18 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         "aria-busy": _ctx.loading || void 0,
         inert: rootInteractionInert.value || void 0
       }, [
+        !_ctx.loading && _ctx.error ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_2, [
+          vue.createVNode(vue.unref(ARenderNode), { node: errorMessage.value }, null, 8, ["node"]),
+          vue.createElementVNode("button", {
+            type: "button",
+            class: "aheart-table__retry",
+            "data-table-retry": "",
+            disabled: isDisabled.value,
+            onClick: _cache[0] || (_cache[0] = ($event) => emit("retry"))
+          }, [
+            vue.createVNode(vue.unref(ARenderNode), { node: errorRetryText.value }, null, 8, ["node"])
+          ], 8, _hoisted_3)
+        ])) : vue.createCommentVNode("", true),
         vue.createElementVNode("div", {
           class: "aheart-table__interaction-region",
           inert: isInteractionLocked.value || void 0,
@@ -1055,7 +1067,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       "aria-checked": somePageSelected.value && !allPageSelected.value ? "mixed" : allPageSelected.value,
                       disabled: isSelectionDisabled.value || selectableRows.value.length === 0,
                       onChange: handleSelectAll
-                    }, null, 40, _hoisted_3)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_4))
+                    }, null, 40, _hoisted_5)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_6))
                   ], 4)) : vue.createCommentVNode("", true),
                   hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("th", {
                     key: 1,
@@ -1077,7 +1089,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                       scope: "col"
                     }, [
-                      vue.createElementVNode("div", _hoisted_6, [
+                      vue.createElementVNode("div", _hoisted_8, [
                         column.sorter ? (vue.openBlock(), vue.createElementBlock("button", {
                           key: 0,
                           class: "aheart-table__sorter",
@@ -1095,8 +1107,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                             class: "aheart-table__sort-icon",
                             "data-sort": getSortState(column),
                             "aria-hidden": "true"
-                          }, null, 8, _hoisted_8)
-                        ], 8, _hoisted_7)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_9, [
+                          }, null, 8, _hoisted_10)
+                        ], 8, _hoisted_9)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_11, [
                           vue.createVNode(vue.unref(ARenderNode), {
                             node: column.title
                           }, null, 8, ["node"])
@@ -1112,8 +1124,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           onClick: ($event) => toggleFilterPopup(column, $event.currentTarget)
                         }, [
                           _cache[2] || (_cache[2] = vue.createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
-                          vue.createElementVNode("span", _hoisted_11, "Filter " + vue.toDisplayString(getColumnLabel(column)), 1)
-                        ], 8, _hoisted_10)) : vue.createCommentVNode("", true),
+                          vue.createElementVNode("span", _hoisted_13, "Filter " + vue.toDisplayString(getColumnLabel(column)), 1)
+                        ], 8, _hoisted_12)) : vue.createCommentVNode("", true),
                         ((_a = column.filters) == null ? void 0 : _a.length) ? (vue.openBlock(), vue.createElementBlock("div", {
                           key: 3,
                           class: "aheart-table__filters",
@@ -1131,11 +1143,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                               vue.createVNode(vue.unref(ARenderNode), {
                                 node: filter.text
                               }, null, 8, ["node"])
-                            ], 10, _hoisted_13);
+                            ], 10, _hoisted_15);
                           }), 128))
-                        ], 8, _hoisted_12)) : vue.createCommentVNode("", true)
+                        ], 8, _hoisted_14)) : vue.createCommentVNode("", true)
                       ])
-                    ], 14, _hoisted_5);
+                    ], 14, _hoisted_7);
                   }), 128))
                 ])
               ], 4)) : vue.createCommentVNode("", true),
@@ -1159,7 +1171,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           disabled: isRowSelectionDisabled(row.record),
                           "aria-label": `Select row ${row.key}`,
                           onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                        }, null, 40, _hoisted_14)
+                        }, null, 40, _hoisted_16)
                       ], 4)) : vue.createCommentVNode("", true),
                       hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", {
                         key: 1,
@@ -1173,7 +1185,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           "aria-expanded": isExpanded(row.key),
                           disabled: isInteractionLocked.value,
                           onClick: ($event) => toggleExpand(row.record, row.key)
-                        }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : vue.createCommentVNode("", true)
+                        }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_17)) : vue.createCommentVNode("", true)
                       ], 4)) : vue.createCommentVNode("", true),
                       (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
                         return vue.openBlock(), vue.createElementBlock("td", {
@@ -1187,7 +1199,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         ], 6);
                       }), 128))
                     ], 2),
-                    hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_16, [
+                    hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_18, [
                       vue.createElementVNode("td", {
                         colspan: columnCount.value,
                         class: "aheart-table__expanded-cell"
@@ -1195,17 +1207,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         vue.createVNode(vue.unref(ARenderNode), {
                           node: renderExpanded(row.record, row.index)
                         }, null, 8, ["node"])
-                      ], 8, _hoisted_17)
+                      ], 8, _hoisted_19)
                     ])) : vue.createCommentVNode("", true)
                   ], 64);
                 }), 128)),
-                !_ctx.loading && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_18, [
+                !_ctx.loading && !_ctx.error && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_20, [
                   vue.createElementVNode("td", {
                     colspan: columnCount.value,
                     class: "aheart-table__empty"
                   }, [
                     vue.createVNode(vue.unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                  ], 8, _hoisted_19)
+                  ], 8, _hoisted_21)
                 ])) : vue.createCommentVNode("", true)
               ])
             ], 16)
@@ -1227,24 +1239,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             size: resolvedSize.value,
             onChange: handlePageChange
           }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : vue.createCommentVNode("", true)
-        ], 40, _hoisted_2),
-        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_20, [
+        ], 40, _hoisted_4),
+        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_22, [
           _cache[3] || (_cache[3] = vue.createElementVNode("span", {
             class: "aheart-table__loading-dot",
             "aria-hidden": "true"
           }, null, -1)),
           vue.createElementVNode("span", null, vue.toDisplayString(resolvedLoadingText.value), 1)
-        ])) : _ctx.error ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_21, [
-          vue.createVNode(vue.unref(ARenderNode), { node: errorMessage.value }, null, 8, ["node"]),
-          vue.createElementVNode("button", {
-            type: "button",
-            class: "aheart-table__retry",
-            "data-table-retry": "",
-            disabled: isDisabled.value,
-            onClick: _cache[0] || (_cache[0] = ($event) => emit("retry"))
-          }, [
-            vue.createVNode(vue.unref(ARenderNode), { node: errorRetryText.value }, null, 8, ["node"])
-          ], 8, _hoisted_22)
         ])) : vue.createCommentVNode("", true),
         activeFilterColumn.value && activeFilterPopupNode.value !== null ? (vue.openBlock(), vue.createBlock(vue.Teleport, {
           key: 2,

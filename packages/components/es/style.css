@@ -6606,16 +6606,16 @@ kbd.aheart-typography-text {
 }
 
 .aheart-table__error {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: var(--aheart-spacing-sm);
+  padding: var(--aheart-spacing-md);
   color: var(--aheart-color-danger, #b42318);
-  background: var(--aheart-color-bg);
-  pointer-events: auto;
+  background: var(--aheart-color-danger-bg, #fff1f0);
+  border: 1px solid var(--aheart-color-danger-border, #ffccc7);
+  border-radius: var(--aheart-radius);
+  overflow-wrap: anywhere;
 }
 
 .aheart-table__error button {
@@ -6628,8 +6628,6 @@ kbd.aheart-typography-text {
 }
 
 .aheart-table__retry {
-  position: relative;
-  z-index: 4;
   margin-top: var(--aheart-spacing-sm);
   padding: 4px 10px;
   color: var(--aheart-color-danger, #b42318);
