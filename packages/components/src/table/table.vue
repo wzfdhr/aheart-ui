@@ -20,7 +20,7 @@
         <colgroup>
           <col v-for="column in layoutColumns" :key="column.id" :style="{ width: column.width }" />
         </colgroup>
-        <thead v-if="showHeader">
+        <thead v-if="showHeader" :style="headerSectionStyle">
           <tr>
             <th v-if="hasSelection" class="aheart-table__selection-cell" scope="col" :style="utilityStyle('selection', true)">
               <input
@@ -188,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, nextTick, onBeforeUnmount, onBeforeUpdate, onMounted, ref, watch, type CSSProperties, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import APagination from '../pagination'
 import { getPageCount, normalizeCurrent, normalizePageSize, normalizeTotal } from '../pagination/pagination-state'
@@ -323,6 +323,7 @@ const columnCount = computed(() => normalizedColumns.value.length + (hasSelectio
 
 type LayoutColumn = { id: string; width?: string; source?: TableColumn; utility?: 'selection' | 'expand'; fixed?: 'left' | 'right'; left?: number; right?: number }
 const widthSnapshot = ref<Record<string, string>>({})
+const layoutReady = ref(false)
 const headerShiftY = ref(0)
 const pxWidth = (value: unknown) => {
   if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value
@@ -365,6 +366,7 @@ const layoutColumns = computed<LayoutColumn[]>(() => {
 const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])))
 const stickyOffset = computed(() => typeof props.sticky === 'object' && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0)
 const isSticky = computed(() => Boolean(props.sticky))
+const headerSectionStyle = computed<CSSProperties | undefined>(() => headerShiftY.value ? { transform: `translateY(${headerShiftY.value}px)` } : undefined)
 const columnLayout = (column: TableColumn) => layoutById.value.get(getColumnKey(column))
 const usedWidth = (item: LayoutColumn) => {
   const snapshot = widthSnapshot.value[item.id]
@@ -379,14 +381,22 @@ const cellLayoutStyle = (item: LayoutColumn, header: boolean): CSSProperties => 
   ...(item.width ? { width: item.width } : {}),
   ...(item.fixed === 'left' && item.left !== undefined ? { position: 'sticky', left: `${item.left}px`, zIndex: 2 } : {}),
   ...(item.fixed === 'right' && item.right !== undefined ? { position: 'sticky', right: `${item.right}px`, zIndex: 2 } : {}),
-  ...(isSticky.value && header ? { position: 'sticky', top: `${stickyOffset.value + headerShiftY.value}px`, zIndex: 2 } : {})
+  ...(isSticky.value && header ? { position: 'sticky', top: `${stickyOffset.value}px`, zIndex: 2 } : {})
 })
 const tableStyle = computed<CSSProperties | undefined>(() => {
   const x = props.scroll?.x
   const minWidth = x === true ? 'max-content' : typeof x === 'number' && Number.isFinite(x) ? `${x}px` : typeof x === 'string' ? x : undefined
   return minWidth ? { minWidth } : undefined
 })
-const tableAttrs = computed(() => tableStyle.value ? { style: tableStyle.value } : {})
+const frozenTotalWidth = computed(() => layoutColumns.value.reduce((total, item) => total + usedWidth(item), 0))
+const tableAttrs = computed(() => {
+  if (layoutReady.value && frozenTotalWidth.value > 0) {
+    const width = `${frozenTotalWidth.value}px`
+    const style: CSSProperties = { tableLayout: 'fixed', width, minWidth: width }
+    return { 'data-table-layout-ready': 'true', style }
+  }
+  return tableStyle.value ? { style: tableStyle.value } : {}
+})
 const containerStyle = computed<CSSProperties | undefined>(() => {
   const y = props.scroll?.y
   if (y === undefined) return undefined
@@ -806,7 +816,18 @@ const handleFilterPopupKeydown = (event: KeyboardEvent) => {
 }
 let stickyResizeObserver: ResizeObserver | undefined
 let stickyOwnerWindow: Window | undefined
+let stickyScrollAncestor: HTMLElement | null = null
 let stickyRaf = 0
+const findStickyScrollAncestor = (root: HTMLElement, ownerWindow: Window) => {
+  let current = root.parentElement
+  while (current) {
+    const style = ownerWindow.getComputedStyle(current)
+    const overflowY = style.overflowY
+    if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') && current.scrollHeight > current.clientHeight) return current
+    current = current.parentElement
+  }
+  return null
+}
 const updateStickyGeometry = () => {
   const root = tableRoot.value
   if (!root || !isSticky.value || props.scroll?.y !== undefined) {
@@ -815,8 +836,21 @@ const updateStickyGeometry = () => {
   }
   const rect = root.getBoundingClientRect()
   const viewportHeight = root.ownerDocument.defaultView?.innerHeight ?? 0
-  const headerHeight = root.querySelector<HTMLElement>('thead')?.getBoundingClientRect().height ?? 0
-  const bounded = Math.max(0, Math.min(Math.max(0, viewportHeight - rect.bottom + headerHeight), stickyOffset.value - rect.top))
+  const header = root.querySelector<HTMLElement>('thead')
+  const firstHeaderCell = root.querySelector<HTMLElement>('thead th')
+  const headerRect = header?.getBoundingClientRect()
+  const headerHeight = headerRect?.height ?? 0
+  if (!headerRect || !headerHeight) {
+    headerShiftY.value = 0
+    return
+  }
+  const visualHeaderTop = firstHeaderCell?.getBoundingClientRect().top ?? headerRect.top
+  const naturalHeaderTop = visualHeaderTop - headerShiftY.value
+  const ancestorRect = stickyScrollAncestor?.getBoundingClientRect()
+  const targetTop = (ancestorRect?.top ?? 0) + (stickyScrollAncestor?.clientTop ?? 0) + stickyOffset.value
+  const maxShift = rect.bottom - headerHeight - naturalHeaderTop
+  const desiredShift = targetTop - visualHeaderTop + headerShiftY.value
+  const bounded = Math.max(0, Math.min(maxShift, desiredShift))
   headerShiftY.value = Number.isFinite(bounded) ? bounded : 0
 }
 const scheduleStickyGeometry = () => {
@@ -825,27 +859,33 @@ const scheduleStickyGeometry = () => {
   const request = ownerWindow?.requestAnimationFrame ?? ((callback: FrameRequestCallback) => setTimeout(callback, 0) as unknown as number)
   stickyRaf = request(() => {
     stickyRaf = 0
+    measureLayout()
     updateStickyGeometry()
   })
 }
 const measureLayout = () => {
   if (props.scroll?.x === undefined || !tableRoot.value) return
   const cells = Array.from(tableRoot.value.querySelectorAll<HTMLElement>('thead th'))
+  const cols = Array.from(tableRoot.value.querySelectorAll<HTMLElement>('colgroup col'))
   const next = { ...widthSnapshot.value }
   cells.forEach((cell, index) => {
-    const width = cell.getBoundingClientRect().width
+    const width = cell.getBoundingClientRect().width || cols[index]?.getBoundingClientRect().width || Number.parseFloat(tableRoot.value?.ownerDocument.defaultView?.getComputedStyle(cell).width ?? '') || 0
     const item = layoutColumns.value[index]
     if (item && width > 0 && !next[item.id]) next[item.id] = `${width}px`
   })
   if (Object.keys(next).length !== Object.keys(widthSnapshot.value).length) widthSnapshot.value = next
+  if (layoutColumns.value.length > 0 && layoutColumns.value.every((item) => next[item.id])) layoutReady.value = true
 }
+watch([normalizedData, () => props.scroll?.x], () => measureLayout(), { flush: 'sync' })
 const bindStickyObservers = () => {
   const root = tableRoot.value
   const ownerWindow = root?.ownerDocument.defaultView
   if (!root || !ownerWindow) return
   stickyOwnerWindow = ownerWindow
+  stickyScrollAncestor = findStickyScrollAncestor(root, ownerWindow)
   ownerWindow.addEventListener('scroll', scheduleStickyGeometry, true)
   ownerWindow.addEventListener('resize', scheduleStickyGeometry)
+  stickyScrollAncestor?.addEventListener('scroll', scheduleStickyGeometry, { passive: true })
   const ResizeObserverConstructor = ownerWindow.ResizeObserver
   if (ResizeObserverConstructor) {
     stickyResizeObserver = new ResizeObserverConstructor(() => {
@@ -853,6 +893,7 @@ const bindStickyObservers = () => {
       scheduleStickyGeometry()
     })
     stickyResizeObserver.observe(root)
+    if (stickyScrollAncestor) stickyResizeObserver.observe(stickyScrollAncestor)
   }
   scheduleStickyGeometry()
 }
@@ -861,6 +902,8 @@ const unbindStickyObservers = () => {
     stickyOwnerWindow.removeEventListener('scroll', scheduleStickyGeometry, true)
     stickyOwnerWindow.removeEventListener('resize', scheduleStickyGeometry)
   }
+  stickyScrollAncestor?.removeEventListener('scroll', scheduleStickyGeometry)
+  stickyScrollAncestor = null
   stickyResizeObserver?.disconnect()
   stickyResizeObserver = undefined
   if (stickyRaf) {
@@ -869,6 +912,7 @@ const unbindStickyObservers = () => {
   }
   stickyOwnerWindow = undefined
 }
+onBeforeUpdate(() => measureLayout())
 watch([normalizedColumns, activeFilterKey], () => {
   const openColumn = normalizedColumns.value.find((column) => column.filterDropdownOpen === true)
   if (!activeFilterKey.value && openColumn && !isInteractionLocked.value) {

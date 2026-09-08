@@ -12,47 +12,46 @@ require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-busy", "inert"];
 const _hoisted_2 = ["inert"];
-const _hoisted_3 = { key: 0 };
-const _hoisted_4 = ["checked", "indeterminate", "aria-checked", "disabled"];
-const _hoisted_5 = {
+const _hoisted_3 = ["checked", "indeterminate", "aria-checked", "disabled"];
+const _hoisted_4 = {
   key: 1,
   class: "aheart-table__selection-title",
   "aria-hidden": "true"
 };
-const _hoisted_6 = ["aria-sort"];
-const _hoisted_7 = { class: "aheart-table__head-content" };
-const _hoisted_8 = ["disabled", "aria-label", "onClick"];
-const _hoisted_9 = ["data-sort"];
-const _hoisted_10 = {
+const _hoisted_5 = ["aria-sort"];
+const _hoisted_6 = { class: "aheart-table__head-content" };
+const _hoisted_7 = ["disabled", "aria-label", "onClick"];
+const _hoisted_8 = ["data-sort"];
+const _hoisted_9 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_11 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
-const _hoisted_12 = { class: "sr-only" };
-const _hoisted_13 = ["aria-label"];
-const _hoisted_14 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_15 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_16 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_17 = {
+const _hoisted_10 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
+const _hoisted_11 = { class: "sr-only" };
+const _hoisted_12 = ["aria-label"];
+const _hoisted_13 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_14 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_16 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_18 = ["colspan"];
-const _hoisted_19 = { key: 0 };
-const _hoisted_20 = ["colspan"];
-const _hoisted_21 = {
+const _hoisted_17 = ["colspan"];
+const _hoisted_18 = { key: 0 };
+const _hoisted_19 = ["colspan"];
+const _hoisted_20 = {
   key: 0,
   class: "aheart-table__loading",
   role: "status",
   "aria-live": "polite"
 };
-const _hoisted_22 = {
+const _hoisted_21 = {
   key: 1,
   class: "aheart-table__error",
   role: "alert"
 };
-const _hoisted_23 = ["disabled"];
-const _hoisted_24 = ["data-table-filter-popup"];
+const _hoisted_22 = ["disabled"];
+const _hoisted_23 = ["data-table-filter-popup"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ATable"
@@ -175,6 +174,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const shouldShowPagination = vue.computed(() => props.pagination !== false && (props.pagination !== void 0 || paginationTotal.value > pageSize.value));
     const columnCount = vue.computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
     const widthSnapshot = vue.ref({});
+    const layoutReady = vue.ref(false);
     const headerShiftY = vue.ref(0);
     const pxWidth = (value) => {
       if (typeof value === "number" && Number.isFinite(value) && value > 0)
@@ -238,6 +238,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const layoutById = vue.computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])));
     const stickyOffset = vue.computed(() => typeof props.sticky === "object" && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0);
     const isSticky = vue.computed(() => Boolean(props.sticky));
+    const headerSectionStyle = vue.computed(() => headerShiftY.value ? { transform: `translateY(${headerShiftY.value}px)` } : void 0);
     const columnLayout = (column) => layoutById.value.get(getColumnKey(column));
     const usedWidth = (item) => {
       var _a;
@@ -254,7 +255,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       ...item.width ? { width: item.width } : {},
       ...item.fixed === "left" && item.left !== void 0 ? { position: "sticky", left: `${item.left}px`, zIndex: 2 } : {},
       ...item.fixed === "right" && item.right !== void 0 ? { position: "sticky", right: `${item.right}px`, zIndex: 2 } : {},
-      ...isSticky.value && header ? { position: "sticky", top: `${stickyOffset.value + headerShiftY.value}px`, zIndex: 2 } : {}
+      ...isSticky.value && header ? { position: "sticky", top: `${stickyOffset.value}px`, zIndex: 2 } : {}
     });
     const tableStyle = vue.computed(() => {
       var _a;
@@ -262,7 +263,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const minWidth = x === true ? "max-content" : typeof x === "number" && Number.isFinite(x) ? `${x}px` : typeof x === "string" ? x : void 0;
       return minWidth ? { minWidth } : void 0;
     });
-    const tableAttrs = vue.computed(() => tableStyle.value ? { style: tableStyle.value } : {});
+    const frozenTotalWidth = vue.computed(() => layoutColumns.value.reduce((total, item) => total + usedWidth(item), 0));
+    const tableAttrs = vue.computed(() => {
+      if (layoutReady.value && frozenTotalWidth.value > 0) {
+        const width = `${frozenTotalWidth.value}px`;
+        const style = { tableLayout: "fixed", width, minWidth: width };
+        return { "data-table-layout-ready": "true", style };
+      }
+      return tableStyle.value ? { style: tableStyle.value } : {};
+    });
     const containerStyle = vue.computed(() => {
       var _a;
       const y = (_a = props.scroll) == null ? void 0 : _a.y;
@@ -658,18 +667,43 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     let stickyResizeObserver;
     let stickyOwnerWindow;
+    let stickyScrollAncestor = null;
     let stickyRaf = 0;
+    const findStickyScrollAncestor = (root, ownerWindow) => {
+      let current = root.parentElement;
+      while (current) {
+        const style = ownerWindow.getComputedStyle(current);
+        const overflowY = style.overflowY;
+        if ((overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") && current.scrollHeight > current.clientHeight)
+          return current;
+        current = current.parentElement;
+      }
+      return null;
+    };
     const updateStickyGeometry = () => {
-      var _a, _b, _c;
+      var _a, _b;
       const root = tableRoot.value;
       if (!root || !isSticky.value || ((_a = props.scroll) == null ? void 0 : _a.y) !== void 0) {
         headerShiftY.value = 0;
         return;
       }
       const rect = root.getBoundingClientRect();
-      const viewportHeight = ((_b = root.ownerDocument.defaultView) == null ? void 0 : _b.innerHeight) ?? 0;
-      const headerHeight = ((_c = root.querySelector("thead")) == null ? void 0 : _c.getBoundingClientRect().height) ?? 0;
-      const bounded = Math.max(0, Math.min(Math.max(0, viewportHeight - rect.bottom + headerHeight), stickyOffset.value - rect.top));
+      ((_b = root.ownerDocument.defaultView) == null ? void 0 : _b.innerHeight) ?? 0;
+      const header = root.querySelector("thead");
+      const firstHeaderCell = root.querySelector("thead th");
+      const headerRect = header == null ? void 0 : header.getBoundingClientRect();
+      const headerHeight = (headerRect == null ? void 0 : headerRect.height) ?? 0;
+      if (!headerRect || !headerHeight) {
+        headerShiftY.value = 0;
+        return;
+      }
+      const visualHeaderTop = (firstHeaderCell == null ? void 0 : firstHeaderCell.getBoundingClientRect().top) ?? headerRect.top;
+      const naturalHeaderTop = visualHeaderTop - headerShiftY.value;
+      const ancestorRect = stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.getBoundingClientRect();
+      const targetTop = ((ancestorRect == null ? void 0 : ancestorRect.top) ?? 0) + ((stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.clientTop) ?? 0) + stickyOffset.value;
+      const maxShift = rect.bottom - headerHeight - naturalHeaderTop;
+      const desiredShift = targetTop - visualHeaderTop + headerShiftY.value;
+      const bounded = Math.max(0, Math.min(maxShift, desiredShift));
       headerShiftY.value = Number.isFinite(bounded) ? bounded : 0;
     };
     const scheduleStickyGeometry = () => {
@@ -680,6 +714,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const request = (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame) ?? ((callback) => setTimeout(callback, 0));
       stickyRaf = request(() => {
         stickyRaf = 0;
+        measureLayout();
         updateStickyGeometry();
       });
     };
@@ -688,24 +723,34 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (((_a = props.scroll) == null ? void 0 : _a.x) === void 0 || !tableRoot.value)
         return;
       const cells = Array.from(tableRoot.value.querySelectorAll("thead th"));
+      const cols = Array.from(tableRoot.value.querySelectorAll("colgroup col"));
       const next = { ...widthSnapshot.value };
       cells.forEach((cell, index2) => {
-        const width = cell.getBoundingClientRect().width;
+        var _a2, _b, _c;
+        const width = cell.getBoundingClientRect().width || ((_a2 = cols[index2]) == null ? void 0 : _a2.getBoundingClientRect().width) || Number.parseFloat(((_c = (_b = tableRoot.value) == null ? void 0 : _b.ownerDocument.defaultView) == null ? void 0 : _c.getComputedStyle(cell).width) ?? "") || 0;
         const item = layoutColumns.value[index2];
         if (item && width > 0 && !next[item.id])
           next[item.id] = `${width}px`;
       });
       if (Object.keys(next).length !== Object.keys(widthSnapshot.value).length)
         widthSnapshot.value = next;
+      if (layoutColumns.value.length > 0 && layoutColumns.value.every((item) => next[item.id]))
+        layoutReady.value = true;
     };
+    vue.watch([normalizedData, () => {
+      var _a;
+      return (_a = props.scroll) == null ? void 0 : _a.x;
+    }], () => measureLayout(), { flush: "sync" });
     const bindStickyObservers = () => {
       const root = tableRoot.value;
       const ownerWindow = root == null ? void 0 : root.ownerDocument.defaultView;
       if (!root || !ownerWindow)
         return;
       stickyOwnerWindow = ownerWindow;
+      stickyScrollAncestor = findStickyScrollAncestor(root, ownerWindow);
       ownerWindow.addEventListener("scroll", scheduleStickyGeometry, true);
       ownerWindow.addEventListener("resize", scheduleStickyGeometry);
+      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.addEventListener("scroll", scheduleStickyGeometry, { passive: true });
       const ResizeObserverConstructor = ownerWindow.ResizeObserver;
       if (ResizeObserverConstructor) {
         stickyResizeObserver = new ResizeObserverConstructor(() => {
@@ -713,6 +758,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           scheduleStickyGeometry();
         });
         stickyResizeObserver.observe(root);
+        if (stickyScrollAncestor)
+          stickyResizeObserver.observe(stickyScrollAncestor);
       }
       scheduleStickyGeometry();
     };
@@ -721,6 +768,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         stickyOwnerWindow.removeEventListener("scroll", scheduleStickyGeometry, true);
         stickyOwnerWindow.removeEventListener("resize", scheduleStickyGeometry);
       }
+      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.removeEventListener("scroll", scheduleStickyGeometry);
+      stickyScrollAncestor = null;
       stickyResizeObserver == null ? void 0 : stickyResizeObserver.disconnect();
       stickyResizeObserver = void 0;
       if (stickyRaf) {
@@ -729,6 +778,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       stickyOwnerWindow = void 0;
     };
+    vue.onBeforeUpdate(() => measureLayout());
     vue.watch([normalizedColumns, activeFilterKey], () => {
       const openColumn = normalizedColumns.value.find((column) => column.filterDropdownOpen === true);
       if (!activeFilterKey.value && openColumn && !isInteractionLocked.value) {
@@ -928,7 +978,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   }, null, 4);
                 }), 128))
               ]),
-              _ctx.showHeader ? (vue.openBlock(), vue.createElementBlock("thead", _hoisted_3, [
+              _ctx.showHeader ? (vue.openBlock(), vue.createElementBlock("thead", {
+                key: 0,
+                style: vue.normalizeStyle(headerSectionStyle.value)
+              }, [
                 vue.createElementVNode("tr", null, [
                   hasSelection.value ? (vue.openBlock(), vue.createElementBlock("th", {
                     key: 0,
@@ -946,7 +999,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       "aria-checked": somePageSelected.value && !allPageSelected.value ? "mixed" : allPageSelected.value,
                       disabled: isSelectionDisabled.value || selectableRows.value.length === 0,
                       onChange: handleSelectAll
-                    }, null, 40, _hoisted_4)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_5))
+                    }, null, 40, _hoisted_3)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_4))
                   ], 4)) : vue.createCommentVNode("", true),
                   hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("th", {
                     key: 1,
@@ -968,7 +1021,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                       "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                       scope: "col"
                     }, [
-                      vue.createElementVNode("div", _hoisted_7, [
+                      vue.createElementVNode("div", _hoisted_6, [
                         column.sorter ? (vue.openBlock(), vue.createElementBlock("button", {
                           key: 0,
                           class: "aheart-table__sorter",
@@ -986,8 +1039,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                             class: "aheart-table__sort-icon",
                             "data-sort": getSortState(column),
                             "aria-hidden": "true"
-                          }, null, 8, _hoisted_9)
-                        ], 8, _hoisted_8)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_10, [
+                          }, null, 8, _hoisted_8)
+                        ], 8, _hoisted_7)) : (vue.openBlock(), vue.createElementBlock("span", _hoisted_9, [
                           vue.createVNode(vue.unref(ARenderNode), {
                             node: column.title
                           }, null, 8, ["node"])
@@ -1003,8 +1056,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           onClick: ($event) => toggleFilterPopup(column, $event.currentTarget)
                         }, [
                           _cache[2] || (_cache[2] = vue.createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
-                          vue.createElementVNode("span", _hoisted_12, "Filter " + vue.toDisplayString(getColumnLabel(column)), 1)
-                        ], 8, _hoisted_11)) : vue.createCommentVNode("", true),
+                          vue.createElementVNode("span", _hoisted_11, "Filter " + vue.toDisplayString(getColumnLabel(column)), 1)
+                        ], 8, _hoisted_10)) : vue.createCommentVNode("", true),
                         ((_a = column.filters) == null ? void 0 : _a.length) ? (vue.openBlock(), vue.createElementBlock("div", {
                           key: 3,
                           class: "aheart-table__filters",
@@ -1022,14 +1075,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                               vue.createVNode(vue.unref(ARenderNode), {
                                 node: filter.text
                               }, null, 8, ["node"])
-                            ], 10, _hoisted_14);
+                            ], 10, _hoisted_13);
                           }), 128))
-                        ], 8, _hoisted_13)) : vue.createCommentVNode("", true)
+                        ], 8, _hoisted_12)) : vue.createCommentVNode("", true)
                       ])
-                    ], 14, _hoisted_6);
+                    ], 14, _hoisted_5);
                   }), 128))
                 ])
-              ])) : vue.createCommentVNode("", true),
+              ], 4)) : vue.createCommentVNode("", true),
               vue.createElementVNode("tbody", null, [
                 (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(pagedRows.value, (row) => {
                   return vue.openBlock(), vue.createElementBlock(vue.Fragment, {
@@ -1050,7 +1103,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           disabled: isRowSelectionDisabled(row.record),
                           "aria-label": `Select row ${row.key}`,
                           onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                        }, null, 40, _hoisted_15)
+                        }, null, 40, _hoisted_14)
                       ], 4)) : vue.createCommentVNode("", true),
                       hasExpandable.value ? (vue.openBlock(), vue.createElementBlock("td", {
                         key: 1,
@@ -1064,7 +1117,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                           "aria-expanded": isExpanded(row.key),
                           disabled: isInteractionLocked.value,
                           onClick: ($event) => toggleExpand(row.record, row.key)
-                        }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_16)) : vue.createCommentVNode("", true)
+                        }, vue.toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : vue.createCommentVNode("", true)
                       ], 4)) : vue.createCommentVNode("", true),
                       (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(normalizedColumns.value, (column) => {
                         return vue.openBlock(), vue.createElementBlock("td", {
@@ -1078,7 +1131,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         ], 6);
                       }), 128))
                     ], 2),
-                    hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_17, [
+                    hasExpandable.value && isExpanded(row.key) ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_16, [
                       vue.createElementVNode("td", {
                         colspan: columnCount.value,
                         class: "aheart-table__expanded-cell"
@@ -1086,17 +1139,17 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                         vue.createVNode(vue.unref(ARenderNode), {
                           node: renderExpanded(row.record, row.index)
                         }, null, 8, ["node"])
-                      ], 8, _hoisted_18)
+                      ], 8, _hoisted_17)
                     ])) : vue.createCommentVNode("", true)
                   ], 64);
                 }), 128)),
-                !_ctx.loading && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_19, [
+                !_ctx.loading && pagedRows.value.length === 0 ? (vue.openBlock(), vue.createElementBlock("tr", _hoisted_18, [
                   vue.createElementVNode("td", {
                     colspan: columnCount.value,
                     class: "aheart-table__empty"
                   }, [
                     vue.createVNode(vue.unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                  ], 8, _hoisted_20)
+                  ], 8, _hoisted_19)
                 ])) : vue.createCommentVNode("", true)
               ])
             ], 16)
@@ -1119,13 +1172,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onChange: handlePageChange
           }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : vue.createCommentVNode("", true)
         ], 40, _hoisted_2),
-        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_21, [
+        _ctx.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_20, [
           _cache[3] || (_cache[3] = vue.createElementVNode("span", {
             class: "aheart-table__loading-dot",
             "aria-hidden": "true"
           }, null, -1)),
           vue.createElementVNode("span", null, vue.toDisplayString(resolvedLoadingText.value), 1)
-        ])) : _ctx.error ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_22, [
+        ])) : _ctx.error ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_21, [
           vue.createVNode(vue.unref(ARenderNode), { node: errorMessage.value }, null, 8, ["node"]),
           vue.createElementVNode("button", {
             type: "button",
@@ -1135,7 +1188,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onClick: _cache[0] || (_cache[0] = ($event) => emit("retry"))
           }, [
             vue.createVNode(vue.unref(ARenderNode), { node: errorRetryText.value }, null, 8, ["node"])
-          ], 8, _hoisted_23)
+          ], 8, _hoisted_22)
         ])) : vue.createCommentVNode("", true),
         activeFilterColumn.value && activeFilterPopupNode.value !== null ? (vue.openBlock(), vue.createBlock(vue.Teleport, {
           key: 2,
@@ -1153,7 +1206,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             onKeydown: handleFilterPopupKeydown
           }, [
             vue.createVNode(vue.unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
-          ], 44, _hoisted_24)
+          ], 44, _hoisted_23)
         ], 8, ["to", "disabled"])) : vue.createCommentVNode("", true)
       ], 10, _hoisted_1);
     };

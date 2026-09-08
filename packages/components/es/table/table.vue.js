@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, nextTick, onMounted, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, normalizeStyle, normalizeProps, guardReactiveProps, Fragment, renderList, createCommentVNode, createVNode, unref, toDisplayString, createBlock, Teleport } from "vue";
+import { defineComponent, ref, computed, watch, nextTick, onBeforeUpdate, onMounted, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, normalizeStyle, normalizeProps, guardReactiveProps, Fragment, renderList, createCommentVNode, createVNode, unref, toDisplayString, createBlock, Teleport } from "vue";
 import Pagination from "../pagination/index.js";
 import { normalizePageSize, getPageCount, normalizeCurrent, normalizeTotal } from "../pagination/pagination-state.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
@@ -10,47 +10,46 @@ import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-busy", "inert"];
 const _hoisted_2 = ["inert"];
-const _hoisted_3 = { key: 0 };
-const _hoisted_4 = ["checked", "indeterminate", "aria-checked", "disabled"];
-const _hoisted_5 = {
+const _hoisted_3 = ["checked", "indeterminate", "aria-checked", "disabled"];
+const _hoisted_4 = {
   key: 1,
   class: "aheart-table__selection-title",
   "aria-hidden": "true"
 };
-const _hoisted_6 = ["aria-sort"];
-const _hoisted_7 = { class: "aheart-table__head-content" };
-const _hoisted_8 = ["disabled", "aria-label", "onClick"];
-const _hoisted_9 = ["data-sort"];
-const _hoisted_10 = {
+const _hoisted_5 = ["aria-sort"];
+const _hoisted_6 = { class: "aheart-table__head-content" };
+const _hoisted_7 = ["disabled", "aria-label", "onClick"];
+const _hoisted_8 = ["data-sort"];
+const _hoisted_9 = {
   key: 1,
   class: "aheart-table__title"
 };
-const _hoisted_11 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
-const _hoisted_12 = { class: "sr-only" };
-const _hoisted_13 = ["aria-label"];
-const _hoisted_14 = ["aria-pressed", "disabled", "onClick"];
-const _hoisted_15 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
-const _hoisted_16 = ["aria-expanded", "disabled", "onClick"];
-const _hoisted_17 = {
+const _hoisted_10 = ["data-table-filter-trigger", "aria-expanded", "disabled", "onClick"];
+const _hoisted_11 = { class: "sr-only" };
+const _hoisted_12 = ["aria-label"];
+const _hoisted_13 = ["aria-pressed", "disabled", "onClick"];
+const _hoisted_14 = ["type", "name", "checked", "disabled", "aria-label", "onChange"];
+const _hoisted_15 = ["aria-expanded", "disabled", "onClick"];
+const _hoisted_16 = {
   key: 0,
   class: "aheart-table__expanded-row"
 };
-const _hoisted_18 = ["colspan"];
-const _hoisted_19 = { key: 0 };
-const _hoisted_20 = ["colspan"];
-const _hoisted_21 = {
+const _hoisted_17 = ["colspan"];
+const _hoisted_18 = { key: 0 };
+const _hoisted_19 = ["colspan"];
+const _hoisted_20 = {
   key: 0,
   class: "aheart-table__loading",
   role: "status",
   "aria-live": "polite"
 };
-const _hoisted_22 = {
+const _hoisted_21 = {
   key: 1,
   class: "aheart-table__error",
   role: "alert"
 };
-const _hoisted_23 = ["disabled"];
-const _hoisted_24 = ["data-table-filter-popup"];
+const _hoisted_22 = ["disabled"];
+const _hoisted_23 = ["data-table-filter-popup"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATable"
@@ -173,6 +172,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const shouldShowPagination = computed(() => props.pagination !== false && (props.pagination !== void 0 || paginationTotal.value > pageSize.value));
     const columnCount = computed(() => normalizedColumns.value.length + (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0));
     const widthSnapshot = ref({});
+    const layoutReady = ref(false);
     const headerShiftY = ref(0);
     const pxWidth = (value) => {
       if (typeof value === "number" && Number.isFinite(value) && value > 0)
@@ -236,6 +236,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])));
     const stickyOffset = computed(() => typeof props.sticky === "object" && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0);
     const isSticky = computed(() => Boolean(props.sticky));
+    const headerSectionStyle = computed(() => headerShiftY.value ? { transform: `translateY(${headerShiftY.value}px)` } : void 0);
     const columnLayout = (column) => layoutById.value.get(getColumnKey(column));
     const usedWidth = (item) => {
       var _a;
@@ -252,7 +253,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       ...item.width ? { width: item.width } : {},
       ...item.fixed === "left" && item.left !== void 0 ? { position: "sticky", left: `${item.left}px`, zIndex: 2 } : {},
       ...item.fixed === "right" && item.right !== void 0 ? { position: "sticky", right: `${item.right}px`, zIndex: 2 } : {},
-      ...isSticky.value && header ? { position: "sticky", top: `${stickyOffset.value + headerShiftY.value}px`, zIndex: 2 } : {}
+      ...isSticky.value && header ? { position: "sticky", top: `${stickyOffset.value}px`, zIndex: 2 } : {}
     });
     const tableStyle = computed(() => {
       var _a;
@@ -260,7 +261,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const minWidth = x === true ? "max-content" : typeof x === "number" && Number.isFinite(x) ? `${x}px` : typeof x === "string" ? x : void 0;
       return minWidth ? { minWidth } : void 0;
     });
-    const tableAttrs = computed(() => tableStyle.value ? { style: tableStyle.value } : {});
+    const frozenTotalWidth = computed(() => layoutColumns.value.reduce((total, item) => total + usedWidth(item), 0));
+    const tableAttrs = computed(() => {
+      if (layoutReady.value && frozenTotalWidth.value > 0) {
+        const width = `${frozenTotalWidth.value}px`;
+        const style = { tableLayout: "fixed", width, minWidth: width };
+        return { "data-table-layout-ready": "true", style };
+      }
+      return tableStyle.value ? { style: tableStyle.value } : {};
+    });
     const containerStyle = computed(() => {
       var _a;
       const y = (_a = props.scroll) == null ? void 0 : _a.y;
@@ -656,18 +665,43 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     let stickyResizeObserver;
     let stickyOwnerWindow;
+    let stickyScrollAncestor = null;
     let stickyRaf = 0;
+    const findStickyScrollAncestor = (root, ownerWindow) => {
+      let current = root.parentElement;
+      while (current) {
+        const style = ownerWindow.getComputedStyle(current);
+        const overflowY = style.overflowY;
+        if ((overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") && current.scrollHeight > current.clientHeight)
+          return current;
+        current = current.parentElement;
+      }
+      return null;
+    };
     const updateStickyGeometry = () => {
-      var _a, _b, _c;
+      var _a, _b;
       const root = tableRoot.value;
       if (!root || !isSticky.value || ((_a = props.scroll) == null ? void 0 : _a.y) !== void 0) {
         headerShiftY.value = 0;
         return;
       }
       const rect = root.getBoundingClientRect();
-      const viewportHeight = ((_b = root.ownerDocument.defaultView) == null ? void 0 : _b.innerHeight) ?? 0;
-      const headerHeight = ((_c = root.querySelector("thead")) == null ? void 0 : _c.getBoundingClientRect().height) ?? 0;
-      const bounded = Math.max(0, Math.min(Math.max(0, viewportHeight - rect.bottom + headerHeight), stickyOffset.value - rect.top));
+      ((_b = root.ownerDocument.defaultView) == null ? void 0 : _b.innerHeight) ?? 0;
+      const header = root.querySelector("thead");
+      const firstHeaderCell = root.querySelector("thead th");
+      const headerRect = header == null ? void 0 : header.getBoundingClientRect();
+      const headerHeight = (headerRect == null ? void 0 : headerRect.height) ?? 0;
+      if (!headerRect || !headerHeight) {
+        headerShiftY.value = 0;
+        return;
+      }
+      const visualHeaderTop = (firstHeaderCell == null ? void 0 : firstHeaderCell.getBoundingClientRect().top) ?? headerRect.top;
+      const naturalHeaderTop = visualHeaderTop - headerShiftY.value;
+      const ancestorRect = stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.getBoundingClientRect();
+      const targetTop = ((ancestorRect == null ? void 0 : ancestorRect.top) ?? 0) + ((stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.clientTop) ?? 0) + stickyOffset.value;
+      const maxShift = rect.bottom - headerHeight - naturalHeaderTop;
+      const desiredShift = targetTop - visualHeaderTop + headerShiftY.value;
+      const bounded = Math.max(0, Math.min(maxShift, desiredShift));
       headerShiftY.value = Number.isFinite(bounded) ? bounded : 0;
     };
     const scheduleStickyGeometry = () => {
@@ -678,6 +712,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const request = (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame) ?? ((callback) => setTimeout(callback, 0));
       stickyRaf = request(() => {
         stickyRaf = 0;
+        measureLayout();
         updateStickyGeometry();
       });
     };
@@ -686,24 +721,34 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (((_a = props.scroll) == null ? void 0 : _a.x) === void 0 || !tableRoot.value)
         return;
       const cells = Array.from(tableRoot.value.querySelectorAll("thead th"));
+      const cols = Array.from(tableRoot.value.querySelectorAll("colgroup col"));
       const next = { ...widthSnapshot.value };
       cells.forEach((cell, index) => {
-        const width = cell.getBoundingClientRect().width;
+        var _a2, _b, _c;
+        const width = cell.getBoundingClientRect().width || ((_a2 = cols[index]) == null ? void 0 : _a2.getBoundingClientRect().width) || Number.parseFloat(((_c = (_b = tableRoot.value) == null ? void 0 : _b.ownerDocument.defaultView) == null ? void 0 : _c.getComputedStyle(cell).width) ?? "") || 0;
         const item = layoutColumns.value[index];
         if (item && width > 0 && !next[item.id])
           next[item.id] = `${width}px`;
       });
       if (Object.keys(next).length !== Object.keys(widthSnapshot.value).length)
         widthSnapshot.value = next;
+      if (layoutColumns.value.length > 0 && layoutColumns.value.every((item) => next[item.id]))
+        layoutReady.value = true;
     };
+    watch([normalizedData, () => {
+      var _a;
+      return (_a = props.scroll) == null ? void 0 : _a.x;
+    }], () => measureLayout(), { flush: "sync" });
     const bindStickyObservers = () => {
       const root = tableRoot.value;
       const ownerWindow = root == null ? void 0 : root.ownerDocument.defaultView;
       if (!root || !ownerWindow)
         return;
       stickyOwnerWindow = ownerWindow;
+      stickyScrollAncestor = findStickyScrollAncestor(root, ownerWindow);
       ownerWindow.addEventListener("scroll", scheduleStickyGeometry, true);
       ownerWindow.addEventListener("resize", scheduleStickyGeometry);
+      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.addEventListener("scroll", scheduleStickyGeometry, { passive: true });
       const ResizeObserverConstructor = ownerWindow.ResizeObserver;
       if (ResizeObserverConstructor) {
         stickyResizeObserver = new ResizeObserverConstructor(() => {
@@ -711,6 +756,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           scheduleStickyGeometry();
         });
         stickyResizeObserver.observe(root);
+        if (stickyScrollAncestor)
+          stickyResizeObserver.observe(stickyScrollAncestor);
       }
       scheduleStickyGeometry();
     };
@@ -719,6 +766,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         stickyOwnerWindow.removeEventListener("scroll", scheduleStickyGeometry, true);
         stickyOwnerWindow.removeEventListener("resize", scheduleStickyGeometry);
       }
+      stickyScrollAncestor == null ? void 0 : stickyScrollAncestor.removeEventListener("scroll", scheduleStickyGeometry);
+      stickyScrollAncestor = null;
       stickyResizeObserver == null ? void 0 : stickyResizeObserver.disconnect();
       stickyResizeObserver = void 0;
       if (stickyRaf) {
@@ -727,6 +776,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       stickyOwnerWindow = void 0;
     };
+    onBeforeUpdate(() => measureLayout());
     watch([normalizedColumns, activeFilterKey], () => {
       const openColumn = normalizedColumns.value.find((column) => column.filterDropdownOpen === true);
       if (!activeFilterKey.value && openColumn && !isInteractionLocked.value) {
@@ -926,7 +976,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                   }, null, 4);
                 }), 128))
               ]),
-              _ctx.showHeader ? (openBlock(), createElementBlock("thead", _hoisted_3, [
+              _ctx.showHeader ? (openBlock(), createElementBlock("thead", {
+                key: 0,
+                style: normalizeStyle(headerSectionStyle.value)
+              }, [
                 createElementVNode("tr", null, [
                   hasSelection.value ? (openBlock(), createElementBlock("th", {
                     key: 0,
@@ -944,7 +997,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       "aria-checked": somePageSelected.value && !allPageSelected.value ? "mixed" : allPageSelected.value,
                       disabled: isSelectionDisabled.value || selectableRows.value.length === 0,
                       onChange: handleSelectAll
-                    }, null, 40, _hoisted_4)) : (openBlock(), createElementBlock("span", _hoisted_5))
+                    }, null, 40, _hoisted_3)) : (openBlock(), createElementBlock("span", _hoisted_4))
                   ], 4)) : createCommentVNode("", true),
                   hasExpandable.value ? (openBlock(), createElementBlock("th", {
                     key: 1,
@@ -966,7 +1019,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       "aria-sort": column.sorter ? getAriaSort(column) : void 0,
                       scope: "col"
                     }, [
-                      createElementVNode("div", _hoisted_7, [
+                      createElementVNode("div", _hoisted_6, [
                         column.sorter ? (openBlock(), createElementBlock("button", {
                           key: 0,
                           class: "aheart-table__sorter",
@@ -984,8 +1037,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                             class: "aheart-table__sort-icon",
                             "data-sort": getSortState(column),
                             "aria-hidden": "true"
-                          }, null, 8, _hoisted_9)
-                        ], 8, _hoisted_8)) : (openBlock(), createElementBlock("span", _hoisted_10, [
+                          }, null, 8, _hoisted_8)
+                        ], 8, _hoisted_7)) : (openBlock(), createElementBlock("span", _hoisted_9, [
                           createVNode(unref(ARenderNode), {
                             node: column.title
                           }, null, 8, ["node"])
@@ -1001,8 +1054,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           onClick: ($event) => toggleFilterPopup(column, $event.currentTarget)
                         }, [
                           _cache[2] || (_cache[2] = createElementVNode("span", { "aria-hidden": "true" }, "⌄", -1)),
-                          createElementVNode("span", _hoisted_12, "Filter " + toDisplayString(getColumnLabel(column)), 1)
-                        ], 8, _hoisted_11)) : createCommentVNode("", true),
+                          createElementVNode("span", _hoisted_11, "Filter " + toDisplayString(getColumnLabel(column)), 1)
+                        ], 8, _hoisted_10)) : createCommentVNode("", true),
                         ((_a = column.filters) == null ? void 0 : _a.length) ? (openBlock(), createElementBlock("div", {
                           key: 3,
                           class: "aheart-table__filters",
@@ -1020,14 +1073,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                               createVNode(unref(ARenderNode), {
                                 node: filter.text
                               }, null, 8, ["node"])
-                            ], 10, _hoisted_14);
+                            ], 10, _hoisted_13);
                           }), 128))
-                        ], 8, _hoisted_13)) : createCommentVNode("", true)
+                        ], 8, _hoisted_12)) : createCommentVNode("", true)
                       ])
-                    ], 14, _hoisted_6);
+                    ], 14, _hoisted_5);
                   }), 128))
                 ])
-              ])) : createCommentVNode("", true),
+              ], 4)) : createCommentVNode("", true),
               createElementVNode("tbody", null, [
                 (openBlock(true), createElementBlock(Fragment, null, renderList(pagedRows.value, (row) => {
                   return openBlock(), createElementBlock(Fragment, {
@@ -1048,7 +1101,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           disabled: isRowSelectionDisabled(row.record),
                           "aria-label": `Select row ${row.key}`,
                           onChange: ($event) => handleSelectionChange($event, row.record, row.key)
-                        }, null, 40, _hoisted_15)
+                        }, null, 40, _hoisted_14)
                       ], 4)) : createCommentVNode("", true),
                       hasExpandable.value ? (openBlock(), createElementBlock("td", {
                         key: 1,
@@ -1062,7 +1115,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                           "aria-expanded": isExpanded(row.key),
                           disabled: isInteractionLocked.value,
                           onClick: ($event) => toggleExpand(row.record, row.key)
-                        }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_16)) : createCommentVNode("", true)
+                        }, toDisplayString(isExpanded(row.key) ? "−" : "+"), 9, _hoisted_15)) : createCommentVNode("", true)
                       ], 4)) : createCommentVNode("", true),
                       (openBlock(true), createElementBlock(Fragment, null, renderList(normalizedColumns.value, (column) => {
                         return openBlock(), createElementBlock("td", {
@@ -1076,7 +1129,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         ], 6);
                       }), 128))
                     ], 2),
-                    hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_17, [
+                    hasExpandable.value && isExpanded(row.key) ? (openBlock(), createElementBlock("tr", _hoisted_16, [
                       createElementVNode("td", {
                         colspan: columnCount.value,
                         class: "aheart-table__expanded-cell"
@@ -1084,17 +1137,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         createVNode(unref(ARenderNode), {
                           node: renderExpanded(row.record, row.index)
                         }, null, 8, ["node"])
-                      ], 8, _hoisted_18)
+                      ], 8, _hoisted_17)
                     ])) : createCommentVNode("", true)
                   ], 64);
                 }), 128)),
-                !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_19, [
+                !_ctx.loading && pagedRows.value.length === 0 ? (openBlock(), createElementBlock("tr", _hoisted_18, [
                   createElementVNode("td", {
                     colspan: columnCount.value,
                     class: "aheart-table__empty"
                   }, [
                     createVNode(unref(ARenderNode), { node: resolvedEmptyText.value }, null, 8, ["node"])
-                  ], 8, _hoisted_20)
+                  ], 8, _hoisted_19)
                 ])) : createCommentVNode("", true)
               ])
             ], 16)
@@ -1117,13 +1170,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onChange: handlePageChange
           }, null, 8, ["current", "page-size", "total", "simple", "hide-on-single-page", "show-total", "show-size-changer", "page-size-options", "show-quick-jumper", "total-boundary-show-size-changer", "disabled", "size"])) : createCommentVNode("", true)
         ], 40, _hoisted_2),
-        _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_21, [
+        _ctx.loading ? (openBlock(), createElementBlock("div", _hoisted_20, [
           _cache[3] || (_cache[3] = createElementVNode("span", {
             class: "aheart-table__loading-dot",
             "aria-hidden": "true"
           }, null, -1)),
           createElementVNode("span", null, toDisplayString(resolvedLoadingText.value), 1)
-        ])) : _ctx.error ? (openBlock(), createElementBlock("div", _hoisted_22, [
+        ])) : _ctx.error ? (openBlock(), createElementBlock("div", _hoisted_21, [
           createVNode(unref(ARenderNode), { node: errorMessage.value }, null, 8, ["node"]),
           createElementVNode("button", {
             type: "button",
@@ -1133,7 +1186,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onClick: _cache[0] || (_cache[0] = ($event) => emit("retry"))
           }, [
             createVNode(unref(ARenderNode), { node: errorRetryText.value }, null, 8, ["node"])
-          ], 8, _hoisted_23)
+          ], 8, _hoisted_22)
         ])) : createCommentVNode("", true),
         activeFilterColumn.value && activeFilterPopupNode.value !== null ? (openBlock(), createBlock(Teleport, {
           key: 2,
@@ -1151,7 +1204,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onKeydown: handleFilterPopupKeydown
           }, [
             createVNode(unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
-          ], 44, _hoisted_24)
+          ], 44, _hoisted_23)
         ], 8, ["to", "disabled"])) : createCommentVNode("", true)
       ], 10, _hoisted_1);
     };
