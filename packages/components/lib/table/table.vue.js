@@ -12,7 +12,7 @@ const virtualOptions = require("./virtual-options.js");
 const useTableVirtual = require("./use-table-virtual.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
+const _hoisted_1 = ["data-table-narrow-left", "data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-table__error",
@@ -273,12 +273,36 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       return void 0;
     };
+    const narrowLeftConstrained = vue.computed(() => {
+      const viewport = layoutViewportWidth.value;
+      if (viewport <= 0)
+        return false;
+      const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0);
+      if (utilityCount === 0)
+        return false;
+      const columns = normalizedColumns.value;
+      const leftCount = columns.filter((column) => column.fixed === "left").length;
+      if (leftCount === 0)
+        return false;
+      const utilityWidth = (utility) => Number.parseFloat(widthSnapshot.value[`__${utility}`] ?? "48") || 48;
+      const requestedUtilities = (hasSelection.value ? utilityWidth("selection") : 0) + (hasExpandable.value ? utilityWidth("expand") : 0);
+      const leftSourceWidth = columns.filter((column) => column.fixed === "left").reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? "0") || 0)), 0);
+      return requestedUtilities + leftSourceWidth > viewport && viewport - leftSourceWidth >= utilityCount * 30;
+    });
+    const narrowUtilityWidth = vue.computed(() => {
+      const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0);
+      if (!utilityCount)
+        return "0px";
+      const leftSourceWidth = normalizedColumns.value.filter((column) => column.fixed === "left").reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? "0") || 0)), 0);
+      return `${Math.max(30, Math.floor((layoutViewportWidth.value - leftSourceWidth) / utilityCount))}px`;
+    });
     const layoutColumns = vue.computed(() => {
       const data = [];
+      const utilityWidth = narrowLeftConstrained.value ? narrowUtilityWidth.value : void 0;
       if (hasSelection.value)
-        data.push({ id: "__selection", utility: "selection", width: widthSnapshot.value.__selection ?? "48px" });
+        data.push({ id: "__selection", utility: "selection", width: utilityWidth ?? widthSnapshot.value.__selection ?? "48px" });
       if (hasExpandable.value)
-        data.push({ id: "__expand", utility: "expand", width: widthSnapshot.value.__expand ?? "48px" });
+        data.push({ id: "__expand", utility: "expand", width: utilityWidth ?? widthSnapshot.value.__expand ?? "48px" });
       normalizedColumns.value.forEach((column) => {
         const id = getColumnKey(column);
         const declaredWidth = pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === "string" ? column.width : void 0;
@@ -335,6 +359,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }).reduce((sum, item) => sum + usedWidth(item), 0) > width;
       if (width > 0 && narrow && false)
         console.warn("[ATable] fixed right columns are downgraded when fixed columns exceed the viewport width");
+      if (width > 0 && narrowLeftConstrained.value && false)
+        console.warn("[ATable] narrow viewport constrains fixed utility columns to preserve filter reachability");
     });
     const stickyOffset = vue.computed(() => typeof props.sticky === "object" && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0);
     const isSticky = vue.computed(() => Boolean(props.sticky));
@@ -414,6 +440,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         "is-disabled": isDisabled.value
       }
     ]);
+    const tableNarrowStyle = vue.computed(() => narrowLeftConstrained.value ? { "--aheart-table-narrow-utility-width": narrowUtilityWidth.value } : void 0);
     const sortedData = vue.computed(() => getSortedRecords(activeFilters.value, activeSort.value));
     const allRows = vue.computed(
       () => sortedData.value.map((record, index2) => ({
@@ -1569,6 +1596,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ref_key: "tableRoot",
         ref: tableRoot,
         class: vue.normalizeClass(["aheart-table", tableClass.value]),
+        style: vue.normalizeStyle(tableNarrowStyle.value),
+        "data-table-narrow-left": narrowLeftConstrained.value ? "" : void 0,
         "data-table-virtual-fallback": virtualFallbackReason.value ? "full-dom" : void 0,
         "data-fallback-reason": virtualFallbackReason.value || void 0,
         "aria-busy": _ctx.loading || void 0,
@@ -1898,7 +1927,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             vue.createVNode(vue.unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
           ], 44, _hoisted_34)
         ], 8, ["to", "disabled"])) : vue.createCommentVNode("", true)
-      ], 10, _hoisted_1);
+      ], 14, _hoisted_1);
     };
   }
 });

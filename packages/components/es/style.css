@@ -6586,6 +6586,25 @@ kbd.aheart-typography-text {
   opacity: 0.55;
 }
 
+/* Keep the fixed left utility cells reachable on genuinely narrow viewports.
+ * The important override is intentional: host fixtures may impose a larger
+ * utility min-width, but this constrained mode must preserve the filter bar. */
+.aheart-table[data-table-narrow-left] .aheart-table__selection-cell,
+.aheart-table[data-table-narrow-left] .aheart-table__expand-cell {
+  width: var(--aheart-table-narrow-utility-width) !important;
+  min-width: var(--aheart-table-narrow-utility-width) !important;
+  max-width: var(--aheart-table-narrow-utility-width) !important;
+}
+
+.aheart-table[data-table-narrow-left] th[data-fixed="right"] .aheart-table__head-content {
+  width: 100%;
+  align-items: flex-end;
+}
+
+.aheart-table[data-table-narrow-left] th[data-fixed="right"] .aheart-table__filter-trigger {
+  margin-left: 0;
+}
+
 .aheart-table__filter-popup {
   position: absolute;
   z-index: 1100;

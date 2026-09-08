@@ -3,6 +3,8 @@
     ref="tableRoot"
     class="aheart-table"
     :class="tableClass"
+    :style="tableNarrowStyle"
+    :data-table-narrow-left="narrowLeftConstrained ? '' : undefined"
     :data-table-virtual-fallback="virtualFallbackReason ? 'full-dom' : undefined"
     :data-fallback-reason="virtualFallbackReason || undefined"
     :aria-busy="loading || undefined"
@@ -422,10 +424,30 @@ const pxWidth = (value: unknown) => {
   }
   return undefined
 }
+const narrowLeftConstrained = computed(() => {
+  const viewport = layoutViewportWidth.value
+  if (viewport <= 0) return false
+  const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0)
+  if (utilityCount === 0) return false
+  const columns = normalizedColumns.value
+  const leftCount = columns.filter((column) => column.fixed === 'left').length
+  if (leftCount === 0) return false
+  const utilityWidth = (utility: 'selection' | 'expand') => Number.parseFloat(widthSnapshot.value[`__${utility}`] ?? '48') || 48
+  const requestedUtilities = (hasSelection.value ? utilityWidth('selection') : 0) + (hasExpandable.value ? utilityWidth('expand') : 0)
+  const leftSourceWidth = columns.filter((column) => column.fixed === 'left').reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? '0') || 0)), 0)
+  return requestedUtilities + leftSourceWidth > viewport && viewport - leftSourceWidth >= utilityCount * 30
+})
+const narrowUtilityWidth = computed(() => {
+  const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0)
+  if (!utilityCount) return '0px'
+  const leftSourceWidth = normalizedColumns.value.filter((column) => column.fixed === 'left').reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? '0') || 0)), 0)
+  return `${Math.max(30, Math.floor((layoutViewportWidth.value - leftSourceWidth) / utilityCount))}px`
+})
 const layoutColumns = computed<LayoutColumn[]>(() => {
   const data: LayoutColumn[] = []
-  if (hasSelection.value) data.push({ id: '__selection', utility: 'selection', width: widthSnapshot.value.__selection ?? '48px' })
-  if (hasExpandable.value) data.push({ id: '__expand', utility: 'expand', width: widthSnapshot.value.__expand ?? '48px' })
+  const utilityWidth = narrowLeftConstrained.value ? narrowUtilityWidth.value : undefined
+  if (hasSelection.value) data.push({ id: '__selection', utility: 'selection', width: utilityWidth ?? widthSnapshot.value.__selection ?? '48px' })
+  if (hasExpandable.value) data.push({ id: '__expand', utility: 'expand', width: utilityWidth ?? widthSnapshot.value.__expand ?? '48px' })
   normalizedColumns.value.forEach((column) => {
     const id = getColumnKey(column)
     const declaredWidth = pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === 'string' ? column.width : undefined
@@ -457,6 +479,7 @@ const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [ite
 watch(layoutViewportWidth, (width) => {
   const narrow = layoutColumns.value.filter((item) => item.source?.fixed === 'left' || item.source?.fixed === 'right').reduce((sum, item) => sum + usedWidth(item), 0) > width
   if (width > 0 && narrow && (import.meta as { env?: { DEV?: boolean } }).env?.DEV && layoutColumns.value.some((item) => item.source?.fixed === 'right')) console.warn('[ATable] fixed right columns are downgraded when fixed columns exceed the viewport width')
+  if (width > 0 && narrowLeftConstrained.value && (import.meta as { env?: { DEV?: boolean } }).env?.DEV) console.warn('[ATable] narrow viewport constrains fixed utility columns to preserve filter reachability')
 })
 const stickyOffset = computed(() => typeof props.sticky === 'object' && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0)
 const isSticky = computed(() => Boolean(props.sticky))
@@ -541,6 +564,9 @@ const tableClass = computed(() => [
     'is-disabled': isDisabled.value
   }
 ])
+const tableNarrowStyle = computed<CSSProperties | undefined>(() => narrowLeftConstrained.value
+  ? ({ '--aheart-table-narrow-utility-width': narrowUtilityWidth.value } as CSSProperties)
+  : undefined)
 
 const sortedData = computed(() => getSortedRecords(activeFilters.value, activeSort.value))
 

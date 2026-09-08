@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, nextTick, onBeforeUpdate, onMounted, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createVNode, unref, createElementVNode, createCommentVNode, isRef, normalizeStyle, mergeProps, Fragment, renderList, toDisplayString, createBlock, Teleport } from "vue";
+import { defineComponent, ref, computed, watch, nextTick, onBeforeUpdate, onMounted, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createVNode, unref, createElementVNode, createCommentVNode, isRef, mergeProps, Fragment, renderList, toDisplayString, createBlock, Teleport } from "vue";
 import Pagination from "../pagination/index.js";
 import { normalizePageSize, getPageCount, normalizeCurrent, normalizeTotal } from "../pagination/pagination-state.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
@@ -10,7 +10,7 @@ import { normalizeTableVirtual } from "./virtual-options.js";
 import { useTableVirtual } from "./use-table-virtual.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
+const _hoisted_1 = ["data-table-narrow-left", "data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-table__error",
@@ -271,12 +271,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return void 0;
     };
+    const narrowLeftConstrained = computed(() => {
+      const viewport = layoutViewportWidth.value;
+      if (viewport <= 0)
+        return false;
+      const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0);
+      if (utilityCount === 0)
+        return false;
+      const columns = normalizedColumns.value;
+      const leftCount = columns.filter((column) => column.fixed === "left").length;
+      if (leftCount === 0)
+        return false;
+      const utilityWidth = (utility) => Number.parseFloat(widthSnapshot.value[`__${utility}`] ?? "48") || 48;
+      const requestedUtilities = (hasSelection.value ? utilityWidth("selection") : 0) + (hasExpandable.value ? utilityWidth("expand") : 0);
+      const leftSourceWidth = columns.filter((column) => column.fixed === "left").reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? "0") || 0)), 0);
+      return requestedUtilities + leftSourceWidth > viewport && viewport - leftSourceWidth >= utilityCount * 30;
+    });
+    const narrowUtilityWidth = computed(() => {
+      const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0);
+      if (!utilityCount)
+        return "0px";
+      const leftSourceWidth = normalizedColumns.value.filter((column) => column.fixed === "left").reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? "0") || 0)), 0);
+      return `${Math.max(30, Math.floor((layoutViewportWidth.value - leftSourceWidth) / utilityCount))}px`;
+    });
     const layoutColumns = computed(() => {
       const data = [];
+      const utilityWidth = narrowLeftConstrained.value ? narrowUtilityWidth.value : void 0;
       if (hasSelection.value)
-        data.push({ id: "__selection", utility: "selection", width: widthSnapshot.value.__selection ?? "48px" });
+        data.push({ id: "__selection", utility: "selection", width: utilityWidth ?? widthSnapshot.value.__selection ?? "48px" });
       if (hasExpandable.value)
-        data.push({ id: "__expand", utility: "expand", width: widthSnapshot.value.__expand ?? "48px" });
+        data.push({ id: "__expand", utility: "expand", width: utilityWidth ?? widthSnapshot.value.__expand ?? "48px" });
       normalizedColumns.value.forEach((column) => {
         const id = getColumnKey(column);
         const declaredWidth = pxWidth(column.width) ? `${pxWidth(column.width)}px` : typeof column.width === "string" ? column.width : void 0;
@@ -333,6 +357,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }).reduce((sum, item) => sum + usedWidth(item), 0) > width;
       if (width > 0 && narrow && false)
         console.warn("[ATable] fixed right columns are downgraded when fixed columns exceed the viewport width");
+      if (width > 0 && narrowLeftConstrained.value && false)
+        console.warn("[ATable] narrow viewport constrains fixed utility columns to preserve filter reachability");
     });
     const stickyOffset = computed(() => typeof props.sticky === "object" && Number.isFinite(props.sticky.offsetHeader) ? Math.max(0, props.sticky.offsetHeader ?? 0) : 0);
     const isSticky = computed(() => Boolean(props.sticky));
@@ -412,6 +438,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         "is-disabled": isDisabled.value
       }
     ]);
+    const tableNarrowStyle = computed(() => narrowLeftConstrained.value ? { "--aheart-table-narrow-utility-width": narrowUtilityWidth.value } : void 0);
     const sortedData = computed(() => getSortedRecords(activeFilters.value, activeSort.value));
     const allRows = computed(
       () => sortedData.value.map((record, index) => ({
@@ -1567,6 +1594,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ref_key: "tableRoot",
         ref: tableRoot,
         class: normalizeClass(["aheart-table", tableClass.value]),
+        style: normalizeStyle(tableNarrowStyle.value),
+        "data-table-narrow-left": narrowLeftConstrained.value ? "" : void 0,
         "data-table-virtual-fallback": virtualFallbackReason.value ? "full-dom" : void 0,
         "data-fallback-reason": virtualFallbackReason.value || void 0,
         "aria-busy": _ctx.loading || void 0,
@@ -1896,7 +1925,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createVNode(unref(ARenderNode), { node: activeFilterPopupNode.value }, null, 8, ["node"])
           ], 44, _hoisted_34)
         ], 8, ["to", "disabled"])) : createCommentVNode("", true)
-      ], 10, _hoisted_1);
+      ], 14, _hoisted_1);
     };
   }
 });
