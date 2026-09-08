@@ -220,21 +220,44 @@ test('D5-B external ancestor scroll keeps no-y sticky header at the offset and i
   const table = region.locator('table')
   const header = table.locator('thead th').first()
   await expect(table).toHaveCount(1)
-  await scroller.evaluate(node => { node.scrollTop = node.scrollHeight - node.clientHeight })
   const clientTop = await scroller.evaluate(node => node.clientTop)
-  await expect.poll(async () => {
+  const geometry = async () => {
     const container = await scroller.boundingBox()
     const headerBox = await header.boundingBox()
-    if (!container || !headerBox) return -1
-    return Math.round(headerBox.y - container.y)
-  }).toBe(clientTop + 8)
-  const container = await scroller.boundingBox()
-  const headerBox = await header.boundingBox()
-  const tableBox = await table.boundingBox()
-  expect(container).not.toBeNull()
-  expect(headerBox).not.toBeNull()
-  expect(tableBox).not.toBeNull()
-  if (!container || !headerBox || !tableBox) return
-  expect(Math.abs(headerBox.y - (container.y + clientTop + 8))).toBeLessThan(2)
-  expect(headerBox.y + headerBox.height).toBeLessThanOrEqual(tableBox.y + tableBox.height + 1)
+    const tableBox = await table.boundingBox()
+    const headerHeight = await header.evaluate(node => node.getBoundingClientRect().height)
+    if (!container || !headerBox || !tableBox) return null
+    return {
+      target: container.y + clientTop + 8,
+      headerTop: headerBox.y,
+      headerBottom: headerBox.y + headerBox.height,
+      headerHeight,
+      tableBottom: tableBox.y + tableBox.height
+    }
+  }
+  await scroller.evaluate(node => {
+    const table = node.querySelector('table')
+    const header = table?.querySelector('thead')
+    if (!table || !header) return
+    const hold = Math.min(120, Math.max(1, table.offsetHeight - header.getBoundingClientRect().height - 40))
+    node.scrollTop = Math.min(node.scrollHeight - node.clientHeight, table.offsetTop + hold)
+  })
+  await expect.poll(async () => {
+    const value = await geometry()
+    return value ? Math.round(value.headerTop - value.target) : -1
+  }).toBe(0)
+
+  await scroller.evaluate(node => {
+    const table = node.querySelector('table')
+    if (!table) return
+    const maxScroll = node.scrollHeight - node.clientHeight
+    node.scrollTop = Math.min(maxScroll, table.offsetTop + table.offsetHeight)
+  })
+  await expect.poll(async () => {
+    const value = await geometry()
+    if (!value) return false
+    const bottomInsideTable = value.headerBottom <= value.tableBottom + 1
+    const tableBelowTarget = value.tableBottom >= value.target + value.headerHeight
+    return bottomInsideTable && (tableBelowTarget || value.headerTop < value.target)
+  }).toBe(true)
 })
