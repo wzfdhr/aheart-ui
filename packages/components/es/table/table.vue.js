@@ -10,7 +10,7 @@ import { normalizeTableVirtual } from "./virtual-options.js";
 import { useTableVirtual } from "./use-table-virtual.js";
 import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
-const _hoisted_1 = ["data-table-narrow-left", "data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
+const _hoisted_1 = ["data-table-narrow-left", "data-table-right-downgraded", "data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-table__error",
@@ -285,7 +285,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const utilityWidth = (utility) => Number.parseFloat(widthSnapshot.value[`__${utility}`] ?? "48") || 48;
       const requestedUtilities = (hasSelection.value ? utilityWidth("selection") : 0) + (hasExpandable.value ? utilityWidth("expand") : 0);
       const leftSourceWidth = columns.filter((column) => column.fixed === "left").reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? "0") || 0)), 0);
-      return requestedUtilities + leftSourceWidth > viewport && viewport - leftSourceWidth >= 44 + utilityCount * 30;
+      return requestedUtilities + leftSourceWidth + 44 > viewport && viewport - leftSourceWidth - 44 >= utilityCount * 30;
     });
     const narrowUtilityWidth = computed(() => {
       const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0);
@@ -350,6 +350,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return data;
     });
     const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])));
+    const rightFixedDowngraded = computed(() => {
+      const requested = normalizedColumns.value.some((column) => column.fixed === "right");
+      return requested && layoutColumns.value.filter((item) => {
+        var _a;
+        return ((_a = item.source) == null ? void 0 : _a.fixed) === "right";
+      }).every((item) => item.right === void 0);
+    });
     watch(layoutViewportWidth, (width) => {
       const narrow = layoutColumns.value.filter((item) => {
         var _a, _b;
@@ -1598,6 +1605,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["aheart-table", tableClass.value]),
         style: normalizeStyle(tableNarrowStyle.value),
         "data-table-narrow-left": narrowLeftConstrained.value ? "" : void 0,
+        "data-table-right-downgraded": rightFixedDowngraded.value ? "" : void 0,
         "data-table-virtual-fallback": virtualFallbackReason.value ? "full-dom" : void 0,
         "data-fallback-reason": virtualFallbackReason.value || void 0,
         "aria-busy": _ctx.loading || void 0,

@@ -51,12 +51,12 @@
   max-width: var(--aheart-table-narrow-utility-width) !important;
 }
 
-.aheart-table[data-table-narrow-left] th[data-fixed="right"] .aheart-table__head-content {
+.aheart-table[data-table-right-downgraded] th[data-fixed="right"] .aheart-table__head-content {
   width: 100%;
   align-items: flex-end;
 }
 
-.aheart-table[data-table-narrow-left] th[data-fixed="right"] .aheart-table__filter-trigger {
+.aheart-table[data-table-right-downgraded] th[data-fixed="right"] .aheart-table__filter-trigger {
   margin-left: 0;
 }
 

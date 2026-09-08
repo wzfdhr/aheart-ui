@@ -5,6 +5,7 @@
     :class="tableClass"
     :style="tableNarrowStyle"
     :data-table-narrow-left="narrowLeftConstrained ? '' : undefined"
+    :data-table-right-downgraded="rightFixedDowngraded ? '' : undefined"
     :data-table-virtual-fallback="virtualFallbackReason ? 'full-dom' : undefined"
     :data-fallback-reason="virtualFallbackReason || undefined"
     :aria-busy="loading || undefined"
@@ -435,7 +436,7 @@ const narrowLeftConstrained = computed(() => {
   const utilityWidth = (utility: 'selection' | 'expand') => Number.parseFloat(widthSnapshot.value[`__${utility}`] ?? '48') || 48
   const requestedUtilities = (hasSelection.value ? utilityWidth('selection') : 0) + (hasExpandable.value ? utilityWidth('expand') : 0)
   const leftSourceWidth = columns.filter((column) => column.fixed === 'left').reduce((total, column) => total + (pxWidth(column.width) ?? (Number.parseFloat(widthSnapshot.value[getColumnKey(column)] ?? '0') || 0)), 0)
-  return requestedUtilities + leftSourceWidth > viewport && viewport - leftSourceWidth >= 44 + utilityCount * 30
+  return requestedUtilities + leftSourceWidth + 44 > viewport && viewport - leftSourceWidth - 44 >= utilityCount * 30
 })
 const narrowUtilityWidth = computed(() => {
   const utilityCount = (hasSelection.value ? 1 : 0) + (hasExpandable.value ? 1 : 0)
@@ -476,6 +477,10 @@ const layoutColumns = computed<LayoutColumn[]>(() => {
   return data
 })
 const layoutById = computed(() => new Map(layoutColumns.value.map((item) => [item.id, item])))
+const rightFixedDowngraded = computed(() => {
+  const requested = normalizedColumns.value.some((column) => column.fixed === 'right')
+  return requested && layoutColumns.value.filter((item) => item.source?.fixed === 'right').every((item) => item.right === undefined)
+})
 watch(layoutViewportWidth, (width) => {
   const narrow = layoutColumns.value.filter((item) => item.source?.fixed === 'left' || item.source?.fixed === 'right').reduce((sum, item) => sum + usedWidth(item), 0) > width
   if (width > 0 && narrow && (import.meta as { env?: { DEV?: boolean } }).env?.DEV && layoutColumns.value.some((item) => item.source?.fixed === 'right')) console.warn('[ATable] fixed right columns are downgraded when fixed columns exceed the viewport width')
