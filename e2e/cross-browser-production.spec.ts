@@ -1,4 +1,5 @@
 import { expect, test as base, type Page } from '@playwright/test'
+import { isIgnorableCancelledVitePressPrefetch } from './qg5-request-failures'
 
 type ProductionErrorFixture = {
   productionErrors: string[]
@@ -23,6 +24,7 @@ const test = base.extend<ProductionErrorFixture>({
     page.on('requestfailed', (request) => {
       const url = new URL(request.url())
       const errorText = request.failure()?.errorText ?? 'unknown'
+      if (isIgnorableCancelledVitePressPrefetch(request, errorText)) return
       if (url.hostname === '127.0.0.1' && !/ABORTED/i.test(errorText)) {
         errors.push(`requestfailed: ${url.pathname} (${errorText})`)
       }
