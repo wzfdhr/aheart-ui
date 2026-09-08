@@ -40,7 +40,7 @@ const columns = [{ title: 'Name', dataIndex: 'name', key: 'name' }, { title: 'St
 const cases = {
   local: { dataMode: 'local', dataSource: rows, pagination: false },
   server: { dataMode: 'server', dataSource: rows.slice(1000, 1020), pagination: { current: 2, pageSize: 20, total: 10000 } },
-  virtual: { dataMode: 'local', dataSource: rows, virtual: { height: 320, overscan: 4, estimatedRowHeight: 40 }, pagination: false },
+  virtual: { dataMode: 'local', dataSource: rows, virtual: { height: 320, overscan: 4, estimateSize: 40 }, pagination: false },
   fixed: { dataMode: 'local', dataSource: rows, columns: [{ ...columns[0], fixed: 'left' }, { ...columns[1], fixed: 'right' }], pagination: false },
   expanded: { dataMode: 'local', dataSource: rows, expandable: { expandedRowRender: row => `Details for ${row.name}` }, pagination: false }
 }
@@ -54,7 +54,7 @@ for (const [name, settings] of Object.entries(cases)) {
   if (name === 'virtual') assert.match(html, /data-table-virtual-spacer/, 'virtual case must expose spacer')
 }
 await writeFile(path.join(root, 'index.html'), '<!doctype html><html><body><div id="app">' + ssr + '</div><script type="module" src="/main.js"></script></body></html>')
-await writeFile(path.join(root, 'main.js'), `import { createSSRApp, h } from 'vue'; import { Table } from 'aheart-ui'; import 'aheart-ui/style.css'; const rows=${JSON.stringify(rows)}; const app=createSSRApp({render:()=>h(Table,{columns:[{title:'Name',dataIndex:'name',key:'name'}],dataSource:rows,rowKey:'key',virtual:{height:320,overscan:4,estimatedRowHeight:40},pagination:false})}); app.mount('#app'); window.__fixtureReady=true`)
+await writeFile(path.join(root, 'main.js'), `import { createSSRApp, h } from 'vue'; import { Table } from 'aheart-ui'; import 'aheart-ui/style.css'; const rows=${JSON.stringify(rows)}; const app=createSSRApp({render:()=>h(Table,{columns:[{title:'Name',dataIndex:'name',key:'name'}],dataSource:rows,rowKey:'key',virtual:{height:320,overscan:4,estimateSize:40},pagination:false})}); app.mount('#app'); window.__fixtureReady=true`)
 await build({ root, configFile: false, logLevel: 'error', build: { outDir: 'dist', emptyOutDir: true } })
 const server = await preview({ root, configFile: false, preview: { host: '127.0.0.1', port: 0 } })
 const browser = await chromium.launch()

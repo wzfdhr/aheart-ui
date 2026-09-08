@@ -1,6 +1,6 @@
 # D5-C real-package consumer harness (RED)
 
-This fixture is deliberately package-boundary based: install a real `aheart-ui.tgz` into a temporary directory, then run typecheck, CJS/ESM import, CSS import, SSR render, and local-server hydration checks. It never resolves a workspace symlink. `types.ts` covers local/server data modes plus virtual, fixed, and expanded combinations; `estimatedRowHeight` is a numeric public field.
+This fixture is deliberately package-boundary based: install a real `aheart-ui.tgz` into a temporary directory, then run typecheck, CJS/ESM import, CSS import, SSR render, and local-server hydration checks. It never resolves a workspace symlink. `types.ts` covers local/server data modes plus virtual, fixed, and expanded combinations; `estimateSize` is a numeric public field.
 
 Reproduce from the repository root with `corepack pnpm --filter ./packages/components pack --pack-destination /tmp/d5-c-tgz`, then `cd docs/superpowers/experiments/d5-c-consumer && npm install && npm run runner -- --tarball /tmp/d5-c-tgz/aheart-ui-1.0.0.tgz`. The runner copies `types.ts` and `tsconfig.json` into its isolated root, installs the real tgz, runs `tsc`, and records JSON when `--out` is provided.
 

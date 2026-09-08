@@ -3,7 +3,7 @@ import type { TableProps } from 'aheart-ui'
 const virtual: NonNullable<TableProps['virtual']> = {
   height: 320,
   overscan: 4,
-  estimatedRowHeight: 40
+  estimateSize: 40
 }
 const local: TableProps = {
   columns: [{ title: 'Name', dataIndex: 'name', key: 'name' }],
