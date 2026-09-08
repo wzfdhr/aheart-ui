@@ -50,7 +50,12 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
   })
 
   it('rejects non-numeric virtual.height, supports virtual=false, and uses defaults for virtual=true', () => {
-    expect(mountTable({ virtual: { height: '400' } }).find('[data-aheart-virtual-spacer]').exists()).toBe(false)
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const invalid = mountTable({ virtual: { height: '400' } })
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('height'))
+    const fallbackHeight = invalid.find('[data-aheart-virtual-height]')
+    expect(fallbackHeight.exists(), 'invalid height must use a normalized fallback').toBe(true)
+    expect(fallbackHeight.attributes('data-value')).toBe('320')
     expect(mountTable({ virtual: false }).find('[data-aheart-virtual-spacer]').exists()).toBe(false)
     expect(mountTable({ virtual: true }).find('[data-aheart-virtual-estimate-size]').exists()).toBe(true)
   })
@@ -79,8 +84,8 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     const wrapper = mountTable({ virtual: true, expandable: { expandedRowRender: (record: Row) => h('div', { class: 'dynamic-detail' }, `${record.name} ${'detail '.repeat(80)}`) } })
     await wrapper.find('.aheart-table__expand-button').trigger('click')
     expect(wrapper.findAll('[data-aheart-virtual-logical-item="0"]')).toHaveLength(1)
-    const base = wrapper.find('tbody tr').element
-    const expanded = wrapper.find('.dynamic-detail').element
+    const base = wrapper.find('.aheart-table__expand-button').element.closest('tr')!
+    const expanded = wrapper.find('.dynamic-detail').element.closest('tr')!
     expect(observedTargets).toEqual(expect.arrayContaining([base, expanded]))
     callback?.([
       { target: base, contentRect: { height: 48 } } as ResizeObserverEntry,
@@ -95,11 +100,14 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
   })
 
   it('runs local filter-sort-page before virtualizing and never slices server current-page data', async () => {
-    const local = mountTable({ dataMode: 'local', columns: [{ title: 'Name', dataIndex: 'name', key: 'name', sorter: (a: Row, b: Row) => Number(b.key) - Number(a.key) }], pagination: { pageSize: 10 }, virtual: true })
+    const local = mountTable({ dataMode: 'local', columns: [
+      { title: 'Name', dataIndex: 'name', key: 'name', sorter: (a: Row, b: Row) => Number(b.key) - Number(a.key) },
+      { title: 'Group', dataIndex: 'group', key: 'group', filters: [{ text: 'B', value: 'B' }], defaultFilteredValue: ['B'] }
+    ], pagination: { pageSize: 10 }, virtual: true })
     await local.find('th button').trigger('click')
     await local.find('.aheart-pagination__next').trigger('click')
     const localRows = local.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))
-    expect(localRows.map((row) => row.text())).toEqual(['Row 29', 'Row 28', 'Row 27', 'Row 26', 'Row 25', 'Row 24', 'Row 23', 'Row 22', 'Row 21', 'Row 20'])
+    expect(localRows.map((row) => row.text())).toEqual(['Row 29B', 'Row 28B', 'Row 27B', 'Row 26B', 'Row 25B', 'Row 24B', 'Row 23B', 'Row 22B', 'Row 21B', 'Row 20B'])
     const response = rows.slice(20, 22)
     const server = mountTable({ dataMode: 'server', dataSource: response, pagination: { current: 3, pageSize: 1, total: 40 }, virtual: true })
     expect(server.findAll('tbody tr').filter((row) => !row.attributes('data-aheart-virtual-spacer'))).toHaveLength(2)
@@ -115,21 +123,26 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
   it('uses typed number/string radio keys and restores native group after rejected change', async () => {
     const host = document.createElement('div')
     document.body.append(host)
-    const typed = rows.map((row, index) => index === 20 ? { ...row, key: 1 } : index === 21 ? { ...row, key: '1' } : row)
+    const typed = rows.map((row, index) => index === 20 ? { ...row, key: 1 } : index === 21 ? { ...row, key: '1' } : { ...row, key: `row-${index}` })
     const wrapper = mountTable({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }, host)
-    const radios = wrapper.findAll<HTMLInputElement>('tbody input[type="radio"]')
-    radios[21].element.click()
+    const scroll = wrapper.find('[data-aheart-virtual-scroll]')
+    scroll.element.scrollTop = 20 * 48
+    await scroll.trigger('scroll')
+    const stringRadio = wrapper.find<HTMLInputElement>('[data-aheart-row-token="string:1"]')
+    const numberRadio = wrapper.find<HTMLInputElement>('[data-aheart-row-token="number:1"]')
+    expect(stringRadio.exists()).toBe(true)
+    expect(numberRadio.exists()).toBe(true)
+    stringRadio.element.click()
     await nextTick()
     expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]])
-    expect(radios[20].element.checked).toBe(true)
-    expect(radios[21].element.checked).toBe(false)
+    expect(numberRadio.element.checked).toBe(true)
+    expect(stringRadio.element.checked).toBe(false)
     host.remove()
   })
 
   it('pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab', async () => {
     const wrapper = mountTable({ rowSelection: {}, virtual: { height: 320 } })
     const first = wrapper.find('tbody input[type="checkbox"]')
-    const second = wrapper.findAll<HTMLInputElement>('tbody input[type="checkbox"]')[1]
     first.element.focus()
     await nextTick()
     expect(document.activeElement).toBe(first.element)
@@ -137,15 +150,16 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     const scroll = wrapper.find('[data-aheart-virtual-scroll]')
     scroll.element.scrollTop = 9999
     await scroll.trigger('scroll')
-    expect(first.exists()).toBe(true)
+    expect(first.element.isConnected).toBe(true)
     await first.trigger('keydown', { key: 'Tab' })
-    expect(document.activeElement).toBe(second.element)
+    const nextLogical = wrapper.find<HTMLInputElement>('[data-aheart-row-token="number:1"]')
+    expect(document.activeElement).toBe(nextLogical.element)
     const outside = document.createElement('button')
     document.body.append(outside)
     outside.focus()
     await first.trigger('focusout', { relatedTarget: outside })
     expect(document.activeElement).toBe(outside)
-    expect(first.element.closest('tr')?.getAttribute('data-aheart-virtual-pinned')).toBeNull()
+    expect(wrapper.find('[data-aheart-row-token="number:0"]').element.isConnected).toBe(false)
     outside.remove()
   })
 
