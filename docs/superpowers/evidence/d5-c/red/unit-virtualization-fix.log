@@ -2,7 +2,7 @@
 
  RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components
 
- ❯ src/table/__tests__/table-d5c-virtualization.test.ts  (16 tests | 12 failed) 159ms
+ ❯ src/table/__tests__/table-d5c-virtualization.test.ts  (16 tests | 11 failed) 155ms
    ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=small exposes numeric estimateSize default
      → virtual runtime must expose estimateSize: expected false to be true // Object.is equality
    ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=middle exposes numeric estimateSize default
@@ -17,8 +17,6 @@
      → virtual table must expose logical rowcount: expected false to be true // Object.is equality
    ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > keeps expanded base and companion rows in one logical item and applies ResizeObserver callback height
      → expected [] to have a length of 1 but got +0
-   ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses typed number/string radio keys and restores native group after rejected change
-     → expected undefined to deeply equal [ [ [ '1' ] ] ]
    ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab
      → expected null to be 'true' // Object.is equality
    ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders enabled SSR twice deterministically and hydrates same tree; false stays full DOM
@@ -28,7 +26,7 @@
    ❯ src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses iframe ownerDocument defaultView observers/RAF and cleans disconnect, cancel, and listeners
      → expected "spy" to be called at least once
 
-⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=small exposes numeric estimateSize default
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > size=middle exposes numeric estimateSize default
@@ -49,7 +47,7 @@ AssertionError: virtual runtime must expose estimateSize: expected false to be t
      28|     expect(marker.attributes('data-value')).toBe(String(estimate))
      29|   })
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > parses scroll.y, allows only parsed scroll.y > 320, and gives numeric virtual.height precedence
 AssertionError: virtual runtime must expose normalized height: expected false to be true // Object.is equality
@@ -68,7 +66,7 @@ AssertionError: virtual runtime must expose normalized height: expected false to
      38|     expect(height.attributes('data-value')).toBe('500')
      39|     expect(wrapper.find('[data-aheart-virtual-overscan]').attributes('…
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > rejects non-numeric virtual.height, supports virtual=false, and uses defaults for virtual=true
 AssertionError: expected false to be true // Object.is equality
@@ -87,7 +85,7 @@ AssertionError: expected false to be true // Object.is equality
      47|   })
      48|
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders native rows, bounded data-row overscan, logical aria-rowcount, and two spacers
 AssertionError: virtual table must expose logical rowcount: expected false to be true // Object.is equality
@@ -106,7 +104,7 @@ AssertionError: virtual table must expose logical rowcount: expected false to be
      53|     expect(table.attributes('aria-rowcount')).toBe('40')
      54|     const dataRows = wrapper.findAll('tbody tr').filter((row) => !row.…
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > keeps expanded base and companion rows in one logical item and applies ResizeObserver callback height
 AssertionError: expected [] to have a length of 1 but got +0
@@ -125,32 +123,7 @@ AssertionError: expected [] to have a length of 1 but got +0
      73|     expect(observe).toHaveBeenCalled()
      74|     callback?.([{ target: wrapper.find('.dynamic-detail').element, con…
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
-
- FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses typed number/string radio keys and restores native group after rejected change
-AssertionError: expected undefined to deeply equal [ [ [ '1' ] ] ]
-
-- Expected:
-Array [
-  Array [
-    Array [
-      "1",
-    ],
-  ],
-]
-
-+ Received:
-undefined
-
- ❯ src/table/__tests__/table-d5c-virtualization.test.ts:108:55
-    106|     radios[1].element.click()
-    107|     await nextTick()
-    108|     expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]…
-       |                                                       ^
-    109|     expect(radios.map((radio) => radio.element.checked)).toEqual([true…
-    110|     host.remove()
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > pins actually focused row, retains it while scrolled out, releases after external focus, and bridges Tab
 AssertionError: expected null to be 'true' // Object.is equality
@@ -169,7 +142,7 @@ null
     120|     const scroll = wrapper.find('[data-aheart-virtual-scroll]')
     121|     scroll.element.scrollTop = 9999
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > renders enabled SSR twice deterministically and hydrates same tree; false stays full DOM
 AssertionError: expected '<section class="aheart-table aheart-t…' to contain 'aria-rowcount="40"'
@@ -188,7 +161,7 @@ AssertionError: expected '<section class="aheart-table aheart-t…' to contain '
     139|     const container = document.createElement('div')
     140|     container.innerHTML = first
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > warns and falls back to full DOM for rowspan
 AssertionError: expected "warn" to be called at least once
@@ -200,7 +173,7 @@ AssertionError: expected "warn" to be called at least once
     158|     expect(wrapper.find('[data-aheart-virtual-spacer]').exists()).toBe…
     159|     expect(wrapper.findAll('tbody tr')).toHaveLength(dataSource.length)
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
 
  FAIL  src/table/__tests__/table-d5c-virtualization.test.ts > Table D5-C virtualization unit contract (RED) > uses iframe ownerDocument defaultView observers/RAF and cleans disconnect, cancel, and listeners
 AssertionError: expected "spy" to be called at least once
@@ -212,12 +185,12 @@ AssertionError: expected "spy" to be called at least once
     175|     wrapper.unmount()
     176|     expect(disconnect).toHaveBeenCalled()
 
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
 
  Test Files  1 failed (1)
-      Tests  12 failed | 4 passed (16)
-   Start at  18:06:30
-   Duration  701ms (transform 186ms, setup 0ms, collect 224ms, tests 159ms, environment 203ms, prepare 33ms)
+      Tests  11 failed | 5 passed (16)
+   Start at  18:07:55
+   Duration  584ms (transform 154ms, setup 0ms, collect 190ms, tests 155ms, environment 128ms, prepare 28ms)
 
 undefined
 /Users/start/.codex/worktrees/091b/aheart-ui/packages/components:

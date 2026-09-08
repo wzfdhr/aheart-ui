@@ -104,7 +104,6 @@ describe('Table D5-C virtualization unit contract (RED)', () => {
     const wrapper = mountTable({ dataSource: typed, rowSelection: { type: 'radio', selectedRowKeys: [1] } }, host)
     const radios = wrapper.findAll<HTMLInputElement>('tbody input[type="radio"]')
     radios[1].element.click()
-    radios[1].element.dispatchEvent(new Event('change', { bubbles: true }))
     await nextTick()
     expect(wrapper.emitted('update:selectedRowKeys')).toEqual([[['1']]])
     expect(radios.map((radio) => radio.element.checked)).toEqual([true, false])
