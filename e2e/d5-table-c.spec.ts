@@ -54,7 +54,7 @@ test('D5-C server current-page data virtualizes after pagination without a secon
   await expect.poll(() => errors.slice(), { interval: 100, timeout: 1000 }).toEqual([])
 })
 
-test('D5-C preserves fixed columns, selection, expanded companion rows, and focus pinning', async ({ page }) => {
+test('D5-C preserves fixed columns, selection, expanded companion rows, and focus pinning', async ({ page }, testInfo) => {
   const errors = runtimeErrors(page)
   const demo = await openWorkbench(page, 'D5-C 固定列展开选择组合')
   const scroll = demo.locator('.aheart-table__container')
@@ -77,6 +77,27 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   await expect.poll(() => scroll.evaluate(element => element.scrollLeft)).toBeGreaterThan(0)
   await expect(demo.locator('th[data-fixed="left"]')).toHaveCSS('position', 'sticky')
   if (requestedRightWidth > 0 && geometry.required <= availableWidth) await expect(rightFixed).toHaveCSS('position', 'sticky')
+  if (/mobile/.test(testInfo.project.name)) {
+    const leftBodyCell = demo.locator('tbody tr[data-table-row]:not(.is-selected) td[data-fixed="left"]').first()
+    await expect(leftBodyCell).toBeVisible()
+    const backgroundAlpha = await leftBodyCell.evaluate(element => {
+      const color = getComputedStyle(element).backgroundColor
+      const rgba = color.match(/rgba?\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/)
+      return rgba ? Number(rgba[1]) : color === 'transparent' ? 0 : 1
+    })
+    expect(backgroundAlpha).toBeGreaterThan(0)
+    if (requestedRightWidth > 0 && geometry.required > availableWidth) {
+      await expect(rightFixed).toHaveCount(1)
+      const leftBoundary = await demo.locator('th[data-fixed="left"], td[data-fixed="left"]').evaluateAll(cells => Math.max(...cells.map(cell => cell.getBoundingClientRect().right)))
+      const rightTitle = rightFixed.locator('.aheart-table__head-content')
+      const rightBox = await rightTitle.boundingBox()
+      const containerBox = await scroll.boundingBox()
+      expect(rightBox).not.toBeNull()
+      expect(containerBox).not.toBeNull()
+      expect(rightBox!.x).toBeGreaterThanOrEqual(leftBoundary + 1)
+      expect(rightBox!.x + rightBox!.width).toBeLessThanOrEqual(containerBox!.x + containerBox!.width + 1)
+    }
+  }
   await scroll.evaluate(element => { element.scrollTop = element.scrollHeight / 2 })
   const target = demo.locator('tr[data-table-row]').filter({ hasText: /Row 5\d{3}/ }).first()
   const key = await target.getAttribute('data-table-row')
