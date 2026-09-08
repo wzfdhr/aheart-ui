@@ -65,8 +65,10 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   const availableWidth = await scroll.evaluate(element => element.clientWidth)
   expect(geometry.required).toBeGreaterThan(0)
   await expect(demo.locator('th[data-fixed="left"]')).toHaveCSS('position', 'sticky')
-  const rightFixed = demo.locator('th[data-fixed="right"]')
-  const requestedRightWidth = geometry.widths.filter(item => item.fixed === 'right').reduce((sum, item) => sum + item.width, 0)
+  const rightFixed = demo.locator('th[data-fixed="right"], th.is-fixed-right')
+  const requestedRightWidth = Math.max(geometry.widths.filter(item => item.fixed === 'right').reduce((sum, item) => sum + item.width, 0), await rightFixed.evaluateAll(cells => cells.reduce((sum, cell) => sum + cell.getBoundingClientRect().width, 0)))
+  const rightPosition = await rightFixed.count() ? await rightFixed.first().evaluate(element => getComputedStyle(element).position) : null
+  const rightDowngraded = requestedRightWidth > 0 && (geometry.required > availableWidth || rightPosition !== 'sticky')
   if (requestedRightWidth > 0 && geometry.required <= availableWidth) {
     await expect(rightFixed).toHaveCSS('position', 'sticky')
   } else if (await rightFixed.count()) {
@@ -86,7 +88,8 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
       return rgba ? Number(rgba[1]) : color === 'transparent' ? 0 : 1
     })
     expect(backgroundAlpha).toBeGreaterThan(0)
-    if (requestedRightWidth > 0 && geometry.required > availableWidth) {
+    if (rightDowngraded || /mobile/.test(testInfo.project.name)) {
+      if (await rightFixed.count()) expect(rightPosition).not.toBe('sticky')
       await expect(rightFixed).toHaveCount(1)
       const leftBoundary = await demo.locator('th[data-fixed="left"], td[data-fixed="left"]').evaluateAll(cells => Math.max(...cells.map(cell => cell.getBoundingClientRect().right)))
       const rightTitle = rightFixed.locator('.aheart-table__title')
@@ -103,6 +106,33 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   const key = await target.getAttribute('data-table-row')
   expect(key).toBeTruthy()
   await demo.getByRole('checkbox', { name: new RegExp(`Select row ${key}$`) }).check()
+  if (/mobile/.test(testInfo.project.name) && requestedRightWidth > 0) {
+    const rightCells = [
+      demo.locator(`tr[data-table-row="${key}"] td[data-fixed="right"], tr[data-table-row="${key}"] td.is-fixed-right`).first(),
+      demo.locator(`tr[data-table-row]:not([data-table-row="${key}"]) td[data-fixed="right"], tr[data-table-row]:not([data-table-row="${key}"]) td.is-fixed-right`).first()
+    ]
+    const leftBoundary = await demo.locator('th[data-fixed="left"], th.is-fixed-left, td[data-fixed="left"], td.is-fixed-left').evaluateAll(cells => Math.max(...cells.map(cell => cell.getBoundingClientRect().right)))
+    const containerBox = await scroll.boundingBox()
+    expect(containerBox).not.toBeNull()
+    for (const rightCell of rightCells) {
+      const textBox = await rightCell.evaluate(element => {
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+        let node: Node | null = walker.nextNode()
+        while (node && !node.textContent?.trim()) node = walker.nextNode()
+        if (!node) return null
+        const range = document.createRange()
+        range.selectNodeContents(node)
+        const rect = range.getBoundingClientRect()
+        const center = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+        return { text: (node.textContent ?? '').trim(), left: rect.left, right: rect.right, blocked: Boolean(center?.closest('td[data-fixed="left"]')) }
+      })
+      expect(textBox).not.toBeNull()
+      expect(textBox!.text).toContain('ready')
+      expect(textBox!.left).toBeGreaterThanOrEqual(leftBoundary + 1)
+      expect(textBox!.right).toBeLessThanOrEqual(containerBox!.x + containerBox!.width + 1)
+      expect(textBox!.blocked).toBe(false)
+    }
+  }
   const expand = demo.getByRole('button', { name: new RegExp(`Expand row ${key}$`) })
   if (await expand.getAttribute('aria-expanded') !== 'true') await expand.click()
   await expect(demo.locator(`tr[data-table-row="${key}"]`)).toBeVisible()
