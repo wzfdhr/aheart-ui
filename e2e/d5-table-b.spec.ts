@@ -124,8 +124,13 @@ test('D5-B review geometry, natural-width freeze, external sticky scroll, popup 
     const style = getComputedStyle(node)
     return { position: style.position, top: style.top }
   })
-  expect(bodyStyle.position).not.toBe('sticky')
+  expect(bodyStyle.position).toBe('sticky')
   expect(bodyStyle.top).toBe('auto')
+  const nonFixedBodyStyle = await table.locator('tbody tr').first().locator('td').nth(3).evaluate(node => {
+    const style = getComputedStyle(node)
+    return { position: style.position, top: style.top }
+  })
+  expect(nonFixedBodyStyle.position).not.toBe('sticky')
   expect(geometry.every(item => item.position === 'sticky' && item.top === '8px')).toBe(true)
   for (const index of [0, 1, 2]) {
     const offset = Number.parseFloat(geometry[index].left)
