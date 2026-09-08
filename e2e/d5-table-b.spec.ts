@@ -171,6 +171,7 @@ test('D5-B 430px transition degrades right fixed while keeping Role filter reach
   const container = demo.locator('.aheart-table__container')
   const table = demo.locator('table')
   const trigger = demo.locator('button[aria-haspopup="dialog"]').nth(1)
+  await trigger.scrollIntoViewIfNeeded()
   await container.evaluate(element => { element.scrollLeft = element.scrollWidth })
   const boundary = await demo.locator('thead th').nth(2).boundingBox()
   const triggerBox = await trigger.boundingBox()
