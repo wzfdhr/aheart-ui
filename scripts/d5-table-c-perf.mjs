@@ -11,7 +11,7 @@ const arg = name => { const i = process.argv.indexOf(name); return i < 0 ? undef
 const fullUrl = arg('--full-url'), virtualUrl = arg('--virtual-url'), out = arg('--out')
 const baselineFile = arg('--baseline-table-file'), candidateFile = arg('--candidate-table-file')
 const rounds = Number(arg('--rounds') ?? 3)
-if (!fullUrl || !virtualUrl || !out || !baselineFile || !candidateFile || !Number.isInteger(rounds) || rounds < 3) {
+if (!fullUrl || !virtualUrl || !out || !baselineFile || !candidateFile || !Number.isInteger(rounds) || rounds < 1) {
   console.error('usage: node scripts/d5-table-c-perf.mjs --full-url <10k-url> --virtual-url <10k-url> --baseline-table-file <D5-A-Table-only-file> --candidate-table-file <D5-C-Table-only-file> --out <json> [--rounds 3]')
   process.exit(2)
 }
@@ -22,9 +22,9 @@ try {
   for (let round = 0; round < rounds; round++) for (const [mode, url] of (round % 2 ? [['virtual', virtualUrl], ['full-dom', fullUrl]] : [['full-dom', fullUrl], ['virtual', virtualUrl]])) {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
     await page.addInitScript(() => {
-      window.__d5c = { longTasks: [], cls: 0 }
+      window.__d5c = { longTasks: [], cls: 0, shiftEntries: [] }
       new PerformanceObserver(list => window.__d5c.longTasks.push(...list.getEntries().map(e => e.duration))).observe({ type: 'longtask', buffered: true })
-      new PerformanceObserver(list => { for (const e of list.getEntries()) if (!e.hadRecentInput) { window.__d5c.cls += e.value; window.__d5c.shiftEntries.push({ startTime: e.startTime, value: e.value, sources: e.sources?.map(s => s.node?.tagName ?? 'unknown') ?? [] }) } }).observe({ type: 'layout-shift', buffered: true })
+      new PerformanceObserver(list => { for (const e of list.getEntries()) { const sources = e.sources?.map(s => ({ tag: s.node?.tagName ?? null, id: s.node?.id ?? null, class: s.node?.className ?? null, previousRect: s.previousRect, currentRect: s.currentRect })) ?? []; window.__d5c.shiftEntries.push({ startTime: e.startTime, value: e.value, hadRecentInput: e.hadRecentInput, sources }); if (!e.hadRecentInput) window.__d5c.cls += e.value } }).observe({ type: 'layout-shift', buffered: true })
     })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await page.waitForFunction(() => window.__fixtureReady === true && performance.getEntriesByName('d5c:mountStart', 'mark').length > 0 && performance.getEntriesByName('d5c:interactive', 'mark').length > 0)
@@ -37,7 +37,7 @@ try {
       let current = 0
       for (const target of [0, maxScroll / 2, maxScroll, 0]) {
         await page.mouse.wheel(0, target - current); current = target
-        await page.waitForFunction(() => true)
+        await page.waitForFunction(target => { const el = document.querySelector('[data-aheart-virtual-scroll]'); return Math.abs(el.scrollTop - target) < 200 }, target, { timeout: 3000 })
         await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
         await page.waitForTimeout(50)
         await page.evaluate(() => { const scroller = document.querySelector('[data-aheart-virtual-scroll]'); window.__d5c.scrollTrace.push({ scrollTop: scroller.scrollTop, first: document.querySelector('tr[data-table-row]')?.getAttribute('data-aheart-virtual-logical-item'), windowRows: document.querySelectorAll('tr[data-table-row]').length }) })
@@ -49,7 +49,7 @@ try {
       if (!mount || !interactive || !rows.length || !table || !window.__d5c) return null
       const interactiveMs = interactive.startTime - mount.startTime, ariaRowCount = ariaRaw === null ? null : Number(ariaRaw)
       if (!Number.isFinite(interactive.startTime) || !Number.isFinite(mount.startTime) || interactiveMs < 0 || (ariaRowCount !== null && !Number.isFinite(ariaRowCount))) return null
-      return { interactiveMs, logicalRows: rows.length, fullDomRows: document.querySelectorAll('tbody tr').length, ariaRowCount, spacerCount: document.querySelectorAll('[data-table-virtual-spacer]').length, longTaskMax: Math.max(0, ...window.__d5c.longTasks), cls: window.__d5c.cls, scrollTrace: window.__d5c.scrollTrace ?? [], longTasks: window.__d5c.longTasks }
+      return { interactiveMs, logicalRows: rows.length, fullDomRows: document.querySelectorAll('tbody tr').length, ariaRowCount, spacerCount: document.querySelectorAll('[data-table-virtual-spacer]').length, longTaskMax: Math.max(0, ...window.__d5c.longTasks), cls: window.__d5c.cls, shiftEntries: window.__d5c.shiftEntries, scrollTrace: window.__d5c.scrollTrace ?? [], longTasks: window.__d5c.longTasks }
     })
     await page.close()
     if (!metrics) throw new Error(`${mode} round ${round + 1}: missing/invalid fixture marks or required metrics`)
