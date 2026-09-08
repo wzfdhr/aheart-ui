@@ -73,22 +73,23 @@ test('D5-C preserves fixed columns, selection, expanded companion rows, and focu
   await expect(demo.locator(`tr[data-table-expanded-row="${key}"] td`)).toHaveAttribute('colspan', /[1-9]/)
   await demo.getByRole('button', { name: new RegExp(`Focus row ${key}$`) }).click()
   await expect(demo.locator(`tr[data-table-row="${key}"]`)).toHaveAttribute('data-focus-pinned', 'true')
+  await expect.poll(() => demo.evaluate((root, expected) => document.activeElement?.closest('tr')?.getAttribute('data-table-row') === expected, key)).toBe(true)
   await scroll.evaluate(element => { element.scrollTop = element.scrollHeight })
   await expect(demo.locator(`tr[data-table-row="${key}"]`)).toHaveAttribute('data-focus-pinned', 'true')
   await page.evaluate(() => (document.body as HTMLElement).focus())
-  await expect(demo.locator(`tr[data-table-row="${key}"]`)).toHaveAttribute('data-focus-pinned', 'false')
+  await expect.poll(() => demo.locator(`tr[data-table-row="${key}"]`).getAttribute('data-focus-pinned')).toBe('false')
   expect(errors).toEqual([])
 })
 
-test('D5-C warns and falls back to full DOM for unsupported rowspan and invalid row keys', async ({ page }) => {
+for (const [reason, name] of [['rowspan', 'D5-C 回退 rowspan'], ['invalid-row-key', 'D5-C 回退 invalid rowKey'], ['duplicate-key', 'D5-C 回退 duplicate key']] as const) test(`D5-C fallback: ${reason}`, async ({ page }) => {
   const warnings: string[] = []
   page.on('console', message => { if (message.type() === 'warning') warnings.push(message.text()) })
-  const demo = await openWorkbench(page, 'D5-C 兼容性回退')
+  const demo = await openWorkbench(page, name)
   await expect(demo.locator('[data-table-virtual-fallback="full-dom"]')).toBeVisible()
   await expect(demo.locator('tbody tr[data-table-row]')).toHaveCount(100)
-  await expect(demo.locator('[data-table-virtual-fallback="full-dom"]')).toHaveAttribute('data-fallback-reason', /rowspan|rowKey|duplicate/i)
+  await expect(demo.locator('[data-table-virtual-fallback="full-dom"]')).toHaveAttribute('data-fallback-reason', new RegExp(reason === 'invalid-row-key' ? 'rowKey' : reason, 'i'))
   const devWarnings = await demo.getAttribute('data-dev-warnings')
-  if (devWarnings === 'true') expect(warnings.join('\n')).toMatch(/rowspan|rowKey|duplicate|virtual/i)
+  if (devWarnings === 'true') await expect.poll(() => warnings.join('\n')).toMatch(/rowspan|rowKey|duplicate|virtual/i)
 })
 
 test('D5-C SSR hydration, iframe ownerDocument, mobile and zoom stay error free', async ({ page }) => {
@@ -98,8 +99,19 @@ test('D5-C SSR hydration, iframe ownerDocument, mobile and zoom stay error free'
   await expect(demo.locator('[data-owner-document-cleanup]')).toHaveText('ok')
   await expect(demo.locator('[data-owner-document]')).toHaveText('iframe')
   await expect(demo.locator('[data-iframe-listener-cleanup]')).toHaveText('ok')
+  const iframe = page.frameLocator('iframe[data-table-owner-document]')
+  await iframe.locator('[data-table-scroll]').evaluate(element => { element.scrollTop = element.scrollHeight / 2 })
+  await expect(iframe.locator('[data-owner-document]')).toHaveText('iframe')
+  await expect(demo.locator('[data-ssr-server-tbody]')).toHaveAttribute('data-hydration-tbody-equal', 'true')
   await page.setViewportSize({ width: 390, height: 844 })
   await page.evaluate(() => { document.body.style.zoom = '1.25' })
   await expect(demo.locator('[data-table-scroll]')).toBeVisible()
-  await expect.poll(() => errors).toEqual([])
+  await expect.poll(() => errors.slice()).toEqual([])
+})
+
+test('D5-C 1k local virtual table keeps the same bounded native window', async ({ page }) => {
+  const demo = await openWorkbench(page, 'D5-C 1k 本地虚拟表格')
+  await expect(demo.locator('table')).toHaveAttribute('aria-rowcount', '1000')
+  expect(await demo.locator('tbody tr[data-table-row]').count()).toBeGreaterThan(0)
+  expect(await demo.locator('tbody tr[data-table-row]').count()).toBeLessThanOrEqual(20)
 })

@@ -20,7 +20,7 @@ const server: TableProps = {
 const fixedExpanded: TableProps = {
   ...local,
   virtual,
-  fixed: true,
+  columns: [{ title: 'Name', dataIndex: 'name', key: 'name', fixed: 'left' }, { title: 'Status', dataIndex: 'status', key: 'status', fixed: 'right' }],
   expandable: { expandedRowRender: row => `Details for ${row.name}` }
 }
 

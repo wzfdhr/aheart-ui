@@ -2,14 +2,29 @@ D5-C runtime hardening verification (2026-09-08)
 
 PASS node --check scripts/d5-table-c-perf.mjs
 PASS node --check docs/superpowers/experiments/d5-c-consumer/run.mjs
-PASS playwright test e2e/d5-table-c.spec.ts --list
-  25 tests across desktop, mobile, desktop-firefox, desktop-webkit, mobile-webkit
+PASS playwright test e2e/d5-table-c.spec.ts --list (after final hardening)
+  40 tests across desktop, mobile, desktop-firefox, desktop-webkit, mobile-webkit
 PASS git diff --check
+
+RED smoke (desktop only, current production fixture): exit 1, 8 expected
+failures. All failures are missing D5-C runtime demos/API (virtual, fallback,
+iframe/hydration, and 1k coverage); no unrelated production/unit/docs files
+were changed.
+
+PERF runner contract checked: requires explicit D5-A and candidate Table-only
+file paths (records SHA-256/raw/gzip bytes), three or more paired rounds,
+fixture mountStart/interactive marks, 10k full-DOM/no-spacer and virtual/
+spacer/window assertions, LongTask and CLS thresholds.
+
+CONSUMER runner contract checked: copies types.ts and tsconfig.json into an
+isolated temp root, installs the real tgz, runs tsc, then exercises local,
+server, virtual, fixed-column, expanded, SSR, and browser hydration scenarios.
 
 Runtime gates intentionally remain RED until the D5-C Table fixture/API exists:
 - virtual logical row window is >0 and <=20; expanded and spacer rows are counted separately
 - midpoint scrolling accepts a nearby window, not a fixed row number
 - native spacer/expanded rows require aria-hidden and colspan
-- fallback warnings are scoped to development evidence and include a reason marker
+- fallback has independent rowspan, invalid-rowKey, and duplicate-key fixtures;
+  warnings are scoped to a development marker and include a reason marker
 - perf runner requires paired full-dom/virtual URLs, >=2 rounds, explicit ready marker,
   median TTI, logical-row, LongTask, CLS, and Table-only gzip inputs; missing metrics fail
