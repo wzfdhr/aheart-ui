@@ -1,0 +1,21 @@
+
+> aheart-ui-workspace@1.0.0 docs:build /Users/start/.codex/worktrees/091b/aheart-ui
+> corepack pnpm --dir docs build
+
+
+> @aheart-ui/docs@1.0.0 build /Users/start/.codex/worktrees/091b/aheart-ui/docs
+> vitepress build .
+
+
+  vitepress v1.6.4
+
+- building client + server bundles...
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[32m✓[0m building client + server bundles...
+- rendering pages...
+[32m✓[0m rendering pages...
+build complete in 6.59s.

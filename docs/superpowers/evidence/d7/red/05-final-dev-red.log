@@ -1,0 +1,15 @@
+D7 final development resource RED (2026-09-09)
+Command:
+  corepack pnpm --filter @aheart-ui/dnd exec vitest run src/__tests__/d7-dnd-resource.test.ts --environment jsdom --reporter=dot
+
+Result: 4 failed, 11 passed, exit code 1. No skip and no timeout expansion.
+
+RED failures:
+1. A native source element dragend without adapter onDrop did not close the session; late target drop removed source data.
+2. Two target.onDrop calls in one tick produced two source/target candidate updates instead of one transaction.
+3. With iframe inner, outer, and scrollingElement at their boundaries, one pointermove produced 17 RAF callbacks in ~20ms (limit <=2) and did not satisfy bounded resource behavior.
+4. After releasing the first of two same-owner iframe registrations, active pointermove still scrolled the released first ancestor (16) instead of only the still-registered second ancestor.
+
+Passing supplemental coverage:
+- Below-threshold touch pointercancel remained update-free.
+- Existing touch cancellation, stale/session, group, owner-scoped main-vs-iframe, live-region, owner-detached, scope, and rollback-focus resource cases continued to pass in this run.

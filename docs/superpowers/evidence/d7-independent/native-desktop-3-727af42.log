@@ -1,0 +1,186 @@
+CANDIDATE_SHA=727af428981e44297bc9719a164a2af265d7fa5b
+
+COMMAND=AHEART_E2E_PORT=5304 corepack pnpm exec playwright test e2e/dnd-splitter.spec.ts --project=desktop --grep "reorders a list once|keeps legacy desktop whole-item|moves across lists and accepts an empty destination"
+
+[WebServer] (node:79847) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:79858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:79873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:80655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:80666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+
+(node:80675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/3] [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+  1) [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "plan",
+        "review",
+        "release",
+    -   "plan",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      186 |     await drag(page, itemHandle(todo, '整理需求'), item(todo, '准备发布'))
+      187 |
+    > 188 |     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+          |                                              ^
+      189 |     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+      190 |   })
+      191 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:188:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:80697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[2/3] [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+  2) [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "legacy-a",
+        "legacy-b",
+        "legacy-c",
+    -   "legacy-a",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      196 |     await drag(page, item(legacy, '旧用法 A'), item(legacy, '旧用法 C'))
+      197 |
+    > 198 |     await expect.poll(() => itemOrder(legacy)).toEqual(['legacy-b', 'legacy-c', 'legacy-a'])
+          |                                                ^
+      199 |     await expect(page.getByTestId('dnd-legacy-events')).toHaveText('update 1 / change 1')
+      200 |   })
+      201 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:198:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:80705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[3/3] [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+  3) [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('dnd-done-list')
+    Expected substring: "准备发布"
+    Received string:    "发布复盘update 0 / change 0"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('dnd-done-list')
+        14 × locator resolved to <div data-testid="dnd-done-list">…</div>
+           - unexpected value "发布复盘update 0 / change 0"
+
+
+      305 |
+      306 |     await drag(page, itemHandle(todo, '准备发布'), item(done, '发布复盘'))
+    > 307 |     await expect(done).toContainText('准备发布')
+          |                        ^
+      308 |     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
+      309 |     await empty.scrollIntoViewIfNeeded()
+      310 |     await drag(page, itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:307:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  3 failed
+    [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+    [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps 
+    [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+
+EXIT_CODE=1

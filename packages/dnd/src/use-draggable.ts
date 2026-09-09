@@ -22,12 +22,12 @@ export function useDraggable(element: Ref<HTMLElement | undefined>, options: Use
       canDrag: () => !toValue(options.disabled ?? false),
       onDragStart: () => {
         isDragging.value = true
-        startDrag(toValue(options.data))
+        startDrag(toValue(options.data), target.ownerDocument)
         options.onDragStart?.()
       },
       onDrop: () => {
         isDragging.value = false
-        endDrag()
+        endDrag(target.ownerDocument)
         options.onDrop?.()
       }
     })
@@ -36,7 +36,7 @@ export function useDraggable(element: Ref<HTMLElement | undefined>, options: Use
       if (isDragging.value) {
         cancelNativeDrag(target.ownerDocument.defaultView ?? undefined)
         isDragging.value = false
-        endDrag()
+        endDrag(target.ownerDocument)
       }
     })
   })

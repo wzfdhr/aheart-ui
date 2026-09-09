@@ -1,0 +1,25 @@
+{
+  "phase": "independent-final",
+  "generatedAt": "2026-09-09T06:58:59.439Z",
+  "node": "v24.17.0",
+  "pnpm": "9.15.4",
+  "tarball": "/Users/start/.codex/worktrees/091b/aheart-ui/docs/superpowers/evidence/d7-independent/consumer-final/aheart-ui-dnd-1.0.0.tgz",
+  "tarballSHA256": "9cea27e357f1b42376f2b0147dd2448fcab0500f2627a66c106b98dc7f8ee20d",
+  "packageFileCount": 79,
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d7-85rJ6K",
+  "symlink": false,
+  "checks": {
+    "typecheck": true,
+    "esm": true,
+    "cjs": true,
+    "css": true,
+    "ssrDeterministic": true,
+    "hydration": true,
+    "genericKeyboard": true,
+    "sortableStableKey": true,
+    "sortableRevision": true,
+    "sortableControlledRollback": true,
+    "ownerDocumentCleanup": true
+  },
+  "status": "passed"
+}

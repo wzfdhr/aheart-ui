@@ -1,0 +1,18 @@
+D7 Playwright config contract RED (2026-09-09)
+
+Initial command before test correction:
+  node --test scripts/playwright-config.test.mjs
+
+Initial result: 7 passed, 1 failed, exit code 1.
+Failure: the test still required the pre-D7 exact crossBrowserTests list ending at d6PickerUploadOnly, while playwright.config.ts correctly declared d7DndOnly and appended it to crossBrowserTests.
+
+Required correction: assert declaration of d7DndOnly and require d7DndOnly as the final crossBrowserTests member; preserve exact project scoping and all prior members.
+
+Correction applied only to scripts/playwright-config.test.mjs:
+- Added exact d7DndOnly declaration assertion.
+- Updated the exact crossBrowserTests assertion to require d7DndOnly as the final member.
+
+Verification:
+  node --test scripts/playwright-config.test.mjs -> 8 passed / 8 total.
+  node --test scripts/*.test.mjs -> 88 passed / 88 total, exit code 0.
+  No skip, timeout, config, or unrelated test changes.

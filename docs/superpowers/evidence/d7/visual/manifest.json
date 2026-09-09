@@ -1,0 +1,51 @@
+{
+  "baseURL": "http://127.0.0.1:5303",
+  "screenshots": [
+    {
+      "file": "01-desktop-generic-keyboard.png",
+      "viewport": "1280x900",
+      "state": "source grabbed; compatible target focused",
+      "live": "任务收件箱，可放置"
+    },
+    {
+      "file": "02-desktop-generic-mismatch.png",
+      "viewport": "1280x900",
+      "state": "source grabbed; incompatible target focused",
+      "live": "笔记区，类型不匹配"
+    },
+    {
+      "file": "03-desktop-parent-rejection-rollback.png",
+      "viewport": "1280x900",
+      "state": "结果：父层拒绝，列表已回滚",
+      "field": "并发字段：已保留",
+      "process": "事务过程：候选 → 回滚",
+      "auditDetailsOpen": null
+    },
+    {
+      "file": "04-mobile390-generic-keyboard.png",
+      "viewport": "390x844",
+      "state": "source grabbed; compatible target focused",
+      "columns": "286px"
+    },
+    {
+      "file": "05a-mobile390-rollback-duplicate.png",
+      "viewport": "390x844",
+      "rollback": "结果：父层拒绝，列表已回滚",
+      "duplicate": "重复键结果：已安全拒绝（键重复）",
+      "auditDetailsOpen": null
+    },
+    {
+      "file": "05b-mobile390-scope-iframe.png",
+      "viewport": "390x844",
+      "scope": "路由取消状态：已因页面切换取消",
+      "iframe": "iframe 状态：已挂载"
+    },
+    {
+      "file": "06-desktop-iframe-owner-scroll.png",
+      "viewport": "1280x900",
+      "state": "iframe 状态：已挂载",
+      "live": "owner live region：已创建"
+    }
+  ],
+  "runtimeErrors": []
+}

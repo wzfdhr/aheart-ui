@@ -1,0 +1,26 @@
+CURRENT_COUNTS
+skip=      38
+todo=      70
+only=      32
+force=      14
+timeout=      24
+BASELINE_COUNTS
+skip=       0
+todo=       0
+only=       0
+force=       0
+timeout=       0
+CURRENT_MATCHES
+playwright.config.ts:21:  timeout: 30_000,
+playwright.config.ts:28:    screenshot: 'only-on-failure'
+playwright.config.ts:41:    timeout: 120_000
+scripts/playwright-config.test.mjs:53:  assert.match(configSource, /webServer:[\s\S]*timeout:\s*120_000/)
+scripts/playwright-config.test.mjs:59:  assert.match(configSource, /screenshot:\s*'only-on-failure'/)
+packages/dnd/src/__tests__/dnd.test.ts:469:  it('allows only one sortable handle to own a touch gesture across list instances', async () => {
+packages/dnd/src/__tests__/dnd.test.ts:750:  it('exposes handleProps and reorders only from the registered touch handle', async () => {
+packages/dnd/src/__tests__/dnd.test.ts:1000:  it('handles a nested drop only at the innermost target', async () => {
+packages/dnd/src/__tests__/d7-dnd-resource.test.ts:258:  it('allows only one candidate transaction when the same target receives two drops in one tick', async () => {
+packages/dnd/src/__tests__/d7-dnd-resource.test.ts:357:  it('settles a pending cancel rollback only after one rollback tick and reports rollback-rejected', async () => {
+DIFF_MATCHES
+5047:+  it('allows only one candidate transaction when the same target receives two drops in one tick', async () => {
+5146:+  it('settles a pending cancel rollback only after one rollback tick and reports rollback-rejected', async () => {

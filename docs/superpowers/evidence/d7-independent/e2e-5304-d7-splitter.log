@@ -1,0 +1,803 @@
+
+[WebServer] (node:70875) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:70888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:70902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:71658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:71671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 185 tests using 5 workers
+
+
+(node:71679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:71678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:71680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:71681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:71682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/185] [mobile] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[2/185] [desktop-firefox] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[3/185] [desktop] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[4/185] [desktop] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[5/185] [mobile] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[6/185] [desktop] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[7/185] [mobile] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[8/185] [mobile] › e2e/d7-dnd.spec.ts:108:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[9/185] [desktop] › e2e/d7-dnd.spec.ts:108:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[10/185] [desktop] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[11/185] [mobile] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[12/185] [desktop-firefox] › e2e/d7-dnd.spec.ts:108:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[13/185] [desktop] › e2e/d7-dnd.spec.ts:149:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[14/185] [mobile] › e2e/d7-dnd.spec.ts:149:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[15/185] [desktop] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[16/185] [mobile] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[17/185] [desktop] › e2e/d7-dnd.spec.ts:162:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+[18/185] [mobile] › e2e/d7-dnd.spec.ts:162:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+[19/185] [desktop-firefox] › e2e/d7-dnd.spec.ts:149:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[20/185] [mobile] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[21/185] [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[22/185] [desktop] › e2e/d7-dnd.spec.ts:194:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+[23/185] [mobile] › e2e/d7-dnd.spec.ts:194:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+[24/185] [desktop-firefox] › e2e/d7-dnd.spec.ts:162:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+
+(node:71755) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[25/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+
+(node:71759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[26/185] [desktop-webkit] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[27/185] [desktop-firefox] › e2e/d7-dnd.spec.ts:194:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+[28/185] [desktop-webkit] › e2e/d7-dnd.spec.ts:108:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[29/185] [desktop-webkit] › e2e/d7-dnd.spec.ts:149:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[30/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+  1) [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "plan",
+        "review",
+        "release",
+    -   "plan",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      186 |     await drag(page, itemHandle(todo, '整理需求'), item(todo, '准备发布'))
+      187 |
+    > 188 |     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+          |                                              ^
+      189 |     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+      190 |   })
+      191 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:188:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2) [mobile] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "plan",
+        "review",
+        "release",
+    -   "plan",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      186 |     await drag(page, itemHandle(todo, '整理需求'), item(todo, '准备发布'))
+      187 |
+    > 188 |     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+          |                                              ^
+      189 |     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+      190 |   })
+      191 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:188:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:71786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[31/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+
+(node:71788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:71789) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[32/185] [desktop-webkit] › e2e/d7-dnd.spec.ts:162:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+[33/185] [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[34/185] [mobile] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[35/185] [desktop-webkit] › e2e/d7-dnd.spec.ts:194:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+[36/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+
+(node:71822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[37/185] [mobile-webkit] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[38/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[39/185] [mobile] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[40/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[41/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[42/185] [mobile-webkit] › e2e/d7-dnd.spec.ts:108:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[43/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[44/185] [mobile] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[45/185] [mobile-webkit] › e2e/d7-dnd.spec.ts:149:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[46/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[47/185] [mobile-webkit] › e2e/d7-dnd.spec.ts:162:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+  3) [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "legacy-a",
+        "legacy-b",
+        "legacy-c",
+    -   "legacy-a",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      196 |     await drag(page, item(legacy, '旧用法 A'), item(legacy, '旧用法 C'))
+      197 |
+    > 198 |     await expect.poll(() => itemOrder(legacy)).toEqual(['legacy-b', 'legacy-c', 'legacy-a'])
+          |                                                ^
+      199 |     await expect(page.getByTestId('dnd-legacy-events')).toHaveText('update 1 / change 1')
+      200 |   })
+      201 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:198:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-e9a74-ragging-without-handleProps-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[48/185] [mobile] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[49/185] [mobile-webkit] › e2e/d7-dnd.spec.ts:194:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+
+(node:71860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[50/185] [desktop] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[51/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:133:7 › QG2 中文 DnD fixture › exposes same-list keyboard sorting, counts, status, and live region
+[52/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[53/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:148:7 › QG2 中文 DnD fixture › sorts from a focused handle with Alt+Arrow and restores focus to that handle
+[54/185] [mobile] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[55/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:160:7 › QG2 中文 DnD fixture › moves a focused handle across compatible lists with Alt+Arrow and announces the destination
+[56/185] [desktop] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+  4) [desktop-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "plan",
+        "review",
+        "release",
+    -   "plan",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      186 |     await drag(page, itemHandle(todo, '整理需求'), item(todo, '准备发布'))
+      187 |
+    > 188 |     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+          |                                              ^
+      189 |     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+      190 |   })
+      191 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:188:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:72076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[57/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[58/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:176:7 › QG2 中文 DnD fixture › uses an accessible deep-blue color for DnD status text without changing the handle focus color
+[59/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[60/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[61/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[62/185] [desktop] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[63/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[64/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[65/185] [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+  5) [desktop-firefox] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "plan",
+        "review",
+        "release",
+    -   "plan",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      186 |     await drag(page, itemHandle(todo, '整理需求'), item(todo, '准备发布'))
+      187 |
+    > 188 |     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+          |                                              ^
+      189 |     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+      190 |   })
+      191 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:188:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-desktop-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:72518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[66/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+  6) [mobile] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('dnd-done-list')
+    Expected substring: "准备发布"
+    Received string:    "发布复盘update 0 / change 0"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('dnd-done-list')
+        14 × locator resolved to <div data-testid="dnd-done-list">…</div>
+           - unexpected value "发布复盘update 0 / change 0"
+
+
+      305 |
+      306 |     await drag(page, itemHandle(todo, '准备发布'), item(done, '发布复盘'))
+    > 307 |     await expect(done).toContainText('准备发布')
+          |                        ^
+      308 |     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
+      309 |     await empty.scrollIntoViewIfNeeded()
+      310 |     await drag(page, itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:307:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  7) [mobile-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "plan",
+        "review",
+        "release",
+    -   "plan",
+      ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      186 |     await drag(page, itemHandle(todo, '整理需求'), item(todo, '准备发布'))
+      187 |
+    > 188 |     await expect.poll(() => itemOrder(todo)).toEqual(['review', 'release', 'plan'])
+          |                                              ^
+      189 |     await expect(page.getByTestId('dnd-todo-events')).toHaveText('update 1 / change 1')
+      190 |   })
+      191 |
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:188:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-879ae-ce-with-a-real-pointer-drag-mobile-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:72600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[67/185] [mobile] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+
+(node:72609) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[68/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[69/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[70/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+  8) [desktop-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('dnd-done-list')
+    Expected substring: "准备发布"
+    Received string:    "发布复盘update 0 / change 0"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('dnd-done-list')
+        14 × locator resolved to <div data-testid="dnd-done-list">…</div>
+           - unexpected value "发布复盘update 0 / change 0"
+
+
+      305 |
+      306 |     await drag(page, itemHandle(todo, '准备发布'), item(done, '发布复盘'))
+    > 307 |     await expect(done).toContainText('准备发布')
+          |                        ^
+      308 |     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
+      309 |     await empty.scrollIntoViewIfNeeded()
+      310 |     await drag(page, itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:307:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[71/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+
+(node:72665) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[72/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[73/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:202:7 › QG2 中文 DnD fixture › reorders from a trusted Chromium touch sequence on the handle
+[74/185] [mobile] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[75/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+  9) [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('dnd-done-list')
+    Expected substring: "准备发布"
+    Received string:    "发布复盘update 0 / change 0"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('dnd-done-list')
+        14 × locator resolved to <div data-testid="dnd-done-list">…</div>
+           - unexpected value "发布复盘update 0 / change 0"
+
+
+      305 |
+      306 |     await drag(page, itemHandle(todo, '准备发布'), item(done, '发布复盘'))
+    > 307 |     await expect(done).toContainText('准备发布')
+          |                        ^
+      308 |     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
+      309 |     await empty.scrollIntoViewIfNeeded()
+      310 |     await drag(page, itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:307:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[76/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+
+(node:72687) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[77/185] [desktop] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[78/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[79/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:238:7 › QG2 中文 DnD fixture › naturally scrolls from trusted Chromium touch input on item content without sorting
+[80/185] [mobile] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[81/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[82/185] [desktop] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[83/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[84/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[85/185] [mobile] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[86/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[87/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:268:7 › QG2 中文 DnD fixture › runs the touch handle state machine with scripted PointerEvents in mobile WebKit
+[88/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[89/185] [desktop] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+  10) [mobile-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('dnd-done-list')
+    Expected substring: "准备发布"
+    Received string:    "发布复盘update 0 / change 0"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('dnd-done-list')
+        14 × locator resolved to <div data-testid="dnd-done-list">…</div>
+           - unexpected value "发布复盘update 0 / change 0"
+
+
+      305 |
+      306 |     await drag(page, itemHandle(todo, '准备发布'), item(done, '发布复盘'))
+    > 307 |     await expect(done).toContainText('准备发布')
+          |                        ^
+      308 |     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
+      309 |     await empty.scrollIntoViewIfNeeded()
+      310 |     await drag(page, itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:307:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-mobile-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:72734) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[90/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[91/185] [mobile] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[92/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[93/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[94/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+[95/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[96/185] [desktop] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[97/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[98/185] [mobile] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[99/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[100/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[101/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[102/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[103/185] [desktop] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[104/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[105/185] [mobile] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[106/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[107/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[108/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[109/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[110/185] [desktop] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[111/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[112/185] [mobile] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[113/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[114/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[115/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[116/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[117/185] [desktop] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[118/185] [mobile] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[119/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+  11) [desktop-firefox] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('dnd-done-list')
+    Expected substring: "准备发布"
+    Received string:    "发布复盘update 0 / change 0"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByTestId('dnd-done-list')
+        14 × locator resolved to <div data-testid="dnd-done-list">…</div>
+           - unexpected value "发布复盘update 0 / change 0"
+
+
+      305 |
+      306 |     await drag(page, itemHandle(todo, '准备发布'), item(done, '发布复盘'))
+    > 307 |     await expect(done).toContainText('准备发布')
+          |                        ^
+      308 |     await expect(page.getByTestId('dnd-status')).toContainText('跨列表')
+      309 |     await empty.scrollIntoViewIfNeeded()
+      310 |     await drag(page, itemHandle(done, '准备发布'), empty.locator('.aheart-dnd-sortable-list'))
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/dnd-splitter.spec.ts:307:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/dnd-splitter-QG2-中文-DnD-fi-cb9bc-on-with-a-real-pointer-drag-desktop-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:72815) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[120/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:323:7 › QG2 中文 DnD fixture › moves a trusted Chromium touch handle across a non-empty list and then into an empty list exactly once per list
+[121/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[122/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[123/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[124/185] [mobile] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[125/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[126/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[127/185] [desktop] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[128/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[129/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[130/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[131/185] [mobile] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[132/185] [desktop-webkit] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[133/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[134/185] [desktop] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[135/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:364:7 › QG2 中文 DnD fixture › keeps disabled and rejected destinations unchanged
+[136/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[137/185] [mobile] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[138/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[139/185] [desktop] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[140/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:399:7 › QG2 中文 DnD fixture › rejects trusted Chromium touch moves to disabled and different-group lists without leaving drag UI behind
+[141/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[142/185] [mobile] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[143/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[144/185] [desktop] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[145/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[146/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:444:7 › QG2 中文 DnD fixture › keeps the mobile workbench readable and its states explicit
+[147/185] [mobile] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[148/185] [mobile-webkit] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[149/185] [desktop] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[150/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:462:7 › QG2 中文 DnD fixture › keeps item content scrollable during scripted touch events in mobile WebKit while only the handle disables touch gestures
+[151/185] [mobile] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[152/185] [desktop] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[153/185] [desktop] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[154/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:526:7 › QG2 中文 DnD fixture › auto-scrolls a nested region and cancels without moving
+[155/185] [mobile] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[156/185] [desktop] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[157/185] [mobile] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[158/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:549:7 › QG2 中文 DnD fixture › hands auto-scroll from an exhausted inner region to its outer ancestor
+[159/185] [desktop] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[160/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:573:7 › QG2 中文 DnD fixture › unmounts and remounts without stale drag state
+[161/185] [mobile] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[162/185] [desktop] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[163/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:606:7 › QG2 中文 Splitter fixture › renders horizontal, vertical, and three-panel splitters with state output
+[164/185] [mobile] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[165/185] [desktop] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[166/185] [mobile] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[167/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:664:7 › QG2 中文 Splitter fixture › enforces percentage bounds and recomputes them after container resize
+[168/185] [desktop] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[169/185] [mobile] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[170/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:687:7 › QG2 中文 Splitter fixture › keeps lazy values unchanged while dragging and commits on pointerup
+[171/185] [desktop] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[172/185] [mobile] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[173/185] [desktop] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[174/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:712:7 › QG2 中文 Splitter fixture › commits lazy values after a trusted Chromium touch sequence
+[175/185] [desktop] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+[176/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:747:7 › QG2 中文 Splitter fixture › runs the lazy touch state machine with scripted PointerEvents in mobile WebKit
+[177/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:780:7 › QG2 中文 Splitter fixture › drags across the iframe and restores the document after pointerup
+[178/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:802:7 › QG2 中文 Splitter fixture › cleans up on pointercancel and commits a subsequent pointer drag
+[179/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:836:7 › QG2 中文 Splitter fixture › cancels on window blur and cleans up when unmounted during a resize
+[180/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:860:7 › QG2 中文 Splitter fixture › cleans global drag state when navigating between Splitter and DnD
+[181/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:898:7 › QG2 中文 Splitter fixture › navigates between DnD and Splitter through the real sidebar without runtime errors
+[182/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:920:7 › QG2 中文 Splitter fixture › updates from external InputNumber and keeps a visible iframe in the splitter
+[183/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:930:7 › QG2 中文 Splitter fixture › clamps mobile external sizes to the measured splitter container
+[184/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:963:7 › QG2 中文 Splitter fixture › renders the panel API table and keeps mobile controlled sizes inside the fixture
+[185/185] [desktop-firefox] › e2e/dnd-splitter.spec.ts:973:7 › QG2 中文 Splitter fixture › cleans up and remounts the splitter demos
+  11 failed
+    [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+    [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps 
+    [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+    [mobile] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+    [mobile] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+    [desktop-firefox] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+    [desktop-firefox] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+    [desktop-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+    [desktop-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+    [mobile-webkit] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag 
+    [mobile-webkit] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag 
+  50 skipped
+  124 passed (2.0m)
+
+EXIT_CODE=1

@@ -1,0 +1,21 @@
+
+> @aheart-ui/dnd@1.0.0 test /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+> vitest run --environment jsdom
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v1.6.1 /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+
+ ✓ src/__tests__/d7-dnd-contract.test.ts  (8 tests) 97ms
+ ✓ src/__tests__/sortable-list-live-region.test.ts  (5 tests) 107ms
+ ✓ src/__tests__/d7-dnd-regression.test.ts  (11 tests) 195ms
+ ✓ src/__tests__/dnd.test.ts  (39 tests) 209ms
+ ✓ src/__tests__/d7-dnd-resource.test.ts  (16 tests) 291ms
+
+ Test Files  5 passed (5)
+      Tests  79 passed (79)
+   Start at  14:36:52
+   Duration  958ms (transform 454ms, setup 0ms, collect 1.03s, tests 899ms, environment 1.50s, prepare 259ms)
+
+
+EXIT_CODE=0

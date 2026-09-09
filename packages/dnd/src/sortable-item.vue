@@ -19,10 +19,10 @@ let activeTouchOwner: (() => void) | undefined
 
 <script setup lang="ts">
 import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
-import { computed, inject, nextTick, onBeforeUnmount, ref, watchEffect, type ComponentPublicInstance } from 'vue'
+import { computed, inject, nextTick, onBeforeUnmount, ref, watch, watchEffect, type ComponentPublicInstance } from 'vue'
 import { cancelNativeDrag, endDrag, startDrag } from './drag-state'
 import { sortableContextKey, type SortableHandleProps, type SortableItemData } from './sortable-context'
-import { moveSortableItem } from './sortable-registry'
+import { beginSortableSession, closeSortableSession, findAdjacentSortableList, moveSortableItem } from './sortable-registry'
 import { useDroppable } from './use-droppable'
 
 defineOptions({ name: 'ASortableItem' })
@@ -33,10 +33,16 @@ defineSlots<{
 const props = defineProps<{
   item: unknown
   index: number
+  itemKey?: string
+  revision?: string | number
 }>()
 const context = inject(sortableContextKey)
 if (!context) throw new Error('ASortableItem must be used inside ASortableList.')
 const sortableContext = context
+watch(() => sortableContext.group, () => {
+  closeSortableSession(activeSession?.sessionId)
+  activeSession = undefined
+})
 
 const root = ref<HTMLElement>()
 const itemDisabled = computed(() => sortableContext.disabled.value || (
@@ -46,8 +52,13 @@ const data = computed<SortableItemData>(() => ({
   type: 'aheart-sortable',
   listId: sortableContext.listId,
   group: sortableContext.group,
-  index: props.index
+  index: props.index,
+  itemKey: props.itemKey,
+  revision: props.revision,
+  scopeKey: sortableContext.scopeKey
 }))
+let activeSession: SortableItemData | undefined
+let pendingSessionClose: { sessionId: string; token: object } | undefined
 const isTouchDragging = ref(false)
 const dragHandle = ref<Element>()
 let touchSession: {
@@ -76,8 +87,9 @@ const clearTouchSession = (clearDragState = true) => {
   removeTouchListeners(session)
   if (session.started) {
     isTouchDragging.value = false
-    if (clearDragState) endDrag()
+    if (clearDragState) endDrag(session.document)
   }
+  closeSortableSession(session.data.sessionId)
 }
 function releaseTouchOwnership() {
   clearTouchSession()
@@ -88,7 +100,7 @@ const completeMove = (
   targetListId: string,
   targetIndex: number,
   focusHandle: boolean,
-  announcement: string
+  _announcement: string
 ) => {
   void nextTick(() => {
     const destinationList = Array.from(ownerDocument.querySelectorAll<HTMLElement>('.aheart-dnd-sortable-list'))
@@ -102,10 +114,6 @@ const completeMove = (
       ? destinationItem?.querySelector<HTMLElement>('[data-aheart-dnd-handle]')
       : undefined
     ;(destinationHandle ?? destinationItem)?.focus({ preventScroll: true })
-    const CustomEventConstructor = ownerDocument.defaultView?.CustomEvent
-    if (CustomEventConstructor) {
-      destinationList.dispatchEvent(new CustomEventConstructor('aheart-sortable-announce', { detail: announcement }))
-    }
   })
 }
 function handleTouchPointerMove(event: PointerEvent) {
@@ -120,7 +128,7 @@ function handleTouchPointerMove(event: PointerEvent) {
     if (Math.hypot(distanceX, distanceY) < 6) return
     touchSession.started = true
     isTouchDragging.value = true
-    startDrag(touchSession.data)
+    startDrag(touchSession.data, touchSession.document)
   }
   event.preventDefault()
 }
@@ -164,10 +172,14 @@ function handleTouchPointerCancel(event: PointerEvent) {
   clearTouchSession()
 }
 function handleTouchInterruption() {
+  closeSortableSession(touchSession?.data.sessionId)
   clearTouchSession()
 }
 function handleTouchVisibilityChange() {
-  if (touchSession?.document.visibilityState === 'hidden') clearTouchSession()
+  if (touchSession?.document.visibilityState === 'hidden') {
+    closeSortableSession(touchSession.data.sessionId)
+    clearTouchSession()
+  }
 }
 const handlePointerDown = (event: PointerEvent) => {
   if (touchSession || activeTouchOwner || itemDisabled.value) return
@@ -179,7 +191,7 @@ const handlePointerDown = (event: PointerEvent) => {
     pointerId: event.pointerId,
     startX: event.clientX,
     startY: event.clientY,
-    data: { ...data.value },
+    data: beginSortableSession({ ...data.value, input: 'touch' }),
     document: ownerDocument,
     window: ownerWindow,
     started: false
@@ -217,33 +229,60 @@ watchEffect((onCleanup) => {
   const cleanup = draggable({
     element: target,
     dragHandle: handle,
-    getInitialData: () => data.value,
+    getInitialData: () => {
+      activeSession ??= beginSortableSession({ ...data.value, input: 'pointer' })
+      return activeSession
+    },
     canDrag: () => !itemDisabled.value,
     onDragStart: () => {
       isDragging.value = true
-      startDrag(data.value)
+      activeSession ??= beginSortableSession({ ...data.value, input: 'pointer' })
+      startDrag(activeSession, target.ownerDocument)
     },
     onDrop: () => {
       isDragging.value = false
-      endDrag()
+      const sessionId = activeSession?.sessionId
+      activeSession = undefined
+      endDrag(target.ownerDocument)
+      if (sessionId) {
+        const token = {}
+        pendingSessionClose = { sessionId, token }
+        const close = () => {
+          if (pendingSessionClose?.token !== token) return
+          pendingSessionClose = undefined
+          closeSortableSession(sessionId)
+        }
+        const ownerWindow = target.ownerDocument.defaultView
+        if (ownerWindow?.queueMicrotask) ownerWindow.queueMicrotask(close)
+        else Promise.resolve().then(close)
+      }
     }
   })
   onCleanup(() => {
+    const sessionId = activeSession?.sessionId
+    if (pendingSessionClose) {
+      closeSortableSession(pendingSessionClose.sessionId)
+      pendingSessionClose = undefined
+    }
     cleanup()
     if (isDragging.value) {
       cancelNativeDrag(target.ownerDocument.defaultView ?? undefined)
       isDragging.value = false
-      endDrag()
+      closeSortableSession(activeSession?.sessionId)
+      activeSession = undefined
+      endDrag(target.ownerDocument)
     }
+    closeSortableSession(sessionId)
+    activeSession = undefined
   })
 })
 useDroppable(root, {
-  data,
+  data: () => ({ ...data.value, position: { kind: 'item' as const, itemKey: props.itemKey ?? String(props.index) } }),
   accept: 'aheart-sortable',
   disabled: itemDisabled,
   onDrop: (source) => {
-    if (source.type !== 'aheart-sortable' || source.group !== sortableContext.group) return
-    sortableContext.move(source as SortableItemData, props.index)
+    if (source.type !== 'aheart-sortable') return
+    sortableContext.move({ ...(source as SortableItemData), position: { kind: 'item', itemKey: props.itemKey ?? String(props.index) } }, props.index)
   }
 })
 const handleKeydown = (event: KeyboardEvent) => {
@@ -259,14 +298,24 @@ const handleKeydown = (event: KeyboardEvent) => {
   const focusHandle = Boolean(target?.closest('[data-aheart-dnd-handle]'))
   if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
     const targetIndex = props.index + (event.key === 'ArrowUp' ? -1 : 1)
-    context.move(data.value, targetIndex, true)
+    const session = beginSortableSession({ ...data.value, input: 'keyboard', keyboard: true })
+    context.move({ ...session }, targetIndex, true)
     completeMove(ownerDocument, sourceElement, sortableContext.listId, targetIndex, focusHandle, `已移动到第 ${targetIndex + 1} 项`)
     return
   }
 
   const lists = Array.from(ownerDocument.querySelectorAll<HTMLElement>('.aheart-dnd-sortable-list'))
   const sourceListIndex = lists.findIndex((list) => list.dataset.aheartSortableListId === sortableContext.listId)
-  for (let index = sourceListIndex + (event.key === 'ArrowLeft' ? -1 : 1); index >= 0 && index < lists.length; index += event.key === 'ArrowLeft' ? -1 : 1) {
+  const direction = event.key === 'ArrowLeft' ? -1 : 1
+  const registeredTarget = findAdjacentSortableList(sortableContext.listId, direction)
+  if (registeredTarget) {
+    const session = beginSortableSession({ ...data.value, input: 'keyboard', keyboard: true })
+    if (moveSortableItem(session, registeredTarget.listId, registeredTarget.length)) {
+      completeMove(ownerDocument, sourceElement, registeredTarget.listId, registeredTarget.length, focusHandle, `已跨列表移动到第 ${registeredTarget.length + 1} 项`)
+    }
+    return
+  }
+  for (let index = sourceListIndex + direction; index >= 0 && index < lists.length; index += direction) {
     const targetList = lists[index]
     const targetListId = targetList.dataset.aheartSortableListId
     if (
@@ -277,7 +326,8 @@ const handleKeydown = (event: KeyboardEvent) => {
     ) continue
 
     const targetIndex = targetList.querySelectorAll('.aheart-dnd-sortable-item').length
-    if (moveSortableItem(data.value, targetListId, targetIndex)) {
+    const session = beginSortableSession({ ...data.value, input: 'keyboard', keyboard: true })
+    if (moveSortableItem(session, targetListId, targetIndex)) {
       completeMove(ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, `已跨列表移动到第 ${targetIndex + 1} 项`)
     }
     return

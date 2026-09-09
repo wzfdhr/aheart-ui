@@ -1,0 +1,34 @@
+D7 RED run (2026-09-09, baseline master b6630ce)
+Test-integrity corrections before this run:
+- Generic keyboard test verifies grab+Escape cancellation first, then a second grab and exactly one successful drop; post-drop Escape is not expected to cancel an ended session.
+- Cross-list rollback live-region assertion queries the owner document body rather than the wrapper subtree.
+- Target lookup accepts D7 stable itemKey/position payload and falls back to legacy index only for the pre-D7 baseline.
+Command:
+  corepack pnpm --filter @aheart-ui/dnd exec vitest run src/__tests__/d7-dnd-contract.test.ts --environment jsdom --reporter=verbose
+
+Result: 8 failed, 0 passed; exit code 1. These are intentional pre-implementation RED assertions.
+
+1. rejects a drop after insertion instead of moving the old index
+   actual: source/target reordered to [source,target,inserted] after the drag snapshot; expected zero update and [inserted,source,target].
+   contract gap: stable itemKey lookup and insertion invalidation.
+2. rejects a stale explicit revision before emitting any update
+   actual: update:items emitted after revision changed from 1 to 2.
+   contract gap: stale-revision preflight.
+3. rolls back the accepted source when the target parent rejects a cross-list move
+   actual: source became [] while target stayed [target].
+   contract gap: atomic cross-list candidate settle and source rollback.
+4. supports Space/Enter grab, Escape cancel, and one keyboard drop for generic adapters
+   actual: generic Draggable/DropZone emitted no dragStart/drop/keyboard events.
+   contract gap: generic keyboard grab/drop/cancel service.
+5. keeps an incompatible generic keyboard zone focusable but rejects and announces the reason
+   actual: DropZone root tabIndex remained -1 and no rejection announcement was produced.
+   contract gap: focusable incompatible zone and type-mismatch live region.
+6. announces a sortable rejection when the destination group is incompatible
+   actual: live region text was empty.
+   contract gap: group-mismatch failure announcement.
+7. uses the iframe owner window for auto-scroll discovery
+   actual: registerSortableAutoScroll called main-realm window.getComputedStyle and threw; iframe owner window was not used.
+   contract gap: ownerDocument/defaultView auto-scroll isolation and iframe wrapper.
+8. ignores a late drop after scope change or unmount
+   actual: scopeKey change still emitted update:items; late callback was not invalidated by scope.
+   contract gap: scope session cancellation and late-event zero-update guarantee.

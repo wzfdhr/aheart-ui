@@ -1,0 +1,16 @@
+D7 legacy announcement regression (2026-09-09)
+
+Baseline before this test correction (reported development-review state):
+  @aheart-ui/dnd dnd.test.ts: 61 passed / 63 total; 2 failed.
+  The controlled-parent adjacent keyboard-move case was still asserting an empty live region under the old contract. The second last-item no-op failure was retained for independent diagnosis and was not relaxed.
+
+Correction:
+  Renamed the case to assert source focus and controlled-parent rejection semantics.
+  Preserved existing update-count, data, focus, and live-region-count assertions.
+  Added external onMoveReject collection and asserted parent-rejected.
+  Replaced the obsolete empty-live-region assertion with failure copy and an explicit absence of success copy.
+
+Verification after correction:
+  Command: corepack pnpm --filter @aheart-ui/dnd test -- --reporter=dot
+  Result: 4 files passed, 63 passed / 63 total, 0 failed, exit code 0.
+  No skip or timeout changes.

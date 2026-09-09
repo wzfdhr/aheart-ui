@@ -1,8 +1,8 @@
-import { defineComponent, inject, ref, computed, onBeforeUnmount, watchEffect, openBlock, createElementBlock, normalizeClass, renderSlot, nextTick } from "vue";
+import { defineComponent, inject, watch, ref, computed, onBeforeUnmount, watchEffect, openBlock, createElementBlock, normalizeClass, renderSlot, nextTick } from "vue";
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js";
 import { endDrag, startDrag, cancelNativeDrag } from "./drag-state.js";
 import { sortableContextKey } from "./sortable-context.js";
-import { moveSortableItem } from "./sortable-registry.js";
+import { beginSortableSession, closeSortableSession, findAdjacentSortableList, moveSortableItem } from "./sortable-registry.js";
 import { useDroppable } from "./use-droppable.js";
 const _hoisted_1 = ["data-sortable-index", "tabindex", "aria-disabled"];
 let activeTouchOwner;
@@ -11,21 +11,32 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "sortable-item",
   props: {
     item: {},
-    index: {}
+    index: {},
+    itemKey: {},
+    revision: {}
   },
   setup(__props) {
     const props = __props;
     const context = inject(sortableContextKey);
     if (!context) throw new Error("ASortableItem must be used inside ASortableList.");
     const sortableContext = context;
+    watch(() => sortableContext.group, () => {
+      closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+      activeSession = void 0;
+    });
     const root = ref();
     const itemDisabled = computed(() => sortableContext.disabled.value || typeof props.item === "object" && props.item !== null && "disabled" in props.item && props.item.disabled === true);
     const data = computed(() => ({
       type: "aheart-sortable",
       listId: sortableContext.listId,
       group: sortableContext.group,
-      index: props.index
+      index: props.index,
+      itemKey: props.itemKey,
+      revision: props.revision,
+      scopeKey: sortableContext.scopeKey
     }));
+    let activeSession;
+    let pendingSessionClose;
     const isTouchDragging = ref(false);
     const dragHandle = ref();
     let touchSession;
@@ -45,25 +56,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       removeTouchListeners(session);
       if (session.started) {
         isTouchDragging.value = false;
-        if (clearDragState) endDrag();
+        if (clearDragState) endDrag(session.document);
       }
+      closeSortableSession(session.data.sessionId);
     };
     function releaseTouchOwnership() {
       clearTouchSession();
     }
-    const completeMove = (ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, announcement) => {
+    const completeMove = (ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, _announcement) => {
       void nextTick(() => {
-        var _a, _b;
+        var _a;
         const destinationList = Array.from(ownerDocument.querySelectorAll(".aheart-dnd-sortable-list")).find((element) => element.dataset.aheartSortableListId === targetListId);
         const destinationItem = destinationList == null ? void 0 : destinationList.querySelector(`[data-sortable-index="${targetIndex}"]`);
         const moved = sourceElement.isConnected ? destinationItem === sourceElement : Boolean(destinationItem);
         if (!moved || !destinationList || !destinationItem) return;
         const destinationHandle = focusHandle ? destinationItem == null ? void 0 : destinationItem.querySelector("[data-aheart-dnd-handle]") : void 0;
         (_a = destinationHandle ?? destinationItem) == null ? void 0 : _a.focus({ preventScroll: true });
-        const CustomEventConstructor = (_b = ownerDocument.defaultView) == null ? void 0 : _b.CustomEvent;
-        if (CustomEventConstructor) {
-          destinationList.dispatchEvent(new CustomEventConstructor("aheart-sortable-announce", { detail: announcement }));
-        }
       });
     };
     function handleTouchPointerMove(event) {
@@ -78,7 +86,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         if (Math.hypot(distanceX, distanceY) < 6) return;
         touchSession.started = true;
         isTouchDragging.value = true;
-        startDrag(touchSession.data);
+        startDrag(touchSession.data, touchSession.document);
       }
       event.preventDefault();
     }
@@ -116,10 +124,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       clearTouchSession();
     }
     function handleTouchInterruption() {
+      closeSortableSession(touchSession == null ? void 0 : touchSession.data.sessionId);
       clearTouchSession();
     }
     function handleTouchVisibilityChange() {
-      if ((touchSession == null ? void 0 : touchSession.document.visibilityState) === "hidden") clearTouchSession();
+      if ((touchSession == null ? void 0 : touchSession.document.visibilityState) === "hidden") {
+        closeSortableSession(touchSession.data.sessionId);
+        clearTouchSession();
+      }
     }
     const handlePointerDown = (event) => {
       var _a;
@@ -132,7 +144,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         pointerId: event.pointerId,
         startX: event.clientX,
         startY: event.clientY,
-        data: { ...data.value },
+        data: beginSortableSession({ ...data.value, input: "touch" }),
         document: ownerDocument,
         window: ownerWindow,
         started: false
@@ -169,33 +181,60 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const cleanup = draggable({
         element: target,
         dragHandle: handle,
-        getInitialData: () => data.value,
+        getInitialData: () => {
+          activeSession ?? (activeSession = beginSortableSession({ ...data.value, input: "pointer" }));
+          return activeSession;
+        },
         canDrag: () => !itemDisabled.value,
         onDragStart: () => {
           isDragging.value = true;
-          startDrag(data.value);
+          activeSession ?? (activeSession = beginSortableSession({ ...data.value, input: "pointer" }));
+          startDrag(activeSession, target.ownerDocument);
         },
         onDrop: () => {
           isDragging.value = false;
-          endDrag();
+          const sessionId = activeSession == null ? void 0 : activeSession.sessionId;
+          activeSession = void 0;
+          endDrag(target.ownerDocument);
+          if (sessionId) {
+            const token = {};
+            pendingSessionClose = { sessionId, token };
+            const close = () => {
+              if ((pendingSessionClose == null ? void 0 : pendingSessionClose.token) !== token) return;
+              pendingSessionClose = void 0;
+              closeSortableSession(sessionId);
+            };
+            const ownerWindow = target.ownerDocument.defaultView;
+            if (ownerWindow == null ? void 0 : ownerWindow.queueMicrotask) ownerWindow.queueMicrotask(close);
+            else Promise.resolve().then(close);
+          }
         }
       });
       onCleanup(() => {
+        const sessionId = activeSession == null ? void 0 : activeSession.sessionId;
+        if (pendingSessionClose) {
+          closeSortableSession(pendingSessionClose.sessionId);
+          pendingSessionClose = void 0;
+        }
         cleanup();
         if (isDragging.value) {
           cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
           isDragging.value = false;
-          endDrag();
+          closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+          activeSession = void 0;
+          endDrag(target.ownerDocument);
         }
+        closeSortableSession(sessionId);
+        activeSession = void 0;
       });
     });
     useDroppable(root, {
-      data,
+      data: () => ({ ...data.value, position: { kind: "item", itemKey: props.itemKey ?? String(props.index) } }),
       accept: "aheart-sortable",
       disabled: itemDisabled,
       onDrop: (source) => {
-        if (source.type !== "aheart-sortable" || source.group !== sortableContext.group) return;
-        sortableContext.move(source, props.index);
+        if (source.type !== "aheart-sortable") return;
+        sortableContext.move({ ...source, position: { kind: "item", itemKey: props.itemKey ?? String(props.index) } }, props.index);
       }
     });
     const handleKeydown = (event) => {
@@ -210,19 +249,30 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const focusHandle = Boolean(target == null ? void 0 : target.closest("[data-aheart-dnd-handle]"));
       if (event.key === "ArrowUp" || event.key === "ArrowDown") {
         const targetIndex = props.index + (event.key === "ArrowUp" ? -1 : 1);
-        context.move(data.value, targetIndex, true);
-        completeMove(ownerDocument, sourceElement, sortableContext.listId, targetIndex, focusHandle, `已移动到第 ${targetIndex + 1} 项`);
+        const session = beginSortableSession({ ...data.value, input: "keyboard", keyboard: true });
+        context.move({ ...session }, targetIndex, true);
+        completeMove(ownerDocument, sourceElement, sortableContext.listId, targetIndex, focusHandle);
         return;
       }
       const lists = Array.from(ownerDocument.querySelectorAll(".aheart-dnd-sortable-list"));
       const sourceListIndex = lists.findIndex((list) => list.dataset.aheartSortableListId === sortableContext.listId);
-      for (let index = sourceListIndex + (event.key === "ArrowLeft" ? -1 : 1); index >= 0 && index < lists.length; index += event.key === "ArrowLeft" ? -1 : 1) {
+      const direction = event.key === "ArrowLeft" ? -1 : 1;
+      const registeredTarget = findAdjacentSortableList(sortableContext.listId, direction);
+      if (registeredTarget) {
+        const session = beginSortableSession({ ...data.value, input: "keyboard", keyboard: true });
+        if (moveSortableItem(session, registeredTarget.listId, registeredTarget.length)) {
+          completeMove(ownerDocument, sourceElement, registeredTarget.listId, registeredTarget.length, focusHandle, `已跨列表移动到第 ${registeredTarget.length + 1} 项`);
+        }
+        return;
+      }
+      for (let index = sourceListIndex + direction; index >= 0 && index < lists.length; index += direction) {
         const targetList = lists[index];
         const targetListId = targetList.dataset.aheartSortableListId;
         if (!targetListId || targetList.dataset.aheartSortableDisabled === "true" || !sortableContext.group || targetList.dataset.aheartSortableGroup !== sortableContext.group) continue;
         const targetIndex = targetList.querySelectorAll(".aheart-dnd-sortable-item").length;
-        if (moveSortableItem(data.value, targetListId, targetIndex)) {
-          completeMove(ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, `已跨列表移动到第 ${targetIndex + 1} 项`);
+        const session = beginSortableSession({ ...data.value, input: "keyboard", keyboard: true });
+        if (moveSortableItem(session, targetListId, targetIndex)) {
+          completeMove(ownerDocument, sourceElement, targetListId, targetIndex, focusHandle);
         }
         return;
       }

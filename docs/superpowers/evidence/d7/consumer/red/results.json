@@ -1,0 +1,28 @@
+{
+  "phase": "red",
+  "generatedAt": "2026-09-09T05:46:32.337Z",
+  "node": "v24.17.0",
+  "pnpm": "9.15.4",
+  "tarball": "/private/tmp/aheart-d7-red-pack.C5igSu/aheart-ui-dnd-1.0.0.tgz",
+  "tarballSHA256": "11183a1c5f5d29b3a6bab49af66089ecb13bb704480ec67701904fbef61d44dc",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d7-67FD2M",
+  "symlink": false,
+  "checks": {
+    "typecheck": true,
+    "esm": true,
+    "cjs": true,
+    "css": true,
+    "ssrDeterministic": true,
+    "hydration": true,
+    "genericKeyboard": true,
+    "sortableStableKey": true,
+    "sortableControlledRollback": true,
+    "ownerDocumentCleanup": false
+  },
+  "status": "failed",
+  "error": {
+    "name": "AssertionError",
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'page-hidden'\n- 'owner-detached'\n",
+    "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'page-hidden'\n- 'owner-detached'\n\n    at main (file:///Users/start/.codex/worktrees/091b/aheart-ui/scripts/d7-dnd-consumer.mjs:170:14)\n    at async file:///Users/start/.codex/worktrees/091b/aheart-ui/scripts/d7-dnd-consumer.mjs:190:1"
+  }
+}

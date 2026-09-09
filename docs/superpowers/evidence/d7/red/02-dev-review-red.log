@@ -1,0 +1,22 @@
+D7 development-review regression RED (2026-09-09)
+Second-round contract corrections:
+- Generic parent rejection now uses SortableList Alt+Arrow cross-list controlled rejection; it asserts source/target rollback and failure live region.
+- Candidate-unmount test collects moveReject externally and requires final live-region cleanup, without requiring a stale region after both lists unmount.
+- Scope test first verifies a compatible target focus/announcement, then re-grabs and changes scope for cancellation.
+Command:
+  corepack pnpm --filter @aheart-ui/dnd exec vitest run src/__tests__/d7-dnd-regression.test.ts --environment jsdom --reporter=verbose
+
+Earlier uncorrected run in this log: 11 failed, 0 passed; it is retained as historical RED evidence.
+Corrected rerun after removing post-unmount emit assertions and routing native reject through an external array: 1 failed, 10 passed; exit code 1. No skip or timeout expansion.
+
+Current remaining RED:
+1. SortableList keyboard cross-list parent rejection left both lists unchanged but produced no failure live-region announcement.
+
+The following 10 assertions were RED in the earlier run and are now GREEN after concurrent production changes; their original failures remain above as historical evidence: native adapter ordering/stale rejection, in-place splice safety, cross-iframe isolation, candidate-unmount rollback/cleanup, scope cancellation, dynamic disabled announcement, grabbed/target semantics, iframe auto-scroll lifecycle, missing-key safety, and duplicate-key warning.
+
+Timing correction and rerun:
+- Added the required second `await nextTick()` for candidate settle plus rollback settle before checking the keyboard parent-rejection announcement.
+- Rerun result: 11 passed, 0 failed, exit code 0.
+- This GREEN result is post-fix evidence; the earlier 11-failure and 1-failure RED results remain unchanged above.
+
+The tests cover real adapter callback ordering, owner-document separation, candidate settle lifecycle, generic keyboard state, owner-realm pointer movement, and key safety. Existing production/legacy tests were not changed.

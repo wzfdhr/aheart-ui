@@ -1,0 +1,25 @@
+D7 resource/lifecycle review RED (2026-09-09)
+Command:
+  corepack pnpm --filter @aheart-ui/dnd exec vitest run src/__tests__/d7-dnd-resource.test.ts --environment jsdom --reporter=verbose
+
+Result: 8 failed, 2 passed, exit code 1. No skip and no timeout expansion.
+
+RED failures:
+1. Native source onDrop ended the session, but a late target callback still removed source data and updated the target.
+2. Stale event used source.index=1 instead of drag-start snapshot index=0; itemKey/itemLabel/revision were otherwise present.
+3. After group prop changed old -> new, the next adapter session still carried group=old.
+4. A main-document active drag caused iframe owner-region scrollTop to change to 16.
+5. Iframe inner edge scrolling incremented inner (916 from 900) instead of handing off only to the exhausted outer region. The strengthened assertion records outer.scrollTop after ~20ms (first>0), waits ~50ms without another pointermove, and requires a further increase; current implementation fails at the inner handoff assertion.
+6. An external same-class live-region node was overwritten by the DnD service.
+7. Iframe keyboard owner-detached cancellation was observed, but the iframe live-region node remained after detach.
+8. Changing DropZone scopeKey did not cancel the active old keyboard session with scope-changed.
+
+Passing supplemental coverage:
+- Touch pointercancel followed by a late pointerup produced zero update.
+- Cross-list rollback restored source data and source handle focus after target acceptance was rolled back.
+
+Owner-scoped drag-state correction:
+- Main-document active-drag test intentionally keeps `startDrag(data)` global and expects iframe scrollTop to remain zero.
+- The iframe-self-drag regression paths now use `startDrag(data, ownerDocument)` and `endDrag(ownerDocument)`.
+- Re-run of the three D7 files: contract 8/8 passed, regression 11/11 passed, resource 9/10 passed with 1 RED.
+- The remaining RED is the intended nested iframe handoff/continuous-RAF assertion: inner scrollTop became 916 instead of remaining 900.

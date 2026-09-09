@@ -1,0 +1,25 @@
+{
+  "phase": "green",
+  "generatedAt": "2026-09-09T07:04:49.490Z",
+  "node": "v24.17.0",
+  "pnpm": "9.15.4",
+  "tarball": "/private/tmp/aheart-d7-final-pack.kv0lh7/aheart-ui-dnd-1.0.0.tgz",
+  "tarballSHA256": "9cea27e357f1b42376f2b0147dd2448fcab0500f2627a66c106b98dc7f8ee20d",
+  "packageFileCount": 79,
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d7-Mwqhfv",
+  "symlink": false,
+  "checks": {
+    "typecheck": true,
+    "esm": true,
+    "cjs": true,
+    "css": true,
+    "ssrDeterministic": true,
+    "hydration": true,
+    "genericKeyboard": true,
+    "sortableStableKey": true,
+    "sortableRevision": true,
+    "sortableControlledRollback": true,
+    "ownerDocumentCleanup": true
+  },
+  "status": "passed"
+}

@@ -616,16 +616,17 @@ describe('Aheart DnD adapters', () => {
     wrapper.unmount()
   })
 
-  it('keeps source focus and suppresses success live regions when a controlled parent rejects an adjacent move', async () => {
+  it('keeps source focus and announces controlled-parent rejection without success copy', async () => {
     const sourceItems = ref([{ id: 'source' }])
     const targetItems = ref([{ id: 'target' }])
     const sourceUpdates = vi.fn()
     const targetUpdates = vi.fn()
+    const rejects: Array<{ reason?: string }> = []
     const Host = defineComponent({
       setup() {
         return () => h('div', [
-          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': sourceUpdates }, { item: itemWithHandle }),
-          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', 'onUpdate:items': targetUpdates }, { item: itemWithHandle })
+          h(SortableList, { items: sourceItems.value, itemKey: 'id', group: 'tasks', onMoveReject: (event: { reason?: string }) => rejects.push(event), 'onUpdate:items': sourceUpdates }, { item: itemWithHandle }),
+          h(SortableList, { items: targetItems.value, itemKey: 'id', group: 'tasks', onMoveReject: (event: { reason?: string }) => rejects.push(event), 'onUpdate:items': targetUpdates }, { item: itemWithHandle })
         ])
       }
     })
@@ -643,9 +644,11 @@ describe('Aheart DnD adapters', () => {
     expect(sourceItems.value).toEqual([{ id: 'source' }])
     expect(targetItems.value).toEqual([{ id: 'target' }])
     expect(document.activeElement).toBe(sourceHandle)
+    expect(rejects[0]).toMatchObject({ reason: 'parent-rejected' })
     const liveRegions = Array.from(document.querySelectorAll<HTMLElement>('.aheart-dnd-live-region'))
     expect(liveRegions).toHaveLength(1)
-    expect(liveRegions[0].textContent).toBe('')
+    expect(liveRegions[0].textContent).toMatch(/失败|父层|拒绝/)
+    expect(liveRegions[0].textContent).not.toMatch(/已移动到/)
 
     wrapper.unmount()
   })

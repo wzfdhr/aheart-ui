@@ -1,0 +1,69 @@
+
+[WebServer] (node:49563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:49733) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:49828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:50584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:50595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 4 workers
+
+
+(node:50602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:50604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:50605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:50603) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/20] [mobile-webkit] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[2/20] [desktop-webkit] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[3/20] [desktop-firefox] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[4/20] [mobile] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[5/20] [mobile-webkit] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[6/20] [desktop-webkit] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[7/20] [mobile] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[8/20] [mobile-webkit] › e2e/d7-dnd.spec.ts:146:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[9/20] [desktop-webkit] › e2e/d7-dnd.spec.ts:146:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[10/20] [mobile-webkit] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+[11/20] [desktop-webkit] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+[12/20] [mobile-webkit] › e2e/d7-dnd.spec.ts:189:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+[13/20] [desktop-webkit] › e2e/d7-dnd.spec.ts:189:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+[14/20] [mobile] › e2e/d7-dnd.spec.ts:146:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[15/20] [desktop-firefox] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[16/20] [mobile] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+[17/20] [desktop-firefox] › e2e/d7-dnd.spec.ts:146:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[18/20] [mobile] › e2e/d7-dnd.spec.ts:189:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+[19/20] [desktop-firefox] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+[20/20] [desktop-firefox] › e2e/d7-dnd.spec.ts:189:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+  20 passed (24.6s)

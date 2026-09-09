@@ -1,0 +1,130 @@
+
+[WebServer] (node:36953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:36966) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:36988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:37790) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:37801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+
+(node:37821) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[2/5] [desktop] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+  1) [desktop] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('d7-stale-reject-reason')
+    Expected: "stale-revision"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" with timeout 5000ms
+      - waiting for getByTestId('d7-stale-reject-reason')
+        14 × locator resolved to <span data-testid="d7-stale-reject-reason"></span>
+           - unexpected value ""
+
+
+      116 |     await page.getByTestId('d7-stale-refresh').click()
+      117 |     await dispatchPointer(staleTarget, 'pointerup', { pointerId: 71, clientX: staleTargetBox!.x + 12, clientY: staleTargetBox!.y + 12 })
+    > 118 |     await expect(page.getByTestId('d7-stale-reject-reason')).toHaveText('stale-revision')
+          |                                                              ^
+      119 |     await expect(page.getByTestId('d7-stale-update-count')).toHaveText('0')
+      120 |
+      121 |     const rollbackSource = page.getByTestId('d7-rollback-source')
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:118:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:38167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[3/5] [desktop] › e2e/d7-dnd.spec.ts:146:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[4/5] [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+  2) [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+
+    TypeError: frame.evaluate is not a function
+
+      33 |
+      34 | const dispatchIframePointer = async (frame: Locator, type: 'pointerdown' | 'pointermove' | 'pointerup', init: { pointerId: number; clientX: number; clientY: number }) => {
+    > 35 |   await frame.evaluate((document, payload) => {
+         |               ^
+      36 |     const target = document.elementFromPoint(payload.init.clientX, payload.init.clientY) ?? document.body
+      37 |     target.dispatchEvent(new PointerEvent(payload.type, {
+      38 |       ...payload.init,
+        at dispatchIframePointer (/Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:35:15)
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:170:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop-2/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:38257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[5/5] [desktop] › e2e/d7-dnd.spec.ts:184:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+  2 failed
+    [desktop] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection 
+    [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+  3 passed (19.1s)
