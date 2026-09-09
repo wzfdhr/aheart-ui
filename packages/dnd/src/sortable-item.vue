@@ -58,6 +58,7 @@ const data = computed<SortableItemData>(() => ({
   scopeKey: sortableContext.scopeKey
 }))
 let activeSession: SortableItemData | undefined
+let pendingSessionClose: { sessionId: string; token: object } | undefined
 const isTouchDragging = ref(false)
 const dragHandle = ref<Element>()
 let touchSession: {
@@ -240,13 +241,29 @@ watchEffect((onCleanup) => {
     },
     onDrop: () => {
       isDragging.value = false
-      closeSortableSession(activeSession?.sessionId)
+      const sessionId = activeSession?.sessionId
       activeSession = undefined
       endDrag(target.ownerDocument)
+      if (sessionId) {
+        const token = {}
+        pendingSessionClose = { sessionId, token }
+        const close = () => {
+          if (pendingSessionClose?.token !== token) return
+          pendingSessionClose = undefined
+          closeSortableSession(sessionId)
+        }
+        const ownerWindow = target.ownerDocument.defaultView
+        if (ownerWindow?.queueMicrotask) ownerWindow.queueMicrotask(close)
+        else Promise.resolve().then(close)
+      }
     }
   })
   onCleanup(() => {
     const sessionId = activeSession?.sessionId
+    if (pendingSessionClose) {
+      closeSortableSession(pendingSessionClose.sessionId)
+      pendingSessionClose = undefined
+    }
     cleanup()
     if (isDragging.value) {
       cancelNativeDrag(target.ownerDocument.defaultView ?? undefined)

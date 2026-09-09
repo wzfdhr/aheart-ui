@@ -65,7 +65,7 @@ describe('D7 resource/lifecycle RED: late callbacks and snapshot fields', () => 
     wrapper.unmount()
   })
 
-  it('ignores a late target drop after native source onDrop ends the session', async () => {
+  it('rejects a microtask-late target drop after a native source onDrop with no target', async () => {
     const sourceItems = ref([{ id: 'source' }])
     const targetItems = ref([{ id: 'target' }])
     const sourceUpdates = vi.fn((next: typeof sourceItems.value) => { sourceItems.value = next })
@@ -77,11 +77,12 @@ describe('D7 resource/lifecycle RED: late callbacks and snapshot fields', () => 
     const wrapper = mount(Host)
     await nextTick()
     const source = sourceConfig()!
-    const sourceData = source.getInitialData()
     source.onDragStart()
+    const sourceData = source.getInitialData()
     source.onDrop()
+    await Promise.resolve()
     targetConfig()!.onDrop({ source: { data: sourceData } })
-    await nextTick()
+    await nextTick(); await nextTick()
     expect(sourceItems.value).toEqual([{ id: 'source' }])
     expect(targetItems.value).toEqual([{ id: 'target' }])
     expect(sourceUpdates).not.toHaveBeenCalled()
@@ -230,7 +231,7 @@ describe('D7 resource/lifecycle RED: rollback focus', () => {
 })
 
 describe('D7 final development RED: native/tick/ancestor resource isolation', () => {
-  it('does not let raw dragend preempt target drop; adapter onDrop closes the session', async () => {
+  it('accepts source-before-target native callbacks once and rejects a microtask-late target', async () => {
     const sourceItems = ref([{ id: 'source' }])
     const targetItems = ref([{ id: 'target' }])
     const sourceUpdates = vi.fn((next: typeof sourceItems.value) => { sourceItems.value = next })
@@ -244,16 +245,24 @@ describe('D7 final development RED: native/tick/ancestor resource isolation', ()
     const source = sourceConfig()!
     source.onDragStart()
     const sourceData = source.getInitialData()
-    const sourceElement = wrapper.findAll('.aheart-dnd-sortable-item')[0].element
-    sourceElement.dispatchEvent(new Event('dragend', { bubbles: true }))
+    source.onDrop()
     targetConfig()!.onDrop({ source: { data: sourceData } })
     await nextTick(); await nextTick()
     expect(sourceItems.value).toEqual([])
     expect(targetItems.value).toEqual([{ id: 'source' }, { id: 'target' }])
     expect(sourceUpdates).toHaveBeenCalledTimes(1)
     expect(targetUpdates).toHaveBeenCalledTimes(1)
-    source.onDrop()
+    await Promise.resolve()
     targetConfig()!.onDrop({ source: { data: sourceData } })
+    await nextTick(); await nextTick()
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
+
+    source.onDragStart()
+    const lateSourceData = source.getInitialData()
+    source.onDrop()
+    await Promise.resolve()
+    targetConfig()!.onDrop({ source: { data: lateSourceData } })
     await nextTick(); await nextTick()
     expect(sourceUpdates).toHaveBeenCalledTimes(1)
     expect(targetUpdates).toHaveBeenCalledTimes(1)

@@ -2,7 +2,7 @@ import { defineComponent, inject, watch, ref, computed, onBeforeUnmount, watchEf
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/dist/cjs/entry-point/element/adapter.js";
 import { endDrag, startDrag, cancelNativeDrag } from "./drag-state.js";
 import { sortableContextKey } from "./sortable-context.js";
-import { closeSortableSession, beginSortableSession, findAdjacentSortableList, moveSortableItem } from "./sortable-registry.js";
+import { beginSortableSession, closeSortableSession, findAdjacentSortableList, moveSortableItem } from "./sortable-registry.js";
 import { useDroppable } from "./use-droppable.js";
 const _hoisted_1 = ["data-sortable-index", "tabindex", "aria-disabled"];
 let activeTouchOwner;
@@ -36,6 +36,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       scopeKey: sortableContext.scopeKey
     }));
     let activeSession;
+    let pendingSessionClose;
     const isTouchDragging = ref(false);
     const dragHandle = ref();
     let touchSession;
@@ -192,13 +193,29 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         },
         onDrop: () => {
           isDragging.value = false;
-          closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+          const sessionId = activeSession == null ? void 0 : activeSession.sessionId;
           activeSession = void 0;
           endDrag(target.ownerDocument);
+          if (sessionId) {
+            const token = {};
+            pendingSessionClose = { sessionId, token };
+            const close = () => {
+              if ((pendingSessionClose == null ? void 0 : pendingSessionClose.token) !== token) return;
+              pendingSessionClose = void 0;
+              closeSortableSession(sessionId);
+            };
+            const ownerWindow = target.ownerDocument.defaultView;
+            if (ownerWindow == null ? void 0 : ownerWindow.queueMicrotask) ownerWindow.queueMicrotask(close);
+            else Promise.resolve().then(close);
+          }
         }
       });
       onCleanup(() => {
         const sessionId = activeSession == null ? void 0 : activeSession.sessionId;
+        if (pendingSessionClose) {
+          closeSortableSession(pendingSessionClose.sessionId);
+          pendingSessionClose = void 0;
+        }
         cleanup();
         if (isDragging.value) {
           cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);

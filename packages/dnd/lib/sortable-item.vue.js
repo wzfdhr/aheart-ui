@@ -38,6 +38,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       scopeKey: sortableContext$1.scopeKey
     }));
     let activeSession;
+    let pendingSessionClose;
     const isTouchDragging = vue.ref(false);
     const dragHandle = vue.ref();
     let touchSession;
@@ -194,13 +195,29 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         },
         onDrop: () => {
           isDragging.value = false;
-          sortableRegistry.closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+          const sessionId = activeSession == null ? void 0 : activeSession.sessionId;
           activeSession = void 0;
           dragState.endDrag(target.ownerDocument);
+          if (sessionId) {
+            const token = {};
+            pendingSessionClose = { sessionId, token };
+            const close = () => {
+              if ((pendingSessionClose == null ? void 0 : pendingSessionClose.token) !== token) return;
+              pendingSessionClose = void 0;
+              sortableRegistry.closeSortableSession(sessionId);
+            };
+            const ownerWindow = target.ownerDocument.defaultView;
+            if (ownerWindow == null ? void 0 : ownerWindow.queueMicrotask) ownerWindow.queueMicrotask(close);
+            else Promise.resolve().then(close);
+          }
         }
       });
       onCleanup(() => {
         const sessionId = activeSession == null ? void 0 : activeSession.sessionId;
+        if (pendingSessionClose) {
+          sortableRegistry.closeSortableSession(pendingSessionClose.sessionId);
+          pendingSessionClose = void 0;
+        }
         cleanup();
         if (isDragging.value) {
           dragState.cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
