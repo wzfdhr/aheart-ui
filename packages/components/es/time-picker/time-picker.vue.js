@@ -1,7 +1,9 @@
-import { defineComponent, useAttrs, useSlots, ref, computed, isVNode, h, toRaw, onBeforeUnmount, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
+import { defineComponent, useAttrs, useSlots, ref, computed, isVNode, h, toRaw, onMounted, onBeforeUnmount, watch, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, withModifiers, Fragment, renderList, toDisplayString, vShow } from "vue";
 import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, parseTimeValue, formatTimeValue } from "../picker-core/time.js";
+import { measurePickerOptions, nearestPickerOption, estimatePickerOptionHeight } from "../picker-core/time-column-geometry.js";
+import { createPickerTransaction } from "../picker-core/transaction.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
@@ -46,6 +48,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const pickerTransaction = createPickerTransaction({ needConfirm: () => Boolean(props.needConfirm) });
     const attrs = useAttrs();
     const slots = useSlots();
     const config = useAheartConfig();
@@ -128,7 +131,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     const displayedHour = computed(() => showPeriod.value ? draft.value.hour % 12 || 12 : draft.value.hour);
     const selectedPeriod = computed(() => draft.value.hour >= 12 ? "PM" : "AM");
-    const isInteractionDisabled = computed(() => isDisabled.value || props.readOnly);
+    const isInteractionDisabled = computed(() => !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }));
     const hourOptions = computed(() => showPeriod.value ? createTimeOptions(12, props.hourStep).map((hour) => hour || 12) : createTimeOptions(24, props.hourStep));
     const minuteOptions = computed(() => createTimeOptions(60, props.minuteStep));
     const secondOptions = computed(() => createTimeOptions(60, props.secondStep));
@@ -216,7 +219,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     ]);
     const panelStyle = computed(() => floatingPosition.popupStyle.value);
     const syncDraft = () => {
-      draft.value = initialParts();
+      const value = initialParts();
+      pickerTransaction.syncCommitted(formatTime(value, props.valueFormat));
+      draft.value = value;
       draftHasValue.value = Boolean(mergedValue.value);
     };
     const scrollSelectedOptionsIntoView = () => {
@@ -228,6 +233,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const requestOpen = (open) => {
       if (open && isInteractionDisabled.value)
         return;
+      if (!open)
+        pickerTransaction.discard();
       openState.setState(open, { force: true });
       if (open) {
         syncDraft();
@@ -238,10 +245,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (isInteractionDisabled.value || isPartsDisabled(parts))
         return false;
       const value = formatTime(parts, props.valueFormat);
+      pickerTransaction.apply(value);
+      pickerTransaction.commit();
       valueState.setState(value, { force: true });
       emit("change", value);
       formControl == null ? void 0 : formControl.change();
-      if (isValueControlled.value && !props.needConfirm)
+      if (isValueControlled.value && pickerTransaction.shouldCommit())
         syncDraft();
       if (close)
         requestOpen(false);
@@ -260,7 +269,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       draft.value = { ...draft.value, hour: toHour24(hour) };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const selectMinute = (minute) => {
@@ -268,7 +277,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       draft.value = { ...draft.value, minute };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const selectSecond = (second) => {
@@ -276,7 +285,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       draft.value = { ...draft.value, second };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const selectPeriod = (period) => {
@@ -285,7 +294,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const hour12 = draft.value.hour % 12;
       draft.value = { ...draft.value, hour: hour12 + (period === "PM" ? 12 : 0) };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const confirmValue = () => commitValue(draft.value);
@@ -298,7 +307,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       draft.value = next;
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value);
     };
     const clearValue = () => {
@@ -321,7 +330,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!parts || isPartsDisabled(parts)) {
         emit("invalid", value);
         input.value = displayValue.value;
-      } else if (props.needConfirm) {
+      } else if (pickerTransaction.shouldStage()) {
         draft.value = parts;
         draftHasValue.value = true;
         input.value = formatTime(parts, resolvedFormat.value, true);
@@ -331,20 +340,40 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     };
     let scrollTimer;
-    onBeforeUnmount(() => clearTimeout(scrollTimer));
+    let resizeObserver;
+    onMounted(() => {
+      var _a;
+      const view = (_a = rootRef.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      const Observer = view == null ? void 0 : view.ResizeObserver;
+      if (!Observer)
+        return;
+      resizeObserver = new Observer(() => {
+      });
+      for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) {
+        if (column)
+          resizeObserver.observe(column);
+      }
+    });
+    onBeforeUnmount(() => {
+      clearTimeout(scrollTimer);
+      resizeObserver == null ? void 0 : resizeObserver.disconnect();
+    });
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;
       clearTimeout(scrollTimer);
       scrollTimer = setTimeout(() => {
+        const target = event.target;
         const options = column === "hour" ? visibleHourOptions.value : column === "minute" ? visibleMinuteOptions.value : visibleSecondOptions.value;
-        const value = options[Math.max(0, Math.min(options.length - 1, Math.round(event.target.scrollTop / 28)))];
+        const measured = measurePickerOptions(target);
+        const measuredValue = nearestPickerOption(measured, target.scrollTop, target.clientHeight);
+        const value = measuredValue === void 0 ? options[Math.max(0, Math.min(options.length - 1, Math.round(target.scrollTop / estimatePickerOptionHeight(target))))] : Number(measuredValue);
         if (value === void 0)
           return;
         const next = column === "hour" ? { ...draft.value, hour: toHour24(value) } : column === "minute" ? { ...draft.value, minute: value } : { ...draft.value, second: value };
         draft.value = next;
         draftHasValue.value = true;
-        if (!props.needConfirm)
+        if (pickerTransaction.shouldCommit())
           commitValue(next, false);
       }, 0);
     };

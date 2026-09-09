@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
@@ -165,6 +165,8 @@ import { createDateMatrix, isPickerDateDisabled } from '../picker-core/calendar'
 import { comparePickerValues, defaultValueFormat, formatPickerValue, normalizeFormats, parsePickerValue } from '../picker-core/codec'
 import { createPickerDate, pickerDayjsLocale, type PickerDate } from '../picker-core/dayjs'
 import { advanceRangeSelection, normalizeRangeValue } from '../picker-core/selection'
+import { createPickerTransaction } from '../picker-core/transaction'
+import { getPickerAvailableBlockSize, getPickerStableAvailableBlockSize } from '../picker-core/viewport'
 import type { RangePickerPart, RangePickerValue } from '../picker-core/types'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
@@ -180,6 +182,7 @@ defineOptions({ name: 'ADateRangePicker' })
 
 const props = defineProps(dateRangePickerProps)
 const emit = defineEmits(dateRangePickerEmits)
+const pickerTransaction = createPickerTransaction<RangePickerValue>({ needConfirm: () => effectiveNeedConfirm.value })
 const slots = useSlots()
 const config = useAheartConfig()
 const formControl = useFormControl()
@@ -429,15 +432,80 @@ const floatingPosition = useFloatingPosition({
   placement: () => props.placement,
   strategy: 'fixed',
   offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow
+  autoAdjustOverflow: () => props.autoAdjustOverflow,
+  autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== 'undefined', layoutShift: true, animationFrame: false }
 })
+const viewportAvailableBlockSize = ref<number>()
+const updateViewportAvailableBlockSize = () => {
+  const trigger = triggerRef.value
+  const view = trigger?.ownerDocument.defaultView
+  if (!trigger || !view) return
+  const rect = trigger.getBoundingClientRect()
+  const nextSize = props.autoAdjustOverflow === false
+    ? getPickerAvailableBlockSize(rect, view.innerHeight, floatingPosition.placement.value)
+    : getPickerStableAvailableBlockSize(rect, view.innerHeight)
+  if (viewportAvailableBlockSize.value !== nextSize) viewportAvailableBlockSize.value = nextSize
+}
+let viewportRaf: number | undefined
+let floatingUpdateInFlight = false
+let floatingUpdatePending = false
+const refreshFloatingViewport = async () => {
+  if (floatingUpdateInFlight) {
+    floatingUpdatePending = true
+    return
+  }
+  floatingUpdateInFlight = true
+  try {
+    await floatingPosition.update()
+    updateViewportAvailableBlockSize()
+  } finally {
+    floatingUpdateInFlight = false
+    if (floatingUpdatePending) {
+      floatingUpdatePending = false
+      scheduleFloatingViewport()
+    }
+  }
+}
+const scheduleFloatingViewport = () => {
+  const view = triggerRef.value?.ownerDocument.defaultView
+  if (!view || viewportRaf !== undefined) return
+  viewportRaf = view.requestAnimationFrame(() => {
+    viewportRaf = undefined
+    void refreshFloatingViewport()
+  })
+}
+const handleViewportScroll = (event: Event) => {
+  const target = event.target
+  if (panelRef.value && target instanceof Node && panelRef.value.contains(target)) return
+  scheduleFloatingViewport()
+}
 const panelClass = computed(() => [`aheart-floating--${floatingPosition.placement.value}`, `is-${motion.phase.value}`, { 'has-presets': props.presets?.length, 'has-time': effectiveShowTime.value }])
-const panelStyle = computed(() => floatingPosition.popupStyle.value)
-watch(() => motion.phase.value, (phase) => { if (phase === 'entered') void nextTick(floatingPosition.update) })
+const panelStyle = computed(() => ({
+  ...floatingPosition.popupStyle.value,
+  ...(effectiveShowTime.value && viewportAvailableBlockSize.value !== undefined
+    ? { maxBlockSize: `${viewportAvailableBlockSize.value}px` }
+    : {})
+}))
+watch(() => motion.phase.value, (phase) => { if (phase === 'entered') void nextTick(scheduleFloatingViewport) })
+watch(() => floatingPosition.placement.value, updateViewportAvailableBlockSize)
+onMounted(() => {
+  const view = triggerRef.value?.ownerDocument.defaultView
+  if (!view) return
+  view.addEventListener('resize', scheduleFloatingViewport)
+  view.addEventListener('scroll', handleViewportScroll)
+})
+onBeforeUnmount(() => {
+  const view = triggerRef.value?.ownerDocument.defaultView
+  view?.removeEventListener('resize', scheduleFloatingViewport)
+  view?.removeEventListener('scroll', handleViewportScroll)
+  if (viewportRaf !== undefined) view?.cancelAnimationFrame(viewportRaf)
+  viewportRaf = undefined
+})
 
 let restoringFocus = false
 const requestOpen = (open: boolean, restoreFocus = false) => {
-  if (open && (isDisabled.value || props.readOnly)) return
+  if (open && !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
+  if (!open) pickerTransaction.discard()
   openState.setState(open, { force: true })
   if (!open && restoreFocus) void nextTick(() => {
     restoringFocus = true
@@ -446,7 +514,9 @@ const requestOpen = (open: boolean, restoreFocus = false) => {
   })
 }
 const syncDraft = () => {
-  draftValue.value = mergedValue.value ? [...mergedValue.value] as RangePickerValue : undefined
+  const value = mergedValue.value ? [...mergedValue.value] as RangePickerValue : undefined
+  pickerTransaction.syncCommitted(value)
+  draftValue.value = value
   hoverValue.value = undefined
   if (!isPanelControlled.value) panelDates.value = initialPanelValues()
   activeKeyboardDate.value = parseValue(draftValue.value?.[activePart.value === 'start' ? 0 : 1]) ?? panelDates.value[0]
@@ -552,6 +622,8 @@ const commitInput = (part: RangePickerPart) => {
 
 const commitValue = (value: RangePickerValue, close = true) => {
   const normalized = normalizeRangeValue(value, resolvedValueFormat.value, props.order, props.allowEmpty) ?? value
+  pickerTransaction.apply(normalized)
+  pickerTransaction.commit()
   valueState.setState(normalized ? [...normalized] as RangePickerValue : undefined, { force: true })
   emit('change', normalized)
   formControl?.change()
@@ -559,13 +631,23 @@ const commitValue = (value: RangePickerValue, close = true) => {
   if (close) requestOpen(false, true)
 }
 const clearPart = (part: RangePickerPart) => {
+  if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
   const index = part === 'start' ? 0 : 1
-  const next: [string | undefined, string | undefined] = [mergedValue.value?.[0], mergedValue.value?.[1]]
+  const source = mergedOpen.value ? draftValue.value : mergedValue.value
+  const next: [string | undefined, string | undefined] = [source?.[0], source?.[1]]
   next[index] = undefined
-  commitValue(next, false)
+  pickerTransaction.begin(next)
+  draftValue.value = next
+  inputTexts.value = [formatDisplay(next[0]), formatDisplay(next[1])]
+  emit('calendarChange', [...next] as RangePickerValue, { range: part })
+  if (pickerTransaction.shouldCommit()) commitValue(next, false)
   emit('clear')
 }
-const clearAll = () => { commitValue(undefined, false); emit('clear') }
+const clearAll = () => {
+  if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
+  commitValue(undefined)
+  emit('clear')
+}
 
 const defaultTime = () => {
   const value = showTimeOptions.value.defaultValue
@@ -577,17 +659,18 @@ const dateWithDefaultTime = (date: PickerDate) => {
   return time ? date.hour(time.hour()).minute(time.minute()).second(time.second()) : date.startOf('day')
 }
 const selectCell = (cell: RangeCell) => {
-  if (cell.disabled || isDisabled.value || props.readOnly) return
+  if (cell.disabled || !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
   activeKeyboardDate.value = cell.date
   activePanelIndex.value = cell.panelIndex
   const value = cellValue(dateWithDefaultTime(cell.date))
   const selectedPart = activePart.value
   const result = advanceRangeSelection(draftValue.value, value, selectedPart, resolvedValueFormat.value, props.order, props.allowEmpty)
+  pickerTransaction.begin(result.value)
   draftValue.value = result.value
   activePart.value = result.activePart
   emit('calendarChange', [...result.value] as RangePickerValue, { range: selectedPart })
   liveMessage.value = result.complete ? resolvedLocale.value.rangeComplete(result.value[0] ?? '', result.value[1] ?? '') : resolvedLocale.value.rangeStartSelected
-  if (result.complete && !effectiveNeedConfirm.value) commitValue(result.value)
+  if (result.complete && pickerTransaction.shouldCommit()) commitValue(result.value)
 }
 const selectPreset = (index: number) => {
   const preset = props.presets?.[index]
@@ -614,9 +697,11 @@ const selectPreset = (index: number) => {
       return
     }
   }
-  draftValue.value = [...normalized] as RangePickerValue
+  const nextDraft = [...normalized] as RangePickerValue
+  pickerTransaction.begin(nextDraft)
+  draftValue.value = nextDraft
   emit('calendarChange', [...normalized] as RangePickerValue, { range: 'end' })
-  if (effectiveNeedConfirm.value) liveMessage.value = resolvedLocale.value.rangeComplete(normalized[0] ?? '', normalized[1] ?? '')
+  if (pickerTransaction.shouldStage()) liveMessage.value = resolvedLocale.value.rangeComplete(normalized[0] ?? '', normalized[1] ?? '')
   else commitValue(normalized)
 }
 const selectToday = () => {

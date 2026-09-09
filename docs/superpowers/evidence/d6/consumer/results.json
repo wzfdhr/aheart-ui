@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-09-09T00:40:17.485Z",
+  "node": "v24.17.0",
+  "tarball": "/private/tmp/d6-pack.XA7uQ8/aheart-ui-1.0.0.tgz",
+  "tarballSHA256": "f10eb77ebd88128159b431fe2c4f8c4f29c9268c716f8dc2886c4c83916950b7",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d6-jMBKuZ",
+  "symlink": false,
+  "typecheck": true,
+  "imports": true,
+  "css": true,
+  "ssr": true,
+  "hydration": true,
+  "interaction": true,
+  "status": "passed"
+}

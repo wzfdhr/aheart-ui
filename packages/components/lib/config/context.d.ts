@@ -83,6 +83,21 @@ export interface AheartLocale {
         rangeStartSelected?: string;
         rangeComplete?: (start: string, end: string) => string;
     };
+    upload?: {
+        selectFile?: string;
+        upload?: string;
+        done?: string;
+        failed?: string;
+        cancelled?: string;
+        validationFailed?: string;
+        timeout?: string;
+        removeAction?: string;
+        cancelAction?: string;
+        retryAction?: string;
+        remove?: (name: string) => string;
+        cancel?: (name: string) => string;
+        retry?: (name: string) => string;
+    };
 }
 export declare const zhCN: AheartLocale;
 export declare const enUS: AheartLocale;

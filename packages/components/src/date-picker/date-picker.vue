@@ -185,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
@@ -193,6 +193,8 @@ import { createDateMatrix, isPickerDateDisabled } from '../picker-core/calendar'
 import { defaultValueFormat, formatPickerValue, normalizeFormats, parsePickerValue } from '../picker-core/codec'
 import { createPickerDate, pickerDayjsLocale, type PickerDate } from '../picker-core/dayjs'
 import { normalizeMultipleValues } from '../picker-core/selection'
+import { createPickerTransaction } from '../picker-core/transaction'
+import { getPickerAvailableBlockSize, getPickerStableAvailableBlockSize } from '../picker-core/viewport'
 import type { DatePickerValue, DatePickerCellRenderInfo } from './types'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
@@ -208,6 +210,7 @@ defineOptions({ name: 'ADatePicker' })
 
 const props = defineProps(datePickerProps)
 const emit = defineEmits(datePickerEmits)
+const pickerTransaction = createPickerTransaction<DatePickerValue>({ needConfirm: () => effectiveNeedConfirm.value })
 const slots = useSlots()
 const config = useAheartConfig()
 const formControl = useFormControl()
@@ -441,21 +444,87 @@ const floatingPosition = useFloatingPosition({
   placement: () => props.placement,
   strategy: 'fixed',
   offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow
+  autoAdjustOverflow: () => props.autoAdjustOverflow,
+  autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== 'undefined', layoutShift: true, animationFrame: false }
 })
+const viewportAvailableBlockSize = ref<number>()
+const updateViewportAvailableBlockSize = () => {
+  const trigger = triggerRef.value
+  const view = trigger?.ownerDocument.defaultView
+  if (!trigger || !view) return
+  const rect = trigger.getBoundingClientRect()
+  const nextSize = props.autoAdjustOverflow === false
+    ? getPickerAvailableBlockSize(rect, view.innerHeight, floatingPosition.placement.value)
+    : getPickerStableAvailableBlockSize(rect, view.innerHeight)
+  if (viewportAvailableBlockSize.value !== nextSize) viewportAvailableBlockSize.value = nextSize
+}
+let viewportRaf: number | undefined
+let floatingUpdateInFlight = false
+let floatingUpdatePending = false
+const refreshFloatingViewport = async () => {
+  if (floatingUpdateInFlight) {
+    floatingUpdatePending = true
+    return
+  }
+  floatingUpdateInFlight = true
+  try {
+    await floatingPosition.update()
+    updateViewportAvailableBlockSize()
+  } finally {
+    floatingUpdateInFlight = false
+    if (floatingUpdatePending) {
+      floatingUpdatePending = false
+      scheduleFloatingViewport()
+    }
+  }
+}
+const scheduleFloatingViewport = () => {
+  const view = triggerRef.value?.ownerDocument.defaultView
+  if (!view || viewportRaf !== undefined) return
+  viewportRaf = view.requestAnimationFrame(() => {
+    viewportRaf = undefined
+    void refreshFloatingViewport()
+  })
+}
+const handleViewportScroll = (event: Event) => {
+  const target = event.target
+  if (panelRef.value && target instanceof Node && panelRef.value.contains(target)) return
+  scheduleFloatingViewport()
+}
 const panelClass = computed(() => [
   `aheart-floating--${floatingPosition.placement.value}`,
   `is-${motion.phase.value}`,
   { 'has-presets': props.presets?.length, 'has-time': effectiveShowTime.value }
 ])
-const panelStyle = computed(() => floatingPosition.popupStyle.value)
+const panelStyle = computed(() => ({
+  ...floatingPosition.popupStyle.value,
+  ...(effectiveShowTime.value && viewportAvailableBlockSize.value !== undefined
+    ? { maxBlockSize: `${viewportAvailableBlockSize.value}px` }
+    : {})
+}))
 
 watch(() => motion.phase.value, (phase) => {
-  if (phase === 'entered') void nextTick(floatingPosition.update)
+  if (phase === 'entered') void nextTick(scheduleFloatingViewport)
+})
+watch(() => floatingPosition.placement.value, updateViewportAvailableBlockSize)
+onMounted(() => {
+  const view = triggerRef.value?.ownerDocument.defaultView
+  if (!view) return
+  view.addEventListener('resize', scheduleFloatingViewport)
+  view.addEventListener('scroll', handleViewportScroll)
+})
+onBeforeUnmount(() => {
+  const view = triggerRef.value?.ownerDocument.defaultView
+  view?.removeEventListener('resize', scheduleFloatingViewport)
+  view?.removeEventListener('scroll', handleViewportScroll)
+  if (viewportRaf !== undefined) view?.cancelAnimationFrame(viewportRaf)
+  viewportRaf = undefined
 })
 
 const syncDraft = () => {
-  draftValue.value = Array.isArray(mergedValue.value) ? [...mergedValue.value] : mergedValue.value
+  const value = Array.isArray(mergedValue.value) ? [...mergedValue.value] : mergedValue.value
+  pickerTransaction.syncCommitted(value)
+  draftValue.value = value
   const panel = initialPanelDate(nowDate.value)
   if (!isPanelControlled.value) viewDate.value = panel
   focusedDate.value = panel
@@ -463,7 +532,8 @@ const syncDraft = () => {
 }
 let restoreFocusOnClose = false
 const requestOpen = (nextOpen: boolean, restoreFocus = false) => {
-  if (nextOpen && (isDisabled.value || props.readOnly)) return
+  if (nextOpen && !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
+  if (!nextOpen) pickerTransaction.discard()
   if (!nextOpen) restoreFocusOnClose = restoreFocus
   openState.setState(nextOpen, { force: true })
 }
@@ -500,6 +570,8 @@ useFloatingDismiss({
 
 const commitValue = (value: DatePickerValue, close = true) => {
   const normalized = Array.isArray(value) ? normalizeMultipleValues(value) : value
+  pickerTransaction.apply(normalized)
+  pickerTransaction.commit()
   valueState.setState(normalized, { force: true })
   emit('change', normalized)
   formControl?.change()
@@ -519,11 +591,11 @@ const toggleMultipleValue = (value: string) => {
     ? Array.isArray(draftValue.value) ? draftValue.value : []
     : selectedValues.value
   const next = base.includes(value) ? base.filter((item) => item !== value) : [...base, value]
-  if (effectiveNeedConfirm.value) draftValue.value = next
+  if (pickerTransaction.shouldStage()) { pickerTransaction.begin(next); draftValue.value = next }
   else commitValue(next, false)
 }
 const removeMultipleValue = (value: string) => {
-  if (isDisabled.value || props.readOnly) return
+  if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
   commitValue(selectedValues.value.filter((item) => item !== value), false)
 }
 
@@ -542,7 +614,7 @@ const applyDraftTime = (date: PickerDate) => {
   return date.hour(time.hour()).minute(time.minute()).second(time.second())
 }
 const selectCell = (cell: PanelCell) => {
-  if (cell.disabled || isDisabled.value || props.readOnly) return
+  if (cell.disabled || !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
   focusedDate.value = cell.date
   const selectedDate = effectiveShowTime.value ? applyDraftTime(cell.date) : cell.date
   const value = modelValueForDate(selectedDate)
@@ -550,7 +622,8 @@ const selectCell = (cell: PanelCell) => {
     toggleMultipleValue(value)
     return
   }
-  if (effectiveNeedConfirm.value) {
+  if (pickerTransaction.shouldStage()) {
+    pickerTransaction.begin(value)
     draftValue.value = value
     liveMessage.value = resolvedLocale.value.selected(value)
   } else commitValue(value)
@@ -600,6 +673,7 @@ const confirmDraft = () => {
   emit('ok', value)
 }
 const cancelDraft = () => {
+  pickerTransaction.discard()
   requestOpen(false, true)
 }
 
@@ -621,12 +695,16 @@ const selectPreset = (index: number) => {
     emit('invalid', invalidValue)
     return
   }
-  if (effectiveNeedConfirm.value) draftValue.value = Array.isArray(value) ? [...value] : value
+  if (pickerTransaction.shouldStage()) {
+    const next = Array.isArray(value) ? [...value] : value
+    pickerTransaction.begin(next)
+    draftValue.value = next
+  }
   else commitValue(value, props.multiple ? false : true)
 }
 
 const clearValue = () => {
-  if (isDisabled.value || props.readOnly) return
+  if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly })) return
   const empty = props.multiple ? [] : undefined
   commitValue(empty, false)
   emit('clear')
@@ -716,7 +794,7 @@ const handleInputChange = async () => {
     return
   }
   const parsedValue = formatPickerValue(parsed, resolvedValueFormat.value)!
-  if (effectiveNeedConfirm.value) {
+    if (pickerTransaction.shouldStage()) {
     if (!mergedOpen.value) {
       requestOpen(true)
       await nextTick()
@@ -725,6 +803,7 @@ const handleInputChange = async () => {
         return
       }
     }
+    pickerTransaction.begin(parsedValue)
     draftValue.value = parsedValue
     liveMessage.value = resolvedLocale.value.selected(parsedValue)
     return
@@ -796,7 +875,7 @@ watch(() => props.pickerValue, (value) => {
 })
 
 watch(mergedValue, (value) => {
-  if (!mergedOpen.value || !effectiveNeedConfirm.value) return
+  if (!mergedOpen.value || !pickerTransaction.shouldStage()) return
   draftValue.value = Array.isArray(value) ? [...value] : value
 }, { deep: true })
 

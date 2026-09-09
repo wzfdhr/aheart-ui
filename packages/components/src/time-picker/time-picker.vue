@@ -119,11 +119,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, type PickerTimeParts } from '../picker-core/time'
+import { estimatePickerOptionHeight, measurePickerOptions, nearestPickerOption } from '../picker-core/time-column-geometry'
+import { createPickerTransaction } from '../picker-core/transaction'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
 import { useMotionPresence } from '../utils/use-motion-presence'
@@ -142,6 +144,7 @@ type TimeColumn = 'hour' | 'minute' | 'second' | 'period'
 
 const props = defineProps(timePickerProps)
 const emit = defineEmits(timePickerEmits)
+const pickerTransaction = createPickerTransaction<string>({ needConfirm: () => Boolean(props.needConfirm) })
 const attrs = useAttrs()
 const slots = useSlots()
 const config = useAheartConfig()
@@ -224,7 +227,7 @@ const displayValue = computed(() => {
 })
 const displayedHour = computed(() => showPeriod.value ? draft.value.hour % 12 || 12 : draft.value.hour)
 const selectedPeriod = computed<'AM' | 'PM'>(() => draft.value.hour >= 12 ? 'PM' : 'AM')
-const isInteractionDisabled = computed(() => isDisabled.value || props.readOnly)
+const isInteractionDisabled = computed(() => !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
 const hourOptions = computed(() => showPeriod.value
   ? createTimeOptions(12, props.hourStep).map((hour) => hour || 12)
   : createTimeOptions(24, props.hourStep))
@@ -308,7 +311,9 @@ const panelClass = computed(() => [
 const panelStyle = computed(() => floatingPosition.popupStyle.value)
 
 const syncDraft = () => {
-  draft.value = initialParts()
+  const value = initialParts()
+  pickerTransaction.syncCommitted(formatTime(value, props.valueFormat))
+  draft.value = value
   draftHasValue.value = Boolean(mergedValue.value)
 }
 const scrollSelectedOptionsIntoView = () => {
@@ -318,6 +323,7 @@ const scrollSelectedOptionsIntoView = () => {
 }
 const requestOpen = (open: boolean) => {
   if (open && isInteractionDisabled.value) return
+  if (!open) pickerTransaction.discard()
   openState.setState(open, { force: true })
   if (open) {
     syncDraft()
@@ -327,10 +333,12 @@ const requestOpen = (open: boolean) => {
 const commitValue = (parts: TimeParts, close = true) => {
   if (isInteractionDisabled.value || isPartsDisabled(parts)) return false
   const value = formatTime(parts, props.valueFormat)
+  pickerTransaction.apply(value)
+  pickerTransaction.commit()
   valueState.setState(value, { force: true })
   emit('change', value)
   formControl?.change()
-  if (isValueControlled.value && !props.needConfirm) syncDraft()
+  if (isValueControlled.value && pickerTransaction.shouldCommit()) syncDraft()
   if (close) requestOpen(false)
   return true
 }
@@ -344,26 +352,26 @@ const selectHour = (hour: number) => {
   if (isInteractionDisabled.value || isHourDisabled(hour)) return
   draft.value = { ...draft.value, hour: toHour24(hour) }
   draftHasValue.value = true
-  if (!props.needConfirm) commitValue(draft.value, false)
+  if (pickerTransaction.shouldCommit()) commitValue(draft.value, false)
 }
 const selectMinute = (minute: number) => {
   if (isInteractionDisabled.value || isMinuteDisabled(minute)) return
   draft.value = { ...draft.value, minute }
   draftHasValue.value = true
-  if (!props.needConfirm) commitValue(draft.value, false)
+  if (pickerTransaction.shouldCommit()) commitValue(draft.value, false)
 }
 const selectSecond = (second: number) => {
   if (isInteractionDisabled.value || isSecondDisabled(second)) return
   draft.value = { ...draft.value, second }
   draftHasValue.value = true
-  if (!props.needConfirm) commitValue(draft.value, false)
+  if (pickerTransaction.shouldCommit()) commitValue(draft.value, false)
 }
 const selectPeriod = (period: 'AM' | 'PM') => {
   if (isInteractionDisabled.value || isPeriodDisabled(period)) return
   const hour12 = draft.value.hour % 12
   draft.value = { ...draft.value, hour: hour12 + (period === 'PM' ? 12 : 0) }
   draftHasValue.value = true
-  if (!props.needConfirm) commitValue(draft.value, false)
+  if (pickerTransaction.shouldCommit()) commitValue(draft.value, false)
 }
 const confirmValue = () => commitValue(draft.value)
 const selectNow = () => {
@@ -373,7 +381,7 @@ const selectNow = () => {
   if (isPartsDisabled(next)) return
   draft.value = next
   draftHasValue.value = true
-  if (!props.needConfirm) commitValue(draft.value)
+  if (pickerTransaction.shouldCommit()) commitValue(draft.value)
 }
 const clearValue = () => {
   if (isInteractionDisabled.value) return
@@ -392,7 +400,7 @@ const handleInputChange = (event: Event) => {
   if (!parts || isPartsDisabled(parts)) {
     emit('invalid', value)
     input.value = displayValue.value
-  } else if (props.needConfirm) {
+  } else if (pickerTransaction.shouldStage()) {
     draft.value = parts
     draftHasValue.value = true
     input.value = formatTime(parts, resolvedFormat.value, true)
@@ -402,13 +410,34 @@ const handleInputChange = (event: Event) => {
   }
 }
 let scrollTimer: ReturnType<typeof setTimeout> | undefined
-onBeforeUnmount(() => clearTimeout(scrollTimer))
+let resizeObserver: ResizeObserver | undefined
+onMounted(() => {
+  const view = rootRef.value?.ownerDocument.defaultView
+  const Observer = view?.ResizeObserver
+  if (!Observer) return
+  resizeObserver = new Observer(() => {
+    // Geometry is sampled on the next settled scroll; observing here invalidates
+    // browser layout caches without assuming a fixed row height.
+  })
+  for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) {
+    if (column) resizeObserver.observe(column)
+  }
+})
+onBeforeUnmount(() => {
+  clearTimeout(scrollTimer)
+  resizeObserver?.disconnect()
+})
 const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) => {
   if (!props.changeOnScroll || isInteractionDisabled.value) return
   clearTimeout(scrollTimer)
   scrollTimer = setTimeout(() => {
+    const target = event.target as HTMLElement
     const options = column === 'hour' ? visibleHourOptions.value : column === 'minute' ? visibleMinuteOptions.value : visibleSecondOptions.value
-    const value = options[Math.max(0, Math.min(options.length - 1, Math.round((event.target as HTMLElement).scrollTop / 28)))]
+    const measured = measurePickerOptions(target)
+    const measuredValue = nearestPickerOption(measured, target.scrollTop, target.clientHeight)
+    const value = measuredValue === undefined
+      ? options[Math.max(0, Math.min(options.length - 1, Math.round(target.scrollTop / estimatePickerOptionHeight(target))))]
+      : Number(measuredValue)
     if (value === undefined) return
     const next = column === 'hour'
       ? { ...draft.value, hour: toHour24(value) }
@@ -417,7 +446,7 @@ const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) 
         : { ...draft.value, second: value }
     draft.value = next
     draftHasValue.value = true
-    if (!props.needConfirm) commitValue(next, false)
+    if (pickerTransaction.shouldCommit()) commitValue(next, false)
   }, 0)
 }
 const moveToOption = <T>(options: T[], current: T, direction: 1 | -1, disabled: (option: T) => boolean, apply: (option: T) => void) => {

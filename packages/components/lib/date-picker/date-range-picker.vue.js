@@ -7,6 +7,8 @@ const calendar = require("../picker-core/calendar.js");
 const codec = require("../picker-core/codec.js");
 const dayjs = require("../picker-core/dayjs.js");
 const selection = require("../picker-core/selection.js");
+const transaction = require("../picker-core/transaction.js");
+const viewport = require("../picker-core/viewport.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
@@ -76,6 +78,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const pickerTransaction = transaction.createPickerTransaction({ needConfirm: () => effectiveNeedConfirm.value });
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
     const formControl = controlContext.useFormControl();
@@ -326,21 +329,92 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       placement: () => props.placement,
       strategy: "fixed",
       offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow
+      autoAdjustOverflow: () => props.autoAdjustOverflow,
+      autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== "undefined", layoutShift: true, animationFrame: false }
     });
+    const viewportAvailableBlockSize = vue.ref();
+    const updateViewportAvailableBlockSize = () => {
+      const trigger = triggerRef.value;
+      const view = trigger == null ? void 0 : trigger.ownerDocument.defaultView;
+      if (!trigger || !view)
+        return;
+      const rect = trigger.getBoundingClientRect();
+      const nextSize = props.autoAdjustOverflow === false ? viewport.getPickerAvailableBlockSize(rect, view.innerHeight, floatingPosition.placement.value) : viewport.getPickerStableAvailableBlockSize(rect, view.innerHeight);
+      if (viewportAvailableBlockSize.value !== nextSize)
+        viewportAvailableBlockSize.value = nextSize;
+    };
+    let viewportRaf;
+    let floatingUpdateInFlight = false;
+    let floatingUpdatePending = false;
+    const refreshFloatingViewport = async () => {
+      if (floatingUpdateInFlight) {
+        floatingUpdatePending = true;
+        return;
+      }
+      floatingUpdateInFlight = true;
+      try {
+        await floatingPosition.update();
+        updateViewportAvailableBlockSize();
+      } finally {
+        floatingUpdateInFlight = false;
+        if (floatingUpdatePending) {
+          floatingUpdatePending = false;
+          scheduleFloatingViewport();
+        }
+      }
+    };
+    const scheduleFloatingViewport = () => {
+      var _a;
+      const view = (_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      if (!view || viewportRaf !== void 0)
+        return;
+      viewportRaf = view.requestAnimationFrame(() => {
+        viewportRaf = void 0;
+        void refreshFloatingViewport();
+      });
+    };
+    const handleViewportScroll = (event) => {
+      const target = event.target;
+      if (panelRef.value && target instanceof Node && panelRef.value.contains(target))
+        return;
+      scheduleFloatingViewport();
+    };
     const panelClass = vue.computed(() => {
       var _a;
       return [`aheart-floating--${floatingPosition.placement.value}`, `is-${motion.phase.value}`, { "has-presets": (_a = props.presets) == null ? void 0 : _a.length, "has-time": effectiveShowTime.value }];
     });
-    const panelStyle = vue.computed(() => floatingPosition.popupStyle.value);
+    const panelStyle = vue.computed(() => ({
+      ...floatingPosition.popupStyle.value,
+      ...effectiveShowTime.value && viewportAvailableBlockSize.value !== void 0 ? { maxBlockSize: `${viewportAvailableBlockSize.value}px` } : {}
+    }));
     vue.watch(() => motion.phase.value, (phase) => {
       if (phase === "entered")
-        void vue.nextTick(floatingPosition.update);
+        void vue.nextTick(scheduleFloatingViewport);
+    });
+    vue.watch(() => floatingPosition.placement.value, updateViewportAvailableBlockSize);
+    vue.onMounted(() => {
+      var _a;
+      const view = (_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      if (!view)
+        return;
+      view.addEventListener("resize", scheduleFloatingViewport);
+      view.addEventListener("scroll", handleViewportScroll);
+    });
+    vue.onBeforeUnmount(() => {
+      var _a;
+      const view = (_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      view == null ? void 0 : view.removeEventListener("resize", scheduleFloatingViewport);
+      view == null ? void 0 : view.removeEventListener("scroll", handleViewportScroll);
+      if (viewportRaf !== void 0)
+        view == null ? void 0 : view.cancelAnimationFrame(viewportRaf);
+      viewportRaf = void 0;
     });
     let restoringFocus = false;
     const requestOpen = (open, restoreFocus = false) => {
-      if (open && (isDisabled.value || props.readOnly))
+      if (open && !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
+      if (!open)
+        pickerTransaction.discard();
       openState.setState(open, { force: true });
       if (!open && restoreFocus)
         void vue.nextTick(() => {
@@ -354,7 +428,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const syncDraft = () => {
       var _a;
-      draftValue.value = mergedValue.value ? [...mergedValue.value] : void 0;
+      const value = mergedValue.value ? [...mergedValue.value] : void 0;
+      pickerTransaction.syncCommitted(value);
+      draftValue.value = value;
       hoverValue.value = void 0;
       if (!isPanelControlled.value)
         panelDates.value = initialPanelValues();
@@ -497,6 +573,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const commitValue = (value, close = true) => {
       const normalized = selection.normalizeRangeValue(value, resolvedValueFormat.value, props.order, props.allowEmpty) ?? value;
+      pickerTransaction.apply(normalized);
+      pickerTransaction.commit();
       valueState.setState(normalized ? [...normalized] : void 0, { force: true });
       emit("change", normalized);
       formControl == null ? void 0 : formControl.change();
@@ -507,6 +585,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const clearPart = (part) => {
       var _a, _b;
+      if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
+        return;
       const index = part === "start" ? 0 : 1;
       const next = [(_a = mergedValue.value) == null ? void 0 : _a[0], (_b = mergedValue.value) == null ? void 0 : _b[1]];
       next[index] = void 0;
@@ -514,6 +594,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("clear");
     };
     const clearAll = () => {
+      if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
+        return;
       commitValue(void 0, false);
       emit("clear");
     };
@@ -528,18 +610,19 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return time ? date.hour(time.hour()).minute(time.minute()).second(time.second()) : date.startOf("day");
     };
     const selectCell = (cell) => {
-      if (cell.disabled || isDisabled.value || props.readOnly)
+      if (cell.disabled || !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
       activeKeyboardDate.value = cell.date;
       activePanelIndex.value = cell.panelIndex;
       const value = cellValue(dateWithDefaultTime(cell.date));
       const selectedPart = activePart.value;
       const result = selection.advanceRangeSelection(draftValue.value, value, selectedPart, resolvedValueFormat.value, props.order, props.allowEmpty);
+      pickerTransaction.begin(result.value);
       draftValue.value = result.value;
       activePart.value = result.activePart;
       emit("calendarChange", [...result.value], { range: selectedPart });
       liveMessage.value = result.complete ? resolvedLocale.value.rangeComplete(result.value[0] ?? "", result.value[1] ?? "") : resolvedLocale.value.rangeStartSelected;
-      if (result.complete && !effectiveNeedConfirm.value)
+      if (result.complete && pickerTransaction.shouldCommit())
         commitValue(result.value);
     };
     const selectPreset = (index) => {
@@ -570,9 +653,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           return;
         }
       }
-      draftValue.value = [...normalized];
+      const nextDraft = [...normalized];
+      pickerTransaction.begin(nextDraft);
+      draftValue.value = nextDraft;
       emit("calendarChange", [...normalized], { range: "end" });
-      if (effectiveNeedConfirm.value)
+      if (pickerTransaction.shouldStage())
         liveMessage.value = resolvedLocale.value.rangeComplete(normalized[0] ?? "", normalized[1] ?? "");
       else
         commitValue(normalized);

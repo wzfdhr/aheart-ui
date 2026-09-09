@@ -9,7 +9,7 @@ DatePicker、DateRangePicker、TimePicker、TimeRangePicker 必须共用 `picker
 - `picker-core` 统一提供 parse/format、draft session、action source、commit/discard policy、keyboard intent 与 disabled/readOnly gate。
 - `needConfirm=false` 时，合法 input/cell/preset/now/scroll/keyboard selection 立即提交一次；`needConfirm=true` 时这些入口只更新 draft，Confirm 才提交一次并发出 `ok`。
 - Escape、Cancel、outside dismiss 永不提交 draft；Escape/Cancel 恢复触发输入焦点。重新打开从父层/当前 committed value 建立新 draft。
-- whole clear 是明确提交动作：立即提交空值并关闭；range endpoint clear 立即提交该端点为空但保持面板可继续编辑。受控父层拒绝时，committed display 回到父值，不保留乐观结果。
+- whole clear 是明确提交动作：立即提交空值并关闭；range endpoint clear 保持面板可继续编辑，并与其他选择入口一样在 `needConfirm=true` 时先写 draft、Confirm 后提交，在 `needConfirm=false` 时立即提交。受控父层拒绝时，committed display 回到父值，不保留乐观结果。
 - disabled/readOnly 对输入、点击、preset、now、scroll、keyboard 和 Confirm 使用同一个 gate；组件打开后变为 disabled/readOnly 时关闭并丢弃 draft。
 - range 的 part-aware disabled 继续兼容现有函数签名；共享内核负责统一 action gate，不破坏公开类型。
 
@@ -61,4 +61,3 @@ type UploadRequestResult = void | Promise<void> | UploadRequestHandle
 - D6 unit、五浏览器任务、keyboard/a11y/mobile/SSR/cleanup/iframe、真实 tgz consumer、完整仓库门禁和运行时截图全部通过。
 - 开发、设计、测试、产品四份报告均 P0/P1/P2 = 0 后才允许 PR Ready/merge。
 - 最新 PR head CI、squash merge、master CI、Pages 与线上 Picker/Upload 交互全部完成后才关闭 D6。
-

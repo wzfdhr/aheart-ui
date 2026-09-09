@@ -54,10 +54,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
+import { computed, defineComponent, h, isVNode, nextTick, onBeforeUnmount, onMounted, ref, toRaw, useAttrs, useSlots, watch, type Component, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig, zhCN } from '../config'
 import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds, type PickerTimeParts } from '../picker-core/time'
+import { estimatePickerOptionHeight, measurePickerOptions, nearestPickerOption } from '../picker-core/time-column-geometry'
+import { createPickerTransaction } from '../picker-core/transaction'
 import type { PickerDisabledTimeConfig, RangePickerPart, RangePickerValue } from '../picker-core/types'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
 import { useFloatingPosition } from '../utils/use-floating-position'
@@ -74,6 +76,7 @@ defineOptions({ name: 'ATimeRangePicker' })
 
 const props = defineProps(timeRangePickerProps)
 const emit = defineEmits(timeRangePickerEmits)
+const pickerTransaction = createPickerTransaction<RangePickerValue>({ needConfirm: () => Boolean(props.needConfirm) })
 const slots = useSlots()
 const config = useAheartConfig()
 const formControl = useFormControl()
@@ -134,7 +137,7 @@ const mergedOpen = computed(() => Boolean(openState.state.value))
 const resolvedLocale = computed(() => ({ ...zhCN.timePicker, ...config.value.locale?.timePicker }) as Required<NonNullable<typeof zhCN.timePicker>>)
 const resolvedPlaceholders = computed<[string, string]>(() => props.placeholder ?? [resolvedLocale.value.startTime, resolvedLocale.value.endTime])
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
-const isInteractionDisabled = computed(() => isDisabled.value || props.readOnly)
+const isInteractionDisabled = computed(() => !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
 const resolvedSize = computed(() => resolveConfigValue(props.size, config.value.size, 'middle'))
 const resolvedVariant = computed(() => props.variant ?? config.value.variant ?? 'outlined')
 const hasPrefix = computed(() => props.prefix !== undefined || Boolean(slots.prefix))
@@ -167,7 +170,9 @@ const displayValue = (index: number) => {
 }
 const hasRangeValue = computed(() => Boolean((mergedOpen.value ? draftValue.value : mergedValue.value)?.some(Boolean)))
 const syncDraft = () => {
-  draftValue.value = mergedValue.value ? [...mergedValue.value] as RangePickerValue : undefined
+  const value = mergedValue.value ? [...mergedValue.value] as RangePickerValue : undefined
+  pickerTransaction.syncCommitted(value)
+  draftValue.value = value
   draftParts.value = [parseTime(draftValue.value?.[0]) ?? { hour: 0, minute: 0, second: 0 }, parseTime(draftValue.value?.[1]) ?? { hour: 0, minute: 0, second: 0 }]
 }
 watch(mergedValue, () => { if (mergedOpen.value) syncDraft() }, { deep: true })
@@ -218,7 +223,7 @@ const updateActiveDraft = (parts: PickerTimeParts) => {
   draftValue.value = next
   emit('calendarChange', [...next] as RangePickerValue, { range: activePart.value })
   updateLiveMessage(next)
-  if (!props.needConfirm) commitRange(next, false)
+  if (pickerTransaction.shouldCommit()) commitRange(next, false)
 }
 const selectHour = (hour: number) => { if (!isHourDisabled(hour)) updateActiveDraft({ ...activeDraft.value, hour: candidateHour(hour) }) }
 const selectMinute = (minute: number) => { if (!isMinuteDisabled(minute)) updateActiveDraft({ ...activeDraft.value, minute }) }
@@ -247,13 +252,31 @@ const scrollSelectedOptionsIntoView = () => {
   for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) column?.querySelector<HTMLElement>('.is-selected')?.scrollIntoView?.({ block: 'center' })
 }
 let scrollTimer: ReturnType<typeof setTimeout> | undefined
-onBeforeUnmount(() => clearTimeout(scrollTimer))
+let resizeObserver: ResizeObserver | undefined
+onMounted(() => {
+  const view = rootRef.value?.ownerDocument.defaultView
+  const Observer = view?.ResizeObserver
+  if (!Observer) return
+  resizeObserver = new Observer(() => {})
+  for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) {
+    if (column) resizeObserver.observe(column)
+  }
+})
+onBeforeUnmount(() => {
+  clearTimeout(scrollTimer)
+  resizeObserver?.disconnect()
+})
 const handleColumnScroll = (column: 'hour' | 'minute' | 'second', event: Event) => {
   if (!props.changeOnScroll || isInteractionDisabled.value) return
   clearTimeout(scrollTimer)
   scrollTimer = setTimeout(() => {
+    const target = event.target as HTMLElement
     const options = column === 'hour' ? visibleHourOptions.value : column === 'minute' ? visibleMinuteOptions.value : visibleSecondOptions.value
-    const value = options[Math.max(0, Math.min(options.length - 1, Math.round((event.target as HTMLElement).scrollTop / 28)))]
+    const measured = measurePickerOptions(target)
+    const measuredValue = nearestPickerOption(measured, target.scrollTop, target.clientHeight)
+    const value = measuredValue === undefined
+      ? options[Math.max(0, Math.min(options.length - 1, Math.round(target.scrollTop / estimatePickerOptionHeight(target))))]
+      : Number(measuredValue)
     if (value === undefined) return
     if (column === 'hour') selectHour(value)
     else if (column === 'minute') selectMinute(value)
@@ -272,6 +295,8 @@ const commitRange = (value: RangePickerValue, close = true) => {
   }
   const normalized = normalizeRange(value)
   if (!normalized) return false
+  pickerTransaction.apply(normalized)
+  pickerTransaction.commit()
   for (const [index, endpoint] of normalized.entries()) {
     const parts = parseTime(endpoint)
     if (parts && isPartsDisabled(parts, index === 0 ? 'start' : 'end')) return false
@@ -279,7 +304,7 @@ const commitRange = (value: RangePickerValue, close = true) => {
   valueState.setState([...normalized] as RangePickerValue, { force: true })
   emit('change', normalized)
   formControl?.change()
-  if (isValueControlled.value && !props.needConfirm) syncDraft()
+  if (isValueControlled.value && pickerTransaction.shouldCommit()) syncDraft()
   if (close) requestOpen(false)
   return true
 }
@@ -300,7 +325,7 @@ const commitInput = (part: RangePickerPart, event: Event) => {
     next[index] = undefined
     draftValue.value = next
     emit('calendarChange', [...next] as RangePickerValue, { range: part })
-    if (!props.needConfirm) commitRange(next, false)
+    if (pickerTransaction.shouldCommit()) commitRange(next, false)
     return
   }
   const parts = parseTime(inputValue)
@@ -312,7 +337,7 @@ const commitInput = (part: RangePickerPart, event: Event) => {
   nextParts[index] = parts
   draftParts.value = nextParts
   emit('calendarChange', [...next] as RangePickerValue, { range: part })
-  if (!props.needConfirm && !commitRange(next, false)) emit('invalid', inputValue, part)
+  if (pickerTransaction.shouldCommit() && !commitRange(next, false)) emit('invalid', inputValue, part)
 }
 const confirmDraft = () => {
   const normalized = normalizeRange(draftValue.value)
@@ -327,7 +352,7 @@ const clearPart = (part: RangePickerPart) => {
   draftValue.value = next
   emit('calendarChange', [...next] as RangePickerValue, { range: part })
   updateLiveMessage(next)
-  if (!props.needConfirm) commitRange(next, false)
+  if (pickerTransaction.shouldCommit()) commitRange(next, false)
   emit('clear')
 }
 const clearRange = () => {
@@ -347,7 +372,7 @@ const selectPreset = (index: number) => {
   }
   draftValue.value = value ? [...value] as RangePickerValue : undefined
   draftParts.value = [parseTime(value?.[0]) ?? { hour: 0, minute: 0, second: 0 }, parseTime(value?.[1]) ?? { hour: 0, minute: 0, second: 0 }]
-  if (props.needConfirm) {
+  if (pickerTransaction.shouldStage()) {
     emit('calendarChange', draftValue.value, { range: activePart.value })
     updateLiveMessage(draftValue.value)
   } else commitRange(draftValue.value)
@@ -369,6 +394,7 @@ const panelClass = computed(() => [`aheart-floating--${floatingPosition.placemen
 const panelStyle = computed(() => floatingPosition.popupStyle.value)
 const requestOpen = (open: boolean) => {
   if (open && isInteractionDisabled.value) return
+  if (!open) pickerTransaction.discard()
   const wasOpen = mergedOpen.value
   openState.setState(open, { force: true })
   if (open && !wasOpen) syncDraft()

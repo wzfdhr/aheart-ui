@@ -79,10 +79,13 @@ const thisMonthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padS
 
 ## 日期与时间
 
-<ADatePicker
-  v-model="dateTime"
-  :show-time="{ use12Hours: true, minuteStep: 5, secondStep: 10 }"
-/>
+<div class="aheart-demo-panel" role="region" aria-label="D6 单值日期事务">
+  <ADatePicker
+    v-model="dateTime"
+    :show-time="{ use12Hours: true, minuteStep: 5, secondStep: 10 }"
+  />
+  <span data-d6-date-value>{{ dateTime }}</span>
+</div>
 
 ```vue
 <ADatePicker
@@ -135,10 +138,13 @@ const thisMonthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padS
 
 ## 日期时间范围
 
-<ADateRangePicker
-  v-model="rangeDateTime"
-  :show-time="{ minuteStep: 5, secondStep: 10 }"
-/>
+<div class="aheart-demo-panel" role="region" aria-label="D6 范围日期事务">
+  <ADateRangePicker
+    v-model="rangeDateTime"
+    :show-time="{ minuteStep: 5, secondStep: 10 }"
+  />
+  <span data-d6-date-range-value>{{ rangeDateTime?.filter(Boolean).join(' 至 ') }}</span>
+</div>
 
 ```vue
 <ADateRangePicker

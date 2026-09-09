@@ -5,14 +5,18 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     beforeUpload?: ((file: File, fileList: UploadFile[]) => boolean | Promise<boolean>) | undefined;
     customRequest?: UploadRequest | undefined;
     maxCount?: number | undefined;
+    timeout?: number | undefined;
     disabled?: boolean | undefined;
     multiple?: boolean | undefined;
 }>, {
     defaultFileList: () => never[];
     maxCount: number;
+    timeout: number;
 }>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     remove: (file: UploadFile) => void;
+    cancel: (file: UploadFile) => void;
     change: (files: UploadFile[]) => void;
+    retry: (file: UploadFile) => void;
     "update:fileList": (files: UploadFile[]) => void;
 }, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     fileList?: UploadFile[] | undefined;
@@ -20,16 +24,21 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     beforeUpload?: ((file: File, fileList: UploadFile[]) => boolean | Promise<boolean>) | undefined;
     customRequest?: UploadRequest | undefined;
     maxCount?: number | undefined;
+    timeout?: number | undefined;
     disabled?: boolean | undefined;
     multiple?: boolean | undefined;
 }>, {
     defaultFileList: () => never[];
     maxCount: number;
+    timeout: number;
 }>>> & Readonly<{
     onRemove?: ((file: UploadFile) => any) | undefined;
+    onCancel?: ((file: UploadFile) => any) | undefined;
     onChange?: ((files: UploadFile[]) => any) | undefined;
+    onRetry?: ((file: UploadFile) => any) | undefined;
     "onUpdate:fileList"?: ((files: UploadFile[]) => any) | undefined;
 }>, {
+    timeout: number;
     maxCount: number;
     defaultFileList: UploadFile[];
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {

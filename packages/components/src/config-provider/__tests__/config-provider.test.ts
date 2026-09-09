@@ -249,6 +249,29 @@ describe('ConfigProvider', () => {
     expect(wrapper.text()).toBe('本日|请选择日期|此刻|1|一,二,三,四,五,六,日')
   })
 
+  it('deeply merges the independent Upload locale group', () => {
+    const Consumer = defineComponent({
+      setup() {
+        const config = useAheartConfig()
+        return () => h('span', [
+          config.value.locale?.upload?.selectFile,
+          '|',
+          config.value.locale?.upload?.timeout,
+          '|',
+          config.value.locale?.upload?.retry?.('report.txt')
+        ])
+      }
+    })
+    const wrapper = mount(ConfigProvider, {
+      props: { locale: enUS },
+      slots: {
+        default: () => h(ConfigProvider, { locale: { upload: { selectFile: 'Choose attachment' } } }, { default: () => h(Consumer) })
+      }
+    })
+
+    expect(wrapper.text()).toBe('Choose attachment|Upload timed out|Retry report.txt')
+  })
+
   it('renders locale defaults during SSR without browser globals', async () => {
     const app = createSSRApp({
       render: () => h(ConfigProvider, null, { default: () => h(ConfigReader) })

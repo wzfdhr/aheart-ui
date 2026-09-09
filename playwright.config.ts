@@ -11,7 +11,8 @@ const d4VirtualOnly = /d4-select-virtual\.spec\.ts/
 const d5TableOnly = /d5-table-pagination\.spec\.ts/
 const d5TableBOnly = /d5-table-b\.spec\.ts/
 const d5TableCOnly = /d5-table-c\.spec\.ts/
-const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly]
+const d6PickerUploadOnly = /d6-picker-upload\.spec\.ts/
+const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly]
 const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 
 export default defineConfig({

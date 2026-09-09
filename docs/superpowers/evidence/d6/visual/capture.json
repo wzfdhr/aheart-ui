@@ -1,0 +1,61 @@
+{
+  "status": "captured",
+  "results": [
+    {
+      "file": "docs/superpowers/evidence/d6/visual/01-date-range-deep-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:5292/components/date-picker"
+    },
+    {
+      "file": "docs/superpowers/evidence/d6/visual/02-time-geometry-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:5292/components/time-picker"
+    },
+    {
+      "file": "docs/superpowers/evidence/d6/visual/03-upload-cancel-retry-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:5292/components/upload"
+    },
+    {
+      "file": "docs/superpowers/evidence/d6/visual/04-upload-timeout-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:5292/components/upload"
+    },
+    {
+      "file": "docs/superpowers/evidence/d6/visual/05-upload-validation-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:5292/components/upload"
+    },
+    {
+      "file": "docs/superpowers/evidence/d6/visual/06-date-range-mobile.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:5292/components/date-picker"
+    },
+    {
+      "file": "docs/superpowers/evidence/d6/visual/07-upload-cancel-mobile.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:5292/components/upload"
+    }
+  ]
+}
