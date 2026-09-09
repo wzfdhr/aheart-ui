@@ -4,6 +4,8 @@ const vue = require("vue");
 const controlContext = require("../form/control-context.js");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const time = require("../picker-core/time.js");
+const timeColumnGeometry = require("../picker-core/time-column-geometry.js");
+const transaction = require("../picker-core/transaction.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
@@ -48,6 +50,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const pickerTransaction = transaction.createPickerTransaction({ needConfirm: () => Boolean(props.needConfirm) });
     const attrs = vue.useAttrs();
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
@@ -130,7 +133,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const displayedHour = vue.computed(() => showPeriod.value ? draft.value.hour % 12 || 12 : draft.value.hour);
     const selectedPeriod = vue.computed(() => draft.value.hour >= 12 ? "PM" : "AM");
-    const isInteractionDisabled = vue.computed(() => isDisabled.value || props.readOnly);
+    const isInteractionDisabled = vue.computed(() => !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }));
     const hourOptions = vue.computed(() => showPeriod.value ? time.createTimeOptions(12, props.hourStep).map((hour) => hour || 12) : time.createTimeOptions(24, props.hourStep));
     const minuteOptions = vue.computed(() => time.createTimeOptions(60, props.minuteStep));
     const secondOptions = vue.computed(() => time.createTimeOptions(60, props.secondStep));
@@ -218,7 +221,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     ]);
     const panelStyle = vue.computed(() => floatingPosition.popupStyle.value);
     const syncDraft = () => {
-      draft.value = initialParts();
+      const value = initialParts();
+      pickerTransaction.syncCommitted(formatTime(value, props.valueFormat));
+      draft.value = value;
       draftHasValue.value = Boolean(mergedValue.value);
     };
     const scrollSelectedOptionsIntoView = () => {
@@ -230,6 +235,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open) => {
       if (open && isInteractionDisabled.value)
         return;
+      if (!open)
+        pickerTransaction.discard();
       openState.setState(open, { force: true });
       if (open) {
         syncDraft();
@@ -240,10 +247,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (isInteractionDisabled.value || isPartsDisabled(parts))
         return false;
       const value = formatTime(parts, props.valueFormat);
+      pickerTransaction.apply(value);
+      pickerTransaction.commit();
       valueState.setState(value, { force: true });
       emit("change", value);
       formControl == null ? void 0 : formControl.change();
-      if (isValueControlled.value && !props.needConfirm)
+      if (isValueControlled.value && pickerTransaction.shouldCommit())
         syncDraft();
       if (close)
         requestOpen(false);
@@ -262,7 +271,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       draft.value = { ...draft.value, hour: toHour24(hour) };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const selectMinute = (minute) => {
@@ -270,7 +279,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       draft.value = { ...draft.value, minute };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const selectSecond = (second) => {
@@ -278,7 +287,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       draft.value = { ...draft.value, second };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const selectPeriod = (period) => {
@@ -287,7 +296,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const hour12 = draft.value.hour % 12;
       draft.value = { ...draft.value, hour: hour12 + (period === "PM" ? 12 : 0) };
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value, false);
     };
     const confirmValue = () => commitValue(draft.value);
@@ -300,7 +309,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       draft.value = next;
       draftHasValue.value = true;
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitValue(draft.value);
     };
     const clearValue = () => {
@@ -323,7 +332,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (!parts || isPartsDisabled(parts)) {
         emit("invalid", value);
         input.value = displayValue.value;
-      } else if (props.needConfirm) {
+      } else if (pickerTransaction.shouldStage()) {
         draft.value = parts;
         draftHasValue.value = true;
         input.value = formatTime(parts, resolvedFormat.value, true);
@@ -333,20 +342,40 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     let scrollTimer;
-    vue.onBeforeUnmount(() => clearTimeout(scrollTimer));
+    let resizeObserver;
+    vue.onMounted(() => {
+      var _a;
+      const view = (_a = rootRef.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      const Observer = view == null ? void 0 : view.ResizeObserver;
+      if (!Observer)
+        return;
+      resizeObserver = new Observer(() => {
+      });
+      for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) {
+        if (column)
+          resizeObserver.observe(column);
+      }
+    });
+    vue.onBeforeUnmount(() => {
+      clearTimeout(scrollTimer);
+      resizeObserver == null ? void 0 : resizeObserver.disconnect();
+    });
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;
       clearTimeout(scrollTimer);
       scrollTimer = setTimeout(() => {
+        const target = event.target;
         const options = column === "hour" ? visibleHourOptions.value : column === "minute" ? visibleMinuteOptions.value : visibleSecondOptions.value;
-        const value = options[Math.max(0, Math.min(options.length - 1, Math.round(event.target.scrollTop / 28)))];
+        const measured = timeColumnGeometry.measurePickerOptions(target);
+        const measuredValue = timeColumnGeometry.nearestPickerOption(measured, target.scrollTop, target.clientHeight);
+        const value = measuredValue === void 0 ? options[Math.max(0, Math.min(options.length - 1, Math.round(target.scrollTop / timeColumnGeometry.estimatePickerOptionHeight(target))))] : Number(measuredValue);
         if (value === void 0)
           return;
         const next = column === "hour" ? { ...draft.value, hour: toHour24(value) } : column === "minute" ? { ...draft.value, minute: value } : { ...draft.value, second: value };
         draft.value = next;
         draftHasValue.value = true;
-        if (!props.needConfirm)
+        if (pickerTransaction.shouldCommit())
           commitValue(next, false);
       }, 0);
     };

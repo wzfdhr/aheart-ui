@@ -26,11 +26,28 @@ const failureRequest = ({ onSuccess, onError }: { onSuccess: (response?: unknown
   if (failureAttempts === 1) onError(new Error('QG3 failure'))
   else onSuccess({ ok: true })
 }
-const retryFailure = () => {
-  const file = failureFiles.value[0]
-  if (file) failureFiles.value = [{ ...file, status: 'ready', error: undefined, percent: undefined, response: undefined }]
-}
 const failureStatus = computed(() => failureFiles.value[0]?.status === 'done' ? '上传成功' : failureFiles.value[0]?.status === 'error' ? '上传失败' : failureFiles.value[0]?.status === 'ready' ? '等待重新上传' : '')
+
+const cancelFiles = ref<UploadFile[]>([])
+let cancelAttempts = 0
+let lateCancelledSuccess: (() => void) | undefined
+const cancelRequest = ({ onProgress, onSuccess }: { onProgress: (percent: number) => void; onSuccess: (response?: unknown) => void }) => {
+  cancelAttempts += 1
+  if (cancelAttempts === 1) {
+    onProgress(25)
+    lateCancelledSuccess = () => onSuccess({ stale: true })
+  } else onSuccess({ ok: true })
+}
+const completeCancelledRequest = () => lateCancelledSuccess?.()
+const cancelStatus = computed(() => cancelFiles.value[0]?.status === 'cancelled' ? '已取消' : cancelFiles.value[0]?.status === 'done' ? '重试成功' : cancelFiles.value[0]?.status === 'uploading' ? `上传中 ${cancelFiles.value[0]?.percent ?? 0}%` : '')
+
+const timeoutFiles = ref<UploadFile[]>([])
+const timeoutRequest = () => undefined
+const timeoutStatus = computed(() => timeoutFiles.value[0]?.failureReason === 'timeout' ? '上传超时，可重试' : timeoutFiles.value[0]?.status ?? '')
+
+const validationFiles = ref<UploadFile[]>([])
+const rejectInvalidFile = async () => { throw new Error('文件内容不合法') }
+const validationStatus = computed(() => validationFiles.value[0]?.failureReason === 'validation' ? '校验失败' : '')
 
 const manualFiles = ref<UploadFile[]>([])
 const manualRequestCount = ref(0)
@@ -113,7 +130,32 @@ const files = ref<UploadFile[]>([])
     <AUpload v-model:file-list="failureFiles" :custom-request="failureRequest">选择文件</AUpload>
     <p data-testid="upload-retry-status">{{ failureStatus }}</p>
     <p data-testid="upload-retry-request-count">请求次数：{{ failureRequestCount }}</p>
-    <button v-if="failureFiles[0]?.status === 'error'" type="button" @click="retryFailure">重试 {{ failureFiles[0].name }}</button>
+  </section>
+
+  <section aria-label="取消与任务隔离">
+    <h3>取消与任务隔离</h3>
+    <AUpload v-model:file-list="cancelFiles" :custom-request="cancelRequest">选择文件</AUpload>
+    <button type="button" @click="completeCancelledRequest">触发旧任务完成</button>
+    <p data-testid="upload-cancel-status">{{ cancelStatus }}</p>
+  </section>
+
+  <section aria-label="上传超时">
+    <h3>上传超时</h3>
+    <AUpload v-model:file-list="timeoutFiles" :timeout="80" :custom-request="timeoutRequest">选择文件</AUpload>
+    <p data-testid="upload-timeout-status">{{ timeoutStatus }}</p>
+  </section>
+
+  <section aria-label="上传校验失败">
+    <h3>上传校验失败</h3>
+    <AUpload v-model:file-list="validationFiles" :before-upload="rejectInvalidFile">选择文件</AUpload>
+    <p data-testid="upload-validation-status">{{ validationStatus }}</p>
+  </section>
+
+  <section aria-label="Upload 独立 locale">
+    <h3>独立 locale</h3>
+    <AConfigProvider :locale="{ datePicker: { locale: 'en-US' }, upload: { selectFile: '选择附件', upload: '开始传输' } }">
+      <AUpload :before-upload="holdUpload" />
+    </AConfigProvider>
   </section>
 
   <section aria-label="手动上传">
@@ -159,6 +201,7 @@ const files = ref<UploadFile[]>([])
 | defaultFileList | 非受控初始文件列表 | `UploadFile[]` | `[]` |
 | beforeUpload | 文件加入列表前的钩子；返回 `false` 时改为手动上传 | `(file, fileList) => boolean \| Promise<boolean>` | - |
 | customRequest | 业务上传请求；通过回调更新进度、成功或失败状态 | `UploadRequest` | - |
+| timeout | 单个请求超时毫秒数；`0` 表示关闭 | `number` | `0` |
 | maxCount | 最多选择的文件数 | `number` | `Infinity` |
 | multiple | 是否支持多选 | `boolean` | `false` |
 | disabled | 是否禁用 | `boolean` | `false` |
@@ -169,11 +212,14 @@ const files = ref<UploadFile[]>([])
 | --- | --- | --- |
 | uid | 文件唯一标识 | `string` |
 | name | 文件名 | `string` |
-| status | 上传状态 | `'ready' \| 'uploading' \| 'done' \| 'error'` |
+| status | 上传状态 | `'ready' \| 'uploading' \| 'done' \| 'error' \| 'cancelled'` |
 | percent | 上传进度 | `number` |
 | originFile | 原始浏览器文件 | `File` |
 | response | 成功响应 | `unknown` |
 | error | 失败原因 | `unknown` |
+| failureReason | 标准失败类别 | `'validation' \| 'timeout' \| 'request' \| 'cancelled'` |
+
+`customRequest` 现在还会收到当前任务的 `signal` 与 `taskId`，以及 `onCancel`。业务请求应监听 `signal` 主动停止网络传输；旧实现可忽略新增字段。每次 retry 都会创建新的 `taskId`，旧任务的迟到 progress/success/error/cancel 回调不会覆盖当前文件状态。
 
 ### 事件
 
@@ -182,3 +228,5 @@ const files = ref<UploadFile[]>([])
 | update:fileList | 文件列表变化 |
 | change | 文件列表变化 |
 | remove | 移除文件时触发 |
+| cancel | 用户取消当前上传任务 |
+| retry | 用户重试失败或已取消任务 |

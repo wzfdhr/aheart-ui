@@ -1,0 +1,48 @@
+D6 browser RED
+command: AHEART_E2E_PORT=5280 corepack pnpm exec playwright test e2e/d6-picker-upload.spec.ts
+result: 20 total, 10 passed, 10 failed
+
+Observed failures:
+- Escape correctly restored focus, so calling focus() again did not dispatch a new focus event; the fixture must reopen with the supported ArrowDown keyboard action.
+- the independent Upload locale fixture supplied custom slot content, which correctly overrode locale.selectFile; the fixture must use the default slot to test locale ownership.
+
+Already green in this RED run:
+- live 44px -> 52px time option geometry
+- cancel and stale callback isolation
+- retry success
+- timeout and validation failure
+- manual upload and controlled rejection
+
+No timeout was enlarged and no skip was added.
+
+Expanded four-component run:
+- command: AHEART_E2E_PORT=5283 corepack pnpm exec playwright test e2e/d6-picker-upload.spec.ts
+- result: 29 passed, 1 failed
+- real P1: desktop WebKit DateRangePicker with showTime opened low on the docs page; the panel bottom exceeded the viewport and the Confirm footer was not reachable. The captured screenshot confirmed clipping, so this was returned to Picker implementation instead of using force click or a test scroll workaround.
+
+Viewport repair reruns:
+- first viewport-height repair still produced 29/30 because total viewport height did not account for the trigger placement; returned for actual available-space calculation.
+- placement-aware height repair made the footer reachable, but the full five-browser run again produced 29/30: desktop Firefox saw a date cell remain unstable for 30 seconds.
+- review identified a new timing P1: a window capture scroll listener also handled internal calendar scrolling and launched overlapping async floating updates. The fix must ignore panel-internal scroll and coalesce external updates through the owner window RAF.
+
+Stable-worktree Firefox geometry sampling:
+- panel alternated between topLeft (top about 7.7px, height 421px) and bottomLeft (top about 469.7px, height 422px).
+- root cause: maxBlockSize depended on the current resolved placement; the resulting one-pixel height change fed back into Floating UI flip and caused a persistent placement oscillation.
+- auto-adjust sizing must use a stable side-independent available height; explicit non-adjusting placement may still use its requested side.
+
+Final GREEN after stable-space repair:
+- focused Firefox + WebKit Date/DateRange: 2 passed
+- full D6 five-browser matrix: 30 passed, 0 skipped, 0 failed
+- no force click, timeout increase, retry, or skip was used
+
+Full repository RED on frozen candidate:
+- 725 total: 591 passed, 127 existing platform skips, 7 failed
+- 5 failures: legacy QG5 Upload flow still expected Retry to return to manual ready state and then click Upload; D6 Retry now revalidates and immediately starts a fresh task
+- 2 failures: TimePicker test used a page-global minute locator before the previous leave animation destroyed its 60-option panel, so it counted 60 + 12 = 72
+- repair updates the old Retry expectation and waits for leave destruction before scoping to the newly visible panel; no timeout/skip/force change
+
+Full repository GREEN after repair:
+- affected legacy scenarios: 7 passed
+- final complete run: 725 total, 598 passed, 127 existing platform skips, 0 failed
+- D6-only: 30 passed, 0 skipped, 0 failed
+- D6 plus legacy Upload impact set: 48 passed, 0 failed

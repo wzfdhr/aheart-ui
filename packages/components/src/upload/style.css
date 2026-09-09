@@ -5,5 +5,15 @@
 .aheart-upload__start { margin-inline-start: var(--aheart-spacing-sm); padding: 4px 10px; border: 1px solid var(--aheart-color-primary); border-radius: var(--aheart-radius); background: var(--aheart-color-primary); color: #fff; cursor: pointer; }
 .aheart-upload__list { margin: var(--aheart-spacing-sm) 0 0; padding: 0; list-style: none; }
 .aheart-upload__item { display: flex; gap: var(--aheart-spacing-sm); align-items: center; min-block-size: 28px; }
-.aheart-upload__item.is-error { color: var(--aheart-color-danger); }
-.aheart-upload__remove { margin-inline-start: auto; padding: 0; border: 0; background: transparent; color: var(--aheart-color-primary); cursor: pointer; }
+.aheart-upload__item.is-error { color: color-mix(in srgb, var(--aheart-color-danger) 78%, var(--aheart-color-text)); }
+.aheart-upload__item.is-cancelled { color: var(--aheart-color-text-secondary); }
+.aheart-upload__remove, .aheart-upload__cancel, .aheart-upload__retry { padding: 0; border: 0; background: transparent; cursor: pointer; }
+.aheart-upload__remove { margin-inline-start: auto; color: var(--aheart-color-primary); }
+.aheart-upload__cancel { color: var(--aheart-color-warning); }
+.aheart-upload__retry { color: var(--aheart-color-primary); }
+.aheart-upload__remove:focus-visible, .aheart-upload__cancel:focus-visible, .aheart-upload__retry:focus-visible { outline: 2px solid var(--aheart-color-primary); outline-offset: 2px; }
+
+@media (max-width: 640px), (pointer: coarse) {
+  .aheart-upload__item { flex-wrap: wrap; }
+  .aheart-upload__remove, .aheart-upload__cancel, .aheart-upload__retry { min-block-size: 40px; padding-inline: 6px; }
+}

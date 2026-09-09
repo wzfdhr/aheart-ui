@@ -9,6 +9,7 @@ describe('date picker utilities', () => {
   it('parses complete calendar values and rejects impossible dates', () => {
     expect(parseDate('2026-07-14', 'YYYY-MM-DD')).toEqual(new Date(2026, 6, 14))
     expect(parseDate('2026-02-30', 'YYYY-MM-DD')).toBeUndefined()
+    expect(parseDate('14/07/2026', 'DD/MM/YYYY')).toBeUndefined()
   })
 
   it('compares dates by calendar day', () => {

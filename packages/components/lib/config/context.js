@@ -82,6 +82,21 @@ const zhCN = {
     selected: (value) => `已选择 ${value}`,
     rangeStartSelected: "已选择开始时间，请选择结束时间",
     rangeComplete: (start, end) => `已选择 ${start} 至 ${end}`
+  },
+  upload: {
+    selectFile: "选择文件",
+    upload: "上传",
+    done: "已完成",
+    failed: "上传失败",
+    cancelled: "已取消",
+    validationFailed: "校验失败",
+    timeout: "上传超时",
+    removeAction: "移除",
+    cancelAction: "取消",
+    retryAction: "重试",
+    remove: (name) => `移除 ${name}`,
+    cancel: (name) => `取消上传 ${name}`,
+    retry: (name) => `重试 ${name}`
   }
 };
 const enUS = {
@@ -165,6 +180,21 @@ const enUS = {
     selected: (value) => `Selected ${value}`,
     rangeStartSelected: "Start time selected, choose an end time",
     rangeComplete: (start, end) => `Selected ${start} to ${end}`
+  },
+  upload: {
+    selectFile: "Select file",
+    upload: "Upload",
+    done: "Done",
+    failed: "Failed",
+    cancelled: "Cancelled",
+    validationFailed: "Validation failed",
+    timeout: "Upload timed out",
+    removeAction: "Remove",
+    cancelAction: "Cancel",
+    retryAction: "Retry",
+    remove: (name) => `Remove ${name}`,
+    cancel: (name) => `Cancel upload ${name}`,
+    retry: (name) => `Retry ${name}`
   }
 };
 const defaultAheartConfig = {
@@ -180,7 +210,7 @@ const useAheartConfig = () => {
 const provideAheartConfig = (config) => {
   const parentConfig = useAheartConfig();
   const mergedConfig = vue.computed(() => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
     const current = vue.unref(config);
     const parent = parentConfig.value;
     return {
@@ -220,6 +250,11 @@ const provideAheartConfig = (config) => {
           ...zhCN.timePicker,
           ...(_k = parent.locale) == null ? void 0 : _k.timePicker,
           ...(_l = current.locale) == null ? void 0 : _l.timePicker
+        },
+        upload: {
+          ...zhCN.upload,
+          ...(_m = parent.locale) == null ? void 0 : _m.upload,
+          ...(_n = current.locale) == null ? void 0 : _n.upload
         }
       },
       theme: {

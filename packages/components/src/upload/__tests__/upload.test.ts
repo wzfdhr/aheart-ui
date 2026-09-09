@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { enUS } from '../../config'
 import ConfigProvider from '../../config-provider/config-provider.vue'
 import Upload from '../upload.vue'
+import type { UploadFile, UploadRequestOption } from '../types'
 
 const createFile = (name = 'report.txt') => new File(['report'], name, { type: 'text/plain' })
 const selectFiles = async (input: ReturnType<ReturnType<typeof mount>['find']>, files: File[]) => {
@@ -34,6 +35,25 @@ describe('Upload', () => {
     expect(english.find('.aheart-upload__item.is-done').text()).toContain('Done')
     expect(english.find('.aheart-upload__item.is-error').text()).toContain('Failed')
     expect(english.find('.aheart-upload__remove').attributes('aria-label')).toBe('Remove report.txt')
+  })
+
+  it('owns an independent locale group instead of inferring copy from DatePicker', () => {
+    const dateOnlyEnglish = mount(ConfigProvider, {
+      props: { locale: { datePicker: { locale: 'en-US' } } },
+      slots: { default: () => h(Upload) }
+    })
+    expect(dateOnlyEnglish.find('.aheart-upload__trigger').text()).toBe('选择文件')
+
+    const uploadOverride = mount(ConfigProvider, {
+      props: { locale: { upload: { selectFile: '选择附件', upload: '开始传输' } } },
+      slots: {
+        default: () => h(Upload, {
+          defaultFileList: [{ uid: 'ready', name: '合同.pdf', status: 'ready' }]
+        })
+      }
+    })
+    expect(uploadOverride.find('.aheart-upload__trigger').text()).toBe('选择附件')
+    expect(uploadOverride.find('.aheart-upload__start').text()).toBe('开始传输')
   })
 
   it('adds a selected file and reports a successful custom upload', async () => {
@@ -255,5 +275,178 @@ describe('Upload', () => {
     completeUpload?.()
 
     expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toEqual([])
+  })
+
+  it('aborts the transport on remove and ignores every late callback', async () => {
+    let request: UploadRequestOption | undefined
+    const abort = vi.fn()
+    const wrapper = mount(Upload, {
+      props: {
+        customRequest: (options) => {
+          request = options
+          return { abort }
+        }
+      }
+    })
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('abort.txt')])
+    expect(request?.signal.aborted).toBe(false)
+    expect(request?.taskId).toMatch(/abort\.txt/)
+    await wrapper.find('.aheart-upload__remove').trigger('click')
+    expect(request?.signal.aborted).toBe(true)
+    expect(abort).toHaveBeenCalledOnce()
+
+    request?.onProgress(88)
+    request?.onSuccess({ late: true })
+    request?.onError(new Error('late'))
+    request?.onCancel()
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toEqual([])
+  })
+
+  it('cancels an active task visibly and retries with a fresh task id', async () => {
+    const requests: UploadRequestOption[] = []
+    const wrapper = mount(Upload, {
+      props: { customRequest: (options) => { requests.push(options) } }
+    })
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('retry.txt')])
+    expect(requests).toHaveLength(1)
+    await wrapper.get('[data-upload-cancel]').trigger('click')
+    expect(requests[0].signal.aborted).toBe(true)
+    expect(wrapper.find('.aheart-upload__item').classes()).toContain('is-cancelled')
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+
+    await wrapper.get('[data-upload-retry]').trigger('click')
+    expect(requests).toHaveLength(2)
+    expect(requests[1].taskId).not.toBe(requests[0].taskId)
+    requests[0].onSuccess({ stale: true })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.aheart-upload__item').classes()).toContain('is-uploading')
+    requests[1].onProgress(42)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.aheart-upload__item').text()).toContain('42%')
+    requests[1].onSuccess({ ok: true })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.aheart-upload__item').classes()).toContain('is-done')
+    expect(wrapper.emitted('retry')).toHaveLength(1)
+  })
+
+  it('turns timeout into a retryable error and aborts the current signal', async () => {
+    vi.useFakeTimers()
+    try {
+      let request: UploadRequestOption | undefined
+      const wrapper = mount(Upload, {
+        props: { timeout: 25, customRequest: (options) => { request = options } }
+      })
+      await selectFiles(wrapper.find('input[type="file"]'), [createFile('timeout.txt')])
+      await vi.advanceTimersByTimeAsync(26)
+      expect(request?.signal.aborted).toBe(true)
+      expect(wrapper.find('.aheart-upload__item').classes()).toContain('is-error')
+      expect(wrapper.find('.aheart-upload__item').text()).toContain('上传超时')
+      expect(wrapper.find('[data-upload-retry]').exists()).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('keeps a rejected beforeUpload validation visible without starting transport', async () => {
+    const customRequest = vi.fn()
+    const wrapper = mount(Upload, {
+      props: {
+        beforeUpload: async () => { throw new Error('文件内容不合法') },
+        customRequest
+      }
+    })
+
+    await expect(selectFiles(wrapper.find('input[type="file"]'), [createFile('invalid.txt')])).resolves.toBeUndefined()
+    expect(customRequest).not.toHaveBeenCalled()
+    expect(wrapper.find('.aheart-upload__item').classes()).toContain('is-error')
+    expect(wrapper.find('.aheart-upload__item').text()).toContain('校验失败')
+    expect(wrapper.find('[data-upload-retry]').exists()).toBe(true)
+  })
+
+  it('revalidates a validation failure before retrying the transport', async () => {
+    let attempts = 0
+    const customRequest = vi.fn(({ onSuccess }: UploadRequestOption) => onSuccess({ ok: true }))
+    const wrapper = mount(Upload, {
+      props: {
+        beforeUpload: async () => {
+          attempts += 1
+          if (attempts === 1) throw new Error('first validation failure')
+          return true
+        },
+        customRequest
+      }
+    })
+
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('revalidate.txt')])
+    expect(wrapper.find('.aheart-upload__item').classes()).toContain('is-error')
+    await wrapper.get('[data-upload-retry]').trigger('click')
+    await vi.waitFor(() => expect(customRequest).toHaveBeenCalledOnce())
+    expect(attempts).toBe(2)
+    expect(wrapper.find('.aheart-upload__item').classes()).toContain('is-done')
+  })
+
+  it('invalidates a controlled task when the parent replaces the same uid', async () => {
+    const requests: UploadRequestOption[] = []
+    const first: UploadFile = { uid: 'same', name: 'first.txt', status: 'ready', originFile: createFile('first.txt') }
+    const second: UploadFile = { uid: 'same', name: 'second.txt', status: 'ready', originFile: createFile('second.txt') }
+    const wrapper = mount(Upload, {
+      props: {
+        fileList: [first],
+        customRequest: (options) => { requests.push(options) }
+      }
+    })
+
+    await wrapper.get('.aheart-upload__start').trigger('click')
+    expect(requests).toHaveLength(1)
+    await wrapper.setProps({ fileList: [second] })
+    expect(requests[0].signal.aborted).toBe(true)
+    await wrapper.get('.aheart-upload__start').trigger('click')
+    expect(requests).toHaveLength(2)
+    requests[0].onSuccess({ stale: true })
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).not.toMatchObject([{ name: 'first.txt', status: 'done' }])
+    requests[1].onSuccess({ ok: true })
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'second.txt', status: 'done' }])
+  })
+
+  it('aborts all active tasks on unmount', async () => {
+    let request: UploadRequestOption | undefined
+    const wrapper = mount(Upload, { props: { customRequest: (options) => { request = options } } })
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('unmount.txt')])
+    wrapper.unmount()
+    expect(request?.signal.aborted).toBe(true)
+  })
+
+  it('preserves the latest controlled metadata during progress callbacks', async () => {
+    let request: UploadRequestOption | undefined
+    const raw = createFile('original.txt')
+    const wrapper = mount(Upload, {
+      props: {
+        fileList: [{ uid: 'metadata', name: 'original.txt', status: 'ready', originFile: raw }],
+        customRequest: (options) => { request = options }
+      }
+    })
+    await wrapper.get('.aheart-upload__start').trigger('click')
+    const uploading = wrapper.emitted('update:fileList')?.at(-1)?.[0] as UploadFile[]
+    await wrapper.setProps({ fileList: [{ ...uploading[0], name: 'renamed.txt' }] })
+    request?.onProgress(55)
+    expect(wrapper.emitted('update:fileList')?.at(-1)?.[0]).toMatchObject([{ name: 'renamed.txt', percent: 55 }])
+  })
+
+  it('still removes and invalidates a task when a transport abort handle throws', async () => {
+    let request: UploadRequestOption | undefined
+    const wrapper = mount(Upload, {
+      props: {
+        customRequest: (options) => {
+          request = options
+          return { abort: () => { throw new Error('transport cleanup failed') } }
+        }
+      }
+    })
+    await selectFiles(wrapper.find('input[type="file"]'), [createFile('throwing-abort.txt')])
+    await expect(wrapper.get('.aheart-upload__remove').trigger('click')).resolves.toBeUndefined()
+    expect(request?.signal.aborted).toBe(true)
+    expect(wrapper.findAll('.aheart-upload__item')).toHaveLength(0)
   })
 })

@@ -7,6 +7,8 @@ const calendar = require("../picker-core/calendar.js");
 const codec = require("../picker-core/codec.js");
 const dayjs = require("../picker-core/dayjs.js");
 const selection = require("../picker-core/selection.js");
+const transaction = require("../picker-core/transaction.js");
+const viewport = require("../picker-core/viewport.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
@@ -71,6 +73,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     var _a;
     const props = __props;
     const emit = __emit;
+    const pickerTransaction = transaction.createPickerTransaction({ needConfirm: () => effectiveNeedConfirm.value });
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
     const formControl = controlContext.useFormControl();
@@ -282,8 +285,56 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       placement: () => props.placement,
       strategy: "fixed",
       offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow
+      autoAdjustOverflow: () => props.autoAdjustOverflow,
+      autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== "undefined", layoutShift: true, animationFrame: false }
     });
+    const viewportAvailableBlockSize = vue.ref();
+    const updateViewportAvailableBlockSize = () => {
+      const trigger = triggerRef.value;
+      const view = trigger == null ? void 0 : trigger.ownerDocument.defaultView;
+      if (!trigger || !view)
+        return;
+      const rect = trigger.getBoundingClientRect();
+      const nextSize = props.autoAdjustOverflow === false ? viewport.getPickerAvailableBlockSize(rect, view.innerHeight, floatingPosition.placement.value) : viewport.getPickerStableAvailableBlockSize(rect, view.innerHeight);
+      if (viewportAvailableBlockSize.value !== nextSize)
+        viewportAvailableBlockSize.value = nextSize;
+    };
+    let viewportRaf;
+    let floatingUpdateInFlight = false;
+    let floatingUpdatePending = false;
+    const refreshFloatingViewport = async () => {
+      if (floatingUpdateInFlight) {
+        floatingUpdatePending = true;
+        return;
+      }
+      floatingUpdateInFlight = true;
+      try {
+        await floatingPosition.update();
+        updateViewportAvailableBlockSize();
+      } finally {
+        floatingUpdateInFlight = false;
+        if (floatingUpdatePending) {
+          floatingUpdatePending = false;
+          scheduleFloatingViewport();
+        }
+      }
+    };
+    const scheduleFloatingViewport = () => {
+      var _a2;
+      const view = (_a2 = triggerRef.value) == null ? void 0 : _a2.ownerDocument.defaultView;
+      if (!view || viewportRaf !== void 0)
+        return;
+      viewportRaf = view.requestAnimationFrame(() => {
+        viewportRaf = void 0;
+        void refreshFloatingViewport();
+      });
+    };
+    const handleViewportScroll = (event) => {
+      const target = event.target;
+      if (panelRef.value && target instanceof Node && panelRef.value.contains(target))
+        return;
+      scheduleFloatingViewport();
+    };
     const panelClass = vue.computed(() => {
       var _a2;
       return [
@@ -292,13 +343,36 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         { "has-presets": (_a2 = props.presets) == null ? void 0 : _a2.length, "has-time": effectiveShowTime.value }
       ];
     });
-    const panelStyle = vue.computed(() => floatingPosition.popupStyle.value);
+    const panelStyle = vue.computed(() => ({
+      ...floatingPosition.popupStyle.value,
+      ...effectiveShowTime.value && viewportAvailableBlockSize.value !== void 0 ? { maxBlockSize: `${viewportAvailableBlockSize.value}px` } : {}
+    }));
     vue.watch(() => motion.phase.value, (phase) => {
       if (phase === "entered")
-        void vue.nextTick(floatingPosition.update);
+        void vue.nextTick(scheduleFloatingViewport);
+    });
+    vue.watch(() => floatingPosition.placement.value, updateViewportAvailableBlockSize);
+    vue.onMounted(() => {
+      var _a2;
+      const view = (_a2 = triggerRef.value) == null ? void 0 : _a2.ownerDocument.defaultView;
+      if (!view)
+        return;
+      view.addEventListener("resize", scheduleFloatingViewport);
+      view.addEventListener("scroll", handleViewportScroll);
+    });
+    vue.onBeforeUnmount(() => {
+      var _a2;
+      const view = (_a2 = triggerRef.value) == null ? void 0 : _a2.ownerDocument.defaultView;
+      view == null ? void 0 : view.removeEventListener("resize", scheduleFloatingViewport);
+      view == null ? void 0 : view.removeEventListener("scroll", handleViewportScroll);
+      if (viewportRaf !== void 0)
+        view == null ? void 0 : view.cancelAnimationFrame(viewportRaf);
+      viewportRaf = void 0;
     });
     const syncDraft = () => {
-      draftValue.value = Array.isArray(mergedValue.value) ? [...mergedValue.value] : mergedValue.value;
+      const value = Array.isArray(mergedValue.value) ? [...mergedValue.value] : mergedValue.value;
+      pickerTransaction.syncCommitted(value);
+      draftValue.value = value;
       const panel = initialPanelDate(nowDate.value);
       if (!isPanelControlled.value)
         viewDate.value = panel;
@@ -307,8 +381,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     let restoreFocusOnClose = false;
     const requestOpen = (nextOpen, restoreFocus = false) => {
-      if (nextOpen && (isDisabled.value || props.readOnly))
+      if (nextOpen && !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
+      if (!nextOpen)
+        pickerTransaction.discard();
       if (!nextOpen)
         restoreFocusOnClose = restoreFocus;
       openState.setState(nextOpen, { force: true });
@@ -349,6 +425,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const commitValue = (value, close = true) => {
       const normalized = Array.isArray(value) ? selection.normalizeMultipleValues(value) : value;
+      pickerTransaction.apply(normalized);
+      pickerTransaction.commit();
       valueState.setState(normalized, { force: true });
       emit("change", normalized);
       formControl == null ? void 0 : formControl.change();
@@ -365,13 +443,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const toggleMultipleValue = (value) => {
       const base = effectiveNeedConfirm.value ? Array.isArray(draftValue.value) ? draftValue.value : [] : selectedValues.value;
       const next = base.includes(value) ? base.filter((item) => item !== value) : [...base, value];
-      if (effectiveNeedConfirm.value)
+      if (pickerTransaction.shouldStage()) {
+        pickerTransaction.begin(next);
         draftValue.value = next;
-      else
+      } else
         commitValue(next, false);
     };
     const removeMultipleValue = (value) => {
-      if (isDisabled.value || props.readOnly)
+      if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
       commitValue(selectedValues.value.filter((item) => item !== value), false);
     };
@@ -386,7 +465,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return date.hour(time.hour()).minute(time.minute()).second(time.second());
     };
     const selectCell = (cell) => {
-      if (cell.disabled || isDisabled.value || props.readOnly)
+      if (cell.disabled || !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
       focusedDate.value = cell.date;
       const selectedDate = effectiveShowTime.value ? applyDraftTime(cell.date) : cell.date;
@@ -395,7 +474,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         toggleMultipleValue(value);
         return;
       }
-      if (effectiveNeedConfirm.value) {
+      if (pickerTransaction.shouldStage()) {
+        pickerTransaction.begin(value);
         draftValue.value = value;
         liveMessage.value = resolvedLocale.value.selected(value);
       } else
@@ -438,6 +518,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       emit("ok", value);
     };
     const cancelDraft = () => {
+      pickerTransaction.discard();
       requestOpen(false, true);
     };
     const selectToday = () => {
@@ -460,13 +541,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         emit("invalid", invalidValue);
         return;
       }
-      if (effectiveNeedConfirm.value)
-        draftValue.value = Array.isArray(value) ? [...value] : value;
-      else
+      if (pickerTransaction.shouldStage()) {
+        const next = Array.isArray(value) ? [...value] : value;
+        pickerTransaction.begin(next);
+        draftValue.value = next;
+      } else
         commitValue(value, props.multiple ? false : true);
     };
     const clearValue = () => {
-      if (isDisabled.value || props.readOnly)
+      if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
       const empty = props.multiple ? [] : void 0;
       commitValue(empty, false);
@@ -567,7 +650,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       }
       const parsedValue = codec.formatPickerValue(parsed, resolvedValueFormat.value);
-      if (effectiveNeedConfirm.value) {
+      if (pickerTransaction.shouldStage()) {
         if (!mergedOpen.value) {
           requestOpen(true);
           await vue.nextTick();
@@ -576,6 +659,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
             return;
           }
         }
+        pickerTransaction.begin(parsedValue);
         draftValue.value = parsedValue;
         liveMessage.value = resolvedLocale.value.selected(parsedValue);
         return;
@@ -647,7 +731,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         viewDate.value = next;
     });
     vue.watch(mergedValue, (value) => {
-      if (!mergedOpen.value || !effectiveNeedConfirm.value)
+      if (!mergedOpen.value || !pickerTransaction.shouldStage())
         return;
       draftValue.value = Array.isArray(value) ? [...value] : value;
     }, { deep: true });

@@ -746,6 +746,25 @@
 .aheart-date-picker__panel.has-time .aheart-date-picker__time input,
 .aheart-date-picker__panel.has-time .aheart-date-picker__time select { block-size: 28px; }
 .aheart-date-picker__panel.has-time .aheart-date-picker__footer { min-block-size: 36px; padding-block: 4px; }
+.aheart-date-picker__panel.has-time {
+  max-block-size: calc(100dvh - 16px);
+}
+.aheart-date-picker__panel.has-time .aheart-date-picker__main {
+  display: flex;
+  min-block-size: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+.aheart-date-picker__panel.has-time .aheart-date-picker__grid {
+  min-block-size: 0;
+  overflow-y: auto;
+}
+.aheart-date-picker__panel.has-time .aheart-date-picker__footer {
+  position: sticky;
+  z-index: 1;
+  inset-block-end: 0;
+  flex: 0 0 auto;
+}
 
 @media (max-width: 480px) {
   .aheart-date-picker__panel,
@@ -985,6 +1004,30 @@
 .aheart-date-range-picker__ok:disabled { background: #d9d9d9; cursor: not-allowed; }
 .aheart-date-range-picker__live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .aheart-date-range-picker__mobile-parts { display: none; }
+.aheart-date-range-picker__panel.has-time {
+  max-block-size: calc(100dvh - 16px);
+}
+.aheart-date-range-picker__panel.has-time .aheart-date-range-picker__content {
+  display: flex;
+  min-block-size: 0;
+  max-block-size: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+.aheart-date-range-picker__panel.has-time .aheart-date-range-picker__calendars {
+  min-block-size: 0;
+  overflow-y: auto;
+}
+.aheart-date-range-picker__panel.has-time .aheart-date-range-picker__times,
+.aheart-date-range-picker__panel.has-time .aheart-date-range-picker__footer {
+  flex: 0 0 auto;
+}
+.aheart-date-range-picker__panel.has-time .aheart-date-range-picker__footer {
+  position: sticky;
+  z-index: 1;
+  bottom: 0;
+  background: #fff;
+}
 
 @media (max-width: 640px) {
   .aheart-date-range-picker { min-width: 280px; }
@@ -1355,8 +1398,18 @@
 .aheart-upload__start { margin-inline-start: var(--aheart-spacing-sm); padding: 4px 10px; border: 1px solid var(--aheart-color-primary); border-radius: var(--aheart-radius); background: var(--aheart-color-primary); color: #fff; cursor: pointer; }
 .aheart-upload__list { margin: var(--aheart-spacing-sm) 0 0; padding: 0; list-style: none; }
 .aheart-upload__item { display: flex; gap: var(--aheart-spacing-sm); align-items: center; min-block-size: 28px; }
-.aheart-upload__item.is-error { color: var(--aheart-color-danger); }
-.aheart-upload__remove { margin-inline-start: auto; padding: 0; border: 0; background: transparent; color: var(--aheart-color-primary); cursor: pointer; }
+.aheart-upload__item.is-error { color: color-mix(in srgb, var(--aheart-color-danger) 78%, var(--aheart-color-text)); }
+.aheart-upload__item.is-cancelled { color: var(--aheart-color-text-secondary); }
+.aheart-upload__remove, .aheart-upload__cancel, .aheart-upload__retry { padding: 0; border: 0; background: transparent; cursor: pointer; }
+.aheart-upload__remove { margin-inline-start: auto; color: var(--aheart-color-primary); }
+.aheart-upload__cancel { color: var(--aheart-color-warning); }
+.aheart-upload__retry { color: var(--aheart-color-primary); }
+.aheart-upload__remove:focus-visible, .aheart-upload__cancel:focus-visible, .aheart-upload__retry:focus-visible { outline: 2px solid var(--aheart-color-primary); outline-offset: 2px; }
+
+@media (max-width: 640px), (pointer: coarse) {
+  .aheart-upload__item { flex-wrap: wrap; }
+  .aheart-upload__remove, .aheart-upload__cancel, .aheart-upload__retry { min-block-size: 40px; padding-inline: 6px; }
+}
 .aheart-tree { color: var(--aheart-color-text); font-size: var(--aheart-font-size); }
 .aheart-tree__list, .aheart-tree__group { margin: 0; padding: 0; list-style: none; }
 .aheart-tree__group { padding-inline-start: 20px; }

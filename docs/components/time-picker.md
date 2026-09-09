@@ -7,6 +7,7 @@ const confirmedTime = ref('14:30:00')
 const twelveHourTime = ref('14:30:00')
 const rangeValue = ref<[string | undefined, string | undefined]>(['09:00:00', '18:00:00'])
 const nightShift = ref<[string | undefined, string | undefined]>(['22:00:00', '06:00:00'])
+const d6GeometryTime = ref('09:30:00')
 
 const businessHours = {
   disabledHours: () => [0, 1, 2, 3, 4, 5, 22, 23],
@@ -59,8 +60,9 @@ const value = ref('09:30:00')
 
 ## 确认与此刻
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel" role="region" aria-label="D6 单值时间事务">
   <ATimePicker v-model="confirmedTime" need-confirm show-now />
+  <span data-d6-time-value>{{ confirmedTime }}</span>
 </div>
 
 ```vue
@@ -91,9 +93,9 @@ const value = ref('09:30:00')
 
 ## 时间范围
 
-<div class="aheart-demo-panel">
+<div class="aheart-demo-panel" role="region" aria-label="D6 范围时间事务">
   <ATimeRangePicker v-model="rangeValue" />
-  <span>{{ rangeValue.join(' 至 ') }}</span>
+  <span data-d6-time-range-value>{{ rangeValue.join(' 至 ') }}</span>
 </div>
 
 ```vue
@@ -125,6 +127,11 @@ const value = ref('09:30:00')
 `allowEmpty` 分别控制开始端和结束端能否为空，可通过清除按钮或键盘删除形成开放端。控件尾部的清除按钮用于清空整个范围。`disabledTime(value, part)` 可按 `start` / `end` 返回布尔值或结构化禁用规则。
 
 ## 隐藏禁用项与滚动
+
+<div class="aheart-demo-panel d6-time-geometry" role="region" aria-label="D6 时间列真实尺寸">
+  <ATimePicker v-model="d6GeometryTime" change-on-scroll :need-confirm="false" :show-now="false" />
+  <span data-d6-time-geometry-value>{{ d6GeometryTime }}</span>
+</div>
 
 ```vue
 <ATimePicker

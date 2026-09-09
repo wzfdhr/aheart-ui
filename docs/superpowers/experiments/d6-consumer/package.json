@@ -1,0 +1,14 @@
+{
+  "name": "aheart-d6-picker-upload-consumer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "aheart-ui": "file:./aheart-ui.tgz",
+    "vue": "3.5.38",
+    "@vue/server-renderer": "3.5.38"
+  },
+  "devDependencies": {
+    "vite": "5.0.12",
+    "typescript": "5.4.5"
+  }
+}

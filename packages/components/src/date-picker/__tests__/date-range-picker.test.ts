@@ -2,6 +2,7 @@ import { mount, type VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import DatePicker, { DateRangePicker } from '../index'
 
 const mountPicker = (props: Record<string, unknown> = {}) =>
@@ -12,6 +13,24 @@ const mountPicker = (props: Record<string, unknown> = {}) =>
       ...props
     }
   })
+
+it('keeps showTime panels and confirmation footers reachable in a constrained viewport', () => {
+  const css = readFileSync(resolve(import.meta.dirname, '../style.css'), 'utf8')
+  expect(css).toContain('.aheart-date-range-picker__panel.has-time')
+  expect(css).toContain('max-block-size: calc(100dvh - 16px)')
+  expect(css).toContain('.aheart-date-range-picker__content')
+  expect(css).toContain('position: sticky')
+})
+
+it('coalesces external viewport updates and ignores panel-internal scroll', () => {
+  const source = readFileSync(resolve(import.meta.dirname, '../date-range-picker.vue'), 'utf8')
+  expect(source).toContain('requestAnimationFrame')
+  expect(source).toContain('floatingUpdateInFlight')
+  expect(source).toContain('panelRef.value.contains(target)')
+  expect(source).toContain('cancelAnimationFrame')
+  expect(source).toContain('viewportAvailableBlockSize.value !== nextSize')
+  expect(source).toContain('ancestorScroll: false')
+})
 
 const openPart = async (wrapper: VueWrapper, part: 'start' | 'end' = 'start') => {
   await wrapper.find(`[data-range-part="${part}"]`).trigger('focus')
@@ -105,6 +124,26 @@ describe('DateRangePicker', () => {
     await openPart(wrapper, 'end')
     await wrapper.find('[data-range-clear="end"]').trigger('click')
     expect(wrapper.emitted('update:modelValue')?.[1]).toEqual([['2026-07-01', undefined]])
+  })
+
+  it('stages endpoint clear in confirm mode and closes after whole clear', async () => {
+    const staged = mountPicker({
+      defaultValue: ['2026-07-14 09:00:00', '2026-07-20 18:00:00'],
+      defaultOpen: true,
+      showTime: true,
+      needConfirm: true,
+      allowEmpty: [false, true]
+    })
+    await staged.get('[data-range-clear="end"]').trigger('click')
+    expect(staged.emitted('update:modelValue')).toBeUndefined()
+    expect(staged.findAll('[data-range-part]').map((input) => (input.element as HTMLInputElement).value)).toEqual(['2026-07-14 09:00:00', ''])
+    await staged.get('.aheart-date-range-picker__ok').trigger('click')
+    expect(staged.emitted('update:modelValue')?.at(-1)).toEqual([['2026-07-14 09:00:00', undefined]])
+
+    const whole = mountPicker({ defaultValue: ['2026-07-14', '2026-07-20'], defaultOpen: true })
+    await whole.get('.aheart-date-range-picker__clear').trigger('click')
+    expect(whole.emitted('update:modelValue')?.at(-1)).toEqual([undefined])
+    expect(whole.get('[data-range-part="start"]').attributes('aria-expanded')).toBe('false')
   })
 
   it('keeps date-time values as drafts until confirmation', async () => {

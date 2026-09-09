@@ -3,6 +3,8 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const time = require("../picker-core/time.js");
+const timeColumnGeometry = require("../picker-core/time-column-geometry.js");
+const transaction = require("../picker-core/transaction.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
 const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
@@ -66,6 +68,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
     const emit = __emit;
+    const pickerTransaction = transaction.createPickerTransaction({ needConfirm: () => Boolean(props.needConfirm) });
     const slots = vue.useSlots();
     const config = context.useAheartConfig();
     const formControl = controlContext.useFormControl();
@@ -126,7 +129,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const resolvedPlaceholders = vue.computed(() => props.placeholder ?? [resolvedLocale.value.startTime, resolvedLocale.value.endTime]);
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
-    const isInteractionDisabled = vue.computed(() => isDisabled.value || props.readOnly);
+    const isInteractionDisabled = vue.computed(() => !pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }));
     const resolvedSize = vue.computed(() => context.resolveConfigValue(props.size, config.value.size, "middle"));
     const resolvedVariant = vue.computed(() => props.variant ?? config.value.variant ?? "outlined");
     const hasPrefix = vue.computed(() => props.prefix !== void 0 || Boolean(slots.prefix));
@@ -156,7 +159,9 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const syncDraft = () => {
       var _a, _b;
-      draftValue.value = mergedValue.value ? [...mergedValue.value] : void 0;
+      const value = mergedValue.value ? [...mergedValue.value] : void 0;
+      pickerTransaction.syncCommitted(value);
+      draftValue.value = value;
       draftParts.value = [parseTime((_a = draftValue.value) == null ? void 0 : _a[0]) ?? { hour: 0, minute: 0, second: 0 }, parseTime((_b = draftValue.value) == null ? void 0 : _b[1]) ?? { hour: 0, minute: 0, second: 0 }];
     };
     vue.watch(mergedValue, () => {
@@ -220,7 +225,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       draftValue.value = next;
       emit("calendarChange", [...next], { range: activePart.value });
       updateLiveMessage(next);
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitRange(next, false);
     };
     const selectHour = (hour) => {
@@ -268,14 +273,34 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         (_b = (_a = column == null ? void 0 : column.querySelector(".is-selected")) == null ? void 0 : _a.scrollIntoView) == null ? void 0 : _b.call(_a, { block: "center" });
     };
     let scrollTimer;
-    vue.onBeforeUnmount(() => clearTimeout(scrollTimer));
+    let resizeObserver;
+    vue.onMounted(() => {
+      var _a;
+      const view = (_a = rootRef.value) == null ? void 0 : _a.ownerDocument.defaultView;
+      const Observer = view == null ? void 0 : view.ResizeObserver;
+      if (!Observer)
+        return;
+      resizeObserver = new Observer(() => {
+      });
+      for (const column of [hourColumnRef.value, minuteColumnRef.value, secondColumnRef.value, periodColumnRef.value]) {
+        if (column)
+          resizeObserver.observe(column);
+      }
+    });
+    vue.onBeforeUnmount(() => {
+      clearTimeout(scrollTimer);
+      resizeObserver == null ? void 0 : resizeObserver.disconnect();
+    });
     const handleColumnScroll = (column, event) => {
       if (!props.changeOnScroll || isInteractionDisabled.value)
         return;
       clearTimeout(scrollTimer);
       scrollTimer = setTimeout(() => {
+        const target = event.target;
         const options = column === "hour" ? visibleHourOptions.value : column === "minute" ? visibleMinuteOptions.value : visibleSecondOptions.value;
-        const value = options[Math.max(0, Math.min(options.length - 1, Math.round(event.target.scrollTop / 28)))];
+        const measured = timeColumnGeometry.measurePickerOptions(target);
+        const measuredValue = timeColumnGeometry.nearestPickerOption(measured, target.scrollTop, target.clientHeight);
+        const value = measuredValue === void 0 ? options[Math.max(0, Math.min(options.length - 1, Math.round(target.scrollTop / timeColumnGeometry.estimatePickerOptionHeight(target))))] : Number(measuredValue);
         if (value === void 0)
           return;
         if (column === "hour")
@@ -300,6 +325,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const normalized = normalizeRange(value);
       if (!normalized)
         return false;
+      pickerTransaction.apply(normalized);
+      pickerTransaction.commit();
       for (const [index, endpoint] of normalized.entries()) {
         const parts = parseTime(endpoint);
         if (parts && isPartsDisabled(parts, index === 0 ? "start" : "end"))
@@ -308,7 +335,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       valueState.setState([...normalized], { force: true });
       emit("change", normalized);
       formControl == null ? void 0 : formControl.change();
-      if (isValueControlled.value && !props.needConfirm)
+      if (isValueControlled.value && pickerTransaction.shouldCommit())
         syncDraft();
       if (close)
         requestOpen(false);
@@ -339,7 +366,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         next2[index] = void 0;
         draftValue.value = next2;
         emit("calendarChange", [...next2], { range: part });
-        if (!props.needConfirm)
+        if (pickerTransaction.shouldCommit())
           commitRange(next2, false);
         return;
       }
@@ -356,7 +383,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       nextParts[index] = parts;
       draftParts.value = nextParts;
       emit("calendarChange", [...next], { range: part });
-      if (!props.needConfirm && !commitRange(next, false))
+      if (pickerTransaction.shouldCommit() && !commitRange(next, false))
         emit("invalid", inputValue, part);
     };
     const confirmDraft = () => {
@@ -375,7 +402,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       draftValue.value = next;
       emit("calendarChange", [...next], { range: part });
       updateLiveMessage(next);
-      if (!props.needConfirm)
+      if (pickerTransaction.shouldCommit())
         commitRange(next, false);
       emit("clear");
     };
@@ -404,7 +431,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       draftValue.value = value ? [...value] : void 0;
       draftParts.value = [parseTime(value == null ? void 0 : value[0]) ?? { hour: 0, minute: 0, second: 0 }, parseTime(value == null ? void 0 : value[1]) ?? { hour: 0, minute: 0, second: 0 }];
-      if (props.needConfirm) {
+      if (pickerTransaction.shouldStage()) {
         emit("calendarChange", draftValue.value, { range: activePart.value });
         updateLiveMessage(draftValue.value);
       } else
@@ -432,6 +459,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const requestOpen = (open) => {
       if (open && isInteractionDisabled.value)
         return;
+      if (!open)
+        pickerTransaction.discard();
       const wasOpen = mergedOpen.value;
       openState.setState(open, { force: true });
       if (open && !wasOpen)

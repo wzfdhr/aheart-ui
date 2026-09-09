@@ -7,6 +7,10 @@ declare const _default: import("../utils/install").SFCWithInstall<{
         disabled: {
             type: import("vue").PropType<boolean>;
         };
+        timeout: {
+            type: import("vue").PropType<number>;
+            default: number;
+        };
         maxCount: {
             type: import("vue").PropType<number>;
             default: number;
@@ -26,13 +30,18 @@ declare const _default: import("../utils/install").SFCWithInstall<{
         };
     }>> & Readonly<{
         onRemove?: ((file: import("./types").UploadFile) => any) | undefined;
+        onCancel?: ((file: import("./types").UploadFile) => any) | undefined;
         onChange?: ((files: import("./types").UploadFile[]) => any) | undefined;
+        onRetry?: ((file: import("./types").UploadFile) => any) | undefined;
         "onUpdate:fileList"?: ((files: import("./types").UploadFile[]) => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         remove: (file: import("./types").UploadFile) => void;
+        cancel: (file: import("./types").UploadFile) => void;
         change: (files: import("./types").UploadFile[]) => void;
+        retry: (file: import("./types").UploadFile) => void;
         "update:fileList": (files: import("./types").UploadFile[]) => void;
     }, import("vue").PublicProps, {
+        timeout: number;
         maxCount: number;
         defaultFileList: import("./types").UploadFile[];
     }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
@@ -49,6 +58,10 @@ declare const _default: import("../utils/install").SFCWithInstall<{
         disabled: {
             type: import("vue").PropType<boolean>;
         };
+        timeout: {
+            type: import("vue").PropType<number>;
+            default: number;
+        };
         maxCount: {
             type: import("vue").PropType<number>;
             default: number;
@@ -68,9 +81,12 @@ declare const _default: import("../utils/install").SFCWithInstall<{
         };
     }>> & Readonly<{
         onRemove?: ((file: import("./types").UploadFile) => any) | undefined;
+        onCancel?: ((file: import("./types").UploadFile) => any) | undefined;
         onChange?: ((files: import("./types").UploadFile[]) => any) | undefined;
+        onRetry?: ((file: import("./types").UploadFile) => any) | undefined;
         "onUpdate:fileList"?: ((files: import("./types").UploadFile[]) => any) | undefined;
     }>, {}, {}, {}, {}, {
+        timeout: number;
         maxCount: number;
         defaultFileList: import("./types").UploadFile[];
     }>;
@@ -83,6 +99,10 @@ declare const _default: import("../utils/install").SFCWithInstall<{
     };
     disabled: {
         type: import("vue").PropType<boolean>;
+    };
+    timeout: {
+        type: import("vue").PropType<number>;
+        default: number;
     };
     maxCount: {
         type: import("vue").PropType<number>;
@@ -103,13 +123,18 @@ declare const _default: import("../utils/install").SFCWithInstall<{
     };
 }>> & Readonly<{
     onRemove?: ((file: import("./types").UploadFile) => any) | undefined;
+    onCancel?: ((file: import("./types").UploadFile) => any) | undefined;
     onChange?: ((files: import("./types").UploadFile[]) => any) | undefined;
+    onRetry?: ((file: import("./types").UploadFile) => any) | undefined;
     "onUpdate:fileList"?: ((files: import("./types").UploadFile[]) => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     remove: (file: import("./types").UploadFile) => void;
+    cancel: (file: import("./types").UploadFile) => void;
     change: (files: import("./types").UploadFile[]) => void;
+    retry: (file: import("./types").UploadFile) => void;
     "update:fileList": (files: import("./types").UploadFile[]) => void;
 }, string, {
+    timeout: number;
     maxCount: number;
     defaultFileList: import("./types").UploadFile[];
 }, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {

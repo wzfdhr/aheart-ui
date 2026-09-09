@@ -60,11 +60,32 @@ test.describe('QG3 Upload browser flows', () => {
     await expect(scenario.getByText('failure.txt', { exact: true })).toBeVisible()
     await expect(scenario.getByTestId('upload-retry-status')).toHaveText('上传失败')
     await scenario.getByRole('button', { name: '重试 failure.txt' }).click()
-    await expect(scenario.getByTestId('upload-retry-status')).toHaveText('等待重新上传')
-    await expect(scenario.getByRole('button', { name: '上传', exact: true })).toBeVisible()
-    await scenario.getByRole('button', { name: '上传', exact: true }).click()
     await expect(scenario.getByTestId('upload-retry-request-count')).toHaveText('请求次数：2')
     await expect(scenario.getByTestId('upload-retry-status')).toHaveText('上传成功')
+  })
+
+  test('cancels, rejects a late callback, and retries with a fresh task', async ({ page }) => {
+    const scenario = page.getByRole('region', { name: '取消与任务隔离' })
+    await scenario.getByLabel('选择文件').setInputFiles(file('cancel.txt'))
+    await expect(scenario.getByTestId('upload-cancel-status')).toHaveText('上传中 25%')
+    await scenario.getByRole('button', { name: '取消上传 cancel.txt' }).click()
+    await expect(scenario.getByTestId('upload-cancel-status')).toHaveText('已取消')
+    await scenario.getByRole('button', { name: '触发旧任务完成' }).click()
+    await expect(scenario.getByTestId('upload-cancel-status')).toHaveText('已取消')
+    await scenario.getByRole('button', { name: '重试 cancel.txt' }).click()
+    await expect(scenario.getByTestId('upload-cancel-status')).toHaveText('重试成功')
+  })
+
+  test('surfaces timeout and validation failures as retryable file states', async ({ page }) => {
+    const timeout = page.getByRole('region', { name: '上传超时' })
+    await timeout.getByLabel('选择文件').setInputFiles(file('timeout.txt'))
+    await expect(timeout.getByTestId('upload-timeout-status')).toHaveText('上传超时，可重试')
+    await expect(timeout.getByRole('button', { name: '重试 timeout.txt' })).toBeVisible()
+
+    const validation = page.getByRole('region', { name: '上传校验失败' })
+    await validation.getByLabel('选择文件').setInputFiles(file('invalid.txt'))
+    await expect(validation.getByTestId('upload-validation-status')).toHaveText('校验失败')
+    await expect(validation.getByRole('button', { name: '重试 invalid.txt' })).toBeVisible()
   })
 
   test('holds manual uploads until the user clicks the upload action', async ({ page }) => {
