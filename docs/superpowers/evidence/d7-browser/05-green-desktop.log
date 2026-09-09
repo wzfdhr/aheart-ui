@@ -1,0 +1,94 @@
+
+[WebServer] (node:43238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:43251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:43265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:44091) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:44102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+
+(node:44117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[2/5] [desktop] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[3/5] [desktop] › e2e/d7-dnd.spec.ts:146:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[4/5] [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+  1) [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+
+    Error: locator.evaluate: Error: strict mode violation: getByTestId('d7-iframe-handle') resolved to 10 elements:
+        1) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 1" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 1', exact: true })
+        2) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 2" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 2' })
+        3) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 3" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 3' })
+        4) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 4" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 4' })
+        5) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 5" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 5' })
+        6) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 6" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 6' })
+        7) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 7" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 7' })
+        8) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 8" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 8' })
+        9) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 9" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 9' })
+        10) <button type="button" data-aheart-dnd-handle="" aria-label="拖动 iframe 条目 10" data-testid="d7-iframe-handle" class="aheart-dnd-sortable-handle">抓取</button> aka getByRole('button', { name: '拖动 iframe 条目 10' })
+
+    Call log:
+      - waiting for getByTestId('d7-iframe-handle')
+
+
+      164 |     const scroll = frame!.getByTestId('d7-iframe-scroll')
+      165 |     const handle = frame!.getByTestId('d7-iframe-handle')
+    > 166 |     const handleBox = await handle.evaluate((node) => {
+          |                                    ^
+      167 |       const rect = node.getBoundingClientRect()
+      168 |       return { x: rect.left, y: rect.top, width: rect.width, height: rect.height }
+      169 |     })
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:166:36
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-5/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-5/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop-5/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-5/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop-5/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:44712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[5/5] [desktop] › e2e/d7-dnd.spec.ts:189:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+  1 failed
+    [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+  4 passed (17.6s)

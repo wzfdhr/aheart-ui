@@ -1,0 +1,18 @@
+D7 pending-cancel/rollback-settle RED (2026-09-09)
+Initial component-construction attempt (superseded):
+- It was removed because `update:items` only has the array as its public first argument; transaction context is exposed through `change`'s second argument, so the attempted invalidation callback never observed a phase.
+
+Corrected deep-registry construction:
+- `registerSortableList`/`beginSortableSession`/`moveSortableItem` create the transaction directly.
+- Source accepts the candidate, queues `invalidateSortableScope`, and intentionally rejects rollback updates.
+- Target rejects the candidate.
+- Assertions require no early reject before the candidate/rollback ticks, then only `rollback-rejected`, with no `cancelled` or success outcome; final source state remains the candidate state.
+
+Corrected command:
+  corepack pnpm --filter @aheart-ui/dnd exec vitest run src/__tests__/d7-dnd-resource.test.ts --environment jsdom --reporter=verbose
+
+Corrected result: 16 passed, 0 failed, exit code 0. No skip and no timeout expansion. This is GREEN supplemental evidence on the current production implementation; no RED is fabricated.
+
+Touch threshold note:
+- The below-threshold pointerdown -> pointerup/pointercancel path has a stable observable zero-update assertion and passed.
+- Internal session/listener/resource release itself has no public observable handle in the current API; no stronger assertion was fabricated. This remains a static P1 review limitation, not claimed as runtime proof.

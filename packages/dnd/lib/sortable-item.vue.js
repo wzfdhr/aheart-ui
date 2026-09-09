@@ -13,21 +13,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   __name: "sortable-item",
   props: {
     item: {},
-    index: {}
+    index: {},
+    itemKey: {},
+    revision: {}
   },
   setup(__props) {
     const props = __props;
     const context = vue.inject(sortableContext.sortableContextKey);
     if (!context) throw new Error("ASortableItem must be used inside ASortableList.");
     const sortableContext$1 = context;
+    vue.watch(() => sortableContext$1.group, () => {
+      sortableRegistry.closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+      activeSession = void 0;
+    });
     const root = vue.ref();
     const itemDisabled = vue.computed(() => sortableContext$1.disabled.value || typeof props.item === "object" && props.item !== null && "disabled" in props.item && props.item.disabled === true);
     const data = vue.computed(() => ({
       type: "aheart-sortable",
       listId: sortableContext$1.listId,
       group: sortableContext$1.group,
-      index: props.index
+      index: props.index,
+      itemKey: props.itemKey,
+      revision: props.revision,
+      scopeKey: sortableContext$1.scopeKey
     }));
+    let activeSession;
     const isTouchDragging = vue.ref(false);
     const dragHandle = vue.ref();
     let touchSession;
@@ -47,25 +57,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       removeTouchListeners(session);
       if (session.started) {
         isTouchDragging.value = false;
-        if (clearDragState) dragState.endDrag();
+        if (clearDragState) dragState.endDrag(session.document);
       }
+      sortableRegistry.closeSortableSession(session.data.sessionId);
     };
     function releaseTouchOwnership() {
       clearTouchSession();
     }
-    const completeMove = (ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, announcement) => {
+    const completeMove = (ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, _announcement) => {
       void vue.nextTick(() => {
-        var _a, _b;
+        var _a;
         const destinationList = Array.from(ownerDocument.querySelectorAll(".aheart-dnd-sortable-list")).find((element) => element.dataset.aheartSortableListId === targetListId);
         const destinationItem = destinationList == null ? void 0 : destinationList.querySelector(`[data-sortable-index="${targetIndex}"]`);
         const moved = sourceElement.isConnected ? destinationItem === sourceElement : Boolean(destinationItem);
         if (!moved || !destinationList || !destinationItem) return;
         const destinationHandle = focusHandle ? destinationItem == null ? void 0 : destinationItem.querySelector("[data-aheart-dnd-handle]") : void 0;
         (_a = destinationHandle ?? destinationItem) == null ? void 0 : _a.focus({ preventScroll: true });
-        const CustomEventConstructor = (_b = ownerDocument.defaultView) == null ? void 0 : _b.CustomEvent;
-        if (CustomEventConstructor) {
-          destinationList.dispatchEvent(new CustomEventConstructor("aheart-sortable-announce", { detail: announcement }));
-        }
       });
     };
     function handleTouchPointerMove(event) {
@@ -80,7 +87,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         if (Math.hypot(distanceX, distanceY) < 6) return;
         touchSession.started = true;
         isTouchDragging.value = true;
-        dragState.startDrag(touchSession.data);
+        dragState.startDrag(touchSession.data, touchSession.document);
       }
       event.preventDefault();
     }
@@ -118,10 +125,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       clearTouchSession();
     }
     function handleTouchInterruption() {
+      sortableRegistry.closeSortableSession(touchSession == null ? void 0 : touchSession.data.sessionId);
       clearTouchSession();
     }
     function handleTouchVisibilityChange() {
-      if ((touchSession == null ? void 0 : touchSession.document.visibilityState) === "hidden") clearTouchSession();
+      if ((touchSession == null ? void 0 : touchSession.document.visibilityState) === "hidden") {
+        sortableRegistry.closeSortableSession(touchSession.data.sessionId);
+        clearTouchSession();
+      }
     }
     const handlePointerDown = (event) => {
       var _a;
@@ -134,7 +145,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         pointerId: event.pointerId,
         startX: event.clientX,
         startY: event.clientY,
-        data: { ...data.value },
+        data: sortableRegistry.beginSortableSession({ ...data.value, input: "touch" }),
         document: ownerDocument,
         window: ownerWindow,
         started: false
@@ -149,6 +160,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const handleNativeDragStart = () => {
       clearTouchSession(false);
+    };
+    const handleNativeDragEnd = () => {
+      var _a;
+      const ownerDocument = (_a = root.value) == null ? void 0 : _a.ownerDocument;
+      sortableRegistry.closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+      activeSession = void 0;
+      isDragging.value = false;
+      if (ownerDocument) dragState.endDrag(ownerDocument);
     };
     vue.onBeforeUnmount(() => clearTouchSession());
     const setDragHandle = (element) => {
@@ -171,33 +190,44 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const cleanup = adapter.draggable({
         element: target,
         dragHandle: handle,
-        getInitialData: () => data.value,
+        getInitialData: () => {
+          activeSession ?? (activeSession = sortableRegistry.beginSortableSession({ ...data.value, input: "pointer" }));
+          return activeSession;
+        },
         canDrag: () => !itemDisabled.value,
         onDragStart: () => {
           isDragging.value = true;
-          dragState.startDrag(data.value);
+          activeSession ?? (activeSession = sortableRegistry.beginSortableSession({ ...data.value, input: "pointer" }));
+          dragState.startDrag(activeSession, target.ownerDocument);
         },
         onDrop: () => {
           isDragging.value = false;
-          dragState.endDrag();
+          sortableRegistry.closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+          activeSession = void 0;
+          dragState.endDrag(target.ownerDocument);
         }
       });
       onCleanup(() => {
+        const sessionId = activeSession == null ? void 0 : activeSession.sessionId;
         cleanup();
         if (isDragging.value) {
           dragState.cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
           isDragging.value = false;
-          dragState.endDrag();
+          sortableRegistry.closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
+          activeSession = void 0;
+          dragState.endDrag(target.ownerDocument);
         }
+        sortableRegistry.closeSortableSession(sessionId);
+        activeSession = void 0;
       });
     });
     useDroppable.useDroppable(root, {
-      data,
+      data: () => ({ ...data.value, position: { kind: "item", itemKey: props.itemKey ?? String(props.index) } }),
       accept: "aheart-sortable",
       disabled: itemDisabled,
       onDrop: (source) => {
-        if (source.type !== "aheart-sortable" || source.group !== sortableContext$1.group) return;
-        sortableContext$1.move(source, props.index);
+        if (source.type !== "aheart-sortable") return;
+        sortableContext$1.move({ ...source, position: { kind: "item", itemKey: props.itemKey ?? String(props.index) } }, props.index);
       }
     });
     const handleKeydown = (event) => {
@@ -212,19 +242,30 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const focusHandle = Boolean(target == null ? void 0 : target.closest("[data-aheart-dnd-handle]"));
       if (event.key === "ArrowUp" || event.key === "ArrowDown") {
         const targetIndex = props.index + (event.key === "ArrowUp" ? -1 : 1);
-        context.move(data.value, targetIndex, true);
-        completeMove(ownerDocument, sourceElement, sortableContext$1.listId, targetIndex, focusHandle, `已移动到第 ${targetIndex + 1} 项`);
+        const session = sortableRegistry.beginSortableSession({ ...data.value, input: "keyboard", keyboard: true });
+        context.move({ ...session }, targetIndex, true);
+        completeMove(ownerDocument, sourceElement, sortableContext$1.listId, targetIndex, focusHandle);
         return;
       }
       const lists = Array.from(ownerDocument.querySelectorAll(".aheart-dnd-sortable-list"));
       const sourceListIndex = lists.findIndex((list) => list.dataset.aheartSortableListId === sortableContext$1.listId);
-      for (let index = sourceListIndex + (event.key === "ArrowLeft" ? -1 : 1); index >= 0 && index < lists.length; index += event.key === "ArrowLeft" ? -1 : 1) {
+      const direction = event.key === "ArrowLeft" ? -1 : 1;
+      const registeredTarget = sortableRegistry.findAdjacentSortableList(sortableContext$1.listId, direction);
+      if (registeredTarget) {
+        const session = sortableRegistry.beginSortableSession({ ...data.value, input: "keyboard", keyboard: true });
+        if (sortableRegistry.moveSortableItem(session, registeredTarget.listId, registeredTarget.length)) {
+          completeMove(ownerDocument, sourceElement, registeredTarget.listId, registeredTarget.length, focusHandle, `已跨列表移动到第 ${registeredTarget.length + 1} 项`);
+        }
+        return;
+      }
+      for (let index = sourceListIndex + direction; index >= 0 && index < lists.length; index += direction) {
         const targetList = lists[index];
         const targetListId = targetList.dataset.aheartSortableListId;
         if (!targetListId || targetList.dataset.aheartSortableDisabled === "true" || !sortableContext$1.group || targetList.dataset.aheartSortableGroup !== sortableContext$1.group) continue;
         const targetIndex = targetList.querySelectorAll(".aheart-dnd-sortable-item").length;
-        if (sortableRegistry.moveSortableItem(data.value, targetListId, targetIndex)) {
-          completeMove(ownerDocument, sourceElement, targetListId, targetIndex, focusHandle, `已跨列表移动到第 ${targetIndex + 1} 项`);
+        const session = sortableRegistry.beginSortableSession({ ...data.value, input: "keyboard", keyboard: true });
+        if (sortableRegistry.moveSortableItem(session, targetListId, targetIndex)) {
+          completeMove(ownerDocument, sourceElement, targetListId, targetIndex, focusHandle);
         }
         return;
       }
@@ -238,6 +279,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         tabindex: itemDisabled.value ? -1 : 0,
         "aria-disabled": itemDisabled.value ? "true" : void 0,
         onDragstartCapture: handleNativeDragStart,
+        onDragendCapture: handleNativeDragEnd,
         onKeydown: handleKeydown
       }, [
         vue.renderSlot(_ctx.$slots, "default", {

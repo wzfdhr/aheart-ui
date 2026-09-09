@@ -1,0 +1,86 @@
+
+[WebServer] (node:40942) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:40955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:40969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:41783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:41794) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+
+(node:41808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+[2/5] [desktop] › e2e/d7-dnd.spec.ts:106:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+[3/5] [desktop] › e2e/d7-dnd.spec.ts:146:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[4/5] [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+  1) [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      174 |       await dispatchIframePointer(frame!, 'pointermove', { pointerId: 91, clientX: box!.x + 20, clientY: box!.y + box!.height - 2 })
+      175 |     }
+    > 176 |     await expect.poll(() => scroll.evaluate((node) => (node as HTMLElement).scrollTop)).toBeGreaterThan(0)
+          |                                                                                         ^
+      177 |     await dispatchIframePointer(frame!, 'pointerup', { pointerId: 91, clientX: 20, clientY: 20 })
+      178 |     await expect(handle).toBeVisible()
+      179 |     await page.getByTestId('d7-owner-unmount').click()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:176:89
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-4/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-4/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop-4/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop-4/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop-4/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:42705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[5/5] [desktop] › e2e/d7-dnd.spec.ts:185:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+  1 failed
+    [desktop] › e2e/d7-dnd.spec.ts:158:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+  4 passed (18.7s)

@@ -1,0 +1,31 @@
+D7 browser fixture/E2E evidence
+Date: 2026-09-09
+Port: AHEART_E2E_PORT=5301
+
+RED
+- AHEART_E2E_PORT=5301 corepack pnpm exec playwright test e2e/d7-dnd.spec.ts --project=desktop --reporter=line
+- Result: 5 failed because d7-fixture was intentionally absent before fixture implementation.
+- Log: 00-red-desktop.log
+
+GREEN
+- AHEART_E2E_PORT=5301 corepack pnpm exec playwright test e2e/d7-dnd.spec.ts --project=desktop --reporter=line
+- Result: 5 passed, 0 failed, 0 skipped (05/06-green-desktop.log; final rerun 06-green-desktop.log).
+- AHEART_E2E_PORT=5301 corepack pnpm exec playwright test e2e/d7-dnd.spec.ts --project=mobile --project=desktop-firefox --project=desktop-webkit --project=mobile-webkit --reporter=line
+- Result: 20 passed, 0 failed, 0 skipped (08-green-cross.log).
+- Combined D7 browser matrix: 25 passed, 0 failed, 0 skipped across desktop Chromium, mobile Chromium, desktop Firefox, desktop WebKit and mobile WebKit.
+
+Covered contracts: generic keyboard grab/drop/cancel and rejection announcement; stable itemKey/revision stale rejection; controlled cross-list one-sided parent rejection and rollback payload; duplicate and late-drop paths; scopeKey navigation cancellation; same-origin iframe owner realm nested auto-scroll and detach cleanup; responsive desktop/mobile layout and page runtime errors.
+
+Design-fix rerun (2026-09-09)
+- `11-design-fix-build.log`: docs build passed.
+- `14-design-fix-final-build.log`: final docs build after hiding the concurrent machine value passed.
+- `12-design-fix-desktop.log`: 5 passed, 0 failed, 0 skipped.
+- `13-design-fix-cross.log`: mobile Chromium, desktop Firefox, desktop WebKit and mobile WebKit: 20 passed, 0 failed, 0 skipped.
+- Design-fix matrix total: 25 passed, 0 failed, 0 skipped. Historical RED and pre-fix GREEN logs remain unchanged.
+
+Scope-state isolation follow-up (2026-09-09)
+- Added independent `d7ScopeCancelReason`; generic Escape cancellation no longer populates route cancellation status.
+- `15-scope-isolation-build.log`: docs build passed.
+- `16-scope-isolation-desktop.log`: 5 passed, 0 failed, 0 skipped.
+- `17-scope-isolation-cross.log`: 20 passed, 0 failed, 0 skipped.
+- Final D7 matrix after isolation fix: 25 passed, 0 failed, 0 skipped.

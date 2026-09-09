@@ -15,13 +15,13 @@ function useDraggable(element, options) {
       onDragStart: () => {
         var _a;
         isDragging.value = true;
-        dragState.startDrag(vue.toValue(options.data));
+        dragState.startDrag(vue.toValue(options.data), target.ownerDocument);
         (_a = options.onDragStart) == null ? void 0 : _a.call(options);
       },
       onDrop: () => {
         var _a;
         isDragging.value = false;
-        dragState.endDrag();
+        dragState.endDrag(target.ownerDocument);
         (_a = options.onDrop) == null ? void 0 : _a.call(options);
       }
     });
@@ -30,7 +30,7 @@ function useDraggable(element, options) {
       if (isDragging.value) {
         dragState.cancelNativeDrag(target.ownerDocument.defaultView ?? void 0);
         isDragging.value = false;
-        dragState.endDrag();
+        dragState.endDrag(target.ownerDocument);
       }
     });
   });

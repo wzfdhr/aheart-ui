@@ -2,9 +2,13 @@ import { type SortableHandleProps } from './sortable-context';
 declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_TypePropsToRuntimeProps<{
     item: unknown;
     index: number;
+    itemKey?: string | undefined;
+    revision?: string | number | undefined;
 }>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_TypePropsToRuntimeProps<{
     item: unknown;
     index: number;
+    itemKey?: string | undefined;
+    revision?: string | number | undefined;
 }>>> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, Readonly<{
     default?: ((props: {
         item: unknown;

@@ -6,7 +6,12 @@ import DragOverlay from './drag-overlay.vue'
 import SortableItem from './sortable-item.vue'
 import SortableList from './sortable-list.vue'
 
-export type { DragData, DragType, DraggableOptions, DroppableOptions } from './types'
+export type {
+  DragData, DragType, DraggableOptions, DroppableOptions,
+  SortableRevision, SortableInput, SortableDropPosition, SortableMoveRejectReason,
+  SortableMoveLocation, SortableMoveEvent, SortableMoveRejectEvent, SortableChangeContext,
+  KeyboardDragCancelReason, KeyboardDragEvent, KeyboardDragCancelEvent, KeyboardDropEvent
+} from './types'
 export type { SortableHandleProps } from './sortable-context'
 export { useDraggable } from './use-draggable'
 export { useDroppable } from './use-droppable'

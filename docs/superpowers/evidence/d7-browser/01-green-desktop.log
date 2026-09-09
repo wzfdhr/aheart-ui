@@ -1,0 +1,226 @@
+
+[WebServer] (node:33864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:33877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:33891) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:34695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:34706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+
+(node:34720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/5] [desktop] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore
+  1) [desktop] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByTestId('d7-generic-source')
+    Expected: "idle"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for getByTestId('d7-generic-source')
+        14 × locator resolved to <div tabindex="0" role="button" aria-label="任务源" draggable="true" aria-pressed="false" class="aheart-dnd-draggable" data-testid="d7-generic-source" data-aheart-dnd-keyboard-state="idle" aria-keyshortcuts="Space Enter Escape">…</div>
+           - unexpected value "null"
+
+
+       98 |     await page.keyboard.press('Space')
+       99 |     await page.keyboard.press('Escape')
+    > 100 |     await expect(source).toHaveAttribute('data-keyboard-state', 'idle')
+          |                          ^
+      101 |     await expect(source).toBeFocused()
+      102 |     await expect(page.getByTestId('d7-generic-cancel-reason')).toHaveText('cancelled')
+      103 |   })
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:100:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-da0a4-d-target-and-Escape-restore-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-da0a4-d-target-and-Escape-restore-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-da0a4-d-target-and-Escape-restore-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-da0a4-d-target-and-Escape-restore-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-da0a4-d-target-and-Escape-restore-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:34905) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[2/5] [desktop] › e2e/d7-dnd.spec.ts:105:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection
+  2) [desktop] › e2e/d7-dnd.spec.ts:105:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('d7-stale-reject-reason')
+    Expected: "stale-revision"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" with timeout 5000ms
+      - waiting for getByTestId('d7-stale-reject-reason')
+        14 × locator resolved to <span data-testid="d7-stale-reject-reason"></span>
+           - unexpected value ""
+
+
+      111 |     await page.getByTestId('d7-stale-refresh').click()
+      112 |     await dispatchPointer(staleTarget, 'pointerup', { pointerId: 71, clientX: 12, clientY: 12 })
+    > 113 |     await expect(page.getByTestId('d7-stale-reject-reason')).toHaveText('stale-revision')
+          |                                                              ^
+      114 |     await expect(page.getByTestId('d7-stale-update-count')).toHaveText('0')
+      115 |
+      116 |     const rollbackSource = page.getByTestId('d7-rollback-source')
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:113:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-3da56--one-sided-parent-rejection-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:35022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[3/5] [desktop] › e2e/d7-dnd.spec.ts:141:7 › D7 DnD browser contract › scopeKey navigation cancels a keyboard session and pending sortable work
+[4/5] [desktop] › e2e/d7-dnd.spec.ts:153:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach
+  3) [desktop] › e2e/d7-dnd.spec.ts:153:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('d7-owner-iframe').contentFrame().getByTestId('d7-iframe-scroll')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByTestId('d7-owner-iframe').contentFrame().getByTestId('d7-iframe-scroll')
+
+
+      155 |     const frame = iframe.contentFrame()
+      156 |     expect(frame).not.toBeNull()
+    > 157 |     await expect(frame!.getByTestId('d7-iframe-scroll')).toBeVisible()
+          |                                                          ^
+      158 |     const scroll = frame!.getByTestId('d7-iframe-scroll')
+      159 |     const handle = frame!.getByTestId('d7-iframe-handle')
+      160 |     const box = await scroll.boundingBox()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:157:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-767b4-nd-releases-on-frame-detach-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+(node:35356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[5/5] [desktop] › e2e/d7-dnd.spec.ts:176:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors
+  4) [desktop] › e2e/d7-dnd.spec.ts:176:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.evaluate: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByTestId('d7-fixture').locator('.d7-primary-grid')
+
+
+      178 |     await fixture.scrollIntoViewIfNeeded()
+      179 |     expect(await fixture.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true)
+    > 180 |     const columns = await fixture.locator('.d7-primary-grid').evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length)
+          |                                                               ^
+      181 |     expect(columns).toBe(isMobile ? 1 : 2)
+      182 |     await expect(page.getByTestId('d7-generic-source')).toBeVisible()
+      183 |     await expect(page.getByTestId('d7-rollback-source')).toBeVisible()
+        at /Users/start/.codex/worktrees/091b/aheart-ui/e2e/d7-dnd.spec.ts:180:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-d4970-rt-with-zero-runtime-errors-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-d4970-rt-with-zero-runtime-errors-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-d4970-rt-with-zero-runtime-errors-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-d4970-rt-with-zero-runtime-errors-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/superpowers/evidence/d7-browser/green-desktop/d7-dnd-D7-DnD-browser-cont-d4970-rt-with-zero-runtime-errors-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  4 failed
+    [desktop] › e2e/d7-dnd.spec.ts:62:7 › D7 DnD browser contract › generic Draggable and DropZone support keyboard grab, compatible drop, mismatch, disabled target, and Escape restore 
+    [desktop] › e2e/d7-dnd.spec.ts:105:7 › D7 DnD browser contract › SortableList rejects stale revision, reports stable event payload, and rolls back a one-sided parent rejection 
+    [desktop] › e2e/d7-dnd.spec.ts:153:7 › D7 DnD browser contract › iframe owner realm performs nested auto-scroll and releases on frame detach 
+    [desktop] › e2e/d7-dnd.spec.ts:176:7 › D7 DnD browser contract › desktop and mobile layouts remain within the viewport with zero runtime errors 
+  1 passed (58.7s)

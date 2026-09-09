@@ -1,23 +1,52 @@
-import type { DragData } from './types';
-declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
-    data: DragData;
-    disabled?: boolean | undefined;
-    tag?: string | undefined;
-}>, {
+import type { DragData, DraggableOptions } from './types';
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<DraggableOptions>, {
     tag: string;
+    keyboard: boolean;
 }>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     drop: () => void;
     dragStart: () => void;
-}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
-    data: DragData;
-    disabled?: boolean | undefined;
-    tag?: string | undefined;
-}>, {
+    keyboardGrab: (args_0: {
+        sessionId: string;
+        data: DragData;
+        source: {
+            label: string;
+            scopeKey?: string | number | undefined;
+        };
+    }) => void;
+    keyboardCancel: (args_0: {
+        sessionId: string;
+        data: DragData;
+        source: {
+            label: string;
+            scopeKey?: string | number | undefined;
+        };
+        reason: "unmounted" | "cancelled" | "replaced" | "scope-changed" | "page-hidden" | "owner-detached";
+    }) => void;
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<DraggableOptions>, {
     tag: string;
+    keyboard: boolean;
 }>>> & Readonly<{
     onDrop?: (() => any) | undefined;
     onDragStart?: (() => any) | undefined;
+    onKeyboardGrab?: ((args_0: {
+        sessionId: string;
+        data: DragData;
+        source: {
+            label: string;
+            scopeKey?: string | number | undefined;
+        };
+    }) => any) | undefined;
+    onKeyboardCancel?: ((args_0: {
+        sessionId: string;
+        data: DragData;
+        source: {
+            label: string;
+            scopeKey?: string | number | undefined;
+        };
+        reason: "unmounted" | "cancelled" | "replaced" | "scope-changed" | "page-hidden" | "owner-detached";
+    }) => any) | undefined;
 }>, {
+    keyboard: boolean;
     tag: string;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     default?(_: {}): any;
