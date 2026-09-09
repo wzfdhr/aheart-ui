@@ -1,0 +1,21 @@
+D6 Upload RED
+command: corepack pnpm --dir packages/components exec vitest run src/upload/__tests__/upload.test.ts --environment jsdom
+baseline: 759daca733791e17eec0e462bfd1fb9a1bea9b7c
+result: 14 passed, 7 failed, 1 unhandled rejection
+
+Expected failures proved missing D6 behavior:
+- locale still inferred English from datePicker.locale instead of an Upload group
+- UploadRequestOption had no signal or taskId
+- no component cancel/retry controls
+- timeout did not abort or transition to error
+- rejected beforeUpload escaped as an unhandled rejection instead of a visible validation error
+- controlled same-uid replacement did not abort the old task
+- unmount did not abort active work
+
+Development review RED:
+- progress after a controlled parent metadata update restored the stale file name
+- a throwing transport abort handle escaped the component and prevented remove cleanup
+
+Resolution:
+- callback patches merge onto the latest parent-authoritative file snapshot
+- task invalidation and AbortSignal remain authoritative; consumer abort-handle exceptions are contained so remove/cancel/unmount cleanup completes

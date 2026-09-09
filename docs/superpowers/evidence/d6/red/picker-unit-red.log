@@ -1,0 +1,30 @@
+D6 Picker RED
+baseline: 759daca733791e17eec0e462bfd1fb9a1bea9b7c
+
+RED 1:
+- shared transaction and time-column geometry tests failed because the implementation modules did not exist
+- TimePicker and TimeRangePicker still used scrollTop / 28
+
+RED 2 (development review):
+- all four production Picker components did not import the transaction kernel
+- option geometry mixed page-absolute rect.top with column-relative scrollTop
+
+RED 3 (development review):
+- all four components constructed the transaction with hard-coded needConfirm=false
+- confirmation decisions still lived in component-specific branches
+
+GREEN after repair:
+- transaction supports dynamic needConfirm, committed sync, stage/commit decisions and discard recovery
+- DatePicker, DateRangePicker, TimePicker and TimeRangePicker use the shared policy in production paths
+- option geometry uses optionRect.top - columnRect.top + scrollTop
+- Picker unit: 12 files, 154 passed
+- components typecheck and git diff --check passed
+
+Compatibility RED after shim review:
+- parseDate('14/07/2026', 'DD/MM/YYYY') returned a Date after delegation, but the legacy helper only accepted YYYY-MM-DD.
+- the shim was restricted back to the legacy parse contract while still delegating YYYY-MM-DD parsing to picker-core.
+
+Commit-timing review RED:
+- DateRange endpoint clear committed immediately in confirm mode while TimeRange staged it
+- DateRange whole clear stayed open while the other Picker whole-clear paths closed
+- DateRange now stages endpoint clear through the shared transaction policy and commits/closes whole clear consistently
