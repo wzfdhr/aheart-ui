@@ -31,7 +31,8 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
     assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
   }
 
-  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly\]/)
+  assert.match(configSource, /const d7DndOnly = \/d7-dnd\\.spec\\.ts\//)
+  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly\]/)
   assert.ok(configSource.includes('const d5TableOnly = /d5-table-pagination\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableBOnly = /d5-table-b\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableCOnly = /d5-table-c\\.spec\\.ts/'))
