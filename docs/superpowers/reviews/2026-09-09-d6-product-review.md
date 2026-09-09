@@ -20,4 +20,3 @@
 历史 RED、深页面 footer 裁切、placement 振荡、旧 E2E 失败和修复均保留；没有 skip、force 或扩大 timeout。审查者启动的额外 5297 smoke 在构建阶段被中断，未计入证据，也未据此声明通过。
 
 边界：不包含 D4 Tree/TreeSelect/Cascader 虚拟化、D7 DnD、D9 物理 iOS/设备门禁或 npm 发布；mobile WebKit 不替代物理 iOS Safari。
-
