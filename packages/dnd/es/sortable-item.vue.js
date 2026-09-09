@@ -159,14 +159,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const handleNativeDragStart = () => {
       clearTouchSession(false);
     };
-    const handleNativeDragEnd = () => {
-      var _a;
-      const ownerDocument = (_a = root.value) == null ? void 0 : _a.ownerDocument;
-      closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
-      activeSession = void 0;
-      isDragging.value = false;
-      if (ownerDocument) endDrag(ownerDocument);
-    };
     onBeforeUnmount(() => clearTouchSession());
     const setDragHandle = (element) => {
       var _a, _b;
@@ -277,7 +269,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         tabindex: itemDisabled.value ? -1 : 0,
         "aria-disabled": itemDisabled.value ? "true" : void 0,
         onDragstartCapture: handleNativeDragStart,
-        onDragendCapture: handleNativeDragEnd,
         onKeydown: handleKeydown
       }, [
         renderSlot(_ctx.$slots, "default", {

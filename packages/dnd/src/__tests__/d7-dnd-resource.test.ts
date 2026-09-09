@@ -230,7 +230,7 @@ describe('D7 resource/lifecycle RED: rollback focus', () => {
 })
 
 describe('D7 final development RED: native/tick/ancestor resource isolation', () => {
-  it('closes a native session on source dragend even when adapter onDrop is absent', async () => {
+  it('does not let raw dragend preempt target drop; adapter onDrop closes the session', async () => {
     const sourceItems = ref([{ id: 'source' }])
     const targetItems = ref([{ id: 'target' }])
     const sourceUpdates = vi.fn((next: typeof sourceItems.value) => { sourceItems.value = next })
@@ -242,16 +242,21 @@ describe('D7 final development RED: native/tick/ancestor resource isolation', ()
     const wrapper = mount(Host, { attachTo: document.body })
     await nextTick()
     const source = sourceConfig()!
-    const sourceData = source.getInitialData()
     source.onDragStart()
+    const sourceData = source.getInitialData()
     const sourceElement = wrapper.findAll('.aheart-dnd-sortable-item')[0].element
     sourceElement.dispatchEvent(new Event('dragend', { bubbles: true }))
     targetConfig()!.onDrop({ source: { data: sourceData } })
-    await nextTick()
-    expect(sourceItems.value).toEqual([{ id: 'source' }])
-    expect(targetItems.value).toEqual([{ id: 'target' }])
-    expect(sourceUpdates).not.toHaveBeenCalled()
-    expect(targetUpdates).not.toHaveBeenCalled()
+    await nextTick(); await nextTick()
+    expect(sourceItems.value).toEqual([])
+    expect(targetItems.value).toEqual([{ id: 'source' }, { id: 'target' }])
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
+    source.onDrop()
+    targetConfig()!.onDrop({ source: { data: sourceData } })
+    await nextTick(); await nextTick()
+    expect(sourceUpdates).toHaveBeenCalledTimes(1)
+    expect(targetUpdates).toHaveBeenCalledTimes(1)
     wrapper.unmount()
   })
 

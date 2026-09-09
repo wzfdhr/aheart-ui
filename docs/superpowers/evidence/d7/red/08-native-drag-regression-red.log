@@ -1,0 +1,17 @@
+D7 native drag regression correction (2026-09-09)
+
+Historical independent browser RED retained by reference:
+  five-browser D7 run: 11 failed.
+  Failure family: treating a raw source-element dragend as authoritative session completion caused the target transaction to be skipped, producing browser-level DnD failures.
+  This historical count is retained as the stronger independent RED; the corrected unit contract must not assume adapter onDrop is absent in a real native drag sequence.
+
+Correction in d7-dnd-resource.test.ts:
+- Raw source-element dragend is dispatched before the target drop but must not preempt it.
+- Target completes exactly one source/target transaction.
+- Adapter source onDrop then closes the session.
+- A second late target drop produces zero additional updates.
+
+Verification:
+  corepack pnpm --filter @aheart-ui/dnd exec vitest run src/__tests__/d7-dnd-resource.test.ts --environment jsdom --reporter=dot
+  Result: 16 passed / 16 total, exit code 0.
+  No production, pointer E2E, skip, or timeout changes.

@@ -11,7 +11,6 @@ let activeTouchOwner: (() => void) | undefined
     :tabindex="itemDisabled ? -1 : 0"
     :aria-disabled="itemDisabled ? 'true' : undefined"
     @dragstart.capture="handleNativeDragStart"
-    @dragend.capture="handleNativeDragEnd"
     @keydown="handleKeydown"
   >
     <slot :item="item" :index="index" :handle-props="handleProps" />
@@ -207,13 +206,6 @@ const handlePointerDown = (event: PointerEvent) => {
 const handleNativeDragStart = () => {
   // A native drag owns the interaction once it starts; the fallback must not submit it too.
   clearTouchSession(false)
-}
-const handleNativeDragEnd = () => {
-  const ownerDocument = root.value?.ownerDocument
-  closeSortableSession(activeSession?.sessionId)
-  activeSession = undefined
-  isDragging.value = false
-  if (ownerDocument) endDrag(ownerDocument)
 }
 onBeforeUnmount(() => clearTouchSession())
 

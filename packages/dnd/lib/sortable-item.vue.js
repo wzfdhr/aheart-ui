@@ -161,14 +161,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const handleNativeDragStart = () => {
       clearTouchSession(false);
     };
-    const handleNativeDragEnd = () => {
-      var _a;
-      const ownerDocument = (_a = root.value) == null ? void 0 : _a.ownerDocument;
-      sortableRegistry.closeSortableSession(activeSession == null ? void 0 : activeSession.sessionId);
-      activeSession = void 0;
-      isDragging.value = false;
-      if (ownerDocument) dragState.endDrag(ownerDocument);
-    };
     vue.onBeforeUnmount(() => clearTouchSession());
     const setDragHandle = (element) => {
       var _a, _b;
@@ -279,7 +271,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         tabindex: itemDisabled.value ? -1 : 0,
         "aria-disabled": itemDisabled.value ? "true" : void 0,
         onDragstartCapture: handleNativeDragStart,
-        onDragendCapture: handleNativeDragEnd,
         onKeydown: handleKeydown
       }, [
         vue.renderSlot(_ctx.$slots, "default", {
