@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "phase": "independent",
+  "tarballSHA256": "2b3442e2d60c5b1735f481b8eb821b82a0531cafbeec444daf702e527eb4f636",
+  "output": "docs/superpowers/evidence/d7-independent/consumer/run",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d7-LcXCBO"
+}
+
+EXIT_CODE=0

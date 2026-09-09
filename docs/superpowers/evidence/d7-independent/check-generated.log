@@ -1,0 +1,6 @@
+
+> aheart-ui-workspace@1.0.0 check:generated /Users/start/.codex/worktrees/091b/aheart-ui
+> node scripts/check-generated.mjs
+
+
+EXIT_CODE=0

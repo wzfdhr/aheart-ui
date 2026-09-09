@@ -1,0 +1,6 @@
+
+> @aheart-ui/dnd@1.0.0 typecheck /Users/start/.codex/worktrees/091b/aheart-ui/packages/dnd
+> vue-tsc --noEmit -p tsconfig.json
+
+
+TYPECHECK_EXIT_CODE=0

@@ -1,12 +1,12 @@
 {
-  "phase": "green",
-  "generatedAt": "2026-09-09T07:04:49.490Z",
+  "phase": "independent",
+  "generatedAt": "2026-09-09T06:41:06.990Z",
   "node": "v24.17.0",
   "pnpm": "9.15.4",
-  "tarball": "/private/tmp/aheart-d7-final-pack.kv0lh7/aheart-ui-dnd-1.0.0.tgz",
-  "tarballSHA256": "9cea27e357f1b42376f2b0147dd2448fcab0500f2627a66c106b98dc7f8ee20d",
+  "tarball": "/Users/start/.codex/worktrees/091b/aheart-ui/docs/superpowers/evidence/d7-independent/consumer/aheart-ui-dnd-1.0.0.tgz",
+  "tarballSHA256": "2b3442e2d60c5b1735f481b8eb821b82a0531cafbeec444daf702e527eb4f636",
   "packageFileCount": 79,
-  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d7-Mwqhfv",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d7-LcXCBO",
   "symlink": false,
   "checks": {
     "typecheck": true,

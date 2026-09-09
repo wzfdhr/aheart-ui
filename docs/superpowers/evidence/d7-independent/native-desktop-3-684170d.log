@@ -1,0 +1,45 @@
+CANDIDATE_SHA=684170d2b785b8ce834b1be86253f45d3f10e79c
+
+COMMAND=AHEART_E2E_PORT=5304 corepack pnpm exec playwright test e2e/dnd-splitter.spec.ts --project=desktop --grep "reorders a list once|keeps legacy desktop whole-item|moves across lists and accepts an empty destination"
+
+[WebServer] (node:82108) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:82119) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:82133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:82895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:82906) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+
+(node:82913) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/3] [desktop] › e2e/dnd-splitter.spec.ts:183:7 › QG2 中文 DnD fixture › reorders a list once with a real pointer drag
+[2/3] [desktop] › e2e/dnd-splitter.spec.ts:192:7 › QG2 中文 DnD fixture › keeps legacy desktop whole-item native dragging without handleProps
+[3/3] [desktop] › e2e/dnd-splitter.spec.ts:301:7 › QG2 中文 DnD fixture › moves across lists and accepts an empty destination with a real pointer drag
+  3 passed (13.3s)
+
+EXIT_CODE=0

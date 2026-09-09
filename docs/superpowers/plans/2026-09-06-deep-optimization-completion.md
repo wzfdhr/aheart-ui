@@ -71,13 +71,13 @@
 
 ## D7 DnD
 
-- [ ] 稳定 itemKey，不依赖拖动开始时的 index。
-- [ ] 列表 revision 与外部数据变化后的过期拖放拒绝。
-- [ ] 跨列表事务及父拒绝完整回滚。
-- [ ] Draggable / DropZone 键盘替代操作。
-- [ ] live region 宣布源、目标、失败原因和最终结果。
-- [ ] 自动滚动使用 ownerDocument/defaultView，支持 iframe。
-- [ ] 拖动中插入/删除/刷新/卸载/路由切换覆盖。
+- [x] 稳定 itemKey，不依赖拖动开始时的 index（D7 产品验收通过；交付链继续核对 PR/CI/Pages）。
+- [x] 列表 revision 与外部数据变化后的过期拖放拒绝。
+- [x] 跨列表事务及父拒绝完整回滚。
+- [x] Draggable / DropZone 键盘替代操作。
+- [x] live region 宣布源、目标、失败原因和最终结果。
+- [x] 自动滚动使用 ownerDocument/defaultView，支持 iframe。
+- [x] 拖动中插入/删除/刷新/卸载/路由切换覆盖。
 
 ## D8 AI
 
