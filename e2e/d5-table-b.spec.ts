@@ -20,6 +20,7 @@ async function openFilter(page: Page, demo: ReturnType<Page['locator']>, index =
   const triggers = demo.locator('button[aria-haspopup="dialog"]')
   if (index > 0) {
     const container = demo.locator('.aheart-table__container')
+    await triggers.nth(index).scrollIntoViewIfNeeded()
     await container.evaluate(element => { element.scrollLeft = element.scrollWidth })
     const fixedBoundary = demo.locator('thead th').nth(2)
     await expect.poll(async () => {
@@ -129,6 +130,10 @@ test('D5-B filter draft confirm, reset, cancel, keyboard, outside, and controlle
   await page.keyboard.press('Escape')
   await expect(page.locator('[data-table-filter-popup]')).toHaveCount(0)
 
+  // Reproduce the post-navigation viewport drift seen in the master WebKit run:
+  // the second trigger can be vertically outside the viewport before the helper
+  // establishes the horizontal fixed-column geometry.
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
   popup = await openFilter(page, demo, 1)
   await page.mouse.click(1000, 100)
   await expect(page.locator('[data-table-filter-popup]')).toHaveCount(0)
