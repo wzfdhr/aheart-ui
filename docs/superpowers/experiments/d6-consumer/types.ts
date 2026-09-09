@@ -22,4 +22,3 @@ const request: UploadRequest = ({ signal, taskId, onProgress, onSuccess, onError
 h(DatePicker, { modelValue: '2026-07-14', needConfirm: true })
 h(TimeRangePicker, { modelValue: range, needConfirm: true, changeOnScroll: true })
 h(Upload, { fileList: [cancelled], timeout: 500, customRequest: request })
-

@@ -55,4 +55,3 @@
 - 截图确认可见标签、状态文字、布局与操作目标，没有声称完整 WCAG 合规。
 - 键盘确认/Escape、焦点恢复、动态状态宣布、ownerDocument、reduced motion、SSR/hydration 和卸载清理由 unit/E2E/consumer 证据负责。
 - 本轮不包含物理 iOS Safari；该项仍属于 D9 发布门禁，不能用 mobile WebKit 代替。
-
