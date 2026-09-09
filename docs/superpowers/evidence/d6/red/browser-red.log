@@ -34,3 +34,9 @@ Final GREEN after stable-space repair:
 - focused Firefox + WebKit Date/DateRange: 2 passed
 - full D6 five-browser matrix: 30 passed, 0 skipped, 0 failed
 - no force click, timeout increase, retry, or skip was used
+
+Full repository RED on frozen candidate:
+- 725 total: 591 passed, 127 existing platform skips, 7 failed
+- 5 failures: legacy QG5 Upload flow still expected Retry to return to manual ready state and then click Upload; D6 Retry now revalidates and immediately starts a fresh task
+- 2 failures: TimePicker test used a page-global minute locator before the previous leave animation destroyed its 60-option panel, so it counted 60 + 12 = 72
+- repair updates the old Retry expectation and waits for leave destruction before scoping to the newly visible panel; no timeout/skip/force change
