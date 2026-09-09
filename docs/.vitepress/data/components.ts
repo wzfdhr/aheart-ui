@@ -48,8 +48,8 @@ export interface ComponentDocumentContext {
 
 export const statusText: Record<Locale, Record<ComponentStatus, string>> = {
   zh: {
-    Ready: '已完成',
-    Planned: '规划中'
+    Ready: '当前可用 / 已验证',
+    Planned: 'v2 规划中'
   },
   en: {
     Ready: 'Ready',
@@ -699,6 +699,24 @@ export function getComponentCategories(locale: Locale): ComponentCategory[] {
 
 export const componentCategories = getComponentCategories('en')
 
+export const composedComponentKeys = new Set([
+  'select', 'date-picker', 'time-picker', 'cascader', 'tree-select', 'upload', 'form',
+  'table', 'pagination', 'tree', 'splitter',
+  'dropdown', 'tooltip', 'popover', 'popconfirm', 'modal', 'drawer'
+])
+
+export function getComponentCatalogs(locale: Locale) {
+  const categories = getComponentCategories(locale)
+  const all = categories.flatMap((category) => category.components)
+  const ai = all.filter((component) => component.key === 'ai' || component.key === 'ai-form' || component.key === 'ai-agent-workbench')
+  const dnd = all.filter((component) => component.key === 'dnd')
+  const composed = all.filter((component) => composedComponentKeys.has(component.key))
+  const core = all.filter((component) => !ai.includes(component) && !dnd.includes(component) && !composed.includes(component))
+  return { core, composed, ai, dnd }
+}
+
+export const componentCatalogs = getComponentCatalogs('en')
+
 interface ComponentDomainDefinition {
   key: string
   name: LocalizedText
@@ -823,12 +841,63 @@ export function getComponentSidebar(locale: Locale) {
   }))
 }
 
+export function getCoreComponentDomains(locale: Locale): ComponentDomain[] {
+  return getComponentDomains(locale)
+    .filter((domain) => domain.key !== 'ai')
+    .map((domain) => ({
+      ...domain,
+      components: domain.components.filter((component) => component.key !== 'dnd' && !composedComponentKeys.has(component.key))
+    }))
+    .filter((domain) => domain.components.length > 0)
+}
+
+export function getCoreComponentSidebar(locale: Locale) {
+  return getCoreComponentDomains(locale).map((domain) => ({
+    text: `${domain.name} · ${domain.components.length}`,
+    collapsed: true,
+    items: domain.components.map((component) => ({
+      text: component.zhName ? `${component.name} ${component.zhName}` : component.name,
+      link: component.link
+    }))
+  }))
+}
+
 export function getComponentDocumentContext(path: string, locale: Locale): ComponentDocumentContext | undefined {
   const key = path.replace(/^\/?components\//, '').replace(/\.(md|html)$/, '').replace(/\/$/, '')
-  const domain = getComponentDomains(locale).find((candidate) => candidate.components.some((component) => component.key === key))
-  const component = domain?.components.find((candidate) => candidate.key === key)
+  const component = definitionsByKey.has(key) ? toMeta(definitionsByKey.get(key)!, locale) : undefined
 
-  if (!domain || !component) return undefined
+  if (!component) return undefined
+
+  const catalogs = getComponentCatalogs(locale)
+  const catalogContext = key === 'dnd'
+    ? {
+        domain: { key: 'dnd', name: 'DND', description: '受控拖拽、排序与工作区交互。', taskGroup: '拖拽与排序' },
+        related: catalogs.dnd
+      }
+    : catalogs.ai.some((candidate) => candidate.key === key)
+      ? {
+          domain: { key: 'ai', name: 'AI 产品', description: '按 Chat、Agent 与 Workbench 组织智能产品场景。', taskGroup: '对话、执行与协作' },
+          related: catalogs.ai
+        }
+      : composedComponentKeys.has(key)
+        ? {
+            domain: { key: 'composed', name: '组合组件', description: '面向复杂业务任务的组合交互模式。', taskGroup: '产品模式' },
+            related: catalogs.composed
+          }
+        : undefined
+
+  if (catalogContext) {
+    return {
+      component,
+      domain: catalogContext.domain,
+      packageName: packageNameFor(component.key),
+      related: catalogContext.related.filter((candidate) => candidate.key !== component.key).slice(0, 4)
+    }
+  }
+
+  const domain = getCoreComponentDomains(locale).find((candidate) => candidate.components.some((candidate) => candidate.key === key))
+
+  if (!domain) return undefined
 
   return {
     component,

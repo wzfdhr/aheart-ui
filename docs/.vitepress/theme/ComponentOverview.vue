@@ -1,9 +1,10 @@
 <template>
-  <section class="aheart-component-overview" :class="{ 'is-motion-ready': motionReady }" aria-label="组件能力域">
+  <section class="aheart-component-overview" :class="{ 'is-motion-ready': motionReady }" aria-label="基础组件能力域" data-catalog="core">
     <header class="aheart-component-overview__header">
-      <p class="aheart-component-overview__eyebrow">组件系统 / 中文站</p>
-      <h1>组件总览</h1>
-      <p>按照产品任务与能力层级组织组件，从设计基础逐步进入高级工作区与智能产品能力。</p>
+      <p class="aheart-component-overview__eyebrow">基础组件 / 中文站</p>
+      <h1>基础组件</h1>
+      <p>直接用于搭建界面的基础构件。组合组件、AI、Motion、DND 与 Icons 已拆分到各自的产品入口。</p>
+      <span class="aheart-component-overview__release">aheart-ui@1.0.0 · 已发布</span>
     </header>
 
     <section
@@ -23,7 +24,7 @@
         <span class="aheart-component-domain__count">{{ domain.components.length }} 个组件</span>
       </header>
       <div class="aheart-component-domain__items">
-        <a v-for="component in domain.components" :key="component.key" :href="component.link" class="aheart-component-item">
+        <a v-for="component in domain.components" :key="component.key" :href="withBase(component.link)" class="aheart-component-item">
           <span>
             <strong>{{ component.name }}</strong>
             <small>{{ component.zhName }} · {{ component.description }}</small>
@@ -39,9 +40,10 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { getComponentDomains, statusText } from '../data/components'
+import { withBase } from 'vitepress'
+import { getCoreComponentDomains, statusText } from '../data/components'
 
-const domains = getComponentDomains('zh')
+const domains = getCoreComponentDomains('zh')
 const domainElements = ref<HTMLElement[]>([])
 const revealedDomains = ref(new Set<string>())
 const motionReady = ref(false)
