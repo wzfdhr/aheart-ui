@@ -14,6 +14,7 @@ P0/P1/P2 = `0/0/0`，放行进入产品验收。
 | Runtime errors | pageerror 与 Vue warning 收集为空 |
 | SSR / cleanup | Upload SSR deterministic；unmount/abort/ResizeObserver/timer cleanup 有独立断言 |
 | Consumer | real tgz types/ESM/CJS/CSS/SSR/hydration/interaction passed |
+| Complete repository E2E | first RED 591 passed / 127 existing skips / 7 failed; repaired legacy expectations; final 598 passed / 127 existing skips / 0 failed |
 
 ## Test integrity review
 

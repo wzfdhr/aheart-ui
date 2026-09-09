@@ -40,3 +40,9 @@ Full repository RED on frozen candidate:
 - 5 failures: legacy QG5 Upload flow still expected Retry to return to manual ready state and then click Upload; D6 Retry now revalidates and immediately starts a fresh task
 - 2 failures: TimePicker test used a page-global minute locator before the previous leave animation destroyed its 60-option panel, so it counted 60 + 12 = 72
 - repair updates the old Retry expectation and waits for leave destruction before scoping to the newly visible panel; no timeout/skip/force change
+
+Full repository GREEN after repair:
+- affected legacy scenarios: 7 passed
+- final complete run: 725 total, 598 passed, 127 existing platform skips, 0 failed
+- D6-only: 30 passed, 0 skipped, 0 failed
+- D6 plus legacy Upload impact set: 48 passed, 0 failed

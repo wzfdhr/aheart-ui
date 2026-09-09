@@ -38,4 +38,3 @@
 - screenshot-first design audit 7 张最终图通过。
 
 该开发结论不替代独立测试经理、产品经理、PR CI、合并、master CI、Pages 或线上验收。
-

@@ -60,14 +60,14 @@
 
 ## D6 Picker / Upload
 
-- [ ] 单值/范围共用 parse/draft/commit/keyboard/disabled 内核。
-- [ ] picker-core 为唯一日期能力；清理旧 date-utils 的重复实现。
-- [ ] 时间列依据真实 DOM 尺寸，不依赖固定 28px 行高。
-- [ ] 输入、点击、Preset、确认、清除与 Escape 的提交时机一致。
-- [ ] Upload abort/cancel/retry、校验失败及超时。
-- [ ] beforeUpload=false、手动上传、受控 fileList 的一致语义。
-- [ ] task ID 隔离迟到进度与完成回调。
-- [ ] Upload 使用独立 locale 分组。
+- [x] 单值/范围共用 parse/draft/commit/keyboard/disabled 内核（D6 产品验收通过；交付链继续核对 PR/CI/Pages）。
+- [x] picker-core 为唯一日期能力；旧 date-utils 保留 deprecated 兼容 shim，重复算法已移除。
+- [x] 时间列依据真实 DOM 尺寸，不依赖固定 28px 行高。
+- [x] 输入、点击、Preset、确认、清除与 Escape 的提交时机一致。
+- [x] Upload abort/cancel/retry、校验失败及超时。
+- [x] beforeUpload=false、手动上传、受控 fileList 的一致语义。
+- [x] task ID 隔离迟到进度与完成回调。
+- [x] Upload 使用独立 locale 分组。
 
 ## D7 DnD
 
