@@ -89,7 +89,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (task.abortHandleCalled || !task.abortHandle)
         return;
       task.abortHandleCalled = true;
-      task.abortHandle();
+      try {
+        task.abortHandle();
+      } catch {
+      }
     };
     const clearTaskTimer = (task) => {
       var _a;
@@ -141,7 +144,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       updateFileList(nextFiles);
       return nextFiles;
     };
-    const updateFile = (file, patch) => replaceFile({ ...file, ...patch });
+    const updateFile = (file, patch) => {
+      const current = latestFileList.value.find((candidate) => candidate.uid === file.uid) ?? file;
+      return replaceFile({ ...current, ...patch });
+    };
     const toUploadFile = (file) => ({
       uid: `${Date.now()}-${uid += 1}`,
       name: file.name,

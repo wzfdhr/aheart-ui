@@ -582,19 +582,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpen(false, true);
     };
     const clearPart = (part) => {
-      var _a, _b;
       if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
       const index = part === "start" ? 0 : 1;
-      const next = [(_a = mergedValue.value) == null ? void 0 : _a[0], (_b = mergedValue.value) == null ? void 0 : _b[1]];
+      const source = mergedOpen.value ? draftValue.value : mergedValue.value;
+      const next = [source == null ? void 0 : source[0], source == null ? void 0 : source[1]];
       next[index] = void 0;
-      commitValue(next, false);
+      pickerTransaction.begin(next);
+      draftValue.value = next;
+      inputTexts.value = [formatDisplay(next[0]), formatDisplay(next[1])];
+      emit("calendarChange", [...next], { range: part });
+      if (pickerTransaction.shouldCommit())
+        commitValue(next, false);
       emit("clear");
     };
     const clearAll = () => {
       if (!pickerTransaction.canAct({ disabled: isDisabled.value, readOnly: props.readOnly }))
         return;
-      commitValue(void 0, false);
+      commitValue(void 0);
       emit("clear");
     };
     const defaultTime = () => {
