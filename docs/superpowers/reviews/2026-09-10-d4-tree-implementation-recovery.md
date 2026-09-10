@@ -48,3 +48,16 @@ The original six diagnostics now pass, and the original eight findings have been
 The independent test author preserved all four RED cases in `tree-virtual-recovery.test.ts`; their initial run was `4 failed / 0 passed` with exit 1. Local log: `/private/tmp/d4-tree-dev-review-25sPoc/tree-virtual-recovery-red.log`.
 
 The first complete browser run on source was `28 passed / 7 failed` over five projects. Browser failures are under independent classification and do not constitute browser acceptance. No implementation, product or delivery approval follows from the 81 passing unit tests.
+
+## Third independent review
+
+The original ten diagnostics passed. Of three checks on the affected boundaries, disabled scrolling retained a bounded, covering virtual window; two checks failed, leaving P0/P1/P2=`0/1/1`:
+
+- P1: a mounted 56px row changed title without changing its DOM height but its virtual size became 28px. A size observer need not fire for unchanged geometry; mounted content changes require an explicit DOM measurement, while only unmounted changes should use the estimate.
+- P2: End immediately followed by disabled left one TanStack navigation RAF queued and retained its old index target. Disabling must cancel dependency navigation as well as row/viewport work.
+
+The maintained suite passed `85/85`; full components passed `1258/1258`, root typecheck passed and scripts passed `90/90`. Independent browser run `r11` passed `40/40` across five projects, including whole-tree disabled scrolling and re-enable navigation. These successful runs do not close the two diagnostic failures.
+
+Browser test repairs retained real default Tree behavior: the temporary fixture `tabindex=-1` was removed, Firefox's additional default scroll-root Tab stop was reproduced, and the production virtual root now owns that fix. Dynamic bottom scrolling re-reads the measured total; only an exact Firefox built-in scroll-linked warning is classified separately in a retained attachment. No console error or pageerror is suppressed.
+
+Initial screenshot inspection accepted the desktop hierarchy/disabled/tail states as local observations. The mobile long-title capture was rejected because the documentation header overlapped the fixture and the wrapped title was not fully visible. Fresh final captures and design acceptance remain pending.

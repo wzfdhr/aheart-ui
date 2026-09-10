@@ -143,4 +143,59 @@ describe('Tree virtual implementation recovery RED', () => {
     wrapper.unmount()
     expect(active).toBe(null)
   })
+
+  it('retains measured geometry for same-key mounted content when only the title changes', async () => {
+    const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const height = this.matches('.aheart-tree') ? 320 : 56
+      return { height, width: 400, top: 0, left: 0, right: 400, bottom: height, x: 0, y: 0, toJSON() {} } as DOMRect
+    })
+    const original = data()
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { virtual: true, treeData: original } as never
+    })
+    await nextTick()
+    const before = adapter(wrapper).getVirtualItems()[0].size
+    await wrapper.setProps({ treeData: original.map(node => node.key === 0 ? { ...node, title: 'NODE 0' } : node) } as never)
+    await nextTick()
+    const after = adapter(wrapper).getVirtualItems()[0].size
+    console.log('MOUNTED_SAME_GEOMETRY', before, after)
+    wrapper.unmount()
+    spy.mockRestore()
+    expect(after).toBe(56)
+  })
+
+  it('cancels every queued navigation frame when End is immediately followed by disable', async () => {
+    const frames = new Map<number, FrameRequestCallback>()
+    let serial = 0
+    const originalRAF = window.requestAnimationFrame
+    const originalCAF = window.cancelAnimationFrame
+    Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: ((callback: FrameRequestCallback) => {
+      const id = ++serial
+      frames.set(id, callback)
+      return id
+    }) as typeof window.requestAnimationFrame })
+    Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: ((id: number) => {
+      frames.delete(id)
+    }) as typeof window.cancelAnimationFrame })
+    try {
+      const wrapper = mountTree({
+        attachTo: document.body,
+        props: { virtual: true, treeData: data() } as never
+      })
+      await nextTick()
+      const first = wrapper.get('[data-tree-key="0"]').element as HTMLElement
+      first.focus()
+      first.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+      await wrapper.setProps({ disabled: true } as never)
+      await nextTick()
+      const pending = frames.size
+      console.log('DISABLED_PENDING_RAF', pending)
+      wrapper.unmount()
+      expect(pending).toBe(0)
+    } finally {
+      Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: originalRAF })
+      Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: originalCAF })
+    }
+  })
 })
