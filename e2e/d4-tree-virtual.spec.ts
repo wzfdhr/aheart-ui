@@ -241,11 +241,14 @@ test('Tree virtual keeps the focused key and DOM id stable across same-length re
   const view = tree(page)
   await scrollTo(page, (await snapshot(page)).scrollHeight / 2)
   const mounted = await snapshot(page)
-  const stableKey = mounted.mountedKeys.find(key => /^tree-\d+$/.test(key))
-  expect(stableKey, 'a real mounted root key is required before reorder').toBeTruthy()
+  const visibleDataRows = mounted.visibleRows.filter(key => /^tree-\d+$/.test(key))
+  const stableKey = visibleDataRows[Math.floor(visibleDataRows.length / 2)]
+  expect(stableKey, 'a real visible root key is required before reorder').toBeTruthy()
   const tracked = view.locator(`[role="treeitem"][data-tree-key="${stableKey}"]`)
   await expect(tracked).toHaveCount(1)
+  await expect(tracked).toBeVisible()
   await tracked.focus()
+  await expect(tracked).toBeFocused()
   const before = await tracked.getAttribute('id')
   const beforeCount = (await snapshot(page)).scrollHeight
   await page.getByTestId('tree-virtual-reorder').click()
