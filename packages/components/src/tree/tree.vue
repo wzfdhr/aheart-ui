@@ -138,22 +138,24 @@ const trackFocusOut = (event: FocusEvent) => {
   const next = event.relatedTarget as Node | null
   if (next && !rootRef.value?.contains(next)) focusMovedOutside.value = true
 }
-const focusNode = (key: TreeKey) => {
+const focusNode = (key: TreeKey, existingVersion?: number) => {
   if (!virtualConfig.value || virtualFallback.value) {
     focusedKey.value = key
     void nextTick(() => Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
       .find((element) => element.dataset.treeToken === treeKeyToken(key))?.focus())
     return
   }
-  const version = virtualAdapter.ensureKey(key)
+  const version = existingVersion ?? virtualAdapter.ensureKey(key)
   const activeBefore = rootRef.value?.ownerDocument.activeElement
+  const sourceOwnsTarget = (activeBefore as HTMLElement | null)?.closest<HTMLElement>('[data-tree-token]')?.dataset.treeToken === treeKeyToken(key)
   let attempts = 0
   const focusMounted = () => {
-    if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeBefore)) {
+    const activeNow = rootRef.value?.ownerDocument.activeElement
+    const body = rootRef.value?.ownerDocument.body
+    if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== body && !rootRef.value.contains(activeBefore) && !(sourceOwnsTarget && activeNow === body)) {
       virtualAdapter.cancelPending()
       return
     }
-    const activeNow = rootRef.value?.ownerDocument.activeElement
     if (virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
       virtualAdapter.cancelPending()
       return
@@ -178,8 +180,14 @@ const handleNodeFocus = (node: TreeNodeData) => {
 }
 const retryNode = (node: TreeNodeData) => {
   if (isNodeDisabled(node.key)) return
+  const transaction = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : undefined
+  if (transaction !== undefined) virtualAdapter.beginFocusHandoff(node.key)
   void loader.load(node.key, true)
-  focusNode(node.key)
+  // Establish the generation synchronously; after Vue removes the retry
+  // control, continue this exact transaction rather than creating a new one.
+  void nextTick(() => {
+    if (transaction === undefined || virtualAdapter.isPending(node.key, transaction)) focusNode(node.key, transaction)
+  })
 }
 const syncCheckboxes = () => {
   for (const input of Array.from(rootRef.value?.querySelectorAll<HTMLInputElement>('.aheart-tree__checkbox') ?? [])) {

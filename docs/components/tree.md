@@ -132,11 +132,35 @@ const loadTreeChildren = async (_node: TreeNodeData, { signal }: { signal: Abort
 
 此示例第一次请求失败，点击“重试”后加载子节点。`isLeaf: false` 表示尚可加载的分支；返回数组存入组件内部补丁，返回空数组后成为叶节点，返回 `void` 则等待调用方更新 `treeData`。同节点请求去重；收起、禁用、数据/loader替换及卸载会取消，并隔离忽略取消的迟到结果。SSR阶段不主动请求数据。异步加载期间焦点保持当前节点，加载后可继续用方向键进入子节点。
 
+## 虚拟滚动
+
+大树可以显式开启 `virtual`。展开、勾选、半选与禁用状态仍按完整逻辑树计算，滚动只减少实际挂载的行。方向键和 Home/End 可以到达窗口外的节点。
+
+```vue
+<ATree
+  :tree-data="treeData"
+  :virtual="{ height: 320, estimateSize: 28, overscan: 4 }"
+/>
+```
+
+`virtual` 默认是 `false`，保留完整 DOM；`true` 与空配置对象使用下表默认值。不会根据数据量自动开启，也不公开虚拟引擎实例或滚动定位方法。
+
+| `TreeVirtualConfig` 字段 | 说明 | 默认值 |
+| --- | --- | --- |
+| `height` | 有限正数，树视口最大高度，单位 CSS px；少量节点不会被撑高 | `320` |
+| `estimateSize` | 有限正数，尚未测量行的初始高度估计，单位 CSS px；不是强制行高 | `28` |
+| `overscan` | 非负安全整数，视口两侧各额外挂载的逻辑行数，不含需要保留的焦点行 | `4` |
+
+行高会随实际字体、内容和触控布局测量更新；无效配置字段在开发环境告警并回退该字段默认值。当前焦点行保留到焦点交接完成，禁用整树后仍可滚动阅读。虚拟模式使用显式层级信息保持 tree/treeitem 语义；默认完整 DOM 路径继续使用递归分组结构。
+
+`TreeVirtual` 和 `TreeVirtualConfig` 可从 `aheart-ui` 导入。运行时关闭 `virtual` 不代表构建时必然移除静态引入的虚拟引擎。
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | treeData | 节点数据 | `TreeNodeData[]` | `[]` |
+| virtual | 显式开启行虚拟化及视口配置 | `boolean \| TreeVirtualConfig` | `false` |
 | expandedKeys | 受控展开节点 | `TreeKey[]` | - |
 | defaultExpandedKeys | 非受控初始展开节点 | `TreeKey[]` | `[]` |
 | defaultExpandAll | 默认展开所有节点 | `boolean` | `false` |

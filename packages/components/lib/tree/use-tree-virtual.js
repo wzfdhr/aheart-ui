@@ -12,11 +12,15 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
   const focusMovedOutside = vue.ref(false);
   const pendingKey = vue.ref();
   const pendingVersion = vue.ref(0);
+  const handoffKey = vue.ref();
+  const handoffReady = vue.ref(false);
   const rowEntries = /* @__PURE__ */ new Map();
   const queuedRows = /* @__PURE__ */ new Set();
   let rowFrame;
   let realm = null;
   let listenersAttached = false;
+  let renderingUpdate = false;
+  let pendingFocusDocument = null;
   let pauseViewport = () => void 0;
   let resumeViewport = () => void 0;
   const indexFor = (key) => key === void 0 ? -1 : nodes.value.findIndex((item) => item.key === key);
@@ -147,14 +151,27 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
   const cancelPending = (stopReconcile = true) => {
     pendingVersion.value += 1;
     pendingKey.value = void 0;
+    handoffKey.value = void 0;
+    handoffReady.value = false;
+    if (pendingFocusDocument) {
+      pendingFocusDocument.removeEventListener("focusin", onOwnerDocumentFocusIn, true);
+      pendingFocusDocument = null;
+    }
   };
   const isMountedKey = (key) => rows.value.some((row) => row.entry.key === key);
   const ensureKey = (key) => {
+    var _a;
     const index = indexFor(key);
     if (index < 0 || !config.value || fallback.value)
       return 0;
     const version = ++pendingVersion.value;
     pendingKey.value = key;
+    const focusDocument = (_a = root.value) == null ? void 0 : _a.ownerDocument;
+    if (focusDocument && pendingFocusDocument !== focusDocument) {
+      pendingFocusDocument == null ? void 0 : pendingFocusDocument.removeEventListener("focusin", onOwnerDocumentFocusIn, true);
+      focusDocument.addEventListener("focusin", onOwnerDocumentFocusIn, true);
+      pendingFocusDocument = focusDocument;
+    }
     if (!isMountedKey(key)) {
       const offsetInfo = virtualizer.value.getOffsetForIndex(index, "auto");
       if (offsetInfo) {
@@ -169,6 +186,14 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
       cancelPending(false);
     focusRecoveryKey.value = key;
     focusMovedOutside.value = false;
+  };
+  const beginFocusHandoff = (key) => {
+    handoffKey.value = key;
+    handoffReady.value = false;
+    void Promise.resolve().then(() => {
+      if (handoffKey.value === key)
+        handoffReady.value = true;
+    });
   };
   const keyFromRow = (row) => {
     var _a, _b;
@@ -188,27 +213,57 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
     cancelPending(false);
   };
   const onFocusOut = (event) => {
-    var _a;
+    var _a, _b, _c;
     const next = event.relatedTarget;
     if (next && ((_a = root.value) == null ? void 0 : _a.contains(next)))
       return;
+    const concreteOutside = Boolean(next && next !== ((_b = root.value) == null ? void 0 : _b.ownerDocument.body));
     const old = event.target;
+    const oldKey = keyFromRow(old) ?? actualFocusedKey.value;
+    const pendingOwnsOldRow = oldKey !== void 0 && pendingKey.value === oldKey;
     actualFocusedKey.value = void 0;
-    if (next) {
+    if (concreteOutside) {
       focusMovedOutside.value = true;
       focusRecoveryKey.value = void 0;
+    } else if (pendingOwnsOldRow && old && old.isConnected && ((_c = root.value) == null ? void 0 : _c.contains(old))) {
+      if (renderingUpdate || handoffKey.value === oldKey && handoffReady.value)
+        return;
+      focusMovedOutside.value = true;
+      focusRecoveryKey.value = void 0;
+      cancelPending();
+      return;
     } else if (old) {
-      Promise.resolve().then(() => {
+      void vue.nextTick(() => {
         var _a2;
         if (old.isConnected && ((_a2 = root.value) == null ? void 0 : _a2.contains(old))) {
           focusMovedOutside.value = true;
           focusRecoveryKey.value = void 0;
+          if (pendingOwnsOldRow)
+            cancelPending();
+        } else if (!pendingOwnsOldRow) {
+          cancelPending();
         }
       });
+      return;
     }
     cancelPending();
   };
+  const onOwnerDocumentFocusIn = (event) => {
+    var _a;
+    const target = event.target;
+    if (pendingKey.value !== void 0 && target && !((_a = root.value) == null ? void 0 : _a.contains(target))) {
+      focusMovedOutside.value = true;
+      focusRecoveryKey.value = void 0;
+      cancelPending();
+    }
+  };
   const cancelUserNavigation = () => cancelPending();
+  vue.onBeforeUpdate(() => {
+    renderingUpdate = true;
+  });
+  vue.onUpdated(() => {
+    renderingUpdate = false;
+  });
   const disconnectRow = (token) => {
     var _a;
     const entry = rowEntries.get(token);
@@ -289,6 +344,10 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
       element.removeEventListener("focusout", onFocusOut);
       for (const event of ["wheel", "touchstart", "pointerdown"])
         element.removeEventListener(event, cancelUserNavigation);
+    }
+    if (pendingFocusDocument) {
+      pendingFocusDocument.removeEventListener("focusin", onOwnerDocumentFocusIn, true);
+      pendingFocusDocument = null;
     }
     pauseViewport();
     cleanupRows();
@@ -397,6 +456,6 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
     detachRealm();
     realm = null;
   });
-  return { rows, totalSize, items, fallback, ensureKey, isPending, isMountedKey, commitFocus, cancelPending, measureRow, focusRecoveryKey, virtualizer };
+  return { rows, totalSize, items, fallback, ensureKey, isPending, isMountedKey, commitFocus, beginFocusHandoff, cancelPending, measureRow, focusRecoveryKey, virtualizer };
 }
 exports.useTreeVirtual = useTreeVirtual;

@@ -16,6 +16,7 @@ export declare function useTreeVirtual(root: Ref<HTMLElement | undefined>, confi
     isPending: (key: TreeKey, version: number) => boolean;
     isMountedKey: (key: TreeKey) => boolean;
     commitFocus: (key: TreeKey) => void;
+    beginFocusHandoff: (key: TreeKey) => void;
     cancelPending: (stopReconcile?: boolean) => void;
     measureRow: (element: Element | null, index: number, stableToken?: string) => void;
     focusRecoveryKey: Ref<TreeKey | undefined, TreeKey | undefined>;

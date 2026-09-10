@@ -21,3 +21,21 @@ Initial live browser inspection identified missing hierarchy indentation and rej
 ![Whole-tree disabled](../evidence/d4-tree-virtual/recovery-final/desktop-whole-tree-disabled.png)
 
 Tree visual verdict for these states: P0/P1/P2=`0/0/0`. Keyboard, selection, ARIA metadata and cleanup are supported by independent tests rather than inferred from screenshots. Physical devices, screen readers, performance, release consumers, broader TreeSelect/Cascader layouts and the complete phase's final screenshot matrix remain outside this substage review.
+
+## Product-requested lazy flow supplement
+
+The main reviewer used the Codex in-app browser against the source preview at port 5371 after the ownerDocument focus-history repair was frozen. All three saved PNGs were opened and inspected individually. An intermediate error capture showing only fixture controls was rejected and recaptured with the lazy row fully visible. These images replace earlier pre-repair lazy captures; they do not replace steps 1–4 or the final combined phase's visual gate.
+
+5. **Pending lazy load — visually healthy.** The root label remains readable with an adjacent progress indicator; the small tree is not stretched to its maximum virtual height. This intentional loading state is the audit target, not an incompletely loaded page.
+
+![Lazy loading](../evidence/d4-tree-virtual/retry-final/05-lazy-loading.png)
+
+6. **Failed load and retry entry — visually healthy.** The original root remains in place and an adjacent text action explicitly says loading failed and offers retry; failure is not communicated by color alone. The complete row is visible below the documentation header.
+
+![Lazy failure and retry](../evidence/d4-tree-virtual/retry-final/06-lazy-error.png)
+
+7. **Keyboard retry success — visually healthy.** Enter on the retry button restores child content in a bounded scroll viewport. Indentation distinguishes children from the root, with no overlap or blank content gap in the captured area. A read-only DOM check after success confirmed the actual focused element was the root `treeitem`; asynchronous cancellation behavior must still pass independent diagnostics rather than being inferred from this picture.
+
+![Lazy retry success](../evidence/d4-tree-virtual/retry-final/07-lazy-success.png)
+
+Supplemental visual verdict: P0/P1/P2=`0/0/0` for these three observed states. This is source-preview evidence at the in-app viewport, not a physical-device, contrast-ratio, screen-reader, packed-consumer or deployment claim. Independent product re-review remains required.

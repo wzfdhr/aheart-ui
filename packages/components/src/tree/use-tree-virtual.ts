@@ -1,4 +1,4 @@
-import { computed, onBeforeUnmount, onMounted, ref, watch, type ComputedRef, type Ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onBeforeUpdate, onMounted, onUpdated, ref, watch, type ComputedRef, type Ref } from 'vue'
 import { defaultRangeExtractor, useVirtualizer, type VirtualItem, type Virtualizer } from '@tanstack/vue-virtual'
 import type { IndexedTreeNode } from './tree-index'
 import { treeKeyToken } from './tree-index'
@@ -32,11 +32,15 @@ export function useTreeVirtual(
   const focusMovedOutside = ref(false)
   const pendingKey = ref<TreeKey | undefined>()
   const pendingVersion = ref(0)
+  const handoffKey = ref<TreeKey | undefined>()
+  const handoffReady = ref(false)
   const rowEntries = new Map<string, RowEntry>()
   const queuedRows = new Set<string>()
   let rowFrame: number | undefined
   let realm: RealmWindow | null = null
   let listenersAttached = false
+  let renderingUpdate = false
+  let pendingFocusDocument: Document | null = null
   let pauseViewport: () => void = () => undefined
   let resumeViewport: () => void = () => undefined
 
@@ -152,6 +156,12 @@ export function useTreeVirtual(
   const cancelPending = (stopReconcile = true) => {
     pendingVersion.value += 1
     pendingKey.value = undefined
+    handoffKey.value = undefined
+    handoffReady.value = false
+    if (pendingFocusDocument) {
+      pendingFocusDocument.removeEventListener('focusin', onOwnerDocumentFocusIn, true)
+      pendingFocusDocument = null
+    }
     void stopReconcile
   }
   const isMountedKey = (key: TreeKey) => rows.value.some(row => row.entry.key === key)
@@ -160,6 +170,12 @@ export function useTreeVirtual(
     if (index < 0 || !config.value || fallback.value) return 0
     const version = ++pendingVersion.value
     pendingKey.value = key
+    const focusDocument = root.value?.ownerDocument
+    if (focusDocument && pendingFocusDocument !== focusDocument) {
+      pendingFocusDocument?.removeEventListener('focusin', onOwnerDocumentFocusIn, true)
+      focusDocument.addEventListener('focusin', onOwnerDocumentFocusIn, true)
+      pendingFocusDocument = focusDocument
+    }
     if (!isMountedKey(key)) {
       const offsetInfo = virtualizer.value.getOffsetForIndex(index, 'auto')
       if (offsetInfo) {
@@ -173,6 +189,13 @@ export function useTreeVirtual(
     if (pendingKey.value === key) cancelPending(false)
     focusRecoveryKey.value = key
     focusMovedOutside.value = false
+  }
+  const beginFocusHandoff = (key: TreeKey) => {
+    handoffKey.value = key
+    handoffReady.value = false
+    void Promise.resolve().then(() => {
+      if (handoffKey.value === key) handoffReady.value = true
+    })
   }
 
   const keyFromRow = (row: Element | null) => {
@@ -192,28 +215,54 @@ export function useTreeVirtual(
   const onFocusOut = (event: FocusEvent) => {
     const next = event.relatedTarget as Node | null
     if (next && root.value?.contains(next)) return
+    const concreteOutside = Boolean(next && next !== root.value?.ownerDocument.body)
     const old = event.target as HTMLElement | null
+    const oldKey = keyFromRow(old) ?? actualFocusedKey.value
+    const pendingOwnsOldRow = oldKey !== undefined && pendingKey.value === oldKey
     actualFocusedKey.value = undefined
     // A null relatedTarget is also what browsers report when a focused row is
     // removed during a render. Keep the recovery key until the tree watcher can
     // distinguish that recycle from a real focus transfer. A concrete outside
     // target is unambiguously user navigation.
-    if (next) {
+    if (concreteOutside) {
       focusMovedOutside.value = true
       focusRecoveryKey.value = undefined
+    } else if (pendingOwnsOldRow && old && old.isConnected && root.value?.contains(old)) {
+      // A browser may dispatch removal focusout while the old control is still
+      // connected. Preserve only an explicitly armed render handoff; a direct
+      // user blur cancels before the next mount/focus tick.
+      if (renderingUpdate || (handoffKey.value === oldKey && handoffReady.value)) return
+      focusMovedOutside.value = true
+      focusRecoveryKey.value = undefined
+      cancelPending()
+      return
     } else if (old) {
       // Explicit blur leaves the row connected; a render-time recycle removes
       // it before this deferred check runs, so only the former clears recovery.
-      Promise.resolve().then(() => {
+      void nextTick(() => {
         if (old.isConnected && root.value?.contains(old)) {
           focusMovedOutside.value = true
           focusRecoveryKey.value = undefined
+          if (pendingOwnsOldRow) cancelPending()
+        } else if (!pendingOwnsOldRow) {
+          cancelPending()
         }
       })
+      return
     }
     cancelPending()
   }
+  const onOwnerDocumentFocusIn = (event: FocusEvent) => {
+    const target = event.target as Node | null
+    if (pendingKey.value !== undefined && target && !root.value?.contains(target)) {
+      focusMovedOutside.value = true
+      focusRecoveryKey.value = undefined
+      cancelPending()
+    }
+  }
   const cancelUserNavigation = () => cancelPending()
+  onBeforeUpdate(() => { renderingUpdate = true })
+  onUpdated(() => { renderingUpdate = false })
 
   const disconnectRow = (token: string) => {
     const entry = rowEntries.get(token)
@@ -279,6 +328,10 @@ export function useTreeVirtual(
       element.removeEventListener('focusin', onFocusIn)
       element.removeEventListener('focusout', onFocusOut)
       for (const event of ['wheel', 'touchstart', 'pointerdown'] as const) element.removeEventListener(event, cancelUserNavigation)
+    }
+    if (pendingFocusDocument) {
+      pendingFocusDocument.removeEventListener('focusin', onOwnerDocumentFocusIn, true)
+      pendingFocusDocument = null
     }
     pauseViewport()
     cleanupRows()
@@ -380,7 +433,7 @@ export function useTreeVirtual(
     realm = null
   })
 
-  return { rows, totalSize, items, fallback, ensureKey, isPending, isMountedKey, commitFocus, cancelPending, measureRow, focusRecoveryKey, virtualizer }
+  return { rows, totalSize, items, fallback, ensureKey, isPending, isMountedKey, commitFocus, beginFocusHandoff, cancelPending, measureRow, focusRecoveryKey, virtualizer }
 }
 
 export type TreeVirtualRow = { entry: IndexedTreeNode; item: VirtualItem }

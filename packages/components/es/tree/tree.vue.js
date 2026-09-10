@@ -106,31 +106,33 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (next && !((_a2 = rootRef.value) == null ? void 0 : _a2.contains(next)))
         focusMovedOutside.value = true;
     };
-    const focusNode = (key) => {
-      var _a2;
+    const focusNode = (key, existingVersion) => {
+      var _a2, _b;
       if (!virtualConfig.value || virtualFallback.value) {
         focusedKey.value = key;
         void nextTick(() => {
-          var _a3, _b;
-          return (_b = Array.from(((_a3 = rootRef.value) == null ? void 0 : _a3.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeKeyToken(key))) == null ? void 0 : _b.focus();
+          var _a3, _b2;
+          return (_b2 = Array.from(((_a3 = rootRef.value) == null ? void 0 : _a3.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeKeyToken(key))) == null ? void 0 : _b2.focus();
         });
         return;
       }
-      const version = virtualAdapter.ensureKey(key);
+      const version = existingVersion ?? virtualAdapter.ensureKey(key);
       const activeBefore = (_a2 = rootRef.value) == null ? void 0 : _a2.ownerDocument.activeElement;
+      const sourceOwnsTarget = ((_b = activeBefore == null ? void 0 : activeBefore.closest("[data-tree-token]")) == null ? void 0 : _b.dataset.treeToken) === treeKeyToken(key);
       let attempts = 0;
       const focusMounted = () => {
-        var _a3, _b;
-        if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeBefore)) {
+        var _a3, _b2, _c;
+        const activeNow = (_a3 = rootRef.value) == null ? void 0 : _a3.ownerDocument.activeElement;
+        const body = (_b2 = rootRef.value) == null ? void 0 : _b2.ownerDocument.body;
+        if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== body && !rootRef.value.contains(activeBefore) && !(sourceOwnsTarget && activeNow === body)) {
           virtualAdapter.cancelPending();
           return;
         }
-        const activeNow = (_a3 = rootRef.value) == null ? void 0 : _a3.ownerDocument.activeElement;
         if (virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
           virtualAdapter.cancelPending();
           return;
         }
-        const target = Array.from(((_b = rootRef.value) == null ? void 0 : _b.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeKeyToken(key));
+        const target = Array.from(((_c = rootRef.value) == null ? void 0 : _c.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeKeyToken(key));
         const generationValid = virtualAdapter.isPending(key, version);
         if (target && generationValid) {
           focusedKey.value = key;
@@ -152,8 +154,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const retryNode = (node) => {
       if (isNodeDisabled(node.key))
         return;
+      const transaction = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : void 0;
+      if (transaction !== void 0)
+        virtualAdapter.beginFocusHandoff(node.key);
       void loader.load(node.key, true);
-      focusNode(node.key);
+      void nextTick(() => {
+        if (transaction === void 0 || virtualAdapter.isPending(node.key, transaction))
+          focusNode(node.key, transaction);
+      });
     };
     const syncCheckboxes = () => {
       var _a2, _b;
