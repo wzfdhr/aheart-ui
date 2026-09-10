@@ -99,6 +99,11 @@ const virtualConfig = computed(() => normalizeTreeVirtual(props.virtual, (messag
 }))
 const virtualAdapter = useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled)
 const virtualFallback = computed(() => virtualAdapter.fallback.value)
+const retireRetryIntent = (intent: { id: number; key: TreeKey; generation: number }, cancelGeneration = true) => {
+  if (retryIntent?.id !== intent.id) return
+  if (cancelGeneration && intent.generation !== 0 && virtualAdapter.isPending(intent.key, intent.generation)) virtualAdapter.cancelPending()
+  retryIntent = undefined
+}
 const internalViewportHeight = computed(() => privateViewportHeight?.value)
 const renderedNodes = computed(() => virtualConfig.value && !virtualFallback.value
   ? virtualAdapter.rows.value.map(row => ({ key: row.entry.key, node: row.entry.node, item: row.item, level: row.entry.level }))
@@ -148,8 +153,12 @@ const trackFocusOut = (event: FocusEvent) => {
 const focusNode = (key: TreeKey, existingVersion?: number, allowExternalSource = false) => {
   if (!virtualConfig.value || virtualFallback.value) {
     focusedKey.value = key
-    void nextTick(() => Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
-      .find((element) => element.dataset.treeToken === treeKeyToken(key))?.focus())
+    void nextTick(() => {
+      const target = Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
+        .find((element) => element.dataset.treeToken === treeKeyToken(key))
+      target?.focus()
+      if (retryIntent?.key === key) retireRetryIntent(retryIntent, false)
+    })
     return
   }
   const version = existingVersion ?? virtualAdapter.ensureKey(key)
@@ -174,10 +183,17 @@ const focusNode = (key: TreeKey, existingVersion?: number, allowExternalSource =
       focusedKey.value = key
       virtualAdapter.commitFocus(key)
       target.focus()
+      if (retryIntent?.key === key) retireRetryIntent(retryIntent, false)
       return
     }
-    if (target && !generationValid) return
-    if (virtualAdapter.isPending(key, version) && attempts++ < 8) void nextTick(focusMounted)
+    if (target && !generationValid) {
+      if (retryIntent?.key === key) retireRetryIntent(retryIntent, false)
+      return
+    }
+    if (virtualAdapter.isPending(key, version)) {
+      if (attempts++ < 8) void nextTick(focusMounted)
+      else if (retryIntent?.key === key && retryIntent.generation === version) retireRetryIntent(retryIntent)
+    }
   }
   void nextTick(focusMounted)
 }
@@ -186,7 +202,7 @@ const handleNodeFocus = (node: TreeNodeData) => {
   virtualAdapter.commitFocus(node.key)
 }
 const cancelTreeFocus = () => {
-  retryIntent = undefined
+  if (retryIntent) retireRetryIntent(retryIntent)
   virtualAdapter.cancelPending()
 }
 const unregisterFocusBridge = focusBridge?.register(
@@ -196,7 +212,8 @@ const unregisterFocusBridge = focusBridge?.register(
 )
 onBeforeUnmount(() => {
   treeAlive = false
-  retryIntent = undefined
+  if (retryIntent) retireRetryIntent(retryIntent)
+  virtualAdapter.cancelPending()
   unregisterFocusBridge?.()
 })
 const createRetryIntent = (node: TreeNodeData) => {
@@ -207,11 +224,18 @@ const createRetryIntent = (node: TreeNodeData) => {
   return intent
 }
 const startRetry = (node: TreeNodeData, intent = createRetryIntent(node)) => {
-  if (!treeAlive || retryIntent?.id !== intent.id || isNodeDisabled(node.key) || treeIndex.value.nodes.get(node.key)?.node !== intent.node) return
+  if (!treeAlive || retryIntent?.id !== intent.id || isNodeDisabled(node.key) || treeIndex.value.nodes.get(node.key)?.node !== intent.node) {
+    retireRetryIntent(intent)
+    return
+  }
   void loader.load(node.key, true)
   void nextTick(() => {
-    if (!treeAlive || retryIntent?.id !== intent.id || isNodeDisabled(node.key) || treeIndex.value.nodes.get(node.key)?.node !== intent.node) return
+    if (!treeAlive || retryIntent?.id !== intent.id || isNodeDisabled(node.key) || treeIndex.value.nodes.get(node.key)?.node !== intent.node) {
+      retireRetryIntent(intent)
+      return
+    }
     if (intent.generation === 0 || virtualAdapter.isPending(node.key, intent.generation)) focusNode(node.key, intent.generation || undefined)
+    else retireRetryIntent(intent, false)
   })
 }
 const retryNode = (node: TreeNodeData) => {
@@ -221,6 +245,7 @@ const retryNode = (node: TreeNodeData) => {
     toggleExpanded(node, true)
     void nextTick(() => {
       if (retryIntent?.id === intent.id && mergedExpandedKeys.value.includes(node.key)) startRetry(node, intent)
+      else retireRetryIntent(intent)
     })
     return
   }
