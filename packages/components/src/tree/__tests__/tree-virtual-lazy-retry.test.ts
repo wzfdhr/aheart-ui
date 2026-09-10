@@ -38,15 +38,15 @@ const flushOwnerRealm = async () => {
   await nextTick()
 }
 
-const prepareCollapsedRetry = async (treeSelect = false) => {
+const prepareCollapsedRetry = async (treeSelect = false, sibling = false) => {
   const calls: AbortSignal[] = []
   const loadData = vi.fn((_node: unknown, context: { signal: AbortSignal }) => {
     calls.push(context.signal)
     return calls.length === 1 ? Promise.reject(new Error('offline')) : new Promise<unknown[]>(() => {})
   })
   const wrapper = treeSelect
-    ? mount(TreeSelect, { attachTo: document.body, props: { treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], virtual: true, open: true, loadData, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never })
-    : mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never })
+    ? mount(TreeSelect, { attachTo: document.body, props: { treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }, ...(sibling ? [{ key: 'other', title: 'Other' }] : [])], virtual: true, open: true, loadData, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never })
+    : mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }, ...(sibling ? [{ key: 'other', title: 'Other' }] : [])], loadData } as never })
   await flushOwnerRealm()
   await wrapper.get('.aheart-tree__switcher').trigger('click')
   await flushOwnerRealm()
@@ -335,5 +335,60 @@ describe('Tree virtual lazy retry focus', () => {
     await flushOwnerRealm()
     expect(loadData).toHaveBeenCalledTimes(1)
     expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+  })
+
+  it('keeps a newer same-key retry generation after Home focus navigation', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+      await wrapper.get('.aheart-tree__switcher').trigger('click')
+      await flushOwnerRealm()
+      const root = wrapper.get('[data-tree-key="root"]').element as HTMLElement
+      root.focus()
+      root.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true }))
+      retry.focus()
+      expect(document.activeElement).toBe(retry)
+      retry.click()
+      await flushOwnerRealm()
+      expect(loadData).toHaveBeenCalledTimes(2)
+      expect(document.activeElement).toBe(root)
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('keeps newer endpoint navigation after an old retry target disappears', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const { wrapper, loadData, retry } = await prepareCollapsedRetry(false, true)
+      const tree = wrapper.get('[role="tree"]').element
+      const originalQuerySelectorAll = tree.querySelectorAll.bind(tree)
+      const querySelectorAll = vi.spyOn(tree, 'querySelectorAll').mockImplementation((selector: string) => {
+        if (selector === '.aheart-tree__node') {
+          return Array.from(originalQuerySelectorAll(selector)).filter(node => node.getAttribute('data-tree-key') !== 'root') as unknown as NodeListOf<Element>
+        }
+        return originalQuerySelectorAll(selector)
+      })
+      try {
+        retry.click()
+        await nextTick()
+        await nextTick()
+        const root = wrapper.get('[data-tree-key="root"]').element as HTMLElement
+        root.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
+        await flushOwnerRealm()
+        expect(loadData).toHaveBeenCalledTimes(2)
+        expect(document.activeElement).toBe(wrapper.get('[data-tree-key="other"]').element)
+        expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+      } finally {
+        querySelectorAll.mockRestore()
+      }
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
   })
 })
