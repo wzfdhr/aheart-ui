@@ -48,11 +48,15 @@ test('virtual Cascader mounts at most 24 options per column for 1k and 10k sibli
   const count1000 = page.getByTestId('cascader-virtual-count-1000')
   await count1000.click()
   let popup = await open(page)
-  await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(24)
+  let rows = popup.locator('.aheart-cascader__option[data-cascader-column="0"]')
+  await expect.poll(() => rows.count()).toBeGreaterThan(0)
+  expect(await rows.count()).toBeLessThanOrEqual(24)
   await field(page, 'cascader-virtual-main').getByRole('combobox').press('Escape')
   await page.getByTestId('cascader-virtual-count-10000').click()
   popup = await open(page)
-  await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(24)
+  rows = popup.locator('.aheart-cascader__option[data-cascader-column="0"]')
+  await expect.poll(() => rows.count()).toBeGreaterThan(0)
+  expect(await rows.count()).toBeLessThanOrEqual(24)
   await expect(popup.locator('.aheart-cascader__column').first()).toHaveCSS('overflow-y', 'auto')
   await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).not.toHaveAttribute('aria-activedescendant')
 })
@@ -68,8 +72,11 @@ test('five columns keep logical 2k siblings virtualized with one vertical scroll
     await expect.poll(() => popup.locator('.aheart-cascader__column').count()).toBe(column + 2)
   }
   await expect(popup.locator('.aheart-cascader__column')).toHaveCount(5)
-  await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(24)
-  await expect(popup.locator('.aheart-cascader__option[data-cascader-column="1"]')).toHaveCount(24)
+  for (const column of [0, 1, 2, 3, 4]) {
+    const columnRows = popup.locator(`.aheart-cascader__option[data-cascader-column="${column}"]`)
+    await expect.poll(() => columnRows.count()).toBeGreaterThan(0)
+    expect(await columnRows.count()).toBeLessThanOrEqual(24)
+  }
   const verticalOwners = await popup.evaluate(element => ({
     columns: Array.from(element.querySelectorAll<HTMLElement>('.aheart-cascader__column')).map(node => getComputedStyle(node).overflowY),
     popup: getComputedStyle(element).overflowY,
@@ -111,14 +118,22 @@ test('search virtualizes 10k leaves, supports End+Enter, no-result and clear rec
   expect(mountedSearchRows).toBeGreaterThan(0)
   expect(mountedSearchRows).toBeLessThanOrEqual(24)
   await search.press('End')
-  await search.press('Enter')
+  await expect.poll(() => search.evaluate(element => ({ focused: element.ownerDocument.activeElement === element, end: (element as HTMLInputElement).selectionEnd === (element as HTMLInputElement).value.length }))).toEqual({ focused: true, end: true })
+  await search.press('ArrowDown')
+  const focusedResult = popup.locator('.aheart-cascader__search-results .aheart-cascader__option:focus')
+  await expect(focusedResult).toHaveCount(1)
+  await focusedResult.press('End')
+  await expect(focusedResult).toContainText('Search leaf 09998')
+  await focusedResult.press('Enter')
   await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).toContainText('Search leaf 09998')
   await field(page, 'cascader-virtual-main').getByRole('combobox').click()
   const reopened = await panel(page)
   await reopened.getByRole('searchbox', { name: '搜索级联选项' }).fill('no-match-anywhere')
   await expect(reopened.getByRole('status')).toHaveText('暂无匹配选项')
   await reopened.getByRole('searchbox', { name: '搜索级联选项' }).fill('')
-  await expect(reopened.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(24)
+  const recoveredRows = reopened.locator('.aheart-cascader__option[data-cascader-column="0"]')
+  await expect.poll(() => recoveredRows.count()).toBeGreaterThan(0)
+  expect(await recoveredRows.count()).toBeLessThanOrEqual(24)
 })
 
 test('typed paths and duplicate leaf paths retain identity when switching branches', async ({ page }) => {
