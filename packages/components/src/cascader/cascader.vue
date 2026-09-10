@@ -133,6 +133,8 @@
               :aria-label="isLoadError(columnIndex, option) ? `${option.label}，加载失败，按回车或点击重试` : undefined"
               @click="handleOption(option, columnIndex)"
               @focus="handleOptionFocus(option, columnIndex)"
+              @blur="handleOptionBlur"
+              @focusout="handleOptionBlur"
               @keydown="handleOptionKeydown($event, option, columnIndex, optionIndex)"
             >
               <span>{{ option.label }}</span>
@@ -160,6 +162,8 @@
             :aria-label="isLoadError(columnIndex, option) ? `${option.label}，加载失败，按回车或点击重试` : undefined"
             @click="handleOption(option, columnIndex)"
             @focus="handleOptionFocus(option, columnIndex)"
+            @blur="handleOptionBlur"
+            @focusout="handleOptionBlur"
             @keydown="handleOptionKeydown($event, option, columnIndex, optionIndex)"
           >
             <span>{{ option.label }}</span>
@@ -290,12 +294,18 @@ watch([panelRef, virtualEnabled, mergedOpen, () => props.disabled], ([panel, isV
     if (target && !rootRef.value?.contains(target) && !panel.contains(target)) invalidateModeFocus()
   }
   const cancelNavigation = () => invalidateModeFocus()
+  const cancelFocusOut = (event: FocusEvent) => {
+    const target = event.target as HTMLElement | null
+    if (!event.relatedTarget && target?.isConnected) invalidateModeFocus()
+  }
   ownerDocument.addEventListener('focusin', cancelOutside)
+  panel.addEventListener('focusout', cancelFocusOut, true)
   panel.addEventListener('wheel', cancelNavigation, { passive: true })
   panel.addEventListener('pointerdown', cancelNavigation, { passive: true })
   panel.addEventListener('touchstart', cancelNavigation, { passive: true })
   cleanup(() => {
     ownerDocument.removeEventListener('focusin', cancelOutside)
+    panel.removeEventListener('focusout', cancelFocusOut, true)
     panel.removeEventListener('wheel', cancelNavigation)
     panel.removeEventListener('pointerdown', cancelNavigation)
     panel.removeEventListener('touchstart', cancelNavigation)
@@ -559,6 +569,12 @@ const handleOptionFocus = (option: CascaderOption, columnIndex: number) => {
   focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value]
   rovingKeys.value = { ...rovingKeys.value, [columnPrefixToken(columnIndex)]: option.value }
 }
+const handleOptionBlur = (event: FocusEvent) => {
+  if (!event.relatedTarget) {
+    ;(event.currentTarget as HTMLElement | null)?.blur()
+    invalidateModeFocus()
+  }
+}
 const handleSearchFocus = (path: CascaderPath, _index: number) => {
   focusedSearchPath.value = [...path]
   focusedPath.value = [...path]
@@ -736,7 +752,8 @@ const floatingPosition = useFloatingPosition({
   placement: () => props.placement,
   strategy: 'fixed',
   offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow
+  autoAdjustOverflow: () => props.autoAdjustOverflow,
+  autoUpdateOptions: { elementResize: false }
 })
 const viewportBudget = usePopupViewportBudget({
   trigger: triggerRef,
