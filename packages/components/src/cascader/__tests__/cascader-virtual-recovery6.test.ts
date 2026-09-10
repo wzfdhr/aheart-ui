@@ -10,6 +10,7 @@ const wrappers: Array<ReturnType<typeof mount>> = []
 const observers: ObserverRecord[] = []
 const frames = new Map<number, FrameRequestCallback>()
 const timers = new Map<number, () => void>()
+const timerCallbacks = new Map<number, () => void>()
 let id = 0
 let previousResizeObserver: PropertyDescriptor | undefined
 let previousRequestAnimationFrame: PropertyDescriptor | undefined
@@ -44,6 +45,7 @@ beforeEach(() => {
   observers.length = 0
   frames.clear()
   timers.clear()
+  timerCallbacks.clear()
   id = 0
   previousResizeObserver = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
   previousRequestAnimationFrame = Object.getOwnPropertyDescriptor(window, 'requestAnimationFrame')
@@ -53,7 +55,7 @@ beforeEach(() => {
   Object.defineProperty(window, 'ResizeObserver', { configurable: true, value: ControlledResizeObserver })
   Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: (callback: FrameRequestCallback) => { const key = ++id; frames.set(key, callback); return key } })
   Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: (key: number) => frames.delete(key) })
-  Object.defineProperty(window, 'setTimeout', { configurable: true, value: (callback: () => void) => { const key = ++id; timers.set(key, callback); return key } })
+  Object.defineProperty(window, 'setTimeout', { configurable: true, value: (callback: () => void) => { const key = ++id; timers.set(key, callback); timerCallbacks.set(key, callback); return key } })
   Object.defineProperty(window, 'clearTimeout', { configurable: true, value: (key: number) => timers.delete(key) })
 })
 
@@ -62,6 +64,7 @@ afterEach(() => {
   observers.length = 0
   frames.clear()
   timers.clear()
+  timerCallbacks.clear()
   if (previousResizeObserver) Object.defineProperty(window, 'ResizeObserver', previousResizeObserver)
   else Reflect.deleteProperty(window, 'ResizeObserver')
   if (previousRequestAnimationFrame) Object.defineProperty(window, 'requestAnimationFrame', previousRequestAnimationFrame)
@@ -86,12 +89,16 @@ describe('Cascader virtual recovery round six', () => {
       const beforeFrameTimers = new Set(timers.keys())
       flushRaf()
       const firstTimers = [...timers.keys()].filter(key => !beforeFrameTimers.has(key))
+      const staleCallbacks = firstTimers.map(key => timerCallbacks.get(key)).filter((callback): callback is () => void => Boolean(callback))
       expect(firstTimers.length).toBeGreaterThan(0)
       await wrapper.setProps({ enabled: false } as never)
       await nextTick()
       expect(firstTimers.filter(key => timers.has(key))).toHaveLength(0)
-      for (const key of firstTimers) timers.get(key)?.()
-      expect(wrapper.findAll('.aheart-cascader__option').length).toBe(0)
+      const timersBeforeStaleCallback = [...timers.keys()]
+      const framesBeforeStaleCallback = [...frames.keys()]
+      staleCallbacks.forEach(callback => callback())
+      expect([...timers.keys()]).toEqual(timersBeforeStaleCallback)
+      expect([...frames.keys()]).toEqual(framesBeforeStaleCallback)
     } finally {
       userAgent.mockRestore()
     }
