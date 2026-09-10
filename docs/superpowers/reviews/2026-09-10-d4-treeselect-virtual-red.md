@@ -45,3 +45,9 @@ A different Luna High author added the query-gated `TreeSelectVirtualFixture.vue
 The fixture uses source imports, real Teleport panel lookup, explicit reopen after toolbar dismissal, actual computed 24px popup font and real viewport resizing. Disabled tail nodes may remain mounted as overscan; tests assert disabled and unfocused, not their removal. The scroll/layout contract is tested in the browser, not inferred from jsdom zero sizes.
 
 Command: `corepack pnpm exec playwright test --config=/tmp/d4-treeselect-browser-20260910/playwright.config.ts`. Final stdout is `/tmp/d4-treeselect-browser-20260910/last-run.stdout.log`; copied failure traces/screenshots/videos are preserved outside disposable `test-results` in `/tmp/d4-treeselect-browser-20260910/evidence/`. Five-browser expansion, iframe, 200% zoom, real hydration/consumer and broader lazy paths remain open.
+
+## Normal five-browser configuration contract
+
+The independent browser author added a configuration self-check before editing Playwright routing. `node --test scripts/playwright-config.test.mjs` first produced **9 passed / 1 failed**, then **10 passed / 0 failed** after the new TreeSelect spec was added to the existing cross-browser allowlist. Desktop/mobile Chromium retain their existing all-tests default; Firefox and both WebKit projects use the shared list. No timeout, worker, skip or CI architecture changes were made. Logs: `/tmp/d4-treeselect-ci-contract-20260910-red.stdout.log` and `/tmp/d4-treeselect-ci-contract-20260910-green.stdout.log`.
+
+This proves test selection configuration only, not five-browser functional success. The production implementation now proceeds against the frozen genuine RED contracts.
