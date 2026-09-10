@@ -89,6 +89,7 @@ describe('TreeSelect virtual independent recovery', () => {
 
   it('does not turn a zero internal budget into the public 320 default', async () => {
     const warnings: unknown[] = []
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation((...args) => { warnings.push(args) })
     const normalized = normalizeTreeSelectVirtual({ height: 0 }, message => warnings.push(message))
     expect(normalized?.height).toBe(256)
     expect(warnings).toHaveLength(1)
@@ -97,22 +98,30 @@ describe('TreeSelect virtual independent recovery', () => {
     vi.stubGlobal('innerHeight', 300)
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { frames.push(callback); return frames.length })
     vi.stubGlobal('cancelAnimationFrame', (id: number) => { frames[id - 1] = () => {} })
-    const wrapper = select({
-      treeData: data(100),
-      virtual: true,
-      autoAdjustOverflow: false,
-      defaultOpen: false
-    })
-    const trigger = wrapper.get('[role="combobox"]').element as HTMLElement
-    trigger.getBoundingClientRect = () => ({ top: 270, bottom: 300, left: 0, right: 100, width: 100, height: 30, x: 0, y: 270, toJSON() {} })
-    await wrapper.get('[role="combobox"]').trigger('click')
-    await flush()
-    for (const callback of frames.splice(0)) callback(0)
-    await flush()
-    const treeStyle = wrapper.get('.aheart-tree').attributes('style') ?? ''
-    console.log('zero internal budget Tree inline style', treeStyle)
-    expect(treeStyle).toContain('max-block-size: 0px')
-    expect(treeStyle).not.toContain('max-block-size: 320px')
+    try {
+      const wrapper = select({
+        treeData: data(100),
+        virtual: true,
+        autoAdjustOverflow: false,
+        defaultOpen: false
+      })
+      const trigger = wrapper.get('[role="combobox"]').element as HTMLElement
+      trigger.getBoundingClientRect = () => ({ top: 270, bottom: 300, left: 0, right: 100, width: 100, height: 30, x: 0, y: 270, toJSON() {} })
+      await wrapper.get('[role="combobox"]').trigger('click')
+      await flush()
+      for (const callback of frames.splice(0)) callback(0)
+      await flush()
+      const treeStyle = wrapper.get('.aheart-tree').attributes('style') ?? ''
+      const treeVirtual = wrapper.findComponent({ name: 'ATree' }).props('virtual') as { height?: number } | undefined
+      console.log('zero internal budget Tree props/style', treeVirtual, treeStyle)
+      expect(treeStyle).toContain('max-block-size: 0px')
+      expect(treeStyle).not.toContain('max-block-size: 320px')
+      expect(typeof treeVirtual).toBe('object')
+      expect(treeVirtual?.height).toBeGreaterThan(0)
+      expect(warnings.some(entry => String(entry[0]).includes('[ATree] virtual.height'))).toBe(false)
+    } finally {
+      warnSpy.mockRestore()
+    }
   })
 
   it('does not steal later external focus after a rejected controlled opening is accepted', async () => {
@@ -196,5 +205,49 @@ describe('TreeSelect virtual independent recovery', () => {
     await flush()
     console.log('controlled closed focus', document.activeElement?.tagName, document.activeElement?.getAttribute('role'), host.get('[role="combobox"]').attributes('aria-expanded'))
     expect(document.activeElement?.getAttribute('role')).not.toBe('treeitem')
+  })
+
+  it('ArrowUp follows the actual visible endpoint after manually expanding the root', async () => {
+    const wrapper = select({ treeData: [{ key: 'root', title: 'Root', children: [{ key: 'leaf', title: 'Leaf' }] }], virtual: true, defaultOpen: true, showSearch: true })
+    await flush()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flush()
+    expect(wrapper.find('[data-tree-key="leaf"]').exists()).toBe(true)
+    const input = wrapper.get('input')
+    ;(input.element as HTMLElement).focus()
+    await input.trigger('keydown', { key: 'ArrowUp' })
+    await flush()
+    console.log('expanded empty-query endpoint', document.activeElement?.getAttribute('data-tree-key'))
+    expect(document.activeElement?.getAttribute('data-tree-key')).toBe('leaf')
+  })
+
+  it.each([
+    ['default nonvirtual', { treeData: [{ key: 'a', title: 'A' }], defaultOpen: true }],
+    ['disabled virtual', { treeData: [{ key: 'a', title: 'A' }], virtual: true, open: true, disabled: true }]
+  ])('does not install the private budget capture-scroll observer in %s mode', async (_name, props) => {
+    const spy = vi.spyOn(document, 'addEventListener')
+    let captureScroll: unknown[][] = []
+    try {
+      select(props)
+      await flush()
+      captureScroll = spy.mock.calls.filter(([event, _listener, options]) => event === 'scroll' && (options === true || (typeof options === 'object' && options !== null && (options as AddEventListenerOptions).capture === true)))
+      console.log('budget capture scroll listener count', _name, captureScroll.length)
+    } finally {
+      spy.mockRestore()
+    }
+    expect(captureScroll).toHaveLength(0)
+  })
+
+  it('cancels pending search navigation when a new query retains the target key', async () => {
+    const wrapper = select({ treeData: data(200), virtual: true, defaultOpen: true, showSearch: true })
+    await flush()
+    const search = wrapper.get('input')
+    ;(search.element as HTMLInputElement).focus()
+    search.element.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true }))
+    ;(search.element as HTMLInputElement).value = 'Node 199'
+    search.element.dispatchEvent(new Event('input', { bubbles: true }))
+    await flush()
+    console.log('changed query same pending key focus', document.activeElement?.tagName, document.activeElement?.getAttribute('data-tree-key'))
+    expect(document.activeElement).toBe(search.element)
   })
 })
