@@ -22,6 +22,13 @@ async function openMain(page: Page) {
   await expect(await panelFor(page, main(page))).toBeVisible()
 }
 
+async function closeMain(page: Page) {
+  const trigger = main(page).getByRole('combobox')
+  await trigger.press('Escape')
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  await expect(await panelFor(page, main(page))).toBeHidden()
+}
+
 async function panelFor(page: Page, select: Locator) {
   const id = await select.getByRole('combobox').getAttribute('aria-controls')
   expect(id).toBeTruthy()
@@ -52,6 +59,7 @@ test('TreeSelect virtual fixture bounds 1000/10000 rows while exposing checkable
 
   const first = await treeSnapshot(page)
   expect(first.rows).toBeLessThanOrEqual(24)
+  await closeMain(page)
   await page.getByTestId('tree-select-virtual-count-10000').click()
   await openMain(page)
   await expect(page.getByTestId('tree-select-virtual-fixture')).toContainText('count=10000')
