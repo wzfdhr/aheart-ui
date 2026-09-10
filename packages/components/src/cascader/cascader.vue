@@ -572,9 +572,11 @@ const handleOptionFocus = (option: CascaderOption, columnIndex: number) => {
   rovingKeys.value = { ...rovingKeys.value, [columnPrefixToken(columnIndex)]: option.value }
 }
 const handleOptionBlur = (event: FocusEvent) => {
+  const related = event.relatedTarget as Node | null
+  if (related && !rootRef.value?.contains(related) && !panelRef.value?.contains(related)) invalidateModeFocus()
   if (!event.relatedTarget) {
     const current = event.currentTarget as HTMLElement | null
-    if (current?.matches(':disabled') && current.getAttribute('aria-busy') === 'true') return
+    if (current?.matches(':disabled') && current.getAttribute('aria-busy') === 'true') { invalidateModeFocus(); return }
     current?.blur()
     invalidateModeFocus()
   }
@@ -663,7 +665,6 @@ const enterChildColumn = async (option: CascaderOption, columnIndex: number, cur
   await pending
   await nextTick()
   const active = current.ownerDocument.activeElement
-  if (isLoadError(columnIndex, option) && active === current.ownerDocument.body && current.isConnected) current.focus()
   if (request !== keyboardRequest || generation !== loadGeneration || navigation !== navigationVersion || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path)) return
   if (active !== current && active !== current.ownerDocument.body) return
   if (isBranch(option)) {
@@ -672,7 +673,6 @@ const enterChildColumn = async (option: CascaderOption, columnIndex: number, cur
     if (nextIndexes.length) focusColumnIndex(nextColumn, nextIndexes[0])
     else if (current.ownerDocument.activeElement === current.ownerDocument.body) current.focus()
   }
-  if (isLoadError(columnIndex, option) && current.ownerDocument.activeElement === current.ownerDocument.body) current.focus()
 }
 
 const handleTriggerKeydown = (event: KeyboardEvent) => {
