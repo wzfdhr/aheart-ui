@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootRef" class="aheart-tree" :class="{ 'is-disabled': isDisabled, 'is-virtual': virtualConfig && !virtualFallback }" :style="virtualConfig && !virtualFallback ? { maxBlockSize: `${virtualConfig.height}px`, overflowY: 'auto' } : undefined" role="tree" :aria-multiselectable="multiple || undefined" :tabindex="virtualConfig && !virtualFallback ? -1 : undefined" @focusin="trackFocusIn" @focusout="trackFocusOut">
+  <div ref="rootRef" class="aheart-tree" :class="{ 'is-disabled': isDisabled, 'is-virtual': virtualConfig && !virtualFallback }" :style="virtualConfig && !virtualFallback ? { maxBlockSize: `${internalViewportHeight ?? virtualConfig.height}px`, overflowY: 'auto' } : undefined" role="tree" :aria-multiselectable="multiple || undefined" :tabindex="virtualConfig && !virtualFallback ? -1 : undefined" @focusin="trackFocusIn" @focusout="trackFocusOut">
     <ul class="aheart-tree__list" :style="virtualConfig && !virtualFallback ? { blockSize: `${virtualAdapter.totalSize.value}px`, position: 'relative' } : undefined">
       <ATreeNode
         v-for="entry in renderedNodes"
@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, nextTick, onMounted, ref, useAttrs, watch, type VNodeRef } from 'vue'
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, useAttrs, watch, type VNodeRef } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { useStableId } from '../utils/use-stable-id'
 import { closestVisibleTreeKey, createTreeIndex, getVisibleTreeNodes, treeKeyToken } from './tree-index'
@@ -41,6 +41,7 @@ import ATreeNode from './tree-node.vue'
 import { treeProps, type TreeCheckInfo, type TreeKey, type TreeNodeData } from './types'
 import { normalizeTreeVirtual } from './virtual-options'
 import { useTreeVirtual } from './use-tree-virtual'
+import { treeFocusBridgeKey, treeVirtualViewportHeightKey } from './tree-focus-bridge'
 import './style.css'
 
 defineOptions({ name: 'ATree' })
@@ -59,6 +60,8 @@ const attrs = useAttrs()
 const treeId = useStableId(() => attrs.id as string | undefined, 'aheart-tree')
 const isDisabled = computed(() => resolveConfigValue(props.disabled, config.value.disabled, false))
 const sharedModel = inject(treeModelKey, undefined)
+const focusBridge = inject(treeFocusBridgeKey, undefined)
+const privateViewportHeight = inject(treeVirtualViewportHeightKey, undefined)
 const loader = sharedModel?.loader ?? useTreeLoader(() => props.treeData, () => props.loadData, () => isDisabled.value)
 const renderData = computed(() => sharedModel ? props.treeData : loader.data.value)
 const treeIndex = computed(() => createTreeIndex(renderData.value, isDisabled.value))
@@ -93,6 +96,7 @@ const virtualConfig = computed(() => normalizeTreeVirtual(props.virtual, (messag
 }))
 const virtualAdapter = useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled)
 const virtualFallback = computed(() => virtualAdapter.fallback.value)
+const internalViewportHeight = computed(() => privateViewportHeight?.value)
 const renderedNodes = computed(() => virtualConfig.value && !virtualFallback.value
   ? virtualAdapter.rows.value.map(row => ({ key: row.entry.key, node: row.entry.node, item: row.item, level: row.entry.level }))
   : renderData.value.map(node => ({ key: node.key, node, item: undefined })))
@@ -138,7 +142,7 @@ const trackFocusOut = (event: FocusEvent) => {
   const next = event.relatedTarget as Node | null
   if (next && !rootRef.value?.contains(next)) focusMovedOutside.value = true
 }
-const focusNode = (key: TreeKey, existingVersion?: number) => {
+const focusNode = (key: TreeKey, existingVersion?: number, allowExternalSource = false) => {
   if (!virtualConfig.value || virtualFallback.value) {
     focusedKey.value = key
     void nextTick(() => Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
@@ -152,11 +156,11 @@ const focusNode = (key: TreeKey, existingVersion?: number) => {
   const focusMounted = () => {
     const activeNow = rootRef.value?.ownerDocument.activeElement
     const body = rootRef.value?.ownerDocument.body
-    if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== body && !rootRef.value.contains(activeBefore) && !(sourceOwnsTarget && activeNow === body)) {
+    if (!allowExternalSource && virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== body && !rootRef.value.contains(activeBefore) && !(sourceOwnsTarget && activeNow === body)) {
       virtualAdapter.cancelPending()
       return
     }
-    if (virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
+    if (!allowExternalSource && virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
       virtualAdapter.cancelPending()
       return
     }
@@ -178,6 +182,12 @@ const handleNodeFocus = (node: TreeNodeData) => {
   focusedKey.value = node.key
   virtualAdapter.commitFocus(node.key)
 }
+const unregisterFocusBridge = focusBridge?.register(
+  (key, allowExternalSource) => focusNode(key, undefined, allowExternalSource),
+  virtualAdapter.cancelPending,
+  (last) => visibleNodes.value.filter(entry => !isNodeDisabled(entry.key)).at(last ? -1 : 0)?.key
+)
+onBeforeUnmount(() => unregisterFocusBridge?.())
 const retryNode = (node: TreeNodeData) => {
   if (isNodeDisabled(node.key)) return
   const transaction = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : undefined
@@ -260,7 +270,8 @@ const handleKeydown = (event: KeyboardEvent, node: TreeNodeData) => {
     else selectNode(node)
   } else if (event.key === 'Home' || event.key === 'End') {
     event.preventDefault()
-    const target = event.key === 'Home' ? orderedNodes[0] : orderedNodes.at(-1)
+    const enabledNodes = orderedNodes.filter(entry => !isNodeDisabled(entry.key))
+    const target = event.key === 'Home' ? enabledNodes[0] : enabledNodes.at(-1)
     if (target) focusNode(target.key)
   }
 }
