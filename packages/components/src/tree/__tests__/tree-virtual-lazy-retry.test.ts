@@ -38,6 +38,28 @@ const flushOwnerRealm = async () => {
   await nextTick()
 }
 
+const prepareCollapsedRetry = async (treeSelect = false) => {
+  const calls: AbortSignal[] = []
+  const loadData = vi.fn((_node: unknown, context: { signal: AbortSignal }) => {
+    calls.push(context.signal)
+    return calls.length === 1 ? Promise.reject(new Error('offline')) : new Promise<unknown[]>(() => {})
+  })
+  const wrapper = treeSelect
+    ? mount(TreeSelect, { attachTo: document.body, props: { treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], virtual: true, open: true, loadData, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never })
+    : mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never })
+  await flushOwnerRealm()
+  await wrapper.get('.aheart-tree__switcher').trigger('click')
+  await flushOwnerRealm()
+  expect(loadData).toHaveBeenCalledTimes(1)
+  await wrapper.get('.aheart-tree__switcher').trigger('click')
+  await flushOwnerRealm()
+  expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+  const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+  retry.focus()
+  await flushOwnerRealm()
+  return { wrapper, loadData, calls, retry }
+}
+
 beforeEach(() => {
   observers.length = 0
   previousResizeObserver = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
@@ -169,14 +191,7 @@ describe('Tree virtual lazy retry focus', () => {
   })
 
   it('does not start a second loader after retry and same-turn standalone unmount', async () => {
-    const loadData = vi.fn()
-      .mockRejectedValueOnce(new Error('offline'))
-      .mockImplementationOnce(() => new Promise(() => {}))
-    const wrapper = mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never })
-    await flushOwnerRealm()
-    await wrapper.get('.aheart-tree__switcher').trigger('click')
-    await flushOwnerRealm()
-    const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
     retry.click()
     wrapper.unmount()
     await flushOwnerRealm()
@@ -184,23 +199,8 @@ describe('Tree virtual lazy retry focus', () => {
   })
 
   it('does not start a second loader after retry and same-turn controlled TreeSelect close', async () => {
-    const loadData = vi.fn()
-      .mockRejectedValueOnce(new Error('offline'))
-      .mockImplementationOnce(() => new Promise(() => {}))
-    const wrapper = mount(TreeSelect, {
-      attachTo: document.body,
-      props: {
-        virtual: true,
-        treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }],
-        loadData,
-        open: true,
-        getPopupContainer: (trigger: HTMLElement) => trigger.parentElement!
-      } as never
-    })
-    await flushOwnerRealm()
-    await wrapper.get('.aheart-tree__switcher').trigger('click')
-    await flushOwnerRealm()
-    await wrapper.get('[aria-label="重试加载 Lazy root"]').trigger('click')
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry(true)
+    retry.click()
     await wrapper.setProps({ open: false } as never)
     await flushOwnerRealm()
     expect(loadData).toHaveBeenCalledTimes(1)
@@ -211,16 +211,21 @@ describe('Tree virtual lazy retry focus', () => {
     ['removed', { treeData: [] }],
     ['replaced', { treeData: [{ key: 'replacement', title: 'Replacement', isLeaf: false }] }]
   ])('does not start a second loader after retry and same-turn %s transition', async (_label, nextProps) => {
-    const loadData = vi.fn()
-      .mockRejectedValueOnce(new Error('offline'))
-      .mockImplementationOnce(() => new Promise(() => {}))
-    const wrapper = mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never })
-    await flushOwnerRealm()
-    await wrapper.get('.aheart-tree__switcher').trigger('click')
-    await flushOwnerRealm()
-    await wrapper.get('[aria-label="重试加载 Lazy root"]').trigger('click')
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    retry.click()
     await wrapper.setProps(nextProps as never)
     await flushOwnerRealm()
     expect(loadData).toHaveBeenCalledTimes(1)
+  })
+
+  it('starts one retry after an already-expanded path without an extra expand event', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const expandCount = wrapper.emitted('expand')?.length
+    retry.click()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(2)
+    expect(wrapper.emitted('expand')?.length).toBe(expandCount)
   })
 })
