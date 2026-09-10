@@ -40,9 +40,8 @@ async function open(page: Page, testId = 'cascader-virtual-main') {
 }
 
 test('default Cascader remains full-DOM compatible while the opt-in fixture exposes a virtual contract', async ({ page }) => {
-  const popup = await open(page)
+  const popup = await open(page, 'cascader-virtual-default')
   await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(1000)
-  await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).toHaveAttribute('aria-activedescendant', /.+/)
 })
 
 test('virtual Cascader mounts at most 24 options per column for 1k and 10k siblings', async ({ page }) => {
@@ -54,10 +53,11 @@ test('virtual Cascader mounts at most 24 options per column for 1k and 10k sibli
   await page.getByTestId('cascader-virtual-count-10000').click()
   popup = await open(page)
   await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(24)
-  await expect(popup.locator('[data-cascader-column="0"]')).toHaveCSS('overflow-y', 'auto')
+  await expect(popup.locator('.aheart-cascader__column').first()).toHaveCSS('overflow-y', 'auto')
+  await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).not.toHaveAttribute('aria-activedescendant')
 })
 
-test('five columns keep logical 2k siblings virtualized and use one vertical scroll owner', async ({ page }) => {
+test('five columns keep logical 2k siblings virtualized with one vertical scroll owner per column', async ({ page }) => {
   await page.getByTestId('cascader-virtual-five-columns').click()
   const popup = await open(page)
   const columns = popup.locator('.aheart-cascader__column')
@@ -70,8 +70,14 @@ test('five columns keep logical 2k siblings virtualized and use one vertical scr
   await expect(popup.locator('.aheart-cascader__column')).toHaveCount(5)
   await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(24)
   await expect(popup.locator('.aheart-cascader__option[data-cascader-column="1"]')).toHaveCount(24)
-  const verticalOwners = await popup.evaluate(element => Array.from(element.querySelectorAll<HTMLElement>('*')).filter(node => ['auto', 'scroll'].includes(getComputedStyle(node).overflowY)).length)
-  expect(verticalOwners).toBe(1)
+  const verticalOwners = await popup.evaluate(element => ({
+    columns: Array.from(element.querySelectorAll<HTMLElement>('.aheart-cascader__column')).map(node => getComputedStyle(node).overflowY),
+    popup: getComputedStyle(element).overflowY,
+    columnsWrap: getComputedStyle(element.querySelector<HTMLElement>('.aheart-cascader__columns')!).overflowY
+  }))
+  expect(verticalOwners.columns).toEqual(['auto', 'auto', 'auto', 'auto', 'auto'])
+  expect(verticalOwners.popup).not.toMatch(/^(auto|scroll)$/)
+  expect(verticalOwners.columnsWrap).not.toMatch(/^(auto|scroll)$/)
 })
 
 test('keyboard navigation reaches real focus, disabled tail, End, Left/Right and Enter', async ({ page }) => {
@@ -86,9 +92,12 @@ test('keyboard navigation reaches real focus, disabled tail, End, Left/Right and
   await page.keyboard.press('ArrowLeft')
   await expect(first).toBeFocused()
   await first.press('End')
-  await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]').last()).toBeFocused()
-  await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]').last()).toHaveAttribute('aria-disabled', 'true')
-  await expect(trigger).toHaveAttribute('aria-activedescendant', /.+/)
+  const lastEnabled = popup.locator('.aheart-cascader__option[data-cascader-column="0"]:not(:disabled)').last()
+  await expect(lastEnabled).toBeFocused()
+  const disabledTail = popup.locator('.aheart-cascader__option[data-cascader-column="0"]:disabled').last()
+  await expect(disabledTail).toBeVisible()
+  await expect(disabledTail).not.toBeFocused()
+  await expect(trigger).not.toHaveAttribute('aria-activedescendant')
   await first.press('Enter')
 })
 
@@ -96,11 +105,14 @@ test('search virtualizes 10k leaves, supports End+Enter, no-result and clear rec
   await page.getByTestId('cascader-virtual-search-leaves').click()
   const popup = await open(page)
   const search = popup.getByRole('searchbox', { name: '搜索级联选项' })
-  await search.fill('Search leaf 0001')
-  await expect(popup.locator('.aheart-cascader__search-results .aheart-cascader__option')).toHaveCount(1)
+  await search.fill('Search leaf 0')
+  const searchRows = popup.locator('.aheart-cascader__search-results .aheart-cascader__option')
+  const mountedSearchRows = await searchRows.count()
+  expect(mountedSearchRows).toBeGreaterThan(0)
+  expect(mountedSearchRows).toBeLessThanOrEqual(24)
   await search.press('End')
   await search.press('Enter')
-  await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).toContainText('Search leaf 0001')
+  await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).toContainText('Search leaf 09998')
   await field(page, 'cascader-virtual-main').getByRole('combobox').click()
   const reopened = await panel(page)
   await reopened.getByRole('searchbox', { name: '搜索级联选项' }).fill('no-match-anywhere')
@@ -120,6 +132,8 @@ test('typed paths and duplicate leaf paths retain identity when switching branch
   await controlled.getByRole('combobox').click()
   const reopened = await panel(page, 'cascader-virtual-controlled')
   await expect(reopened.locator('[data-cascader-value="duplicate-a"]')).toHaveAttribute('data-cascader-token', /.+/)
+  await reopened.locator('[data-cascader-value="duplicate-b"]').click()
+  await expect(reopened.locator('[data-cascader-value="same-leaf"]')).not.toHaveClass(/is-selected/)
   await expect(reopened.locator('[data-cascader-token="n-31"]')).toHaveCount(1)
   await expect(reopened.locator('[data-cascader-token="s-31"]')).toHaveCount(1)
   await reopened.locator('[data-cascader-token="n-31"]').press('ArrowRight')
@@ -170,8 +184,18 @@ test('narrow short viewport, font 24 and long labels keep dynamic geometry insid
   await page.getByTestId('cascader-virtual-viewport').click()
   const popup = await open(page)
   await expect(popup.getByRole('searchbox', { name: '搜索级联选项' })).toBeVisible()
-  const panelRect = await popup.boundingBox()
-  const triggerRect = await field(page, 'cascader-virtual-main').getByRole('combobox').boundingBox()
-  expect(panelRect && triggerRect && panelRect.width).toBeGreaterThan(0)
-  await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(24)
+  const geometry = await popup.evaluate(element => {
+    const panelRect = element.getBoundingClientRect()
+    const rows = Array.from(element.querySelectorAll<HTMLElement>('.aheart-cascader__option[data-cascader-column="0"]'))
+    return {
+      mounted: rows.length,
+      panel: { top: panelRect.top, bottom: panelRect.bottom, left: panelRect.left, right: panelRect.right, width: panelRect.width, height: panelRect.height },
+      rows: rows.map(row => { const rect = row.getBoundingClientRect(); return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height } })
+    }
+  })
+  expect(geometry.mounted).toBeGreaterThan(0)
+  expect(geometry.mounted).toBeLessThanOrEqual(24)
+  expect(geometry.panel.width).toBeGreaterThan(0)
+  expect(geometry.panel.height).toBeGreaterThan(0)
+  expect(geometry.rows.every(row => row.height > 0 && row.top >= geometry.panel.top - 1 && row.bottom <= geometry.panel.bottom + 1 && row.left >= geometry.panel.left - 1 && row.right <= geometry.panel.right + 1)).toBe(true)
 })

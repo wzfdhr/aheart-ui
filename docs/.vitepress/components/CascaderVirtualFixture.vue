@@ -75,8 +75,12 @@ const fiveColumnOptions = computed<CascaderOption[]>(() => {
 
 const searchOptions = computed<CascaderOption[]>(() => Array.from({ length: 10000 }, (_, index) => ({
   value: `search-${index}`,
-  label: labelFor('Search group', index),
-  children: [leaf('search', index)]
+  label: `Search group ${String(index).padStart(5, '0')}`,
+  children: [{
+    value: `search-leaf-${index}`,
+    label: `Search leaf ${String(index).padStart(5, '0')}`,
+    disabled: index === 9999
+  }]
 })))
 
 const options = computed(() => mode.value === 'five-columns'
@@ -157,6 +161,15 @@ const closeLazy = () => { lazyOpen.value = false }
     </p>
 
     <div class="cascader-virtual-fixture__fields">
+      <div class="cascader-virtual-fixture__field">
+        <span id="cascader-virtual-default-label" class="cascader-virtual-fixture__label">Default full DOM</span>
+        <Cascader
+          data-testid="cascader-virtual-default"
+          :options="siblingOptions"
+          placeholder="默认完整 DOM"
+          aria-labelledby="cascader-virtual-default-label"
+        />
+      </div>
       <div class="cascader-virtual-fixture__field">
         <span id="cascader-virtual-main-label" class="cascader-virtual-fixture__label">Virtual Cascader</span>
         <Cascader
