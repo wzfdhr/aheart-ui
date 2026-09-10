@@ -67,7 +67,7 @@ export default defineConfig({
           ]
         },
         socialLinks: [
-          { icon: { svg: githubSvg }, link: githubLink }
+          { icon: { svg: githubSvg }, ariaLabel: 'GitHub', link: githubLink }
         ],
         search: {
           provider: 'local'
