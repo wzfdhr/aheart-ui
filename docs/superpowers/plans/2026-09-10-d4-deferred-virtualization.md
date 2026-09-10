@@ -9,7 +9,7 @@ This is the independent follow-up authorized by the persistent optimization goal
 - [x] Draft public API, native tree semantic model, per-column Cascader model, SSR/realm rules and quantitative exits.
 - [x] Independent architecture reviewer cleared two repair rounds (`0/3/3` → `0/1/1` → `0/0/0`) and released Tree RED only.
 - [x] Tree genuine RED: existing `44/44` passed; corrected suite `3 passed / 10 failed`; full Tree `47 passed / 10 failed`; public type-included check failed as expected.
-- [ ] Tree GREEN implementation, development/design/test/product reviews.
+- [x] Tree GREEN implementation and functional development/design/test/product reviews: candidate `dc8c299`, independent unit91/91, developer28/28, isolated five-browser45/45, fresh lazy visual supplement and product P0/P1/P2=`0/0/0`. Joint final phase gates below remain open.
 - [ ] TreeSelect genuine RED, GREEN implementation, development/design/test/product reviews.
 - [ ] Cascader genuine RED, GREEN implementation, development/design/test/product reviews.
 - [ ] Real tgz consumer, 1k/5k/10k performance, gzip, SSR/hydration and iframe evidence.
