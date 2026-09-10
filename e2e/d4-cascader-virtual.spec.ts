@@ -41,14 +41,30 @@ async function expectKeyboardFocusIndicator(locator: Locator) {
 }
 
 async function expectTextContrast(locator: Locator) {
-  const ratio = await locator.evaluate(element => {
-    const parse = (value: string) => value.match(/rgba?\(([^)]+)\)/)?.[1].split(',').slice(0, 3).map(channel => Number(channel.trim())) ?? []
+  const colors = await locator.evaluate(element => {
+    const parse = (value: string) => {
+      const rgb = value.match(/rgba?\(([^)]+)\)/)?.[1].split(',').slice(0, 3).map(channel => Number(channel.trim()))
+      if (rgb) return rgb
+      const srgb = value.match(/color\(srgb\s+([^\s/]+)\s+([^\s/]+)\s+([^\s/]+)(?:\s*\/\s*[^)]+)?\)/i)
+      if (!srgb) return []
+      return [srgb[1], srgb[2], srgb[3]].map(channel => Number(channel) * 255)
+    }
+    const computed = getComputedStyle(element)
+    return { foreground: parse(computed.color), background: parse(computed.backgroundColor) }
+  })
+  expect(colors.foreground).toHaveLength(3)
+  expect(colors.background).toHaveLength(3)
+  expect(colors.foreground.every(Number.isFinite)).toBe(true)
+  expect(colors.background.every(Number.isFinite)).toBe(true)
+  const ratio = await locator.evaluate((element, colors) => {
     const linear = (channel: number) => { const normalized = channel / 255; return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4 }
     const luminance = (value: number[]) => 0.2126 * linear(value[0]) + 0.7152 * linear(value[1]) + 0.0722 * linear(value[2])
-    const foreground = luminance(parse(getComputedStyle(element).color))
-    const background = luminance(parse(getComputedStyle(element).backgroundColor))
+    const foreground = luminance(colors.foreground)
+    const background = luminance(colors.background)
     return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
-  })
+  }, colors)
+  console.log(JSON.stringify({ foreground: colors.foreground, background: colors.background, ratio }))
+  expect(Number.isFinite(ratio)).toBe(true)
   expect(ratio).toBeGreaterThanOrEqual(4.5)
 }
 
