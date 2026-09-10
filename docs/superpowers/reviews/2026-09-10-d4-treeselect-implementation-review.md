@@ -10,7 +10,7 @@ The worker reported 67/67 selected core/legacy tests passing, then corrected two
 
 The independent author executed the frozen source: maintained Tree/TreeSelect **104 passed / 1 failed across 105**, lifecycle subset **4 passed / 1 failed**, public-type local config **passed**. Source hashes before/after matched. Logs are in `/tmp/d4-treeselect-independent-20260910/`.
 
-The failed lazy retry is a reproduced integration defect. Under virtual mode the second request starts, with the root expanded/busy and the signal not aborted; after resolving, the popup remains open but the root collapses, the request signal is aborted and the child is absent. Both native button click and Vue Test Utils trigger reproduce it. A nonvirtual comparison also collapses on retry, before starting the second request, so standalone Tree retry evidence cannot establish TreeSelect integration correctness. The independent author did not change production or test assertions during diagnosis. Logs: `retry-diagnosis.log` and `retry-diagnosis-trigger.log` in the same directory.
+The failed lazy retry was initially classified as an integration defect: under virtual mode the second request starts, then the root collapses and the child is absent; both native click and Vue Test Utils trigger reproduce it. A nonvirtual comparison also collapses on retry. **That production-defect classification is withdrawn by the real-Teleport comparison below:** both event methods shared the same faulty Teleport stub, so changing the event method did not isolate production behavior. The original observations and logs (`retry-diagnosis.log`, `retry-diagnosis-trigger.log`) are retained without relabelling them as successful runs.
 
 The passing initial lifecycle cases are supplemental evidence, not fabricated RED. The independent developer's viewport/focus/compatibility diagnostics and a valid browser run remain required before the repair plan and final gate can be closed.
 
@@ -31,7 +31,7 @@ An independent Astra High reviewer executed ten diagnostics: **6 failed / 4 pass
 | P2 | An internal zero viewport budget is passed as public virtual.height and normalizes back to320. | Keep valid public configuration separate from a legal zero internal viewport constraint. |
 | P2 | A realm providing RAF but no cancelRAF throws on unmount. | Treat scheduling/cancellation capability as a pair and safely dispose or fall back. |
 
-Initial keyboard open, pre-mount external focus cancellation, rejected open followed by external focus, and ancestor-scroll updates without RO/RAF passed. They are not included as defects merely because they were earlier hypotheses. The separate retry defect remains an additional functional acceptance blocker.
+Initial keyboard open, pre-mount external focus cancellation, rejected open followed by external focus, and ancestor-scroll updates without RO/RAF passed. They are not included as defects merely because they were earlier hypotheses. Retry was separately held for investigation and subsequently reclassified as a fixture failure below.
 
 Report, source hashes and executable diagnostics: `/tmp/d4-treeselect-dev-review.6UWbFj/` (`review.md`, `diagnostics.test.ts`, `diagnostics.log`, `source-hashes.txt`). Production remains frozen until the independent browser snapshot finishes; the sole implementation worker then enters the repair loop. No component or phase acceptance is granted.
 
@@ -41,7 +41,7 @@ The independent test author preserved the developer boundaries in `tree-select-v
 
 After restoring the terminated source preview, the independent four-scenario/five-browser run reached **14 passed / 6 failed**. Four Firefox cases failed their runtime-error check on VitePress's remote Iconify GitHub SVG CORS request. Two mobile bounds cases attempted to click a toolbar behind an open popup and timed out before changing the data. Their classifications and traces are retained in `/tmp/d4-treeselect-browser-independent-20260910/run-source-5371/`. The test author added an explicit real Escape close before toolbar interaction; it still needs a fresh run. The Iconify request must be removed using the existing local icon asset, not by suppressing console errors or mocking a successful network response.
 
-The main thread now owns source preview port5371 to keep its lifecycle independent of short-lived audit workers. No distribution build is allowed during browser verification. All seven component blockers (six developer findings plus retry) remain open until repairs and fresh independent evidence pass.
+The main thread now owns source preview port5371 to keep its lifecycle independent of short-lived audit workers. No distribution build is allowed during browser verification. Six confirmed developer findings require repair/re-review; the initially counted seventh retry blocker is now a test-fixture repair, not a production defect.
 
 ## Infrastructure/test-precondition repair evidence
 
@@ -50,3 +50,11 @@ The independent test worker reused the exact installed `@iconify-json/simple-ico
 With the explicit Escape-before-toolbar test precondition, targeted desktop Firefox, mobile Chromium and mobile WebKit bounds cases each passed once. Firefox no longer emitted the Iconify CORS error. Logs: `/tmp/d4-treeselect-browser-independent-20260910/offline-final/`. These targeted results validate the asset/precondition repairs only: the component repair worker was allowed to change source during this period, so they are not final frozen-source browser acceptance. A complete fresh matrix remains required.
 
 Main-thread review then identified an accessibility regression in that custom-icon change: VitePress supplies an empty default aria-label for object icons, and the decorative SVG is hidden from assistive technology. An independent browser check confirmed two unnamed social links and no GitHub-labelled social link. The configuration now explicitly supplies `ariaLabel: 'GitHub'`; a maintained Node configuration/asset self-check and the actual browser name check each pass. RED/GREEN logs are retained under `/tmp/d4-docs-social-icon-a11y/`. This repair preserves the original destination and icon while restoring its accessible name; it is not a general accessibility compliance claim.
+
+## Retry root cause: test fixture, not production
+
+An independent Astra High reviewer compared the same production source with real versus stubbed Teleport, in both virtual and nonvirtual modes. All four diagnostic expectations passed: stubbed virtual mode changed Tree uid12→21, and stubbed default mode changed uid52→58; real Teleport kept uid31 and uid68 respectively, issued two loader calls, retained expansion, did not abort and rendered the child in both modes.
+
+The installed Vue Test Utils intentionally does not cache the Teleport transformer and creates a fresh stub component type on parent render. That replaces the nested Tree, resetting its uncontrolled expansion; the new Tree then cancels the shared pending load. Thus neither a native-click comparison nor a default-mode comparison under the same stub establishes a production defect.
+
+Root-cause report and executable four-way comparison: `/tmp/d4-treeselect-retry-rootcause.a8CfKA/` (`root-cause.md`, `retry.test.ts`, `retry.log`, `source-hashes.txt`). No production Tree/loader workaround is approved. The independent test author is replacing the new TreeSelect tests' Teleport stubs with real Teleport/attached owner containers, retaining retry assertions and rerunning the full maintained suite. A first-pass success under the corrected fixture is supplementary compatibility evidence, not a fabricated production RED/GREEN.
