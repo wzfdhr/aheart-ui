@@ -177,10 +177,7 @@ describe('Cascader virtual core contract', () => {
     await input.setValue('node')
     await settle()
     expect(wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option').length).toBeLessThanOrEqual(24)
-    const searchOwners = wrapper.findAll<HTMLElement>('*').filter(node => {
-      const element = node.element
-      return element.dataset.virtualScrollOwner === 'true' || ['auto', 'scroll'].includes(getComputedStyle(element).overflowY)
-    })
+    const searchOwners = wrapper.findAll<HTMLElement>('[data-virtual-scroll-owner="true"]')
     expect(searchOwners).toHaveLength(1)
     await input.trigger('keydown', { key: 'ArrowDown' })
     expect(document.activeElement).toBe(wrapper.find('.aheart-cascader__search-results .aheart-cascader__option').element)
@@ -197,10 +194,7 @@ describe('Cascader virtual core contract', () => {
     const panel = wrapper.get('.aheart-cascader__panel').element as HTMLElement
     const columns = wrapper.findAll('.aheart-cascader__column')
     expect(columns).toHaveLength(1)
-    const owners = wrapper.findAll<HTMLElement>('*').filter(node => {
-      const element = node.element
-      return element.dataset.virtualScrollOwner === 'true' || ['auto', 'scroll'].includes(getComputedStyle(element).overflowY)
-    })
+    const owners = wrapper.findAll<HTMLElement>('[data-virtual-scroll-owner="true"]')
     const columnsWrapper = wrapper.get('.aheart-cascader__columns').element
     expect(owners).toHaveLength(1)
     expect(owners[0].element).not.toBe(panel)

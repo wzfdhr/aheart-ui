@@ -6,9 +6,16 @@ import Cascader from '../cascader.vue'
 
 type Option = { value: string; label: string; children?: Option[]; isLeaf?: boolean }
 type OwnerObserver = { callback: ResizeObserverCallback; disconnect: ReturnType<typeof vi.fn>; observed: Element[] }
+type CapabilityObserver = { callback: ResizeObserverCallback; disconnect: ReturnType<typeof vi.fn>; observed: Element[] }
 
 const wrappers: Array<ReturnType<typeof mount>> = []
 const ownerObservers: OwnerObserver[] = []
+const capabilityObservers: CapabilityObserver[] = []
+const rafQueue = new Map<number, FrameRequestCallback>()
+let rafSequence = 0
+let previousResizeObserver: PropertyDescriptor | undefined
+let previousRequestAnimationFrame: PropertyDescriptor | undefined
+let previousCancelAnimationFrame: PropertyDescriptor | undefined
 const options = (count: number): Option[] => Array.from({ length: count }, (_, index) => ({ value: `item-${index}`, label: `Item ${index}` }))
 const track = <T extends ReturnType<typeof mount>>(wrapper: T) => {
   const unmount = wrapper.unmount.bind(wrapper)
@@ -17,7 +24,24 @@ const track = <T extends ReturnType<typeof mount>>(wrapper: T) => {
   wrappers.push(wrapper)
   return wrapper
 }
-const settle = async () => { await nextTick(); await flushPromises(); await nextTick() }
+class ControlledCapabilityResizeObserver {
+  readonly disconnect = vi.fn()
+  readonly observed: Element[] = []
+  constructor(readonly callback: ResizeObserverCallback) {
+    capabilityObservers.push({ callback, disconnect: this.disconnect, observed: this.observed })
+  }
+  observe(element: Element) { this.observed.push(element) }
+  unobserve(element: Element) { const index = this.observed.indexOf(element); if (index >= 0) this.observed.splice(index, 1) }
+}
+const settle = async () => {
+  await nextTick()
+  await flushPromises()
+  await nextTick()
+  const callbacks = [...rafQueue.values()]
+  rafQueue.clear()
+  callbacks.forEach(callback => callback(performance.now()))
+  await nextTick()
+}
 const mountCascader = (props: Record<string, unknown>, extra: Record<string, unknown> = {}) => track(mount(Cascader, {
   attachTo: document.body,
   ...extra,
@@ -26,11 +50,30 @@ const mountCascader = (props: Record<string, unknown>, extra: Record<string, unk
 
 beforeEach(() => {
   ownerObservers.length = 0
+  capabilityObservers.length = 0
+  rafQueue.clear()
+  previousResizeObserver = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
+  previousRequestAnimationFrame = Object.getOwnPropertyDescriptor(window, 'requestAnimationFrame')
+  previousCancelAnimationFrame = Object.getOwnPropertyDescriptor(window, 'cancelAnimationFrame')
+  Object.defineProperty(window, 'ResizeObserver', { configurable: true, value: ControlledCapabilityResizeObserver })
+  Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: (callback: FrameRequestCallback) => { const id = ++rafSequence; rafQueue.set(id, callback); return id } })
+  Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: (id: number) => { rafQueue.delete(id) } })
 })
 
 afterEach(() => {
   for (const wrapper of wrappers.splice(0)) wrapper.unmount()
   ownerObservers.length = 0
+  capabilityObservers.length = 0
+  rafQueue.clear()
+  if (previousResizeObserver) Object.defineProperty(window, 'ResizeObserver', previousResizeObserver)
+  else Reflect.deleteProperty(window, 'ResizeObserver')
+  if (previousRequestAnimationFrame) Object.defineProperty(window, 'requestAnimationFrame', previousRequestAnimationFrame)
+  else Reflect.deleteProperty(window, 'requestAnimationFrame')
+  if (previousCancelAnimationFrame) Object.defineProperty(window, 'cancelAnimationFrame', previousCancelAnimationFrame)
+  else Reflect.deleteProperty(window, 'cancelAnimationFrame')
+  previousResizeObserver = undefined
+  previousRequestAnimationFrame = undefined
+  previousCancelAnimationFrame = undefined
 })
 
 describe('Cascader virtual lifecycle, SSR and owner realm', () => {
@@ -203,7 +246,12 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
     document.body.appendChild(iframe)
     const ownerDocument = iframe.contentDocument!
     const ownerWindow = ownerDocument.defaultView!
+    const previousObserver = Object.getOwnPropertyDescriptor(ownerWindow, 'ResizeObserver')
     const previousRaf = Object.getOwnPropertyDescriptor(ownerWindow, 'requestAnimationFrame')
+    const previousCancel = Object.getOwnPropertyDescriptor(ownerWindow, 'cancelAnimationFrame')
+    Object.defineProperty(ownerWindow, 'ResizeObserver', { configurable: true, value: ControlledCapabilityResizeObserver })
+    Object.defineProperty(ownerWindow, 'requestAnimationFrame', { configurable: true, value: (callback: FrameRequestCallback) => ownerWindow.setTimeout(() => callback(ownerWindow.performance.now()), 0) })
+    Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, value: (id: number) => ownerWindow.clearTimeout(id) })
     Reflect.deleteProperty(ownerWindow, 'requestAnimationFrame')
     let wrapper: ReturnType<typeof mount> | undefined
     try {
@@ -212,8 +260,12 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
       expect(wrapper.findAll('.aheart-cascader__option').length).toBeGreaterThan(24)
     } finally {
       if (wrapper) wrapper.unmount()
+      if (previousObserver) Object.defineProperty(ownerWindow, 'ResizeObserver', previousObserver)
+      else Reflect.deleteProperty(ownerWindow, 'ResizeObserver')
       if (previousRaf) Object.defineProperty(ownerWindow, 'requestAnimationFrame', previousRaf)
       else Reflect.deleteProperty(ownerWindow, 'requestAnimationFrame')
+      if (previousCancel) Object.defineProperty(ownerWindow, 'cancelAnimationFrame', previousCancel)
+      else Reflect.deleteProperty(ownerWindow, 'cancelAnimationFrame')
       iframe.remove()
     }
   })
@@ -224,6 +276,12 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
     const ownerDocument = iframe.contentDocument!
     const ownerWindow = ownerDocument.defaultView!
     const previous = Object.getOwnPropertyDescriptor(ownerWindow, missing)
+    const previousObserver = Object.getOwnPropertyDescriptor(ownerWindow, 'ResizeObserver')
+    const previousRaf = Object.getOwnPropertyDescriptor(ownerWindow, 'requestAnimationFrame')
+    const previousCancel = Object.getOwnPropertyDescriptor(ownerWindow, 'cancelAnimationFrame')
+    Object.defineProperty(ownerWindow, 'ResizeObserver', { configurable: true, value: ControlledCapabilityResizeObserver })
+    Object.defineProperty(ownerWindow, 'requestAnimationFrame', { configurable: true, value: (callback: FrameRequestCallback) => ownerWindow.setTimeout(() => callback(ownerWindow.performance.now()), 0) })
+    Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, value: (id: number) => ownerWindow.clearTimeout(id) })
     Reflect.deleteProperty(ownerWindow, missing)
     let wrapper: ReturnType<typeof mount> | undefined
     try {
@@ -234,9 +292,18 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
       rows[0].focus()
       rows[0].dispatchEvent(new ownerWindow.KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
       await settle()
-      expect(ownerDocument.activeElement).toBe(rows.at(-1))
+      const target = ownerDocument.querySelector<HTMLElement>('[data-cascader-value="item-999"]')
+      expect(target?.isConnected).toBe(true)
+      expect(target?.hidden).toBe(false)
+      expect(ownerDocument.activeElement?.getAttribute('data-cascader-value')).toBe('item-999')
     } finally {
       if (wrapper) wrapper.unmount()
+      if (previousObserver) Object.defineProperty(ownerWindow, 'ResizeObserver', previousObserver)
+      else Reflect.deleteProperty(ownerWindow, 'ResizeObserver')
+      if (previousRaf) Object.defineProperty(ownerWindow, 'requestAnimationFrame', previousRaf)
+      else Reflect.deleteProperty(ownerWindow, 'requestAnimationFrame')
+      if (previousCancel) Object.defineProperty(ownerWindow, 'cancelAnimationFrame', previousCancel)
+      else Reflect.deleteProperty(ownerWindow, 'cancelAnimationFrame')
       if (previous) Object.defineProperty(ownerWindow, missing, previous)
       else Reflect.deleteProperty(ownerWindow, missing)
       iframe.remove()
@@ -251,9 +318,10 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
     const previousObserver = Object.getOwnPropertyDescriptor(ownerWindow, 'ResizeObserver')
     const previousRaf = Object.getOwnPropertyDescriptor(ownerWindow, 'requestAnimationFrame')
     const previousCancel = Object.getOwnPropertyDescriptor(ownerWindow, 'cancelAnimationFrame')
-    Reflect.deleteProperty(ownerWindow, 'ResizeObserver')
+    Object.defineProperty(ownerWindow, 'ResizeObserver', { configurable: true, value: ControlledCapabilityResizeObserver })
     Object.defineProperty(ownerWindow, 'requestAnimationFrame', { configurable: true, value: (callback: FrameRequestCallback) => ownerWindow.setTimeout(() => callback(ownerWindow.performance.now()), 0) })
     Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, value: (id: number) => ownerWindow.clearTimeout(id) })
+    Reflect.deleteProperty(ownerWindow, 'ResizeObserver')
     let wrapper: ReturnType<typeof mount> | undefined
     try {
       wrapper = track(mount(Cascader, { attachTo: ownerDocument.body, props: { options: options(1000), defaultOpen: true, virtual: true, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never }))
@@ -263,7 +331,10 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
       rows[0].focus()
       rows[0].dispatchEvent(new ownerWindow.KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
       await settle()
-      expect(ownerDocument.activeElement).toBe(rows.at(-1))
+      const target = ownerDocument.querySelector<HTMLElement>('[data-cascader-value="item-999"]')
+      expect(target?.isConnected).toBe(true)
+      expect(target?.hidden).toBe(false)
+      expect(ownerDocument.activeElement?.getAttribute('data-cascader-value')).toBe('item-999')
     } finally {
       if (wrapper) wrapper.unmount()
       if (previousObserver) Object.defineProperty(ownerWindow, 'ResizeObserver', previousObserver)
