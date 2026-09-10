@@ -190,6 +190,16 @@ const unregisterFocusBridge = focusBridge?.register(
 onBeforeUnmount(() => unregisterFocusBridge?.())
 const retryNode = (node: TreeNodeData) => {
   if (isNodeDisabled(node.key)) return
+  if (!mergedExpandedKeys.value.includes(node.key)) {
+    toggleExpanded(node, true)
+    void nextTick(() => {
+      if (mergedExpandedKeys.value.includes(node.key)) startRetry(node)
+    })
+    return
+  }
+  startRetry(node)
+}
+const startRetry = (node: TreeNodeData) => {
   const transaction = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : undefined
   if (transaction !== undefined) virtualAdapter.beginFocusHandoff(node.key)
   void loader.load(node.key, true)
