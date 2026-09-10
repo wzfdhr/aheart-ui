@@ -1,0 +1,5 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": ["./tree-select-virtual.types.ts"],
+  "exclude": []
+}

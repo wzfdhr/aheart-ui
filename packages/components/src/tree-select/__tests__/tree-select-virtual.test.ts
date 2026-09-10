@@ -92,6 +92,23 @@ describe('TreeSelect virtual contract RED', () => {
     expect(JSON.stringify(config)).toBe(before)
   })
 
+  it('falls back invalid virtual fields individually and preserves the caller config', async () => {
+    const warnings: unknown[][] = []
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation((...args) => { warnings.push(args) })
+    const config = { height: 0, estimateSize: Infinity, overscan: 1.5 }
+    const before = JSON.stringify(config)
+    try {
+      const wrapper = mountSelect({ treeData: flatData(500), defaultOpen: true, virtual: config })
+      await flushOwnerRealm()
+      expect(wrapper.get('.aheart-tree').attributes('style') ?? '').toContain('max-block-size: 256px')
+      expect(wrapper.findAll('[role="treeitem"]').length).toBeLessThanOrEqual(24)
+      expect(JSON.stringify(config)).toBe(before)
+      expect(warnings.length).toBeGreaterThanOrEqual(3)
+    } finally {
+      warnSpy.mockRestore()
+    }
+  })
+
   it('uses real DOM focus for virtual search and never publishes trigger aria-activedescendant', async () => {
     const wrapper = mountSelect({ treeData: flatData(500), showSearch: true, defaultOpen: true, virtual: true })
     await flushOwnerRealm()
@@ -107,6 +124,54 @@ describe('TreeSelect virtual contract RED', () => {
 
     await search.setValue('does-not-exist')
     expect(wrapper.get('[role="status"]').text()).toBe('暂无匹配节点')
+  })
+
+  it('uses the last enabled result for search ArrowUp and End navigation outside the mounted window', async () => {
+    const data = flatData(100).map((node, index) => index === 99 ? { ...node, disabled: true } : node)
+    const wrapper = mountSelect({ treeData: data, showSearch: true, defaultOpen: true, virtual: true })
+    await flushOwnerRealm()
+    const search = wrapper.get('input[type="search"]')
+    search.element.focus()
+    await search.trigger('keydown', { key: 'ArrowUp' })
+    await flushOwnerRealm()
+    expect(document.activeElement?.getAttribute('data-tree-key')).toBe('node-98')
+    await wrapper.get('[data-tree-key="node-98"]').trigger('keydown', { key: 'End' })
+    await flushOwnerRealm()
+    expect(document.activeElement?.getAttribute('data-tree-key')).toBe('node-98')
+  })
+
+  it('keeps controlled open and value parent-authoritative in virtual mode', async () => {
+    const open = mountSelect({ treeData: flatData(20), virtual: true, open: false })
+    await open.get('.aheart-tree-select__trigger').trigger('click')
+    expect(open.get('.aheart-tree-select__trigger').attributes('aria-expanded')).toBe('false')
+    expect(open.find('.aheart-tree-select__panel').exists()).toBe(false)
+
+    const value = mountSelect({ treeData: flatData(20), virtual: true, modelValue: 'node-1', defaultOpen: true })
+    await flushOwnerRealm()
+    await value.get('[data-tree-key="node-2"]').trigger('click')
+    expect(value.emitted('update:modelValue')).toEqual([['node-2']])
+    expect(value.get('.aheart-tree-select__trigger').text()).toContain('Node 1')
+  })
+
+  it('keeps checkable search semantics on the full index while virtual rows stay bounded', async () => {
+    const data = [{
+      key: 'root', title: 'Root', children: [
+        { key: 'enabled', title: 'Enabled' },
+        { key: 'disabled', title: 'Disabled', disabled: true },
+        ...flatData(100)
+      ]
+    }]
+    const wrapper = mountSelect({ treeData: data, treeCheckable: true, treeCheckStrictly: false, showSearch: true, defaultOpen: true, virtual: true, multiple: true })
+    await flushOwnerRealm()
+    expect(wrapper.findAll('[role="treeitem"]').length).toBeLessThanOrEqual(24)
+    const search = wrapper.get('input[type="search"]')
+    await search.setValue('Disabled')
+    await flushOwnerRealm()
+    expect((wrapper.get('[data-tree-key="disabled"] input').element as HTMLInputElement).disabled).toBe(true)
+    await search.setValue('Enabled')
+    await wrapper.get('[data-tree-key="root"] input').setValue(true)
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([['root', 'enabled', ...data[0].children.slice(2).map(node => node.key)]])
+    expect(wrapper.get('.aheart-tree-select__trigger').text()).toContain('Root')
   })
 
   it('keeps the popup shell from becoming a second vertical scroll owner in virtual mode', async () => {
