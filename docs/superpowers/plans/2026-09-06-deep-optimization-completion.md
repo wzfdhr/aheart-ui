@@ -81,14 +81,16 @@
 
 ## D8 AI
 
-- [x] AIStreamEventV2 版本、requestId、sequence、revision（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] 重复/乱序/断线重连和服务端最终消息处理（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] AIChatPanel 卸载、切会话 abort 与迟到事件隔离（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] 审批、取消、重试 pending/success/error 和幂等标识（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] Workbench 单一状态源，桌面/移动不再双实例分叉（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] reorderable、任务依赖约束及锁定原因（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] AIForm 范围、格式、跨字段、异步规则、reset/validate 完整；复用核心 Form（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] 工具调用展示业务摘要、输入状态与结果，不展示隐藏推理（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
+D8 delivery is closed through [PR #24](https://github.com/wzfdhr/aheart-ui/pull/24): frozen head `a65de98`, exact-head push/PR CI, squash merge `4a7511f`, master CI, Pages and live AI interaction validation all passed. The detailed matrix is [here](2026-09-09-d8-ai.md).
+
+- [x] AIStreamEventV2 版本、requestId、sequence、revision（D8 四角色审核与完整交付链通过）。
+- [x] 重复/乱序/断线重连和服务端最终消息处理（D8 四角色审核与完整交付链通过）。
+- [x] AIChatPanel 卸载、切会话 abort 与迟到事件隔离（D8 四角色审核与完整交付链通过）。
+- [x] 审批、取消、重试 pending/success/error 和幂等标识（D8 四角色审核与完整交付链通过）。
+- [x] Workbench 单一状态源，桌面/移动不再双实例分叉（D8 四角色审核与完整交付链通过）。
+- [x] reorderable、任务依赖约束及锁定原因（D8 四角色审核与完整交付链通过）。
+- [x] AIForm 范围、格式、跨字段、异步规则、reset/validate 完整；复用核心 Form（D8 四角色审核与完整交付链通过）。
+- [x] 工具调用展示业务摘要、输入状态与结果，不展示隐藏推理（D8 四角色审核与完整交付链通过）。
 
 ## 延后项与 D0–D3 最终复核
 
