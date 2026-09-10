@@ -60,6 +60,7 @@
       />
       <template v-if="searchText.trim() && virtualEnabled">
       <CascaderVirtualList
+        v-if="searchResults.length > 0"
         :ref="element => setVirtualListRef('search', element)"
         class-name="aheart-cascader__search-results"
         :items="searchResults"
