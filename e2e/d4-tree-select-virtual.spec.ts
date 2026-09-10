@@ -240,6 +240,35 @@ test('TreeSelect virtual short viewport keeps search and the logical tail reacha
   await expect(panel).toBeVisible()
 })
 
+test('TreeSelect virtual lazy loading shows error, keyboard retry, loaded child, and selection', async ({ page }, testInfo) => {
+  const lazy = page.getByTestId('tree-select-virtual-lazy')
+  await lazy.getByRole('combobox').click()
+  const panel = await panelFor(page, lazy)
+  const root = panel.locator('[role="treeitem"][data-tree-key="lazy-root"]')
+  await root.getByRole('button', { name: 'Expand node' }).click()
+  await expect(root).toHaveAttribute('aria-busy', 'true')
+  await page.screenshot({ path: testInfo.outputPath('tree-select-lazy-loading.png'), fullPage: false })
+
+  const retry = root.getByRole('button', { name: '重试加载 Lazy loading root' })
+  await expect(retry).toBeVisible()
+  await expect(root).not.toHaveAttribute('aria-busy', 'true')
+  await page.screenshot({ path: testInfo.outputPath('tree-select-lazy-error.png'), fullPage: false })
+
+  await retry.focus()
+  await retry.press('Enter')
+  await expect(root).toHaveAttribute('aria-busy', 'true')
+  await expect.poll(() => panel.locator('[role="treeitem"][data-tree-key="lazy-child"]').count()).toBe(1)
+  await expect(page.getByTestId('tree-select-virtual-lazy-state')).toContainText('state=success')
+  await page.screenshot({ path: testInfo.outputPath('tree-select-lazy-success.png'), fullPage: false })
+
+  await expect(root).toBeFocused()
+  await root.press('ArrowRight')
+  const child = panel.locator('[role="treeitem"][data-tree-key="lazy-child"]')
+  await expect(child).toBeFocused()
+  await child.click()
+  await expect(lazy.getByRole('combobox')).toContainText('Loaded lazy child')
+})
+
 test('TreeSelect controlled rejection keeps the parent value after a real item switch', async ({ page }) => {
   const select = controlled(page)
   await select.getByRole('combobox').click()

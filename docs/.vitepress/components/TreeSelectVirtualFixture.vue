@@ -13,6 +13,10 @@ const fontSize = ref(14)
 const viewportHint = ref<'normal' | 'short'>('normal')
 const selectionEvents = ref(0)
 const lastSelection = ref('node-00001')
+const lazyOwnerRef = ref<HTMLElement | null>(null)
+const lazyState = ref<'idle' | 'loading' | 'error' | 'success' | 'aborted'>('idle')
+const lazyAttempts = ref(0)
+const lazyAborts = ref(0)
 
 const data = computed<TreeNodeData[]>(() => Array.from({ length: count.value }, (_, index) => {
   const key = `node-${String(index).padStart(5, '0')}`
@@ -30,6 +34,7 @@ const data = computed<TreeNodeData[]>(() => Array.from({ length: count.value }, 
 const virtual = computed(() => ({ height: viewportHint.value === 'short' ? 180 : 256, estimateSize: 28, overscan: 4 }))
 const fixtureStyle = computed(() => ({ fontSize: `${fontSize.value}px` }))
 const acceptText = computed(() => acceptSelection.value ? '接受选择更新' : '拒绝选择更新')
+const lazyTreeData: TreeNodeData[] = [{ key: 'lazy-root', title: 'Lazy loading root', isLeaf: false }]
 
 const setCount = (next: 1000 | 10000) => { count.value = next }
 const toggleSelectionPolicy = () => { acceptSelection.value = !acceptSelection.value }
@@ -45,6 +50,30 @@ const onControlledValue = (value: TreeKey | TreeKey[] | undefined) => {
   selectionEvents.value++
   lastSelection.value = String(value ?? '')
   if (acceptSelection.value && !Array.isArray(value) && value !== undefined) controlledValue.value = value
+}
+const loadLazyData = (_node: TreeNodeData, { signal }: { signal: AbortSignal }) => {
+  lazyAttempts.value++
+  const attempt = lazyAttempts.value
+  lazyState.value = 'loading'
+  return new Promise<TreeNodeData[]>((resolve, reject) => {
+    const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? window
+    const ownerTimer = ownerWindow.setTimeout(() => {
+      if (signal.aborted) return
+      if (attempt === 1) {
+        lazyState.value = 'error'
+        reject(new Error('simulated lazy failure'))
+        return
+      }
+      lazyState.value = 'success'
+      resolve([{ key: 'lazy-child', title: 'Loaded lazy child' }])
+    }, 1000)
+    signal.addEventListener('abort', () => {
+      ownerWindow.clearTimeout(ownerTimer)
+      lazyAborts.value++
+      lazyState.value = 'aborted'
+      reject(new Error('lazy request aborted'))
+    }, { once: true })
+  })
 }
 </script>
 
@@ -69,7 +98,7 @@ const onControlledValue = (value: TreeKey | TreeKey[] | undefined) => {
     </div>
 
     <div class="tree-select-virtual-fixture__row">
-      <div class="tree-select-virtual-fixture__field">
+      <div ref="lazyOwnerRef" class="tree-select-virtual-fixture__field">
         <span id="tree-select-virtual-main-label" class="tree-select-virtual-fixture__label">Virtual checkable / searchable / tags</span>
         <TreeSelect
           data-testid="tree-select-virtual-main"
@@ -100,6 +129,18 @@ const onControlledValue = (value: TreeKey | TreeKey[] | undefined) => {
           placeholder="受控选择"
           @update:model-value="onControlledValue"
         />
+      </div>
+      <div class="tree-select-virtual-fixture__field">
+        <span id="tree-select-virtual-lazy-label" class="tree-select-virtual-fixture__label">Virtual lazy retry</span>
+        <TreeSelect
+          data-testid="tree-select-virtual-lazy"
+          :tree-data="lazyTreeData"
+          :virtual="virtual"
+          labelled-by="tree-select-virtual-lazy-label"
+          :load-data="loadLazyData"
+          placeholder="Lazy tree"
+        />
+        <output data-testid="tree-select-virtual-lazy-state">state={{ lazyState }}; attempts={{ lazyAttempts }}; aborts={{ lazyAborts }}</output>
       </div>
     </div>
     <p class="tree-select-virtual-fixture__readout" role="status">
