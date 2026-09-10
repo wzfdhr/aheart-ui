@@ -16,6 +16,7 @@ import './style.css'
 export { AIActions, AIAgentWorkbench, AIAttachments, AIBubble, AIChatPanel, AIConversations, AIForm, AIProcess, AIPrompts, AISender, AISources, AIThoughtChain, AIWelcome }
 export * from './types'
 export * from './form-schema'
+export * from './stream-reducer'
 
 const AheartAI: Plugin = {
   install(app: App) {

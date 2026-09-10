@@ -1,8 +1,36 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { defineComponent, h, nextTick } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
 import AIAgentWorkbench from '../agent-workbench.vue'
 import type { AITransport } from '../types'
+
+const installResponsiveMedia = (ownerWindow: Window = window) => {
+  const previous = ownerWindow.matchMedia
+  let matches = true
+  const listeners = new Set<(event: MediaQueryListEvent) => void>()
+  ownerWindow.matchMedia = vi.fn((query: string) => ({
+    media: query,
+    matches: query === '(max-width: 760px)' ? matches : false,
+    onchange: null,
+    addListener: (listener: (event: MediaQueryListEvent) => void) => listeners.add(listener),
+    removeListener: (listener: (event: MediaQueryListEvent) => void) => listeners.delete(listener),
+    addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.add(listener),
+    removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.delete(listener),
+    dispatchEvent: () => true
+  })) as typeof ownerWindow.matchMedia
+  return {
+    change(next: boolean) {
+      matches = next
+      const event = { matches, media: '(max-width: 760px)' } as MediaQueryListEvent
+      listeners.forEach((listener) => listener(event))
+    },
+    restore() {
+      ownerWindow.matchMedia = previous
+    }
+  }
+}
+
+const findTab = (wrapper: any, name: string) => wrapper.findAll('[role="tab"]').find((tab: any) => tab.text().includes(name))
 
 describe('AIAgentWorkbench', () => {
   const tasks = [
@@ -36,39 +64,63 @@ describe('AIAgentWorkbench', () => {
   })
 
   it('keeps task ordering controlled and provides non-drag move controls', async () => {
-    const wrapper = mount(AIAgentWorkbench, { props: { tasks } })
+    const sortableTasks = [
+      { id: 'research', label: '检索资料', status: 'pending' as const, revision: 'research-r1', reorderable: true },
+      { id: 'publish', label: '发布结果', status: 'pending' as const, revision: 'publish-r1', reorderable: true }
+    ]
+    const wrapper = mount(AIAgentWorkbench, { props: { tasks: sortableTasks } })
 
     await wrapper.get('[data-task-id="research"] [data-action="move-down"]').trigger('click')
-    expect(wrapper.emitted('update:tasks')?.[0]?.[0]).toEqual([tasks[1], tasks[0]])
+    expect(wrapper.emitted('update:tasks')?.[0]?.[0]).toEqual([sortableTasks[1], sortableTasks[0]])
     expect(wrapper.emitted('move-task')?.[0]).toEqual(['research', 'down'])
   })
 
-  it('gives each execution instance unique labelled section ids', async () => {
+  it('keeps one execution owner and stable labelled section ids across responsive and drawer views', async () => {
+    const media = installResponsiveMedia()
     const wrapper = mount(AIAgentWorkbench, { props: { tasks, artifacts: [{ id: 'report', title: '报告.md' }] } })
-    await wrapper.get('#aheart-tab-execution').trigger('click')
-    await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
-    const executions = wrapper.findAllComponents({ name: 'AIAgentWorkbenchExecution' })
-    const taskSections = executions.map((execution) => execution.get('.aheart-ai-workbench__tasks'))
-    const artifactSections = executions.map((execution) => execution.get('.aheart-ai-workbench__artifacts'))
-    const taskIds = taskSections.map((section) => section.get('h2').attributes('id'))
-    const artifactIds = artifactSections.map((section) => section.get('h2').attributes('id'))
+    const execution = wrapper.findComponent({ name: 'AIAgentWorkbenchExecution' })
+    const executionUid = (execution.vm as any).$?.uid
 
-    expect(taskSections).toHaveLength(2)
-    expect(artifactSections).toHaveLength(2)
-    expect(new Set(taskIds).size).toBe(taskIds.length)
-    expect(new Set(artifactIds).size).toBe(artifactIds.length)
-    expect(taskSections.every((section, index) => section.attributes('aria-labelledby') === taskIds[index])).toBe(true)
-    expect(artifactSections.every((section, index) => section.attributes('aria-labelledby') === artifactIds[index])).toBe(true)
+    const assertExecutionSemantics = () => {
+      const executions = wrapper.findAllComponents({ name: 'AIAgentWorkbenchExecution' })
+      expect(executions).toHaveLength(1)
+      expect((executions[0].vm as any).$?.uid).toBe(executionUid)
+
+      const taskSection = executions[0].get('.aheart-ai-workbench__tasks')
+      const artifactSection = executions[0].get('.aheart-ai-workbench__artifacts')
+      const taskId = taskSection.get('h2').attributes('id')
+      const artifactId = artifactSection.get('h2').attributes('id')
+      expect(taskId).toBeTruthy()
+      expect(artifactId).toBeTruthy()
+      expect(new Set([taskId, artifactId]).size).toBe(2)
+      expect(taskSection.attributes('aria-labelledby')).toBe(taskId)
+      expect(artifactSection.attributes('aria-labelledby')).toBe(artifactId)
+    }
+
+    assertExecutionSemantics()
+    expect(window.matchMedia('(max-width: 760px)').matches).toBe(true)
+    await findTab(wrapper, '执行').trigger('click')
+    await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
+    assertExecutionSemantics()
+    await findTab(wrapper, '会话').trigger('click')
+    assertExecutionSemantics()
+    media.change(false)
+    await nextTick()
+    media.change(true)
+    await nextTick()
+    await findTab(wrapper, '执行').trigger('click')
+    assertExecutionSemantics()
+    media.restore()
   })
 
   it('includes a mobile tabs and drawer workflow', async () => {
     const wrapper = mount(AIAgentWorkbench, { props: { tasks, contextItems: [{ id: 'brief', label: '需求简报' }] } })
 
     expect(wrapper.find('.aheart-ai-workbench__mobile .aheart-tabs').exists()).toBe(true)
-    expect(wrapper.get('#aheart-tab-execution .aheart-ai-workbench__pending-badge').attributes('aria-label')).toBe('1 项待审批')
-    await wrapper.get('#aheart-tab-conversations').trigger('click')
+    expect(findTab(wrapper, '执行').get('.aheart-ai-workbench__pending-badge').attributes('aria-label')).toBe('1 项待审批')
+    await findTab(wrapper, '会话').trigger('click')
     expect(wrapper.find('.aheart-ai-workbench__mobile').text()).toContain('需求简报')
-    await wrapper.get('#aheart-tab-execution').trigger('click')
+    await findTab(wrapper, '执行').trigger('click')
     await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
     const drawer = wrapper.getComponent({ name: 'ADrawer' })
     expect(drawer.exists()).toBe(true)
@@ -92,7 +144,7 @@ describe('AIAgentWorkbench', () => {
       }
     })
 
-    await wrapper.get('#aheart-tab-execution').trigger('click')
+    await findTab(wrapper, '执行').trigger('click')
     await wrapper.get('[data-action="open-execution-drawer"]').trigger('click')
 
     const priority = wrapper.get('.aheart-ai-workbench__mobile-priority')
@@ -101,7 +153,7 @@ describe('AIAgentWorkbench', () => {
     expect(priority.text()).toContain('待发布版本')
   })
 
-  it('does not count completed approvals as pending when task status lags behind', () => {
+  it('shows approval result without rewriting the waiting-approval task status', () => {
     const wrapper = mount(AIAgentWorkbench, {
       props: {
         tasks: [{
@@ -115,11 +167,13 @@ describe('AIAgentWorkbench', () => {
 
     expect(wrapper.find('[data-pending-approval-summary]').exists()).toBe(false)
     expect(wrapper.find('.aheart-ai-workbench__pending-badge').exists()).toBe(false)
-    expect(wrapper.get('[data-workbench-status]').text()).not.toContain('等待人工审批')
+    expect(wrapper.get('[data-workbench-status]').text()).not.toContain('已完成')
     const timelineItem = wrapper.get('[data-task-id="publish"]')
-    expect(timelineItem.get('.aheart-ai-workbench__task-status').text()).toBe('已批准')
-    expect(timelineItem.classes()).toContain('is-complete')
-    expect(timelineItem.classes()).not.toContain('is-waiting-approval')
+    expect(timelineItem.get('.aheart-ai-workbench__task-status').text()).toBe('等待审批')
+    expect(timelineItem.classes()).toContain('is-waiting-approval')
+    expect(timelineItem.classes()).not.toContain('is-complete')
+    expect(wrapper.get('.aheart-ai-workbench__progress').text()).toContain('0 / 1 已完成')
+    expect(wrapper.get('[data-approval-id="approve-publish"] .aheart-ai-workbench__approval-result').text()).toBe('已批准')
     expect(wrapper.get('.aheart-ai-workbench__mobile-priority').text()).toContain('审批结果')
     expect(wrapper.get('.aheart-ai-workbench__mobile-priority').text()).toContain('已批准')
   })

@@ -1,8 +1,8 @@
-import type { AIAttachment, AIConversation, AIMessage, AIPrompt, AITransport } from './types';
+import type { AIAttachment, AIConversation, AIMessage, AIPrompt, AITransport, AITransportV2 } from './types';
 declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     messages?: AIMessage[] | undefined;
     defaultMessages?: AIMessage[] | undefined;
-    transport: AITransport;
+    transport: AITransport | AITransportV2;
     conversationId?: string | undefined;
     conversations?: AIConversation[] | undefined;
     activeConversation?: string | undefined;
@@ -11,6 +11,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     welcomeTitle?: string | undefined;
     welcomeDescription?: string | undefined;
     disabled?: boolean | undefined;
+    maxReconnectAttempts?: number | undefined;
 }>, {
     messages: () => never[];
     defaultMessages: () => never[];
@@ -22,6 +23,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     welcomeTitle: string;
     welcomeDescription: string;
     disabled: boolean;
+    maxReconnectAttempts: number;
 }>>, {}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
     error: (error: string) => void;
     send: (content: string) => void;
@@ -33,10 +35,12 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     "update:messages": (messages: AIMessage[]) => void;
     "update:activeConversation": (key: string) => void;
     "update:attachments": (attachments: AIAttachment[]) => void;
+    "stream-status": (status: string) => void;
+    "stream-reject": (reason: string) => void;
 }, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     messages?: AIMessage[] | undefined;
     defaultMessages?: AIMessage[] | undefined;
-    transport: AITransport;
+    transport: AITransport | AITransportV2;
     conversationId?: string | undefined;
     conversations?: AIConversation[] | undefined;
     activeConversation?: string | undefined;
@@ -45,6 +49,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     welcomeTitle?: string | undefined;
     welcomeDescription?: string | undefined;
     disabled?: boolean | undefined;
+    maxReconnectAttempts?: number | undefined;
 }>, {
     messages: () => never[];
     defaultMessages: () => never[];
@@ -56,6 +61,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     welcomeTitle: string;
     welcomeDescription: string;
     disabled: boolean;
+    maxReconnectAttempts: number;
 }>>> & Readonly<{
     onError?: ((error: string) => any) | undefined;
     onSend?: ((content: string) => any) | undefined;
@@ -67,17 +73,20 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     "onUpdate:messages"?: ((messages: AIMessage[]) => any) | undefined;
     "onUpdate:activeConversation"?: ((key: string) => any) | undefined;
     "onUpdate:attachments"?: ((attachments: AIAttachment[]) => any) | undefined;
+    "onStream-status"?: ((status: string) => any) | undefined;
+    "onStream-reject"?: ((reason: string) => any) | undefined;
 }>, {
+    conversationId: string;
+    messages: AIMessage[];
     disabled: boolean;
     attachments: AIAttachment[];
     conversations: AIConversation[];
     prompts: AIPrompt[];
-    messages: AIMessage[];
     defaultMessages: AIMessage[];
-    conversationId: string;
     activeConversation: string;
     welcomeTitle: string;
     welcomeDescription: string;
+    maxReconnectAttempts: number;
 }, {}, {}, {}, string, import("@vue/runtime-core").ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;

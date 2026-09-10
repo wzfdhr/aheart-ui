@@ -1,66 +1,37 @@
-import { defineComponent, ref, getCurrentInstance, onBeforeUpdate, computed, h, openBlock, createElementBlock, createElementVNode, toDisplayString, createCommentVNode, normalizeClass, createVNode, unref, withCtx, createTextVNode, createBlock, mergeProps, renderSlot, createSlots } from "vue";
-import { Splitter, SplitterPanel, Button, Tabs, Drawer } from "aheart-ui";
-import { SortableList } from "@aheart-ui/dnd";
-import _sfc_main$4 from "./attachments.vue.js";
-import _sfc_main$2 from "./chat-panel.vue.js";
-import _sfc_main$1 from "./conversations.vue.js";
-import _sfc_main$3 from "./sources.vue.js";
-import _sfc_main$5 from "./agent-execution.vue.js";
-const _hoisted_1 = {
+import { defineComponent as Be, ref as R, getCurrentInstance as Ve, useId as De, computed as I, onMounted as He, nextTick as Le, onBeforeUnmount as Ie, watch as ee, onBeforeUpdate as Pe, h as te, openBlock as h, createElementBlock as g, createElementVNode as u, toDisplayString as $, createCommentVNode as C, normalizeClass as Ne, createVNode as m, unref as y, withCtx as k, createTextVNode as P, createBlock as ae, Teleport as $e, mergeProps as Fe, renderSlot as _, createSlots as Je, withDirectives as oe, Fragment as Ze, renderList as qe, vShow as se } from "vue";
+import { Splitter as We, SplitterPanel as ne, Button as N, Tabs as Ge, Drawer as Xe } from "aheart-ui";
+import { SortableList as Ye } from "@aheart-ui/dnd";
+import Ce from "./attachments.vue.js";
+import Qe from "./chat-panel.vue.js";
+import xe from "./conversations.vue.js";
+import Se from "./sources.vue.js";
+import et from "./agent-execution.vue.js";
+const tt = {
   class: "aheart-ai-workbench",
   "aria-label": "AI 工作台"
-};
-const _hoisted_2 = { class: "aheart-ai-workbench__header" };
-const _hoisted_3 = { key: 0 };
-const _hoisted_4 = { class: "aheart-ai-workbench__header-status" };
-const _hoisted_5 = { class: "aheart-ai-workbench__progress" };
-const _hoisted_6 = ["aria-label"];
-const _hoisted_7 = { class: "aheart-ai-workbench__desktop" };
-const _hoisted_8 = { class: "aheart-ai-workbench__sidebar" };
-const _hoisted_9 = {
+}, at = { class: "aheart-ai-workbench__header" }, ot = { key: 0 }, st = { class: "aheart-ai-workbench__header-status" }, nt = { class: "aheart-ai-workbench__progress" }, rt = ["aria-label"], it = { class: "aheart-ai-workbench__desktop" }, lt = { class: "aheart-ai-workbench__sidebar" }, dt = {
   key: 0,
   class: "aheart-ai-workbench__context",
   "aria-label": "上下文"
-};
-const _hoisted_10 = ["data-context-id"];
-const _hoisted_11 = { key: 0 };
-const _hoisted_12 = { class: "aheart-ai-workbench__move-actions" };
-const _hoisted_13 = { class: "aheart-ai-workbench__chat" };
-const _hoisted_14 = {
+}, ct = ["data-context-id"], ut = { key: 0 }, vt = { class: "aheart-ai-workbench__move-actions" }, pt = { class: "aheart-ai-workbench__chat" }, ft = {
   key: 1,
   class: "aheart-ai-workbench__empty"
-};
-const _hoisted_15 = {
+}, mt = {
   class: "aheart-ai-workbench__execution",
   "aria-label": "执行与产物"
-};
-const _hoisted_16 = { class: "aheart-ai-workbench__mobile" };
-const _hoisted_17 = {
+}, bt = {
   key: 0,
-  class: "aheart-ai-workbench__mobile-panel"
-};
-const _hoisted_18 = {
+  class: "aheart-ai-workbench__task-order-error",
+  role: "alert"
+}, ht = { class: "aheart-ai-workbench__mobile" }, kt = { class: "aheart-ai-workbench__mobile-panel" }, gt = {
   key: 0,
   class: "aheart-ai-workbench__context",
   "aria-label": "上下文"
-};
-const _hoisted_19 = ["data-context-id"];
-const _hoisted_20 = { key: 0 };
-const _hoisted_21 = { class: "aheart-ai-workbench__move-actions" };
-const _hoisted_22 = {
-  key: 1,
-  class: "aheart-ai-workbench__mobile-panel"
-};
-const _hoisted_23 = {
-  key: 1,
+}, yt = { class: "aheart-ai-workbench__context-list-mobile" }, wt = ["data-context-id"], It = { key: 0 }, $t = { class: "aheart-ai-workbench__move-actions" }, Ct = { class: "aheart-ai-workbench__mobile-panel" }, xt = { class: "aheart-ai-workbench__mobile-panel--chat" }, St = ["id"], At = {
+  key: 0,
   class: "aheart-ai-workbench__empty"
-};
-const _hoisted_24 = {
-  key: 2,
-  class: "aheart-ai-workbench__mobile-panel"
-};
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AAIAgentWorkbench" },
+}, Tt = { class: "aheart-ai-workbench__mobile-panel" }, Ut = /* @__PURE__ */ Be({
+  name: "AAIAgentWorkbench",
   __name: "agent-workbench",
   props: {
     title: { default: "AI 工作台" },
@@ -77,402 +48,490 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     attachments: { default: () => [] },
     artifacts: { default: () => [] },
     activeArtifact: { default: void 0 },
-    disabled: { type: Boolean, default: false }
+    disabled: { type: Boolean, default: !1 },
+    actionHandler: {},
+    reorderable: { type: Boolean, default: !0 },
+    tasksRevision: { default: void 0 },
+    scopeKey: { default: void 0 }
   },
-  emits: ["update:panelSizes", "update:activeConversation", "update:messages", "update:activeArtifact", "update:tasks", "update:contextItems", "approve", "reject", "cancel", "retry", "move-task", "move-context", "stop", "chat-retry", "chat-regenerate", "chat-edit", "chat-copy", "error"],
-  setup(__props, { emit: __emit }) {
-    const props = __props;
-    const emit = __emit;
-    const mobileView = ref("chat");
-    const executionDrawerOpen = ref(false);
-    const instance = getCurrentInstance();
-    const readMessagesPresence = () => Object.prototype.hasOwnProperty.call((instance == null ? void 0 : instance.vnode.props) ?? {}, "messages");
-    const hasMessagesProp = ref(readMessagesPresence());
-    onBeforeUpdate(() => {
-      hasMessagesProp.value = readMessagesPresence();
+  emits: ["update:panelSizes", "update:activeConversation", "update:messages", "update:activeArtifact", "update:tasks", "update:contextItems", "approve", "reject", "cancel", "retry", "move-task", "move-context", "stop", "chat-retry", "chat-regenerate", "chat-edit", "chat-copy", "error", "operation-start", "operation-success", "operation-error", "task-move-reject"],
+  setup(l, { emit: Ae }) {
+    const s = l, v = Ae, j = R("chat"), D = R(!1), W = R(), G = R(), re = R(!1), K = R(!1), U = R(!1);
+    let S, F;
+    const B = Ve(), X = `scope-${De().replace(/[^a-zA-Z0-9_-]/g, "-")}`, Y = X.replace(/^scope-/, ""), Te = `aheart-ai-${Y}-chat-target`, ie = `aheart-ai-${Y}-execution-target`, Q = I(() => s.scopeKey === void 0 ? X : `scope-${String(s.scopeKey).replace(/[^a-zA-Z0-9_-]/g, "-")}-${X.replace(/^scope-/, "")}`);
+    He(async () => {
+      var a, o, r;
+      re.value = !0;
+      const t = (o = (a = B == null ? void 0 : B.proxy) == null ? void 0 : a.$el) == null ? void 0 : o.ownerDocument, e = t == null ? void 0 : t.defaultView;
+      e != null && e.matchMedia ? (S = e.matchMedia("(max-width: 760px)"), U.value = S.matches, F = (d) => {
+        U.value = d.matches;
+      }, (r = S.addEventListener) == null || r.call(S, "change", F)) : U.value = !0, K.value = !0, await Le();
+    }), Ie(() => {
+      var t;
+      S && F && ((t = S.removeEventListener) == null || t.call(S, "change", F));
+    }), ee(U, (t) => {
+      t || (D.value = !1);
     });
-    const chatMessageProps = computed(() => hasMessagesProp.value ? { messages: props.messages } : { defaultMessages: props.messages });
-    const pendingApprovalTasks = computed(() => props.tasks.filter(
-      (task) => task.approval && (!task.approval.status || task.approval.status === "pending")
-    ));
-    const pendingApprovalCount = computed(() => pendingApprovalTasks.value.length);
-    const pendingApprovalSummary = computed(() => {
-      const task = pendingApprovalTasks.value[0];
-      const artifact = props.artifacts.find((item) => {
-        var _a;
-        return item.id === ((_a = task == null ? void 0 : task.approval) == null ? void 0 : _a.artifactId);
+    const f = R({}), A = /* @__PURE__ */ new Map(), O = /* @__PURE__ */ new Map();
+    let le = 0;
+    const E = /* @__PURE__ */ new Set(), de = () => Object.prototype.hasOwnProperty.call((B == null ? void 0 : B.vnode.props) ?? {}, "messages"), ce = R(de());
+    Pe(() => {
+      ce.value = de();
+    });
+    const Me = I(() => ce.value ? { messages: s.messages } : { defaultMessages: s.messages }), ue = I(() => s.tasks.filter(
+      (t) => t.approval && (!t.approval.status || t.approval.status === "pending")
+    )), z = I(() => ue.value.length), ve = I(() => {
+      const t = ue.value[0], e = s.artifacts.find((o) => {
+        var r;
+        return o.id === ((r = t == null ? void 0 : t.approval) == null ? void 0 : r.artifactId);
       });
-      if (!artifact) return `${pendingApprovalCount.value} 项待审批`;
-      const prefix = pendingApprovalCount.value > 1 ? `${pendingApprovalCount.value} 项待审批` : "待审批";
-      return `${prefix}：${artifact.title}`;
-    });
-    const openPendingApproval = () => {
-      mobileView.value = "execution";
-      executionDrawerOpen.value = true;
-    };
-    const mobileTabs = computed(() => [
-      { key: "conversations", label: "会话" },
-      { key: "chat", label: "对话" },
+      return e ? `${z.value > 1 ? `${z.value} 项待审批` : "待审批"}：${e.title}` : `${z.value} 项待审批`;
+    }), Re = () => {
+      j.value = "execution", D.value = !0;
+    }, je = I(() => [
+      { key: J("conversations"), label: "会话" },
+      { key: J("chat"), label: "对话" },
       {
-        key: "execution",
-        label: h("span", { class: "aheart-ai-workbench__mobile-tab-label" }, [
-          h("span", "执行"),
-          pendingApprovalCount.value > 0 ? h("span", { class: "aheart-ai-workbench__pending-badge", "aria-label": `${pendingApprovalCount.value} 项待审批` }, String(pendingApprovalCount.value)) : null
+        key: J("execution"),
+        label: te("span", { class: "aheart-ai-workbench__mobile-tab-label" }, [
+          te("span", "执行"),
+          z.value > 0 ? te("span", { class: "aheart-ai-workbench__pending-badge", "aria-label": `${z.value} 项待审批` }, String(z.value)) : null
         ])
       }
-    ]);
-    const sortableContext = computed(() => props.contextItems);
-    const completedTaskCount = computed(() => props.tasks.filter((task) => task.status === "complete").length);
-    const workbenchStatus = computed(() => {
-      if (props.tasks.some((task) => task.status === "error")) return { key: "error", label: "需要处理" };
-      if (pendingApprovalCount.value > 0) return { key: "waiting", label: "等待人工审批" };
-      if (props.tasks.some((task) => task.status === "running")) return { key: "running", label: "执行中" };
-      if (props.tasks.length && completedTaskCount.value === props.tasks.length) return { key: "complete", label: "已完成" };
-      return { key: "idle", label: "待开始" };
-    });
-    const asContext = (item) => item;
-    const reorder = (items, index, offset) => {
-      const destination = index + offset;
-      if (destination < 0 || destination >= items.length) return items;
-      const next = [...items];
-      const [item] = next.splice(index, 1);
-      next.splice(destination, 0, item);
-      return next;
-    };
-    const isContextMoveDisabled = (index, offset) => {
-      var _a, _b;
-      const destination = index + offset;
-      return Boolean(
-        props.disabled || destination < 0 || destination >= props.contextItems.length || ((_a = props.contextItems[index]) == null ? void 0 : _a.disabled) || ((_b = props.contextItems[destination]) == null ? void 0 : _b.disabled)
-      );
-    };
-    const moveContext = (index, offset) => {
-      if (isContextMoveDisabled(index, offset)) return;
-      const item = props.contextItems[index];
-      if (!item || index + offset < 0 || index + offset >= props.contextItems.length) return;
-      emit("update:contextItems", reorder(props.contextItems, index, offset));
-      emit("move-context", item.id, offset < 0 ? "up" : "down");
-    };
-    const updateContext = (items) => {
-      if (props.disabled) return;
-      const nextItems = items;
-      const movedLockedItem = props.contextItems.some((item, index) => {
-        var _a;
-        return item.disabled && ((_a = nextItems[index]) == null ? void 0 : _a.id) !== item.id;
-      });
-      if (!movedLockedItem) emit("update:contextItems", nextItems);
-    };
-    const forwardMoveTask = (id, direction) => emit("move-task", id, direction);
-    const forwardChatEdit = (message, content) => emit("chat-edit", message, content);
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("section", _hoisted_1, [
-        createElementVNode("header", _hoisted_2, [
-          createElementVNode("div", null, [
-            _cache[30] || (_cache[30] = createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "智能工作区", -1)),
-            createElementVNode("h2", null, toDisplayString(__props.title), 1),
-            __props.description ? (openBlock(), createElementBlock("p", _hoisted_3, toDisplayString(__props.description), 1)) : createCommentVNode("", true)
-          ]),
-          createElementVNode("div", _hoisted_4, [
-            createElementVNode("span", {
-              "data-workbench-status": "",
-              class: normalizeClass(`is-${workbenchStatus.value.key}`)
-            }, toDisplayString(workbenchStatus.value.label), 3),
-            createElementVNode("small", _hoisted_5, toDisplayString(completedTaskCount.value) + " / " + toDisplayString(__props.tasks.length) + " 已完成", 1),
-            pendingApprovalCount.value > 0 ? (openBlock(), createElementBlock("button", {
-              key: 0,
-              type: "button",
-              "data-pending-approval-summary": "",
-              class: "aheart-ai-workbench__pending-summary",
-              "aria-label": pendingApprovalSummary.value,
-              onClick: openPendingApproval
-            }, toDisplayString(pendingApprovalSummary.value), 9, _hoisted_6)) : createCommentVNode("", true)
-          ])
+    ]), J = (t) => `${t}--${Y}`, ze = I(() => Object.fromEntries(Object.entries(f.value).map(([t, e]) => [t, e.message ?? (e.status === "pending" ? "处理中…" : e.status === "success" ? "成功" : "")]))), V = (t) => {
+      var e;
+      return `${t.id}:${String(t.revision ?? "")}:${((e = t.approval) == null ? void 0 : e.id) ?? ""}`;
+    }, pe = (t, e) => {
+      const a = V(t), o = f.value[a];
+      return E.has(a) || [...E].some((d) => d.startsWith(`${t.id}:`)) || (o == null ? void 0 : o.status) === "pending" || (o == null ? void 0 : o.status) === "success" || s.disabled || s.actionHandler && t.revision === void 0 ? !0 : t.approval ? (o == null ? void 0 : o.status) === "error" && o.outcome !== "not-applied" && e !== "retry" || s.actionHandler && (t.revision === void 0 || t.approval.artifactId && (!s.artifacts.find((d) => {
+        var n;
+        return d.id === ((n = t.approval) == null ? void 0 : n.artifactId);
+      }) || s.artifacts.some((d) => {
+        var n;
+        return d.id === ((n = t.approval) == null ? void 0 : n.artifactId) && d.revision === void 0;
+      }))) ? !0 : t.status === "running" && e !== "cancel" : (o == null ? void 0 : o.status) === "error" ? e !== "retry" : !(t.status === "running" && e === "cancel" || t.status === "error" && e === "retry");
+    }, Z = async (t, e) => {
+      var c, p, b, M, L, ye;
+      if (pe(e, t)) return;
+      if (!s.actionHandler) {
+        v(t === "approve" ? "approve" : t === "reject" ? "reject" : t === "cancel" ? "cancel" : "retry", e);
+        return;
+      }
+      const a = (c = e.approval) != null && c.artifactId ? s.artifacts.find((x) => {
+        var w;
+        return x.id === ((w = e.approval) == null ? void 0 : w.artifactId);
+      }) : void 0, o = V(e), r = f.value[o];
+      (r == null ? void 0 : r.status) === "error" && r.outcome === "not-applied" && O.delete(o);
+      const d = O.get(o) ?? `${o}:${Date.now()}:${++le}`;
+      O.set(o, d);
+      const n = {
+        operationId: `${d}:attempt-${++le}`,
+        idempotencyKey: d,
+        conversationId: s.activeConversation,
+        taskId: e.id,
+        taskRevision: e.revision,
+        action: (r == null ? void 0 : r.status) === "error" && r.outcome === "unknown" && t === "retry" ? r.action : t,
+        ...(p = e.approval) != null && p.id ? { approvalId: e.approval.id } : {},
+        artifactId: ((b = e.approval) == null ? void 0 : b.artifactId) ?? (a == null ? void 0 : a.id),
+        ...(a == null ? void 0 : a.revision) === void 0 ? {} : { artifactRevision: a.revision }
+      }, i = new AbortController();
+      E.add(o), A.set(o, i), f.value = { ...f.value, [o]: { status: "pending", operationId: n.operationId, idempotencyKey: d, action: n.action, taskRevision: e.revision, taskStatus: e.status, approvalStatus: (M = e.approval) == null ? void 0 : M.status, approvalId: (L = e.approval) == null ? void 0 : L.id, artifactId: (a == null ? void 0 : a.id) ?? ((ye = e.approval) == null ? void 0 : ye.artifactId), artifactRevision: a == null ? void 0 : a.revision, conversationId: s.activeConversation } }, v("operation-start", n);
+      try {
+        const x = await s.actionHandler(n, i.signal), w = f.value[o];
+        if (i.signal.aborted || !w || w.operationId !== n.operationId || x.operationId !== n.operationId) return;
+        x.status === "success" ? (f.value = { ...f.value, [o]: { ...w, status: "success", message: "成功" } }, v("operation-success", n)) : (f.value = { ...f.value, [o]: { ...w, status: "error", message: x.error, outcome: x.outcome ?? "unknown" } }, v("operation-error", n, x.error));
+      } catch (x) {
+        if (i.signal.aborted) return;
+        const w = f.value[o];
+        if (!w || w.operationId !== n.operationId) return;
+        const we = x instanceof Error ? x.message : "操作失败";
+        f.value = { ...f.value, [o]: { ...w, status: "error", message: we, outcome: "unknown" } }, v("operation-error", n, we);
+      } finally {
+        E.delete(o), A.get(o) === i && A.delete(o);
+      }
+    }, fe = (t) => {
+      const e = new Set(t.map((i) => i.id)), a = new Set(s.tasks.map((i) => i.id));
+      if (e.size !== t.length || e.size !== a.size || [...e].some((i) => !a.has(i)) || t.some((i) => {
+        var c;
+        return (c = i.dependsOn) == null ? void 0 : c.some((p) => !e.has(p));
+      })) return "任务集合或依赖无效，无法排序";
+      const o = new Map(t.map((i, c) => [i.id, c]));
+      if (t.some((i) => {
+        var c;
+        return (c = i.dependsOn) == null ? void 0 : c.some((p) => (o.get(p) ?? 1 / 0) >= o.get(i.id));
+      })) return "依赖任务必须排在前面";
+      const r = /* @__PURE__ */ new Set(), d = /* @__PURE__ */ new Set(), n = (i) => {
+        var p;
+        if (r.has(i)) return !0;
+        if (d.has(i)) return !1;
+        r.add(i);
+        const c = t.find((b) => b.id === i);
+        return (p = c == null ? void 0 : c.dependsOn) != null && p.some(n) ? !0 : (r.delete(i), d.add(i), !1);
+      };
+      if (t.some((i) => n(i.id))) return "任务依赖存在循环";
+    }, me = I(() => fe(s.tasks)), be = (t) => {
+      var o;
+      const e = fe(t);
+      if (e) return e;
+      const a = new Map(s.tasks.map((r, d) => [r.id, d]));
+      for (const [r, d] of t.entries()) {
+        const n = s.tasks[a.get(d.id) ?? -1];
+        if (!n) return "任务集合发生变化，无法排序";
+        if (JSON.stringify(d) !== JSON.stringify(n)) return "任务数据在排序期间发生变化";
+        if ((n.lockedReason || n.reorderable === !1 || ["running", "waiting-approval"].includes(n.status)) && a.get(d.id) !== r) return n.lockedReason ?? "任务当前不可移动";
+        if (((o = f.value[V(n)]) == null ? void 0 : o.status) === "pending" && a.get(d.id) !== r) return "任务操作进行中，无法移动";
+      }
+    }, Oe = (t) => {
+      const e = t, a = be(e);
+      if (a) {
+        v("task-move-reject", a);
+        return;
+      }
+      v("update:tasks", e);
+    }, he = I(() => s.contextItems), ke = I(() => s.tasks.filter((t) => t.status === "complete").length), ge = I(() => s.tasks.some((t) => t.status === "error") ? { key: "error", label: "需要处理" } : z.value > 0 ? { key: "waiting", label: "等待人工审批" } : s.tasks.some((t) => t.status === "running") ? { key: "running", label: "执行中" } : s.tasks.length && ke.value === s.tasks.length ? { key: "complete", label: "已完成" } : { key: "idle", label: "待开始" }), T = (t) => t, Ee = (t, e, a) => {
+      const o = e + a;
+      if (o < 0 || o >= t.length) return t;
+      const r = [...t], [d] = r.splice(e, 1);
+      return r.splice(o, 0, d), r;
+    }, H = (t, e) => {
+      var o, r;
+      const a = t + e;
+      return !!(s.disabled || a < 0 || a >= s.contextItems.length || (o = s.contextItems[t]) != null && o.disabled || (r = s.contextItems[a]) != null && r.disabled);
+    }, q = (t, e) => {
+      if (H(t, e)) return;
+      const a = s.contextItems[t];
+      !a || t + e < 0 || t + e >= s.contextItems.length || (v("update:contextItems", Ee(s.contextItems, t, e)), v("move-context", a.id, e < 0 ? "up" : "down"));
+    }, _e = (t) => {
+      if (s.disabled) return;
+      const e = t;
+      s.contextItems.some((o, r) => {
+        var d;
+        return o.disabled && ((d = e[r]) == null ? void 0 : d.id) !== o.id;
+      }) || v("update:contextItems", e);
+    }, Ke = (t, e) => v("move-task", t, e), Ue = (t, e) => v("chat-edit", t, e);
+    return ee(() => [s.tasks, s.artifacts, s.activeConversation, s.actionHandler], () => {
+      var t, e, a, o, r, d;
+      for (const [n, i] of A) {
+        const c = s.tasks.find((M) => V(M) === n);
+        if (!c) {
+          i.abort(), A.delete(n), E.delete(n), O.delete(n);
+          continue;
+        }
+        const p = f.value[n], b = (t = c.approval) != null && t.artifactId ? s.artifacts.find((M) => {
+          var L;
+          return M.id === ((L = c.approval) == null ? void 0 : L.artifactId);
+        }) : void 0;
+        p && (p.taskRevision !== c.revision || p.approvalId !== ((e = c.approval) == null ? void 0 : e.id) || p.artifactId !== ((b == null ? void 0 : b.id) ?? ((a = c.approval) == null ? void 0 : a.artifactId)) || p.artifactRevision !== (b == null ? void 0 : b.revision) || p.conversationId !== s.activeConversation) && (i == null || i.abort(), i && A.delete(n), E.delete(n), O.delete(n), delete f.value[n]);
+      }
+      for (const n of Object.keys(f.value)) s.tasks.some((i) => V(i) === n) || delete f.value[n];
+      for (const [n, i] of Object.entries(f.value)) {
+        const c = s.tasks.find((b) => V(b) === n), p = (o = c == null ? void 0 : c.approval) != null && o.artifactId ? s.artifacts.find((b) => {
+          var M;
+          return b.id === ((M = c.approval) == null ? void 0 : M.artifactId);
+        }) : void 0;
+        (!c || i.conversationId !== s.activeConversation || i.taskStatus !== c.status || i.approvalStatus !== ((r = c.approval) == null ? void 0 : r.status) || i.artifactId !== ((p == null ? void 0 : p.id) ?? ((d = c.approval) == null ? void 0 : d.artifactId)) || i.artifactRevision !== (p == null ? void 0 : p.revision)) && (O.delete(n), delete f.value[n]);
+      }
+    }, { deep: !0 }), ee(() => s.actionHandler, (t, e) => {
+      if (t !== e) {
+        for (const a of A.values()) a.abort();
+        A.clear(), E.clear(), f.value = {}, O.clear();
+      }
+    }), Ie(() => {
+      for (const t of A.values()) t.abort();
+    }), (t, e) => (h(), g("section", tt, [
+      u("header", at, [
+        u("div", null, [
+          e[18] || (e[18] = u("span", { class: "aheart-ai-workbench__eyebrow" }, "智能工作区", -1)),
+          u("h2", null, $(l.title), 1),
+          l.description ? (h(), g("p", ot, $(l.description), 1)) : C("", !0)
         ]),
-        createElementVNode("div", _hoisted_7, [
-          createVNode(unref(Splitter), {
-            sizes: __props.panelSizes,
-            "default-sizes": [150, "auto", 200],
-            "onUpdate:sizes": _cache[13] || (_cache[13] = ($event) => emit("update:panelSizes", $event))
-          }, {
-            default: withCtx(() => [
-              createVNode(unref(SplitterPanel), {
-                min: 140,
-                collapsible: ""
-              }, {
-                default: withCtx(() => [
-                  createElementVNode("aside", _hoisted_8, [
-                    _cache[34] || (_cache[34] = createElementVNode("h2", null, "会话", -1)),
-                    createVNode(_sfc_main$1, {
-                      "model-value": __props.activeConversation,
-                      conversations: __props.conversations,
-                      "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => emit("update:activeConversation", $event))
-                    }, null, 8, ["model-value", "conversations"]),
-                    __props.contextItems.length ? (openBlock(), createElementBlock("section", _hoisted_9, [
-                      _cache[33] || (_cache[33] = createElementVNode("h3", null, "上下文", -1)),
-                      createVNode(unref(SortableList), {
-                        items: sortableContext.value,
-                        "item-key": "id",
-                        group: "agent-context",
-                        disabled: __props.disabled,
-                        "onUpdate:items": updateContext
-                      }, {
-                        item: withCtx(({ item, index }) => [
-                          createElementVNode("div", {
-                            class: "aheart-ai-workbench__context-item",
-                            "data-context-id": asContext(item).id
-                          }, [
-                            createElementVNode("span", null, toDisplayString(asContext(item).label), 1),
-                            asContext(item).description ? (openBlock(), createElementBlock("small", _hoisted_11, toDisplayString(asContext(item).description), 1)) : createCommentVNode("", true),
-                            createElementVNode("div", _hoisted_12, [
-                              createVNode(unref(Button), {
-                                type: "text",
-                                disabled: isContextMoveDisabled(index, -1),
-                                onClick: ($event) => moveContext(index, -1)
-                              }, {
-                                default: withCtx(() => [..._cache[31] || (_cache[31] = [
-                                  createTextVNode("上移", -1)
-                                ])]),
-                                _: 1
-                              }, 8, ["disabled", "onClick"]),
-                              createVNode(unref(Button), {
-                                type: "text",
-                                disabled: isContextMoveDisabled(index, 1),
-                                onClick: ($event) => moveContext(index, 1)
-                              }, {
-                                default: withCtx(() => [..._cache[32] || (_cache[32] = [
-                                  createTextVNode("下移", -1)
-                                ])]),
-                                _: 1
-                              }, 8, ["disabled", "onClick"])
-                            ])
-                          ], 8, _hoisted_10)
-                        ]),
-                        _: 1
-                      }, 8, ["items", "disabled"])
-                    ])) : createCommentVNode("", true)
+        u("div", st, [
+          u("span", {
+            "data-workbench-status": "",
+            class: Ne(`is-${ge.value.key}`)
+          }, $(ge.value.label), 3),
+          u("small", nt, $(ke.value) + " / " + $(l.tasks.length) + " 已完成", 1),
+          z.value > 0 ? (h(), g("button", {
+            key: 0,
+            type: "button",
+            "data-pending-approval-summary": "",
+            class: "aheart-ai-workbench__pending-summary",
+            "aria-label": ve.value,
+            onClick: Re
+          }, $(ve.value), 9, rt)) : C("", !0)
+        ])
+      ]),
+      u("div", it, [
+        m(y(We), {
+          sizes: l.panelSizes,
+          "default-sizes": [150, "auto", 200],
+          "onUpdate:sizes": e[13] || (e[13] = (a) => v("update:panelSizes", a))
+        }, {
+          default: k(() => [
+            m(y(ne), {
+              min: 140,
+              collapsible: ""
+            }, {
+              default: k(() => [
+                u("aside", lt, [
+                  e[22] || (e[22] = u("h2", null, "会话", -1)),
+                  m(xe, {
+                    "model-value": l.activeConversation,
+                    conversations: l.conversations,
+                    "onUpdate:modelValue": e[0] || (e[0] = (a) => v("update:activeConversation", a))
+                  }, null, 8, ["model-value", "conversations"]),
+                  l.contextItems.length ? (h(), g("section", dt, [
+                    e[21] || (e[21] = u("h3", null, "上下文", -1)),
+                    m(y(Ye), {
+                      items: he.value,
+                      "item-key": "id",
+                      group: `agent-context-${Q.value}`,
+                      disabled: l.disabled,
+                      "onUpdate:items": _e
+                    }, {
+                      item: k(({ item: a, index: o }) => [
+                        u("div", {
+                          class: "aheart-ai-workbench__context-item",
+                          "data-context-id": T(a).id
+                        }, [
+                          u("span", null, $(T(a).label), 1),
+                          T(a).description ? (h(), g("small", ut, $(T(a).description), 1)) : C("", !0),
+                          u("div", vt, [
+                            m(y(N), {
+                              type: "text",
+                              disabled: H(o, -1),
+                              onClick: (r) => q(o, -1)
+                            }, {
+                              default: k(() => [...e[19] || (e[19] = [
+                                P("上移", -1)
+                              ])]),
+                              _: 1
+                            }, 8, ["disabled", "onClick"]),
+                            m(y(N), {
+                              type: "text",
+                              disabled: H(o, 1),
+                              onClick: (r) => q(o, 1)
+                            }, {
+                              default: k(() => [...e[20] || (e[20] = [
+                                P("下移", -1)
+                              ])]),
+                              _: 1
+                            }, 8, ["disabled", "onClick"])
+                          ])
+                        ], 8, ct)
+                      ]),
+                      _: 1
+                    }, 8, ["items", "group", "disabled"])
+                  ])) : C("", !0)
+                ])
+              ]),
+              _: 1
+            }),
+            m(y(ne), { min: 230 }, {
+              default: k(() => [
+                u("main", pt, [
+                  l.transport ? (h(), ae($e, {
+                    key: 0,
+                    to: K.value ? W.value : `#${Te}`,
+                    disabled: !K.value || !U.value || j.value !== "chat" || !W.value && K.value
+                  }, [
+                    l.transport ? (h(), ae(Qe, Fe({ key: "chat-owner" }, Me.value, {
+                      transport: l.transport,
+                      "conversation-id": l.activeConversation,
+                      prompts: l.prompts,
+                      disabled: l.disabled,
+                      "onUpdate:messages": e[1] || (e[1] = (a) => v("update:messages", a)),
+                      onError: e[2] || (e[2] = (a) => v("error", a)),
+                      onStop: e[3] || (e[3] = (a) => v("stop")),
+                      onRetry: e[4] || (e[4] = (a) => v("chat-retry", a)),
+                      onRegenerate: e[5] || (e[5] = (a) => v("chat-regenerate", a)),
+                      onEdit: Ue,
+                      onCopy: e[6] || (e[6] = (a) => v("chat-copy", a))
+                    }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : C("", !0)
+                  ], 8, ["to", "disabled"])) : C("", !0),
+                  l.transport ? C("", !0) : (h(), g("p", ft, "业务层尚未提供对话传输适配器。")),
+                  _(t.$slots, "sources", { sources: l.sources }, () => [
+                    m(Se, { sources: l.sources }, null, 8, ["sources"])
+                  ]),
+                  _(t.$slots, "attachments", { attachments: l.attachments }, () => [
+                    m(Ce, { items: l.attachments }, null, 8, ["items"])
                   ])
-                ]),
-                _: 1
-              }),
-              createVNode(unref(SplitterPanel), { min: 230 }, {
-                default: withCtx(() => [
-                  createElementVNode("main", _hoisted_13, [
-                    __props.transport ? (openBlock(), createBlock(_sfc_main$2, mergeProps({ key: 0 }, chatMessageProps.value, {
-                      transport: __props.transport,
-                      "conversation-id": __props.activeConversation,
-                      prompts: __props.prompts,
-                      disabled: __props.disabled,
-                      "onUpdate:messages": _cache[1] || (_cache[1] = ($event) => emit("update:messages", $event)),
-                      onError: _cache[2] || (_cache[2] = ($event) => emit("error", $event)),
-                      onStop: _cache[3] || (_cache[3] = ($event) => emit("stop")),
-                      onRetry: _cache[4] || (_cache[4] = ($event) => emit("chat-retry", $event)),
-                      onRegenerate: _cache[5] || (_cache[5] = ($event) => emit("chat-regenerate", $event)),
-                      onEdit: forwardChatEdit,
-                      onCopy: _cache[6] || (_cache[6] = ($event) => emit("chat-copy", $event))
-                    }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (openBlock(), createElementBlock("p", _hoisted_14, "业务层尚未提供对话传输适配器。")),
-                    renderSlot(_ctx.$slots, "sources", { sources: __props.sources }, () => [
-                      createVNode(_sfc_main$3, { sources: __props.sources }, null, 8, ["sources"])
-                    ]),
-                    renderSlot(_ctx.$slots, "attachments", { attachments: __props.attachments }, () => [
-                      createVNode(_sfc_main$4, { items: __props.attachments }, null, 8, ["items"])
-                    ])
-                  ])
-                ]),
-                _: 3
-              }),
-              createVNode(unref(SplitterPanel), {
-                min: 180,
-                collapsible: ""
-              }, {
-                default: withCtx(() => [
-                  createElementVNode("aside", _hoisted_15, [
-                    createVNode(_sfc_main$5, {
-                      tasks: __props.tasks,
-                      artifacts: __props.artifacts,
-                      "active-artifact": __props.activeArtifact,
-                      disabled: __props.disabled,
-                      "onUpdate:tasks": _cache[7] || (_cache[7] = ($event) => emit("update:tasks", $event)),
-                      onApprove: _cache[8] || (_cache[8] = ($event) => emit("approve", $event)),
-                      onReject: _cache[9] || (_cache[9] = ($event) => emit("reject", $event)),
-                      onCancel: _cache[10] || (_cache[10] = ($event) => emit("cancel", $event)),
-                      onRetry: _cache[11] || (_cache[11] = ($event) => emit("retry", $event)),
-                      onMoveTask: forwardMoveTask,
-                      onSelectArtifact: _cache[12] || (_cache[12] = ($event) => emit("update:activeArtifact", $event.id))
-                    }, createSlots({ _: 2 }, [
-                      _ctx.$slots.task ? {
+                ])
+              ]),
+              _: 3
+            }),
+            m(y(ne), {
+              min: 180,
+              collapsible: ""
+            }, {
+              default: k(() => [
+                u("aside", mt, [
+                  (h(), ae($e, {
+                    to: K.value ? G.value : `#${ie}`,
+                    disabled: !K.value || !U.value || j.value !== "execution" || !G.value
+                  }, [
+                    m(et, {
+                      key: "execution-owner",
+                      tasks: l.tasks,
+                      artifacts: l.artifacts,
+                      "active-artifact": l.activeArtifact,
+                      disabled: l.disabled,
+                      reorderable: l.reorderable,
+                      "tasks-revision": l.tasksRevision,
+                      "scope-key": Q.value,
+                      "action-disabled": pe,
+                      "operation-messages": ze.value,
+                      "validate-candidate": be,
+                      "onUpdate:tasks": Oe,
+                      onApprove: e[7] || (e[7] = (a) => Z("approve", a)),
+                      onReject: e[8] || (e[8] = (a) => Z("reject", a)),
+                      onCancel: e[9] || (e[9] = (a) => Z("cancel", a)),
+                      onRetry: e[10] || (e[10] = (a) => Z("retry", a)),
+                      onMoveTask: Ke,
+                      onMoveTaskReject: e[11] || (e[11] = (a) => v("task-move-reject", a)),
+                      onSelectArtifact: e[12] || (e[12] = (a) => v("update:activeArtifact", a.id))
+                    }, Je({ _: 2 }, [
+                      t.$slots.task ? {
                         name: "task",
-                        fn: withCtx(({ task, index }) => [
-                          renderSlot(_ctx.$slots, "task", {
-                            task,
-                            index
+                        fn: k(({ task: a, index: o }) => [
+                          _(t.$slots, "task", {
+                            task: a,
+                            index: o
                           })
                         ]),
                         key: "0"
                       } : void 0,
-                      _ctx.$slots.artifact ? {
+                      t.$slots.artifact ? {
                         name: "artifact",
-                        fn: withCtx(({ artifact }) => [
-                          renderSlot(_ctx.$slots, "artifact", { artifact })
+                        fn: k(({ artifact: a }) => [
+                          _(t.$slots, "artifact", { artifact: a })
                         ]),
                         key: "1"
                       } : void 0,
-                      _ctx.$slots["artifact-preview"] ? {
+                      t.$slots["artifact-preview"] ? {
                         name: "artifact-preview",
-                        fn: withCtx(({ artifact }) => [
-                          renderSlot(_ctx.$slots, "artifact-preview", { artifact })
+                        fn: k(({ artifact: a }) => [
+                          _(t.$slots, "artifact-preview", { artifact: a })
                         ]),
                         key: "2"
                       } : void 0
-                    ]), 1032, ["tasks", "artifacts", "active-artifact", "disabled"])
-                  ])
-                ]),
-                _: 3
-              })
-            ]),
-            _: 3
-          }, 8, ["sizes"])
-        ]),
-        createElementVNode("div", _hoisted_16, [
-          createVNode(unref(Tabs), {
-            items: mobileTabs.value,
-            "active-key": mobileView.value,
-            "onUpdate:activeKey": _cache[14] || (_cache[14] = ($event) => mobileView.value = $event)
-          }, null, 8, ["items", "active-key"]),
-          mobileView.value === "conversations" ? (openBlock(), createElementBlock("section", _hoisted_17, [
-            createVNode(_sfc_main$1, {
-              "model-value": __props.activeConversation,
-              conversations: __props.conversations,
-              "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event) => emit("update:activeConversation", $event))
-            }, null, 8, ["model-value", "conversations"]),
-            __props.contextItems.length ? (openBlock(), createElementBlock("section", _hoisted_18, [
-              _cache[37] || (_cache[37] = createElementVNode("h3", null, "上下文", -1)),
-              createVNode(unref(SortableList), {
-                items: sortableContext.value,
-                "item-key": "id",
-                group: "agent-context",
-                disabled: __props.disabled,
-                "onUpdate:items": updateContext
-              }, {
-                item: withCtx(({ item, index }) => [
-                  createElementVNode("div", {
-                    class: "aheart-ai-workbench__context-item",
-                    "data-context-id": asContext(item).id
-                  }, [
-                    createElementVNode("span", null, toDisplayString(asContext(item).label), 1),
-                    asContext(item).description ? (openBlock(), createElementBlock("small", _hoisted_20, toDisplayString(asContext(item).description), 1)) : createCommentVNode("", true),
-                    createElementVNode("div", _hoisted_21, [
-                      createVNode(unref(Button), {
-                        type: "text",
-                        disabled: isContextMoveDisabled(index, -1),
-                        onClick: ($event) => moveContext(index, -1)
-                      }, {
-                        default: withCtx(() => [..._cache[35] || (_cache[35] = [
-                          createTextVNode("上移", -1)
-                        ])]),
-                        _: 1
-                      }, 8, ["disabled", "onClick"]),
-                      createVNode(unref(Button), {
-                        type: "text",
-                        disabled: isContextMoveDisabled(index, 1),
-                        onClick: ($event) => moveContext(index, 1)
-                      }, {
-                        default: withCtx(() => [..._cache[36] || (_cache[36] = [
-                          createTextVNode("下移", -1)
-                        ])]),
-                        _: 1
-                      }, 8, ["disabled", "onClick"])
-                    ])
-                  ], 8, _hoisted_19)
-                ]),
-                _: 1
-              }, 8, ["items", "disabled"])
-            ])) : createCommentVNode("", true)
-          ])) : mobileView.value === "chat" ? (openBlock(), createElementBlock("section", _hoisted_22, [
-            __props.transport ? (openBlock(), createBlock(_sfc_main$2, mergeProps({ key: 0 }, chatMessageProps.value, {
-              transport: __props.transport,
-              "conversation-id": __props.activeConversation,
-              prompts: __props.prompts,
-              disabled: __props.disabled,
-              "onUpdate:messages": _cache[16] || (_cache[16] = ($event) => emit("update:messages", $event)),
-              onError: _cache[17] || (_cache[17] = ($event) => emit("error", $event)),
-              onStop: _cache[18] || (_cache[18] = ($event) => emit("stop")),
-              onRetry: _cache[19] || (_cache[19] = ($event) => emit("chat-retry", $event)),
-              onRegenerate: _cache[20] || (_cache[20] = ($event) => emit("chat-regenerate", $event)),
-              onEdit: forwardChatEdit,
-              onCopy: _cache[21] || (_cache[21] = ($event) => emit("chat-copy", $event))
-            }), null, 16, ["transport", "conversation-id", "prompts", "disabled"])) : (openBlock(), createElementBlock("p", _hoisted_23, "业务层尚未提供对话传输适配器。")),
-            renderSlot(_ctx.$slots, "sources", { sources: __props.sources }, () => [
-              createVNode(_sfc_main$3, { sources: __props.sources }, null, 8, ["sources"])
-            ]),
-            renderSlot(_ctx.$slots, "attachments", { attachments: __props.attachments }, () => [
-              createVNode(_sfc_main$4, { items: __props.attachments }, null, 8, ["items"])
-            ])
-          ])) : (openBlock(), createElementBlock("section", _hoisted_24, [
-            createVNode(unref(Button), {
-              "data-action": "open-execution-drawer",
-              type: "primary",
-              onClick: _cache[22] || (_cache[22] = ($event) => executionDrawerOpen.value = true)
-            }, {
-              default: withCtx(() => [..._cache[38] || (_cache[38] = [
-                createTextVNode("查看执行与产物", -1)
-              ])]),
-              _: 1
+                    ]), 1032, ["tasks", "artifacts", "active-artifact", "disabled", "reorderable", "tasks-revision", "scope-key", "operation-messages"])
+                  ], 8, ["to", "disabled"])),
+                  me.value ? (h(), g("p", bt, "无法排序：" + $(me.value), 1)) : C("", !0)
+                ])
+              ]),
+              _: 3
             })
-          ])),
-          createVNode(unref(Drawer), {
-            open: executionDrawerOpen.value,
-            "onUpdate:open": _cache[29] || (_cache[29] = ($event) => executionDrawerOpen.value = $event),
-            title: "执行与产物",
-            "get-container": false,
-            placement: "right"
+          ]),
+          _: 3
+        }, 8, ["sizes"])
+      ]),
+      u("div", ht, [
+        m(y(Ge), {
+          items: je.value,
+          "active-key": J(j.value),
+          "onUpdate:activeKey": e[14] || (e[14] = (a) => j.value = String(a).split("--")[0])
+        }, null, 8, ["items", "active-key"]),
+        oe(u("section", kt, [
+          m(xe, {
+            "model-value": l.activeConversation,
+            conversations: l.conversations,
+            "onUpdate:modelValue": e[15] || (e[15] = (a) => v("update:activeConversation", a))
+          }, null, 8, ["model-value", "conversations"]),
+          l.contextItems.length ? (h(), g("section", gt, [
+            e[25] || (e[25] = u("h3", null, "上下文", -1)),
+            u("div", yt, [
+              (h(!0), g(Ze, null, qe(he.value, (a, o) => (h(), g("div", {
+                key: T(a).id,
+                class: "aheart-ai-workbench__context-item",
+                "data-context-id": T(a).id
+              }, [
+                u("span", null, $(T(a).label), 1),
+                T(a).description ? (h(), g("small", It, $(T(a).description), 1)) : C("", !0),
+                u("div", $t, [
+                  m(y(N), {
+                    type: "text",
+                    disabled: H(o, -1),
+                    onClick: (r) => q(o, -1)
+                  }, {
+                    default: k(() => [...e[23] || (e[23] = [
+                      P("上移", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled", "onClick"]),
+                  m(y(N), {
+                    type: "text",
+                    disabled: H(o, 1),
+                    onClick: (r) => q(o, 1)
+                  }, {
+                    default: k(() => [...e[24] || (e[24] = [
+                      P("下移", -1)
+                    ])]),
+                    _: 1
+                  }, 8, ["disabled", "onClick"])
+                ])
+              ], 8, wt))), 128))
+            ])
+          ])) : C("", !0)
+        ], 512), [
+          [se, j.value === "conversations"]
+        ]),
+        oe(u("section", Ct, [
+          u("div", xt, [
+            u("div", {
+              id: `${Q.value}-chat-target`,
+              ref_key: "mobileChatTarget",
+              ref: W,
+              class: "aheart-ai-workbench__mobile-owner-target"
+            }, null, 8, St)
+          ]),
+          l.transport ? C("", !0) : (h(), g("p", At, "业务层尚未提供对话传输适配器。")),
+          _(t.$slots, "sources", { sources: l.sources }, () => [
+            m(Se, { sources: l.sources }, null, 8, ["sources"])
+          ]),
+          _(t.$slots, "attachments", { attachments: l.attachments }, () => [
+            m(Ce, { items: l.attachments }, null, 8, ["items"])
+          ])
+        ], 512), [
+          [se, j.value === "chat"]
+        ]),
+        oe(u("section", Tt, [
+          m(y(N), {
+            "data-action": "open-execution-drawer",
+            type: "primary",
+            onClick: e[16] || (e[16] = (a) => D.value = !0)
           }, {
-            default: withCtx(() => [
-              createVNode(_sfc_main$5, {
-                tasks: __props.tasks,
-                artifacts: __props.artifacts,
-                "active-artifact": __props.activeArtifact,
-                disabled: __props.disabled,
-                "onUpdate:tasks": _cache[23] || (_cache[23] = ($event) => emit("update:tasks", $event)),
-                onApprove: _cache[24] || (_cache[24] = ($event) => emit("approve", $event)),
-                onReject: _cache[25] || (_cache[25] = ($event) => emit("reject", $event)),
-                onCancel: _cache[26] || (_cache[26] = ($event) => emit("cancel", $event)),
-                onRetry: _cache[27] || (_cache[27] = ($event) => emit("retry", $event)),
-                onMoveTask: forwardMoveTask,
-                onSelectArtifact: _cache[28] || (_cache[28] = ($event) => emit("update:activeArtifact", $event.id))
-              }, createSlots({ _: 2 }, [
-                _ctx.$slots.task ? {
-                  name: "task",
-                  fn: withCtx(({ task, index }) => [
-                    renderSlot(_ctx.$slots, "task", {
-                      task,
-                      index
-                    })
-                  ]),
-                  key: "0"
-                } : void 0,
-                _ctx.$slots.artifact ? {
-                  name: "artifact",
-                  fn: withCtx(({ artifact }) => [
-                    renderSlot(_ctx.$slots, "artifact", { artifact })
-                  ]),
-                  key: "1"
-                } : void 0,
-                _ctx.$slots["artifact-preview"] ? {
-                  name: "artifact-preview",
-                  fn: withCtx(({ artifact }) => [
-                    renderSlot(_ctx.$slots, "artifact-preview", { artifact })
-                  ]),
-                  key: "2"
-                } : void 0
-              ]), 1032, ["tasks", "artifacts", "active-artifact", "disabled"])
-            ]),
-            _: 3
-          }, 8, ["open"])
-        ])
-      ]);
-    };
+            default: k(() => [...e[26] || (e[26] = [
+              P("查看执行与产物", -1)
+            ])]),
+            _: 1
+          })
+        ], 512), [
+          [se, j.value === "execution"]
+        ]),
+        m(y(Xe), {
+          open: D.value,
+          "onUpdate:open": e[17] || (e[17] = (a) => D.value = a),
+          title: "执行与产物",
+          "get-container": !1,
+          "force-render": re.value,
+          "destroy-on-close": !1,
+          placement: "right"
+        }, {
+          default: k(() => [
+            u("div", {
+              id: ie,
+              ref_key: "mobileExecutionTarget",
+              ref: G,
+              class: "aheart-ai-workbench__mobile-owner-target"
+            }, null, 512)
+          ]),
+          _: 1
+        }, 8, ["open", "force-render"])
+      ])
+    ]));
   }
 });
 export {
-  _sfc_main as default
+  Ut as default
 };

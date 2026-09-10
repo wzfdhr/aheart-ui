@@ -1,0 +1,47 @@
+{
+  "status": "failed",
+  "generatedAt": "2026-09-09T16:11:14.892Z",
+  "node": "v24.17.0",
+  "npm": "11.13.0",
+  "pnpm": "11.19.0",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d8-ai-DYHglo",
+  "tarballs": {
+    "ai": {
+      "path": "/private/tmp/aheart-d8-red-pnpm.WkfxM0/aheart-ui-ai-1.0.0.tgz",
+      "sha256": "ff5b11004d8ea0083b91f6200268939ccac620cafd0c54adb8585e2c126428f6",
+      "bytes": 41686
+    },
+    "components": {
+      "path": "/private/tmp/aheart-d8-red-pnpm.WkfxM0/aheart-ui-1.0.0.tgz",
+      "sha256": "b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b",
+      "bytes": 488169
+    },
+    "dnd": {
+      "path": "/private/tmp/aheart-d8-red-pnpm.WkfxM0/aheart-ui-dnd-1.0.0.tgz",
+      "sha256": "a78c41e518ebc5f2c46af7638a958d5d81a3204aaaaed03f6358b6e2fe036eee",
+      "bytes": 26789
+    }
+  },
+  "symlink": false,
+  "packageFiles": true,
+  "typecheck": false,
+  "imports": false,
+  "css": false,
+  "pluginInstall": false,
+  "reducer": false,
+  "ssr": false,
+  "hydration": false,
+  "chatLifecycle": false,
+  "workbench": false,
+  "aiForm": false,
+  "primitiveBundle": false,
+  "gzip": {
+    "status": "not-run"
+  },
+  "gates": {},
+  "error": {
+    "name": "Error",
+    "message": "Command failed: npx tsc --noEmit --strict --skipLibCheck --moduleResolution Bundler --module ESNext --target ES2022 types.ts\n",
+    "stack": "Error: Command failed: npx tsc --noEmit --strict --skipLibCheck --moduleResolution Bundler --module ESNext --target ES2022 types.ts\n\n    at genericNodeError (node:internal/errors:985:15)\n    at wrappedFn (node:internal/errors:539:14)\n    at ChildProcess.exithandler (node:child_process:417:12)\n    at ChildProcess.emit (node:events:509:28)\n    at maybeClose (node:internal/child_process:1124:16)\n    at ChildProcess._handle.onexit (node:internal/child_process:306:5)"
+  }
+}

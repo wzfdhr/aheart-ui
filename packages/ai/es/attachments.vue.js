@@ -1,47 +1,39 @@
-import { defineComponent, openBlock, createElementBlock, Fragment, renderList, unref, toDisplayString, createCommentVNode } from "vue";
-import { getSafeUrl } from "./safe-markdown.js";
-const _hoisted_1 = {
+import { defineComponent as i, openBlock as t, createElementBlock as a, Fragment as u, renderList as f, unref as r, toDisplayString as o, createCommentVNode as l } from "vue";
+import { getSafeUrl as s } from "./safe-markdown.js";
+const h = {
   key: 0,
   class: "aheart-ai-attachments",
   "aria-label": "附件"
-};
-const _hoisted_2 = ["href"];
-const _hoisted_3 = { key: 1 };
-const _hoisted_4 = ["aria-label", "onClick"];
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AAIAttachments" },
+}, d = ["href"], _ = { key: 1 }, k = ["aria-label", "onClick"], C = /* @__PURE__ */ i({
+  name: "AAIAttachments",
   __name: "attachments",
   props: {
     items: { default: () => [] },
-    removable: { type: Boolean, default: false }
+    removable: { type: Boolean, default: !1 }
   },
   emits: ["remove"],
-  setup(__props, { emit: __emit }) {
-    const emit = __emit;
-    return (_ctx, _cache) => {
-      return __props.items.length ? (openBlock(), createElementBlock("ul", _hoisted_1, [
-        (openBlock(true), createElementBlock(Fragment, null, renderList(__props.items, (item) => {
-          return openBlock(), createElementBlock("li", {
-            key: item.id
-          }, [
-            unref(getSafeUrl)(item.url) ? (openBlock(), createElementBlock("a", {
-              key: 0,
-              href: unref(getSafeUrl)(item.url),
-              target: "_blank",
-              rel: "noreferrer"
-            }, toDisplayString(item.name), 9, _hoisted_2)) : (openBlock(), createElementBlock("span", _hoisted_3, toDisplayString(item.name), 1)),
-            __props.removable ? (openBlock(), createElementBlock("button", {
-              key: 2,
-              type: "button",
-              "aria-label": `移除 ${item.name}`,
-              onClick: ($event) => emit("remove", item)
-            }, "移除", 8, _hoisted_4)) : createCommentVNode("", true)
-          ]);
-        }), 128))
-      ])) : createCommentVNode("", true);
-    };
+  setup(n, { emit: m }) {
+    const c = m;
+    return (b, p) => n.items.length ? (t(), a("ul", h, [
+      (t(!0), a(u, null, f(n.items, (e) => (t(), a("li", {
+        key: e.id
+      }, [
+        r(s)(e.url) ? (t(), a("a", {
+          key: 0,
+          href: r(s)(e.url),
+          target: "_blank",
+          rel: "noreferrer"
+        }, o(e.name), 9, d)) : (t(), a("span", _, o(e.name), 1)),
+        n.removable ? (t(), a("button", {
+          key: 2,
+          type: "button",
+          "aria-label": `移除 ${e.name}`,
+          onClick: (y) => c("remove", e)
+        }, "移除", 8, k)) : l("", !0)
+      ]))), 128))
+    ])) : l("", !0);
   }
 });
 export {
-  _sfc_main as default
+  C as default
 };

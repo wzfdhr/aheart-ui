@@ -1,0 +1,47 @@
+{
+  "status": "failed",
+  "generatedAt": "2026-09-09T17:27:33.217Z",
+  "node": "v24.17.0",
+  "npm": "11.13.0",
+  "pnpm": "9.15.4",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d8-ai-28LOTN",
+  "tarballs": {
+    "ai": {
+      "path": "/private/tmp/aheart-d8-green.XNhqlz/aheart-ui-ai-1.0.0.tgz",
+      "sha256": "528e96fbfa1e8630c2ea4810a7a73173074b9f82eb0a496ef28026d12935db68",
+      "bytes": 66992
+    },
+    "components": {
+      "path": "/private/tmp/aheart-d8-green.XNhqlz/aheart-ui-1.0.0.tgz",
+      "sha256": "b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b",
+      "bytes": 488169
+    },
+    "dnd": {
+      "path": "/private/tmp/aheart-d8-green.XNhqlz/aheart-ui-dnd-1.0.0.tgz",
+      "sha256": "a78c41e518ebc5f2c46af7638a958d5d81a3204aaaaed03f6358b6e2fe036eee",
+      "bytes": 26789
+    }
+  },
+  "symlink": false,
+  "packageFiles": true,
+  "typecheck": true,
+  "imports": true,
+  "css": true,
+  "pluginInstall": true,
+  "reducer": true,
+  "ssr": true,
+  "hydration": false,
+  "chatLifecycle": false,
+  "workbench": false,
+  "aiForm": false,
+  "primitiveBundle": false,
+  "gzip": {
+    "status": "not-run"
+  },
+  "gates": {},
+  "error": {
+    "name": "AssertionError",
+    "message": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'Hydration completed but contains mismatches.'\n+ ]\n- []\n",
+    "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'Hydration completed but contains mismatches.'\n+ ]\n- []\n\n    at file:///Users/start/.codex/worktrees/091b/aheart-ui/docs/superpowers/experiments/d8-consumer/run.mjs:130:14"
+  }
+}

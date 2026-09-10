@@ -226,7 +226,7 @@ describe('AIForm', () => {
 
     const summary = wrapper.get('.aheart-ai-form__error-summary')
     expect(summary.attributes('role')).toBe('alert')
-    expect(summary.text()).toContain('请完成 2 个必填项')
+    expect(summary.text()).toContain('请解决 2 个校验问题')
     expect(wrapper.get('[data-field-key="title"]').classes()).toContain('is-error')
     expect(wrapper.get('[data-field-key="title"] .aheart-ai-form__field-error').attributes('id')).toBe('title-error')
     expect(document.activeElement).toBe(wrapper.get('#title').element)

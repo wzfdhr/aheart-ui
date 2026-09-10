@@ -1,434 +1,441 @@
-import { defineComponent, useId, computed, openBlock, createElementBlock, createElementVNode, toDisplayString, createCommentVNode, Fragment, createVNode, unref, withCtx, createTextVNode, renderSlot, normalizeClass, normalizeStyle, createBlock, renderList } from "vue";
-import { Button } from "aheart-ui";
-import { SortableList } from "@aheart-ui/dnd";
-import { getSafeUrl } from "./safe-markdown.js";
-const _hoisted_1 = { class: "aheart-ai-workbench__execution-content" };
-const _hoisted_2 = {
+import { defineComponent as fa, computed as w, openBlock as r, createElementBlock as l, createElementVNode as o, toDisplayString as n, createCommentVNode as i, Fragment as N, createVNode as S, unref as k, withCtx as y, createTextVNode as m, renderSlot as x, normalizeClass as D, normalizeStyle as ga, createBlock as ia, renderList as wa } from "vue";
+import { Button as C } from "aheart-ui";
+import { SortableList as ma } from "@aheart-ui/dnd";
+import { getSafeUrl as da } from "./safe-markdown.js";
+const Ca = { class: "aheart-ai-workbench__execution-content" }, $a = {
   key: 0,
   class: "aheart-ai-workbench__mobile-priority",
   role: "region",
   "aria-label": "移动端优先处理"
-};
-const _hoisted_3 = { class: "aheart-ai-workbench__priority-heading" };
-const _hoisted_4 = { class: "aheart-ai-workbench__eyebrow" };
-const _hoisted_5 = { key: 0 };
-const _hoisted_6 = { key: 1 };
-const _hoisted_7 = {
+}, Aa = { class: "aheart-ai-workbench__priority-heading" }, ja = { class: "aheart-ai-workbench__eyebrow" }, Sa = { key: 0 }, Ba = { key: 1 }, Ia = {
   key: 0,
   class: "aheart-ai-workbench__priority-approval"
-};
-const _hoisted_8 = { key: 0 };
-const _hoisted_9 = { class: "aheart-ai-workbench__priority-actions" };
-const _hoisted_10 = {
+}, Ma = { key: 0 }, Ka = { class: "aheart-ai-workbench__priority-actions" }, Ra = {
   key: 1,
   class: "aheart-ai-workbench__approval-result"
-};
-const _hoisted_11 = ["aria-label"];
-const _hoisted_12 = { key: 0 };
-const _hoisted_13 = ["aria-label"];
-const _hoisted_14 = { key: 0 };
-const _hoisted_15 = { class: "aheart-ai-workbench__section-heading" };
-const _hoisted_16 = { class: "aheart-ai-workbench__timeline" };
-const _hoisted_17 = ["data-task-id"];
-const _hoisted_18 = { class: "aheart-ai-workbench__task-body" };
-const _hoisted_19 = { class: "aheart-ai-workbench__task-summary" };
-const _hoisted_20 = {
+}, za = ["aria-label"], La = { key: 0 }, Na = ["aria-label"], xa = { key: 0 }, Da = ["aria-labelledby"], Ta = { class: "aheart-ai-workbench__section-heading" }, Va = ["id"], Ea = { class: "aheart-ai-workbench__timeline" }, Fa = ["data-task-id"], Ha = { class: "aheart-ai-workbench__task-body" }, Ua = { class: "aheart-ai-workbench__task-summary" }, Pa = {
   key: 0,
   class: "aheart-ai-workbench__tool-name"
-};
-const _hoisted_21 = { class: "aheart-ai-workbench__task-status" };
-const _hoisted_22 = {
+}, Wa = { class: "aheart-ai-workbench__task-status" }, Za = {
   key: 0,
   class: "aheart-ai-workbench__task-detail"
-};
-const _hoisted_23 = {
+}, qa = {
   key: 1,
-  class: "aheart-ai-workbench__task-progress"
-};
-const _hoisted_24 = ["aria-valuenow"];
-const _hoisted_25 = {
+  class: "aheart-ai-workbench__tool-call",
+  "aria-label": "工具调用摘要"
+}, Ga = { key: 0 }, Ja = { key: 1 }, Oa = { key: 2 }, Qa = {
   key: 2,
-  class: "aheart-ai-workbench__task-time"
-};
-const _hoisted_26 = { key: 0 };
-const _hoisted_27 = { key: 1 };
-const _hoisted_28 = {
+  class: "aheart-ai-workbench__task-lock-reason",
+  role: "status"
+}, Xa = {
   key: 3,
+  class: "aheart-ai-workbench__task-lock-reason",
+  role: "status"
+}, Ya = {
+  key: 4,
+  class: "aheart-ai-workbench__task-lock-reason",
+  role: "status"
+}, ae = {
+  key: 5,
+  class: "aheart-ai-workbench__task-progress"
+}, ee = ["aria-valuenow"], te = {
+  key: 6,
+  class: "aheart-ai-workbench__task-time"
+}, se = { key: 0 }, oe = { key: 1 }, re = {
+  key: 7,
   class: "aheart-ai-workbench__task-error"
-};
-const _hoisted_29 = { class: "aheart-ai-workbench__task-actions" };
-const _hoisted_30 = ["data-approval-id"];
-const _hoisted_31 = { key: 0 };
-const _hoisted_32 = {
+}, le = { class: "aheart-ai-workbench__task-actions" }, ne = {
+  key: 8,
+  class: "aheart-ai-workbench__operation-status",
+  role: "status"
+}, ie = ["data-approval-id"], de = { key: 0 }, ce = {
   key: 1,
   class: "aheart-ai-workbench__approval-result"
-};
-const _hoisted_33 = {
+}, ue = {
   key: 0,
   class: "aheart-ai-workbench__empty"
-};
-const _hoisted_34 = { class: "aheart-ai-workbench__section-heading" };
-const _hoisted_35 = {
+}, pe = ["aria-labelledby"], ve = { class: "aheart-ai-workbench__section-heading" }, _e = ["id"], ke = {
   key: 0,
   class: "aheart-ai-workbench__artifact-list"
-};
-const _hoisted_36 = ["data-artifact-id"];
-const _hoisted_37 = ["aria-pressed", "onClick"];
-const _hoisted_38 = { key: 0 };
-const _hoisted_39 = {
+}, he = ["data-artifact-id"], be = ["aria-pressed", "onClick"], ye = { key: 0 }, fe = {
   key: 1,
   class: "aheart-ai-workbench__empty"
-};
-const _hoisted_40 = {
+}, ge = {
   key: 2,
   class: "aheart-ai-workbench__artifact-preview",
   "aria-label": "产物预览"
-};
-const _hoisted_41 = { class: "aheart-ai-workbench__artifact-preview-header" };
-const _hoisted_42 = ["href"];
-const _hoisted_43 = { key: 0 };
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AIAgentWorkbenchExecution" },
+}, we = { class: "aheart-ai-workbench__artifact-preview-header" }, me = ["href"], Ce = { key: 0 }, Be = /* @__PURE__ */ fa({
+  name: "AIAgentWorkbenchExecution",
   __name: "agent-execution",
   props: {
     tasks: { default: () => [] },
     artifacts: { default: () => [] },
     activeArtifact: { default: void 0 },
-    disabled: { type: Boolean, default: false }
+    disabled: { type: Boolean, default: !1 },
+    reorderable: { type: Boolean, default: !0 },
+    tasksRevision: {},
+    scopeKey: { default: "default" },
+    actionDisabled: { type: Function, default: () => !1 },
+    operationMessages: { default: () => ({}) },
+    validateCandidate: { type: Function, default: () => {
+    } }
   },
-  emits: ["update:tasks", "approve", "reject", "cancel", "retry", "move-task", "select-artifact"],
-  setup(__props, { emit: __emit }) {
-    const executionId = `aheart-agent-execution-${useId().replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-    const taskHeadingId = `${executionId}-tasks`;
-    const artifactHeadingId = `${executionId}-artifacts`;
-    const props = __props;
-    const emit = __emit;
-    const statusLabels = {
+  emits: ["update:tasks", "approve", "reject", "cancel", "retry", "move-task", "move-task-reject", "select-artifact"],
+  setup(v, { emit: ca }) {
+    const d = v, T = w(() => `aheart-agent-execution-${String(d.scopeKey ?? "default").replace(/[^a-zA-Z0-9_-]/g, "-")}`), V = w(() => `${T.value}-tasks`), E = w(() => `${T.value}-artifacts`), _ = ca, ua = {
       pending: "等待执行",
       running: "执行中",
       "waiting-approval": "等待审批",
       complete: "已完成",
       error: "执行失败",
       cancelled: "已取消"
-    };
-    const sortableTasks = computed(() => props.tasks);
-    const selectedArtifact = computed(
-      () => props.artifacts.find((artifact) => artifact.id === props.activeArtifact) ?? props.artifacts[0]
-    );
-    const priorityApproval = computed(
-      () => props.tasks.find((task) => task.approval && (!task.approval.status || task.approval.status === "pending")) ?? props.tasks.find((task) => task.approval)
-    );
-    const priorityArtifact = computed(
-      () => props.artifacts.find((artifact) => {
-        var _a, _b;
-        return artifact.id === ((_b = (_a = priorityApproval.value) == null ? void 0 : _a.approval) == null ? void 0 : _b.artifactId);
-      }) ?? selectedArtifact.value
-    );
-    const priorityLabel = computed(() => {
-      var _a;
-      if (((_a = priorityApproval.value) == null ? void 0 : _a.approval) && (!priorityApproval.value.approval.status || priorityApproval.value.approval.status === "pending")) return "等待审批";
-      return priorityApproval.value ? "审批结果" : "当前产物";
-    });
-    const asTask = (item) => item;
-    const statusLabel = (status) => statusLabels[status];
-    const effectiveStatus = (task) => {
-      var _a, _b;
-      if (((_a = task.approval) == null ? void 0 : _a.status) === "approved") return "complete";
-      if (((_b = task.approval) == null ? void 0 : _b.status) === "rejected") return "cancelled";
-      return task.status;
-    };
-    const effectiveStatusLabel = (task) => {
-      var _a, _b;
-      if (((_a = task.approval) == null ? void 0 : _a.status) === "approved") return "已批准";
-      if (((_b = task.approval) == null ? void 0 : _b.status) === "rejected") return "已拒绝";
-      return statusLabel(task.status);
-    };
-    const normalizedProgress = (progress) => Math.min(100, Math.max(0, Math.round(progress ?? 0)));
-    const updateTasks = (tasks) => {
-      if (!props.disabled) emit("update:tasks", tasks);
-    };
-    const moveTask = (index, offset) => {
-      if (props.disabled || index + offset < 0 || index + offset >= props.tasks.length) return;
-      const next = [...props.tasks];
-      const [task] = next.splice(index, 1);
-      next.splice(index + offset, 0, task);
-      emit("update:tasks", next);
-      emit("move-task", task.id, offset < 0 ? "up" : "down");
-    };
-    return (_ctx, _cache) => {
-      var _a, _b, _c, _d, _e, _f;
-      return openBlock(), createElementBlock("div", _hoisted_1, [
-        priorityApproval.value || selectedArtifact.value ? (openBlock(), createElementBlock("section", _hoisted_2, [
-          createElementVNode("div", _hoisted_3, [
-            createElementVNode("span", _hoisted_4, toDisplayString(priorityLabel.value), 1),
-            priorityApproval.value ? (openBlock(), createElementBlock("strong", _hoisted_5, toDisplayString((_a = priorityApproval.value.approval) == null ? void 0 : _a.title), 1)) : (openBlock(), createElementBlock("strong", _hoisted_6, "查看当前产物"))
+    }, pa = w(() => d.tasks.map((t, s) => ({ ...t, __sortableKey: `${t.id}::${s}` }))), c = w(
+      () => d.artifacts.find((t) => t.id === d.activeArtifact) ?? d.artifacts[0]
+    ), u = w(
+      () => d.tasks.find((t) => t.approval && (!t.approval.status || t.approval.status === "pending")) ?? d.tasks.find((t) => t.approval)
+    ), $ = w(
+      () => d.artifacts.find((t) => {
+        var s, p;
+        return t.id === ((p = (s = u.value) == null ? void 0 : s.approval) == null ? void 0 : p.artifactId);
+      }) ?? c.value
+    ), va = w(() => {
+      var t;
+      return (t = u.value) != null && t.approval && (!u.value.approval.status || u.value.approval.status === "pending") ? "等待审批" : u.value ? "审批结果" : "当前产物";
+    }), e = (t) => t, h = (t) => t.toolCall, K = (t) => {
+      var s;
+      return `${t.id}:${String(t.revision ?? "")}:${((s = t.approval) == null ? void 0 : s.id) ?? ""}`;
+    }, _a = (t) => {
+      _("move-task-reject", {
+        "stale-revision": "任务版本已变化，排序已拒绝",
+        "source-missing": "源任务已不存在，排序已拒绝",
+        "target-missing": "目标位置已不存在，排序已拒绝",
+        "duplicate-key": "任务标识重复，无法排序",
+        "group-mismatch": "任务不属于当前排序分组",
+        disabled: "任务当前不可排序，排序已拒绝",
+        "invalid-position": "目标位置无效，排序已拒绝",
+        "parent-rejected": "任务版本已变化，排序已拒绝",
+        "rollback-rejected": "排序回滚失败，请刷新后重试",
+        unmounted: "排序目标已卸载",
+        cancelled: "排序已取消"
+      }[t.reason ?? ""] ?? "任务当前不可排序，排序已拒绝");
+    }, ka = (t) => ua[t], ha = (t) => t.status, ba = (t) => ka(t.status), R = (t) => Math.min(100, Math.max(0, Math.round(t ?? 0))), ya = (t) => {
+      var s;
+      if (!d.disabled && d.reorderable) {
+        const p = t.map(({ __sortableKey: B, ...j }) => j), f = (s = d.validateCandidate) == null ? void 0 : s.call(d, p);
+        if (f) {
+          _("move-task-reject", f);
+          return;
+        }
+        _("update:tasks", p);
+      }
+    }, F = (t, s) => {
+      var j;
+      if (z(d.tasks[t], t, s)) return;
+      const p = [...d.tasks], [f] = p.splice(t, 1);
+      p.splice(t + s, 0, f);
+      const B = (j = d.validateCandidate) == null ? void 0 : j.call(d, p);
+      if (B) {
+        _("move-task-reject", B);
+        return;
+      }
+      _("update:tasks", p), _("move-task", f.id, s < 0 ? "up" : "down");
+    }, A = (t, s) => {
+      var p;
+      return d.disabled || !!((p = d.actionDisabled) != null && p.call(d, t, s));
+    }, z = (t, s, p) => !!(d.disabled || !d.reorderable || s + p < 0 || s + p >= d.tasks.length || (t == null ? void 0 : t.reorderable) === !1 || t != null && t.lockedReason || (t == null ? void 0 : t.status) === "running" || (t == null ? void 0 : t.status) === "waiting-approval");
+    return (t, s) => {
+      var p, f, B, j, H, U;
+      return r(), l("div", Ca, [
+        u.value || c.value ? (r(), l("section", $a, [
+          o("div", Aa, [
+            o("span", ja, n(va.value), 1),
+            u.value ? (r(), l("strong", Sa, n((p = u.value.approval) == null ? void 0 : p.title), 1)) : (r(), l("strong", Ba, "查看当前产物"))
           ]),
-          priorityApproval.value ? (openBlock(), createElementBlock("div", _hoisted_7, [
-            ((_b = priorityApproval.value.approval) == null ? void 0 : _b.description) ? (openBlock(), createElementBlock("p", _hoisted_8, toDisplayString(priorityApproval.value.approval.description), 1)) : createCommentVNode("", true),
-            createElementVNode("div", _hoisted_9, [
-              !((_c = priorityApproval.value.approval) == null ? void 0 : _c.status) || priorityApproval.value.approval.status === "pending" ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
-                createVNode(unref(Button), {
+          u.value ? (r(), l("div", Ia, [
+            (f = u.value.approval) != null && f.description ? (r(), l("p", Ma, n(u.value.approval.description), 1)) : i("", !0),
+            o("div", Ka, [
+              !((B = u.value.approval) != null && B.status) || u.value.approval.status === "pending" ? (r(), l(N, { key: 0 }, [
+                S(k(C), {
                   "data-action": "approve",
                   type: "primary",
-                  disabled: __props.disabled,
-                  onClick: _cache[0] || (_cache[0] = ($event) => emit("approve", priorityApproval.value))
+                  disabled: A(u.value, "approve"),
+                  onClick: s[0] || (s[0] = (a) => _("approve", u.value))
                 }, {
-                  default: withCtx(() => [..._cache[4] || (_cache[4] = [
-                    createTextVNode("批准", -1)
+                  default: y(() => [...s[4] || (s[4] = [
+                    m("批准", -1)
                   ])]),
                   _: 1
                 }, 8, ["disabled"]),
-                createVNode(unref(Button), {
+                S(k(C), {
                   "data-action": "reject",
                   danger: "",
-                  disabled: __props.disabled,
-                  onClick: _cache[1] || (_cache[1] = ($event) => emit("reject", priorityApproval.value))
+                  disabled: A(u.value, "reject"),
+                  onClick: s[1] || (s[1] = (a) => _("reject", u.value))
                 }, {
-                  default: withCtx(() => [..._cache[5] || (_cache[5] = [
-                    createTextVNode("拒绝", -1)
+                  default: y(() => [...s[5] || (s[5] = [
+                    m("拒绝", -1)
                   ])]),
                   _: 1
                 }, 8, ["disabled"])
-              ], 64)) : (openBlock(), createElementBlock("span", _hoisted_10, toDisplayString(priorityApproval.value.approval.status === "approved" ? "已批准" : "已拒绝"), 1))
+              ], 64)) : (r(), l("span", Ra, n(u.value.approval.status === "approved" ? "已批准" : "已拒绝"), 1))
             ])
-          ])) : createCommentVNode("", true),
-          priorityArtifact.value ? (openBlock(), createElementBlock("button", {
+          ])) : i("", !0),
+          $.value ? (r(), l("button", {
             key: 1,
             type: "button",
             class: "aheart-ai-workbench__priority-artifact",
             "data-artifact-role": "approval",
-            "aria-label": priorityArtifact.value.title,
-            onClick: _cache[2] || (_cache[2] = ($event) => emit("select-artifact", priorityArtifact.value))
+            "aria-label": $.value.title,
+            onClick: s[2] || (s[2] = (a) => _("select-artifact", $.value))
           }, [
-            createElementVNode("span", null, toDisplayString(((_e = (_d = priorityApproval.value) == null ? void 0 : _d.approval) == null ? void 0 : _e.artifactId) ? "审批对象" : "当前产物"), 1),
-            createElementVNode("strong", null, toDisplayString(priorityArtifact.value.title), 1),
-            priorityArtifact.value.description ? (openBlock(), createElementBlock("small", _hoisted_12, toDisplayString(priorityArtifact.value.description), 1)) : createCommentVNode("", true)
-          ], 8, _hoisted_11)) : createCommentVNode("", true),
-          selectedArtifact.value && selectedArtifact.value.id !== ((_f = priorityArtifact.value) == null ? void 0 : _f.id) ? (openBlock(), createElementBlock("button", {
+            o("span", null, n((H = (j = u.value) == null ? void 0 : j.approval) != null && H.artifactId ? "审批对象" : "当前产物"), 1),
+            o("strong", null, n($.value.title), 1),
+            $.value.description ? (r(), l("small", La, n($.value.description), 1)) : i("", !0)
+          ], 8, za)) : i("", !0),
+          c.value && c.value.id !== ((U = $.value) == null ? void 0 : U.id) ? (r(), l("button", {
             key: 2,
             type: "button",
             class: "aheart-ai-workbench__priority-artifact",
             "data-artifact-role": "current",
-            "aria-label": selectedArtifact.value.title,
-            onClick: _cache[3] || (_cache[3] = ($event) => emit("select-artifact", selectedArtifact.value))
+            "aria-label": c.value.title,
+            onClick: s[3] || (s[3] = (a) => _("select-artifact", c.value))
           }, [
-            _cache[6] || (_cache[6] = createElementVNode("span", null, "当前产物", -1)),
-            createElementVNode("strong", null, toDisplayString(selectedArtifact.value.title), 1),
-            selectedArtifact.value.description ? (openBlock(), createElementBlock("small", _hoisted_14, toDisplayString(selectedArtifact.value.description), 1)) : createCommentVNode("", true)
-          ], 8, _hoisted_13)) : createCommentVNode("", true)
-        ])) : createCommentVNode("", true),
-        createElementVNode("section", {
+            s[6] || (s[6] = o("span", null, "当前产物", -1)),
+            o("strong", null, n(c.value.title), 1),
+            c.value.description ? (r(), l("small", xa, n(c.value.description), 1)) : i("", !0)
+          ], 8, Na)) : i("", !0)
+        ])) : i("", !0),
+        o("section", {
           class: "aheart-ai-workbench__tasks",
-          "aria-labelledby": taskHeadingId
+          "aria-labelledby": V.value
         }, [
-          createElementVNode("div", _hoisted_15, [
-            createElementVNode("div", null, [
-              _cache[7] || (_cache[7] = createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "执行流程", -1)),
-              createElementVNode("h2", { id: taskHeadingId }, "执行时间线")
+          o("div", Ta, [
+            o("div", null, [
+              s[7] || (s[7] = o("span", { class: "aheart-ai-workbench__eyebrow" }, "执行流程", -1)),
+              o("h2", { id: V.value }, "执行时间线", 8, Va)
             ]),
-            createElementVNode("span", null, toDisplayString(__props.tasks.length) + " 项", 1)
+            o("span", null, n(v.tasks.length) + " 项", 1)
           ]),
-          createElementVNode("div", _hoisted_16, [
-            createVNode(unref(SortableList), {
-              items: sortableTasks.value,
-              "item-key": "id",
-              group: "agent-tasks",
-              disabled: __props.disabled,
-              "onUpdate:items": updateTasks
+          o("div", Ea, [
+            S(k(ma), {
+              items: pa.value,
+              "item-key": "__sortableKey",
+              disabled: v.disabled || !v.reorderable,
+              revision: v.tasksRevision,
+              group: `agent-tasks-${v.scopeKey}`,
+              "onUpdate:items": ya,
+              onMoveReject: _a
             }, {
-              item: withCtx(({ item, index }) => [
-                renderSlot(_ctx.$slots, "task", {
-                  task: asTask(item),
-                  index
+              item: y(({ item: a, index: g }) => [
+                x(t.$slots, "task", {
+                  task: e(a),
+                  index: g
                 }, () => {
-                  var _a2, _b2, _c2, _d2, _e2, _f2, _g, _h;
+                  var I, L, P, W, Z, q, G, J, O, Q, X, Y, aa, ea, ta, sa, oa, ra, la, na;
                   return [
-                    createElementVNode("article", {
-                      "data-task-id": asTask(item).id,
-                      class: normalizeClass(["aheart-ai-workbench__timeline-item", [`is-${effectiveStatus(asTask(item))}`, { "has-approval-summary": Boolean(asTask(item).approval) }]])
+                    o("article", {
+                      "data-task-id": e(a).id,
+                      class: D(["aheart-ai-workbench__timeline-item", [`is-${ha(e(a))}`, { "has-approval-summary": !!e(a).approval }]])
                     }, [
-                      _cache[15] || (_cache[15] = createElementVNode("span", {
+                      s[15] || (s[15] = o("span", {
                         class: "aheart-ai-workbench__timeline-marker",
                         "aria-hidden": "true"
                       }, null, -1)),
-                      createElementVNode("div", _hoisted_18, [
-                        createElementVNode("header", _hoisted_19, [
-                          createElementVNode("div", null, [
-                            createElementVNode("strong", null, toDisplayString(asTask(item).label), 1),
-                            asTask(item).toolName ? (openBlock(), createElementBlock("span", _hoisted_20, toDisplayString(asTask(item).toolName), 1)) : createCommentVNode("", true)
+                      o("div", Ha, [
+                        o("header", Ua, [
+                          o("div", null, [
+                            o("strong", null, n(e(a).label), 1),
+                            e(a).toolName ? (r(), l("span", Pa, n(e(a).toolName), 1)) : i("", !0)
                           ]),
-                          createElementVNode("span", _hoisted_21, toDisplayString(effectiveStatusLabel(asTask(item))), 1)
+                          o("span", Wa, n(ba(e(a))), 1)
                         ]),
-                        asTask(item).detail ? (openBlock(), createElementBlock("p", _hoisted_22, toDisplayString(asTask(item).detail), 1)) : createCommentVNode("", true),
-                        asTask(item).progress !== void 0 ? (openBlock(), createElementBlock("div", _hoisted_23, [
-                          createElementVNode("div", {
+                        e(a).detail && !h(e(a)) ? (r(), l("p", Za, n(e(a).detail), 1)) : i("", !0),
+                        h(e(a)) ? (r(), l("section", qa, [
+                          o("strong", null, n((I = h(e(a))) == null ? void 0 : I.name), 1),
+                          o("span", null, n((L = h(e(a))) == null ? void 0 : L.summary), 1),
+                          (P = h(e(a))) != null && P.inputSummary ? (r(), l("small", Ga, n((W = h(e(a))) == null ? void 0 : W.inputSummary), 1)) : i("", !0),
+                          (Z = h(e(a))) != null && Z.resultSummary ? (r(), l("small", Ja, n((q = h(e(a))) == null ? void 0 : q.resultSummary), 1)) : i("", !0),
+                          (G = h(e(a))) != null && G.error ? (r(), l("small", Oa, n((J = h(e(a))) == null ? void 0 : J.error), 1)) : i("", !0)
+                        ])) : i("", !0),
+                        e(a).lockedReason || ((O = v.operationMessages) == null ? void 0 : O[K(e(a))]) === "" ? (r(), l("p", Qa, n(e(a).lockedReason), 1)) : i("", !0),
+                        e(a).revision === void 0 && A(e(a), "approve") ? (r(), l("p", Xa, "缺少任务版本")) : i("", !0),
+                        (Q = e(a).approval) != null && Q.artifactId && (!v.artifacts.some((b) => {
+                          var M;
+                          return b.id === ((M = e(a).approval) == null ? void 0 : M.artifactId);
+                        }) || v.artifacts.some((b) => {
+                          var M;
+                          return b.id === ((M = e(a).approval) == null ? void 0 : M.artifactId) && b.revision === void 0;
+                        })) ? (r(), l("p", Ya, "缺少产物版本")) : i("", !0),
+                        e(a).progress !== void 0 ? (r(), l("div", ae, [
+                          o("div", {
                             role: "progressbar",
                             "aria-label": "任务进度",
                             "aria-valuemin": "0",
                             "aria-valuemax": "100",
-                            "aria-valuenow": normalizedProgress(asTask(item).progress)
+                            "aria-valuenow": R(e(a).progress)
                           }, [
-                            createElementVNode("span", {
-                              style: normalizeStyle({ inlineSize: `${normalizedProgress(asTask(item).progress)}%` })
+                            o("span", {
+                              style: ga({ inlineSize: `${R(e(a).progress)}%` })
                             }, null, 4)
-                          ], 8, _hoisted_24),
-                          createElementVNode("small", null, toDisplayString(normalizedProgress(asTask(item).progress)) + "%", 1)
-                        ])) : createCommentVNode("", true),
-                        asTask(item).startedAt || asTask(item).completedAt ? (openBlock(), createElementBlock("div", _hoisted_25, [
-                          asTask(item).startedAt ? (openBlock(), createElementBlock("span", _hoisted_26, "开始 " + toDisplayString(asTask(item).startedAt), 1)) : createCommentVNode("", true),
-                          asTask(item).completedAt ? (openBlock(), createElementBlock("span", _hoisted_27, "完成 " + toDisplayString(asTask(item).completedAt), 1)) : createCommentVNode("", true)
-                        ])) : createCommentVNode("", true),
-                        asTask(item).error ? (openBlock(), createElementBlock("details", _hoisted_28, [
-                          _cache[8] || (_cache[8] = createElementVNode("summary", null, "查看错误详情", -1)),
-                          createElementVNode("p", null, toDisplayString(asTask(item).error), 1)
-                        ])) : createCommentVNode("", true),
-                        createElementVNode("div", _hoisted_29, [
-                          asTask(item).status === "running" ? (openBlock(), createBlock(unref(Button), {
+                          ], 8, ee),
+                          o("small", null, n(R(e(a).progress)) + "%", 1)
+                        ])) : i("", !0),
+                        e(a).startedAt || e(a).completedAt ? (r(), l("div", te, [
+                          e(a).startedAt ? (r(), l("span", se, "开始 " + n(e(a).startedAt), 1)) : i("", !0),
+                          e(a).completedAt ? (r(), l("span", oe, "完成 " + n(e(a).completedAt), 1)) : i("", !0)
+                        ])) : i("", !0),
+                        e(a).error ? (r(), l("details", re, [
+                          s[8] || (s[8] = o("summary", null, "查看错误详情", -1)),
+                          o("p", null, n(e(a).error), 1)
+                        ])) : i("", !0),
+                        o("div", le, [
+                          e(a).status === "running" ? (r(), ia(k(C), {
                             key: 0,
                             "data-action": "cancel",
                             type: "text",
-                            disabled: __props.disabled,
-                            onClick: ($event) => emit("cancel", asTask(item))
+                            disabled: A(e(a), "cancel"),
+                            onClick: (b) => _("cancel", e(a))
                           }, {
-                            default: withCtx(() => [..._cache[9] || (_cache[9] = [
-                              createTextVNode("取消", -1)
+                            default: y(() => [...s[9] || (s[9] = [
+                              m("取消", -1)
                             ])]),
                             _: 1
-                          }, 8, ["disabled", "onClick"])) : createCommentVNode("", true),
-                          asTask(item).status === "error" ? (openBlock(), createBlock(unref(Button), {
+                          }, 8, ["disabled", "onClick"])) : i("", !0),
+                          e(a).status === "error" || (X = v.operationMessages) != null && X[K(e(a))] ? (r(), ia(k(C), {
                             key: 1,
                             "data-action": "retry",
                             type: "text",
-                            disabled: __props.disabled,
-                            onClick: ($event) => emit("retry", asTask(item))
+                            disabled: A(e(a), "retry"),
+                            onClick: (b) => _("retry", e(a))
                           }, {
-                            default: withCtx(() => [..._cache[10] || (_cache[10] = [
-                              createTextVNode("重试", -1)
+                            default: y(() => [...s[10] || (s[10] = [
+                              m("重试", -1)
                             ])]),
                             _: 1
-                          }, 8, ["disabled", "onClick"])) : createCommentVNode("", true),
-                          createVNode(unref(Button), {
+                          }, 8, ["disabled", "onClick"])) : i("", !0),
+                          S(k(C), {
                             "data-action": "move-up",
                             type: "text",
-                            disabled: __props.disabled || index === 0,
-                            onClick: ($event) => moveTask(index, -1)
+                            disabled: z(e(a), g, -1),
+                            onClick: (b) => F(g, -1)
                           }, {
-                            default: withCtx(() => [..._cache[11] || (_cache[11] = [
-                              createTextVNode("上移", -1)
+                            default: y(() => [...s[11] || (s[11] = [
+                              m("上移", -1)
                             ])]),
                             _: 1
                           }, 8, ["disabled", "onClick"]),
-                          createVNode(unref(Button), {
+                          S(k(C), {
                             "data-action": "move-down",
                             type: "text",
-                            disabled: __props.disabled || index === __props.tasks.length - 1,
-                            onClick: ($event) => moveTask(index, 1)
+                            disabled: z(e(a), g, 1),
+                            onClick: (b) => F(g, 1)
                           }, {
-                            default: withCtx(() => [..._cache[12] || (_cache[12] = [
-                              createTextVNode("下移", -1)
+                            default: y(() => [...s[12] || (s[12] = [
+                              m("下移", -1)
                             ])]),
                             _: 1
                           }, 8, ["disabled", "onClick"])
                         ]),
-                        asTask(item).approval ? (openBlock(), createElementBlock("div", {
-                          key: 4,
-                          "data-approval-id": (_a2 = asTask(item).approval) == null ? void 0 : _a2.id,
-                          class: normalizeClass(["aheart-ai-workbench__approval", `is-${((_b2 = asTask(item).approval) == null ? void 0 : _b2.status) ?? "pending"}`])
+                        (Y = v.operationMessages) != null && Y[K(e(a))] ? (r(), l("p", ne, n(v.operationMessages[K(e(a))]), 1)) : i("", !0),
+                        e(a).approval ? (r(), l("div", {
+                          key: 9,
+                          "data-approval-id": (aa = e(a).approval) == null ? void 0 : aa.id,
+                          class: D(["aheart-ai-workbench__approval", `is-${((ea = e(a).approval) == null ? void 0 : ea.status) ?? "pending"}`])
                         }, [
-                          createElementVNode("div", null, [
-                            createElementVNode("strong", null, toDisplayString((_c2 = asTask(item).approval) == null ? void 0 : _c2.title), 1),
-                            ((_d2 = asTask(item).approval) == null ? void 0 : _d2.description) ? (openBlock(), createElementBlock("p", _hoisted_31, toDisplayString((_e2 = asTask(item).approval) == null ? void 0 : _e2.description), 1)) : createCommentVNode("", true)
+                          o("div", null, [
+                            o("strong", null, n((ta = e(a).approval) == null ? void 0 : ta.title), 1),
+                            (sa = e(a).approval) != null && sa.description ? (r(), l("p", de, n((oa = e(a).approval) == null ? void 0 : oa.description), 1)) : i("", !0)
                           ]),
-                          !((_f2 = asTask(item).approval) == null ? void 0 : _f2.status) || ((_g = asTask(item).approval) == null ? void 0 : _g.status) === "pending" ? (openBlock(), createElementBlock(Fragment, { key: 0 }, [
-                            createVNode(unref(Button), {
+                          !((ra = e(a).approval) != null && ra.status) || ((la = e(a).approval) == null ? void 0 : la.status) === "pending" ? (r(), l(N, { key: 0 }, [
+                            S(k(C), {
                               "data-action": "approve",
                               type: "primary",
-                              disabled: __props.disabled,
-                              onClick: ($event) => emit("approve", asTask(item))
+                              disabled: A(e(a), "approve"),
+                              onClick: (b) => _("approve", e(a))
                             }, {
-                              default: withCtx(() => [..._cache[13] || (_cache[13] = [
-                                createTextVNode("批准", -1)
+                              default: y(() => [...s[13] || (s[13] = [
+                                m("批准", -1)
                               ])]),
                               _: 1
                             }, 8, ["disabled", "onClick"]),
-                            createVNode(unref(Button), {
+                            S(k(C), {
                               "data-action": "reject",
                               danger: "",
-                              disabled: __props.disabled,
-                              onClick: ($event) => emit("reject", asTask(item))
+                              disabled: A(e(a), "reject"),
+                              onClick: (b) => _("reject", e(a))
                             }, {
-                              default: withCtx(() => [..._cache[14] || (_cache[14] = [
-                                createTextVNode("拒绝", -1)
+                              default: y(() => [...s[14] || (s[14] = [
+                                m("拒绝", -1)
                               ])]),
                               _: 1
                             }, 8, ["disabled", "onClick"])
-                          ], 64)) : (openBlock(), createElementBlock("span", _hoisted_32, toDisplayString(((_h = asTask(item).approval) == null ? void 0 : _h.status) === "approved" ? "已批准" : "已拒绝"), 1))
-                        ], 10, _hoisted_30)) : createCommentVNode("", true)
+                          ], 64)) : (r(), l("span", ce, n(((na = e(a).approval) == null ? void 0 : na.status) === "approved" ? "已批准" : "已拒绝"), 1))
+                        ], 10, ie)) : i("", !0)
                       ])
-                    ], 10, _hoisted_17)
+                    ], 10, Fa)
                   ];
                 })
               ]),
               _: 3
-            }, 8, ["items", "disabled"])
+            }, 8, ["items", "disabled", "revision", "group"])
           ]),
-          !__props.tasks.length ? (openBlock(), createElementBlock("p", _hoisted_33, "尚无执行任务。")) : createCommentVNode("", true)
-        ]),
-        createElementVNode("section", {
+          v.tasks.length ? i("", !0) : (r(), l("p", ue, "尚无执行任务。"))
+        ], 8, Da),
+        o("section", {
           class: "aheart-ai-workbench__artifacts",
-          "aria-labelledby": artifactHeadingId
+          "aria-labelledby": E.value
         }, [
-          createElementVNode("div", _hoisted_34, [
-            createElementVNode("div", null, [
-              _cache[16] || (_cache[16] = createElementVNode("span", { class: "aheart-ai-workbench__eyebrow" }, "产物输出", -1)),
-              createElementVNode("h2", { id: artifactHeadingId }, "产物")
+          o("div", ve, [
+            o("div", null, [
+              s[16] || (s[16] = o("span", { class: "aheart-ai-workbench__eyebrow" }, "产物输出", -1)),
+              o("h2", { id: E.value }, "产物", 8, _e)
             ]),
-            createElementVNode("span", null, toDisplayString(__props.artifacts.length) + " 项", 1)
+            o("span", null, n(v.artifacts.length) + " 项", 1)
           ]),
-          __props.artifacts.length ? (openBlock(), createElementBlock("ul", _hoisted_35, [
-            (openBlock(true), createElementBlock(Fragment, null, renderList(__props.artifacts, (artifact) => {
-              var _a2, _b2;
-              return openBlock(), createElementBlock("li", {
-                key: artifact.id,
-                "data-artifact-id": artifact.id,
-                class: normalizeClass({ "is-active": artifact.id === ((_a2 = selectedArtifact.value) == null ? void 0 : _a2.id) })
+          v.artifacts.length ? (r(), l("ul", ke, [
+            (r(!0), l(N, null, wa(v.artifacts, (a) => {
+              var g, I;
+              return r(), l("li", {
+                key: a.id,
+                "data-artifact-id": a.id,
+                class: D({ "is-active": a.id === ((g = c.value) == null ? void 0 : g.id) })
               }, [
-                createElementVNode("button", {
+                o("button", {
                   type: "button",
-                  "aria-pressed": artifact.id === ((_b2 = selectedArtifact.value) == null ? void 0 : _b2.id),
-                  onClick: ($event) => emit("select-artifact", artifact)
+                  "aria-pressed": a.id === ((I = c.value) == null ? void 0 : I.id),
+                  onClick: (L) => _("select-artifact", a)
                 }, [
-                  renderSlot(_ctx.$slots, "artifact", { artifact }, () => [
-                    createElementVNode("span", null, toDisplayString(artifact.title), 1),
-                    artifact.description ? (openBlock(), createElementBlock("small", _hoisted_38, toDisplayString(artifact.description), 1)) : createCommentVNode("", true)
+                  x(t.$slots, "artifact", { artifact: a }, () => [
+                    o("span", null, n(a.title), 1),
+                    a.description ? (r(), l("small", ye, n(a.description), 1)) : i("", !0)
                   ])
-                ], 8, _hoisted_37)
-              ], 10, _hoisted_36);
+                ], 8, be)
+              ], 10, he);
             }), 128))
-          ])) : (openBlock(), createElementBlock("p", _hoisted_39, "任务完成后，产物会出现在这里。")),
-          selectedArtifact.value ? (openBlock(), createElementBlock("section", _hoisted_40, [
-            renderSlot(_ctx.$slots, "artifact-preview", { artifact: selectedArtifact.value }, () => [
-              createElementVNode("div", _hoisted_41, [
-                createElementVNode("div", null, [
-                  createElementVNode("span", null, toDisplayString(selectedArtifact.value.type ?? "文件"), 1),
-                  createElementVNode("h3", null, toDisplayString(selectedArtifact.value.title), 1)
+          ])) : (r(), l("p", fe, "任务完成后，产物会出现在这里。")),
+          c.value ? (r(), l("section", ge, [
+            x(t.$slots, "artifact-preview", { artifact: c.value }, () => [
+              o("div", we, [
+                o("div", null, [
+                  o("span", null, n(c.value.type ?? "文件"), 1),
+                  o("h3", null, n(c.value.title), 1)
                 ]),
-                unref(getSafeUrl)(selectedArtifact.value.url) ? (openBlock(), createElementBlock("a", {
+                k(da)(c.value.url) ? (r(), l("a", {
                   key: 0,
-                  href: unref(getSafeUrl)(selectedArtifact.value.url),
+                  href: k(da)(c.value.url),
                   target: "_blank",
                   rel: "noreferrer"
-                }, "打开产物", 8, _hoisted_42)) : createCommentVNode("", true)
+                }, "打开产物", 8, me)) : i("", !0)
               ]),
-              createElementVNode("p", null, toDisplayString(selectedArtifact.value.description ?? "业务层可通过 artifact-preview 插槽提供自定义预览。"), 1),
-              selectedArtifact.value.updatedAt ? (openBlock(), createElementBlock("small", _hoisted_43, "更新于 " + toDisplayString(selectedArtifact.value.updatedAt), 1)) : createCommentVNode("", true)
+              o("p", null, n(c.value.description ?? "业务层可通过 artifact-preview 插槽提供自定义预览。"), 1),
+              c.value.updatedAt ? (r(), l("small", Ce, "更新于 " + n(c.value.updatedAt), 1)) : i("", !0)
             ])
-          ])) : createCommentVNode("", true)
-        ])
+          ])) : i("", !0)
+        ], 8, pe)
       ]);
     };
   }
 });
 export {
-  _sfc_main as default
+  Be as default
 };

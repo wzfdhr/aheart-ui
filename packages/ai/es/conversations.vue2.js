@@ -1,4 +1,4 @@
-import _sfc_main from "./conversations.vue.js";
+import f from "./conversations.vue.js";
 export {
-  _sfc_main as default
+  f as default
 };

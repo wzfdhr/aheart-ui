@@ -55,6 +55,17 @@ test('accepts a complete packed package contract', () => {
   assert.deepEqual(validatePackageContract(contract, manifest, files), [])
 })
 
+test('accepts and enforces a package-specific Vue peer floor', () => {
+  const aiContract = { ...contract, name: '@aheart-ui/ai', expectedVuePeer: '>=3.5.0 <4' }
+  const aiManifest = { ...manifest, name: '@aheart-ui/ai', peerDependencies: { vue: '>=3.5.0 <4' } }
+
+  assert.deepEqual(validatePackageContract(aiContract, aiManifest, files), [])
+  assert.ok(
+    validatePackageContract(aiContract, { ...aiManifest, peerDependencies: { vue: '>=3.4.0 <4' } }, files)
+      .includes('@aheart-ui/ai: Vue peer range must be >=3.5.0 <4')
+  )
+})
+
 test('reports missing public metadata and required files', () => {
   const errors = validatePackageContract(contract, { ...manifest, description: '' }, files.filter((file) => file !== 'LICENSE'))
 

@@ -340,7 +340,7 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     await expect(priority).toContainText('已批准')
     await expect(workbench.locator('[data-pending-approval-summary]')).toHaveCount(0)
     await expect(workbench.locator('.aheart-ai-workbench__pending-badge')).toHaveCount(0)
-    await expect(drawer.locator('[data-task-id="publish"] .aheart-ai-workbench__task-status')).toContainText('已批准')
+    await expect(drawer.locator('[data-task-id="publish"] .aheart-ai-workbench__task-status')).toContainText('已完成')
     await drawer.getByRole('button', { name: /来源数据\.csv/ }).click()
     await expect(priority).toContainText('结构化来源清单')
     await expect(priority).toContainText('审批对象')

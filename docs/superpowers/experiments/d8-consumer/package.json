@@ -1,0 +1,16 @@
+{
+  "name": "aheart-d8-ai-consumer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "aheart-ui": "file:./aheart-ui.tgz",
+    "@aheart-ui/dnd": "file:./aheart-ui-dnd.tgz",
+    "@aheart-ui/ai": "file:./aheart-ui-ai.tgz",
+    "@vue/server-renderer": "3.5.38",
+    "vue": "3.5.38"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5",
+    "vite": "5.0.12"
+  }
+}

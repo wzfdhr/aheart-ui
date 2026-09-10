@@ -32,11 +32,13 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
   }
 
   assert.match(configSource, /const d7DndOnly = \/d7-dnd\\.spec\\.ts\//)
-  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly\]/)
+  assert.match(configSource, /const d8AiOnly = \/d8-ai\\.spec\\.ts\//)
+  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly\]/)
   assert.ok(configSource.includes('const d5TableOnly = /d5-table-pagination\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableBOnly = /d5-table-b\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableCOnly = /d5-table-c\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d6PickerUploadOnly = /d6-picker-upload\\.spec\\.ts/'))
+  assert.ok(configSource.includes('const d8AiOnly = /d8-ai\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d4VirtualOnly = /d4-select-virtual\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d4SelectionOnly = /d4-selection\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d4IframeOnly = /d4-iframe\\.spec\\.ts/'))

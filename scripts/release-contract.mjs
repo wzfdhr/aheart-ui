@@ -27,6 +27,7 @@ export const packageContracts = [
     name: '@aheart-ui/ai',
     version: '1.0.0',
     packageDir: 'packages/ai',
+    expectedVuePeer: '>=3.5.0 <4',
     expectedDependencies: { '@aheart-ui/dnd': '^1.0.0' },
     expectedPeerDependencies: { 'aheart-ui': '^1.0.0' },
     requiredFiles: ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css']
@@ -65,7 +66,8 @@ export const validatePackageContract = (contract, manifest, packedFiles) => {
   if (rootExport?.require !== './lib/index.js') errors.push(`${prefix} exports["."].require must be ./lib/index.js`)
   if (manifest.exports?.['./style.css'] !== './es/style.css') errors.push(`${prefix} style export must be ./es/style.css`)
   if (manifest.exports?.['./package.json'] !== './package.json') errors.push(`${prefix} package.json export is required`)
-  if (manifest.peerDependencies?.vue !== '>=3.4.0 <4') errors.push(`${prefix} Vue peer range must be >=3.4.0 <4`)
+  const expectedVuePeer = contract.expectedVuePeer ?? '>=3.4.0 <4'
+  if (manifest.peerDependencies?.vue !== expectedVuePeer) errors.push(`${prefix} Vue peer range must be ${expectedVuePeer}`)
 
   if (hasWorkspaceProtocol(manifest)) errors.push(`${prefix} packed manifest contains an unresolved workspace: protocol`)
 

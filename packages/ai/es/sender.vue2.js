@@ -1,4 +1,4 @@
-import _sfc_main from "./sender.vue.js";
+import f from "./sender.vue.js";
 export {
-  _sfc_main as default
+  f as default
 };

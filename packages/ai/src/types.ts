@@ -33,6 +33,19 @@ export interface AIMessage {
   sources?: AISource[]
   process?: AIProcessItem[]
   error?: string
+  retryable?: boolean
+  toolCall?: AIToolCallDisplay
+}
+
+export interface AIToolCallDisplay {
+  id: string
+  name: string
+  summary: string
+  inputStatus?: 'pending' | 'ready' | 'redacted'
+  inputSummary?: string
+  resultStatus?: 'pending' | 'success' | 'error'
+  resultSummary?: string
+  error?: string
 }
 
 export type AIContentRenderer = (message: AIMessage) => VNodeChild
@@ -56,6 +69,36 @@ export type AIStreamEvent =
 
 export interface AITransport {
   send(request: AIChatRequest, signal: AbortSignal): AsyncIterable<AIStreamEvent>
+}
+
+export interface AIStreamEventBaseV2 {
+  version: '2'
+  requestId: string
+  messageId: string
+  sequence: number
+  revision: number
+}
+export type AIStreamEventV2 =
+  | (AIStreamEventBaseV2 & { type: 'text-delta'; delta: string })
+  | (AIStreamEventBaseV2 & { type: 'process-upsert'; item: AIProcessItem })
+  | (AIStreamEventBaseV2 & { type: 'sources-replace'; sources: AISource[] })
+  | (AIStreamEventBaseV2 & { type: 'snapshot'; message: AIMessage })
+  | (AIStreamEventBaseV2 & { type: 'final'; message: AIMessage })
+  | (AIStreamEventBaseV2 & { type: 'cancelled'; reason?: string })
+  | (AIStreamEventBaseV2 & { type: 'error'; error: string; retryable?: boolean })
+export interface AIChatResumeCursorV2 { afterSequence: number; revision: number }
+export interface AIChatRequestV2 extends Omit<AIChatRequest, 'messageId'> {
+  version: '2'
+  requestId: string
+  messageId: string
+  targetMessageId?: string
+  idempotencyKey: string
+  resume?: AIChatResumeCursorV2
+}
+export interface AITransportV2 {
+  version: '2'
+  send(request: AIChatRequestV2, signal: AbortSignal): AsyncIterable<AIStreamEventV2>
+  resume?(request: AIChatRequestV2, signal: AbortSignal): AsyncIterable<AIStreamEventV2>
 }
 
 export interface AIPrompt {
@@ -100,6 +143,11 @@ export interface AIAgentTask {
   startedAt?: string
   completedAt?: string
   approval?: AIAgentApproval
+  revision?: string | number
+  dependsOn?: string[]
+  reorderable?: boolean
+  lockedReason?: string
+  toolCall?: AIToolCallDisplay
 }
 
 export interface AIAgentContextItem {
@@ -117,5 +165,24 @@ export interface AIAgentArtifact {
   url?: string
   status?: 'draft' | 'ready' | 'error'
   updatedAt?: string
+  revision?: string | number
 }
+
+export type AIAgentOperationAction = 'approve' | 'reject' | 'cancel' | 'retry'
+export type AIAgentOperationStatus = 'idle' | 'pending' | 'success' | 'error'
+export interface AIAgentOperationRequest {
+  operationId: string
+  idempotencyKey: string
+  conversationId?: string
+  taskId: string
+  taskRevision: string | number
+  action: AIAgentOperationAction
+  approvalId?: string
+  artifactId?: string
+  artifactRevision?: string | number
+}
+export type AIAgentOperationResult =
+  | { status: 'success'; operationId: string }
+  | { status: 'error'; operationId: string; error: string; retryable?: boolean; outcome?: 'not-applied' | 'unknown' }
+export type AIAgentActionHandler = (request: AIAgentOperationRequest, signal: AbortSignal) => Promise<AIAgentOperationResult>
 import type { VNodeChild } from 'vue'

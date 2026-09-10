@@ -1,4 +1,4 @@
-import _sfc_main from "./agent-execution.vue.js";
+import f from "./agent-execution.vue.js";
 export {
-  _sfc_main as default
+  f as default
 };

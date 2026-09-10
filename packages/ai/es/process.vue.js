@@ -1,35 +1,29 @@
-import { defineComponent, openBlock, createElementBlock, createElementVNode, Fragment, renderList, normalizeClass, toDisplayString, createCommentVNode } from "vue";
-const _hoisted_1 = {
+import { defineComponent as i, openBlock as t, createElementBlock as s, createElementVNode as l, Fragment as c, renderList as u, normalizeClass as m, toDisplayString as r, createCommentVNode as o } from "vue";
+const d = {
   key: 0,
   class: "aheart-ai-process",
   "aria-label": "执行进度"
-};
-const _hoisted_2 = { key: 0 };
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AAIProcess" },
+}, p = { key: 0 }, k = /* @__PURE__ */ i({
+  name: "AAIProcess",
   __name: "process",
   props: {
     items: { default: () => [] }
   },
-  setup(__props) {
-    return (_ctx, _cache) => {
-      return __props.items.length ? (openBlock(), createElementBlock("section", _hoisted_1, [
-        _cache[0] || (_cache[0] = createElementVNode("h3", null, "执行进度", -1)),
-        createElementVNode("ol", null, [
-          (openBlock(true), createElementBlock(Fragment, null, renderList(__props.items, (item) => {
-            return openBlock(), createElementBlock("li", {
-              key: item.id,
-              class: normalizeClass(`is-${item.status}`)
-            }, [
-              createElementVNode("span", null, toDisplayString(item.label), 1),
-              item.detail ? (openBlock(), createElementBlock("small", _hoisted_2, toDisplayString(item.detail), 1)) : createCommentVNode("", true)
-            ], 2);
-          }), 128))
-        ])
-      ])) : createCommentVNode("", true);
-    };
+  setup(n) {
+    return (_, a) => n.items.length ? (t(), s("section", d, [
+      a[0] || (a[0] = l("h3", null, "执行进度", -1)),
+      l("ol", null, [
+        (t(!0), s(c, null, u(n.items, (e) => (t(), s("li", {
+          key: e.id,
+          class: m(`is-${e.status}`)
+        }, [
+          l("span", null, r(e.label), 1),
+          e.detail ? (t(), s("small", p, r(e.detail), 1)) : o("", !0)
+        ], 2))), 128))
+      ])
+    ])) : o("", !0);
   }
 });
 export {
-  _sfc_main as default
+  k as default
 };

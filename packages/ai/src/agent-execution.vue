@@ -10,8 +10,8 @@
         <p v-if="priorityApproval.approval?.description">{{ priorityApproval.approval.description }}</p>
         <div class="aheart-ai-workbench__priority-actions">
           <template v-if="!priorityApproval.approval?.status || priorityApproval.approval.status === 'pending'">
-            <AButton data-action="approve" type="primary" :disabled="disabled" @click="emit('approve', priorityApproval)">批准</AButton>
-            <AButton data-action="reject" danger :disabled="disabled" @click="emit('reject', priorityApproval)">拒绝</AButton>
+            <AButton data-action="approve" type="primary" :disabled="actionDisabled(priorityApproval, 'approve')" @click="emit('approve', priorityApproval)">批准</AButton>
+            <AButton data-action="reject" danger :disabled="actionDisabled(priorityApproval, 'reject')" @click="emit('reject', priorityApproval)">拒绝</AButton>
           </template>
           <span v-else class="aheart-ai-workbench__approval-result">
             {{ priorityApproval.approval.status === 'approved' ? '已批准' : '已拒绝' }}
@@ -54,10 +54,12 @@
       <div class="aheart-ai-workbench__timeline">
         <ASortableList
           :items="sortableTasks"
-          item-key="id"
-          group="agent-tasks"
-          :disabled="disabled"
+          item-key="__sortableKey"
+          :disabled="disabled || !reorderable"
+          :revision="tasksRevision"
+          :group="`agent-tasks-${scopeKey}`"
           @update:items="updateTasks"
+          @move-reject="handleSortableReject"
         >
         <template #item="{ item, index }">
           <slot name="task" :task="asTask(item)" :index="index">
@@ -77,7 +79,17 @@
                   </div>
                   <span class="aheart-ai-workbench__task-status">{{ effectiveStatusLabel(asTask(item)) }}</span>
                 </header>
-                <p v-if="asTask(item).detail" class="aheart-ai-workbench__task-detail">{{ asTask(item).detail }}</p>
+                <p v-if="asTask(item).detail && !toolCall(asTask(item))" class="aheart-ai-workbench__task-detail">{{ asTask(item).detail }}</p>
+                <section v-if="toolCall(asTask(item))" class="aheart-ai-workbench__tool-call" aria-label="工具调用摘要">
+                  <strong>{{ toolCall(asTask(item))?.name }}</strong>
+                  <span>{{ toolCall(asTask(item))?.summary }}</span>
+                  <small v-if="toolCall(asTask(item))?.inputSummary">{{ toolCall(asTask(item))?.inputSummary }}</small>
+                  <small v-if="toolCall(asTask(item))?.resultSummary">{{ toolCall(asTask(item))?.resultSummary }}</small>
+                  <small v-if="toolCall(asTask(item))?.error">{{ toolCall(asTask(item))?.error }}</small>
+                </section>
+                <p v-if="asTask(item).lockedReason || (operationMessages?.[operationKey(asTask(item))] === '')" class="aheart-ai-workbench__task-lock-reason" role="status">{{ asTask(item).lockedReason }}</p>
+                <p v-if="asTask(item).revision === undefined && actionDisabled(asTask(item), 'approve')" class="aheart-ai-workbench__task-lock-reason" role="status">缺少任务版本</p>
+                <p v-if="asTask(item).approval?.artifactId && (!artifacts.some((artifact) => artifact.id === asTask(item).approval?.artifactId) || artifacts.some((artifact) => artifact.id === asTask(item).approval?.artifactId && artifact.revision === undefined))" class="aheart-ai-workbench__task-lock-reason" role="status">缺少产物版本</p>
                 <div v-if="asTask(item).progress !== undefined" class="aheart-ai-workbench__task-progress">
                   <div
                     role="progressbar"
@@ -103,29 +115,30 @@
                     v-if="asTask(item).status === 'running'"
                     data-action="cancel"
                     type="text"
-                    :disabled="disabled"
+                    :disabled="actionDisabled(asTask(item), 'cancel')"
                     @click="emit('cancel', asTask(item))"
                   >取消</AButton>
                   <AButton
-                    v-if="asTask(item).status === 'error'"
+                    v-if="asTask(item).status === 'error' || operationMessages?.[operationKey(asTask(item))]"
                     data-action="retry"
                     type="text"
-                    :disabled="disabled"
+                    :disabled="actionDisabled(asTask(item), 'retry')"
                     @click="emit('retry', asTask(item))"
                   >重试</AButton>
                   <AButton
                     data-action="move-up"
                     type="text"
-                    :disabled="disabled || index === 0"
+                    :disabled="moveDisabled(asTask(item), index, -1)"
                     @click="moveTask(index, -1)"
                   >上移</AButton>
                   <AButton
                     data-action="move-down"
                     type="text"
-                    :disabled="disabled || index === tasks.length - 1"
+                    :disabled="moveDisabled(asTask(item), index, 1)"
                     @click="moveTask(index, 1)"
                   >下移</AButton>
                 </div>
+                <p v-if="operationMessages?.[operationKey(asTask(item))]" class="aheart-ai-workbench__operation-status" role="status">{{ operationMessages[operationKey(asTask(item))] }}</p>
                 <div
                   v-if="asTask(item).approval"
                   :data-approval-id="asTask(item).approval?.id"
@@ -140,13 +153,13 @@
                     <AButton
                       data-action="approve"
                       type="primary"
-                      :disabled="disabled"
+                      :disabled="actionDisabled(asTask(item), 'approve')"
                       @click="emit('approve', asTask(item))"
                     >批准</AButton>
                     <AButton
                       data-action="reject"
                       danger
-                      :disabled="disabled"
+                      :disabled="actionDisabled(asTask(item), 'reject')"
                       @click="emit('reject', asTask(item))"
                     >拒绝</AButton>
                   </template>
@@ -211,7 +224,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useId } from 'vue'
+import { computed } from 'vue'
 import { Button as AButton } from 'aheart-ui'
 import { SortableList as ASortableList } from '@aheart-ui/dnd'
 import { getSafeUrl } from './safe-markdown'
@@ -219,24 +232,34 @@ import type { AIAgentArtifact, AIAgentTask, AIAgentTaskStatus } from './types'
 
 defineOptions({ name: 'AIAgentWorkbenchExecution' })
 
-const executionId = `aheart-agent-execution-${useId().replace(/[^a-zA-Z0-9_-]/g, '-')}`
-const taskHeadingId = `${executionId}-tasks`
-const artifactHeadingId = `${executionId}-artifacts`
-
 const props = withDefaults(
   defineProps<{
     tasks?: AIAgentTask[]
     artifacts?: AIAgentArtifact[]
     activeArtifact?: string
     disabled?: boolean
+    reorderable?: boolean
+    tasksRevision?: string | number
+    scopeKey?: string
+    actionDisabled?: (task: AIAgentTask, action: string) => boolean
+    operationMessages?: Record<string, string>
+    validateCandidate?: (tasks: AIAgentTask[]) => string | undefined
   }>(),
   {
     tasks: () => [],
     artifacts: () => [],
     activeArtifact: undefined,
     disabled: false
+    ,reorderable: true
+    ,scopeKey: 'default'
+    ,actionDisabled: () => false
+    ,operationMessages: () => ({})
+    ,validateCandidate: () => undefined
   }
 )
+const executionId = computed(() => `aheart-agent-execution-${String(props.scopeKey ?? 'default').replace(/[^a-zA-Z0-9_-]/g, '-')}`)
+const taskHeadingId = computed(() => `${executionId.value}-tasks`)
+const artifactHeadingId = computed(() => `${executionId.value}-artifacts`)
 const emit = defineEmits<{
   'update:tasks': [tasks: AIAgentTask[]]
   approve: [task: AIAgentTask]
@@ -244,6 +267,7 @@ const emit = defineEmits<{
   cancel: [task: AIAgentTask]
   retry: [task: AIAgentTask]
   'move-task': [id: string, direction: 'up' | 'down']
+  'move-task-reject': [reason: string]
   'select-artifact': [artifact: AIAgentArtifact]
 }>()
 
@@ -255,7 +279,7 @@ const statusLabels: Record<AIAgentTaskStatus, string> = {
   error: '执行失败',
   cancelled: '已取消'
 }
-const sortableTasks = computed(() => props.tasks as unknown as Record<string, unknown>[])
+const sortableTasks = computed(() => props.tasks.map((task, index) => ({ ...task, __sortableKey: `${task.id}::${index}` })) as unknown as Record<string, unknown>[])
 const selectedArtifact = computed(
   () => props.artifacts.find((artifact) => artifact.id === props.activeArtifact) ?? props.artifacts[0]
 )
@@ -270,27 +294,50 @@ const priorityLabel = computed(() => {
   return priorityApproval.value ? '审批结果' : '当前产物'
 })
 const asTask = (item: unknown) => item as AIAgentTask
+const toolCall = (task: AIAgentTask) => task.toolCall
+const operationKey = (task: AIAgentTask) => `${task.id}:${String(task.revision ?? '')}:${task.approval?.id ?? ''}`
+const handleSortableReject = (event: { reason?: string }) => {
+  const labels: Record<string, string> = {
+    'stale-revision': '任务版本已变化，排序已拒绝',
+    'source-missing': '源任务已不存在，排序已拒绝',
+    'target-missing': '目标位置已不存在，排序已拒绝',
+    'duplicate-key': '任务标识重复，无法排序',
+    'group-mismatch': '任务不属于当前排序分组',
+    disabled: '任务当前不可排序，排序已拒绝',
+    'invalid-position': '目标位置无效，排序已拒绝',
+    'parent-rejected': '任务版本已变化，排序已拒绝',
+    'rollback-rejected': '排序回滚失败，请刷新后重试',
+    unmounted: '排序目标已卸载',
+    cancelled: '排序已取消'
+  }
+  emit('move-task-reject', labels[event.reason ?? ''] ?? '任务当前不可排序，排序已拒绝')
+}
 const statusLabel = (status: AIAgentTaskStatus) => statusLabels[status]
 const effectiveStatus = (task: AIAgentTask): AIAgentTaskStatus => {
-  if (task.approval?.status === 'approved') return 'complete'
-  if (task.approval?.status === 'rejected') return 'cancelled'
   return task.status
 }
 const effectiveStatusLabel = (task: AIAgentTask) => {
-  if (task.approval?.status === 'approved') return '已批准'
-  if (task.approval?.status === 'rejected') return '已拒绝'
   return statusLabel(task.status)
 }
 const normalizedProgress = (progress?: number) => Math.min(100, Math.max(0, Math.round(progress ?? 0)))
 const updateTasks = (tasks: Record<string, unknown>[]) => {
-  if (!props.disabled) emit('update:tasks', tasks as unknown as AIAgentTask[])
+  if (!props.disabled && props.reorderable) {
+    const normalized = tasks.map(({ __sortableKey: _key, ...task }) => task) as unknown as AIAgentTask[]
+    const reason = props.validateCandidate?.(normalized)
+    if (reason) { emit('move-task-reject', reason); return }
+    emit('update:tasks', normalized)
+  }
 }
 const moveTask = (index: number, offset: number) => {
-  if (props.disabled || index + offset < 0 || index + offset >= props.tasks.length) return
+  if (moveDisabled(props.tasks[index], index, offset)) return
   const next = [...props.tasks]
   const [task] = next.splice(index, 1)
   next.splice(index + offset, 0, task)
+  const reason = props.validateCandidate?.(next)
+  if (reason) { emit('move-task-reject', reason); return }
   emit('update:tasks', next)
   emit('move-task', task.id, offset < 0 ? 'up' : 'down')
 }
+const actionDisabled = (task: AIAgentTask, action: string) => props.disabled || Boolean(props.actionDisabled?.(task, action))
+const moveDisabled = (task: AIAgentTask | undefined, index: number, offset: number) => Boolean(props.disabled || !props.reorderable || index + offset < 0 || index + offset >= props.tasks.length || task?.reorderable === false || task?.lockedReason || task?.status === 'running' || task?.status === 'waiting-approval')
 </script>

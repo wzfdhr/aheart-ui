@@ -1,51 +1,42 @@
-import _sfc_main$4 from "./chat-panel.vue.js";
-import _sfc_main from "./actions.vue.js";
-import _sfc_main$2 from "./attachments.vue.js";
-import _sfc_main$3 from "./bubble.vue.js";
-import _sfc_main$5 from "./conversations.vue.js";
-import _sfc_main$7 from "./process.vue.js";
-import _sfc_main$8 from "./prompts.vue.js";
-import _sfc_main$9 from "./sender.vue.js";
-import _sfc_main$a from "./sources.vue.js";
-import _sfc_main$b from "./thought-chain.vue.js";
-import _sfc_main$c from "./welcome.vue.js";
-import _sfc_main$6 from "./form.vue.js";
-import _sfc_main$1 from "./agent-workbench.vue.js";
+import m from "./chat-panel.vue.js";
+import n from "./actions.vue.js";
+import t from "./attachments.vue.js";
+import e from "./bubble.vue.js";
+import r from "./conversations.vue.js";
+import A from "./process.vue.js";
+import s from "./prompts.vue.js";
+import c from "./sender.vue.js";
+import a from "./sources.vue.js";
+import i from "./thought-chain.vue.js";
+import I from "./welcome.vue.js";
+import _ from "./form.vue.js";
+import f from "./agent-workbench.vue.js";
 /* empty css          */
-import { AI_FORM_CONDITION_OPERATORS, AI_FORM_FIELD_TYPES, validateAIFormSchema } from "./form-schema.js";
-const AheartAI = {
-  install(app) {
-    app.component("AAIActions", _sfc_main);
-    app.component("AAIAgentWorkbench", _sfc_main$1);
-    app.component("AAIAttachments", _sfc_main$2);
-    app.component("AAIBubble", _sfc_main$3);
-    app.component("AAIChatPanel", _sfc_main$4);
-    app.component("AAIConversations", _sfc_main$5);
-    app.component("AAIForm", _sfc_main$6);
-    app.component("AAIProcess", _sfc_main$7);
-    app.component("AAIPrompts", _sfc_main$8);
-    app.component("AAISender", _sfc_main$9);
-    app.component("AAISources", _sfc_main$a);
-    app.component("AAIThoughtChain", _sfc_main$b);
-    app.component("AAIWelcome", _sfc_main$c);
+import { AI_FORM_CONDITION_OPERATORS as W, AI_FORM_FIELD_TYPES as x, validateAIFormSchema as k } from "./form-schema.js";
+import { createAIStreamReducer as D, reduceAIStreamEvent as M } from "./stream-reducer.js";
+const g = {
+  install(o) {
+    o.component("AAIActions", n), o.component("AAIAgentWorkbench", f), o.component("AAIAttachments", t), o.component("AAIBubble", e), o.component("AAIChatPanel", m), o.component("AAIConversations", r), o.component("AAIForm", _), o.component("AAIProcess", A), o.component("AAIPrompts", s), o.component("AAISender", c), o.component("AAISources", a), o.component("AAIThoughtChain", i), o.component("AAIWelcome", I);
   }
 };
 export {
-  _sfc_main as AIActions,
-  _sfc_main$1 as AIAgentWorkbench,
-  _sfc_main$2 as AIAttachments,
-  _sfc_main$3 as AIBubble,
-  _sfc_main$4 as AIChatPanel,
-  _sfc_main$5 as AIConversations,
-  _sfc_main$6 as AIForm,
-  _sfc_main$7 as AIProcess,
-  _sfc_main$8 as AIPrompts,
-  _sfc_main$9 as AISender,
-  _sfc_main$a as AISources,
-  _sfc_main$b as AIThoughtChain,
-  _sfc_main$c as AIWelcome,
-  AI_FORM_CONDITION_OPERATORS,
-  AI_FORM_FIELD_TYPES,
-  AheartAI as default,
-  validateAIFormSchema
+  n as AIActions,
+  f as AIAgentWorkbench,
+  t as AIAttachments,
+  e as AIBubble,
+  m as AIChatPanel,
+  r as AIConversations,
+  _ as AIForm,
+  A as AIProcess,
+  s as AIPrompts,
+  c as AISender,
+  a as AISources,
+  i as AIThoughtChain,
+  I as AIWelcome,
+  W as AI_FORM_CONDITION_OPERATORS,
+  x as AI_FORM_FIELD_TYPES,
+  D as createAIStreamReducer,
+  g as default,
+  M as reduceAIStreamEvent,
+  k as validateAIFormSchema
 };

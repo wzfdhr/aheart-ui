@@ -1,4 +1,4 @@
-import type { AIAgentArtifact, AIAgentContextItem, AIAgentTask, AIAttachment, AIConversation, AIMessage, AIPrompt, AISource, AITransport } from './types';
+import type { AIAgentActionHandler, AIAgentArtifact, AIAgentContextItem, AIAgentOperationRequest, AIAgentTask, AIAttachment, AIConversation, AIMessage, AIPrompt, AISource, AITransport, AITransportV2 } from './types';
 type WorkbenchPanelSize = number | `${number}%` | 'auto';
 declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     title?: string | undefined;
@@ -8,7 +8,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     activeConversation?: string | undefined;
     messages?: AIMessage[] | undefined;
     prompts?: AIPrompt[] | undefined;
-    transport?: AITransport | undefined;
+    transport?: AITransport | AITransportV2 | undefined;
     tasks?: AIAgentTask[] | undefined;
     contextItems?: AIAgentContextItem[] | undefined;
     sources?: AISource[] | undefined;
@@ -16,6 +16,10 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     artifacts?: AIAgentArtifact[] | undefined;
     activeArtifact?: string | undefined;
     disabled?: boolean | undefined;
+    actionHandler?: AIAgentActionHandler | undefined;
+    reorderable?: boolean | undefined;
+    tasksRevision?: string | number | undefined;
+    scopeKey?: string | number | undefined;
 }>, {
     title: string;
     description: string;
@@ -32,14 +36,17 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     artifacts: () => never[];
     activeArtifact: undefined;
     disabled: boolean;
+    reorderable: boolean;
+    tasksRevision: undefined;
+    scopeKey: undefined;
 }>>, {}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
     error: (message: string) => void;
     retry: (task: AIAgentTask) => void;
+    approve: (task: AIAgentTask) => void;
+    reject: (task: AIAgentTask) => void;
     cancel: (task: AIAgentTask) => void;
     stop: () => void;
     "update:tasks": (tasks: AIAgentTask[]) => void;
-    approve: (task: AIAgentTask) => void;
-    reject: (task: AIAgentTask) => void;
     "move-task": (id: string, direction: "up" | "down") => void;
     "update:messages": (messages: AIMessage[]) => void;
     "update:activeConversation": (key: string) => void;
@@ -51,6 +58,10 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     "chat-regenerate": (message: AIMessage) => void;
     "chat-edit": (message: AIMessage, content: string) => void;
     "chat-copy": (message: AIMessage) => void;
+    "operation-start": (request: AIAgentOperationRequest) => void;
+    "operation-success": (request: AIAgentOperationRequest) => void;
+    "operation-error": (request: AIAgentOperationRequest, message: string) => void;
+    "task-move-reject": (reason: string) => void;
 }, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     title?: string | undefined;
     description?: string | undefined;
@@ -59,7 +70,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     activeConversation?: string | undefined;
     messages?: AIMessage[] | undefined;
     prompts?: AIPrompt[] | undefined;
-    transport?: AITransport | undefined;
+    transport?: AITransport | AITransportV2 | undefined;
     tasks?: AIAgentTask[] | undefined;
     contextItems?: AIAgentContextItem[] | undefined;
     sources?: AISource[] | undefined;
@@ -67,6 +78,10 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     artifacts?: AIAgentArtifact[] | undefined;
     activeArtifact?: string | undefined;
     disabled?: boolean | undefined;
+    actionHandler?: AIAgentActionHandler | undefined;
+    reorderable?: boolean | undefined;
+    tasksRevision?: string | number | undefined;
+    scopeKey?: string | number | undefined;
 }>, {
     title: string;
     description: string;
@@ -83,14 +98,17 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     artifacts: () => never[];
     activeArtifact: undefined;
     disabled: boolean;
+    reorderable: boolean;
+    tasksRevision: undefined;
+    scopeKey: undefined;
 }>>> & Readonly<{
     onError?: ((message: string) => any) | undefined;
     onRetry?: ((task: AIAgentTask) => any) | undefined;
+    onApprove?: ((task: AIAgentTask) => any) | undefined;
+    onReject?: ((task: AIAgentTask) => any) | undefined;
     onCancel?: ((task: AIAgentTask) => any) | undefined;
     onStop?: (() => any) | undefined;
     "onUpdate:tasks"?: ((tasks: AIAgentTask[]) => any) | undefined;
-    onApprove?: ((task: AIAgentTask) => any) | undefined;
-    onReject?: ((task: AIAgentTask) => any) | undefined;
     "onMove-task"?: ((id: string, direction: "up" | "down") => any) | undefined;
     "onUpdate:messages"?: ((messages: AIMessage[]) => any) | undefined;
     "onUpdate:activeConversation"?: ((key: string) => any) | undefined;
@@ -102,19 +120,26 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     "onChat-regenerate"?: ((message: AIMessage) => any) | undefined;
     "onChat-edit"?: ((message: AIMessage, content: string) => any) | undefined;
     "onChat-copy"?: ((message: AIMessage) => any) | undefined;
+    "onOperation-start"?: ((request: AIAgentOperationRequest) => any) | undefined;
+    "onOperation-success"?: ((request: AIAgentOperationRequest) => any) | undefined;
+    "onOperation-error"?: ((request: AIAgentOperationRequest, message: string) => any) | undefined;
+    "onTask-move-reject"?: ((reason: string) => any) | undefined;
 }>, {
     sources: AISource[];
+    messages: AIMessage[];
     title: string;
     disabled: boolean;
     tasks: AIAgentTask[];
     artifacts: AIAgentArtifact[];
     activeArtifact: string;
+    reorderable: boolean;
+    tasksRevision: string | number;
+    scopeKey: string | number;
     description: string;
     attachments: AIAttachment[];
     conversations: AIConversation[];
     prompts: AIPrompt[];
-    messages: AIMessage[];
-    transport: AITransport;
+    transport: AITransport | AITransportV2;
     activeConversation: string;
     panelSizes: WorkbenchPanelSize[];
     contextItems: AIAgentContextItem[];

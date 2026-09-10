@@ -1,4 +1,4 @@
-import _sfc_main from "./thought-chain.vue.js";
+import f from "./thought-chain.vue.js";
 export {
-  _sfc_main as default
+  f as default
 };

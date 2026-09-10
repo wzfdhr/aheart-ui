@@ -1,40 +1,33 @@
-import { defineComponent, openBlock, createElementBlock, Fragment, renderList, createElementVNode, toDisplayString, createCommentVNode } from "vue";
-const _hoisted_1 = {
+import { defineComponent as r, openBlock as t, createElementBlock as n, Fragment as c, renderList as d, createElementVNode as o, toDisplayString as l, createCommentVNode as m } from "vue";
+const u = {
   class: "aheart-ai-prompts",
   "aria-label": "建议任务"
-};
-const _hoisted_2 = ["disabled", "onClick"];
-const _hoisted_3 = { key: 0 };
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AAIPrompts" },
+}, p = ["disabled", "onClick"], _ = { key: 0 }, h = /* @__PURE__ */ r({
+  name: "AAIPrompts",
   __name: "prompts",
   props: {
     prompts: { default: () => [] },
-    disabled: { type: Boolean, default: false }
+    disabled: { type: Boolean, default: !1 }
   },
   emits: ["select"],
-  setup(__props, { emit: __emit }) {
-    const emit = __emit;
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("ul", _hoisted_1, [
-        (openBlock(true), createElementBlock(Fragment, null, renderList(__props.prompts, (prompt) => {
-          return openBlock(), createElementBlock("li", {
-            key: prompt.key
-          }, [
-            createElementVNode("button", {
-              type: "button",
-              disabled: __props.disabled,
-              onClick: ($event) => emit("select", prompt)
-            }, [
-              createElementVNode("strong", null, toDisplayString(prompt.label), 1),
-              prompt.description ? (openBlock(), createElementBlock("span", _hoisted_3, toDisplayString(prompt.description), 1)) : createCommentVNode("", true)
-            ], 8, _hoisted_2)
-          ]);
-        }), 128))
-      ]);
-    };
+  setup(s, { emit: a }) {
+    const i = a;
+    return (b, f) => (t(), n("ul", u, [
+      (t(!0), n(c, null, d(s.prompts, (e) => (t(), n("li", {
+        key: e.key
+      }, [
+        o("button", {
+          type: "button",
+          disabled: s.disabled,
+          onClick: (k) => i("select", e)
+        }, [
+          o("strong", null, l(e.label), 1),
+          e.description ? (t(), n("span", _, l(e.description), 1)) : m("", !0)
+        ], 8, p)
+      ]))), 128))
+    ]));
   }
 });
 export {
-  _sfc_main as default
+  h as default
 };

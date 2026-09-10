@@ -1,4 +1,4 @@
-import _sfc_main from "./chat-panel.vue.js";
+import f from "./chat-panel.vue.js";
 export {
-  _sfc_main as default
+  f as default
 };

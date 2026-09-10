@@ -14,6 +14,7 @@ import AIAgentWorkbench from './agent-workbench.vue';
 export { AIActions, AIAgentWorkbench, AIAttachments, AIBubble, AIChatPanel, AIConversations, AIForm, AIProcess, AIPrompts, AISender, AISources, AIThoughtChain, AIWelcome };
 export * from './types';
 export * from './form-schema';
+export * from './stream-reducer';
 declare const AheartAI: Plugin;
 export default AheartAI;
 import type { Plugin } from 'vue';
