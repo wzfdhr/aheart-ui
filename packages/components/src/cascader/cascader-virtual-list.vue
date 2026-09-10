@@ -86,21 +86,18 @@ const cancelSchedule = () => {
   measurementTimer = undefined
 }
 
-const scheduleRowMeasurement = (force = false) => {
+const scheduleRowMeasurement = () => {
   if (!alive || !active.value) return
-  if (force && measurementRaf !== undefined) {
-    ownerWindow?.cancelAnimationFrame?.(measurementRaf)
-    measurementRaf = undefined
-  }
-  if (!force && (measurementRaf !== undefined || measurementTimer !== undefined)) return
+  if (measurementRaf !== undefined || measurementTimer !== undefined) return
   const flush = () => {
     measurementRaf = undefined
     const userAgent = ownerWindow?.navigator?.userAgent ?? ''
     if (/AppleWebKit/i.test(userAgent) && /Safari/i.test(userAgent) && !/Chrome|CriOS|Chromium/i.test(userAgent) && ownerWindow) {
-      measurementTimer = ownerWindow.setTimeout(() => {
+      const timer = ownerWindow.setTimeout(() => {
         measurementTimer = undefined
         commit()
       }, 0)
+      measurementTimer = timer
       return
     }
     commit()
@@ -123,10 +120,11 @@ const scheduleRowMeasurement = (force = false) => {
   if (ownerWindow?.requestAnimationFrame) {
     measurementRaf = ownerWindow.requestAnimationFrame(flush)
   } else if (ownerWindow) {
-    measurementTimer = ownerWindow.setTimeout(() => {
+    const timer = ownerWindow.setTimeout(() => {
       measurementTimer = undefined
       flush()
     }, 0)
+    measurementTimer = timer
   }
   else flush()
 }
@@ -303,6 +301,7 @@ const cancelFocus = () => {
 }
 const suspend = () => {
   cancelFocus()
+  cancelSchedule()
   for (const cleanup of [...observationCleanups]) cleanup()
   pendingRows.clear()
   for (const entry of rowObservers.values()) entry.observer.disconnect()
@@ -361,7 +360,7 @@ const setRowRef = (element: unknown, index: number, key: string) => {
         : Math.max(row.offsetHeight || 0, row.getBoundingClientRect().height || 0, props.config.estimateSize)
     rowReportedSizes.set(row, reported)
     pendingRows.set(row, reported)
-    scheduleRowMeasurement(true)
+    scheduleRowMeasurement()
   })
   observer.observe(row)
   rowObservers.set(key, { element: row, observer })
