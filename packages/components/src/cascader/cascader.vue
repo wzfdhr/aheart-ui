@@ -261,7 +261,10 @@ const cancelVirtualFocus = () => virtualListRefs.forEach(list => list.cancelFocu
 const suspendVirtualLists = () => virtualListRefs.forEach(list => list.suspend())
 let keyboardRequest = 0
 let modeFocusGeneration = 0
-const invalidateModeFocus = () => { modeFocusGeneration += 1; keyboardRequest += 1; cancelVirtualFocus() }
+type FocusOwner = { request: number; generation: number; navigation: number; mode: number; path: CascaderPath; source: HTMLElement; ownerDocument: Document; sawRenderBlur: boolean; renderBlurArmed: boolean; dispose: () => void }
+let focusOwner: FocusOwner | undefined
+const disposeFocusOwner = (owner = focusOwner) => { if (!owner || focusOwner !== owner) return; owner.dispose(); focusOwner = undefined }
+const invalidateModeFocus = () => { modeFocusGeneration += 1; keyboardRequest += 1; disposeFocusOwner(); cancelVirtualFocus() }
 let loadGeneration = 0
 let loadSequence = 0
 let navigationVersion = 0
@@ -298,6 +301,7 @@ watch([panelRef, virtualEnabled, mergedOpen, () => props.disabled], ([panel, isV
   const cancelNavigation = () => invalidateModeFocus()
   const cancelFocusOut = (event: FocusEvent) => {
     const target = event.target as HTMLElement | null
+    if (focusOwner && target === focusOwner.source && !event.relatedTarget && focusOwner.renderBlurArmed) { focusOwner.sawRenderBlur = true; return }
     if (!event.relatedTarget && target?.isConnected) invalidateModeFocus()
   }
   ownerDocument.addEventListener('focusin', cancelOutside)
@@ -573,6 +577,7 @@ const handleOptionFocus = (option: CascaderOption, columnIndex: number) => {
 }
 const handleOptionBlur = (event: FocusEvent) => {
   const related = event.relatedTarget as Node | null
+  if (focusOwner && event.currentTarget === focusOwner.source && !related && focusOwner.renderBlurArmed) { focusOwner.sawRenderBlur = true; return }
   if (related && !rootRef.value?.contains(related) && !panelRef.value?.contains(related)) invalidateModeFocus()
   if (!event.relatedTarget) {
     const current = event.currentTarget as HTMLElement | null
@@ -656,16 +661,54 @@ const handleSearchKeydown = (event: KeyboardEvent, path: CascaderPath, index: nu
     selectPath(path)
   }
 }
+const ownKeyboardFocus = (source: HTMLElement, path: CascaderPath, request: number) => {
+  disposeFocusOwner()
+  const ownerDocument = source.ownerDocument
+  const ownerWindow = ownerDocument.defaultView
+  const owner: FocusOwner = {
+    request,
+    generation: loadGeneration,
+    navigation: navigationVersion,
+    mode: modeFocusGeneration,
+    path: [...path],
+    source,
+    ownerDocument,
+    sawRenderBlur: false,
+    renderBlurArmed: true,
+    dispose: () => undefined
+  }
+  const departure = (event: FocusEvent) => {
+    const target = event.target as Node | null
+    if (target && !source.contains(target) && !panelRef.value?.contains(target)) disposeFocusOwner(owner)
+  }
+  const leave = () => disposeFocusOwner(owner)
+  ownerDocument.addEventListener('focusin', departure)
+  ownerDocument.addEventListener('pointerdown', leave, true)
+  ownerDocument.addEventListener('touchstart', leave, true)
+  ownerDocument.addEventListener('wheel', leave, true)
+  ownerDocument.addEventListener('keydown', event => { if (event.key === 'Tab' || event.key === 'Escape') leave() }, true)
+  ownerWindow?.addEventListener('blur', leave)
+  owner.dispose = () => {
+    ownerDocument.removeEventListener('focusin', departure)
+    ownerDocument.removeEventListener('pointerdown', leave, true)
+    ownerDocument.removeEventListener('touchstart', leave, true)
+    ownerDocument.removeEventListener('wheel', leave, true)
+    ownerWindow?.removeEventListener('blur', leave)
+  }
+  focusOwner = owner
+  return owner
+}
 const enterChildColumn = async (option: CascaderOption, columnIndex: number, current: HTMLElement) => {
   const request = ++keyboardRequest
   const path = [...activePath.value.slice(0, columnIndex), option.value]
+  const owner = ownKeyboardFocus(current, path, request)
   const generation = loadGeneration
   const pending = handleOption(option, columnIndex)
   const navigation = navigationVersion
   await pending
   await nextTick()
   const active = current.ownerDocument.activeElement
-  if (request !== keyboardRequest || generation !== loadGeneration || navigation !== navigationVersion || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path)) return
+  if (request !== keyboardRequest || generation !== loadGeneration || navigation !== navigationVersion || owner !== focusOwner || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path)) return
   if (active !== current && active !== current.ownerDocument.body) return
   if (isBranch(option)) {
     const nextColumn = columnIndex + 1
@@ -673,6 +716,7 @@ const enterChildColumn = async (option: CascaderOption, columnIndex: number, cur
     if (nextIndexes.length) focusColumnIndex(nextColumn, nextIndexes[0])
     else if (current.ownerDocument.activeElement === current.ownerDocument.body) current.focus()
   }
+  disposeFocusOwner(owner)
 }
 
 const handleTriggerKeydown = (event: KeyboardEvent) => {
