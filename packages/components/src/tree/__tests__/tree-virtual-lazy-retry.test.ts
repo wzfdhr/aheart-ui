@@ -27,7 +27,17 @@ class ControlledResizeObserver {
 }
 
 const mountTree = (options?: any) => {
-  const wrapper = mount(Tree, options)
+  return trackWrapper(mount(Tree, options))
+}
+
+const trackWrapper = <T extends ReturnType<typeof mount>>(wrapper: T) => {
+  const unmount = wrapper.unmount.bind(wrapper)
+  let mounted = true
+  wrapper.unmount = (() => {
+    if (!mounted) return
+    mounted = false
+    unmount()
+  }) as T['unmount']
   trackedWrappers.push(wrapper)
   return wrapper
 }
@@ -45,7 +55,7 @@ const prepareCollapsedRetry = async (treeSelect = false, sibling = false) => {
     return calls.length === 1 ? Promise.reject(new Error('offline')) : new Promise<unknown[]>(() => {})
   })
   const wrapper = treeSelect
-    ? mount(TreeSelect, { attachTo: document.body, props: { treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }, ...(sibling ? [{ key: 'other', title: 'Other' }] : [])], virtual: true, open: true, loadData, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never })
+    ? trackWrapper(mount(TreeSelect, { attachTo: document.body, props: { treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }, ...(sibling ? [{ key: 'other', title: 'Other' }] : [])], virtual: true, open: true, loadData, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } } as never))
     : mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }, ...(sibling ? [{ key: 'other', title: 'Other' }] : [])], loadData } as never })
   await flushOwnerRealm()
   await wrapper.get('.aheart-tree__switcher').trigger('click')
