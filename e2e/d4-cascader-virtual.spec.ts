@@ -127,7 +127,7 @@ test('search virtualizes 10k leaves, supports End+Enter, no-result and clear rec
   await search.press('End')
   await expect.poll(() => search.evaluate(element => ({ focused: element.ownerDocument.activeElement === element, end: (element as HTMLInputElement).selectionEnd === (element as HTMLInputElement).value.length }))).toEqual({ focused: true, end: true })
   await search.press('ArrowDown')
-  const focusedResult = popup.locator('.aheart-cascader__search-results .aheart-cascader__option:focus')
+  let focusedResult = popup.locator('.aheart-cascader__search-results .aheart-cascader__option:focus')
   await expect(focusedResult).toHaveCount(1)
   await focusedResult.press('End')
   await expect(focusedResult).toContainText('Search leaf 09998')
