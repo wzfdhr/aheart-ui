@@ -61,3 +61,13 @@ The maintained suite passed `85/85`; full components passed `1258/1258`, root ty
 Browser test repairs retained real default Tree behavior: the temporary fixture `tabindex=-1` was removed, Firefox's additional default scroll-root Tab stop was reproduced, and the production virtual root now owns that fix. Dynamic bottom scrolling re-reads the measured total; only an exact Firefox built-in scroll-linked warning is classified separately in a retained attachment. No console error or pageerror is suppressed.
 
 Initial screenshot inspection accepted the desktop hierarchy/disabled/tail states as local observations. The mobile long-title capture was rejected because the documentation header overlapped the fixture and the wrapped title was not fully visible. Fresh final captures and design acceptance remain pending.
+
+## Final development re-review
+
+Independent Astra High re-ran all diagnostics: `review.test.ts` 6/6, `refreeze.test.ts` 4/4, `boundary.test.ts` 3/3, total 13/13, exit 0. Development verdict: P0/P1/P2=`0/0/0` for the listed findings and affected implementation boundaries.
+
+Mounted content changes now read the committed DOM geometry (56px remains 56px). Pending navigation uses the public `getOffsetForIndex` and `options.scrollToFn` without creating TanStack's index-reconciliation job; End immediately followed by disabled leaves zero pending RAF and no index target. Disabled stops continuous observers while retaining scrollable virtual content. Rows remain sourced entirely from `getVirtualItems()`.
+
+The maintained Tree/TreeSelect suite passed `87/87` (19 virtual, 6 recovery, 62 legacy). Independent browser run `r12` passed `40/40` over five projects, including default Tree attributes, real Tab re-entry, bounded disabled scrolling and re-enable navigation. Root typecheck passed; full distribution build, docs build and release pack passed (1003/79/115 packed files for components/DnD/AI). Earlier component-wide `1258/1258` and scripts `90/90` are additional regression evidence from before the final two boundary repairs, not mislabeled as a later full-phase run.
+
+This closes Tree development defects only. The independent product decision and the combined three-component consumer/performance/full-repository/PR/delivery gates remain separate.

@@ -1,4 +1,4 @@
-export type { TreeKey, TreeNodeData, TreeLoadContext, TreeLoadData, TreeCheckInfo } from './types';
+export type { TreeKey, TreeNodeData, TreeLoadContext, TreeLoadData, TreeCheckInfo, TreeVirtual, TreeVirtualConfig } from './types';
 declare const _default: import("../utils/install").SFCWithInstall<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     treeData: {
         type: import("vue").PropType<import("./types").TreeNodeData[]>;
@@ -34,6 +34,10 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     disabled: {
         type: BooleanConstructor;
         default: undefined;
+    };
+    virtual: {
+        type: import("vue").PropType<import("./types").TreeVirtual>;
+        default: boolean;
     };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     select: (keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => void;
@@ -78,6 +82,10 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: BooleanConstructor;
         default: undefined;
     };
+    virtual: {
+        type: import("vue").PropType<import("./types").TreeVirtual>;
+        default: boolean;
+    };
 }>> & Readonly<{
     onSelect?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData) => any) | undefined;
     onCheck?: ((keys: import("./types").TreeKey[], node: import("./types").TreeNodeData, info: import("./types").TreeCheckInfo) => any) | undefined;
@@ -90,6 +98,7 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     disabled: boolean;
     defaultSelectedKeys: import("./types").TreeKey[];
     selectable: boolean;
+    virtual: import("./types").TreeVirtual;
     checkable: boolean;
     treeData: import("./types").TreeNodeData[];
     defaultExpandedKeys: import("./types").TreeKey[];

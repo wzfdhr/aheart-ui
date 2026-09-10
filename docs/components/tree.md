@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { TreeKey, TreeNodeData } from 'aheart-ui'
+import TreeVirtualFixture from '../.vitepress/components/TreeVirtualFixture.vue'
+
+const showTreeVirtualFixture = ref(false)
+onMounted(() => { showTreeVirtualFixture.value = new URLSearchParams(window.location.search).get('fixture') === 'tree-virtual' })
 
 const treeData: TreeNodeData[] = [
   {
@@ -52,6 +56,10 @@ const loadTreeChildren = async (_node: TreeNodeData, { signal }: { signal: Abort
   return [{ key: 'loaded', title: '已加载节点' }]
 }
 </script>
+
+<ClientOnly>
+  <TreeVirtualFixture v-if="showTreeVirtualFixture" />
+</ClientOnly>
 
 # Tree 树形控件 <span class="aheart-status aheart-status--ready">已完成</span>
 

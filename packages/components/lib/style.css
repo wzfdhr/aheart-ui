@@ -1412,6 +1412,8 @@
 }
 .aheart-tree { color: var(--aheart-color-text); font-size: var(--aheart-font-size); }
 .aheart-tree__list, .aheart-tree__group { margin: 0; padding: 0; list-style: none; }
+.aheart-tree.is-virtual .aheart-tree__list { box-sizing: border-box; }
+.aheart-tree.is-virtual .aheart-tree__treeitem { box-sizing: border-box; margin: 0; }
 .aheart-tree__group { padding-inline-start: 20px; }
 .aheart-tree__node { display: flex; align-items: center; min-block-size: 28px; padding-inline: 2px; border-radius: var(--aheart-radius); outline: none; cursor: pointer; }
 .aheart-tree__node:hover, .aheart-tree__node:focus-visible { background: var(--aheart-color-fill-secondary); }

@@ -1,5 +1,11 @@
 import type { PropType } from 'vue';
 export type TreeKey = string | number;
+export interface TreeVirtualConfig {
+    height?: number;
+    estimateSize?: number;
+    overscan?: number;
+}
+export type TreeVirtual = boolean | TreeVirtualConfig;
 export interface TreeNodeData {
     key: TreeKey;
     title: string;
@@ -49,5 +55,9 @@ export declare const treeProps: {
     disabled: {
         type: BooleanConstructor;
         default: undefined;
+    };
+    virtual: {
+        type: PropType<TreeVirtual>;
+        default: boolean;
     };
 };

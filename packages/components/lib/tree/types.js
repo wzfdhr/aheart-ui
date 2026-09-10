@@ -33,6 +33,10 @@ const treeProps = {
   disabled: {
     type: Boolean,
     default: void 0
+  },
+  virtual: {
+    type: [Boolean, Object],
+    default: false
   }
 };
 exports.treeProps = treeProps;

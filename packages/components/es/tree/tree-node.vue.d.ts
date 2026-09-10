@@ -1,3 +1,4 @@
+import { type VNodeRef } from 'vue';
 import type { TreeKey, TreeNodeData } from './types';
 import { type TreeIndex } from './tree-index';
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_TypePropsToRuntimeProps<{
@@ -13,6 +14,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     parentDisabled?: boolean | undefined;
     nodeIndex: TreeIndex;
     idPrefix: string;
+    virtual?: boolean | undefined;
+    virtualStyle?: Record<string, string> | undefined;
+    measureRef?: VNodeRef | undefined;
 }>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     focus: (node: TreeNodeData) => void;
     keydown: (event: KeyboardEvent, node: TreeNodeData) => void;
@@ -33,6 +37,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     parentDisabled?: boolean | undefined;
     nodeIndex: TreeIndex;
     idPrefix: string;
+    virtual?: boolean | undefined;
+    virtualStyle?: Record<string, string> | undefined;
+    measureRef?: VNodeRef | undefined;
 }>>> & Readonly<{
     onFocus?: ((node: TreeNodeData) => any) | undefined;
     onKeydown?: ((event: KeyboardEvent, node: TreeNodeData) => any) | undefined;

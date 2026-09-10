@@ -7,10 +7,11 @@ const useTreeLoader = require("./use-tree-loader.js");
 const treeCheck = require("./tree-check.js");
 const treeNode_vue_vue_type_script_setup_true_lang = require("./tree-node.vue.js");
 const types = require("./types.js");
+const virtualOptions = require("./virtual-options.js");
+const useTreeVirtual = require("./use-tree-virtual.js");
 require("./style.css.js");
 const context = require("../config/context.js");
-const _hoisted_1 = ["aria-multiselectable"];
-const _hoisted_2 = { class: "aheart-tree__list" };
+const _hoisted_1 = ["aria-multiselectable", "tabindex"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{ name: "ATree" },
   __name: "tree",
@@ -34,6 +35,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const innerCheckedKeys = vue.ref([...props.defaultCheckedKeys]);
     const focusedKey = vue.ref((_a = props.treeData[0]) == null ? void 0 : _a.key);
     const rootRef = vue.ref();
+    const lastFocusKey = vue.ref();
+    const focusMovedOutside = vue.ref(false);
     const mergedExpandedKeys = vue.computed(() => props.expandedKeys ?? innerExpandedKeys.value);
     const mergedSelectedKeys = vue.computed(() => props.selectedKeys ?? innerSelectedKeys.value);
     const mergedCheckedKeys = vue.computed(() => props.checkedKeys ?? innerCheckedKeys.value);
@@ -54,27 +57,99 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const parentKey = (_a2 = treeIndex$1.value.nodes.get(key)) == null ? void 0 : _a2.parentKey;
       return parentKey === void 0 ? void 0 : (_b = treeIndex$1.value.nodes.get(parentKey)) == null ? void 0 : _b.node;
     };
+    const virtualConfig = vue.computed(() => virtualOptions.normalizeTreeVirtual(props.virtual, (message) => {
+    }));
+    const virtualAdapter = useTreeVirtual.useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled);
+    const virtualFallback = vue.computed(() => virtualAdapter.fallback.value);
+    const renderedNodes = vue.computed(() => virtualConfig.value && !virtualFallback.value ? virtualAdapter.rows.value.map((row) => ({ key: row.entry.key, node: row.entry.node, item: row.item, level: row.entry.level })) : renderData.value.map((node) => ({ key: node.key, node, item: void 0 })));
+    const rowStyle = (entry) => virtualConfig.value && !virtualFallback.value && entry.item ? {
+      position: "absolute",
+      top: "0",
+      insetInline: "0",
+      width: "100%",
+      boxSizing: "border-box",
+      paddingInlineStart: `${Math.max(0, (entry.level ?? 1) - 1) * 20}px`,
+      transform: `translateY(${entry.item.start}px)`
+    } : void 0;
+    const measureRef = (entry) => virtualConfig.value && !virtualFallback.value && entry.item ? (element) => virtualAdapter.measureRow(element && typeof element === "object" && "nodeType" in element ? element : null, entry.item.index, treeIndex.treeKeyToken(entry.key)) : void 0;
     vue.watch([treeIndex$1, mergedExpandedKeys], ([index], previous) => {
       var _a2, _b, _c, _d;
       const activeElement = (_a2 = rootRef.value) == null ? void 0 : _a2.ownerDocument.activeElement;
       const hadFocus = Boolean(activeElement && ((_b = rootRef.value) == null ? void 0 : _b.contains(activeElement)));
       const oldIndex = (previous == null ? void 0 : previous[0]) ?? index;
       const activeToken = hadFocus ? (_c = activeElement == null ? void 0 : activeElement.closest("[data-tree-token]")) == null ? void 0 : _c.dataset.treeToken : void 0;
-      const activeKey = activeToken === void 0 ? focusedKey.value : oldIndex.order.find((key) => treeIndex.treeKeyToken(key) === activeToken);
+      const activeKey = hadFocus ? activeToken === void 0 ? focusedKey.value : oldIndex.order.find((key) => treeIndex.treeKeyToken(key) === activeToken) : virtualConfig.value ? virtualAdapter.focusRecoveryKey.value : focusMovedOutside.value ? void 0 : lastFocusKey.value;
       const visible = new Set(visibleNodes.value.map((entry) => entry.key));
       if (activeKey !== void 0 && visible.has(activeKey))
         return;
-      const next = treeIndex.closestVisibleTreeKey(activeKey, index, visible) ?? treeIndex.closestVisibleTreeKey(activeKey, oldIndex, visible) ?? ((_d = visibleNodes.value[0]) == null ? void 0 : _d.key);
-      focusedKey.value = next;
-      if (hadFocus && next !== void 0)
+      if (!hadFocus && activeKey === void 0 && focusedKey.value !== void 0 && visible.has(focusedKey.value))
+        return;
+      const recoveryKey = activeKey ?? focusedKey.value;
+      const next = treeIndex.closestVisibleTreeKey(recoveryKey, index, visible) ?? treeIndex.closestVisibleTreeKey(recoveryKey, oldIndex, visible) ?? ((_d = visibleNodes.value[0]) == null ? void 0 : _d.key);
+      if (next === void 0)
+        return;
+      if (hadFocus || activeKey !== void 0)
         focusNode(next);
-    });
+      else
+        focusedKey.value = next;
+    }, { flush: "post" });
+    const trackFocusIn = (event) => {
+      var _a2, _b;
+      const row = (_a2 = event.target) == null ? void 0 : _a2.closest("[data-tree-token]");
+      if (!row || !((_b = rootRef.value) == null ? void 0 : _b.contains(row)))
+        return;
+      const token = row.dataset.treeToken;
+      lastFocusKey.value = treeIndex$1.value.order.find((key) => treeIndex.treeKeyToken(key) === token);
+      focusMovedOutside.value = false;
+    };
+    const trackFocusOut = (event) => {
+      var _a2;
+      const next = event.relatedTarget;
+      if (next && !((_a2 = rootRef.value) == null ? void 0 : _a2.contains(next)))
+        focusMovedOutside.value = true;
+    };
     const focusNode = (key) => {
-      focusedKey.value = key;
-      vue.nextTick(() => {
-        var _a2, _b;
-        (_b = Array.from(((_a2 = rootRef.value) == null ? void 0 : _a2.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeIndex.treeKeyToken(key))) == null ? void 0 : _b.focus();
-      });
+      var _a2;
+      if (!virtualConfig.value || virtualFallback.value) {
+        focusedKey.value = key;
+        void vue.nextTick(() => {
+          var _a3, _b;
+          return (_b = Array.from(((_a3 = rootRef.value) == null ? void 0 : _a3.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeIndex.treeKeyToken(key))) == null ? void 0 : _b.focus();
+        });
+        return;
+      }
+      const version = virtualAdapter.ensureKey(key);
+      const activeBefore = (_a2 = rootRef.value) == null ? void 0 : _a2.ownerDocument.activeElement;
+      let attempts = 0;
+      const focusMounted = () => {
+        var _a3, _b;
+        if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeBefore)) {
+          virtualAdapter.cancelPending();
+          return;
+        }
+        const activeNow = (_a3 = rootRef.value) == null ? void 0 : _a3.ownerDocument.activeElement;
+        if (virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
+          virtualAdapter.cancelPending();
+          return;
+        }
+        const target = Array.from(((_b = rootRef.value) == null ? void 0 : _b.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeIndex.treeKeyToken(key));
+        const generationValid = virtualAdapter.isPending(key, version);
+        if (target && generationValid) {
+          focusedKey.value = key;
+          virtualAdapter.commitFocus(key);
+          target.focus();
+          return;
+        }
+        if (target && !generationValid)
+          return;
+        if (virtualAdapter.isPending(key, version) && attempts++ < 8)
+          void vue.nextTick(focusMounted);
+      };
+      void vue.nextTick(focusMounted);
+    };
+    const handleNodeFocus = (node) => {
+      focusedKey.value = node.key;
+      virtualAdapter.commitFocus(node.key);
     };
     const retryNode = (node) => {
       if (isNodeDisabled(node.key))
@@ -197,15 +272,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return vue.openBlock(), vue.createElementBlock("div", {
         ref_key: "rootRef",
         ref: rootRef,
-        class: vue.normalizeClass(["aheart-tree", { "is-disabled": isDisabled.value }]),
+        class: vue.normalizeClass(["aheart-tree", { "is-disabled": isDisabled.value, "is-virtual": virtualConfig.value && !virtualFallback.value }]),
+        style: vue.normalizeStyle(virtualConfig.value && !virtualFallback.value ? { maxBlockSize: `${virtualConfig.value.height}px`, overflowY: "auto" } : void 0),
         role: "tree",
-        "aria-multiselectable": _ctx.multiple || void 0
+        "aria-multiselectable": _ctx.multiple || void 0,
+        tabindex: virtualConfig.value && !virtualFallback.value ? -1 : void 0,
+        onFocusin: trackFocusIn,
+        onFocusout: trackFocusOut
       }, [
-        vue.createElementVNode("ul", _hoisted_2, [
-          (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(renderData.value, (node) => {
+        vue.createElementVNode("ul", {
+          class: "aheart-tree__list",
+          style: vue.normalizeStyle(virtualConfig.value && !virtualFallback.value ? { blockSize: `${vue.unref(virtualAdapter).totalSize.value}px`, position: "relative" } : void 0)
+        }, [
+          (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(renderedNodes.value, (entry) => {
             return vue.openBlock(), vue.createBlock(treeNode_vue_vue_type_script_setup_true_lang.default, {
-              key: node.key,
-              node,
+              key: entry.key,
+              node: entry.node,
               "expanded-keys": mergedExpandedKeys.value,
               "selected-keys": mergedSelectedKeys.value,
               "checked-keys": checkState.value.checkedKeys,
@@ -222,11 +304,14 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
               onCheck: checkNode,
               onRetry: retryNode,
               onKeydown: handleKeydown,
-              onFocus: (node2) => focusedKey.value = node2.key
-            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "onFocus"]);
+              onFocus: handleNodeFocus,
+              virtual: Boolean(virtualConfig.value && !virtualFallback.value),
+              "virtual-style": rowStyle(entry),
+              "measure-ref": measureRef(entry)
+            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "virtual", "virtual-style", "measure-ref"]);
           }), 128))
-        ])
-      ], 10, _hoisted_1);
+        ], 4)
+      ], 46, _hoisted_1);
     };
   }
 });

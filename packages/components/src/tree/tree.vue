@@ -1,10 +1,10 @@
 <template>
-  <div ref="rootRef" class="aheart-tree" :class="{ 'is-disabled': isDisabled }" role="tree" :aria-multiselectable="multiple || undefined">
-    <ul class="aheart-tree__list">
+  <div ref="rootRef" class="aheart-tree" :class="{ 'is-disabled': isDisabled, 'is-virtual': virtualConfig && !virtualFallback }" :style="virtualConfig && !virtualFallback ? { maxBlockSize: `${virtualConfig.height}px`, overflowY: 'auto' } : undefined" role="tree" :aria-multiselectable="multiple || undefined" :tabindex="virtualConfig && !virtualFallback ? -1 : undefined" @focusin="trackFocusIn" @focusout="trackFocusOut">
+    <ul class="aheart-tree__list" :style="virtualConfig && !virtualFallback ? { blockSize: `${virtualAdapter.totalSize.value}px`, position: 'relative' } : undefined">
       <ATreeNode
-        v-for="node in renderData"
-        :key="node.key"
-        :node="node"
+        v-for="entry in renderedNodes"
+        :key="entry.key"
+        :node="entry.node"
         :expanded-keys="mergedExpandedKeys"
         :selected-keys="mergedSelectedKeys"
         :checked-keys="checkState.checkedKeys"
@@ -21,14 +21,17 @@
         @check="checkNode"
         @retry="retryNode"
         @keydown="handleKeydown"
-        @focus="(node) => focusedKey = node.key"
+        @focus="handleNodeFocus"
+        :virtual="Boolean(virtualConfig && !virtualFallback)"
+        :virtual-style="rowStyle(entry)"
+        :measure-ref="measureRef(entry)"
       />
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, nextTick, onMounted, ref, useAttrs, watch } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, useAttrs, watch, type VNodeRef } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { useStableId } from '../utils/use-stable-id'
 import { closestVisibleTreeKey, createTreeIndex, getVisibleTreeNodes, treeKeyToken } from './tree-index'
@@ -36,6 +39,8 @@ import { treeModelKey, useTreeLoader } from './use-tree-loader'
 import { deriveTreeCheckState, toggleTreeCheck } from './tree-check'
 import ATreeNode from './tree-node.vue'
 import { treeProps, type TreeCheckInfo, type TreeKey, type TreeNodeData } from './types'
+import { normalizeTreeVirtual } from './virtual-options'
+import { useTreeVirtual } from './use-tree-virtual'
 import './style.css'
 
 defineOptions({ name: 'ATree' })
@@ -64,6 +69,8 @@ const innerSelectedKeys = ref<TreeKey[]>([...props.defaultSelectedKeys])
 const innerCheckedKeys = ref<TreeKey[]>([...props.defaultCheckedKeys])
 const focusedKey = ref<TreeKey | undefined>(props.treeData[0]?.key)
 const rootRef = ref<HTMLDivElement>()
+const lastFocusKey = ref<TreeKey | undefined>()
+const focusMovedOutside = ref(false)
 const mergedExpandedKeys = computed(() => props.expandedKeys ?? innerExpandedKeys.value)
 const mergedSelectedKeys = computed(() => props.selectedKeys ?? innerSelectedKeys.value)
 const mergedCheckedKeys = computed(() => props.checkedKeys ?? innerCheckedKeys.value)
@@ -81,25 +88,93 @@ const findParent = (key: TreeKey) => {
   const parentKey = treeIndex.value.nodes.get(key)?.parentKey
   return parentKey === undefined ? undefined : treeIndex.value.nodes.get(parentKey)?.node
 }
+const virtualConfig = computed(() => normalizeTreeVirtual(props.virtual, (message) => {
+  if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) console.warn(message)
+}))
+const virtualAdapter = useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled)
+const virtualFallback = computed(() => virtualAdapter.fallback.value)
+const renderedNodes = computed(() => virtualConfig.value && !virtualFallback.value
+  ? virtualAdapter.rows.value.map(row => ({ key: row.entry.key, node: row.entry.node, item: row.item, level: row.entry.level }))
+  : renderData.value.map(node => ({ key: node.key, node, item: undefined })))
+const rowStyle = (entry: { item?: { start: number }; level?: number }) => virtualConfig.value && !virtualFallback.value && entry.item
+  ? {
+      position: 'absolute',
+      top: '0',
+      insetInline: '0',
+      width: '100%',
+      boxSizing: 'border-box',
+      paddingInlineStart: `${Math.max(0, (entry.level ?? 1) - 1) * 20}px`,
+      transform: `translateY(${entry.item.start}px)`
+    }
+  : undefined
+const measureRef = (entry: { key: TreeKey; item?: { index: number } }): VNodeRef | undefined => virtualConfig.value && !virtualFallback.value && entry.item
+  ? (element) => virtualAdapter.measureRow(element && typeof element === 'object' && 'nodeType' in element ? element as Element : null, entry.item!.index, treeKeyToken(entry.key))
+  : undefined
 watch([treeIndex, mergedExpandedKeys], ([index], previous) => {
   const activeElement = rootRef.value?.ownerDocument.activeElement as HTMLElement | null
   const hadFocus = Boolean(activeElement && rootRef.value?.contains(activeElement))
   const oldIndex = previous?.[0] ?? index
   const activeToken = hadFocus ? activeElement?.closest<HTMLElement>('[data-tree-token]')?.dataset.treeToken : undefined
-  const activeKey = activeToken === undefined ? focusedKey.value : oldIndex.order.find((key) => treeKeyToken(key) === activeToken)
+  const activeKey = hadFocus
+    ? activeToken === undefined ? focusedKey.value : oldIndex.order.find((key) => treeKeyToken(key) === activeToken)
+    : virtualConfig.value ? virtualAdapter.focusRecoveryKey.value : focusMovedOutside.value ? undefined : lastFocusKey.value
   const visible = new Set(visibleNodes.value.map((entry) => entry.key))
   if (activeKey !== undefined && visible.has(activeKey)) return
-  const next = closestVisibleTreeKey(activeKey, index, visible) ?? closestVisibleTreeKey(activeKey, oldIndex, visible) ?? visibleNodes.value[0]?.key
-  focusedKey.value = next
-  if (hadFocus && next !== undefined) focusNode(next)
-})
+  if (!hadFocus && activeKey === undefined && focusedKey.value !== undefined && visible.has(focusedKey.value)) return
+  const recoveryKey = activeKey ?? focusedKey.value
+  const next = closestVisibleTreeKey(recoveryKey, index, visible) ?? closestVisibleTreeKey(recoveryKey, oldIndex, visible) ?? visibleNodes.value[0]?.key
+  if (next === undefined) return
+  if (hadFocus || activeKey !== undefined) focusNode(next)
+  else focusedKey.value = next
+}, { flush: 'post' })
+const trackFocusIn = (event: FocusEvent) => {
+  const row = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-tree-token]')
+  if (!row || !rootRef.value?.contains(row)) return
+  const token = row.dataset.treeToken
+  lastFocusKey.value = treeIndex.value.order.find(key => treeKeyToken(key) === token)
+  focusMovedOutside.value = false
+}
+const trackFocusOut = (event: FocusEvent) => {
+  const next = event.relatedTarget as Node | null
+  if (next && !rootRef.value?.contains(next)) focusMovedOutside.value = true
+}
 const focusNode = (key: TreeKey) => {
-  focusedKey.value = key
-  nextTick(() => {
-    Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
+  if (!virtualConfig.value || virtualFallback.value) {
+    focusedKey.value = key
+    void nextTick(() => Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
+      .find((element) => element.dataset.treeToken === treeKeyToken(key))?.focus())
+    return
+  }
+  const version = virtualAdapter.ensureKey(key)
+  const activeBefore = rootRef.value?.ownerDocument.activeElement
+  let attempts = 0
+  const focusMounted = () => {
+    if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeBefore)) {
+      virtualAdapter.cancelPending()
+      return
+    }
+    const activeNow = rootRef.value?.ownerDocument.activeElement
+    if (virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
+      virtualAdapter.cancelPending()
+      return
+    }
+    const target = Array.from(rootRef.value?.querySelectorAll<HTMLElement>('.aheart-tree__node') ?? [])
       .find((element) => element.dataset.treeToken === treeKeyToken(key))
-      ?.focus()
-  })
+    const generationValid = virtualAdapter.isPending(key, version)
+    if (target && generationValid) {
+      focusedKey.value = key
+      virtualAdapter.commitFocus(key)
+      target.focus()
+      return
+    }
+    if (target && !generationValid) return
+    if (virtualAdapter.isPending(key, version) && attempts++ < 8) void nextTick(focusMounted)
+  }
+  void nextTick(focusMounted)
+}
+const handleNodeFocus = (node: TreeNodeData) => {
+  focusedKey.value = node.key
+  virtualAdapter.commitFocus(node.key)
 }
 const retryNode = (node: TreeNodeData) => {
   if (isNodeDisabled(node.key)) return
