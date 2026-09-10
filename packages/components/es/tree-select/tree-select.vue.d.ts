@@ -1,4 +1,5 @@
 import type { TreeKey, TreeLoadData, TreeNodeData } from '../tree';
+import type { TreeVirtual } from '../tree';
 import type { FloatingPlacement } from '../utils/floating-core';
 type TreeSelectValue = TreeKey | TreeKey[] | undefined;
 declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
@@ -21,6 +22,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     maxTagCount?: number | undefined;
     placement?: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom" | undefined;
     autoAdjustOverflow?: boolean | undefined;
+    virtual?: TreeVirtual | undefined;
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
 }>, {
     treeData: () => never[];
@@ -53,6 +55,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     maxTagCount?: number | undefined;
     placement?: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom" | undefined;
     autoAdjustOverflow?: boolean | undefined;
+    virtual?: TreeVirtual | undefined;
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
 }>, {
     treeData: () => never[];

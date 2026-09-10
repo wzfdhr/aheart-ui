@@ -1,3 +1,4 @@
+export type { TreeSelectVirtual, TreeSelectVirtualConfig } from './virtual-options';
 declare const _default: import("../utils/install").SFCWithInstall<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     open: {
         type: import("vue").PropType<boolean>;
@@ -52,6 +53,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     ariaLabelledby: {
         type: import("vue").PropType<string>;
+    };
+    virtual: {
+        type: import("vue").PropType<import("..").TreeVirtual>;
     };
     treeData: {
         type: import("vue").PropType<import("..").TreeNodeData[]>;
@@ -123,6 +127,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     ariaLabelledby: {
         type: import("vue").PropType<string>;
+    };
+    virtual: {
+        type: import("vue").PropType<import("..").TreeVirtual>;
     };
     treeData: {
         type: import("vue").PropType<import("..").TreeNodeData[]>;

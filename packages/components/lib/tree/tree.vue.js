@@ -9,6 +9,7 @@ const treeNode_vue_vue_type_script_setup_true_lang = require("./tree-node.vue.js
 const types = require("./types.js");
 const virtualOptions = require("./virtual-options.js");
 const useTreeVirtual = require("./use-tree-virtual.js");
+const treeFocusBridge = require("./tree-focus-bridge.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-multiselectable", "tabindex"];
@@ -26,6 +27,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const treeId = useStableId.useStableId(() => attrs.id, "aheart-tree");
     const isDisabled = vue.computed(() => context.resolveConfigValue(props.disabled, config.value.disabled, false));
     const sharedModel = vue.inject(useTreeLoader.treeModelKey, void 0);
+    const focusBridge = vue.inject(treeFocusBridge.treeFocusBridgeKey, void 0);
+    const privateViewportHeight = vue.inject(treeFocusBridge.treeVirtualViewportHeightKey, void 0);
     const loader = (sharedModel == null ? void 0 : sharedModel.loader) ?? useTreeLoader.useTreeLoader(() => props.treeData, () => props.loadData, () => isDisabled.value);
     const renderData = vue.computed(() => sharedModel ? props.treeData : loader.data.value);
     const treeIndex$1 = vue.computed(() => treeIndex.createTreeIndex(renderData.value, isDisabled.value));
@@ -61,6 +64,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     }));
     const virtualAdapter = useTreeVirtual.useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled);
     const virtualFallback = vue.computed(() => virtualAdapter.fallback.value);
+    const internalViewportHeight = vue.computed(() => privateViewportHeight == null ? void 0 : privateViewportHeight.value);
     const renderedNodes = vue.computed(() => virtualConfig.value && !virtualFallback.value ? virtualAdapter.rows.value.map((row) => ({ key: row.entry.key, node: row.entry.node, item: row.item, level: row.entry.level })) : renderData.value.map((node) => ({ key: node.key, node, item: void 0 })));
     const rowStyle = (entry) => virtualConfig.value && !virtualFallback.value && entry.item ? {
       position: "absolute",
@@ -108,7 +112,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       if (next && !((_a2 = rootRef.value) == null ? void 0 : _a2.contains(next)))
         focusMovedOutside.value = true;
     };
-    const focusNode = (key, existingVersion) => {
+    const focusNode = (key, existingVersion, allowExternalSource = false) => {
       var _a2, _b;
       if (!virtualConfig.value || virtualFallback.value) {
         focusedKey.value = key;
@@ -126,11 +130,11 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         var _a3, _b2, _c;
         const activeNow = (_a3 = rootRef.value) == null ? void 0 : _a3.ownerDocument.activeElement;
         const body = (_b2 = rootRef.value) == null ? void 0 : _b2.ownerDocument.body;
-        if (virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== body && !rootRef.value.contains(activeBefore) && !(sourceOwnsTarget && activeNow === body)) {
+        if (!allowExternalSource && virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== body && !rootRef.value.contains(activeBefore) && !(sourceOwnsTarget && activeNow === body)) {
           virtualAdapter.cancelPending();
           return;
         }
-        if (virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
+        if (!allowExternalSource && virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
           virtualAdapter.cancelPending();
           return;
         }
@@ -153,6 +157,15 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       focusedKey.value = node.key;
       virtualAdapter.commitFocus(node.key);
     };
+    const unregisterFocusBridge = focusBridge == null ? void 0 : focusBridge.register(
+      (key, allowExternalSource) => focusNode(key, void 0, allowExternalSource),
+      virtualAdapter.cancelPending,
+      (last) => {
+        var _a2;
+        return (_a2 = visibleNodes.value.filter((entry) => !isNodeDisabled(entry.key)).at(last ? -1 : 0)) == null ? void 0 : _a2.key;
+      }
+    );
+    vue.onBeforeUnmount(() => unregisterFocusBridge == null ? void 0 : unregisterFocusBridge());
     const retryNode = (node) => {
       if (isNodeDisabled(node.key))
         return;
@@ -252,7 +265,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           selectNode(node);
       } else if (event.key === "Home" || event.key === "End") {
         event.preventDefault();
-        const target = event.key === "Home" ? orderedNodes[0] : orderedNodes.at(-1);
+        const enabledNodes = orderedNodes.filter((entry) => !isNodeDisabled(entry.key));
+        const target = event.key === "Home" ? enabledNodes[0] : enabledNodes.at(-1);
         if (target)
           focusNode(target.key);
       }
@@ -281,7 +295,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ref_key: "rootRef",
         ref: rootRef,
         class: vue.normalizeClass(["aheart-tree", { "is-disabled": isDisabled.value, "is-virtual": virtualConfig.value && !virtualFallback.value }]),
-        style: vue.normalizeStyle(virtualConfig.value && !virtualFallback.value ? { maxBlockSize: `${virtualConfig.value.height}px`, overflowY: "auto" } : void 0),
+        style: vue.normalizeStyle(virtualConfig.value && !virtualFallback.value ? { maxBlockSize: `${internalViewportHeight.value ?? virtualConfig.value.height}px`, overflowY: "auto" } : void 0),
         role: "tree",
         "aria-multiselectable": _ctx.multiple || void 0,
         tabindex: virtualConfig.value && !virtualFallback.value ? -1 : void 0,
