@@ -156,4 +156,78 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
     expect(document.activeElement).toBe(wrapper.get('.aheart-cascader__trigger').element)
     outside.remove()
   })
+
+  it('does not mount an offscreen lazy branch into the initial virtual window', async () => {
+    const data = [...options(999), { value: 'offscreen-lazy', label: 'Offscreen lazy', isLeaf: false }]
+    const loadData = vi.fn(async () => [{ value: 'child', label: 'Child' }])
+    const wrapper = mountCascader({ options: data, defaultOpen: true, virtual: true, loadData })
+    await settle()
+    expect(wrapper.findAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
+    expect(wrapper.find('[data-cascader-value="offscreen-lazy"]').exists()).toBe(false)
+    expect(loadData).not.toHaveBeenCalled()
+  })
+
+  it('keeps refused controlled close from aborting a lazy request, but cancels accepted close', async () => {
+    let resolveChildren!: (children: Option[]) => void
+    let signal!: AbortSignal
+    const loadData = (_option: Option, context: { signal: AbortSignal }) => {
+      signal = context.signal
+      return new Promise<Option[]>(resolve => { resolveChildren = resolve })
+    }
+    const wrapper = mountCascader({
+      options: [{ value: 'lazy', label: 'Lazy', isLeaf: false }],
+      open: true,
+      virtual: true,
+      loadData
+    })
+    await settle()
+    await wrapper.get('[data-cascader-value="lazy"]').trigger('click')
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await settle()
+    expect(signal.aborted).toBe(false)
+    await wrapper.setProps({ open: false } as never)
+    expect(signal.aborted).toBe(true)
+    resolveChildren([{ value: 'late', label: 'Late' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="late"]').exists()).toBe(false)
+  })
+
+  it('falls back safely after mounted owner-realm capabilities are partial', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const ownerWindow = ownerDocument.defaultView!
+    const previousRaf = Object.getOwnPropertyDescriptor(ownerWindow, 'requestAnimationFrame')
+    Reflect.deleteProperty(ownerWindow, 'requestAnimationFrame')
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      wrapper = track(mount(Cascader, { attachTo: ownerDocument.body, props: { options: options(1000), defaultOpen: true, virtual: true, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never }))
+      await settle()
+      expect(wrapper.findAll('.aheart-cascader__option').length).toBeGreaterThan(24)
+    } finally {
+      if (wrapper) wrapper.unmount()
+      if (previousRaf) Object.defineProperty(ownerWindow, 'requestAnimationFrame', previousRaf)
+      else Reflect.deleteProperty(ownerWindow, 'requestAnimationFrame')
+      iframe.remove()
+    }
+  })
+
+  it('does not touch observation capabilities during SSR before a mounted scroll element exists', async () => {
+    let observerCalls = 0
+    const previous = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
+    class BeforeMountObserver {
+      constructor() { observerCalls += 1 }
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    }
+    Object.defineProperty(window, 'ResizeObserver', { configurable: true, value: BeforeMountObserver })
+    try {
+      await renderToString(createSSRApp({ render: () => h(Cascader, { options: options(1000), defaultOpen: true, virtual: true }) }))
+      expect(observerCalls).toBe(0)
+    } finally {
+      if (previous) Object.defineProperty(window, 'ResizeObserver', previous)
+      else Reflect.deleteProperty(window, 'ResizeObserver')
+    }
+  })
 })

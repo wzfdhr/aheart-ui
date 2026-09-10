@@ -119,6 +119,7 @@ describe('Cascader virtual core contract', () => {
       expect(warn).toHaveBeenCalled()
       expect(JSON.stringify(config)).toBe('{"height":0,"estimateSize":-3,"overscan":1.5}')
       expect(wrapper.findAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
+      expect(wrapper.get('.aheart-cascader__panel').style.maxBlockSize).toBe('256px')
     } finally {
       warn.mockRestore()
     }
@@ -157,12 +158,100 @@ describe('Cascader virtual core contract', () => {
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([['node-9999']])
   })
 
-  it('keeps a single virtual vertical owner and leaves status content outside the bounded row budget', async () => {
-    const wrapper = mountCascader({ options: optionsOf(1000), showSearch: true, defaultOpen: true, virtual: { height: 0, estimateSize: 32, overscan: 4 } })
+  it('gives each visible column exactly one vertical virtual owner outside the panel chrome', async () => {
+    const wrapper = mountCascader({ options: optionsOf(1000), defaultOpen: true, virtual: { height: 256, estimateSize: 32, overscan: 4 } })
     await settle()
     const panel = wrapper.get('.aheart-cascader__panel').element as HTMLElement
     const columns = wrapper.findAll('.aheart-cascader__column')
-    expect(panel.scrollHeight).toBeGreaterThanOrEqual(panel.clientHeight)
-    expect(columns.every(column => (column.element as HTMLElement).scrollHeight <= 256)).toBe(true)
+    expect(columns).toHaveLength(1)
+    const owners = wrapper.findAll<HTMLElement>('*').filter(node => {
+      const element = node.element
+      return element.dataset.virtualScrollOwner === 'true' || ['auto', 'scroll'].includes(getComputedStyle(element).overflowY)
+    })
+    expect(owners).toHaveLength(1)
+    expect(owners[0].element).not.toBe(panel)
+    expect(owners[0].element).not.toBe(columns[0].element)
+    expect(owners[0].element.querySelectorAll('.aheart-cascader__option').length).toBeGreaterThan(0)
+    expect(owners[0].element.querySelectorAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
+  })
+
+  it('warns and disables virtualization for a non-plain runtime value', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      const wrapper = mountCascader({ options: optionsOf(1000), defaultOpen: true, virtual: new Number(1) })
+      await settle()
+      expect(warn).toHaveBeenCalled()
+      expect(wrapper.findAll('.aheart-cascader__option')).toHaveLength(1000)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('does not mutate frozen or foreign-realm config while preserving valid fields', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const foreignWindow = iframe.contentWindow!
+    const config = Object.freeze({ height: 384, estimateSize: 40, overscan: 2 })
+    const foreignConfig = foreignWindow.Object.assign(new foreignWindow.Object(), config)
+    try {
+      const before = JSON.stringify(config)
+      const wrapper = mountCascader({ options: optionsOf(1000), defaultOpen: true, virtual: foreignConfig })
+      await settle()
+      expect(JSON.stringify(config)).toBe(before)
+      expect(JSON.stringify(foreignConfig)).toBe(before)
+      expect(wrapper.findAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
+    } finally {
+      iframe.remove()
+    }
+  })
+
+  it('highlights only a fully matching selected path when equal leaf values occur under A and B', async () => {
+    const wrapper = mountCascader({
+      multiple: true,
+      defaultValue: [['A', 1]],
+      defaultOpen: true,
+      virtual: true,
+      options: [
+        { value: 'A', label: 'A', children: [{ value: 1, label: 'Numeric A' }, { value: '1', label: 'String A' }] },
+        { value: 'B', label: 'B', children: [{ value: 1, label: 'Numeric B' }, { value: '1', label: 'String B' }] }
+      ]
+    })
+    await settle()
+    await wrapper.get('[data-cascader-value="B"]').trigger('click')
+    await settle()
+    expect(wrapper.get('[data-cascader-token="n-31"]').classes()).not.toContain('is-selected')
+    expect(wrapper.get('[data-cascader-token="s-31"]').classes()).not.toContain('is-selected')
+  })
+
+  it('keeps slash-containing typed paths distinct in flattened search results', async () => {
+    const wrapper = mountCascader({
+      showSearch: true,
+      defaultOpen: true,
+      virtual: true,
+      options: [
+        { value: 'a/b', label: 'A slash', children: [{ value: 'leaf', label: 'Leaf' }] },
+        { value: 'a', label: 'A', children: [{ value: 'b', label: 'B', children: [{ value: 'leaf', label: 'Leaf' }] }] }
+      ]
+    })
+    await settle()
+    await wrapper.get('input[type="search"]').setValue('Leaf')
+    await settle()
+    const paths = wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option').map(option => option.attributes('data-cascader-path'))
+    expect(paths).toHaveLength(2)
+    expect(new Set(paths).size).toBe(2)
+  })
+
+  it('keeps a single roving option and uses the complete column for End while skipping a disabled tail', async () => {
+    const column = [...optionsOf(99, 'option'), { value: 'disabled-tail', label: 'Disabled tail', disabled: true }]
+    const wrapper = mountCascader({ options: [{ value: 'root', label: 'Root', children: column }], defaultOpen: true, virtual: true })
+    await settle()
+    const root = wrapper.get('[data-cascader-value="root"]')
+    expect(wrapper.findAll('.aheart-cascader__option[tabindex="0"]')).toHaveLength(1)
+    root.element.focus()
+    await root.trigger('keydown', { key: 'ArrowRight' })
+    await settle()
+    const first = wrapper.get('[data-cascader-value="option-0"]')
+    await first.trigger('keydown', { key: 'End' })
+    expect(document.activeElement?.getAttribute('data-cascader-value')).toBe('option-98')
   })
 })
