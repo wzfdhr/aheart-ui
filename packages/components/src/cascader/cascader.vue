@@ -258,8 +258,9 @@ const setVirtualListRef = (key: string, element: Element | ComponentPublicInstan
 }
 const cancelVirtualFocus = () => virtualListRefs.forEach(list => list.cancelFocus())
 const suspendVirtualLists = () => virtualListRefs.forEach(list => list.suspend())
+let keyboardRequest = 0
 let modeFocusGeneration = 0
-const invalidateModeFocus = () => { modeFocusGeneration += 1; cancelVirtualFocus() }
+const invalidateModeFocus = () => { modeFocusGeneration += 1; keyboardRequest += 1; cancelVirtualFocus() }
 let loadGeneration = 0
 let loadSequence = 0
 let navigationVersion = 0
@@ -650,7 +651,6 @@ const handleSearchKeydown = (event: KeyboardEvent, path: CascaderPath, index: nu
     selectPath(path)
   }
 }
-let keyboardRequest = 0
 const enterChildColumn = async (option: CascaderOption, columnIndex: number, current: HTMLElement) => {
   const request = ++keyboardRequest
   const path = [...activePath.value.slice(0, columnIndex), option.value]

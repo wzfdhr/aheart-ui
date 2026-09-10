@@ -66,7 +66,8 @@ let focusGeneration = 0
 const pendingRows = new Set<HTMLElement>()
 const rowObservers = new Map<string, { element: HTMLElement; observer: ResizeObserver }>()
 const measurementVersion = ref(0)
-const logicalEstimate = ref<number>()
+let measurementTimer: number | undefined
+let measurementHandleKind: 'raf' | 'timeout' | undefined
 
 // Keep the deterministic virtual window during SSR and the first hydration render.
 // Capability fallback is selected only after the real owner element is mounted.
@@ -79,8 +80,11 @@ const canUseVirtualRuntime = () => {
 }
 
 const cancelSchedule = () => {
-  if (measurementFrame !== undefined) ownerWindow?.cancelAnimationFrame?.(measurementFrame)
+  if (measurementHandleKind === 'raf' && measurementFrame !== undefined) ownerWindow?.cancelAnimationFrame?.(measurementFrame)
+  if (measurementHandleKind === 'timeout' && measurementTimer !== undefined) ownerWindow?.clearTimeout?.(measurementTimer)
   measurementFrame = undefined
+  measurementTimer = undefined
+  measurementHandleKind = undefined
 }
 
 const scheduleRowMeasurement = () => {
@@ -89,31 +93,51 @@ const scheduleRowMeasurement = () => {
     measurementFrame = undefined
     const userAgent = ownerWindow?.navigator?.userAgent ?? ''
     if (/AppleWebKit/i.test(userAgent) && /Safari/i.test(userAgent) && !/Chrome|CriOS|Chromium/i.test(userAgent) && ownerWindow) {
-      ownerWindow.setTimeout(commit, 0)
+      measurementHandleKind = 'timeout'
+      measurementTimer = ownerWindow.setTimeout(() => {
+        measurementTimer = undefined
+        measurementHandleKind = undefined
+        commit()
+      }, 0)
       return
     }
+    measurementHandleKind = undefined
     commit()
   }
   const commit = () => {
     if (!alive || !active.value) { pendingRows.clear(); return }
+    const observedSizes: number[] = []
     for (const row of pendingRows) {
       if (!row.isConnected || !scrollRef.value?.contains(row)) continue
       const rawSize = row.getBoundingClientRect().height || row.offsetHeight || props.config.estimateSize
-      const size = Number.isInteger(rawSize) ? rawSize : Math.ceil(rawSize) + 4
+      const size = rawSize
+      observedSizes.push(size)
       const key = row.dataset.virtualKey
       if (!key) continue
       const index = props.items.findIndex((option, itemIndex) => props.rowKey(itemIndex, option) === key)
       const item = virtualizer.value.getVirtualItems().find(current => current.index === index)
-      if (index >= 0 && item && Math.abs(item.size - size) > 0.5) {
+      if (index >= 0 && item && Math.abs(item.size - size) > 0.01) {
         virtualizer.value.resizeItem(index, size)
-        logicalEstimate.value ??= size
         measurementVersion.value++
       }
     }
     pendingRows.clear()
+    const uniformSize = observedSizes.length > 1 && observedSizes.every(size => Math.abs(size - observedSizes[0]) <= 0.01) ? observedSizes[0] : undefined
+    if (uniformSize !== undefined) {
+      for (let index = 0; index < props.items.length; index++) virtualizer.value.resizeItem(index, uniformSize)
+    }
   }
-  if (ownerWindow?.requestAnimationFrame) measurementFrame = ownerWindow.requestAnimationFrame(flush)
-  else if (ownerWindow) measurementFrame = ownerWindow.setTimeout(flush, 0)
+  if (ownerWindow?.requestAnimationFrame) {
+    measurementHandleKind = 'raf'
+    measurementFrame = ownerWindow.requestAnimationFrame(flush)
+  } else if (ownerWindow) {
+    measurementHandleKind = 'timeout'
+    measurementTimer = ownerWindow.setTimeout(() => {
+      measurementTimer = undefined
+      measurementHandleKind = undefined
+      flush()
+    }, 0)
+  }
   else flush()
 }
 
@@ -170,7 +194,7 @@ const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(computed(() => {
   enabled: active.value,
   getScrollElement: () => active.value ? scrollRef.value : null,
   getItemKey: getItemKey.value,
-  estimateSize: () => logicalEstimate.value ?? props.config.estimateSize,
+  estimateSize: () => props.config.estimateSize,
   initialRect: { width: 180, height: Math.max(1, viewportMeasured.value ? viewportHeight.value : props.config.height) },
   overscan: props.config.overscan,
   scrollPaddingStart: 0,
@@ -218,9 +242,12 @@ const rows = computed(() => {
     item: { index, key: props.rowKey(index, props.items[index]), start: index * props.config.estimateSize, end: (index + 1) * props.config.estimateSize, size: props.config.estimateSize, lane: 0 } as VirtualItem
   }))
 })
-const contentStyle = computed<CSSProperties>(() => virtualMode.value ? {
-  position: 'relative', blockSize: `${Math.max(props.config.height, virtualizer.value.getTotalSize())}px`, minBlockSize: '100%'
-} : {})
+const contentStyle = computed<CSSProperties>(() => {
+  measurementVersion.value
+  return virtualMode.value ? {
+    position: 'relative', blockSize: `${Math.max(props.config.height, virtualizer.value.getTotalSize())}px`, minBlockSize: '100%'
+  } : {}
+})
 
 const listStyle = computed<CSSProperties>(() => virtualMode.value
   ? { maxBlockSize: `${props.config.height}px`, blockSize: `${viewportMeasured.value ? Math.min(viewportHeight.value, props.config.height) : props.config.height}px`, overflowY: 'auto', overflowX: 'hidden', position: 'relative', minBlockSize: '0' }
@@ -268,7 +295,6 @@ const focusIndex = (index: number) => {
       else if (view) focusTimer = view.setTimeout(() => { focusTimer = undefined; void nextTick(commit) }, 0)
     } else if (pendingKey.value === requestedKey) pendingKey.value = undefined
   }
-  if (active.value) virtualizer.value.measure()
   void nextTick(commit)
 }
 const firstEnabled = () => props.items.findIndex((option, index) => !props.disabledIndex(index, option))
@@ -300,7 +326,6 @@ onMounted(() => {
   ownerWindow = view ?? null
 })
 watch([() => props.items, () => props.config], () => {
-  logicalEstimate.value = undefined
   pruneRowObservers()
   cachedRows.value = cachedRows.value.filter(row => props.items.some((option, index) => props.rowKey(index, option) === row.key))
 }, { flush: 'post' })
@@ -324,6 +349,7 @@ const setRowRef = (element: unknown, index: number, key: string) => {
     rowObservers.delete(key)
     return
   }
+  if (!active.value) return
   const row = element as HTMLElement
   if (row.nodeType !== 1) return
   const view = row.ownerDocument.defaultView
