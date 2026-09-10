@@ -1,13 +1,87 @@
-import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createSSRApp, nextTick } from 'vue'
 import { renderToString } from '@vue/server-renderer'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Tree from '../tree.vue'
 import { createTreeIndex } from '../tree-index'
 import type { TreeVirtual, TreeVirtualConfig } from '../types'
 import type { TreeVirtual as PublicTreeVirtual } from '../../index'
 
-enableAutoUnmount(afterEach)
+type ControlledObserver = {
+  callback: ResizeObserverCallback
+  targets: Set<Element>
+  observe: ReturnType<typeof vi.fn>
+  unobserve: ReturnType<typeof vi.fn>
+  disconnect: ReturnType<typeof vi.fn>
+}
+
+let ownerRealmHarness: {
+  previousResizeObserver?: PropertyDescriptor
+  previousRequestAnimationFrame?: PropertyDescriptor
+  previousCancelAnimationFrame?: PropertyDescriptor
+  observers: ControlledObserver[]
+  rafCallbacks: Map<number, FrameRequestCallback>
+  nextFrame: number
+} | undefined
+
+const trackedWrappers: Array<ReturnType<typeof mount>> = []
+const mountTree = (options?: any) => {
+  const wrapper = mount(Tree, options)
+  trackedWrappers.push(wrapper)
+  return wrapper
+}
+
+beforeEach(() => {
+  const observers: ControlledObserver[] = []
+  const rafCallbacks = new Map<number, FrameRequestCallback>()
+  let nextFrame = 1
+  const ResizeObserverCtor = vi.fn(function (callback: ResizeObserverCallback) {
+    const targets = new Set<Element>()
+    const observer: ControlledObserver = {
+      callback,
+      targets,
+      observe: vi.fn((element: Element) => { targets.add(element) }),
+      unobserve: vi.fn((element: Element) => { targets.delete(element) }),
+      disconnect: vi.fn(() => { targets.clear() })
+    }
+    observers.push(observer)
+    return observer
+  })
+  const requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
+    const handle = nextFrame++
+    rafCallbacks.set(handle, callback)
+    return handle
+  })
+  const cancelAnimationFrame = vi.fn((handle: number) => {
+    rafCallbacks.delete(handle)
+  })
+  ownerRealmHarness = {
+    previousResizeObserver: Object.getOwnPropertyDescriptor(window, 'ResizeObserver'),
+    previousRequestAnimationFrame: Object.getOwnPropertyDescriptor(window, 'requestAnimationFrame'),
+    previousCancelAnimationFrame: Object.getOwnPropertyDescriptor(window, 'cancelAnimationFrame'),
+    observers,
+    rafCallbacks,
+    nextFrame
+  }
+  Object.defineProperty(window, 'ResizeObserver', { configurable: true, value: ResizeObserverCtor })
+  Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: requestAnimationFrame })
+  Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: cancelAnimationFrame })
+})
+
+afterEach(() => {
+  // Unmount before restoring the owner realm so adapter cleanup is exercised
+  // against the same controlled constructors it observed during the test.
+  for (const wrapper of trackedWrappers.splice(0)) wrapper.unmount()
+  const harness = ownerRealmHarness
+  ownerRealmHarness = undefined
+  if (!harness) return
+  if (harness.previousResizeObserver) Object.defineProperty(window, 'ResizeObserver', harness.previousResizeObserver)
+  else Reflect.deleteProperty(window, 'ResizeObserver')
+  if (harness.previousRequestAnimationFrame) Object.defineProperty(window, 'requestAnimationFrame', harness.previousRequestAnimationFrame)
+  else Reflect.deleteProperty(window, 'requestAnimationFrame')
+  if (harness.previousCancelAnimationFrame) Object.defineProperty(window, 'cancelAnimationFrame', harness.previousCancelAnimationFrame)
+  else Reflect.deleteProperty(window, 'cancelAnimationFrame')
+})
 
 // These aliases intentionally exercise the public type shape without coupling the
 // tests to the implementation's private virtualizer instance.
@@ -50,10 +124,10 @@ describe('Tree virtual contract', () => {
 
   it('keeps the default path full DOM and bounds a 10k virtual window', () => {
     const data = flatData(10_000)
-    const full = mount(Tree, { props: { treeData: data } })
+    const full = mountTree({ props: { treeData: data } })
     expect(treeItems(full)).toHaveLength(10_000)
 
-    const virtual = mount(Tree, { props: { treeData: data, virtual: true } as never })
+    const virtual = mountTree({ props: { treeData: data, virtual: true } as never })
     expect(treeItems(virtual).length).toBeLessThanOrEqual(24)
     expect(treeItems(virtual).length).toBeGreaterThan(0)
   })
@@ -62,11 +136,11 @@ describe('Tree virtual contract', () => {
     const data = flatData(500)
     const config = { height: 196, estimateSize: 28, overscan: 1 }
     const before = JSON.stringify(config)
-    const wrapper = mount(Tree, { props: { treeData: data, virtual: config } as never })
+    const wrapper = mountTree({ props: { treeData: data, virtual: config } as never })
     expect(JSON.stringify(config)).toBe(before)
     const configuredCount = treeItems(wrapper).length
 
-    const invalid = mount(Tree, { props: { treeData: data, virtual: { height: 0, estimateSize: -1, overscan: 1.25 } } as never })
+    const invalid = mountTree({ props: { treeData: data, virtual: { height: 0, estimateSize: -1, overscan: 1.25 } } as never })
     const invalidCount = treeItems(invalid).length
     expect(configuredCount).toBeLessThanOrEqual(24)
     expect(invalidCount).toBeLessThanOrEqual(24)
@@ -80,7 +154,7 @@ describe('Tree virtual contract', () => {
         ...flatData(500, 2)
       ]
     }]
-    const wrapper = mount(Tree, { props: { treeData: data, defaultExpandedKeys: ['root'], virtual: true } as never })
+    const wrapper = mountTree({ props: { treeData: data, defaultExpandedKeys: ['root'], virtual: true } as never })
     const items = treeItems(wrapper)
     for (const item of items) {
       expect(item.attributes('aria-level')).toMatch(/^\d+$/)
@@ -96,7 +170,7 @@ describe('Tree virtual contract', () => {
   })
 
   it('uses the complete visible sequence for End/Home and mounts before transferring focus', async () => {
-    const wrapper = mount(Tree, { attachTo: document.body, props: { treeData: flatData(2_000), virtual: true } as never })
+    const wrapper = mountTree({ attachTo: document.body, props: { treeData: flatData(2_000), virtual: true } as never })
     const first = wrapper.get('[data-tree-key="0"]')
     ;(first.element as HTMLElement).focus()
     await first.trigger('keydown', { key: 'End' })
@@ -113,7 +187,7 @@ describe('Tree virtual contract', () => {
   it('pins a focused checkbox row during recycling and cancels pending navigation when focus leaves', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
-    const wrapper = mount(Tree, {
+    const wrapper = mountTree({
       attachTo: document.body,
       props: { treeData: flatData(1_000), checkable: true, virtual: true } as never
     })
@@ -135,7 +209,7 @@ describe('Tree virtual contract', () => {
 
   it('keeps selection, check, half-check and disabled semantics on the full logical index', async () => {
     const data = [{ key: 'disabled', title: 'Disabled', disabled: true }, { key: 'root', title: 'Root', children: flatData(400) }]
-    const wrapper = mount(Tree, {
+    const wrapper = mountTree({
       props: {
         treeData: data,
         defaultExpandedKeys: ['root'],
@@ -163,12 +237,110 @@ describe('Tree virtual contract', () => {
     expect(treeItems(wrapper).length).toBeLessThanOrEqual(24)
   })
 
+  it('propagates disabled state from an expanded ancestor to virtual descendants', () => {
+    const wrapper = mountTree({
+      props: {
+        treeData: [{ key: 'parent', title: 'Parent', disabled: true, children: flatData(40) }],
+        defaultExpandedKeys: ['parent'],
+        checkable: true,
+        virtual: { height: 140, estimateSize: 28, overscan: 0 }
+      } as never
+    })
+    const descendant = wrapper.get('[data-tree-key="0"]')
+    expect(descendant.attributes('aria-disabled')).toBe('true')
+    expect((descendant.get('input').element as HTMLInputElement).disabled).toBe(true)
+  })
+
+  it('disconnects every row observer after repeated rerenders and unmount', async () => {
+    const harness = ownerRealmHarness!
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { treeData: flatData(400), virtual: { height: 140, estimateSize: 28, overscan: 0 }, selectedKeys: [] } as never
+    })
+    await nextTick()
+    await wrapper.setProps({ selectedKeys: [0] } as never)
+    await nextTick()
+    await wrapper.setProps({ selectedKeys: [1] } as never)
+    await nextTick()
+    const mountedRows = wrapper.findAll('[role="treeitem"]').map(item => item.element.parentElement)
+    const rowObservers = harness.observers.filter(observer => observer.observe.mock.calls.some(([element]) => mountedRows.includes(element)))
+    expect(rowObservers.length).toBeGreaterThan(0)
+    wrapper.unmount()
+    expect(rowObservers.every(observer => observer.disconnect.mock.calls.length > 0)).toBe(true)
+  })
+
+  it('cancels queued End navigation when the user wheels before the target mounts', async () => {
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { treeData: flatData(100), virtual: true } as never
+    })
+    await nextTick()
+    const first = wrapper.get('[data-tree-key="0"]').element as HTMLElement
+    first.focus()
+    first.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+    wrapper.element.dispatchEvent(new WheelEvent('wheel', { bubbles: true }))
+    await nextTick()
+    await nextTick()
+    expect(document.activeElement).toBe(first)
+  })
+
+  it('moves focus to the closest mounted ancestor when a focused descendant collapses', async () => {
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: {
+        treeData: [{ key: 'parent', title: 'Parent', children: [{ key: 'child', title: 'Child' }] }],
+        expandedKeys: ['parent'],
+        virtual: true
+      } as never
+    })
+    await nextTick()
+    const child = wrapper.get('[data-tree-key="child"]').element as HTMLElement
+    child.focus()
+    await wrapper.setProps({ expandedKeys: [] } as never)
+    await nextTick()
+    expect(document.activeElement?.getAttribute('data-tree-key')).toBe('parent')
+  })
+
+  it('supports a mounted owner realm with timers but no requestAnimationFrame', async () => {
+    Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: undefined })
+    Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: undefined })
+    const errors: unknown[] = []
+    const wrapper = mountTree({
+      attachTo: document.body,
+      global: { config: { errorHandler: (error: unknown) => errors.push(error) } },
+      props: { treeData: flatData(100), virtual: true } as never
+    })
+    await nextTick()
+    const first = wrapper.get('[data-tree-key="0"]').element as HTMLElement
+    first.focus()
+    first.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+    await nextTick()
+    await nextTick()
+    expect(errors).toEqual([])
+  })
+
+  it('cancels all queued viewport callbacks when repeated resize notifications precede unmount', async () => {
+    const harness = ownerRealmHarness!
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { treeData: flatData(100), virtual: true } as never
+    })
+    await nextTick()
+    const viewportObserver = harness.observers.find(observer => observer.observe.mock.calls.some(([element]) => element === wrapper.element))
+    expect(viewportObserver).toBeDefined()
+    viewportObserver!.callback([] as never, viewportObserver as never)
+    viewportObserver!.callback([] as never, viewportObserver as never)
+    expect(harness.rafCallbacks.size).toBeGreaterThan(0)
+    wrapper.unmount()
+    expect(harness.rafCallbacks.size).toBe(0)
+  })
+
   it('retains one roving Tab entry after blur, Tab/Shift+Tab re-entry, and a rejected controlled update', async () => {
     const before = document.createElement('button')
     const outside = document.createElement('button')
     const after = document.createElement('button')
     document.body.append(before, outside, after)
-    const wrapper = mount(Tree, {
+    const wrapper = mountTree({
       attachTo: document.body,
       props: { treeData: flatData(1_000), virtual: true, expandedKeys: [], selectedKeys: [] } as never
     })
@@ -218,7 +390,7 @@ describe('Tree virtual contract', () => {
       const loadData = vi.fn((_node: unknown, { signal }: { signal: AbortSignal }) => new Promise<unknown[]>(resolve => {
         requests.push({ signal, resolve })
       }))
-      const wrapper = mount(Tree, { props: { treeData: data, expandedKeys: [99], loadData, virtual: true } as never })
+      const wrapper = mountTree({ props: { treeData: data, expandedKeys: [99], loadData, virtual: true } as never })
       await flushPromises()
       expect(loadData).toHaveBeenCalledTimes(1)
       expect(requests).toHaveLength(1)
@@ -266,7 +438,7 @@ describe('Tree virtual contract', () => {
     Object.defineProperty(frameWindow, 'ResizeObserver', { configurable: true, value: resizeObserver })
     Object.defineProperty(frameWindow, 'requestAnimationFrame', { configurable: true, value: requestAnimationFrame })
     Object.defineProperty(frameWindow, 'cancelAnimationFrame', { configurable: true, value: cancelAnimationFrame })
-    const wrapper = mount(Tree, { attachTo: frameDocument.body, props: { treeData: flatData(500), virtual: true } as never })
+    const wrapper = mountTree({ attachTo: frameDocument.body, props: { treeData: flatData(500), virtual: true } as never })
     expect(wrapper.element.ownerDocument).toBe(frameDocument)
     const count = treeItems(wrapper).length
     await nextTick()
@@ -350,7 +522,7 @@ describe('Tree virtual contract', () => {
     }
   })
 
-  it('falls back safely when the mounted owner realm lacks observation while preserving duplicate/cycle errors', () => {
+  it('falls back safely after mounted owner-realm capability detection while preserving duplicate/cycle errors', async () => {
     const frame = document.createElement('iframe')
     document.body.append(frame)
     const frameWindow = frame.contentDocument!.defaultView!
@@ -361,7 +533,9 @@ describe('Tree virtual contract', () => {
       Object.defineProperty(frameWindow, 'ResizeObserver', { configurable: true, value: undefined })
       // This models a mounted realm with no observer. The adapter must not
       // borrow the parent/global constructor and must preserve full state.
-      const wrapper = mount(Tree, { attachTo: frame.contentDocument!.body, props: { treeData: flatData(40), virtual: true } as never })
+      const wrapper = mountTree({ attachTo: frame.contentDocument!.body, props: { treeData: flatData(40), virtual: true } as never })
+      await nextTick()
+      await flushPromises()
       expect(treeItems(wrapper).length).toBe(40)
       wrapper.unmount()
     } finally {

@@ -1,6 +1,6 @@
 # Tree / TreeSelect / Cascader deferred virtualization architecture
 
-Status: architecture candidate awaiting independent final review. Baseline: master `4a7511f9594d0a74906e427e158d02343ba33a22`. Branch: `codex/d4-tree-virtualization`.
+Status: independent architecture review passed at P0/P1/P2=`0/0/0` after two repair rounds; see the [review record](../reviews/2026-09-10-d4-deferred-virtualization-architecture-review.md). This approves the contract, not implementation or delivery. Baseline: master `4a7511f9594d0a74906e427e158d02343ba33a22`. Branch: `codex/d4-tree-virtualization`.
 
 ## Scope and non-goals
 
