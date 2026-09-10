@@ -53,24 +53,15 @@ const siblingOptions = computed<CascaderOption[]>(() => Array.from({ length: cou
 
 const fiveColumnOptions = computed<CascaderOption[]>(() => {
   const size = 2000
-  return Array.from({ length: size }, (_, index) => ({
-    value: `level-0-${index}`,
-    label: labelFor('Level 0', index),
-    disabled: index === size - 1,
-    children: [{
-      value: `level-1-${index}`,
-      label: labelFor('Level 1', index),
-      children: [{
-        value: `level-2-${index}`,
-        label: labelFor('Level 2', index),
-        children: [{
-          value: `level-3-${index}`,
-          label: labelFor('Level 3', index),
-          children: [{ value: `level-4-${index}`, label: labelFor('Level 4', index) }]
-        }]
-      }]
-    }]
-  }))
+  const makeLevel = (level: number, index: number): CascaderOption => ({
+    value: `level-${level}-${index}`,
+    label: labelFor(`Level ${level}`, index),
+    disabled: level === 0 && index === size - 1,
+    children: level < 4 && index === 0
+      ? Array.from({ length: size }, (_, childIndex) => makeLevel(level + 1, childIndex))
+      : undefined
+  })
+  return Array.from({ length: size }, (_, index) => makeLevel(0, index))
 })
 
 const searchOptions = computed<CascaderOption[]>(() => Array.from({ length: 10000 }, (_, index) => ({
@@ -128,7 +119,7 @@ const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSign
   lazyState.value = 'success'
   return [{ value: 'lazy-child', label: 'Loaded lazy child' }]
 }
-const replaceLazy = () => { lazyRevision.value++; lazyOptions.value = [{ value: `lazy-root-${lazyRevision.value}`, label: 'Lazy root replaced', isLeaf: false }] }
+const replaceLazy = () => { lazyRevision.value++; lazyRequestToken++; lazyOptions.value = [{ value: `lazy-root-${lazyRevision.value}`, label: 'Lazy root replaced', isLeaf: false }] }
 const abortLazy = () => { lazyOpen.value = false; lazyRequestToken++ }
 const closeLazy = () => { lazyOpen.value = false }
 </script>
@@ -235,4 +226,10 @@ const closeLazy = () => { lazyOpen.value = false }
 .cascader-virtual-fixture__field:last-child { grid-column: 1 / -1; }
 .cascader-virtual-fixture__field output { display: block; margin-top: 6px; color: #536273; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
 @media (max-width: 680px) { .cascader-virtual-fixture__fields { grid-template-columns: 1fr; } .cascader-virtual-fixture__field:last-child { grid-column: auto; } }
+</style>
+
+<style>
+body:has([data-testid="cascader-virtual-fixture"][data-font-size="24"]) .aheart-cascader__panel { font-size: 24px; }
+body:has([data-testid="cascader-virtual-fixture"][data-font-size="24"]) .aheart-cascader__panel .aheart-cascader__option { --aheart-font-size: 24px; font-size: 24px; }
+body:has([data-testid="cascader-virtual-fixture"][data-long-labels="on"]) .aheart-cascader__panel .aheart-cascader__option span { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
 </style>

@@ -190,8 +190,21 @@ test('lazy first failure, keyboard retry, stale replacement, abort, close and re
   const replacementRoot = popup.locator('[data-cascader-value^="lazy-root-"]')
   await replacementRoot.click()
   await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=loading')
-  await page.getByTestId('cascader-virtual-lazy-abort').click()
-  await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText(/state=(aborted|idle)/)
+  await page.getByTestId('cascader-virtual-lazy-replace').click()
+  await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=aborted')
+  await expect(popup.locator('[data-cascader-value="lazy-child"]')).toHaveCount(0)
+  await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('revision=2')
+  await lazy.getByRole('combobox').click()
+  popup = await panel(page, 'cascader-virtual-lazy')
+  const secondPendingRoot = popup.locator('[data-cascader-value="lazy-root-2"]')
+  await expect(secondPendingRoot).toBeVisible()
+  await page.waitForTimeout(180)
+  await secondPendingRoot.evaluate(element => (element as HTMLButtonElement).click())
+  await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=loading')
+  await page.getByTestId('cascader-virtual-lazy-close').click()
+  await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=aborted')
+  await lazy.getByRole('combobox').click()
+  await expect((await panel(page, 'cascader-virtual-lazy')).locator('[data-cascader-value="lazy-root-2"]')).toBeVisible()
 })
 
 test('narrow short viewport, font 24 and long labels keep dynamic geometry inside the panel', async ({ page }) => {
@@ -204,16 +217,26 @@ test('narrow short viewport, font 24 and long labels keep dynamic geometry insid
   await expect(popup.getByRole('searchbox', { name: '搜索级联选项' })).toBeVisible()
   const geometry = await popup.evaluate(element => {
     const panelRect = element.getBoundingClientRect()
+    const viewportRect = element.querySelector<HTMLElement>('.aheart-cascader__column')?.getBoundingClientRect()
     const rows = Array.from(element.querySelectorAll<HTMLElement>('.aheart-cascader__option[data-cascader-column="0"]'))
     return {
       mounted: rows.length,
+      fontSize: rows[0] ? getComputedStyle(rows[0]).fontSize : '',
       panel: { top: panelRect.top, bottom: panelRect.bottom, left: panelRect.left, right: panelRect.right, width: panelRect.width, height: panelRect.height },
-      rows: rows.map(row => { const rect = row.getBoundingClientRect(); return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height } })
+      viewport: viewportRect ? { top: viewportRect.top, bottom: viewportRect.bottom, left: viewportRect.left, right: viewportRect.right, width: viewportRect.width, height: viewportRect.height } : undefined,
+      rows: rows.map(row => { const rect = row.getBoundingClientRect(); const title = row.querySelector<HTMLElement>(':scope > span'); const titleRect = title?.getBoundingClientRect(); return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height, titleHeight: titleRect?.height ?? 0 } })
     }
   })
   expect(geometry.mounted).toBeGreaterThan(0)
   expect(geometry.mounted).toBeLessThanOrEqual(24)
   expect(geometry.panel.width).toBeGreaterThan(0)
   expect(geometry.panel.height).toBeGreaterThan(0)
-  expect(geometry.rows.every(row => row.height > 0 && row.top >= geometry.panel.top - 1 && row.bottom <= geometry.panel.bottom + 1 && row.left >= geometry.panel.left - 1 && row.right <= geometry.panel.right + 1)).toBe(true)
+  expect(geometry.viewport?.width).toBeGreaterThan(0)
+  expect(geometry.viewport?.height).toBeGreaterThan(0)
+  expect(geometry.fontSize).toBe('24px')
+  expect(geometry.rows.every(row => row.height > 0 && row.titleHeight > 0)).toBe(true)
+  expect(geometry.rows.some(row => row.top <= geometry.viewport!.top && row.bottom >= geometry.viewport!.top)).toBe(true)
+  expect(geometry.rows.some(row => row.top <= geometry.viewport!.bottom && row.bottom >= geometry.viewport!.bottom)).toBe(true)
+  expect(geometry.rows.every((row, index) => index === 0 || row.top >= geometry.rows[index - 1].bottom - 1)).toBe(true)
+  expect(geometry.rows.some(row => row.titleHeight > 24)).toBe(true)
 })
