@@ -23,6 +23,7 @@ const lazyState = ref<'idle' | 'loading' | 'error' | 'success' | 'aborted'>('idl
 const lazyAttempts = ref(0)
 const lazyAborts = ref(0)
 const lazyRevision = ref(0)
+const lazyHistory = ref<string[]>(['idle'])
 const lazyOpen = ref(false)
 let lazyRequestToken = 0
 const replaceNextLazyLoad = ref(false)
@@ -110,10 +111,11 @@ const onControlledValue = (next: CascaderValue) => {
 const lazyOptions = ref<CascaderOption[]>([{ value: 'lazy-root', label: 'Lazy root', isLeaf: false }])
 const replaceLazyOptions = () => { lazyRevision.value++; lazyRequestToken++; lazyOptions.value = [{ value: `lazy-root-${lazyRevision.value}`, label: 'Lazy root replaced', isLeaf: false }] }
 const armLazyReplacement = () => { replaceNextLazyLoad.value = true }
+const transitionLazy = (next: typeof lazyState.value) => { lazyState.value = next; lazyHistory.value = [...lazyHistory.value, next] }
 const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSignal }) => {
   const attempt = ++lazyAttempts.value
   const request = ++lazyRequestToken
-  lazyState.value = 'loading'
+  transitionLazy('loading')
   if (replaceNextLazyLoad.value) {
     replaceNextLazyLoad.value = false
     const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? globalThis.window
@@ -122,12 +124,12 @@ const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSign
   const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? globalThis.window
   await new Promise<void>((resolve, reject) => {
     const timer = ownerWindow.setTimeout(resolve, 180)
-    const abort = () => { ownerWindow.clearTimeout(timer); lazyAborts.value++; lazyState.value = 'aborted'; reject(new Error('fixture lazy request aborted')) }
+    const abort = () => { ownerWindow.clearTimeout(timer); lazyAborts.value++; transitionLazy('aborted'); reject(new Error('fixture lazy request aborted')) }
     signal.addEventListener('abort', abort, { once: true })
   })
   if (request !== lazyRequestToken || signal.aborted) throw new Error('stale lazy request')
-  if (attempt === 1) { lazyState.value = 'error'; throw new Error('fixture first attempt failed') }
-  lazyState.value = 'success'
+  if (attempt === 1) { transitionLazy('error'); throw new Error('fixture first attempt failed') }
+  transitionLazy('success')
   return [{ value: 'lazy-child', label: 'Loaded lazy child' }]
 }
 </script>
@@ -210,6 +212,7 @@ const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSign
           @open-change="lazyOpen = $event"
         />
         <output data-testid="cascader-virtual-lazy-state">state={{ lazyState }}; attempts={{ lazyAttempts }}; aborts={{ lazyAborts }}; revision={{ lazyRevision }}</output>
+        <output data-testid="cascader-virtual-lazy-history">history={{ lazyHistory.join('>') }}</output>
       </div>
     </div>
 

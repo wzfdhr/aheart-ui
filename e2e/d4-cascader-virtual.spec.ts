@@ -2,13 +2,19 @@ import { expect, test, type Page } from '@playwright/test'
 
 const fixturePath = '/components/cascader?fixture=cascader-virtual'
 const errors = new WeakMap<Page, string[]>()
+const browserWarnings = new WeakMap<Page, string[]>()
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   const diagnostics: string[] = []
+  const warnings: string[] = []
   errors.set(page, diagnostics)
+  browserWarnings.set(page, warnings)
   page.on('pageerror', error => diagnostics.push(`pageerror: ${error.message}`))
   page.on('console', message => {
-    if (message.type() === 'error' || message.type() === 'warning') diagnostics.push(`console ${message.type()}: ${message.text()}`)
+    const text = message.text()
+    const expectedFirefoxWarning = testInfo.project.name === 'desktop-firefox' && message.type() === 'warning' && text.includes('scroll-linked positioning effect')
+    if (expectedFirefoxWarning) warnings.push(text)
+    if (message.type() === 'error' || (message.type() === 'warning' && !expectedFirefoxWarning)) diagnostics.push(`console ${message.type()}: ${text}`)
   })
   await page.goto(fixturePath)
   await expect(page.getByTestId('cascader-virtual-fixture')).toBeVisible()
@@ -16,6 +22,8 @@ test.beforeEach(async ({ page }) => {
 })
 
 test.afterEach(async ({ page }, testInfo) => {
+  const warnings = browserWarnings.get(page) ?? []
+  if (warnings.length) await testInfo.attach('cascader-browser-warnings', { body: `${warnings.join('\n')}\n`, contentType: 'text/plain' })
   const diagnostics = errors.get(page) ?? []
   if (diagnostics.length) await testInfo.attach('cascader-browser-diagnostics', { body: `${diagnostics.join('\n')}\n`, contentType: 'text/plain' })
   expect(diagnostics).toEqual([])
@@ -192,8 +200,8 @@ test('lazy first failure, keyboard retry, stale replacement, abort, close and re
   popup = await open(page, 'cascader-virtual-lazy')
   const replacementRoot = popup.locator('[data-cascader-value="lazy-root-1"]')
   await replacementRoot.click()
-  await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=loading')
   await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=aborted')
+  await expect(page.getByTestId('cascader-virtual-lazy-history')).toContainText('history=idle>loading>error>loading>success>loading>aborted')
   await expect(popup.locator('[data-cascader-value="lazy-child"]')).toHaveCount(0)
   await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('revision=2')
   popup = await open(page, 'cascader-virtual-lazy')
