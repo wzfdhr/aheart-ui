@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
 import Cascader from '../cascader.vue'
 
 type Option = { value: string; label: string; children?: Option[]; isLeaf?: boolean; disabled?: boolean }
@@ -156,6 +157,44 @@ describe('Cascader virtual recovery round two', () => {
     await settle()
     expect(firstRow!.getBoundingClientRect().height).toBe(changed)
     expect(secondRow?.style.transform).not.toBe(beforeTransform)
+  })
+
+  it('keeps logical overscan indices 0 through 4 mounted without requiring a scroll event', async () => {
+    const geometry = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.classList.contains('aheart-cascader__virtual-row')) return { x: 0, y: 0, top: 0, left: 0, right: 180, bottom: 100, width: 180, height: 100, toJSON() {} } as DOMRect
+      return { x: 0, y: 0, top: 0, left: 0, right: 180, bottom: 32, width: 180, height: 32, toJSON() {} } as DOMRect
+    })
+    try {
+      const wrapper = await prepare()
+      for (let index = 0; index < 5; index += 1) await settle()
+      const indices = wrapper.findAll('[data-virtual-index]').map(row => Number(row.attributes('data-virtual-index')))
+      expect(indices).toEqual(expect.arrayContaining([0, 1, 2, 3, 4]))
+    } finally {
+      geometry.mockRestore()
+    }
+  })
+
+  it('preserves the nonvirtual column minimum block size while virtual mode owns the zero-height wrapper', async () => {
+    const style = document.createElement('style')
+    style.textContent = readFileSync('/Users/start/.codex/worktrees/091b/aheart-ui/packages/components/src/cascader/style.css', 'utf8')
+    document.head.append(style)
+    try {
+      const normal = mountCascader({ options: options(), defaultOpen: true, virtual: false })
+      await settle()
+      const normalColumns = normal.get('.aheart-cascader__columns').element as HTMLElement
+      const normalStyle = getComputedStyle(normalColumns)
+      expect(normalStyle.minBlockSize).toBe('180px')
+      expect(normalStyle.overflowY).not.toBe('hidden')
+
+      const virtual = mountCascader({ options: options(), defaultOpen: true, virtual: true })
+      await settle()
+      const virtualColumns = virtual.get('.aheart-cascader__columns').element as HTMLElement
+      const virtualStyle = getComputedStyle(virtualColumns)
+      expect(virtualStyle.minBlockSize).toBe('0px')
+      expect(virtualStyle.overflowY).toBe('hidden')
+    } finally {
+      style.remove()
+    }
   })
 
 })
