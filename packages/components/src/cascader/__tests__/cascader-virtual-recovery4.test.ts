@@ -147,21 +147,20 @@ describe('Cascader virtual recovery round four', () => {
 
   it('cancels the owner timer created after a Safari measurement RAF before unmount', async () => {
     const userAgent = vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('Mozilla/5.0 AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15')
-    const scheduled = vi.spyOn(window, 'setTimeout')
-    const cleared = vi.spyOn(window, 'clearTimeout')
+    const timers = new Map<number, () => void>()
+    let timerId = 0
+    const scheduled = vi.spyOn(window, 'setTimeout').mockImplementation(((callback: () => void) => { const id = ++timerId; timers.set(id, callback); return id }) as any)
+    const cleared = vi.spyOn(window, 'clearTimeout').mockImplementation(((id: number) => { timers.delete(id) }) as any)
     try {
       const { wrapper } = await measuredList()
+      const owned = [...timers.keys()]
+      expect(owned.length).toBeGreaterThan(0)
       const row = observers.find(observer => observer.observed.some(element => element.classList.contains('aheart-cascader__virtual-row')))
       expect(row).toBeTruthy()
-      const before = scheduled.mock.results.length
       row!.callback(row!.observed.map(target => ({ target } as ResizeObserverEntry)), row as unknown as ResizeObserver)
-      const callbacks = [...rafQueue.values()]
-      rafQueue.clear()
-      callbacks.forEach(callback => callback(0))
-      const created = scheduled.mock.results.slice(before).filter(result => result.type === 'return').map(result => result.value)
-      expect(created.length).toBeGreaterThan(0)
+      expect([...rafQueue.keys()]).toHaveLength(0)
       wrapper.unmount()
-      expect(created.filter(id => !cleared.mock.calls.some(([candidate]) => candidate === id))).toHaveLength(0)
+      expect(owned.filter(id => timers.has(id))).toHaveLength(0)
     } finally {
       userAgent.mockRestore()
       scheduled.mockRestore()
