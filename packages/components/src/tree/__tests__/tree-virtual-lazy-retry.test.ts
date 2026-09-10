@@ -216,6 +216,7 @@ describe('Tree virtual lazy retry focus', () => {
     await wrapper.setProps(nextProps as never)
     await flushOwnerRealm()
     expect(loadData).toHaveBeenCalledTimes(1)
+    if (_label === 'disabled') expect(document.activeElement?.getAttribute('data-tree-key')).not.toBe('root')
   })
 
   it('starts one retry after an already-expanded path without an extra expand event', async () => {
@@ -227,5 +228,43 @@ describe('Tree virtual lazy retry focus', () => {
     await flushOwnerRealm()
     expect(loadData).toHaveBeenCalledTimes(2)
     expect(wrapper.emitted('expand')?.length).toBe(expandCount)
+  })
+
+  it('does not reclaim focus after a collapsed retry control is synchronously blurred', async () => {
+    const { retry } = await prepareCollapsedRetry()
+    retry.click()
+    retry.blur()
+    await flushOwnerRealm()
+    expect(document.activeElement).toBe(document.body)
+  })
+
+  it('keeps a parent-rejected expandedKeys collapse closed and does not retry load', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    await wrapper.setProps({ expandedKeys: [] } as never)
+    retry.click()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+  })
+
+  it('starts one retry when a controlled expandedKeys parent accepts the focus expansion', async () => {
+    const prepared = await prepareCollapsedRetry()
+    await prepared.wrapper.setProps({
+      expandedKeys: [],
+      'onUpdate:expandedKeys': (keys: unknown[]) => { void prepared.wrapper.setProps({ expandedKeys: keys } as never) }
+    } as never)
+    prepared.retry.click()
+    await flushOwnerRealm()
+    expect(prepared.loadData).toHaveBeenCalledTimes(2)
+    expect(prepared.wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('true')
+  })
+
+  it('does not retry load when the native switcher collapses again in the same turn', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    retry.click()
+    ;(wrapper.get('.aheart-tree__switcher').element as HTMLButtonElement).click()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
   })
 })
