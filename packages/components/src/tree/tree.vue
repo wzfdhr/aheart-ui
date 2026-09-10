@@ -74,6 +74,9 @@ const focusedKey = ref<TreeKey | undefined>(props.treeData[0]?.key)
 const rootRef = ref<HTMLDivElement>()
 const lastFocusKey = ref<TreeKey | undefined>()
 const focusMovedOutside = ref(false)
+let treeAlive = true
+let retryIntentSerial = 0
+let retryIntent: { id: number; key: TreeKey; generation: number; node: TreeNodeData } | undefined
 const mergedExpandedKeys = computed(() => props.expandedKeys ?? innerExpandedKeys.value)
 const mergedSelectedKeys = computed(() => props.selectedKeys ?? innerSelectedKeys.value)
 const mergedCheckedKeys = computed(() => props.checkedKeys ?? innerCheckedKeys.value)
@@ -182,32 +185,46 @@ const handleNodeFocus = (node: TreeNodeData) => {
   focusedKey.value = node.key
   virtualAdapter.commitFocus(node.key)
 }
+const cancelTreeFocus = () => {
+  retryIntent = undefined
+  virtualAdapter.cancelPending()
+}
 const unregisterFocusBridge = focusBridge?.register(
   (key, allowExternalSource) => focusNode(key, undefined, allowExternalSource),
-  virtualAdapter.cancelPending,
+  cancelTreeFocus,
   (last) => visibleNodes.value.filter(entry => !isNodeDisabled(entry.key)).at(last ? -1 : 0)?.key
 )
-onBeforeUnmount(() => unregisterFocusBridge?.())
+onBeforeUnmount(() => {
+  treeAlive = false
+  retryIntent = undefined
+  unregisterFocusBridge?.()
+})
+const createRetryIntent = (node: TreeNodeData) => {
+  const generation = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : 0
+  if (generation !== 0) virtualAdapter.beginFocusHandoff(node.key)
+  const intent = { id: ++retryIntentSerial, key: node.key, generation, node }
+  retryIntent = intent
+  return intent
+}
+const startRetry = (node: TreeNodeData, intent = createRetryIntent(node)) => {
+  if (!treeAlive || retryIntent?.id !== intent.id || isNodeDisabled(node.key) || treeIndex.value.nodes.get(node.key)?.node !== intent.node) return
+  void loader.load(node.key, true)
+  void nextTick(() => {
+    if (!treeAlive || retryIntent?.id !== intent.id || isNodeDisabled(node.key) || treeIndex.value.nodes.get(node.key)?.node !== intent.node) return
+    if (intent.generation === 0 || virtualAdapter.isPending(node.key, intent.generation)) focusNode(node.key, intent.generation || undefined)
+  })
+}
 const retryNode = (node: TreeNodeData) => {
   if (isNodeDisabled(node.key)) return
+  const intent = createRetryIntent(node)
   if (!mergedExpandedKeys.value.includes(node.key)) {
     toggleExpanded(node, true)
     void nextTick(() => {
-      if (mergedExpandedKeys.value.includes(node.key)) startRetry(node)
+      if (retryIntent?.id === intent.id && mergedExpandedKeys.value.includes(node.key)) startRetry(node, intent)
     })
     return
   }
-  startRetry(node)
-}
-const startRetry = (node: TreeNodeData) => {
-  const transaction = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : undefined
-  if (transaction !== undefined) virtualAdapter.beginFocusHandoff(node.key)
-  void loader.load(node.key, true)
-  // Establish the generation synchronously; after Vue removes the retry
-  // control, continue this exact transaction rather than creating a new one.
-  void nextTick(() => {
-    if (transaction === undefined || virtualAdapter.isPending(node.key, transaction)) focusNode(node.key, transaction)
-  })
+  startRetry(node, intent)
 }
 const syncCheckboxes = () => {
   for (const input of Array.from(rootRef.value?.querySelectorAll<HTMLInputElement>('.aheart-tree__checkbox') ?? [])) {
