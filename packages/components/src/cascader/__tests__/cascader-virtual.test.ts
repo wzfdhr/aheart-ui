@@ -179,6 +179,7 @@ describe('Cascader virtual core contract', () => {
     expect(wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option').length).toBeLessThanOrEqual(24)
     const searchOwners = wrapper.findAll<HTMLElement>('[data-virtual-scroll-owner="true"]')
     expect(searchOwners).toHaveLength(1)
+    expect(searchOwners[0].element).toBe(wrapper.get('.aheart-cascader__search-results').element)
     await input.trigger('keydown', { key: 'ArrowDown' })
     expect(document.activeElement).toBe(wrapper.find('.aheart-cascader__search-results .aheart-cascader__option').element)
     await (document.activeElement as HTMLElement).dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
@@ -197,6 +198,7 @@ describe('Cascader virtual core contract', () => {
     const owners = wrapper.findAll<HTMLElement>('[data-virtual-scroll-owner="true"]')
     const columnsWrapper = wrapper.get('.aheart-cascader__columns').element
     expect(owners).toHaveLength(1)
+    expect(owners[0].element).toBe(columns[0].element)
     expect(owners[0].element).not.toBe(panel)
     expect(owners[0].element).not.toBe(columnsWrapper)
     expect(owners[0].element.querySelectorAll('.aheart-cascader__option').length).toBeGreaterThan(0)
