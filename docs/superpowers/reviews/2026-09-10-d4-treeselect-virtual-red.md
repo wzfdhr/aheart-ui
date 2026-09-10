@@ -37,3 +37,11 @@ corepack pnpm --filter ./packages/components exec vue-tsc --noEmit -p src/tree-s
 Final type RED log: `/tmp/d4-treeselect-red-20260910/public-type-contract-red-final.log`, exit 2. The earlier temporary production-directory location has been removed; it is not a deliverable or the final type-test command.
 
 Real popup-budget/clientHeight, iframe, lazy close/cancellation, actual hydration diagnostics and the complete five-browser geometry matrix still require independent browser/consumer evidence. A browser test author is separately preparing the source fixture and genuine viewport RED before production implementation starts.
+
+## Source-preview browser RED
+
+A different Luna High author added the query-gated `TreeSelectVirtualFixture.vue`, its ordinary-docs `ClientOnly` entry and `e2e/d4-tree-select-virtual.spec.ts`. No production component or generated output changed. Desktop Chromium ran four real-browser scenarios: **3 failed / 1 passed**. The failures establish full 1000-row DOM instead of a bounded window, the popup rather than Tree owning vertical scroll under a short viewport, and search ArrowDown failing actual focus transfer. The controlled parent refusal scenario passed on the first run and is compatibility evidence. A failure at the 1000-row assertion does not establish that the subsequent 10k assertions executed successfully.
+
+The fixture uses source imports, real Teleport panel lookup, explicit reopen after toolbar dismissal, actual computed 24px popup font and real viewport resizing. Disabled tail nodes may remain mounted as overscan; tests assert disabled and unfocused, not their removal. The scroll/layout contract is tested in the browser, not inferred from jsdom zero sizes.
+
+Command: `corepack pnpm exec playwright test --config=/tmp/d4-treeselect-browser-20260910/playwright.config.ts`. Final stdout is `/tmp/d4-treeselect-browser-20260910/last-run.stdout.log`; copied failure traces/screenshots/videos are preserved outside disposable `test-results` in `/tmp/d4-treeselect-browser-20260910/evidence/`. Five-browser expansion, iframe, 200% zoom, real hydration/consumer and broader lazy paths remain open.

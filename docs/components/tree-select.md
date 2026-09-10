@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import TreeSelectVirtualFixture from '../.vitepress/components/TreeSelectVirtualFixture.vue'
+
+const showTreeSelectVirtualFixture = ref(false)
+onMounted(() => { showTreeSelectVirtualFixture.value = new URLSearchParams(window.location.search).get('fixture') === 'tree-select-virtual' })
 
 const treeData = [
   { key: 'workspace', title: '工作台', children: [{ key: 'overview', title: '概览' }, { key: 'settings', title: '设置' }] },
@@ -9,6 +13,10 @@ const value = ref<string>()
 const values = ref<string[]>(['archive'])
 const checkedValues = ref<string[]>([])
 </script>
+
+<ClientOnly>
+  <TreeSelectVirtualFixture v-if="showTreeSelectVirtualFixture" />
+</ClientOnly>
 
 # TreeSelect 树选择 <span class="aheart-status aheart-status--ready">已完成</span>
 
