@@ -218,6 +218,131 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
     }
   })
 
+  it.each(['requestAnimationFrame', 'cancelAnimationFrame'] as const)('keeps a focusable, End-reachable fallback when %s is absent', async missing => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const ownerWindow = ownerDocument.defaultView!
+    const previous = Object.getOwnPropertyDescriptor(ownerWindow, missing)
+    Reflect.deleteProperty(ownerWindow, missing)
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      wrapper = track(mount(Cascader, { attachTo: ownerDocument.body, props: { options: options(1000), defaultOpen: true, virtual: true, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never }))
+      await settle()
+      const rows = Array.from(ownerDocument.querySelectorAll<HTMLElement>('.aheart-cascader__option'))
+      expect(rows.length).toBeGreaterThan(0)
+      rows[0].focus()
+      rows[0].dispatchEvent(new ownerWindow.KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
+      await settle()
+      expect(ownerDocument.activeElement).toBe(rows.at(-1))
+    } finally {
+      if (wrapper) wrapper.unmount()
+      if (previous) Object.defineProperty(ownerWindow, missing, previous)
+      else Reflect.deleteProperty(ownerWindow, missing)
+      iframe.remove()
+    }
+  })
+
+  it('keeps a usable focusable fallback when ResizeObserver is absent but resize scheduling remains available', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.appendChild(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const ownerWindow = ownerDocument.defaultView!
+    const previousObserver = Object.getOwnPropertyDescriptor(ownerWindow, 'ResizeObserver')
+    const previousRaf = Object.getOwnPropertyDescriptor(ownerWindow, 'requestAnimationFrame')
+    const previousCancel = Object.getOwnPropertyDescriptor(ownerWindow, 'cancelAnimationFrame')
+    Reflect.deleteProperty(ownerWindow, 'ResizeObserver')
+    Object.defineProperty(ownerWindow, 'requestAnimationFrame', { configurable: true, value: (callback: FrameRequestCallback) => ownerWindow.setTimeout(() => callback(ownerWindow.performance.now()), 0) })
+    Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, value: (id: number) => ownerWindow.clearTimeout(id) })
+    let wrapper: ReturnType<typeof mount> | undefined
+    try {
+      wrapper = track(mount(Cascader, { attachTo: ownerDocument.body, props: { options: options(1000), defaultOpen: true, virtual: true, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never }))
+      await settle()
+      const rows = Array.from(ownerDocument.querySelectorAll<HTMLElement>('.aheart-cascader__option'))
+      expect(rows.length).toBeGreaterThan(0)
+      rows[0].focus()
+      rows[0].dispatchEvent(new ownerWindow.KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
+      await settle()
+      expect(ownerDocument.activeElement).toBe(rows.at(-1))
+    } finally {
+      if (wrapper) wrapper.unmount()
+      if (previousObserver) Object.defineProperty(ownerWindow, 'ResizeObserver', previousObserver)
+      else Reflect.deleteProperty(ownerWindow, 'ResizeObserver')
+      if (previousRaf) Object.defineProperty(ownerWindow, 'requestAnimationFrame', previousRaf)
+      else Reflect.deleteProperty(ownerWindow, 'requestAnimationFrame')
+      if (previousCancel) Object.defineProperty(ownerWindow, 'cancelAnimationFrame', previousCancel)
+      else Reflect.deleteProperty(ownerWindow, 'cancelAnimationFrame')
+      iframe.remove()
+    }
+  })
+
+  it('aborts a same-turn virtual options replacement and ignores its late children', async () => {
+    let resolveChildren!: (children: Option[]) => void
+    let signal!: AbortSignal
+    const loadData = (_option: Option, context: { signal: AbortSignal }) => {
+      signal = context.signal
+      return new Promise<Option[]>(resolve => { resolveChildren = resolve })
+    }
+    const wrapper = mountCascader({ options: [{ value: 'old', label: 'Old', isLeaf: false }], defaultOpen: true, virtual: true, loadData })
+    await settle()
+    await wrapper.get('[data-cascader-value="old"]').trigger('click')
+    await wrapper.setProps({ options: [{ value: 'new', label: 'New' }] } as never)
+    expect(signal.aborted).toBe(true)
+    resolveChildren([{ value: 'stale', label: 'Stale' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="stale"]').exists()).toBe(false)
+    expect(wrapper.find('[data-cascader-value="new"]').exists()).toBe(true)
+  })
+
+  it('aborts a same-turn virtual unmount and retires the pending loader', async () => {
+    let resolveChildren!: (children: Option[]) => void
+    let signal!: AbortSignal
+    const loadData = (_option: Option, context: { signal: AbortSignal }) => {
+      signal = context.signal
+      return new Promise<Option[]>(resolve => { resolveChildren = resolve })
+    }
+    const wrapper = mountCascader({ options: [{ value: 'old', label: 'Old', isLeaf: false }], defaultOpen: true, virtual: true, loadData })
+    await settle()
+    await wrapper.get('[data-cascader-value="old"]').trigger('click')
+    wrapper.unmount()
+    expect(signal.aborted).toBe(true)
+    resolveChildren([{ value: 'stale', label: 'Stale' }])
+    await flushPromises()
+  })
+
+  it('aborts an old same-path request before accepting a fresh branch request', async () => {
+    const signals: AbortSignal[] = []
+    const resolvers: Array<(children: Option[]) => void> = []
+    const loadData = (_option: Option, context: { signal: AbortSignal }) => {
+      signals.push(context.signal)
+      return new Promise<Option[]>(resolve => { resolvers.push(resolve) })
+    }
+    const wrapper = mountCascader({
+      options: [
+        { value: 'first', label: 'First', isLeaf: false },
+        { value: 'second', label: 'Second', isLeaf: false }
+      ],
+      defaultOpen: true,
+      virtual: true,
+      loadData
+    })
+    await settle()
+    await wrapper.get('[data-cascader-value="first"]').trigger('click')
+    await wrapper.get('[data-cascader-value="second"]').trigger('click')
+    await wrapper.get('[data-cascader-value="first"]').trigger('click')
+    expect(signals).toHaveLength(3)
+    expect(signals[0].aborted).toBe(true)
+    expect(signals[1].aborted).toBe(true)
+    expect(signals[2].aborted).toBe(false)
+    resolvers[0]?.([{ value: 'stale-1', label: 'Stale 1' }])
+    resolvers[1]?.([{ value: 'stale-2', label: 'Stale 2' }])
+    resolvers[2]?.([{ value: 'fresh', label: 'Fresh' }])
+    await flushPromises()
+    expect(wrapper.find('[data-cascader-value="fresh"]').exists()).toBe(true)
+    expect(wrapper.find('[data-cascader-value="stale-1"]').exists()).toBe(false)
+    expect(wrapper.find('[data-cascader-value="stale-2"]').exists()).toBe(false)
+  })
+
   it('does not touch observation capabilities during SSR before a mounted scroll element exists', async () => {
     let observerCalls = 0
     const previous = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')

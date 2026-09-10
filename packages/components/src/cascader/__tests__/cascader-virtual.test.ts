@@ -134,6 +134,25 @@ describe('Cascader virtual core contract', () => {
     }
   })
 
+  it.each([
+    ['height', { height: 0, estimateSize: 40, overscan: 2 }, 256],
+    ['estimateSize', { height: 384, estimateSize: 0, overscan: 2 }, 384],
+    ['overscan', { height: 384, estimateSize: 40, overscan: -1 }, 384]
+  ])('validates one invalid %s field while preserving the other fields', async (_field, config, maximumHeight) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      const before = JSON.stringify(config)
+      const wrapper = mountCascader({ options: optionsOf(1000), defaultOpen: true, virtual: config })
+      await settle()
+      expect(warn).toHaveBeenCalled()
+      expect(JSON.stringify(config)).toBe(before)
+      expect(wrapper.findAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
+      expect(numericBudget(wrapper.get('.aheart-cascader__column').element as HTMLElement)).toBeLessThanOrEqual(maximumHeight)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('bounds every independent column while preserving typed path identity and leaf selection', async () => {
     const options: CascaderOption[] = [
       { value: 'branch', label: 'Branch', children: [{ value: 1, label: 'Numeric' }, { value: '1', label: 'String' }, ...optionsOf(998, 'child')] },
@@ -202,7 +221,16 @@ describe('Cascader virtual core contract', () => {
     }
   })
 
-  it('does not mutate frozen or foreign-realm config while preserving valid fields', async () => {
+  it('does not mutate a frozen config while preserving valid fields', async () => {
+    const config = Object.freeze({ height: 384, estimateSize: 40, overscan: 2 })
+    const before = JSON.stringify(config)
+    const wrapper = mountCascader({ options: optionsOf(1000), defaultOpen: true, virtual: config })
+    await settle()
+    expect(JSON.stringify(config)).toBe(before)
+    expect(wrapper.findAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
+  })
+
+  it('does not mutate a foreign-realm plain config while preserving valid fields', async () => {
     const iframe = document.createElement('iframe')
     document.body.appendChild(iframe)
     const foreignWindow = iframe.contentWindow!
