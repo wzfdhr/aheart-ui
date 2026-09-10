@@ -78,4 +78,26 @@ describe('Cascader lazy keyboard error focus', () => {
     expect(document.activeElement).toBe(outside)
     outside.remove()
   })
+
+  it.each([true, false])('does not reclaim BODY focus after outside focus then blur while a %s request rejects', async virtual => {
+    let rejectLoad!: (error: Error) => void
+    const loadData = vi.fn(() => new Promise<Option[]>((_resolve, reject) => { rejectLoad = reject }))
+    const wrapper = track(mount(Cascader, {
+      attachTo: document.body,
+      props: { options: [{ value: 'root', label: 'Lazy root', isLeaf: false }], virtual, open: true, loadData, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never
+    }))
+    await settle()
+    const root = wrapper.get('[data-cascader-value="root"]')
+    root.element.focus()
+    await root.trigger('keydown', { key: 'Enter' })
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    outside.focus()
+    outside.blur()
+    rejectLoad(new Error('offline'))
+    await settle()
+    expect(document.activeElement).toBe(document.body)
+    expect(root.element).not.toBe(document.activeElement)
+    outside.remove()
+  })
 })
