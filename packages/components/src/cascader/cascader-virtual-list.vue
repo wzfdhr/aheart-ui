@@ -58,16 +58,16 @@ const fallback = ref(false)
 let alive = true
 let ownerWindow: Window & typeof globalThis | null = null
 const observationCleanups = new Set<() => void>()
-let measurementFrame: number | undefined
+let measurementRaf: number | undefined
 const pendingKey = ref<string>()
 let focusRetry = 0
 let focusTimer: number | undefined
 let focusGeneration = 0
-const pendingRows = new Set<HTMLElement>()
+const pendingRows = new Map<HTMLElement, number>()
+const rowReportedSizes = new Map<HTMLElement, number>()
 const rowObservers = new Map<string, { element: HTMLElement; observer: ResizeObserver }>()
 const measurementVersion = ref(0)
 let measurementTimer: number | undefined
-let measurementHandleKind: 'raf' | 'timeout' | undefined
 
 // Keep the deterministic virtual window during SSR and the first hydration render.
 // Capability fallback is selected only after the real owner element is mounted.
@@ -80,38 +80,35 @@ const canUseVirtualRuntime = () => {
 }
 
 const cancelSchedule = () => {
-  if (measurementHandleKind === 'raf' && measurementFrame !== undefined) ownerWindow?.cancelAnimationFrame?.(measurementFrame)
-  if (measurementHandleKind === 'timeout' && measurementTimer !== undefined) ownerWindow?.clearTimeout?.(measurementTimer)
-  measurementFrame = undefined
+  if (measurementRaf !== undefined) ownerWindow?.cancelAnimationFrame?.(measurementRaf)
+  if (measurementTimer !== undefined) ownerWindow?.clearTimeout?.(measurementTimer)
+  measurementRaf = undefined
   measurementTimer = undefined
-  measurementHandleKind = undefined
 }
 
-const scheduleRowMeasurement = () => {
-  if (!alive || !active.value || measurementFrame !== undefined) return
+const scheduleRowMeasurement = (force = false) => {
+  if (!alive || !active.value) return
+  if (force && measurementRaf !== undefined) {
+    ownerWindow?.cancelAnimationFrame?.(measurementRaf)
+    measurementRaf = undefined
+  }
+  if (!force && (measurementRaf !== undefined || measurementTimer !== undefined)) return
   const flush = () => {
-    measurementFrame = undefined
+    measurementRaf = undefined
     const userAgent = ownerWindow?.navigator?.userAgent ?? ''
     if (/AppleWebKit/i.test(userAgent) && /Safari/i.test(userAgent) && !/Chrome|CriOS|Chromium/i.test(userAgent) && ownerWindow) {
-      measurementHandleKind = 'timeout'
       measurementTimer = ownerWindow.setTimeout(() => {
         measurementTimer = undefined
-        measurementHandleKind = undefined
         commit()
       }, 0)
       return
     }
-    measurementHandleKind = undefined
     commit()
   }
   const commit = () => {
     if (!alive || !active.value) { pendingRows.clear(); return }
-    const observedSizes: number[] = []
-    for (const row of pendingRows) {
+    for (const [row, size] of rowReportedSizes) {
       if (!row.isConnected || !scrollRef.value?.contains(row)) continue
-      const rawSize = row.getBoundingClientRect().height || row.offsetHeight || props.config.estimateSize
-      const size = rawSize
-      observedSizes.push(size)
       const key = row.dataset.virtualKey
       if (!key) continue
       const index = props.items.findIndex((option, itemIndex) => props.rowKey(itemIndex, option) === key)
@@ -122,19 +119,12 @@ const scheduleRowMeasurement = () => {
       }
     }
     pendingRows.clear()
-    const uniformSize = observedSizes.length > 1 && observedSizes.every(size => Math.abs(size - observedSizes[0]) <= 0.01) ? observedSizes[0] : undefined
-    if (uniformSize !== undefined) {
-      for (let index = 0; index < props.items.length; index++) virtualizer.value.resizeItem(index, uniformSize)
-    }
   }
   if (ownerWindow?.requestAnimationFrame) {
-    measurementHandleKind = 'raf'
-    measurementFrame = ownerWindow.requestAnimationFrame(flush)
+    measurementRaf = ownerWindow.requestAnimationFrame(flush)
   } else if (ownerWindow) {
-    measurementHandleKind = 'timeout'
     measurementTimer = ownerWindow.setTimeout(() => {
       measurementTimer = undefined
-      measurementHandleKind = undefined
       flush()
     }, 0)
   }
@@ -180,7 +170,6 @@ const observeRect = (instance: Virtualizer<HTMLElement, HTMLElement>, callback: 
       view.clearTimeout?.(rectFrame)
       rectFrame = undefined
     }
-    cancelSchedule()
   }
   observationCleanups.add(cleanup)
   return cleanup
@@ -318,12 +307,14 @@ const suspend = () => {
   pendingRows.clear()
   for (const entry of rowObservers.values()) entry.observer.disconnect()
   rowObservers.clear()
+  rowReportedSizes.clear()
 }
 
 onMounted(() => {
   fallback.value = !canUseVirtualRuntime()
   const view = scrollRef.value?.ownerDocument.defaultView
   ownerWindow = view ?? null
+  if (active.value) void nextTick(bindMountedRows)
 })
 watch([() => props.items, () => props.config], () => {
   pruneRowObservers()
@@ -346,6 +337,7 @@ defineExpose<CascaderVirtualListExpose>({ focusIndex, focusFirst, focusLast, can
 const setRowRef = (element: unknown, index: number, key: string) => {
   if (!element || typeof element !== 'object' || '$el' in element || key === undefined) {
     rowObservers.get(key)?.observer.disconnect()
+    for (const row of rowReportedSizes.keys()) if (row.dataset.virtualKey === key) rowReportedSizes.delete(row)
     rowObservers.delete(key)
     return
   }
@@ -358,13 +350,24 @@ const setRowRef = (element: unknown, index: number, key: string) => {
   const existing = rowObservers.get(key)
   if (existing?.element === row) return
   existing?.observer.disconnect()
-  const observer = new view.ResizeObserver(() => {
-    pendingRows.add(row)
-    scheduleRowMeasurement()
+  const observer = new view.ResizeObserver((entries) => {
+    const entry = entries.find(current => current.target === row)
+    const borderBox = entry?.borderBoxSize
+    const boxSize = Array.isArray(borderBox) ? borderBox[0]?.blockSize : (borderBox as ResizeObserverSize | undefined)?.blockSize
+    const reported = Number.isFinite(boxSize) && (boxSize as number) > 0
+      ? boxSize as number
+      : entry?.contentRect?.height && entry.contentRect.height > 0
+        ? entry.contentRect.height
+        : Math.max(row.offsetHeight || 0, row.getBoundingClientRect().height || 0, props.config.estimateSize)
+    rowReportedSizes.set(row, reported)
+    pendingRows.set(row, reported)
+    scheduleRowMeasurement(true)
   })
   observer.observe(row)
   rowObservers.set(key, { element: row, observer })
-  pendingRows.add(row)
+  const initialSize = Math.max(row.offsetHeight || 0, row.getBoundingClientRect().height || 0, props.config.estimateSize)
+  rowReportedSizes.set(row, initialSize)
+  pendingRows.set(row, initialSize)
   scheduleRowMeasurement()
 }
 const pruneRowObservers = () => {
@@ -372,6 +375,7 @@ const pruneRowObservers = () => {
   for (const [key, entry] of rowObservers) if (!keys.has(key) || !entry.element.isConnected) {
     entry.observer.disconnect()
     rowObservers.delete(key)
+    rowReportedSizes.delete(entry.element)
   }
 }
 const bindMountedRows = () => {
