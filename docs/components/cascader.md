@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import CascaderVirtualFixture from '../.vitepress/components/CascaderVirtualFixture.vue'
+
+const showCascaderVirtualFixture = ref(false)
+onMounted(() => { showCascaderVirtualFixture.value = new URLSearchParams(window.location.search).get('fixture') === 'cascader-virtual' })
 
 const options = [
   { value: 'zhejiang', label: '浙江', children: [{ value: 'hangzhou', label: '杭州', children: [{ value: 'xihu', label: '西湖' }] }, { value: 'ningbo', label: '宁波' }] },
@@ -13,6 +17,10 @@ const loadChildren = async () => {
   return [{ value: 'shanghai', label: '上海' }, { value: 'beijing', label: '北京' }]
 }
 </script>
+
+<ClientOnly>
+  <CascaderVirtualFixture v-if="showCascaderVirtualFixture" />
+</ClientOnly>
 
 # Cascader 级联选择 <span class="aheart-status aheart-status--ready">已完成</span>
 
