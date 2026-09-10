@@ -269,6 +269,46 @@ test('TreeSelect virtual lazy loading shows error, keyboard retry, loaded child,
   await expect(lazy.getByRole('combobox')).toContainText('Loaded lazy child')
 })
 
+test('TreeSelect lazy retry remains actionable after selecting root, closing, and reopening', async ({ page }) => {
+  const lazy = page.getByTestId('tree-select-virtual-lazy')
+  const trigger = lazy.getByRole('combobox')
+  await trigger.click()
+  let panel = await panelFor(page, lazy)
+  let root = panel.locator('[role="treeitem"][data-tree-key="lazy-root"]')
+  await root.getByRole('button', { name: 'Expand node' }).click()
+  await expect(root.getByRole('button', { name: '重试加载 Lazy loading root' })).toBeVisible()
+  await expect(page.getByTestId('tree-select-virtual-lazy-state')).toContainText('state=error')
+
+  await root.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  await trigger.click()
+  panel = await panelFor(page, lazy)
+  root = panel.locator('[role="treeitem"][data-tree-key="lazy-root"]')
+  await expect(root).toHaveAttribute('aria-selected', 'true')
+  if (await root.getAttribute('aria-expanded') === 'true') {
+    await root.getByRole('button', { name: 'Collapse node' }).click()
+  }
+  await expect(root).toHaveAttribute('aria-expanded', 'false')
+  const retry = root.getByRole('button', { name: '重试加载 Lazy loading root' })
+  await expect(retry).toBeVisible()
+
+  await retry.focus()
+  await retry.press('Enter')
+  await expect.poll(async () => page.getByTestId('tree-select-virtual-lazy-state').textContent()).toContain('state=success')
+  await expect.poll(() => panel.locator('[role="treeitem"][data-tree-key="lazy-child"]').count()).toBe(1)
+  const state = await page.getByTestId('tree-select-virtual-lazy-state').textContent()
+  const activeKey = await page.evaluate(() => document.activeElement?.getAttribute('data-tree-key'))
+  console.log('lazy reopen retry state', JSON.stringify({ state, expanded: await root.getAttribute('aria-expanded'), activeKey }))
+  expect(state).toContain('attempts=2')
+  expect(state).toContain('aborts=0')
+  await expect(root).toBeFocused()
+  await root.press('ArrowRight')
+  const child = panel.locator('[role="treeitem"][data-tree-key="lazy-child"]')
+  await expect(child).toBeFocused()
+  await child.click()
+  await expect(trigger).toContainText('Loaded lazy child')
+})
+
 test('TreeSelect lazy retry text meets normal, hover, and selected-root contrast', async ({ page }) => {
   const lazy = page.getByTestId('tree-select-virtual-lazy')
   await lazy.getByRole('combobox').click()
