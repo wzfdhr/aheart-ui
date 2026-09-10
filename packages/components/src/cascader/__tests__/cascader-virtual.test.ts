@@ -305,4 +305,47 @@ describe('Cascader virtual core contract', () => {
     await first.trigger('keydown', { key: 'End' })
     expect(document.activeElement?.getAttribute('data-cascader-value')).toBe('option-98')
   })
+
+  it('keeps five deep columns independently bounded while changing the active typed prefix', async () => {
+    const branch = (depth: number): CascaderOption[] => depth === 0
+      ? optionsOf(100, 'leaf')
+      : [{ value: `level-${depth}`, label: `Level ${depth}`, children: branch(depth - 1) }]
+    const wrapper = mountCascader({ options: branch(5), defaultOpen: true, virtual: true })
+    await settle()
+    for (let depth = 5; depth > 0; depth -= 1) {
+      await wrapper.get(`[data-cascader-value="level-${depth}"]`).trigger('click')
+      await settle()
+    }
+    expect(wrapper.findAll('.aheart-cascader__column')).toHaveLength(6)
+    expect(wrapper.findAll('.aheart-cascader__column').every(column => column.element.querySelectorAll('.aheart-cascader__option').length > 0 && column.element.querySelectorAll('.aheart-cascader__option').length <= 24)).toBe(true)
+  })
+
+  it('keeps disabled ancestors disabled in search and preserves input focus across no-result and clear', async () => {
+    const wrapper = mountCascader({
+      showSearch: true,
+      defaultOpen: true,
+      virtual: true,
+      options: [
+        { value: 'locked', label: 'Locked', disabled: true, children: optionsOf(100, 'locked-child') },
+        { value: 'open', label: 'Open', children: optionsOf(100, 'open-child') }
+      ]
+    })
+    await settle()
+    const input = wrapper.get('input[type="search"]')
+    input.element.focus()
+    await input.setValue('child')
+    await settle()
+    const results = wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option')
+    expect(results.length).toBeGreaterThan(0)
+    expect(results.length).toBeLessThanOrEqual(24)
+    expect(results.filter(option => option.text().includes('locked-child') && option.attributes('disabled') === undefined)).toHaveLength(0)
+    expect(results.filter(option => option.text().includes('open-child') && option.attributes('disabled')).length).toBe(0)
+    await input.setValue('does-not-exist')
+    await settle()
+    expect(wrapper.get('[role="status"]').text()).toContain('暂无匹配')
+    expect(document.activeElement).toBe(input.element)
+    await input.setValue('')
+    await settle()
+    expect(document.activeElement).toBe(input.element)
+  })
 })
