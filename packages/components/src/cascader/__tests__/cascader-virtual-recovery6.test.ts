@@ -83,13 +83,14 @@ describe('Cascader virtual recovery round six', () => {
       await nextTick()
       const row = observers.find(observer => observer.observed.some(element => element.classList.contains('aheart-cascader__virtual-row')))
       expect(row).toBeTruthy()
+      const beforeFrameTimers = new Set(timers.keys())
       flushRaf()
-      const firstTimers = [...timers.keys()]
+      const firstTimers = [...timers.keys()].filter(key => !beforeFrameTimers.has(key))
       expect(firstTimers.length).toBeGreaterThan(0)
       await wrapper.setProps({ enabled: false } as never)
       await nextTick()
       expect(firstTimers.filter(key => timers.has(key))).toHaveLength(0)
-      timers.forEach(callback => callback())
+      for (const key of firstTimers) timers.get(key)?.()
       expect(wrapper.findAll('.aheart-cascader__option').length).toBe(0)
     } finally {
       userAgent.mockRestore()
@@ -104,12 +105,13 @@ describe('Cascader virtual recovery round six', () => {
       await nextTick()
       const row = observers.find(observer => observer.observed.some(element => element.classList.contains('aheart-cascader__virtual-row')))
       expect(row).toBeTruthy()
+      const beforeFrameTimers = new Set(timers.keys())
       flushRaf()
-      const firstTimers = [...timers.keys()]
+      const firstTimers = [...timers.keys()].filter(key => !beforeFrameTimers.has(key))
       expect(firstTimers.length).toBeGreaterThan(0)
       row!.callback(row!.observed.map(target => ({ target } as ResizeObserverEntry)), row as unknown as ResizeObserver)
-      flushRaf()
-      expect(timers.size).toBeGreaterThan(firstTimers.length)
+      expect(frames.size).toBe(0)
+      expect([...timers.keys()]).toEqual(firstTimers)
       wrapper.unmount()
       expect([...timers.keys()]).toHaveLength(0)
     } finally {
