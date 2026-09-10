@@ -233,8 +233,17 @@ const handleTreeFocusin = (event: FocusEvent) => {
   activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token)
 }
 const handleTriggerFocusout = (event?: FocusEvent) => {
+  const origin = event?.target as Node | null
+  const related = event?.relatedTarget as Node | null
+  const originElement = origin && origin.nodeType === 1 ? origin as Element : null
+  const originTree = originElement?.closest('[role="tree"]') ?? null
+  const originWasTree = Boolean(virtualEnabled.value && originTree && panelRef.value?.contains(originTree))
+  const ownerDocument = triggerRef.value?.ownerDocument ?? panelRef.value?.ownerDocument
+  const relatedIsNullOrBody = !related || related === ownerDocument?.body
   void nextTick(() => {
     const active = triggerRef.value?.ownerDocument.activeElement ?? null
+    const transientTreeRemoval = Boolean(originWasTree && originElement && !originElement.isConnected && relatedIsNullOrBody && active === ownerDocument?.body && mergedOpen.value)
+    if (transientTreeRemoval) return
     if (virtualEnabled.value && active && !rootRef.value?.contains(active) && !panelRef.value?.contains(active)) focusBridge.cancel()
     if (!triggerRef.value?.contains(active) && !panelRef.value?.contains(active)) formControl?.blur()
   })
