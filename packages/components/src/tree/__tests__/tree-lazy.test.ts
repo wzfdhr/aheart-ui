@@ -105,6 +105,35 @@ describe('Tree lazy loading', () => {
     expect(wrapper.emitted('select')).toBeUndefined()
   })
 
+  it('keeps a collapsed retry actionable after an initial failure and loads children without selecting the root', async () => {
+    const loadData = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce([{ key: 'child', title: 'Child' }])
+    const wrapper = mount(Tree, { attachTo: document.body, props: { treeData, loadData, virtual: true } as never })
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushPromises()
+    expect(wrapper.get('[aria-label="重试加载 Root"]').exists()).toBe(true)
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+    await wrapper.get('[aria-label="重试加载 Root"]').trigger('click')
+    await flushPromises()
+    expect(loadData).toHaveBeenCalledTimes(2)
+    expect(wrapper.text()).toContain('Child')
+    expect(wrapper.emitted('select')).toBeUndefined()
+  })
+
+  it('keeps a rejected controlled collapse closed and does not retry load from its visible error action', async () => {
+    const loadData = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce([{ key: 'child', title: 'Child' }])
+    const wrapper = mount(Tree, { attachTo: document.body, props: { treeData, loadData, expandedKeys: ['root'], virtual: true } as never })
+    await flushPromises()
+    expect(loadData).toHaveBeenCalledTimes(1)
+    await wrapper.setProps({ expandedKeys: [] } as never)
+    expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+    await wrapper.get('[aria-label="重试加载 Root"]').trigger('click')
+    await flushPromises()
+    expect(loadData).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('[aria-label="重试加载 Root"]').exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('Child')
+  })
+
   it('aborts replacement and unmount and ignores callbacks even if the loader ignores abort', async () => {
     const requests: { signal: AbortSignal; resolve: (value: any[]) => void }[] = []
     const loadData = (_node: unknown, { signal }: { signal: AbortSignal }) => new Promise<any[]>(resolve => requests.push({ signal, resolve }))
