@@ -60,6 +60,16 @@ const prepareCollapsedRetry = async (treeSelect = false) => {
   return { wrapper, loadData, calls, retry }
 }
 
+const pendingFocusListeners = (added: ReturnType<typeof vi.spyOn>, removed: ReturnType<typeof vi.spyOn>) => {
+  const addedListeners = added.mock.calls
+    .filter(([event, _listener, options]) => event === 'focusin' && (options === true || (typeof options === 'object' && options !== null && (options as AddEventListenerOptions).capture === true)))
+    .map(([_event, listener]) => listener)
+  const removedListeners = new Set(removed.mock.calls
+    .filter(([event, _listener, options]) => event === 'focusin' && (options === true || (typeof options === 'object' && options !== null && (options as AddEventListenerOptions).capture === true)))
+    .map(([_event, listener]) => listener))
+  return addedListeners.filter(listener => !removedListeners.has(listener))
+}
+
 beforeEach(() => {
   observers.length = 0
   previousResizeObserver = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
@@ -236,6 +246,65 @@ describe('Tree virtual lazy retry focus', () => {
     retry.blur()
     await flushOwnerRealm()
     expect(document.activeElement).toBe(document.body)
+  })
+
+  it('retires owner focus listeners after a parent-rejected expansion', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      await prepared.wrapper.setProps({ expandedKeys: [] } as never)
+      prepared.retry.click()
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('retires owner focus listeners when the node is removed before deferred retry', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      prepared.retry.click()
+      await prepared.wrapper.setProps({ treeData: [] } as never)
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('retires owner focus listeners after successful retry focus commit', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      prepared.retry.click()
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('retires owner focus listeners when disabled rejects the retry intent', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      prepared.retry.click()
+      await prepared.wrapper.setProps({ disabled: true } as never)
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
   })
 
   it('keeps a parent-rejected expandedKeys collapse closed and does not retry load', async () => {
