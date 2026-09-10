@@ -71,3 +71,13 @@ Mounted content changes now read the committed DOM geometry (56px remains 56px).
 The maintained Tree/TreeSelect suite passed `87/87` (19 virtual, 6 recovery, 62 legacy). Independent browser run `r12` passed `40/40` over five projects, including default Tree attributes, real Tab re-entry, bounded disabled scrolling and re-enable navigation. Root typecheck passed; full distribution build, docs build and release pack passed (1003/79/115 packed files for components/DnD/AI). Earlier component-wide `1258/1258` and scripts `90/90` are additional regression evidence from before the final two boundary repairs, not mislabeled as a later full-phase run.
 
 This closes Tree development defects only. The independent product decision and the combined three-component consumer/performance/full-repository/PR/delivery gates remain separate.
+
+## Product-driven retry repair and renewed development rejection
+
+The product review's virtual lazy scenario exposed retry-button removal leaving focus on BODY in all five browser projects. A synchronous retry-generation handoff repaired that path and the explicit pre-flush blur regression. The implementation worker reported 90 maintained unit tests and 45 browser tests passing; these reports do not replace independent acceptance.
+
+The independent developer re-review executed the original 13 diagnostics plus 3 retry boundaries (16/16 passed), then six additional timing checks (5 passed / 1 failed). Current verdict is P0/P1/P2=`0/1/0`, superseding the earlier development approval for the changed candidate.
+
+The remaining P1 reproduces with `retry.click(); await Promise.resolve(); outside.focus(); outside.blur(); resolveRetry(children)`: focus returns to the root instead of remaining on BODY. After the retry control is removed, root-local listeners miss the outside focus history; inspecting only the final active element permits the old transaction to continue. Pending focus transactions must observe ownerDocument focus departure, permanently cancel that generation and release their listeners on commit, cancellation and unmount.
+
+The same timing diagnostics verified that both virtual and nonvirtual retry return focus while the loader Promise is still pending and `aria-busy=true`; waiting for network completion is not an acceptable repair. Diagnostics are retained at `/private/tmp/d4-tree-dev-review-25sPoc/retry-timing.test.ts`. A maintained RED regression and another independent review are required before product re-review or TreeSelect RED.

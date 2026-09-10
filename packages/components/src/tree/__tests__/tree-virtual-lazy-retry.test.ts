@@ -139,4 +139,31 @@ describe('Tree virtual lazy retry focus', () => {
     expect(document.activeElement).toBe(outside)
     outside.remove()
   })
+
+  it('does not reclaim focus after a microtask external focus then blur while retry is pending', async () => {
+    let resolveRetry!: (nodes: Array<{ key: string; title: string }>) => void
+    const retryPromise = new Promise<Array<{ key: string; title: string }>>(resolve => { resolveRetry = resolve })
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockReturnValueOnce(retryPromise)
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never
+    })
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+    retry.focus()
+    retry.click()
+    await Promise.resolve()
+    outside.focus()
+    outside.blur()
+    resolveRetry([{ key: 'child', title: 'Loaded child' }])
+    await flushOwnerRealm()
+    expect(document.activeElement).toBe(document.body)
+    outside.remove()
+  })
 })
