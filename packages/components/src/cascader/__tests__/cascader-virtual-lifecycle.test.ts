@@ -39,11 +39,14 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
     const first = await renderToString(createSSRApp({ render: () => h(Cascader, props) }))
     const second = await renderToString(createSSRApp({ render: () => h(Cascader, props) }))
     expect(first).toBe(second)
-    expect((first.match(/aheart-cascader__option/g) ?? []).length).toBeLessThanOrEqual(24)
 
     const host = document.createElement('div')
     host.innerHTML = first
     document.body.appendChild(host)
+    const serverPanel = host.querySelector<HTMLElement>('.aheart-cascader__panel') ?? document.body.querySelector<HTMLElement>('.aheart-cascader__panel')
+    expect(serverPanel).toBeTruthy()
+    expect(serverPanel!.querySelectorAll('.aheart-cascader__option').length).toBeGreaterThan(0)
+    expect(serverPanel!.querySelectorAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
     const warnings: unknown[] = []
     const errors: unknown[] = []
     const warn = vi.spyOn(console, 'warn').mockImplementation((...args) => warnings.push(args))
@@ -53,9 +56,12 @@ describe('Cascader virtual lifecycle, SSR and owner realm', () => {
     try {
       app.mount(host, true)
       await settle()
-      expect(warnings.filter(value => String(value).includes('hydration'))).toHaveLength(0)
-      expect(errors.filter(value => String(value).includes('hydration'))).toHaveLength(0)
-      expect(host.querySelectorAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
+      expect(warnings.filter(value => String(value).toLowerCase().includes('hydration'))).toHaveLength(0)
+      expect(errors.filter(value => String(value).toLowerCase().includes('hydration'))).toHaveLength(0)
+      const clientPanel = document.body.querySelector<HTMLElement>('.aheart-cascader__panel')
+      expect(clientPanel).toBeTruthy()
+      expect(clientPanel!.querySelectorAll('.aheart-cascader__option').length).toBeGreaterThan(0)
+      expect(clientPanel!.querySelectorAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
     } finally {
       app.unmount()
       warn.mockRestore()

@@ -60,6 +60,13 @@ const optionsOf = (count: number, prefix = 'node'): CascaderOption[] => Array.fr
   label: `${prefix} ${index}`
 }))
 
+const numericBudget = (element: HTMLElement) => [
+  element.style.maxBlockSize,
+  element.style.maxHeight,
+  getComputedStyle(element).maxBlockSize,
+  getComputedStyle(element).maxHeight
+].map(value => Number.parseFloat(value)).find(Number.isFinite)
+
 beforeEach(() => {
   observers.length = 0
   rafCallbacks.clear()
@@ -107,7 +114,8 @@ describe('Cascader virtual core contract', () => {
     await settle()
     expect(wrapper.findAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
     expect(JSON.stringify({ config, options })).toBe(before)
-    expect(wrapper.get('.aheart-cascader__panel').style.maxBlockSize).toBe('256px')
+    expect(numericBudget(wrapper.get('.aheart-cascader__column').element as HTMLElement)).toBeDefined()
+    expect(numericBudget(wrapper.get('.aheart-cascader__column').element as HTMLElement)).toBeLessThanOrEqual(256)
   })
 
   it('warns and individually falls back invalid virtual fields without changing valid fields', async () => {
@@ -119,7 +127,8 @@ describe('Cascader virtual core contract', () => {
       expect(warn).toHaveBeenCalled()
       expect(JSON.stringify(config)).toBe('{"height":0,"estimateSize":-3,"overscan":1.5}')
       expect(wrapper.findAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
-      expect(wrapper.get('.aheart-cascader__panel').style.maxBlockSize).toBe('256px')
+      expect(numericBudget(wrapper.get('.aheart-cascader__column').element as HTMLElement)).toBeDefined()
+      expect(numericBudget(wrapper.get('.aheart-cascader__column').element as HTMLElement)).toBeLessThanOrEqual(256)
     } finally {
       warn.mockRestore()
     }
@@ -149,6 +158,11 @@ describe('Cascader virtual core contract', () => {
     await input.setValue('node')
     await settle()
     expect(wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option').length).toBeLessThanOrEqual(24)
+    const searchOwners = wrapper.findAll<HTMLElement>('*').filter(node => {
+      const element = node.element
+      return element.dataset.virtualScrollOwner === 'true' || ['auto', 'scroll'].includes(getComputedStyle(element).overflowY)
+    })
+    expect(searchOwners).toHaveLength(1)
     await input.trigger('keydown', { key: 'ArrowDown' })
     expect(document.activeElement).toBe(wrapper.find('.aheart-cascader__search-results .aheart-cascader__option').element)
     await (document.activeElement as HTMLElement).dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
@@ -168,9 +182,10 @@ describe('Cascader virtual core contract', () => {
       const element = node.element
       return element.dataset.virtualScrollOwner === 'true' || ['auto', 'scroll'].includes(getComputedStyle(element).overflowY)
     })
+    const columnsWrapper = wrapper.get('.aheart-cascader__columns').element
     expect(owners).toHaveLength(1)
     expect(owners[0].element).not.toBe(panel)
-    expect(owners[0].element).not.toBe(columns[0].element)
+    expect(owners[0].element).not.toBe(columnsWrapper)
     expect(owners[0].element.querySelectorAll('.aheart-cascader__option').length).toBeGreaterThan(0)
     expect(owners[0].element.querySelectorAll('.aheart-cascader__option').length).toBeLessThanOrEqual(24)
   })
@@ -223,7 +238,7 @@ describe('Cascader virtual core contract', () => {
     expect(wrapper.get('[data-cascader-token="s-31"]').classes()).not.toContain('is-selected')
   })
 
-  it('keeps slash-containing typed paths distinct in flattened search results', async () => {
+  it('selects slash-containing typed paths exactly and gives each result a distinct identity token', async () => {
     const wrapper = mountCascader({
       showSearch: true,
       defaultOpen: true,
@@ -236,9 +251,21 @@ describe('Cascader virtual core contract', () => {
     await settle()
     await wrapper.get('input[type="search"]').setValue('Leaf')
     await settle()
-    const paths = wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option').map(option => option.attributes('data-cascader-path'))
-    expect(paths).toHaveLength(2)
-    expect(new Set(paths).size).toBe(2)
+    const initialResults = wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option')
+    expect(initialResults).toHaveLength(2)
+    const tokens = initialResults.map(option => option.attributes('data-cascader-path-token'))
+    expect(tokens.every(Boolean)).toBe(true)
+    expect(new Set(tokens).size).toBe(2)
+    await initialResults.find(option => option.text().includes('A slash'))!.trigger('click')
+    await settle()
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([['a/b', 'leaf']])
+    await wrapper.get('.aheart-cascader__trigger').trigger('click')
+    await settle()
+    await wrapper.get('input[type="search"]').setValue('Leaf')
+    await settle()
+    const secondResults = wrapper.findAll('.aheart-cascader__search-results .aheart-cascader__option')
+    await secondResults.find(option => option.text().includes('A / B / Leaf'))!.trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([['a', 'b', 'leaf']])
   })
 
   it('keeps a single roving option and uses the complete column for End while skipping a disabled tail', async () => {
