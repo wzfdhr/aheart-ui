@@ -25,7 +25,7 @@
 .aheart-cascader__option { display: flex; align-items: center; justify-content: space-between; gap: var(--aheart-spacing-md); inline-size: 100%; min-block-size: 32px; padding: 0 var(--aheart-spacing-sm); border: 0; border-radius: 4px; background: transparent; color: inherit; text-align: start; cursor: pointer; }
 .aheart-cascader__option > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .aheart-cascader__option:hover:not(:disabled), .aheart-cascader__option.is-active { background: var(--aheart-color-fill); outline: 0; }
-.aheart-cascader__option:focus, .aheart-cascader__option:focus-visible { background: var(--aheart-color-fill); outline: 2px solid var(--aheart-color-primary); outline-offset: -2px; }
+.aheart-cascader__option:focus, .aheart-cascader__option:focus-visible { background: var(--aheart-color-fill); outline: 2px solid var(--aheart-color-primary) !important; outline-offset: -2px; }
 .aheart-cascader__option.is-selected { background: var(--aheart-color-primary-bg); color: var(--aheart-color-primary); }
 .aheart-cascader__option:disabled { color: var(--aheart-color-text-secondary); cursor: not-allowed; opacity: .55; }
 .aheart-cascader__option.is-loading { opacity: 1; }
