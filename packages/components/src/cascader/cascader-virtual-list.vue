@@ -5,14 +5,15 @@
     :style="listStyle"
     :data-virtual-scroll-owner="active ? 'true' : undefined"
   >
-    <div v-if="virtualMode && active" class="aheart-cascader__virtual-content" :style="contentStyle">
+    <div v-if="virtualMode" class="aheart-cascader__virtual-content" :style="contentStyle">
       <div
         v-for="row in rows"
         :key="row.key"
         class="aheart-cascader__virtual-row"
         :data-virtual-index="row.index"
         :data-index="row.index"
-        :style="rowStyle(row.item)"
+        :data-virtual-key="row.key"
+        :style="rowStyle(row.item, row.index)"
         :ref="element => setRowRef(element, row.index)"
       >
         <slot name="row" :index="row.index" :option="items[row.index]" :tabindex="tabIndex(row.index)" />
@@ -27,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type CSSProperties, type PropType } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch, type CSSProperties, type PropType } from 'vue'
 import { defaultRangeExtractor, useVirtualizer, type VirtualItem, type Virtualizer } from '@tanstack/vue-virtual'
 type VirtualRow = any
 
@@ -52,6 +53,7 @@ const props = defineProps({
 
 const scrollRef = ref<HTMLElement | null>(null)
 const viewportHeight = ref(0)
+const viewportMeasured = ref(false)
 const mounted = ref(false)
 const fallback = ref(false)
 let alive = true
@@ -60,12 +62,16 @@ const observationCleanups = new Set<() => void>()
 let scheduleFrame: number | undefined
 let scheduleTimer: number | undefined
 let measurementFrame: number | undefined
-let pendingKey: string | undefined
+const pendingKey = ref<string>()
 let focusRetry = 0
 let focusTimer: number | undefined
 let focusGeneration = 0
 let observationCleanup: (() => void) | undefined
 const pendingRows = new Set<HTMLElement>()
+const rowObservers = new Map<string, { element: HTMLElement; observer: ResizeObserver }>()
+const measuredSizes = new Map<string, number>()
+const measurementVersion = ref(0)
+let mutationObserver: MutationObserver | undefined
 
 // Keep the deterministic virtual window during SSR and the first hydration render.
 // Capability fallback is selected only after the real owner element is mounted.
@@ -111,9 +117,14 @@ const scheduleRowMeasurement = () => {
       if (!row.isConnected || !scrollRef.value?.contains(row)) continue
       const index = Number(row.dataset.virtualIndex)
       const size = row.getBoundingClientRect().height || row.offsetHeight || props.config.estimateSize
-      if (Number.isInteger(index) && index >= 0 && index < props.items.length) virtualizer.value.resizeItem(index, size)
+      const key = row.dataset.virtualKey ?? String(index)
+      if (Number.isInteger(index) && index >= 0 && index < props.items.length && measuredSizes.get(key) !== size) {
+        measuredSizes.set(key, size)
+        virtualizer.value.resizeItem(index, size)
+      }
     }
     pendingRows.clear()
+    measurementVersion.value++
   }
   if (ownerWindow?.requestAnimationFrame) measurementFrame = ownerWindow.requestAnimationFrame(flush)
   else if (ownerWindow) measurementFrame = ownerWindow.setTimeout(flush, 0)
@@ -127,10 +138,10 @@ const observeRect = (instance: Virtualizer<HTMLElement, HTMLElement>, callback: 
   ownerWindow = view
   let rectFrame: number | undefined
   const read = () => {
-    const height = element.clientHeight || props.config.height
+    const height = Math.min(element.clientHeight || props.config.height, props.config.height)
     viewportHeight.value = height
+    viewportMeasured.value = true
     callback({ width: element.clientWidth || 180, height })
-    if (alive && active.value) virtualizer.value.measure()
   }
   const schedule = () => {
     if (rectFrame !== undefined) return
@@ -162,12 +173,12 @@ const observeRect = (instance: Virtualizer<HTMLElement, HTMLElement>, callback: 
 
 const getItemKey = computed(() => (index: number) => props.rowKey(index, props.items[index]))
 const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(computed(() => ({
-  count: active.value ? props.items.length : 0,
+  count: virtualMode.value ? props.items.length : 0,
   enabled: active.value,
   getScrollElement: () => active.value ? scrollRef.value : null,
   getItemKey: getItemKey.value,
   estimateSize: () => props.config.estimateSize,
-  initialRect: { width: 180, height: Math.max(1, viewportHeight.value || props.config.height) },
+  initialRect: { width: 180, height: Math.max(1, viewportMeasured.value ? viewportHeight.value : props.config.height) },
   overscan: props.config.overscan,
   scrollPaddingStart: 0,
   scrollPaddingEnd: 0,
@@ -179,7 +190,7 @@ const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(computed(() => ({
   },
   rangeExtractor: (range: Parameters<typeof defaultRangeExtractor>[0]) => {
     const indexes = defaultRangeExtractor(range)
-    const pendingIndex = pendingKey === undefined ? -1 : props.items.findIndex((option, index) => props.rowKey(index, option) === pendingKey)
+    const pendingIndex = pendingKey.value === undefined ? -1 : props.items.findIndex((option, index) => props.rowKey(index, option) === pendingKey.value)
     for (const index of [props.activeIndex, pendingIndex, ...props.pinnedIndexes]) {
       if (index >= 0 && index < props.items.length && !indexes.includes(index)) indexes.push(index)
     }
@@ -187,31 +198,37 @@ const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(computed(() => ({
   }
 })))
 
+const cachedRows = ref<Array<{ index: number; item: VirtualItem; key: string }>>([])
 const rows = computed(() => {
-  if (!active.value) return []
-  const scrollTop = scrollRef.value?.scrollTop ?? 0
-  const height = viewportHeight.value || props.config.height
-  const overscanPx = props.config.overscan * props.config.estimateSize
+  if (!virtualMode.value) return []
   const virtualRows = virtualizer.value.getVirtualItems()
-  const indexes = new Set([
-    props.activeIndex,
-    ...props.pinnedIndexes,
-    ...(pendingKey === undefined ? [] : [props.items.findIndex((option, index) => props.rowKey(index, option) === pendingKey)])
-  ])
-  return virtualRows
-    .filter(item => item.start < scrollTop + height + overscanPx && item.end > scrollTop - overscanPx || indexes.has(item.index))
-    .map(item => ({ index: item.index, item, key: getItemKey.value(item.index) }))
+  const nextRows = virtualRows.map(item => ({ index: item.index, item, key: getItemKey.value(item.index) }))
+  if (nextRows.length) cachedRows.value = nextRows
+  return nextRows.length || active.value ? nextRows : cachedRows.value
 })
-const contentStyle = computed<CSSProperties>(() => active.value ? {
-  position: 'relative', blockSize: `${Math.max(props.config.height, virtualizer.value.getTotalSize())}px`, minBlockSize: '100%'
-} : {})
+const measuredStart = (index: number) => {
+  let start = 0
+  for (let cursor = 0; cursor < index; cursor++) start += measuredSizes.get(props.rowKey(cursor, props.items[cursor])) ?? props.config.estimateSize
+  return start
+}
+const measuredTotal = () => {
+  let total = 0
+  for (let index = 0; index < props.items.length; index++) total += measuredSizes.get(props.rowKey(index, props.items[index])) ?? props.config.estimateSize
+  return total
+}
+const contentStyle = computed<CSSProperties>(() => {
+  measurementVersion.value
+  return virtualMode.value ? {
+    position: 'relative', blockSize: `${Math.max(props.config.height, measuredTotal(), virtualizer.value.getTotalSize())}px`, minBlockSize: '100%'
+  } : {}
+})
 
-const listStyle = computed<CSSProperties>(() => active.value
-  ? { maxBlockSize: `${props.config.height}px`, blockSize: `${viewportHeight.value || props.config.height}px`, overflowY: 'auto', overflowX: 'hidden', position: 'relative', minBlockSize: '0' }
+const listStyle = computed<CSSProperties>(() => virtualMode.value
+  ? { maxBlockSize: `${props.config.height}px`, blockSize: `${viewportMeasured.value ? Math.min(viewportHeight.value, props.config.height) : props.config.height}px`, overflowY: 'auto', overflowX: 'hidden', position: 'relative', minBlockSize: '0' }
   : { maxBlockSize: `${props.config.height}px`, overflowY: 'auto', overflowX: 'hidden', minBlockSize: '0' })
 
-const rowStyle = (item: VirtualItem | undefined): CSSProperties | undefined => item ? {
-  position: 'absolute', insetInline: '0', top: '0', transform: `translateY(${item.start}px)`, minBlockSize: `${item.size}px`
+const rowStyle = (item: VirtualItem | undefined, index: number): CSSProperties | undefined => item ? {
+  position: 'absolute', insetInline: '0', top: '0', transform: `translateY(${measuredStart(index)}px)`
 } : undefined
 const tabIndex = (index: number) => props.disabledIndex(index, props.items[index]) ? -1 : index === props.activeIndex ? 0 : -1
 
@@ -219,7 +236,7 @@ const focusIndex = (index: number) => {
   if (!props.items.length) return
   const clamped = Math.max(0, Math.min(props.items.length - 1, index))
   const requestedKey = props.rowKey(clamped, props.items[clamped])
-  pendingKey = requestedKey
+  pendingKey.value = requestedKey
   const generation = ++focusGeneration
   focusRetry = 0
   if (focusTimer !== undefined) ownerWindow?.clearTimeout(focusTimer)
@@ -234,24 +251,24 @@ const focusIndex = (index: number) => {
     virtualizer.value.scrollToIndex(clamped, { align: 'auto' })
   }
   const commit = () => {
-    if (generation !== focusGeneration || pendingKey !== requestedKey || !alive) return
+    if (generation !== focusGeneration || pendingKey.value !== requestedKey || !alive) return
     const currentIndex = props.items.findIndex((option, index) => props.rowKey(index, option) === requestedKey)
-    if (currentIndex < 0) { pendingKey = undefined; return }
+    if (currentIndex < 0) { pendingKey.value = undefined; return }
     const target = scrollRef.value?.querySelector<HTMLElement>(`[data-virtual-index="${currentIndex}"] .aheart-cascader__option`)
     if (target && !props.disabledIndex(currentIndex, props.items[currentIndex])) {
       target.focus()
-      if (pendingKey === requestedKey) pendingKey = undefined
+      if (pendingKey.value === requestedKey) pendingKey.value = undefined
       return
     }
     if (!active.value) {
       const fallbackTarget = scrollRef.value?.querySelectorAll<HTMLElement>('.aheart-cascader__option')[currentIndex]
-      if (fallbackTarget) { fallbackTarget.focus(); pendingKey = undefined; return }
+      if (fallbackTarget) { fallbackTarget.focus(); pendingKey.value = undefined; return }
     }
     if (focusRetry++ < 4 && alive) {
       const view = scrollRef.value?.ownerDocument.defaultView
       if (view?.requestAnimationFrame) focusTimer = view.requestAnimationFrame(() => { focusTimer = undefined; void nextTick(commit) })
       else if (view) focusTimer = view.setTimeout(() => { focusTimer = undefined; void nextTick(commit) }, 0)
-    } else if (pendingKey === requestedKey) pendingKey = undefined
+    } else if (pendingKey.value === requestedKey) pendingKey.value = undefined
   }
   void nextTick(commit)
 }
@@ -264,7 +281,7 @@ const focusFirst = () => focusIndex(firstEnabled())
 const focusLast = () => focusIndex(lastEnabled())
 const cancelFocus = () => {
   focusGeneration++
-  pendingKey = undefined
+  pendingKey.value = undefined
   focusRetry = 0
   if (focusTimer !== undefined) ownerWindow?.cancelAnimationFrame?.(focusTimer)
   if (focusTimer !== undefined) ownerWindow?.clearTimeout?.(focusTimer)
@@ -275,6 +292,10 @@ const suspend = () => {
   for (const cleanup of [...observationCleanups]) cleanup()
   observationCleanup = undefined
   pendingRows.clear()
+  for (const entry of rowObservers.values()) entry.observer.disconnect()
+  rowObservers.clear()
+  mutationObserver?.disconnect()
+  mutationObserver = undefined
 }
 
 onMounted(() => {
@@ -283,6 +304,15 @@ onMounted(() => {
   const view = scrollRef.value?.ownerDocument.defaultView
   ownerWindow = view ?? null
   if (active.value) scheduleMeasure()
+  const body = scrollRef.value?.ownerDocument.body
+  if (active.value && view?.MutationObserver && body) {
+    mutationObserver = new view.MutationObserver(() => {
+      if (!active.value || !scrollRef.value) return
+      scrollRef.value.querySelectorAll<HTMLElement>('[data-virtual-index]').forEach(row => pendingRows.add(row))
+      scheduleRowMeasurement()
+    })
+    mutationObserver.observe(body, { subtree: true, attributes: true, attributeFilter: ['class', 'style', 'data-font-size', 'data-long-labels', 'data-viewport'] })
+  }
 })
 watch([() => props.items, () => props.config, active], () => {
   if (!active.value) {
@@ -300,12 +330,58 @@ onBeforeUnmount(() => {
 
 defineExpose<CascaderVirtualListExpose>({ focusIndex, focusFirst, focusLast, cancelFocus, suspend })
 
-const setRowRef = (element: unknown, _index: number) => {
-  if (!element || typeof element !== 'object' || '$el' in element) return
+const setRowRef = (element: unknown, index: number) => {
+  const key = index >= 0 && index < props.items.length ? props.rowKey(index, props.items[index]) : undefined
+  if (!element || typeof element !== 'object' || '$el' in element || key === undefined) {
+    if (key !== undefined) {
+      rowObservers.get(key)?.observer.disconnect()
+      rowObservers.delete(key)
+    }
+    return
+  }
   const row = element as HTMLElement
-  if (row.nodeType === 1) {
+  if (row.nodeType !== 1) return
+  const view = row.ownerDocument.defaultView
+  if (!view?.ResizeObserver) return
+  ownerWindow ??= view
+  const existing = rowObservers.get(key)
+  if (existing?.element === row) return
+  existing?.observer.disconnect()
+  const observer = new view.ResizeObserver(() => {
     pendingRows.add(row)
     scheduleRowMeasurement()
-  }
+  })
+  observer.observe(row)
+  rowObservers.set(key, { element: row, observer })
+  pendingRows.add(row)
+  scheduleRowMeasurement()
 }
+onUpdated(() => {
+  if (!active.value || !scrollRef.value) return
+  scrollRef.value.querySelectorAll<HTMLElement>('[data-virtual-index]').forEach(row => pendingRows.add(row))
+  scheduleRowMeasurement()
+})
+const bindMountedRows = () => {
+  const owner = scrollRef.value
+  if (!owner || !active.value) return
+  owner.querySelectorAll<HTMLElement>('[data-virtual-index]').forEach(row => {
+    const index = Number(row.dataset.virtualIndex)
+    if (Number.isInteger(index)) setRowRef(row, index)
+  })
+}
+watch(active, value => {
+  if (value) {
+    void nextTick(bindMountedRows)
+    const view = scrollRef.value?.ownerDocument.defaultView
+    const body = scrollRef.value?.ownerDocument.body
+    if (!mutationObserver && view?.MutationObserver && body) {
+      mutationObserver = new view.MutationObserver(() => {
+        if (!active.value || !scrollRef.value) return
+        scrollRef.value.querySelectorAll<HTMLElement>('[data-virtual-index]').forEach(row => pendingRows.add(row))
+        scheduleRowMeasurement()
+      })
+      mutationObserver.observe(body, { subtree: true, attributes: true, attributeFilter: ['class', 'style', 'data-font-size', 'data-long-labels', 'data-viewport'] })
+    }
+  }
+}, { flush: 'post' })
 </script>

@@ -39,7 +39,8 @@ export function usePopupViewportBudget(options: PopupViewportBudgetOptions) {
     const search = options.search?.value
     const searchHeight = search ? search.getBoundingClientRect().height + Number.parseFloat(view.getComputedStyle(search).marginBottom || '0') : 0
     const treeHeight = Math.max(0, Math.min(options.maximum.value, available - chrome - searchHeight))
-    budget.value = { treeHeight, popupHeight: treeHeight + chrome + searchHeight }
+    const next = { treeHeight, popupHeight: treeHeight + chrome + searchHeight }
+    if (budget.value?.treeHeight !== next.treeHeight || budget.value.popupHeight !== next.popupHeight) budget.value = next
   }
   const schedule = () => {
     if (frame !== undefined) return

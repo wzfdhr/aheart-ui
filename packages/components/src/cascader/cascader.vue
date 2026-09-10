@@ -55,6 +55,8 @@
         placeholder="搜索"
         aria-label="搜索级联选项"
         @keydown="handleSearchInputKeydown"
+        @focus="handleSearchInputFocus"
+        @blur="handleSearchInputBlur"
       />
       <template v-if="searchText.trim() && virtualEnabled">
       <CascaderVirtualList
@@ -252,26 +254,8 @@ const setVirtualListRef = (key: string, element: Element | ComponentPublicInstan
 }
 const cancelVirtualFocus = () => virtualListRefs.forEach(list => list.cancelFocus())
 const suspendVirtualLists = () => virtualListRefs.forEach(list => list.suspend())
-watch(panelRef, (panel, _previous, cleanup) => {
-  if (!panel || !virtualEnabled.value) return
-  const ownerDocument = panel.ownerDocument
-  const cancelOutside = (event: FocusEvent) => {
-    const target = event.target as Node | null
-    if (target && !rootRef.value?.contains(target) && !panel.contains(target)) cancelVirtualFocus()
-  }
-  const cancelNavigation = () => cancelVirtualFocus()
-  ownerDocument.addEventListener('focusin', cancelOutside)
-  panel.addEventListener('wheel', cancelNavigation, { passive: true })
-  panel.addEventListener('pointerdown', cancelNavigation, { passive: true })
-  panel.addEventListener('touchstart', cancelNavigation, { passive: true })
-  cleanup(() => {
-    ownerDocument.removeEventListener('focusin', cancelOutside)
-    panel.removeEventListener('wheel', cancelNavigation)
-    panel.removeEventListener('pointerdown', cancelNavigation)
-    panel.removeEventListener('touchstart', cancelNavigation)
-    cancelVirtualFocus()
-  })
-}, { flush: 'post' })
+let modeFocusGeneration = 0
+const invalidateModeFocus = () => { modeFocusGeneration += 1; cancelVirtualFocus() }
 let loadGeneration = 0
 let loadSequence = 0
 let navigationVersion = 0
@@ -298,6 +282,26 @@ const valueState = useControllableState<CascaderValue>({
   }
 })
 const mergedOpen = computed(() => Boolean(openState.state.value))
+watch([panelRef, virtualEnabled, mergedOpen, () => props.disabled], ([panel, isVirtual, isOpen, isDisabled], _previous, cleanup) => {
+  if (!panel || !isVirtual || !isOpen || isDisabled) return
+  const ownerDocument = panel.ownerDocument
+  const cancelOutside = (event: FocusEvent) => {
+    const target = event.target as Node | null
+    if (target && !rootRef.value?.contains(target) && !panel.contains(target)) invalidateModeFocus()
+  }
+  const cancelNavigation = () => invalidateModeFocus()
+  ownerDocument.addEventListener('focusin', cancelOutside)
+  panel.addEventListener('wheel', cancelNavigation, { passive: true })
+  panel.addEventListener('pointerdown', cancelNavigation, { passive: true })
+  panel.addEventListener('touchstart', cancelNavigation, { passive: true })
+  cleanup(() => {
+    ownerDocument.removeEventListener('focusin', cancelOutside)
+    panel.removeEventListener('wheel', cancelNavigation)
+    panel.removeEventListener('pointerdown', cancelNavigation)
+    panel.removeEventListener('touchstart', cancelNavigation)
+    invalidateModeFocus()
+  })
+}, { flush: 'post', immediate: true })
 const mergedValue = valueState.state
 const selectedPaths = computed<CascaderPath[]>(() => {
   if (props.multiple) {
@@ -350,7 +354,7 @@ watch(() => props.options, (options) => {
 })
 watch(() => props.disabled, (disabled) => {
   if (disabled) {
-    cancelVirtualFocus()
+    invalidateModeFocus()
     suspendVirtualLists()
     invalidateLoads()
   }
@@ -465,12 +469,12 @@ const isLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.
 const isLoadError = (columnIndex: number, option: CascaderOption) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const requestOpen = (open: boolean) => {
   if (props.disabled) return
-  if (!open) cancelVirtualFocus()
+  if (!open) invalidateModeFocus()
   openState.setState(open, { force: true })
 }
 watch(mergedOpen, (open, previousOpen) => {
   if (previousOpen && !open) {
-    cancelVirtualFocus()
+    invalidateModeFocus()
     suspendVirtualLists()
     invalidateLoads()
   }
@@ -559,6 +563,10 @@ const handleSearchFocus = (path: CascaderPath, _index: number) => {
   focusedSearchPath.value = [...path]
   focusedPath.value = [...path]
 }
+const handleSearchInputFocus = () => invalidateModeFocus()
+const handleSearchInputBlur = (event: FocusEvent) => {
+  if (!event.relatedTarget) invalidateModeFocus()
+}
 const focusColumnIndex = (columnIndex: number, index: number) => {
   const key = columnPrefixToken(columnIndex)
   const list = virtualListRefs.get(key)
@@ -573,11 +581,13 @@ watch(searchText, (query, previousQuery) => {
   const active = searchRef.value?.ownerDocument.activeElement as HTMLElement | null
   const resultWasFocused = Boolean(active?.classList.contains('aheart-cascader__option') && active.dataset.cascaderPath)
   const path = [...focusedSearchPath.value]
+  const generation = ++modeFocusGeneration
   cancelVirtualFocus()
   if (!query.trim() && resultWasFocused && path.length) {
     activePath.value = path.slice(0, -1)
     focusedPath.value = [...path]
     void nextTick(() => void nextTick(() => {
+      if (generation !== modeFocusGeneration) return
       const siblings = columns.value[path.length - 1] ?? []
       const index = siblings.findIndex(option => option.value === path.at(-1) && !option.disabled)
       if (index >= 0) focusColumnIndex(path.length - 1, index)
