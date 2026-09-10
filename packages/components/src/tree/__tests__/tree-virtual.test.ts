@@ -484,6 +484,11 @@ describe('Tree virtual contract', () => {
     host.innerHTML = first
     const beforeHydrate = host.querySelectorAll('[role="treeitem"]').length
     const errors: unknown[] = []
+    const warnings: unknown[] = []
+    const consoleWarnings: unknown[][] = []
+    const consoleErrors: unknown[][] = []
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation((...args) => { consoleWarnings.push(args) })
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation((...args) => { consoleErrors.push(args) })
     const hydrationResizeObserver = vi.fn().mockImplementation(() => ({ observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() }))
     const hydrationRequestAnimationFrame = vi.fn().mockReturnValue(1)
     const hydrationCancelAnimationFrame = vi.fn()
@@ -495,24 +500,36 @@ describe('Tree virtual contract', () => {
     Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: hydrationCancelAnimationFrame })
     const app = createSSRApp(Tree, props)
     app.config.errorHandler = error => errors.push(error)
+    app.config.warnHandler = warning => warnings.push(warning)
+    let appMounted = false
+    let appUnmounted = false
     expect(hydrationResizeObserver).not.toHaveBeenCalled()
     expect(hydrationRequestAnimationFrame).not.toHaveBeenCalled()
     try {
       app.mount(host, true)
+      appMounted = true
       expect(host.querySelectorAll('[role="treeitem"]').length).toBe(beforeHydrate)
       expect(errors).toEqual([])
       await nextTick()
       await flushPromises()
+      expect(warnings).toEqual([])
+      expect(errors).toEqual([])
+      expect(consoleWarnings).toEqual([])
+      expect(consoleErrors).toEqual([])
       const observerStarted = hydrationResizeObserver.mock.calls.length > 0
       const rafScheduled = hydrationRequestAnimationFrame.mock.calls.length > 0
       const cancelBeforeUnmount = hydrationCancelAnimationFrame.mock.calls.length
       app.unmount()
+      appUnmounted = true
       const rafCancelled = hydrationCancelAnimationFrame.mock.calls.length > 0
       expect(observerStarted).toBe(true)
       expect(rafScheduled).toBe(true)
       expect(cancelBeforeUnmount).toBe(0)
       expect(rafCancelled).toBe(true)
     } finally {
+      if (appMounted && !appUnmounted) app.unmount()
+      warnSpy.mockRestore()
+      errorSpy.mockRestore()
       if (previousResizeObserver) Object.defineProperty(window, 'ResizeObserver', previousResizeObserver)
       else Reflect.deleteProperty(window, 'ResizeObserver')
       if (previousRequestAnimationFrame) Object.defineProperty(window, 'requestAnimationFrame', previousRequestAnimationFrame)

@@ -11,6 +11,10 @@ const fontSize = ref(14)
 const wrapTitles = ref(false)
 const disabledAncestor = ref(false)
 const treeDisabled = ref(false)
+const lazyMode = ref<'fail' | 'success'>('fail')
+const lazyData: TreeNodeData[] = [{ key: 'lazy-root', title: 'Lazy loading root', isLeaf: false }]
+let lazyHold = true
+let releaseLazy: (() => void) | undefined
 const revision = ref(0)
 const data = ref<TreeNodeData[]>([])
 const expandedKeys = ref<TreeKey[]>(['tree-ancestor'])
@@ -57,6 +61,25 @@ const toggleAncestorDisabled = () => {
   revision.value++
 }
 const toggleTreeDisabled = () => { treeDisabled.value = !treeDisabled.value }
+const setLazyMode = (mode: 'fail' | 'success') => {
+  lazyMode.value = mode
+  if (mode === 'fail' && releaseLazy) {
+    lazyHold = false
+    releaseLazy()
+    releaseLazy = undefined
+  }
+}
+const loadLazyChildren = async (_node: TreeNodeData, { signal }: { signal: AbortSignal }) => {
+  if (lazyHold) {
+    await new Promise<void>((resolve, reject) => {
+      releaseLazy = resolve
+      const abort = () => { releaseLazy = undefined; reject(new Error('fixture lazy request aborted')) }
+      signal.addEventListener('abort', abort, { once: true })
+    })
+  } else await new Promise<void>(resolve => window.setTimeout(resolve, 160))
+  if (lazyMode.value === 'fail') throw new Error('fixture requested lazy failure')
+  return Array.from({ length: 120 }, (_, index) => ({ key: `lazy-child-${String(index).padStart(3, '0')}`, title: `Lazy child ${String(index).padStart(3, '0')}` }))
+}
 const collapseAncestor = () => { expandedKeys.value = [] }
 const expandAncestor = () => { expandedKeys.value = ['tree-ancestor'] }
 const reorder = () => {
@@ -109,6 +132,8 @@ onMounted(() => {
       <button type="button" data-testid="tree-virtual-wrap" @click="toggleWrap">wrap: {{ wrapTitles ? 'on' : 'off' }}</button>
       <button type="button" data-testid="tree-virtual-disable-ancestor" @click="toggleAncestorDisabled">ancestor disabled: {{ disabledAncestor ? 'on' : 'off' }}</button>
       <button type="button" data-testid="tree-virtual-disable-tree" @click="toggleTreeDisabled">tree disabled: {{ treeDisabled ? 'on' : 'off' }}</button>
+      <button type="button" data-testid="tree-virtual-lazy-fail" @click="setLazyMode('fail')">lazy result: fail</button>
+      <button type="button" data-testid="tree-virtual-lazy-success" @click="setLazyMode('success')">lazy result: success</button>
       <button type="button" data-testid="tree-virtual-collapse" @click="collapseAncestor">collapse ancestor</button>
       <button type="button" data-testid="tree-virtual-expand" @click="expandAncestor">expand ancestor</button>
       <button type="button" data-testid="tree-virtual-reorder" @click="reorder">reorder</button>
@@ -132,6 +157,15 @@ onMounted(() => {
         @update:expanded-keys="expandedKeys = $event"
       />
     </div>
+    <div class="tree-virtual-lazy" data-testid="tree-virtual-lazy-fixture">
+      <Tree
+        :tree-data="lazyData"
+        :default-expanded-keys="['lazy-root']"
+        :virtual="{ height: 220, estimateSize: 28, overscan: 4 }"
+        :load-data="loadLazyChildren"
+        aria-label="Tree virtual lazy fixture tree"
+      />
+    </div>
     <button type="button" data-testid="tree-virtual-after">outside tree after</button>
   </section>
 </template>
@@ -143,6 +177,8 @@ onMounted(() => {
 .tree-virtual-fixture button:focus-visible { outline: 2px solid #1677ff; outline-offset: 2px; }
 .tree-virtual-fixture__readout { display: flex; flex-wrap: wrap; gap: 16px; margin: 0; color: #536273; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .tree-virtual-fixture__frame { max-width: 100%; overflow-x: auto; }
+.tree-virtual-lazy { max-width: 100%; overflow-x: auto; }
+.tree-virtual-lazy :deep(.aheart-tree) { border: 1px solid #e5eaf0; }
 .tree-virtual-fixture :deep(.aheart-tree) { border: 1px solid #e5eaf0; }
 .tree-virtual-fixture :deep(.aheart-tree__title) { white-space: inherit; }
 </style>
