@@ -58,3 +58,16 @@ An independent Astra High reviewer compared the same production source with real
 The installed Vue Test Utils intentionally does not cache the Teleport transformer and creates a fresh stub component type on parent render. That replaces the nested Tree, resetting its uncontrolled expansion; the new Tree then cancels the shared pending load. Thus neither a native-click comparison nor a default-mode comparison under the same stub establishes a production defect.
 
 Root-cause report and executable four-way comparison: `/tmp/d4-treeselect-retry-rootcause.a8CfKA/` (`root-cause.md`, `retry.test.ts`, `retry.log`, `source-hashes.txt`). No production Tree/loader workaround is approved. The independent test author is replacing the new TreeSelect tests' Teleport stubs with real Teleport/attached owner containers, retaining retry assertions and rerunning the full maintained suite. A first-pass success under the corrected fixture is supplementary compatibility evidence, not a fabricated production RED/GREEN.
+
+## First repair re-review: four P2 findings remain
+
+Fresh independent Astra High diagnostics passed9/14 with5 failures representing four root causes, P0/P1/P2=`0/0/4`. Eight production-file hashes matched before/after. Accepted-close cancellation, owner resize, partial-RAF cleanup, native nonvirtual Home and the wholly collapsed endpoint case now pass; source is not accepted yet.
+
+1. Zero CSS budget is applied, but Tree still receives public `virtual.height=0` and emits an invalid-height fallback warning.
+2. Empty-query endpoints assume all nodes are collapsed; after manually expanding Root→Leaf, ArrowUp goes to Root rather than the actually visible Leaf.
+3. The viewport helper still installs capture-scroll listeners in default nonvirtual and disabled virtual modes; it is not gated by virtual mode, enabled state and accepted open state.
+4. Changing the query while the same pending target key remains matched does not cancel the old navigation; focus leaves the search input for that stale target.
+
+Evidence: `/tmp/d4-treeselect-dev-rereview.6MnWDz/` (`review.md`, `diagnostics.test.ts`, `diagnostics.log`, source hashes). Additional maintained RED cases precede the next source repair.
+
+The corrected real-Teleport lifecycle run passed115/115 and its public-type command passed. However, its reported "source drift during execution" was an invalid comparison against a before-hash file from19:16, while the run started19:58. The four changed source mtimes preceded the run. That drift claim is withdrawn; the run lacks a fresh same-run before snapshot and is not promoted to a frozen-candidate gate. The next run must collect new before/after hashes in its own directory. This correction does not discard the observed passing test results or waive the four developer findings above.
