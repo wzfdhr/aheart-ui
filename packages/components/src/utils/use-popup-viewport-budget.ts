@@ -14,7 +14,7 @@ export function usePopupViewportBudget(options: PopupViewportBudgetOptions) {
   const budget = ref<{ treeHeight: number; popupHeight: number }>()
   let frame: number | undefined
   let ownerWindow: Window & typeof globalThis | null = null
-  let resizeObserver: ResizeObserver | undefined
+  const resizeObservers = new Set<ResizeObserver>()
   let visualViewport: VisualViewport | null | undefined
 
   const cancelFrame = () => {
@@ -51,8 +51,8 @@ export function usePopupViewportBudget(options: PopupViewportBudgetOptions) {
   }
   const cleanup = () => {
     cancelFrame()
-    resizeObserver?.disconnect()
-    resizeObserver = undefined
+    for (const observer of resizeObservers) observer.disconnect()
+    resizeObservers.clear()
     visualViewport?.removeEventListener('resize', schedule)
     visualViewport?.removeEventListener('scroll', schedule)
     ownerWindow?.removeEventListener('resize', schedule)
@@ -67,10 +67,13 @@ export function usePopupViewportBudget(options: PopupViewportBudgetOptions) {
     const view = trigger.ownerDocument.defaultView
     if (!view) return
     ownerWindow = view
-    resizeObserver = view.ResizeObserver ? new view.ResizeObserver(schedule) : undefined
-    resizeObserver?.observe(trigger)
-    resizeObserver?.observe(popup)
-    if (options.search?.value) resizeObserver?.observe(options.search.value)
+    const resizeObserver = view.ResizeObserver ? new view.ResizeObserver(schedule) : undefined
+    if (resizeObserver) {
+      resizeObservers.add(resizeObserver)
+      resizeObserver.observe(trigger)
+      resizeObserver.observe(popup)
+      if (options.search?.value) resizeObserver.observe(options.search.value)
+    }
     visualViewport = view.visualViewport
     visualViewport?.addEventListener('resize', schedule)
     visualViewport?.addEventListener('scroll', schedule)

@@ -48,6 +48,7 @@
     >
       <input
         v-if="showSearch"
+        ref="searchRef"
         v-model="searchText"
         class="aheart-cascader__search"
         type="search"
@@ -60,9 +61,10 @@
         :ref="element => setVirtualListRef('search', element)"
         class-name="aheart-cascader__search-results"
         :items="searchResults"
-        :config="virtualConfig!"
+        :config="effectiveVirtualConfig"
         :active-index="searchRovingIndex"
         :pinned-indexes="searchPinnedIndexes"
+        :enabled="virtualEnabled && mergedOpen && !disabled"
         :row-key="(_index, result) => pathToken(result.path)"
         :disabled-index="(_index, result) => disabled || result.disabled"
       >
@@ -107,9 +109,10 @@
           :ref="element => setVirtualListRef(columnPrefixToken(columnIndex), element)"
           class-name="aheart-cascader__column"
           :items="column"
-          :config="virtualConfig!"
+          :config="effectiveVirtualConfig"
           :active-index="rovingIndex(columnIndex)"
           :pinned-indexes="pinnedIndexes(columnIndex)"
+          :enabled="virtualEnabled && mergedOpen && !disabled"
           :row-key="(optionIndex, option) => rowToken(columnIndex, optionIndex, option)"
           :disabled-index="(optionIndex, option) => disabled || option.disabled || isLoading(columnIndex, option)"
         >
@@ -171,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch, type ComponentPublicInstance } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch, type CSSProperties, type ComponentPublicInstance } from 'vue'
 import AIcon from '../icon/icon.vue'
 import type { FloatingPlacement } from '../utils/floating-core'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
@@ -181,6 +184,7 @@ import { usePropPresence } from '../utils/use-prop-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
+import { usePopupViewportBudget } from '../utils/use-popup-viewport-budget'
 import type { CascaderKey, CascaderLoadContext, CascaderOption, CascaderPath, CascaderValue } from './types'
 import CascaderVirtualList, { type CascaderVirtualListExpose } from './cascader-virtual-list.vue'
 import { normalizeCascaderVirtual } from './virtual-options'
@@ -228,6 +232,7 @@ const rootRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 const columnsRef = ref<HTMLElement | null>(null)
+const searchRef = ref<HTMLInputElement | null>(null)
 const searchText = ref('')
 const activePath = ref<CascaderPath>([])
 const focusedPath = ref<CascaderPath>([])
@@ -240,10 +245,33 @@ const virtualConfig = computed(() => normalizeCascaderVirtual(props.virtual, (me
 const virtualEnabled = computed(() => virtualConfig.value !== null)
 const focusedSearchPath = ref<CascaderPath>([])
 const virtualListRefs = new Map<string, CascaderVirtualListExpose>()
+const rovingKeys = ref<Record<string, CascaderKey | undefined>>({})
 const setVirtualListRef = (key: string, element: Element | ComponentPublicInstance | null) => {
   if (element && '$el' in element) virtualListRefs.set(key, element as unknown as CascaderVirtualListExpose)
   else if (!element) virtualListRefs.delete(key)
 }
+const cancelVirtualFocus = () => virtualListRefs.forEach(list => list.cancelFocus())
+const suspendVirtualLists = () => virtualListRefs.forEach(list => list.suspend())
+watch(panelRef, (panel, _previous, cleanup) => {
+  if (!panel || !virtualEnabled.value) return
+  const ownerDocument = panel.ownerDocument
+  const cancelOutside = (event: FocusEvent) => {
+    const target = event.target as Node | null
+    if (target && !rootRef.value?.contains(target) && !panel.contains(target)) cancelVirtualFocus()
+  }
+  const cancelNavigation = () => cancelVirtualFocus()
+  ownerDocument.addEventListener('focusin', cancelOutside)
+  panel.addEventListener('wheel', cancelNavigation, { passive: true })
+  panel.addEventListener('pointerdown', cancelNavigation, { passive: true })
+  panel.addEventListener('touchstart', cancelNavigation, { passive: true })
+  cleanup(() => {
+    ownerDocument.removeEventListener('focusin', cancelOutside)
+    panel.removeEventListener('wheel', cancelNavigation)
+    panel.removeEventListener('pointerdown', cancelNavigation)
+    panel.removeEventListener('touchstart', cancelNavigation)
+    cancelVirtualFocus()
+  })
+}, { flush: 'post' })
 let loadGeneration = 0
 let loadSequence = 0
 let navigationVersion = 0
@@ -321,7 +349,11 @@ watch(() => props.options, (options) => {
   focusedPath.value = closestExistingPath(focusedPath.value, nextOptions)
 })
 watch(() => props.disabled, (disabled) => {
-  if (disabled) invalidateLoads()
+  if (disabled) {
+    cancelVirtualFocus()
+    suspendVirtualLists()
+    invalidateLoads()
+  }
 })
 watch(() => props.loadData, invalidateLoads, { flush: 'sync' })
 const isBranch = (option: CascaderOption) => Boolean(option.children?.length) || option.isLeaf === false
@@ -386,6 +418,7 @@ const searchResults = computed(() => {
 })
 const columnPrefixToken = (columnIndex: number) => `column-${columnIndex === 0 ? 'root' : pathToken(activePath.value.slice(0, columnIndex))}`
 const rowToken = (columnIndex: number, _optionIndex: number, option: CascaderOption) => `${columnPrefixToken(columnIndex)}-${cascaderKeyToken(option.value)}`
+const columnOptionLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.value.some(path => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const firstEnabledIndex = (items: CascaderOption[]) => items.findIndex(option => !option.disabled)
 const lastEnabledIndex = (items: CascaderOption[]) => {
   for (let index = items.length - 1; index >= 0; index--) if (!items[index].disabled) return index
@@ -393,9 +426,11 @@ const lastEnabledIndex = (items: CascaderOption[]) => {
 }
 const rovingIndex = (columnIndex: number) => {
   const column = columns.value[columnIndex] ?? []
-  const focused = focusedPath.value[columnIndex]
-  const focusedIndex = focused === undefined ? -1 : column.findIndex(option => option.value === focused && !option.disabled)
-  return focusedIndex >= 0 ? focusedIndex : firstEnabledIndex(column)
+  const focused = rovingKeys.value[columnPrefixToken(columnIndex)] ?? focusedPath.value[columnIndex]
+  const focusedIndex = focused === undefined ? -1 : column.findIndex(option => option.value === focused && !option.disabled && !columnOptionLoading(columnIndex, option))
+  const enabled = column.filter(option => !option.disabled && !columnOptionLoading(columnIndex, option))
+  const fallback = firstEnabledIndex(enabled)
+  return focusedIndex >= 0 ? focusedIndex : (fallback < 0 ? -1 : column.indexOf(enabled[fallback]))
 }
 const pinnedIndexes = (columnIndex: number) => {
   const index = rovingIndex(columnIndex)
@@ -430,10 +465,15 @@ const isLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.
 const isLoadError = (columnIndex: number, option: CascaderOption) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const requestOpen = (open: boolean) => {
   if (props.disabled) return
+  if (!open) cancelVirtualFocus()
   openState.setState(open, { force: true })
 }
 watch(mergedOpen, (open, previousOpen) => {
-  if (previousOpen && !open) invalidateLoads()
+  if (previousOpen && !open) {
+    cancelVirtualFocus()
+    suspendVirtualLists()
+    invalidateLoads()
+  }
 })
 const toggleOpen = () => requestOpen(!mergedOpen.value)
 const emitValue = (value: CascaderValue) => {
@@ -513,6 +553,7 @@ const handleOption = async (option: CascaderOption, columnIndex: number) => {
 }
 const handleOptionFocus = (option: CascaderOption, columnIndex: number) => {
   focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value]
+  rovingKeys.value = { ...rovingKeys.value, [columnPrefixToken(columnIndex)]: option.value }
 }
 const handleSearchFocus = (path: CascaderPath, _index: number) => {
   focusedSearchPath.value = [...path]
@@ -527,11 +568,34 @@ const focusColumnIndex = (columnIndex: number, index: number) => {
     target?.focus()
   }
 }
+watch(searchText, (query, previousQuery) => {
+  if (!virtualEnabled.value || query === previousQuery) return
+  const active = searchRef.value?.ownerDocument.activeElement as HTMLElement | null
+  const resultWasFocused = Boolean(active?.classList.contains('aheart-cascader__option') && active.dataset.cascaderPath)
+  const path = [...focusedSearchPath.value]
+  cancelVirtualFocus()
+  if (!query.trim() && resultWasFocused && path.length) {
+    activePath.value = path.slice(0, -1)
+    focusedPath.value = [...path]
+    void nextTick(() => void nextTick(() => {
+      const siblings = columns.value[path.length - 1] ?? []
+      const index = siblings.findIndex(option => option.value === path.at(-1) && !option.disabled)
+      if (index >= 0) focusColumnIndex(path.length - 1, index)
+    }))
+  } else if (query.trim() && resultWasFocused) {
+    searchRef.value?.focus()
+  }
+  if (query.trim()) {
+    const retained = searchResults.value.some(result => samePath(result.path, path) && !result.disabled)
+    if (!retained) focusedSearchPath.value = []
+  }
+}, { flush: 'sync' })
 const enabledIndexes = (columnIndex: number) => (columns.value[columnIndex] ?? [])
   .map((option, index) => ({ option, index }))
   .filter(({ option }) => !option.disabled && !isLoading(columnIndex, option))
   .map(({ index }) => index)
 const handleSearchInputKeydown = (event: KeyboardEvent) => {
+  if (!virtualEnabled.value) return
   if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
   const indexes = searchResults.value.map((result, index) => ({ result, index })).filter(({ result }) => !result.disabled).map(({ index }) => index)
   if (!indexes.length) return
@@ -658,17 +722,40 @@ const teleportTo = computed(() => popupContainer.value === false ? 'body' : popu
 const floatingPosition = useFloatingPosition({
   reference: triggerRef,
   floating: panelRef,
-  open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
+  open: () => !props.disabled && motion.isMounted.value && motion.phase.value !== 'hidden',
   placement: () => props.placement,
   strategy: 'fixed',
   offset: 4,
   autoAdjustOverflow: () => props.autoAdjustOverflow
 })
+const viewportBudget = usePopupViewportBudget({
+  trigger: triggerRef,
+  popup: panelRef,
+  placement: floatingPosition.placement,
+  open: computed(() => virtualEnabled.value && !props.disabled && mergedOpen.value && motion.isMounted.value && motion.phase.value !== 'hidden'),
+  maximum: computed(() => virtualConfig.value?.height ?? 256),
+  search: searchRef
+})
+const effectiveVirtualConfig = computed(() => {
+  const config = virtualConfig.value
+  if (!config) return { height: 0, estimateSize: 32, overscan: 0 }
+  return { ...config, height: Math.max(0, viewportBudget.value.treeHeight) }
+})
 const panelClass = computed(() => [
   `aheart-floating--${floatingPosition.placement.value}`,
-  `is-${motion.phase.value}`
+  `is-${motion.phase.value}`,
+  { 'is-virtual': virtualEnabled.value }
 ])
-const panelStyle = computed(() => floatingPosition.popupStyle.value)
+const panelStyle = computed(() => [
+  floatingPosition.popupStyle.value,
+  virtualEnabled.value ? {
+    display: 'flex',
+    flexDirection: 'column',
+    minBlockSize: '0',
+    overflowY: 'hidden',
+    maxBlockSize: `${viewportBudget.value.popupHeight}px`
+  } as CSSProperties : undefined
+])
 
 useFloatingDismiss({
   open: mergedOpen,
