@@ -1,0 +1,47 @@
+{
+  "status": "failed",
+  "generatedAt": "2026-09-09T16:10:46.308Z",
+  "node": "v24.17.0",
+  "npm": "11.13.0",
+  "pnpm": "11.19.0",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d8-ai-bSpPjt",
+  "tarballs": {
+    "ai": {
+      "path": "/private/tmp/aheart-d8-red.sgxxix/aheart-ui-ai-1.0.0.tgz",
+      "sha256": "ca5869f37f0f20774116591fcfd765161c475be68b029aa4dd88166caea26173",
+      "bytes": 40928
+    },
+    "components": {
+      "path": "/private/tmp/aheart-d8-red.sgxxix/aheart-ui-1.0.0.tgz",
+      "sha256": "5e3615a03fc84d8d8e788a23274ba99cdb16efb02c6f2b30231391673a986813",
+      "bytes": 480217
+    },
+    "dnd": {
+      "path": "/private/tmp/aheart-d8-red.sgxxix/aheart-ui-dnd-1.0.0.tgz",
+      "sha256": "9cea27e357f1b42376f2b0147dd2448fcab0500f2627a66c106b98dc7f8ee20d",
+      "bytes": 26478
+    }
+  },
+  "symlink": false,
+  "packageFiles": false,
+  "typecheck": false,
+  "imports": false,
+  "css": false,
+  "pluginInstall": false,
+  "reducer": false,
+  "ssr": false,
+  "hydration": false,
+  "chatLifecycle": false,
+  "workbench": false,
+  "aiForm": false,
+  "primitiveBundle": false,
+  "gzip": {
+    "status": "not-run"
+  },
+  "gates": {},
+  "error": {
+    "name": "Error",
+    "message": "Command failed: npm install --include=dev --ignore-scripts --no-audit --no-fund\nnpm error code EUNSUPPORTEDPROTOCOL\nnpm error Unsupported URL Type \"workspace:\": workspace:^\nnpm error A complete log of this run can be found in: /Users/start/.npm/_logs/2026-09-09T16_10_46_846Z-debug-0.log\n",
+    "stack": "Error: Command failed: npm install --include=dev --ignore-scripts --no-audit --no-fund\nnpm error code EUNSUPPORTEDPROTOCOL\nnpm error Unsupported URL Type \"workspace:\": workspace:^\nnpm error A complete log of this run can be found in: /Users/start/.npm/_logs/2026-09-09T16_10_46_846Z-debug-0.log\n\n    at genericNodeError (node:internal/errors:985:15)\n    at wrappedFn (node:internal/errors:539:14)\n    at ChildProcess.exithandler (node:child_process:417:12)\n    at ChildProcess.emit (node:events:509:28)\n    at maybeClose (node:internal/child_process:1124:16)\n    at Socket.<anonymous> (node:internal/child_process:481:11)\n    at Socket.emit (node:events:509:28)\n    at Pipe.<anonymous> (node:net:351:12)"
+  }
+}

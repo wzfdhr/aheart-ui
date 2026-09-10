@@ -1,47 +1,41 @@
-import { defineComponent, getCurrentInstance, ref, onBeforeUpdate, computed, watch, openBlock, createElementBlock, createBlock, createCommentVNode, createElementVNode, Fragment, renderList, withCtx, createVNode, toDisplayString } from "vue";
-import _sfc_main$5 from "./attachments.vue.js";
-import _sfc_main$2 from "./bubble.vue.js";
-import _sfc_main$1 from "./conversations.vue.js";
-import _sfc_main$4 from "./prompts.vue.js";
-import _sfc_main$6 from "./sender.vue.js";
-import _sfc_main$3 from "./welcome.vue.js";
-const _hoisted_1 = {
+import { defineComponent as he, getCurrentInstance as ke, ref as k, onBeforeUpdate as Ce, computed as X, watch as Y, onBeforeUnmount as _e, openBlock as g, createElementBlock as C, createBlock as oe, createCommentVNode as E, createElementVNode as U, Fragment as xe, renderList as $e, withCtx as we, createVNode as z, toDisplayString as Ie } from "vue";
+import Ae from "./attachments.vue.js";
+import Se from "./bubble.vue.js";
+import Re from "./conversations.vue.js";
+import Ve from "./prompts.vue.js";
+import Ee from "./sender.vue.js";
+import Be from "./welcome.vue.js";
+import { createAIStreamReducer as De } from "./stream-reducer.js";
+const Me = {
   class: "aheart-ai-chat-panel",
   "aria-label": "AI 对话"
-};
-const _hoisted_2 = { class: "aheart-ai-chat-panel__surface" };
-const _hoisted_3 = {
+}, Ue = { class: "aheart-ai-chat-panel__surface" }, Pe = {
   key: 0,
   class: "aheart-ai-chat-panel__messages",
   role: "log",
   "aria-live": "polite",
   "aria-relevant": "additions text"
-};
-const _hoisted_4 = {
+}, Ne = {
   class: "aheart-ai-chat-panel__message-actions",
   "aria-label": "消息操作"
-};
-const _hoisted_5 = ["aria-label", "onClick"];
-const _hoisted_6 = ["disabled", "onClick"];
-const _hoisted_7 = ["disabled", "onClick"];
-const _hoisted_8 = ["disabled", "onClick"];
-const _hoisted_9 = {
+}, Te = ["aria-label", "onClick"], je = ["disabled", "onClick"], Fe = ["disabled", "onClick"], Oe = ["disabled", "onClick"], Ke = {
   key: 1,
   class: "aheart-ai-chat-panel__empty"
-};
-const _hoisted_10 = { class: "aheart-ai-chat-panel__composer" };
-const _hoisted_11 = {
+}, Le = { class: "aheart-ai-chat-panel__composer" }, ze = {
   key: 0,
+  class: "aheart-ai-chat-panel__stream-reconnecting",
+  role: "status",
+  "aria-live": "polite"
+}, Ge = {
+  key: 1,
   class: "aheart-ai-chat-panel__editing",
   role: "status"
-};
-const _hoisted_12 = {
+}, He = {
   class: "aheart-ai-visually-hidden",
   role: "status",
   "aria-live": "polite"
-};
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AAIChatPanel" },
+}, tt = /* @__PURE__ */ he({
+  name: "AAIChatPanel",
   __name: "chat-panel",
   props: {
     messages: { default: () => [] },
@@ -54,290 +48,283 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     attachments: { default: () => [] },
     welcomeTitle: { default: "你好，我能为你做些什么？" },
     welcomeDescription: { default: "描述目标、补充上下文，或从建议任务开始。" },
-    disabled: { type: Boolean, default: false }
+    disabled: { type: Boolean, default: !1 },
+    maxReconnectAttempts: { default: 1 }
   },
-  emits: ["update:messages", "update:activeConversation", "update:attachments", "send", "stop", "retry", "regenerate", "edit", "copy", "error"],
-  setup(__props, { emit: __emit }) {
-    const props = __props;
-    const emit = __emit;
-    const instance = getCurrentInstance();
-    const hasProp = (name) => Object.prototype.hasOwnProperty.call((instance == null ? void 0 : instance.vnode.props) ?? {}, name);
-    const hasMessagesProp = ref(hasProp("messages"));
-    onBeforeUpdate(() => {
-      hasMessagesProp.value = hasProp("messages");
+  emits: ["update:messages", "update:activeConversation", "update:attachments", "send", "stop", "retry", "regenerate", "edit", "copy", "error", "stream-status", "stream-reject"],
+  setup(m, { emit: re }) {
+    const i = m, n = re, _ = ke(), Z = (e) => Object.prototype.hasOwnProperty.call((_ == null ? void 0 : _.vnode.props) ?? {}, e), q = k(Z("messages"));
+    Ce(() => {
+      q.value = Z("messages");
     });
-    const isMessagesControlled = () => hasMessagesProp.value;
-    const localMessages = ref([...props.defaultMessages]);
-    const workingMessages = ref(isMessagesControlled() ? [...props.messages] : [...localMessages.value]);
-    const draft = ref("");
-    const sending = ref(false);
-    const controller = ref();
-    const activeAssistantId = ref();
-    const editingMessage = ref();
-    const latestDelta = ref("");
-    let sequence = 0;
-    const currentMessages = computed(() => isMessagesControlled() ? props.messages : localMessages.value);
-    const resolvedConversationId = computed(() => props.conversationId ?? props.activeConversation);
-    const announcement = computed(() => {
-      if (sending.value && latestDelta.value) return `AI 回复：${latestDelta.value}`;
-      const message = [...currentMessages.value].reverse().find((item) => item.role === "assistant");
-      if (!message) return "";
-      if (message.status === "streaming") return "正在生成";
-      if (message.status === "stopped") return "已停止生成";
-      if (message.status === "error") return "生成失败";
-      return message.status === "complete" ? "已完成生成" : "";
-    });
-    watch(
-      () => props.messages,
-      (messages) => {
-        if (isMessagesControlled() && !sending.value) workingMessages.value = [...messages];
+    const f = () => q.value, G = k([...i.defaultMessages]), l = k(f() ? [...i.messages] : [...G.value]), S = k(""), u = k(!1), y = k(), R = k(), B = k(), P = k(""), x = k("idle");
+    let p = 0, ne = 0;
+    const w = X(() => f() ? i.messages : G.value), H = X(() => i.conversationId ?? i.activeConversation), le = X(() => {
+      if (x.value === "reconnecting") return "";
+      if (!f() && u.value && P.value) return `AI 回复：${P.value}`;
+      const e = [...w.value].reverse().find((a) => a.role === "assistant");
+      return e ? e.status === "streaming" ? "正在生成" : e.status === "stopped" ? "已停止生成" : e.status === "error" ? "生成失败" : e.status === "complete" ? "已完成生成" : "" : "";
+    }), $ = (e) => {
+      e === "idle" && u.value && (x.value === "streaming" || x.value === "reconnecting") || x.value !== e && (x.value = e, n("stream-status", e));
+    };
+    Y(
+      () => i.messages,
+      (e) => {
+        f() && !u.value && (l.value = [...e]);
       },
-      { deep: true }
+      { deep: !0 }
     );
-    const createId = (prefix) => `${prefix}-${Date.now()}-${sequence++}`;
-    const publish = (messages) => {
-      workingMessages.value = messages;
-      if (!isMessagesControlled()) localMessages.value = messages;
-      emit("update:messages", messages);
-    };
-    const updateAssistant = (assistantId, update) => {
-      publish(workingMessages.value.map((message) => message.id === assistantId ? { ...message, ...update } : message));
-    };
-    const settleProcess = (items, status, detail) => items == null ? void 0 : items.map((item) => item.status === "pending" || item.status === "running" ? { ...item, status, ...detail && !item.detail ? { detail } : {} } : item);
-    const finishAssistant = (assistantId, status, error) => {
-      const assistant = workingMessages.value.find((message) => message.id === assistantId);
-      if (!assistant) return;
-      const processStatus = status === "complete" ? "complete" : status === "stopped" ? "stopped" : "error";
-      updateAssistant(assistantId, {
-        status,
-        ...error ? { error } : {},
-        process: settleProcess(assistant.process, processStatus, error)
-      });
-    };
-    const applyEvent = (assistantId, event) => {
-      const assistant = workingMessages.value.find((message) => message.id === assistantId);
-      if (!assistant) return false;
-      if (event.type === "text-delta") {
-        latestDelta.value = event.delta;
-        updateAssistant(assistantId, { content: `${assistant.content}${event.delta}` });
-      } else if (event.type === "process") {
-        const process = [...(assistant.process ?? []).filter((item) => item.id !== event.item.id), event.item];
-        updateAssistant(assistantId, { process });
-      } else if (event.type === "sources") {
-        updateAssistant(assistantId, { sources: event.sources });
-      } else if (event.type === "done") {
-        finishAssistant(assistantId, "complete");
-        return true;
-      } else if (event.type === "cancelled") {
-        finishAssistant(assistantId, "stopped");
-        return true;
-      } else if (event.type === "error") {
-        finishAssistant(assistantId, "error", event.error);
-        emit("error", event.error);
-        return true;
+    const T = (e) => `${e}-${Date.now()}-${ne++}`, D = (e) => {
+      l.value = e, f() || (G.value = e), n("update:messages", e);
+    }, j = (e, a) => {
+      D(l.value.map((t) => t.id === e ? { ...t, ...a } : t));
+    }, ie = (e, a, t) => e == null ? void 0 : e.map((s) => s.status === "pending" || s.status === "running" ? { ...s, status: a, ...t && !s.detail ? { detail: t } : {} } : s), M = (e, a, t) => {
+      const s = l.value.find((d) => d.id === e);
+      if (!s) return;
+      const o = a === "complete" ? "complete" : a === "stopped" ? "stopped" : "error";
+      j(e, {
+        status: a,
+        ...t ? { error: t } : {},
+        process: ie(s.process, o, t)
+      }), a === "complete" ? $("completed") : a === "stopped" ? $("cancelled") : a === "error" && $("error");
+    }, ce = (e, a) => {
+      const t = l.value.find((s) => s.id === e);
+      if (!t) return !1;
+      if (a.type === "text-delta")
+        f() || (P.value = a.delta), j(e, { content: `${t.content}${a.delta}` });
+      else if (a.type === "process") {
+        const s = [...(t.process ?? []).filter((o) => o.id !== a.item.id), a.item];
+        j(e, { process: s });
+      } else if (a.type === "sources")
+        j(e, { sources: a.sources });
+      else {
+        if (a.type === "done")
+          return M(e, "complete"), !0;
+        if (a.type === "cancelled")
+          return M(e, "stopped"), !0;
+        if (a.type === "error")
+          return M(e, "error", a.error), n("error", a.error), !0;
       }
-      return false;
-    };
-    const streamResponse = async (requestMessages, options = {}) => {
-      const assistant = {
-        id: createId("assistant"),
+      return !1;
+    }, J = async (e, a = {}) => {
+      var te, ae, se;
+      const t = {
+        id: T("assistant"),
         role: "assistant",
         content: "",
         status: "streaming"
-      };
-      const activeController = new AbortController();
-      sending.value = true;
-      controller.value = activeController;
-      activeAssistantId.value = assistant.id;
-      latestDelta.value = "";
-      publish([...requestMessages, assistant]);
+      }, s = ((ae = (te = _ == null ? void 0 : _.proxy) == null ? void 0 : te.$el) == null ? void 0 : ae.ownerDocument) ?? (typeof document < "u" ? document : void 0), o = new (((se = s == null ? void 0 : s.defaultView) == null ? void 0 : se.AbortController) ?? AbortController)(), d = ++p, r = i.transport, N = r && "version" in r && r.version === "2", F = T("request");
+      u.value = !0, $("streaming"), y.value = o, R.value = t.id, P.value = "", N && f() ? l.value = [...e, t] : D([...e, t]), N && f() && n("update:messages", [...e, t]);
       try {
-        for await (const event of props.transport.send(
-          {
-            conversationId: resolvedConversationId.value,
-            messages: requestMessages,
-            ...options.action && { action: options.action },
-            ...options.messageId && { messageId: options.messageId }
-          },
-          activeController.signal
-        )) {
-          if (activeController.signal.aborted) break;
-          if (applyEvent(assistant.id, event)) break;
-        }
-        const message = workingMessages.value.find((item) => item.id === assistant.id);
-        if ((message == null ? void 0 : message.status) === "streaming") finishAssistant(assistant.id, "complete");
-      } catch (error) {
-        const message = String(error instanceof Error ? error.message : error);
-        if (activeController.signal.aborted) {
-          finishAssistant(assistant.id, "stopped");
+        if (N) {
+          const b = {
+            version: "2",
+            requestId: F,
+            messageId: t.id,
+            idempotencyKey: T("idempotency"),
+            conversationId: H.value,
+            messages: e,
+            ...a.action && { action: a.action },
+            ...a.messageId && { targetMessageId: a.messageId }
+          }, c = De({ requestId: F, messageId: t.id, maxReconnectAttempts: i.maxReconnectAttempts });
+          let V = r.send(b, o.signal), O = 0, K = !1, L = !1;
+          for (; !K; )
+            try {
+              for await (const h of V) {
+                if (d !== p || o.signal.aborted) break;
+                const v = c.dispatch(h);
+                if (v.diagnostic.kind === "protocol-error") {
+                  const Q = c.failRecovery(`协议错误：${v.diagnostic.reason ?? "invalid envelope"}`, !1);
+                  n("stream-reject", v.diagnostic.reason ?? "协议错误"), $(Q.status), n("error", Q.message.error ?? "协议错误");
+                  const ye = { ...t, ...Q.message };
+                  l.value = [...e, ye], f() ? n("update:messages", l.value) : D(l.value), L = !0, K = !0;
+                  break;
+                }
+                $(v.status), (v.status === "completed" || v.status === "cancelled" || v.status === "error") && (K = !0);
+                const be = { ...t, ...v.message };
+                if (l.value = [...e, be], f() ? n("update:messages", l.value) : D(l.value), !f() && h.type === "text-delta" && v.diagnostic.kind === "accepted" && (P.value = h.delta), v.status === "completed" || v.status === "cancelled" || v.status === "error") {
+                  K = !0;
+                  break;
+                }
+                if (v.recoveryRequired) break;
+              }
+              if (d !== p || o.signal.aborted) break;
+              const I = c.getState();
+              if (I.status === "completed" || I.status === "cancelled" || I.status === "error") break;
+              if (L || !("resume" in r) || !r.resume || O >= Math.max(0, Number.isSafeInteger(i.maxReconnectAttempts) ? i.maxReconnectAttempts : 1)) {
+                let h = r.resume ? c.recover({ reason: L ? "protocol" : "eof" }) : c.failRecovery("连接中断，请重试");
+                h.status === "reconnecting" && L && (h = c.failRecovery("协议错误", !1)), $(h.status);
+                const v = { ...t, ...h.message };
+                l.value = [...e, v], f() ? n("update:messages", l.value) : D(l.value);
+                break;
+              }
+              O += 1;
+              const A = c.recover({ reason: "eof" });
+              $(A.status), V = r.resume({ ...b, resume: c.getState().cursor }, o.signal);
+            } catch {
+              if (d !== p || o.signal.aborted) break;
+              let A = r.resume ? c.recover({ reason: "transport" }) : c.failRecovery("连接中断，请重试", !0);
+              if ($(A.status), A.status === "error") {
+                const h = { ...t, ...A.message };
+                l.value = [...e, h], f() ? n("update:messages", l.value) : D(l.value);
+              }
+              if (!("resume" in r) || !r.resume || A.status === "error" || O >= (i.maxReconnectAttempts ?? 1)) break;
+              O += 1, V = r.resume({ ...b, resume: c.getState().cursor }, o.signal);
+            }
+          if (d === p && !o.signal.aborted) {
+            const I = c.getState(), A = { ...t, ...I.message };
+            l.value = [...e, A], I.status === "error" && n("error", I.message.error ?? "生成失败");
+          }
         } else {
-          finishAssistant(assistant.id, "error", message);
-          emit("error", message);
+          const b = r;
+          for await (const V of b.send({ conversationId: H.value, messages: e, ...a.action && { action: a.action }, ...a.messageId && { messageId: a.messageId } }, o.signal))
+            if (d !== p || o.signal.aborted || ce(t.id, V)) break;
+          const c = l.value.find((V) => V.id === t.id);
+          (c == null ? void 0 : c.status) === "streaming" && d === p && M(t.id, "complete");
         }
+      } catch (b) {
+        const c = String(b instanceof Error ? b.message : b);
+        if (o.signal.aborted || d !== p)
+          return;
+        M(t.id, "error", c), n("error", c);
       } finally {
-        if (controller.value === activeController) {
-          sending.value = false;
-          controller.value = void 0;
-          activeAssistantId.value = void 0;
-          workingMessages.value = [...currentMessages.value];
-        }
+        y.value === o && (u.value = !1, x.value = w.value.some((b) => b.status === "streaming") ? "streaming" : "idle", y.value = void 0, R.value = void 0, l.value = [...w.value]);
       }
-    };
-    const submit = async (submittedContent) => {
-      const content = (submittedContent ?? draft.value).trim();
-      if (!content || sending.value || props.disabled) return;
-      if (editingMessage.value) {
-        const original = editingMessage.value;
-        const source = [...currentMessages.value];
-        const index = source.findIndex((message) => message.id === original.id);
-        if (index < 0) return;
-        const edited = { ...original, content, status: "complete" };
-        draft.value = "";
-        editingMessage.value = void 0;
-        emit("edit", original, content);
-        await streamResponse([...source.slice(0, index), edited], { action: "edit", messageId: original.id });
+    }, W = async (e) => {
+      const a = (e ?? S.value).trim();
+      if (!a || u.value || i.disabled) return;
+      if (B.value) {
+        const o = B.value, d = [...w.value], r = d.findIndex((F) => F.id === o.id);
+        if (r < 0) return;
+        const N = { ...o, content: a, status: "complete" };
+        S.value = "", B.value = void 0, n("edit", o, a), await J([...d.slice(0, r), N], { action: "edit", messageId: o.id });
         return;
       }
-      const user = {
-        id: createId("user"),
+      const t = {
+        id: T("user"),
         role: "user",
-        content,
+        content: a,
         status: "complete",
-        ...props.attachments.length && { attachments: [...props.attachments] }
-      };
-      const requestMessages = [...currentMessages.value, user];
-      draft.value = "";
-      emit("send", content);
-      if (props.attachments.length) emit("update:attachments", []);
-      await streamResponse(requestMessages);
+        ...i.attachments.length && { attachments: [...i.attachments] }
+      }, s = [...w.value, t];
+      S.value = "", n("send", a), i.attachments.length && n("update:attachments", []), await J(s);
+    }, ee = async (e, a) => {
+      if (u.value || i.disabled) return;
+      const t = [...w.value], s = t.findIndex((r) => r.id === e.id);
+      if (s < 1) return;
+      const o = t.slice(0, s);
+      [...o].reverse().find((r) => r.role === "user") && (n(a === "retry" ? "retry" : "regenerate", e), await J(o, { action: a, messageId: e.id }));
+    }, ue = (e) => ee(e, "retry"), de = (e) => ee(e, "regenerate"), ve = (e) => {
+      u.value || i.disabled || (B.value = e, S.value = e.content);
+    }, me = () => {
+      B.value = void 0, S.value = "";
+    }, fe = (e) => {
+      var t, s, o, d, r;
+      const a = (o = (s = (t = _ == null ? void 0 : _.proxy) == null ? void 0 : t.$el) == null ? void 0 : s.ownerDocument) == null ? void 0 : o.defaultView;
+      (r = (d = a == null ? void 0 : a.navigator) == null ? void 0 : d.clipboard) == null || r.writeText(e.content), n("copy", e);
+    }, pe = (e) => {
+      n("update:attachments", i.attachments.filter((a) => a.id !== e.id));
+    }, ge = () => {
+      p += 1;
+      const e = y.value;
+      R.value && M(R.value, "stopped"), e == null || e.abort(), y.value = void 0, R.value = void 0, u.value = !1, n("stop");
     };
-    const rerunAssistant = async (message, action) => {
-      if (sending.value || props.disabled) return;
-      const source = [...currentMessages.value];
-      const index = source.findIndex((candidate) => candidate.id === message.id);
-      if (index < 1) return;
-      const requestMessages = source.slice(0, index);
-      const lastUser = [...requestMessages].reverse().find((candidate) => candidate.role === "user");
-      if (!lastUser) return;
-      if (action === "retry") emit("retry", message);
-      else emit("regenerate", message);
-      await streamResponse(requestMessages, { action, messageId: message.id });
-    };
-    const retryMessage = (message) => rerunAssistant(message, "retry");
-    const regenerateMessage = (message) => rerunAssistant(message, "regenerate");
-    const beginEdit = (message) => {
-      if (sending.value || props.disabled) return;
-      editingMessage.value = message;
-      draft.value = message.content;
-    };
-    const cancelEdit = () => {
-      editingMessage.value = void 0;
-      draft.value = "";
-    };
-    const copyMessage = (message) => {
-      var _a, _b;
-      void ((_b = (_a = globalThis.navigator) == null ? void 0 : _a.clipboard) == null ? void 0 : _b.writeText(message.content));
-      emit("copy", message);
-    };
-    const removeAttachment = (attachment) => {
-      emit("update:attachments", props.attachments.filter((item) => item.id !== attachment.id));
-    };
-    const stop = () => {
-      var _a;
-      if (activeAssistantId.value) finishAssistant(activeAssistantId.value, "stopped");
-      (_a = controller.value) == null ? void 0 : _a.abort();
-      emit("stop");
-    };
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("section", _hoisted_1, [
-        __props.conversations.length ? (openBlock(), createBlock(_sfc_main$1, {
-          key: 0,
-          "model-value": __props.activeConversation,
-          conversations: __props.conversations,
-          "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => emit("update:activeConversation", $event))
-        }, null, 8, ["model-value", "conversations"])) : createCommentVNode("", true),
-        createElementVNode("div", _hoisted_2, [
-          currentMessages.value.length ? (openBlock(), createElementBlock("div", _hoisted_3, [
-            (openBlock(true), createElementBlock(Fragment, null, renderList(currentMessages.value, (message) => {
-              return openBlock(), createBlock(_sfc_main$2, {
-                key: message.id,
-                "data-message-id": message.id,
-                message
-              }, {
-                actions: withCtx(() => [
-                  createElementVNode("div", _hoisted_4, [
-                    message.content ? (openBlock(), createElementBlock("button", {
-                      key: 0,
-                      type: "button",
-                      "data-action": "copy",
-                      "aria-label": `复制${message.role === "user" ? "问题" : "回答"}`,
-                      onClick: ($event) => copyMessage(message)
-                    }, " 复制 ", 8, _hoisted_5)) : createCommentVNode("", true),
-                    message.role === "user" ? (openBlock(), createElementBlock("button", {
-                      key: 1,
-                      type: "button",
-                      "data-action": "edit",
-                      disabled: __props.disabled || sending.value,
-                      onClick: ($event) => beginEdit(message)
-                    }, " 编辑 ", 8, _hoisted_6)) : createCommentVNode("", true),
-                    message.role === "assistant" && (message.status === "error" || message.status === "stopped") ? (openBlock(), createElementBlock("button", {
-                      key: 2,
-                      type: "button",
-                      "data-action": "retry",
-                      disabled: __props.disabled || sending.value,
-                      onClick: ($event) => retryMessage(message)
-                    }, " 重试 ", 8, _hoisted_7)) : createCommentVNode("", true),
-                    message.role === "assistant" && message.status === "complete" ? (openBlock(), createElementBlock("button", {
-                      key: 3,
-                      type: "button",
-                      "data-action": "regenerate",
-                      disabled: __props.disabled || sending.value,
-                      onClick: ($event) => regenerateMessage(message)
-                    }, " 重新生成 ", 8, _hoisted_8)) : createCommentVNode("", true)
-                  ])
-                ]),
-                _: 2
-              }, 1032, ["data-message-id", "message"]);
-            }), 128))
-          ])) : (openBlock(), createElementBlock("div", _hoisted_9, [
-            createVNode(_sfc_main$3, {
-              title: __props.welcomeTitle,
-              description: __props.welcomeDescription
-            }, null, 8, ["title", "description"]),
-            createVNode(_sfc_main$4, {
-              prompts: __props.prompts,
-              disabled: __props.disabled || sending.value,
-              onSelect: _cache[1] || (_cache[1] = ($event) => submit($event.label))
-            }, null, 8, ["prompts", "disabled"])
-          ])),
-          createElementVNode("div", _hoisted_10, [
-            editingMessage.value ? (openBlock(), createElementBlock("div", _hoisted_11, [
-              _cache[3] || (_cache[3] = createElementVNode("span", null, "正在编辑已发送的问题", -1)),
-              createElementVNode("button", {
-                type: "button",
-                onClick: cancelEdit
-              }, "取消编辑")
-            ])) : createCommentVNode("", true),
-            createVNode(_sfc_main$5, {
-              items: __props.attachments,
-              removable: "",
-              onRemove: removeAttachment
-            }, null, 8, ["items"]),
-            createVNode(_sfc_main$6, {
-              modelValue: draft.value,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => draft.value = $event),
-              disabled: __props.disabled,
-              loading: sending.value,
-              onSubmit: submit,
-              onStop: stop
-            }, null, 8, ["modelValue", "disabled", "loading"])
-          ])
-        ]),
-        createElementVNode("p", _hoisted_12, toDisplayString(announcement.value), 1)
-      ]);
-    };
+    return Y(H, (e, a) => {
+      var t;
+      e !== a && (p += 1, (t = y.value) == null || t.abort(), y.value = void 0, R.value = void 0, u.value = !1, x.value = "idle");
+    }), Y(() => i.transport, (e, a) => {
+      var t;
+      e !== a && (p += 1, (t = y.value) == null || t.abort(), y.value = void 0, R.value = void 0, u.value = !1, x.value = "idle");
+    }), _e(() => {
+      var e;
+      p += 1, (e = y.value) == null || e.abort();
+    }), (e, a) => (g(), C("section", Me, [
+      m.conversations.length ? (g(), oe(Re, {
+        key: 0,
+        "model-value": m.activeConversation,
+        conversations: m.conversations,
+        "onUpdate:modelValue": a[0] || (a[0] = (t) => n("update:activeConversation", t))
+      }, null, 8, ["model-value", "conversations"])) : E("", !0),
+      U("div", Ue, [
+        w.value.length ? (g(), C("div", Pe, [
+          (g(!0), C(xe, null, $e(w.value, (t) => (g(), oe(Se, {
+            key: t.id,
+            "data-message-id": t.id,
+            message: t
+          }, {
+            actions: we(() => [
+              U("div", Ne, [
+                t.content ? (g(), C("button", {
+                  key: 0,
+                  type: "button",
+                  "data-action": "copy",
+                  "aria-label": `复制${t.role === "user" ? "问题" : "回答"}`,
+                  onClick: (s) => fe(t)
+                }, " 复制 ", 8, Te)) : E("", !0),
+                t.role === "user" ? (g(), C("button", {
+                  key: 1,
+                  type: "button",
+                  "data-action": "edit",
+                  disabled: m.disabled || u.value,
+                  onClick: (s) => ve(t)
+                }, " 编辑 ", 8, je)) : E("", !0),
+                t.role === "assistant" && (t.status === "error" || t.status === "stopped") && t.retryable !== !1 ? (g(), C("button", {
+                  key: 2,
+                  type: "button",
+                  "data-action": "retry",
+                  disabled: m.disabled || u.value,
+                  onClick: (s) => ue(t)
+                }, " 重试 ", 8, Fe)) : E("", !0),
+                t.role === "assistant" && t.status === "complete" ? (g(), C("button", {
+                  key: 3,
+                  type: "button",
+                  "data-action": "regenerate",
+                  disabled: m.disabled || u.value,
+                  onClick: (s) => de(t)
+                }, " 重新生成 ", 8, Oe)) : E("", !0)
+              ])
+            ]),
+            _: 2
+          }, 1032, ["data-message-id", "message"]))), 128))
+        ])) : (g(), C("div", Ke, [
+          z(Be, {
+            title: m.welcomeTitle,
+            description: m.welcomeDescription
+          }, null, 8, ["title", "description"]),
+          z(Ve, {
+            prompts: m.prompts,
+            disabled: m.disabled || u.value,
+            onSelect: a[1] || (a[1] = (t) => W(t.label))
+          }, null, 8, ["prompts", "disabled"])
+        ])),
+        U("div", Le, [
+          x.value === "reconnecting" ? (g(), C("p", ze, "正在恢复连接")) : E("", !0),
+          B.value ? (g(), C("div", Ge, [
+            a[3] || (a[3] = U("span", null, "正在编辑已发送的问题", -1)),
+            U("button", {
+              type: "button",
+              onClick: me
+            }, "取消编辑")
+          ])) : E("", !0),
+          z(Ae, {
+            items: m.attachments,
+            removable: "",
+            onRemove: pe
+          }, null, 8, ["items"]),
+          z(Ee, {
+            modelValue: S.value,
+            "onUpdate:modelValue": a[2] || (a[2] = (t) => S.value = t),
+            disabled: m.disabled,
+            loading: u.value,
+            onSubmit: W,
+            onStop: ge
+          }, null, 8, ["modelValue", "disabled", "loading"])
+        ])
+      ]),
+      U("p", He, Ie(le.value), 1)
+    ]));
   }
 });
 export {
-  _sfc_main as default
+  tt as default
 };

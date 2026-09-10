@@ -53,7 +53,7 @@
   },
   "peerDependencies": {
     "aheart-ui": "workspace:^",
-    "vue": ">=3.4.0 <4"
+    "vue": ">=3.5.0 <4"
   },
   "dependencies": {
     "@aheart-ui/dnd": "workspace:^"

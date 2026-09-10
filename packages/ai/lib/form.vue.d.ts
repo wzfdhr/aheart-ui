@@ -1,3 +1,4 @@
+import { type AIFormAsyncValidator } from './form-schema';
 declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     modelValue?: Record<string, unknown> | undefined;
     schema: unknown;
@@ -5,13 +6,23 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     submitting?: boolean | undefined;
     submitText?: string | undefined;
     submitError?: string | undefined;
+    validators?: Record<string, AIFormAsyncValidator> | undefined;
 }>, {
     modelValue: () => {};
     disabled: boolean;
     submitting: boolean;
     submitText: string;
     submitError: undefined;
-}>>, {}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
+    validators: () => {};
+}>>, {
+    validate: () => Promise<any>;
+    resetFields: () => void;
+    clearValidate: (names?: string[] | undefined) => void;
+    setFieldsErrors: (fields: {
+        name: string;
+        errors: string[];
+    }[]) => void;
+}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
     submit: (value: Record<string, unknown>) => void;
     "update:modelValue": (value: Record<string, unknown>) => void;
     "schema-error": (errors: string[]) => void;
@@ -26,12 +37,14 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     submitting?: boolean | undefined;
     submitText?: string | undefined;
     submitError?: string | undefined;
+    validators?: Record<string, AIFormAsyncValidator> | undefined;
 }>, {
     modelValue: () => {};
     disabled: boolean;
     submitting: boolean;
     submitText: string;
     submitError: undefined;
+    validators: () => {};
 }>>> & Readonly<{
     onSubmit?: ((value: Record<string, unknown>) => any) | undefined;
     "onUpdate:modelValue"?: ((value: Record<string, unknown>) => any) | undefined;
@@ -46,6 +59,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     submitting: boolean;
     submitText: string;
     submitError: string;
+    validators: Record<string, AIFormAsyncValidator>;
 }, {}, {}, {}, string, import("@vue/runtime-core").ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;

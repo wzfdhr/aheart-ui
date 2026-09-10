@@ -22,7 +22,7 @@ function deterministicStyleBundle(): Plugin {
 export default defineConfig({
   build: {
     target: 'modules',
-    minify: false,
+    minify: 'esbuild',
     rollupOptions: {
       external: (id) => id === 'vue' || id.startsWith('vue/') || id === 'aheart-ui' || id === '@aheart-ui/dnd',
       input: 'src/index.ts',

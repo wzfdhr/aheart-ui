@@ -42,7 +42,7 @@
                 编辑
               </button>
               <button
-                v-if="message.role === 'assistant' && (message.status === 'error' || message.status === 'stopped')"
+                v-if="message.role === 'assistant' && (message.status === 'error' || message.status === 'stopped') && message.retryable !== false"
                 type="button"
                 data-action="retry"
                 :disabled="disabled || sending"
@@ -70,6 +70,7 @@
       </div>
 
       <div class="aheart-ai-chat-panel__composer">
+        <p v-if="streamStatus === 'reconnecting'" class="aheart-ai-chat-panel__stream-reconnecting" role="status" aria-live="polite">正在恢复连接</p>
         <div v-if="editingMessage" class="aheart-ai-chat-panel__editing" role="status">
           <span>正在编辑已发送的问题</span>
           <button type="button" @click="cancelEdit">取消编辑</button>
@@ -84,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, onBeforeUpdate, ref, watch } from 'vue'
+import { computed, getCurrentInstance, onBeforeUnmount, onBeforeUpdate, ref, watch } from 'vue'
 import AIAttachments from './attachments.vue'
 import AIBubble from './bubble.vue'
 import AIConversations from './conversations.vue'
@@ -101,8 +102,12 @@ import type {
   AIProcessStatus,
   AIPrompt,
   AIStreamEvent,
-  AITransport
+  AITransport,
+  AITransportV2,
+  AIChatRequestV2,
+  AIStreamEventV2
 } from './types'
+import { createAIStreamReducer } from './stream-reducer'
 
 defineOptions({ name: 'AAIChatPanel' })
 
@@ -110,7 +115,7 @@ const props = withDefaults(
   defineProps<{
     messages?: AIMessage[]
     defaultMessages?: AIMessage[]
-    transport: AITransport
+    transport: AITransport | AITransportV2
     conversationId?: string
     conversations?: AIConversation[]
     activeConversation?: string
@@ -119,6 +124,7 @@ const props = withDefaults(
     welcomeTitle?: string
     welcomeDescription?: string
     disabled?: boolean
+    maxReconnectAttempts?: number
   }>(),
   {
     messages: () => [],
@@ -131,6 +137,7 @@ const props = withDefaults(
     welcomeTitle: '你好，我能为你做些什么？',
     welcomeDescription: '描述目标、补充上下文，或从建议任务开始。',
     disabled: false
+    ,maxReconnectAttempts: 1
   }
 )
 const emit = defineEmits<{
@@ -144,6 +151,8 @@ const emit = defineEmits<{
   edit: [message: AIMessage, content: string]
   copy: [message: AIMessage]
   error: [error: string]
+  'stream-status': [status: string]
+  'stream-reject': [reason: string]
 }>()
 
 const instance = getCurrentInstance()
@@ -161,12 +170,15 @@ const controller = ref<AbortController>()
 const activeAssistantId = ref<string>()
 const editingMessage = ref<AIMessage>()
 const latestDelta = ref('')
+const streamStatus = ref('idle')
+let epoch = 0
 let sequence = 0
 
 const currentMessages = computed(() => (isMessagesControlled() ? props.messages : localMessages.value))
 const resolvedConversationId = computed(() => props.conversationId ?? props.activeConversation)
 const announcement = computed(() => {
-  if (sending.value && latestDelta.value) return `AI 回复：${latestDelta.value}`
+  if (streamStatus.value === 'reconnecting') return ''
+  if (!isMessagesControlled() && sending.value && latestDelta.value) return `AI 回复：${latestDelta.value}`
   const message = [...currentMessages.value].reverse().find((item) => item.role === 'assistant')
   if (!message) return ''
   if (message.status === 'streaming') return '正在生成'
@@ -174,6 +186,12 @@ const announcement = computed(() => {
   if (message.status === 'error') return '生成失败'
   return message.status === 'complete' ? '已完成生成' : ''
 })
+const announceStreamStatus = (status: string) => {
+  if (status === 'idle' && sending.value && (streamStatus.value === 'streaming' || streamStatus.value === 'reconnecting')) return
+  if (streamStatus.value === status) return
+  streamStatus.value = status
+  emit('stream-status', status)
+}
 
 watch(
   () => props.messages,
@@ -207,6 +225,9 @@ const finishAssistant = (assistantId: string, status: AIMessageStatus, error?: s
     ...(error ? { error } : {}),
     process: settleProcess(assistant.process, processStatus, error)
   })
+  if (status === 'complete') announceStreamStatus('completed')
+  else if (status === 'stopped') announceStreamStatus('cancelled')
+  else if (status === 'error') announceStreamStatus('error')
 }
 
 const applyEvent = (assistantId: string, event: AIStreamEvent) => {
@@ -214,7 +235,7 @@ const applyEvent = (assistantId: string, event: AIStreamEvent) => {
   if (!assistant) return false
 
   if (event.type === 'text-delta') {
-    latestDelta.value = event.delta
+    if (!isMessagesControlled()) latestDelta.value = event.delta
     updateAssistant(assistantId, { content: `${assistant.content}${event.delta}` })
   } else if (event.type === 'process') {
     const process = [...(assistant.process ?? []).filter((item) => item.id !== event.item.id), event.item]
@@ -246,34 +267,112 @@ const streamResponse = async (
     content: '',
     status: 'streaming'
   }
-  const activeController = new AbortController()
+  const rootDocument = (instance?.proxy?.$el as HTMLElement | undefined)?.ownerDocument ?? (typeof document !== 'undefined' ? document : undefined)
+  const activeController = new (rootDocument?.defaultView?.AbortController ?? AbortController)()
+  const requestEpoch = ++epoch
+  const transport = props.transport
+  const isV2 = transport && 'version' in transport && transport.version === '2'
+  const requestId = createId('request')
 
   sending.value = true
+  announceStreamStatus('streaming')
   controller.value = activeController
   activeAssistantId.value = assistant.id
   latestDelta.value = ''
-  publish([...requestMessages, assistant])
+  if (isV2 && isMessagesControlled()) workingMessages.value = [...requestMessages, assistant]
+  else publish([...requestMessages, assistant])
+  if (isV2 && isMessagesControlled()) emit('update:messages', [...requestMessages, assistant])
 
   try {
-    for await (const event of props.transport.send(
-      {
-        conversationId: resolvedConversationId.value,
-        messages: requestMessages,
-        ...(options.action && { action: options.action }),
-        ...(options.messageId && { messageId: options.messageId })
-      },
-      activeController.signal
-    )) {
-      if (activeController.signal.aborted) break
-      if (applyEvent(assistant.id, event)) break
+    if (isV2) {
+      const request: AIChatRequestV2 = {
+        version: '2', requestId, messageId: assistant.id, idempotencyKey: createId('idempotency'),
+        conversationId: resolvedConversationId.value, messages: requestMessages,
+        ...(options.action && { action: options.action }), ...(options.messageId && { targetMessageId: options.messageId })
+      }
+      const reducer = createAIStreamReducer({ requestId, messageId: assistant.id, maxReconnectAttempts: props.maxReconnectAttempts })
+      let iterable: AsyncIterable<AIStreamEventV2> = transport.send(request, activeController.signal)
+      let attempts = 0
+      let completed = false
+      let protocolFailure = false
+      while (!completed) {
+        try {
+          for await (const event of iterable) {
+            if (requestEpoch !== epoch || activeController.signal.aborted) break
+            const next = reducer.dispatch(event)
+            if (next.diagnostic.kind === 'protocol-error') {
+              const failed = reducer.failRecovery(`协议错误：${next.diagnostic.reason ?? 'invalid envelope'}`, false)
+              emit('stream-reject', next.diagnostic.reason ?? '协议错误')
+              announceStreamStatus(failed.status)
+              emit('error', failed.message.error ?? '协议错误')
+              const protocolCandidate = { ...assistant, ...failed.message }
+              workingMessages.value = [...requestMessages, protocolCandidate]
+              if (isMessagesControlled()) emit('update:messages', workingMessages.value)
+              else publish(workingMessages.value)
+              protocolFailure = true
+              completed = true
+              break
+            }
+            announceStreamStatus(next.status)
+            if (next.status === 'completed' || next.status === 'cancelled' || next.status === 'error') completed = true
+            const candidate = { ...assistant, ...next.message }
+            workingMessages.value = [...requestMessages, candidate]
+            if (isMessagesControlled()) emit('update:messages', workingMessages.value)
+            else publish(workingMessages.value)
+            if (!isMessagesControlled() && event.type === 'text-delta' && next.diagnostic.kind === 'accepted') latestDelta.value = event.delta
+            if (next.status === 'completed' || next.status === 'cancelled' || next.status === 'error') { completed = true; break }
+            if (next.recoveryRequired) break
+          }
+          if (requestEpoch !== epoch || activeController.signal.aborted) break
+          const current = reducer.getState()
+          if (current.status === 'completed' || current.status === 'cancelled' || current.status === 'error') break
+          if (protocolFailure || !('resume' in transport) || !transport.resume || attempts >= Math.max(0, Number.isSafeInteger(props.maxReconnectAttempts) ? props.maxReconnectAttempts! : 1)) {
+            let recovered = !transport.resume ? reducer.failRecovery('连接中断，请重试') : reducer.recover({ reason: protocolFailure ? 'protocol' : 'eof' })
+            if (recovered.status === 'reconnecting' && protocolFailure) recovered = reducer.failRecovery('协议错误', false)
+            announceStreamStatus(recovered.status)
+            const recoveryCandidate = { ...assistant, ...recovered.message }
+            workingMessages.value = [...requestMessages, recoveryCandidate]
+            if (isMessagesControlled()) emit('update:messages', workingMessages.value)
+            else publish(workingMessages.value)
+            break
+          }
+          attempts += 1
+          const reconnecting = reducer.recover({ reason: 'eof' }); announceStreamStatus(reconnecting.status)
+          iterable = transport.resume({ ...request, resume: reducer.getState().cursor }, activeController.signal)
+        } catch (error) {
+          if (requestEpoch !== epoch || activeController.signal.aborted) break
+          let settled = !transport.resume ? reducer.failRecovery('连接中断，请重试', true) : reducer.recover({ reason: 'transport' })
+          announceStreamStatus(settled.status)
+          if (settled.status === 'error') {
+            const recoveryCandidate = { ...assistant, ...settled.message }
+            workingMessages.value = [...requestMessages, recoveryCandidate]
+            if (isMessagesControlled()) emit('update:messages', workingMessages.value)
+            else publish(workingMessages.value)
+          }
+          if (!('resume' in transport) || !transport.resume || settled.status === 'error' || attempts >= (props.maxReconnectAttempts ?? 1)) break
+          attempts += 1
+          iterable = transport.resume({ ...request, resume: reducer.getState().cursor }, activeController.signal)
+        }
+      }
+      if (requestEpoch === epoch && !activeController.signal.aborted) {
+        const result = reducer.getState()
+        const candidate = { ...assistant, ...result.message }
+        workingMessages.value = [...requestMessages, candidate]
+        if (result.status === 'error') emit('error', result.message.error ?? '生成失败')
+      }
+    } else {
+      const legacyTransport = transport as AITransport
+      for await (const event of legacyTransport.send({ conversationId: resolvedConversationId.value, messages: requestMessages, ...(options.action && { action: options.action }), ...(options.messageId && { messageId: options.messageId }) }, activeController.signal)) {
+        if (requestEpoch !== epoch || activeController.signal.aborted) break
+        if (applyEvent(assistant.id, event as AIStreamEvent)) break
+      }
+      const message = workingMessages.value.find((item) => item.id === assistant.id)
+      if (message?.status === 'streaming' && requestEpoch === epoch) finishAssistant(assistant.id, 'complete')
     }
-
-    const message = workingMessages.value.find((item) => item.id === assistant.id)
-    if (message?.status === 'streaming') finishAssistant(assistant.id, 'complete')
   } catch (error) {
     const message = String(error instanceof Error ? error.message : error)
-    if (activeController.signal.aborted) {
-      finishAssistant(assistant.id, 'stopped')
+    if (activeController.signal.aborted || requestEpoch !== epoch) {
+      return
     } else {
       finishAssistant(assistant.id, 'error', message)
       emit('error', message)
@@ -281,6 +380,7 @@ const streamResponse = async (
   } finally {
     if (controller.value === activeController) {
       sending.value = false
+      streamStatus.value = currentMessages.value.some((item) => item.status === 'streaming') ? 'streaming' : 'idle'
       controller.value = undefined
       activeAssistantId.value = undefined
       workingMessages.value = [...currentMessages.value]
@@ -344,15 +444,46 @@ const cancelEdit = () => {
   draft.value = ''
 }
 const copyMessage = (message: AIMessage) => {
-  void globalThis.navigator?.clipboard?.writeText(message.content)
+  const ownerWindow = (instance?.proxy?.$el as HTMLElement | undefined)?.ownerDocument?.defaultView
+  void ownerWindow?.navigator?.clipboard?.writeText(message.content)
   emit('copy', message)
 }
 const removeAttachment = (attachment: AIAttachment) => {
   emit('update:attachments', props.attachments.filter((item) => item.id !== attachment.id))
 }
 const stop = () => {
+  epoch += 1
+  const prior = controller.value
   if (activeAssistantId.value) finishAssistant(activeAssistantId.value, 'stopped')
-  controller.value?.abort()
+  prior?.abort()
+  controller.value = undefined
+  activeAssistantId.value = undefined
+  sending.value = false
   emit('stop')
 }
+
+watch(resolvedConversationId, (nextConversation, previousConversation) => {
+  if (nextConversation !== previousConversation) {
+    epoch += 1
+    controller.value?.abort()
+    controller.value = undefined
+    activeAssistantId.value = undefined
+    sending.value = false
+    streamStatus.value = 'idle'
+  }
+})
+watch(() => props.transport, (nextTransport, previousTransport) => {
+  if (nextTransport !== previousTransport) {
+    epoch += 1
+    controller.value?.abort()
+    controller.value = undefined
+    activeAssistantId.value = undefined
+    sending.value = false
+    streamStatus.value = 'idle'
+  }
+})
+onBeforeUnmount(() => {
+  epoch += 1
+  controller.value?.abort()
+})
 </script>

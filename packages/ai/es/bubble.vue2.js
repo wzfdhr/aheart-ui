@@ -1,4 +1,4 @@
-import _sfc_main from "./bubble.vue.js";
+import f from "./bubble.vue.js";
 export {
-  _sfc_main as default
+  f as default
 };

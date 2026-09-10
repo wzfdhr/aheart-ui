@@ -1,0 +1,10 @@
+{
+  "status": "failed",
+  "phase": "red",
+  "reason": "all three real tarballs are required; refusing to substitute workspace packages",
+  "generatedAt": "2026-09-09T16:09:55.347Z",
+  "node": "v24.17.0",
+  "npm": null,
+  "pnpm": null,
+  "gates": {}
+}

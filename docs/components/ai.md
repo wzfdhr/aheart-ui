@@ -164,6 +164,33 @@ interface AITransport {
 
 ## API
 
+### D8 V2 stream protocol
+
+V1 `AITransport` 保持到达顺序和 EOF 完成语义。需要恢复、重放和 revision 保护时使用显式 `AITransportV2`；组件不会混用两种协议，也不会通过异常猜测协议。
+
+```ts
+interface AIChatRequestV2 extends Omit<AIChatRequest, 'messageId'> {
+  version: '2'
+  requestId: string
+  messageId: string // 本次输出消息
+  targetMessageId?: string // retry/regenerate/edit 的旧目标
+  idempotencyKey: string
+  resume?: { afterSequence: number; revision: number }
+}
+
+interface AITransportV2 {
+  version: '2'
+  send(request: AIChatRequestV2, signal: AbortSignal): AsyncIterable<AIStreamEventV2>
+  resume?(request: AIChatRequestV2, signal: AbortSignal): AsyncIterable<AIStreamEventV2>
+}
+```
+
+V2 envelope 使用非空 `requestId`/`messageId`、安全整数 `sequence` 和非负 `revision`。乱序事件会在有限 buffer 中等待，重复事件幂等，冲突事件进入协议错误；`snapshot`/`final` 是权威 checkpoint。错误、取消和恢复均受当前 epoch 约束，旧 iterator 不能污染新会话。
+
+受控 `messages` 模式下，每个 accepted candidate 都通过 `update:messages` 交给父层；父层拒绝时不会乐观显示。非受控模式由组件维护 accepted history。`stream-status` 可观察 `idle`、`streaming`、`reconnecting`、`completed`、`cancelled` 和 `error`。
+
+工具调用默认只投影 `AIToolCallDisplay` 白名单字段；原始 arguments、result、reasoning、trace 和 token 不会进入默认 DOM。
+
 | 属性 | 说明 |
 | --- | --- |
 | `messages` / `v-model:messages` | 受控消息历史。 |

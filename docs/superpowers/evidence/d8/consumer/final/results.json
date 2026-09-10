@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "generatedAt": "2026-09-10T02:14:45.510Z",
+  "node": "v24.17.0",
+  "npm": "11.13.0",
+  "pnpm": "9.15.4",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-d8-ai-m7pOaD",
+  "tarballs": {
+    "ai": {
+      "path": "/private/tmp/d8-final-independent.T6oo3u/pack/aheart-ui-ai-1.0.0.tgz",
+      "sha256": "f23a7504a328c5f5cd7c8addcdaee241cbe3a3c1c9057954be33d750bbc35f27",
+      "bytes": 74371,
+      "files": 115
+    },
+    "components": {
+      "path": "/private/tmp/d8-final-independent.T6oo3u/pack/aheart-ui-1.0.0.tgz",
+      "sha256": "b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b",
+      "bytes": 488169,
+      "files": 995
+    },
+    "dnd": {
+      "path": "/private/tmp/d8-final-independent.T6oo3u/pack/aheart-ui-dnd-1.0.0.tgz",
+      "sha256": "a78c41e518ebc5f2c46af7638a958d5d81a3204aaaaed03f6358b6e2fe036eee",
+      "bytes": 26789,
+      "files": 79
+    }
+  },
+  "symlink": false,
+  "packageFiles": true,
+  "typecheck": true,
+  "imports": true,
+  "css": true,
+  "pluginInstall": true,
+  "reducer": true,
+  "ssr": true,
+  "hydration": true,
+  "chatLifecycle": true,
+  "workbench": true,
+  "aiForm": true,
+  "primitiveBundle": true,
+  "gzip": {
+    "status": "not-run"
+  },
+  "gates": {}
+}

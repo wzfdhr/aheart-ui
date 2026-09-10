@@ -143,6 +143,22 @@ const schema: AIFormSchemaV1 = {
 
 ## API
 
+### D8 规则编译与受控生命周期
+
+字段可声明可序列化 `rules`、`dependencies` 和 `preserve`。规则仅接受 `range`、`format`、`compare`、`async` 白名单；async 规则只能引用 `validators` registry 中 own 且为函数的名称，schema 不执行脚本、函数或 URL。
+
+```ts
+type AIFormRuleV1 =
+  | { kind: 'range'; valueType: 'number' | 'length'; min?: number; max?: number; message?: string }
+  | { kind: 'format'; format: 'email' | 'url' | 'date' | 'time'; message?: string }
+  | { kind: 'compare'; field: string; operator: 'equals' | 'not-equals' | 'greater-than' | 'greater-than-or-equal' | 'less-than' | 'less-than-or-equal'; message?: string }
+  | { kind: 'async'; validator: string; message?: string }
+```
+
+所有规则最终编译为核心 Form `FormRule`，核心 runner 负责校验顺序、stale async 结果和提交结果；`compare.field` 会自动并入 dependencies。disabled 字段跳过全部规则但仍保留提交值；非必填空值跳过非必要规则。ordered compare 只接受同类型的有限 number 或 canonical date/time。
+
+`AIForm` 暴露 `validate`、`resetFields`、`clearValidate` 和 `setFieldsErrors`。reset 是受控候选：父层拒绝时不会改变权威 model，也不会恢复被接受删除的 `preserve: false` 字段默认值。错误摘要统一使用“请解决 N 个校验问题”，并包含字段、async、跨字段和服务端错误。
+
 | 属性 | 说明 |
 | --- | --- |
 | `v-model` | 完全受控的字段值对象。组件只发出更新事件。 |

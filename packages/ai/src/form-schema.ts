@@ -49,7 +49,20 @@ export interface AIFormFieldV1 {
   options?: AIFormOption[]
   visibleWhen?: AIFormCondition
   disabledWhen?: AIFormCondition
+  rules?: AIFormRuleV1[]
+  dependencies?: string[]
+  preserve?: boolean
 }
+
+export type AIFormRuleV1 =
+  | { kind: 'range'; valueType: 'number' | 'length'; min?: number; max?: number; message?: string }
+  | { kind: 'format'; format: 'email' | 'url' | 'date' | 'time'; message?: string }
+  | { kind: 'compare'; field: string; operator: 'equals' | 'not-equals' | 'greater-than' | 'greater-than-or-equal' | 'less-than' | 'less-than-or-equal'; message?: string }
+  | { kind: 'async'; validator: string; message?: string }
+export type AIFormAsyncValidator = (
+  value: unknown,
+  context: { values: Readonly<Record<string, unknown>>; field: AIFormFieldV1; signal: AbortSignal }
+) => void | boolean | string | Promise<void | boolean | string>
 
 export interface AIFormSchemaV1 {
   version: '1'
@@ -96,7 +109,7 @@ const FIELD_KEYS = new Set([
   'required',
   'options',
   'visibleWhen',
-  'disabledWhen'
+  'disabledWhen', 'rules', 'dependencies', 'preserve'
 ])
 const OPTION_KEYS = new Set(['label', 'value', 'disabled'])
 const CONDITION_KEYS = new Set(['field', 'operator', 'value'])
@@ -206,6 +219,12 @@ export const validateAIFormSchema = (schema: unknown): AIFormSchemaValidation =>
     if (!hasCompatibleDefaultValue(field.type as AIFormFieldType, field.defaultValue)) errors.push(`${path}.defaultValue 与字段类型不兼容`)
     if (field.visibleWhen !== undefined) validateCondition(field.visibleWhen, `${path}.visibleWhen`, errors)
     if (field.disabledWhen !== undefined) validateCondition(field.disabledWhen, `${path}.disabledWhen`, errors)
+    if (field.dependencies !== undefined && (!Array.isArray(field.dependencies) || !field.dependencies.every((value) => typeof value === 'string' && value.trim()))) errors.push(`${path}.dependencies 必须是非空字段名数组`)
+    if (field.preserve !== undefined && typeof field.preserve !== 'boolean') errors.push(`${path}.preserve 必须是布尔值`)
+    if (field.rules !== undefined) {
+      if (!Array.isArray(field.rules)) errors.push(`${path}.rules 必须是数组`)
+      else field.rules.forEach((rule, ruleIndex) => validateRule(rule, `${path}.rules[${ruleIndex}]`, errors))
+    }
     if (field.options !== undefined) {
       if (!Array.isArray(field.options)) {
         errors.push(`${path}.options 必须是数组`)
@@ -236,7 +255,47 @@ export const validateAIFormSchema = (schema: unknown): AIFormSchemaValidation =>
         errors.push(`fields[${index}].${conditionName}.field 必须引用已声明的字段`)
       }
     }
+    if (Array.isArray(field.dependencies)) for (const dependency of field.dependencies) if (typeof dependency === 'string' && !keys.has(dependency)) errors.push(`fields[${index}].dependencies 必须引用已声明的字段`)
+    if (Array.isArray(field.rules)) for (const rule of field.rules) if (isRecord(rule) && rule.kind === 'compare' && typeof rule.field === 'string' && !keys.has(rule.field)) errors.push(`fields[${index}].rules.compare.field 必须引用已声明的字段`)
+    if (Array.isArray(field.rules)) for (const rule of field.rules) if (isRecord(rule)) {
+      if (rule.kind === 'range' && ((rule.valueType === 'number' && field.type !== 'number') || (rule.valueType === 'length' && !['input', 'textarea', 'checkbox'].includes(String(field.type))))) errors.push(`fields[${index}].rules.range 与字段类型组合不合法`)
+      if (rule.kind === 'format') {
+        const allowed = rule.format === 'email' || rule.format === 'url' ? ['input', 'textarea'] : rule.format === 'date' ? ['date'] : ['time']
+        if (!allowed.includes(String(field.type))) errors.push(`fields[${index}].rules.format 与字段类型组合不合法`)
+      }
+      if (rule.kind === 'compare' && typeof rule.field === 'string') {
+        const target = (schema.fields as unknown[]).find((candidate: unknown) => isRecord(candidate) && candidate.key === rule.field) as Record<string, unknown> | undefined
+        if (target && ['greater-than', 'greater-than-or-equal', 'less-than', 'less-than-or-equal'].includes(String(rule.operator))) {
+          const compatible = (field.type === 'number' && target.type === 'number') || (['date', 'time'].includes(String(field.type)) && field.type === target.type)
+          if (!compatible) errors.push(`fields[${index}].rules.compare 有序比较类型不兼容`)
+        }
+      }
+    }
   })
 
   return errors.length ? { valid: false, errors } : { valid: true, errors: [], schema: schema as unknown as AIFormSchemaV1 }
+}
+
+const RULE_KEYS: Record<string, Set<string>> = Object.create(null)
+Object.assign(RULE_KEYS, {
+  range: new Set(['kind', 'valueType', 'min', 'max', 'message']),
+  format: new Set(['kind', 'format', 'message']),
+  compare: new Set(['kind', 'field', 'operator', 'message']),
+  async: new Set(['kind', 'validator', 'message'])
+})
+const validateRule = (value: unknown, path: string, errors: string[]) => {
+  if (!isRecord(value) || typeof value.kind !== 'string' || !Object.prototype.hasOwnProperty.call(RULE_KEYS, value.kind)) { errors.push(`${path} kind 不受支持`); return }
+  rejectUnknownKeys(value, RULE_KEYS[value.kind], path, errors)
+  if (value.message !== undefined && typeof value.message !== 'string') errors.push(`${path}.message 必须是字符串`)
+  if (value.kind === 'range') {
+    if (value.valueType !== 'number' && value.valueType !== 'length') errors.push(`${path}.valueType 不受支持`)
+    if (value.min === undefined && value.max === undefined) errors.push(`${path} 至少需要一个范围边界`)
+    for (const key of ['min', 'max']) if (value[key] !== undefined && (typeof value[key] !== 'number' || !Number.isFinite(value[key]))) errors.push(`${path}.${key} 必须是有限数字`)
+    if (typeof value.min === 'number' && typeof value.max === 'number' && value.min > value.max) errors.push(`${path} min 不能大于 max`)
+  } else if (value.kind === 'format') {
+    if (!['email', 'url', 'date', 'time'].includes(String(value.format))) errors.push(`${path}.format 不受支持`)
+  } else if (value.kind === 'compare') {
+    if (typeof value.field !== 'string' || !value.field.trim()) errors.push(`${path}.field 必须是字段名`)
+    if (!['equals', 'not-equals', 'greater-than', 'greater-than-or-equal', 'less-than', 'less-than-or-equal'].includes(String(value.operator))) errors.push(`${path}.operator 不受支持`)
+  } else if (typeof value.validator !== 'string' || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(value.validator)) errors.push(`${path}.validator 必须是安全名称`)
 }

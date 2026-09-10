@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-09-10T02:16:56.898Z",
+  "limit": 12288,
+  "baseline": {
+    "input": "/tmp/d8-final-independent.T6oo3u/gzip-baseline/dist/ai-consumer.js",
+    "raw": 1563498,
+    "gzip": 301281
+  },
+  "current": {
+    "input": "/tmp/d8-final-independent.T6oo3u/gzip-current/dist/ai-consumer.js",
+    "raw": 1585082,
+    "gzip": 310757
+  },
+  "delta": {
+    "raw": 21584,
+    "gzip": 9476
+  },
+  "status": "passed"
+}

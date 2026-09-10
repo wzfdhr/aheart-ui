@@ -1,4 +1,4 @@
-import _sfc_main from "./process.vue.js";
+import f from "./process.vue.js";
 export {
-  _sfc_main as default
+  f as default
 };

@@ -1,15 +1,10 @@
-import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, createTextVNode, toDisplayString, createCommentVNode, createBlock, unref } from "vue";
-import { Textarea, TreeSelect, Upload, RadioGroup, CheckboxGroup, Select, Switch, InputNumber, DatePicker, DateRangePicker, TimePicker, TimeRangePicker, Input } from "aheart-ui";
-const _hoisted_1 = ["data-field-key", "aria-invalid", "aria-describedby"];
-const _hoisted_2 = ["id", "for"];
-const _hoisted_3 = {
+import { defineComponent as x, ref as k, computed as f, openBlock as a, createElementBlock as y, normalizeClass as g, createElementVNode as B, createTextVNode as C, toDisplayString as m, createCommentVNode as v, createBlock as t, unref as u } from "vue";
+import { Textarea as S, TreeSelect as T, Upload as h, RadioGroup as D, CheckboxGroup as E, Select as N, Switch as P, InputNumber as q, DatePicker as I, DateRangePicker as R, TimePicker as w, TimeRangePicker as A, Input as G } from "aheart-ui";
+const j = ["data-field-key", "aria-invalid", "aria-describedby"], z = ["id", "for"], L = {
   key: 0,
   class: "aheart-ai-form__required",
   "aria-hidden": "true"
-};
-const _hoisted_4 = ["id"];
-const _hoisted_5 = ["id"];
-const _sfc_main = /* @__PURE__ */ defineComponent({
+}, F = ["id"], H = ["id"], M = /* @__PURE__ */ x({
   __name: "form-field",
   props: {
     field: {},
@@ -18,173 +13,164 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     error: {}
   },
   emits: ["update"],
-  setup(__props, { expose: __expose, emit: __emit }) {
-    const props = __props;
-    const emit = __emit;
-    const fieldElement = ref();
-    const rangeControl = ref();
-    const treeData = computed(
-      () => (props.field.options ?? []).map((option) => ({
-        key: option.value,
-        title: option.label,
-        disabled: option.disabled
+  setup(e, { expose: c, emit: V }) {
+    const b = e, i = V, s = k(), n = k(), U = f(
+      () => (b.field.options ?? []).map((r) => ({
+        key: r.value,
+        title: r.label,
+        disabled: r.disabled
       }))
+    ), o = f(
+      () => [b.field.description && `${b.field.key}-description`, b.error && `${b.field.key}-error`].filter(Boolean).join(" ") || void 0
+    ), $ = f(
+      () => b.field.type === "date-range" || b.field.type === "time-range" ? `${b.field.key}-start` : b.field.key
     );
-    const describedBy = computed(
-      () => [props.field.description && `${props.field.key}-description`, props.error && `${props.field.key}-error`].filter(Boolean).join(" ") || void 0
-    );
-    const controlId = computed(
-      () => props.field.type === "date-range" || props.field.type === "time-range" ? `${props.field.key}-start` : props.field.key
-    );
-    __expose({
+    return c({
       focus: () => {
-        var _a, _b;
-        if (rangeControl.value) {
-          rangeControl.value.focus("start");
+        var r, l;
+        if (n.value) {
+          n.value.focus("start");
           return;
         }
-        (_b = (_a = fieldElement.value) == null ? void 0 : _a.querySelector('input, button, [role="combobox"], [tabindex="0"]')) == null ? void 0 : _b.focus({ preventScroll: true });
+        (l = (r = s.value) == null ? void 0 : r.querySelector('input, button, [role="combobox"], [tabindex="0"]')) == null || l.focus({ preventScroll: !0 });
       }
-    });
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        ref_key: "fieldElement",
-        ref: fieldElement,
-        class: normalizeClass(["aheart-ai-form__field", { "is-error": Boolean(__props.error), "is-disabled": __props.disabled }]),
-        "data-field-key": __props.field.key,
-        "aria-invalid": __props.error ? "true" : void 0,
-        "aria-describedby": describedBy.value,
-        tabindex: "-1"
+    }), (r, l) => (a(), y("div", {
+      ref_key: "fieldElement",
+      ref: s,
+      class: g(["aheart-ai-form__field", { "is-error": !!e.error, "is-disabled": e.disabled }]),
+      "data-field-key": e.field.key,
+      "aria-invalid": e.error ? "true" : void 0,
+      "aria-describedby": o.value,
+      tabindex: "-1"
+    }, [
+      B("label", {
+        id: `${e.field.key}-label`,
+        for: $.value
       }, [
-        createElementVNode("label", {
-          id: `${__props.field.key}-label`,
-          for: controlId.value
-        }, [
-          createTextVNode(toDisplayString(__props.field.label) + " ", 1),
-          __props.field.required ? (openBlock(), createElementBlock("span", _hoisted_3, "*")) : createCommentVNode("", true)
-        ], 8, _hoisted_2),
-        __props.field.description ? (openBlock(), createElementBlock("p", {
-          key: 0,
-          id: `${__props.field.key}-description`,
-          class: "aheart-ai-form__field-description"
-        }, toDisplayString(__props.field.description), 9, _hoisted_4)) : createCommentVNode("", true),
-        __props.field.type === "textarea" ? (openBlock(), createBlock(unref(Textarea), {
-          key: 1,
-          id: __props.field.key,
-          "aria-labelledby": `${__props.field.key}-label`,
-          "aria-describedby": describedBy.value,
-          "model-value": __props.value,
-          placeholder: __props.field.placeholder,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "aria-labelledby", "aria-describedby", "model-value", "placeholder", "disabled"])) : __props.field.type === "tree-select" ? (openBlock(), createBlock(unref(TreeSelect), {
-          key: 2,
-          id: __props.field.key,
-          "labelled-by": `${__props.field.key}-label`,
-          "model-value": __props.value,
-          "tree-data": treeData.value,
-          multiple: Array.isArray(__props.value),
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "labelled-by", "model-value", "tree-data", "multiple", "disabled"])) : __props.field.type === "upload" ? (openBlock(), createBlock(unref(Upload), {
-          key: 3,
-          "file-list": __props.value,
-          disabled: __props.disabled,
-          "onUpdate:fileList": _cache[2] || (_cache[2] = ($event) => emit("update", $event))
-        }, null, 8, ["file-list", "disabled"])) : __props.field.type === "radio" ? (openBlock(), createBlock(unref(RadioGroup), {
-          key: 4,
-          "model-value": __props.value,
-          options: __props.field.options,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => emit("update", $event))
-        }, null, 8, ["model-value", "options", "disabled"])) : __props.field.type === "checkbox" ? (openBlock(), createBlock(unref(CheckboxGroup), {
-          key: 5,
-          "model-value": __props.value,
-          options: __props.field.options,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => emit("update", $event))
-        }, null, 8, ["model-value", "options", "disabled"])) : __props.field.type === "select" ? (openBlock(), createBlock(unref(Select), {
-          key: 6,
-          id: __props.field.key,
-          "labelled-by": `${__props.field.key}-label`,
-          "model-value": __props.value,
-          disabled: __props.disabled,
-          options: __props.field.options,
-          "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "labelled-by", "model-value", "disabled", "options"])) : __props.field.type === "switch" ? (openBlock(), createBlock(unref(Switch), {
-          key: 7,
-          id: __props.field.key,
-          "model-value": Boolean(__props.value),
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "model-value", "disabled"])) : __props.field.type === "number" ? (openBlock(), createBlock(unref(InputNumber), {
-          key: 8,
-          id: __props.field.key,
-          "model-value": __props.value,
-          placeholder: __props.field.placeholder,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "model-value", "placeholder", "disabled"])) : __props.field.type === "date" ? (openBlock(), createBlock(unref(DatePicker), {
-          key: 9,
-          id: __props.field.key,
-          "labelled-by": `${__props.field.key}-label`,
-          "described-by": describedBy.value,
-          status: __props.error ? "error" : void 0,
-          "model-value": __props.value,
-          placeholder: __props.field.placeholder,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "placeholder", "disabled"])) : __props.field.type === "date-range" ? (openBlock(), createBlock(unref(DateRangePicker), {
-          key: 10,
-          ref_key: "rangeControl",
-          ref: rangeControl,
-          id: __props.field.key,
-          "labelled-by": `${__props.field.key}-label`,
-          "described-by": describedBy.value,
-          status: __props.error ? "error" : void 0,
-          "model-value": __props.value,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "disabled"])) : __props.field.type === "time" ? (openBlock(), createBlock(unref(TimePicker), {
-          key: 11,
-          id: __props.field.key,
-          "labelled-by": `${__props.field.key}-label`,
-          "described-by": describedBy.value,
-          status: __props.error ? "error" : void 0,
-          "model-value": __props.value,
-          placeholder: __props.field.placeholder,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "placeholder", "disabled"])) : __props.field.type === "time-range" ? (openBlock(), createBlock(unref(TimeRangePicker), {
-          key: 12,
-          ref_key: "rangeControl",
-          ref: rangeControl,
-          id: __props.field.key,
-          "labelled-by": `${__props.field.key}-label`,
-          "described-by": describedBy.value,
-          status: __props.error ? "error" : void 0,
-          "model-value": __props.value,
-          disabled: __props.disabled,
-          "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "disabled"])) : (openBlock(), createBlock(unref(Input), {
-          key: 13,
-          id: __props.field.key,
-          "model-value": __props.value,
-          placeholder: __props.field.placeholder,
-          disabled: __props.disabled,
-          "aria-describedby": describedBy.value,
-          "onUpdate:modelValue": _cache[12] || (_cache[12] = ($event) => emit("update", $event))
-        }, null, 8, ["id", "model-value", "placeholder", "disabled", "aria-describedby"])),
-        __props.error ? (openBlock(), createElementBlock("p", {
-          key: 14,
-          id: `${__props.field.key}-error`,
-          class: "aheart-ai-form__field-error",
-          role: "alert"
-        }, toDisplayString(__props.error), 9, _hoisted_5)) : createCommentVNode("", true)
-      ], 10, _hoisted_1);
-    };
+        C(m(e.field.label) + " ", 1),
+        e.field.required ? (a(), y("span", L, "*")) : v("", !0)
+      ], 8, z),
+      e.field.description ? (a(), y("p", {
+        key: 0,
+        id: `${e.field.key}-description`,
+        class: "aheart-ai-form__field-description"
+      }, m(e.field.description), 9, F)) : v("", !0),
+      e.field.type === "textarea" ? (a(), t(u(S), {
+        key: 1,
+        id: e.field.key,
+        "aria-labelledby": `${e.field.key}-label`,
+        "aria-describedby": o.value,
+        "model-value": e.value,
+        placeholder: e.field.placeholder,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[0] || (l[0] = (d) => i("update", d))
+      }, null, 8, ["id", "aria-labelledby", "aria-describedby", "model-value", "placeholder", "disabled"])) : e.field.type === "tree-select" ? (a(), t(u(T), {
+        key: 2,
+        id: e.field.key,
+        "labelled-by": `${e.field.key}-label`,
+        "model-value": e.value,
+        "tree-data": U.value,
+        multiple: Array.isArray(e.value),
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[1] || (l[1] = (d) => i("update", d))
+      }, null, 8, ["id", "labelled-by", "model-value", "tree-data", "multiple", "disabled"])) : e.field.type === "upload" ? (a(), t(u(h), {
+        key: 3,
+        "file-list": e.value,
+        disabled: e.disabled,
+        "onUpdate:fileList": l[2] || (l[2] = (d) => i("update", d))
+      }, null, 8, ["file-list", "disabled"])) : e.field.type === "radio" ? (a(), t(u(D), {
+        key: 4,
+        "model-value": e.value,
+        options: e.field.options,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[3] || (l[3] = (d) => i("update", d))
+      }, null, 8, ["model-value", "options", "disabled"])) : e.field.type === "checkbox" ? (a(), t(u(E), {
+        key: 5,
+        "model-value": e.value,
+        options: e.field.options,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[4] || (l[4] = (d) => i("update", d))
+      }, null, 8, ["model-value", "options", "disabled"])) : e.field.type === "select" ? (a(), t(u(N), {
+        key: 6,
+        id: e.field.key,
+        "labelled-by": `${e.field.key}-label`,
+        "model-value": e.value,
+        disabled: e.disabled,
+        options: e.field.options,
+        "onUpdate:modelValue": l[5] || (l[5] = (d) => i("update", d))
+      }, null, 8, ["id", "labelled-by", "model-value", "disabled", "options"])) : e.field.type === "switch" ? (a(), t(u(P), {
+        key: 7,
+        id: e.field.key,
+        "model-value": !!e.value,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[6] || (l[6] = (d) => i("update", d))
+      }, null, 8, ["id", "model-value", "disabled"])) : e.field.type === "number" ? (a(), t(u(q), {
+        key: 8,
+        id: e.field.key,
+        "model-value": e.value,
+        placeholder: e.field.placeholder,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[7] || (l[7] = (d) => i("update", d))
+      }, null, 8, ["id", "model-value", "placeholder", "disabled"])) : e.field.type === "date" ? (a(), t(u(I), {
+        key: 9,
+        id: e.field.key,
+        "labelled-by": `${e.field.key}-label`,
+        "described-by": o.value,
+        status: e.error ? "error" : void 0,
+        "model-value": e.value,
+        placeholder: e.field.placeholder,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[8] || (l[8] = (d) => i("update", d))
+      }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "placeholder", "disabled"])) : e.field.type === "date-range" ? (a(), t(u(R), {
+        key: 10,
+        ref_key: "rangeControl",
+        ref: n,
+        id: e.field.key,
+        "labelled-by": `${e.field.key}-label`,
+        "described-by": o.value,
+        status: e.error ? "error" : void 0,
+        "model-value": e.value,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[9] || (l[9] = (d) => i("update", d))
+      }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "disabled"])) : e.field.type === "time" ? (a(), t(u(w), {
+        key: 11,
+        id: e.field.key,
+        "labelled-by": `${e.field.key}-label`,
+        "described-by": o.value,
+        status: e.error ? "error" : void 0,
+        "model-value": e.value,
+        placeholder: e.field.placeholder,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[10] || (l[10] = (d) => i("update", d))
+      }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "placeholder", "disabled"])) : e.field.type === "time-range" ? (a(), t(u(A), {
+        key: 12,
+        ref_key: "rangeControl",
+        ref: n,
+        id: e.field.key,
+        "labelled-by": `${e.field.key}-label`,
+        "described-by": o.value,
+        status: e.error ? "error" : void 0,
+        "model-value": e.value,
+        disabled: e.disabled,
+        "onUpdate:modelValue": l[11] || (l[11] = (d) => i("update", d))
+      }, null, 8, ["id", "labelled-by", "described-by", "status", "model-value", "disabled"])) : (a(), t(u(G), {
+        key: 13,
+        id: e.field.key,
+        "model-value": e.value,
+        placeholder: e.field.placeholder,
+        disabled: e.disabled,
+        "aria-describedby": o.value,
+        "onUpdate:modelValue": l[12] || (l[12] = (d) => i("update", d))
+      }, null, 8, ["id", "model-value", "placeholder", "disabled", "aria-describedby"])),
+      e.error ? (a(), y("p", {
+        key: 14,
+        id: `${e.field.key}-error`,
+        class: "aheart-ai-form__field-error",
+        role: "alert"
+      }, m(e.error), 9, H)) : v("", !0)
+    ], 10, j));
   }
 });
 export {
-  _sfc_main as default
+  M as default
 };

@@ -1,0 +1,78 @@
+
+[WebServer] (node:80518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:80531) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:80545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] - building client + server bundles...
+
+[WebServer]
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+[WebServer] ✓ building client + server bundles...
+
+[WebServer] - rendering pages...
+
+[WebServer] ✓ rendering pages...
+
+[WebServer] (node:81312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:81323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 25 tests using 5 workers
+
+
+(node:81337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:81341) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:81338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:81339) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:81340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/25] [desktop-firefox] › e2e/d8-ai.spec.ts:28:7 › D8 AI browser contract › V2 stream applies reorder, deduplication, reconnect, final checkpoint, and conversation abort
+[2/25] [mobile-webkit] › e2e/d8-ai.spec.ts:28:7 › D8 AI browser contract › V2 stream applies reorder, deduplication, reconnect, final checkpoint, and conversation abort
+[3/25] [desktop] › e2e/d8-ai.spec.ts:28:7 › D8 AI browser contract › V2 stream applies reorder, deduplication, reconnect, final checkpoint, and conversation abort
+[4/25] [desktop-webkit] › e2e/d8-ai.spec.ts:28:7 › D8 AI browser contract › V2 stream applies reorder, deduplication, reconnect, final checkpoint, and conversation abort
+[5/25] [mobile] › e2e/d8-ai.spec.ts:28:7 › D8 AI browser contract › V2 stream applies reorder, deduplication, reconnect, final checkpoint, and conversation abort
+[6/25] [desktop-webkit] › e2e/d8-ai.spec.ts:71:7 › D8 AI browser contract › Workbench keeps one responsive owner and locks transactional operations with retry idempotency
+[7/25] [mobile-webkit] › e2e/d8-ai.spec.ts:71:7 › D8 AI browser contract › Workbench keeps one responsive owner and locks transactional operations with retry idempotency
+[8/25] [desktop] › e2e/d8-ai.spec.ts:71:7 › D8 AI browser contract › Workbench keeps one responsive owner and locks transactional operations with retry idempotency
+[9/25] [mobile] › e2e/d8-ai.spec.ts:71:7 › D8 AI browser contract › Workbench keeps one responsive owner and locks transactional operations with retry idempotency
+[10/25] [desktop-webkit] › e2e/d8-ai.spec.ts:124:7 › D8 AI browser contract › Workbench enforces dependency order, locked tasks, and stale revision rejection
+[11/25] [mobile-webkit] › e2e/d8-ai.spec.ts:124:7 › D8 AI browser contract › Workbench enforces dependency order, locked tasks, and stale revision rejection
+[12/25] [desktop-webkit] › e2e/d8-ai.spec.ts:166:7 › D8 AI browser contract › AIForm validates range, format, compare, async, reset, and server errors through the form surface
+[13/25] [mobile-webkit] › e2e/d8-ai.spec.ts:166:7 › D8 AI browser contract › AIForm validates range, format, compare, async, reset, and server errors through the form surface
+[14/25] [desktop] › e2e/d8-ai.spec.ts:124:7 › D8 AI browser contract › Workbench enforces dependency order, locked tasks, and stale revision rejection
+[15/25] [mobile] › e2e/d8-ai.spec.ts:124:7 › D8 AI browser contract › Workbench enforces dependency order, locked tasks, and stale revision rejection
+[16/25] [desktop-firefox] › e2e/d8-ai.spec.ts:71:7 › D8 AI browser contract › Workbench keeps one responsive owner and locks transactional operations with retry idempotency
+[17/25] [desktop-webkit] › e2e/d8-ai.spec.ts:196:7 › D8 AI browser contract › tool summary is whitelist-only and iframe owner-document cleanup survives narrow 200% layout
+[18/25] [mobile-webkit] › e2e/d8-ai.spec.ts:196:7 › D8 AI browser contract › tool summary is whitelist-only and iframe owner-document cleanup survives narrow 200% layout
+[19/25] [desktop] › e2e/d8-ai.spec.ts:166:7 › D8 AI browser contract › AIForm validates range, format, compare, async, reset, and server errors through the form surface
+[20/25] [mobile] › e2e/d8-ai.spec.ts:166:7 › D8 AI browser contract › AIForm validates range, format, compare, async, reset, and server errors through the form surface
+[21/25] [desktop] › e2e/d8-ai.spec.ts:196:7 › D8 AI browser contract › tool summary is whitelist-only and iframe owner-document cleanup survives narrow 200% layout
+[22/25] [desktop-firefox] › e2e/d8-ai.spec.ts:124:7 › D8 AI browser contract › Workbench enforces dependency order, locked tasks, and stale revision rejection
+[23/25] [mobile] › e2e/d8-ai.spec.ts:196:7 › D8 AI browser contract › tool summary is whitelist-only and iframe owner-document cleanup survives narrow 200% layout
+[24/25] [desktop-firefox] › e2e/d8-ai.spec.ts:166:7 › D8 AI browser contract › AIForm validates range, format, compare, async, reset, and server errors through the form surface
+[25/25] [desktop-firefox] › e2e/d8-ai.spec.ts:196:7 › D8 AI browser contract › tool summary is whitelist-only and iframe owner-document cleanup survives narrow 200% layout
+  25 passed (29.0s)

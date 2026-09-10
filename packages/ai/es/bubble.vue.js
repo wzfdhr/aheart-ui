@@ -1,60 +1,82 @@
-import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, toDisplayString, createVNode, unref, createCommentVNode, renderSlot } from "vue";
-import _sfc_main$3 from "./attachments.vue.js";
-import _sfc_main$1 from "./process.vue.js";
-import _sfc_main$2 from "./sources.vue.js";
-import { renderSafeMarkdown } from "./safe-markdown.js";
-const _hoisted_1 = { class: "aheart-ai-bubble__header" };
-const _hoisted_2 = { class: "aheart-ai-bubble__content" };
-const _hoisted_3 = {
+import { defineComponent as d, computed as c, openBlock as s, createElementBlock as a, normalizeClass as y, createElementVNode as t, toDisplayString as l, createVNode as r, unref as h, Fragment as i, createCommentVNode as n, renderSlot as f } from "vue";
+import S from "./attachments.vue.js";
+import k from "./process.vue.js";
+import N from "./sources.vue.js";
+import { renderSafeMarkdown as A } from "./safe-markdown.js";
+const B = { class: "aheart-ai-bubble__header" }, $ = { class: "aheart-ai-bubble__content" }, I = {
   key: 0,
+  class: "aheart-ai-bubble__tool-call",
+  "aria-label": "工具调用摘要"
+}, R = { class: "aheart-ai-bubble__tool-heading" }, v = { class: "aheart-ai-bubble__tool-details" }, V = { key: 0 }, E = { key: 0 }, F = {
+  key: 1,
   class: "aheart-ai-bubble__error"
-};
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AAIBubble" },
+}, M = /* @__PURE__ */ d({
+  name: "AAIBubble",
   __name: "bubble",
   props: {
     message: {},
     contentRenderer: { type: Function }
   },
-  setup(__props) {
-    const props = __props;
-    const roleLabel = computed(() => ({ user: "你", assistant: "AI 助手", system: "系统", tool: "工具" })[props.message.role]);
-    const contentNode = computed(() => {
-      var _a;
-      return ((_a = props.contentRenderer) == null ? void 0 : _a.call(props, props.message)) ?? renderSafeMarkdown(props.message.content);
-    });
-    const AIBubbleRenderNode = defineComponent({
+  setup(e) {
+    const o = e, b = c(() => ({ user: "你", assistant: "AI 助手", system: "系统", tool: "工具" })[o.message.role]), g = c(() => {
+      var m;
+      return o.message.toolCall ? "" : ((m = o.contentRenderer) == null ? void 0 : m.call(o, o.message)) ?? A(o.message.content);
+    }), C = d({
       name: "AIBubbleRenderNode",
       props: {
         node: { type: null, default: void 0 }
       },
-      setup(renderProps) {
-        return () => renderProps.node;
+      setup(m) {
+        return () => m.node;
       }
     });
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("article", {
-        class: normalizeClass(["aheart-ai-bubble", `is-${__props.message.role}`])
-      }, [
-        createElementVNode("header", _hoisted_1, toDisplayString(roleLabel.value), 1),
-        createElementVNode("p", _hoisted_2, [
-          createVNode(unref(AIBubbleRenderNode), { node: contentNode.value }, null, 8, ["node"])
+    return (m, u) => (s(), a("article", {
+      class: y(["aheart-ai-bubble", `is-${e.message.role}`])
+    }, [
+      t("header", B, l(b.value), 1),
+      t("p", $, [
+        r(h(C), { node: g.value }, null, 8, ["node"])
+      ]),
+      e.message.toolCall ? (s(), a("section", I, [
+        t("header", R, [
+          t("strong", null, l(e.message.toolCall.name), 1),
+          t("span", null, l(e.message.toolCall.summary), 1)
         ]),
-        __props.message.error ? (openBlock(), createElementBlock("p", _hoisted_3, toDisplayString(__props.message.error), 1)) : createCommentVNode("", true),
-        createVNode(_sfc_main$1, {
-          items: __props.message.process
-        }, null, 8, ["items"]),
-        createVNode(_sfc_main$2, {
-          sources: __props.message.sources
-        }, null, 8, ["sources"]),
-        createVNode(_sfc_main$3, {
-          items: __props.message.attachments
-        }, null, 8, ["items"]),
-        renderSlot(_ctx.$slots, "actions", { message: __props.message })
-      ], 2);
-    };
+        t("dl", v, [
+          e.message.toolCall.inputSummary || e.message.toolCall.inputStatus ? (s(), a(i, { key: 0 }, [
+            u[0] || (u[0] = t("dt", null, "输入", -1)),
+            t("dd", null, [
+              t("span", null, l(e.message.toolCall.inputSummary), 1),
+              e.message.toolCall.inputStatus ? (s(), a("small", V, l(e.message.toolCall.inputStatus), 1)) : n("", !0)
+            ])
+          ], 64)) : n("", !0),
+          e.message.toolCall.resultSummary || e.message.toolCall.resultStatus ? (s(), a(i, { key: 1 }, [
+            u[1] || (u[1] = t("dt", null, "结果", -1)),
+            t("dd", null, [
+              t("span", null, l(e.message.toolCall.resultSummary), 1),
+              e.message.toolCall.resultStatus ? (s(), a("small", E, l(e.message.toolCall.resultStatus), 1)) : n("", !0)
+            ])
+          ], 64)) : n("", !0),
+          e.message.toolCall.error ? (s(), a(i, { key: 2 }, [
+            u[2] || (u[2] = t("dt", null, "错误", -1)),
+            t("dd", null, l(e.message.toolCall.error), 1)
+          ], 64)) : n("", !0)
+        ])
+      ])) : n("", !0),
+      e.message.error ? (s(), a("p", F, l(e.message.error), 1)) : n("", !0),
+      r(k, {
+        items: e.message.process
+      }, null, 8, ["items"]),
+      r(N, {
+        sources: e.message.sources
+      }, null, 8, ["sources"]),
+      r(S, {
+        items: e.message.attachments
+      }, null, 8, ["items"]),
+      f(m.$slots, "actions", { message: e.message })
+    ], 2));
   }
 });
 export {
-  _sfc_main as default
+  M as default
 };

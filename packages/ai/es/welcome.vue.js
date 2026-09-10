@@ -1,33 +1,27 @@
-import { defineComponent, openBlock, createElementBlock, createElementVNode, toDisplayString, createCommentVNode, renderSlot } from "vue";
-const _hoisted_1 = { class: "aheart-ai-welcome" };
-const _hoisted_2 = { class: "aheart-ai-welcome__title" };
-const _hoisted_3 = {
+import { defineComponent as i, openBlock as t, createElementBlock as o, createElementVNode as l, toDisplayString as s, createCommentVNode as c, renderSlot as n } from "vue";
+const r = { class: "aheart-ai-welcome" }, d = { class: "aheart-ai-welcome__title" }, m = {
   key: 0,
   class: "aheart-ai-welcome__description"
-};
-const _hoisted_4 = {
+}, _ = {
   key: 1,
   class: "aheart-ai-welcome__content"
-};
-const _sfc_main = /* @__PURE__ */ defineComponent({
-  ...{ name: "AAIWelcome" },
+}, p = /* @__PURE__ */ i({
+  name: "AAIWelcome",
   __name: "welcome",
   props: {
     title: { default: "你好，我能为你做些什么？" },
     description: { default: void 0 }
   },
-  setup(__props) {
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("section", _hoisted_1, [
-        createElementVNode("h2", _hoisted_2, toDisplayString(__props.title), 1),
-        __props.description ? (openBlock(), createElementBlock("p", _hoisted_3, toDisplayString(__props.description), 1)) : createCommentVNode("", true),
-        _ctx.$slots.default ? (openBlock(), createElementBlock("div", _hoisted_4, [
-          renderSlot(_ctx.$slots, "default")
-        ])) : createCommentVNode("", true)
-      ]);
-    };
+  setup(e) {
+    return (a, h) => (t(), o("section", r, [
+      l("h2", d, s(e.title), 1),
+      e.description ? (t(), o("p", m, s(e.description), 1)) : c("", !0),
+      a.$slots.default ? (t(), o("div", _, [
+        n(a.$slots, "default")
+      ])) : c("", !0)
+    ]));
   }
 });
 export {
-  _sfc_main as default
+  p as default
 };
