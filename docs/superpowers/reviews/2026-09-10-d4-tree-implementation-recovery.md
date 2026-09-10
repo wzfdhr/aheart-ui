@@ -35,3 +35,16 @@ Astra High independently reviewed the uncommitted source against `24e19de` and r
 | P2 | Consecutive viewport notifications overwrote scheduled handles; cleanup cancelled only the last. | Coalesce scheduling and reject every callback after its observer is disposed. |
 
 The independent test author is preserving regression cases, and the sole implementation worker will repair the candidate after those RED results are recorded. No implementation acceptance has been granted.
+
+## Second independent review
+
+The original six diagnostics now pass, and the original eight findings have been closed for their stated scope. The maintained Tree/TreeSelect suite passed `81/81` (19 new and 62 existing). However, four additional contract checks failed and the independent verdict remains P0/P1/P2=`0/2/2`:
+
+- P1: changing `estimateSize` replaced an already measured 56px row with the new 40px estimate.
+- P1: after an explicit `child.blur()` and a flush, a later collapse stole focus back to the parent.
+- P2: replacing only an offscreen row's title under the same typed key retained its stale 112px measurement.
+- P2: disabling the Tree left 17 active ResizeObservers. The remedy must pause continuous observation and scheduled work while preserving readable, scrollable virtual content; simply rendering no virtual rows or switching to full DOM is not the prescribed behavior.
+
+The independent test author preserved all four RED cases in `tree-virtual-recovery.test.ts`; their initial run was `4 failed / 0 passed` with exit 1. Local log: `/private/tmp/d4-tree-dev-review-25sPoc/tree-virtual-recovery-red.log`.
+
+The first complete browser run on source was `28 passed / 7 failed` over five projects. Browser failures are under independent classification and do not constitute browser acceptance. No implementation, product or delivery approval follows from the 81 passing unit tests.
