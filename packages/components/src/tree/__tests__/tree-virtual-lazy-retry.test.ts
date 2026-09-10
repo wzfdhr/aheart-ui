@@ -2,6 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Tree from '../tree.vue'
+import TreeSelect from '../../tree-select/tree-select.vue'
 
 type ControlledObserver = {
   callback: ResizeObserverCallback
@@ -165,5 +166,61 @@ describe('Tree virtual lazy retry focus', () => {
     await flushOwnerRealm()
     expect(document.activeElement).toBe(document.body)
     outside.remove()
+  })
+
+  it('does not start a second loader after retry and same-turn standalone unmount', async () => {
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockImplementationOnce(() => new Promise(() => {}))
+    const wrapper = mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never })
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+    retry.click()
+    wrapper.unmount()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not start a second loader after retry and same-turn controlled TreeSelect close', async () => {
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockImplementationOnce(() => new Promise(() => {}))
+    const wrapper = mount(TreeSelect, {
+      attachTo: document.body,
+      props: {
+        virtual: true,
+        treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }],
+        loadData,
+        open: true,
+        getPopupContainer: (trigger: HTMLElement) => trigger.parentElement!
+      } as never
+    })
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    await wrapper.get('[aria-label="重试加载 Lazy root"]').trigger('click')
+    await wrapper.setProps({ open: false } as never)
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['disabled', { disabled: true }],
+    ['removed', { treeData: [] }],
+    ['replaced', { treeData: [{ key: 'replacement', title: 'Replacement', isLeaf: false }] }]
+  ])('does not start a second loader after retry and same-turn %s transition', async (_label, nextProps) => {
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockImplementationOnce(() => new Promise(() => {}))
+    const wrapper = mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never })
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    await wrapper.get('[aria-label="重试加载 Lazy root"]').trigger('click')
+    await wrapper.setProps(nextProps as never)
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
   })
 })
