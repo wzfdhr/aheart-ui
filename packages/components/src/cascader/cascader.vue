@@ -53,14 +53,45 @@
         type="search"
         placeholder="搜索"
         aria-label="搜索级联选项"
+        @keydown="handleSearchInputKeydown"
       />
-      <div v-if="searchText.trim()" class="aheart-cascader__search-results">
+      <template v-if="searchText.trim() && virtualEnabled">
+      <CascaderVirtualList
+        :ref="element => setVirtualListRef('search', element)"
+        class-name="aheart-cascader__search-results"
+        :items="searchResults"
+        :config="virtualConfig!"
+        :active-index="searchRovingIndex"
+        :pinned-indexes="searchPinnedIndexes"
+        :row-key="(_index, result) => pathToken(result.path)"
+        :disabled-index="(_index, result) => disabled || result.disabled"
+      >
+        <template #row="{ index, option: result, tabindex }">
+          <button
+            class="aheart-cascader__option"
+            type="button"
+            :tabindex="tabindex"
+            :data-cascader-path="pathKey(result.path)"
+            :data-cascader-path-token="pathToken(result.path)"
+            :disabled="disabled || result.disabled"
+            @click="selectPath(result.path)"
+            @focus="handleSearchFocus(result.path, index)"
+            @keydown="handleSearchKeydown($event, result.path, index)"
+          >
+            {{ result.labels.join(' / ') }}
+          </button>
+        </template>
+      </CascaderVirtualList>
+      <div v-if="searchResults.length === 0" class="aheart-cascader__empty" role="status">暂无匹配选项</div>
+      </template>
+      <div v-else-if="searchText.trim()" class="aheart-cascader__search-results">
         <button
           v-for="result in searchResults"
           :key="pathToken(result.path)"
           class="aheart-cascader__option"
           type="button"
           :data-cascader-path="pathKey(result.path)"
+          :data-cascader-path-token="pathToken(result.path)"
           :disabled="disabled || result.disabled"
           @click="selectPath(result.path)"
         >
@@ -69,6 +100,45 @@
         <div v-if="searchResults.length === 0" class="aheart-cascader__empty" role="status">暂无匹配选项</div>
       </div>
       <div v-else ref="columnsRef" class="aheart-cascader__columns">
+        <template v-if="virtualEnabled">
+        <CascaderVirtualList
+          v-for="(column, columnIndex) in columns"
+          :key="columnPrefixToken(columnIndex)"
+          :ref="element => setVirtualListRef(columnPrefixToken(columnIndex), element)"
+          class-name="aheart-cascader__column"
+          :items="column"
+          :config="virtualConfig!"
+          :active-index="rovingIndex(columnIndex)"
+          :pinned-indexes="pinnedIndexes(columnIndex)"
+          :row-key="(optionIndex, option) => rowToken(columnIndex, optionIndex, option)"
+          :disabled-index="(optionIndex, option) => disabled || option.disabled || isLoading(columnIndex, option)"
+        >
+          <template #row="{ index: optionIndex, option, tabindex }">
+            <button
+              class="aheart-cascader__option"
+              :class="{ 'is-active': activePath[columnIndex] === option.value, 'is-selected': isSelected(columnIndex, option), 'is-loading': isLoading(columnIndex, option), 'is-error': isLoadError(columnIndex, option) }"
+              type="button"
+              :tabindex="tabindex"
+              :data-cascader-value="option.value"
+              :data-cascader-token="cascaderKeyToken(option.value)"
+              :id="optionId(columnIndex, optionIndex, option)"
+              :data-cascader-column="columnIndex"
+              :disabled="disabled || option.disabled || isLoading(columnIndex, option)"
+              :aria-busy="isLoading(columnIndex, option) ? 'true' : undefined"
+              :aria-label="isLoadError(columnIndex, option) ? `${option.label}，加载失败，按回车或点击重试` : undefined"
+              @click="handleOption(option, columnIndex)"
+              @focus="handleOptionFocus(option, columnIndex)"
+              @keydown="handleOptionKeydown($event, option, columnIndex, optionIndex)"
+            >
+              <span>{{ option.label }}</span>
+              <AIcon v-if="isLoading(columnIndex, option)" name="loading" :size="16" spin aria-hidden="true" />
+              <span v-else-if="isLoadError(columnIndex, option)" class="aheart-cascader__load-error" aria-hidden="true">重试</span>
+              <AIcon v-else-if="isBranch(option)" name="chevron-right" :size="16" aria-hidden="true" />
+            </button>
+          </template>
+        </CascaderVirtualList>
+        </template>
+        <template v-else>
         <div v-for="(column, columnIndex) in columns" :key="columnIndex" class="aheart-cascader__column">
           <button
             v-for="(option, optionIndex) in column"
@@ -78,14 +148,14 @@
             type="button"
             :data-cascader-value="option.value"
             :data-cascader-token="cascaderKeyToken(option.value)"
-            :id="optionId(columnIndex, optionIndex)"
+            :id="optionId(columnIndex, optionIndex, option)"
             :data-cascader-column="columnIndex"
             :disabled="disabled || option.disabled || isLoading(columnIndex, option)"
             :aria-busy="isLoading(columnIndex, option) ? 'true' : undefined"
             :aria-label="isLoadError(columnIndex, option) ? `${option.label}，加载失败，按回车或点击重试` : undefined"
             @click="handleOption(option, columnIndex)"
             @focus="handleOptionFocus(option, columnIndex)"
-            @keydown="handleOptionKeydown($event, option, columnIndex)"
+            @keydown="handleOptionKeydown($event, option, columnIndex, optionIndex)"
           >
             <span>{{ option.label }}</span>
             <AIcon v-if="isLoading(columnIndex, option)" name="loading" :size="16" spin aria-hidden="true" />
@@ -93,6 +163,7 @@
             <AIcon v-else-if="isBranch(option)" name="chevron-right" :size="16" aria-hidden="true" />
           </button>
         </div>
+        </template>
       </div>
     </div>
     </Teleport>
@@ -100,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch, type ComponentPublicInstance } from 'vue'
 import AIcon from '../icon/icon.vue'
 import type { FloatingPlacement } from '../utils/floating-core'
 import { useFloatingDismiss } from '../utils/use-floating-dismiss'
@@ -111,6 +182,8 @@ import { useControllableState } from '../utils/use-controllable-state'
 import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import type { CascaderKey, CascaderLoadContext, CascaderOption, CascaderPath, CascaderValue } from './types'
+import CascaderVirtualList, { type CascaderVirtualListExpose } from './cascader-virtual-list.vue'
+import { normalizeCascaderVirtual } from './virtual-options'
 import './style.css'
 
 defineOptions({ name: 'ACascader' })
@@ -129,6 +202,7 @@ const props = withDefaults(defineProps<{
   maxTagCount?: number
   placement?: FloatingPlacement
   autoAdjustOverflow?: boolean
+  virtual?: import('./types').CascaderVirtual
   getPopupContainer?: (triggerNode: HTMLElement) => HTMLElement
   loadData?: (option: CascaderOption, context: CascaderLoadContext) => Promise<CascaderOption[]>
 }>(), {
@@ -160,6 +234,16 @@ const focusedPath = ref<CascaderPath>([])
 const loadingPaths = ref<CascaderPath[]>([])
 const errorPaths = ref<CascaderPath[]>([])
 const innerOptions = ref<CascaderOption[]>(cloneOptions(props.options))
+const virtualConfig = computed(() => normalizeCascaderVirtual(props.virtual, (message) => {
+  if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) console.warn(message)
+}))
+const virtualEnabled = computed(() => virtualConfig.value !== null)
+const focusedSearchPath = ref<CascaderPath>([])
+const virtualListRefs = new Map<string, CascaderVirtualListExpose>()
+const setVirtualListRef = (key: string, element: Element | ComponentPublicInstance | null) => {
+  if (element && '$el' in element) virtualListRefs.set(key, element as unknown as CascaderVirtualListExpose)
+  else if (!element) virtualListRefs.delete(key)
+}
 let loadGeneration = 0
 let loadSequence = 0
 let navigationVersion = 0
@@ -300,19 +384,48 @@ const searchResults = computed(() => {
   const query = searchText.value.trim().toLowerCase()
   return collectLeaves(innerOptions.value).filter((result) => result.labels.join(' / ').toLowerCase().includes(query))
 })
+const columnPrefixToken = (columnIndex: number) => `column-${columnIndex === 0 ? 'root' : pathToken(activePath.value.slice(0, columnIndex))}`
+const rowToken = (columnIndex: number, _optionIndex: number, option: CascaderOption) => `${columnPrefixToken(columnIndex)}-${cascaderKeyToken(option.value)}`
+const firstEnabledIndex = (items: CascaderOption[]) => items.findIndex(option => !option.disabled)
+const lastEnabledIndex = (items: CascaderOption[]) => {
+  for (let index = items.length - 1; index >= 0; index--) if (!items[index].disabled) return index
+  return -1
+}
+const rovingIndex = (columnIndex: number) => {
+  const column = columns.value[columnIndex] ?? []
+  const focused = focusedPath.value[columnIndex]
+  const focusedIndex = focused === undefined ? -1 : column.findIndex(option => option.value === focused && !option.disabled)
+  return focusedIndex >= 0 ? focusedIndex : firstEnabledIndex(column)
+}
+const pinnedIndexes = (columnIndex: number) => {
+  const index = rovingIndex(columnIndex)
+  return index >= 0 ? [index] : []
+}
+const searchRovingIndex = computed(() => {
+  const focused = focusedSearchPath.value
+  const index = searchResults.value.findIndex(result => samePath(result.path, focused) && !result.disabled)
+  return index >= 0 ? index : firstEnabledIndex(searchResults.value.map(result => ({ value: result.path.join('/'), label: result.labels.join(' / '), disabled: result.disabled })))
+})
+const searchPinnedIndexes = computed(() => searchRovingIndex.value >= 0 ? [searchRovingIndex.value] : [])
 const attrs = useAttrs()
 const resolvedAriaLabelledby = computed(() => attrs['aria-labelledby'] as string | undefined)
 const resolvedAriaDescribedby = computed(() => attrs['aria-describedby'] as string | undefined)
-const optionId = (columnIndex: number, optionIndex: number) => `${instanceId}-option-${columnIndex}-${optionIndex}`
+const optionId = (columnIndex: number, _optionIndex: number, option?: CascaderOption) => {
+  const fullPath = option ? [...activePath.value.slice(0, columnIndex), option.value] : []
+  return `${instanceId}-option-column-${columnIndex}-${pathToken(fullPath) || 'root'}`
+}
 const activeDescendantId = computed(() => {
-  if (!mergedOpen.value || searchText.value.trim()) return undefined
+  if (virtualEnabled.value || !mergedOpen.value || searchText.value.trim()) return undefined
   const path = focusedPath.value
   if (!path.length) return undefined
   const option = findOption(path.slice(0, -1))?.children?.find((item) => item.value === path.at(-1)) ?? (path.length === 1 ? innerOptions.value.find((item) => item.value === path[0]) : undefined)
   if (!option || !columns.value[path.length - 1]?.includes(option)) return undefined
-  return optionId(path.length - 1, columns.value[path.length - 1].indexOf(option))
+  return optionId(path.length - 1, columns.value[path.length - 1].indexOf(option), option)
 })
-const isSelected = (columnIndex: number, option: CascaderOption) => selectedPaths.value.some((path) => path[columnIndex] === option.value && path.length === columnIndex + 1)
+const isSelected = (columnIndex: number, option: CascaderOption) => {
+  const candidate = [...activePath.value.slice(0, columnIndex), option.value]
+  return selectedPaths.value.some(path => samePath(path, candidate))
+}
 const isLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const isLoadError = (columnIndex: number, option: CascaderOption) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const requestOpen = (open: boolean) => {
@@ -401,6 +514,52 @@ const handleOption = async (option: CascaderOption, columnIndex: number) => {
 const handleOptionFocus = (option: CascaderOption, columnIndex: number) => {
   focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value]
 }
+const handleSearchFocus = (path: CascaderPath, _index: number) => {
+  focusedSearchPath.value = [...path]
+  focusedPath.value = [...path]
+}
+const focusColumnIndex = (columnIndex: number, index: number) => {
+  const key = columnPrefixToken(columnIndex)
+  const list = virtualListRefs.get(key)
+  if (list) list.focusIndex(index)
+  else {
+    const target = panelRef.value?.querySelector<HTMLElement>(`[data-cascader-column="${columnIndex}"][data-cascader-token="${cascaderKeyToken(columns.value[columnIndex]?.[index]?.value)}"]`)
+    target?.focus()
+  }
+}
+const enabledIndexes = (columnIndex: number) => (columns.value[columnIndex] ?? [])
+  .map((option, index) => ({ option, index }))
+  .filter(({ option }) => !option.disabled && !isLoading(columnIndex, option))
+  .map(({ index }) => index)
+const handleSearchInputKeydown = (event: KeyboardEvent) => {
+  if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+  const indexes = searchResults.value.map((result, index) => ({ result, index })).filter(({ result }) => !result.disabled).map(({ index }) => index)
+  if (!indexes.length) return
+  event.preventDefault()
+  const index = event.key === 'ArrowDown' ? indexes[0] : indexes.at(-1)!
+  const list = virtualListRefs.get('search')
+  if (list) list.focusIndex(index)
+  else void nextTick(() => panelRef.value?.querySelectorAll<HTMLElement>('.aheart-cascader__search-results .aheart-cascader__option')[index]?.focus())
+}
+const handleSearchKeydown = (event: KeyboardEvent, path: CascaderPath, index: number) => {
+  const indexes = searchResults.value.map((result, resultIndex) => ({ result, resultIndex })).filter(({ result }) => !result.disabled).map(({ resultIndex }) => resultIndex)
+  const current = indexes.indexOf(index)
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault()
+    const next = indexes[(current + (event.key === 'ArrowDown' ? 1 : -1) + indexes.length) % indexes.length]
+    virtualListRefs.get('search')?.focusIndex(next)
+  } else if (event.key === 'Home' || event.key === 'End') {
+    event.preventDefault()
+    virtualListRefs.get('search')?.focusIndex(event.key === 'Home' ? indexes[0] : indexes.at(-1)!)
+  } else if (event.key === 'Escape') {
+    event.preventDefault()
+    requestOpen(false)
+    void nextTick(() => triggerRef.value?.focus())
+  } else if ((event.key === 'Enter' || event.key === ' ') && !searchResults.value[index].disabled) {
+    event.preventDefault()
+    selectPath(path)
+  }
+}
 let keyboardRequest = 0
 const enterChildColumn = async (option: CascaderOption, columnIndex: number, current: HTMLElement) => {
   const request = ++keyboardRequest
@@ -413,7 +572,11 @@ const enterChildColumn = async (option: CascaderOption, columnIndex: number, cur
   const active = current.ownerDocument.activeElement
   if (request !== keyboardRequest || generation !== loadGeneration || navigation !== navigationVersion || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path)) return
   if (active !== current && active !== current.ownerDocument.body) return
-  if (isBranch(option)) panelRef.value?.querySelector<HTMLElement>(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)?.focus()
+  if (isBranch(option)) {
+    const nextColumn = columnIndex + 1
+    const nextIndexes = enabledIndexes(nextColumn)
+    if (nextIndexes.length) focusColumnIndex(nextColumn, nextIndexes[0])
+  }
 }
 
 const handleTriggerKeydown = (event: KeyboardEvent) => {
@@ -427,8 +590,35 @@ const handleTriggerKeydown = (event: KeyboardEvent) => {
     void nextTick(() => triggerRef.value?.focus())
   }
 }
-const handleOptionKeydown = (event: KeyboardEvent, option: CascaderOption, columnIndex: number) => {
+const handleOptionKeydown = (event: KeyboardEvent, option: CascaderOption, columnIndex: number, optionIndex = -1) => {
   const current = event.currentTarget as HTMLButtonElement
+  if (virtualEnabled.value) {
+    const indexes = enabledIndexes(columnIndex)
+    const currentIndex = optionIndex >= 0 ? indexes.indexOf(optionIndex) : indexes.findIndex(index => columns.value[columnIndex]?.[index] === option)
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (indexes.length) focusColumnIndex(columnIndex, indexes[(currentIndex + (event.key === 'ArrowDown' ? 1 : -1) + indexes.length) % indexes.length])
+    } else if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault()
+      if (indexes.length) focusColumnIndex(columnIndex, event.key === 'Home' ? indexes[0] : indexes.at(-1)!)
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      requestOpen(false)
+      void nextTick(() => triggerRef.value?.focus())
+    } else if ((event.key === 'Enter' || event.key === ' ') && !option.disabled) {
+      event.preventDefault()
+      void enterChildColumn(option, columnIndex, current)
+    } else if (event.key === 'ArrowRight' && isBranch(option)) {
+      event.preventDefault()
+      void enterChildColumn(option, columnIndex, current)
+    } else if (event.key === 'ArrowLeft' && columnIndex > 0) {
+      event.preventDefault()
+      const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1]
+      const parentIndex = (columns.value[columnIndex - 1] ?? []).findIndex(candidate => candidate.value === parentValue)
+      if (parentIndex >= 0) focusColumnIndex(columnIndex - 1, parentIndex)
+    }
+    return
+  }
   const options = Array.from(current.parentElement?.querySelectorAll<HTMLButtonElement>('.aheart-cascader__option:not(:disabled)') ?? [])
   const index = options.indexOf(current)
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
