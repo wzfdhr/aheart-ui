@@ -17,13 +17,16 @@ const value = ref<CascaderValue>()
 const controlledValue = ref<CascaderValue>()
 const selectionEvents = ref(0)
 const lastSelection = ref('[]')
+const acceptedControlledPath = computed<CascaderPath>(() => Array.isArray(controlledValue.value) && (controlledValue.value.length === 0 || !Array.isArray(controlledValue.value[0])) ? controlledValue.value as CascaderPath : [])
+const controlledPathToken = computed(() => acceptedControlledPath.value.map(key => `${typeof key === 'number' ? 'n' : 's'}:${String(key)}`).join('|'))
 const lazyState = ref<'idle' | 'loading' | 'error' | 'success' | 'aborted'>('idle')
 const lazyAttempts = ref(0)
 const lazyAborts = ref(0)
 const lazyRevision = ref(0)
 const lazyOpen = ref(false)
-let releaseLazy: (() => void) | undefined
 let lazyRequestToken = 0
+const replaceNextLazyLoad = ref(false)
+const lazyOwnerRef = ref<HTMLElement | null>(null)
 
 const virtualConfig = computed(() => virtual.value ? {
   height: viewportHint.value === 'short' ? 180 : 256,
@@ -105,13 +108,21 @@ const onControlledValue = (next: CascaderValue) => {
 }
 
 const lazyOptions = ref<CascaderOption[]>([{ value: 'lazy-root', label: 'Lazy root', isLeaf: false }])
+const replaceLazyOptions = () => { lazyRevision.value++; lazyRequestToken++; lazyOptions.value = [{ value: `lazy-root-${lazyRevision.value}`, label: 'Lazy root replaced', isLeaf: false }] }
+const armLazyReplacement = () => { replaceNextLazyLoad.value = true }
 const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSignal }) => {
   const attempt = ++lazyAttempts.value
   const request = ++lazyRequestToken
   lazyState.value = 'loading'
+  if (replaceNextLazyLoad.value) {
+    replaceNextLazyLoad.value = false
+    const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? globalThis.window
+    ownerWindow.setTimeout(replaceLazyOptions, 0)
+  }
+  const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? globalThis.window
   await new Promise<void>((resolve, reject) => {
-    const timer = window.setTimeout(resolve, 180)
-    const abort = () => { window.clearTimeout(timer); lazyAborts.value++; lazyState.value = 'aborted'; reject(new Error('fixture lazy request aborted')) }
+    const timer = ownerWindow.setTimeout(resolve, 180)
+    const abort = () => { ownerWindow.clearTimeout(timer); lazyAborts.value++; lazyState.value = 'aborted'; reject(new Error('fixture lazy request aborted')) }
     signal.addEventListener('abort', abort, { once: true })
   })
   if (request !== lazyRequestToken || signal.aborted) throw new Error('stale lazy request')
@@ -119,9 +130,6 @@ const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSign
   lazyState.value = 'success'
   return [{ value: 'lazy-child', label: 'Loaded lazy child' }]
 }
-const replaceLazy = () => { lazyRevision.value++; lazyRequestToken++; lazyOptions.value = [{ value: `lazy-root-${lazyRevision.value}`, label: 'Lazy root replaced', isLeaf: false }] }
-const abortLazy = () => { lazyOpen.value = false; lazyRequestToken++ }
-const closeLazy = () => { lazyOpen.value = false }
 </script>
 
 <template>
@@ -186,8 +194,9 @@ const closeLazy = () => { lazyOpen.value = false }
           aria-labelledby="cascader-virtual-controlled-label"
           @update:model-value="onControlledValue"
         />
+        <output data-testid="cascader-virtual-controlled-accepted">accepted-path={{ JSON.stringify(acceptedControlledPath) }}; accepted-token={{ controlledPathToken }}</output>
       </div>
-      <div class="cascader-virtual-fixture__field">
+      <div ref="lazyOwnerRef" class="cascader-virtual-fixture__field">
         <span id="cascader-virtual-lazy-label" class="cascader-virtual-fixture__label">Lazy first-fail / retry</span>
         <Cascader
           data-testid="cascader-virtual-lazy"
@@ -205,9 +214,8 @@ const closeLazy = () => { lazyOpen.value = false }
     </div>
 
     <div class="cascader-virtual-fixture__lazy-controls" aria-label="Lazy request controls">
-      <button type="button" data-testid="cascader-virtual-lazy-replace" @click="replaceLazy">replace options (stale)</button>
-      <button type="button" data-testid="cascader-virtual-lazy-abort" @click="abortLazy">abort request</button>
-      <button type="button" data-testid="cascader-virtual-lazy-close" @click="closeLazy">close and reopen</button>
+      <button type="button" data-testid="cascader-virtual-lazy-reset" @click="replaceLazyOptions">reset lazy root</button>
+      <button type="button" data-testid="cascader-virtual-lazy-arm-replace" @click="armLazyReplacement">arm replace on next load</button>
     </div>
   </section>
 </template>
