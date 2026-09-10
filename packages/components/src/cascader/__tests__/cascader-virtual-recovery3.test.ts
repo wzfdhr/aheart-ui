@@ -134,7 +134,10 @@ describe('Cascader virtual recovery round three', () => {
       expect(first.size).toBe(100)
       expect(second.start).toBe(100)
       expect(secondDom.attributes('style')).toContain('translateY(100px)')
-      expect(state.virtualizer.getTotalSize()).toBeGreaterThanOrEqual(20000)
+      const last = state.virtualizer.getVirtualItems().at(-1)
+      const totalSize = state.virtualizer.getTotalSize()
+      expect(totalSize).toBeGreaterThanOrEqual((last?.start ?? 0) + (last?.size ?? 0))
+      expect(totalSize).toBeLessThan(20000)
     } finally {
       geometry.mockRestore()
     }

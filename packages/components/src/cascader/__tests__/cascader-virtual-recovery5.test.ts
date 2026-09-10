@@ -75,17 +75,19 @@ afterEach(() => {
 
 describe('Cascader virtual recovery round five', () => {
   it('does not broadcast a local uniform row batch over another measured row', async () => {
-    const { state, geometry } = await measuredList()
+    const { state, geometry, drain } = await measuredList()
     try {
-      expect(state.virtualizer.getVirtualItems()[0].size).toBe(100)
-      const subset = observers.filter(observer => observer.observed.some(element => ['node-1', 'node-2'].some(key => element.querySelector(`[data-cascader-value="${key}"]`))))
-      const observedRows = observers.filter(observer => observer.observed.some(element => element.classList.contains('aheart-cascader__virtual-row')))
-      expect(observedRows.length).toBeGreaterThan(0)
-      const selected = subset.length > 0 ? subset : observedRows.slice(0, 2)
-      const subsetRows = selected.flatMap(observer => observer.observed.filter(element => element.classList.contains('aheart-cascader__virtual-row')))
+      const row0Observers = observers.filter(observer => observer.observed.some(element => element.classList.contains('aheart-cascader__virtual-row') && element.getAttribute('data-virtual-index') === '0'))
+      const subset = observers.filter(observer => observer.observed.some(element => element.classList.contains('aheart-cascader__virtual-row') && ['1', '2'].includes(element.getAttribute('data-virtual-index') ?? '')))
+      expect(row0Observers.length).toBeGreaterThan(0)
+      expect(subset.length).toBeGreaterThan(0)
+      for (const observer of row0Observers) observer.callback(observer.observed.map(target => ({ target, contentRect: { height: 100, width: 180 } } as ResizeObserverEntry)), observer as unknown as ResizeObserver)
+      await drain()
+      expect(state.virtualizer.getVirtualItems().find((item: { index: number }) => item.index === 0)?.size).toBe(100)
+      const subsetRows = subset.flatMap(observer => observer.observed.filter(element => element.classList.contains('aheart-cascader__virtual-row')))
       for (const row of subsetRows) vi.spyOn(row, 'getBoundingClientRect').mockReturnValue({ x: 0, y: 0, top: 0, left: 0, right: 180, bottom: 32, width: 180, height: 32, toJSON() {} } as DOMRect)
-      for (const observer of selected) observer.callback(observer.observed.map(target => ({ target, contentRect: { height: 32, width: 180 } } as ResizeObserverEntry)), observer as unknown as ResizeObserver)
-      await settle()
+      for (const observer of subset) observer.callback(observer.observed.map(target => ({ target, contentRect: { height: 32, width: 180 } } as ResizeObserverEntry)), observer as unknown as ResizeObserver)
+      await drain()
       expect(state.virtualizer.getVirtualItems().find((item: { index: number }) => item.index === 0)?.size).toBe(100)
     } finally {
       geometry.mockRestore()
