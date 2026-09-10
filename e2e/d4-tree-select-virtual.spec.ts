@@ -19,7 +19,11 @@ function controlled(page: Page) { return page.getByTestId('tree-select-virtual-c
 
 async function openMain(page: Page) {
   await main(page).getByRole('combobox').click()
-  await expect(await panelFor(page, main(page))).toBeVisible()
+  const panel = await panelFor(page, main(page))
+  await expect(panel).toBeVisible()
+  await expect(panel).toHaveClass(/is-entered/)
+  await expect.poll(() => panel.evaluate(element => getComputedStyle(element).opacity)).toBe('1')
+  await settleOwnerRealm(panel)
 }
 
 async function closeMain(page: Page) {
@@ -50,6 +54,38 @@ async function treeSnapshot(page: Page) {
     scrollTop: element.scrollTop,
     rows: element.querySelectorAll('[role="treeitem"]').length
   }))
+}
+
+async function scrollTree(page: Page, select: Locator, offset: number) {
+  const panel = await panelFor(page, select)
+  await panel.locator('[role="tree"]').evaluate((element, top) => {
+    element.scrollTop = top
+    element.dispatchEvent(new Event('scroll', { bubbles: true }))
+  }, offset)
+  await settleOwnerRealm(panel)
+  return panel.locator('[role="tree"]').evaluate(element => {
+    const bounds = element.getBoundingClientRect()
+    const contentTop = bounds.top + element.clientTop
+    const rows = Array.from(element.querySelectorAll<HTMLElement>('[role="treeitem"][data-tree-key]')).map(row => {
+      const rect = row.getBoundingClientRect()
+      return { key: row.dataset.treeKey ?? '', start: rect.top - contentTop + element.scrollTop, end: rect.bottom - contentTop + element.scrollTop }
+    }).sort((a, b) => a.start - b.start)
+    const viewportStart = element.scrollTop
+    const viewportEnd = Math.min(viewportStart + element.clientHeight, element.scrollHeight)
+    let coveredUntil = viewportStart
+    for (const row of rows) {
+      if (row.end < coveredUntil - 1) continue
+      if (row.start > coveredUntil + 1) break
+      coveredUntil = Math.max(coveredUntil, row.end)
+    }
+    return {
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      scrollTop: element.scrollTop,
+      rows: rows.length,
+      windowCovered: coveredUntil >= viewportEnd - 1
+    }
+  })
 }
 
 test('TreeSelect virtual fixture bounds 1000/10000 rows while exposing checkable disabled selected tags', async ({ page }) => {
@@ -91,16 +127,45 @@ test('TreeSelect virtual owns one vertical scroller and budgets a short viewport
       treeHeight: tree.clientHeight,
       treeScrollHeight: tree.scrollHeight,
       treeBottom: tree.getBoundingClientRect().bottom,
-      fontSize: getComputedStyle(element).fontSize
+      fontSize: getComputedStyle(element).fontSize,
+      treeFontSize: getComputedStyle(tree).fontSize,
+      rows: Array.from(tree.querySelectorAll<HTMLElement>('[role="treeitem"]')).map(row => {
+        const rect = row.getBoundingClientRect()
+        const title = row.querySelector<HTMLElement>('.aheart-tree__title')!
+        return {
+          top: rect.top,
+          bottom: rect.bottom,
+          titleBottom: title.getBoundingClientRect().bottom,
+          titleClipped: title.scrollHeight > title.clientHeight + 1,
+          titleHeight: title.clientHeight,
+          text: title.textContent ?? ''
+        }
+      })
     }
   })
   expect(geometry.ownerClasses).toHaveLength(1)
   expect(geometry.ownerClasses.some(value => value.split(/\s+/).includes('aheart-tree'))).toBe(true)
   expect(geometry.fontSize).toBe('24px')
+  expect(geometry.treeFontSize).toBe('24px')
   expect(geometry.treeScrollHeight).toBeGreaterThan(geometry.treeHeight)
   expect(geometry.treeHeight).toBeLessThanOrEqual(256)
   expect(geometry.panelBottom).toBeLessThanOrEqual(geometry.viewportHeight + 1)
   expect(geometry.treeBottom).toBeLessThanOrEqual(geometry.viewportHeight + 1)
+  expect(geometry.rows.every(row => row.titleBottom <= row.bottom + 1)).toBe(true)
+  expect(geometry.rows.every(row => row.titleHeight > 0 && row.text.length > 0)).toBe(true)
+  const sortedRows = [...geometry.rows].sort((a, b) => a.top - b.top)
+  for (const [index, row] of sortedRows.entries()) {
+    const previous = sortedRows[index - 1]
+    if (previous) expect(row.top, `row ${index} must not overlap previous row`).toBeGreaterThanOrEqual(previous.bottom - 1)
+  }
+  for (const offset of [0, geometry.treeScrollHeight / 3, geometry.treeScrollHeight / 2, Math.max(0, geometry.treeScrollHeight - geometry.treeHeight), 0]) {
+    const state = await scrollTree(page, main(page), offset)
+    expect(state.rows).toBeGreaterThan(0)
+    expect(state.rows).toBeLessThanOrEqual(24)
+    expect(state.scrollHeight).toBeGreaterThan(state.clientHeight)
+    expect(state.windowCovered).toBe(true)
+  }
+  await page.screenshot({ path: test.info().outputPath('tree-select-dynamic-geometry.png'), fullPage: false })
 })
 
 test('TreeSelect virtual search transfers real focus and reaches the last enabled 10k result', async ({ page }) => {
@@ -123,6 +188,56 @@ test('TreeSelect virtual search transfers real focus and reaches the last enable
   await expect(disabledTail).not.toBeFocused()
   expect((await treeSnapshot(page)).rows).toBeLessThanOrEqual(24)
   await expect(main(page).getByRole('combobox')).not.toHaveAttribute('aria-activedescendant')
+})
+
+test('TreeSelect virtual search supports real Tab and Shift+Tab re-entry after reopen', async ({ page }) => {
+  await openMain(page)
+  const panel = await panelFor(page, main(page))
+  const search = panel.getByRole('searchbox', { name: '搜索树节点' })
+  await search.focus()
+  await search.press('Tab')
+  const entry = panel.locator('[role="treeitem"][tabindex="0"]')
+  await expect(entry).toHaveCount(1)
+  await expect(entry).toBeFocused()
+  await page.keyboard.press('Shift+Tab')
+  await expect(search).toBeFocused()
+  await closeMain(page)
+  await openMain(page)
+  await expect((await panelFor(page, main(page))).getByRole('searchbox', { name: '搜索树节点' })).toBeVisible()
+})
+
+test('TreeSelect virtual empty-query ArrowRight reaches a manually expanded visible child', async ({ page }) => {
+  await openMain(page)
+  const panel = await panelFor(page, main(page))
+  const root = panel.locator('[role="treeitem"][data-tree-key="tree-root"]')
+  await root.getByRole('button', { name: 'Expand node' }).click()
+  await expect(panel.locator('[data-tree-key="tree-child"]')).toHaveCount(1)
+  const search = panel.getByRole('searchbox', { name: '搜索树节点' })
+  await search.focus()
+  await search.press('ArrowDown')
+  await settleOwnerRealm(panel)
+  await panel.locator('[role="treeitem"][data-tree-key="tree-root"]').press('ArrowRight')
+  await expect(panel.locator('[role="treeitem"][data-tree-key="tree-child"]')).toBeFocused()
+})
+
+test('TreeSelect virtual short viewport keeps search and the logical tail reachable', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 300 })
+  await page.getByTestId('tree-select-virtual-count-10000').click()
+  await page.getByTestId('tree-select-virtual-font').click()
+  await page.getByTestId('tree-select-virtual-viewport').click()
+  await openMain(page)
+  const panel = await panelFor(page, main(page))
+  const search = panel.getByRole('searchbox', { name: '搜索树节点' })
+  await expect(search).toBeVisible()
+  await search.focus()
+  await search.press('ArrowDown')
+  await settleOwnerRealm(panel)
+  const tree = panel.getByRole('tree')
+  await tree.locator('[role="treeitem"]').first().press('End')
+  await settleOwnerRealm(panel)
+  await expect(tree.locator('[role="treeitem"][data-tree-key="node-09998"]')).toBeFocused()
+  await expect(search).toBeVisible()
+  await expect(panel).toBeVisible()
 })
 
 test('TreeSelect controlled rejection keeps the parent value after a real item switch', async ({ page }) => {

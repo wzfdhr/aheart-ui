@@ -23,7 +23,9 @@ const data = computed<TreeNodeData[]>(() => Array.from({ length: count.value }, 
       ? `Node ${String(index).padStart(5, '0')} disabled tail`
       : `Node ${String(index).padStart(5, '0')}`
   return { key, title, disabled }
-}))
+}).map((node, index) => index === 0
+  ? { key: 'tree-root', title: 'Tree root', children: [{ key: 'tree-child', title: 'Tree child' }], isLeaf: false }
+  : node))
 
 const virtual = computed(() => ({ height: viewportHint.value === 'short' ? 180 : 256, estimateSize: 28, overscan: 4 }))
 const fixtureStyle = computed(() => ({ fontSize: `${fontSize.value}px` }))
@@ -52,6 +54,7 @@ const onControlledValue = (value: TreeKey | TreeKey[] | undefined) => {
     class="tree-select-virtual-fixture"
     :class="{ 'is-short-hint': viewportHint === 'short' }"
     :data-font-size="fontSize"
+    :data-long-labels="longLabels ? 'on' : 'off'"
     aria-label="TreeSelect virtual browser fixture"
     :style="fixtureStyle"
   >
@@ -67,12 +70,13 @@ const onControlledValue = (value: TreeKey | TreeKey[] | undefined) => {
 
     <div class="tree-select-virtual-fixture__row">
       <div class="tree-select-virtual-fixture__field">
-        <span class="tree-select-virtual-fixture__label">Virtual checkable / searchable / tags</span>
+        <span id="tree-select-virtual-main-label" class="tree-select-virtual-fixture__label">Virtual checkable / searchable / tags</span>
         <TreeSelect
           data-testid="tree-select-virtual-main"
           :model-value="selectedKeys"
           :tree-data="data"
           :virtual="virtual"
+          labelled-by="tree-select-virtual-main-label"
           :open="open"
           tree-checkable
           tree-check-strictly
@@ -86,12 +90,13 @@ const onControlledValue = (value: TreeKey | TreeKey[] | undefined) => {
         />
       </div>
       <div class="tree-select-virtual-fixture__field">
-        <span class="tree-select-virtual-fixture__label">Controlled rejection</span>
+        <span id="tree-select-virtual-controlled-label" class="tree-select-virtual-fixture__label">Controlled rejection</span>
         <TreeSelect
           data-testid="tree-select-virtual-controlled"
           :model-value="controlledValue"
           :tree-data="data"
           :virtual="virtual"
+          labelled-by="tree-select-virtual-controlled-label"
           placeholder="受控选择"
           @update:model-value="onControlledValue"
         />
@@ -118,4 +123,7 @@ const onControlledValue = (value: TreeKey | TreeKey[] | undefined) => {
 
 <style>
 body:has([data-testid="tree-select-virtual-fixture"][data-font-size="24"]) .aheart-tree-select__panel { font-size: 24px; }
+body:has([data-testid="tree-select-virtual-fixture"][data-font-size="24"]) .aheart-tree-select__panel,
+body:has([data-testid="tree-select-virtual-fixture"][data-font-size="24"]) .aheart-tree-select__panel .aheart-tree { --aheart-font-size: 24px; }
+body:has([data-testid="tree-select-virtual-fixture"][data-long-labels="on"]) .aheart-tree-select__panel .aheart-tree__title { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
 </style>
