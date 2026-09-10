@@ -37,7 +37,19 @@ async function expectKeyboardFocusIndicator(locator: Locator) {
   await expect.poll(async () => locator.evaluate(element => {
     const style = getComputedStyle(element)
     return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth }
-  })).toEqual({ outlineStyle: 'solid', outlineWidth: '2px' })
+})).toEqual({ outlineStyle: 'solid', outlineWidth: '2px' })
+}
+
+async function expectTextContrast(locator: Locator) {
+  const ratio = await locator.evaluate(element => {
+    const parse = (value: string) => value.match(/rgba?\(([^)]+)\)/)?.[1].split(',').slice(0, 3).map(channel => Number(channel.trim())) ?? []
+    const linear = (channel: number) => { const normalized = channel / 255; return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4 }
+    const luminance = (value: number[]) => 0.2126 * linear(value[0]) + 0.7152 * linear(value[1]) + 0.0722 * linear(value[2])
+    const foreground = luminance(parse(getComputedStyle(element).color))
+    const background = luminance(parse(getComputedStyle(element).backgroundColor))
+    return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
+  })
+  expect(ratio).toBeGreaterThanOrEqual(4.5)
 }
 
 async function panel(page: Page, testId = 'cascader-virtual-main') {
@@ -232,8 +244,12 @@ test('lazy first failure, keyboard retry, stale replacement, abort, close and re
   await lazy.getByRole('combobox').click()
   let popup = await panel(page, 'cascader-virtual-lazy')
   const root = popup.locator('[data-cascader-value="lazy-root"]')
-  await root.click()
+  await root.focus()
+  await root.press('Enter')
   await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=error; attempts=1')
+  await expect(root).toBeFocused()
+  await expectKeyboardFocusIndicator(root)
+  await expectTextContrast(root)
   await root.press('Enter')
   await expect.poll(() => page.getByTestId('cascader-virtual-lazy-state').textContent()).toContain('state=success')
   await expect(popup.locator('[data-cascader-value="lazy-child"]')).toHaveCount(1)
