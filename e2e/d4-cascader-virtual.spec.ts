@@ -204,6 +204,29 @@ test('controlled accept and reject policies are observable and do not desynchron
   await expect(accepted).toContainText('accepted-token=s:duplicate-a|s:same-leaf')
 })
 
+test('selected keyboard focus preserves the selected background and visible focus ring', async ({ page }) => {
+  const controlled = field(page, 'cascader-virtual-controlled')
+  const trigger = controlled.getByRole('combobox')
+  await trigger.click()
+  let popup = await panel(page, 'cascader-virtual-controlled')
+  await popup.locator('[data-cascader-value="duplicate-a"]').press('ArrowRight')
+  await popup.locator('[data-cascader-value="same-leaf"]').press('Enter')
+  await expect(trigger).toContainText('Same leaf')
+  await trigger.click()
+  popup = await panel(page, 'cascader-virtual-controlled')
+  await popup.locator('[data-cascader-value="duplicate-a"]').click()
+  const selected = popup.locator('[data-cascader-value="same-leaf"]')
+  await selected.focus()
+  await expect(selected).toHaveClass(/is-selected/)
+  const style = await selected.evaluate(element => {
+    const computed = getComputedStyle(element)
+    return { background: computed.backgroundColor, outlineStyle: computed.outlineStyle, outlineWidth: computed.outlineWidth }
+  })
+  expect(style.background).toBe('rgb(230, 244, 255)')
+  expect(style.outlineStyle).toBe('solid')
+  expect(style.outlineWidth).toBe('2px')
+})
+
 test('lazy first failure, keyboard retry, stale replacement, abort, close and reopen remain safe', async ({ page }) => {
   const lazy = field(page, 'cascader-virtual-lazy')
   await lazy.getByRole('combobox').click()
