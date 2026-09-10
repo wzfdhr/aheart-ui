@@ -269,6 +269,93 @@ test('TreeSelect virtual lazy loading shows error, keyboard retry, loaded child,
   await expect(lazy.getByRole('combobox')).toContainText('Loaded lazy child')
 })
 
+test('TreeSelect lazy retry text meets normal, hover, and selected-root contrast', async ({ page }) => {
+  const lazy = page.getByTestId('tree-select-virtual-lazy')
+  await lazy.getByRole('combobox').click()
+  const panel = await panelFor(page, lazy)
+  const root = panel.locator('[role="treeitem"][data-tree-key="lazy-root"]')
+  await root.getByRole('button', { name: 'Expand node' }).click()
+  const retry = root.getByRole('button', { name: '重试加载 Lazy loading root' })
+  await expect(retry).toBeVisible()
+  await expect(page.getByTestId('tree-select-virtual-lazy-state')).toContainText('state=error')
+  await expect(panel).toHaveClass(/is-entered/)
+  await expect.poll(() => panel.evaluate(element => getComputedStyle(element).opacity)).toBe('1')
+
+    const measure = async (locator: Locator) => locator.evaluate(element => {
+      const parse = (value: string) => {
+        const rgb = value.match(/^rgba?\(([^)]+)\)$/)
+      if (rgb) {
+        const parts = rgb[1].split(',').map(part => Number.parseFloat(part.trim()))
+        return { r: parts[0], g: parts[1], b: parts[2], a: Number.isFinite(parts[3]) ? parts[3] : 1 }
+      }
+      const srgb = value.match(/^color\(srgb\s+([^\s]+)\s+([^\s]+)\s+([^\s/]+)(?:\s*\/\s*([^\s]+))?\)$/)
+      if (srgb) return { r: Number(srgb[1]) * 255, g: Number(srgb[2]) * 255, b: Number(srgb[3]) * 255, a: srgb[4] ? Number(srgb[4]) : 1 }
+      throw new Error(`Unsupported CSS color: ${value}`)
+    }
+    const over = (front: { r: number; g: number; b: number; a: number }, back: { r: number; g: number; b: number; a: number }) => {
+      const alpha = front.a + back.a * (1 - front.a)
+      if (alpha === 0) return { r: 255, g: 255, b: 255, a: 0 }
+      return { r: (front.r * front.a + back.r * back.a * (1 - front.a)) / alpha, g: (front.g * front.a + back.g * back.a * (1 - front.a)) / alpha, b: (front.b * front.a + back.b * back.a * (1 - front.a)) / alpha, a: alpha }
+    }
+    const background = () => {
+      let color = { r: 255, g: 255, b: 255, a: 1 }
+      const ancestors: HTMLElement[] = []
+      let current: HTMLElement | null = element as HTMLElement
+      while (current) { ancestors.push(current); current = current.parentElement }
+      for (const ancestor of ancestors.reverse()) color = over(parse(getComputedStyle(ancestor).backgroundColor), color)
+      return color
+    }
+    const luminance = (value: { r: number; g: number; b: number }) => {
+      const channel = (component: number) => { const normalized = component / 255; return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4 }
+      return channel(value.r) * 0.2126 + channel(value.g) * 0.7152 + channel(value.b) * 0.0722
+    }
+    const foreground = parse(getComputedStyle(element).color)
+    const back = background()
+    const ratio = (Math.max(luminance(foreground), luminance(back)) + 0.05) / (Math.min(luminance(foreground), luminance(back)) + 0.05)
+    const row = (element.closest('[role="treeitem"]') as HTMLElement | null)
+    return {
+      foreground,
+      background: back,
+      rawRowBackground: row ? getComputedStyle(row).backgroundColor : undefined,
+      rowHovered: row?.matches(':hover') ?? false,
+      ratio,
+      opacity: getComputedStyle(element).opacity
+    }
+  })
+
+  await page.mouse.move(0, 0)
+  await settleOwnerRealm(panel)
+  const normal = await measure(retry)
+  await retry.hover()
+  await settleOwnerRealm(panel)
+  const hoverRow = await root.evaluate(element => ({ matchesHover: element.matches(':hover'), background: getComputedStyle(element).backgroundColor }))
+  const hover = await measure(retry)
+  await root.click()
+  await lazy.getByRole('combobox').click()
+  const selectedPanel = await panelFor(page, lazy)
+  const selectedRoot = selectedPanel.locator('[role="treeitem"][data-tree-key="lazy-root"]')
+  const expand = selectedRoot.getByRole('button', { name: 'Expand node' })
+  if (await expand.count()) {
+    await expand.click()
+    await expect(selectedRoot.getByRole('button', { name: '重试加载 Lazy loading root' })).toBeVisible()
+  }
+  const selectedRetry = selectedRoot.getByRole('button', { name: '重试加载 Lazy loading root' })
+  await expect(selectedRoot).toHaveAttribute('aria-selected', 'true')
+  await selectedRetry.hover()
+  await settleOwnerRealm(selectedPanel)
+  const selectedRetryContrast = await measure(selectedRetry)
+  const selectedTitleContrast = await measure(selectedRoot.locator('.aheart-tree__title'))
+  console.log('retry contrast normal/hover/selected', JSON.stringify({ normal, hover, hoverRow, selectedRetryContrast, selectedTitleContrast }))
+  expect(normal.opacity).toBe('1')
+  expect(hover.opacity).toBe('1')
+  expect(selectedRetryContrast.opacity).toBe('1')
+  expect(selectedTitleContrast.opacity).toBe('1')
+  expect(normal.ratio).toBeGreaterThanOrEqual(4.5)
+  expect(hover.ratio).toBeGreaterThanOrEqual(4.5)
+  expect(selectedRetryContrast.ratio).toBeGreaterThanOrEqual(4.5)
+  expect(selectedTitleContrast.ratio).toBeGreaterThanOrEqual(4.5)
+})
+
 test('TreeSelect controlled rejection keeps the parent value after a real item switch', async ({ page }) => {
   const select = controlled(page)
   await select.getByRole('combobox').click()

@@ -1,7 +1,8 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { computed, defineComponent, h, nextTick, provide } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import TreeSelect from '../tree-select.vue'
+import { formControlKey, type FormControlContext } from '../../form/control-context'
 
 type Nodes = Array<{ key: string; title: string }>
 const wrappers: Array<ReturnType<typeof mount>> = []
@@ -49,6 +50,52 @@ const prepareRetry = async (pending = false) => {
 }
 
 describe('TreeSelect virtual retry focus handoff', () => {
+  const withFormControl = (blur: ReturnType<typeof vi.fn>, props: Record<string, unknown>) => {
+    const context: FormControlContext = {
+      controlId: computed(() => undefined),
+      labelledBy: computed(() => undefined),
+      describedBy: computed(() => undefined),
+      invalid: computed(() => false),
+      status: computed(() => undefined),
+      change: vi.fn(),
+      blur
+    }
+    const wrapper = mount(defineComponent({
+      setup: () => {
+        provide(formControlKey, context)
+        return () => h(TreeSelect, { ...props, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never)
+      }
+    }), { attachTo: document.body })
+    wrappers.push(wrapper)
+    return wrapper
+  }
+
+  it('notifies form blur when a connected Tree row explicitly leaves focus', async () => {
+    const blur = vi.fn()
+    const wrapper = withFormControl(blur, { treeData: [{ key: 'root', title: 'Root' }], virtual: true, defaultOpen: true })
+    await settle()
+    const root = wrapper.get('[data-tree-key="root"]').element as HTMLElement
+    root.focus()
+    root.blur()
+    await settle()
+    expect(blur).toHaveBeenCalled()
+  })
+
+  it('does not notify form blur for an internal retry-removal handoff', async () => {
+    const blur = vi.fn()
+    const loadData = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce([{ key: 'child', title: 'Loaded child' }])
+    const wrapper = withFormControl(blur, { treeData: [{ key: 'root', title: 'Root', isLeaf: false }], virtual: true, defaultOpen: true, loadData })
+    await settle()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await settle()
+    const retry = wrapper.get('[aria-label="重试加载 Root"]').element as HTMLButtonElement
+    retry.focus()
+    retry.click()
+    await settle()
+    expect(wrapper.get('[data-tree-key="child"]').exists()).toBe(true)
+    expect(blur).not.toHaveBeenCalled()
+  })
+
   it('keeps the Tree render handoff when Chrome removes the focused retry with focusout relatedTarget null', async () => {
     const { wrapper, retry } = await prepareRetry()
     const originalRemoveChild = Node.prototype.removeChild
