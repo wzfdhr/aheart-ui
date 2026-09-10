@@ -30,8 +30,7 @@ const flatData = (count: number) => Array.from({ length: count }, (_, key) => ({
 const mountSelect = (props: Record<string, unknown>) => {
   const wrapper = mount(TreeSelect, {
     attachTo: document.body,
-    props: props as never,
-    global: { stubs: { Teleport: true } }
+    props: { getPopupContainer: (trigger: HTMLElement) => trigger.parentElement!, ...props } as never
   })
   trackedWrappers.push(wrapper)
   return wrapper

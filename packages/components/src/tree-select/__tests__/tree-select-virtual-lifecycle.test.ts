@@ -18,7 +18,7 @@ let previousCancelAnimationFrame: PropertyDescriptor | undefined
 const mountSelect = (props: Record<string, unknown>, options: Record<string, unknown> = {}) => {
   const wrapper = mount(TreeSelect, {
     attachTo: document.body,
-    props: props as never,
+    props: { getPopupContainer: (trigger: HTMLElement) => trigger.parentElement!, ...props } as never,
     ...options
   })
   wrappers.push(wrapper)
@@ -84,7 +84,7 @@ describe('TreeSelect virtual lifecycle draft', () => {
       virtual: true,
       open: true,
       loadData
-    }, { global: { stubs: { Teleport: true } } })
+    })
 
     await settle()
     await wrapper.get('.aheart-tree__switcher').trigger('click')
@@ -114,7 +114,7 @@ describe('TreeSelect virtual lifecycle draft', () => {
       virtual: true,
       defaultOpen: true,
       loadData
-    }, { global: { stubs: { Teleport: true } } })
+    })
 
     await settle()
     await wrapper.get('.aheart-tree__switcher').trigger('click')
@@ -139,7 +139,7 @@ describe('TreeSelect virtual lifecycle draft', () => {
       virtual: true,
       defaultOpen: true,
       loadData
-    }, { global: { stubs: { Teleport: true } } })
+    })
     await settle()
     await disabled.get('.aheart-tree__switcher').trigger('click')
     await settle()
@@ -156,7 +156,7 @@ describe('TreeSelect virtual lifecycle draft', () => {
         unmountSignal = context.signal
         return new Promise<DeferredNodes>(() => {})
       })
-    }, { global: { stubs: { Teleport: true } } })
+    })
     await settle()
     await unmounted.get('.aheart-tree__switcher').trigger('click')
     await settle()
