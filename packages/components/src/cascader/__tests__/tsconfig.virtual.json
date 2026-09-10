@@ -1,0 +1,5 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": ["./cascader-virtual.types.ts"],
+  "exclude": []
+}
