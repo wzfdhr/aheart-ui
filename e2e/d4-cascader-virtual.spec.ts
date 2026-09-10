@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 const fixturePath = '/components/cascader?fixture=cascader-virtual'
 const errors = new WeakMap<Page, string[]>()
@@ -31,6 +31,13 @@ test.afterEach(async ({ page }, testInfo) => {
 
 function field(page: Page, testId: string) {
   return page.getByTestId(testId)
+}
+
+async function expectKeyboardFocusIndicator(locator: Locator) {
+  await expect.poll(async () => locator.evaluate(element => {
+    const style = getComputedStyle(element)
+    return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth }
+  })).toEqual({ outlineStyle: 'solid', outlineWidth: '2px' })
 }
 
 async function panel(page: Page, testId = 'cascader-virtual-main') {
@@ -109,6 +116,7 @@ test('keyboard navigation reaches real focus, disabled tail, End, Left/Right and
   await first.press('End')
   const lastEnabled = popup.locator('.aheart-cascader__option[data-cascader-value="sibling-998"]')
   await expect(lastEnabled).toBeFocused()
+  await expectKeyboardFocusIndicator(lastEnabled)
   const disabledTail = popup.locator('.aheart-cascader__option[data-cascader-value="sibling-999"]')
   if (await disabledTail.count()) await expect(disabledTail).not.toBeFocused()
   await expect(trigger).not.toHaveAttribute('aria-activedescendant')
@@ -131,6 +139,7 @@ test('search virtualizes 10k leaves, supports End+Enter, no-result and clear rec
   await expect(focusedResult).toHaveCount(1)
   await focusedResult.press('End')
   await expect(focusedResult).toContainText('Search leaf 09998')
+  await expectKeyboardFocusIndicator(focusedResult)
   await search.focus()
   await search.fill('no-match-after-end')
   await expect(popup.getByRole('status')).toHaveText('暂无匹配选项')
