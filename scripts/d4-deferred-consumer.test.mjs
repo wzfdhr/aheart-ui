@@ -599,6 +599,65 @@ test('bounded and full validation share one SSR semantic validator', async () =>
   assert.ok(countCalls(findFunction('validateReport')) >= 1, 'full validation must call the shared SSR semantic validator within its own function body')
 })
 
+test('hydration evidence mapping preserves non-zero runtime values across all combinations', async () => {
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  assert.equal(typeof contract.applyHydrationEvidence, 'function', 'contract must export the shared hydration evidence mapper')
+  const control = fullSsrTypesControlReport()
+  const ssr = structuredClone(control.ssrHydration)
+  const hydration = Object.fromEntries(Object.keys(ssr.combinations).map((key, index) => [index, { errors: index === 0 ? 2 : 1, warnings: index === 0 ? 3 : 1, interacted: true, postHydrationStateChanged: true, businessEventsAfterHydration: 4 + index, hydratedHtmlSha256: `hydrated-${index}`, hydratedIdSha256: `ids-${index}`, businessEventNames: ['Tree:change'], expandedChanged: true }]))
+  const mapped = contract.applyHydrationEvidence(ssr, hydration)
+  assert.equal(mapped.combinations['Tree=false,TreeSelect=false,Cascader=false'].hydrationErrors, 2)
+  assert.equal(mapped.combinations['Tree=false,TreeSelect=false,Cascader=false'].hydrationWarnings, 3)
+  for (const [index, item] of Object.values(mapped.combinations).entries()) {
+    assert.equal(item.interacted, true)
+    assert.equal(item.postHydrationStateChanged, true)
+    assert.equal(item.businessEventsAfterHydration, 4 + index)
+    assert.equal(item.hydratedHtmlSha256, `hydrated-${index}`)
+    assert.equal(item.hydratedIdSha256, `ids-${index}`)
+  }
+  const collector = await deferredCollectorSource()
+  const file = ts.createSourceFile('collect.mjs', collector, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const findFunction = name => {
+    let found
+    const visit = node => { if (ts.isFunctionDeclaration(node) && node.name?.text === name) found = node; ts.forEachChild(node, visit) }
+    visit(file)
+    assert.ok(found, `collector must declare ${name}`)
+    return found
+  }
+  const callNames = fn => { const names = []; const visit = node => { if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) names.push(node.expression.text); ts.forEachChild(node, visit) }; visit(fn.body); return names }
+  const helper = findFunction('collectHydratedSsrEvidence')
+  assert.ok(callNames(helper).includes('applyHydrationEvidence'), 'hydration helper must call the shared mapping function')
+  const sideText = collector.slice(findFunction('collectSide').pos, findFunction('collectSide').end)
+  assert.doesNotMatch(sideText, /\bfullHydration\b/, 'collectSide must not retain an unused fullHydration result')
+  assert.match(sideText, /applyHydrationEvidence\(ssr,\s*hydration\)/, 'collectSide must reapply one mapped hydration result to the shared ssr object')
+})
+
+test('contradictory preflight reports are ineligible and legal preflight shells stay non-acceptance', async t => {
+  const mutations = [
+    ['ordinary validation', false],
+    ['release validation', true],
+  ]
+  for (const [label, requireRelease] of mutations) await t.test(label, () => {
+    const report = structuredClone(fullSsrTypesControlReport())
+    for (const item of Object.values(report.ssrHydration.combinations)) {
+      delete item.serverSnapshot
+      delete item.hydratedSnapshot
+      delete item.postHydrationActions
+      delete item.captureEvidence
+    }
+    delete report.typeProbe
+    report.preflight = true
+    report.acceptanceEligible = true
+    report.benchmarkExecuted = false
+    report.runId = 'preflight-contradictory-test'
+    assert.throws(() => validateReport(report, { requireRelease }), error => (error?.failures ?? []).some(failure => /preflight.*ineligible|release.*preflight/i.test(failure)), `contradictory preflight must be rejected by ${label}`)
+  })
+  const sentinel = { marker: 'preflight-type-probe' }
+  const shell = buildFullReportShell({ preflight: true, baseline: { packageManifest: { sha256: 'a'.repeat(64) } }, candidate: { packageManifest: { sha256: 'b'.repeat(64) }, typeProbe: sentinel }, baselineCommit: '4a7511f9594d0a74906e427e158d02343ba33a22', candidateCommit: 'candidate', runId: 'preflight-legal-test' })
+  assert.equal(shell.acceptanceEligible, false)
+  assert.equal(shell.benchmarkExecuted, false)
+})
+
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
   const source = await deferredCollectorSource()
   const fullBranch = source.slice(source.indexOf('\n} else {'))
