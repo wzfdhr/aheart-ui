@@ -9,5 +9,10 @@ const settings = window.__D4_CASE__ ?? {
   rowMode: query.get('rowMode') || 'fixed',
   virtual: query.get('virtual') === 'true'
 }
+document.documentElement.dataset.d4RowMode = settings.rowMode
+const style = document.createElement('style')
+style.textContent = `[data-d4-row-mode="coarse"] .aheart-tree__node,[data-d4-row-mode="coarse"] .aheart-cascader__option{min-block-size:44px;}[data-d4-row-mode="dynamic"] .aheart-tree__node,[data-d4-row-mode="dynamic"] .aheart-cascader__option{white-space:normal;}`
+document.head.append(style)
+window.__d4MountStart = performance.now()
 createApp(createConsumerApp(settings)).mount('#app')
 window.__d4Ready = true

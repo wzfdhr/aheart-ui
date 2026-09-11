@@ -57,6 +57,21 @@ drives serial Playwright measurements and exact 40-step scroll sequences, and
 recursively records JS/CSS gzip level-9 bytes. The collector is intentionally
 not run as part of bounded smoke.
 
+For the independently reviewable bounded real collector, add `--smoke` to the
+same command. It performs one packed Tree case through a production Vite
+build/preview, navigates with an absolute URL, records a screenshot, raw
+40-step geometry/observer evidence and leaves `acceptanceEligible:false`:
+
+```sh
+node docs/superpowers/experiments/d4-deferred-consumer/collect.mjs --smoke \
+  --baseline-tarball /path/to/baseline.tgz --candidate-tarball /path/to/candidate.tgz \
+  --baseline-commit 4a7511f9594d0a74906e427e158d02343ba33a22 \
+  --candidate-commit CANDIDATE_SHA \
+  --baseline-manifest /path/to/baseline-manifest.json \
+  --candidate-manifest /path/to/candidate-manifest.json \
+  --base-url http://127.0.0.1:0 --out /path/to/smoke.json
+```
+
 An already-collected raw report can then be validated independently:
 
 ```sh

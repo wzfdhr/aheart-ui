@@ -158,6 +158,10 @@ function makeMode(component, count, rowMode, mode) {
     noBlankGap: true,
     vueFlushed: true,
     animationFrames: 2,
+    actualOffset: index < 20 ? index / 19 : (39 - index) / 19,
+    timestamp: index + 1,
+    rowKeys: [`${component}-${index}`],
+    rect: { top: 10, bottom: 38, height: 28 },
   }))
   return {
     warmup: [{ firstInteractionMs: Math.round(base + 20), discarded: true }],
@@ -199,9 +203,9 @@ function makePerformance() {
 
 function makeBrowsers() {
   return {
-    chromium: { browserVersion: 'Chromium (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'recorded', maxMs: 42, entries: [{ startTime: 10, duration: 42 }] }, layoutShifts: { status: 'recorded', cls: 0.02, entries: [{ startTime: 10, value: 0.02 }] } },
-    firefox: { browserVersion: 'Firefox (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
-    webkit: { browserVersion: 'WebKit (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
+    chromium: { browserVersion: 'Chromium (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: 1, observersStoppedAt: 100, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'recorded', maxMs: 42, entries: [{ startTime: 10, duration: 42 }] }, layoutShifts: { status: 'recorded', cls: 0.02, entries: [{ startTime: 10, value: 0.02 }] } },
+    firefox: { browserVersion: 'Firefox (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: 1, observersStoppedAt: 100, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
+    webkit: { browserVersion: 'WebKit (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: 1, observersStoppedAt: 100, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
   }
 }
 
@@ -286,7 +290,7 @@ function recomputeMode(mode, path) {
     ensure(mode.scroll.slice(20).every(step => step.direction === 'reverse'), `${path} must have twenty reverse scroll steps`, errors)
     ensure(mode.scroll.every((step, index) => {
       const expected = index < 20 ? index / 19 : (39 - index) / 19
-      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
+      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && Number.isFinite(step.actualOffset) && Number.isFinite(step.timestamp) && step.timestamp >= 0 && Array.isArray(step.rowKeys) && step.rowKeys.length > 0 && step.rect && Number.isFinite(step.rect.height) && step.rect.height > 0 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
     }), `${path} scroll steps must prove exact endpoints, positive timing and bounded mounted rows`, errors)
   }
   return { errors, medianMs: median(samples) }
@@ -381,6 +385,7 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     }
     ensure(item?.browserVersion, `${browser} browser build is missing`, failures)
     ensure(item?.ownerRealm === true && item.twoRaf === true && item.observersStartedBeforeFirstWrite === true && item.observersStoppedAfterFinal === true && item.scrollSteps === 40 && item.consoleErrors === 0 && item.pageErrors === 0, `${browser} scroll/realm/error observer contract is incomplete`, failures)
+    ensure(Number.isFinite(item.observersStartedAt) && Number.isFinite(item.observersStoppedAt) && item.observersStoppedAt >= item.observersStartedAt, `${browser} observer lifecycle timestamps are missing`, failures)
     ensure(item.resources?.status === 'recorded' && item.resources.scripts?.length > 0 && item.resources.styles?.length > 0, `${browser} resource evidence is missing`, failures)
     if (browser === 'chromium') {
       ensure(item.longTasks?.status === 'recorded' && item.longTasks.maxMs <= RELEASE_MATRIX.maxLongTaskMs && Array.isArray(item.longTasks.entries) && item.longTasks.entries.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.duration)), 'Chromium long-task observer is missing raw timestamp entries or over 100ms', failures)
@@ -408,6 +413,8 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
 export function validateSmokeReport(report) {
   const failures = []
   ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'smoke must be explicitly ineligible', failures)
+  ensure(report.authenticEvidence === true && report.preview?.productionBuild === true && report.preview.absoluteNavigation === true && /^https?:\/\//.test(report.preview.baseURL ?? '') && Array.isArray(report.preview.errors) && report.preview.errors.length === 0, 'smoke must contain authentic production preview evidence', failures)
+  ensure(Array.isArray(report.case?.scroll) && report.case.scroll.length === 40 && report.case.scroll.every(step => step.rect && Array.isArray(step.rowKeys) && Number.isFinite(step.timestamp)), 'smoke must collect one authentic forty-step geometry case', failures)
   ensure(report.packages?.sameConsumer === 'notRun' && report.packages?.installedWithoutWorkspaceLinks === 'notRun', 'smoke must not claim installed same-consumer verification', failures)
   ensure(report.smokeChecks?.baselineExplicit === true && report.smokeChecks?.baselineAvailable === true, 'smoke requires an explicit available baseline', failures)
   for (const field of ['candidateRequiredFiles', 'candidateNoSymlink', 'candidateNoWorkspaceLinks', 'candidateNoFsImports', 'candidatePublicSurface']) ensure(report.smokeChecks?.[field] === true, `smoke package check failed: ${field}`, failures)

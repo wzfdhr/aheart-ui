@@ -31,6 +31,7 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
   const log = path.join(root, 'collector.log')
   const result = await run(process.execPath, [
     path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'),
+    '--smoke',
     '--baseline-tarball', baseline,
     '--candidate-tarball', candidate,
     '--baseline-commit', approvedBaseline,
