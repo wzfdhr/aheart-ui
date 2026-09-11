@@ -297,8 +297,9 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   const nextTickAt = stabilization.nextTickAt
   const rafAt = stabilization.rafAt
   let searchMs = null
-  const endAt = rafAt[1]
-  const firstInteractionMs = endAt - startedAt
+  let endAt = rafAt[1]
+  let probeAt = rafAt[1]
+  let firstInteractionMs = endAt - startedAt
   const state = await page.evaluate(selector => {
     const row = document.querySelector(selector)
     const scroll = row?.closest('[role="tree"], .aheart-cascader__column')
@@ -316,6 +317,9 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     const search = page.locator('.aheart-tree-select__search')
     if (await search.count()) { const searchStart = await page.evaluate(() => performance.now()); await search.fill('Consumer'); await tick(page); searchMs = (await page.evaluate(() => performance.now())) - searchStart }
   }
+  probeAt = await page.evaluate(() => performance.now())
+  endAt = await page.evaluate(() => performance.now())
+  firstInteractionMs = endAt - startedAt
   const scroll = await page.evaluate(async () => {
     const target = document.querySelector('[role="tree"], .aheart-cascader__column')
     if (!target) return []
@@ -346,7 +350,7 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   const metricHeights = [...state.rowModeProbe.heights]
   for (const step of scroll) for (const row of step.rowRects ?? []) if (metricHeights.length < 24) metricHeights.push(row.height)
   const rowMetrics = metricHeights.map((height, index) => ({ index, height, expectedHeight: settings.rowMode === 'fixed' ? 28 : settings.rowMode === 'coarse' ? 44 : index % 10 === 0 ? 56 : 28 }))
-  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, clickStartedAt, clickCompletedAt, actionableAt, nextTickAt, rafAt, endAt, probeAt: endAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, clickStartedAt, clickCompletedAt, actionableAt, nextTickAt, rafAt, endAt, probeAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
 }
 
 async function iframeProbe(page) {
@@ -699,6 +703,7 @@ async function collectSmoke(temporary) {
   report.releaseFormat.validatorStatus = 'passed-ineligible'
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
+  await rm(`${output}.prevalidation.json`, { force: true })
   return report
 }
 
