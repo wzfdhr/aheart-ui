@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
+import { readFile, stat } from 'node:fs/promises'
+import path from 'node:path'
 import { gzipSync } from 'node:zlib'
 
 const freeze = value => {
@@ -36,6 +38,7 @@ export const PINNED_VERSIONS = freeze({
 export const COMPONENTS = freeze(['Tree', 'TreeSelect', 'Cascader'])
 export const BROWSERS = freeze(['chromium', 'firefox', 'webkit'])
 export const APPROVED_BASELINE_COMMIT = '4a7511f9594d0a74906e427e158d02343ba33a22'
+export function expectedAlternatingOrder() { return Array.from({ length: RELEASE_MATRIX.measuredRuns }, (_, round) => round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']).flat() }
 
 const keyFor = (component, count, rowMode) => `${component}/${count}/${rowMode}`
 const median = values => {
@@ -44,6 +47,26 @@ const median = values => {
 }
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const json = value => JSON.stringify(value)
+
+export async function verifyArtifactBindings(report, { reportPath } = {}) {
+  const failures = []
+  const base = reportPath ? path.dirname(path.resolve(reportPath)) : process.cwd()
+  const resolve = value => value && (path.isAbsolute(value) ? value : path.resolve(base, value))
+  const verifyHash = async (label, file, expected) => {
+    try { const bytes = await readFile(resolve(file)); ensure(Boolean(expected) && sha256(bytes) === expected, `${label} reopened hash mismatch`, failures) } catch (error) { failures.push(`${label} artifact cannot be reopened: ${error.message}`) }
+  }
+  await verifyHash('collector source', report.collectorSourcePath, report.collectorSourceSha256)
+  for (const side of ['baseline', 'candidate']) {
+    const pkg = report.packages?.[side]
+    await verifyHash(`${side} tarball`, pkg?.path, pkg?.sha256)
+    await verifyHash(`${side} manifest`, pkg?.manifestPath, pkg?.manifestSha256)
+    await verifyHash(`${side} module`, pkg?.modulePath, pkg?.afterHashes?.['es/index.js'])
+    await verifyHash(`${side} lock`, pkg?.lockPath, pkg?.lockfileSha256)
+  }
+  if (report.runDir) { try { ensure((await stat(resolve(report.runDir))).isDirectory(), 'collector runDir is not durable', failures) } catch (error) { failures.push(`collector runDir cannot be reopened: ${error.message}`) } }
+  if (failures.length) { const error = new Error(`D4 artifact binding verification failed: ${failures.join('; ')}`); error.failures = failures; throw error }
+  return { status: 'passed', failures: [] }
+}
 
 function deterministicSeed(value) {
   let hash = 2166136261
@@ -161,7 +184,10 @@ function makeMode(component, count, rowMode, mode) {
     actualOffset: index < 20 ? index / 19 : (39 - index) / 19,
     timestamp: index + 1,
     rowKeys: [`${component}-${index}`],
-    rect: { top: 10, bottom: 38, height: 28 },
+    rect: { top: 0, bottom: 38, height: 38 },
+    rowRects: [{ top: 0, bottom: 38, height: 38, key: `${component}-${index}`, intersectsViewport: true, pointerEvents: 'auto', nextTickAt: index + 1, rafAt: [index + 2, index + 3] }],
+    viewportRect: { top: 0, bottom: 38, height: 38 },
+    coverageComplete: true,
   }))
   return {
     warmup: [{ firstInteractionMs: Math.round(base + 20), discarded: true }],
@@ -191,7 +217,7 @@ function makePerformance() {
           component,
           count,
           rowMode,
-          alternatingOrder: ['full', 'virtual', 'full', 'virtual', 'full', 'virtual', 'full', 'virtual', 'full', 'virtual'],
+          alternatingOrder: expectedAlternatingOrder(),
           full,
           virtual,
         }
@@ -277,6 +303,23 @@ function ensure(condition, message, failures) {
   if (!condition) failures.push(message)
 }
 
+export function recomputeViewportCoverage(step) {
+  const viewport = step?.viewportRect
+  const rows = [...(step?.rowRects ?? [])].filter(row => Number.isFinite(row.top) && Number.isFinite(row.bottom) && row.bottom > row.top).sort((a, b) => a.top - b.top)
+  if (!viewport || !rows.length) return { complete: false, rows: 0 }
+  const visible = rows.filter(row => row.bottom >= viewport.top && row.top <= viewport.bottom)
+  const complete = visible.length > 0 && visible[0].top <= viewport.top + 1 && visible.at(-1).bottom >= viewport.bottom - 1 && visible.every((row, index) => index === 0 || row.top <= visible[index - 1].bottom + 1)
+  return { complete, rows: visible.length, first: visible[0], last: visible.at(-1) }
+}
+
+export function recomputeActionability(timing) {
+  return Boolean(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false && timing.targetRect?.intersectsViewport === true && timing.targetRect?.enabled === true && timing.targetRect?.pointerEvents !== 'none')
+}
+
+export function recomputeObserverRounds(rounds) {
+  return Array.isArray(rounds) && rounds.length > 0 && rounds.every(round => round.startedAt < round.firstWriteAt && round.lastWriteAt < round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt && (round.entries ?? []).every(entry => entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt))
+}
+
 function recomputeMode(mode, path) {
   const samples = mode?.measured?.map(sample => sample.firstInteractionMs)
   if (!Array.isArray(samples) || samples.length !== RELEASE_MATRIX.measuredRuns || samples.some(value => !Number.isFinite(value))) return { errors: [`${path} measured samples must contain exactly five finite values`] }
@@ -290,7 +333,7 @@ function recomputeMode(mode, path) {
     ensure(mode.scroll.slice(20).every(step => step.direction === 'reverse'), `${path} must have twenty reverse scroll steps`, errors)
     ensure(mode.scroll.every((step, index) => {
       const expected = index < 20 ? index / 19 : (39 - index) / 19
-      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && Number.isFinite(step.actualOffset) && Number.isFinite(step.timestamp) && step.timestamp >= 0 && Array.isArray(step.rowKeys) && step.rowKeys.length > 0 && step.rect && Number.isFinite(step.rect.height) && step.rect.height > 0 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
+      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && recomputeViewportCoverage(step).complete && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && Number.isFinite(step.actualOffset) && Number.isFinite(step.timestamp) && step.timestamp >= 0 && Array.isArray(step.rowKeys) && step.rowKeys.length > 0 && step.rect && Number.isFinite(step.rect.height) && step.rect.height > 0 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
     }), `${path} scroll steps must prove exact endpoints, positive timing and bounded mounted rows`, errors)
   }
   return { errors, medianMs: median(samples) }
@@ -303,7 +346,7 @@ export function recomputeEvidence(report) {
     const item = report.cases?.[key]
     ensure(item, `missing matrix case ${key}`, errors)
     if (!item) continue
-    ensure(JSON.stringify(item.alternatingOrder) === JSON.stringify(['full', 'virtual', 'full', 'virtual', 'full', 'virtual', 'full', 'virtual', 'full', 'virtual']), `${key} measured order is not alternating`, errors)
+    ensure(JSON.stringify(item.alternatingOrder) === JSON.stringify(expectedAlternatingOrder()), `${key} measured order is not alternating`, errors)
     for (const modeName of ['full', 'virtual']) {
       const result = recomputeMode(item[modeName], `${key}/${modeName}`)
       errors.push(...result.errors)
@@ -365,6 +408,7 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     ensure(Array.isArray(pkg?.fsImports) && pkg.fsImports.length === 0, `${side} package contains @fs imports`, failures)
     for (const field of ['esm', 'cjs', 'css', 'publicTypes', 'ssr', 'contentSha256Verified', 'tarballSha256Verified']) ensure(pkg?.[field] === true, `${side} package is missing ${field} evidence`, failures)
     ensure(pkg?.sourceCommit === (side === 'baseline' ? APPROVED_BASELINE_COMMIT : report.provenance?.candidateCommit), `${side} package source commit provenance is missing`, failures)
+    if (requireRelease) ensure(pkg?.path && pkg?.manifestPath && pkg?.modulePath && pkg?.lockPath && pkg?.manifestSha256 && pkg?.afterHashes?.['es/index.js'], `${side} release artifact descriptors are incomplete`, failures)
   }
   const recomputed = recomputeEvidence(report)
   failures.push(...recomputed.errors)
@@ -417,7 +461,7 @@ export function validateSmokeReport(report) {
   ensure(report.authenticEvidence === true && report.preview?.productionBuild === true && report.preview.absoluteNavigation === true && /^https?:\/\//.test(report.preview.baseURL ?? '') && Array.isArray(report.preview.errors) && report.preview.errors.length === 0, 'smoke must contain authentic production preview evidence', failures)
   ensure(Array.isArray(report.case?.scroll) && report.case.scroll.length === 40 && report.case.scroll.every(step => step.rect && Array.isArray(step.rowKeys) && step.rowRects?.length > 0 && step.viewportRect?.height > 0 && step.coverageComplete === true && Number.isFinite(step.timestamp)), 'smoke must collect one authentic forty-step geometry case', failures)
   const timing = report.case?.timing
-  ensure(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false, 'smoke first-interaction timing is not ordered around actionable row, Vue nextTick and two owner-realm RAFs', failures)
+  ensure(recomputeActionability(timing), 'smoke first-interaction timing is not ordered around actionable row, Vue nextTick and two owner-realm RAFs', failures)
   ensure(report.ssrHydration?.status === 'recorded' && report.ssrHydration.count === 8 && Object.keys(report.ssrHydration.combinations ?? {}).length === 8 && Object.values(report.ssrHydration.combinations).every(item => item.deterministic === true && item.cjsRender === true && (Object.values(item.virtual).every(value => value === false) || item.boundedRows <= 24) && item.hydrationErrors === 0 && item.hydrationWarnings === 0 && item.interacted === true && item.postHydrationStateChanged === true), 'smoke must record eight clean SSR/hydration cases', failures)
   ensure(report.iframe?.sameOrigin === true && report.iframe.ownerDocument === true && report.iframe.focusTransfer === true && report.iframe.popupReopened === true && report.iframe.resourceCounts?.before > 0 && report.iframe.resourceCounts?.after === 0 && report.iframe.unmountCleanup === true && report.iframe.postUnmountInteractions === 0, `smoke iframe popup/focus/resource/unmount evidence is incomplete: ${JSON.stringify(report.iframe)}`, failures)
   ensure(Array.isArray(report.packages?.candidate?.moduleRealpaths) && report.packages.candidate.moduleRealpaths.length > 0 && report.packages.candidate.afterHashes && report.packages.candidate.versions, 'smoke package realpath/version/after-hash evidence is missing', failures)
@@ -444,13 +488,13 @@ export function validateBoundedReleaseReport(report) {
   ensure(report?.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildFingerprint?.before && report.realEvidenceBinding.moduleFingerprint?.before, 'bounded artifact binding is missing', failures)
   ensure(report?.packages?.candidate?.path && report.packages.candidate.sha256 && report.provenance?.candidateTarballSha256 === report.packages.candidate.sha256, 'bounded candidate artifact binding is missing', failures)
   const timing = report.case?.timing
-  ensure(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false && timing.targetRect?.intersectsViewport === true && timing.targetRect.enabled === true && timing.targetRect.pointerEvents !== 'none', 'bounded first interaction raw timing/target evidence is invalid', failures)
+  ensure(recomputeActionability(timing), 'bounded first interaction raw timing/target evidence is invalid', failures)
   const steps = report.case?.scroll
   ensure(Array.isArray(steps) && steps.length === RELEASE_MATRIX.scrollSteps, 'bounded report must contain forty raw scroll steps', failures)
   if (Array.isArray(steps)) {
-    ensure(steps.every((step, index) => step.offset === (index < 20 ? index / 19 : (39 - index) / 19) && step.actualOffset >= 0 && step.timestamp >= 0 && step.coverageComplete === true && step.viewportRect?.height > 0 && step.rowRects?.length > 0 && step.rowRects.every(row => row.height > 0 && row.intersectsViewport !== false && row.nextTickAt <= row.rafAt?.[0] && row.rafAt?.[0] <= row.rafAt?.[1])), 'bounded raw geometry cannot be recomputed from rowRects/viewport', failures)
+    ensure(steps.every((step, index) => step.offset === (index < 20 ? index / 19 : (39 - index) / 19) && step.actualOffset >= 0 && step.timestamp >= 0 && recomputeViewportCoverage(step).complete && step.viewportRect?.height > 0 && step.rowRects?.length > 0 && step.rowRects.every(row => row.height > 0 && row.intersectsViewport !== false && row.nextTickAt <= row.rafAt?.[0] && row.rafAt?.[0] <= row.rafAt?.[1])), 'bounded raw geometry cannot be recomputed from rowRects/viewport', failures)
   }
-  ensure(report.case?.observers?.disconnected === true && report.case.observers.rawRecomputed === true && report.case.observers.rawRounds?.every(round => round.startedAt < round.firstWriteAt && round.lastWriteAt < round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt && round.entries.every(entry => entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt)), 'bounded observer raw rounds are not drained/recomputed', failures)
+  ensure(report.case?.observers?.disconnected === true && report.case.observers.rawRecomputed === true && recomputeObserverRounds(report.case.observers.rawRounds), 'bounded observer raw rounds are not drained/recomputed', failures)
   ensure(report.familyCoverage && Object.values(report.familyCoverage).every(item => item.scenarios?.every(scenario => scenario.executed === true && scenario.eventRecords?.length > 0 && scenario.beforeStateHash !== scenario.afterStateHash)), 'bounded family evidence is missing raw event/state records', failures)
   ensure(report.ssrHydration?.status === 'recorded' && Object.values(report.ssrHydration.combinations ?? {}).length === 8 && Object.values(report.ssrHydration.combinations).every(item => item.cjsRender === true && item.initialIdSha256 === item.hydratedIdSha256 && item.postHydrationInteraction === true && item.postHydrationStateChanged === true && item.businessEventsAfterHydration > 0), 'bounded SSR/hydration raw evidence is incomplete', failures)
   ensure(report.iframe?.ownerDocument === true && report.iframe.teleportOwnerDocument === true && report.iframe.resourceCounts?.before > 0 && report.iframe.resourceCounts.after === 0 && report.iframe.postUnmountInteractions === 0, 'bounded iframe lifecycle evidence is incomplete', failures)

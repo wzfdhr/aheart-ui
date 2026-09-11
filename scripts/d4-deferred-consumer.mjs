@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
 import { execFile } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
@@ -12,7 +11,6 @@ const exec = promisify(execFile)
 const workspace = fileURLToPath(new URL('..', import.meta.url))
 const arg = name => { const index = process.argv.indexOf(name); return index < 0 ? undefined : process.argv[index + 1] }
 const has = name => process.argv.includes(name)
-const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
 function usage() {
   console.log(`Usage:
@@ -38,16 +36,10 @@ async function runSmoke() {
 async function validateSavedReport() {
   const reportPath = path.resolve(arg('--report') ?? '')
   assert(reportPath && reportPath !== path.resolve(workspace), '--report is required')
-  const { validateReport } = await import('./d4-deferred-consumer-contract.mjs')
+  const { validateReport, verifyArtifactBindings } = await import('./d4-deferred-consumer-contract.mjs')
   const report = JSON.parse(await readFile(reportPath, 'utf8'))
   if (has('--require-release')) {
-    for (const side of ['baseline', 'candidate']) {
-      const packagePath = report.packages?.[side]?.path
-      assert(packagePath, `${side} tarball path is required for release validation`)
-      const bytes = await readFile(packagePath)
-      assert.equal(sha256(bytes), report.packages[side].sha256, `${side} tarball SHA-256 does not match reopened artifact`)
-      assert.equal(report.provenance?.[`${side}TarballSha256`], report.packages[side].sha256, `${side} provenance hash does not match reopened artifact`)
-    }
+    await verifyArtifactBindings(report, { reportPath })
   }
   const result = validateReport(report, { requireRelease: has('--require-release') })
   console.log(JSON.stringify({ report: reportPath, ...result }, null, 2))

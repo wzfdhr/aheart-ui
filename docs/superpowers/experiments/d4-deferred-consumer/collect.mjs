@@ -19,7 +19,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createServer } from 'vite'
 import { chromium, firefox, webkit } from '@playwright/test'
-import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, buildSmokeReport, validateBoundedReleaseReport, validateReport, validateSmokeReport } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
+import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, buildSmokeReport, validateBoundedReleaseReport, validateReport, validateSmokeReport, verifyArtifactBindings } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
 
 const run = promisify(execFile)
 const fixture = path.dirname(fileURLToPath(import.meta.url))
@@ -119,11 +119,13 @@ async function installConsumer(root, tarball) {
   assert.equal(link.stdout.trim(), 'false', 'installed package must not be a symlink')
   await run('corepack', ['pnpm', 'exec', 'tsc', '--noEmit'], { cwd: root, maxBuffer: 16 * 1024 * 1024 })
   const require = createRequire(path.join(root, 'probe.cjs'))
-  const versions = { node: process.versions.node, pnpm: PINNED_VERSIONS.pnpm, vue: require('vue/package.json').version, vite: require('vite/package.json').version, playwright: require('@playwright/test/package.json').version, typescript: require('typescript/package.json').version }
+  const pnpmVersion = (await run('corepack', ['pnpm', '--version'], { cwd: root })).stdout.trim()
+  const versions = { node: process.versions.node, pnpm: pnpmVersion, vue: require('vue/package.json').version, vite: require('vite/package.json').version, playwright: require('@playwright/test/package.json').version, typescript: require('typescript/package.json').version }
   for (const key of ['node', 'vue', 'vite', 'playwright', 'typescript']) assert.equal(versions[key], PINNED_VERSIONS[key], `${key} version drift in isolated consumer`)
   const packageRealpath = await realpath(path.join(root, 'node_modules/aheart-ui'))
   const packageIndexHash = sha256(await readFile(path.join(root, 'node_modules/aheart-ui/es/index.js')))
   return {
+    lockPath,
     lockSha256: sha256(Buffer.from(generatedLock)),
     lockDependenciesSha256: sha256(Buffer.from(generatedLock.replace(/(aheart-ui@file:aheart-ui\.tgz:\n\s+resolution: \{integrity: sha512-)[^,}]+/, '$1TARBALL'))),
     versions,
@@ -410,11 +412,19 @@ async function collectSmoke(temporary) {
   const report = buildSmokeReport({ baseline, candidate, smokeChecks: { candidatePacked: false, candidateRequiredFiles: true, candidateNoSymlink: candidate.symlinks.length === 0, candidateNoWorkspaceLinks: candidate.workspaceLinks.length === 0, candidateNoFsImports: candidate.fsImports.length === 0, candidatePublicSurface: candidate.esm && candidate.cjs && candidate.css && candidate.publicTypes, baselineExplicit: true, baselineAvailable: true, releaseMeasurements: 'notRun', sameConsumer: 'notRun', installedWithoutWorkspaceLinks: 'notRun' }, note: 'One authentic production Vite/preview Tree case only; full release matrix is not run.' })
   report.sourceKind = 'collected'
   report.runId = `bounded-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  report.runDir = candidateRoot
+  report.collectorSourcePath = fileURLToPath(import.meta.url)
   report.collectorSourceSha256 = sha256(await readFile(fileURLToPath(import.meta.url)))
   report.preview = { baseURL: requestedBaseURL, actualBaseURL, productionBuild: true, absoluteNavigation: true, errors }
   report.authenticEvidence = true
   report.fixtures = { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }
   report.packages.candidate.lockfileSha256 = install.lockSha256
+  report.packages.candidate.lockPath = install.lockPath
+  report.packages.candidate.modulePath = path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js')
+  report.packages.candidate.manifestPath = candidateManifestPath
+  report.packages.candidate.manifestSha256 = sha256(await readFile(candidateManifestPath))
+  report.packages.baseline.manifestPath = baselineManifestPath
+  report.packages.baseline.manifestSha256 = sha256(await readFile(baselineManifestPath))
   report.packages.candidate.moduleRealpaths = [install.packageRealpath]
   report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
   report.packages.candidate.versions = install.versions
@@ -437,6 +447,7 @@ async function collectSmoke(temporary) {
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(`${output}.prevalidation.json`, `${JSON.stringify(report, null, 2)}\n`)
   try {
+    await verifyArtifactBindings(report)
     validateBoundedReleaseReport(report)
   } catch (error) {
     report.validationFailures = error.failures ?? [error.message]
@@ -553,6 +564,10 @@ async function collectSide(tarball, label, temporary) {
   ssr.htmlByMask = undefined
   if (hydrationErrors.length) for (const item of Object.values(ssr.combinations)) { item.hydrationErrors += hydrationErrors.length; item.hydrationWarnings += hydrationErrors.length }
   packageManifest.lockfileSha256 = install.lockSha256
+  packageManifest.lockPath = install.lockPath
+  packageManifest.modulePath = path.join(root, 'node_modules/aheart-ui/es/index.js')
+  packageManifest.manifestPath = label === 'baseline' ? baselineManifestPath : candidateManifestPath
+  packageManifest.manifestSha256 = sha256(await readFile(packageManifest.manifestPath))
   packageManifest.lockDependenciesSha256 = install.lockDependenciesSha256
   packageManifest.moduleRealpaths = [install.packageRealpath]
   packageManifest.afterHashes = { 'es/index.js': install.packageIndexHash }
@@ -612,6 +627,7 @@ try {
   report.gzip.deltaBytes = report.gzip.candidate.gzipBytes - report.gzip.baseline.gzipBytes
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
+  await verifyArtifactBindings(report)
   validateReport(report, { requireRelease: true })
   console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: true }, null, 2))
 } catch (error) {
