@@ -11,6 +11,7 @@ import {
   RELEASE_MATRIX,
   buildAcceptanceFixture,
   recomputeEvidence,
+  buildFullReportShell,
   validateBoundedReleaseReport,
   validateReport,
 } from './d4-deferred-consumer-contract.mjs'
@@ -30,9 +31,10 @@ const fullSsrTypesControlReport = () => {
     const nodes = nodeKinds.map((identity, index) => {
       const [component, kind] = identity.split('/')
       const id = `full-${component.toLowerCase()}-${kind}-${index}`
-      return { id, component, kind, selector: `#${id}`, selectorProvenance: { source: 'document.querySelector', selector: `#${id}` }, selectorMatchCount: 1, selectorResolved: true, role: null, ariaControls: null, ariaActivedescendant: null, ariaLabelledby: null, ariaDescribedby: null, focusModel: null }
+      const selector = component === 'Tree' ? (kind === 'root' ? '.aheart-tree' : '.aheart-tree__node') : component === 'TreeSelect' ? (kind === 'trigger' ? '.aheart-tree-select__trigger' : '.aheart-tree-select__panel') : (kind === 'trigger' ? '.aheart-cascader__trigger' : '.aheart-cascader__panel')
+      return { id, component, kind, selector, selectorProvenance: { source: 'document.querySelector', selector }, selectorMatchCount: 1, selectorResolved: true, role: null, ariaControls: null, ariaActivedescendant: null, ariaLabelledby: null, ariaDescribedby: null, focusModel: null }
     })
-    const rawMainHtml = `<div data-full-ssr="${phase}"></div>`
+    const rawMainHtml = '<div data-full-ssr="stable"></div>'
     const rawTeleportHtml = '<div data-full-teleport="true"></div>'
     const normalize = html => html.replace(/\s+/g, ' ').trim()
     return { capturePhase: phase, captureNonce: nonce, sortedIds: nodes.map(node => node.id).sort(), nodes, focusModel: null, rawMainHtml, rawTeleportHtml, mainHtml: normalize(rawMainHtml), teleportHtml: normalize(rawTeleportHtml), combinedHtml: normalize(rawMainHtml + rawTeleportHtml), mainHtmlSha256: sha256(Buffer.from(normalize(rawMainHtml))), teleportHtmlSha256: sha256(Buffer.from(normalize(rawTeleportHtml))), combinedSha256: sha256(Buffer.from(normalize(rawMainHtml + rawTeleportHtml))) }
@@ -40,6 +42,7 @@ const fullSsrTypesControlReport = () => {
   for (const [combinationKey, item] of Object.entries(report.ssrHydration.combinations)) {
     const serverSnapshot = makeSnapshot('server-before-hydration', `${combinationKey}-server`)
     const hydratedSnapshot = makeSnapshot('hydrated-after-mount', `${combinationKey}-hydrated`)
+    assert.deepEqual(snapshotStructureProjection(serverSnapshot), snapshotStructureProjection(hydratedSnapshot), `${combinationKey} synthetic server/hydrated structure must be identical apart from capture metadata`)
     item.serverSnapshot = serverSnapshot
     item.hydratedSnapshot = hydratedSnapshot
     item.postHydrationActions = ['Tree', 'TreeSelect', 'Cascader'].map(component => ({ component, target: { selector: `#full-${component.toLowerCase()}-action`, selectorProvenance: { source: 'document.querySelector', selector: `#full-${component.toLowerCase()}-action` }, id: null }, beforeState: { value: 'before' }, afterState: { value: 'after' }, callbackEventNames: [`${component}:change`] }))
@@ -454,15 +457,18 @@ test('full collection reuses smoke SSR capture helper and returns candidate type
   const source = await deferredCollectorSource()
   const smokeStart = source.indexOf('async function collectSmoke')
   const sideStart = source.indexOf('async function collectSide')
-  const fullStart = source.indexOf('// Full collection intentionally runs only when explicitly invoked')
-  assert.ok(smokeStart >= 0 && sideStart > smokeStart && fullStart > sideStart, 'collector function boundaries must be discoverable')
+  const serverStart = source.indexOf('  let server\n  let browser', sideStart)
+  const finalizeStart = source.indexOf('export async function finalizeCollectedReport', serverStart)
+  assert.ok(smokeStart >= 0 && sideStart > smokeStart && serverStart > sideStart && finalizeStart > serverStart, 'collector function boundaries must be discoverable')
   const smokeBody = source.slice(smokeStart, sideStart)
-  const sideBody = source.slice(sideStart, fullStart)
+  const sideBody = source.slice(serverStart, finalizeStart)
   assert.match(smokeBody, /collectHydratedSsrEvidence\(/, 'smoke must call the named shared hydration/capture helper')
   assert.match(sideBody, /collectHydratedSsrEvidence\(/, 'collectSide must call the named shared hydration/capture helper')
   assert.match(sideBody, /durableTypeProbe\(/, 'collectSide must execute the public type probe')
   assert.match(sideBody, /return \{[\s\S]*ssrHydration: ssr[\s\S]*typeProbe[\s\S]*\}/, 'collectSide must return the candidate public type probe')
-  assert.match(source, /typeProbe:\s*candidate\.typeProbe/, 'full report shell must preserve candidate type probe evidence')
+  const sentinel = { marker: 'candidate-type-probe' }
+  const shell = buildFullReportShell({ baseline: { packageManifest: { sha256: 'a'.repeat(64) } }, candidate: { packageManifest: { sha256: 'b'.repeat(64) }, typeProbe: sentinel }, baselineCommit: '4a7511f9594d0a74906e427e158d02343ba33a22', candidateCommit: 'candidate', runId: 'full-shell-test' })
+  assert.equal(shell.typeProbe, sentinel, 'full report shell must preserve the candidate type probe sentinel')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
