@@ -1,4 +1,4 @@
-export type { CascaderKey, CascaderOption, CascaderPath, CascaderValue, CascaderLoadContext } from './types';
+export type { CascaderKey, CascaderOption, CascaderPath, CascaderValue, CascaderLoadContext, CascaderVirtual, CascaderVirtualConfig } from './types';
 declare const _default: import("../utils/install").SFCWithInstall<import("vue").DefineComponent<import("vue").ExtractPropTypes<{
     open: {
         type: import("vue").PropType<boolean>;
@@ -42,6 +42,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     autoAdjustOverflow: {
         type: import("vue").PropType<boolean>;
         default: boolean;
+    };
+    virtual: {
+        type: import("vue").PropType<import("./types").CascaderVirtual>;
     };
     getPopupContainer: {
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
@@ -97,6 +100,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     autoAdjustOverflow: {
         type: import("vue").PropType<boolean>;
         default: boolean;
+    };
+    virtual: {
+        type: import("vue").PropType<import("./types").CascaderVirtual>;
     };
     getPopupContainer: {
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;

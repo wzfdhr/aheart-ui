@@ -5,7 +5,7 @@ function usePopupViewportBudget(options) {
   const budget = vue.ref();
   let frame;
   let ownerWindow = null;
-  let resizeObserver;
+  const resizeObservers = /* @__PURE__ */ new Set();
   let visualViewport;
   const cancelFrame = () => {
     var _a;
@@ -14,7 +14,7 @@ function usePopupViewportBudget(options) {
     frame = void 0;
   };
   const read = () => {
-    var _a;
+    var _a, _b;
     const trigger = options.trigger.value;
     const popup = options.popup.value;
     const view = trigger == null ? void 0 : trigger.ownerDocument.defaultView;
@@ -33,7 +33,9 @@ function usePopupViewportBudget(options) {
     const search = (_a = options.search) == null ? void 0 : _a.value;
     const searchHeight = search ? search.getBoundingClientRect().height + Number.parseFloat(view.getComputedStyle(search).marginBottom || "0") : 0;
     const treeHeight = Math.max(0, Math.min(options.maximum.value, available - chrome - searchHeight));
-    budget.value = { treeHeight, popupHeight: treeHeight + chrome + searchHeight };
+    const next = { treeHeight, popupHeight: treeHeight + chrome + searchHeight };
+    if (((_b = budget.value) == null ? void 0 : _b.treeHeight) !== next.treeHeight || budget.value.popupHeight !== next.popupHeight)
+      budget.value = next;
   };
   const schedule = () => {
     var _a;
@@ -54,8 +56,9 @@ function usePopupViewportBudget(options) {
   const cleanup = () => {
     var _a;
     cancelFrame();
-    resizeObserver == null ? void 0 : resizeObserver.disconnect();
-    resizeObserver = void 0;
+    for (const observer of resizeObservers)
+      observer.disconnect();
+    resizeObservers.clear();
     visualViewport == null ? void 0 : visualViewport.removeEventListener("resize", schedule);
     visualViewport == null ? void 0 : visualViewport.removeEventListener("scroll", schedule);
     ownerWindow == null ? void 0 : ownerWindow.removeEventListener("resize", schedule);
@@ -75,11 +78,14 @@ function usePopupViewportBudget(options) {
     if (!view)
       return;
     ownerWindow = view;
-    resizeObserver = view.ResizeObserver ? new view.ResizeObserver(schedule) : void 0;
-    resizeObserver == null ? void 0 : resizeObserver.observe(trigger);
-    resizeObserver == null ? void 0 : resizeObserver.observe(popup);
-    if ((_a = options.search) == null ? void 0 : _a.value)
-      resizeObserver == null ? void 0 : resizeObserver.observe(options.search.value);
+    const resizeObserver = view.ResizeObserver ? new view.ResizeObserver(schedule) : void 0;
+    if (resizeObserver) {
+      resizeObservers.add(resizeObserver);
+      resizeObserver.observe(trigger);
+      resizeObserver.observe(popup);
+      if ((_a = options.search) == null ? void 0 : _a.value)
+        resizeObserver.observe(options.search.value);
+    }
     visualViewport = view.visualViewport;
     visualViewport == null ? void 0 : visualViewport.addEventListener("resize", schedule);
     visualViewport == null ? void 0 : visualViewport.addEventListener("scroll", schedule);

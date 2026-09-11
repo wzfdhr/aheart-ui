@@ -159,10 +159,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       activeKey.value = filteredTreeIndex.value.order.find((key) => treeIndex.treeKeyToken(key) === token);
     };
     const handleTriggerFocusout = (event) => {
+      var _a, _b, _c;
+      const origin = event == null ? void 0 : event.target;
+      const related = event == null ? void 0 : event.relatedTarget;
+      const originElement = origin && origin.nodeType === 1 ? origin : null;
+      const originTree = (originElement == null ? void 0 : originElement.closest('[role="tree"]')) ?? null;
+      const originWasTree = Boolean(virtualEnabled.value && originTree && ((_a = panelRef.value) == null ? void 0 : _a.contains(originTree)));
+      const ownerDocument = ((_b = triggerRef.value) == null ? void 0 : _b.ownerDocument) ?? ((_c = panelRef.value) == null ? void 0 : _c.ownerDocument);
+      const relatedIsNullOrBody = !related || related === (ownerDocument == null ? void 0 : ownerDocument.body);
       void vue.nextTick(() => {
-        var _a, _b, _c, _d, _e;
-        const active = ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
-        if (virtualEnabled.value && active && !((_b = rootRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+        var _a2, _b2, _c2, _d, _e;
+        const active = ((_a2 = triggerRef.value) == null ? void 0 : _a2.ownerDocument.activeElement) ?? null;
+        const transientTreeRemoval = Boolean(originWasTree && originElement && !originElement.isConnected && relatedIsNullOrBody && active === (ownerDocument == null ? void 0 : ownerDocument.body) && mergedOpen.value);
+        if (transientTreeRemoval)
+          return;
+        if (virtualEnabled.value && active && !((_b2 = rootRef.value) == null ? void 0 : _b2.contains(active)) && !((_c2 = panelRef.value) == null ? void 0 : _c2.contains(active)))
           focusBridge.cancel();
         if (!((_d = triggerRef.value) == null ? void 0 : _d.contains(active)) && !((_e = panelRef.value) == null ? void 0 : _e.contains(active)))
           formControl == null ? void 0 : formControl.blur();

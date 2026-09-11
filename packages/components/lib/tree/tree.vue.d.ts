@@ -96,9 +96,9 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
 }>, {
     multiple: boolean;
     disabled: boolean;
+    virtual: import("./types").TreeVirtual;
     defaultSelectedKeys: TreeKey[];
     selectable: boolean;
-    virtual: import("./types").TreeVirtual;
     checkable: boolean;
     treeData: TreeNodeData[];
     defaultExpandedKeys: TreeKey[];

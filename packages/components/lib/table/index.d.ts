@@ -102,8 +102,8 @@ declare const Table: import("../utils/install").SFCWithInstall<import("vue").Def
     readonly pagination: false | import("./types").TablePaginationConfig;
     readonly loading: boolean;
     readonly bordered: boolean;
-    readonly virtual: import("./types").TableVirtual;
     readonly rowKey: string | ((record: import("./types").TableRecord) => import("./types").TableKey);
+    readonly virtual: import("./types").TableVirtual;
     readonly showHeader: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>>;
 export default Table;

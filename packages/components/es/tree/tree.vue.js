@@ -38,6 +38,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref();
     const lastFocusKey = ref();
     const focusMovedOutside = ref(false);
+    let treeAlive = true;
+    let retryIntentSerial = 0;
+    let retryIntent;
     const mergedExpandedKeys = computed(() => props.expandedKeys ?? innerExpandedKeys.value);
     const mergedSelectedKeys = computed(() => props.selectedKeys ?? innerSelectedKeys.value);
     const mergedCheckedKeys = computed(() => props.checkedKeys ?? innerCheckedKeys.value);
@@ -62,6 +65,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     }));
     const virtualAdapter = useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled);
     const virtualFallback = computed(() => virtualAdapter.fallback.value);
+    const retireRetryIntent = (intent, cancelGeneration = true) => {
+      if ((retryIntent == null ? void 0 : retryIntent.id) !== intent.id)
+        return;
+      if (cancelGeneration && intent.generation !== 0 && virtualAdapter.isPending(intent.key, intent.generation))
+        virtualAdapter.cancelPending();
+      retryIntent = void 0;
+    };
     const internalViewportHeight = computed(() => privateViewportHeight == null ? void 0 : privateViewportHeight.value);
     const renderedNodes = computed(() => virtualConfig.value && !virtualFallback.value ? virtualAdapter.rows.value.map((row) => ({ key: row.entry.key, node: row.entry.node, item: row.item, level: row.entry.level })) : renderData.value.map((node) => ({ key: node.key, node, item: void 0 })));
     const rowStyle = (entry) => virtualConfig.value && !virtualFallback.value && entry.item ? {
@@ -110,13 +120,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (next && !((_a2 = rootRef.value) == null ? void 0 : _a2.contains(next)))
         focusMovedOutside.value = true;
     };
-    const focusNode = (key, existingVersion, allowExternalSource = false) => {
+    const focusNode = (key, existingVersion, allowExternalSource = false, ownedIntent) => {
       var _a2, _b;
       if (!virtualConfig.value || virtualFallback.value) {
         focusedKey.value = key;
         void nextTick(() => {
-          var _a3, _b2;
-          return (_b2 = Array.from(((_a3 = rootRef.value) == null ? void 0 : _a3.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeKeyToken(key))) == null ? void 0 : _b2.focus();
+          var _a3;
+          const target = Array.from(((_a3 = rootRef.value) == null ? void 0 : _a3.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeKeyToken(key));
+          target == null ? void 0 : target.focus();
+          if (ownedIntent)
+            retireRetryIntent(ownedIntent, false);
         });
         return;
       }
@@ -129,11 +142,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         const activeNow = (_a3 = rootRef.value) == null ? void 0 : _a3.ownerDocument.activeElement;
         const body = (_b2 = rootRef.value) == null ? void 0 : _b2.ownerDocument.body;
         if (!allowExternalSource && virtualConfig.value && activeBefore && rootRef.value && activeBefore !== rootRef.value && activeBefore !== body && !rootRef.value.contains(activeBefore) && !(sourceOwnsTarget && activeNow === body)) {
-          virtualAdapter.cancelPending();
+          if (ownedIntent)
+            retireRetryIntent(ownedIntent);
+          else
+            virtualAdapter.cancelPending();
           return;
         }
         if (!allowExternalSource && virtualConfig.value && activeNow && rootRef.value && activeNow !== rootRef.value && activeNow !== rootRef.value.ownerDocument.body && !rootRef.value.contains(activeNow)) {
-          virtualAdapter.cancelPending();
+          if (ownedIntent)
+            retireRetryIntent(ownedIntent);
+          else
+            virtualAdapter.cancelPending();
           return;
         }
         const target = Array.from(((_c = rootRef.value) == null ? void 0 : _c.querySelectorAll(".aheart-tree__node")) ?? []).find((element) => element.dataset.treeToken === treeKeyToken(key));
@@ -142,12 +161,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           focusedKey.value = key;
           virtualAdapter.commitFocus(key);
           target.focus();
+          if (ownedIntent)
+            retireRetryIntent(ownedIntent, false);
           return;
         }
-        if (target && !generationValid)
+        if (target && !generationValid) {
+          if (ownedIntent)
+            retireRetryIntent(ownedIntent, false);
           return;
-        if (virtualAdapter.isPending(key, version) && attempts++ < 8)
-          void nextTick(focusMounted);
+        }
+        if (virtualAdapter.isPending(key, version)) {
+          if (attempts++ < 8)
+            void nextTick(focusMounted);
+          else if (ownedIntent && ownedIntent.generation === version)
+            retireRetryIntent(ownedIntent);
+        } else if (ownedIntent)
+          retireRetryIntent(ownedIntent, false);
       };
       void nextTick(focusMounted);
     };
@@ -155,26 +184,68 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       focusedKey.value = node.key;
       virtualAdapter.commitFocus(node.key);
     };
+    const cancelTreeFocus = () => {
+      if (retryIntent)
+        retireRetryIntent(retryIntent);
+      virtualAdapter.cancelPending();
+    };
     const unregisterFocusBridge = focusBridge == null ? void 0 : focusBridge.register(
       (key, allowExternalSource) => focusNode(key, void 0, allowExternalSource),
-      virtualAdapter.cancelPending,
+      cancelTreeFocus,
       (last) => {
         var _a2;
         return (_a2 = visibleNodes.value.filter((entry) => !isNodeDisabled(entry.key)).at(last ? -1 : 0)) == null ? void 0 : _a2.key;
       }
     );
-    onBeforeUnmount(() => unregisterFocusBridge == null ? void 0 : unregisterFocusBridge());
+    onBeforeUnmount(() => {
+      treeAlive = false;
+      if (retryIntent)
+        retireRetryIntent(retryIntent);
+      virtualAdapter.cancelPending();
+      unregisterFocusBridge == null ? void 0 : unregisterFocusBridge();
+    });
+    const createRetryIntent = (node) => {
+      const generation = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : 0;
+      if (generation !== 0)
+        virtualAdapter.beginFocusHandoff(node.key);
+      const intent = { id: ++retryIntentSerial, key: node.key, generation, node };
+      retryIntent = intent;
+      return intent;
+    };
+    const startRetry = (node, intent = createRetryIntent(node)) => {
+      var _a2;
+      if (!treeAlive || (retryIntent == null ? void 0 : retryIntent.id) !== intent.id || isNodeDisabled(node.key) || ((_a2 = treeIndex.value.nodes.get(node.key)) == null ? void 0 : _a2.node) !== intent.node) {
+        retireRetryIntent(intent);
+        return;
+      }
+      void loader.load(node.key, true);
+      void nextTick(() => {
+        var _a3;
+        if (!treeAlive || (retryIntent == null ? void 0 : retryIntent.id) !== intent.id || isNodeDisabled(node.key) || ((_a3 = treeIndex.value.nodes.get(node.key)) == null ? void 0 : _a3.node) !== intent.node) {
+          retireRetryIntent(intent);
+          return;
+        }
+        if (intent.generation === 0 || virtualAdapter.isPending(node.key, intent.generation))
+          focusNode(node.key, intent.generation || void 0, false, intent);
+        else
+          retireRetryIntent(intent, false);
+      });
+    };
     const retryNode = (node) => {
       if (isNodeDisabled(node.key))
         return;
-      const transaction = virtualConfig.value && !virtualFallback.value ? virtualAdapter.ensureKey(node.key) : void 0;
-      if (transaction !== void 0)
-        virtualAdapter.beginFocusHandoff(node.key);
-      void loader.load(node.key, true);
-      void nextTick(() => {
-        if (transaction === void 0 || virtualAdapter.isPending(node.key, transaction))
-          focusNode(node.key, transaction);
-      });
+      const intent = createRetryIntent(node);
+      if (!mergedExpandedKeys.value.includes(node.key)) {
+        toggleExpanded(node, true);
+        void nextTick(() => {
+          if ((retryIntent == null ? void 0 : retryIntent.id) === intent.id && mergedExpandedKeys.value.includes(node.key))
+            startRetry(node, intent);
+          else
+            retireRetryIntent(intent);
+        });
+        return;
+      }
+      startRetry(node, intent);
     };
     const syncCheckboxes = () => {
       var _a2, _b;

@@ -96,9 +96,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
 }>, {
     multiple: boolean;
     disabled: boolean;
+    virtual: import("./types").TreeVirtual;
     defaultSelectedKeys: import("./types").TreeKey[];
     selectable: boolean;
-    virtual: import("./types").TreeVirtual;
     checkable: boolean;
     treeData: import("./types").TreeNodeData[];
     defaultExpandedKeys: import("./types").TreeKey[];

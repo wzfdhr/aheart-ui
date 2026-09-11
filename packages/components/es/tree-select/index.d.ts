@@ -42,6 +42,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<boolean>;
         default: boolean;
     };
+    virtual: {
+        type: import("vue").PropType<import("..").TreeVirtual>;
+    };
     getPopupContainer: {
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
@@ -53,9 +56,6 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     ariaLabelledby: {
         type: import("vue").PropType<string>;
-    };
-    virtual: {
-        type: import("vue").PropType<import("..").TreeVirtual>;
     };
     treeData: {
         type: import("vue").PropType<import("..").TreeNodeData[]>;
@@ -116,6 +116,9 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<boolean>;
         default: boolean;
     };
+    virtual: {
+        type: import("vue").PropType<import("..").TreeVirtual>;
+    };
     getPopupContainer: {
         type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
@@ -127,9 +130,6 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     };
     ariaLabelledby: {
         type: import("vue").PropType<string>;
-    };
-    virtual: {
-        type: import("vue").PropType<import("..").TreeVirtual>;
     };
     treeData: {
         type: import("vue").PropType<import("..").TreeNodeData[]>;
