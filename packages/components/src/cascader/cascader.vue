@@ -771,7 +771,16 @@ const enterChildColumn = async (option: CascaderOption, columnIndex: number, cur
     if (owner && owner === focusOwner && current.isConnected && mergedOpen.value && !props.disabled && loadingPaths.value.some(loadingPath => samePath(loadingPath, path))) {
       const canUseRaf = Boolean(ownerWindow && typeof ownerWindow.requestAnimationFrame === 'function' && typeof ownerWindow.cancelAnimationFrame === 'function')
       const canUseTimer = Boolean(ownerWindow && typeof ownerWindow.setTimeout === 'function' && typeof ownerWindow.clearTimeout === 'function')
-      if (canUseRaf) owner.renderRaf = ownerWindow!.requestAnimationFrame(() => { owner.renderRaf = undefined; owner.renderBlurArmed = false })
+      if (canUseRaf) {
+        const closeAfterRaf = () => {
+          owner.renderRaf = undefined
+          if (focusOwner !== owner) { owner.renderBlurArmed = false; return }
+          if (canUseTimer) owner.renderTimer = ownerWindow!.setTimeout(() => { owner.renderTimer = undefined; owner.renderBlurArmed = false }, 0)
+          else if (canUseRaf) owner.renderRaf = ownerWindow!.requestAnimationFrame(() => { owner.renderRaf = undefined; owner.renderBlurArmed = false })
+          else owner.renderBlurArmed = false
+        }
+        owner.renderRaf = ownerWindow!.requestAnimationFrame(closeAfterRaf)
+      }
       else if (canUseTimer) owner.renderTimer = ownerWindow!.setTimeout(() => { owner.renderTimer = undefined; owner.renderBlurArmed = false }, 0)
       else owner.renderBlurArmed = false
     }
