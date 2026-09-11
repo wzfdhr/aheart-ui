@@ -319,10 +319,10 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   const scroll = await page.evaluate(async () => {
     const target = document.querySelector('[role="tree"], .aheart-cascader__column')
     if (!target) return []
-    const end = Math.max(0, target.scrollHeight - target.clientHeight)
     const steps = []
     for (let index = 0; index < 40; index++) {
-      const offset = end * (index < 20 ? index / 19 : (39 - index) / 19)
+      const dynamicEnd = Math.max(0, target.scrollHeight - target.clientHeight)
+      const offset = index === 19 || index === 20 ? dynamicEnd : dynamicEnd * (index < 20 ? index / 19 : (39 - index) / 19)
       const before = performance.now()
       target.scrollTop = offset
       await window.__d4NextTick()
