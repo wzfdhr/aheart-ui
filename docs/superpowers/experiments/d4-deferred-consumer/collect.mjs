@@ -295,8 +295,9 @@ async function collectSide(tarball, label, temporary) {
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
   const browserErrors = []
+  const hydrationWarnings = []
   page.on('pageerror', error => browserErrors.push({ kind: 'pageerror', message: error.message }))
-  page.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }) })
+  page.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }); if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text()) })
   await page.addInitScript(() => {
     window.__d4LongTasks = []
     window.__d4LayoutShifts = []
@@ -310,10 +311,15 @@ async function collectSide(tarball, label, temporary) {
   const hydrationErrors = []
   try {
     for (let mask = 0; mask < 8; mask++) {
+      const errorsBefore = browserErrors.length
+      const warningsBefore = hydrationWarnings.length
       await page.goto(`${base}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
       await page.waitForFunction(() => window.__d4Hydrated === true)
       const diagnostics = await page.evaluate(() => ({ body: document.body.textContent?.length ?? 0 }))
       if (diagnostics.body === 0) hydrationErrors.push(`empty SSR hydration ${mask}`)
+      const item = Object.values(ssr.combinations)[mask]
+      item.hydrationErrors = browserErrors.length - errorsBefore
+      item.hydrationWarnings = hydrationWarnings.length - warningsBefore
     }
     for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
       const settings = fixtureCount(component, count, rowMode)
@@ -367,7 +373,7 @@ async function collectSide(tarball, label, temporary) {
     layoutShifts: { status: 'recorded', cls: lastObservers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0), entries: lastObservers.layoutShifts }
   }
   ssr.htmlByMask = undefined
-  for (const item of Object.values(ssr.combinations)) { item.hydrationWarnings = hydrationErrors.length; item.hydrationErrors = hydrationErrors.length }
+  if (hydrationErrors.length) for (const item of Object.values(ssr.combinations)) { item.hydrationErrors += hydrationErrors.length; item.hydrationWarnings += hydrationErrors.length }
   packageManifest.lockfileSha256 = install.lockSha256
   return { packageManifest, cases, root, ssrHydration: ssr, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence }
 }
