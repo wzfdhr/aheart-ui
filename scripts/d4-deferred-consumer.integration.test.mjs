@@ -74,11 +74,19 @@ const collectAuthenticSsrSnapshotRed = async () => {
     '--out', out,
   ]
   const result = await run(process.execPath, args, { cwd: workspace, maxBuffer: 8 * 1024 * 1024 }).then(value => ({ code: 0, output: `${value.stdout}\n${value.stderr}` }), error => ({ code: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
-  await writeFile('/tmp/d4-ssr-authentic-red-v2.log', result.output)
-  assert.notEqual(result.code, 0, 'authentic SSR RED must remain a real collector failure until the snapshot contract is implemented')
-  const prevalidationPath = `${out}.prevalidation.json`
-  const report = JSON.parse(await readFile(prevalidationPath, 'utf8'))
-  return { report, result, prevalidationPath }
+  const logPath = path.join(root, 'collector.log')
+  await writeFile(logPath, result.output)
+  let report
+  if (result.code === 0) {
+    report = JSON.parse(await readFile(out, 'utf8'))
+    await verifyArtifactBindings(report, { reportPath: out })
+    assert.doesNotThrow(() => validateBoundedReleaseReport(report), 'successful authentic collector output must pass control validation')
+  } else {
+    const prevalidationPath = `${out}.prevalidation.json`
+    report = JSON.parse(await readFile(prevalidationPath, 'utf8'))
+    assert.match(result.output, /D4 bounded release contract failed|SSR|snapshot|selector/i, `failed collector must identify snapshot contract failure; log ${logPath}`)
+  }
+  return { root, report, result, logPath, outputPath: result.code === 0 ? out : `${out}.prevalidation.json` }
 }
 
 const snapshotStructureProjection = snapshot => {
@@ -245,28 +253,65 @@ test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, 
   }
 })
 
-test('authentic SSR RED directly checks exact nodes, independent captures, selectors, normalization and pollution', async () => {
-  const { report, result, prevalidationPath } = await collectAuthenticSsrSnapshotRed()
-  assert.match(result.output, /D4 bounded release contract failed|SSR|snapshot|selector/i, `RED must identify snapshot contract failure; report ${prevalidationPath}`)
-  const item = Object.values(report.ssrHydration?.combinations ?? {})[0]
-  assert.ok(item?.serverSnapshot && item?.hydratedSnapshot, `prevalidation report must preserve snapshots: ${prevalidationPath}`)
-  for (const [phase, snapshot] of [['server-before-hydration', item.serverSnapshot], ['hydrated-after-mount', item.hydratedSnapshot]]) {
-    assert.equal(snapshot.capturePhase, phase)
-    assert.ok(typeof snapshot.captureNonce === 'string' && snapshot.captureNonce.length > 0)
-    assert.equal(snapshot.nodes?.length, 6)
-    assert.deepEqual(snapshot.nodes.map(node => `${node.component}/${node.kind}`).sort(), ['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger'])
-    for (const node of snapshot.nodes) {
-      assert.equal(node.selectorProvenance?.source, 'document.querySelector')
-      assert.equal(node.selectorMatchCount, 1)
-      assert.equal(node.selectorResolved, true)
+test('authentic SSR RED directly checks exact nodes, independent captures, selectors, normalization and pollution', async t => {
+  const capture = await collectAuthenticSsrSnapshotRed()
+  const { report, result, logPath } = capture
+  const combinations = Object.values(report.ssrHydration?.combinations ?? {})
+  assert.ok(combinations.length === 8, `SSR report must preserve all eight combinations; log ${logPath}`)
+  const expectedKinds = ['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger']
+  const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
+
+  await t.test('capture phase and exact six node contract', () => {
+    for (const item of combinations) {
+      for (const [phase, snapshot] of [['server-before-hydration', item.serverSnapshot], ['hydrated-after-mount', item.hydratedSnapshot]]) {
+        assert.equal(snapshot?.capturePhase, phase)
+        assert.ok(typeof snapshot?.captureNonce === 'string' && snapshot.captureNonce.length > 0)
+        assert.equal(snapshot?.nodes?.length, 6)
+        assert.deepEqual(snapshot.nodes.map(node => `${node.component}/${node.kind}`).sort(), expectedKinds)
+      }
+      assert.notEqual(item.serverSnapshot.captureNonce, item.hydratedSnapshot.captureNonce)
+      assert.deepEqual(snapshotStructureProjection(item.serverSnapshot), snapshotStructureProjection(item.hydratedSnapshot))
     }
-    const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
-    assert.equal(snapshot.mainHtml, normalize(snapshot.rawMainHtml))
-    assert.equal(snapshot.teleportHtml, normalize(snapshot.rawTeleportHtml))
-    assert.doesNotMatch(snapshot.rawMainHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i)
-    assert.doesNotMatch(snapshot.rawTeleportHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i)
-  }
-  assert.notEqual(item.serverSnapshot.captureNonce, item.hydratedSnapshot.captureNonce)
+  })
+
+  await t.test('selector re-query and normalized raw bindings', () => {
+    for (const item of combinations) {
+      for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
+        for (const node of snapshot.nodes) {
+          assert.equal(node.selectorProvenance?.source, 'document.querySelector')
+          assert.equal(node.selectorMatchCount, 1)
+          assert.equal(node.selectorResolved, true)
+        }
+        assert.equal(snapshot.mainHtml, normalize(snapshot.rawMainHtml))
+        assert.equal(snapshot.teleportHtml, normalize(snapshot.rawTeleportHtml))
+        assert.doesNotMatch(snapshot.rawMainHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i)
+        assert.doesNotMatch(snapshot.rawTeleportHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i)
+      }
+    }
+  })
+
+  await t.test('capture artifacts reopen and bind every snapshot field', async () => {
+    for (const [combinationKey, item] of Object.entries(report.ssrHydration.combinations ?? {})) {
+      const evidence = item.captureEvidence
+      assert.ok(Array.isArray(evidence) && evidence.length === 2, `${combinationKey} must expose two capture records; log ${logPath}`)
+      for (const [index, record] of evidence.entries()) {
+        const snapshot = index === 0 ? item.serverSnapshot : item.hydratedSnapshot
+        assert.equal(record.ordinal, index + 1)
+        assert.equal(record.combinationKey, combinationKey)
+        assert.equal(record.phase, snapshot.capturePhase)
+        assert.equal(record.nonce, snapshot.captureNonce)
+        assert.equal(record.structureSha256, hash(Buffer.from(JSON.stringify(snapshotStructureProjection(snapshot)))))
+        assert.ok(record.path && record.sha256)
+        const bytes = await readFile(path.resolve(record.path))
+        assert.equal(hash(bytes), record.sha256)
+        const artifact = JSON.parse(bytes)
+        const artifactSnapshot = artifact.snapshot ?? artifact
+        for (const field of ['capturePhase', 'captureNonce', 'component', 'kind', 'nodes', 'sortedIds', 'rawMainHtml', 'rawTeleportHtml', 'mainHtml', 'teleportHtml', 'combinedHtml', 'mainHtmlSha256', 'teleportHtmlSha256', 'combinedSha256']) assert.deepEqual(artifactSnapshot[field], snapshot[field], `${combinationKey} artifact field ${field} must match snapshot`)
+      }
+    }
+  })
+
+  await writeFile('/tmp/d4-ssr-authentic-red-v3-summary.log', `${JSON.stringify({ exitCode: result.code, logPath, outputPath: capture.outputPath, subtests: 3 }, null, 2)}\n`)
 })
 
 test('bounded SSR hydration records have all three component actions and honest virtual row windows', async () => {
@@ -358,8 +403,7 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
     }],
     ['raw teleport only', forged => {
       const item = forged.ssrHydration.combinations[key]
-      item.serverSnapshot.rawTeleportHtml += '<script>diagnostic()</script>'
-      refreshHashes(item)
+      for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.rawTeleportHtml += '<span>raw-binding-probe</span>'
     }],
   ]
   for (const [label, mutate] of mutations) await assertBoundedMutationRejected(report, mutate, `bounded SSR validator must reject ${label}`, /SSR|hydration|snapshot|teleport|script|diagnostic|node/i)
