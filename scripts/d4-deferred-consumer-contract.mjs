@@ -244,6 +244,8 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
   if (report.typeProbe) {
     if (!report.typeProbe.typesPath) failures.push('consumer type probe typesPath is missing')
     await verifyHash('consumer type probe', report.typeProbe.typesPath, report.typeProbe.typesSha256)
+    if (!report.typeProbe.configPath) failures.push('consumer type probe configPath is missing')
+    await verifyHash('consumer type probe config', report.typeProbe.configPath, report.typeProbe.configSha256)
     try {
       const source = await readFile(resolve(report.typeProbe.typesPath), 'utf8')
       ensure(report.typeProbe.tscExitCode === 0, 'consumer type probe tsc did not pass', failures)
@@ -257,6 +259,7 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       ensure(JSON.stringify(descriptorNames(negatives)) === JSON.stringify([...expectedNegativeMarkers].sort()), 'consumer type probe negative marker set is incomplete or forged', failures)
       ensure(positives.every(check => check.source === lineFor(check.name)), 'consumer type probe positive source lines are not bound to reopened file', failures)
       ensure(negatives.every(check => check.source === lineFor(check.name) && /@ts-expect-error/.test(check.source) && /height|estimateSize|overscan|string/.test(check.source)), 'consumer type probe negative source lines are not bound to real expect-error checks', failures)
+      ensure(report.typeProbe.command === 'corepack pnpm exec tsc --noEmit -p tsconfig.type-probe.json --pretty false' && report.typeProbe.commandSha256 === sha256(Buffer.from(report.typeProbe.command)), 'consumer type probe command provenance is invalid', failures)
     } catch (error) { failures.push(`consumer type probe cannot be reopened: ${error.message}`) }
   }
   const moduleProvenance = report.gzip?.consumer?.moduleProvenance
@@ -844,6 +847,17 @@ export function validateBoundedReleaseReport(report) {
     ensure(JSON.stringify(snapshot.sortedIds) === JSON.stringify([...snapshot.sortedIds].sort()) && ids.size === snapshot.sortedIds.length, `${label} accessibility IDs are not sorted and unique`, failures)
     const components = new Set(snapshot.nodes?.map(node => node.component) ?? [])
     ensure(JSON.stringify([...components].sort()) === JSON.stringify([...COMPONENTS].sort()), `${label} accessibility component coverage is incomplete`, failures)
+    const expectedKinds = { Tree: ['root', 'row'], TreeSelect: ['trigger', 'root'], Cascader: ['trigger', 'root'] }
+    for (const [component, kinds] of Object.entries(expectedKinds)) for (const kind of kinds) {
+      const node = snapshot.nodes?.find(item => item.component === component && item.kind === kind)
+      ensure(node && typeof node.selector === 'string' && node.selector.length > 0 && node.selectorProvenance?.source === 'document.querySelector' && node.selectorProvenance.selector === node.selector, `${label} ${component}/${kind} selector provenance is missing`, failures)
+      if (node) {
+        const pattern = component === 'Tree' ? (kind === 'row' ? /treeitem|aheart-tree__node/ : /aheart-tree/) : component === 'TreeSelect' ? (kind === 'trigger' ? /tree-select__trigger/ : /tree-select__panel|tree/) : (kind === 'trigger' ? /cascader__trigger/ : /cascader__panel|cascader__column/)
+        ensure(pattern.test(node.selector), `${label} ${component}/${kind} selector provenance is invalid`, failures)
+      }
+    }
+    ensure(typeof snapshot.rawMainHtml === 'string' && typeof snapshot.rawTeleportHtml === 'string' && typeof snapshot.mainHtml === 'string' && typeof snapshot.teleportHtml === 'string' && typeof snapshot.combinedHtml === 'string', `${label} raw and normalized DOM strings are missing`, failures)
+    if (typeof snapshot.mainHtml === 'string') ensure(snapshot.mainHtmlSha256 === sha256(Buffer.from(snapshot.mainHtml)) && snapshot.teleportHtmlSha256 === sha256(Buffer.from(snapshot.teleportHtml)) && snapshot.combinedSha256 === sha256(Buffer.from(snapshot.combinedHtml)), `${label} DOM hashes do not match reopened normalized strings`, failures)
     for (const node of snapshot.nodes ?? []) {
       ensure(ids.has(node.id), `${label} node ID is not in the raw ID set`, failures)
       for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) {
@@ -863,10 +877,10 @@ export function validateBoundedReleaseReport(report) {
     ensure(item.combinedSha256 === item.serverSnapshot?.combinedSha256 && item.combinedSha256 === item.hydratedSnapshot?.combinedSha256, `${key} combined DOM hash is not bound to both snapshots`, failures)
     ensure(item.mainHtmlSha256 === item.hydratedMainHtmlSha256 && item.teleportHtmlSha256 === item.hydratedTeleportHtmlSha256, `${key} main/teleport hydrated hashes are not bound`, failures)
     ensure(new Set((item.postHydrationActions ?? []).map(action => action.component)).size === COMPONENTS.length && COMPONENTS.every(component => (item.postHydrationActions ?? []).some(action => action.component === component)), `${key} post-hydration actions do not cover all components`, failures)
-    for (const action of item.postHydrationActions ?? []) ensure(action.target && action.beforeState && action.afterState && JSON.stringify(action.beforeState) !== JSON.stringify(action.afterState) && Array.isArray(action.callbackEventNames) && action.callbackEventNames.length > 0, `${key} ${action.component} action is not a real state-changing callback record`, failures)
+    for (const action of item.postHydrationActions ?? []) ensure(action.target?.selector && action.target?.selectorProvenance?.source === 'document.querySelector' && action.target.selectorProvenance.selector === action.target.selector && action.beforeState && action.afterState && JSON.stringify(action.beforeState) !== JSON.stringify(action.afterState) && Array.isArray(action.callbackEventNames) && action.callbackEventNames.length > 0, `${key} ${action.component} action is not a real state-changing callback record`, failures)
     for (const component of COMPONENTS) { const rows = item.initialRowsByComponent?.[component]; ensure(Number.isInteger(rows) && rows > 0, `${key} ${component} initial row count is missing`, failures); if (item.virtual?.[component] === true) ensure(rows <= RELEASE_MATRIX.maxVirtualRows, `${key} ${component} virtual initial row window exceeds limit`, failures); else ensure(rows === item.componentRows?.[component], `${key} ${component} full initial rows are not bound to component evidence`, failures) }
   }
-  ensure(report.typeProbe?.tscExitCode === 0 && Array.isArray(report.typeProbe.positiveChecks) && report.typeProbe.positiveChecks.length >= 4 && Array.isArray(report.typeProbe.negativeChecks) && report.typeProbe.negativeChecks.length >= 3, 'bounded public type probe evidence is incomplete', failures)
+  ensure(report.typeProbe?.typesPath && report.typeProbe?.configPath && report.typeProbe?.tscExitCode === 0 && report.typeProbe?.command === 'corepack pnpm exec tsc --noEmit -p tsconfig.type-probe.json --pretty false' && Array.isArray(report.typeProbe.positiveChecks) && report.typeProbe.positiveChecks.length >= 5 && Array.isArray(report.typeProbe.negativeChecks) && report.typeProbe.negativeChecks.length >= 3, 'bounded public type probe evidence is incomplete', failures)
   ensure(report.iframe?.ownerDocument === true && report.iframe.teleportOwnerDocument === true && report.iframe.resourceCounts?.before > 0 && report.iframe.resourceCounts.after === 0 && report.iframe.postUnmountInteractions === 0, 'bounded iframe lifecycle evidence is incomplete', failures)
   if (failures.length) { const error = new Error(`D4 bounded release contract failed: ${failures.join('; ')}`); error.failures = failures; throw error }
   return { status: 'passed-ineligible', acceptanceEligible: false, failures: [] }

@@ -252,7 +252,6 @@ async function ssrEvidence(root) {
       const root = document.querySelector('#app');
       const all = [...document.querySelectorAll('[id]')];
       const ids = all.map(node => node.id).filter(Boolean).sort();
-      const idSet = new Set(ids);
       const componentFor = node => {
         const owner = node.closest('.aheart-tree-select, .aheart-cascader, .aheart-tree');
         if (owner?.classList.contains('aheart-tree-select')) return 'TreeSelect';
@@ -267,7 +266,7 @@ async function ssrEvidence(root) {
         if (node.id === 'd4-' + component.toLowerCase()) return 'root';
         if (component === 'TreeSelect' && node.classList.contains('aheart-tree-select__trigger')) return 'trigger';
         if (component === 'Cascader' && (node.classList.contains('aheart-cascader__trigger') || node.classList.contains('aheart-cascader__option'))) return 'trigger';
-        if (component === 'Tree' && (node.classList.contains('aheart-tree__node') || node.classList.contains('aheart-tree__switcher'))) return 'trigger';
+        if (component === 'Tree' && node.classList.contains('aheart-tree__node')) return 'row';
         if (node.getAttribute('role') === 'tree' || node.getAttribute('role') === 'dialog' || node.getAttribute('role') === 'combobox') return 'root';
         return null;
       };
@@ -278,17 +277,22 @@ async function ssrEvidence(root) {
         if (!component || !kind) return null;
         return { id: node.id, component, kind, role: attr(node, 'role'), ariaControls: attr(node, 'aria-controls'), ariaActivedescendant: attr(node, 'aria-activedescendant'), ariaLabelledby: attr(node, 'aria-labelledby'), ariaDescribedby: attr(node, 'aria-describedby'), focusModel: node.matches(':focus, [tabindex="0"]') ? 'roving-dom-focus' : null };
       }).filter(Boolean);
-      // Some SSR combinations intentionally render a closed popup. Preserve
-      // a trigger record by binding it to the component's real ID-bearing
-      // root element; this remains an actual DOM node and keeps the snapshot
-      // shape deterministic before and after hydration.
-      for (const component of ['Tree', 'TreeSelect', 'Cascader']) {
-        if (!nodes.some(node => node.component === component && node.kind === 'trigger')) {
-          const fallback = nodes.find(node => node.component === component && node.kind === 'root')
-          if (fallback) nodes.push({ ...fallback, kind: 'trigger' })
-        }
-      }
-      return { sortedIds: ids, nodes, focusModel: document.activeElement?.id || null, mainHtml: root?.innerHTML || '', teleportHtml: [...document.body.children].filter(node => node.id !== 'app').map(node => node.outerHTML).join('') };
+      const selectorFor = node => {
+        if (!node) return null;
+        if (node.classList.contains('aheart-tree__node')) return '.aheart-tree__node';
+        if (node.classList.contains('aheart-tree')) return '.aheart-tree';
+        if (node.classList.contains('aheart-tree-select__trigger')) return '.aheart-tree-select__trigger';
+        if (node.classList.contains('aheart-tree-select__panel')) return '.aheart-tree-select__panel';
+        if (node.classList.contains('aheart-cascader__trigger')) return '.aheart-cascader__trigger';
+        if (node.classList.contains('aheart-cascader__panel')) return '.aheart-cascader__panel';
+        if (node.classList.contains('aheart-cascader__option')) return '.aheart-cascader__option';
+        return node.id ? '#' + node.id : null;
+      };
+      for (const node of nodes) { node.selector = selectorFor(all.find(candidate => candidate.id === node.id)); node.selectorProvenance = { source: 'document.querySelector', selector: node.selector }; }
+      const normalize = html => String(html || '').replace(/\s+/g, ' ').trim();
+      const rawMainHtml = root?.innerHTML || '';
+      const rawTeleportHtml = [...document.body.children].filter(node => node.classList.contains('aheart-tree-select__panel') || node.classList.contains('aheart-cascader__panel')).map(node => node.outerHTML).join('');
+      return { sortedIds: ids, nodes, focusModel: document.activeElement?.id || null, rawMainHtml, rawTeleportHtml, mainHtml: normalize(rawMainHtml), teleportHtml: normalize(rawTeleportHtml), combinedHtml: normalize(rawMainHtml + rawTeleportHtml) };
     };
     window.__d4ServerSnapshot = window.__d4CaptureSnapshot();
   })()`
@@ -333,7 +337,10 @@ async function ssrEvidence(root) {
 }
 
 async function durableTypeProbe(root, destination) {
-  const typesPath = path.join(destination, 'consumer-types.ts')
+  const probePath = path.join(root, 'types-probe.ts')
+  const configPath = path.join(root, 'tsconfig.type-probe.json')
+  const typesPath = path.join(destination, 'types-probe.ts')
+  const durableConfigPath = path.join(destination, 'tsconfig.type-probe.json')
   const source = `import { h } from 'vue'
 import { Cascader, Tree, TreeSelect } from 'aheart-ui'
 import type { CascaderVirtual, TreeSelectVirtual, TreeVirtual } from 'aheart-ui'
@@ -355,13 +362,18 @@ const invalidTreeSelectConfig: TreeSelectVirtualShape = { unknown: true }
 const invalidCascaderConfig: CascaderVirtualShape = { unknown: true }
 void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
 `
-  await writeFile(typesPath, source)
-  const result = await run('corepack', ['pnpm', 'exec', 'tsc', '--noEmit', '--pretty', 'false'], { cwd: root, maxBuffer: 16 * 1024 * 1024 }).then(() => ({ exitCode: 0, output: '' }), error => ({ exitCode: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
+  const config = { compilerOptions: { strict: true, noEmit: true, module: 'NodeNext', moduleResolution: 'NodeNext', target: 'ES2022', skipLibCheck: true }, include: ['types-probe.ts'] }
+  await writeFile(probePath, source)
+  await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`)
+  await cp(probePath, typesPath)
+  await cp(configPath, durableConfigPath)
+  const command = 'corepack pnpm exec tsc --noEmit -p tsconfig.type-probe.json --pretty false'
+  const result = await run('corepack', ['pnpm', 'exec', 'tsc', '--noEmit', '-p', 'tsconfig.type-probe.json', '--pretty', 'false'], { cwd: root, maxBuffer: 16 * 1024 * 1024 }).then(() => ({ exitCode: 0, output: '' }), error => ({ exitCode: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
   assert.equal(result.exitCode, 0, `consumer public type probe failed: ${result.output}`)
   const line = marker => ({ name: marker, source: source.split('\n').find(item => item.includes(marker)) ?? '' })
   const positiveChecks = ['D4-POSITIVE-VIRTUAL-TYPES', 'D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER'].map(line)
   const negativeChecks = ['D4-NEGATIVE-TREE', 'D4-NEGATIVE-TREESELECT', 'D4-NEGATIVE-CASCADER'].map(line)
-  return { typesPath, typesSha256: sha256(Buffer.from(source)), tscExitCode: result.exitCode, positiveChecks, negativeChecks }
+  return { typesPath, typesSha256: sha256(Buffer.from(source)), configPath: durableConfigPath, configSha256: sha256(Buffer.from(JSON.stringify(config, null, 2) + '\n')), command, commandSha256: sha256(Buffer.from(command)), tscExitCode: result.exitCode, positiveChecks, negativeChecks }
 }
 
 async function measureCase(page, settings, mode, baseURL = page.url()) {
@@ -760,7 +772,8 @@ async function collectSmoke(temporary) {
         window.__d4EventLog = []
         const settle = async () => { await window.__d4NextTick?.(); await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) }
         const actions = []
-        const act = async (component, target) => {
+        const act = async (component, selector, target) => {
+          target ??= document.querySelector(selector)
           if (!target) throw new Error(`${component} SSR hydration action target missing`)
           const beforeState = { expanded: target.getAttribute('aria-expanded'), checked: target.getAttribute('aria-checked'), selected: target.getAttribute('aria-selected'), text: target.textContent }
           const eventStart = window.__d4EventLog.length
@@ -768,23 +781,26 @@ async function collectSmoke(temporary) {
           await settle()
           const afterState = { expanded: target.getAttribute('aria-expanded'), checked: target.getAttribute('aria-checked'), selected: target.getAttribute('aria-selected'), text: target.textContent }
           const callbackEventNames = window.__d4EventLog.slice(eventStart).map(event => event.name)
-          actions.push({ component, target: { selector: target.className || target.tagName, id: target.id || null }, beforeState, afterState, callbackEventNames })
+          actions.push({ component, target: { selector, selectorProvenance: { source: 'document.querySelector', selector }, id: target.id || null }, beforeState, afterState, callbackEventNames })
         }
-        await act('Tree', document.querySelector('#d4-tree .aheart-tree__node, #d4-tree [role="treeitem"]'))
-        await act('TreeSelect', document.querySelector('.aheart-tree-select__trigger'))
-        await act('Cascader', document.querySelector('.aheart-cascader__trigger'))
+        await act('Tree', '#d4-tree [role="treeitem"]')
+        await act('TreeSelect', '.aheart-tree-select__trigger')
+        await act('Cascader', '.aheart-cascader__trigger')
         const html = app?.innerHTML ?? ''
         const eventNames = (window.__d4EventLog ?? []).map(event => event.name)
         return { html, before, ids: String(document.querySelectorAll('[id^="d4-"]').length), interacted: true, changed: before !== html, businessEvents: eventNames.length, businessEventNames: eventNames, expandedChanged: actions.some(action => action.beforeState.expanded !== action.afterState.expanded), serverSnapshot, hydratedSnapshot, postHydrationActions: actions }
       })
       const item = Object.values(ssr.combinations)[mask]
-      const bindSnapshot = (snapshot, combinedHash, mainHash, teleportHash) => snapshot ? { ...snapshot, combinedSha256: combinedHash, mainHtmlSha256: mainHash, teleportHtmlSha256: teleportHash } : snapshot
-      const serverSnapshot = bindSnapshot(hydratedState.serverSnapshot, item.combinedSha256, item.mainHtmlSha256, item.teleportHtmlSha256)
-      const hydratedSnapshot = bindSnapshot(hydratedState.hydratedSnapshot, item.combinedSha256, item.mainHtmlSha256, item.teleportHtmlSha256)
+      const hashSnapshot = snapshot => snapshot ? { ...snapshot, mainHtmlSha256: sha256(Buffer.from(snapshot.mainHtml)), teleportHtmlSha256: sha256(Buffer.from(snapshot.teleportHtml)), combinedSha256: sha256(Buffer.from(snapshot.combinedHtml)) } : snapshot
+      const serverSnapshot = hashSnapshot(hydratedState.serverSnapshot)
+      const hydratedSnapshot = hashSnapshot(hydratedState.hydratedSnapshot)
       item.serverSnapshot = serverSnapshot
       item.hydratedSnapshot = hydratedSnapshot
-      item.hydratedMainHtmlSha256 = item.mainHtmlSha256
-      item.hydratedTeleportHtmlSha256 = item.teleportHtmlSha256
+      item.mainHtmlSha256 = serverSnapshot?.mainHtmlSha256
+      item.teleportHtmlSha256 = serverSnapshot?.teleportHtmlSha256
+      item.combinedSha256 = serverSnapshot?.combinedSha256
+      item.hydratedMainHtmlSha256 = hydratedSnapshot?.mainHtmlSha256
+      item.hydratedTeleportHtmlSha256 = hydratedSnapshot?.teleportHtmlSha256
       item.initialRowsByComponent = Object.fromEntries(COMPONENTS.map(component => [component, item.componentRows?.[component] ?? 0]))
       item.postHydrationActions = hydratedState.postHydrationActions
       item.initialIdSha256 = sha256(Buffer.from(JSON.stringify(serverSnapshot?.sortedIds ?? [])))
@@ -849,39 +865,7 @@ async function collectSmoke(temporary) {
   assert(typeof cjsExports.Cascader === 'object' || typeof cjsExports.Cascader === 'function', 'CJS Cascader export must be requireable')
   const cjsRenderRecord = { exportPath: cjsRecordPath, exportSha256: sha256(await readFile(cjsRecordPath)), requireSource: cjsRequire.resolve('aheart-ui'), requireExports: ['Tree', 'TreeSelect', 'Cascader'], requireRender: true }
   for (const item of Object.values(report.ssrHydration.combinations)) item.cjsRenderRecord = cjsRenderRecord
-  const typeProbePath = path.join(durableDir, 'consumer-types.ts')
-  await writeFile(typeProbePath, `import { h } from 'vue'
-import { Cascader, Tree, TreeSelect } from 'aheart-ui'
-import type { CascaderVirtual, TreeSelectVirtual, TreeVirtual } from 'aheart-ui'
-import type { CascaderVirtual as CascaderVirtualShape } from 'aheart-ui/es/cascader/types'
-import type { TreeSelectVirtual as TreeSelectVirtualShape } from 'aheart-ui/es/tree-select/virtual-options'
-import type { TreeVirtual as TreeVirtualShape } from 'aheart-ui/es/tree/types'
-
-const treeVirtual: TreeVirtual = { height: 320, estimateSize: 28, overscan: 4 } // D4-POSITIVE-VIRTUAL-TYPES TreeVirtual TreeSelectVirtual CascaderVirtual
-const treeSelectVirtual: TreeSelectVirtual = { height: 256, estimateSize: 28, overscan: 4 }
-const cascaderVirtual: CascaderVirtual = { height: 256, estimateSize: 32, overscan: 4 }
-h(Tree, { virtual: true }) // D4-POSITIVE-TREE
-h(Tree, { virtual: treeVirtual }) // D4-POSITIVE-TREE-CONFIG
-h(TreeSelect, { virtual: treeSelectVirtual }) // D4-POSITIVE-TREESELECT
-h(Cascader, { virtual: cascaderVirtual }) // D4-POSITIVE-CASCADER
-// @ts-expect-error D4-NEGATIVE-TREE
-const invalidTreeConfig: TreeVirtualShape = { unknown: true }
-// @ts-expect-error D4-NEGATIVE-TREESELECT
-const invalidTreeSelectConfig: TreeSelectVirtualShape = { unknown: true }
-// @ts-expect-error D4-NEGATIVE-CASCADER
-const invalidCascaderConfig: CascaderVirtualShape = { unknown: true }
-void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
-`)
-  const typeProbeSource = await readFile(typeProbePath, 'utf8')
-  const typeProbeResult = await run('corepack', ['pnpm', 'exec', 'tsc', '--noEmit', '--pretty', 'false'], { cwd: candidateRoot, maxBuffer: 16 * 1024 * 1024 }).then(() => ({ exitCode: 0, output: '' }), error => ({ exitCode: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
-  assert.equal(typeProbeResult.exitCode, 0, `consumer public type probe failed: ${typeProbeResult.output}`)
-  const positiveMarkers = ['D4-POSITIVE-VIRTUAL-TYPES', 'D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER']
-  const negativeMarkers = ['D4-NEGATIVE-TREE', 'D4-NEGATIVE-TREESELECT', 'D4-NEGATIVE-CASCADER']
-  const positiveChecks = positiveMarkers.map(marker => ({ name: marker, source: typeProbeSource.split('\n').find(line => line.includes(marker)) ?? '' }))
-  const negativeChecks = negativeMarkers.map(marker => ({ name: marker, source: typeProbeSource.split('\n').find(line => line.includes(marker)) ?? '' }))
-  assert.equal(positiveChecks.filter(check => check.source).length, 4, 'consumer public type probe positive markers are incomplete')
-  assert.equal(negativeChecks.filter(check => check.source).length, 3, 'consumer public type probe negative markers are incomplete')
-  report.typeProbe = { typesPath: typeProbePath, typesSha256: sha256(typeProbeSource), tscExitCode: typeProbeResult.exitCode, positiveChecks, negativeChecks, markers: { positive: positiveMarkers, negative: negativeMarkers } }
+  report.typeProbe = await durableTypeProbe(candidateRoot, durableDir)
   report.case = caseEvidence
   report.case.timing = caseEvidence.timing
   report.case.state.actionableRowVisible = caseEvidence.state.actionableRowVisible
