@@ -77,7 +77,6 @@ export function componentProps(component, count, rowMode, virtual, treeScenario 
 export function createConsumerApp(settings) {
   const Component = settings.component === 'Tree' ? Tree : settings.component === 'TreeSelect' ? TreeSelect : Cascader
   const props = componentProps(settings.component, settings.count, settings.rowMode, settings.virtual, settings.treeScenario, settings.treeSelectScenario)
-  if (settings.component === 'Cascader' && typeof window !== 'undefined') window.__d4LoadData = props.loadData
   return { render: () => h(Component, { id: `d4-${settings.component.toLowerCase()}`, ...props }) }
 }
 

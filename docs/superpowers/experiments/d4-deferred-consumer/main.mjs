@@ -21,21 +21,6 @@ window.__d4EventLog = []
 window.__d4FixtureEvidence = fixtureEvidence(settings.count, settings.rowMode, settings.treeScenario)
 document.addEventListener('keydown', event => window.__d4EventLog.push({ name: 'keyboard', key: event.key, timestamp: performance.now() }), { capture: true })
 const app = createApp(createConsumerApp(settings))
-window.__d4RunLazyScenario = async () => {
-  const beforeLazyEvents = window.__d4EventLog ?? []
-  window.__d4EventLog = []
-  window.__d4LazyAttempts = {}
-  const loader = window.__d4LoadData
-  if (!loader) return
-  const option = { value: 'lazy-root', label: 'Lazy root', isLeaf: false }
-  try { await loader(option, { signal: new AbortController().signal }) } catch {}
-  try { await loader(option, { signal: new AbortController().signal }) } catch {}
-  const controller = new AbortController()
-  const pending = loader({ value: 'lazy-cancel', label: 'Lazy cancel', isLeaf: false }, { signal: controller.signal })
-  setTimeout(() => controller.abort(), 10)
-  await pending.catch(() => {})
-  window.__d4EventLog = [...beforeLazyEvents, ...(window.__d4EventLog ?? [])]
-}
 app.mount('#app')
 window.__d4Unmount = () => app.unmount()
 window.__d4Ready = true
