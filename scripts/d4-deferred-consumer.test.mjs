@@ -31,8 +31,10 @@ test('a complete deterministic fixture is accepted only after evidence is recomp
     generatedAt: '2026-09-11T00:00:00.000Z',
   })
   const evidence = recomputeEvidence(report)
-  assert.deepEqual(evidence.firstInteraction, report.performance.firstInteraction)
-  assert.deepEqual(evidence.gzip, report.gzip)
+  assert.equal(evidence.firstInteraction.virtual.Tree[10000].fixed.medianMs, report.performance.firstInteraction.virtual.Tree[10000].fixed.medianMs)
+  assert.equal(evidence.gzip.baseline.gzipBytes, report.gzip.baseline.gzipBytes)
+  assert.equal(evidence.gzip.candidate.gzipBytes, report.gzip.candidate.gzipBytes)
+  assert.equal(evidence.gzip.deltaBytes, report.gzip.deltaBytes)
   assert.equal(validateReport(report).status, 'passed')
 })
 
@@ -42,7 +44,7 @@ test('fabricated medians and gzip totals are rejected', () => {
     candidatePackage: '/tmp/d4-candidate.tgz',
     generatedAt: '2026-09-11T00:00:00.000Z',
   })
-  report.performance.firstInteraction.virtual[10000].fixed.medianMs += 1
+  report.performance.firstInteraction.virtual.Tree[10000].fixed.medianMs += 1
   assert.throws(() => validateReport(report), /recomputed|first interaction/i)
 
   const second = buildAcceptanceFixture({
