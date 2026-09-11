@@ -374,6 +374,14 @@ test('collector resolves its workspace root to the repository and avoids docs/do
   assert.doesNotMatch(source, /path\.join\(workspace,\s*['"]docs\/docs\//, 'collector default output must not contain docs/docs')
 })
 
+test('full and preflight collection share artifact preparation/report-shell helpers', async () => {
+  const source = await deferredCollectorSource()
+  assert.match(source, /export async function prepareFullArtifactBindings\(/, 'collector must expose the shared artifact preparation helper')
+  assert.match(source, /export function buildFullReportShell\(/, 'collector must expose the shared full report shell helper')
+  assert.ok((source.match(/prepareFullArtifactBindings\(/g) ?? []).length >= 3, 'full and preflight paths must reuse artifact preparation')
+  assert.ok((source.match(/buildFullReportShell\(/g) ?? []).length >= 3, 'full and preflight paths must reuse the report shell')
+})
+
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
   const source = await deferredCollectorSource()
   const fullBranch = source.slice(source.indexOf('\n} else {'))
@@ -387,6 +395,13 @@ test('collectSide browser launch/page failures must close Firefox and WebKit in 
   const source = await deferredCollectorSource()
   const browserLoop = source.slice(source.indexOf("for (const [name, Browser] of Object.entries({ firefox, webkit }))"))
   assert.match(browserLoop, /try\s*\{[\s\S]*Browser\.launch\(\)[\s\S]*finally\s*\{[\s\S]*await other\.close\(\)/, 'each Firefox/WebKit probe must close its browser even when launch/page/navigation fails')
+})
+
+test('preflight candidate-build failure injection preserves raw checkpoints and cleanup counters', async () => {
+  const source = await deferredCollectorSource()
+  assert.match(source, /D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD/, 'candidate-build failure injection must be testable without benchmark execution')
+  assert.match(source, /partial\.failureEvidence[\s\S]*candidate/i, 'partial failure must retain candidate build/module/lock evidence')
+  assert.match(source, /cleanupCounters|browser.*close|server.*close/i, 'preflight failure must report cleanup counters')
 })
 
 test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {
