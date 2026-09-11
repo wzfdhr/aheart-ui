@@ -88,6 +88,11 @@ must be a clean real tarball with no symlink, workspace protocol or `@fs`
 artifact. The gzip section uses Node `gzipSync(..., { level: 9 })` over every
 listed emitted JS/CSS file and stores raw/gzip bytes and hashes for each file.
 
+The only approved baseline commit is
+`4a7511f9594d0a74906e427e158d02343ba33a22`. The collector has no historical
+baseline fallback: provide an explicit tarball and clean/hash manifest made
+from that commit.
+
 The contract tests are pure Node tests:
 
 ```sh
