@@ -491,7 +491,7 @@ test('real bounded Cascader family coverage preserves deep columns, search paths
   assert.equal(expectedPaths.length, 10000)
   assert.deepEqual(scenario.search.matchedPaths, expectedPaths)
   assert.ok(scenario.search.visibleFirst && scenario.search.visibleTail)
-  assert.ok(scenario.search.matchedPaths.includes(scenario.search.visibleTail.path))
+  assert.ok(scenario.search.matchedPaths.some(pathValue => pathValue.length === scenario.search.visibleTail.path.length && pathValue.every((segment, index) => segment === scenario.search.visibleTail.path[index])))
   assert.deepEqual(scenario.search.visibleTail.path, scenario.search.matchedPaths.at(-1))
   assert.equal(scenario.search.pathHash, hash(Buffer.from(expectedPaths.map(pathValue => pathValue.join('/')).join('\n'))))
   assert.deepEqual(scenario.lazy.events.map(event => event.name), ['pending', 'error', 'pending', 'retry', 'resolve', 'pending', 'cancel', 'late-resolve-stale-ignored'])
