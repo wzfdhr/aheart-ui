@@ -311,7 +311,8 @@ test('real bounded lock fingerprint must be reopened from the durable lock artif
   await assert.rejects(() => verifyArtifactBindings(forged), /lock fingerprint before\/after mismatch/)
 })
 
-test('real preflight-full runs both artifact sides without benchmark and saves a strict durable report', async () => {
+let preflightCollection
+const collectPreflightReport = () => preflightCollection ??= (async () => {
   const collectorPath = path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs')
   const collectorSource = await readFile(collectorPath, 'utf8')
   assert.match(collectorSource, /preflight-full/, 'collector must expose the preflight-full API before this integration can run')
@@ -328,6 +329,11 @@ test('real preflight-full runs both artifact sides without benchmark and saves a
   const result = await run(process.execPath, [collectorPath, '--preflight-full', '--baseline-tarball', baseline, '--candidate-tarball', candidate, '--baseline-commit', approvedBaseline, '--candidate-commit', candidateCommit, '--baseline-manifest', baselineManifest, '--candidate-manifest', candidateManifest, '--out', output], { cwd: workspace, maxBuffer: 8 * 1024 * 1024 })
   assert.equal(result.code ?? 0, 0)
   const report = JSON.parse(await readFile(output, 'utf8'))
+  return { collectorPath, root, output, report }
+})()
+
+test('real preflight-full runs both artifact sides without benchmark and saves a strict durable report', async () => {
+  const { output, report } = await collectPreflightReport()
   assert.equal(report.preflight, true)
   assert.equal(report.smoke, false)
   assert.equal(report.acceptanceEligible, false)
@@ -342,9 +348,75 @@ test('real preflight-full runs both artifact sides without benchmark and saves a
   assert.doesNotThrow(() => contract.validateFullPreflightReport(report))
 })
 
+test('preflight validator rejects any benchmark execution marker or non-empty benchmark evidence', async () => {
+  const { report } = await collectPreflightReport()
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  await contract.validateFullPreflightReport(report)
+  for (const mutate of [
+    forged => { forged.benchmarkExecuted = true },
+    forged => { forged.performance = { status: 'executed', cases: {}, firstInteraction: { full: {}, virtual: {} } } },
+    forged => { forged.cases = { injected: { raw: true } } },
+    forged => { forged.browsers = { chromium: { status: 'executed' } } },
+  ]) {
+    const forged = structuredClone(report)
+    mutate(forged)
+    await assert.rejects(() => contract.validateFullPreflightReport(forged), /benchmarkExecuted|notRun|cases|browsers|benchmark/i)
+  }
+})
+
+test('shared full report shell binds tarball provenance and gzip module paths to both package sides', async () => {
+  const { report } = await collectPreflightReport()
+  assert.equal(report.provenance.baselineTarballSha256, report.packages.baseline.sha256)
+  assert.equal(report.provenance.candidateTarballSha256, report.packages.candidate.sha256)
+  assert.equal(report.gzip.consumer.moduleProvenance.baseline.path, report.packages.baseline.modulePath)
+  assert.equal(report.gzip.consumer.moduleProvenance.candidate.path, report.packages.candidate.modulePath)
+  assert.equal(report.gzip.consumer.moduleProvenance.baseline.sha256, report.packages.baseline.afterHashes['es/index.js'])
+  assert.equal(report.gzip.consumer.moduleProvenance.candidate.sha256, report.packages.candidate.afterHashes['es/index.js'])
+  assert.match(report.gzip.consumer.moduleProvenance.baseline.path, /baseline-module-index\.js/)
+  assert.match(report.gzip.consumer.moduleProvenance.candidate.path, /module-index\.js/)
+})
+
+test('preflight browser launch/page/setup failure hooks expose real close counters', async () => {
+  const { report } = await collectPreflightReport()
+  assert.ok(report.cleanupCounters?.baseline && report.cleanupCounters?.candidate)
+  for (const side of ['baseline', 'candidate']) {
+    assert.ok(report.cleanupCounters[side].chromiumClose > 0)
+    assert.ok(report.cleanupCounters[side].previewServerClose > 0)
+  }
+  const source = await readFile(path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
+  for (const flag of ['D4_DEFERRED_FAIL_BROWSER_LAUNCH', 'D4_DEFERRED_FAIL_BROWSER_PAGE', 'D4_DEFERRED_FAIL_BROWSER_SETUP']) assert.match(source, new RegExp(`${flag}.*chromium`))
+})
+
 test('preflight candidate-build failure preserves durable partial raw/checkpoint evidence after temporary cleanup', async () => {
   const collectorPath = path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs')
   const collectorSource = await readFile(collectorPath, 'utf8')
   assert.match(collectorSource, /D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD/, 'preflight must expose the candidate-build failure injection')
-  assert.match(collectorSource, /cleanupCounters|browser.*close|server.*close/i)
+  const root = await mkdtemp(path.join(tmpdir(), 'd4-preflight-failure-red-'))
+  const candidate = await packCurrent(root)
+  const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
+  const baselineBytes = await readFile(baseline)
+  const candidateBytes = await readFile(candidate)
+  const baselineManifest = path.join(root, 'baseline-manifest.json')
+  const candidateManifest = path.join(root, 'candidate-manifest.json')
+  await writeFile(baselineManifest, JSON.stringify({ clean: true, commit: approvedBaseline, tarballSha256: hash(baselineBytes) }))
+  await writeFile(candidateManifest, JSON.stringify({ clean: true, commit: candidateCommit, tarballSha256: hash(candidateBytes) }))
+  const output = path.join(root, 'preflight-failure.json')
+  const result = await run(process.execPath, [collectorPath, '--preflight-full', '--baseline-tarball', baseline, '--candidate-tarball', candidate, '--baseline-commit', approvedBaseline, '--candidate-commit', candidateCommit, '--baseline-manifest', baselineManifest, '--candidate-manifest', candidateManifest, '--out', output], { cwd: workspace, env: { ...process.env, D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD: '1' }, maxBuffer: 8 * 1024 * 1024 }).then(() => ({ code: 0 }), error => ({ code: error.code ?? 1 }))
+  assert.notEqual(result.code, 0, 'candidate-build failure injection must exit non-zero')
+  const partial = JSON.parse(await readFile(output, 'utf8'))
+  assert.equal(partial.preflight, true)
+  assert.equal(partial.failureEvidence?.candidate, true)
+  assert.ok(partial.checkpoints?.some(checkpoint => checkpoint.rawPayloadHash && checkpoint.rawPayload))
+  assert.ok(partial.cleanupCounters?.browserClosed > 0 && partial.cleanupCounters?.serversClosed > 0)
+  const artifactDirectory = `${output}.artifacts`
+  for (const name of ['baseline.tgz', 'candidate.tgz', 'baseline-manifest.json', 'candidate-manifest.json', 'module-index.js', 'pnpm-lock.yaml', 'dist-files.json', 'partial-report.json']) assert.ok((await stat(path.join(artifactDirectory, name))).isFile(), `durable failure artifact missing: ${name}`)
+  assert.ok((await stat(`${output}.run/partial-report.json`)).isFile())
+  assert.notEqual(partial.temporaryDirectory, true)
+})
+
+test('preflight browser launch/page/setup failure injections report actual close counters', async () => {
+  const collectorPath = path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs')
+  const source = await readFile(collectorPath, 'utf8')
+  for (const flag of ['D4_DEFERRED_FAIL_BROWSER_LAUNCH', 'D4_DEFERRED_FAIL_BROWSER_PAGE', 'D4_DEFERRED_FAIL_BROWSER_SETUP']) assert.match(source, new RegExp(flag))
+  assert.match(source, /cleanupCounters\.[A-Za-z]+\s*\+\+|cleanupCounters\.[A-Za-z]+\s*=/)
 })
