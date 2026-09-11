@@ -47,6 +47,10 @@ const median = values => {
   return sorted[Math.floor(sorted.length / 2)]
 }
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
+const snapshotStructureProjection = snapshot => {
+  const { capturePhase: _capturePhase, captureNonce: _captureNonce, ...structure } = snapshot ?? {}
+  return structure
+}
 const json = value => JSON.stringify(value)
 
 async function durableFileManifest(directory, destination) {
@@ -261,6 +265,23 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       ensure(negatives.every(check => check.source === lineFor(check.name) && /@ts-expect-error/.test(check.source) && /height|estimateSize|overscan|string/.test(check.source)), 'consumer type probe negative source lines are not bound to real expect-error checks', failures)
       ensure(report.typeProbe.command === 'corepack pnpm exec tsc --noEmit -p tsconfig.type-probe.json --pretty false' && report.typeProbe.commandSha256 === sha256(Buffer.from(report.typeProbe.command)), 'consumer type probe command provenance is invalid', failures)
     } catch (error) { failures.push(`consumer type probe cannot be reopened: ${error.message}`) }
+  }
+  const requiresSnapshotArtifacts = String(report?.runId ?? '').startsWith('bounded-') && report?.releaseFormat?.validatorName === 'validateBoundedReleaseReport'
+  for (const [combinationKey, item] of requiresSnapshotArtifacts ? Object.entries(report.ssrHydration?.combinations ?? {}) : []) {
+    const evidence = item.captureEvidence
+    if (!Array.isArray(evidence) || evidence.length !== 2) { failures.push(`${combinationKey} capture artifact evidence must contain two records`); continue }
+    for (const [index, record] of evidence.entries()) {
+      const snapshot = index === 0 ? item.serverSnapshot : item.hydratedSnapshot
+      try {
+        ensure(record.ordinal === index + 1 && record.combinationKey === combinationKey && record.phase === snapshot?.capturePhase && record.nonce === snapshot?.captureNonce, `${combinationKey} capture artifact metadata does not bind snapshot`, failures)
+        const bytes = await readFile(resolve(record.path))
+        ensure(sha256(bytes) === record.sha256, `${combinationKey} capture artifact hash mismatch`, failures)
+        const payload = JSON.parse(bytes)
+        const artifactSnapshot = payload.snapshot ?? payload
+        ensure(JSON.stringify(artifactSnapshot) === JSON.stringify(snapshot), `${combinationKey} capture artifact snapshot mismatch`, failures)
+        ensure(record.structureSha256 === sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(snapshot)))), `${combinationKey} capture artifact structure hash mismatch`, failures)
+      } catch (error) { failures.push(`${combinationKey} capture artifact cannot be reopened: ${error.message}`) }
+    }
   }
   const moduleProvenance = report.gzip?.consumer?.moduleProvenance
   const moduleProvenanceSha256 = report.gzip?.consumer?.moduleProvenanceSha256
@@ -847,17 +868,26 @@ export function validateBoundedReleaseReport(report) {
     ensure(JSON.stringify(snapshot.sortedIds) === JSON.stringify([...snapshot.sortedIds].sort()) && ids.size === snapshot.sortedIds.length, `${label} accessibility IDs are not sorted and unique`, failures)
     const components = new Set(snapshot.nodes?.map(node => node.component) ?? [])
     ensure(JSON.stringify([...components].sort()) === JSON.stringify([...COMPONENTS].sort()), `${label} accessibility component coverage is incomplete`, failures)
+    ensure(snapshot.nodes?.length === 6, `${label} snapshot node count must be six`, failures)
+    ensure(JSON.stringify((snapshot.nodes ?? []).map(node => `${node.component}/${node.kind}`).sort()) === JSON.stringify(['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger']), `${label} snapshot component.kind identity set is not unique`, failures)
     const expectedKinds = { Tree: ['root', 'row'], TreeSelect: ['trigger', 'root'], Cascader: ['trigger', 'root'] }
     for (const [component, kinds] of Object.entries(expectedKinds)) for (const kind of kinds) {
       const node = snapshot.nodes?.find(item => item.component === component && item.kind === kind)
-      ensure(node && typeof node.selector === 'string' && node.selector.length > 0 && node.selectorProvenance?.source === 'document.querySelector' && node.selectorProvenance.selector === node.selector, `${label} ${component}/${kind} selector provenance is missing`, failures)
+      ensure(node && typeof node.selector === 'string' && node.selector.length > 0 && node.selectorProvenance?.source === 'document.querySelector' && node.selectorProvenance.selector === node.selector && node.selectorMatchCount === 1 && node.selectorResolved === true, `${label} ${component}/${kind} selector match count must be one and selector must resolve`, failures)
       if (node) {
         const pattern = component === 'Tree' ? (kind === 'row' ? /treeitem|aheart-tree__node/ : /aheart-tree/) : component === 'TreeSelect' ? (kind === 'trigger' ? /tree-select__trigger/ : /tree-select__panel|tree/) : (kind === 'trigger' ? /cascader__trigger/ : /cascader__panel|cascader__column/)
-        ensure(pattern.test(node.selector), `${label} ${component}/${kind} selector provenance is invalid`, failures)
+        ensure(pattern.test(node.selector), `${label} ${component}/${kind} selector component pattern/identity mismatch`, failures)
       }
     }
     ensure(typeof snapshot.rawMainHtml === 'string' && typeof snapshot.rawTeleportHtml === 'string' && typeof snapshot.mainHtml === 'string' && typeof snapshot.teleportHtml === 'string' && typeof snapshot.combinedHtml === 'string', `${label} raw and normalized DOM strings are missing`, failures)
+    const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
+    ensure(snapshot.mainHtml === normalize(snapshot.rawMainHtml), `${label} normalize.rawMainHtml mismatch`, failures)
+    ensure(snapshot.teleportHtml === normalize(snapshot.rawTeleportHtml), `${label} normalize.rawTeleportHtml mismatch`, failures)
+    ensure(!/<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i.test(snapshot.rawMainHtml), `${label} raw main HTML contains diagnostic script pollution`, failures)
+    ensure(!/<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i.test(snapshot.rawTeleportHtml), `${label} raw teleport HTML contains diagnostic script pollution`, failures)
+    ensure(snapshot.combinedHtml === normalize(snapshot.rawMainHtml + snapshot.rawTeleportHtml), `${label} combined normalized DOM mismatch`, failures)
     if (typeof snapshot.mainHtml === 'string') ensure(snapshot.mainHtmlSha256 === sha256(Buffer.from(snapshot.mainHtml)) && snapshot.teleportHtmlSha256 === sha256(Buffer.from(snapshot.teleportHtml)) && snapshot.combinedSha256 === sha256(Buffer.from(snapshot.combinedHtml)), `${label} DOM hashes do not match reopened normalized strings`, failures)
+    ensure((snapshot.capturePhase === 'server-before-hydration' || snapshot.capturePhase === 'hydrated-after-mount') && typeof snapshot.captureNonce === 'string' && snapshot.captureNonce.length > 0, `${label} capture phase/nonce is missing`, failures)
     for (const node of snapshot.nodes ?? []) {
       if (node.id == null) ensure(node.component === 'Cascader' && node.kind === 'trigger' && node.selector === '.aheart-cascader__trigger', `${label} id-less node is not the actual Cascader trigger`, failures)
       else ensure(ids.has(node.id), `${label} node ID is not in the raw ID set`, failures)
@@ -874,7 +904,8 @@ export function validateBoundedReleaseReport(report) {
   for (const [key, item] of Object.entries(report.ssrHydration?.combinations ?? {})) {
     validateAccessibilitySnapshot(item.serverSnapshot, `${key} server`)
     validateAccessibilitySnapshot(item.hydratedSnapshot, `${key} hydrated`)
-    ensure(JSON.stringify(item.serverSnapshot) === JSON.stringify(item.hydratedSnapshot), `${key} server/hydrated accessibility snapshots differ`, failures)
+    ensure(JSON.stringify(snapshotStructureProjection(item.serverSnapshot)) === JSON.stringify(snapshotStructureProjection(item.hydratedSnapshot)), `${key} server/hydrated accessibility structures differ`, failures)
+    ensure(item.serverSnapshot?.capturePhase === 'server-before-hydration' && item.hydratedSnapshot?.capturePhase === 'hydrated-after-mount' && item.serverSnapshot?.captureNonce !== item.hydratedSnapshot?.captureNonce, `${key} server/hydrated captures are not independent`, failures)
     ensure(item.combinedSha256 === item.serverSnapshot?.combinedSha256 && item.combinedSha256 === item.hydratedSnapshot?.combinedSha256, `${key} combined DOM hash is not bound to both snapshots`, failures)
     ensure(item.mainHtmlSha256 === item.hydratedMainHtmlSha256 && item.teleportHtmlSha256 === item.hydratedTeleportHtmlSha256, `${key} main/teleport hydrated hashes are not bound`, failures)
     ensure(new Set((item.postHydrationActions ?? []).map(action => action.component)).size === COMPONENTS.length && COMPONENTS.every(component => (item.postHydrationActions ?? []).some(action => action.component === component)), `${key} post-hydration actions do not cover all components`, failures)

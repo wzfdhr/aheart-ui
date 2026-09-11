@@ -49,6 +49,10 @@ assert(baselineManifest.clean === true && baselineManifest.commit === APPROVED_B
 assert(candidateManifest.clean === true && candidateManifest.commit === candidateCommit, 'candidate manifest must attest a clean candidate commit')
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
+const snapshotStructureProjection = snapshot => {
+  const { capturePhase: _capturePhase, captureNonce: _captureNonce, ...structure } = snapshot ?? {}
+  return structure
+}
 const sha512Base64 = bytes => createHash('sha512').update(bytes).digest('base64')
 const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]
 const tick = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
@@ -248,53 +252,36 @@ async function ssrEvidence(root) {
   // comes from the actual server DOM, rather than from an HTML regex or a
   // fabricated ID list.
   const snapshotScript = `(() => {
-    window.__d4CaptureSnapshot = () => {
+    window.__d4CaptureSnapshot = (capturePhase) => {
       const root = document.querySelector('#app');
-      const all = [...document.querySelectorAll('[id], .aheart-cascader__trigger')];
+      const all = [...document.querySelectorAll('[id]')];
       const ids = all.map(node => node.id).filter(Boolean).sort();
-      const componentFor = node => {
-        const owner = node.closest('.aheart-tree-select, .aheart-cascader, .aheart-tree');
-        if (owner?.classList.contains('aheart-tree-select')) return 'TreeSelect';
-        if (owner?.classList.contains('aheart-cascader')) return 'Cascader';
-        if (owner?.classList.contains('aheart-tree')) return 'Tree';
-        if (String(node.id || '').startsWith('d4-tree-select')) return 'TreeSelect';
-        if (String(node.id || '').startsWith('d4-cascader')) return 'Cascader';
-        if (String(node.id || '').startsWith('d4-tree')) return 'Tree';
-        return null;
+      const attr = (node, name) => node?.hasAttribute(name) ? node.getAttribute(name) : null;
+      const describe = (node, component, kind, selector) => {
+        if (!node) throw new Error('SSR snapshot selector did not resolve: ' + component + '/' + kind + '/' + selector);
+        const resolved = document.querySelector(selector);
+        return { id: node.id || null, component, kind, selector, selectorProvenance: { source: 'document.querySelector', selector }, selectorMatchCount: document.querySelectorAll(selector).length, selectorResolved: resolved === node, role: attr(node, 'role'), ariaControls: attr(node, 'aria-controls'), ariaActivedescendant: attr(node, 'aria-activedescendant'), ariaLabelledby: attr(node, 'aria-labelledby'), ariaDescribedby: attr(node, 'aria-describedby'), focusModel: document.activeElement === node ? 'dom-focus' : node.getAttribute('tabindex') === '0' ? 'roving-dom-focus' : null };
       };
-      const kindFor = (node, component) => {
-        if (node.id === 'd4-' + component.toLowerCase()) return 'root';
-        if (component === 'TreeSelect' && node.classList.contains('aheart-tree-select__trigger')) return 'trigger';
-        if (component === 'Cascader' && (node.classList.contains('aheart-cascader__trigger') || node.classList.contains('aheart-cascader__option'))) return 'trigger';
-        if (component === 'Tree' && node.classList.contains('aheart-tree__node')) return 'row';
-        if (node.getAttribute('role') === 'tree' || node.getAttribute('role') === 'dialog' || node.getAttribute('role') === 'combobox') return 'root';
-        return null;
-      };
-      const attr = (node, name) => node.hasAttribute(name) ? node.getAttribute(name) : null;
-      const nodes = all.map(node => {
-        const component = componentFor(node);
-        const kind = component && kindFor(node, component);
-        if (!component || !kind) return null;
-        return { id: node.id, component, kind, role: attr(node, 'role'), ariaControls: attr(node, 'aria-controls'), ariaActivedescendant: attr(node, 'aria-activedescendant'), ariaLabelledby: attr(node, 'aria-labelledby'), ariaDescribedby: attr(node, 'aria-describedby'), focusModel: node.matches(':focus, [tabindex="0"]') ? 'roving-dom-focus' : null };
-      }).filter(Boolean);
-      const selectorFor = node => {
-        if (!node) return null;
-        if (node.classList.contains('aheart-tree__node')) return '.aheart-tree__node';
-        if (node.classList.contains('aheart-tree')) return '.aheart-tree';
-        if (node.classList.contains('aheart-tree-select__trigger')) return '.aheart-tree-select__trigger';
-        if (node.classList.contains('aheart-tree-select__panel')) return '.aheart-tree-select__panel';
-        if (node.classList.contains('aheart-cascader__trigger')) return '.aheart-cascader__trigger';
-        if (node.classList.contains('aheart-cascader__panel')) return '.aheart-cascader__panel';
-        if (node.classList.contains('aheart-cascader__option')) return '.aheart-cascader__option';
-        return node.id ? '#' + node.id : null;
-      };
-      for (const node of nodes) { const actual = all.find(candidate => candidate === node || (node.id && candidate.id === node.id)); node.selector = selectorFor(actual); node.selectorProvenance = { source: 'document.querySelector', selector: node.selector }; }
-      const normalize = html => String(html || '').replace(/\s+/g, ' ').trim();
+      const treeRoot = document.querySelector('#d4-tree.aheart-tree');
+      const treeRow = treeRoot?.querySelector('[role="treeitem"].aheart-tree__node, [role="treeitem"]');
+      const treeSelectTrigger = document.querySelector('.aheart-tree-select__trigger');
+      const treeSelectRoot = document.querySelector('.aheart-tree-select__panel');
+      const cascaderTrigger = document.querySelector('.aheart-cascader__trigger');
+      const cascaderRoot = document.querySelector('.aheart-cascader__panel');
+      const nodes = [
+        describe(treeRoot, 'Tree', 'root', '#d4-tree.aheart-tree'),
+        describe(treeRow, 'Tree', 'row', treeRow?.id ? '#' + treeRow.id + '.aheart-tree__node' : '#d4-tree [role="treeitem"]'),
+        describe(treeSelectTrigger, 'TreeSelect', 'trigger', treeSelectTrigger?.id ? '#' + treeSelectTrigger.id + '.aheart-tree-select__trigger' : '.aheart-tree-select__trigger'),
+        describe(treeSelectRoot, 'TreeSelect', 'root', treeSelectRoot?.id ? '#' + treeSelectRoot.id + '.aheart-tree-select__panel' : '.aheart-tree-select__panel'),
+        describe(cascaderTrigger, 'Cascader', 'trigger', '.aheart-cascader__trigger'),
+        describe(cascaderRoot, 'Cascader', 'root', cascaderRoot?.id ? '#' + cascaderRoot.id + '.aheart-cascader__panel' : '.aheart-cascader__panel')
+      ];
+      const normalize = html => String(html || '').replace(/\\s+/g, ' ').trim();
       const rawMainHtml = root?.innerHTML || '';
       const rawTeleportHtml = [...document.body.children].filter(node => node.classList.contains('aheart-tree-select__panel') || node.classList.contains('aheart-cascader__panel')).map(node => node.outerHTML).join('');
-      return { sortedIds: ids, nodes, focusModel: document.activeElement?.id || null, rawMainHtml, rawTeleportHtml, mainHtml: normalize(rawMainHtml), teleportHtml: normalize(rawTeleportHtml), combinedHtml: normalize(rawMainHtml + rawTeleportHtml) };
+      return { capturePhase, captureNonce: crypto.randomUUID(), sortedIds: ids, nodes, focusModel: document.activeElement?.id || null, rawMainHtml, rawTeleportHtml, mainHtml: normalize(rawMainHtml), teleportHtml: normalize(rawTeleportHtml), combinedHtml: normalize(rawMainHtml + rawTeleportHtml) };
     };
-    window.__d4ServerSnapshot = window.__d4CaptureSnapshot();
+    window.__d4ServerSnapshot = window.__d4CaptureSnapshot('server-before-hydration');
   })()`
   const require = createRequire(path.join(root, 'probe.cjs'))
   const vue = require('vue')
@@ -326,7 +313,7 @@ async function ssrEvidence(root) {
       componentRows[component] = (rendered.match(/role="treeitem"/g) ?? []).length + (rendered.match(/aheart-cascader__option/g) ?? []).length
     }
     htmlByMask[mask] = first
-    await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div>${firstTeleports}<script>${snapshotScript}</script><script type="module">import {createSSRApp,nextTick} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';window.__d4EventLog=[];window.__d4Virtual=${JSON.stringify(virtual)};window.__d4NextTick=nextTick;createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)},{ssrOpen:true})).mount('#app');window.__d4HydratedSnapshot=window.__d4CaptureSnapshot();window.__d4Hydrated=true</script></body></html>`)
+    await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div>${firstTeleports}<script>${snapshotScript}</script><script type="module">import {createSSRApp,nextTick} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';window.__d4EventLog=[];window.__d4Virtual=${JSON.stringify(virtual)};window.__d4NextTick=nextTick;createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)},{ssrOpen:true})).mount('#app');window.__d4HydratedSnapshot=window.__d4CaptureSnapshot('hydrated-after-mount');window.__d4Hydrated=true</script></body></html>`)
     const rows = (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length
     const boundedRows = Math.max(...appComponents.filter(component => virtual[component]).map(component => componentRows[component]), 0)
     const mainHtmlSha256 = sha256(Buffer.from(first))
@@ -765,7 +752,7 @@ async function collectSmoke(temporary) {
         const app = document.querySelector('#app')
         const before = app?.innerHTML ?? ''
         const serverSnapshot = window.__d4ServerSnapshot
-        const hydratedSnapshot = window.__d4HydratedSnapshot ?? window.__d4CaptureSnapshot?.()
+        const hydratedSnapshot = window.__d4HydratedSnapshot
         window.__d4EventLog = []
         const settle = async () => { await window.__d4NextTick?.(); await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) }
         const actions = []
@@ -802,6 +789,16 @@ async function collectSmoke(temporary) {
       item.postHydrationActions = hydratedState.postHydrationActions
       item.initialIdSha256 = sha256(Buffer.from(JSON.stringify(serverSnapshot?.sortedIds ?? [])))
       item.hydratedIdSha256 = sha256(Buffer.from(JSON.stringify(hydratedSnapshot?.sortedIds ?? [])))
+      const captureEvidence = []
+      const combinationKey = Object.keys(ssr.combinations)[mask]
+      for (const [ordinal, snapshot] of [serverSnapshot, hydratedSnapshot].entries()) {
+        const snapshotPath = path.join(durableDir, 'ssr-snapshots', `${String(mask).padStart(2, '0')}-${ordinal + 1}.json`)
+        await mkdir(path.dirname(snapshotPath), { recursive: true })
+        const payload = `${JSON.stringify({ snapshot }, null, 2)}\n`
+        await writeFile(snapshotPath, payload)
+        captureEvidence.push({ ordinal: ordinal + 1, combinationKey, phase: snapshot.capturePhase, nonce: snapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(snapshot)))), path: snapshotPath, sha256: sha256(Buffer.from(payload)) })
+      }
+      item.captureEvidence = captureEvidence
       hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: item.hydratedIdSha256, postHydrationInteraction: hydratedState.interacted, postHydrationStateChanged: hydratedState.changed, businessEventsAfterHydration: hydratedState.businessEvents, businessEventNames: hydratedState.businessEventNames, expandedChanged: hydratedState.expandedChanged }
     }
     await page.goto(`${actualBaseURL}/?component=TreeSelect&count=5000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
