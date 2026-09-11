@@ -6,7 +6,7 @@ import { promisify } from 'node:util'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { validateBoundedReleaseReport, verifyArtifactBindings } from './d4-deferred-consumer-contract.mjs'
+import { recomputeFamilyCoverage, validateBoundedReleaseReport, verifyArtifactBindings } from './d4-deferred-consumer-contract.mjs'
 
 const run = promisify(execFile)
 const workspace = process.cwd()
@@ -529,6 +529,26 @@ test('real bounded Cascader family coverage preserves deep columns, search paths
   assert.doesNotMatch(source, /__d4RunLazyScenario/)
 })
 
+test('real Cascader coverage keeps deep, search and lazy component inputs as separate authentic records', async () => {
+  const { report } = await collectRealBoundedReport()
+  const scenario = report.familyCoverage?.Cascader?.scenarios?.find(item => item.label === 'deep5-search-lazy-controlled')
+  const records = scenario?.componentInputRecords ?? []
+  assert.equal(records.length, 3)
+  const deep = records.find(record => record.kind === 'deep')
+  const search = records.find(record => record.kind === 'search')
+  const lazy = records.find(record => record.kind === 'lazy')
+  assert.ok(deep && search && lazy, 'deep/search/lazy must each have a separate real componentInput record')
+  assert.equal(deep.actualOptionsColumns?.length, 5)
+  assert.ok(deep.actualOptionsColumns.every((column, index) => column.index === index && column.keys.length === 2000 && column.optionsHash === hash(Buffer.from(column.keys.join('\n'))) && column.keys.every(key => !key.startsWith('search-') && !key.includes('10000'))))
+  assert.ok(deep.actualOptionsColumns.every((column, index) => scenario.columns[index].rawLogicalOptionKeys.length === 2000 && scenario.columns[index].rawColumnOptionsHash === column.optionsHash))
+  assert.equal(search.actualComponentInput?.rawLeaves?.length, 10050)
+  assert.deepEqual(search.actualComponentInput.matchedPaths, scenario.search.matchedPaths)
+  assert.deepEqual(search.actualComponentInput.visibleTail, scenario.search.visibleTail)
+  assert.equal(lazy.actualComponentInput?.kind, 'lazy')
+  assert.ok(lazy.actualComponentInput.loaderId && lazy.actualComponentInput.events?.length > 0)
+  assert.ok(scenario.selectedPath.every((key, columnIndex) => deep.actualOptionsColumns[columnIndex].keys.includes(key)), 'selectedPath must be a member of each corresponding deep component input column')
+})
+
 test('real bounded measured rows retain computed fixed/coarse/dynamic heights and raw actionability probes', async () => {
   const { report } = await collectRealBoundedReport()
   for (const component of ['Tree', 'TreeSelect', 'Cascader']) {
@@ -555,8 +575,34 @@ test('real bounded measured rows retain computed fixed/coarse/dynamic heights an
     assert.equal(timing.hitTarget.kind, 'row')
     assert.equal(timing.focusProbe.activeElementInRow, true)
     assert.ok(timing.popup?.startedAt <= timing.triggerAt && timing.triggerAt <= timing.clickStartedAt && timing.clickStartedAt - timing.popup.startedAt <= 5 && timing.clickStartedAt <= timing.clickCompletedAt && timing.clickCompletedAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt[0] && timing.rafAt[0] <= timing.rafAt[1] && timing.rafAt[1] <= timing.probeAt && timing.probeAt <= timing.endAt)
+    assert.ok(timing.searchStartedAt >= timing.endAt, 'search must start only after the first interaction evidence is frozen')
     assert.equal(timing.firstInteractionMs, timing.endAt - timing.popup.startedAt)
   }
+})
+
+test('bounded validator rejects forged row-mode geometry and Cascader column evidence after control pass', async () => {
+  const { report } = await collectRealBoundedReport()
+  const mutations = [
+    ['dynamic height', forged => { forged.familyCoverage.Tree.rowModeEvidence.dynamic[0].height += 1 }],
+    ['dynamic rect', forged => { forged.familyCoverage.Tree.rowModeEvidence.dynamic[0].rect.bottom += 1 }],
+    ['dynamic computed style', forged => { forged.familyCoverage.Tree.rowModeEvidence.dynamic[0].computedStyle.height = '999px' }],
+    ['dynamic wrapped flag', forged => { forged.familyCoverage.Tree.rowModeEvidence.dynamic[0].wrapped = false }],
+    ['Cascader mounted rows', forged => { forged.familyCoverage.Cascader.scenarios.find(item => item.label === 'deep5-search-lazy-controlled').columns[0].mountedRows = 25 }],
+    ['Cascader raw option hash', forged => { forged.familyCoverage.Cascader.scenarios.find(item => item.label === 'deep5-search-lazy-controlled').columns[0].rawColumnOptionsHash = '0'.repeat(64) }],
+  ]
+  for (const [label, mutate] of mutations) {
+    await assertBoundedMutationRejected(report, mutate, `bounded validator must reject forged ${label}`, /row|geometry|computed|wrapped|column|hash|bounded|raw/i)
+  }
+})
+
+test('family coverage recomputation rejects a componentInput hash mismatch', async () => {
+  const { report } = await collectRealBoundedReport()
+  await assertBoundedControlPasses(report)
+  const forged = structuredClone(report)
+  const deep = forged.familyCoverage.Cascader.scenarios.find(item => item.label === 'deep5-search-lazy-controlled').componentInputRecords.find(record => record.kind === 'deep')
+  deep.actualOptionsColumns[0].optionsHash = '0'.repeat(64)
+  assert.equal(recomputeFamilyCoverage(forged.familyCoverage), false, 'family recomputation must bind componentInput hashes to raw options')
+  assert.throws(() => validateBoundedReleaseReport(forged), /family|componentInput|hash|raw/i)
 })
 
 test('bounded actionability validator rejects raw hit-target or focus-probe forgery', async () => {
