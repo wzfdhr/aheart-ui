@@ -59,9 +59,17 @@ const tick = page => page.evaluate(() => new Promise(resolve => requestAnimation
 
 // Installs only in the iframe scenarios.  The probe owns sequence/time/realm
 // metadata; the collector records only observations made through its API.
-const installIframeLifecycleProbe = page => page.addInitScript(() => {
+function installIframeLifecycleProbe(page) {
+  return page.addInitScript(() => {
   const params = new URLSearchParams(location.search)
-  if (params.get('iframeProbe') !== 'true' || window.__d4IframeLifecycleProbe) return
+  if (params.get('iframeProbe') !== 'true') return
+  const probeMarker = 'd4-iframe-probe-v1'
+  const marker = probeMarker
+  const existingProbe = window.__d4IframeLifecycleProbe
+  if (existingProbe) {
+    if (existingProbe.marker !== probeMarker && existingProbe.probeMarker !== probeMarker) throw new Error('D4 iframe lifecycle probe marker mismatch')
+    return
+  }
   const originals = {
     ResizeObserver: window.ResizeObserver,
     requestAnimationFrame: window.requestAnimationFrame.bind(window),
@@ -77,7 +85,6 @@ const installIframeLifecycleProbe = page => page.addInitScript(() => {
   const events = []
   const active = new Map()
   let sequence = 0
-  let exclusionDepth = 0
   let resourceSequence = 0
   const now = () => performance.now()
   const selectorFor = target => {
@@ -89,7 +96,6 @@ const installIframeLifecycleProbe = page => page.addInitScript(() => {
     return target.tagName?.toLowerCase() || 'unknown'
   }
   const record = (type, fields = {}) => {
-    if (exclusionDepth > 0) return null
     if (type === 'frame-mounted' && installEvent) installEvent.installedBeforeMount = Number.isFinite(window.__d4MountStart) && installEvent.installedAt <= window.__d4MountStart
     const event = { seq: ++sequence, time: now(), type, scenarioId, realmId, ...fields }
     events.push(event)
@@ -102,34 +108,43 @@ const installIframeLifecycleProbe = page => page.addInitScript(() => {
     if (['cancel', 'clear', 'disconnect'].includes(action) || (action === 'callback' && ['raf', 'timeout'].includes(kind))) active.delete(resourceId)
     record('resource', { kind, action, resourceId, targetSelector, source })
   }
+  const installedProxyKinds = []
   const install = {
     proxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'],
+    installedProxyKinds,
     installedBeforeMount: null,
     installedAt: performance.now(),
     collectorWaitsExcluded: true,
     realmType: 'iframe',
+    marker,
+    probeMarker: marker,
+    propertyLocked: null,
   }
-  window.__d4IframeLifecycleProbe = {
+  const probe = {
+    marker,
     record,
     originals,
     snapshotActive: () => [...active.values()].sort((a, b) => a.resourceId.localeCompare(b.resourceId)),
-    withCollector: async callback => {
-      exclusionDepth += 1
-      try { return await callback() } finally { exclusionDepth -= 1 }
-    },
-    export: () => ({ schema: 'd4-iframe-lifecycle/v1', component, scenarioId, realmId, events: structuredClone(events), active: [...active.values()], eventCount: events.length, exclusionDepth }),
+    export: () => ({ schema: 'd4-iframe-lifecycle/v1', component, scenarioId, realmId, events: structuredClone(events), active: [...active.values()], eventCount: events.length }),
   }
+  Object.defineProperty(window, '__d4IframeLifecycleProbe', { value: probe, writable: false, configurable: false })
+  install.propertyLocked = Object.getOwnPropertyDescriptor(window, '__d4IframeLifecycleProbe')?.writable === false && Object.getOwnPropertyDescriptor(window, '__d4IframeLifecycleProbe')?.configurable === false
   const installEvent = record('instrumentation-install', install)
   const originalResizeObserver = originals.ResizeObserver
   if (originalResizeObserver) {
     window.ResizeObserver = function D4ResizeObserver(callback) {
       const resourceId = `${scenarioId}-resizeObserver-${++resourceSequence}`
+      track('resizeObserver', resourceId, 'create')
       const wrapped = (entries, observer) => { record('resource', { kind: 'resizeObserver', action: 'callback', resourceId, targetSelector: selectorFor(entries?.[0]?.target), source: 'component-runtime' }); callback(entries, observer) }
       const observer = new originalResizeObserver(wrapped)
       const originalObserve = observer.observe.bind(observer)
+      const originalUnobserve = observer.unobserve?.bind(observer)
       const originalDisconnect = observer.disconnect.bind(observer)
-      observer.observe = (target, options) => { track('resizeObserver', resourceId, 'create', target); track('resizeObserver', resourceId, 'observe', target); return originalObserve(target, options) }
+      const targets = new Set()
+      observer.observe = (target, options) => { targets.add(target); track('resizeObserver', resourceId, 'observe', target); return originalObserve(target, options) }
+      if (originalUnobserve) observer.unobserve = target => { targets.delete(target); track('resizeObserver', resourceId, 'unobserve', target); return originalUnobserve(target) }
       observer.disconnect = () => { track('resizeObserver', resourceId, 'disconnect', window); return originalDisconnect() }
+      installedProxyKinds.push('resizeObserver')
       return observer
     }
     window.ResizeObserver.prototype = originalResizeObserver.prototype
@@ -142,6 +157,7 @@ const installIframeLifecycleProbe = page => page.addInitScript(() => {
     rafs.set(handle, resourceId)
     return handle
   }
+  installedProxyKinds.push('raf')
   window.cancelAnimationFrame = handle => { const resourceId = rafs.get(handle); if (resourceId) { rafs.delete(handle); track('raf', resourceId, 'cancel') }; return originals.cancelAnimationFrame(handle) }
   const timeouts = new Map()
   window.setTimeout = (callback, delay, ...args) => {
@@ -152,6 +168,7 @@ const installIframeLifecycleProbe = page => page.addInitScript(() => {
     return handle
   }
   window.clearTimeout = handle => { const resourceId = timeouts.get(handle); if (resourceId) { timeouts.delete(handle); track('timeout', resourceId, 'clear') }; return originals.clearTimeout(handle) }
+  installedProxyKinds.push('timeout')
   const intervals = new Map()
   window.setInterval = (callback, delay, ...args) => {
     const resourceId = `${scenarioId}-interval-${++resourceSequence}`
@@ -161,7 +178,10 @@ const installIframeLifecycleProbe = page => page.addInitScript(() => {
     return handle
   }
   window.clearInterval = handle => { const resourceId = intervals.get(handle); if (resourceId) { intervals.delete(handle); track('interval', resourceId, 'clear') }; return originals.clearInterval(handle) }
-})
+  installedProxyKinds.push('interval')
+  installEvent.installedProxyKinds = [...installedProxyKinds]
+  })
+}
 const packageFiles = async tarball => (await run('tar', ['-tf', tarball])).stdout.split('\n').map(item => item.trim()).filter(Boolean)
 async function fingerprintDirectory(directory) {
   const files = []
@@ -650,28 +670,30 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
     let openedEvidence = null
     if (triggerSelector) {
       const trigger = frame.locator(triggerSelector)
-      await frame.evaluate(async () => window.__d4IframeLifecycleProbe?.withCollector(() => new Promise(resolve => window.__d4IframeLifecycleProbe.originals.setTimeout(resolve, 120))))
+      await frame.evaluate(async () => new Promise(resolve => window.__d4IframeLifecycleProbe?.originals.setTimeout(resolve, 120)))
       await trigger.click()
       await frame.waitForSelector(component === 'TreeSelect' ? '.aheart-tree-select__panel' : '.aheart-cascader__panel', { state: 'attached' })
       await frame.waitForSelector(focusSelector, { state: 'attached' })
-      const opened = await frame.evaluate(({ componentName, triggerSel }) => {
+      const opened = await frame.evaluate(({ componentName, triggerSel, scrollSel }) => {
         const triggerNode = document.querySelector(triggerSel)
         const panel = componentName === 'TreeSelect' ? document.querySelector('.aheart-tree-select__panel') : document.querySelector('.aheart-cascader__panel')
-        return { panelParentRealm: panel?.ownerDocument?.defaultView === window ? 'iframe' : 'unknown', ownerDocument: Boolean(panel && panel.ownerDocument === document), defaultView: Boolean(panel?.ownerDocument?.defaultView === window), triggerExpanded: triggerNode?.getAttribute('aria-expanded') }
-      }, { componentName: component, triggerSel: triggerSelector })
+        const parent = panel?.parentElement
+        const scroll = document.querySelector(scrollSel)
+        return { panelParentRealm: panel?.ownerDocument?.defaultView === window ? 'iframe' : 'unknown', panelParentTag: parent?.tagName ?? null, panelParentOwnerDocument: Boolean(parent && parent.ownerDocument === document), panelParentDefaultView: Boolean(parent?.ownerDocument?.defaultView === window), scrollOwnerDocument: Boolean(scroll && scroll.ownerDocument === document), scrollOwnerDefaultView: Boolean(scroll?.ownerDocument?.defaultView === window), parentDocumentResidualNodes: parent ? parent.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length : 0, ownerDocument: Boolean(panel && panel.ownerDocument === document), defaultView: Boolean(panel?.ownerDocument?.defaultView === window), triggerExpanded: triggerNode?.getAttribute('aria-expanded') }
+      }, { componentName: component, triggerSel: triggerSelector, scrollSel: scrollSelector })
       openedEvidence = opened
       await record('popup-open', opened)
       await frame.locator(focusSelector).first().focus()
       await frame.evaluate(() => {
         window.__d4EscapeEvidence = null
-        window.__d4EscapeObserver = event => { window.__d4EscapeEvidence = { consumed: event.defaultPrevented, targetSelector: event.target?.className ? `.${[...event.target.classList].slice(0, 2).join('.')}` : null } }
+        window.__d4EscapeObserver = event => { window.__d4EscapeEvidence = { consumed: event.defaultPrevented, escapeEventRealm: event.view === window ? 'iframe' : 'other', targetSelector: event.target?.className ? `.${[...event.target.classList].slice(0, 2).join('.')}` : null } }
         document.addEventListener('keydown', window.__d4EscapeObserver, true)
         const target = document.activeElement
-        target?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+        target?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true, view: window }))
       })
       escapeEvidence = await frame.evaluate(() => { document.removeEventListener('keydown', window.__d4EscapeObserver, true); return window.__d4EscapeEvidence ?? { consumed: false, targetSelector: null } })
       await record('escape', escapeEvidence)
-      await frame.evaluate(async () => window.__d4IframeLifecycleProbe?.withCollector(() => new Promise(resolve => window.__d4IframeLifecycleProbe.originals.setTimeout(resolve, 120))))
+      await frame.evaluate(async () => new Promise(resolve => window.__d4IframeLifecycleProbe?.originals.setTimeout(resolve, 120)))
       const closed = await frame.evaluate(({ componentName }) => { const panel = componentName === 'TreeSelect' ? document.querySelector('.aheart-tree-select__panel') : document.querySelector('.aheart-cascader__panel'); const style = panel ? getComputedStyle(panel) : null; return { closed: !panel || style?.display === 'none' || panel.getClientRects().length === 0, panelPresent: Boolean(panel), display: style?.display ?? null } }, { componentName: component })
       const panelSelector = component === 'TreeSelect' ? '.aheart-tree-select__panel' : '.aheart-cascader__panel'
       let closeState
@@ -682,13 +704,20 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
       }
       if (closeState?.expanded !== 'false' || closeState?.hidden !== true) throw new Error(`${component} popup did not close after iframe Escape: ${JSON.stringify(closeState)}`)
       await record('popup-close', { ...escapeEvidence, ...closed, ...closeState })
-      await trigger.focus()
-      focusRestore = await frame.evaluate(triggerSel => ({ restored: document.activeElement === document.querySelector(triggerSel), activeSelector: document.activeElement?.className ? `.${[...document.activeElement.classList].slice(0, 2).join('.')}` : null, ownerDocument: document.activeElement?.ownerDocument === document }), triggerSelector)
+      focusRestore = await frame.evaluate(triggerSel => ({ restored: document.activeElement === document.querySelector(triggerSel), activeSelector: document.activeElement?.className ? `.${[...document.activeElement.classList].slice(0, 2).join('.')}` : null, ownerDocument: document.activeElement?.ownerDocument === document, observedWithoutCollectorFocus: true }), triggerSelector)
+      const parentFocus = await page.evaluate(componentName => { const frame = document.querySelector(`iframe[data-d4-iframe-component="${componentName}"]`); return { parentActiveElement: document.activeElement === frame ? 'iframe' : 'other' } }, component)
+      focusRestore = { ...focusRestore, parentActiveElement: parentFocus.parentActiveElement }
       await record('focus-restore', focusRestore)
       await trigger.click()
-      await frame.waitForSelector(component === 'TreeSelect' ? '.aheart-tree-select__panel' : '.aheart-cascader__panel', { state: 'attached' })
-      popupReopened = await frame.evaluate(componentName => Boolean(document.querySelector(componentName === 'TreeSelect' ? '.aheart-tree-select__panel' : '.aheart-cascader__panel')), component)
-      await record('reopen', { reopened: popupReopened })
+      let reopenState
+      for (let attempt = 0; attempt < 25; attempt += 1) {
+        reopenState = await frame.evaluate(({ componentName, triggerSel }) => { const panel = document.querySelector(componentName === 'TreeSelect' ? '.aheart-tree-select__panel' : '.aheart-cascader__panel'); const triggerNode = document.querySelector(triggerSel); const style = panel ? getComputedStyle(panel) : null; return { visible: Boolean(panel && style?.display !== 'none' && panel.getClientRects().length > 0), expanded: triggerNode?.getAttribute('aria-expanded') === 'true' } }, { componentName: component, triggerSel: triggerSelector })
+        if (reopenState.visible && reopenState.expanded) break
+        await new Promise(resolve => setTimeout(resolve, 20))
+      }
+      if (!reopenState?.visible || !reopenState?.expanded) throw new Error(`${component} popup did not reopen visibly: ${JSON.stringify(reopenState)}`)
+      popupReopened = true
+      await record('reopen', reopenState)
     }
     let lazyControl = null
     if (component === 'Cascader') {
@@ -702,7 +731,7 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
     const ownerFlush = await frame.evaluate(async () => {
       const probe = window.__d4IframeLifecycleProbe
       if (!probe) return null
-      const result = await probe.withCollector(async () => { await Promise.resolve(); await new Promise(resolve => probe.originals.requestAnimationFrame(() => probe.originals.requestAnimationFrame(resolve))); const residual = document.querySelector('#app')?.children.length ?? 0; const teleportResidual = document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length; const active = probe.snapshotActive(); return { domResidualNodes: residual, teleportResidualNodes: teleportResidual, resourceResiduals: active.length } })
+      await Promise.resolve(); await new Promise(resolve => probe.originals.requestAnimationFrame(() => probe.originals.requestAnimationFrame(resolve))); const residual = document.querySelector('#app')?.children.length ?? 0; const teleportResidual = document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length; const active = probe.snapshotActive(); const result = { domResidualNodes: residual, teleportResidualNodes: teleportResidual, resourceResiduals: active.length }
       probe.record('owner-flush', result)
       return result
     })
@@ -719,28 +748,43 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
         await new Promise(resolve => window.__d4IframeLifecycleProbe.originals.requestAnimationFrame(() => window.__d4IframeLifecycleProbe.originals.requestAnimationFrame(resolve)))
         const after = { dom: document.querySelector('#app')?.innerHTML ?? '', state: JSON.stringify(window.__d4EventLog ?? []), callbacks: (window.__d4EventLog ?? []).map(event => event.name) }
         observer.disconnect()
-        return { returnedChildrenCount: control?.returnedChildren?.length ?? 0, loaderCompletion: control?.loaderCompletion ?? 0, mutationCount, componentUpdateCount: Math.max(0, after.callbacks.length - before.callbacks.length), stateBefore: before.state, stateAfter: after.state, domBefore: before.dom, domAfter: after.dom, callbacksBefore: before.callbacks, callbacksAfter: after.callbacks }
+        return { returnedChildrenCount: control?.returnedChildren?.length ?? 0, loaderCompletion: control?.loaderCompletion ?? 0, mutationCount, componentUpdateCount: after.callbacks.length - before.callbacks.length, stateBefore: before.state, stateAfter: after.state, domBefore: before.dom, domAfter: after.dom, callbacksBefore: before.callbacks, callbacksAfter: after.callbacks }
       })
-      lazyEvidence = { returnedChildrenCount: lazyRaw.returnedChildrenCount, loaderCompletion: lazyRaw.loaderCompletion, mutationCount: lazyRaw.mutationCount, componentUpdateCount: lazyRaw.componentUpdateCount, stateHashBefore: sha256(Buffer.from(lazyRaw.stateBefore)), stateHashAfter: sha256(Buffer.from(lazyRaw.stateAfter)), domHashBefore: sha256(Buffer.from(lazyRaw.domBefore)), domHashAfter: sha256(Buffer.from(lazyRaw.domAfter)), callbacksBefore: lazyRaw.callbacksBefore, callbacksAfter: lazyRaw.callbacksAfter }
+      lazyEvidence = { returnedChildrenCount: lazyRaw.returnedChildrenCount, loaderCompletion: lazyRaw.loaderCompletion, mutationCount: lazyRaw.mutationCount, componentUpdateCount: lazyRaw.componentUpdateCount, stateRawBefore: lazyRaw.stateBefore, stateRawAfter: lazyRaw.stateAfter, domRawBefore: lazyRaw.domBefore, domRawAfter: lazyRaw.domAfter, callbacksBefore: lazyRaw.callbacksBefore, callbacksAfter: lazyRaw.callbacksAfter, stateHashBeforeSha256: sha256(Buffer.from(lazyRaw.stateBefore)), stateHashAfterSha256: sha256(Buffer.from(lazyRaw.stateAfter)), domHashBeforeSha256: sha256(Buffer.from(lazyRaw.domBefore)), domHashAfterSha256: sha256(Buffer.from(lazyRaw.domAfter)), callbacksBeforeSha256: sha256(Buffer.from(JSON.stringify(lazyRaw.callbacksBefore))), callbacksAfterSha256: sha256(Buffer.from(JSON.stringify(lazyRaw.callbacksAfter))) }
       await frame.evaluate(result => window.__d4IframeLifecycleProbe?.record('lazy-resolve-after-unmount', result), lazyEvidence)
     }
     const observation = await frame.evaluate(async () => {
       const probe = window.__d4IframeLifecycleProbe
       if (!probe) return null
-      const result = await probe.withCollector(async () => { await new Promise(resolve => probe.originals.setTimeout(resolve, 0)); return { domResidualNodes: document.querySelector('#app')?.children.length ?? 0, teleportResidualNodes: document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length, resourceResiduals: probe.snapshotActive().length } })
+      await new Promise(resolve => probe.originals.setTimeout(resolve, 0)); const result = { domResidualNodes: document.querySelector('#app')?.children.length ?? 0, teleportResidualNodes: document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length, resourceResiduals: probe.snapshotActive().length }
       probe.record('owner-observation', result)
       return result
     })
-    const postUnmount = await frame.evaluate(() => {
-      const before = (window.__d4EventLog ?? []).length
-      const button = document.createElement('button'); button.type = 'button'; button.textContent = 'outside'; document.body.append(button)
-      const escape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }); document.dispatchEvent(escape)
-      const pointer = new PointerEvent('pointerdown', { bubbles: true, cancelable: true }); document.dispatchEvent(pointer)
-      const after = (window.__d4EventLog ?? []).length
-      return { escapeConsumed: escape.defaultPrevented, pointerConsumed: pointer.defaultPrevented, updateCount: after - before, callbackCount: after - before, mutationCount: 0 }
-    })
-    await record('post-unmount-escape', postUnmount)
-    await record('post-unmount-pointer', postUnmount)
+    const postInteraction = async kind => {
+      const raw = await frame.evaluate(async interaction => {
+        const probe = window.__d4IframeLifecycleProbe
+        const button = document.createElement('button'); button.type = 'button'; button.textContent = 'outside'; document.body.append(button)
+        const beforeRaw = document.querySelector('#app')?.innerHTML ?? ''
+        const callbacksBefore = (window.__d4EventLog ?? []).map(event => event.name)
+        let mutationCount = 0
+        const observer = new MutationObserver(() => { mutationCount += 1 })
+        observer.observe(document, { subtree: true, childList: true, attributes: true, characterData: true })
+        const event = interaction === 'escape' ? new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true, view: window }) : new PointerEvent('pointerdown', { bubbles: true, cancelable: true, view: window })
+        document.dispatchEvent(event)
+        await Promise.resolve()
+        await new Promise(resolve => probe.originals.requestAnimationFrame(resolve))
+        const afterRaw = document.querySelector('#app')?.innerHTML ?? ''
+        const callbacksAfter = (window.__d4EventLog ?? []).map(item => item.name)
+        const ownerOriginalFlush = { resourceResiduals: probe.snapshotActive().length, domResidualNodes: document.querySelector('#app')?.children.length ?? 0 }
+        observer.disconnect(); button.remove()
+        return { consumed: event.defaultPrevented, beforeRaw, afterRaw, callbacksBefore, callbacksAfter, mutationCount, updateCount: callbacksAfter.length - callbacksBefore.length, ownerOriginalFlush }
+      }, kind)
+      const event = { consumed: raw.consumed, beforeRaw: raw.beforeRaw, afterRaw: raw.afterRaw, callbacksBefore: raw.callbacksBefore, callbacksAfter: raw.callbacksAfter, mutationCount: raw.mutationCount, updateCount: raw.updateCount, callbackCount: raw.callbacksAfter.length - raw.callbacksBefore.length, beforeHash: sha256(Buffer.from(raw.beforeRaw)), afterHash: sha256(Buffer.from(raw.afterRaw)), callbacksBeforeSha256: sha256(Buffer.from(JSON.stringify(raw.callbacksBefore))), callbacksAfterSha256: sha256(Buffer.from(JSON.stringify(raw.callbacksAfter))), ownerOriginalFlush: raw.ownerOriginalFlush }
+      await record(`post-unmount-${kind}`, event)
+      return event
+    }
+    const postUnmountEscape = await postInteraction('escape')
+    const postUnmountPointer = await postInteraction('pointer')
     const exportedBeforeRemoval = await frame.evaluate(() => window.__d4IframeLifecycleProbe?.export?.())
     const exported = await page.evaluate(componentName => {
       const frame = document.querySelector(`iframe[data-d4-iframe-component="${componentName}"]`)
@@ -752,7 +796,7 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
     const scenario = { component, scenarioUrl, scenarioId: exportedBeforeRemoval?.scenarioId, realmId: exportedBeforeRemoval?.realmId, events: [...(exportedBeforeRemoval?.events ?? []), frameRemovedEvent] }
     scenarios.push(scenario)
     const actualSurface = { ...surface, rootSelector: surface.rootSelector ?? (component === 'TreeSelect' ? '.aheart-tree-select__panel' : component === 'Cascader' ? '.aheart-cascader__panel' : surface.rootSelector), ownerDocument: openedEvidence?.ownerDocument ?? surface.ownerDocument, defaultView: openedEvidence?.defaultView ?? surface.defaultView }
-    componentEvidence[component] = { surface: actualSurface, trigger: triggerSelector ? { selector: triggerSelector } : null, scroll: { selector: scrollSelector }, panel: triggerSelector ? { selector: component === 'TreeSelect' ? '.aheart-tree-select__panel' : '.aheart-cascader__panel' } : null, ownerDocument: actualSurface.ownerDocument, defaultView: actualSurface.defaultView, sameOrigin: ownerState.sameOrigin, probeInstalled: ownerState.probe, focus: initialFocus, popupReopened, escape: escapeEvidence, focusRestore, lazy: lazyControl ? { ...lazyControl, evidence: lazyEvidence } : null, ownerFlush, ownerObservation: observation, postUnmount }
+    componentEvidence[component] = { surface: actualSurface, trigger: triggerSelector ? { selector: triggerSelector } : null, scroll: { selector: scrollSelector }, panel: triggerSelector ? { selector: component === 'TreeSelect' ? '.aheart-tree-select__panel' : '.aheart-cascader__panel' } : null, ownerDocument: actualSurface.ownerDocument, defaultView: actualSurface.defaultView, sameOrigin: ownerState.sameOrigin, probeInstalled: ownerState.probe, focus: initialFocus, popupReopened, escape: escapeEvidence, focusRestore, lazy: lazyControl ? { ...lazyControl, evidence: lazyEvidence } : null, ownerFlush, ownerObservation: observation, postUnmount: { escape: postUnmountEscape, pointer: postUnmountPointer } }
     await frameElement.count().catch(() => 0)
   }
   const rawLifecycle = { schema: 'd4-iframe-lifecycle/v1', scenarios }
@@ -763,7 +807,7 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
   const lifecyclePath = path.join(lifecycleDirectory, 'iframe-lifecycle.json')
   await writeFile(lifecyclePath, `${JSON.stringify(rawLifecycle, null, 2)}\n`)
   const lifecycleBytes = await readFile(lifecyclePath)
-  return { status: 'recorded', sameOrigin: scenarios.every(item => item.events.some(event => event.type === 'frame-mounted')), ownerDocument: Object.values(componentEvidence).every(item => item.ownerDocument), focusTransfer: Object.values(componentEvidence).every(item => item.focus?.focused), popupReopened: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.popupReopened), resourceCounts: { before: scenarios.reduce((sum, item) => sum + item.events.filter(event => event.type === 'resource' && event.action === 'create').length, 0), after: summary.activeAfterUnmount }, observersAfterUnmount: summary.activeAfterUnmount, rafAfterUnmount: summary.resourceResiduals?.raf ?? 0, timersAfterUnmount: summary.resourceResiduals?.timeout ?? 0, componentResizeObserversAfterUnmount: summary.resourceResiduals?.resizeObserver ?? 0, componentRafAfterUnmount: summary.resourceResiduals?.raf ?? 0, componentTimersAfterUnmount: summary.resourceResiduals?.timeout ?? 0, constructorProxy: { resizeObserversAfterUnmount: summary.resourceResiduals?.resizeObserver ?? 0, rafAfterUnmount: summary.resourceResiduals?.raf ?? 0, timersAfterUnmount: summary.resourceResiduals?.timeout ?? 0 }, teleportOwnerDocument: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.ownerDocument), teleportResidualNodes: summary.teleportResidualNodes, escapeFocusRestored: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.focusRestore?.restored), lateLazyStateUpdates: summary.lateLazyStateUpdates, unmountCleanup: summary.unmountCleanup, postUnmountInteractions: summary.postUnmountInteractions, scenarioUrls: scenarios.map(item => ({ component: item.component, url: item.scenarioUrl })), components: componentEvidence, rawLifecycle, lifecycleArtifact: { path: lifecyclePath, sha256: sha256(lifecycleBytes) } }
+  return { status: 'recorded', sameOrigin: scenarios.every(item => item.events.some(event => event.type === 'frame-mounted')), ownerDocument: Object.values(componentEvidence).every(item => item.ownerDocument), focusTransfer: Object.values(componentEvidence).every(item => item.focus?.focused), popupReopened: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.popupReopened), resourceCounts: { before: scenarios.reduce((sum, item) => sum + item.events.filter(event => event.type === 'resource' && event.action === 'create').length, 0), after: summary.finalActive }, observersAfterUnmount: summary.activeAfterUnmount, rafAfterUnmount: summary.byKind.raf, timersAfterUnmount: summary.byKind.timeout, componentResizeObserversAfterUnmount: summary.byKind.resizeObserver, componentRafAfterUnmount: summary.byKind.raf, componentTimersAfterUnmount: summary.byKind.timeout, constructorProxy: { resizeObserversAfterUnmount: summary.byKind.resizeObserver, rafAfterUnmount: summary.byKind.raf, timersAfterUnmount: summary.byKind.timeout }, teleportOwnerDocument: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.ownerDocument), teleportResidualNodes: summary.teleportResidualNodes, escapeFocusRestored: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.focusRestore?.restored), lateLazyStateUpdates: summary.lateLazyStateUpdates, unmountCleanup: summary.unmountCleanup, postUnmountInteractions: summary.postUnmountInteractions, scenarioUrls: scenarios.map(item => ({ component: item.component, url: item.scenarioUrl })), components: componentEvidence, rawLifecycle, lifecycleArtifact: { path: lifecyclePath, sha256: sha256(lifecycleBytes) } }
 }
 
 async function collectFamilyCoverage(page, baseURL) {

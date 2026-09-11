@@ -73,8 +73,10 @@ const json = value => JSON.stringify(value)
 export function recomputeIframeLifecycle(raw) {
   const scenarios = Array.isArray(raw?.scenarios) ? raw.scenarios : []
   const components = scenarios.map(scenario => scenario.component).sort()
+  const byKind = { resizeObserver: 0, raf: 0, timeout: 0, interval: 0 }
   let createdBeforeUnmount = 0
   let activeAfterUnmount = 0
+  let finalActive = 0
   let teleportResidualNodes = 0
   let escapeFocusRestored = true
   let unmountCleanup = true
@@ -90,6 +92,7 @@ export function recomputeIframeLifecycle(raw) {
     const complete = events.find(event => event.type === 'frame-unmount-complete')
     const flush = events.find(event => event.type === 'owner-flush')
     let completeActive = null
+    let completeByKind = { resizeObserver: 0, raf: 0, timeout: 0, interval: 0 }
     let invalidAfterUnmount = false
     proxiesInstalled &&= Boolean(install && Array.isArray(install.proxyKinds) && install.proxyKinds.length === 4 && install.collectorWaitsExcluded === true)
     allRealmsIframe &&= events.every(event => event.realmId === scenario.realmId && event.scenarioId === scenario.scenarioId)
@@ -100,19 +103,21 @@ export function recomputeIframeLifecycle(raw) {
         if (['cancel', 'clear', 'disconnect'].includes(event.action)) ledger.delete(event.resourceId)
         if (event.action === 'callback' && ['raf', 'timeout'].includes(event.kind)) ledger.delete(event.resourceId)
       }
-      if (event.type === 'frame-unmount-complete') completeActive = ledger.size
+      if (event.type === 'frame-unmount-complete') { completeActive = ledger.size; completeByKind = { ...byKind, resizeObserver: 0, raf: 0, timeout: 0, interval: 0 }; for (const resource of ledger.values()) completeByKind[resource.kind] = (completeByKind[resource.kind] ?? 0) + 1 }
       if (event.type === 'focus-restore') escapeFocusRestored &&= event.restored === true
       if (event.type === 'lazy-resolve-after-unmount') lateLazyStateUpdates += Number(event.componentUpdateCount ?? 0)
       if (event.type === 'post-unmount-escape' || event.type === 'post-unmount-pointer') postUnmountInteractions += Number(event.updateCount ?? 0) + Number(event.callbackCount ?? 0) + Number(event.mutationCount ?? 0)
     }
     if (complete) {
-      activeAfterUnmount += Number.isInteger(flush?.resourceResiduals) ? flush.resourceResiduals : (completeActive ?? ledger.size)
+      activeAfterUnmount += completeActive ?? ledger.size
+      for (const kind of Object.keys(byKind)) byKind[kind] += completeByKind[kind] ?? 0
     }
+    finalActive += ledger.size
     const observation = events.find(event => event.type === 'owner-observation')
     teleportResidualNodes += Number(observation?.teleportResidualNodes ?? flush?.teleportResidualNodes ?? 0)
     unmountCleanup &&= Boolean(invoked?.connected === true && complete?.connected === true && flush?.domResidualNodes === 0 && flush?.teleportResidualNodes === 0 && !invalidAfterUnmount)
   }
-  return { scenarioCount: scenarios.length, components, proxiesInstalled, allRealmsIframe, createdBeforeUnmount, activeAfterUnmount, teleportResidualNodes, escapeFocusRestored, unmountCleanup, lateLazyStateUpdates, postUnmountInteractions }
+  return { scenarioCount: scenarios.length, components, proxiesInstalled, allRealmsIframe, createdBeforeUnmount, activeAfterUnmount, byKind, finalActive, teleportResidualNodes, escapeFocusRestored, unmountCleanup, lateLazyStateUpdates, postUnmountInteractions }
 }
 
 async function durableFileManifest(directory, destination) {
