@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, nextTick } from 'vue'
 import { createConsumerApp } from './shared-app.mjs'
 import 'aheart-ui/style.css'
 
@@ -14,6 +14,7 @@ const style = document.createElement('style')
 style.textContent = `[data-d4-row-mode="coarse"] .aheart-tree__node,[data-d4-row-mode="coarse"] .aheart-cascader__option{min-block-size:44px;}[data-d4-row-mode="dynamic"] .aheart-tree__node,[data-d4-row-mode="dynamic"] .aheart-cascader__option{white-space:normal;}`
 document.head.append(style)
 window.__d4MountStart = performance.now()
+window.__d4NextTick = nextTick
 const app = createApp(createConsumerApp(settings))
 app.mount('#app')
 window.__d4Unmount = () => app.unmount()

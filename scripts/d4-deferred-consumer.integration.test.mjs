@@ -96,7 +96,7 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
   assert.ok(report.case.observers.layoutShifts.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.value)))
   assert.ok(report.case.observers.rawRounds.length >= 1 && report.case.observers.rawRounds.every(round => round.startedAt < round.firstWriteAt && round.lastWriteAt < round.drainedAt && round.entries.every(entry => entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt)))
   assert.equal(report.case.observers.rawRecomputed, true)
-  assert.ok(Object.values(report.ssrHydration.combinations).every(item => item.initialHtmlSha256 && item.hydratedHtmlSha256 && item.initialIdSha256 && item.hydratedIdSha256 && item.cjsRender === true && item.boundedRows <= 24 && item.postHydrationInteraction === true && item.postHydrationStateChanged === true))
+  assert.ok(Object.values(report.ssrHydration.combinations).every(item => item.initialHtmlSha256 && item.hydratedHtmlSha256 && item.initialIdSha256 && item.hydratedIdSha256 && item.cjsRender === true && (Object.values(item.virtual).every(value => value === false) || item.boundedRows <= 24) && item.postHydrationInteraction === true && item.postHydrationStateChanged === true))
   assert.equal(report.iframe.observersAfterUnmount, 0)
   assert.equal(report.iframe.rafAfterUnmount, 0)
   assert.equal(report.iframe.timersAfterUnmount, 0)

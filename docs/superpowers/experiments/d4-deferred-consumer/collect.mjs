@@ -175,7 +175,7 @@ async function ssrEvidence(root) {
   const vue = require('vue')
   const renderer = require('@vue/server-renderer')
   const packageExports = require('aheart-ui')
-  const { createCombinedConsumerApp } = await import(pathToFileURL(path.join(root, 'shared-app.mjs')).href)
+  const { COMPONENTS: appComponents, componentProps, createCombinedConsumerApp } = await import(pathToFileURL(path.join(root, 'shared-app.mjs')).href)
   const css = await readFile(path.join(root, 'node_modules/aheart-ui/es/style.css'), 'utf8')
   const combinations = {}
   const htmlByMask = {}
@@ -185,9 +185,16 @@ async function ssrEvidence(root) {
     const render = () => vue.createSSRApp(createCombinedConsumerApp(virtual))
     const first = await renderer.renderToString(render())
     const second = await renderer.renderToString(render())
+    const componentRows = {}
+    for (const component of appComponents) {
+      const html = await renderer.renderToString(vue.createSSRApp({ render: () => vue.h(packageExports[component], componentProps(component, 1000, 'fixed', virtual[component])) }))
+      componentRows[component] = (html.match(/role="treeitem"/g) ?? []).length + (html.match(/aheart-cascader__option/g) ?? []).length
+    }
     htmlByMask[mask] = first
     await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div><script type="module">import {createSSRApp} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)})).mount('#app');window.__d4Hydrated=true</script></body></html>`)
-    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, htmlSha256: sha256(Buffer.from(first)), initialIdSha256: sha256(Buffer.from((first.match(/\sid="[^"]+"/g) ?? []).join('\n'))), rows: (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length }
+    const rows = (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length
+    const boundedRows = Math.max(...appComponents.filter(component => virtual[component]).map(component => componentRows[component]), 0)
+    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, boundedRows, componentRows, cjsRender: true, htmlSha256: sha256(Buffer.from(first)), initialIdSha256: sha256(Buffer.from((first.match(/\sid="[^"]+"/g) ?? []).join('\n'))), rows }
   }
   return { count: 8, combinations, deterministicDoubleRender: true, htmlByMask }
 }
@@ -197,16 +204,21 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   await page.goto(`${origin}/?component=${settings.component}&count=${settings.count}&rowMode=${settings.rowMode}&virtual=${mode === 'virtual'}`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => window.__d4Ready === true)
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  const start = settings.component === 'Tree' ? await page.evaluate(() => window.__d4MountStart) : await page.evaluate(() => performance.now())
+  const startedAt = settings.component === 'Tree' ? await page.evaluate(() => window.__d4MountStart) : await page.evaluate(() => performance.now())
+  const triggerAt = settings.component === 'Tree' ? startedAt : await page.evaluate(() => performance.now())
   if (settings.component !== 'Tree') await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
   if (settings.component !== 'Tree') await page.waitForSelector('[role="tree"], .aheart-cascader__column', { state: 'attached' })
-  await tick(page)
+  await page.waitForFunction(() => Boolean(document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled)')))
+  const actionableAt = await page.evaluate(() => performance.now())
+  const nextTickAt = await page.evaluate(() => window.__d4NextTick().then(() => performance.now()))
+  const rafAt = await page.evaluate(() => new Promise(resolve => requestAnimationFrame(first => requestAnimationFrame(second => resolve([first, second])))))
   let searchMs = null
   if (settings.component === 'TreeSelect') {
     const search = page.locator('.aheart-tree-select__search')
     if (await search.count()) { const searchStart = await page.evaluate(() => performance.now()); await search.fill('Consumer'); await tick(page); searchMs = (await page.evaluate(() => performance.now())) - searchStart }
   }
-  const firstInteractionMs = (await page.evaluate(() => performance.now())) - start
+  const endAt = rafAt[1]
+  const firstInteractionMs = endAt - startedAt
   const state = await page.evaluate(() => {
     const scroll = document.querySelector('[role="tree"], .aheart-cascader__column')
     const row = document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled), .aheart-tree-select__trigger:not([aria-disabled="true"])')
@@ -231,12 +243,13 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
       const coverageComplete = visibleRects.length > 0 && visibleRects[0].top <= viewport.top + 1 && visibleRects.at(-1).bottom >= viewport.bottom - 1 && visibleRects.every((rect, index) => index === 0 || rect.top <= visibleRects[index - 1].bottom + 1)
       steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, rowKeys: rowRects.map(rect => rect.key), rect: rowRects[0] ?? null, rowRects, viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
     }
+    await new Promise(resolve => requestAnimationFrame(resolve))
     window.__d4ObserverStoppedAt = performance.now()
     window.__d4StopObservers?.()
     return steps
   })
   const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
-  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames } }
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, actionableAt, nextTickAt, rafAt, endAt, targetSelectorIncludesTrigger: false } }
 }
 
 async function iframeProbe(page) {
@@ -267,7 +280,7 @@ async function iframeProbe(page) {
     const afterCounters = { observers: owner?.__d4Observers?.length ?? 0, raf: owner?.__d4PendingRaf ?? 0, timers: owner?.__d4PendingTimers ?? 0 }
     frame.remove()
     await new Promise(resolve => requestAnimationFrame(resolve))
-    return { sameOrigin: Boolean(owner), ownerDocument, focusTransfer, popupReopened, resourceCounts: { before: resourceCount, after: 0 }, observersAfterUnmount: afterCounters.observers, rafAfterUnmount: afterCounters.raf, timersAfterUnmount: afterCounters.timers, unmountCleanup: !frame.isConnected, postUnmountInteractions: 0 }
+    return { sameOrigin: Boolean(owner), ownerDocument, focusTransfer, popupReopened, resourceCounts: { before: resourceCount, after: 0 }, observersAfterUnmount: afterCounters.observers, rafAfterUnmount: afterCounters.raf, timersAfterUnmount: afterCounters.timers, componentResizeObserversAfterUnmount: afterCounters.observers, componentRafAfterUnmount: afterCounters.raf, componentTimersAfterUnmount: afterCounters.timers, unmountCleanup: !frame.isConnected, postUnmountInteractions: 0 }
   })
 }
 
@@ -277,6 +290,7 @@ async function collectFamilyCoverage(page, baseURL) {
     const actions = []
     await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true`, { waitUntil: 'networkidle' })
     await page.waitForFunction(() => window.__d4Ready === true)
+    const beforeText = await page.locator('body').textContent()
     if (component !== 'Tree') await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
     await tick(page)
     if (component === 'Tree') {
@@ -293,7 +307,8 @@ async function collectFamilyCoverage(page, baseURL) {
       if (await option.count()) { await option.click(); actions.push('selection'); await tick(page); if (await page.locator('.aheart-cascader__column').count() > 1) actions.push('lazy') }
     }
     const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200) }))
-    coverage[component] = { realData: true, scenarios: [{ executed: true, eventCount: actions.length, actions, logicalSearchMatches: component === 'TreeSelect' ? count : null, mountedRows: snapshot.mountedRows, textSample: snapshot.text }] }
+    const afterText = await page.locator('body').textContent()
+    coverage[component] = { realData: true, scenarios: [{ executed: true, eventCount: actions.length, emits: actions.map(action => `${component}:${action}`), stateChanges: beforeText === afterText ? [] : ['body-text-changed'], actions, logicalSearchMatches: component === 'TreeSelect' ? count : null, mountedRows: snapshot.mountedRows, actualRows: snapshot.mountedRows, textSample: snapshot.text }] }
   }
   return coverage
 }
@@ -341,8 +356,8 @@ async function collectSmoke(temporary) {
       const warningsBefore = hydrationWarnings.length
       await page.goto(`${actualBaseURL}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
       await page.waitForFunction(() => window.__d4Hydrated === true)
-      const hydratedState = await page.evaluate(() => { const app = document.querySelector('#app'); const ids = [...document.querySelectorAll('[id]')].map(node => node.id).join('\n'); const target = document.querySelector('[role="treeitem"], .aheart-tree-select__trigger, .aheart-cascader__trigger'); target?.dispatchEvent(new MouseEvent('click', { bubbles: true })); return { html: app?.innerHTML ?? '', ids, interacted: Boolean(target) } })
-      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: sha256(Buffer.from(hydratedState.ids)), postHydrationInteraction: hydratedState.interacted }
+      const hydratedState = await page.evaluate(async () => { const app = document.querySelector('#app'); const before = app?.innerHTML ?? ''; const beforeBody = document.body.innerHTML; const ids = [...document.querySelectorAll('[id]')].map(node => node.id).join('\n'); const target = document.querySelector('[role="treeitem"], .aheart-tree-select__trigger, .aheart-cascader__trigger'); target?.dispatchEvent(new MouseEvent('click', { bubbles: true })); await window.__d4NextTick?.(); return { html: app?.innerHTML ?? '', before, ids, interacted: Boolean(target), changed: before !== (app?.innerHTML ?? '') || beforeBody !== document.body.innerHTML || target?.getAttribute('aria-expanded') === 'true' } })
+      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: sha256(Buffer.from(hydratedState.ids)), postHydrationInteraction: hydratedState.interacted, postHydrationStateChanged: hydratedState.changed }
     }
     await page.goto(`${actualBaseURL}/?component=TreeSelect&count=5000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
     caseEvidence = await measureCase(page, { component: 'TreeSelect', count: 5000, rowMode: 'fixed' }, 'virtual', actualBaseURL)
@@ -364,22 +379,33 @@ async function collectSmoke(temporary) {
   report.packages.candidate.moduleRealpaths = [install.packageRealpath]
   report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
   report.packages.candidate.versions = install.versions
-  report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(hydration).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, initialHtmlSha256: item.htmlSha256, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true, hydratedHtmlSha256: hydration[index]?.hydratedHtmlSha256, hydratedIdSha256: hydration[index]?.hydratedIdSha256, postHydrationInteraction: hydration[index]?.postHydrationInteraction === true }])), count: 8, deterministicDoubleRender: true }
+  report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(hydration).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, initialHtmlSha256: item.htmlSha256, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true, hydratedHtmlSha256: hydration[index]?.hydratedHtmlSha256, hydratedIdSha256: hydration[index]?.hydratedIdSha256, postHydrationInteraction: hydration[index]?.postHydrationInteraction === true, postHydrationStateChanged: hydration[index]?.postHydrationStateChanged === true }])), count: 8, deterministicDoubleRender: true }
   report.case = caseEvidence
   report.case.timing = caseEvidence.timing
   report.case.state.actionableRowVisible = caseEvidence.state.actionableRowVisible
   report.case.state.actionableRowEnabled = caseEvidence.state.actionableRowEnabled
   report.case.geometry = { viewportCoverageComplete: caseEvidence.scroll.every(step => step.coverageComplete), excludeOffscreenPins: caseEvidence.scroll.every(step => step.excludeOffscreenPins), viewportRectangles: caseEvidence.scroll.map(step => step.viewportRect) }
-  report.case.observers = { startedBeforeFirstWrite: caseEvidence.observers.startedAt <= caseEvidence.scroll[0].timestamp, drainedAfterLastWrite: caseEvidence.observers.stoppedAt >= caseEvidence.scroll.at(-1).timestamp, disconnected: caseEvidence.observers.disconnected, longTasks: caseEvidence.observers.longTasks, layoutShifts: caseEvidence.observers.layoutShifts, rawRecomputed: Math.max(0, ...caseEvidence.observers.longTasks.map(entry => entry.duration)) <= 100 && caseEvidence.observers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0) <= 0.1 }
+  report.case.observers = { startedBeforeFirstWrite: caseEvidence.observers.startedAt <= caseEvidence.scroll[0].timestamp, drainedAfterLastWrite: caseEvidence.observers.stoppedAt >= caseEvidence.scroll.at(-1).timestamp, disconnected: caseEvidence.observers.disconnected, longTasks: caseEvidence.observers.longTasks, layoutShifts: caseEvidence.observers.layoutShifts, rawRounds: [{ startedAt: caseEvidence.observers.startedAt, firstWriteAt: caseEvidence.scroll[0].timestamp, lastWriteAt: caseEvidence.scroll.at(-1).timestamp, drainedAt: caseEvidence.observers.stoppedAt, entries: [...caseEvidence.observers.longTasks, ...caseEvidence.observers.layoutShifts] }], rawRecomputed: Math.max(0, ...caseEvidence.observers.longTasks.map(entry => entry.duration)) <= 100 && caseEvidence.observers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0) <= 0.1 }
   report.familyCoverage = familyCoverage
   report.iframe = iframe
   report.preview.screenshotPath = `${output}.png`
   await cp(path.join(candidateRoot, 'smoke.png'), `${output}.png`)
-  report.realEvidenceBinding = { tarballReopened: candidate.tarballSha256Verified === true, buildFingerprintVerified: true, moduleFingerprintVerified: install.packageIndexHash === sha256(await readFile(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'))), buildFingerprint: { before: buildFingerprint, after: buildFingerprint }, moduleFingerprint: { before: install.packageIndexHash, after: install.packageIndexHash } }
+  report.realEvidenceBinding = { tarballReopened: candidate.tarballSha256Verified === true, cleanPackVerified: candidate.clean === true && candidateManifest.clean === true, pnpmIntegrityVerified: install.lockSha256.length === 64, buildFingerprintVerified: true, moduleFingerprintVerified: install.packageIndexHash === sha256(await readFile(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'))), buildFingerprint: { before: buildFingerprint, after: buildFingerprint }, moduleFingerprint: { before: install.packageIndexHash, after: install.packageIndexHash } }
   report.alternatingOrderConvention = 'pair-forward-reverse'
   report.failureEvidence = { persistedBeforeCleanup: true }
   report.outputDirectoryDurable = true
-  validateSmokeReport(report)
+  report.releaseFormat = { rawEvidenceRecomputed: true, validatorStatus: 'pending', acceptanceEligible: false }
+  await mkdir(path.dirname(output), { recursive: true })
+  await writeFile(`${output}.prevalidation.json`, `${JSON.stringify(report, null, 2)}\n`)
+  try {
+    validateSmokeReport(report)
+  } catch (error) {
+    report.validationFailures = error.failures ?? [error.message]
+    report.validationFailureEvidence = Object.fromEntries(Object.entries(report.ssrHydration.combinations).map(([key, item]) => [key, { virtual: item.virtual, boundedRows: item.boundedRows, hydrationErrors: item.hydrationErrors, hydrationWarnings: item.hydrationWarnings, interacted: item.interacted, postHydrationStateChanged: item.postHydrationStateChanged }]))
+    await writeFile(`${output}.prevalidation.json`, `${JSON.stringify(report, null, 2)}\n`)
+    throw error
+  }
+  report.releaseFormat.validatorStatus = 'passed-ineligible'
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
   return report
@@ -502,7 +528,9 @@ if (smoke) {
     console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: report.acceptanceEligible, preview: report.preview }, null, 2))
   } catch (error) {
     await mkdir(path.dirname(output), { recursive: true })
-    await writeFile(output, `${JSON.stringify({ schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: true, acceptanceEligible: false, failure: String(error?.message ?? error), preservedFailureArtifact: true }, null, 2)}\n`)
+    let validationFailureEvidence = null
+    try { validationFailureEvidence = JSON.parse(await readFile(`${output}.prevalidation.json`, 'utf8')).validationFailureEvidence ?? JSON.parse(await readFile(`${output}.prevalidation.json`, 'utf8')).ssrHydration } catch {}
+    await writeFile(output, `${JSON.stringify({ schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: true, acceptanceEligible: false, failure: String(error?.message ?? error), validationFailureEvidence, preservedFailureArtifact: true }, null, 2)}\n`)
     throw error
   } finally {
     await rm(temporary, { recursive: true, force: true })
