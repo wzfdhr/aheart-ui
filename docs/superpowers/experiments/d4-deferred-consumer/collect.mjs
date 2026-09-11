@@ -87,7 +87,7 @@ async function verifyTarball(tarball, label, root, manifestAttestation) {
 }
 
 async function installConsumer(root) {
-  for (const file of ['package.json', 'pnpm-lock.yaml', 'shared-app.mjs', 'index.html', 'main.mjs', 'types.ts']) await cp(path.join(fixture, file), path.join(root, file))
+  for (const file of ['package.json', 'pnpm-lock.yaml', 'shared-app.mjs', 'index.html', 'main.mjs', 'types.ts', 'tsconfig.json']) await cp(path.join(fixture, file), path.join(root, file))
   await run('corepack', ['pnpm', 'install', '--lockfile-only', '--ignore-scripts', '--no-frozen-lockfile', '--config.node-linker=hoisted'], { cwd: root, maxBuffer: 16 * 1024 * 1024 })
   await run('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts', '--config.node-linker=hoisted'], { cwd: root, maxBuffer: 32 * 1024 * 1024 })
   const link = await run('node', ['-e', "const fs=require('fs');process.stdout.write(String(fs.lstatSync('node_modules/aheart-ui').isSymbolicLink()))"], { cwd: root })
