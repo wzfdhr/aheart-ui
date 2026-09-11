@@ -266,7 +266,14 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       ensure(report.typeProbe.command === 'corepack pnpm exec tsc --noEmit -p tsconfig.type-probe.json --pretty false' && report.typeProbe.commandSha256 === sha256(Buffer.from(report.typeProbe.command)), 'consumer type probe command provenance is invalid', failures)
     } catch (error) { failures.push(`consumer type probe cannot be reopened: ${error.message}`) }
   }
-  const requiresSnapshotArtifacts = report?.sourceKind === 'collected' && report?.ssrHydration?.status === 'recorded' && Object.keys(report?.ssrHydration?.combinations ?? {}).length === 8 && Boolean(report?.artifactDirectory)
+  const boundedMode = report?.sourceKind === 'collected' && report?.smoke === true
+  const fullMode = report?.sourceKind === 'collected' && report?.smoke === false && report?.preflight !== true && report?.acceptanceEligible === true
+  const requiresSnapshotArtifacts = boundedMode || fullMode
+  if (requiresSnapshotArtifacts) {
+    if (!report.artifactDirectory) failures.push(`${boundedMode ? 'bounded' : 'full'} capture artifact directory is mandatory`)
+    if (report.ssrHydration?.status !== 'recorded') failures.push(`${boundedMode ? 'bounded' : 'full'} SSR status recorded is mandatory for capture artifacts`)
+    if (Object.keys(report.ssrHydration?.combinations ?? {}).length !== 8) failures.push(`${boundedMode ? 'bounded' : 'full'} capture artifacts require eight SSR combinations`)
+  }
   for (const [combinationKey, item] of requiresSnapshotArtifacts ? Object.entries(report.ssrHydration?.combinations ?? {}) : []) {
     const evidence = item.captureEvidence
     if (!Array.isArray(evidence) || evidence.length !== 2) { failures.push(`${combinationKey} capture artifact evidence must contain two records`); continue }
@@ -543,12 +550,29 @@ function makeBrowsers() {
 
 function makeSsr() {
   const combinations = {}
+  const normalize = html => html.replace(/\s+/g, ' ').trim()
+  const makeSnapshot = (phase, nonce, mask) => {
+    const identities = ['Tree/root', 'Tree/row', 'TreeSelect/trigger', 'TreeSelect/root', 'Cascader/trigger', 'Cascader/root']
+    const nodes = identities.map((identity, index) => {
+      const [component, kind] = identity.split('/')
+      const id = `fixture-${mask}-${component.toLowerCase()}-${kind}-${index}`
+      const selector = component === 'Tree' ? (kind === 'row' ? '.aheart-tree__node' : '.aheart-tree') : component === 'TreeSelect' ? (kind === 'trigger' ? '.aheart-tree-select__trigger' : '.aheart-tree-select__panel') : (kind === 'trigger' ? '.aheart-cascader__trigger' : '.aheart-cascader__panel')
+      return { id, component, kind, selector, selectorProvenance: { source: 'document.querySelector', selector }, selectorMatchCount: 1, selectorResolved: true, role: kind === 'row' ? 'treeitem' : null, ariaControls: null, ariaActivedescendant: null, ariaLabelledby: null, ariaDescribedby: null, focusModel: null }
+    })
+    const rawMainHtml = `<main data-fixture="${mask}"></main>`
+    const rawTeleportHtml = `<div data-fixture-teleport="${mask}"></div>`
+    const snapshot = { capturePhase: phase, captureNonce: nonce, sortedIds: nodes.map(node => node.id).sort(), nodes, focusModel: null, rawMainHtml, rawTeleportHtml, mainHtml: normalize(rawMainHtml), teleportHtml: normalize(rawTeleportHtml), combinedHtml: normalize(rawMainHtml + rawTeleportHtml) }
+    snapshot.mainHtmlSha256 = sha256(Buffer.from(snapshot.mainHtml)); snapshot.teleportHtmlSha256 = sha256(Buffer.from(snapshot.teleportHtml)); snapshot.combinedSha256 = sha256(Buffer.from(snapshot.combinedHtml))
+    return snapshot
+  }
   for (let mask = 0; mask < 8; mask++) {
     const virtual = COMPONENTS.map((component, index) => [component, Boolean(mask & (1 << index))])
     const key = virtual.map(([component, enabled]) => `${component}=${enabled}`).join(',')
-    combinations[key] = { virtual: Object.fromEntries(virtual), deterministic: true, hydrationWarnings: 0, hydrationErrors: 0, bounded: true }
+    const serverSnapshot = makeSnapshot('server-before-hydration', `${key}-server`, mask)
+    const hydratedSnapshot = makeSnapshot('hydrated-after-mount', `${key}-hydrated`, mask)
+    combinations[key] = { virtual: Object.fromEntries(virtual), deterministic: true, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, serverSnapshot, hydratedSnapshot, postHydrationActions: COMPONENTS.map(component => ({ component, target: { selector: `#fixture-${component.toLowerCase()}-action`, selectorProvenance: { source: 'document.querySelector', selector: `#fixture-${component.toLowerCase()}-action` }, id: null }, beforeState: { value: 'before' }, afterState: { value: 'after' }, callbackEventNames: [`${component}:change`] })), captureEvidence: [1, 2].map(ordinal => ({ ordinal, combinationKey: key, phase: ordinal === 1 ? serverSnapshot.capturePhase : hydratedSnapshot.capturePhase, nonce: ordinal === 1 ? serverSnapshot.captureNonce : hydratedSnapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(ordinal === 1 ? serverSnapshot : hydratedSnapshot)))), path: `/synthetic/${mask}/${ordinal}.json`, sha256: 'a'.repeat(64) })), initialRowsByComponent: Object.fromEntries(COMPONENTS.map(component => [component, Object.values(Object.fromEntries(virtual)).includes(true) ? 12 : 100])), componentRows: Object.fromEntries(COMPONENTS.map(component => [component, 100])), initialIdSha256: sha256(Buffer.from(JSON.stringify(serverSnapshot.sortedIds))), hydratedIdSha256: sha256(Buffer.from(JSON.stringify(hydratedSnapshot.sortedIds))), postHydrationInteraction: true, postHydrationStateChanged: true, businessEventsAfterHydration: 3 }
   }
-  return { combinations, count: 8, deterministicDoubleRender: true }
+  return { status: 'recorded', combinations, count: 8, deterministicDoubleRender: true }
 }
 
 export function buildAcceptanceFixture({ baselinePackage, candidatePackage, generatedAt = new Date(0).toISOString(), smoke = false } = {}) {
@@ -579,6 +603,7 @@ export function buildAcceptanceFixture({ baselinePackage, candidatePackage, gene
     performance,
     browsers: makeBrowsers(),
     ssrHydration: makeSsr(),
+    typeProbe: { typesPath: '/tmp/d4-types-probe.ts', configPath: '/tmp/d4-tsconfig.type-probe.json', tscExitCode: 0, positiveChecks: ['TreeVirtual', 'TreeSelectVirtual', 'CascaderVirtual', 'h(Tree)', 'h(Cascader)'], negativeChecks: ['bad TreeVirtual', 'bad TreeSelectVirtual', 'bad CascaderVirtual'] },
     iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 },
     gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: { baseline: '/tmp/baseline/aheart-ui/es/index.js', candidate: '/tmp/candidate/aheart-ui/es/index.js' } }, baseline: { files: baselineFiles, rawBytes: baselineFiles.reduce((sum, file) => sum + file.rawBytes, 0), gzipBytes: total(baselineFiles) }, candidate: { files: candidateFiles, rawBytes: candidateFiles.reduce((sum, file) => sum + file.rawBytes, 0), gzipBytes: total(candidateFiles) }, deltaBytes: total(candidateFiles) - total(baselineFiles), limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
     cases: performance.cases,
@@ -718,6 +743,46 @@ export function recomputeEvidence(report) {
   return { firstInteraction, gzip, errors }
 }
 
+export function validateSsrEvidence(report, failures = [], mode = 'bounded') {
+  const prefix = mode === 'full' ? 'full' : 'bounded'
+  const expectedKinds = ['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger']
+  const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
+  const combinations = Object.entries(report?.ssrHydration?.combinations ?? {})
+  ensure(combinations.length === 8, `${prefix} SSR snapshots require eight combinations`, failures)
+  for (const [key, item] of combinations) {
+    const server = item.serverSnapshot
+    const hydrated = item.hydratedSnapshot
+    ensure(server && hydrated, `${prefix} SSR snapshots missing for ${key}`, failures)
+    if (!server || !hydrated) continue
+    for (const [phase, snapshot] of [['server-before-hydration', server], ['hydrated-after-mount', hydrated]]) {
+      ensure(snapshot.capturePhase === phase && typeof snapshot.captureNonce === 'string' && snapshot.captureNonce.length > 0, `${prefix} SSR snapshots phase/nonce invalid for ${key}`, failures)
+      ensure(snapshot.nodes?.length === 6 && JSON.stringify((snapshot.nodes ?? []).map(node => `${node.component}/${node.kind}`).sort()) === JSON.stringify(expectedKinds), `${prefix} SSR snapshots must contain exactly six unique nodes for ${key}`, failures)
+      const ids = new Set(snapshot.sortedIds ?? [])
+      ensure(JSON.stringify(snapshot.sortedIds) === JSON.stringify([...ids].sort()) && ids.size === snapshot.sortedIds.length, `${prefix} SSR snapshots IDs are not sorted and unique for ${key}`, failures)
+      for (const node of snapshot.nodes ?? []) {
+        if (node.id == null) ensure(node.component === 'Cascader' && node.kind === 'trigger', `${prefix} SSR snapshots id-less node is invalid for ${key}`, failures)
+        else ensure(ids.has(node.id), `${prefix} SSR snapshots node ID is not recorded for ${key}`, failures)
+        ensure(node.selectorProvenance?.source === 'document.querySelector' && node.selectorMatchCount === 1 && node.selectorResolved === true, `${prefix} SSR snapshots selector provenance is invalid for ${key}`, failures)
+        const pattern = node.component === 'Tree' ? (node.kind === 'row' ? /treeitem|aheart-tree__node/ : /aheart-tree/) : node.component === 'TreeSelect' ? (node.kind === 'trigger' ? /tree-select__trigger/ : /tree-select__panel|tree/) : (node.kind === 'trigger' ? /cascader__trigger/ : /cascader__panel|cascader__column/)
+        ensure(pattern.test(node.selector ?? ''), `${prefix} SSR snapshots selector component pattern/identity mismatch for ${key}`, failures)
+        for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) {
+          ensure(Object.prototype.hasOwnProperty.call(node, attribute), `${prefix} SSR snapshots ARIA field missing for ${key}`, failures)
+          const value = node[attribute]
+          if (value != null && value !== '') ensure((Array.isArray(value) ? value : String(value).split(/\s+/)).every(reference => ids.has(reference)), `${prefix} SSR snapshots ARIA reference missing for ${key}`, failures)
+        }
+      }
+      ensure(typeof snapshot.rawMainHtml === 'string' && typeof snapshot.rawTeleportHtml === 'string' && snapshot.mainHtml === normalize(snapshot.rawMainHtml) && snapshot.teleportHtml === normalize(snapshot.rawTeleportHtml) && snapshot.combinedHtml === normalize(snapshot.rawMainHtml + snapshot.rawTeleportHtml), `${prefix} SSR snapshots raw/normalized mismatch for ${key}`, failures)
+      ensure(!/<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i.test(snapshot.rawMainHtml) && !/<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i.test(snapshot.rawTeleportHtml), `${prefix} SSR snapshots contain diagnostic pollution for ${key}`, failures)
+      ensure(snapshot.mainHtmlSha256 === sha256(Buffer.from(snapshot.mainHtml)) && snapshot.teleportHtmlSha256 === sha256(Buffer.from(snapshot.teleportHtml)) && snapshot.combinedSha256 === sha256(Buffer.from(snapshot.combinedHtml)), `${prefix} SSR snapshots hash mismatch for ${key}`, failures)
+    }
+    ensure(JSON.stringify(snapshotStructureProjection(server)) === JSON.stringify(snapshotStructureProjection(hydrated)) && server.captureNonce !== hydrated.captureNonce, `${prefix} SSR snapshots are not independent captures for ${key}`, failures)
+    ensure(Array.isArray(item.postHydrationActions) && JSON.stringify([...new Set(item.postHydrationActions.map(action => action.component))].sort()) === JSON.stringify(['Cascader', 'Tree', 'TreeSelect']) && item.postHydrationActions.length === 3 && item.postHydrationActions.every(action => action.target?.selector && action.beforeState && action.afterState && JSON.stringify(action.beforeState) !== JSON.stringify(action.afterState) && action.callbackEventNames?.length > 0), `${prefix} SSR actions evidence is missing for ${key}`, failures)
+    ensure(Array.isArray(item.captureEvidence) && item.captureEvidence.length === 2 && item.captureEvidence.every((record, index) => record.ordinal === index + 1 && record.combinationKey === key && record.phase === (index === 0 ? server.capturePhase : hydrated.capturePhase) && record.nonce === (index === 0 ? server.captureNonce : hydrated.captureNonce) && record.structureSha256), `${prefix} SSR capture evidence is missing for ${key}`, failures)
+    for (const component of COMPONENTS) { const rows = item.initialRowsByComponent?.[component]; ensure(Number.isInteger(rows) && rows > 0, `${prefix} SSR initial row evidence is missing for ${key}/${component}`, failures); if (item.virtual?.[component] === true) ensure(rows <= RELEASE_MATRIX.maxVirtualRows, `${prefix} virtual initial row window exceeds limit for ${key}/${component}`, failures); else ensure(rows === item.componentRows?.[component], `${prefix} SSR full row evidence mismatch for ${key}/${component}`, failures) }
+  }
+  return failures
+}
+
 export function validateReport(report, { requireRelease = false, requireSmokeChecks = false, allowValidationPhase = false } = {}) {
   if (report?.smoke === true && requireSmokeChecks) return validateSmokeReport(report)
   const failures = []
@@ -791,9 +856,14 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
       ensure(item.layoutShifts?.status === 'unsupported' && item.layoutShifts.reason, `${browser} layout-shift metrics must be explicitly unsupported`, failures)
     }
   }
-  const hasFullSsrEvidence = Object.values(report?.ssrHydration?.combinations ?? {}).some(item => item.serverSnapshot || item.hydratedSnapshot || item.captureEvidence || item.postHydrationActions)
-  const isFullReport = report?.preflight !== true && report?.smoke !== true && report?.acceptanceEligible === true && hasFullSsrEvidence
+  const isFullReport = report?.preflight !== true && report?.smoke !== true && report?.acceptanceEligible === true
   if (isFullReport) {
+    const fullItems = Object.values(report.ssrHydration?.combinations ?? {})
+    if (!fullItems.every(item => item.serverSnapshot && item.hydratedSnapshot)) failures.push('full SSR snapshots evidence is missing')
+    if (!fullItems.every(item => Array.isArray(item.postHydrationActions))) failures.push('full SSR actions evidence is missing')
+    if (!fullItems.every(item => Array.isArray(item.captureEvidence))) failures.push('full SSR capture evidence is missing')
+    if (!report.typeProbe) failures.push('full public type probe evidence is missing')
+    validateSsrEvidence(report, failures, 'full')
     const expectedKinds = ['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger']
     const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
     ensure(report.typeProbe?.typesPath && report.typeProbe?.configPath && report.typeProbe?.tscExitCode === 0 && Array.isArray(report.typeProbe.positiveChecks) && report.typeProbe.positiveChecks.length >= 5 && Array.isArray(report.typeProbe.negativeChecks) && report.typeProbe.negativeChecks.length >= 3, 'full public type probe evidence is missing', failures)
@@ -861,6 +931,7 @@ export function validateBoundedReleaseReport(report) {
   ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'bounded report must be smoke=true and acceptanceEligible=false', failures)
   ensure(/^bounded-[0-9]+-[a-f0-9]+$/i.test(report?.runId ?? ''), 'bounded run identity is invalid', failures)
   ensure(report?.releaseFormat?.validatorName === 'validateBoundedReleaseReport', 'bounded validator identity is invalid', failures)
+  validateSsrEvidence(report, failures, 'bounded')
   ensure(report?.sourceKind === 'collected' && report.runId && report.collectorSourceSha256, 'bounded report collector provenance is missing', failures)
   const reopen = (label, file, expected) => { if (!file || !existsSync(file)) { failures.push(`${label} artifact path does not exist`); return } try { ensure(Boolean(expected) && sha256(readFileSync(file)) === expected, `${label} reopened hash mismatch`, failures) } catch (error) { failures.push(`${label} artifact cannot be reopened: ${error.message}`) } }
   reopen('collector source', report.collectorSourcePath, report.collectorSourceSha256)

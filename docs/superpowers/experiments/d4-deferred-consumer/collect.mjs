@@ -804,66 +804,9 @@ async function collectSmoke(temporary) {
   let caseEvidence
   let iframe
   let familyCoverage
-  const hydration = await collectHydratedSsrEvidence({ page, baseURL: actualBaseURL, ssr, artifactDirectory: durableDir, browserErrors: errors, hydrationWarnings })
+  let hydration
   try {
-    for (let mask = 0; mask < 8; mask++) {
-      const errorsBefore = errors.length
-      const warningsBefore = hydrationWarnings.length
-      await page.goto(`${actualBaseURL}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
-      await page.waitForFunction(() => window.__d4Hydrated === true)
-      const hydratedState = await page.evaluate(async () => {
-        const app = document.querySelector('#app')
-        const before = app?.innerHTML ?? ''
-        const serverSnapshot = window.__d4ServerSnapshot
-        const hydratedSnapshot = window.__d4HydratedSnapshot
-        window.__d4EventLog = []
-        const settle = async () => { await window.__d4NextTick?.(); await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) }
-        const actions = []
-        const act = async (component, selector, target) => {
-          target ??= document.querySelector(selector)
-          if (!target) throw new Error(`${component} SSR hydration action target missing`)
-          const beforeState = { expanded: target.getAttribute('aria-expanded'), checked: target.getAttribute('aria-checked'), selected: target.getAttribute('aria-selected'), text: target.textContent }
-          const eventStart = window.__d4EventLog.length
-          target.click()
-          await settle()
-          const afterState = { expanded: target.getAttribute('aria-expanded'), checked: target.getAttribute('aria-checked'), selected: target.getAttribute('aria-selected'), text: target.textContent }
-          const callbackEventNames = window.__d4EventLog.slice(eventStart).map(event => event.name)
-          actions.push({ component, target: { selector, selectorProvenance: { source: 'document.querySelector', selector }, id: target.id || null }, beforeState, afterState, callbackEventNames })
-        }
-        await act('Tree', '#d4-tree [role="treeitem"]')
-        await act('TreeSelect', '.aheart-tree-select__trigger')
-        await act('Cascader', '.aheart-cascader__trigger')
-        const html = app?.innerHTML ?? ''
-        const eventNames = (window.__d4EventLog ?? []).map(event => event.name)
-        return { html, before, ids: String(document.querySelectorAll('[id^="d4-"]').length), interacted: true, changed: before !== html, businessEvents: eventNames.length, businessEventNames: eventNames, expandedChanged: actions.some(action => action.beforeState.expanded !== action.afterState.expanded), serverSnapshot, hydratedSnapshot, postHydrationActions: actions }
-      })
-      const item = Object.values(ssr.combinations)[mask]
-      const hashSnapshot = snapshot => snapshot ? { ...snapshot, mainHtmlSha256: sha256(Buffer.from(snapshot.mainHtml)), teleportHtmlSha256: sha256(Buffer.from(snapshot.teleportHtml)), combinedSha256: sha256(Buffer.from(snapshot.combinedHtml)) } : snapshot
-      const serverSnapshot = hashSnapshot(hydratedState.serverSnapshot)
-      const hydratedSnapshot = hashSnapshot(hydratedState.hydratedSnapshot)
-      item.serverSnapshot = serverSnapshot
-      item.hydratedSnapshot = hydratedSnapshot
-      item.mainHtmlSha256 = serverSnapshot?.mainHtmlSha256
-      item.teleportHtmlSha256 = serverSnapshot?.teleportHtmlSha256
-      item.combinedSha256 = serverSnapshot?.combinedSha256
-      item.hydratedMainHtmlSha256 = hydratedSnapshot?.mainHtmlSha256
-      item.hydratedTeleportHtmlSha256 = hydratedSnapshot?.teleportHtmlSha256
-      item.initialRowsByComponent = Object.fromEntries(COMPONENTS.map(component => [component, item.componentRows?.[component] ?? 0]))
-      item.postHydrationActions = hydratedState.postHydrationActions
-      item.initialIdSha256 = sha256(Buffer.from(JSON.stringify(serverSnapshot?.sortedIds ?? [])))
-      item.hydratedIdSha256 = sha256(Buffer.from(JSON.stringify(hydratedSnapshot?.sortedIds ?? [])))
-      const captureEvidence = []
-      const combinationKey = Object.keys(ssr.combinations)[mask]
-      for (const [ordinal, snapshot] of [serverSnapshot, hydratedSnapshot].entries()) {
-        const snapshotPath = path.join(durableDir, 'ssr-snapshots', `${String(mask).padStart(2, '0')}-${ordinal + 1}.json`)
-        await mkdir(path.dirname(snapshotPath), { recursive: true })
-        const payload = `${JSON.stringify({ snapshot }, null, 2)}\n`
-        await writeFile(snapshotPath, payload)
-        captureEvidence.push({ ordinal: ordinal + 1, combinationKey, phase: snapshot.capturePhase, nonce: snapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(snapshot)))), path: snapshotPath, sha256: sha256(Buffer.from(payload)) })
-      }
-      item.captureEvidence = captureEvidence
-      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: item.hydratedIdSha256, postHydrationInteraction: hydratedState.interacted, postHydrationStateChanged: hydratedState.changed, businessEventsAfterHydration: hydratedState.businessEvents, businessEventNames: hydratedState.businessEventNames, expandedChanged: hydratedState.expandedChanged }
-    }
+    hydration = await collectHydratedSsrEvidence({ page, baseURL: actualBaseURL, ssr, artifactDirectory: durableDir, browserErrors: errors, hydrationWarnings })
     await page.goto(`${actualBaseURL}/?component=TreeSelect&count=5000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
     caseEvidence = await measureCase(page, { component: 'TreeSelect', count: 5000, rowMode: 'fixed' }, 'virtual', actualBaseURL)
     iframe = await iframeProbe(page)
@@ -1040,17 +983,6 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   })
   const fullHydration = await collectHydratedSsrEvidence({ page, baseURL: base, ssr, artifactDirectory: sideArtifactDir, browserErrors, hydrationWarnings })
   ssr.status = 'recorded'
-    for (let mask = 0; mask < 8; mask++) {
-      const errorsBefore = browserErrors.length
-      const warningsBefore = hydrationWarnings.length
-      await page.goto(`${base}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
-      await page.waitForFunction(() => window.__d4Hydrated === true)
-      const diagnostics = await page.evaluate(() => ({ body: document.body.textContent?.length ?? 0 }))
-      if (diagnostics.body === 0) hydrationErrors.push(`empty SSR hydration ${mask}`)
-      const item = Object.values(ssr.combinations)[mask]
-      item.hydrationErrors = browserErrors.length - errorsBefore
-      item.hydrationWarnings = hydrationWarnings.length - warningsBefore
-    }
     for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
       const settings = fixtureCount(component, count, rowMode)
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
