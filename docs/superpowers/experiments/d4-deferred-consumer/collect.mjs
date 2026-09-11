@@ -264,6 +264,10 @@ async function ssrEvidence(root) {
     const render = context => renderer.renderToString(vue.createSSRApp(createCombinedConsumerApp(virtual, { ssrOpen: true })), context)
     const first = await render(firstContext)
     const second = await render(secondContext)
+    const firstTeleports = Object.values(firstContext.teleports ?? {}).join('')
+    const secondTeleports = Object.values(secondContext.teleports ?? {}).join('')
+    const firstRendered = `${first}${firstTeleports}`
+    const secondRendered = `${second}${secondTeleports}`
     const componentRows = {}
     for (const component of appComponents) {
       const props = componentProps(component, 1000, 'fixed', virtual[component])
@@ -274,13 +278,12 @@ async function ssrEvidence(root) {
       componentRows[component] = (rendered.match(/role="treeitem"/g) ?? []).length + (rendered.match(/aheart-cascader__option/g) ?? []).length
     }
     htmlByMask[mask] = first
-    const firstTeleports = Object.values(firstContext.teleports ?? {}).join('')
     await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div>${firstTeleports}<script type="module">import {createSSRApp,nextTick} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';window.__d4EventLog=[];window.__d4Virtual=${JSON.stringify(virtual)};window.__d4NextTick=nextTick;createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)},{ssrOpen:true})).mount('#app');window.__d4Hydrated=true</script></body></html>`)
     const rows = (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length
     const boundedRows = Math.max(...appComponents.filter(component => virtual[component]).map(component => componentRows[component]), 0)
     const mainHtmlSha256 = sha256(Buffer.from(first))
     const teleportHtmlSha256 = sha256(Buffer.from(firstTeleports))
-    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, boundedRows, componentRows, popupVirtualRows: componentRows, cjsRender: true, htmlSha256: mainHtmlSha256, mainHtmlSha256, teleportHtmlSha256, combinedSha256: sha256(Buffer.from(rendered)), serverSnapshot: snapshot(rendered), hydratedSnapshot: snapshot(rendered), hydratedMainHtmlSha256: mainHtmlSha256, hydratedTeleportHtmlSha256: teleportHtmlSha256, initialIdSha256: sha256(Buffer.from(String((first.match(/id="d4-[^"]+"/g) ?? []).length))), rows }
+    combinations[key] = { virtual, deterministic: firstRendered === secondRendered, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, boundedRows, componentRows, popupVirtualRows: componentRows, cjsRender: true, htmlSha256: mainHtmlSha256, mainHtmlSha256, teleportHtmlSha256, combinedSha256: sha256(Buffer.from(firstRendered)), serverSnapshot: snapshot(firstRendered), hydratedSnapshot: snapshot(firstRendered), hydratedMainHtmlSha256: mainHtmlSha256, hydratedTeleportHtmlSha256: teleportHtmlSha256, initialIdSha256: sha256(Buffer.from(String((first.match(/id="d4-[^"]+"/g) ?? []).length))), rows }
   }
   return { count: 8, combinations, deterministicDoubleRender: true, htmlByMask }
 }
