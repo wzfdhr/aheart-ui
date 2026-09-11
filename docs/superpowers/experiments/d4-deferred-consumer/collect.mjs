@@ -283,10 +283,10 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   await page.goto(`${origin}/?component=${settings.component}&count=${settings.count}&rowMode=${settings.rowMode}&virtual=${mode === 'virtual'}`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => window.__d4Ready === true)
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  const startedAt = await page.evaluate(() => window.__d4MountStart ?? performance.now())
+  let startedAt = await page.evaluate(() => window.__d4MountStart ?? performance.now())
   let clickStartedAt = startedAt
   let clickCompletedAt = startedAt
-  if (settings.component !== 'Tree') { clickStartedAt = await page.evaluate(() => performance.now()); await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); clickCompletedAt = await page.evaluate(() => performance.now()) }
+  if (settings.component !== 'Tree') { clickStartedAt = await page.evaluate(() => performance.now()); startedAt = clickStartedAt; await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); clickCompletedAt = await page.evaluate(() => performance.now()) }
   const triggerAt = settings.component === 'Tree' ? await page.evaluate(() => performance.now()) : clickStartedAt
   if (settings.component === 'Tree') clickCompletedAt = triggerAt
   if (settings.component !== 'Tree') await page.waitForSelector('[role="tree"], .aheart-cascader__column', { state: 'attached' })
@@ -398,12 +398,56 @@ async function collectFamilyCoverage(page, baseURL) {
     }
     const rowModeEvidence = {}
     for (const rowMode of ['fixed', 'coarse', 'dynamic']) {
-      await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=${rowMode}&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : ''}`, { waitUntil: 'networkidle' })
+      await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=${rowMode}&virtual=true${component === 'Tree' ? '&treeScenario=flat10000' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : ''}`, { waitUntil: 'networkidle' })
       await page.waitForFunction(() => window.__d4Ready === true)
       if (component === 'Cascader') { await page.locator('.aheart-cascader__trigger').click(); await page.waitForSelector('.aheart-cascader__column', { state: 'attached' }) }
       if (component === 'TreeSelect') { await page.waitForSelector('.aheart-tree-select__panel .aheart-tree-select__search', { state: 'attached' }); await page.waitForFunction(() => document.querySelectorAll('.aheart-tree-select__panel [role="treeitem"], .aheart-tree-select__panel input[type="checkbox"]').length > 0, { timeout: 5000 }).catch(() => {}) }
       await tick(page)
-      rowModeEvidence[rowMode] = await page.evaluate(async modeName => { const target = document.querySelector('[role="tree"], .aheart-cascader__column'); const seen = new Map(); const offsets = [0, target ? target.clientHeight * 2 : 0, target ? (target.scrollHeight - target.clientHeight) * 0.5 : 0, target ? target.scrollHeight - target.clientHeight : 0]; for (const offset of offsets) { if (target) { target.scrollTop = Math.max(0, offset); target.dispatchEvent(new Event('scroll')) } await window.__d4NextTick?.(); await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); for (const row of [...(target?.querySelectorAll('[role="treeitem"], .aheart-cascader__option') ?? [])]) { const key = row.getAttribute('data-tree-key') || row.getAttribute('data-cascader-path-token') || row.id || row.textContent?.slice(0, 40); if (!seen.has(key)) { const rect = row.getBoundingClientRect(); const style = getComputedStyle(row); const logical = Number((key?.match(/(?:root|consumer|option)[^-]*-(\d+)/) ?? [])[1]); seen.set(key, { index: Number.isFinite(logical) ? logical : seen.size, key, rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height }, height: rect.height, expectedHeight: modeName === 'fixed' ? rect.height : modeName === 'coarse' ? 44 : Number.isFinite(logical) && logical % 10 === 0 ? rect.height : rect.height, wrapped: modeName === 'dynamic' && Number.isFinite(logical) && logical % 10 === 0 ? style.whiteSpace === 'normal' && rect.height > 28 : false, computedStyle: { whiteSpace: style.whiteSpace, lineHeight: style.lineHeight, height: style.height } }) } } } const metrics = [...seen.values()]; const template = metrics[0] ?? { key: 'observed-empty', rect: { top: 0, bottom: 0, left: 0, right: 0, height: 0 }, height: 0, expectedHeight: 0, wrapped: false, computedStyle: {} }; return [0, 1, 10, 20].map(index => { const observed = metrics.find(metric => metric.index === index); const base = observed ?? template; if (modeName === 'dynamic' && index % 10 === 0) return { ...base, index, height: Math.max(56, base.height), rect: { ...base.rect, height: Math.max(56, base.height) }, expectedHeight: Math.max(56, base.height), wrapped: true }; if (modeName === 'dynamic' && index === 1) return { ...base, index, height: 28, rect: { ...base.rect, height: 28 }, expectedHeight: 28, wrapped: false }; const height = modeName === 'fixed' ? base.height : modeName === 'coarse' ? Math.max(44, base.height) : base.height; return { ...base, index, height, rect: { ...base.rect, height }, expectedHeight: modeName === 'fixed' ? height : modeName === 'coarse' ? 44 : height, wrapped: false } }) }, rowMode)
+      rowModeEvidence[rowMode] = await page.evaluate(async ({ componentName, modeName, rowCount }) => {
+        const target = componentName === 'Cascader'
+          ? document.querySelector('.aheart-cascader__column')
+          : document.querySelector('[role="tree"]')
+        if (!target) throw new Error(`${componentName}/${modeName}: virtual scroll target missing`)
+        const expected = [0, 1, 10, 20]
+        const keyFor = index => componentName === 'Cascader' ? `consumer-${rowCount}-${index}` : `consumer-root-${index}`
+        const rows = () => [...target.querySelectorAll('[role="treeitem"], .aheart-cascader__option')]
+        const keyOf = row => row.getAttribute('data-tree-key') || row.getAttribute('data-cascader-value') || row.getAttribute('data-cascader-path-token') || row.id
+        const waitForRows = async () => {
+          await window.__d4NextTick?.()
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve)))))
+        }
+        const metrics = []
+        for (const index of expected) {
+          const expectedKey = keyFor(index)
+          let row
+          for (let attempt = 0; attempt <= 40 && !row; attempt += 1) {
+            const maxScroll = Math.max(0, target.scrollHeight - target.clientHeight)
+            const estimate = modeName === 'coarse' ? 44 : modeName === 'dynamic' ? (index % 10 === 0 ? 56 : 28) : 28
+            const searchEstimate = modeName === 'dynamic' ? 400 : 80
+            const searchMax = Math.min(maxScroll, Math.max(target.clientHeight * 4, (index + 2) * searchEstimate))
+            const desired = attempt === 0
+              ? Math.min(maxScroll, Math.max(0, index * estimate - target.clientHeight * 0.25))
+              : searchMax * (attempt / 40)
+            target.scrollTop = desired
+            target.dispatchEvent(new Event('scroll', { bubbles: true }))
+            await waitForRows()
+            row = rows().find(candidate => keyOf(candidate) === expectedKey)
+          }
+          if (!row) throw new Error(`${componentName}/${modeName}: could not mount ${expectedKey} after measured scroll attempts (scrollTop=${target.scrollTop}, scrollHeight=${target.scrollHeight}, clientHeight=${target.clientHeight}, rows=${rows().map(candidate => keyOf(candidate)).join(',')})`)
+          const rect = row.getBoundingClientRect()
+          const style = getComputedStyle(row)
+          const content = row.querySelector(componentName === 'Cascader' ? ':scope > span' : '.aheart-tree__title') || row
+          const contentStyle = getComputedStyle(content)
+          const contentRect = content.getBoundingClientRect()
+          const height = rect.bottom - rect.top
+          const parsedLineHeight = Number.parseFloat(contentStyle.lineHeight)
+          const lineHeight = Number.isFinite(parsedLineHeight) ? parsedLineHeight : Number.parseFloat(contentStyle.fontSize) * 1.2
+          const wrapped = modeName === 'dynamic' && index % 10 === 0 && contentStyle.whiteSpace === 'normal' && contentRect.height > lineHeight * 1.5
+          metrics.push({ index, key: keyOf(row), rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height }, height, expectedHeight: height, wrapped, scrollWidth: content.scrollWidth, clientWidth: content.clientWidth, scrollHeight: content.scrollHeight, clientHeight: content.clientHeight, lineHeight, computedStyle: { whiteSpace: contentStyle.whiteSpace, lineHeight: contentStyle.lineHeight, height: style.height } })
+        }
+        return metrics
+      }, { componentName: component, modeName: rowMode, rowCount: count })
     }
     await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : ''}`, { waitUntil: 'networkidle' })
     await page.waitForFunction(() => window.__d4Ready === true)
