@@ -569,6 +569,8 @@ const replaceChildren = (options: CascaderOption[], path: CascaderPath, children
 })
 const revealLastColumn = async () => {
   await nextTick()
+  await floatingPosition.update()
+  await nextTick()
   if (columnsRef.value) columnsRef.value.scrollLeft = columnsRef.value.scrollWidth
 }
 const handleOption = async (option: CascaderOption, columnIndex: number, owner?: FocusOwner) => {
