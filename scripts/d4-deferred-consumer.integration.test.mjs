@@ -428,80 +428,43 @@ test('real bounded iframe lifecycle evidence has authentic realm, popup, unmount
   const { report } = await collectRealBoundedReport()
   const iframe = report.iframe
   const components = ['Tree', 'TreeSelect', 'Cascader']
-  await t.test('scenario matrix and raw lifecycle artifact', async () => {
+  const assertRaw = () => { assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence'); assert.equal(iframe.rawLifecycle.schema, 'd4-iframe-lifecycle/v1'); assert.ok(Array.isArray(iframe.rawLifecycle.scenarios) && iframe.rawLifecycle.scenarios.length === 3); return iframe.rawLifecycle }
+  await t.test('scenario matrix, surface descriptors and raw artifact', async () => {
+    const raw = assertRaw()
     assert.equal(iframe.status, 'recorded')
-    assert.equal(iframe.scenarioUrls?.length, 3)
-    assert.deepEqual(iframe.scenarioUrls?.map(item => item.component).sort(), components)
-    assert.ok(iframe.scenarioUrls.every(item => typeof item.url === 'string' && item.url.length > 0))
+    assert.ok(iframe.lifecycleArtifact?.path && iframe.lifecycleArtifact.sha256)
+    const bytes = await readFile(iframe.lifecycleArtifact.path)
+    assert.equal(hash(bytes), iframe.lifecycleArtifact.sha256)
+    assert.deepEqual(JSON.parse(bytes), raw)
+    assert.deepEqual(raw.scenarios.map(item => item.component).sort(), components)
     assert.deepEqual(Object.keys(iframe.components ?? {}).sort(), components)
-    assert.ok(iframe.rawLifecycle?.rawArtifact?.path && iframe.rawLifecycle.rawArtifact.sha256)
-    const bytes = await readFile(iframe.rawLifecycle.rawArtifact.path)
-    assert.equal(hash(bytes), iframe.rawLifecycle.rawArtifact.sha256)
-    assert.deepEqual(JSON.parse(bytes), iframe.rawLifecycle)
-    for (const component of components) {
-      const evidence = iframe.components[component]
-      assert.ok(evidence.trigger?.selector && evidence.scroll?.selector && evidence.panel?.selector)
-      assert.equal(evidence.ownerDocument, true)
-      assert.equal(evidence.defaultView, true)
-    }
+    for (const component of components) { const evidence = iframe.components[component]; assert.ok(evidence.surface?.kind && evidence.scroll?.selector); if (component === 'Tree') assert.equal(evidence.surface.kind, 'inline'); else assert.equal(evidence.surface.kind, 'teleport'); assert.equal(evidence.ownerDocument, true); assert.equal(evidence.defaultView, true) }
   })
-  await t.test('resource constructors are instrumented before mount and fully drained', () => {
-    assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence')
-    const raw = iframe.rawLifecycle
-    assert.equal(raw.instrumentation?.installedBeforeMount, true)
-    assert.equal(raw.instrumentation?.realm, 'iframe')
-    assert.equal(raw.instrumentation?.collectorWaitsExcluded, true)
-    const constructors = raw.constructors
-    for (const name of ['resizeObserver', 'raf', 'timeout', 'interval']) {
-      assert.equal(constructors[name]?.proxyInstalled, true)
-      assert.ok(Array.isArray(constructors[name]?.records))
-      assert.equal(constructors[name]?.activeAfterUnmount, 0)
-      assert.ok(constructors[name].records.every(record => ['create', 'observe', 'callback', 'cancel', 'clear', 'disconnect'].includes(record.type)))
-    }
-    assert.ok(raw.createdBeforeUnmount > 0)
-    assert.equal(raw.constructorProxy?.resourceCountsFromRaw, true)
+  await t.test('resource constructor events are raw and drained', () => {
+    const raw = assertRaw(); assert.ok(raw.scenarios.every(scenario => scenario.events?.length > 0));
+    for (const scenario of raw.scenarios) { const install = scenario.events.find(event => event.type === 'instrumentation'); assert.ok(install && install.installedBeforeMount && install.realm === 'iframe' && install.collectorWaitsExcluded); for (const kind of ['resizeObserver', 'raf', 'timeout', 'interval']) { const records = scenario.events.filter(event => event.type === 'resource' && event.kind === kind); assert.ok(records.every(event => event.source === 'component-runtime' && event.realmId === scenario.realmId)); assert.equal(records.filter(event => event.action === 'activeAfterUnmount').length, 0) } }
+    assert.ok(raw.summary?.createdBeforeUnmount > 0); assert.equal(raw.summary?.activeAfterUnmount, 0)
   })
-  await t.test('frame popup focus and Teleport use the iframe realm', () => {
-    assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence')
-    const raw = iframe.rawLifecycle
-    for (const component of ['TreeSelect', 'Cascader']) {
-      const popup = raw.popup?.[component]
-      assert.equal(popup.openedByRealTrigger, true)
-      assert.equal(popup.panelParentRealm, 'iframe')
-      assert.equal(popup.panelOwnerDocument, true)
-      assert.equal(popup.panelDefaultView, true)
-      assert.equal(popup.parentDocumentResidualNodes, 0)
-      assert.equal(popup.escapeEventRealm, 'iframe')
-      assert.equal(popup.closedAfterEscape, true)
-      assert.equal(popup.frameTriggerFocusedAfterEscape, true)
-      assert.equal(popup.parentActiveElement, 'iframe')
-      assert.equal(popup.reopenedAfterEscape, true)
-    }
+  await t.test('popup focus Teleport unmount and late loader events are real', () => {
+    const raw = assertRaw(); for (const component of ['TreeSelect', 'Cascader']) { const events = raw.scenarios.find(scenario => scenario.component === component).events; for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) assert.ok(events.some(event => event.type === type && event.realmId === 'iframe')); assert.ok(events.some(event => event.type === 'popup-open' && event.ownerDocument === true && event.defaultView === true)) }
+    const cascader = raw.scenarios.find(scenario => scenario.component === 'Cascader').events; for (const type of ['lazy-pending', 'lazy-abort', 'lazy-resolve-after-unmount']) assert.ok(cascader.some(event => event.type === type)); assert.equal(raw.summary?.teleportResidualNodes, 0); assert.equal(raw.summary?.escapeFocusRestored, true); assert.equal(raw.summary?.unmountCleanup, true); assert.equal(raw.summary?.lateLazyStateUpdates, 0); assert.equal(raw.summary?.postUnmountInteractions, 0)
   })
-  await t.test('unmount and late lazy completion are observed without state mutation', () => {
-    assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence')
-    const raw = iframe.rawLifecycle
-    assert.equal(raw.unmount?.hookPresent, true)
-    assert.equal(raw.unmount?.invoked, true)
-    assert.equal(raw.unmount.frameConnectedBefore, true)
-    assert.equal(raw.unmount.frameConnectedAfter, true)
-    assert.equal(raw.unmount.beforeFrameRemove, true)
-    assert.equal(raw.unmount.ownerRealmFlushComplete, true)
-    assert.equal(raw.unmount.domResidualNodes, 0)
-    assert.equal(raw.unmount.teleportResidualNodes, 0)
-    assert.equal(raw.unmount.resourceResiduals, 0)
-    assert.equal(raw.lazy?.pendingStarted, true)
-    assert.equal(raw.lazy?.abortObserved, true)
-    assert.equal(raw.lazy?.resolverReturnedChildren, true)
-    assert.equal(raw.lazy?.loaderCompletion, 1)
-    assert.equal(raw.lazy?.componentUpdateCountAfterResolve, 0)
-    assert.equal(raw.lazy?.stateHashBefore, raw.lazy?.stateHashAfter)
-    assert.equal(raw.lazy?.domHashBefore, raw.lazy?.domHashAfter)
-    assert.deepEqual(raw.lazy?.callbacksAfterResolve, [])
-    assert.equal(raw.postUnmount?.escapeConsumed, false)
-    assert.equal(raw.postUnmount?.pointerConsumed, false)
-    assert.equal(raw.postUnmount?.updateCount, 0)
-  })
+})
+
+test('iframe lifecycle artifact mutation is rejected by reopened hash binding', async () => {
+  const { report } = await collectRealBoundedReport()
+  assert.ok(report.iframe?.lifecycleArtifact?.path)
+  const root = await mkdtemp(path.join(tmpdir(), 'd4-iframe-artifact-red-'))
+  try {
+    const copied = path.join(root, 'iframe-lifecycle.json')
+    await cp(report.iframe.lifecycleArtifact.path, copied)
+    await writeFile(copied, `${await readFile(copied)}\niframe-mutation`)
+    const forged = structuredClone(report)
+    forged.iframe.lifecycleArtifact.path = copied
+    await assert.rejects(() => verifyArtifactBindings(forged), /iframe lifecycle artifact hash mismatch/i)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('bounded metadata cannot bypass capture artifacts or validator identity', async t => {

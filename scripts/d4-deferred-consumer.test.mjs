@@ -76,6 +76,8 @@ const iframeControlReport = () => {
     scenarioUrls: components.map(component => ({ component, url: `/iframe/${component.toLowerCase()}` })),
     components: Object.fromEntries(components.map(component => [component, { trigger: { selector: `.${component.toLowerCase()}-trigger` }, scroll: { selector: '.scroll' }, panel: { selector: '.panel' }, ownerDocument: true, defaultView: true }])),
     rawLifecycle: {
+      schema: 'd4-iframe-lifecycle/v1',
+      scenarios: ['Tree', 'TreeSelect', 'Cascader'].map((component, index) => ({ component, scenarioUrl: `/iframe/${component.toLowerCase()}`, scenarioId: `scenario-${index}`, realmId: 'iframe', events: [{ seq: 1, time: 1, type: 'instrumentation', proxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedBeforeMount: true, collectorWaitsExcluded: true, realmId: 'iframe' }, { seq: 2, time: 2, type: 'frame', action: 'mounted', connected: true, realmId: 'iframe' }, { seq: 3, time: 3, type: 'frame', action: 'unmount-invoked', connected: true, realmId: 'iframe' }, { seq: 4, time: 4, type: 'frame', action: 'unmount-complete', connected: true, realmId: 'iframe' }, { seq: 5, time: 5, type: 'frame', action: 'removed', connected: false, realmId: 'iframe' }] })),
       instrumentation: { installedBeforeMount: true, realm: 'iframe', collectorWaitsExcluded: true },
       constructors: Object.fromEntries(['resizeObserver', 'raf', 'timeout', 'interval'].map(name => [name, { proxyInstalled: true, records: [{ type: 'create' }, { type: 'callback' }, { type: 'disconnect' }], activeAfterUnmount: 0 }])),
       createdBeforeUnmount: 4,
@@ -84,7 +86,9 @@ const iframeControlReport = () => {
       unmount: { hookPresent: true, invoked: true, frameConnectedBefore: true, frameConnectedAfter: true, beforeFrameRemove: true, ownerRealmFlushComplete: true, domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 },
       lazy: { pendingStarted: true, abortObserved: true, resolverReturnedChildren: true, loaderCompletion: 1, componentUpdateCountAfterResolve: 0, stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksAfterResolve: [] },
       postUnmount: { escapeConsumed: false, pointerConsumed: false, updateCount: 0 },
+      summary: { scenarioCount: 3, components: ['Tree', 'TreeSelect', 'Cascader'], proxiesInstalled: true, allRealmsIframe: true, createdBeforeUnmount: 4, activeAfterUnmount: 0, teleportResidualNodes: 0, escapeFocusRestored: true, unmountCleanup: true, lateLazyStateUpdates: 0, postUnmountInteractions: 0 },
     },
+    lifecycleArtifact: { path: '/synthetic/iframe-lifecycle.json', sha256: 'a'.repeat(64) },
   }
   return report
 }
@@ -705,6 +709,18 @@ test('iframe lifecycle validator rejects forged raw resource, popup, focus, unmo
     mutate(forged)
     assert.throws(() => validateReport(forged), error => (error?.failures ?? []).some(failure => pattern.test(failure)), `iframe mutation must be rejected: ${label}`)
   })
+})
+
+test('iframe raw lifecycle uses one recomputable summary and dedicated validator', async () => {
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  const control = iframeControlReport()
+  assert.equal(typeof contract.recomputeIframeLifecycle, 'function', 'contract must export recomputeIframeLifecycle')
+  assert.deepEqual(contract.recomputeIframeLifecycle(control.iframe.rawLifecycle), control.iframe.rawLifecycle.summary)
+  const source = await deferredCollectorSource()
+  const file = ts.createSourceFile('contract.mjs', await readFile(path.join(process.cwd(), 'scripts/d4-deferred-consumer-contract.mjs'), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const countCalls = name => { let count = 0; const visit = node => { if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'validateIframeEvidence') count += 1; ts.forEachChild(node, visit) }; visit(file); return count }
+  assert.ok(countCalls('validateIframeEvidence') >= 2, 'full and bounded validators must call validateIframeEvidence')
+  assert.match(source, /collectHydratedSsrEvidence/, 'collector must retain shared hydration helper')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
