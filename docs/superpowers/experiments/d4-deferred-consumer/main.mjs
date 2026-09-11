@@ -15,6 +15,8 @@ style.textContent = `[data-d4-row-mode="coarse"] .aheart-tree__node,[data-d4-row
 document.head.append(style)
 window.__d4MountStart = performance.now()
 window.__d4NextTick = nextTick
+window.__d4EventLog = []
+document.addEventListener('keydown', event => window.__d4EventLog.push({ name: 'keyboard', key: event.key, timestamp: performance.now() }), { capture: true })
 const app = createApp(createConsumerApp(settings))
 app.mount('#app')
 window.__d4Unmount = () => app.unmount()

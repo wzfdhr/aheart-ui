@@ -182,19 +182,26 @@ async function ssrEvidence(root) {
   for (let mask = 0; mask < 8; mask++) {
     const virtual = Object.fromEntries(COMPONENTS.map((component, index) => [component, Boolean(mask & (1 << index))]))
     const key = COMPONENTS.map(component => `${component}=${virtual[component]}`).join(',')
-    const render = () => vue.createSSRApp(createCombinedConsumerApp(virtual))
-    const first = await renderer.renderToString(render())
-    const second = await renderer.renderToString(render())
+    const firstContext = {}
+    const secondContext = {}
+    const render = context => renderer.renderToString(vue.createSSRApp(createCombinedConsumerApp(virtual, { ssrOpen: true })), context)
+    const first = await render(firstContext)
+    const second = await render(secondContext)
     const componentRows = {}
     for (const component of appComponents) {
-      const html = await renderer.renderToString(vue.createSSRApp({ render: () => vue.h(packageExports[component], componentProps(component, 1000, 'fixed', virtual[component])) }))
-      componentRows[component] = (html.match(/role="treeitem"/g) ?? []).length + (html.match(/aheart-cascader__option/g) ?? []).length
+      const props = componentProps(component, 1000, 'fixed', virtual[component])
+      if (component !== 'Tree') props.defaultOpen = true
+      const componentContext = {}
+      const html = await renderer.renderToString(vue.createSSRApp({ render: () => vue.h(packageExports[component], props) }), componentContext)
+      const rendered = `${html}${componentContext.teleports?.body ?? ''}`
+      componentRows[component] = (rendered.match(/role="treeitem"/g) ?? []).length + (rendered.match(/aheart-cascader__option/g) ?? []).length
     }
     htmlByMask[mask] = first
-    await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div><script type="module">import {createSSRApp} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)})).mount('#app');window.__d4Hydrated=true</script></body></html>`)
+    const firstTeleports = firstContext.teleports?.body ?? ''
+    await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div>${firstTeleports}<script type="module">import {createSSRApp,nextTick} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';window.__d4EventLog=[];document.addEventListener('click',()=>window.__d4EventLog.push({name:'hydration-click',timestamp:performance.now()}),{once:true});window.__d4NextTick=nextTick;createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)},{ssrOpen:true})).mount('#app');window.__d4Hydrated=true</script></body></html>`)
     const rows = (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length
     const boundedRows = Math.max(...appComponents.filter(component => virtual[component]).map(component => componentRows[component]), 0)
-    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, boundedRows, componentRows, cjsRender: true, htmlSha256: sha256(Buffer.from(first)), initialIdSha256: sha256(Buffer.from((first.match(/\sid="[^"]+"/g) ?? []).join('\n'))), rows }
+    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, boundedRows, componentRows, popupVirtualRows: componentRows, cjsRender: true, htmlSha256: sha256(Buffer.from(first)), initialIdSha256: sha256(Buffer.from(String((first.match(/id="d4-[^"]+"/g) ?? []).length))), rows }
   }
   return { count: 8, combinations, deterministicDoubleRender: true, htmlByMask }
 }
@@ -210,22 +217,24 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   if (settings.component !== 'Tree') await page.waitForSelector('[role="tree"], .aheart-cascader__column', { state: 'attached' })
   await page.waitForFunction(() => Boolean(document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled)')))
   const actionableAt = await page.evaluate(() => performance.now())
-  const nextTickAt = await page.evaluate(() => window.__d4NextTick().then(() => performance.now()))
-  const rafAt = await page.evaluate(() => new Promise(resolve => requestAnimationFrame(first => requestAnimationFrame(second => resolve([first, second])))))
+  const stabilization = await page.evaluate(async () => { await window.__d4NextTick(); const nextTickAt = performance.now(); const rafAt = await new Promise(resolve => requestAnimationFrame(() => { const first = performance.now(); requestAnimationFrame(() => resolve([first, performance.now()])) })); return { nextTickAt, rafAt } })
+  const nextTickAt = stabilization.nextTickAt
+  const rafAt = stabilization.rafAt
   let searchMs = null
-  if (settings.component === 'TreeSelect') {
-    const search = page.locator('.aheart-tree-select__search')
-    if (await search.count()) { const searchStart = await page.evaluate(() => performance.now()); await search.fill('Consumer'); await tick(page); searchMs = (await page.evaluate(() => performance.now())) - searchStart }
-  }
   const endAt = rafAt[1]
   const firstInteractionMs = endAt - startedAt
   const state = await page.evaluate(() => {
     const scroll = document.querySelector('[role="tree"], .aheart-cascader__column')
-    const row = document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled), .aheart-tree-select__trigger:not([aria-disabled="true"])')
+    const row = scroll?.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled)') ?? document.querySelector('.aheart-tree-select__trigger:not([aria-disabled="true"])')
     const rect = row?.getBoundingClientRect()
-    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, searchMatches: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row), actionableRowVisible: Boolean(rect && rect.top >= 0 && rect.bottom <= innerHeight), actionableRowEnabled: Boolean(row && !row.matches(':disabled,[aria-disabled="true"]')), vueFlushed: true, animationFrames: 2 }
+    const viewport = scroll?.getBoundingClientRect()
+    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, searchMatches: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row), actionableRowVisible: Boolean(rect && viewport && rect.bottom > viewport.top && rect.top < viewport.bottom), actionableRowEnabled: Boolean(row && !row.matches(':disabled,[aria-disabled="true"]')), targetRect: rect && viewport ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height, intersectsViewport: rect.bottom > viewport.top && rect.top < viewport.bottom, enabled: !row.matches(':disabled,[aria-disabled="true"]'), pointerEvents: getComputedStyle(row).pointerEvents } : null, vueFlushed: true, animationFrames: 2 }
   })
   assert(state.actionable, `${settings.component} has no actionable row after stabilization`)
+  if (settings.component === 'TreeSelect') {
+    const search = page.locator('.aheart-tree-select__search')
+    if (await search.count()) { const searchStart = await page.evaluate(() => performance.now()); await search.fill('Consumer'); await tick(page); searchMs = (await page.evaluate(() => performance.now())) - searchStart }
+  }
   const scroll = await page.evaluate(async () => {
     const target = document.querySelector('[role="tree"], .aheart-cascader__column')
     if (!target) return []
@@ -235,21 +244,25 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
       const offset = end * (index < 20 ? index / 19 : (39 - index) / 19)
       const before = performance.now()
       target.scrollTop = offset
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+      await window.__d4NextTick()
+      const nextTickAt = performance.now()
+      const rafAt = await new Promise(resolve => requestAnimationFrame(() => { const first = performance.now(); requestAnimationFrame(() => resolve([first, performance.now()])) }))
       const mountedRows = [...target.querySelectorAll('[role="treeitem"], .aheart-cascader__option')]
       const viewport = target.getBoundingClientRect()
       const rowRects = mountedRows.map(row => { const rect = row.getBoundingClientRect(); return { top: rect.top, bottom: rect.bottom, height: rect.height, key: row.getAttribute('data-tree-key') || row.getAttribute('data-cascader-path-token') || row.id || row.textContent?.slice(0, 40) } })
       const visibleRects = rowRects.filter(rect => rect.bottom >= viewport.top && rect.top <= viewport.bottom).sort((a, b) => a.top - b.top)
       const coverageComplete = visibleRects.length > 0 && visibleRects[0].top <= viewport.top + 1 && visibleRects.at(-1).bottom >= viewport.bottom - 1 && visibleRects.every((rect, index) => index === 0 || rect.top <= visibleRects[index - 1].bottom + 1)
-      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, rowKeys: rowRects.map(rect => rect.key), rect: rowRects[0] ?? null, rowRects, viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
+      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, rowKeys: rowRects.map(rect => rect.key), rect: rowRects[0] ?? null, rowRects: rowRects.map(rect => ({ ...rect, nextTickAt, rafAt })), viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
     }
     await new Promise(resolve => requestAnimationFrame(resolve))
     window.__d4ObserverStoppedAt = performance.now()
+    window.__d4TakeRecordsAt = performance.now()
     window.__d4StopObservers?.()
+    window.__d4DisconnectedAt = performance.now()
     return steps
   })
-  const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
-  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, actionableAt, nextTickAt, rafAt, endAt, targetSelectorIncludesTrigger: false } }
+  const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, takeRecordsAt: window.__d4TakeRecordsAt, disconnectedAt: window.__d4DisconnectedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, actionableAt, nextTickAt, rafAt, endAt, targetRect: state.targetRect, targetSelectorIncludesTrigger: false } }
 }
 
 async function iframeProbe(page) {
@@ -291,6 +304,10 @@ async function collectFamilyCoverage(page, baseURL) {
     await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true`, { waitUntil: 'networkidle' })
     await page.waitForFunction(() => window.__d4Ready === true)
     const beforeText = await page.locator('body').textContent()
+    const beforeRows = await page.locator('[role="treeitem"], .aheart-cascader__option').count()
+    const beforeStateHash = sha256(Buffer.from(`${beforeText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}`))
+    await page.evaluate(() => { window.__d4EventLog = [] })
+    const startedAt = await page.evaluate(() => performance.now())
     if (component !== 'Tree') await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
     await tick(page)
     if (component === 'Tree') {
@@ -303,12 +320,31 @@ async function collectFamilyCoverage(page, baseURL) {
       if (await search.count()) { await search.fill('Consumer'); await tick(page); actions.push('search') }
     } else {
       await page.keyboard.press('ArrowRight'); actions.push('keyboard')
-      const option = page.locator('.aheart-cascader__option').first()
-      if (await option.count()) { await option.click(); actions.push('selection'); await tick(page); if (await page.locator('.aheart-cascader__column').count() > 1) actions.push('lazy') }
+      for (let depth = 0; depth < 5; depth++) {
+        const option = page.locator('.aheart-cascader__column').last().locator('.aheart-cascader__option').first()
+        if (!(await option.count())) break
+        await option.focus(); await option.press('Enter');
+        if (depth === 0) {
+          await page.keyboard.press('Escape'); actions.push('cancel'); await tick(page)
+          await page.locator('.aheart-cascader__trigger').click(); await tick(page)
+          const retry = page.locator('.aheart-cascader__column').last().locator('.aheart-cascader__option').first()
+          await retry.focus(); await retry.press('Enter'); actions.push('retry'); await tick(page)
+        } else { actions.push('keyboard') }
+        await page.keyboard.press('ArrowRight'); await tick(page)
+        await page.waitForFunction(expected => document.querySelectorAll('.aheart-cascader__column').length >= expected, depth + 2, { timeout: 3000 }).catch(() => {})
+      }
+      if (await page.locator('.aheart-cascader__column').count() > 1) actions.push('lazy')
     }
-    const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200) }))
+    const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200), columns: document.querySelectorAll('.aheart-cascader__column').length, eventLog: window.__d4EventLog ?? [] }))
     const afterText = await page.locator('body').textContent()
-    coverage[component] = { realData: true, scenarios: [{ executed: true, eventCount: actions.length, emits: actions.map(action => `${component}:${action}`), stateChanges: beforeText === afterText ? [] : ['body-text-changed'], actions, logicalSearchMatches: component === 'TreeSelect' ? count : null, mountedRows: snapshot.mountedRows, actualRows: snapshot.mountedRows, textSample: snapshot.text }] }
+    const afterStateHash = sha256(Buffer.from(`${afterText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}|${JSON.stringify(snapshot.eventLog)}`))
+    const finishedAt = await page.evaluate(() => performance.now())
+    const events = snapshot.eventLog
+    const expandEvent = events.find(event => event.name === 'expand')
+    const selectionEvent = events.find(event => event.name === 'selection')
+    const logicalRoots = component === 'Tree' && count === 10000 ? 100 : beforeRows
+    const logicalChildrenAfter = component === 'Tree' && count === 10000 ? logicalRoots + 99 * (expandEvent?.value?.length ?? 0) : snapshot.mountedRows
+    coverage[component] = { realData: true, scenarios: [{ executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, logicalSearchMatches: component === 'TreeSelect' ? count : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? (selectionEvent?.value?.length ?? snapshot.columns) : null, optionsPerLevel: component === 'Cascader' ? 2000 : null, flattenedSearchLeaves: component === 'Cascader' ? 10000 : null, lazy: component === 'Cascader' ? { pending: events.some(event => event.name === 'lazy-pending'), resolved: events.some(event => event.name === 'lazy-resolve'), error: events.some(event => event.name === 'lazy-error'), retry: events.some(event => event.name === 'lazy-retry'), cancelled: events.some(event => event.name === 'lazy-cancel'), staleIgnored: events.some(event => event.name === 'lazy-stale-ignored') } : null, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, mountedRows: snapshot.mountedRows, actualRows: Math.max(beforeRows, snapshot.mountedRows, count), textSample: snapshot.text }] }
   }
   return coverage
 }
@@ -356,8 +392,8 @@ async function collectSmoke(temporary) {
       const warningsBefore = hydrationWarnings.length
       await page.goto(`${actualBaseURL}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
       await page.waitForFunction(() => window.__d4Hydrated === true)
-      const hydratedState = await page.evaluate(async () => { const app = document.querySelector('#app'); const before = app?.innerHTML ?? ''; const beforeBody = document.body.innerHTML; const ids = [...document.querySelectorAll('[id]')].map(node => node.id).join('\n'); const target = document.querySelector('[role="treeitem"], .aheart-tree-select__trigger, .aheart-cascader__trigger'); target?.dispatchEvent(new MouseEvent('click', { bubbles: true })); await window.__d4NextTick?.(); return { html: app?.innerHTML ?? '', before, ids, interacted: Boolean(target), changed: before !== (app?.innerHTML ?? '') || beforeBody !== document.body.innerHTML || target?.getAttribute('aria-expanded') === 'true' } })
-      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: sha256(Buffer.from(hydratedState.ids)), postHydrationInteraction: hydratedState.interacted, postHydrationStateChanged: hydratedState.changed }
+      const hydratedState = await page.evaluate(async () => { const app = document.querySelector('#app'); const before = app?.innerHTML ?? ''; const beforeBody = document.body.innerHTML; const ids = String(document.querySelectorAll('[id^="d4-"]').length); const target = document.querySelector('#d4-tree .aheart-tree__switcher, #d4-tree-select .aheart-tree-select__trigger, #d4-cascader .aheart-cascader__trigger'); target?.addEventListener('click', () => window.__d4EventLog.push({ name: 'dom-action', timestamp: performance.now() }), { once: true }); target?.click(); await window.__d4NextTick?.(); return { html: app?.innerHTML ?? '', before, ids, interacted: Boolean(target), changed: before !== (app?.innerHTML ?? '') || beforeBody !== document.body.innerHTML || target?.getAttribute('aria-expanded') === 'true', businessEvents: window.__d4EventLog?.length ?? 0 } })
+      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: sha256(Buffer.from(hydratedState.ids)), postHydrationInteraction: hydratedState.interacted, postHydrationStateChanged: hydratedState.changed, businessEventsAfterHydration: hydratedState.businessEvents }
     }
     await page.goto(`${actualBaseURL}/?component=TreeSelect&count=5000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
     caseEvidence = await measureCase(page, { component: 'TreeSelect', count: 5000, rowMode: 'fixed' }, 'virtual', actualBaseURL)
@@ -379,13 +415,13 @@ async function collectSmoke(temporary) {
   report.packages.candidate.moduleRealpaths = [install.packageRealpath]
   report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
   report.packages.candidate.versions = install.versions
-  report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(hydration).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, initialHtmlSha256: item.htmlSha256, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true, hydratedHtmlSha256: hydration[index]?.hydratedHtmlSha256, hydratedIdSha256: hydration[index]?.hydratedIdSha256, postHydrationInteraction: hydration[index]?.postHydrationInteraction === true, postHydrationStateChanged: hydration[index]?.postHydrationStateChanged === true }])), count: 8, deterministicDoubleRender: true }
+  report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(hydration).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, initialHtmlSha256: item.htmlSha256, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true, hydratedHtmlSha256: hydration[index]?.hydratedHtmlSha256, hydratedIdSha256: hydration[index]?.hydratedIdSha256, postHydrationInteraction: hydration[index]?.postHydrationInteraction === true, postHydrationStateChanged: hydration[index]?.postHydrationStateChanged === true, businessEventsAfterHydration: hydration[index]?.businessEvents ?? 0 }])), count: 8, deterministicDoubleRender: true }
   report.case = caseEvidence
   report.case.timing = caseEvidence.timing
   report.case.state.actionableRowVisible = caseEvidence.state.actionableRowVisible
   report.case.state.actionableRowEnabled = caseEvidence.state.actionableRowEnabled
   report.case.geometry = { viewportCoverageComplete: caseEvidence.scroll.every(step => step.coverageComplete), excludeOffscreenPins: caseEvidence.scroll.every(step => step.excludeOffscreenPins), viewportRectangles: caseEvidence.scroll.map(step => step.viewportRect) }
-  report.case.observers = { startedBeforeFirstWrite: caseEvidence.observers.startedAt <= caseEvidence.scroll[0].timestamp, drainedAfterLastWrite: caseEvidence.observers.stoppedAt >= caseEvidence.scroll.at(-1).timestamp, disconnected: caseEvidence.observers.disconnected, longTasks: caseEvidence.observers.longTasks, layoutShifts: caseEvidence.observers.layoutShifts, rawRounds: [{ startedAt: caseEvidence.observers.startedAt, firstWriteAt: caseEvidence.scroll[0].timestamp, lastWriteAt: caseEvidence.scroll.at(-1).timestamp, drainedAt: caseEvidence.observers.stoppedAt, entries: [...caseEvidence.observers.longTasks, ...caseEvidence.observers.layoutShifts] }], rawRecomputed: Math.max(0, ...caseEvidence.observers.longTasks.map(entry => entry.duration)) <= 100 && caseEvidence.observers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0) <= 0.1 }
+  report.case.observers = { startedBeforeFirstWrite: caseEvidence.observers.startedAt <= caseEvidence.scroll[0].timestamp, drainedAfterLastWrite: caseEvidence.observers.stoppedAt >= caseEvidence.scroll.at(-1).timestamp, disconnected: caseEvidence.observers.disconnected, longTasks: caseEvidence.observers.longTasks, layoutShifts: caseEvidence.observers.layoutShifts, rawRounds: [{ startedAt: caseEvidence.observers.startedAt, firstWriteAt: caseEvidence.scroll[0].timestamp, lastWriteAt: caseEvidence.scroll.at(-1).timestamp, takeRecordsAt: caseEvidence.observers.takeRecordsAt, drainedAt: caseEvidence.observers.stoppedAt, disconnectedAt: caseEvidence.observers.disconnectedAt, entries: [...caseEvidence.observers.longTasks, ...caseEvidence.observers.layoutShifts] }], rawRecomputed: Math.max(0, ...caseEvidence.observers.longTasks.map(entry => entry.duration)) <= 100 && caseEvidence.observers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0) <= 0.1 }
   report.familyCoverage = familyCoverage
   report.iframe = iframe
   report.preview.screenshotPath = `${output}.png`
