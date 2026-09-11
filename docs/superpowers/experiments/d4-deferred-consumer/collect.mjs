@@ -360,6 +360,69 @@ void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
   return { typesPath, typesSha256: sha256(Buffer.from(source)), configPath: durableConfigPath, configSha256: sha256(Buffer.from(JSON.stringify(config, null, 2) + '\n')), command, commandSha256: sha256(Buffer.from(command)), tscExitCode: result.exitCode, positiveChecks, negativeChecks }
 }
 
+async function collectHydratedSsrEvidence({ page, baseURL, ssr, artifactDirectory, browserErrors, hydrationWarnings }) {
+  const hydration = {}
+  for (let mask = 0; mask < 8; mask++) {
+    const errorsBefore = browserErrors.length
+    const warningsBefore = hydrationWarnings.length
+    await page.goto(`${baseURL}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
+    await page.waitForFunction(() => window.__d4Hydrated === true)
+    const hydratedState = await page.evaluate(async () => {
+      const app = document.querySelector('#app')
+      const before = app?.innerHTML ?? ''
+      const serverSnapshot = window.__d4ServerSnapshot
+      const hydratedSnapshot = window.__d4HydratedSnapshot
+      window.__d4EventLog = []
+      const settle = async () => { await window.__d4NextTick?.(); await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) }
+      const actions = []
+      const act = async (component, selector, target) => {
+        target ??= document.querySelector(selector)
+        if (!target) throw new Error(`${component} SSR hydration action target missing`)
+        const beforeState = { expanded: target.getAttribute('aria-expanded'), checked: target.getAttribute('aria-checked'), selected: target.getAttribute('aria-selected'), text: target.textContent }
+        const eventStart = window.__d4EventLog.length
+        target.click()
+        await settle()
+        const afterState = { expanded: target.getAttribute('aria-expanded'), checked: target.getAttribute('aria-checked'), selected: target.getAttribute('aria-selected'), text: target.textContent }
+        const callbackEventNames = window.__d4EventLog.slice(eventStart).map(event => event.name)
+        actions.push({ component, target: { selector, selectorProvenance: { source: 'document.querySelector', selector }, id: target.id || null }, beforeState, afterState, callbackEventNames })
+      }
+      await act('Tree', '#d4-tree [role="treeitem"]')
+      await act('TreeSelect', '.aheart-tree-select__trigger')
+      await act('Cascader', '.aheart-cascader__trigger')
+      const html = app?.innerHTML ?? ''
+      const eventNames = (window.__d4EventLog ?? []).map(event => event.name)
+      return { html, before, interacted: true, changed: before !== html, businessEvents: eventNames.length, businessEventNames: eventNames, expandedChanged: actions.some(action => action.beforeState.expanded !== action.afterState.expanded), serverSnapshot, hydratedSnapshot, postHydrationActions: actions }
+    })
+    const item = Object.values(ssr.combinations)[mask]
+    const hashSnapshot = snapshot => snapshot ? { ...snapshot, mainHtmlSha256: sha256(Buffer.from(snapshot.mainHtml)), teleportHtmlSha256: sha256(Buffer.from(snapshot.teleportHtml)), combinedSha256: sha256(Buffer.from(snapshot.combinedHtml)) } : snapshot
+    const serverSnapshot = hashSnapshot(hydratedState.serverSnapshot)
+    const hydratedSnapshot = hashSnapshot(hydratedState.hydratedSnapshot)
+    item.serverSnapshot = serverSnapshot
+    item.hydratedSnapshot = hydratedSnapshot
+    item.mainHtmlSha256 = serverSnapshot?.mainHtmlSha256
+    item.teleportHtmlSha256 = serverSnapshot?.teleportHtmlSha256
+    item.combinedSha256 = serverSnapshot?.combinedSha256
+    item.hydratedMainHtmlSha256 = hydratedSnapshot?.mainHtmlSha256
+    item.hydratedTeleportHtmlSha256 = hydratedSnapshot?.teleportHtmlSha256
+    item.initialRowsByComponent = Object.fromEntries(COMPONENTS.map(component => [component, item.componentRows?.[component] ?? 0]))
+    item.postHydrationActions = hydratedState.postHydrationActions
+    item.initialIdSha256 = sha256(Buffer.from(JSON.stringify(serverSnapshot?.sortedIds ?? [])))
+    item.hydratedIdSha256 = sha256(Buffer.from(JSON.stringify(hydratedSnapshot?.sortedIds ?? [])))
+    const captureEvidence = []
+    const combinationKey = Object.keys(ssr.combinations)[mask]
+    for (const [ordinal, snapshot] of [serverSnapshot, hydratedSnapshot].entries()) {
+      const snapshotPath = path.join(artifactDirectory, 'ssr-snapshots', `${String(mask).padStart(2, '0')}-${ordinal + 1}.json`)
+      await mkdir(path.dirname(snapshotPath), { recursive: true })
+      const payload = `${JSON.stringify({ snapshot }, null, 2)}\n`
+      await writeFile(snapshotPath, payload)
+      captureEvidence.push({ ordinal: ordinal + 1, combinationKey, phase: snapshot.capturePhase, nonce: snapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(snapshot)))), path: snapshotPath, sha256: sha256(Buffer.from(payload)) })
+    }
+    item.captureEvidence = captureEvidence
+    hydration[mask] = { errors: browserErrors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: item.hydratedIdSha256, postHydrationInteraction: hydratedState.interacted, postHydrationStateChanged: hydratedState.changed, businessEventsAfterHydration: hydratedState.businessEvents, businessEventNames: hydratedState.businessEventNames, expandedChanged: hydratedState.expandedChanged }
+  }
+  return hydration
+}
+
 async function measureCase(page, settings, mode, baseURL = page.url()) {
   const origin = new URL(baseURL).origin
   await page.goto(`${origin}/?component=${settings.component}&count=${settings.count}&rowMode=${settings.rowMode}&virtual=${mode === 'virtual'}`, { waitUntil: 'domcontentloaded' })
@@ -741,7 +804,7 @@ async function collectSmoke(temporary) {
   let caseEvidence
   let iframe
   let familyCoverage
-  const hydration = {}
+  const hydration = await collectHydratedSsrEvidence({ page, baseURL: actualBaseURL, ssr, artifactDirectory: durableDir, browserErrors: errors, hydrationWarnings })
   try {
     for (let mask = 0; mask < 8; mask++) {
       const errorsBefore = errors.length
@@ -923,6 +986,8 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   packageManifest.afterHashes = { 'es/index.js': install.packageIndexHash }
   packageManifest.versions = install.versions
   const cleanupCounters = sharedCleanupCounters ?? { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
+  const sideArtifactDir = path.join(`${output}.artifacts`, label)
+  await mkdir(sideArtifactDir, { recursive: true })
   if (preflight) {
     let preflightServer
     let preflightBrowser
@@ -939,7 +1004,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       if (preflightBrowser) { await preflightBrowser.close().catch(() => {}); cleanupCounters.chromiumClose += 1 }
       if (preflightServer?.httpServer) { await new Promise(resolve => preflightServer.httpServer.close(resolve)); cleanupCounters.previewServerClose += 1 }
     }
-    const typeProbe = label === 'candidate' ? await durableTypeProbe(root, `${output}.artifacts`) : undefined
+    const typeProbe = label === 'candidate' ? await durableTypeProbe(root, sideArtifactDir) : undefined
     return { packageManifest, cases: {}, ssrHydration: ssr, typeProbe, browsers: {}, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, familyCoverage: {}, cleanupCounters, install, buildDirectory: path.join(root, 'dist') }
   }
   let server
@@ -973,6 +1038,8 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
     if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
     window.__d4StopObservers = () => { for (const observer of window.__d4Observers) { const entries = observer.takeRecords(); if (observer.__d4Type === 'longtask') window.__d4LongTasks.push(...entries.map(entry => ({ startTime: entry.startTime, duration: entry.duration }))); else if (observer.__d4Type === 'layout-shift') window.__d4LayoutShifts.push(...entries.map(entry => ({ startTime: entry.startTime, value: entry.value }))) } window.__d4TakeRecordsAt = performance.now(); window.__d4ObserverStoppedAt = Math.max(window.__d4ObserverStoppedAt ?? 0, window.__d4TakeRecordsAt); for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true; window.__d4DisconnectedAt = performance.now() }
   })
+  const fullHydration = await collectHydratedSsrEvidence({ page, baseURL: base, ssr, artifactDirectory: sideArtifactDir, browserErrors, hydrationWarnings })
+  ssr.status = 'recorded'
     for (let mask = 0; mask < 8; mask++) {
       const errorsBefore = browserErrors.length
       const warningsBefore = hydrationWarnings.length
@@ -1047,7 +1114,8 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   }
   ssr.htmlByMask = undefined
   if (hydrationErrors.length) for (const item of Object.values(ssr.combinations)) { item.hydrationErrors += hydrationErrors.length; item.hydrationWarnings += hydrationErrors.length }
-  return { packageManifest, cases, root, ssrHydration: ssr, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence, familyCoverage, cleanupCounters }
+  const typeProbe = label === 'candidate' ? await durableTypeProbe(root, sideArtifactDir) : undefined
+  return { packageManifest, cases, root, ssrHydration: ssr, typeProbe, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence, familyCoverage, cleanupCounters }
 }
 
 export async function finalizeCollectedReport(report, output) {

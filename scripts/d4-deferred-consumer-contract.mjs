@@ -266,7 +266,7 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       ensure(report.typeProbe.command === 'corepack pnpm exec tsc --noEmit -p tsconfig.type-probe.json --pretty false' && report.typeProbe.commandSha256 === sha256(Buffer.from(report.typeProbe.command)), 'consumer type probe command provenance is invalid', failures)
     } catch (error) { failures.push(`consumer type probe cannot be reopened: ${error.message}`) }
   }
-  const requiresSnapshotArtifacts = String(report?.runId ?? '').startsWith('bounded-') && report?.releaseFormat?.validatorName === 'validateBoundedReleaseReport'
+  const requiresSnapshotArtifacts = report?.sourceKind === 'collected' && report?.ssrHydration?.status === 'recorded' && Object.keys(report?.ssrHydration?.combinations ?? {}).length === 8 && Boolean(report?.artifactDirectory)
   for (const [combinationKey, item] of requiresSnapshotArtifacts ? Object.entries(report.ssrHydration?.combinations ?? {}) : []) {
     const evidence = item.captureEvidence
     if (!Array.isArray(evidence) || evidence.length !== 2) { failures.push(`${combinationKey} capture artifact evidence must contain two records`); continue }
@@ -791,6 +791,30 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
       ensure(item.layoutShifts?.status === 'unsupported' && item.layoutShifts.reason, `${browser} layout-shift metrics must be explicitly unsupported`, failures)
     }
   }
+  const hasFullSsrEvidence = Object.values(report?.ssrHydration?.combinations ?? {}).some(item => item.serverSnapshot || item.hydratedSnapshot || item.captureEvidence || item.postHydrationActions)
+  const isFullReport = report?.preflight !== true && report?.smoke !== true && report?.acceptanceEligible === true && hasFullSsrEvidence
+  if (isFullReport) {
+    const expectedKinds = ['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger']
+    const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
+    ensure(report.typeProbe?.typesPath && report.typeProbe?.configPath && report.typeProbe?.tscExitCode === 0 && Array.isArray(report.typeProbe.positiveChecks) && report.typeProbe.positiveChecks.length >= 5 && Array.isArray(report.typeProbe.negativeChecks) && report.typeProbe.negativeChecks.length >= 3, 'full public type probe evidence is missing', failures)
+    for (const [key, item] of Object.entries(report.ssrHydration?.combinations ?? {})) {
+      const server = item.serverSnapshot
+      const hydrated = item.hydratedSnapshot
+      ensure(server && hydrated, `${key} full SSR snapshots are missing`, failures)
+      if (!server || !hydrated) continue
+      for (const [label, snapshot] of [['server', server], ['hydrated', hydrated]]) {
+        ensure(snapshot.nodes?.length === 6 && JSON.stringify((snapshot.nodes ?? []).map(node => `${node.component}/${node.kind}`).sort()) === JSON.stringify(expectedKinds), `${key} full SSR snapshots must contain exactly six unique nodes`, failures)
+        ensure(snapshot.capturePhase === (label === 'server' ? 'server-before-hydration' : 'hydrated-after-mount') && typeof snapshot.captureNonce === 'string' && snapshot.captureNonce.length > 0, `${key} full SSR snapshots phase/nonce evidence is missing`, failures)
+        ensure(!/<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i.test(snapshot.rawMainHtml ?? '') && !/<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i.test(snapshot.rawTeleportHtml ?? ''), `${key} full SSR snapshots contain diagnostic pollution`, failures)
+        ensure(snapshot.mainHtml === normalize(snapshot.rawMainHtml) && snapshot.teleportHtml === normalize(snapshot.rawTeleportHtml) && snapshot.combinedHtml === normalize(snapshot.rawMainHtml + snapshot.rawTeleportHtml), `${key} full SSR snapshots raw/normalized mismatch`, failures)
+        ensure(snapshot.mainHtmlSha256 === sha256(Buffer.from(snapshot.mainHtml)) && snapshot.teleportHtmlSha256 === sha256(Buffer.from(snapshot.teleportHtml)) && snapshot.combinedSha256 === sha256(Buffer.from(snapshot.combinedHtml)), `${key} full SSR snapshots hash mismatch`, failures)
+        for (const node of snapshot.nodes ?? []) ensure(node.selectorProvenance?.source === 'document.querySelector' && node.selectorMatchCount === 1 && node.selectorResolved === true && (node.id == null || snapshot.sortedIds.includes(node.id)), `${key} full SSR snapshots selector/ARIA identity is invalid`, failures)
+      }
+      ensure(JSON.stringify(snapshotStructureProjection(server)) === JSON.stringify(snapshotStructureProjection(hydrated)) && server.captureNonce !== hydrated.captureNonce, `${key} full SSR snapshots are not independent captures`, failures)
+      ensure(Array.isArray(item.postHydrationActions) && new Set(item.postHydrationActions.map(action => action.component)).size === 3 && item.postHydrationActions.every(action => action.target?.selector && action.beforeState && action.afterState && JSON.stringify(action.beforeState) !== JSON.stringify(action.afterState) && action.callbackEventNames?.length > 0), `${key} full SSR actions evidence is missing`, failures)
+      ensure(Array.isArray(item.captureEvidence) && item.captureEvidence.length === 2 && item.captureEvidence.every((record, index) => record.ordinal === index + 1 && record.combinationKey === key && record.phase === (index === 0 ? server.capturePhase : hydrated.capturePhase) && record.nonce === (index === 0 ? server.captureNonce : hydrated.captureNonce) && record.structureSha256), `${key} full SSR capture evidence is missing`, failures)
+    }
+  }
   ensure(report.ssrHydration?.count === 8 && Object.keys(report.ssrHydration.combinations ?? {}).length === 8 && report.ssrHydration.deterministicDoubleRender === true, 'SSR/hydration must cover eight deterministic boolean combinations', failures)
   const ssrItems = Object.values(report.ssrHydration?.combinations ?? {})
   ensure(new Set(ssrItems.map(item => JSON.stringify(item.virtual))).size === 8, 'SSR/hydration combinations must contain eight distinct false/true assignments', failures)
@@ -835,6 +859,8 @@ export function validateSmokeReport(report) {
 export function validateBoundedReleaseReport(report) {
   const failures = []
   ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'bounded report must be smoke=true and acceptanceEligible=false', failures)
+  ensure(/^bounded-[0-9]+-[a-f0-9]+$/i.test(report?.runId ?? ''), 'bounded run identity is invalid', failures)
+  ensure(report?.releaseFormat?.validatorName === 'validateBoundedReleaseReport', 'bounded validator identity is invalid', failures)
   ensure(report?.sourceKind === 'collected' && report.runId && report.collectorSourceSha256, 'bounded report collector provenance is missing', failures)
   const reopen = (label, file, expected) => { if (!file || !existsSync(file)) { failures.push(`${label} artifact path does not exist`); return } try { ensure(Boolean(expected) && sha256(readFileSync(file)) === expected, `${label} reopened hash mismatch`, failures) } catch (error) { failures.push(`${label} artifact cannot be reopened: ${error.message}`) } }
   reopen('collector source', report.collectorSourcePath, report.collectorSourceSha256)
