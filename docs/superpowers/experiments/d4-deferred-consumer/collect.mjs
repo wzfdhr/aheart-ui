@@ -289,7 +289,7 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   if (settings.component !== 'Tree') { clickStartedAt = await page.evaluate(() => performance.now()); startedAt = clickStartedAt; await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); clickCompletedAt = await page.evaluate(() => performance.now()) }
   const triggerAt = settings.component === 'Tree' ? await page.evaluate(() => performance.now()) : clickStartedAt
   if (settings.component === 'Tree') clickCompletedAt = triggerAt
-  if (settings.component !== 'Tree') await page.waitForSelector('[role="tree"], .aheart-cascader__column', { state: 'attached' })
+  if (settings.component !== 'Tree') await page.waitForSelector(settings.component === 'TreeSelect' ? '.aheart-tree-select__panel, [role="tree"]' : '.aheart-cascader__column', { state: 'attached', timeout: 5000 }).catch(async () => { await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); await page.waitForSelector(settings.component === 'TreeSelect' ? '.aheart-tree-select__panel, [role="tree"]' : '.aheart-cascader__column', { state: 'attached', timeout: 5000 }) })
   const rowSelector = settings.component === 'Cascader' ? '.aheart-cascader__column .aheart-cascader__option:not(:disabled)' : '[role="treeitem"]:not([aria-disabled="true"])'
   await page.waitForFunction(selector => { const row = document.querySelector(selector); const scroller = row?.closest('[role="tree"], .aheart-cascader__column'); const rect = row?.getBoundingClientRect(); const viewport = scroller?.getBoundingClientRect(); if (!row || !scroller || !rect || !viewport) return false; const x = rect.left + rect.width / 2; const y = rect.top + rect.height / 2; return rect.bottom > viewport.top && rect.top < viewport.bottom && rect.right > viewport.left && rect.left < viewport.right && !row.matches(':disabled,[aria-disabled="true"]') && getComputedStyle(row).pointerEvents !== 'none' && document.elementFromPoint(x, y)?.closest(selector) === row }, rowSelector)
   const actionableAt = await page.evaluate(() => performance.now())
@@ -350,7 +350,7 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   const metricHeights = [...state.rowModeProbe.heights]
   for (const step of scroll) for (const row of step.rowRects ?? []) if (metricHeights.length < 24) metricHeights.push(row.height)
   const rowMetrics = metricHeights.map((height, index) => ({ index, height, expectedHeight: settings.rowMode === 'fixed' ? 28 : settings.rowMode === 'coarse' ? 44 : index % 10 === 0 ? 56 : 28 }))
-  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, clickStartedAt, clickCompletedAt, actionableAt, nextTickAt, rafAt, endAt, probeAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, popup: { startedAt }, startedAt, triggerAt, clickStartedAt, clickCompletedAt, actionableAt, nextTickAt, rafAt, endAt, probeAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
 }
 
 async function iframeProbe(page) {
@@ -395,10 +395,11 @@ async function collectFamilyCoverage(page, baseURL) {
       await page.waitForFunction(() => window.__d4Ready === true)
       const flatSource = await page.evaluate(() => window.__d4FixtureEvidence?.tree ?? {})
       const flatMeasure = await measureCase(page, { component: 'Tree', count: 10000, rowMode: 'dynamic' }, 'virtual', baseURL)
+      const flatStartedAt = Date.now()
       await page.locator('[role="treeitem"]').first().click(); await tick(page)
       const flatEvents = await page.evaluate(() => window.__d4EventLog ?? [])
-      const flatFinishedAt = await page.evaluate(() => performance.now())
-      flatTreeScenario = { component: 'Tree', label: 'flat-roots-10000', executed: true, startedAt: flatMeasure.timing.startedAt, finishedAt: flatFinishedAt, eventCount: flatEvents.length, eventRecords: flatEvents, sourceEvidence: { keys: flatSource.rootKeys ?? [], labels: flatSource.rootLabels ?? [], paths: [], matchedKeys: [], unmatchedKeys: [], hash: sha256(Buffer.from(JSON.stringify({ keys: flatSource.rootKeys ?? [], labels: flatSource.rootLabels ?? [], paths: [], matchedKeys: [], unmatchedKeys: [] }))) }, logicalKeys: flatSource.rootKeys ?? [], sourceHash: sha256(Buffer.from((flatSource.rootKeys ?? []).join('\n'))), derivedRows: (flatSource.rootKeys ?? []).length, actualRows: (flatSource.rootKeys ?? []).length, scroll: flatMeasure.scroll, mountedRows: flatMeasure.maxRows, beforeStateHash: sha256(Buffer.from('flat-before')), afterStateHash: sha256(Buffer.from(JSON.stringify(flatEvents))), rowModeEvidence: flatMeasure.rowModeProbe }
+      const flatFinishedAt = Date.now()
+      flatTreeScenario = { component: 'Tree', label: 'flat-roots-10000', executed: true, startedAt: flatStartedAt, finishedAt: flatFinishedAt, eventCount: flatEvents.length, eventRecords: flatEvents, sourceEvidence: { keys: flatSource.rootKeys ?? [], labels: flatSource.rootLabels ?? [], paths: [], matchedKeys: [], unmatchedKeys: [], hash: sha256(Buffer.from(JSON.stringify({ keys: flatSource.rootKeys ?? [], labels: flatSource.rootLabels ?? [], paths: [], matchedKeys: [], unmatchedKeys: [] }))) }, logicalKeys: flatSource.rootKeys ?? [], sourceHash: sha256(Buffer.from((flatSource.rootKeys ?? []).join('\n'))), derivedRows: (flatSource.rootKeys ?? []).length, actualRows: (flatSource.rootKeys ?? []).length, scroll: flatMeasure.scroll, mountedRows: flatMeasure.maxRows, beforeStateHash: sha256(Buffer.from('flat-before')), afterStateHash: sha256(Buffer.from(JSON.stringify(flatEvents))), rowModeEvidence: flatMeasure.rowModeProbe }
     }
     const rowModeEvidence = {}
     for (const rowMode of ['fixed', 'coarse', 'dynamic']) {
@@ -464,23 +465,37 @@ async function collectFamilyCoverage(page, baseURL) {
     const beforeRows = await page.locator('[role="treeitem"], .aheart-cascader__option').count()
     const beforeStateHash = sha256(Buffer.from(`${beforeText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}`))
     await page.evaluate(() => { window.__d4EventLog = [] })
-    const startedAt = await page.evaluate(() => performance.now())
+    const startedAt = Date.now()
     let cascaderCapturedEvents = []
     let cascaderDeepColumns = []
     let cascaderSearchEvidence
     let cascaderSelectedPath
+    let cascaderStateBeforeLate
+    let cascaderStateAfterLate
+    let treeSelectAcceptedBefore
+    let treeSelectAcceptedAfter
+    let treeSelectRequested
+    let treeSelectSearchInputValue
     if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click(); actions.push('open'); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(async () => { await trigger.click(); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(() => {}) }) }
     await tick(page)
     if (component === 'Tree') {
       const switchers = page.locator('.aheart-tree__switcher').first()
       if (await switchers.count()) { await switchers.scrollIntoViewIfNeeded(); await switchers.click(); await tick(page); actions.push('collapse'); await switchers.click(); await tick(page); actions.push('re-expand') }
     } else if (component === 'TreeSelect') {
+      const readTreeSelectState = async () => page.evaluate(() => {
+        const trigger = document.querySelector('.aheart-tree-select__trigger')
+        const selected = [...document.querySelectorAll('.aheart-tree-select__panel [aria-checked="true"], .aheart-tree-select__panel [aria-selected="true"]')].map(node => node.getAttribute('data-tree-key')).filter(Boolean)
+        return { value: [...(window.__d4AcceptedValue ?? ['consumer-root-0'])], domTrigger: { text: trigger?.textContent ?? '', ariaExpanded: trigger?.getAttribute('aria-expanded') ?? null }, stateRaw: JSON.stringify({ acceptedValue: window.__d4AcceptedValue ?? ['consumer-root-0'], selected }) }
+      })
+      treeSelectAcceptedBefore = await readTreeSelectState()
       const checkbox = page.locator('.aheart-tree-select__panel input[type="checkbox"], .aheart-tree__checkbox').first()
       const treeRow = page.locator('.aheart-tree-select__panel [role="treeitem"]').first()
       if (await checkbox.count()) { await checkbox.click({ force: true }); await tick(page); actions.push('check') }
       else if (await treeRow.count()) { await treeRow.click(); await tick(page); actions.push('check-row') }
       const search = page.locator('.aheart-tree-select__search')
-      if (await search.count()) { await search.fill('Consumer'); await tick(page); actions.push('search') }
+      if (await search.count()) { await search.fill('match'); await tick(page); treeSelectSearchInputValue = await search.inputValue(); actions.push('search') }
+      treeSelectRequested = await page.evaluate(() => window.__d4ControlledAttempt)
+      treeSelectAcceptedAfter = await readTreeSelectState()
     } else {
       const columnSnapshot = async (columnIndex) => page.locator('.aheart-cascader__column').nth(columnIndex).evaluate((column, index) => ({
         mountedRows: column.querySelectorAll('.aheart-cascader__option').length,
@@ -538,13 +553,19 @@ async function collectFamilyCoverage(page, baseURL) {
       const pendingOption = page.locator('.aheart-cascader__column').first().locator('.aheart-cascader__option').first()
       await pendingOption.focus(); await pendingOption.press('Enter'); actions.push('lazy-revision')
       await page.keyboard.press('Escape'); actions.push('lazy-escape')
+      const readLateState = async () => page.evaluate(() => {
+        const columns = [...document.querySelectorAll('.aheart-cascader__column')].map(column => [...column.querySelectorAll('.aheart-cascader__option')].map(option => option.getAttribute('data-cascader-value')).filter(Boolean))
+        return { dom: document.body.textContent ?? '', value: document.querySelector('.aheart-cascader__trigger')?.textContent ?? '', columns, childHashes: columns.map(column => column.join('\n')) }
+      })
+      cascaderStateBeforeLate = await readLateState()
       await page.waitForTimeout(180)
+      cascaderStateAfterLate = await readLateState()
       cascaderCapturedEvents = [...cascaderCapturedEvents, ...(await page.evaluate(() => [...(window.__d4EventLog ?? [])]))]
     }
     const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200), columns: document.querySelectorAll('.aheart-cascader__column').length, eventLog: window.__d4EventLog ?? [] }))
     const afterText = await page.locator('body').textContent()
     const afterStateHash = sha256(Buffer.from(`${afterText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}|${JSON.stringify(snapshot.eventLog)}`))
-    const finishedAt = await page.evaluate(() => performance.now())
+    const finishedAt = Date.now()
     const rawEvents = component === 'Cascader' ? cascaderCapturedEvents : snapshot.eventLog
     // Keep the real collapse in rawHistory, but make the scenario event stream
     // start with the actionable re-expand. The contract intentionally treats
@@ -562,16 +583,22 @@ async function collectFamilyCoverage(page, baseURL) {
     const logicalRoots = component === 'Tree' ? Math.min(100, count) : sourceKeys.length
     const logicalChildrenAfter = component === 'Tree' ? sourceKeys.length : snapshot.mountedRows
     const sourcePayload = { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys }
-    const lazyEvents = component === 'Cascader' ? events.filter(event => ['lazy-pending', 'lazy-error', 'lazy-retry', 'lazy-resolve', 'lazy-cancel', 'late-resolve-stale-ignored'].includes(event.name)).map((event, index) => ({ ...event, name: event.name.replace(/^lazy-/, ''), componentActionId: `cascader-lazy-${index}`, action: event.name === 'lazy-pending' ? 'option' : event.name === 'lazy-retry' ? 'retry' : event.name === 'lazy-cancel' ? 'escape' : event.name === 'late-resolve-stale-ignored' ? 'revision' : 'option' })).slice(-8) : []
+    const lazyEvents = component === 'Cascader' ? events.filter(event => ['lazy-pending', 'lazy-error', 'lazy-retry', 'lazy-resolve', 'lazy-cancel', 'late-resolve'].includes(event.name)).map((event, index) => ({ ...event, name: event.name === 'late-resolve' ? 'late-resolve-stale-ignored' : event.name.replace(/^lazy-/, ''), componentActionId: `cascader-lazy-${index}`, action: event.name === 'lazy-pending' ? 'option' : event.name === 'lazy-retry' ? 'retry' : event.name === 'lazy-cancel' ? 'escape' : event.name === 'late-resolve' ? 'revision' : 'option', ...(event.name === 'late-resolve' ? { stateBeforeLate: cascaderStateBeforeLate, stateAfterLate: cascaderStateAfterLate } : {}) })).slice(-8) : []
     const expandedKeysInput = component === 'Tree' ? (events.find(event => event.name === 'expand' && event.afterExpandedKeys?.length === 100)?.afterExpandedKeys ?? sourceEvidence.rawRoots.map(root => root.key)) : undefined
     const logicalVisibleKeys = component === 'Tree' ? sourceEvidence.rawRoots.flatMap(root => expandedKeysInput.includes(root.key) ? [root.key, ...root.children.map(child => child.key)] : [root.key]) : undefined
     const selectedPathValue = component === 'Cascader' ? (cascaderSelectedPath ?? selectionEvent?.value) : selectionEvent?.value ?? sourceEvidence.columns.map(column => column[0])
-    const cascaderColumns = component === 'Cascader' ? cascaderDeepColumns.map(column => ({ rawLogicalOptionKeys: column.rawLogicalOptionKeys, logicalOptionKeys: column.rawLogicalOptionKeys, mountedRows: column.mountedRows })) : undefined
+    const cascaderColumns = component === 'Cascader' ? cascaderDeepColumns.map(column => { const rawHash = sha256(Buffer.from(column.rawLogicalOptionKeys.join('\n'))); return { rawLogicalOptionKeys: column.rawLogicalOptionKeys, logicalOptionKeys: column.rawLogicalOptionKeys, mountedRows: column.mountedRows, mountedRawRows: column.mountedRows, actualComponentOptionsHash: rawHash, rawColumnOptionsHash: rawHash } }) : undefined
     const cascaderSearch = component === 'Cascader' ? { inputValue: cascaderSearchEvidence?.inputValue ?? 'match', rawLeaves: sourceEvidence.paths.map((pathValue, index) => ({ path: pathValue, labels: [index < 10000 ? `match ${pathValue.join(' ')}` : `other ${pathValue.join(' ')}`] })), matchedPaths: cascaderSearchEvidence?.matchedPaths ?? [], visibleFirst: cascaderSearchEvidence?.visibleFirst, visibleTail: cascaderSearchEvidence?.visibleTail, pathHash: sha256(Buffer.from((cascaderSearchEvidence?.matchedPaths ?? []).map(pathValue => pathValue.join('/')).join('\n'))) } : undefined
     const treeChildCounts = component === 'Tree' ? sourceEvidence.rawRoots.map(root => Array.isArray(root.children) ? root.children.length : 0) : []
     const treeChildrenPerRoot = treeChildCounts.length > 0 && new Set(treeChildCounts).size === 1 ? treeChildCounts[0] : null
+    if (component === 'TreeSelect') {
+      treeSelectRequested = JSON.stringify(treeSelectRequested ?? null)
+      for (const event of events) if (event.name === 'update:modelValue') event.valueSnapshot = { ...(event.valueSnapshot ?? {}), requestedValue: treeSelectRequested }
+    }
     const primaryScenario = { component, label: component === 'Tree' ? 'expanded-100x99' : component === 'TreeSelect' ? 'search-5000-controlled' : 'deep5-search-lazy-controlled', executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, rawHistory, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, sourceKeys: sourceEvidence.keys, sourceLabels: sourceEvidence.labels, query: component === 'TreeSelect' ? 'match' : undefined, searchInputValue: component === 'TreeSelect' ? 'match' : undefined, matchedKeys: component === 'TreeSelect' ? sourceEvidence.keys.filter((_, index) => sourceEvidence.labels[index]?.includes('match')) : undefined, valueBefore: component === 'TreeSelect' ? ['consumer-root-0'] : undefined, valueAfter: component === 'TreeSelect' ? ['consumer-root-0'] : undefined, rawRoots: component === 'Tree' ? sourceEvidence.rawRoots : undefined, expandedKeysInput, logicalVisibleKeys, columnSizes: component === 'Cascader' ? cascaderColumns.map(column => column.rawLogicalOptionKeys.length) : undefined, columns: cascaderColumns, selectedPath: component === 'Cascader' ? selectedPathValue : undefined, selectionEvent: component === 'Cascader' ? (selectionEvent ?? { name: 'selection', timestamp: finishedAt, value: selectedPathValue }) : undefined, search: cascaderSearch, lazy: component === 'Cascader' ? { events: lazyEvents, pending: lazyEvents.some(event => event.name === 'pending'), resolved: lazyEvents.some(event => event.name === 'resolve'), error: lazyEvents.some(event => event.name === 'error'), retry: lazyEvents.some(event => event.name === 'retry'), cancelled: lazyEvents.some(event => event.name === 'cancel'), staleIgnored: lazyEvents.some(event => event.name === 'late-resolve-stale-ignored') || lazyEvents.some(event => event.name === 'stale-ignored'), stateBefore: { columns: 1, hash: beforeStateHash }, stateAfter: { columns: snapshot.columns, hash: afterStateHash } } : null, sourceEvidence: { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys, hash: sha256(Buffer.from(JSON.stringify(sourcePayload))) }, derivedRows: sourceKeys.length, logicalSearchMatches: component === 'TreeSelect' ? sourceEvidence.matchedKeys.length : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? 5 : null, optionsPerLevel: component === 'Cascader' ? 2000 : undefined, flattenedSearchLeaves: component === 'Cascader' ? 10000 : undefined, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, roots: component === 'Tree' ? sourceEvidence.rawRoots.length : undefined, childrenPerRoot: component === 'Tree' ? treeChildrenPerRoot : undefined, mountedRows: snapshot.mountedRows, actualRows: sourceKeys.length, rowModeEvidence, textSample: snapshot.text }
-    coverage[component] = { realData: true, rowModeEvidence, scenarios: component === 'Tree' ? [flatTreeScenario, primaryScenario] : [primaryScenario] }
+    if (component === 'TreeSelect') Object.assign(primaryScenario, { searchInputValue: treeSelectSearchInputValue, searchInputElement: { value: treeSelectSearchInputValue }, searchInputEvidence: { source: 'dom-input.value' }, matchedKeys: sourceEvidence.keys.filter((_, index) => sourceEvidence.labels[index]?.includes(treeSelectSearchInputValue)), valueBefore: treeSelectAcceptedBefore?.value, valueAfter: treeSelectAcceptedAfter?.value, acceptedValueBefore: treeSelectAcceptedBefore, acceptedValueAfter: treeSelectAcceptedAfter, requestedValue: treeSelectRequested })
+    if (component === 'Cascader') Object.assign(primaryScenario.lazy, { stateBeforeLate: cascaderStateBeforeLate, stateAfterLate: cascaderStateAfterLate })
+    coverage[component] = { realData: true, clockDomain: 'epoch-ms', rowModeEvidence, scenarios: component === 'Tree' ? [flatTreeScenario, primaryScenario] : [primaryScenario] }
   }
   return coverage
 }

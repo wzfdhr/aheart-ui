@@ -1,6 +1,8 @@
 import { h } from 'vue'
 import { Cascader, Tree, TreeSelect } from 'aheart-ui'
 
+const eventTime = () => ({ timestamp: Date.now(), clockDomain: 'epoch-ms' })
+
 export const COMPONENTS = ['Tree', 'TreeSelect', 'Cascader']
 export const ROW_MODES = ['fixed', 'coarse', 'dynamic']
 
@@ -29,7 +31,7 @@ export function cascaderData(count, rowMode) {
 
 export function cascaderSearchData(count, rowMode) {
   const options = [{
-    value: `consumer-${count}-0`,
+    value: 'deep-0-0',
     label: 'Lazy deep root',
     isLeaf: false
   }]
@@ -67,26 +69,26 @@ export function fixtureEvidence(count, rowMode, scenario = 'flat10000') {
 
 export function createCascaderLoadData() {
   return async (option, context) => {
-    const deepLazy = (level, prefix) => level >= 5 ? undefined : Array.from({ length: 2000 }, (_, index) => ({ value: `${prefix}-${level}-${index}`, label: `Loaded deep ${level}.${index}`, isLeaf: level === 4, ...(index === 0 && level < 4 ? { children: deepLazy(level + 1, `${prefix}-${index}`) } : {}) }))
+    const deepLazy = level => level >= 5 ? undefined : Array.from({ length: 2000 }, (_, index) => ({ value: `deep-${level}-${index}`, label: `Loaded deep ${level}.${index}`, isLeaf: level === 4, ...(index === 0 && level < 4 ? { children: deepLazy(level + 1) } : {}) }))
     const key = String(option.value)
     const attempt = typeof window !== 'undefined' ? ((window.__d4LazyAttempts ??= {})[key] = ((window.__d4LazyAttempts?.[key] ?? 0) + 1)) : 1
-    context?.signal?.addEventListener('abort', () => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-cancel', timestamp: performance.now(), key }) }, { once: true })
-    if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-pending', timestamp: performance.now(), key })
+    context?.signal?.addEventListener('abort', () => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-cancel', ...eventTime(), key }) }, { once: true })
+    if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-pending', ...eventTime(), key })
     await new Promise(resolve => setTimeout(resolve, 100))
-    if (context?.signal?.aborted) { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'late-resolve-stale-ignored', timestamp: performance.now(), key }); return [] }
-    if (attempt === 1) { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-error', timestamp: performance.now(), key }); throw new Error('bounded smoke lazy error') }
-    if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-retry', timestamp: performance.now(), key })
-    const children = deepLazy(1, key) ?? [{ value: `${key}-lazy`, label: `Loaded ${option.label}`, isLeaf: true }]
-    if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-resolve', timestamp: performance.now(), key })
+    if (context?.signal?.aborted) { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'late-resolve', ...eventTime(), key }); return [] }
+    if (attempt === 1) { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-error', ...eventTime(), key }); throw new Error('bounded smoke lazy error') }
+    if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-retry', ...eventTime(), key })
+    const children = deepLazy(1) ?? [{ value: `${key}-lazy`, label: `Loaded ${option.label}`, isLeaf: true }]
+    if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'lazy-resolve', ...eventTime(), key })
     return children
   }
 }
 
 export function componentProps(component, count, rowMode, virtual, treeScenario = 'flat10000', treeSelectScenario = '', cascaderScenario = '') {
   const virtualValue = virtual ? { height: component === 'Tree' ? 320 : 256, estimateSize: component === 'Cascader' ? 32 : 28, overscan: 4 } : false
-  if (component === 'Tree') { const data = treeData(count, rowMode, treeScenario); const defaultExpandedKeys = treeScenario === 'expanded100' ? data.map(node => node.key) : []; let expandedState = [...defaultExpandedKeys]; const recordExpand = value => { if (typeof window !== 'undefined') { const beforeExpandedKeys = [...expandedState]; const afterExpandedKeys = [...value]; expandedState = afterExpandedKeys; window.__d4EventLog?.push({ name: 'expand', timestamp: performance.now(), beforeExpandedKeys, afterExpandedKeys, value: afterExpandedKeys }) } }; return { treeData: data, defaultExpandAll: false, defaultExpandedKeys, virtual: virtualValue, onExpand: recordExpand, onSelect: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'select', timestamp: performance.now(), value }) }, 'onUpdate:expandedKeys': recordExpand } }
-  if (component === 'TreeSelect') return { treeData: treeSelectData(count, rowMode), defaultOpen: treeSelectScenario === 'search-5000-controlled', showSearch: true, treeCheckable: true, virtual: virtualValue, modelValue: [], onOpenChange: open => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'openChange', timestamp: performance.now(), open }); if (!open) window.__d4EventLog?.push({ name: 'controlled-reject', timestamp: performance.now(), reason: 'controlled-open-state' }) } }, onSearch: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'search', timestamp: performance.now(), value }) }, onChange: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'controlled-reject', timestamp: performance.now(), value }) }, onCheck: value => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'check', timestamp: performance.now(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', timestamp: performance.now(), value }) } }, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'update:modelValue', intent: 'check', requestedValue: value, timestamp: performance.now(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', timestamp: performance.now(), value }) } } }
-  const cascaderProps = { options: cascaderScenario === 'search-lazy' ? cascaderSearchData(count, rowMode) : cascaderData(count, rowMode), defaultOpen: false, showSearch: true, virtual: virtualValue, modelValue: undefined, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'selection', timestamp: performance.now(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', timestamp: performance.now(), value }) } } }
+  if (component === 'Tree') { const data = treeData(count, rowMode, treeScenario); const defaultExpandedKeys = treeScenario === 'expanded100' ? data.map(node => node.key) : []; let expandedState = [...defaultExpandedKeys]; const recordExpand = value => { if (typeof window !== 'undefined') { const beforeExpandedKeys = [...expandedState]; const afterExpandedKeys = [...value]; expandedState = afterExpandedKeys; window.__d4EventLog?.push({ name: 'expand', ...eventTime(), beforeExpandedKeys, afterExpandedKeys, value: afterExpandedKeys }) } }; return { treeData: data, defaultExpandAll: false, defaultExpandedKeys, virtual: virtualValue, onExpand: recordExpand, onSelect: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'select', ...eventTime(), value }) }, 'onUpdate:expandedKeys': recordExpand } }
+  if (component === 'TreeSelect') return { treeData: treeSelectData(count, rowMode), defaultOpen: treeSelectScenario === 'search-5000-controlled', showSearch: true, treeCheckable: true, virtual: virtualValue, modelValue: treeSelectScenario === 'search-5000-controlled' ? ['consumer-root-0'] : [], onOpenChange: open => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'openChange', ...eventTime(), open }); if (!open) window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), reason: 'controlled-open-state' }) } }, onSearch: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'search', ...eventTime(), value }) }, onChange: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) }, onCheck: value => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'check', ...eventTime(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } }, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'update:modelValue', intent: 'check', ...eventTime(), value, valueSnapshot: { requestedValue: value } }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } } }
+  const cascaderProps = { options: cascaderScenario === 'search-lazy' ? cascaderSearchData(count, rowMode) : cascaderData(count, rowMode), defaultOpen: false, showSearch: true, virtual: virtualValue, modelValue: undefined, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'selection', ...eventTime(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } } }
   cascaderProps.loadData = createCascaderLoadData()
   return cascaderProps
 }
@@ -94,6 +96,7 @@ export function componentProps(component, count, rowMode, virtual, treeScenario 
 export function createConsumerApp(settings) {
   const Component = settings.component === 'Tree' ? Tree : settings.component === 'TreeSelect' ? TreeSelect : Cascader
   const props = componentProps(settings.component, settings.count, settings.rowMode, settings.virtual, settings.treeScenario, settings.treeSelectScenario, settings.cascaderScenario)
+  if (settings.component === 'TreeSelect' && typeof window !== 'undefined') window.__d4AcceptedValue = ['consumer-root-0']
   return { render: () => h(Component, { id: `d4-${settings.component.toLowerCase()}`, ...props }) }
 }
 

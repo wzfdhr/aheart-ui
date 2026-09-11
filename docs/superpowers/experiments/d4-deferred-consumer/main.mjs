@@ -20,7 +20,7 @@ window.__d4MountStart = performance.now()
 window.__d4NextTick = nextTick
 window.__d4EventLog = []
 window.__d4FixtureEvidence = fixtureEvidence(settings.count, settings.rowMode, settings.treeScenario)
-document.addEventListener('keydown', event => window.__d4EventLog.push({ name: 'keyboard', key: event.key, timestamp: performance.now() }), { capture: true })
+document.addEventListener('keydown', event => window.__d4EventLog.push({ name: 'keyboard', key: event.key, timestamp: Date.now(), clockDomain: 'epoch-ms' }), { capture: true })
 const app = createApp(createConsumerApp(settings))
 app.mount('#app')
 window.__d4Unmount = () => app.unmount()
