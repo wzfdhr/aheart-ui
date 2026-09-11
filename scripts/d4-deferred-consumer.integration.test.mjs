@@ -42,8 +42,10 @@ const collectRealBoundedReport = () => realCollection ??= (async () => {
     '--out', out,
   ], { cwd: workspace, maxBuffer: 8 * 1024 * 1024 }).then(value => ({ code: 0, output: `${value.stdout}\n${value.stderr}` }), error => ({ code: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
   await writeFile(log, result.output)
-  const reportPath = result.code === 0 ? out : `${out}.prevalidation.json`
-  const report = JSON.parse(await readFile(reportPath, 'utf8'))
+  assert.equal(result.code, 0, `collector child must exit successfully; preserved log ${log}\n${result.output}`)
+  const report = JSON.parse(await readFile(out, 'utf8'))
+  await verifyArtifactBindings(report, { reportPath: out })
+  assert.doesNotThrow(() => validateBoundedReleaseReport(report), 'authentic bounded collector output must pass control validation before assertions')
   return { root, candidate, candidateCommit, result, report, log }
 })()
 
@@ -85,7 +87,7 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
   assert.ok(report.packages.candidate.moduleRealpaths.length > 0)
   assert.equal(report.packages.candidate.tarballSha256Verified, true)
   assert.ok(report.case.timing.firstInteractionMs > 0 && report.case.timing.searchMs >= 0)
-  assert.ok(report.case.timing.startedAt < report.case.timing.triggerAt && report.case.timing.triggerAt < report.case.timing.actionableAt && report.case.timing.actionableAt <= report.case.timing.nextTickAt && report.case.timing.nextTickAt <= report.case.timing.rafAt[0] && report.case.timing.rafAt[0] <= report.case.timing.rafAt[1] && report.case.timing.endAt === report.case.timing.rafAt[1])
+  assert.ok(report.case.timing.popup?.startedAt <= report.case.timing.triggerAt && report.case.timing.triggerAt <= report.case.timing.clickStartedAt && report.case.timing.clickStartedAt - report.case.timing.popup.startedAt <= 5 && report.case.timing.clickCompletedAt < report.case.timing.actionableAt && report.case.timing.actionableAt <= report.case.timing.nextTickAt && report.case.timing.nextTickAt <= report.case.timing.rafAt[0] && report.case.timing.rafAt[0] <= report.case.timing.rafAt[1] && report.case.timing.rafAt[1] <= report.case.timing.probeAt && report.case.timing.probeAt <= report.case.timing.endAt)
   assert.equal(report.case.timing.targetSelectorIncludesTrigger, false)
   assert.ok(report.case.timing.targetRect && report.case.timing.targetRect.intersectsViewport && report.case.timing.targetRect.enabled && report.case.timing.targetRect.pointerEvents !== 'none')
   assert.equal(report.case.timing.searchSeparated, true)
@@ -137,6 +139,17 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
   assert.equal(report.alternatingOrderConvention, 'pair-forward-reverse')
   assert.equal(report.failureEvidence.persistedBeforeCleanup, true)
   assert.equal(report.outputDirectoryDurable, true)
+})
+
+test('real bounded family events use one normalized clock domain and stay inside each scenario', async () => {
+  const { report } = await collectRealBoundedReport()
+  for (const [component, family] of Object.entries(report.familyCoverage ?? {})) {
+    assert.ok(family.clockDomain === 'epoch-ms' || (family.clockDomain?.kind === 'timeOrigin+navId' && Number.isFinite(family.clockDomain.timeOrigin) && family.clockDomain.navId), `${component} must declare epoch-ms or timeOrigin+navId clock normalization`)
+    for (const scenario of family.scenarios ?? []) {
+      assert.ok(Number.isFinite(scenario.startedAt) && Number.isFinite(scenario.finishedAt) && scenario.startedAt <= scenario.finishedAt)
+      assert.ok((scenario.eventRecords ?? []).every(event => Number.isFinite(event.timestamp) && event.timestamp >= scenario.startedAt && event.timestamp <= scenario.finishedAt && event.clockDomain === family.clockDomain), `${component}/${scenario.label} event timestamps must use the normalized family clock domain`)
+    }
+  }
 })
 
 const assertDurableArtifactDescriptors = async report => {
@@ -470,6 +483,8 @@ test('real bounded TreeSelect family coverage recomputes the 5000-match query an
   assert.ok(scenario, 'TreeSelect must record the raw 5000-match controlled-search scenario')
   assert.ok(Array.isArray(scenario.sourceKeys) && Array.isArray(scenario.sourceLabels) && scenario.sourceKeys.length > 5000)
   assert.equal(scenario.searchInputValue, 'match')
+  assert.equal(scenario.searchInputElement?.value, scenario.searchInputValue, 'search query must be read from the mounted input.value')
+  assert.equal(scenario.searchInputEvidence?.source, 'dom-input.value')
   const expected = scenario.sourceLabels.map((label, index) => label.includes(scenario.searchInputValue) ? scenario.sourceKeys[index] : null).filter(Boolean)
   assert.deepEqual(scenario.matchedKeys, expected)
   assert.equal(scenario.matchedKeys.length, 5000)
@@ -477,6 +492,10 @@ test('real bounded TreeSelect family coverage recomputes the 5000-match query an
   assert.ok(scenario.controlledRejected === true)
   assert.deepEqual(scenario.valueBefore, scenario.valueAfter)
   assert.notDeepEqual(scenario.valueBefore, [])
+  assert.deepEqual(scenario.acceptedValueBefore, scenario.acceptedValueAfter, 'controlled rejection must preserve the accepted DOM/state snapshot')
+  assert.notDeepEqual(scenario.requestedValue, scenario.acceptedValueBefore?.value, 'controlled rejection must record a distinct requested value')
+  assert.ok(scenario.acceptedValueBefore?.domTrigger && scenario.acceptedValueBefore?.stateRaw, 'accepted value snapshots must include raw DOM trigger and component state')
+  assert.ok(scenario.eventRecords.some(event => event.name === 'update:modelValue' && event.valueSnapshot?.requestedValue && event.valueSnapshot.requestedValue === scenario.requestedValue))
 })
 
 test('real bounded Cascader family coverage preserves deep columns, search paths, lazy state and controlled rejection', async () => {
@@ -484,7 +503,8 @@ test('real bounded Cascader family coverage preserves deep columns, search paths
   const scenario = report.familyCoverage?.Cascader?.scenarios?.find(item => item.label === 'deep5-search-lazy-controlled')
   assert.ok(scenario, 'Cascader must record the combined deep/search/lazy controlled scenario')
   assert.deepEqual(scenario.columnSizes, [2000, 2000, 2000, 2000, 2000])
-  assert.ok(scenario.columns.every(column => new Set(column.rawLogicalOptionKeys).size === 2000 && column.mountedRows > 0 && column.mountedRows <= 24))
+  assert.ok(scenario.columns.every(column => new Set(column.rawLogicalOptionKeys).size === 2000 && column.mountedRows > 0 && column.mountedRows <= 24 && column.mountedRawRows >= 1 && column.mountedRawRows <= 24 && column.actualComponentOptionsHash === hash(Buffer.from(column.rawLogicalOptionKeys.join('\n'))) && column.rawColumnOptionsHash === column.actualComponentOptionsHash))
+  assert.ok(scenario.selectedPath.every((key, columnIndex) => scenario.columns[columnIndex]?.rawLogicalOptionKeys.includes(key)), 'selected path must belong to the raw options of each corresponding column')
   assert.equal(scenario.selectedPath?.join('/'), scenario.selectionEvent?.value?.join('/'))
   assert.ok(scenario.search.inputValue && scenario.search.rawLeaves.length > 10000)
   const expectedPaths = scenario.search.rawLeaves.filter(leaf => leaf.labels.join(' / ').includes(scenario.search.inputValue)).map(leaf => leaf.path)
@@ -498,6 +518,11 @@ test('real bounded Cascader family coverage preserves deep columns, search paths
   assert.ok(scenario.lazy.events.every(event => event.componentActionId && Number.isFinite(event.timestamp)))
   assert.ok(scenario.lazy.events.some(event => event.action === 'option' || event.action === 'retry' || event.action === 'escape' || event.action === 'revision'))
   assert.notDeepEqual(scenario.lazy.stateBefore, scenario.lazy.stateAfter)
+  assert.deepEqual(scenario.lazy.stateBeforeLate, scenario.lazy.stateAfterLate, 'late stale lazy resolution must leave DOM/value/columns/child hashes unchanged')
+  assert.ok(scenario.lazy.stateBeforeLate?.dom && scenario.lazy.stateBeforeLate?.value && scenario.lazy.stateBeforeLate?.columns && scenario.lazy.stateBeforeLate?.childHashes)
+  const late = scenario.lazy.events.find(event => event.name === 'late-resolve-stale-ignored')
+  assert.deepEqual(late?.stateBeforeLate, late?.stateAfterLate)
+  assert.equal(scenario.lazy.staleIgnored, true)
   assert.equal(scenario.controlledRejected, true)
   const source = await readFile(path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
   assert.doesNotMatch(source, /window\.__d4LoadData/)
@@ -529,9 +554,8 @@ test('real bounded measured rows retain computed fixed/coarse/dynamic heights an
     assert.ok(timing.targetRect.left < timing.targetViewportRect.right && timing.targetRect.right > timing.targetViewportRect.left && timing.targetRect.top < timing.targetViewportRect.bottom && timing.targetRect.bottom > timing.targetViewportRect.top)
     assert.equal(timing.hitTarget.kind, 'row')
     assert.equal(timing.focusProbe.activeElementInRow, true)
-    assert.ok(timing.startedAt <= timing.triggerAt && timing.clickStartedAt <= timing.clickCompletedAt && timing.clickCompletedAt < timing.actionableAt && timing.probeAt <= timing.endAt)
-    assert.ok(timing.startedAt <= timing.triggerAt && timing.triggerAt <= timing.clickStartedAt && timing.clickStartedAt - timing.startedAt <= 5 && timing.clickCompletedAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt[0] && timing.rafAt[0] <= timing.rafAt[1] && timing.rafAt[1] <= timing.probeAt && timing.probeAt <= timing.endAt)
-    assert.equal(timing.firstInteractionMs, timing.endAt - timing.startedAt)
+    assert.ok(timing.popup?.startedAt <= timing.triggerAt && timing.triggerAt <= timing.clickStartedAt && timing.clickStartedAt - timing.popup.startedAt <= 5 && timing.clickStartedAt <= timing.clickCompletedAt && timing.clickCompletedAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt[0] && timing.rafAt[0] <= timing.rafAt[1] && timing.rafAt[1] <= timing.probeAt && timing.probeAt <= timing.endAt)
+    assert.equal(timing.firstInteractionMs, timing.endAt - timing.popup.startedAt)
   }
 })
 
@@ -539,6 +563,7 @@ test('bounded actionability validator rejects raw hit-target or focus-probe forg
   const { report } = await collectRealBoundedReport()
   assert.ok(report.case.timing.hitTarget && report.case.timing.focusProbe, 'bounded report must preserve raw hit-target and focus probes')
   for (const mutate of [
+    forged => { forged.case.timing.popup.startedAt = forged.case.timing.triggerAt + 6 },
     forged => { forged.case.timing.hitTarget.kind = 'trigger' },
     forged => { forged.case.timing.focusProbe.activeElementInRow = false },
     forged => { forged.case.timing.targetRect.top = forged.case.timing.targetViewportRect.bottom + 100 },
