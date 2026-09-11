@@ -769,8 +769,11 @@ const enterChildColumn = async (option: CascaderOption, columnIndex: number, cur
     if (owner) owner.navigationVersion = navigation
     const ownerWindow = current.ownerDocument.defaultView
     if (owner && owner === focusOwner && current.isConnected && mergedOpen.value && !props.disabled && loadingPaths.value.some(loadingPath => samePath(loadingPath, path))) {
-      if (ownerWindow?.requestAnimationFrame) owner.renderRaf = ownerWindow.requestAnimationFrame(() => { owner.renderRaf = undefined; owner.renderBlurArmed = false })
-      else if (ownerWindow?.setTimeout) owner.renderTimer = ownerWindow.setTimeout(() => { owner.renderTimer = undefined; owner.renderBlurArmed = false }, 0)
+      const canUseRaf = Boolean(ownerWindow && typeof ownerWindow.requestAnimationFrame === 'function' && typeof ownerWindow.cancelAnimationFrame === 'function')
+      const canUseTimer = Boolean(ownerWindow && typeof ownerWindow.setTimeout === 'function' && typeof ownerWindow.clearTimeout === 'function')
+      if (canUseRaf) owner.renderRaf = ownerWindow!.requestAnimationFrame(() => { owner.renderRaf = undefined; owner.renderBlurArmed = false })
+      else if (canUseTimer) owner.renderTimer = ownerWindow!.setTimeout(() => { owner.renderTimer = undefined; owner.renderBlurArmed = false }, 0)
+      else owner.renderBlurArmed = false
     }
     await pending
     await nextTick()
