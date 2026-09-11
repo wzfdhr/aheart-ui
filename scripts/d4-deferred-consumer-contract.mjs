@@ -246,9 +246,14 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       ensure(report.typeProbe.tscExitCode === 0, 'consumer type probe tsc did not pass', failures)
       const positives = Array.isArray(report.typeProbe.positiveChecks) ? report.typeProbe.positiveChecks : []
       const negatives = Array.isArray(report.typeProbe.negativeChecks) ? report.typeProbe.negativeChecks : []
-      ensure((source.match(/D4-POSITIVE-/g) ?? []).length === positives.length && positives.every(check => source.includes(check.source ?? check.code ?? check.name ?? '')), 'consumer type probe positive marker count mismatch', failures)
-      ensure((source.match(/D4-NEGATIVE-/g) ?? []).length === negatives.length && negatives.every(check => source.includes(check.source ?? check.code ?? check.name ?? '')), 'consumer type probe negative marker count mismatch', failures)
-      ensure(positives.length >= 4 && negatives.length >= 3, 'consumer type probe does not cover all public virtual types', failures)
+      const expectedPositiveMarkers = ['D4-POSITIVE-VIRTUAL-TYPES', 'D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER']
+      const expectedNegativeMarkers = ['D4-NEGATIVE-TREE', 'D4-NEGATIVE-TREESELECT', 'D4-NEGATIVE-CASCADER']
+      const lineFor = marker => source.split('\n').find(line => line.includes(marker)) ?? ''
+      const descriptorNames = checks => checks.map(check => check?.name ?? '').sort()
+      ensure(JSON.stringify(descriptorNames(positives)) === JSON.stringify([...expectedPositiveMarkers].sort()), 'consumer type probe positive marker set is incomplete or forged', failures)
+      ensure(JSON.stringify(descriptorNames(negatives)) === JSON.stringify([...expectedNegativeMarkers].sort()), 'consumer type probe negative marker set is incomplete or forged', failures)
+      ensure(positives.every(check => check.source === lineFor(check.name)), 'consumer type probe positive source lines are not bound to reopened file', failures)
+      ensure(negatives.every(check => check.source === lineFor(check.name) && /@ts-expect-error/.test(check.source) && /height|estimateSize|overscan|string/.test(check.source)), 'consumer type probe negative source lines are not bound to real expect-error checks', failures)
     } catch (error) { failures.push(`consumer type probe cannot be reopened: ${error.message}`) }
   }
   const moduleProvenance = report.gzip?.consumer?.moduleProvenance
