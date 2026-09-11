@@ -9,7 +9,8 @@ const settings = window.__D4_CASE__ ?? {
   rowMode: query.get('rowMode') || 'fixed',
   virtual: query.get('virtual') === 'true',
   treeScenario: query.get('treeScenario') || 'flat10000',
-  treeSelectScenario: query.get('treeSelectScenario') || ''
+  treeSelectScenario: query.get('treeSelectScenario') || '',
+  cascaderScenario: query.get('cascaderScenario') || ''
 }
 document.documentElement.dataset.d4RowMode = settings.rowMode
 const style = document.createElement('style')

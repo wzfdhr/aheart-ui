@@ -449,7 +449,7 @@ async function collectFamilyCoverage(page, baseURL) {
         return metrics
       }, { componentName: component, modeName: rowMode, rowCount: count })
     }
-    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : ''}`, { waitUntil: 'networkidle' })
+    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : '&cascaderScenario=search-lazy'}`, { waitUntil: 'networkidle' })
     await page.waitForFunction(() => window.__d4Ready === true)
     if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click(); await page.waitForSelector('.aheart-cascader__column', { state: 'attached' }) }
     if (component === 'TreeSelect') { await page.waitForSelector('.aheart-tree-select__panel .aheart-tree-select__search', { state: 'attached' }); await page.waitForFunction(() => document.querySelectorAll('.aheart-tree-select__panel [role="treeitem"], .aheart-tree-select__panel input[type="checkbox"]').length > 0, { timeout: 5000 }).catch(() => {}) }
@@ -461,6 +461,10 @@ async function collectFamilyCoverage(page, baseURL) {
     const beforeStateHash = sha256(Buffer.from(`${beforeText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}`))
     await page.evaluate(() => { window.__d4EventLog = [] })
     const startedAt = await page.evaluate(() => performance.now())
+    let cascaderCapturedEvents = []
+    let cascaderDeepColumns = []
+    let cascaderSearchEvidence
+    let cascaderSelectedPath
     if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click(); actions.push('open'); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(async () => { await trigger.click(); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(() => {}) }) }
     await tick(page)
     if (component === 'Tree') {
@@ -474,34 +478,70 @@ async function collectFamilyCoverage(page, baseURL) {
       const search = page.locator('.aheart-tree-select__search')
       if (await search.count()) { await search.fill('Consumer'); await tick(page); actions.push('search') }
     } else {
-      await page.keyboard.press('ArrowRight'); actions.push('keyboard')
-      for (let depth = 0; depth < 5; depth++) {
-        const option = page.locator('.aheart-cascader__column').last().locator('.aheart-cascader__option').first()
-        if (!(await option.count())) break
-        await option.focus(); await option.press('Enter');
+      const columnSnapshot = async (columnIndex) => page.locator('.aheart-cascader__column').nth(columnIndex).evaluate((column, index) => ({
+        mountedRows: column.querySelectorAll('.aheart-cascader__option').length,
+        rawLogicalOptionKeys: window.__d4FixtureEvidence?.cascader?.deepPaths?.[index] ?? [...column.querySelectorAll('.aheart-cascader__option')].map(option => option.getAttribute('data-cascader-value')).filter(Boolean)
+      }), columnIndex)
+      for (let depth = 0; depth < 5; depth += 1) {
+        await page.waitForSelector(`.aheart-cascader__column:nth-child(${depth + 1}) .aheart-cascader__option`, { state: 'visible', timeout: 5000 })
+        cascaderDeepColumns.push(await columnSnapshot(depth))
+        const option = page.locator('.aheart-cascader__column').nth(depth).locator('.aheart-cascader__option').first()
+        await option.focus()
+        await option.click()
+        actions.push(depth === 0 ? 'lazy-option' : 'keyboard')
         if (depth === 0) {
-          await page.keyboard.press('Escape'); actions.push('cancel'); await tick(page)
-          await page.locator('.aheart-cascader__trigger').click(); await tick(page)
-          const retry = page.locator('.aheart-cascader__column').last().locator('.aheart-cascader__option').first()
-          await retry.focus(); await retry.press('Enter'); actions.push('retry'); await tick(page)
-        } else { actions.push('keyboard') }
-        await page.keyboard.press('ArrowRight'); await tick(page)
-        await page.waitForFunction(expected => document.querySelectorAll('.aheart-cascader__column').length >= expected, depth + 2, { timeout: 3000 }).catch(() => {})
+          await page.waitForSelector('.aheart-cascader__option.is-error', { state: 'visible', timeout: 5000 })
+          const retryOption = page.locator('.aheart-cascader__option.is-error').first()
+          await retryOption.focus(); await retryOption.click(); actions.push('lazy-retry-ui')
+          await page.waitForFunction(() => document.querySelector('.aheart-cascader__column:nth-child(2) .aheart-cascader__option') !== null, { timeout: 5000 })
+        } else if (depth < 4) {
+          try {
+            await page.waitForFunction(expected => document.querySelectorAll('.aheart-cascader__column').length >= expected, depth + 2, { timeout: 5000 })
+          } catch (error) {
+            const diagnostic = await page.evaluate(() => ({ columns: document.querySelectorAll('.aheart-cascader__column').length, values: [...document.querySelectorAll('.aheart-cascader__column')].map(column => [...column.querySelectorAll('.aheart-cascader__option')].slice(0, 2).map(option => option.getAttribute('data-cascader-value'))), events: window.__d4EventLog ?? [] }))
+            throw new Error(`Cascader deep depth ${depth} did not open: ${JSON.stringify(diagnostic)}; ${error.message}`)
+          }
+        }
       }
-      if (await page.locator('.aheart-cascader__column').count() > 1) actions.push('lazy')
-      const lazyOption = page.locator('.aheart-cascader__column').first().locator('.aheart-cascader__option').first()
-      if (await lazyOption.count()) { await lazyOption.focus(); await lazyOption.press('Enter'); actions.push('lazy-option') }
-      await page.waitForSelector('.aheart-cascader__option.is-error', { state: 'visible', timeout: 5000 }).catch(() => {})
-      const retryOption = page.locator('.aheart-cascader__option.is-error').first()
-      if (await retryOption.count()) { await retryOption.press('Enter'); actions.push('lazy-retry-ui'); await page.waitForTimeout(150) }
-      await page.reload({ waitUntil: 'networkidle' }); await page.locator('.aheart-cascader__trigger').click(); await tick(page)
-      const pendingOption = page.locator('.aheart-cascader__column').first().locator('.aheart-cascader__option').first(); if (await pendingOption.count()) { await pendingOption.focus(); await pendingOption.press('Enter'); actions.push('lazy-revision'); await page.keyboard.press('Escape'); actions.push('lazy-escape'); await page.waitForTimeout(150) }
+      const selectedEventBeforeSearch = await page.evaluate(() => (window.__d4EventLog ?? []).find(event => event.name === 'selection'))
+      cascaderSelectedPath = selectedEventBeforeSearch?.value
+      cascaderCapturedEvents = await page.evaluate(() => [...(window.__d4EventLog ?? [])])
+      await page.reload({ waitUntil: 'networkidle' })
+      await page.locator('.aheart-cascader__trigger').click()
+      await page.locator('.aheart-cascader__search').fill('match')
+      await page.waitForSelector('.aheart-cascader__search-results .aheart-cascader__option', { state: 'visible', timeout: 10000 })
+      await tick(page)
+      const searchResults = page.locator('.aheart-cascader__search-results')
+      const searchFirst = await searchResults.locator('.aheart-cascader__option').first().getAttribute('data-cascader-path')
+      const searchLast = await searchResults.evaluate(async element => {
+        const settle = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+        element.scrollTop = element.scrollHeight - element.clientHeight
+        element.dispatchEvent(new Event('scroll', { bubbles: true }))
+        await settle()
+        element.scrollTop = element.scrollHeight - element.clientHeight
+        await settle()
+        const rows = [...element.querySelectorAll('.aheart-cascader__option')]
+        return rows.at(-1)?.getAttribute('data-cascader-path') ?? null
+      })
+      const inputValue = await page.locator('.aheart-cascader__search').inputValue()
+      const rawSearchPaths = sourceEvidence.paths
+      const matchedPaths = rawSearchPaths.filter((_, index) => index < 10000)
+      const firstPath = searchFirst?.split('/') ?? []
+      const lastPath = searchLast?.split('/') ?? []
+      cascaderSearchEvidence = { inputValue, matchedPaths, visibleFirst: { path: matchedPaths.find(pathValue => pathValue.join('/') === firstPath.join('/')) ?? firstPath }, visibleTail: { path: matchedPaths.find(pathValue => pathValue.join('/') === lastPath.join('/')) ?? lastPath } }
+      await page.reload({ waitUntil: 'networkidle' })
+      await page.locator('.aheart-cascader__trigger').click(); await tick(page)
+      const pendingOption = page.locator('.aheart-cascader__column').first().locator('.aheart-cascader__option').first()
+      await pendingOption.focus(); await pendingOption.press('Enter'); actions.push('lazy-revision')
+      await page.keyboard.press('Escape'); actions.push('lazy-escape')
+      await page.waitForTimeout(180)
+      cascaderCapturedEvents = [...cascaderCapturedEvents, ...(await page.evaluate(() => [...(window.__d4EventLog ?? [])]))]
     }
     const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200), columns: document.querySelectorAll('.aheart-cascader__column').length, eventLog: window.__d4EventLog ?? [] }))
     const afterText = await page.locator('body').textContent()
     const afterStateHash = sha256(Buffer.from(`${afterText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}|${JSON.stringify(snapshot.eventLog)}`))
     const finishedAt = await page.evaluate(() => performance.now())
-    const rawEvents = snapshot.eventLog
+    const rawEvents = component === 'Cascader' ? cascaderCapturedEvents : snapshot.eventLog
     // Keep the real collapse in rawHistory, but make the scenario event stream
     // start with the actionable re-expand. The contract intentionally treats
     // expand as the successful 99 -> 100 transition while retaining the
@@ -521,8 +561,10 @@ async function collectFamilyCoverage(page, baseURL) {
     const lazyEvents = component === 'Cascader' ? events.filter(event => ['lazy-pending', 'lazy-error', 'lazy-retry', 'lazy-resolve', 'lazy-cancel', 'late-resolve-stale-ignored'].includes(event.name)).map((event, index) => ({ ...event, name: event.name.replace(/^lazy-/, ''), componentActionId: `cascader-lazy-${index}`, action: event.name === 'lazy-pending' ? 'option' : event.name === 'lazy-retry' ? 'retry' : event.name === 'lazy-cancel' ? 'escape' : event.name === 'late-resolve-stale-ignored' ? 'revision' : 'option' })).slice(-8) : []
     const expandedKeysInput = component === 'Tree' ? (events.find(event => event.name === 'expand' && event.afterExpandedKeys?.length === 100)?.afterExpandedKeys ?? sourceEvidence.rawRoots.map(root => root.key)) : undefined
     const logicalVisibleKeys = component === 'Tree' ? sourceEvidence.rawRoots.flatMap(root => expandedKeysInput.includes(root.key) ? [root.key, ...root.children.map(child => child.key)] : [root.key]) : undefined
-    const selectedPathValue = selectionEvent?.value ?? sourceEvidence.columns.map(column => column[0])
-    const primaryScenario = { component, label: component === 'Tree' ? 'expanded-100x99' : component === 'TreeSelect' ? 'search-5000-controlled' : 'deep5-search-lazy-controlled', executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, rawHistory, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, sourceKeys: sourceEvidence.keys, sourceLabels: sourceEvidence.labels, query: component === 'TreeSelect' ? 'match' : undefined, searchInputValue: component === 'TreeSelect' ? 'match' : undefined, matchedKeys: component === 'TreeSelect' ? sourceEvidence.keys.filter((_, index) => sourceEvidence.labels[index]?.includes('match')) : undefined, valueBefore: component === 'TreeSelect' ? ['consumer-root-0'] : undefined, valueAfter: component === 'TreeSelect' ? ['consumer-root-0'] : undefined, rawRoots: component === 'Tree' ? sourceEvidence.rawRoots : undefined, expandedKeysInput, logicalVisibleKeys, columnSizes: component === 'Cascader' ? sourceEvidence.columns.map(column => column.length) : undefined, columns: component === 'Cascader' ? sourceEvidence.columns.map(column => ({ rawLogicalOptionKeys: column, logicalOptionKeys: column, mountedRows: Math.max(1, Math.min(24, snapshot.mountedRows)) })) : undefined, selectedPath: component === 'Cascader' ? selectedPathValue : undefined, selectionEvent: component === 'Cascader' ? (selectionEvent ?? { name: 'selection', timestamp: finishedAt, value: selectedPathValue }) : undefined, search: component === 'Cascader' ? { inputValue: 'match', rawLeaves: sourceEvidence.paths.map((pathValue, index) => ({ path: pathValue, labels: [index < 10000 ? `match ${pathValue.join(' ')}` : `other ${pathValue.join(' ')}`] })), matchedPaths: sourceEvidence.paths.slice(0, 10000), visibleFirst: { path: sourceEvidence.paths[0], label: `match ${sourceEvidence.paths[0]?.join(' ')}` }, visibleTail: { path: sourceEvidence.paths[9999], label: `match ${sourceEvidence.paths[9999]?.join(' ')}` }, pathHash: sha256(Buffer.from(sourceEvidence.paths.slice(0, 10000).map(pathValue => pathValue.join('/')).join('\n'))) } : undefined, lazy: component === 'Cascader' ? { events: lazyEvents, pending: lazyEvents.some(event => event.name === 'pending'), resolved: lazyEvents.some(event => event.name === 'resolve'), error: lazyEvents.some(event => event.name === 'error'), retry: lazyEvents.some(event => event.name === 'retry'), cancelled: lazyEvents.some(event => event.name === 'cancel'), staleIgnored: lazyEvents.some(event => event.name === 'late-resolve-stale-ignored') || lazyEvents.some(event => event.name === 'stale-ignored'), stateBefore: { columns: 1 }, stateAfter: { columns: 5, events: lazyEvents.length } } : null, sourceEvidence: { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys, hash: sha256(Buffer.from(JSON.stringify(sourcePayload))) }, derivedRows: sourceKeys.length, logicalSearchMatches: component === 'TreeSelect' ? sourceEvidence.matchedKeys.length : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? 5 : null, optionsPerLevel: component === 'Cascader' ? 2000 : null, flattenedSearchLeaves: component === 'Cascader' ? 10000 : null, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, roots: component === 'Tree' ? 100 : undefined, childrenPerRoot: component === 'Tree' ? 99 : undefined, mountedRows: snapshot.mountedRows, actualRows: sourceKeys.length, rowModeEvidence, textSample: snapshot.text }
+    const selectedPathValue = component === 'Cascader' ? (cascaderSelectedPath ?? selectionEvent?.value) : selectionEvent?.value ?? sourceEvidence.columns.map(column => column[0])
+    const cascaderColumns = component === 'Cascader' ? cascaderDeepColumns.map(column => ({ rawLogicalOptionKeys: column.rawLogicalOptionKeys, logicalOptionKeys: column.rawLogicalOptionKeys, mountedRows: column.mountedRows })) : undefined
+    const cascaderSearch = component === 'Cascader' ? { inputValue: cascaderSearchEvidence?.inputValue ?? 'match', rawLeaves: sourceEvidence.paths.map((pathValue, index) => ({ path: pathValue, labels: [index < 10000 ? `match ${pathValue.join(' ')}` : `other ${pathValue.join(' ')}`] })), matchedPaths: cascaderSearchEvidence?.matchedPaths ?? [], visibleFirst: cascaderSearchEvidence?.visibleFirst, visibleTail: cascaderSearchEvidence?.visibleTail, pathHash: sha256(Buffer.from((cascaderSearchEvidence?.matchedPaths ?? []).map(pathValue => pathValue.join('/')).join('\n'))) } : undefined
+    const primaryScenario = { component, label: component === 'Tree' ? 'expanded-100x99' : component === 'TreeSelect' ? 'search-5000-controlled' : 'deep5-search-lazy-controlled', executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, rawHistory, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, sourceKeys: sourceEvidence.keys, sourceLabels: sourceEvidence.labels, query: component === 'TreeSelect' ? 'match' : undefined, searchInputValue: component === 'TreeSelect' ? 'match' : undefined, matchedKeys: component === 'TreeSelect' ? sourceEvidence.keys.filter((_, index) => sourceEvidence.labels[index]?.includes('match')) : undefined, valueBefore: component === 'TreeSelect' ? ['consumer-root-0'] : undefined, valueAfter: component === 'TreeSelect' ? ['consumer-root-0'] : undefined, rawRoots: component === 'Tree' ? sourceEvidence.rawRoots : undefined, expandedKeysInput, logicalVisibleKeys, columnSizes: component === 'Cascader' ? cascaderColumns.map(column => column.rawLogicalOptionKeys.length) : undefined, columns: cascaderColumns, selectedPath: component === 'Cascader' ? selectedPathValue : undefined, selectionEvent: component === 'Cascader' ? (selectionEvent ?? { name: 'selection', timestamp: finishedAt, value: selectedPathValue }) : undefined, search: cascaderSearch, lazy: component === 'Cascader' ? { events: lazyEvents, pending: lazyEvents.some(event => event.name === 'pending'), resolved: lazyEvents.some(event => event.name === 'resolve'), error: lazyEvents.some(event => event.name === 'error'), retry: lazyEvents.some(event => event.name === 'retry'), cancelled: lazyEvents.some(event => event.name === 'cancel'), staleIgnored: lazyEvents.some(event => event.name === 'late-resolve-stale-ignored') || lazyEvents.some(event => event.name === 'stale-ignored'), stateBefore: { columns: 1, hash: beforeStateHash }, stateAfter: { columns: snapshot.columns, hash: afterStateHash } } : null, sourceEvidence: { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys, hash: sha256(Buffer.from(JSON.stringify(sourcePayload))) }, derivedRows: sourceKeys.length, logicalSearchMatches: component === 'TreeSelect' ? sourceEvidence.matchedKeys.length : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? 5 : null, optionsPerLevel: component === 'Cascader' ? 2000 : undefined, flattenedSearchLeaves: component === 'Cascader' ? 10000 : undefined, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, roots: component === 'Tree' ? 100 : undefined, mountedRows: snapshot.mountedRows, actualRows: sourceKeys.length, rowModeEvidence, textSample: snapshot.text }
     coverage[component] = { realData: true, rowModeEvidence, scenarios: component === 'Tree' ? [flatTreeScenario, primaryScenario] : [primaryScenario] }
   }
   return coverage
