@@ -70,6 +70,51 @@ const snapshotStructureProjection = snapshot => {
 }
 const json = value => JSON.stringify(value)
 
+export function recomputeIframeLifecycle(raw) {
+  const scenarios = Array.isArray(raw?.scenarios) ? raw.scenarios : []
+  const components = scenarios.map(scenario => scenario.component).sort()
+  let createdBeforeUnmount = 0
+  let activeAfterUnmount = 0
+  let teleportResidualNodes = 0
+  let escapeFocusRestored = true
+  let unmountCleanup = true
+  let lateLazyStateUpdates = 0
+  let postUnmountInteractions = 0
+  let proxiesInstalled = scenarios.length > 0
+  let allRealmsIframe = scenarios.length > 0
+  for (const scenario of scenarios) {
+    const events = Array.isArray(scenario?.events) ? [...scenario.events].sort((a, b) => (a.seq ?? 0) - (b.seq ?? 0)) : []
+    const ledger = new Map()
+    const install = events.find(event => event.type === 'instrumentation-install')
+    const invoked = events.find(event => event.type === 'frame-unmount-invoked')
+    const complete = events.find(event => event.type === 'frame-unmount-complete')
+    const flush = events.find(event => event.type === 'owner-flush')
+    let completeActive = null
+    let invalidAfterUnmount = false
+    proxiesInstalled &&= Boolean(install && Array.isArray(install.proxyKinds) && install.proxyKinds.length === 4 && install.collectorWaitsExcluded === true)
+    allRealmsIframe &&= events.every(event => event.realmId === scenario.realmId && event.scenarioId === scenario.scenarioId)
+    for (const event of events) {
+      if (event.type === 'resource') {
+        if (event.action === 'create') { if (complete && event.seq > complete.seq) invalidAfterUnmount = true; else { ledger.set(event.resourceId, event); if (!invoked || event.seq < invoked.seq) createdBeforeUnmount += 1 } }
+        if (event.action === 'callback' && complete && event.seq > complete.seq) invalidAfterUnmount = true
+        if (['cancel', 'clear', 'disconnect'].includes(event.action)) ledger.delete(event.resourceId)
+        if (event.action === 'callback' && ['raf', 'timeout'].includes(event.kind)) ledger.delete(event.resourceId)
+      }
+      if (event.type === 'frame-unmount-complete') completeActive = ledger.size
+      if (event.type === 'focus-restore') escapeFocusRestored &&= event.restored === true
+      if (event.type === 'lazy-resolve-after-unmount') lateLazyStateUpdates += Number(event.componentUpdateCount ?? 0)
+      if (event.type === 'post-unmount-escape' || event.type === 'post-unmount-pointer') postUnmountInteractions += Number(event.updateCount ?? 0) + Number(event.callbackCount ?? 0) + Number(event.mutationCount ?? 0)
+    }
+    if (complete) {
+      activeAfterUnmount += Number.isInteger(flush?.resourceResiduals) ? flush.resourceResiduals : (completeActive ?? ledger.size)
+    }
+    const observation = events.find(event => event.type === 'owner-observation')
+    teleportResidualNodes += Number(observation?.teleportResidualNodes ?? flush?.teleportResidualNodes ?? 0)
+    unmountCleanup &&= Boolean(invoked?.connected === true && complete?.connected === true && flush?.domResidualNodes === 0 && flush?.teleportResidualNodes === 0 && !invalidAfterUnmount)
+  }
+  return { scenarioCount: scenarios.length, components, proxiesInstalled, allRealmsIframe, createdBeforeUnmount, activeAfterUnmount, teleportResidualNodes, escapeFocusRestored, unmountCleanup, lateLazyStateUpdates, postUnmountInteractions }
+}
+
 async function durableFileManifest(directory, destination) {
   const files = []
   async function walk(current) {
@@ -364,6 +409,18 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
   ensure(report.packages?.candidate?.lockfileSha256 === report.packages?.candidate?.lockfileAfterSha256, 'lock fingerprint before/after mismatch', failures)
   if (report.packages?.baseline?.lockfileSha256 || report.packages?.baseline?.lockfileAfterSha256) ensure(report.packages?.baseline?.lockfileSha256 === report.packages?.baseline?.lockfileAfterSha256, 'baseline lock fingerprint before/after mismatch', failures)
   if (report.runDir) { try { ensure((await stat(resolve(report.runDir))).isDirectory(), 'collector runDir is not durable', failures) } catch (error) { failures.push(`collector runDir cannot be reopened: ${error.message}`) } }
+  const requiresIframeArtifact = report?.sourceKind === 'collected' && report?.preflight !== true && report?.iframe?.status === 'recorded'
+  if (requiresIframeArtifact) {
+    const artifact = report.iframe.lifecycleArtifact
+    try {
+      ensure(artifact?.path && artifact?.sha256, 'iframe lifecycle artifact descriptor is missing', failures)
+      const bytes = await readFile(resolve(artifact.path))
+      ensure(sha256(bytes) === artifact.sha256, 'iframe lifecycle artifact hash mismatch', failures)
+      const reopened = JSON.parse(bytes)
+      ensure(json(reopened) === json(report.iframe.rawLifecycle), 'iframe lifecycle artifact does not match reopened raw evidence', failures)
+      ensure(json(reopened.summary) === json(recomputeIframeLifecycle(reopened)), 'iframe lifecycle artifact summary is not recomputable', failures)
+    } catch (error) { failures.push(`iframe lifecycle artifact cannot be reopened: ${error.message}`) }
+  }
   if (failures.length) { const error = new Error(`D4 artifact binding verification failed: ${failures.join('; ')}`); error.failures = failures; throw error }
   return { status: 'passed', failures: [] }
 }
