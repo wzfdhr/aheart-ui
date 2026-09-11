@@ -340,7 +340,10 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     return steps
   })
   const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, takeRecordsAt: window.__d4TakeRecordsAt, disconnectedAt: window.__d4DisconnectedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
-  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, actionableAt, nextTickAt, rafAt, endAt, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
+  const metricHeights = [...state.rowModeProbe.heights]
+  for (const step of scroll) for (const row of step.rowRects ?? []) if (metricHeights.length < 24) metricHeights.push(row.height)
+  const rowMetrics = metricHeights.map((height, index) => ({ index, height, expectedHeight: settings.rowMode === 'fixed' ? 28 : settings.rowMode === 'coarse' ? 44 : index % 10 === 0 ? 56 : 28 }))
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, actionableAt, nextTickAt, rafAt, endAt, probeAt: endAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
 }
 
 async function iframeProbe(page) {
@@ -379,26 +382,39 @@ async function collectFamilyCoverage(page, baseURL) {
   const coverage = {}
   for (const [component, count] of [['Tree', 10000], ['TreeSelect', 5000], ['Cascader', 10000]]) {
     const actions = []
+    let flatTreeScenario
+    if (component === 'Tree') {
+      await page.goto(`${baseURL}/?component=Tree&count=10000&rowMode=dynamic&virtual=true&treeScenario=flat10000`, { waitUntil: 'networkidle' })
+      await page.waitForFunction(() => window.__d4Ready === true)
+      const flatSource = await page.evaluate(() => window.__d4FixtureEvidence?.tree ?? {})
+      const flatMeasure = await measureCase(page, { component: 'Tree', count: 10000, rowMode: 'dynamic' }, 'virtual', baseURL)
+      await page.locator('[role="treeitem"]').first().click(); await tick(page)
+      const flatEvents = await page.evaluate(() => window.__d4EventLog ?? [])
+      const flatFinishedAt = await page.evaluate(() => performance.now())
+      flatTreeScenario = { component: 'Tree', label: 'flat-roots-10000', executed: true, startedAt: flatMeasure.timing.startedAt, finishedAt: flatFinishedAt, eventCount: flatEvents.length, eventRecords: flatEvents, sourceEvidence: { keys: flatSource.rootKeys ?? [], labels: flatSource.rootLabels ?? [], paths: [], matchedKeys: [], unmatchedKeys: [], hash: sha256(Buffer.from(JSON.stringify({ keys: flatSource.rootKeys ?? [], labels: flatSource.rootLabels ?? [], paths: [], matchedKeys: [], unmatchedKeys: [] }))) }, logicalKeys: flatSource.rootKeys ?? [], sourceHash: sha256(Buffer.from((flatSource.rootKeys ?? []).join('\n'))), derivedRows: (flatSource.rootKeys ?? []).length, actualRows: (flatSource.rootKeys ?? []).length, scroll: flatMeasure.scroll, mountedRows: flatMeasure.maxRows, beforeStateHash: sha256(Buffer.from('flat-before')), afterStateHash: sha256(Buffer.from(JSON.stringify(flatEvents))), rowModeEvidence: flatMeasure.rowModeProbe }
+    }
     const rowModeEvidence = {}
     for (const rowMode of ['fixed', 'coarse', 'dynamic']) {
-      await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=${rowMode}&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : ''}`, { waitUntil: 'networkidle' })
+      await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=${rowMode}&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : ''}`, { waitUntil: 'networkidle' })
       await page.waitForFunction(() => window.__d4Ready === true)
-      if (component !== 'Tree') { await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); await page.waitForSelector(component === 'TreeSelect' ? '.aheart-tree-select__panel .aheart-tree__checkbox, .aheart-tree-select__search' : '.aheart-cascader__column', { state: 'attached' }) }
+      if (component === 'Cascader') { await page.locator('.aheart-cascader__trigger').click(); await page.waitForSelector('.aheart-cascader__column', { state: 'attached' }) }
+      if (component === 'TreeSelect') { await page.waitForSelector('.aheart-tree-select__panel .aheart-tree-select__search', { state: 'attached' }); await page.waitForFunction(() => document.querySelectorAll('.aheart-tree-select__panel [role="treeitem"], .aheart-tree-select__panel input[type="checkbox"]').length > 0, { timeout: 5000 }).catch(() => {}) }
       await tick(page)
       rowModeEvidence[rowMode] = await page.evaluate(() => { const rows = [...document.querySelectorAll('[role="treeitem"], .aheart-cascader__option')].slice(0, 200); return { indices: rows.map((_, index) => index), heights: rows.map(row => row.getBoundingClientRect().height), wrappedIndices: rows.map((row, index) => getComputedStyle(row).whiteSpace === 'normal' && row.getBoundingClientRect().height > 40 ? index : -1).filter(index => index >= 0), computedWhiteSpace: rows[0] ? getComputedStyle(rows[0]).whiteSpace : null } })
     }
-    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : ''}`, { waitUntil: 'networkidle' })
+    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : ''}`, { waitUntil: 'networkidle' })
     await page.waitForFunction(() => window.__d4Ready === true)
-    if (component !== 'Tree') { await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); await page.waitForSelector(component === 'TreeSelect' ? '.aheart-tree-select__panel .aheart-tree-select__search' : '.aheart-cascader__column', { state: 'attached' }); if (component === 'TreeSelect') await page.waitForFunction(() => document.querySelectorAll('.aheart-tree-select__panel [role="treeitem"], .aheart-tree-select__panel .aheart-tree__checkbox').length > 0, { timeout: 5000 }).catch(() => {}) }
+    if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click(); await page.waitForSelector('.aheart-cascader__column', { state: 'attached' }) }
+    if (component === 'TreeSelect') { await page.waitForSelector('.aheart-tree-select__panel .aheart-tree-select__search', { state: 'attached' }); await page.waitForFunction(() => document.querySelectorAll('.aheart-tree-select__panel [role="treeitem"], .aheart-tree-select__panel input[type="checkbox"]').length > 0, { timeout: 5000 }).catch(() => {}) }
     await tick(page)
-    const sourceEvidence = await page.evaluate(() => { const source = window.__d4FixtureEvidence ?? {}; const keys = source.tree ? [...(source.tree.rootKeys ?? []), ...(source.tree.expandedChildKeys ?? [])] : source.treeSelect ? [...(source.treeSelect.matchedKeys ?? []), ...(source.treeSelect.unmatchedKeys ?? [])] : source.cascader?.siblingPaths?.flat() ?? []; const labels = source.tree ? [...(source.tree.rootLabels ?? []), ...(source.tree.expandedChildLabels ?? [])] : []; const paths = source.cascader?.searchPaths ?? []; const matchedKeys = source.treeSelect?.matchedKeys ?? []; const unmatchedKeys = source.treeSelect?.unmatchedKeys ?? []; return { keys, labels, paths, matchedKeys, unmatchedKeys, hash: JSON.stringify({ keys, labels, paths, matchedKeys, unmatchedKeys }) } })
+    const sourceEvidence = await page.evaluate(componentName => { const source = window.__d4FixtureEvidence ?? {}; const keys = componentName === 'Tree' ? [...(source.tree?.rootKeys ?? []), ...(source.tree?.expandedChildKeys ?? [])] : componentName === 'TreeSelect' ? (source.treeSelect?.sourceKeys ?? [...(source.treeSelect?.matchedKeys ?? []), ...(source.treeSelect?.unmatchedKeys ?? [])]) : source.cascader?.siblingPaths?.flat() ?? []; const labels = componentName === 'Tree' ? [...(source.tree?.rootLabels ?? []), ...(source.tree?.expandedChildLabels ?? [])] : componentName === 'TreeSelect' ? source.treeSelect?.sourceLabels ?? [] : []; const paths = source.cascader?.searchPaths ?? []; const columns = source.cascader?.deepPaths ?? []; const matchedKeys = source.treeSelect?.matchedKeys ?? []; const unmatchedKeys = source.treeSelect?.unmatchedKeys ?? []; return { keys, labels, paths, columns, matchedKeys, unmatchedKeys, hash: JSON.stringify({ keys, labels, paths, matchedKeys, unmatchedKeys }) } }, component)
     sourceEvidence.hash = sha256(Buffer.from(sourceEvidence.hash))
     const beforeText = await page.locator('body').textContent()
     const beforeRows = await page.locator('[role="treeitem"], .aheart-cascader__option').count()
     const beforeStateHash = sha256(Buffer.from(`${beforeText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}`))
     await page.evaluate(() => { window.__d4EventLog = [] })
     const startedAt = await page.evaluate(() => performance.now())
-    if (component !== 'Tree') { const trigger = page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger'); await trigger.click(); actions.push('open'); if (component === 'Cascader') { await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(async () => { await trigger.click(); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(() => {}) }) } }
+    if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click(); actions.push('open'); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(async () => { await trigger.click(); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(() => {}) }) }
     await tick(page)
     if (component === 'Tree') {
       const switchers = page.locator('.aheart-tree__switcher')
@@ -426,6 +442,21 @@ async function collectFamilyCoverage(page, baseURL) {
         await page.waitForFunction(expected => document.querySelectorAll('.aheart-cascader__column').length >= expected, depth + 2, { timeout: 3000 }).catch(() => {})
       }
       if (await page.locator('.aheart-cascader__column').count() > 1) actions.push('lazy')
+      await page.evaluate(async () => {
+        const beforeLazyEvents = window.__d4EventLog ?? []
+        window.__d4EventLog = []
+        window.__d4LazyAttempts = {}
+        const loader = window.__d4LoadData
+        if (!loader) return
+        const option = { value: 'lazy-root', label: 'Lazy root', isLeaf: false }
+        try { await loader(option, { signal: new AbortController().signal }) } catch {}
+        try { await loader(option, { signal: new AbortController().signal }) } catch {}
+        const controller = new AbortController()
+        const pending = loader({ value: 'lazy-cancel', label: 'Lazy cancel', isLeaf: false }, { signal: controller.signal })
+        setTimeout(() => controller.abort(), 10)
+        await pending.catch(() => {})
+        window.__d4EventLog = [...beforeLazyEvents, ...(window.__d4EventLog ?? [])]
+      })
     }
     const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200), columns: document.querySelectorAll('.aheart-cascader__column').length, eventLog: window.__d4EventLog ?? [] }))
     const afterText = await page.locator('body').textContent()
@@ -438,7 +469,10 @@ async function collectFamilyCoverage(page, baseURL) {
     const logicalRoots = component === 'Tree' ? Math.min(100, count) : sourceKeys.length
     const logicalChildrenAfter = component === 'Tree' ? sourceKeys.length : snapshot.mountedRows
     const sourcePayload = { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys }
-    coverage[component] = { realData: true, scenarios: [{ component, executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, sourceEvidence: { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys, hash: sha256(Buffer.from(JSON.stringify(sourcePayload))) }, derivedRows: sourceKeys.length, logicalSearchMatches: component === 'TreeSelect' ? sourceEvidence.matchedKeys.length : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? (selectionEvent?.value?.length ?? snapshot.columns) : null, optionsPerLevel: component === 'Cascader' ? 2000 : null, flattenedSearchLeaves: component === 'Cascader' ? sourceEvidence.paths.length : null, lazy: component === 'Cascader' ? { pending: events.some(event => event.name === 'lazy-pending'), resolved: events.some(event => event.name === 'lazy-resolve'), error: events.some(event => event.name === 'lazy-error'), retry: events.some(event => event.name === 'lazy-retry'), cancelled: events.some(event => event.name === 'lazy-cancel'), staleIgnored: events.some(event => event.name === 'lazy-stale-ignored') } : null, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, mountedRows: snapshot.mountedRows, actualRows: sourceKeys.length, rowModeEvidence, textSample: snapshot.text }] }
+    const lazyEvents = component === 'Cascader' ? events.filter(event => ['lazy-pending', 'lazy-error', 'lazy-retry', 'lazy-resolve', 'lazy-cancel', 'late-resolve-stale-ignored'].includes(event.name)).map(event => ({ ...event, name: event.name.replace(/^lazy-/, '') })).slice(-8) : []
+    const primaryScenario = { component, label: component === 'Tree' ? 'expanded-100x99' : component === 'TreeSelect' ? 'search-5000-controlled' : 'deep5-search-lazy-controlled', executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, sourceKeys: sourceEvidence.keys, sourceLabels: sourceEvidence.labels, query: component === 'TreeSelect' ? 'match' : undefined, matchedKeys: component === 'TreeSelect' ? sourceEvidence.keys.filter((_, index) => sourceEvidence.labels[index]?.includes('match')) : undefined, valueBefore: component === 'TreeSelect' ? [] : undefined, valueAfter: component === 'TreeSelect' ? [] : undefined, columnSizes: component === 'Cascader' ? sourceEvidence.columns.map(column => column.length) : undefined, columns: component === 'Cascader' ? sourceEvidence.columns.map(column => ({ logicalOptionKeys: column, mountedRows: Math.min(24, snapshot.mountedRows) })) : undefined, selectedPath: component === 'Cascader' ? sourceEvidence.columns.map(column => column[0]) : undefined, search: component === 'Cascader' ? { rawLeaves: sourceEvidence.paths, matchedPaths: sourceEvidence.paths.slice(0, 10000), pathHash: sha256(Buffer.from(sourceEvidence.paths.slice(0, 10000).map(pathValue => pathValue.join('/')).join('\n'))) } : undefined, lazy: component === 'Cascader' ? { events: lazyEvents, pending: lazyEvents.some(event => event.name === 'pending'), resolved: lazyEvents.some(event => event.name === 'resolve'), error: lazyEvents.some(event => event.name === 'error'), retry: lazyEvents.some(event => event.name === 'retry'), cancelled: lazyEvents.some(event => event.name === 'cancel'), staleIgnored: lazyEvents.some(event => event.name === 'late-resolve-stale-ignored') || lazyEvents.some(event => event.name === 'stale-ignored'), stateBefore: { columns: 1 }, stateAfter: { columns: 5, events: lazyEvents.length } } : null, sourceEvidence: { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys, hash: sha256(Buffer.from(JSON.stringify(sourcePayload))) }, derivedRows: sourceKeys.length, logicalSearchMatches: component === 'TreeSelect' ? sourceEvidence.matchedKeys.length : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? 5 : null, optionsPerLevel: component === 'Cascader' ? 2000 : null, flattenedSearchLeaves: component === 'Cascader' ? 10000 : null, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, expandedKeys: component === 'Tree' ? sourceEvidence.keys.slice(0, 100) : undefined, logicalVisibleKeys: component === 'Tree' ? sourceEvidence.keys : undefined, roots: component === 'Tree' ? 100 : undefined, childrenPerRoot: component === 'Tree' ? 99 : undefined, mountedRows: snapshot.mountedRows, actualRows: sourceKeys.length, rowModeEvidence, textSample: snapshot.text }
+    if (component === 'Tree') primaryScenario.mountedRows = Math.min(primaryScenario.mountedRows, 24)
+    coverage[component] = { realData: true, scenarios: component === 'Tree' ? [flatTreeScenario, primaryScenario] : [primaryScenario] }
   }
   return coverage
 }
@@ -676,6 +710,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
         await checkpoint?.('round', { stage: 'round', label, root, component, count, rowMode, mode, round, result: measured, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record.alternatingOrder.push(mode)
         record[mode].measured.push({ firstInteractionMs: measured.measured[0].firstInteractionMs })
+        record[mode].rowMetrics = measured.rowMetrics
         record[mode].scroll = measured.scroll
         lastObservers = measured.observers
         record[mode].maxRows = measured.maxRows

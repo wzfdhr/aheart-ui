@@ -8,7 +8,8 @@ const settings = window.__D4_CASE__ ?? {
   count: Number(query.get('count') || 1000),
   rowMode: query.get('rowMode') || 'fixed',
   virtual: query.get('virtual') === 'true',
-  treeScenario: query.get('treeScenario') || 'flat10000'
+  treeScenario: query.get('treeScenario') || 'flat10000',
+  treeSelectScenario: query.get('treeSelectScenario') || ''
 }
 document.documentElement.dataset.d4RowMode = settings.rowMode
 const style = document.createElement('style')
