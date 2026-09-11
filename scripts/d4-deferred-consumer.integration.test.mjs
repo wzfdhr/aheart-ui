@@ -454,6 +454,39 @@ test('bounded metadata cannot bypass capture artifacts or validator identity', a
   }
 })
 
+test('bounded artifact and SSR status metadata are mandatory', async t => {
+  const { report } = await collectRealBoundedReport()
+  await assertBoundedControlPasses(report)
+  const key = Object.keys(report.ssrHydration.combinations)[0]
+  const mutations = [
+    ['copied snapshot without artifact directory', /artifact.*mandatory|artifactDirectory|capture artifact/i, forged => {
+      const item = forged.ssrHydration.combinations[key]
+      item.hydratedSnapshot = structuredClone(item.serverSnapshot)
+      item.hydratedSnapshot.capturePhase = 'hydrated-after-mount'
+      item.hydratedSnapshot.captureNonce = `${item.serverSnapshot.captureNonce}-forged`
+      delete forged.artifactDirectory
+    }],
+    ['copied snapshot without SSR recorded status', /SSR.*status|status.*recorded|capture artifact/i, forged => {
+      const item = forged.ssrHydration.combinations[key]
+      item.hydratedSnapshot = structuredClone(item.serverSnapshot)
+      item.hydratedSnapshot.capturePhase = 'hydrated-after-mount'
+      item.hydratedSnapshot.captureNonce = `${item.serverSnapshot.captureNonce}-forged`
+      delete forged.ssrHydration.status
+    }],
+    ['bounded report without artifact directory', /artifact.*mandatory|artifactDirectory|bounded.*artifact/i, forged => {
+      delete forged.artifactDirectory
+    }],
+  ]
+  for (const [label, pattern, mutate] of mutations) await t.test(label, async () => {
+    const forged = structuredClone(report)
+    mutate(forged)
+    await assert.rejects(async () => {
+      await verifyArtifactBindings(forged)
+      validateBoundedReleaseReport(forged)
+    }, error => pattern.test(error?.message ?? '') || (error?.failures ?? []).some(failure => pattern.test(failure)), `bounded mandatory metadata must reject ${label}`)
+  })
+})
+
 test('real bounded family events use one normalized clock domain and stay inside each scenario', async () => {
   const { report } = await collectRealBoundedReport()
   for (const [component, family] of Object.entries(report.familyCoverage ?? {})) {

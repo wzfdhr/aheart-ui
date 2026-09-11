@@ -453,6 +453,51 @@ test('full release SSR/types contract rejects missing snapshots, actions, captur
   }
 })
 
+test('full release remains full and reports all four missing SSR/types evidence classes together', () => {
+  const report = fullSsrTypesControlReport()
+  assert.doesNotThrow(() => validateReport(report), 'complete synthetic full control must pass before evidence removal')
+  for (const item of Object.values(report.ssrHydration.combinations)) {
+    delete item.serverSnapshot
+    delete item.hydratedSnapshot
+    delete item.postHydrationActions
+    delete item.captureEvidence
+  }
+  delete report.typeProbe
+  assert.match(report.runId, /^full-/)
+  assert.throws(() => validateReport(report), error => {
+    const failures = error?.failures ?? []
+    return failures.some(failure => /full SSR snapshots/i.test(failure)) && failures.some(failure => /full SSR actions/i.test(failure)) && failures.some(failure => /full SSR capture evidence/i.test(failure)) && failures.some(failure => /full public type probe/i.test(failure))
+  }, 'full validation must report all four missing SSR/types evidence classes')
+})
+
+test('full SSR semantic parity rejects malformed IDs, ARIA refs, selectors, actions and row windows', async t => {
+  const mutations = [
+    ['duplicate or unsorted SSR IDs', /sorted|unique|duplicate.*ID|ID.*order/i, report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.sortedIds = [snapshot.sortedIds[0], snapshot.sortedIds[0], ...snapshot.sortedIds.slice(1)]
+    }],
+    ['unrecorded ARIA reference', /ARIA|reference.*ID|unrecorded/i, report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.nodes[0].ariaControls = 'full-missing-id'
+    }],
+    ['wrong selector component pattern', /selector.*component pattern|selector identity/i, report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) { snapshot.nodes[0].selector = '.aheart-cascader__trigger'; snapshot.nodes[0].selectorProvenance.selector = snapshot.nodes[0].selector }
+    }],
+    ['wrong hydration action components', /actions|component/i, report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) item.postHydrationActions = item.postHydrationActions.map((action, index) => ({ ...action, component: `Wrong${index}` }))
+    }],
+    ['virtual initial row window over budget', /initial.*rows|virtual.*window|24/i, report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) item.initialRowsByComponent.Tree = 25
+    }],
+  ]
+  for (const [label, pattern, mutate] of mutations) await t.test(label, () => {
+    const control = fullSsrTypesControlReport()
+    for (const item of Object.values(control.ssrHydration.combinations)) { item.componentRows = { Tree: 12, TreeSelect: 12, Cascader: 12 }; item.initialRowsByComponent = { Tree: 12, TreeSelect: 12, Cascader: 12 } }
+    assert.doesNotThrow(() => validateReport(control), 'complete synthetic parity control must pass before mutation')
+    const report = structuredClone(control)
+    mutate(report)
+    assert.throws(() => validateReport(report), error => (error?.failures ?? []).some(failure => pattern.test(failure)), `full semantic parity must reject ${label}`)
+  })
+})
+
 test('full collection reuses smoke SSR capture helper and returns candidate type probe', async () => {
   const source = await deferredCollectorSource()
   const smokeStart = source.indexOf('async function collectSmoke')
@@ -464,11 +509,25 @@ test('full collection reuses smoke SSR capture helper and returns candidate type
   const sideBody = source.slice(serverStart, finalizeStart)
   assert.match(smokeBody, /collectHydratedSsrEvidence\(/, 'smoke must call the named shared hydration/capture helper')
   assert.match(sideBody, /collectHydratedSsrEvidence\(/, 'collectSide must call the named shared hydration/capture helper')
+  assert.equal((smokeBody.match(/collectHydratedSsrEvidence\(/g) ?? []).length, 1, 'smoke must invoke the shared hydration/capture helper exactly once')
+  assert.equal((sideBody.match(/collectHydratedSsrEvidence\(/g) ?? []).length, 1, 'full collectSide must invoke the shared hydration/capture helper exactly once')
+  assert.equal((smokeBody.match(/for \(let mask = 0; mask < 8/g) ?? []).length, 0, 'smoke must not retain the old per-mask hydration loop')
+  assert.equal((sideBody.match(/for \(let mask = 0; mask < 8/g) ?? []).length, 0, 'full collectSide must not retain the old per-mask hydration loop')
   assert.match(sideBody, /durableTypeProbe\(/, 'collectSide must execute the public type probe')
   assert.match(sideBody, /return \{[\s\S]*ssrHydration: ssr[\s\S]*typeProbe[\s\S]*\}/, 'collectSide must return the candidate public type probe')
   const sentinel = { marker: 'candidate-type-probe' }
   const shell = buildFullReportShell({ baseline: { packageManifest: { sha256: 'a'.repeat(64) } }, candidate: { packageManifest: { sha256: 'b'.repeat(64) }, typeProbe: sentinel }, baselineCommit: '4a7511f9594d0a74906e427e158d02343ba33a22', candidateCommit: 'candidate', runId: 'full-shell-test' })
   assert.equal(shell.typeProbe, sentinel, 'full report shell must preserve the candidate type probe sentinel')
+})
+
+test('bounded and full validation share one SSR semantic validator', async () => {
+  const source = await readFile(path.join(process.cwd(), 'scripts/d4-deferred-consumer-contract.mjs'), 'utf8')
+  assert.match(source, /function validateSsrEvidence\(/, 'contract must expose one shared SSR semantic validator')
+  const boundedStart = source.indexOf('export function validateBoundedReleaseReport')
+  const fullStart = source.indexOf('export function validateReport')
+  assert.ok(boundedStart >= 0 && fullStart >= 0)
+  assert.match(source.slice(boundedStart), /validateSsrEvidence\(/, 'bounded validation must call the shared SSR semantic validator')
+  assert.match(source.slice(fullStart), /validateSsrEvidence\(/, 'full validation must call the shared SSR semantic validator')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
