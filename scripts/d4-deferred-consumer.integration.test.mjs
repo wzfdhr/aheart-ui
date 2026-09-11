@@ -6,6 +6,7 @@ import { promisify } from 'node:util'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { validateBoundedReleaseReport } from './d4-deferred-consumer-contract.mjs'
 
 const run = promisify(execFile)
 const workspace = process.cwd()
@@ -14,12 +15,8 @@ const approvedBaseline = '4a7511f9594d0a74906e427e158d02343ba33a22'
 const approvedBaselineHash = 'b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 
-async function packCurrent(directory) {
-  const result = await run('corepack', ['pnpm', '--dir', path.join(workspace, 'packages/components'), 'pack', '--json', '--pack-destination', directory], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
-  return JSON.parse(result.stdout).filename
-}
-
-test('packed production smoke has an absolute preview baseURL and authentic collector output', async () => {
+let realCollection
+const collectRealBoundedReport = () => realCollection ??= (async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'd4-deferred-integration-red-'))
   const candidate = await packCurrent(root)
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
@@ -45,8 +42,19 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
     '--out', out,
   ], { cwd: workspace, maxBuffer: 8 * 1024 * 1024 }).then(value => ({ code: 0, output: `${value.stdout}\n${value.stderr}` }), error => ({ code: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
   await writeFile(log, result.output)
+  const reportPath = result.code === 0 ? out : `${out}.prevalidation.json`
+  const report = JSON.parse(await readFile(reportPath, 'utf8'))
+  return { root, candidate, candidateCommit, result, report, log }
+})()
+
+async function packCurrent(directory) {
+  const result = await run('corepack', ['pnpm', '--dir', path.join(workspace, 'packages/components'), 'pack', '--json', '--pack-destination', directory], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
+  return JSON.parse(result.stdout).filename
+}
+
+test('packed production smoke has an absolute preview baseURL and authentic collector output', async () => {
+  const { result, report, log } = await collectRealBoundedReport()
   assert.equal(result.code, 0, `collector integration failed; preserved log ${log}\n${result.output}`)
-  const report = JSON.parse(await readFile(out, 'utf8'))
   assert.equal(report.acceptanceEligible, false, 'one-case smoke must remain release-ineligible')
   assert.equal(report.smoke, true)
   assert.equal(report.preview.baseURL, 'http://127.0.0.1:0')
@@ -129,4 +137,78 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
   assert.equal(report.alternatingOrderConvention, 'pair-forward-reverse')
   assert.equal(report.failureEvidence.persistedBeforeCleanup, true)
   assert.equal(report.outputDirectoryDurable, true)
+})
+
+const assertBoundedMutationRejected = (report, mutate, message, pattern) => {
+  const forged = structuredClone(report)
+  mutate(forged)
+  assert.throws(() => validateBoundedReleaseReport(forged), pattern, message)
+}
+
+test('real bounded geometry cannot retain coverage flags after rowRects move offscreen', async () => {
+  const { report } = await collectRealBoundedReport()
+  assertBoundedMutationRejected(report, forged => {
+    for (const step of forged.case.scroll) {
+      for (const row of step.rowRects) {
+        row.top = -99999
+        row.bottom = -99971
+        row.left = -99999
+        row.right = -99971
+      }
+    }
+  }, 'bounded validator must recompute viewport coverage from raw rowRects', /coverage|geometry|viewport|row/i)
+})
+
+test('real bounded artifact paths must exist for both baseline and candidate tarballs', async () => {
+  const { report } = await collectRealBoundedReport()
+  assertBoundedMutationRejected(report, forged => {
+    forged.packages.baseline.path = path.join(forged.runDir ?? tmpdir(), 'missing-baseline.tgz')
+    forged.packages.candidate.path = path.join(forged.runDir ?? tmpdir(), 'missing-candidate.tgz')
+    forged.packages.baseline.exists = true
+    forged.packages.candidate.exists = true
+  }, 'bounded validator must reject nonexistent baseline/candidate tarball paths', /artifact|path|exist|tarball/i)
+})
+
+test('real bounded collector provenance rejects a forged collector source hash', async () => {
+  const { report } = await collectRealBoundedReport()
+  assertBoundedMutationRejected(report, forged => { forged.collectorSourceSha256 = 'fake-collector-source' }, 'bounded validator must bind collectorSourceSha256 to the collector source', /collector|source|hash/i)
+})
+
+test('real bounded artifact, manifest, build, module and lock hashes are independently bound', async () => {
+  const { report } = await collectRealBoundedReport()
+  const mutations = [
+    ['artifact tarball', forged => { forged.packages.candidate.sha256 = '0'.repeat(64) }],
+    ['manifest', forged => { forged.packages.candidate.manifestSha256 = '0'.repeat(64) }],
+    ['build fingerprint', forged => { forged.realEvidenceBinding.buildFingerprint.before = '0'.repeat(64) }],
+    ['module fingerprint', forged => { forged.realEvidenceBinding.moduleFingerprint.before = '0'.repeat(64) }],
+    ['lockfile', forged => { forged.packages.candidate.lockfileSha256 = '0'.repeat(64) }],
+  ]
+  for (const [label, mutate] of mutations) {
+    assertBoundedMutationRejected(report, mutate, `bounded validator must reject forged ${label} hash`, /artifact|manifest|build|module|lock|hash|fingerprint|provenance/i)
+  }
+})
+
+test('real bounded actionability and observer summaries are recomputed from raw geometry/style/entries', async () => {
+  const { report } = await collectRealBoundedReport()
+  assertBoundedMutationRejected(report, forged => {
+    forged.case.timing.targetRect.top = -99999
+    forged.case.timing.targetRect.bottom = -99971
+    forged.case.timing.targetRect.left = -99999
+    forged.case.timing.targetRect.right = -99971
+    forged.case.timing.targetRect.intersectsViewport = true
+    forged.case.timing.targetRect.enabled = true
+    forged.case.timing.targetRect.pointerEvents = 'auto'
+  }, 'bounded validator must recompute target actionability from raw target rect and style', /target|actionable|viewport|style/i)
+
+  assertBoundedMutationRejected(report, forged => {
+    const round = forged.case.observers.rawRounds[0]
+    const longTask = { startTime: round.startedAt + 1, duration: 999 }
+    const layoutShift = { startTime: round.drainedAt - 1, value: 0.9 }
+    round.entries = [
+      longTask,
+      layoutShift,
+    ]
+    forged.case.observers.longTasks = [longTask]
+    forged.case.observers.layoutShifts = [layoutShift]
+  }, 'bounded validator must recompute observer max/CLS and time bounds from raw entries', /observer|long.?task|layout|CLS|timestamp|entry/i)
 })

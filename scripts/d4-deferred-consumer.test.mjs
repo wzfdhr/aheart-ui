@@ -176,6 +176,39 @@ test('release validation rejects synthetic fixture even when syntheticEvidence i
   assert.throws(() => validateReport(report, { requireRelease: true }), /artifact|sourceKind|runId|tarball|clean|provenance/i)
 })
 
+test('release validation rejects arbitrary collected source/run/fingerprint strings', () => {
+  const report = fullReport()
+  report.syntheticEvidence = false
+  report.sourceKind = 'collected'
+  report.runId = 'arbitrary-run-id'
+  report.collectorSourceSha256 = 'arbitrary-collector-source'
+  report.realEvidenceBinding = {
+    tarballReopened: true,
+    buildFingerprint: { before: 'arbitrary-build-before', after: 'arbitrary-build-after' },
+    moduleFingerprint: { before: 'arbitrary-module-before', after: 'arbitrary-module-after' },
+  }
+  for (const side of ['baseline', 'candidate']) {
+    report.packages[side].path = `/arbitrary/${side}.tgz`
+    report.packages[side].manifestPath = `/arbitrary/${side}-manifest.json`
+    report.packages[side].modulePath = `/arbitrary/${side}-index.js`
+    report.packages[side].lockPath = `/arbitrary/${side}-pnpm-lock.yaml`
+    report.packages[side].manifestSha256 = 'arbitrary-manifest-hash'
+    report.packages[side].afterHashes = { 'es/index.js': 'arbitrary-module-hash' }
+  }
+  assert.throws(() => validateReport(report, { requireRelease: true }), /source|run|fingerprint|artifact|provenance|tarball|path|exist/i)
+})
+
+test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {
+  const expected = ['full', 'virtual', 'virtual', 'full', 'full', 'virtual', 'virtual', 'full', 'full', 'virtual']
+  const report = fullReport()
+  for (const item of Object.values(report.cases)) item.alternatingOrder = [...expected]
+  assert.doesNotThrow(() => validateReport(report), 'the real pair-forward-reverse order must be accepted')
+
+  const invalid = fullReport()
+  invalid.cases['Tree/10000/fixed'].alternatingOrder = ['full', 'virtual', 'full', 'virtual', 'full', 'virtual', 'full', 'virtual', 'full', 'virtual']
+  assert.throws(() => validateReport(invalid), /alternat|order/i)
+})
+
 test('raw mutation cases reject row geometry, event records, SSR IDs and artifact binding', () => {
   const report = fullReport()
   report.cases['Tree/10000/fixed'].virtual.scroll[0].rowKeys = []
