@@ -359,7 +359,7 @@ const invalidTreeSelectConfig: TreeSelectVirtual = { estimateSize: 'bad' }
 const invalidCascaderConfig: CascaderVirtual = { overscan: 'bad' }
 void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
 `
-  const config = { compilerOptions: { strict: true, noEmit: true, module: 'NodeNext', moduleResolution: 'NodeNext', target: 'ES2022', skipLibCheck: true }, include: ['types-probe.ts'] }
+  const config = { compilerOptions: { strict: true, noEmit: true, module: 'ESNext', moduleResolution: 'Bundler', target: 'ES2022', skipLibCheck: true }, include: ['types-probe.ts'] }
   await writeFile(probePath, source)
   await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`)
   await cp(probePath, typesPath)
