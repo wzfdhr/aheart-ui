@@ -43,7 +43,9 @@ const probeRealm = (ownerDocument: Document) => {
   const listenerIds = new WeakMap<object, number>()
   let listenerId = 0
   const pendingRaf = new Map<number, FrameRequestCallback>()
+  const rafOrigins = new Map<number, string>()
   const pendingTimers = new Set<ReturnType<typeof ownerWindow.setTimeout>>()
+  const timerOrigins = new Map<ReturnType<typeof ownerWindow.setTimeout>, string>()
   const originalDocumentAdd = ownerDocument.addEventListener
   const originalDocumentRemove = ownerDocument.removeEventListener
   const originalWindowAdd = ownerWindow.addEventListener
@@ -77,17 +79,22 @@ const probeRealm = (ownerDocument: Document) => {
   Object.defineProperty(ownerWindow, 'addEventListener', { configurable: true, value(type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions) { add('window', type, listener, options); return originalWindowAdd.call(this, type, listener, options) } })
   Object.defineProperty(ownerWindow, 'removeEventListener', { configurable: true, value(type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | EventListenerOptions) { remove('window', type, listener, options); return originalWindowRemove.call(this, type, listener, options) } })
   let rafSequence = 0
-  Object.defineProperty(ownerWindow, 'requestAnimationFrame', { configurable: true, value(callback: FrameRequestCallback) { const id = ++rafSequence; pendingRaf.set(id, callback); return id } })
-  Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, value(id: number) { pendingRaf.delete(id) } })
+  Object.defineProperty(ownerWindow, 'requestAnimationFrame', { configurable: true, value(callback: FrameRequestCallback) { const id = ++rafSequence; pendingRaf.set(id, callback); rafOrigins.set(id, new Error().stack ?? ''); return id } })
+  Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, value(id: number) { pendingRaf.delete(id); rafOrigins.delete(id) } })
   Object.defineProperty(ownerWindow, 'setTimeout', { configurable: true, value(handler: TimerHandler, timeout?: number, ...args: any[]) {
     let timer: ReturnType<typeof ownerWindow.setTimeout>
     const callback = () => { pendingTimers.delete(timer); if (typeof handler === 'function') handler(...args); else ownerWindow.eval(handler) }
     timer = originalSetTimeout.call(this, callback, timeout, ...args)
     pendingTimers.add(timer)
+    timerOrigins.set(timer, new Error().stack ?? '')
     return timer
   } })
-  Object.defineProperty(ownerWindow, 'clearTimeout', { configurable: true, value(id: ReturnType<typeof ownerWindow.setTimeout>) { pendingTimers.delete(id); return originalClearTimeout.call(this, id) } })
+  Object.defineProperty(ownerWindow, 'clearTimeout', { configurable: true, value(id: ReturnType<typeof ownerWindow.setTimeout>) { pendingTimers.delete(id); timerOrigins.delete(id); return originalClearTimeout.call(this, id) } })
   const ownerListenerCounts = () => Object.fromEntries(['focusin', 'pointerdown', 'touchstart', 'wheel', 'keydown'].map(type => [`document:${type}`, [...active.entries()].filter(([name]) => name.startsWith(`document:${type}:`)).reduce((sum, [, count]) => sum + count, 0)]).concat([['window:blur', [...active.entries()].filter(([name]) => name.startsWith('window:blur:')).reduce((sum, [, count]) => sum + count, 0)]]))
+  const ownerHandles = () => ({
+    raf: [...rafOrigins.entries()].filter(([, stack]) => stack.includes('cascader.vue')).map(([id]) => id),
+    timers: [...timerOrigins.entries()].filter(([, stack]) => stack.includes('cascader.vue')).map(([id]) => id)
+  })
   const restore = () => {
     Object.defineProperty(ownerDocument, 'addEventListener', { configurable: true, value: originalDocumentAdd })
     Object.defineProperty(ownerDocument, 'removeEventListener', { configurable: true, value: originalDocumentRemove })
@@ -102,7 +109,7 @@ const probeRealm = (ownerDocument: Document) => {
     if (previousClearTimeout) Object.defineProperty(ownerWindow, 'clearTimeout', previousClearTimeout)
     else Reflect.deleteProperty(ownerWindow, 'clearTimeout')
   }
-  return { active, pendingRaf, pendingTimers, ownerListenerCounts, restore }
+  return { active, pendingRaf, pendingTimers, ownerListenerCounts, ownerHandles, restore }
 }
 
 const mountLazy = (props: Record<string, unknown> = {}, options: Option[] = [{ value: 'root', label: 'Lazy root', isLeaf: false }]) => track(mount(Cascader, {
@@ -125,10 +132,11 @@ const nullBlur = (element: HTMLElement, ownerDocument: Document) => {
   element.blur()
 }
 
-const expectOwnerClean = (probe: ReturnType<typeof probeRealm>) => {
+const expectOwnerClean = (probe: ReturnType<typeof probeRealm>, handles = { raf: [] as number[], timers: [] as ReturnType<typeof window.setTimeout>[] }, requireNoRaf = false) => {
   expect(probe.ownerListenerCounts()).toEqual({ 'document:focusin': 0, 'document:pointerdown': 0, 'document:touchstart': 0, 'document:wheel': 0, 'document:keydown': 0, 'window:blur': 0 })
-  expect(probe.pendingRaf.size).toBe(0)
-  expect(probe.pendingTimers.size).toBe(0)
+  handles.raf.forEach(id => expect(probe.pendingRaf.has(id)).toBe(false))
+  handles.timers.forEach(id => expect(probe.pendingTimers.has(id)).toBe(false))
+  if (requireNoRaf) expect(probe.pendingRaf.size).toBe(0)
 }
 
 beforeEach(() => {
@@ -184,11 +192,13 @@ describe('Cascader lazy keyboard focus ownership round eleven', () => {
     const probe = probeRealm(document)
     try {
       await enter(wrapper)
+      const ownerHandles = probe.ownerHandles()
+      expect(ownerHandles.raf.length + ownerHandles.timers.length).toBeGreaterThan(0)
       const other = wrapper.get('[data-cascader-value="other"]')
       other.element.click()
       resolveLoad([{ value: 'stale', label: 'Stale child' }])
       await settle()
-      expectOwnerClean(probe)
+      expectOwnerClean(probe, ownerHandles)
       expect(wrapper.find('[data-cascader-value="stale"]').exists()).toBe(false)
     } finally {
       probe.restore()
@@ -209,7 +219,7 @@ describe('Cascader lazy keyboard focus ownership round eleven', () => {
       root.element.focus()
       root.element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
       await settle()
-      expectOwnerClean(probe)
+      expectOwnerClean(probe, probe.ownerHandles(), true)
     } finally {
       probe.restore()
     }
