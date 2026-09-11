@@ -9,7 +9,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { execFile } from 'node:child_process'
-import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, writeFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { promisify } from 'node:util'
@@ -62,7 +62,7 @@ async function writeFileManifest(directory, destination) {
   const files = []
   async function walk(current) { for (const entry of await readdir(current, { withFileTypes: true })) { const file = path.join(current, entry.name); if (entry.isDirectory()) await walk(file); else files.push(file) } }
   await walk(directory)
-  await writeFile(destination, `${JSON.stringify({ files: files.sort().map(file => ({ path: file, relativePath: path.relative(directory, file).split(path.sep).join('/'), sha256: sha256(readFileSync(file)) })) }, null, 2)}\n`)
+  await writeFile(destination, `${JSON.stringify({ files: files.sort().map(file => { const bytes = readFileSync(file); return { path: file, relativePath: path.relative(directory, file).split(path.sep).join('/'), bytes: bytes.length, sha256: sha256(bytes) } }) }, null, 2)}\n`)
 }
 
 async function verifyTarball(tarball, label, root, manifestAttestation) {
@@ -466,7 +466,7 @@ async function collectSmoke(temporary) {
   report.iframe = iframe
   report.preview.screenshotPath = `${output}.png`
   await cp(path.join(candidateRoot, 'smoke.png'), `${output}.png`)
-  report.realEvidenceBinding = { tarballReopened: candidate.tarballSha256Verified === true, baselineCommit: baselineManifest.commit, baselineTarballVerified: baseline.sha256 === baselineManifest.tarballSha256, cleanStatusVerified: baselineManifest.clean === true && candidateManifest.clean === true, cleanPackVerified: candidate.clean === true && candidateManifest.clean === true, pnpmIntegrityVerified: install.lockSha256.length === 64, buildManifestPath: path.join(durableDir, 'dist-files.json'), buildFingerprintVerified: true, moduleFingerprintVerified: install.packageIndexHash === sha256(await readFile(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'))), buildFingerprint: { before: buildFingerprint, after: buildFingerprint }, moduleFingerprint: { before: install.packageIndexHash, after: install.packageIndexHash }, lockFingerprint: { before: install.lockSha256, after: install.lockSha256 } }
+  report.realEvidenceBinding = { tarballReopened: candidate.tarballSha256Verified === true, baselineCommit: baselineManifest.commit, baselineTarballVerified: baseline.sha256 === baselineManifest.tarballSha256, cleanStatusVerified: baselineManifest.clean === true && candidateManifest.clean === true, cleanPackVerified: candidate.clean === true && candidateManifest.clean === true, pnpmIntegrityVerified: install.lockSha256.length === 64, buildDirectory: path.join(durableDir, 'dist'), buildManifestPath: path.join(durableDir, 'dist-files.json'), buildFingerprintVerified: true, moduleFingerprintVerified: install.packageIndexHash === sha256(await readFile(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'))), buildFingerprint: { before: buildFingerprint, after: buildFingerprint }, moduleFingerprint: { before: install.packageIndexHash, after: install.packageIndexHash }, lockFingerprint: { before: install.lockSha256, after: install.lockSha256 } }
   report.alternatingOrderConvention = 'pair-forward-reverse'
   report.failureEvidence = { persistedBeforeCleanup: true }
   report.outputDirectoryDurable = true
@@ -558,7 +558,9 @@ async function collectSide(tarball, label, temporary) {
     iframeEvidence = await iframeProbe(page)
     familyCoverage = await collectFamilyCoverage(page, base)
     for (const [name, Browser] of Object.entries({ firefox, webkit })) {
-      const other = await Browser.launch()
+      let other
+      try {
+      other = await Browser.launch()
       const otherPage = await other.newPage({ viewport: { width: 1100, height: 800 } })
       const browserErrors = []
       otherPage.on('pageerror', error => browserErrors.push(error.message))
@@ -576,7 +578,9 @@ async function collectSide(tarball, label, temporary) {
         coverage.push({ component, count, rowMode, measuredRuns: modes })
       }
       otherBrowsers[name] = { browserVersion: other.version(), ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: sample.observers.startedAt, observersStoppedAt: sample.observers.stoppedAt, consoleErrors: browserErrors.length, pageErrors: 0, scrollSteps: sample.scroll.length, resources: { status: 'recorded', scripts: sample.observers.resources.filter(resource => /\.js(?:\?|$)/.test(resource)), styles: sample.observers.resources.filter(resource => /\.css(?:\?|$)/.test(resource)) }, coverageCases: coverage, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } }
-      await other.close()
+      } finally {
+        if (other) await other.close().catch(() => {})
+      }
     }
   } finally {
     await browser.close()
@@ -600,6 +604,23 @@ async function collectSide(tarball, label, temporary) {
   packageManifest.afterHashes = { 'es/index.js': install.packageIndexHash }
   packageManifest.versions = install.versions
   return { packageManifest, cases, root, ssrHydration: ssr, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence, familyCoverage }
+}
+
+export async function finalizeCollectedReport(report, output) {
+  report.releaseFormat ??= { collectorSourcePath: report.collectorSourcePath }
+  report.releaseFormat.validatorStatus = 'validating'
+  await mkdir(path.dirname(output), { recursive: true })
+  const temporaryReport = `${output}.validating`
+  await writeFile(temporaryReport, `${JSON.stringify(report, null, 2)}\n`)
+  await verifyArtifactBindings(report, { reportPath: temporaryReport })
+  validateReport(report, { requireRelease: true, allowValidationPhase: true })
+  report.releaseFormat.validatorStatus = 'passed'
+  await writeFile(temporaryReport, `${JSON.stringify(report, null, 2)}\n`)
+  await rename(temporaryReport, output)
+  const reopened = JSON.parse(await readFile(output, 'utf8'))
+  await verifyArtifactBindings(reopened, { reportPath: output })
+  validateReport(reopened, { requireRelease: true })
+  return reopened
 }
 
 // Full collection intentionally runs only when explicitly invoked by the phase owner.
@@ -653,11 +674,7 @@ try {
   report.gzip.baseline.rawBytes = baselineAssets.reduce((total, file) => total + file.rawBytes, 0)
   report.gzip.baseline.gzipBytes = baselineAssets.reduce((total, file) => total + file.gzipBytes, 0)
   report.gzip.deltaBytes = report.gzip.candidate.gzipBytes - report.gzip.baseline.gzipBytes
-  await mkdir(path.dirname(output), { recursive: true })
-  await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
-  await verifyArtifactBindings(report)
-  validateReport(report, { requireRelease: true, allowValidationPhase: true })
-  report.releaseFormat.validatorStatus = 'passed'
+  await finalizeCollectedReport(report, output)
   console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: true }, null, 2))
 } catch (error) {
   await mkdir(path.dirname(output), { recursive: true })

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { readFile, stat } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/promises'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
@@ -73,7 +73,12 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
     try {
       const manifest = JSON.parse(await readFile(resolve(buildManifestPath), 'utf8'))
       const lines = []
-      for (const file of manifest.files ?? []) { const bytes = await readFile(resolve(file.path)); const hash = sha256(bytes); ensure(hash === file.sha256, `build file hash mismatch: ${file.path}`, failures); lines.push(`${file.relativePath ?? file.path}=${hash}`) }
+      const listed = new Set()
+      for (const file of manifest.files ?? []) { ensure(!listed.has(file.relativePath), `duplicate build file in manifest: ${file.relativePath}`, failures); listed.add(file.relativePath); const bytes = await readFile(resolve(file.path)); const hash = sha256(bytes); ensure(hash === file.sha256 && bytes.length === file.bytes, `build file hash/bytes mismatch: ${file.relativePath}`, failures); lines.push(`${file.relativePath}=${hash}`) }
+      const actual = []
+      async function walk(dir) { for (const entry of await readdir(dir, { withFileTypes: true })) { const full = path.join(dir, entry.name); if (entry.isDirectory()) await walk(full); else actual.push(path.relative(resolve(report.realEvidenceBinding.buildDirectory), full).split(path.sep).join('/')) } }
+      await walk(resolve(report.realEvidenceBinding.buildDirectory))
+      ensure(JSON.stringify(actual.sort()) === JSON.stringify([...listed].sort()), 'build manifest file set does not exactly cover durable dist', failures)
       const fingerprint = sha256(Buffer.from(lines.sort().join('\n')))
       ensure(fingerprint === report.realEvidenceBinding.buildFingerprint?.before && fingerprint === report.realEvidenceBinding.buildFingerprint?.after, 'build fingerprint before/after mismatch', failures)
     } catch (error) { failures.push(`build manifest cannot be reopened: ${error.message}`) }
@@ -83,6 +88,23 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
   if (report.runDir) { try { ensure((await stat(resolve(report.runDir))).isDirectory(), 'collector runDir is not durable', failures) } catch (error) { failures.push(`collector runDir cannot be reopened: ${error.message}`) } }
   if (failures.length) { const error = new Error(`D4 artifact binding verification failed: ${failures.join('; ')}`); error.failures = failures; throw error }
   return { status: 'passed', failures: [] }
+}
+
+export async function finalizeFullReport(report, output) {
+  report.releaseFormat ??= { collectorSourcePath: report.collectorSourcePath }
+  report.releaseFormat.validatorStatus = 'validating'
+  await mkdir(path.dirname(output), { recursive: true })
+  const validating = `${output}.validating`
+  await writeFile(validating, `${JSON.stringify(report, null, 2)}\n`)
+  await verifyArtifactBindings(report, { reportPath: validating })
+  validateReport(report, { requireRelease: true, allowValidationPhase: true })
+  report.releaseFormat.validatorStatus = 'passed'
+  await writeFile(validating, `${JSON.stringify(report, null, 2)}\n`)
+  await rename(validating, output)
+  const reopened = JSON.parse(await readFile(output, 'utf8'))
+  await verifyArtifactBindings(reopened, { reportPath: output })
+  validateReport(reopened, { requireRelease: true })
+  return reopened
 }
 
 function deterministicSeed(value) {
@@ -159,6 +181,7 @@ function packageManifest(label, packagePath) {
     lockPath: `${packagePath}.lock.yaml`,
     lockfileSha256: sha256(content),
     lockfileAfterSha256: sha256(content),
+    buildManifestPath: `${packagePath}.dist-files.json`,
     exists: true,
     sha256: sha256(content),
     clean: true,
@@ -288,7 +311,7 @@ export function buildAcceptanceFixture({ baselinePackage, candidatePackage, gene
     collectorSourceSha256: 'a'.repeat(64),
     artifactDirectory: '/tmp/d4-artifacts',
     releaseFormat: { validatorStatus: 'passed', collectorSourcePath: '/tmp/d4-collector.mjs' },
-    realEvidenceBinding: { tarballReopened: true, buildFingerprint: { before: 'b'.repeat(64), after: 'b'.repeat(64) }, moduleFingerprint: { before: 'c'.repeat(64), after: 'c'.repeat(64) } },
+    realEvidenceBinding: { tarballReopened: true, buildManifestPath: '/tmp/d4-artifacts.dist-files.json', buildFingerprint: { before: 'b'.repeat(64), after: 'b'.repeat(64) }, moduleFingerprint: { before: 'c'.repeat(64), after: 'c'.repeat(64) }, lockFingerprint: { before: 'd'.repeat(64), after: 'd'.repeat(64) } },
     environment: { ...PINNED_VERSIONS, node: process.version === `v${PINNED_VERSIONS.node}` ? PINNED_VERSIONS.node : PINNED_VERSIONS.node, cpu: 'fixture', concurrency: 1 },
     matrix: RELEASE_MATRIX,
     fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { sharedTree: true, checkable: true, queryMatches: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000 }, rowHeights: { fixed: 28, coarse: 44, dynamicEvery: 10 } },
@@ -428,7 +451,8 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     ensure(report.artifactDirectory, 'durable artifactDirectory is required for release validation', failures)
     ensure(report.releaseFormat?.collectorSourcePath === report.collectorSourcePath, 'collectorSourcePath is required in release format', failures)
     ensure(report.collectorSourcePath, 'collectorSourcePath is required for release validation', failures)
-    ensure(report?.sourceKind === 'collected' && /^(bounded|full)-/.test(report.runId ?? '') && hash(report.collectorSourceSha256) && report?.realEvidenceBinding?.tarballReopened === true && hash(report.realEvidenceBinding.buildFingerprint?.before) && hash(report.realEvidenceBinding.buildFingerprint?.after) && hash(report.realEvidenceBinding.moduleFingerprint?.before) && hash(report.realEvidenceBinding.moduleFingerprint?.after), 'release report must carry collected source/run/artifact bindings', failures)
+    ensure(report.realEvidenceBinding?.buildManifestPath, 'build manifest is required for release validation', failures)
+    ensure(report?.sourceKind === 'collected' && /^(bounded|full)-/.test(report.runId ?? '') && hash(report.collectorSourceSha256) && report?.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildManifestPath && hash(report.realEvidenceBinding.buildFingerprint?.before) && hash(report.realEvidenceBinding.buildFingerprint?.after) && hash(report.realEvidenceBinding.moduleFingerprint?.before) && hash(report.realEvidenceBinding.moduleFingerprint?.after), 'release report must carry collected source/run/artifact bindings', failures)
   }
   ensure(report?.syntheticEvidence !== true || requireRelease !== true, 'synthetic fixture provenance cannot pass release validation', failures)
   ensure(report?.provenance?.baselineCommit === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitExpected === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitVerified === true && report?.provenance?.candidateCommitVerified === true, 'baseline/candidate commit provenance is missing or does not match the approved baseline', failures)
@@ -451,7 +475,8 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     for (const field of ['esm', 'cjs', 'css', 'publicTypes', 'ssr', 'contentSha256Verified', 'tarballSha256Verified']) ensure(pkg?.[field] === true, `${side} package is missing ${field} evidence`, failures)
     ensure(pkg?.sourceCommit === (side === 'baseline' ? APPROVED_BASELINE_COMMIT : report.provenance?.candidateCommit), `${side} package source commit provenance is missing`, failures)
     if (requireRelease) {
-      ensure(pkg?.path && pkg?.manifestPath && pkg?.modulePath && pkg?.lockPath && /^[a-f0-9]{64}$/i.test(pkg?.manifestSha256 ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.afterHashes?.['es/index.js'] ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.lockfileSha256 ?? ''), `${side} release artifact descriptors are incomplete`, failures)
+      ensure(pkg?.path && pkg?.manifestPath && pkg?.modulePath && pkg?.lockPath && /^[a-f0-9]{64}$/i.test(pkg?.manifestSha256 ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.afterHashes?.['es/index.js'] ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.lockfileSha256 ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.lockfileAfterSha256 ?? ''), `${side} release artifact descriptors are incomplete`, failures)
+      ensure(/^[a-f0-9]{64}$/i.test(pkg?.lockfileAfterSha256 ?? ''), `${side} lockfileAfter fingerprint is required`, failures)
       if (String(report.runId).startsWith('full-')) ensure(existsSync(pkg?.path) && existsSync(pkg?.manifestPath) && existsSync(pkg?.modulePath) && existsSync(pkg?.lockPath), `${side} release artifact path does not exist`, failures)
     }
   }
