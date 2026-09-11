@@ -109,7 +109,7 @@ const iframeControlReport = () => {
     rawLifecycle: {
       schema: 'd4-iframe-lifecycle/v1',
       scenarios,
-      summary: { scenarioCount: 3, components: expectedComponents, proxiesInstalled: true, allRealmsIframe: true, createdBeforeUnmount: 12, activeAfterUnmount: 0, teleportResidualNodes: 0, escapeFocusRestored: true, unmountCleanup: true, lateLazyStateUpdates: 0, postUnmountInteractions: 0 },
+      summary: { scenarioCount: 3, components: expectedComponents, proxiesInstalled: true, allRealmsIframe: true, createdBeforeUnmount: 12, activeAfterUnmount: 0, byKind: { resizeObserver: 0, raf: 0, timeout: 0, interval: 0 }, finalActive: 0, teleportResidualNodes: 0, escapeFocusRestored: true, unmountCleanup: true, lateLazyStateUpdates: 0, postUnmountInteractions: 0 },
     },
     lifecycleArtifact: { path: '/synthetic/iframe-lifecycle.json', sha256: 'a'.repeat(64) },
   }
@@ -723,6 +723,9 @@ test('iframe lifecycle validator rejects forged raw resource, popup, focus, unmo
     ['focus restore/close', /focus|escape|popup/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'focus-restore'); event.restored = false }],
     ['unmount ordering/frame alive', /unmount|frame|connected|order/i, report => { const event = report.iframe.rawLifecycle.scenarios[0].events.find(event => event.type === 'frame-unmount-invoked'); event.connected = false }],
     ['late update/hash', /late|lazy|hash|update/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'lazy-resolve-after-unmount'); event.componentUpdateCount = 1 }],
+    ['late DOM hash mismatch', /late|lazy|hash|dom/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'lazy-resolve-after-unmount'); event.domHashAfterSha256 = 'changed' }],
+    ['post-unmount mutation', /post|mutation|update/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'post-unmount-pointer'); event.mutationCount = 1 }],
+    ['post-unmount consumed', /post|consum/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'post-unmount-escape'); event.consumed = true }],
     ['summary-only mutation', /summary|recompute|raw/i, report => { report.iframe.rawLifecycle.summary.createdBeforeUnmount = 0 }],
     ['events empty with successful summary', /events|lifecycle|recompute/i, report => { report.iframe.rawLifecycle.scenarios[0].events = [] }],
     ['raw lifecycle missing', /iframe|lifecycle|raw/i, report => { delete report.iframe.rawLifecycle }],
@@ -761,15 +764,44 @@ test('iframe raw resource completion, probe locking and late hashes are recomput
   const contract = await import('./d4-deferred-consumer-contract.mjs')
   const control = iframeControlReport()
   assert.equal(typeof contract.recomputeIframeLifecycle, 'function')
+  const controlSummary = contract.recomputeIframeLifecycle(control.iframe.rawLifecycle)
+  assert.equal(controlSummary.activeAfterUnmount, 0)
+  assert.ok(controlSummary.byKind, 'recomputed iframe summary must expose per-kind resource balance')
+  assert.equal(controlSummary.byKind.raf, 0)
   const forged = structuredClone(control.iframe.rawLifecycle)
   const scenario = forged.scenarios[0]
   const unmount = scenario.events.findIndex(event => event.type === 'frame-unmount-complete')
-  scenario.events.splice(unmount + 1, 0, { ...scenario.events.find(event => event.type === 'resource'), seq: unmount + 1, time: (unmount + 1) * 10, action: 'callback', resourceId: 'late-raf' })
-  assert.equal(contract.recomputeIframeLifecycle(forged).byKind?.raf, 1)
+  scenario.events.splice(unmount, 0, { type: 'resource', kind: 'raf', action: 'create', resourceId: 'late-raf', targetSelector: '.component-root', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
+  scenario.events.splice(unmount + 2, 0, { type: 'resource', kind: 'raf', action: 'callback', resourceId: 'late-raf', targetSelector: '.component-root', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
+  scenario.events.forEach((event, index) => { event.seq = index + 1; event.time = (index + 1) * 10 })
+  const forgedSummary = contract.recomputeIframeLifecycle(forged)
+  assert.equal(forgedSummary.activeAfterUnmount, 1)
+  assert.equal(forgedSummary.byKind.raf, 1)
+  assert.equal(forgedSummary.finalActive, 0)
+  assert.equal(forgedSummary.unmountCleanup, false)
   const source = await deferredCollectorSource()
   assert.match(source, /Object\.defineProperty[\s\S]*writable:\s*false[\s\S]*configurable:\s*false/, 'iframe probes must lock original API properties')
   assert.match(source, /probeMarker/, 'iframe probe must validate a marker rather than silently returning')
   assert.match(source, /original(?:ResizeObserver|RequestAnimationFrame|SetTimeout|SetInterval)/, 'iframe probe must retain original owner-realm APIs')
+})
+
+test('iframe probe source preserves owner APIs, focus measurement and non-silent proxy installation', async () => {
+  const source = await deferredCollectorSource()
+  const file = ts.createSourceFile('collect.mjs', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const findFunction = name => { let found; const visit = node => { if (ts.isFunctionDeclaration(node) && node.name?.text === name) found = node; ts.forEachChild(node, visit) }; visit(file); assert.ok(found, `collector must declare ${name}`); return found }
+  const iframeFn = findFunction('iframeProbe')
+  const iframeText = source.slice(iframeFn.pos, iframeFn.end)
+  const escapeAt = iframeText.indexOf("key: 'Escape'")
+  const focusAt = iframeText.indexOf('focus-restore')
+  assert.ok(escapeAt >= 0 && focusAt > escapeAt)
+  assert.doesNotMatch(iframeText.slice(escapeAt, focusAt), /\.focus\(|locator\.focus\(/, 'Escape to focus-restore measurement must not force focus')
+  const installFn = (() => { let found; const visit = node => { if (ts.isFunctionDeclaration(node) && node.name?.text === 'installIframeLifecycleProbe') found = node; ts.forEachChild(node, visit) }; visit(file); return found })()
+  assert.ok(installFn, 'collector must expose a dedicated iframe lifecycle probe installer')
+  const installText = source.slice(installFn.pos, installFn.end)
+  assert.doesNotMatch(installText, /withCollector|exclusionDepth/, 'probe must not suppress records across async waits')
+  assert.match(installText, /Object\.defineProperty\(window,\s*['"]__d4IframeLifecycleProbe['"][\s\S]*writable:\s*false[\s\S]*configurable:\s*false/)
+  assert.match(installText, /probeMarker[\s\S]*(?:throw|Error)/, 'existing probe marker mismatch must fail explicitly')
+  assert.match(installText, /original(?:ResizeObserver|RequestAnimationFrame|SetTimeout|SetInterval)/, 'probe must retain original owner APIs')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
