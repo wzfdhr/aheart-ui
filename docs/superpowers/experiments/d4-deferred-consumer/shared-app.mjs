@@ -32,3 +32,10 @@ export function createConsumerApp(settings) {
   const Component = settings.component === 'Tree' ? Tree : settings.component === 'TreeSelect' ? TreeSelect : Cascader
   return { render: () => h(Component, componentProps(settings.component, settings.count, settings.rowMode, settings.virtual)) }
 }
+
+export function createCombinedConsumerApp(virtual) {
+  return { render: () => h('main', COMPONENTS.map(component => h(
+    component === 'Tree' ? Tree : component === 'TreeSelect' ? TreeSelect : Cascader,
+    componentProps(component, 1000, 'fixed', Boolean(virtual[component]))
+  ))) }
+}

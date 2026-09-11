@@ -46,7 +46,8 @@ node docs/superpowers/experiments/d4-deferred-consumer/collect.mjs \
   --candidate-tarball /path/to/candidate.tgz \
   --baseline-commit 4a7511f9594d0a74906e427e158d02343ba33a22 \
   --candidate-commit CANDIDATE_SHA \
-  --baseline-clean true --candidate-clean true \
+  --baseline-manifest /path/to/baseline-manifest.json \
+  --candidate-manifest /path/to/candidate-manifest.json \
   --out docs/superpowers/evidence/d4-deferred-consumer/full.json
 ```
 

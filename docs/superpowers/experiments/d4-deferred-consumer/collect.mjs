@@ -28,20 +28,25 @@ const baselineTarball = arg('--baseline-tarball')
 const candidateTarball = arg('--candidate-tarball')
 const baselineCommit = arg('--baseline-commit')
 const candidateCommit = arg('--candidate-commit')
-const baselineClean = arg('--baseline-clean') === 'true'
-const candidateClean = arg('--candidate-clean') === 'true'
+const baselineManifestPath = arg('--baseline-manifest')
+const candidateManifestPath = arg('--candidate-manifest')
 const output = path.resolve(arg('--out') ?? path.join(workspace, 'docs/superpowers/evidence/d4-deferred-consumer/full.json'))
 assert(baselineTarball && candidateTarball, '--baseline-tarball and --candidate-tarball are required')
 assert(baselineCommit === APPROVED_BASELINE_COMMIT, `--baseline-commit must equal ${APPROVED_BASELINE_COMMIT}`)
 assert(candidateCommit, '--candidate-commit is required')
-assert(baselineClean && candidateClean, '--baseline-clean true and --candidate-clean true are required clean-checkout attestations')
+assert(baselineManifestPath && candidateManifestPath, '--baseline-manifest and --candidate-manifest are required clean/hash attestations')
+
+const baselineManifest = JSON.parse(await readFile(path.resolve(baselineManifestPath), 'utf8'))
+const candidateManifest = JSON.parse(await readFile(path.resolve(candidateManifestPath), 'utf8'))
+assert(baselineManifest.clean === true && baselineManifest.commit === APPROVED_BASELINE_COMMIT, 'baseline manifest must attest a clean approved commit')
+assert(candidateManifest.clean === true && candidateManifest.commit === candidateCommit, 'candidate manifest must attest a clean candidate commit')
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]
 const tick = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
 const packageFiles = async tarball => (await run('tar', ['-tf', tarball])).stdout.split('\n').map(item => item.trim()).filter(Boolean)
 
-async function verifyTarball(tarball, label, root, clean) {
+async function verifyTarball(tarball, label, root, manifestAttestation) {
   const absolute = path.resolve(tarball)
   const bytes = await readFile(absolute)
   const files = await packageFiles(absolute)
@@ -57,8 +62,8 @@ async function verifyTarball(tarball, label, root, clean) {
   const result = {
     path: absolute,
     exists: true,
-    clean,
-    sourceCommit: label === 'baseline' ? APPROVED_BASELINE_COMMIT : candidateCommit,
+    clean: manifestAttestation.clean,
+    sourceCommit: manifestAttestation.commit,
     sha256: sha256(bytes),
     files: names,
     symlinks: symlinkLines,
@@ -73,6 +78,7 @@ async function verifyTarball(tarball, label, root, clean) {
     tarballSha256Verified: true,
     manifest: { name: manifest.name, version: manifest.version, main: manifest.main, module: manifest.module, types: manifest.types, exports: manifest.exports },
   }
+  assert.equal(result.sha256, manifestAttestation.tarballSha256, `${label} tarball hash does not match its manifest attestation`)
   assert.equal(result.symlinks.length, 0, `${label} contains symlinks`)
   assert.equal(result.workspaceLinks.length, 0, `${label} contains workspace links`)
   assert.equal(result.fsImports.length, 0, `${label} contains @fs imports`)
@@ -126,22 +132,20 @@ async function ssrEvidence(root) {
   const vue = require('vue')
   const renderer = require('@vue/server-renderer')
   const packageExports = require('aheart-ui')
-  const { componentProps } = await import(pathToFileURL(path.join(root, 'shared-app.mjs')).href)
+  const { createCombinedConsumerApp } = await import(pathToFileURL(path.join(root, 'shared-app.mjs')).href)
   const combinations = {}
+  const htmlByMask = {}
   for (let mask = 0; mask < 8; mask++) {
     const virtual = Object.fromEntries(COMPONENTS.map((component, index) => [component, Boolean(mask & (1 << index))]))
     const key = COMPONENTS.map(component => `${component}=${virtual[component]}`).join(',')
-    const render = () => vue.createSSRApp({
-      render: () => vue.h('main', COMPONENTS.map(component => vue.h(
-        packageExports[component],
-        componentProps(component, 1000, 'fixed', virtual[component])
-      )))
-    })
+    const render = () => vue.createSSRApp(createCombinedConsumerApp(virtual))
     const first = await renderer.renderToString(render())
     const second = await renderer.renderToString(render())
+    htmlByMask[mask] = first
+    await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><body><div id="app">${first}</div><script type="module">import {createSSRApp} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)})).mount('#app');window.__d4Hydrated=true</script></body></html>`)
     combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, htmlSha256: sha256(Buffer.from(first)), rows: (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length }
   }
-  return { count: 8, combinations, deterministicDoubleRender: true }
+  return { count: 8, combinations, deterministicDoubleRender: true, htmlByMask }
 }
 
 async function measureCase(page, settings, mode) {
@@ -176,9 +180,11 @@ async function measureCase(page, settings, mode) {
 
 async function collectSide(tarball, label, temporary) {
   const root = await mkdtemp(path.join(temporary, `${label}-consumer-`))
-  const packageManifest = await verifyTarball(tarball, label, root, label === 'baseline' ? baselineClean : candidateClean)
+  const packageManifest = await verifyTarball(tarball, label, root, label === 'baseline' ? baselineManifest : candidateManifest)
   await installConsumer(root)
+  const ssr = await ssrEvidence(root)
   const server = await serverFor(root)
+  const base = `http://127.0.0.1:${server.httpServer.address().port}`
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
   const browserErrors = []
@@ -194,7 +200,14 @@ async function collectSide(tarball, label, temporary) {
   let lastObservers = { longTasks: [], layoutShifts: [], resources: [] }
   const otherBrowsers = {}
   let iframeEvidence = { sameOrigin: false, ownerDocument: false, focusTransfer: false, unmountCleanup: false, postUnmountInteractions: 1 }
+  const hydrationErrors = []
   try {
+    for (let mask = 0; mask < 8; mask++) {
+      await page.goto(`${base}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
+      await page.waitForFunction(() => window.__d4Hydrated === true)
+      const diagnostics = await page.evaluate(() => ({ body: document.body.textContent?.length ?? 0 }))
+      if (diagnostics.body === 0) hydrationErrors.push(`empty SSR hydration ${mask}`)
+    }
     for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
       const settings = fixtureCount(component, count, rowMode)
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
@@ -233,6 +246,7 @@ async function collectSide(tarball, label, temporary) {
       const browserErrors = []
       otherPage.on('pageerror', error => browserErrors.push(error.message))
       otherPage.on('console', message => { if (message.type() === 'error') browserErrors.push(message.text()) })
+      await otherPage.goto(base, { waitUntil: 'domcontentloaded' })
       const sample = await measureCase(otherPage, fixtureCount('Tree', 1000, 'fixed'), 'virtual')
       otherBrowsers[name] = { browserVersion: other.version(), ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, consoleErrors: browserErrors.length, pageErrors: 0, scrollSteps: sample.scroll.length, resources: { status: 'recorded', scripts: sample.observers.resources.filter(resource => /\.js(?:\?|$)/.test(resource)), styles: sample.observers.resources.filter(resource => /\.css(?:\?|$)/.test(resource)) }, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } }
       await other.close()
@@ -247,7 +261,9 @@ async function collectSide(tarball, label, temporary) {
     longTasks: { status: 'recorded', maxMs: Math.max(0, ...lastObservers.longTasks.map(entry => entry.duration)), entries: lastObservers.longTasks },
     layoutShifts: { status: 'recorded', cls: lastObservers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0), entries: lastObservers.layoutShifts }
   }
-  return { packageManifest, cases, root, ssrHydration: await ssrEvidence(root), browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence }
+  ssr.htmlByMask = undefined
+  for (const item of Object.values(ssr.combinations)) { item.hydrationWarnings = hydrationErrors.length; item.hydrationErrors = hydrationErrors.length }
+  return { packageManifest, cases, root, ssrHydration: ssr, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence }
 }
 
 // Full collection intentionally runs only when explicitly invoked by the phase owner.
