@@ -83,21 +83,24 @@ const iframeControlReport = () => {
     for (const kind of ['resizeObserver', 'raf', 'timeout', 'interval']) {
       add('resource', { kind, action: 'create', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
       if (kind === 'resizeObserver') add('resource', { kind, action: 'observe', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
-      add('resource', { kind, action: kind === 'raf' ? 'callback' : kind === 'timeout' ? 'callback' : kind === 'interval' ? 'clear' : 'disconnect', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
+      add('resource', { kind, action: 'callback', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
     }
     if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', consumed: false })
-    if (component === 'Cascader') { add('lazy-pending'); add('lazy-abort'); add('lazy-resolve-after-unmount', { returnedChildrenCount: 1, componentUpdateCount: 0, stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksBefore: [], callbacksAfter: [] }) }
+    if (component === 'Cascader') add('lazy-pending')
     add('frame-unmount-invoked', { connected: true })
+    if (component === 'Cascader') add('lazy-abort')
     add('resource', { kind: 'resizeObserver', action: 'disconnect', resourceId: `${scenarioId}-resizeObserver`, targetSelector: '.component-root', source: 'component-runtime' })
     add('resource', { kind: 'raf', action: 'cancel', resourceId: `${scenarioId}-raf`, targetSelector: '.component-root', source: 'component-runtime' })
     add('resource', { kind: 'timeout', action: 'clear', resourceId: `${scenarioId}-timeout`, targetSelector: '.component-root', source: 'component-runtime' })
     add('resource', { kind: 'interval', action: 'clear', resourceId: `${scenarioId}-interval`, targetSelector: '.component-root', source: 'component-runtime' })
     add('frame-unmount-complete', { connected: true })
     add('owner-flush', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
+    if (component === 'Cascader') add('lazy-resolve-after-unmount', { returnedChildrenCount: 1, componentUpdateCount: 0, stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksBefore: [], callbacksAfter: [] })
+    add('owner-observation', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
     add('post-unmount-escape', { consumed: false, updateCount: 0 })
     add('post-unmount-pointer', { consumed: false, updateCount: 0 })
     add('frame-removed', { connected: false })
-    return { component, scenarioUrl: `/components/d4-iframe?component=${component}`, scenarioId, realmId, events }
+    return { component, scenarioUrl: `/components/d4-iframe?component=${component}&iframeProbe=true&virtual=true&rowMode=fixed${component === 'Cascader' ? '&cascaderScenario=iframe-lazy' : ''}`, scenarioId, realmId, events }
   }
   const scenarios = components.map(makeScenario)
   report.iframe = {
@@ -721,6 +724,8 @@ test('iframe lifecycle validator rejects forged raw resource, popup, focus, unmo
     ['focus restore/close', /focus|escape|popup/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'focus-restore'); event.restored = false }],
     ['unmount ordering/frame alive', /unmount|frame|connected|order/i, report => { const event = report.iframe.rawLifecycle.scenarios[0].events.find(event => event.type === 'frame-unmount-invoked'); event.connected = false }],
     ['late update/hash', /late|lazy|hash|update/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'lazy-resolve-after-unmount'); event.componentUpdateCount = 1 }],
+    ['summary-only mutation', /summary|recompute|raw/i, report => { report.iframe.rawLifecycle.summary.createdBeforeUnmount = 0 }],
+    ['events empty with successful summary', /events|lifecycle|recompute/i, report => { report.iframe.rawLifecycle.scenarios[0].events = [] }],
     ['raw lifecycle missing', /iframe|lifecycle|raw/i, report => { delete report.iframe.rawLifecycle }],
   ]
   for (const [label, pattern, mutate] of mutations) await t.test(label, () => {
@@ -736,7 +741,14 @@ test('iframe raw lifecycle uses one recomputable summary and dedicated validator
   const contract = await import('./d4-deferred-consumer-contract.mjs')
   const control = iframeControlReport()
   assert.equal(typeof contract.recomputeIframeLifecycle, 'function', 'contract must export recomputeIframeLifecycle')
-  assert.deepEqual(contract.recomputeIframeLifecycle(control.iframe.rawLifecycle), control.iframe.rawLifecycle.summary)
+  const expected = contract.recomputeIframeLifecycle(control.iframe.rawLifecycle)
+  const withoutSummary = structuredClone(control.iframe.rawLifecycle)
+  delete withoutSummary.summary
+  assert.deepEqual(contract.recomputeIframeLifecycle(withoutSummary), expected)
+  const forgedSummary = structuredClone(control.iframe.rawLifecycle)
+  forgedSummary.summary.createdBeforeUnmount = 0
+  assert.deepEqual(contract.recomputeIframeLifecycle(forgedSummary), expected)
+  assert.deepEqual(control.iframe.rawLifecycle.summary, expected)
   const source = await deferredCollectorSource()
   const file = ts.createSourceFile('contract.mjs', await readFile(path.join(process.cwd(), 'scripts/d4-deferred-consumer-contract.mjs'), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
   const findFunction = name => { let found; const visit = node => { if (ts.isFunctionDeclaration(node) && node.name?.text === name) found = node; ts.forEachChild(node, visit) }; visit(file); assert.ok(found, `contract must declare ${name}`); return found }
