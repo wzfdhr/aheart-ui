@@ -428,6 +428,7 @@ test('real bounded iframe lifecycle evidence has authentic realm, popup, unmount
   const { report } = await collectRealBoundedReport()
   const iframe = report.iframe
   const components = ['Tree', 'TreeSelect', 'Cascader']
+  const expectedComponents = [...components].sort()
   const assertRaw = () => { assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence'); assert.equal(iframe.rawLifecycle.schema, 'd4-iframe-lifecycle/v1'); assert.ok(Array.isArray(iframe.rawLifecycle.scenarios) && iframe.rawLifecycle.scenarios.length === 3); return iframe.rawLifecycle }
   await t.test('scenario matrix, surface descriptors and raw artifact', async () => {
     const raw = assertRaw()
@@ -436,13 +437,13 @@ test('real bounded iframe lifecycle evidence has authentic realm, popup, unmount
     const bytes = await readFile(iframe.lifecycleArtifact.path)
     assert.equal(hash(bytes), iframe.lifecycleArtifact.sha256)
     assert.deepEqual(JSON.parse(bytes), raw)
-    assert.deepEqual(raw.scenarios.map(item => item.component).sort(), components)
-    assert.deepEqual(Object.keys(iframe.components ?? {}).sort(), components)
+    assert.deepEqual(raw.scenarios.map(item => item.component).sort(), expectedComponents)
+    assert.deepEqual(Object.keys(iframe.components ?? {}).sort(), expectedComponents)
     for (const component of components) { const evidence = iframe.components[component]; assert.ok(evidence.surface?.kind && evidence.scroll?.selector); if (component === 'Tree') assert.equal(evidence.surface.kind, 'inline'); else assert.equal(evidence.surface.kind, 'teleport'); assert.equal(evidence.ownerDocument, true); assert.equal(evidence.defaultView, true) }
   })
   await t.test('resource constructor events are raw and drained', () => {
     const raw = assertRaw(); assert.ok(raw.scenarios.every(scenario => scenario.events?.length > 0));
-    for (const scenario of raw.scenarios) { const install = scenario.events.find(event => event.type === 'instrumentation'); assert.ok(install && install.installedBeforeMount && install.realm === 'iframe' && install.collectorWaitsExcluded); for (const kind of ['resizeObserver', 'raf', 'timeout', 'interval']) { const records = scenario.events.filter(event => event.type === 'resource' && event.kind === kind); assert.ok(records.every(event => event.source === 'component-runtime' && event.realmId === scenario.realmId)); assert.equal(records.filter(event => event.action === 'activeAfterUnmount').length, 0) } }
+    for (const scenario of raw.scenarios) { const install = scenario.events.find(event => event.type === 'instrumentation-install'); assert.ok(install && install.installedBeforeMount && install.realmType === 'iframe' && install.collectorWaitsExcluded); assert.ok(scenario.events.every((event, index) => event.seq === index + 1 && event.time > (scenario.events[index - 1]?.time ?? 0) && event.scenarioId === scenario.scenarioId && event.realmId === scenario.realmId)); for (const kind of ['resizeObserver', 'raf', 'timeout', 'interval']) { const records = scenario.events.filter(event => event.type === 'resource' && event.kind === kind); assert.ok(records.length > 0); assert.ok(records.every(event => event.source === 'component-runtime' && event.resourceId && event.targetSelector && event.realmId === scenario.realmId)); } }
     assert.ok(raw.summary?.createdBeforeUnmount > 0); assert.equal(raw.summary?.activeAfterUnmount, 0)
   })
   await t.test('popup focus Teleport unmount and late loader events are real', () => {
