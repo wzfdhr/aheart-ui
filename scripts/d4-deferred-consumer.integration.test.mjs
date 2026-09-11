@@ -435,3 +435,89 @@ test('preflight browser-page injection executes the failing CLI and persists clo
   assert.ok(partial.cleanupCounters?.chromiumClose >= 1 && partial.cleanupCounters?.previewServerClose >= 1)
   assert.equal(partial.cleanupCounters?.temporaryRemovedAfterPersistence, true)
 })
+
+test('real bounded Tree family coverage preserves raw flat and expanded logical datasets', async () => {
+  const { report } = await collectRealBoundedReport()
+  const scenarios = report.familyCoverage?.Tree?.scenarios ?? []
+  const flat = scenarios.find(scenario => scenario.label === 'flat-roots-10000')
+  const expanded = scenarios.find(scenario => scenario.label === 'expanded-100x99')
+  assert.ok(flat, 'Tree must record the flat-roots-10000 raw scenario')
+  assert.equal(new Set(flat.logicalKeys).size, 10000)
+  assert.equal(flat.sourceHash, hash(Buffer.from(flat.logicalKeys.join('\n'))))
+  assert.ok(flat.scroll.some(step => step.rowKeys?.includes(flat.logicalKeys.at(-1))))
+  assert.ok(flat.mountedRows <= 24)
+  assert.ok(expanded, 'Tree must record the expanded-100x99 raw scenario')
+  assert.equal(expanded.roots, 100)
+  assert.equal(expanded.childrenPerRoot, 99)
+  assert.equal(expanded.expandedKeys?.length, 100)
+  assert.equal(new Set(expanded.logicalVisibleKeys).size, 10000)
+  assert.ok(expanded.mountedRows <= 24)
+})
+
+test('real bounded TreeSelect family coverage recomputes the 5000-match query and controlled rejection', async () => {
+  const { report } = await collectRealBoundedReport()
+  const scenario = report.familyCoverage?.TreeSelect?.scenarios?.find(item => item.label === 'search-5000-controlled')
+  assert.ok(scenario, 'TreeSelect must record the raw 5000-match controlled-search scenario')
+  assert.ok(Array.isArray(scenario.sourceKeys) && Array.isArray(scenario.sourceLabels) && scenario.sourceKeys.length > 5000)
+  assert.equal(scenario.query, 'match')
+  const expected = scenario.sourceLabels.map((label, index) => label.includes(scenario.query) ? scenario.sourceKeys[index] : null).filter(Boolean)
+  assert.deepEqual(scenario.matchedKeys, expected)
+  assert.equal(scenario.matchedKeys.length, 5000)
+  assert.ok(scenario.eventRecords.some(event => event.name === 'check'))
+  assert.ok(scenario.controlledRejected === true)
+  assert.deepEqual(scenario.valueBefore, scenario.valueAfter)
+})
+
+test('real bounded Cascader family coverage preserves deep columns, search paths, lazy state and controlled rejection', async () => {
+  const { report } = await collectRealBoundedReport()
+  const scenario = report.familyCoverage?.Cascader?.scenarios?.find(item => item.label === 'deep5-search-lazy-controlled')
+  assert.ok(scenario, 'Cascader must record the combined deep/search/lazy controlled scenario')
+  assert.deepEqual(scenario.columnSizes, [2000, 2000, 2000, 2000, 2000])
+  assert.ok(scenario.columns.every(column => new Set(column.logicalOptionKeys).size === 2000 && column.mountedRows <= 24))
+  assert.equal(scenario.selectedPath?.length, 5)
+  assert.ok(scenario.search.rawLeaves.length > 10000)
+  assert.equal(scenario.search.matchedPaths.length, 10000)
+  assert.equal(scenario.search.pathHash, hash(Buffer.from(scenario.search.matchedPaths.map(pathValue => pathValue.join('/')).join('\n'))))
+  assert.deepEqual(scenario.lazy.events.map(event => event.name), ['pending', 'error', 'pending', 'retry', 'resolve', 'pending', 'cancel', 'late-resolve-stale-ignored'])
+  assert.notDeepEqual(scenario.lazy.stateBefore, scenario.lazy.stateAfter)
+  assert.equal(scenario.controlledRejected, true)
+})
+
+test('real bounded measured rows retain computed fixed/coarse/dynamic heights and raw actionability probes', async () => {
+  const { report } = await collectRealBoundedReport()
+  for (const item of Object.values(report.cases ?? {})) {
+    for (const modeName of ['full', 'virtual']) {
+      const mode = item[modeName]
+      assert.ok(Array.isArray(mode.rowMetrics), `${item.component}/${item.count}/${item.rowMode}/${modeName} must retain computed row metrics`)
+      if (item.rowMode === 'fixed') assert.ok(mode.rowMetrics.every(row => row.height === row.expectedHeight))
+      if (item.rowMode === 'coarse') assert.ok(mode.rowMetrics.every(row => row.height >= 44))
+      if (item.rowMode === 'dynamic') assert.ok([0, 10, 20].every(index => mode.rowMetrics[index].height > mode.rowMetrics[1].height))
+    }
+    for (const mode of [item.full, item.virtual]) {
+      const timing = mode.timing
+      assert.equal(timing.targetKind, 'row')
+      assert.equal(timing.targetSelectorIncludesTrigger, false)
+      assert.equal(timing.fallbackTarget, false)
+      assert.ok(timing.targetRect && timing.targetViewportRect)
+      assert.ok(timing.targetRect.left < timing.targetViewportRect.right && timing.targetRect.right > timing.targetViewportRect.left && timing.targetRect.top < timing.targetViewportRect.bottom && timing.targetRect.bottom > timing.targetViewportRect.top)
+      assert.equal(timing.hitTarget?.kind, 'row')
+      assert.equal(timing.focusProbe?.activeElementInRow, true)
+      assert.ok(timing.actionableAt <= timing.probeAt && timing.probeAt <= timing.endAt)
+    }
+  }
+})
+
+test('bounded actionability validator rejects raw hit-target or focus-probe forgery', async () => {
+  const { report } = await collectRealBoundedReport()
+  assert.ok(report.case.timing.hitTarget && report.case.timing.focusProbe, 'bounded report must preserve raw hit-target and focus probes')
+  for (const mutate of [
+    forged => { forged.case.timing.hitTarget.kind = 'trigger' },
+    forged => { forged.case.timing.focusProbe.activeElementInRow = false },
+    forged => { forged.case.timing.targetRect.top = forged.case.timing.targetViewportRect.bottom + 100 },
+  ]) {
+    const forged = structuredClone(report)
+    mutate(forged)
+    assert.throws(() => validateBoundedReleaseReport(forged), /actionab|target|focus|hit|timing|viewport/i)
+  }
+  assert.ok(report.case.timing.hitTarget && report.case.timing.focusProbe)
+})
