@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFile } from 'node:child_process'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { promisify } from 'node:util'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -31,9 +32,10 @@ const releaseDescriptorFixture = () => {
   report.artifactDirectory = '/artifacts'
   report.realEvidenceBinding = {
     tarballReopened: true,
-    buildFingerprint: { before: 'b'.repeat(64), after: 'c'.repeat(64) },
-    moduleFingerprint: { before: 'd'.repeat(64), after: 'e'.repeat(64) },
-    lockFingerprint: { before: '8'.repeat(64), after: '9'.repeat(64) },
+    buildManifestPath: '/artifacts/dist-files.json',
+    buildFingerprint: { before: 'b'.repeat(64), after: 'b'.repeat(64) },
+    moduleFingerprint: { before: 'd'.repeat(64), after: 'd'.repeat(64) },
+    lockFingerprint: { before: '8'.repeat(64), after: '8'.repeat(64) },
   }
   for (const side of ['baseline', 'candidate']) {
     report.packages[side].path = `/artifacts/${side}.tgz`
@@ -48,6 +50,61 @@ const releaseDescriptorFixture = () => {
 }
 
 const deferredCollectorSource = () => readFile(path.join(process.cwd(), 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
+const sha256 = value => createHash('sha256').update(value).digest('hex')
+
+const readableFinalizationFixture = async root => {
+  const report = releaseDescriptorFixture()
+  const artifactDirectory = path.join(root, 'artifacts')
+  await mkdir(artifactDirectory, { recursive: true })
+  const artifact = async (name, content) => {
+    const file = path.join(artifactDirectory, name)
+    await mkdir(path.dirname(file), { recursive: true })
+    await writeFile(file, content)
+    return { file, hash: sha256(content) }
+  }
+  const collector = await artifact('collector.mjs', 'collector source')
+  const baselineTarball = await artifact('baseline.tgz', 'baseline tarball')
+  const candidateTarball = await artifact('candidate.tgz', 'candidate tarball')
+  const baselineManifest = await artifact('baseline-manifest.json', '{}')
+  const candidateManifest = await artifact('candidate-manifest.json', '{}')
+  const module = await artifact('module-index.js', 'module source')
+  const lock = await artifact('pnpm-lock.yaml', 'lock source')
+  const dist = await artifact('dist/index.js', 'dist source')
+  const buildManifest = await artifact('dist-files.json', JSON.stringify({ files: [{ path: dist.file, relativePath: 'index.js', bytes: Buffer.byteLength('dist source'), sha256: dist.hash }] }))
+  const buildFingerprint = sha256(`index.js=${dist.hash}`)
+  report.artifactDirectory = artifactDirectory
+  report.collectorSourcePath = collector.file
+  report.collectorSourceSha256 = collector.hash
+  report.runDir = path.join(root, 'run')
+  await mkdir(report.runDir, { recursive: true })
+  report.realEvidenceBinding.buildManifestPath = buildManifest.file
+  report.realEvidenceBinding.buildDirectory = path.join(artifactDirectory, 'dist')
+  report.realEvidenceBinding.buildFingerprint = { before: buildFingerprint, after: buildFingerprint }
+  report.realEvidenceBinding.moduleFingerprint = { before: module.hash, after: module.hash }
+  report.realEvidenceBinding.lockFingerprint = { before: lock.hash, after: lock.hash }
+  report.packages.baseline.path = baselineTarball.file
+  report.packages.baseline.sha256 = baselineTarball.hash
+  report.packages.baseline.manifestPath = baselineManifest.file
+  report.packages.baseline.manifestSha256 = baselineManifest.hash
+  report.packages.baseline.modulePath = module.file
+  report.packages.baseline.afterHashes = { 'es/index.js': module.hash }
+  report.packages.baseline.lockPath = lock.file
+  report.packages.baseline.lockfileSha256 = lock.hash
+  report.packages.baseline.lockfileAfterSha256 = lock.hash
+  report.packages.candidate.path = candidateTarball.file
+  report.packages.candidate.sha256 = candidateTarball.hash
+  report.packages.candidate.manifestPath = candidateManifest.file
+  report.packages.candidate.manifestSha256 = candidateManifest.hash
+  report.packages.candidate.modulePath = module.file
+  report.packages.candidate.afterHashes = { 'es/index.js': module.hash }
+  report.packages.candidate.lockPath = lock.file
+  report.packages.candidate.lockfileSha256 = lock.hash
+  report.packages.candidate.lockfileAfterSha256 = lock.hash
+  report.provenance.baselineTarballSha256 = baselineTarball.hash
+  report.provenance.candidateTarballSha256 = candidateTarball.hash
+  report.releaseFormat = { validatorStatus: 'validating', collectorSourcePath: collector.file }
+  return report
+}
 
 test('the contract exposes the frozen release matrix', () => {
   assert.deepEqual(RELEASE_MATRIX, {
@@ -267,6 +324,18 @@ test('full release descriptor contract requires a real lock descriptor and finge
   assert.throws(() => validateReport(missingLock, { requireRelease: true }), /candidate release artifact descriptors are incomplete|lock fingerprint/i)
 })
 
+test('full release descriptor contract rejects missing build manifest and lockfileAfter', () => {
+  const missingBuildManifest = releaseDescriptorFixture()
+  missingBuildManifest.releaseFormat = { validatorStatus: 'passed', collectorSourcePath: missingBuildManifest.collectorSourcePath }
+  delete missingBuildManifest.realEvidenceBinding.buildManifestPath
+  assert.throws(() => validateReport(missingBuildManifest, { requireRelease: true }), /release report must carry collected source\/run\/artifact bindings|build manifest|build fingerprint/i)
+
+  const missingLockAfter = releaseDescriptorFixture()
+  missingLockAfter.releaseFormat = { validatorStatus: 'passed', collectorSourcePath: missingLockAfter.collectorSourcePath }
+  delete missingLockAfter.packages.candidate.lockfileAfterSha256
+  assert.throws(() => validateReport(missingLockAfter, { requireRelease: true }), /lock fingerprint|lockfileAfter/i)
+})
+
 test('full finalization accepts collected/validating input but only saved passed reports satisfy release validation', async () => {
   const report = releaseDescriptorFixture()
   report.releaseFormat = { validatorStatus: 'validating', collectorSourcePath: report.collectorSourcePath }
@@ -274,8 +343,29 @@ test('full finalization accepts collected/validating input but only saved passed
   report.releaseFormat.validatorStatus = 'passed'
   assert.doesNotThrow(() => validateReport(report, { requireRelease: true }), 'successful validation must finalize to passed before release validation')
   const source = await deferredCollectorSource()
-  const fullBranch = source.slice(source.indexOf('\n} else {'))
-  assert.match(fullBranch, /validateReport\(report, \{ requireRelease: true, allowValidationPhase: true \}\)[\s\S]*report\.releaseFormat\.validatorStatus = 'passed'[\s\S]*await writeFile\(output/, 'collector must persist passed before the saved report is considered final')
+  assert.match(source, /export async function finalizeCollectedReport\(report, output\)/, 'collector must expose a reusable finalization helper')
+  assert.match(source, /finalizeCollectedReport\(report, output\)/, 'full collection must use the finalization helper')
+})
+
+test('full finalization helper saves passed and reopens a minimal readable report without benchmark work', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'd4-finalize-unit-'))
+  try {
+    const report = await readableFinalizationFixture(root)
+    const output = path.join(root, 'saved-report.json')
+    const source = await deferredCollectorSource()
+    const start = source.indexOf('export async function finalizeCollectedReport')
+    const end = source.indexOf('// Full collection intentionally runs only when explicitly invoked', start)
+    assert.ok(start >= 0 && end > start, 'full finalization helper source must be present')
+    const helper = new Function('mkdir', 'path', 'writeFile', 'verifyArtifactBindings', 'validateReport', 'readFile', 'rename', `${source.slice(start, end).replace('export async function', 'async function')}; return finalizeCollectedReport`)(mkdir, path, writeFile, (await import('./d4-deferred-consumer-contract.mjs')).verifyArtifactBindings, (await import('./d4-deferred-consumer-contract.mjs')).validateReport, readFile, rename)
+    await helper(report, output)
+    const saved = JSON.parse(await readFile(output, 'utf8'))
+    assert.equal(saved.releaseFormat.validatorStatus, 'passed')
+    const contract = await import('./d4-deferred-consumer-contract.mjs')
+    await contract.verifyArtifactBindings(saved, { reportPath: output })
+    assert.doesNotThrow(() => contract.validateReport(saved, { requireRelease: true }))
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('collector resolves its workspace root to the repository and avoids docs/docs default output', async () => {
@@ -291,6 +381,12 @@ test('full collector failure persistence keeps partial raw evidence and appends 
   assert.match(failureBranch, /readFile\(output/, 'full failure handling must reopen the partial raw report')
   assert.match(failureBranch, /validationFailures|failureEvidence/, 'full failure handling must append structured failure metadata')
   assert.match(failureBranch, /cases|performance|partial/i, 'full failure artifact must preserve partial raw evidence instead of replacing it with a summary')
+})
+
+test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
+  const source = await deferredCollectorSource()
+  const browserLoop = source.slice(source.indexOf("for (const [name, Browser] of Object.entries({ firefox, webkit }))"))
+  assert.match(browserLoop, /try\s*\{[\s\S]*Browser\.launch\(\)[\s\S]*finally\s*\{[\s\S]*await other\.close\(\)/, 'each Firefox/WebKit probe must close its browser even when launch/page/navigation fails')
 })
 
 test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {

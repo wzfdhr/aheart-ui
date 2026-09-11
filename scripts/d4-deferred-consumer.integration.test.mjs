@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFile } from 'node:child_process'
-import { cp, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises'
+import { cp, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
@@ -255,6 +255,43 @@ test('real bounded build fingerprint must be reopened from the durable dist arti
   const forged = structuredClone(report)
   forged.realEvidenceBinding.buildFingerprint = { before: '0'.repeat(64), after: '0'.repeat(64) }
   await assert.rejects(() => verifyArtifactBindings(forged), /build fingerprint before\/after mismatch/)
+})
+
+test('real bounded build fingerprint cannot hide a missing manifest behind matching zero hashes', async () => {
+  const { report } = await collectRealBoundedReport()
+  await assertBoundedControlPasses(report)
+  const forged = structuredClone(report)
+  delete forged.realEvidenceBinding.buildManifestPath
+  forged.realEvidenceBinding.buildFingerprint = { before: '0'.repeat(64), after: '0'.repeat(64) }
+  await assert.rejects(() => verifyArtifactBindings(forged), /build manifest|build fingerprint before\/after mismatch/)
+})
+
+const assertBuildManifestMutationRejected = async (report, mutate, pattern, label) => {
+  await assertBoundedControlPasses(report)
+  const directory = await mkdtemp(path.join(tmpdir(), 'd4-build-manifest-red-'))
+  try {
+    const manifest = JSON.parse(await readFile(report.realEvidenceBinding.buildManifestPath, 'utf8'))
+    await mutate(manifest, directory)
+    const manifestPath = path.join(directory, 'dist-files.json')
+    await writeFile(manifestPath, `${JSON.stringify(manifest)}\n`)
+    const forged = structuredClone(report)
+    forged.realEvidenceBinding.buildManifestPath = manifestPath
+    await assert.rejects(() => verifyArtifactBindings(forged), pattern, label)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+}
+
+test('real bounded build manifest rejects empty, missing, extra and hash-wrong recursive dist evidence', async () => {
+  const { report } = await collectRealBoundedReport()
+  await assertBuildManifestMutationRejected(report, manifest => { manifest.files = [] }, /build fingerprint before\/after mismatch/, 'empty build manifest must be rejected')
+  await assertBuildManifestMutationRejected(report, manifest => { manifest.files = manifest.files.slice(1) }, /build fingerprint before\/after mismatch/, 'missing dist file must be rejected')
+  await assertBuildManifestMutationRejected(report, async (manifest, directory) => {
+    const unknownPath = path.join(directory, 'unknown-extra.js')
+    await writeFile(unknownPath, 'unknown extra')
+    manifest.files.push({ path: unknownPath, relativePath: 'unknown-extra.js', sha256: hash(Buffer.from('unknown extra')) })
+  }, /build fingerprint before\/after mismatch/, 'unknown extra dist file must be rejected')
+  await assertBuildManifestMutationRejected(report, manifest => { manifest.files[0].sha256 = '0'.repeat(64) }, /build file hash\/bytes mismatch:/, 'wrong dist file hash must be rejected')
 })
 
 test('real bounded module fingerprint must be reopened from the durable module artifact', async () => {
