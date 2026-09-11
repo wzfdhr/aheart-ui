@@ -68,6 +68,27 @@ const fullSsrTypesControlReport = () => {
   return report
 }
 
+const iframeControlReport = () => {
+  const report = fullSsrTypesControlReport()
+  const components = ['Tree', 'TreeSelect', 'Cascader']
+  report.iframe = {
+    status: 'recorded', sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0,
+    scenarioUrls: components.map(component => ({ component, url: `/iframe/${component.toLowerCase()}` })),
+    components: Object.fromEntries(components.map(component => [component, { trigger: { selector: `.${component.toLowerCase()}-trigger` }, scroll: { selector: '.scroll' }, panel: { selector: '.panel' }, ownerDocument: true, defaultView: true }])),
+    rawLifecycle: {
+      instrumentation: { installedBeforeMount: true, realm: 'iframe', collectorWaitsExcluded: true },
+      constructors: Object.fromEntries(['resizeObserver', 'raf', 'timeout', 'interval'].map(name => [name, { proxyInstalled: true, records: [{ type: 'create' }, { type: 'callback' }, { type: 'disconnect' }], activeAfterUnmount: 0 }])),
+      createdBeforeUnmount: 4,
+      constructorProxy: { resourceCountsFromRaw: true },
+      popup: Object.fromEntries(['TreeSelect', 'Cascader'].map(component => [component, { openedByRealTrigger: true, panelParentRealm: 'iframe', panelOwnerDocument: true, panelDefaultView: true, parentDocumentResidualNodes: 0, escapeEventRealm: 'iframe', closedAfterEscape: true, frameTriggerFocusedAfterEscape: true, parentActiveElement: 'iframe', reopenedAfterEscape: true }])),
+      unmount: { hookPresent: true, invoked: true, frameConnectedBefore: true, frameConnectedAfter: true, beforeFrameRemove: true, ownerRealmFlushComplete: true, domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 },
+      lazy: { pendingStarted: true, abortObserved: true, resolverReturnedChildren: true, loaderCompletion: 1, componentUpdateCountAfterResolve: 0, stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksAfterResolve: [] },
+      postUnmount: { escapeConsumed: false, pointerConsumed: false, updateCount: 0 },
+    },
+  }
+  return report
+}
+
 const releaseDescriptorFixture = () => {
   const report = fullReport()
   report.syntheticEvidence = false
@@ -665,6 +686,25 @@ test('contradictory preflight reports are ineligible and legal preflight shells 
   const shell = buildFullReportShell({ preflight: true, baseline: { packageManifest: { sha256: 'a'.repeat(64) } }, candidate: { packageManifest: { sha256: 'b'.repeat(64) }, typeProbe: sentinel }, baselineCommit: '4a7511f9594d0a74906e427e158d02343ba33a22', candidateCommit: 'candidate', runId: 'preflight-legal-test' })
   assert.equal(shell.acceptanceEligible, false)
   assert.equal(shell.benchmarkExecuted, false)
+  assert.deepEqual(shell.iframe, { status: 'not-run' }, 'legal preflight shell must not contain success iframe placeholders')
+})
+
+test('iframe lifecycle validator rejects forged raw resource, popup, focus, unmount and late-loader evidence', async t => {
+  const mutations = [
+    ['resource balance/realm', /resource|constructor|realm/i, report => { report.iframe.rawLifecycle.constructors.raf.activeAfterUnmount = 1; report.iframe.rawLifecycle.instrumentation.realm = 'parent' }],
+    ['Teleport ownership/residual', /teleport|residual|ownerDocument/i, report => { report.iframe.rawLifecycle.popup.TreeSelect.panelOwnerDocument = false; report.iframe.rawLifecycle.unmount.teleportResidualNodes = 1 }],
+    ['focus restore/close', /focus|escape|popup/i, report => { report.iframe.rawLifecycle.popup.Cascader.frameTriggerFocusedAfterEscape = false; report.iframe.rawLifecycle.popup.Cascader.closedAfterEscape = false }],
+    ['unmount ordering/frame alive', /unmount|frame|connected|order/i, report => { report.iframe.rawLifecycle.unmount.invoked = false; report.iframe.rawLifecycle.unmount.beforeFrameRemove = false; report.iframe.rawLifecycle.unmount.frameConnectedAfter = false }],
+    ['late update/hash', /late|lazy|hash|update/i, report => { report.iframe.rawLifecycle.lazy.componentUpdateCountAfterResolve = 1; report.iframe.rawLifecycle.lazy.domHashAfter = 'changed' }],
+    ['raw lifecycle missing', /iframe|lifecycle|raw/i, report => { delete report.iframe.rawLifecycle }],
+  ]
+  for (const [label, pattern, mutate] of mutations) await t.test(label, () => {
+    const control = iframeControlReport()
+    assert.doesNotThrow(() => validateReport(control), 'complete iframe control must pass before mutation')
+    const forged = structuredClone(control)
+    mutate(forged)
+    assert.throws(() => validateReport(forged), error => (error?.failures ?? []).some(failure => pattern.test(failure)), `iframe mutation must be rejected: ${label}`)
+  })
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {

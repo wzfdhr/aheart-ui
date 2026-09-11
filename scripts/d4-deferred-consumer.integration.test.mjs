@@ -424,6 +424,86 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
   }
 })
 
+test('real bounded iframe lifecycle evidence has authentic realm, popup, unmount and late-loader records', async t => {
+  const { report } = await collectRealBoundedReport()
+  const iframe = report.iframe
+  const components = ['Tree', 'TreeSelect', 'Cascader']
+  await t.test('scenario matrix and raw lifecycle artifact', async () => {
+    assert.equal(iframe.status, 'recorded')
+    assert.equal(iframe.scenarioUrls?.length, 3)
+    assert.deepEqual(iframe.scenarioUrls?.map(item => item.component).sort(), components)
+    assert.ok(iframe.scenarioUrls.every(item => typeof item.url === 'string' && item.url.length > 0))
+    assert.deepEqual(Object.keys(iframe.components ?? {}).sort(), components)
+    assert.ok(iframe.rawLifecycle?.rawArtifact?.path && iframe.rawLifecycle.rawArtifact.sha256)
+    const bytes = await readFile(iframe.rawLifecycle.rawArtifact.path)
+    assert.equal(hash(bytes), iframe.rawLifecycle.rawArtifact.sha256)
+    assert.deepEqual(JSON.parse(bytes), iframe.rawLifecycle)
+    for (const component of components) {
+      const evidence = iframe.components[component]
+      assert.ok(evidence.trigger?.selector && evidence.scroll?.selector && evidence.panel?.selector)
+      assert.equal(evidence.ownerDocument, true)
+      assert.equal(evidence.defaultView, true)
+    }
+  })
+  await t.test('resource constructors are instrumented before mount and fully drained', () => {
+    assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence')
+    const raw = iframe.rawLifecycle
+    assert.equal(raw.instrumentation?.installedBeforeMount, true)
+    assert.equal(raw.instrumentation?.realm, 'iframe')
+    assert.equal(raw.instrumentation?.collectorWaitsExcluded, true)
+    const constructors = raw.constructors
+    for (const name of ['resizeObserver', 'raf', 'timeout', 'interval']) {
+      assert.equal(constructors[name]?.proxyInstalled, true)
+      assert.ok(Array.isArray(constructors[name]?.records))
+      assert.equal(constructors[name]?.activeAfterUnmount, 0)
+      assert.ok(constructors[name].records.every(record => ['create', 'observe', 'callback', 'cancel', 'clear', 'disconnect'].includes(record.type)))
+    }
+    assert.ok(raw.createdBeforeUnmount > 0)
+    assert.equal(raw.constructorProxy?.resourceCountsFromRaw, true)
+  })
+  await t.test('frame popup focus and Teleport use the iframe realm', () => {
+    assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence')
+    const raw = iframe.rawLifecycle
+    for (const component of ['TreeSelect', 'Cascader']) {
+      const popup = raw.popup?.[component]
+      assert.equal(popup.openedByRealTrigger, true)
+      assert.equal(popup.panelParentRealm, 'iframe')
+      assert.equal(popup.panelOwnerDocument, true)
+      assert.equal(popup.panelDefaultView, true)
+      assert.equal(popup.parentDocumentResidualNodes, 0)
+      assert.equal(popup.escapeEventRealm, 'iframe')
+      assert.equal(popup.closedAfterEscape, true)
+      assert.equal(popup.frameTriggerFocusedAfterEscape, true)
+      assert.equal(popup.parentActiveElement, 'iframe')
+      assert.equal(popup.reopenedAfterEscape, true)
+    }
+  })
+  await t.test('unmount and late lazy completion are observed without state mutation', () => {
+    assert.ok(iframe.rawLifecycle, 'bounded iframe report must contain raw lifecycle evidence')
+    const raw = iframe.rawLifecycle
+    assert.equal(raw.unmount?.hookPresent, true)
+    assert.equal(raw.unmount?.invoked, true)
+    assert.equal(raw.unmount.frameConnectedBefore, true)
+    assert.equal(raw.unmount.frameConnectedAfter, true)
+    assert.equal(raw.unmount.beforeFrameRemove, true)
+    assert.equal(raw.unmount.ownerRealmFlushComplete, true)
+    assert.equal(raw.unmount.domResidualNodes, 0)
+    assert.equal(raw.unmount.teleportResidualNodes, 0)
+    assert.equal(raw.unmount.resourceResiduals, 0)
+    assert.equal(raw.lazy?.pendingStarted, true)
+    assert.equal(raw.lazy?.abortObserved, true)
+    assert.equal(raw.lazy?.resolverReturnedChildren, true)
+    assert.equal(raw.lazy?.loaderCompletion, 1)
+    assert.equal(raw.lazy?.componentUpdateCountAfterResolve, 0)
+    assert.equal(raw.lazy?.stateHashBefore, raw.lazy?.stateHashAfter)
+    assert.equal(raw.lazy?.domHashBefore, raw.lazy?.domHashAfter)
+    assert.deepEqual(raw.lazy?.callbacksAfterResolve, [])
+    assert.equal(raw.postUnmount?.escapeConsumed, false)
+    assert.equal(raw.postUnmount?.pointerConsumed, false)
+    assert.equal(raw.postUnmount?.updateCount, 0)
+  })
+})
+
 test('bounded metadata cannot bypass capture artifacts or validator identity', async t => {
   const { report } = await collectRealBoundedReport()
   await assertBoundedControlPasses(report)
