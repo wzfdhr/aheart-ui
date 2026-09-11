@@ -78,13 +78,13 @@ const iframeControlReport = () => {
     let seq = 0
     const events = []
     const add = (type, fields = {}) => events.push({ seq: ++seq, time: seq * 10, type, scenarioId, realmId, ...fields })
-    add('instrumentation-install', { proxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedBeforeMount: true, collectorWaitsExcluded: true, realmType: 'iframe' })
+    add('instrumentation-install', { proxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedProxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedBeforeMount: true, collectorWaitsExcluded: true, realmType: 'iframe', propertyLocked: true, probeMarker: 'd4-iframe-probe-v1' })
     add('frame-mounted', { connected: true })
     for (const kind of ['resizeObserver', 'raf', 'timeout', 'interval']) {
       add('resource', { kind, action: 'create', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
       if (kind === 'resizeObserver') add('resource', { kind, action: 'observe', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
     }
-    if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', consumed: false })
+    if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentTag: type === 'popup-open' ? 'BODY' : undefined, panelParentOwnerDocument: true, panelParentDefaultView: true, scrollOwnerDocument: true, scrollOwnerDefaultView: true, panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', observedWithoutCollectorFocus: type === 'focus-restore', parentActiveElement: type === 'focus-restore' ? 'iframe' : undefined, visible: type === 'reopen', expanded: type === 'reopen', escapeEventRealm: type === 'escape' ? 'iframe' : undefined, consumed: false })
     if (component === 'Cascader') add('lazy-pending')
     add('frame-unmount-invoked', { connected: true })
     if (component === 'Cascader') add('lazy-abort')
@@ -94,10 +94,10 @@ const iframeControlReport = () => {
     add('resource', { kind: 'interval', action: 'clear', resourceId: `${scenarioId}-interval`, targetSelector: '.component-root', source: 'component-runtime' })
     add('frame-unmount-complete', { connected: true })
     add('owner-flush', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
-    if (component === 'Cascader') add('lazy-resolve-after-unmount', { returnedChildrenCount: 1, componentUpdateCount: 0, stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksBefore: [], callbacksAfter: [] })
+    if (component === 'Cascader') add('lazy-resolve-after-unmount', { returnedChildrenCount: 1, componentUpdateCount: 0, stateRawBefore: 'same', stateRawAfter: 'same', domRawBefore: 'same', domRawAfter: 'same', stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksBefore: [], callbacksAfter: [], stateHashBeforeSha256: sha256(Buffer.from('same')), stateHashAfterSha256: sha256(Buffer.from('same')), domHashBeforeSha256: sha256(Buffer.from('same')), domHashAfterSha256: sha256(Buffer.from('same')), callbacksBeforeSha256: sha256(Buffer.from('[]')), callbacksAfterSha256: sha256(Buffer.from('[]')) })
     add('owner-observation', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
-    add('post-unmount-escape', { consumed: false, updateCount: 0 })
-    add('post-unmount-pointer', { consumed: false, updateCount: 0 })
+    add('post-unmount-escape', { consumed: false, mutationCount: 0, updateCount: 0, callbacksBefore: [], callbacksAfter: [], beforeRaw: 'same', afterRaw: 'same', beforeHash: sha256(Buffer.from('same')), afterHash: sha256(Buffer.from('same')) })
+    add('post-unmount-pointer', { consumed: false, mutationCount: 0, updateCount: 0, callbacksBefore: [], callbacksAfter: [], beforeRaw: 'same', afterRaw: 'same', beforeHash: sha256(Buffer.from('same')), afterHash: sha256(Buffer.from('same')) })
     add('frame-removed', { connected: false })
     return { component, scenarioUrl: `/components/d4-iframe?component=${component}&iframeProbe=true&virtual=true&rowMode=fixed${component === 'Cascader' ? '&cascaderScenario=iframe-lazy' : ''}`, scenarioId, realmId, events }
   }
@@ -755,6 +755,21 @@ test('iframe raw lifecycle uses one recomputable summary and dedicated validator
   assert.ok(countCalls(findFunction('validateReport')) >= 1, 'full validator must call validateIframeEvidence in its own function body')
   assert.ok(countCalls(findFunction('validateBoundedReleaseReport')) >= 1, 'bounded validator must call validateIframeEvidence in its own function body')
   assert.match(source, /collectHydratedSsrEvidence/, 'collector must retain shared hydration helper')
+})
+
+test('iframe raw resource completion, probe locking and late hashes are recomputed from events', async () => {
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  const control = iframeControlReport()
+  assert.equal(typeof contract.recomputeIframeLifecycle, 'function')
+  const forged = structuredClone(control.iframe.rawLifecycle)
+  const scenario = forged.scenarios[0]
+  const unmount = scenario.events.findIndex(event => event.type === 'frame-unmount-complete')
+  scenario.events.splice(unmount + 1, 0, { ...scenario.events.find(event => event.type === 'resource'), seq: unmount + 1, time: (unmount + 1) * 10, action: 'callback', resourceId: 'late-raf' })
+  assert.equal(contract.recomputeIframeLifecycle(forged).byKind?.raf, 1)
+  const source = await deferredCollectorSource()
+  assert.match(source, /Object\.defineProperty[\s\S]*writable:\s*false[\s\S]*configurable:\s*false/, 'iframe probes must lock original API properties')
+  assert.match(source, /probeMarker/, 'iframe probe must validate a marker rather than silently returning')
+  assert.match(source, /original(?:ResizeObserver|RequestAnimationFrame|SetTimeout|SetInterval)/, 'iframe probe must retain original owner-realm APIs')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
