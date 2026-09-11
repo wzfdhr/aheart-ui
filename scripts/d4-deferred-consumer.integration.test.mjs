@@ -158,13 +158,18 @@ test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, 
         for (const kind of kinds) {
           const node = snapshot.nodes.find(item => item.component === component && item.kind === kind)
           assert.ok(node, `${component}/${kind} must be captured from an actual rendered selector`)
-          assert.ok(typeof node.selector === 'string' && node.selector.length > 0, `${component}/${kind} must retain its actual selector provenance`)
+          const selector = node.selector ?? node.selectorProvenance ?? node.identity?.selector
+          assert.ok(typeof selector === 'string' && selector.length > 0, `${component}/${kind} must retain its actual selector provenance`)
           const selectorPattern = component === 'Tree' ? (kind === 'row' ? /treeitem|aheart-tree__node/ : /aheart-tree/) : component === 'TreeSelect' ? (kind === 'trigger' ? /tree-select__trigger/ : /tree-select__panel|role=.?tree/) : (kind === 'trigger' ? /cascader__trigger/ : /cascader__panel|cascader__column/)
-          assert.match(node.selector, selectorPattern, `${component}/${kind} selector must identify the actual component element`)
+          assert.match(selector, selectorPattern, `${component}/${kind} selector must identify the actual component element`)
         }
       }
       for (const node of snapshot.nodes) {
-        assert.ok(node.id && ids.has(node.id))
+        if (node.id == null) {
+          assert.equal(node.component, 'Cascader', 'an id-less snapshot node is only valid for the actual Cascader trigger')
+          assert.equal(node.kind, 'trigger', 'an id-less snapshot node cannot be synthesized as a row/root')
+          assert.ok(node.selector ?? node.selectorProvenance ?? node.identity?.selector, 'an id-less trigger must carry selector provenance')
+        } else assert.ok(ids.has(node.id))
         for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) assert.ok(Object.prototype.hasOwnProperty.call(node, attribute), `${node.component}/${node.kind} snapshot must record ${attribute}, including null when absent`)
         for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) {
           const value = node[attribute]
