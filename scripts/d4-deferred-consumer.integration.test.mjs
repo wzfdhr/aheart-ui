@@ -364,19 +364,19 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
       item.hydratedSnapshot.capturePhase = 'hydrated-after-mount'
       item.hydratedSnapshot.captureNonce = `${item.serverSnapshot.captureNonce}-copied`
     }],
-    ['extra snapshot node', /six|node|count|exact/i, false, forged => {
+    ['extra snapshot node', /exactly six|node count must be six/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       item.serverSnapshot.nodes.push(structuredClone(item.serverSnapshot.nodes[0]))
       item.hydratedSnapshot.nodes.push(structuredClone(item.hydratedSnapshot.nodes[0]))
     }],
-    ['duplicate or missing node identity', /unique|duplicate|component.kind|node/i, false, forged => {
+    ['duplicate or missing node identity', /component\.kind.*unique|duplicate component\.kind|identity set/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
         snapshot.nodes = snapshot.nodes.filter(node => !(node.component === 'TreeSelect' && node.kind === 'root'))
         snapshot.nodes.push({ ...structuredClone(snapshot.nodes[0]), component: 'Tree', kind: 'row' })
       }
     }],
-    ['non-unique selector provenance', /selector.*(match|unique)|match.*count/i, false, forged => {
+    ['non-unique selector provenance', /selector match count.*one|selector.*exactly once/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
         const node = snapshot.nodes.find(entry => entry.component === 'TreeSelect' && entry.kind === 'trigger')
@@ -386,7 +386,7 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
         node.selectorResolved = false
       }
     }],
-    ['wrong selector provenance', /selector.*(identity|pattern|component)|provenance/i, false, forged => {
+    ['wrong selector provenance', /selector.*component pattern|selector identity mismatch/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
         const node = snapshot.nodes.find(entry => entry.component === 'Cascader' && entry.kind === 'root')
@@ -396,12 +396,12 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
         node.selectorResolved = true
       }
     }],
-    ['teleport diagnostic', /teleport|script|diagnostic|pollution/i, false, forged => {
+    ['teleport diagnostic', /diagnostic script pollution|raw teleport.*script/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.rawTeleportHtml += '<script>window.__d4CaptureSnapshot()</script>'
       refreshHashes(item)
     }],
-    ['raw teleport only', /raw|normalized|binding|hash/i, false, forged => {
+    ['raw teleport only', /raw teleport.*normalized mismatch|normalize\.rawTeleportHtml/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.rawTeleportHtml += '<span>raw-binding-probe</span>'
     }],
@@ -416,7 +416,10 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
         validateBoundedReleaseReport(forged)
       }, error => error?.message && pattern.test(error.message), `bounded SSR validator must reject ${label} through capture artifact binding`)
     } else {
-      assert.throws(() => validateBoundedReleaseReport(forged), error => Array.isArray(error?.failures) && error.failures.some(failure => pattern.test(failure)), `bounded SSR validator must reject ${label} through its dedicated contract failure`)
+      assert.throws(() => validateBoundedReleaseReport(forged), error => {
+        const semanticFailures = (error?.failures ?? []).filter(failure => !/capture|artifact/i.test(failure))
+        return semanticFailures.some(failure => pattern.test(failure))
+      }, `bounded SSR validator must reject ${label} through its dedicated contract failure`)
     }
   }
 })
