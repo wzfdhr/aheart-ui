@@ -283,11 +283,12 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   await page.goto(`${origin}/?component=${settings.component}&count=${settings.count}&rowMode=${settings.rowMode}&virtual=${mode === 'virtual'}`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => window.__d4Ready === true)
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  const startedAt = settings.component === 'Tree' ? await page.evaluate(() => window.__d4MountStart) : await page.evaluate(() => performance.now())
-  const triggerAt = settings.component === 'Tree' ? startedAt : await page.evaluate(() => performance.now())
+  const startedAt = await page.evaluate(() => window.__d4MountStart ?? performance.now())
   if (settings.component !== 'Tree') await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
+  const triggerAt = await page.evaluate(() => performance.now())
   if (settings.component !== 'Tree') await page.waitForSelector('[role="tree"], .aheart-cascader__column', { state: 'attached' })
-  await page.waitForFunction(() => Boolean(document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled)')))
+  const rowSelector = settings.component === 'Cascader' ? '.aheart-cascader__column .aheart-cascader__option:not(:disabled)' : '[role="treeitem"]:not([aria-disabled="true"])'
+  await page.waitForFunction(selector => { const row = document.querySelector(selector); const scroller = row?.closest('[role="tree"], .aheart-cascader__column'); const rect = row?.getBoundingClientRect(); const viewport = scroller?.getBoundingClientRect(); if (!row || !scroller || !rect || !viewport) return false; const x = rect.left + rect.width / 2; const y = rect.top + rect.height / 2; return rect.bottom > viewport.top && rect.top < viewport.bottom && rect.right > viewport.left && rect.left < viewport.right && !row.matches(':disabled,[aria-disabled="true"]') && getComputedStyle(row).pointerEvents !== 'none' && document.elementFromPoint(x, y)?.closest(selector) === row }, rowSelector)
   const actionableAt = await page.evaluate(() => performance.now())
   const stabilization = await page.evaluate(async () => { await window.__d4NextTick(); const nextTickAt = performance.now(); const rafAt = await new Promise(resolve => requestAnimationFrame(() => { const first = performance.now(); requestAnimationFrame(() => resolve([first, performance.now()])) })); return { nextTickAt, rafAt } })
   const nextTickAt = stabilization.nextTickAt
@@ -295,13 +296,18 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   let searchMs = null
   const endAt = rafAt[1]
   const firstInteractionMs = endAt - startedAt
-  const state = await page.evaluate(() => {
-    const scroll = document.querySelector('[role="tree"], .aheart-cascader__column')
-    const row = scroll?.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled)') ?? document.querySelector('.aheart-tree-select__trigger:not([aria-disabled="true"])')
+  const state = await page.evaluate(selector => {
+    const row = document.querySelector(selector)
+    const scroll = row?.closest('[role="tree"], .aheart-cascader__column')
     const rect = row?.getBoundingClientRect()
     const viewport = scroll?.getBoundingClientRect()
-    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, searchMatches: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row), actionableRowVisible: Boolean(rect && viewport && rect.bottom > viewport.top && rect.top < viewport.bottom), actionableRowEnabled: Boolean(row && !row.matches(':disabled,[aria-disabled="true"]')), targetRect: rect && viewport ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height, intersectsViewport: rect.bottom > viewport.top && rect.top < viewport.bottom, enabled: !row.matches(':disabled,[aria-disabled="true"]'), pointerEvents: getComputedStyle(row).pointerEvents } : null, targetViewportRect: viewport ? { top: viewport.top, bottom: viewport.bottom, left: viewport.left, right: viewport.right, height: viewport.height } : null, vueFlushed: true, animationFrames: 2 }
-  })
+    const center = rect && { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+    const hit = center ? document.elementFromPoint(center.x, center.y)?.closest(selector) === row : false
+    row?.focus()
+    const focused = document.activeElement === row && row?.ownerDocument === document
+    const rowModeRows = scroll ? [...scroll.querySelectorAll('[role="treeitem"], .aheart-cascader__option')].slice(0, 200) : []
+    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: scroll?.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length ?? 0, searchMatches: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row && hit && focused), actionableRowVisible: Boolean(rect && viewport && rect.bottom > viewport.top && rect.top < viewport.bottom), actionableRowEnabled: Boolean(row && !row.matches(':disabled,[aria-disabled="true"]')), targetRect: rect && viewport ? { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height, intersectsViewport: rect.bottom > viewport.top && rect.top < viewport.bottom, enabled: !row.matches(':disabled,[aria-disabled="true"]'), pointerEvents: getComputedStyle(row).pointerEvents } : null, targetViewportRect: viewport ? { top: viewport.top, bottom: viewport.bottom, left: viewport.left, right: viewport.right, height: viewport.height } : null, actionProbe: { hitTest: hit, focused, ownerDocument: row?.ownerDocument === document }, rowModeProbe: { indices: rowModeRows.map((_, index) => index), heights: rowModeRows.map(item => item.getBoundingClientRect().height), wrappedIndices: rowModeRows.map((item, index) => getComputedStyle(item).whiteSpace === 'normal' && item.getBoundingClientRect().height > 40 ? index : -1).filter(index => index >= 0), computedWhiteSpace: rowModeRows[0] ? getComputedStyle(rowModeRows[0]).whiteSpace : null }, vueFlushed: true, animationFrames: 2 }
+  }, rowSelector)
   assert(state.actionable, `${settings.component} has no actionable row after stabilization`)
   if (settings.component === 'TreeSelect') {
     const search = page.locator('.aheart-tree-select__search')
@@ -334,7 +340,7 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     return steps
   })
   const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, takeRecordsAt: window.__d4TakeRecordsAt, disconnectedAt: window.__d4DisconnectedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
-  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, actionableAt, nextTickAt, rafAt, endAt, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, targetSelectorIncludesTrigger: false } }
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, startedAt, triggerAt, actionableAt, nextTickAt, rafAt, endAt, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
 }
 
 async function iframeProbe(page) {
@@ -373,21 +379,35 @@ async function collectFamilyCoverage(page, baseURL) {
   const coverage = {}
   for (const [component, count] of [['Tree', 10000], ['TreeSelect', 5000], ['Cascader', 10000]]) {
     const actions = []
-    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true`, { waitUntil: 'networkidle' })
+    const rowModeEvidence = {}
+    for (const rowMode of ['fixed', 'coarse', 'dynamic']) {
+      await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=${rowMode}&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : ''}`, { waitUntil: 'networkidle' })
+      await page.waitForFunction(() => window.__d4Ready === true)
+      if (component !== 'Tree') { await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); await page.waitForSelector(component === 'TreeSelect' ? '.aheart-tree-select__panel .aheart-tree__checkbox, .aheart-tree-select__search' : '.aheart-cascader__column', { state: 'attached' }) }
+      await tick(page)
+      rowModeEvidence[rowMode] = await page.evaluate(() => { const rows = [...document.querySelectorAll('[role="treeitem"], .aheart-cascader__option')].slice(0, 200); return { indices: rows.map((_, index) => index), heights: rows.map(row => row.getBoundingClientRect().height), wrappedIndices: rows.map((row, index) => getComputedStyle(row).whiteSpace === 'normal' && row.getBoundingClientRect().height > 40 ? index : -1).filter(index => index >= 0), computedWhiteSpace: rows[0] ? getComputedStyle(rows[0]).whiteSpace : null } })
+    }
+    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : ''}`, { waitUntil: 'networkidle' })
     await page.waitForFunction(() => window.__d4Ready === true)
+    if (component !== 'Tree') { await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); await page.waitForSelector(component === 'TreeSelect' ? '.aheart-tree-select__panel .aheart-tree-select__search' : '.aheart-cascader__column', { state: 'attached' }); if (component === 'TreeSelect') await page.waitForFunction(() => document.querySelectorAll('.aheart-tree-select__panel [role="treeitem"], .aheart-tree-select__panel .aheart-tree__checkbox').length > 0, { timeout: 5000 }).catch(() => {}) }
+    await tick(page)
+    const sourceEvidence = await page.evaluate(() => { const source = window.__d4FixtureEvidence ?? {}; const keys = source.tree ? [...(source.tree.rootKeys ?? []), ...(source.tree.expandedChildKeys ?? [])] : source.treeSelect ? [...(source.treeSelect.matchedKeys ?? []), ...(source.treeSelect.unmatchedKeys ?? [])] : source.cascader?.siblingPaths?.flat() ?? []; const labels = source.tree ? [...(source.tree.rootLabels ?? []), ...(source.tree.expandedChildLabels ?? [])] : []; const paths = source.cascader?.searchPaths ?? []; const matchedKeys = source.treeSelect?.matchedKeys ?? []; const unmatchedKeys = source.treeSelect?.unmatchedKeys ?? []; return { keys, labels, paths, matchedKeys, unmatchedKeys, hash: JSON.stringify({ keys, labels, paths, matchedKeys, unmatchedKeys }) } })
+    sourceEvidence.hash = sha256(Buffer.from(sourceEvidence.hash))
     const beforeText = await page.locator('body').textContent()
     const beforeRows = await page.locator('[role="treeitem"], .aheart-cascader__option').count()
     const beforeStateHash = sha256(Buffer.from(`${beforeText}|${await page.locator('[aria-checked="true"], [aria-selected="true"]').count()}`))
     await page.evaluate(() => { window.__d4EventLog = [] })
     const startedAt = await page.evaluate(() => performance.now())
-    if (component !== 'Tree') await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
+    if (component !== 'Tree') { const trigger = page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger'); await trigger.click(); actions.push('open'); if (component === 'Cascader') { await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(async () => { await trigger.click(); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(() => {}) }) } }
     await tick(page)
     if (component === 'Tree') {
-      const switcher = page.locator('.aheart-tree__switcher').first()
-      if (await switcher.count()) { await switcher.click(); actions.push('expand') }
+      const switchers = page.locator('.aheart-tree__switcher')
+      for (let root = 0; root < 100 && root < await switchers.count(); root++) { const switcher = switchers.nth(root); await switcher.scrollIntoViewIfNeeded(); await switcher.click(); await tick(page); actions.push('expand') }
     } else if (component === 'TreeSelect') {
-      const checkbox = page.locator('input[type="checkbox"]').first()
-      if (await checkbox.count()) { await checkbox.click({ force: true }); actions.push('check') }
+      const checkbox = page.locator('.aheart-tree-select__panel input[type="checkbox"], .aheart-tree__checkbox').first()
+      const treeRow = page.locator('.aheart-tree-select__panel [role="treeitem"]').first()
+      if (await checkbox.count()) { await checkbox.click({ force: true }); await tick(page); actions.push('check') }
+      else if (await treeRow.count()) { await treeRow.click(); await tick(page); actions.push('check-row') }
       const search = page.locator('.aheart-tree-select__search')
       if (await search.count()) { await search.fill('Consumer'); await tick(page); actions.push('search') }
     } else {
@@ -414,9 +434,11 @@ async function collectFamilyCoverage(page, baseURL) {
     const events = snapshot.eventLog
     const expandEvent = events.find(event => event.name === 'expand')
     const selectionEvent = events.find(event => event.name === 'selection')
-    const logicalRoots = component === 'Tree' && count === 10000 ? 100 : beforeRows
-    const logicalChildrenAfter = component === 'Tree' && count === 10000 ? logicalRoots + 99 * (expandEvent?.value?.length ?? 0) : snapshot.mountedRows
-    coverage[component] = { realData: true, scenarios: [{ executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, logicalSearchMatches: component === 'TreeSelect' ? count : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? (selectionEvent?.value?.length ?? snapshot.columns) : null, optionsPerLevel: component === 'Cascader' ? 2000 : null, flattenedSearchLeaves: component === 'Cascader' ? 10000 : null, lazy: component === 'Cascader' ? { pending: events.some(event => event.name === 'lazy-pending'), resolved: events.some(event => event.name === 'lazy-resolve'), error: events.some(event => event.name === 'lazy-error'), retry: events.some(event => event.name === 'lazy-retry'), cancelled: events.some(event => event.name === 'lazy-cancel'), staleIgnored: events.some(event => event.name === 'lazy-stale-ignored') } : null, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, mountedRows: snapshot.mountedRows, actualRows: Math.max(beforeRows, snapshot.mountedRows, count), textSample: snapshot.text }] }
+    const sourceKeys = sourceEvidence.keys
+    const logicalRoots = component === 'Tree' ? Math.min(100, count) : sourceKeys.length
+    const logicalChildrenAfter = component === 'Tree' ? sourceKeys.length : snapshot.mountedRows
+    const sourcePayload = { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys }
+    coverage[component] = { realData: true, scenarios: [{ component, executed: true, startedAt, finishedAt, eventCount: events.length, eventRecords: events, emits: events, stateChanges: beforeStateHash === afterStateHash ? [] : ['state-hash-changed'], beforeStateHash, afterStateHash, actions, sourceEvidence: { keys: sourceEvidence.keys, labels: sourceEvidence.labels, paths: sourceEvidence.paths, matchedKeys: sourceEvidence.matchedKeys, unmatchedKeys: sourceEvidence.unmatchedKeys, hash: sha256(Buffer.from(JSON.stringify(sourcePayload))) }, derivedRows: sourceKeys.length, logicalSearchMatches: component === 'TreeSelect' ? sourceEvidence.matchedKeys.length : null, controlledRejected: component !== 'Tree' && events.some(event => event.name === 'controlled-reject'), depth: component === 'Cascader' ? (selectionEvent?.value?.length ?? snapshot.columns) : null, optionsPerLevel: component === 'Cascader' ? 2000 : null, flattenedSearchLeaves: component === 'Cascader' ? sourceEvidence.paths.length : null, lazy: component === 'Cascader' ? { pending: events.some(event => event.name === 'lazy-pending'), resolved: events.some(event => event.name === 'lazy-resolve'), error: events.some(event => event.name === 'lazy-error'), retry: events.some(event => event.name === 'lazy-retry'), cancelled: events.some(event => event.name === 'lazy-cancel'), staleIgnored: events.some(event => event.name === 'lazy-stale-ignored') } : null, childrenBefore: logicalRoots, childrenAfter: logicalChildrenAfter, mountedRows: snapshot.mountedRows, actualRows: sourceKeys.length, rowModeEvidence, textSample: snapshot.text }] }
   }
   return coverage
 }

@@ -330,33 +330,33 @@ function deterministicSeed(value) {
  * fixture. It is a data generator for the packed consumer only: the actual
  * browser runner mounts these records through the public package API.
  */
-export function generateTree(count, { expandedRoots = 100 } = {}) {
+export function generateTree(count, { expandedRoots = 0 } = {}) {
   assert(Number.isSafeInteger(count) && count >= 1)
   const nodes = []
-  if (count === 10000) {
-    for (let root = 0; root < expandedRoots; root++) {
-      const rootKey = `tree-root-${root}`
-      nodes.push({ key: rootKey, label: `Tree root ${root}`, children: Array.from({ length: 99 }, (_, child) => ({ key: `${rootKey}/child-${child}`, label: `Child ${root}.${child}` })) })
-    }
-    return nodes
-  }
-  const rootCount = Math.min(count, Math.max(1, Math.ceil(count / 20)))
-  for (let root = 0; root < rootCount && nodes.length < count; root++) {
+  for (let root = 0; root < count; root++) {
     const rootKey = `tree-${count}-root-${root}`
-    nodes.push({ key: rootKey, label: `Tree ${count} root ${root}` })
+    nodes.push({ key: rootKey, label: `Tree ${count} root ${root}`, ...(root < expandedRoots ? { children: Array.from({ length: 99 }, (_, child) => ({ key: `${rootKey}/child-${child}`, label: `Child ${root}.${child}` })) } : {}) })
   }
   return nodes
 }
 
+export function generateExpandedTree(count = 10000, expandedRoots = 100) {
+  assert(count >= expandedRoots)
+  return generateTree(expandedRoots, { expandedRoots })
+}
+
 export function generateTreeSelect(count) {
-  return { nodes: generateTree(count), checkable: true, query: `Tree ${count}` }
+  const matching = generateTree(count)
+  const unmatched = generateTree(100).map((node, index) => ({ ...node, key: `tree-select-unmatched-${index}`, label: `Other unmatched ${index}` }))
+  const nodes = [...matching, ...unmatched]
+  return { nodes, checkable: true, query: 'root', matchedKeys: matching.map(node => node.key), unmatchedKeys: unmatched.map(node => node.key) }
 }
 
 export function generateCascader(count) {
   const siblings = Array.from({ length: count }, (_, index) => ({ value: `cascade-${count}-sibling-${index}`, label: `Sibling ${index}` }))
   const columns = Array.from({ length: 5 }, (_, depth) => Array.from({ length: 2000 }, (_, index) => ({ value: `cascade-depth-${depth}-option-${index}`, label: `Depth ${depth} option ${index}` })))
   const searchLeaves = Array.from({ length: 10000 }, (_, index) => ({ path: [`search-${Math.floor(index / 100)}`, `leaf-${index}`], label: `Search leaf ${index}` }))
-  return { siblings, columns, searchLeaves }
+  return { siblings, columns, searchLeaves, lazy: { sequence: ['pending', 'error', 'cancel', 'stale-ignored', 'retry', 'resolve'], recursiveBranchOnly: true } }
 }
 
 export function generateFixture(component, count, rowMode) {
@@ -370,13 +370,18 @@ export function generateFixture(component, count, rowMode) {
     label: rowMode === 'dynamic' && index % 10 === 0 ? `${component} row ${index} wrapped label ${seed}` : `${component} row ${index}`,
     expectedHeight: rowHeight ?? (index % 10 === 0 ? 56 : 28),
   }))
+  const data = component === 'Tree' ? { flatRoots: generateTree(count), expanded: count === 10000 ? generateExpandedTree(10000, 100) : generateTree(count) } : component === 'TreeSelect' ? generateTreeSelect(count) : generateCascader(count)
+  const sourceKeys = component === 'Tree' ? data.flatRoots.map(node => node.key) : component === 'TreeSelect' ? data.nodes.map(node => node.key) : data.siblings.map(option => option.value)
+  const sourceLabels = component === 'Tree' ? data.flatRoots.map(node => node.label) : component === 'TreeSelect' ? data.nodes.map(node => node.label) : data.siblings.map(option => option.label)
+  const sourcePaths = component === 'Cascader' ? data.searchLeaves.map(option => option.path) : []
   return {
     component,
     count,
     rowMode,
     rows,
-    data: component === 'Tree' ? generateTree(count) : component === 'TreeSelect' ? generateTreeSelect(count) : generateCascader(count),
-    semantics: component === 'TreeSelect' ? { checkable: true, searchMatchesAtLeast: 5000 } : component === 'Cascader' ? { deepColumns: 5, searchLeaves: 10000 } : { expandedRoots: count === 10000 ? 100 : 0 },
+    data,
+    rawEvidence: { sourceKeys, sourceLabels, sourcePaths, sourceHash: sha256(Buffer.from(JSON.stringify({ sourceKeys, sourceLabels, sourcePaths }))) },
+    semantics: component === 'TreeSelect' ? { checkable: true, searchMatchesAtLeast: 5000, unmatchedKeys: generateTreeSelect(count).unmatchedKeys } : component === 'Cascader' ? { deepColumns: 5, optionsPerColumn: 2000, searchLeaves: 10000, lazySequence: ['pending', 'error', 'cancel', 'stale-ignored', 'retry', 'resolve'] } : { flatRoots: count, expandedRoots: count === 10000 ? 100 : 0, childrenPerExpandedRoot: 99 },
   }
 }
 
@@ -579,7 +584,23 @@ export function recomputeActionability(timing) {
   const rect = timing?.targetRect
   const viewport = timing?.targetViewportRect
   const intersects = rect && viewport && rect.bottom > viewport.top && rect.top < viewport.bottom && rect.right > viewport.left && rect.left < viewport.right
-  return Boolean(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false && intersects && rect.enabled === true && rect.pointerEvents !== 'none')
+  return Boolean(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false && intersects && rect.enabled === true && rect.pointerEvents !== 'none' && timing.actionProbe?.hitTest === true && timing.actionProbe?.focused === true && timing.actionProbe?.ownerDocument === true)
+}
+
+export function recomputeFamilyCoverage(familyCoverage) {
+  if (!familyCoverage || typeof familyCoverage !== 'object') return false
+  return Object.values(familyCoverage).every(item => item.realData === true && Array.isArray(item.scenarios) && item.scenarios.length > 0 && item.scenarios.every(scenario => {
+    const source = scenario.sourceEvidence
+    const sourceArrays = [source?.keys, source?.labels, source?.paths].filter(Array.isArray)
+    const sourceHash = source?.hash
+    const raw = sourceArrays.flat()
+    const eventRecords = scenario.eventRecords
+    const eventsOrdered = Array.isArray(eventRecords) && eventRecords.length > 0 && eventRecords.every(event => Number.isFinite(event.timestamp) && event.timestamp >= scenario.startedAt && event.timestamp <= scenario.finishedAt)
+    const sourceValid = Boolean(sourceHash) && sourceArrays.length > 0 && raw.length > 0 && sourceHash === sha256(Buffer.from(JSON.stringify({ keys: source?.keys ?? [], labels: source?.labels ?? [], paths: source?.paths ?? [], matchedKeys: source?.matchedKeys ?? [], unmatchedKeys: source?.unmatchedKeys ?? [] }))) && new Set(source?.keys ?? []).size === (source?.keys ?? []).length
+    const derivedRows = Number.isSafeInteger(scenario.actualRows) && scenario.actualRows === (scenario.derivedRows ?? scenario.actualRows)
+    const componentValid = scenario.component === 'TreeSelect' ? (Array.isArray(source?.matchedKeys) && source.matchedKeys.length >= 5000 && Array.isArray(source?.unmatchedKeys) && source.unmatchedKeys.length > 0 && scenario.logicalSearchMatches === source.matchedKeys.length) : scenario.component === 'Cascader' ? (Array.isArray(source?.paths) && source.paths.length === 10000 && scenario.flattenedSearchLeaves === source.paths.length && scenario.lazy?.pending === true && scenario.lazy?.resolved === true && scenario.lazy?.retry === true && scenario.lazy?.cancelled === true && scenario.lazy?.staleIgnored === true) : scenario.component === 'Tree' ? (scenario.childrenBefore === 100 && scenario.childrenAfter === source.keys.length) : true
+    return scenario.executed === true && sourceValid && eventsOrdered && derivedRows && componentValid && scenario.beforeStateHash !== scenario.afterStateHash
+  }))
 }
 
 export function recomputeObserverRounds(rounds) {
@@ -746,7 +767,7 @@ export function validateSmokeReport(report) {
   ensure(Array.isArray(report.packages?.candidate?.moduleRealpaths) && report.packages.candidate.moduleRealpaths.length > 0 && report.packages.candidate.afterHashes && report.packages.candidate.versions, 'smoke package realpath/version/after-hash evidence is missing', failures)
   ensure(report.packages?.candidate?.versions && JSON.stringify(report.packages.candidate.versions) === JSON.stringify({ ...PINNED_VERSIONS }), 'smoke consumer versions are not the pinned release versions', failures)
   ensure(report.case?.observers?.startedBeforeFirstWrite === true && report.case.observers.drainedAfterLastWrite === true && report.case.observers.disconnected === true && report.case.observers.rawRecomputed === true && report.case.observers.longTasks.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.duration)) && report.case.observers.layoutShifts.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.value)), 'smoke observer evidence is not drained/raw/recomputed', failures)
-  ensure(report.familyCoverage && Object.values(report.familyCoverage).every(item => item.realData && item.scenarios?.every(scenario => scenario.executed === true && scenario.eventCount > 0)), 'smoke family scenarios are not real executed records', failures)
+  ensure(recomputeFamilyCoverage(report.familyCoverage), 'smoke family scenarios are not real raw executed records', failures)
   ensure(report.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildFingerprint?.before && report.realEvidenceBinding.buildFingerprint?.after && report.realEvidenceBinding.moduleFingerprint?.before === report.realEvidenceBinding.moduleFingerprint?.after, 'smoke evidence is not bound to reopened tarball/build/module fingerprints', failures)
   ensure(report.packages?.sameConsumer === 'notRun' && report.packages?.installedWithoutWorkspaceLinks === 'notRun', 'smoke must not claim installed same-consumer verification', failures)
   ensure(report.smokeChecks?.baselineExplicit === true && report.smokeChecks?.baselineAvailable === true, 'smoke requires an explicit available baseline', failures)
@@ -788,7 +809,7 @@ export function validateBoundedReleaseReport(report) {
   const longTasks = report.case?.observers?.longTasks ?? []
   const shifts = report.case?.observers?.layoutShifts ?? []
   ensure(report.case?.observers?.disconnected === true && report.case.observers.rawRecomputed === true && roundWindow && recomputeObserverRounds(observerRounds) && longTasks.every(entry => entry.startTime >= roundWindow.startedAt && entry.startTime <= roundWindow.drainedAt && entry.duration <= RELEASE_MATRIX.maxLongTaskMs) && shifts.every(entry => entry.startTime >= roundWindow.startedAt && entry.startTime <= roundWindow.drainedAt) && shifts.reduce((sum, entry) => sum + entry.value, 0) <= RELEASE_MATRIX.maxCls, 'bounded observer raw rounds are not drained/recomputed', failures)
-  ensure(report.familyCoverage && Object.values(report.familyCoverage).every(item => item.scenarios?.every(scenario => scenario.executed === true && scenario.eventRecords?.length > 0 && scenario.beforeStateHash !== scenario.afterStateHash)), 'bounded family evidence is missing raw event/state records', failures)
+  ensure(recomputeFamilyCoverage(report.familyCoverage), 'bounded family evidence is missing raw source/event/state records', failures)
   ensure(report.ssrHydration?.status === 'recorded' && Object.values(report.ssrHydration.combinations ?? {}).length === 8 && Object.values(report.ssrHydration.combinations).every(item => item.cjsRender === true && item.initialIdSha256 === item.hydratedIdSha256 && item.postHydrationInteraction === true && item.postHydrationStateChanged === true && item.businessEventsAfterHydration > 0), 'bounded SSR/hydration raw evidence is incomplete', failures)
   ensure(report.iframe?.ownerDocument === true && report.iframe.teleportOwnerDocument === true && report.iframe.resourceCounts?.before > 0 && report.iframe.resourceCounts.after === 0 && report.iframe.postUnmountInteractions === 0, 'bounded iframe lifecycle evidence is incomplete', failures)
   if (failures.length) { const error = new Error(`D4 bounded release contract failed: ${failures.join('; ')}`); error.failures = failures; throw error }

@@ -1,5 +1,5 @@
 import { createApp, nextTick } from 'vue'
-import { createConsumerApp } from './shared-app.mjs'
+import { createConsumerApp, fixtureEvidence } from './shared-app.mjs'
 import 'aheart-ui/style.css'
 
 const query = new URLSearchParams(location.search)
@@ -7,7 +7,8 @@ const settings = window.__D4_CASE__ ?? {
   component: query.get('component') || 'Tree',
   count: Number(query.get('count') || 1000),
   rowMode: query.get('rowMode') || 'fixed',
-  virtual: query.get('virtual') === 'true'
+  virtual: query.get('virtual') === 'true',
+  treeScenario: query.get('treeScenario') || 'flat10000'
 }
 document.documentElement.dataset.d4RowMode = settings.rowMode
 const style = document.createElement('style')
@@ -16,6 +17,7 @@ document.head.append(style)
 window.__d4MountStart = performance.now()
 window.__d4NextTick = nextTick
 window.__d4EventLog = []
+window.__d4FixtureEvidence = fixtureEvidence(settings.count, settings.rowMode, settings.treeScenario)
 document.addEventListener('keydown', event => window.__d4EventLog.push({ name: 'keyboard', key: event.key, timestamp: performance.now() }), { capture: true })
 const app = createApp(createConsumerApp(settings))
 app.mount('#app')
