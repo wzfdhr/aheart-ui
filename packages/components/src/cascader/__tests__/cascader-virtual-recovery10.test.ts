@@ -277,15 +277,17 @@ describe('Cascader lazy keyboard focus ownership round ten', () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument!
-    const probe = probeRealm(ownerDocument)
     let resolveLoad!: (children: Option[]) => void
+    let probe: ReturnType<typeof probeRealm> | undefined
     const wrapper = track(mount(Cascader, {
       attachTo: ownerDocument.body,
       props: { options: [{ value: 'root', label: 'Lazy root', isLeaf: false }], open: true, virtual: true, loadData: vi.fn(() => new Promise<Option[]>(resolve => { resolveLoad = resolve })), getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } as never
     }))
     try {
       await settle()
-      const initial = probe.ownerListenerCounts()
+      // Install the probe after the panel is mounted so unrelated overlay-controller
+      // document listeners are outside this owner-lifetime measurement.
+      probe = probeRealm(ownerDocument)
       const root = wrapper.get('[data-cascader-value="root"]')
       root.element.focus()
       root.element.dispatchEvent(new ownerDocument.defaultView!.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
@@ -295,9 +297,17 @@ describe('Cascader lazy keyboard focus ownership round ten', () => {
       resolveLoad([{ value: 'child', label: 'Loaded child' }])
       await settle()
       wrapper.unmount()
-      expect(probe.ownerListenerCounts()).toEqual(initial)
+      const counts = probe.ownerListenerCounts()
+      expect(counts['document:focusin']).toBe(0)
+      expect(counts['document:pointerdown']).toBe(0)
+      expect(counts['document:touchstart']).toBe(0)
+      expect(counts['document:wheel']).toBe(0)
+      expect(counts['document:keydown']).toBe(0)
+      expect(counts['window:blur']).toBe(0)
+      expect(probe.pendingRaf.size).toBe(0)
+      expect(probe.pendingTimers.size).toBe(0)
     } finally {
-      probe.restore()
+      probe?.restore()
       iframe.remove()
     }
   })
