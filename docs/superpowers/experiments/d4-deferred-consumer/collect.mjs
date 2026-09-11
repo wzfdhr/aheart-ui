@@ -352,6 +352,10 @@ async function collectFamilyCoverage(page, baseURL) {
 }
 
 async function collectSmoke(temporary) {
+  const durableDir = `${output}.artifacts`
+  const durableRunDir = `${output}.run`
+  await mkdir(durableDir, { recursive: true })
+  await mkdir(durableRunDir, { recursive: true })
   const candidateRoot = await mkdtemp(path.join(temporary, 'candidate-smoke-'))
   const baselineRoot = await mkdtemp(path.join(temporary, 'baseline-smoke-'))
   const candidate = await verifyTarball(candidateTarball, 'candidate', candidateRoot, candidateManifest)
@@ -412,19 +416,33 @@ async function collectSmoke(temporary) {
   const report = buildSmokeReport({ baseline, candidate, smokeChecks: { candidatePacked: false, candidateRequiredFiles: true, candidateNoSymlink: candidate.symlinks.length === 0, candidateNoWorkspaceLinks: candidate.workspaceLinks.length === 0, candidateNoFsImports: candidate.fsImports.length === 0, candidatePublicSurface: candidate.esm && candidate.cjs && candidate.css && candidate.publicTypes, baselineExplicit: true, baselineAvailable: true, releaseMeasurements: 'notRun', sameConsumer: 'notRun', installedWithoutWorkspaceLinks: 'notRun' }, note: 'One authentic production Vite/preview Tree case only; full release matrix is not run.' })
   report.sourceKind = 'collected'
   report.runId = `bounded-${Date.now()}-${Math.random().toString(16).slice(2)}`
-  report.runDir = candidateRoot
+  report.runDir = durableRunDir
+  report.artifactDirectory = durableDir
   report.collectorSourcePath = fileURLToPath(import.meta.url)
   report.collectorSourceSha256 = sha256(await readFile(fileURLToPath(import.meta.url)))
+  await cp(candidateTarball, path.join(durableDir, 'candidate.tgz'))
+  await cp(baselineTarball, path.join(durableDir, 'baseline.tgz'))
+  await cp(candidateManifestPath, path.join(durableDir, 'candidate-manifest.json'))
+  await cp(baselineManifestPath, path.join(durableDir, 'baseline-manifest.json'))
+  await cp(path.join(candidateRoot, 'dist'), path.join(durableDir, 'dist'), { recursive: true })
+  await cp(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'), path.join(durableDir, 'module-index.js'))
+  await cp(install.lockPath, path.join(durableDir, 'pnpm-lock.yaml'))
+  report.runDir = durableRunDir
+  report.artifactDirectory = durableDir
   report.preview = { baseURL: requestedBaseURL, actualBaseURL, productionBuild: true, absoluteNavigation: true, errors }
   report.authenticEvidence = true
   report.fixtures = { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }
   report.packages.candidate.lockfileSha256 = install.lockSha256
-  report.packages.candidate.lockPath = install.lockPath
-  report.packages.candidate.modulePath = path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js')
-  report.packages.candidate.manifestPath = candidateManifestPath
-  report.packages.candidate.manifestSha256 = sha256(await readFile(candidateManifestPath))
-  report.packages.baseline.manifestPath = baselineManifestPath
-  report.packages.baseline.manifestSha256 = sha256(await readFile(baselineManifestPath))
+  report.packages.candidate.path = path.join(durableDir, 'candidate.tgz')
+  report.packages.baseline.path = path.join(durableDir, 'baseline.tgz')
+  report.packages.candidate.lockPath = path.join(durableDir, 'pnpm-lock.yaml')
+  report.packages.candidate.modulePath = path.join(durableDir, 'module-index.js')
+  report.packages.candidate.manifestPath = path.join(durableDir, 'candidate-manifest.json')
+  report.packages.candidate.manifestSha256 = sha256(await readFile(report.packages.candidate.manifestPath))
+  report.packages.baseline.manifestPath = path.join(durableDir, 'baseline-manifest.json')
+  report.packages.baseline.manifestSha256 = sha256(await readFile(report.packages.baseline.manifestPath))
+  report.packages.candidate.sha256 = sha256(await readFile(report.packages.candidate.path))
+  report.packages.baseline.sha256 = sha256(await readFile(report.packages.baseline.path))
   report.packages.candidate.moduleRealpaths = [install.packageRealpath]
   report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
   report.packages.candidate.versions = install.versions
@@ -601,6 +619,7 @@ try {
   report.runId = `full-${Date.now()}-${Math.random().toString(16).slice(2)}`
   report.collectorSourceSha256 = sha256(await readFile(fileURLToPath(import.meta.url)))
   report.realEvidenceBinding = { tarballReopened: true, cleanPackVerified: baseline.packageManifest.clean === true && candidate.packageManifest.clean === true, pnpmIntegrityVerified: Boolean(candidate.packageManifest.lockfileSha256), buildFingerprint: { before: 'pending', after: 'pending' }, moduleFingerprint: { before: candidate.packageManifest.afterHashes?.['es/index.js'], after: candidate.packageManifest.afterHashes?.['es/index.js'] } }
+  report.releaseFormat = { validatorStatus: 'pending', collectorSourcePath: report.collectorSourcePath }
   report.cases = candidate.cases
   report.familyCoverage = candidate.familyCoverage
   report.browsers = candidate.browsers
@@ -629,6 +648,7 @@ try {
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
   await verifyArtifactBindings(report)
   validateReport(report, { requireRelease: true })
+  report.releaseFormat.validatorStatus = 'passed'
   console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: true }, null, 2))
 } catch (error) {
   await mkdir(path.dirname(output), { recursive: true })

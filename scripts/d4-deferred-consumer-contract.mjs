@@ -54,7 +54,7 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
   const base = reportPath ? path.dirname(path.resolve(reportPath)) : process.cwd()
   const resolve = value => value && (path.isAbsolute(value) ? value : path.resolve(base, value))
   const verifyHash = async (label, file, expected) => {
-    try { const bytes = await readFile(resolve(file)); ensure(Boolean(expected) && sha256(bytes) === expected, `${label} reopened hash mismatch`, failures) } catch (error) { failures.push(`${label} artifact cannot be reopened: ${error.message}`) }
+    try { const bytes = await readFile(resolve(file)); ensure(Boolean(expected) && sha256(bytes) === expected, `${label} reopened hash mismatch`, failures) } catch (error) { failures.push(error.code === 'ENOENT' ? `${label} artifact path does not exist` : `${label} artifact cannot be reopened: ${error.message}`) }
   }
   await verifyHash('collector source', report.collectorSourcePath, report.collectorSourceSha256)
   for (const side of ['baseline', 'candidate']) {
@@ -395,6 +395,9 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
   ensure(report?.schema === 'd4-deferred-consumer/v1', 'schema must be d4-deferred-consumer/v1', failures)
   if (requireRelease) {
     const hash = value => typeof value === 'string' && /^[a-f0-9]{64}$/i.test(value)
+    ensure(report.releaseFormat?.validatorStatus === 'passed', 'release validator status must be passed', failures)
+    ensure(report.releaseFormat?.collectorSourcePath === report.collectorSourcePath, 'collectorSourcePath is required in release format', failures)
+    ensure(report.collectorSourcePath, 'collectorSourcePath is required for release validation', failures)
     ensure(report?.sourceKind === 'collected' && /^(bounded|full)-/.test(report.runId ?? '') && hash(report.collectorSourceSha256) && report?.realEvidenceBinding?.tarballReopened === true && hash(report.realEvidenceBinding.buildFingerprint?.before) && hash(report.realEvidenceBinding.buildFingerprint?.after) && hash(report.realEvidenceBinding.moduleFingerprint?.before) && hash(report.realEvidenceBinding.moduleFingerprint?.after), 'release report must carry collected source/run/artifact bindings', failures)
   }
   ensure(report?.syntheticEvidence !== true || requireRelease !== true, 'synthetic fixture provenance cannot pass release validation', failures)
@@ -502,7 +505,9 @@ export function validateBoundedReleaseReport(report) {
     reopen(`${side} manifest`, pkg?.manifestPath, pkg?.manifestSha256)
     if (side === 'candidate') { reopen(`${side} module`, pkg?.modulePath, pkg?.afterHashes?.['es/index.js']); reopen(`${side} lock`, pkg?.lockPath, pkg?.lockfileSha256) }
   }
-  ensure(report?.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildFingerprint?.before && report.realEvidenceBinding.moduleFingerprint?.before, 'bounded artifact binding is missing', failures)
+  ensure(report?.realEvidenceBinding?.tarballReopened === true, 'bounded artifact binding is missing', failures)
+  ensure(report.realEvidenceBinding?.buildFingerprint?.before && report.realEvidenceBinding.buildFingerprint.before === report.realEvidenceBinding.buildFingerprint.after, 'build fingerprint mismatch', failures)
+  ensure(report.realEvidenceBinding?.moduleFingerprint?.before && report.realEvidenceBinding.moduleFingerprint.before === report.realEvidenceBinding.moduleFingerprint.after, 'module fingerprint mismatch', failures)
   ensure(report?.packages?.candidate?.path && report.packages.candidate.sha256 && report.provenance?.candidateTarballSha256 === report.packages.candidate.sha256, 'bounded candidate artifact binding is missing', failures)
   const timing = report.case?.timing
   ensure(recomputeActionability(timing), 'bounded first interaction raw timing/target evidence is invalid', failures)
