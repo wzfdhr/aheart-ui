@@ -250,16 +250,16 @@ async function ssrEvidence(root) {
   const snapshotScript = `(() => {
     window.__d4CaptureSnapshot = () => {
       const root = document.querySelector('#app');
-      const all = [...document.querySelectorAll('[id]')];
+      const all = [...document.querySelectorAll('[id], .aheart-cascader__trigger')];
       const ids = all.map(node => node.id).filter(Boolean).sort();
       const componentFor = node => {
         const owner = node.closest('.aheart-tree-select, .aheart-cascader, .aheart-tree');
         if (owner?.classList.contains('aheart-tree-select')) return 'TreeSelect';
         if (owner?.classList.contains('aheart-cascader')) return 'Cascader';
         if (owner?.classList.contains('aheart-tree')) return 'Tree';
-        if (node.id.startsWith('d4-tree-select')) return 'TreeSelect';
-        if (node.id.startsWith('d4-cascader')) return 'Cascader';
-        if (node.id.startsWith('d4-tree')) return 'Tree';
+        if (String(node.id || '').startsWith('d4-tree-select')) return 'TreeSelect';
+        if (String(node.id || '').startsWith('d4-cascader')) return 'Cascader';
+        if (String(node.id || '').startsWith('d4-tree')) return 'Tree';
         return null;
       };
       const kindFor = (node, component) => {
@@ -288,7 +288,7 @@ async function ssrEvidence(root) {
         if (node.classList.contains('aheart-cascader__option')) return '.aheart-cascader__option';
         return node.id ? '#' + node.id : null;
       };
-      for (const node of nodes) { node.selector = selectorFor(all.find(candidate => candidate.id === node.id)); node.selectorProvenance = { source: 'document.querySelector', selector: node.selector }; }
+      for (const node of nodes) { const actual = all.find(candidate => candidate === node || (node.id && candidate.id === node.id)); node.selector = selectorFor(actual); node.selectorProvenance = { source: 'document.querySelector', selector: node.selector }; }
       const normalize = html => String(html || '').replace(/\s+/g, ' ').trim();
       const rawMainHtml = root?.innerHTML || '';
       const rawTeleportHtml = [...document.body.children].filter(node => node.classList.contains('aheart-tree-select__panel') || node.classList.contains('aheart-cascader__panel')).map(node => node.outerHTML).join('');

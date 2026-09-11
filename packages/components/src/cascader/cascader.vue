@@ -3,7 +3,6 @@
     <div
       ref="triggerRef"
       class="aheart-cascader__trigger"
-      :id="`aheart-cascader-trigger-${instanceId}`"
       role="combobox"
       :tabindex="disabled ? -1 : 0"
       :aria-expanded="mergedOpen ? 'true' : 'false'"

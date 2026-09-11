@@ -859,7 +859,8 @@ export function validateBoundedReleaseReport(report) {
     ensure(typeof snapshot.rawMainHtml === 'string' && typeof snapshot.rawTeleportHtml === 'string' && typeof snapshot.mainHtml === 'string' && typeof snapshot.teleportHtml === 'string' && typeof snapshot.combinedHtml === 'string', `${label} raw and normalized DOM strings are missing`, failures)
     if (typeof snapshot.mainHtml === 'string') ensure(snapshot.mainHtmlSha256 === sha256(Buffer.from(snapshot.mainHtml)) && snapshot.teleportHtmlSha256 === sha256(Buffer.from(snapshot.teleportHtml)) && snapshot.combinedSha256 === sha256(Buffer.from(snapshot.combinedHtml)), `${label} DOM hashes do not match reopened normalized strings`, failures)
     for (const node of snapshot.nodes ?? []) {
-      ensure(ids.has(node.id), `${label} node ID is not in the raw ID set`, failures)
+      if (node.id == null) ensure(node.component === 'Cascader' && node.kind === 'trigger' && node.selector === '.aheart-cascader__trigger', `${label} id-less node is not the actual Cascader trigger`, failures)
+      else ensure(ids.has(node.id), `${label} node ID is not in the raw ID set`, failures)
       for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) {
         ensure(Object.prototype.hasOwnProperty.call(node, attribute), `${label} ${attribute} field is missing`, failures)
         const value = node[attribute]

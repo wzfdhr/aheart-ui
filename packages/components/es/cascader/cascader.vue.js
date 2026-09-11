@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, useAttrs, nextTick, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, unref, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, vModelText, withCtx, vShow } from "vue";
+import { defineComponent, ref, computed, watch, useAttrs, nextTick, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, withCtx, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
@@ -11,7 +11,7 @@ import { usePopupViewportBudget } from "../utils/use-popup-viewport-budget.js";
 import _sfc_main$2 from "./cascader-virtual-list.vue.js";
 import { normalizeCascaderVirtual } from "./virtual-options.js";
 import "./style.css.js";
-const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-activedescendant", "aria-labelledby", "aria-describedby"];
+const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled", "aria-activedescendant", "aria-labelledby", "aria-describedby"];
 const _hoisted_2 = {
   key: 0,
   class: "aheart-cascader__value aheart-cascader__tags"
@@ -912,7 +912,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref_key: "triggerRef",
           ref: triggerRef,
           class: "aheart-cascader__trigger",
-          id: `aheart-cascader-trigger-${unref(instanceId)}`,
           role: "combobox",
           tabindex: __props.disabled ? -1 : 0,
           "aria-expanded": mergedOpen.value ? "true" : "false",
