@@ -21,6 +21,41 @@ const fullReport = () => buildAcceptanceFixture({
   candidatePackage: '/tmp/d4-candidate.tgz',
   generatedAt: '2026-09-11T00:00:00.000Z',
 })
+const snapshotStructureProjection = snapshot => { const { capturePhase: _capturePhase, captureNonce: _captureNonce, ...structure } = snapshot; return structure }
+
+const fullSsrTypesControlReport = () => {
+  const report = fullReport()
+  const nodeKinds = ['Tree/root', 'Tree/row', 'TreeSelect/trigger', 'TreeSelect/root', 'Cascader/trigger', 'Cascader/root']
+  const makeSnapshot = (phase, nonce) => {
+    const nodes = nodeKinds.map((identity, index) => {
+      const [component, kind] = identity.split('/')
+      const id = `full-${component.toLowerCase()}-${kind}-${index}`
+      return { id, component, kind, selector: `#${id}`, selectorProvenance: { source: 'document.querySelector', selector: `#${id}` }, selectorMatchCount: 1, selectorResolved: true, role: null, ariaControls: null, ariaActivedescendant: null, ariaLabelledby: null, ariaDescribedby: null, focusModel: null }
+    })
+    const rawMainHtml = `<div data-full-ssr="${phase}"></div>`
+    const rawTeleportHtml = '<div data-full-teleport="true"></div>'
+    const normalize = html => html.replace(/\s+/g, ' ').trim()
+    return { capturePhase: phase, captureNonce: nonce, sortedIds: nodes.map(node => node.id).sort(), nodes, focusModel: null, rawMainHtml, rawTeleportHtml, mainHtml: normalize(rawMainHtml), teleportHtml: normalize(rawTeleportHtml), combinedHtml: normalize(rawMainHtml + rawTeleportHtml), mainHtmlSha256: sha256(Buffer.from(normalize(rawMainHtml))), teleportHtmlSha256: sha256(Buffer.from(normalize(rawTeleportHtml))), combinedSha256: sha256(Buffer.from(normalize(rawMainHtml + rawTeleportHtml))) }
+  }
+  for (const [combinationKey, item] of Object.entries(report.ssrHydration.combinations)) {
+    const serverSnapshot = makeSnapshot('server-before-hydration', `${combinationKey}-server`)
+    const hydratedSnapshot = makeSnapshot('hydrated-after-mount', `${combinationKey}-hydrated`)
+    item.serverSnapshot = serverSnapshot
+    item.hydratedSnapshot = hydratedSnapshot
+    item.postHydrationActions = ['Tree', 'TreeSelect', 'Cascader'].map(component => ({ component, target: { selector: `#full-${component.toLowerCase()}-action`, selectorProvenance: { source: 'document.querySelector', selector: `#full-${component.toLowerCase()}-action` }, id: null }, beforeState: { value: 'before' }, afterState: { value: 'after' }, callbackEventNames: [`${component}:change`] }))
+    item.captureEvidence = [
+      { ordinal: 1, combinationKey, phase: serverSnapshot.capturePhase, nonce: serverSnapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(serverSnapshot)))), path: `/synthetic/${combinationKey}/server.json`, sha256: 'a'.repeat(64) },
+      { ordinal: 2, combinationKey, phase: hydratedSnapshot.capturePhase, nonce: hydratedSnapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(hydratedSnapshot)))), path: `/synthetic/${combinationKey}/hydrated.json`, sha256: 'b'.repeat(64) },
+    ]
+    item.postHydrationInteraction = true
+    item.postHydrationStateChanged = true
+    item.businessEventsAfterHydration = 3
+    item.initialIdSha256 = sha256(Buffer.from(JSON.stringify(serverSnapshot.sortedIds)))
+    item.hydratedIdSha256 = item.initialIdSha256
+  }
+  report.typeProbe = { typesPath: '/synthetic/types-probe.ts', configPath: '/synthetic/tsconfig.type-probe.json', tscExitCode: 0, positiveChecks: ['TreeVirtual', 'TreeSelectVirtual', 'CascaderVirtual', 'h(Tree)', 'h(Cascader)'], negativeChecks: ['bad TreeVirtual', 'bad TreeSelectVirtual', 'bad CascaderVirtual'] }
+  return report
+}
 
 const releaseDescriptorFixture = () => {
   const report = fullReport()
@@ -400,8 +435,16 @@ test('full release SSR/types contract rejects missing snapshots, actions, captur
   ]
   for (const [label, mutate, pattern] of mutations) {
     await t.test(label, () => {
-      const report = fullReport()
+      const control = fullSsrTypesControlReport()
+      assert.doesNotThrow(() => validateReport(control), 'the complete synthetic SSR/types control fixture must pass before a single evidence class is removed')
+      const report = structuredClone(control)
       mutate(report)
+      for (const item of Object.values(report.ssrHydration.combinations)) {
+        if (label !== 'full SSR snapshots') assert.ok(item.serverSnapshot && item.hydratedSnapshot, 'control fixture must retain server and hydrated snapshots')
+        if (label !== 'full SSR actions') assert.ok(item.postHydrationActions?.length === 3, 'control fixture must retain three component actions')
+        if (label !== 'full SSR capture evidence') assert.ok(item.captureEvidence?.length === 2, 'control fixture must retain two capture records')
+      }
+      if (label !== 'full public type probe') assert.ok(report.typeProbe, 'control fixture must retain the public type probe')
       assert.throws(() => validateReport(report), error => (error?.failures ?? []).some(failure => pattern.test(failure)), `full release must reject missing ${label}`)
     })
   }
@@ -409,9 +452,17 @@ test('full release SSR/types contract rejects missing snapshots, actions, captur
 
 test('full collection reuses smoke SSR capture helper and returns candidate type probe', async () => {
   const source = await deferredCollectorSource()
-  assert.ok((source.match(/ssrEvidence\(/g) ?? []).length >= 3, 'smoke and full collectSide paths must reuse the shared SSR/hydration capture helper')
-  assert.match(source, /return \{[\s\S]*ssrHydration: ssr[\s\S]*typeProbe[\s\S]*\}/, 'collectSide must return the candidate public type probe')
-  assert.match(source, /report\.typeProbe\s*=\s*candidate\.typeProbe/, 'full report must preserve candidate type probe evidence')
+  const smokeStart = source.indexOf('async function collectSmoke')
+  const sideStart = source.indexOf('async function collectSide')
+  const fullStart = source.indexOf('// Full collection intentionally runs only when explicitly invoked')
+  assert.ok(smokeStart >= 0 && sideStart > smokeStart && fullStart > sideStart, 'collector function boundaries must be discoverable')
+  const smokeBody = source.slice(smokeStart, sideStart)
+  const sideBody = source.slice(sideStart, fullStart)
+  assert.match(smokeBody, /collectHydratedSsrEvidence\(/, 'smoke must call the named shared hydration/capture helper')
+  assert.match(sideBody, /collectHydratedSsrEvidence\(/, 'collectSide must call the named shared hydration/capture helper')
+  assert.match(sideBody, /durableTypeProbe\(/, 'collectSide must execute the public type probe')
+  assert.match(sideBody, /return \{[\s\S]*ssrHydration: ssr[\s\S]*typeProbe[\s\S]*\}/, 'collectSide must return the candidate public type probe')
+  assert.match(source, /typeProbe:\s*candidate\.typeProbe/, 'full report shell must preserve candidate type probe evidence')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
