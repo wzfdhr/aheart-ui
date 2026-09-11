@@ -45,6 +45,13 @@ const fullSsrTypesControlReport = () => {
     assert.deepEqual(snapshotStructureProjection(serverSnapshot), snapshotStructureProjection(hydratedSnapshot), `${combinationKey} synthetic server/hydrated structure must be identical apart from capture metadata`)
     item.serverSnapshot = serverSnapshot
     item.hydratedSnapshot = hydratedSnapshot
+    item.componentRows = { Tree: 12, TreeSelect: 12, Cascader: 12 }
+    item.mainHtmlSha256 = serverSnapshot.mainHtmlSha256
+    item.teleportHtmlSha256 = serverSnapshot.teleportHtmlSha256
+    item.combinedSha256 = serverSnapshot.combinedSha256
+    item.hydratedMainHtmlSha256 = hydratedSnapshot.mainHtmlSha256
+    item.hydratedTeleportHtmlSha256 = hydratedSnapshot.teleportHtmlSha256
+    item.initialRowsByComponent = { Tree: 12, TreeSelect: 12, Cascader: 12 }
     item.postHydrationActions = ['Tree', 'TreeSelect', 'Cascader'].map(component => ({ component, target: { selector: `#full-${component.toLowerCase()}-action`, selectorProvenance: { source: 'document.querySelector', selector: `#full-${component.toLowerCase()}-action` }, id: null }, beforeState: { value: 'before' }, afterState: { value: 'after' }, callbackEventNames: [`${component}:change`] }))
     item.captureEvidence = [
       { ordinal: 1, combinationKey, phase: serverSnapshot.capturePhase, nonce: serverSnapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(serverSnapshot)))), path: `/synthetic/${combinationKey}/server.json`, sha256: 'a'.repeat(64) },
@@ -484,13 +491,12 @@ test('full SSR semantic parity rejects malformed IDs, ARIA refs, selectors, acti
     ['wrong hydration action components', /actions|component/i, report => {
       for (const item of Object.values(report.ssrHydration.combinations)) item.postHydrationActions = item.postHydrationActions.map((action, index) => ({ ...action, component: `Wrong${index}` }))
     }],
-    ['virtual initial row window over budget', /initial.*rows|virtual.*window|24/i, report => {
-      for (const item of Object.values(report.ssrHydration.combinations)) item.initialRowsByComponent.Tree = 25
+    ['virtual initial row window over budget', /virtual initial row window exceeds limit/i, report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) if (item.virtual?.Tree === true) item.initialRowsByComponent.Tree = 25
     }],
   ]
   for (const [label, pattern, mutate] of mutations) await t.test(label, () => {
     const control = fullSsrTypesControlReport()
-    for (const item of Object.values(control.ssrHydration.combinations)) { item.componentRows = { Tree: 12, TreeSelect: 12, Cascader: 12 }; item.initialRowsByComponent = { Tree: 12, TreeSelect: 12, Cascader: 12 } }
     assert.doesNotThrow(() => validateReport(control), 'complete synthetic parity control must pass before mutation')
     const report = structuredClone(control)
     mutate(report)
@@ -513,6 +519,16 @@ test('full collection reuses smoke SSR capture helper and returns candidate type
   assert.equal((sideBody.match(/collectHydratedSsrEvidence\(/g) ?? []).length, 1, 'full collectSide must invoke the shared hydration/capture helper exactly once')
   assert.equal((smokeBody.match(/for \(let mask = 0; mask < 8/g) ?? []).length, 0, 'smoke must not retain the old per-mask hydration loop')
   assert.equal((sideBody.match(/for \(let mask = 0; mask < 8/g) ?? []).length, 0, 'full collectSide must not retain the old per-mask hydration loop')
+  const assertProtectedCapture = (body, label) => {
+    const call = body.indexOf('collectHydratedSsrEvidence(')
+    const tryStart = body.lastIndexOf('try {', call)
+    const finallyStart = body.indexOf('} finally {', call)
+    assert.ok(call >= 0 && tryStart >= 0 && finallyStart > call, `${label} shared capture must be inside a try/finally resource block`)
+    const finallyBody = body.slice(finallyStart, finallyStart + 900)
+    assert.match(finallyBody, /browser\.close|httpServer\.close|server\?\.httpServer/, `${label} capture finally must close browser/server resources`)
+  }
+  assertProtectedCapture(smokeBody, 'smoke')
+  assertProtectedCapture(sideBody, 'full collectSide')
   assert.match(sideBody, /durableTypeProbe\(/, 'collectSide must execute the public type probe')
   assert.match(sideBody, /return \{[\s\S]*ssrHydration: ssr[\s\S]*typeProbe[\s\S]*\}/, 'collectSide must return the candidate public type probe')
   const sentinel = { marker: 'candidate-type-probe' }
@@ -524,10 +540,12 @@ test('bounded and full validation share one SSR semantic validator', async () =>
   const source = await readFile(path.join(process.cwd(), 'scripts/d4-deferred-consumer-contract.mjs'), 'utf8')
   assert.match(source, /function validateSsrEvidence\(/, 'contract must expose one shared SSR semantic validator')
   const boundedStart = source.indexOf('export function validateBoundedReleaseReport')
+  const boundedEnd = source.indexOf('export function validateSmokeReport', boundedStart)
   const fullStart = source.indexOf('export function validateReport')
-  assert.ok(boundedStart >= 0 && fullStart >= 0)
-  assert.match(source.slice(boundedStart), /validateSsrEvidence\(/, 'bounded validation must call the shared SSR semantic validator')
-  assert.match(source.slice(fullStart), /validateSsrEvidence\(/, 'full validation must call the shared SSR semantic validator')
+  const fullEnd = source.indexOf('export function validateSmokeReport', fullStart)
+  assert.ok(boundedStart >= 0 && boundedEnd > boundedStart && fullStart >= 0 && fullEnd > fullStart)
+  assert.match(source.slice(boundedStart, boundedEnd), /validateSsrEvidence\(/, 'bounded validation must call the shared SSR semantic validator')
+  assert.match(source.slice(fullStart, fullEnd), /validateSsrEvidence\(/, 'full validation must call the shared SSR semantic validator')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
