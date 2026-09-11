@@ -261,7 +261,7 @@ const cancelVirtualFocus = () => virtualListRefs.forEach(list => list.cancelFocu
 const suspendVirtualLists = () => virtualListRefs.forEach(list => list.suspend())
 let keyboardRequest = 0
 let modeFocusGeneration = 0
-type FocusOwner = { request: number; generation: number; navigation: number; mode: number; path: CascaderPath; source: HTMLElement; ownerDocument: Document; sawRenderBlur: boolean; renderBlurArmed: boolean; dispose: () => void }
+type FocusOwner = { request: number; generation: number; navigation: number; mode: number; path: CascaderPath; source: HTMLElement; ownerDocument: Document; sawRenderBlur: boolean; renderBlurArmed: boolean; renderRaf?: number; renderTimer?: number; dispose: () => void }
 let focusOwner: FocusOwner | undefined
 const disposeFocusOwner = (owner = focusOwner) => { if (!owner || focusOwner !== owner) return; owner.dispose(); focusOwner = undefined }
 const invalidateModeFocus = () => { modeFocusGeneration += 1; keyboardRequest += 1; disposeFocusOwner(); cancelVirtualFocus() }
@@ -345,6 +345,7 @@ const closestExistingPath = (path: CascaderPath, options: CascaderOption[]) => {
   return existing
 }
 const invalidateLoads = () => {
+  disposeFocusOwner()
   loadGeneration += 1
   activeLoadControllers.forEach((controller) => controller.abort())
   activeLoadControllers.clear()
@@ -679,20 +680,24 @@ const ownKeyboardFocus = (source: HTMLElement, path: CascaderPath, request: numb
   }
   const departure = (event: FocusEvent) => {
     const target = event.target as Node | null
-    if (target && !source.contains(target) && !panelRef.value?.contains(target)) disposeFocusOwner(owner)
+    if (target && target !== source) disposeFocusOwner(owner)
   }
   const leave = () => disposeFocusOwner(owner)
+  const keydown = (event: KeyboardEvent) => { if (event.key === 'Tab' || event.key === 'Escape') leave() }
   ownerDocument.addEventListener('focusin', departure)
   ownerDocument.addEventListener('pointerdown', leave, true)
   ownerDocument.addEventListener('touchstart', leave, true)
   ownerDocument.addEventListener('wheel', leave, true)
-  ownerDocument.addEventListener('keydown', event => { if (event.key === 'Tab' || event.key === 'Escape') leave() }, true)
+  ownerDocument.addEventListener('keydown', keydown, true)
   ownerWindow?.addEventListener('blur', leave)
   owner.dispose = () => {
+    if (owner.renderRaf !== undefined) ownerWindow?.cancelAnimationFrame?.(owner.renderRaf)
+    if (owner.renderTimer !== undefined) ownerWindow?.clearTimeout?.(owner.renderTimer)
     ownerDocument.removeEventListener('focusin', departure)
     ownerDocument.removeEventListener('pointerdown', leave, true)
     ownerDocument.removeEventListener('touchstart', leave, true)
     ownerDocument.removeEventListener('wheel', leave, true)
+    ownerDocument.removeEventListener('keydown', keydown, true)
     ownerWindow?.removeEventListener('blur', leave)
   }
   focusOwner = owner
@@ -705,6 +710,9 @@ const enterChildColumn = async (option: CascaderOption, columnIndex: number, cur
   const generation = loadGeneration
   const pending = handleOption(option, columnIndex)
   const navigation = navigationVersion
+  const ownerWindow = current.ownerDocument.defaultView
+  if (ownerWindow?.requestAnimationFrame) owner.renderRaf = ownerWindow.requestAnimationFrame(() => { owner.renderRaf = undefined; owner.renderBlurArmed = false })
+  else if (ownerWindow) owner.renderTimer = ownerWindow.setTimeout(() => { owner.renderTimer = undefined; owner.renderBlurArmed = false }, 0)
   await pending
   await nextTick()
   const active = current.ownerDocument.activeElement
