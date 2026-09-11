@@ -659,7 +659,8 @@ const handleSearchInputFocus = () => invalidateModeFocus()
 const handleSearchInputBlur = (event: FocusEvent) => {
   if (!event.relatedTarget) invalidateModeFocus()
 }
-const focusColumnIndex = (columnIndex: number, index: number) => {
+const focusColumnIndex = (columnIndex: number, index: number, cancelPendingReveal = false) => {
+  if (cancelPendingReveal) revealGeneration += 1
   revealColumnInViewport(columnIndex)
   const key = columnPrefixToken(columnIndex)
   const list = virtualListRefs.get(key)
@@ -869,7 +870,7 @@ const handleOptionKeydown = (event: KeyboardEvent, option: CascaderOption, colum
       event.preventDefault()
       const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1]
       const parentIndex = (columns.value[columnIndex - 1] ?? []).findIndex(candidate => candidate.value === parentValue)
-      if (parentIndex >= 0) focusColumnIndex(columnIndex - 1, parentIndex)
+      if (parentIndex >= 0) focusColumnIndex(columnIndex - 1, parentIndex, true)
     }
     return
   }
@@ -894,8 +895,8 @@ const handleOptionKeydown = (event: KeyboardEvent, option: CascaderOption, colum
   } else if (event.key === 'ArrowLeft' && columnIndex > 0) {
     event.preventDefault()
     const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1]
-    Array.from(panelRef.value?.querySelectorAll<HTMLElement>(`[data-cascader-column="${columnIndex - 1}"]`) ?? [])
-      .find((element) => element.dataset.cascaderToken === cascaderKeyToken(parentValue))?.focus()
+    const parentIndex = (columns.value[columnIndex - 1] ?? []).findIndex(candidate => candidate.value === parentValue)
+    if (parentIndex >= 0) focusColumnIndex(columnIndex - 1, parentIndex, true)
   }
 }
 
