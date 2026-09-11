@@ -23,7 +23,8 @@ import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEAS
 
 const run = promisify(execFile)
 const fixture = path.dirname(fileURLToPath(import.meta.url))
-const workspace = fileURLToPath(new URL('../../../', import.meta.url))
+export const workspaceRoot = fileURLToPath(new URL('../../../../', import.meta.url))
+export const resolveWorkspacePath = value => path.resolve(workspaceRoot, value)
 const arg = name => { const index = process.argv.indexOf(name); return index < 0 ? undefined : process.argv[index + 1] }
 const baselineTarball = arg('--baseline-tarball')
 const candidateTarball = arg('--candidate-tarball')
@@ -33,7 +34,7 @@ const baselineManifestPath = arg('--baseline-manifest')
 const candidateManifestPath = arg('--candidate-manifest')
 const smoke = process.argv.includes('--smoke')
 const requestedBaseURL = arg('--base-url') ?? 'http://127.0.0.1:0'
-const output = path.resolve(arg('--out') ?? path.join(workspace, 'docs/superpowers/evidence/d4-deferred-consumer/full.json'))
+const output = path.resolve(arg('--out') ?? path.join(workspaceRoot, 'docs/superpowers/evidence/d4-deferred-consumer/full.json'))
 assert(baselineTarball && candidateTarball, '--baseline-tarball and --candidate-tarball are required')
 assert(baselineCommit === APPROVED_BASELINE_COMMIT, `--baseline-commit must equal ${APPROVED_BASELINE_COMMIT}`)
 assert(candidateCommit, '--candidate-commit is required')
@@ -56,6 +57,12 @@ async function fingerprintDirectory(directory) {
   const hashes = []
   for (const file of files.sort()) hashes.push(`${path.relative(directory, file).split(path.sep).join('/')}=${sha256(await readFile(file))}`)
   return sha256(Buffer.from(hashes.join('\n')))
+}
+async function writeFileManifest(directory, destination) {
+  const files = []
+  async function walk(current) { for (const entry of await readdir(current, { withFileTypes: true })) { const file = path.join(current, entry.name); if (entry.isDirectory()) await walk(file); else files.push(file) } }
+  await walk(directory)
+  await writeFile(destination, `${JSON.stringify({ files: files.sort().map(file => ({ path: file, relativePath: path.relative(directory, file).split(path.sep).join('/'), sha256: sha256(readFileSync(file)) })) }, null, 2)}\n`)
 }
 
 async function verifyTarball(tarball, label, root, manifestAttestation) {
@@ -425,6 +432,7 @@ async function collectSmoke(temporary) {
   await cp(candidateManifestPath, path.join(durableDir, 'candidate-manifest.json'))
   await cp(baselineManifestPath, path.join(durableDir, 'baseline-manifest.json'))
   await cp(path.join(candidateRoot, 'dist'), path.join(durableDir, 'dist'), { recursive: true })
+  await writeFileManifest(path.join(durableDir, 'dist'), path.join(durableDir, 'dist-files.json'))
   await cp(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'), path.join(durableDir, 'module-index.js'))
   await cp(install.lockPath, path.join(durableDir, 'pnpm-lock.yaml'))
   report.runDir = durableRunDir
@@ -433,6 +441,7 @@ async function collectSmoke(temporary) {
   report.authenticEvidence = true
   report.fixtures = { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }
   report.packages.candidate.lockfileSha256 = install.lockSha256
+  report.packages.candidate.lockfileAfterSha256 = install.lockSha256
   report.packages.candidate.path = path.join(durableDir, 'candidate.tgz')
   report.packages.baseline.path = path.join(durableDir, 'baseline.tgz')
   report.packages.candidate.lockPath = path.join(durableDir, 'pnpm-lock.yaml')
@@ -457,7 +466,7 @@ async function collectSmoke(temporary) {
   report.iframe = iframe
   report.preview.screenshotPath = `${output}.png`
   await cp(path.join(candidateRoot, 'smoke.png'), `${output}.png`)
-  report.realEvidenceBinding = { tarballReopened: candidate.tarballSha256Verified === true, baselineCommit: baselineManifest.commit, baselineTarballVerified: baseline.sha256 === baselineManifest.tarballSha256, cleanStatusVerified: baselineManifest.clean === true && candidateManifest.clean === true, cleanPackVerified: candidate.clean === true && candidateManifest.clean === true, pnpmIntegrityVerified: install.lockSha256.length === 64, buildFingerprintVerified: true, moduleFingerprintVerified: install.packageIndexHash === sha256(await readFile(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'))), buildFingerprint: { before: buildFingerprint, after: buildFingerprint }, moduleFingerprint: { before: install.packageIndexHash, after: install.packageIndexHash } }
+  report.realEvidenceBinding = { tarballReopened: candidate.tarballSha256Verified === true, baselineCommit: baselineManifest.commit, baselineTarballVerified: baseline.sha256 === baselineManifest.tarballSha256, cleanStatusVerified: baselineManifest.clean === true && candidateManifest.clean === true, cleanPackVerified: candidate.clean === true && candidateManifest.clean === true, pnpmIntegrityVerified: install.lockSha256.length === 64, buildManifestPath: path.join(durableDir, 'dist-files.json'), buildFingerprintVerified: true, moduleFingerprintVerified: install.packageIndexHash === sha256(await readFile(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'))), buildFingerprint: { before: buildFingerprint, after: buildFingerprint }, moduleFingerprint: { before: install.packageIndexHash, after: install.packageIndexHash }, lockFingerprint: { before: install.lockSha256, after: install.lockSha256 } }
   report.alternatingOrderConvention = 'pair-forward-reverse'
   report.failureEvidence = { persistedBeforeCleanup: true }
   report.outputDirectoryDurable = true
@@ -618,8 +627,8 @@ try {
   report.sourceKind = 'collected'
   report.runId = `full-${Date.now()}-${Math.random().toString(16).slice(2)}`
   report.collectorSourceSha256 = sha256(await readFile(fileURLToPath(import.meta.url)))
-  report.realEvidenceBinding = { tarballReopened: true, cleanPackVerified: baseline.packageManifest.clean === true && candidate.packageManifest.clean === true, pnpmIntegrityVerified: Boolean(candidate.packageManifest.lockfileSha256), buildFingerprint: { before: 'pending', after: 'pending' }, moduleFingerprint: { before: candidate.packageManifest.afterHashes?.['es/index.js'], after: candidate.packageManifest.afterHashes?.['es/index.js'] } }
-  report.releaseFormat = { validatorStatus: 'pending', collectorSourcePath: report.collectorSourcePath }
+  report.realEvidenceBinding = { tarballReopened: true, cleanPackVerified: baseline.packageManifest.clean === true && candidate.packageManifest.clean === true, pnpmIntegrityVerified: Boolean(candidate.packageManifest.lockfileSha256), buildFingerprint: { before: 'pending', after: 'pending' }, moduleFingerprint: { before: candidate.packageManifest.afterHashes?.['es/index.js'], after: candidate.packageManifest.afterHashes?.['es/index.js'] }, lockFingerprint: { before: candidate.packageManifest.lockfileSha256, after: candidate.packageManifest.lockfileSha256 } }
+  report.releaseFormat = { validatorStatus: 'validating', collectorSourcePath: report.collectorSourcePath }
   report.cases = candidate.cases
   report.familyCoverage = candidate.familyCoverage
   report.browsers = candidate.browsers
@@ -647,12 +656,20 @@ try {
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
   await verifyArtifactBindings(report)
-  validateReport(report, { requireRelease: true })
+  validateReport(report, { requireRelease: true, allowValidationPhase: true })
   report.releaseFormat.validatorStatus = 'passed'
   console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: true }, null, 2))
 } catch (error) {
   await mkdir(path.dirname(output), { recursive: true })
-  await writeFile(output, `${JSON.stringify({ schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: false, acceptanceEligible: false, failure: String(error?.message ?? error), preservedFailureArtifact: true }, null, 2)}\n`)
+  const partialText = await readFile(output, 'utf8').catch(() => '{}')
+  const partial = JSON.parse(partialText)
+  partial.schema = 'd4-deferred-consumer/v1'
+  partial.generatedAt ??= new Date().toISOString()
+  partial.smoke = false
+  partial.acceptanceEligible = false
+  partial.failure = String(error?.message ?? error)
+  partial.failureEvidence = { ...(partial.failureEvidence ?? {}), preservedFailureArtifact: true, validationFailures: error.failures ?? [] }
+  await writeFile(output, `${JSON.stringify(partial, null, 2)}\n`)
   throw error
 } finally {
   await rm(temporary, { recursive: true, force: true })

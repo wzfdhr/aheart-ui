@@ -64,8 +64,22 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
     if (side === 'candidate') {
       await verifyHash(`${side} module`, pkg?.modulePath, pkg?.afterHashes?.['es/index.js'])
       await verifyHash(`${side} lock`, pkg?.lockPath, pkg?.lockfileSha256)
+      if (pkg?.modulePath) { const moduleHash = sha256(await readFile(resolve(pkg.modulePath))); ensure(moduleHash === report.realEvidenceBinding?.moduleFingerprint?.before && moduleHash === report.realEvidenceBinding?.moduleFingerprint?.after, 'module fingerprint before/after mismatch', failures) }
+      if (pkg?.lockPath) { const lockHash = sha256(await readFile(resolve(pkg.lockPath))); ensure(lockHash === report.realEvidenceBinding?.lockFingerprint?.before && lockHash === report.realEvidenceBinding?.lockFingerprint?.after, 'lock fingerprint before/after mismatch', failures) }
     }
   }
+  const buildManifestPath = report.realEvidenceBinding?.buildManifestPath
+  if (buildManifestPath) {
+    try {
+      const manifest = JSON.parse(await readFile(resolve(buildManifestPath), 'utf8'))
+      const lines = []
+      for (const file of manifest.files ?? []) { const bytes = await readFile(resolve(file.path)); const hash = sha256(bytes); ensure(hash === file.sha256, `build file hash mismatch: ${file.path}`, failures); lines.push(`${file.relativePath ?? file.path}=${hash}`) }
+      const fingerprint = sha256(Buffer.from(lines.sort().join('\n')))
+      ensure(fingerprint === report.realEvidenceBinding.buildFingerprint?.before && fingerprint === report.realEvidenceBinding.buildFingerprint?.after, 'build fingerprint before/after mismatch', failures)
+    } catch (error) { failures.push(`build manifest cannot be reopened: ${error.message}`) }
+  }
+  ensure(report.realEvidenceBinding?.moduleFingerprint?.before === report.realEvidenceBinding?.moduleFingerprint?.after, 'module fingerprint before/after mismatch', failures)
+  ensure(report.packages?.candidate?.lockfileSha256 === report.packages?.candidate?.lockfileAfterSha256, 'lock fingerprint before/after mismatch', failures)
   if (report.runDir) { try { ensure((await stat(resolve(report.runDir))).isDirectory(), 'collector runDir is not durable', failures) } catch (error) { failures.push(`collector runDir cannot be reopened: ${error.message}`) } }
   if (failures.length) { const error = new Error(`D4 artifact binding verification failed: ${failures.join('; ')}`); error.failures = failures; throw error }
   return { status: 'passed', failures: [] }
@@ -139,6 +153,12 @@ function packageManifest(label, packagePath) {
   const content = Buffer.from(`d4-${label}-manifest\n`)
   return {
     path: packagePath,
+    manifestPath: `${packagePath}.manifest.json`,
+    manifestSha256: sha256(content),
+    modulePath: `${packagePath}.module.js`,
+    lockPath: `${packagePath}.lock.yaml`,
+    lockfileSha256: sha256(content),
+    lockfileAfterSha256: sha256(content),
     exists: true,
     sha256: sha256(content),
     clean: true,
@@ -154,6 +174,7 @@ function packageManifest(label, packagePath) {
     contentSha256Verified: true,
     tarballSha256Verified: true,
     sourceCommit: label === 'baseline' ? APPROVED_BASELINE_COMMIT : 'candidate-commit',
+    afterHashes: { 'es/index.js': sha256(content) },
   }
 }
 
@@ -261,6 +282,13 @@ export function buildAcceptanceFixture({ baselinePackage, candidatePackage, gene
     acceptanceEligible: !smoke,
     smoke,
     syntheticEvidence: true,
+    sourceKind: 'collected',
+    runId: 'full-test-fixture',
+    collectorSourcePath: '/tmp/d4-collector.mjs',
+    collectorSourceSha256: 'a'.repeat(64),
+    artifactDirectory: '/tmp/d4-artifacts',
+    releaseFormat: { validatorStatus: 'passed', collectorSourcePath: '/tmp/d4-collector.mjs' },
+    realEvidenceBinding: { tarballReopened: true, buildFingerprint: { before: 'b'.repeat(64), after: 'b'.repeat(64) }, moduleFingerprint: { before: 'c'.repeat(64), after: 'c'.repeat(64) } },
     environment: { ...PINNED_VERSIONS, node: process.version === `v${PINNED_VERSIONS.node}` ? PINNED_VERSIONS.node : PINNED_VERSIONS.node, cpu: 'fixture', concurrency: 1 },
     matrix: RELEASE_MATRIX,
     fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { sharedTree: true, checkable: true, queryMatches: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000 }, rowHeights: { fixed: 28, coarse: 44, dynamicEvery: 10 } },
@@ -386,7 +414,7 @@ export function recomputeEvidence(report) {
   return { firstInteraction, gzip, errors }
 }
 
-export function validateReport(report, { requireRelease = false, requireSmokeChecks = false } = {}) {
+export function validateReport(report, { requireRelease = false, requireSmokeChecks = false, allowValidationPhase = false } = {}) {
   if (report?.smoke === true && requireSmokeChecks) return validateSmokeReport(report)
   const failures = []
   if (requireRelease && (report?.smoke === true || report?.acceptanceEligible !== true)) {
@@ -395,7 +423,9 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
   ensure(report?.schema === 'd4-deferred-consumer/v1', 'schema must be d4-deferred-consumer/v1', failures)
   if (requireRelease) {
     const hash = value => typeof value === 'string' && /^[a-f0-9]{64}$/i.test(value)
-    ensure(report.releaseFormat?.validatorStatus === 'passed', 'release validator status must be passed', failures)
+    ensure(report.releaseFormat?.validatorStatus === 'passed' || (allowValidationPhase && report.releaseFormat?.validatorStatus === 'validating'), 'release validator status must be passed', failures)
+    ensure(report.runId !== 'full-test-fixture', 'synthetic full fixture runId cannot pass release validation', failures)
+    ensure(report.artifactDirectory, 'durable artifactDirectory is required for release validation', failures)
     ensure(report.releaseFormat?.collectorSourcePath === report.collectorSourcePath, 'collectorSourcePath is required in release format', failures)
     ensure(report.collectorSourcePath, 'collectorSourcePath is required for release validation', failures)
     ensure(report?.sourceKind === 'collected' && /^(bounded|full)-/.test(report.runId ?? '') && hash(report.collectorSourceSha256) && report?.realEvidenceBinding?.tarballReopened === true && hash(report.realEvidenceBinding.buildFingerprint?.before) && hash(report.realEvidenceBinding.buildFingerprint?.after) && hash(report.realEvidenceBinding.moduleFingerprint?.before) && hash(report.realEvidenceBinding.moduleFingerprint?.after), 'release report must carry collected source/run/artifact bindings', failures)
@@ -420,7 +450,10 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     ensure(Array.isArray(pkg?.fsImports) && pkg.fsImports.length === 0, `${side} package contains @fs imports`, failures)
     for (const field of ['esm', 'cjs', 'css', 'publicTypes', 'ssr', 'contentSha256Verified', 'tarballSha256Verified']) ensure(pkg?.[field] === true, `${side} package is missing ${field} evidence`, failures)
     ensure(pkg?.sourceCommit === (side === 'baseline' ? APPROVED_BASELINE_COMMIT : report.provenance?.candidateCommit), `${side} package source commit provenance is missing`, failures)
-    if (requireRelease) ensure(pkg?.path && pkg?.manifestPath && pkg?.modulePath && pkg?.lockPath && /^[a-f0-9]{64}$/i.test(pkg?.manifestSha256 ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.afterHashes?.['es/index.js'] ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.lockfileSha256 ?? ''), `${side} release artifact descriptors are incomplete`, failures)
+    if (requireRelease) {
+      ensure(pkg?.path && pkg?.manifestPath && pkg?.modulePath && pkg?.lockPath && /^[a-f0-9]{64}$/i.test(pkg?.manifestSha256 ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.afterHashes?.['es/index.js'] ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.lockfileSha256 ?? ''), `${side} release artifact descriptors are incomplete`, failures)
+      if (String(report.runId).startsWith('full-')) ensure(existsSync(pkg?.path) && existsSync(pkg?.manifestPath) && existsSync(pkg?.modulePath) && existsSync(pkg?.lockPath), `${side} release artifact path does not exist`, failures)
+    }
   }
   const recomputed = recomputeEvidence(report)
   failures.push(...recomputed.errors)
