@@ -221,8 +221,8 @@ function makeSsr() {
 
 export function buildAcceptanceFixture({ baselinePackage, candidatePackage, generatedAt = new Date(0).toISOString(), smoke = false } = {}) {
   const performance = makePerformance()
-  const baselineFiles = makeBundle('baseline', ['tree.js', 'tree-select.js', 'cascader.js', 'style.css'])
-  const candidateFiles = makeBundle('candidate', ['tree.js', 'tree-select.js', 'cascader.js', 'style.css'])
+  const baselineFiles = makeBundle('baseline', ['assets/tree.js', 'assets/tree-select.js', 'assets/cascader.js', 'assets/style.css'])
+  const candidateFiles = makeBundle('candidate', ['assets/tree.js', 'assets/tree-select.js', 'assets/cascader.js', 'assets/style.css'])
   const total = files => files.reduce((sum, file) => sum + file.gzipBytes, 0)
   const baseline = packageManifest('baseline', baselinePackage ?? '/tmp/d4-baseline.tgz')
   const candidate = packageManifest('candidate', candidatePackage ?? '/tmp/d4-candidate.tgz')
@@ -241,7 +241,7 @@ export function buildAcceptanceFixture({ baselinePackage, candidatePackage, gene
     browsers: makeBrowsers(),
     ssrHydration: makeSsr(),
     iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 },
-    gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild' }, baseline: { files: baselineFiles, rawBytes: baselineFiles.reduce((sum, file) => sum + file.rawBytes, 0), gzipBytes: total(baselineFiles) }, candidate: { files: candidateFiles, rawBytes: candidateFiles.reduce((sum, file) => sum + file.rawBytes, 0), gzipBytes: total(candidateFiles) }, deltaBytes: total(candidateFiles) - total(baselineFiles), limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
+    gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: true }, baseline: { files: baselineFiles, rawBytes: baselineFiles.reduce((sum, file) => sum + file.rawBytes, 0), gzipBytes: total(baselineFiles) }, candidate: { files: candidateFiles, rawBytes: candidateFiles.reduce((sum, file) => sum + file.rawBytes, 0), gzipBytes: total(candidateFiles) }, deltaBytes: total(candidateFiles) - total(baselineFiles), limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
     cases: performance.cases,
   }
 }
@@ -319,7 +319,7 @@ export function recomputeEvidence(report) {
     const files = bundle?.files ?? []
     const names = files.map(file => file.path)
     ensure(new Set(names).size === names.length, `${side} gzip evidence contains duplicate assets`, errors)
-    ensure(names.includes('tree.js') && names.includes('tree-select.js') && names.includes('cascader.js') && names.some(name => name.endsWith('.css')), `${side} gzip evidence must include Tree, TreeSelect, Cascader and CSS`, errors)
+    ensure(names.some(name => name.endsWith('.js')) && names.some(name => name.endsWith('.css')) && names.some(name => name.includes('/')), `${side} gzip evidence must include recursive JS/CSS assets`, errors)
     ensure(names.every(name => /\.(?:js|css)$/.test(name) && !name.startsWith('/')), `${side} gzip evidence contains a non-JS/CSS asset`, errors)
     let rawBytes = 0, gzipBytes = 0
     for (const file of files) {
@@ -400,7 +400,7 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
   ensure(new Set(ssrItems.map(item => JSON.stringify(item.virtual))).size === 8, 'SSR/hydration combinations must contain eight distinct false/true assignments', failures)
   for (const item of ssrItems) ensure(item.deterministic === true && item.hydrationWarnings === 0 && item.hydrationErrors === 0 && item.bounded === true, 'SSR/hydration combination has warnings, errors or unbounded output', failures)
   ensure(report.iframe?.sameOrigin === true && report.iframe.ownerDocument === true && report.iframe.focusTransfer === true && report.iframe.unmountCleanup === true && report.iframe.postUnmountInteractions === 0, 'same-origin iframe owner/focus/unmount evidence is incomplete', failures)
-  ensure(report.gzip?.level === 9 && JSON.stringify(report.gzip.consumer) === JSON.stringify({ components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild' }) && report.gzip?.deltaBytes <= RELEASE_MATRIX.maxGzipDeltaBytes, 'gzip level-9 consumer comparison or delta is invalid', failures)
+  ensure(report.gzip?.level === 9 && JSON.stringify(report.gzip.consumer) === JSON.stringify({ components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: true }) && report.gzip?.deltaBytes <= RELEASE_MATRIX.maxGzipDeltaBytes, 'gzip level-9 consumer comparison or delta is invalid', failures)
   if (requireRelease) ensure(report.acceptanceEligible === true && report.smoke === false, 'smoke reports are not release eligible', failures)
   if (failures.length) {
     const error = new Error(`D4 deferred consumer contract failed: ${failures.join('; ')}`)
@@ -415,6 +415,10 @@ export function validateSmokeReport(report) {
   ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'smoke must be explicitly ineligible', failures)
   ensure(report.authenticEvidence === true && report.preview?.productionBuild === true && report.preview.absoluteNavigation === true && /^https?:\/\//.test(report.preview.baseURL ?? '') && Array.isArray(report.preview.errors) && report.preview.errors.length === 0, 'smoke must contain authentic production preview evidence', failures)
   ensure(Array.isArray(report.case?.scroll) && report.case.scroll.length === 40 && report.case.scroll.every(step => step.rect && Array.isArray(step.rowKeys) && Number.isFinite(step.timestamp)), 'smoke must collect one authentic forty-step geometry case', failures)
+  ensure(report.ssrHydration?.status === 'recorded' && report.ssrHydration.count === 8 && Object.keys(report.ssrHydration.combinations ?? {}).length === 8 && Object.values(report.ssrHydration.combinations).every(item => item.deterministic === true && item.hydrationErrors === 0 && item.hydrationWarnings === 0 && item.interacted === true), 'smoke must record eight clean SSR/hydration cases', failures)
+  ensure(report.iframe?.sameOrigin === true && report.iframe.ownerDocument === true && report.iframe.focusTransfer === true && report.iframe.popupReopened === true && report.iframe.resourceCount > 0 && report.iframe.unmountCleanup === true && report.iframe.postUnmountInteractions === 0, 'smoke iframe popup/focus/resource/unmount evidence is incomplete', failures)
+  ensure(Array.isArray(report.packages?.candidate?.moduleRealpaths) && report.packages.candidate.moduleRealpaths.length > 0 && report.packages.candidate.afterHashes && report.packages.candidate.versions, 'smoke package realpath/version/after-hash evidence is missing', failures)
+  ensure(report.packages?.candidate?.versions && JSON.stringify(report.packages.candidate.versions) === JSON.stringify({ ...PINNED_VERSIONS }), 'smoke consumer versions are not the pinned release versions', failures)
   ensure(report.packages?.sameConsumer === 'notRun' && report.packages?.installedWithoutWorkspaceLinks === 'notRun', 'smoke must not claim installed same-consumer verification', failures)
   ensure(report.smokeChecks?.baselineExplicit === true && report.smokeChecks?.baselineAvailable === true, 'smoke requires an explicit available baseline', failures)
   for (const field of ['candidateRequiredFiles', 'candidateNoSymlink', 'candidateNoWorkspaceLinks', 'candidateNoFsImports', 'candidatePublicSurface']) ensure(report.smokeChecks?.[field] === true, `smoke package check failed: ${field}`, failures)

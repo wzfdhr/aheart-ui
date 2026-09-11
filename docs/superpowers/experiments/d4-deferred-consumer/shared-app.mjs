@@ -10,7 +10,7 @@ export function treeData(count, rowMode) {
     title: `Consumer root ${root}`,
     children: Array.from({ length: 99 }, (_, child) => ({ key: `consumer-root-${root}-child-${child}`, title: rowMode === 'dynamic' && child % 10 === 0 ? `Wrapped child ${root}.${child} with deterministic long content` : `Child ${root}.${child}` }))
   }))
-  return Array.from({ length: count }, (_, index) => ({ key: `consumer-${count}-${index}`, title: `${rowMode} Tree row ${index}` }))
+  return Array.from({ length: count }, (_, index) => ({ key: `consumer-${count}-${index}`, title: `Consumer ${rowMode} Tree row ${index}` }))
 }
 
 export function cascaderData(count, rowMode) {
@@ -21,11 +21,18 @@ export function cascaderData(count, rowMode) {
   }))
 }
 
+export function cascaderFixture(count, rowMode) {
+  const siblings = cascaderData(count, rowMode)
+  const columns = Array.from({ length: 5 }, (_, depth) => Array.from({ length: 2000 }, (_, index) => ({ value: `deep-${depth}-${index}`, label: `${rowMode} deep ${depth}.${index}`, isLeaf: depth === 4 })))
+  const searchLeaves = Array.from({ length: 10000 }, (_, index) => ({ path: [`search-${Math.floor(index / 100)}`, `leaf-${index}`], label: `Search leaf ${index}` }))
+  return { siblings, columns, searchLeaves, lazy: { path: ['lazy-root'], delayed: true, abortable: true } }
+}
+
 export function componentProps(component, count, rowMode, virtual) {
   const virtualValue = virtual ? { height: component === 'Tree' ? 320 : 256, estimateSize: component === 'Cascader' ? 32 : 28, overscan: 4 } : false
   if (component === 'Tree') return { treeData: treeData(count, rowMode), defaultExpandAll: count === 10000, virtual: virtualValue }
-  if (component === 'TreeSelect') return { treeData: treeData(count, rowMode), defaultOpen: true, showSearch: true, treeCheckable: true, virtual: virtualValue }
-  return { options: cascaderData(count, rowMode), defaultOpen: true, showSearch: true, virtual: virtualValue }
+  if (component === 'TreeSelect') return { treeData: treeData(count, rowMode), defaultOpen: false, showSearch: true, treeCheckable: true, virtual: virtualValue }
+  return { options: cascaderData(count, rowMode), defaultOpen: false, showSearch: true, virtual: virtualValue }
 }
 
 export function createConsumerApp(settings) {

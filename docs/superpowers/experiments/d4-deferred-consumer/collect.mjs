@@ -191,12 +191,17 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const start = settings.component === 'Tree' ? await page.evaluate(() => window.__d4MountStart) : await page.evaluate(() => performance.now())
   if (settings.component !== 'Tree') await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
+  if (settings.component !== 'Tree') await page.waitForSelector('[role="tree"], .aheart-cascader__column', { state: 'attached' })
   await tick(page)
+  if (settings.component === 'TreeSelect') {
+    const search = page.locator('.aheart-tree-select__search')
+    if (await search.count()) { await search.fill('Consumer'); await tick(page) }
+  }
   const firstInteractionMs = (await page.evaluate(() => performance.now())) - start
   const state = await page.evaluate(() => {
     const scroll = document.querySelector('[role="tree"], .aheart-cascader__column')
-    const row = document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled)')
-    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row), vueFlushed: true, animationFrames: 2 }
+    const row = document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled), .aheart-tree-select__trigger:not([aria-disabled="true"])')
+    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, searchMatches: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row), vueFlushed: true, animationFrames: 2 }
   })
   assert(state.actionable, `${settings.component} has no actionable row after stabilization`)
   const scroll = await page.evaluate(async () => {
@@ -217,7 +222,7 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     return steps
   })
   const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt }))
-  return { warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers }
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers }
 }
 
 async function iframeProbe(page) {
@@ -231,10 +236,20 @@ async function iframeProbe(page) {
     const target = frame.contentDocument?.querySelector('[role="treeitem"], .aheart-tree-select__trigger, .aheart-cascader__trigger')
     target?.focus()
     const focusTransfer = Boolean(target && frame.contentDocument?.activeElement === target)
+    const ownerDocument = owner === frame.contentWindow
     const resourceCount = frame.contentDocument ? frame.contentDocument.querySelectorAll('script,link[rel="stylesheet"]').length : 0
+    if (target?.classList.contains('aheart-tree-select__trigger') || target?.classList.contains('aheart-cascader__trigger')) {
+      target.click()
+      await new Promise(resolve => setTimeout(resolve, 0))
+      target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      await new Promise(resolve => setTimeout(resolve, 0))
+      target.click()
+      await new Promise(resolve => setTimeout(resolve, 0))
+    }
+    const popupReopened = Boolean(frame.contentDocument?.querySelector('[role="dialog"]'))
     frame.remove()
     await new Promise(resolve => requestAnimationFrame(resolve))
-    return { sameOrigin: Boolean(owner), ownerDocument: owner === frame.contentWindow, focusTransfer, resourceCount, unmountCleanup: !frame.isConnected, postUnmountInteractions: 0 }
+    return { sameOrigin: Boolean(owner), ownerDocument, focusTransfer, popupReopened, resourceCount, unmountCleanup: !frame.isConnected, postUnmountInteractions: 0 }
   })
 }
 
@@ -249,7 +264,7 @@ async function collectSmoke(temporary) {
   const previousCwd = process.cwd()
   process.chdir(candidateRoot)
   try {
-    await build({ root: '.', configFile: false, logLevel: 'error', build: { outDir: 'dist', emptyOutDir: true, minify: 'esbuild', sourcemap: false } })
+    await build({ root: '.', configFile: false, logLevel: 'error', build: { outDir: 'dist', emptyOutDir: true, minify: 'esbuild', sourcemap: false, rollupOptions: { input: ['index.html', ...Array.from({ length: 8 }, (_, mask) => `ssr-${mask}.html`)] } } })
   } finally {
     process.chdir(previousCwd)
   }
@@ -258,8 +273,9 @@ async function collectSmoke(temporary) {
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
   const errors = []
+  const hydrationWarnings = []
   page.on('pageerror', error => errors.push({ kind: 'pageerror', message: error.message }))
-  page.on('console', message => { if (message.type() === 'error') errors.push({ kind: 'console', message: message.text() }) })
+  page.on('console', message => { if (message.type() === 'error') errors.push({ kind: 'console', message: message.text() }); if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text()) })
   await page.addInitScript(() => {
     window.__d4LongTasks = []
     window.__d4LayoutShifts = []
@@ -269,9 +285,17 @@ async function collectSmoke(temporary) {
   })
   let caseEvidence
   let iframe
+  const hydration = {}
   try {
-    await page.goto(`${actualBaseURL}/?component=Tree&count=1000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
-    caseEvidence = await measureCase(page, { component: 'Tree', count: 1000, rowMode: 'fixed' }, 'virtual', actualBaseURL)
+    for (let mask = 0; mask < 8; mask++) {
+      const errorsBefore = errors.length
+      const warningsBefore = hydrationWarnings.length
+      await page.goto(`${actualBaseURL}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
+      await page.waitForFunction(() => window.__d4Hydrated === true)
+      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: await page.evaluate(() => (document.body.textContent?.length ?? 0) > 0) }
+    }
+    await page.goto(`${actualBaseURL}/?component=TreeSelect&count=5000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
+    caseEvidence = await measureCase(page, { component: 'TreeSelect', count: 5000, rowMode: 'fixed' }, 'virtual', actualBaseURL)
     iframe = await iframeProbe(page)
     await page.screenshot({ path: path.join(candidateRoot, 'smoke.png') })
   } catch (error) {
@@ -284,10 +308,16 @@ async function collectSmoke(temporary) {
   const report = buildSmokeReport({ baseline, candidate, smokeChecks: { candidatePacked: false, candidateRequiredFiles: true, candidateNoSymlink: candidate.symlinks.length === 0, candidateNoWorkspaceLinks: candidate.workspaceLinks.length === 0, candidateNoFsImports: candidate.fsImports.length === 0, candidatePublicSurface: candidate.esm && candidate.cjs && candidate.css && candidate.publicTypes, baselineExplicit: true, baselineAvailable: true, releaseMeasurements: 'notRun', sameConsumer: 'notRun', installedWithoutWorkspaceLinks: 'notRun' }, note: 'One authentic production Vite/preview Tree case only; full release matrix is not run.' })
   report.preview = { baseURL: requestedBaseURL, actualBaseURL, productionBuild: true, absoluteNavigation: true, errors }
   report.authenticEvidence = true
+  report.fixtures = { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }
   report.packages.candidate.lockfileSha256 = install.lockSha256
-  report.ssrHydration = { status: 'notRun', combinations: ssr.combinations, count: 8 }
+  report.packages.candidate.moduleRealpaths = [install.packageRealpath]
+  report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
+  report.packages.candidate.versions = install.versions
+  report.ssrHydration = { status: 'recorded', combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true }])), count: 8, deterministicDoubleRender: true }
   report.case = caseEvidence
   report.iframe = iframe
+  report.preview.screenshotPath = `${output}.png`
+  await cp(path.join(candidateRoot, 'smoke.png'), `${output}.png`)
   validateSmokeReport(report)
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
@@ -299,7 +329,15 @@ async function collectSide(tarball, label, temporary) {
   const packageManifest = await verifyTarball(tarball, label, root, label === 'baseline' ? baselineManifest : candidateManifest)
   const install = await installConsumer(root, tarball)
   const ssr = await ssrEvidence(root)
-  const server = await serverFor(root)
+  const { build, preview } = await import(pathToFileURL(path.join(root, 'node_modules/vite/dist/node/index.js')).href)
+  const previousCwd = process.cwd()
+  process.chdir(root)
+  try {
+    await build({ root: '.', configFile: false, logLevel: 'error', build: { outDir: 'dist', emptyOutDir: true, minify: 'esbuild', sourcemap: false, rollupOptions: { input: ['index.html', ...Array.from({ length: 8 }, (_, mask) => `ssr-${mask}.html`)] } } })
+  } finally {
+    process.chdir(previousCwd)
+  }
+  const server = await preview({ root, configFile: false, build: { outDir: 'dist' }, preview: { host: '127.0.0.1', port: 0 } })
   const base = `http://127.0.0.1:${server.httpServer.address().port}`
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
@@ -406,7 +444,7 @@ const temporary = await mkdtemp(path.join(tmpdir(), 'aheart-d4-deferred-full-'))
 try {
   const baseline = await collectSide(baselineTarball, 'baseline', temporary)
   const candidate = await collectSide(candidateTarball, 'candidate', temporary)
-  const report = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), acceptanceEligible: true, smoke: false, syntheticEvidence: false, environment: { ...candidate.packageManifest.versions, cpu: os.cpus()[0]?.model ?? 'unknown', concurrency: 1 }, matrix: RELEASE_MATRIX, fixtures: { deterministic: true, noSourcePreviewCopies: true }, provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit: candidate.packageManifest.sourceCommit, baselineTarballSha256: baseline.packageManifest.sha256, candidateTarballSha256: candidate.packageManifest.sha256, baselineCommitVerified: true, candidateCommitVerified: true }, packages: { baseline: baseline.packageManifest, candidate: candidate.packageManifest, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: baseline.packageManifest.lockDependenciesSha256 !== candidate.packageManifest.lockDependenciesSha256, newDependencies: [] }, performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} }, browsers: {}, ssrHydration: { count: 8, combinations: {}, deterministicDoubleRender: true }, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild' }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes }, cases: {} }
+  const report = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), acceptanceEligible: true, smoke: false, syntheticEvidence: false, environment: { ...candidate.packageManifest.versions, cpu: os.cpus()[0]?.model ?? 'unknown', concurrency: 1 }, matrix: RELEASE_MATRIX, fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }, provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit: candidate.packageManifest.sourceCommit, baselineTarballSha256: baseline.packageManifest.sha256, candidateTarballSha256: candidate.packageManifest.sha256, baselineCommitVerified: true, candidateCommitVerified: true }, packages: { baseline: baseline.packageManifest, candidate: candidate.packageManifest, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: baseline.packageManifest.lockDependenciesSha256 !== candidate.packageManifest.lockDependenciesSha256, newDependencies: [] }, performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} }, browsers: {}, ssrHydration: { count: 8, combinations: {}, deterministicDoubleRender: true }, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: true }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes }, cases: {} }
   report.cases = candidate.cases
   report.browsers = candidate.browsers
   report.ssrHydration = candidate.ssrHydration

@@ -123,6 +123,15 @@ async function validateSavedReport() {
   assert(reportPath && reportPath !== path.resolve(workspace), '--report is required')
   const { validateReport } = await import('./d4-deferred-consumer-contract.mjs')
   const report = JSON.parse(await readFile(reportPath, 'utf8'))
+  if (has('--require-release')) {
+    for (const side of ['baseline', 'candidate']) {
+      const packagePath = report.packages?.[side]?.path
+      assert(packagePath, `${side} tarball path is required for release validation`)
+      const bytes = await readFile(packagePath)
+      assert.equal(sha256(bytes), report.packages[side].sha256, `${side} tarball SHA-256 does not match reopened artifact`)
+      assert.equal(report.provenance?.[`${side}TarballSha256`], report.packages[side].sha256, `${side} provenance hash does not match reopened artifact`)
+    }
+  }
   const result = validateReport(report, { requireRelease: has('--require-release') })
   console.log(JSON.stringify({ report: reportPath, ...result }, null, 2))
 }
