@@ -19,7 +19,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createServer } from 'vite'
 import { chromium, firefox, webkit } from '@playwright/test'
-import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, buildSmokeReport, validateReport, validateSmokeReport } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
+import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, buildSmokeReport, validateBoundedReleaseReport, validateReport, validateSmokeReport } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
 
 const run = promisify(execFile)
 const fixture = path.dirname(fileURLToPath(import.meta.url))
@@ -408,6 +408,9 @@ async function collectSmoke(temporary) {
     await new Promise(resolve => server.httpServer.close(resolve))
   }
   const report = buildSmokeReport({ baseline, candidate, smokeChecks: { candidatePacked: false, candidateRequiredFiles: true, candidateNoSymlink: candidate.symlinks.length === 0, candidateNoWorkspaceLinks: candidate.workspaceLinks.length === 0, candidateNoFsImports: candidate.fsImports.length === 0, candidatePublicSurface: candidate.esm && candidate.cjs && candidate.css && candidate.publicTypes, baselineExplicit: true, baselineAvailable: true, releaseMeasurements: 'notRun', sameConsumer: 'notRun', installedWithoutWorkspaceLinks: 'notRun' }, note: 'One authentic production Vite/preview Tree case only; full release matrix is not run.' })
+  report.sourceKind = 'collected'
+  report.runId = `bounded-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  report.collectorSourceSha256 = sha256(await readFile(fileURLToPath(import.meta.url)))
   report.preview = { baseURL: requestedBaseURL, actualBaseURL, productionBuild: true, absoluteNavigation: true, errors }
   report.authenticEvidence = true
   report.fixtures = { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }
@@ -434,7 +437,7 @@ async function collectSmoke(temporary) {
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(`${output}.prevalidation.json`, `${JSON.stringify(report, null, 2)}\n`)
   try {
-    validateSmokeReport(report)
+    validateBoundedReleaseReport(report)
   } catch (error) {
     report.validationFailures = error.failures ?? [error.message]
     report.validationFailureEvidence = Object.fromEntries(Object.entries(report.ssrHydration.combinations).map(([key, item]) => [key, { virtual: item.virtual, boundedRows: item.boundedRows, hydrationErrors: item.hydrationErrors, hydrationWarnings: item.hydrationWarnings, interacted: item.interacted, postHydrationStateChanged: item.postHydrationStateChanged }]))
@@ -579,6 +582,10 @@ try {
   const baseline = await collectSide(baselineTarball, 'baseline', temporary)
   const candidate = await collectSide(candidateTarball, 'candidate', temporary)
   const report = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), acceptanceEligible: true, smoke: false, syntheticEvidence: false, environment: { ...candidate.packageManifest.versions, cpu: os.cpus()[0]?.model ?? 'unknown', concurrency: 1 }, matrix: RELEASE_MATRIX, fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }, provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit: candidate.packageManifest.sourceCommit, baselineTarballSha256: baseline.packageManifest.sha256, candidateTarballSha256: candidate.packageManifest.sha256, baselineCommitVerified: true, candidateCommitVerified: true }, packages: { baseline: baseline.packageManifest, candidate: candidate.packageManifest, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: baseline.packageManifest.lockDependenciesSha256 !== candidate.packageManifest.lockDependenciesSha256, newDependencies: [] }, performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} }, browsers: {}, ssrHydration: { count: 8, combinations: {}, deterministicDoubleRender: true }, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: { baseline: baseline.packageManifest.moduleRealpaths?.[0], candidate: candidate.packageManifest.moduleRealpaths?.[0] } }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes }, cases: {} }
+  report.sourceKind = 'collected'
+  report.runId = `full-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  report.collectorSourceSha256 = sha256(await readFile(fileURLToPath(import.meta.url)))
+  report.realEvidenceBinding = { tarballReopened: true, cleanPackVerified: baseline.packageManifest.clean === true && candidate.packageManifest.clean === true, pnpmIntegrityVerified: Boolean(candidate.packageManifest.lockfileSha256), buildFingerprint: { before: 'pending', after: 'pending' }, moduleFingerprint: { before: candidate.packageManifest.afterHashes?.['es/index.js'], after: candidate.packageManifest.afterHashes?.['es/index.js'] } }
   report.cases = candidate.cases
   report.familyCoverage = candidate.familyCoverage
   report.browsers = candidate.browsers

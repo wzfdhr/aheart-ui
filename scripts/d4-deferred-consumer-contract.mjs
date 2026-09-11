@@ -344,6 +344,7 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     throw new Error('D4 deferred consumer contract failed: smoke, ineligible or synthetic provenance reports cannot pass release validation')
   }
   ensure(report?.schema === 'd4-deferred-consumer/v1', 'schema must be d4-deferred-consumer/v1', failures)
+  if (requireRelease) ensure(report?.sourceKind === 'collected' && report.runId && report.collectorSourceSha256 && report?.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildFingerprint?.before && report.realEvidenceBinding.moduleFingerprint?.before, 'release report must carry collected source/run/artifact bindings', failures)
   ensure(report?.syntheticEvidence !== true || requireRelease !== true, 'synthetic fixture provenance cannot pass release validation', failures)
   ensure(report?.provenance?.baselineCommit === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitExpected === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitVerified === true && report?.provenance?.candidateCommitVerified === true, 'baseline/candidate commit provenance is missing or does not match the approved baseline', failures)
   ensure(report?.provenance?.baselineTarballSha256 === report?.packages?.baseline?.sha256 && report?.provenance?.candidateTarballSha256 === report?.packages?.candidate?.sha256, 'tarball hash provenance does not match package manifests', failures)
@@ -433,4 +434,26 @@ export function validateSmokeReport(report) {
     throw error
   }
   return { status: 'passed', acceptanceEligible: false, failures: [] }
+}
+
+/** Validate the bounded, release-shaped subset using the same raw evidence rules as full release. */
+export function validateBoundedReleaseReport(report) {
+  const failures = []
+  ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'bounded report must be smoke=true and acceptanceEligible=false', failures)
+  ensure(report?.sourceKind === 'collected' && report.runId && report.collectorSourceSha256, 'bounded report collector provenance is missing', failures)
+  ensure(report?.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildFingerprint?.before && report.realEvidenceBinding.moduleFingerprint?.before, 'bounded artifact binding is missing', failures)
+  ensure(report?.packages?.candidate?.path && report.packages.candidate.sha256 && report.provenance?.candidateTarballSha256 === report.packages.candidate.sha256, 'bounded candidate artifact binding is missing', failures)
+  const timing = report.case?.timing
+  ensure(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false && timing.targetRect?.intersectsViewport === true && timing.targetRect.enabled === true && timing.targetRect.pointerEvents !== 'none', 'bounded first interaction raw timing/target evidence is invalid', failures)
+  const steps = report.case?.scroll
+  ensure(Array.isArray(steps) && steps.length === RELEASE_MATRIX.scrollSteps, 'bounded report must contain forty raw scroll steps', failures)
+  if (Array.isArray(steps)) {
+    ensure(steps.every((step, index) => step.offset === (index < 20 ? index / 19 : (39 - index) / 19) && step.actualOffset >= 0 && step.timestamp >= 0 && step.coverageComplete === true && step.viewportRect?.height > 0 && step.rowRects?.length > 0 && step.rowRects.every(row => row.height > 0 && row.intersectsViewport !== false && row.nextTickAt <= row.rafAt?.[0] && row.rafAt?.[0] <= row.rafAt?.[1])), 'bounded raw geometry cannot be recomputed from rowRects/viewport', failures)
+  }
+  ensure(report.case?.observers?.disconnected === true && report.case.observers.rawRecomputed === true && report.case.observers.rawRounds?.every(round => round.startedAt < round.firstWriteAt && round.lastWriteAt < round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt && round.entries.every(entry => entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt)), 'bounded observer raw rounds are not drained/recomputed', failures)
+  ensure(report.familyCoverage && Object.values(report.familyCoverage).every(item => item.scenarios?.every(scenario => scenario.executed === true && scenario.eventRecords?.length > 0 && scenario.beforeStateHash !== scenario.afterStateHash)), 'bounded family evidence is missing raw event/state records', failures)
+  ensure(report.ssrHydration?.status === 'recorded' && Object.values(report.ssrHydration.combinations ?? {}).length === 8 && Object.values(report.ssrHydration.combinations).every(item => item.cjsRender === true && item.initialIdSha256 === item.hydratedIdSha256 && item.postHydrationInteraction === true && item.postHydrationStateChanged === true && item.businessEventsAfterHydration > 0), 'bounded SSR/hydration raw evidence is incomplete', failures)
+  ensure(report.iframe?.ownerDocument === true && report.iframe.teleportOwnerDocument === true && report.iframe.resourceCounts?.before > 0 && report.iframe.resourceCounts.after === 0 && report.iframe.postUnmountInteractions === 0, 'bounded iframe lifecycle evidence is incomplete', failures)
+  if (failures.length) { const error = new Error(`D4 bounded release contract failed: ${failures.join('; ')}`); error.failures = failures; throw error }
+  return { status: 'passed-ineligible', acceptanceEligible: false, failures: [] }
 }
