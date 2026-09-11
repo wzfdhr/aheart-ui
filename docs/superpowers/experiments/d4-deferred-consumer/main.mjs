@@ -14,5 +14,7 @@ const style = document.createElement('style')
 style.textContent = `[data-d4-row-mode="coarse"] .aheart-tree__node,[data-d4-row-mode="coarse"] .aheart-cascader__option{min-block-size:44px;}[data-d4-row-mode="dynamic"] .aheart-tree__node,[data-d4-row-mode="dynamic"] .aheart-cascader__option{white-space:normal;}`
 document.head.append(style)
 window.__d4MountStart = performance.now()
-createApp(createConsumerApp(settings)).mount('#app')
+const app = createApp(createConsumerApp(settings))
+app.mount('#app')
+window.__d4Unmount = () => app.unmount()
 window.__d4Ready = true

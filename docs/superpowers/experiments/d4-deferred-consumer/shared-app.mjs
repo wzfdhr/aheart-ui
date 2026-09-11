@@ -17,7 +17,7 @@ export function cascaderData(count, rowMode) {
   return Array.from({ length: count }, (_, index) => ({
     value: `consumer-${count}-${index}`,
     label: rowMode === 'dynamic' && index % 10 === 0 ? `Wrapped Cascader option ${index} with deterministic long content` : `Cascader option ${index}`,
-    isLeaf: true
+    isLeaf: index !== 0
   }))
 }
 
@@ -32,7 +32,7 @@ export function componentProps(component, count, rowMode, virtual) {
   const virtualValue = virtual ? { height: component === 'Tree' ? 320 : 256, estimateSize: component === 'Cascader' ? 32 : 28, overscan: 4 } : false
   if (component === 'Tree') return { treeData: treeData(count, rowMode), defaultExpandAll: count === 10000, virtual: virtualValue }
   if (component === 'TreeSelect') return { treeData: treeData(count, rowMode), defaultOpen: false, showSearch: true, treeCheckable: true, virtual: virtualValue }
-  return { options: cascaderData(count, rowMode), defaultOpen: false, showSearch: true, virtual: virtualValue }
+  return { options: cascaderData(count, rowMode), defaultOpen: false, showSearch: true, virtual: virtualValue, loadData: async option => [{ value: `${option.value}-lazy`, label: `Loaded ${option.label}`, isLeaf: true }] }
 }
 
 export function createConsumerApp(settings) {

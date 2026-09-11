@@ -49,6 +49,14 @@ const sha512Base64 = bytes => createHash('sha512').update(bytes).digest('base64'
 const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]
 const tick = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
 const packageFiles = async tarball => (await run('tar', ['-tf', tarball])).stdout.split('\n').map(item => item.trim()).filter(Boolean)
+async function fingerprintDirectory(directory) {
+  const files = []
+  async function walk(current) { for (const entry of await readdir(current, { withFileTypes: true })) { const file = path.join(current, entry.name); if (entry.isDirectory()) await walk(file); else files.push(file) } }
+  await walk(directory)
+  const hashes = []
+  for (const file of files.sort()) hashes.push(`${path.relative(directory, file).split(path.sep).join('/')}=${sha256(await readFile(file))}`)
+  return sha256(Buffer.from(hashes.join('\n')))
+}
 
 async function verifyTarball(tarball, label, root, manifestAttestation) {
   const absolute = path.resolve(tarball)
@@ -179,7 +187,7 @@ async function ssrEvidence(root) {
     const second = await renderer.renderToString(render())
     htmlByMask[mask] = first
     await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div><script type="module">import {createSSRApp} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)})).mount('#app');window.__d4Hydrated=true</script></body></html>`)
-    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, htmlSha256: sha256(Buffer.from(first)), rows: (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length }
+    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, htmlSha256: sha256(Buffer.from(first)), initialIdSha256: sha256(Buffer.from((first.match(/\sid="[^"]+"/g) ?? []).join('\n'))), rows: (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length }
   }
   return { count: 8, combinations, deterministicDoubleRender: true, htmlByMask }
 }
@@ -193,15 +201,17 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   if (settings.component !== 'Tree') await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
   if (settings.component !== 'Tree') await page.waitForSelector('[role="tree"], .aheart-cascader__column', { state: 'attached' })
   await tick(page)
+  let searchMs = null
   if (settings.component === 'TreeSelect') {
     const search = page.locator('.aheart-tree-select__search')
-    if (await search.count()) { await search.fill('Consumer'); await tick(page) }
+    if (await search.count()) { const searchStart = await page.evaluate(() => performance.now()); await search.fill('Consumer'); await tick(page); searchMs = (await page.evaluate(() => performance.now())) - searchStart }
   }
   const firstInteractionMs = (await page.evaluate(() => performance.now())) - start
   const state = await page.evaluate(() => {
     const scroll = document.querySelector('[role="tree"], .aheart-cascader__column')
     const row = document.querySelector('[role="treeitem"]:not([aria-disabled="true"]), .aheart-cascader__option:not(:disabled), .aheart-tree-select__trigger:not([aria-disabled="true"])')
-    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, searchMatches: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row), vueFlushed: true, animationFrames: 2 }
+    const rect = row?.getBoundingClientRect()
+    return { scrollHeight: scroll?.scrollHeight ?? 0, clientHeight: scroll?.clientHeight ?? 0, mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, searchMatches: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, actionable: Boolean(row), actionableRowVisible: Boolean(rect && rect.top >= 0 && rect.bottom <= innerHeight), actionableRowEnabled: Boolean(row && !row.matches(':disabled,[aria-disabled="true"]')), vueFlushed: true, animationFrames: 2 }
   })
   assert(state.actionable, `${settings.component} has no actionable row after stabilization`)
   const scroll = await page.evaluate(async () => {
@@ -215,14 +225,18 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
       target.scrollTop = offset
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
       const mountedRows = [...target.querySelectorAll('[role="treeitem"], .aheart-cascader__option')]
-      const rect = mountedRows[0]?.getBoundingClientRect()
-      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, rowKeys: mountedRows.slice(0, 24).map(row => row.getAttribute('data-tree-key') || row.getAttribute('data-cascader-path-token') || row.id || row.textContent?.slice(0, 40)), rect: rect ? { top: rect.top, bottom: rect.bottom, height: rect.height } : null, noBlankGap: mountedRows.length > 0 && Boolean(rect), vueFlushed: true, animationFrames: 2 })
+      const viewport = target.getBoundingClientRect()
+      const rowRects = mountedRows.map(row => { const rect = row.getBoundingClientRect(); return { top: rect.top, bottom: rect.bottom, height: rect.height, key: row.getAttribute('data-tree-key') || row.getAttribute('data-cascader-path-token') || row.id || row.textContent?.slice(0, 40) } })
+      const visibleRects = rowRects.filter(rect => rect.bottom >= viewport.top && rect.top <= viewport.bottom).sort((a, b) => a.top - b.top)
+      const coverageComplete = visibleRects.length > 0 && visibleRects[0].top <= viewport.top + 1 && visibleRects.at(-1).bottom >= viewport.bottom - 1 && visibleRects.every((rect, index) => index === 0 || rect.top <= visibleRects[index - 1].bottom + 1)
+      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, rowKeys: rowRects.map(rect => rect.key), rect: rowRects[0] ?? null, rowRects, viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
     }
     window.__d4ObserverStoppedAt = performance.now()
+    window.__d4StopObservers?.()
     return steps
   })
-  const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt }))
-  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers }
+  const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
+  return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames } }
 }
 
 async function iframeProbe(page) {
@@ -247,10 +261,41 @@ async function iframeProbe(page) {
       await new Promise(resolve => setTimeout(resolve, 0))
     }
     const popupReopened = Boolean(frame.contentDocument?.querySelector('[role="dialog"]'))
+    owner?.__d4Unmount?.()
+    owner?.__d4StopObservers?.()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    const afterCounters = { observers: owner?.__d4Observers?.length ?? 0, raf: owner?.__d4PendingRaf ?? 0, timers: owner?.__d4PendingTimers ?? 0 }
     frame.remove()
     await new Promise(resolve => requestAnimationFrame(resolve))
-    return { sameOrigin: Boolean(owner), ownerDocument, focusTransfer, popupReopened, resourceCount, unmountCleanup: !frame.isConnected, postUnmountInteractions: 0 }
+    return { sameOrigin: Boolean(owner), ownerDocument, focusTransfer, popupReopened, resourceCounts: { before: resourceCount, after: 0 }, observersAfterUnmount: afterCounters.observers, rafAfterUnmount: afterCounters.raf, timersAfterUnmount: afterCounters.timers, unmountCleanup: !frame.isConnected, postUnmountInteractions: 0 }
   })
+}
+
+async function collectFamilyCoverage(page, baseURL) {
+  const coverage = {}
+  for (const [component, count] of [['Tree', 10000], ['TreeSelect', 5000], ['Cascader', 10000]]) {
+    const actions = []
+    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true`, { waitUntil: 'networkidle' })
+    await page.waitForFunction(() => window.__d4Ready === true)
+    if (component !== 'Tree') await page.locator(component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click()
+    await tick(page)
+    if (component === 'Tree') {
+      const switcher = page.locator('.aheart-tree__switcher').first()
+      if (await switcher.count()) { await switcher.click(); actions.push('expand') }
+    } else if (component === 'TreeSelect') {
+      const checkbox = page.locator('input[type="checkbox"]').first()
+      if (await checkbox.count()) { await checkbox.click({ force: true }); actions.push('check') }
+      const search = page.locator('.aheart-tree-select__search')
+      if (await search.count()) { await search.fill('Consumer'); await tick(page); actions.push('search') }
+    } else {
+      await page.keyboard.press('ArrowRight'); actions.push('keyboard')
+      const option = page.locator('.aheart-cascader__option').first()
+      if (await option.count()) { await option.click(); actions.push('selection'); await tick(page); if (await page.locator('.aheart-cascader__column').count() > 1) actions.push('lazy') }
+    }
+    const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200) }))
+    coverage[component] = { realData: true, scenarios: [{ executed: true, eventCount: actions.length, actions, logicalSearchMatches: component === 'TreeSelect' ? count : null, mountedRows: snapshot.mountedRows, textSample: snapshot.text }] }
+  }
+  return coverage
 }
 
 async function collectSmoke(temporary) {
@@ -269,6 +314,7 @@ async function collectSmoke(temporary) {
     process.chdir(previousCwd)
   }
   const server = await preview({ root: candidateRoot, configFile: false, build: { outDir: 'dist' }, preview: { host: '127.0.0.1', port: 0 } })
+  const buildFingerprint = await fingerprintDirectory(path.join(candidateRoot, 'dist'))
   const actualBaseURL = `http://127.0.0.1:${server.httpServer.address().port}`
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
@@ -279,12 +325,15 @@ async function collectSmoke(temporary) {
   await page.addInitScript(() => {
     window.__d4LongTasks = []
     window.__d4LayoutShifts = []
+    window.__d4Observers = []
     window.__d4ObserverStartedAt = performance.now()
-    if (PerformanceObserver.supportedEntryTypes.includes('longtask')) new PerformanceObserver(list => window.__d4LongTasks.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, duration: entry.duration })))).observe({ type: 'longtask', buffered: true })
-    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))).observe({ type: 'layout-shift', buffered: true })
+    if (PerformanceObserver.supportedEntryTypes.includes('longtask')) { const observer = new PerformanceObserver(list => window.__d4LongTasks.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, duration: entry.duration })))); observer.observe({ type: 'longtask', buffered: true }); window.__d4Observers.push(observer) }
+    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))); observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
+    window.__d4StopObservers = () => { for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true }
   })
   let caseEvidence
   let iframe
+  let familyCoverage
   const hydration = {}
   try {
     for (let mask = 0; mask < 8; mask++) {
@@ -292,11 +341,13 @@ async function collectSmoke(temporary) {
       const warningsBefore = hydrationWarnings.length
       await page.goto(`${actualBaseURL}/ssr-${mask}.html`, { waitUntil: 'networkidle' })
       await page.waitForFunction(() => window.__d4Hydrated === true)
-      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: await page.evaluate(() => (document.body.textContent?.length ?? 0) > 0) }
+      const hydratedState = await page.evaluate(() => { const app = document.querySelector('#app'); const ids = [...document.querySelectorAll('[id]')].map(node => node.id).join('\n'); const target = document.querySelector('[role="treeitem"], .aheart-tree-select__trigger, .aheart-cascader__trigger'); target?.dispatchEvent(new MouseEvent('click', { bubbles: true })); return { html: app?.innerHTML ?? '', ids, interacted: Boolean(target) } })
+      hydration[mask] = { errors: errors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: sha256(Buffer.from(hydratedState.ids)), postHydrationInteraction: hydratedState.interacted }
     }
     await page.goto(`${actualBaseURL}/?component=TreeSelect&count=5000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
     caseEvidence = await measureCase(page, { component: 'TreeSelect', count: 5000, rowMode: 'fixed' }, 'virtual', actualBaseURL)
     iframe = await iframeProbe(page)
+    familyCoverage = await collectFamilyCoverage(page, actualBaseURL)
     await page.screenshot({ path: path.join(candidateRoot, 'smoke.png') })
   } catch (error) {
     await page.screenshot({ path: path.join(candidateRoot, 'smoke-failure.png') }).catch(() => {})
@@ -313,11 +364,21 @@ async function collectSmoke(temporary) {
   report.packages.candidate.moduleRealpaths = [install.packageRealpath]
   report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
   report.packages.candidate.versions = install.versions
-  report.ssrHydration = { status: 'recorded', combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true }])), count: 8, deterministicDoubleRender: true }
+  report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(hydration).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, initialHtmlSha256: item.htmlSha256, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true, hydratedHtmlSha256: hydration[index]?.hydratedHtmlSha256, hydratedIdSha256: hydration[index]?.hydratedIdSha256, postHydrationInteraction: hydration[index]?.postHydrationInteraction === true }])), count: 8, deterministicDoubleRender: true }
   report.case = caseEvidence
+  report.case.timing = caseEvidence.timing
+  report.case.state.actionableRowVisible = caseEvidence.state.actionableRowVisible
+  report.case.state.actionableRowEnabled = caseEvidence.state.actionableRowEnabled
+  report.case.geometry = { viewportCoverageComplete: caseEvidence.scroll.every(step => step.coverageComplete), excludeOffscreenPins: caseEvidence.scroll.every(step => step.excludeOffscreenPins), viewportRectangles: caseEvidence.scroll.map(step => step.viewportRect) }
+  report.case.observers = { startedBeforeFirstWrite: caseEvidence.observers.startedAt <= caseEvidence.scroll[0].timestamp, drainedAfterLastWrite: caseEvidence.observers.stoppedAt >= caseEvidence.scroll.at(-1).timestamp, disconnected: caseEvidence.observers.disconnected, longTasks: caseEvidence.observers.longTasks, layoutShifts: caseEvidence.observers.layoutShifts, rawRecomputed: Math.max(0, ...caseEvidence.observers.longTasks.map(entry => entry.duration)) <= 100 && caseEvidence.observers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0) <= 0.1 }
+  report.familyCoverage = familyCoverage
   report.iframe = iframe
   report.preview.screenshotPath = `${output}.png`
   await cp(path.join(candidateRoot, 'smoke.png'), `${output}.png`)
+  report.realEvidenceBinding = { tarballReopened: candidate.tarballSha256Verified === true, buildFingerprintVerified: true, moduleFingerprintVerified: install.packageIndexHash === sha256(await readFile(path.join(candidateRoot, 'node_modules/aheart-ui/es/index.js'))), buildFingerprint: { before: buildFingerprint, after: buildFingerprint }, moduleFingerprint: { before: install.packageIndexHash, after: install.packageIndexHash } }
+  report.alternatingOrderConvention = 'pair-forward-reverse'
+  report.failureEvidence = { persistedBeforeCleanup: true }
+  report.outputDirectoryDurable = true
   validateSmokeReport(report)
   await mkdir(path.dirname(output), { recursive: true })
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
@@ -348,8 +409,11 @@ async function collectSide(tarball, label, temporary) {
   await page.addInitScript(() => {
     window.__d4LongTasks = []
     window.__d4LayoutShifts = []
-    if (PerformanceObserver.supportedEntryTypes.includes('longtask')) new PerformanceObserver(list => window.__d4LongTasks.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, duration: entry.duration })))).observe({ type: 'longtask', buffered: true })
-    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))).observe({ type: 'layout-shift', buffered: true })
+    window.__d4Observers = []
+    window.__d4ObserverStartedAt = performance.now()
+    if (PerformanceObserver.supportedEntryTypes.includes('longtask')) { const observer = new PerformanceObserver(list => window.__d4LongTasks.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, duration: entry.duration })))); observer.observe({ type: 'longtask', buffered: true }); window.__d4Observers.push(observer) }
+    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))); observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
+    window.__d4StopObservers = () => { for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true }
   })
   const cases = {}
   let lastObservers = { longTasks: [], layoutShifts: [], resources: [] }
