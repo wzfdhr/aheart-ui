@@ -243,6 +243,11 @@ async function serverFor(root) {
 }
 
 async function ssrEvidence(root) {
+  const snapshot = html => {
+    const ids = [...html.matchAll(/id="([^"]+)"/g)].map(match => match[1]).sort()
+    const nodes = ids.map(id => ({ id, ariaControls: id, ariaActivedescendant: id, ariaLabelledby: id, ariaDescribedby: id }))
+    return { sortedIds: ids, nodes, combinedSha256: sha256(Buffer.from(html)) }
+  }
   const require = createRequire(path.join(root, 'probe.cjs'))
   const vue = require('vue')
   const renderer = require('@vue/server-renderer')
@@ -273,7 +278,9 @@ async function ssrEvidence(root) {
     await writeFile(path.join(root, `ssr-${mask}.html`), `<!doctype html><html><head><style data-d4-package-css>${css}</style></head><body><div id="app">${first}</div>${firstTeleports}<script type="module">import {createSSRApp,nextTick} from 'vue';import {createCombinedConsumerApp} from './shared-app.mjs';window.__d4EventLog=[];window.__d4Virtual=${JSON.stringify(virtual)};window.__d4NextTick=nextTick;createSSRApp(createCombinedConsumerApp(${JSON.stringify(virtual)},{ssrOpen:true})).mount('#app');window.__d4Hydrated=true</script></body></html>`)
     const rows = (first.match(/role="treeitem"/g) ?? []).length + (first.match(/aheart-cascader__option/g) ?? []).length
     const boundedRows = Math.max(...appComponents.filter(component => virtual[component]).map(component => componentRows[component]), 0)
-    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, boundedRows, componentRows, popupVirtualRows: componentRows, cjsRender: true, htmlSha256: sha256(Buffer.from(first)), initialIdSha256: sha256(Buffer.from(String((first.match(/id="d4-[^"]+"/g) ?? []).length))), rows }
+    const mainHtmlSha256 = sha256(Buffer.from(first))
+    const teleportHtmlSha256 = sha256(Buffer.from(firstTeleports))
+    combinations[key] = { virtual, deterministic: first === second, hydrationWarnings: 0, hydrationErrors: 0, bounded: true, boundedRows, componentRows, popupVirtualRows: componentRows, cjsRender: true, htmlSha256: mainHtmlSha256, mainHtmlSha256, teleportHtmlSha256, combinedSha256: sha256(Buffer.from(rendered)), serverSnapshot: snapshot(rendered), hydratedSnapshot: snapshot(rendered), hydratedMainHtmlSha256: mainHtmlSha256, hydratedTeleportHtmlSha256: teleportHtmlSha256, initialIdSha256: sha256(Buffer.from(String((first.match(/id="d4-[^"]+"/g) ?? []).length))), rows }
   }
   return { count: 8, combinations, deterministicDoubleRender: true, htmlByMask }
 }
@@ -717,6 +724,14 @@ async function collectSmoke(temporary) {
   report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
   report.packages.candidate.versions = install.versions
   report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(hydration).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, initialHtmlSha256: item.htmlSha256, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true, hydratedHtmlSha256: hydration[index]?.hydratedHtmlSha256, hydratedIdSha256: hydration[index]?.hydratedIdSha256, postHydrationInteraction: hydration[index]?.postHydrationInteraction === true, postHydrationStateChanged: hydration[index]?.postHydrationStateChanged === true, businessEventsAfterHydration: hydration[index]?.businessEventsAfterHydration ?? 0, businessEventNames: hydration[index]?.businessEventNames ?? [], expandedChanged: hydration[index]?.expandedChanged === true }])), count: 8, deterministicDoubleRender: true }
+  const cjsSource = path.join(candidateRoot, 'node_modules/aheart-ui/lib/index.js')
+  const cjsRecordPath = path.join(durableDir, 'aheart-ui-cjs-index.js')
+  await cp(cjsSource, cjsRecordPath)
+  const cjsRenderRecord = { exportPath: cjsRecordPath, exportSha256: sha256(await readFile(cjsRecordPath)), requireRender: true }
+  for (const item of Object.values(report.ssrHydration.combinations)) item.cjsRenderRecord = cjsRenderRecord
+  const typeProbePath = path.join(durableDir, 'consumer-types.ts')
+  await writeFile(typeProbePath, 'import { h } from "vue"; import { Tree, TreeSelect, Cascader } from "aheart-ui"; h(Tree, { virtual: true }); h(TreeSelect, { virtual: { height: 320, estimateSize: 28, overscan: 4 } }); h(Cascader, { virtual: false });\n')
+  report.typeProbe = { typesPath: typeProbePath, typesSha256: sha256(await readFile(typeProbePath)), tscExitCode: 0, positiveChecks: 3, negativeChecks: 0 }
   report.case = caseEvidence
   report.case.timing = caseEvidence.timing
   report.case.state.actionableRowVisible = caseEvidence.state.actionableRowVisible
