@@ -248,3 +248,28 @@ test('real bounded actionability and observer summaries are recomputed from raw 
     forged.case.observers.layoutShifts = [layoutShift]
   }, 'bounded validator must recompute observer max/CLS and time bounds from raw entries', /bounded observer raw rounds are not drained\/recomputed/)
 })
+
+test('real bounded build fingerprint must be reopened from the durable dist artifact', async () => {
+  const { report } = await collectRealBoundedReport()
+  await assertBoundedControlPasses(report)
+  const forged = structuredClone(report)
+  forged.realEvidenceBinding.buildFingerprint = { before: '0'.repeat(64), after: '0'.repeat(64) }
+  await assert.rejects(() => verifyArtifactBindings(forged), /build fingerprint before\/after mismatch/)
+})
+
+test('real bounded module fingerprint must be reopened from the durable module artifact', async () => {
+  const { report } = await collectRealBoundedReport()
+  await assertBoundedControlPasses(report)
+  const forged = structuredClone(report)
+  forged.realEvidenceBinding.moduleFingerprint = { before: '0'.repeat(64), after: '0'.repeat(64) }
+  await assert.rejects(() => verifyArtifactBindings(forged), /module fingerprint before\/after mismatch/)
+})
+
+test('real bounded lock fingerprint must be reopened from the durable lock artifact', async () => {
+  const { report } = await collectRealBoundedReport()
+  await assertBoundedControlPasses(report)
+  assert.ok(report.realEvidenceBinding.lockFingerprint?.before && report.realEvidenceBinding.lockFingerprint?.after, 'bounded report must expose lockFingerprint before/after')
+  const forged = structuredClone(report)
+  forged.realEvidenceBinding.lockFingerprint = { before: '0'.repeat(64), after: '0'.repeat(64) }
+  await assert.rejects(() => verifyArtifactBindings(forged), /lock fingerprint before\/after mismatch/)
+})

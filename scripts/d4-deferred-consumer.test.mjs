@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFile } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -28,10 +28,12 @@ const releaseDescriptorFixture = () => {
   report.runId = 'bounded-test-fixture'
   report.collectorSourcePath = '/artifacts/collector.mjs'
   report.collectorSourceSha256 = 'a'.repeat(64)
+  report.artifactDirectory = '/artifacts'
   report.realEvidenceBinding = {
     tarballReopened: true,
     buildFingerprint: { before: 'b'.repeat(64), after: 'c'.repeat(64) },
     moduleFingerprint: { before: 'd'.repeat(64), after: 'e'.repeat(64) },
+    lockFingerprint: { before: '8'.repeat(64), after: '9'.repeat(64) },
   }
   for (const side of ['baseline', 'candidate']) {
     report.packages[side].path = `/artifacts/${side}.tgz`
@@ -44,6 +46,8 @@ const releaseDescriptorFixture = () => {
   }
   return report
 }
+
+const deferredCollectorSource = () => readFile(path.join(process.cwd(), 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
 
 test('the contract exposes the frozen release matrix', () => {
   assert.deepEqual(RELEASE_MATRIX, {
@@ -232,6 +236,61 @@ test('full release descriptor contract rejects missing collectorSourcePath', () 
   const missingCollectorSource = releaseDescriptorFixture()
   missingCollectorSource.releaseFormat = { validatorStatus: 'passed' }
   assert.throws(() => validateReport(missingCollectorSource, { requireRelease: true }), /collectorSourcePath|collector source path/i)
+})
+
+test('full release descriptor contract requires a durable artifactDirectory', () => {
+  const missingArtifactDirectory = releaseDescriptorFixture()
+  missingArtifactDirectory.releaseFormat = { validatorStatus: 'passed', collectorSourcePath: missingArtifactDirectory.collectorSourcePath }
+  delete missingArtifactDirectory.artifactDirectory
+  assert.throws(() => validateReport(missingArtifactDirectory, { requireRelease: true }), /artifactDirectory|durable artifact/i)
+})
+
+test('full release descriptor contract requires a real build fingerprint', () => {
+  const missingBuild = releaseDescriptorFixture()
+  missingBuild.releaseFormat = { validatorStatus: 'passed', collectorSourcePath: missingBuild.collectorSourcePath }
+  delete missingBuild.realEvidenceBinding.buildFingerprint
+  assert.throws(() => validateReport(missingBuild, { requireRelease: true }), /release report must carry collected source\/run\/artifact bindings|build fingerprint/i)
+})
+
+test('full release descriptor contract requires a real module fingerprint', () => {
+  const missingModule = releaseDescriptorFixture()
+  missingModule.releaseFormat = { validatorStatus: 'passed', collectorSourcePath: missingModule.collectorSourcePath }
+  delete missingModule.realEvidenceBinding.moduleFingerprint
+  assert.throws(() => validateReport(missingModule, { requireRelease: true }), /release report must carry collected source\/run\/artifact bindings|module fingerprint/i)
+})
+
+test('full release descriptor contract requires a real lock descriptor and fingerprint', () => {
+  const missingLock = releaseDescriptorFixture()
+  missingLock.releaseFormat = { validatorStatus: 'passed', collectorSourcePath: missingLock.collectorSourcePath }
+  delete missingLock.realEvidenceBinding.lockFingerprint
+  delete missingLock.packages.candidate.lockPath
+  assert.throws(() => validateReport(missingLock, { requireRelease: true }), /candidate release artifact descriptors are incomplete|lock fingerprint/i)
+})
+
+test('full finalization accepts collected/validating input but only saved passed reports satisfy release validation', async () => {
+  const report = releaseDescriptorFixture()
+  report.releaseFormat = { validatorStatus: 'validating', collectorSourcePath: report.collectorSourcePath }
+  assert.doesNotThrow(() => validateReport(report), 'collector validation may receive an explicit validating state')
+  report.releaseFormat.validatorStatus = 'passed'
+  assert.doesNotThrow(() => validateReport(report, { requireRelease: true }), 'successful validation must finalize to passed before release validation')
+  const source = await deferredCollectorSource()
+  const fullBranch = source.slice(source.indexOf('\n} else {'))
+  assert.match(fullBranch, /validateReport\(report, \{ requireRelease: true, allowValidationPhase: true \}\)[\s\S]*report\.releaseFormat\.validatorStatus = 'passed'[\s\S]*await writeFile\(output/, 'collector must persist passed before the saved report is considered final')
+})
+
+test('collector resolves its workspace root to the repository and avoids docs/docs default output', async () => {
+  const source = await deferredCollectorSource()
+  assert.match(source, /new URL\('\.\.\/\.\.\/\.\.\/\.\.\/', import\.meta\.url\)/, 'collector workspace root must resolve to the repository')
+  assert.doesNotMatch(source, /path\.join\(workspace,\s*['"]docs\/docs\//, 'collector default output must not contain docs/docs')
+})
+
+test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
+  const source = await deferredCollectorSource()
+  const fullBranch = source.slice(source.indexOf('\n} else {'))
+  const failureBranch = fullBranch.slice(fullBranch.lastIndexOf('\n} catch (error) {'))
+  assert.match(failureBranch, /readFile\(output/, 'full failure handling must reopen the partial raw report')
+  assert.match(failureBranch, /validationFailures|failureEvidence/, 'full failure handling must append structured failure metadata')
+  assert.match(failureBranch, /cases|performance|partial/i, 'full failure artifact must preserve partial raw evidence instead of replacing it with a summary')
 })
 
 test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {
