@@ -152,11 +152,16 @@ test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, 
       assert.deepEqual(snapshot.sortedIds, [...snapshot.sortedIds].sort(), 'snapshot sortedIds must be actual deterministic values')
       assert.equal(new Set(snapshot.sortedIds).size, snapshot.sortedIds.length)
       const ids = new Set(snapshot.sortedIds)
-      const components = new Set(['Tree', 'TreeSelect', 'Cascader'])
-      assert.deepEqual(new Set(snapshot.nodes.map(node => node.component)), components)
-      for (const component of components) {
-        assert.ok(snapshot.nodes.some(node => node.component === component && node.kind === 'trigger'))
-        assert.ok(snapshot.nodes.some(node => node.component === component && node.kind === 'root'))
+      const expectedKinds = { Tree: ['root', 'row'], TreeSelect: ['trigger', 'root'], Cascader: ['trigger', 'root'] }
+      assert.deepEqual(new Set(snapshot.nodes.map(node => node.component)), new Set(Object.keys(expectedKinds)))
+      for (const [component, kinds] of Object.entries(expectedKinds)) {
+        for (const kind of kinds) {
+          const node = snapshot.nodes.find(item => item.component === component && item.kind === kind)
+          assert.ok(node, `${component}/${kind} must be captured from an actual rendered selector`)
+          assert.ok(typeof node.selector === 'string' && node.selector.length > 0, `${component}/${kind} must retain its actual selector provenance`)
+          const selectorPattern = component === 'Tree' ? (kind === 'row' ? /treeitem|aheart-tree__node/ : /aheart-tree/) : component === 'TreeSelect' ? (kind === 'trigger' ? /tree-select__trigger/ : /tree-select__panel|role=.?tree/) : (kind === 'trigger' ? /cascader__trigger/ : /cascader__panel|cascader__column/)
+          assert.match(node.selector, selectorPattern, `${component}/${kind} selector must identify the actual component element`)
+        }
       }
       for (const node of snapshot.nodes) {
         assert.ok(node.id && ids.has(node.id))
