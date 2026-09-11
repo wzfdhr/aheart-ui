@@ -306,7 +306,7 @@ test('authentic SSR RED directly checks exact nodes, independent captures, selec
         assert.equal(hash(bytes), record.sha256)
         const artifact = JSON.parse(bytes)
         const artifactSnapshot = artifact.snapshot ?? artifact
-        for (const field of ['capturePhase', 'captureNonce', 'component', 'kind', 'nodes', 'sortedIds', 'rawMainHtml', 'rawTeleportHtml', 'mainHtml', 'teleportHtml', 'combinedHtml', 'mainHtmlSha256', 'teleportHtmlSha256', 'combinedSha256']) assert.deepEqual(artifactSnapshot[field], snapshot[field], `${combinationKey} artifact field ${field} must match snapshot`)
+        assert.deepEqual(artifactSnapshot, snapshot, `${combinationKey} capture artifact must exactly match its snapshot`)
       }
     }
   })
@@ -358,25 +358,25 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
     item.combinedSha256 = item.serverSnapshot.combinedSha256
   }
   const mutations = [
-    ['copied hydrated snapshot', forged => {
+    ['copied hydrated snapshot', /capture|artifact|snapshot|nonce/i, true, forged => {
       const item = forged.ssrHydration.combinations[key]
       item.hydratedSnapshot = structuredClone(item.serverSnapshot)
       item.hydratedSnapshot.capturePhase = 'hydrated-after-mount'
       item.hydratedSnapshot.captureNonce = `${item.serverSnapshot.captureNonce}-copied`
     }],
-    ['extra snapshot node', forged => {
+    ['extra snapshot node', /six|node|count|exact/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       item.serverSnapshot.nodes.push(structuredClone(item.serverSnapshot.nodes[0]))
       item.hydratedSnapshot.nodes.push(structuredClone(item.hydratedSnapshot.nodes[0]))
     }],
-    ['duplicate or missing node identity', forged => {
+    ['duplicate or missing node identity', /unique|duplicate|component.kind|node/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
         snapshot.nodes = snapshot.nodes.filter(node => !(node.component === 'TreeSelect' && node.kind === 'root'))
         snapshot.nodes.push({ ...structuredClone(snapshot.nodes[0]), component: 'Tree', kind: 'row' })
       }
     }],
-    ['non-unique selector provenance', forged => {
+    ['non-unique selector provenance', /selector.*(match|unique)|match.*count/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
         const node = snapshot.nodes.find(entry => entry.component === 'TreeSelect' && entry.kind === 'trigger')
@@ -386,7 +386,7 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
         node.selectorResolved = false
       }
     }],
-    ['wrong selector provenance', forged => {
+    ['wrong selector provenance', /selector.*(identity|pattern|component)|provenance/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
         const node = snapshot.nodes.find(entry => entry.component === 'Cascader' && entry.kind === 'root')
@@ -396,17 +396,29 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
         node.selectorResolved = true
       }
     }],
-    ['teleport diagnostic', forged => {
+    ['teleport diagnostic', /teleport|script|diagnostic|pollution/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.rawTeleportHtml += '<script>window.__d4CaptureSnapshot()</script>'
       refreshHashes(item)
     }],
-    ['raw teleport only', forged => {
+    ['raw teleport only', /raw|normalized|binding|hash/i, false, forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.rawTeleportHtml += '<span>raw-binding-probe</span>'
     }],
   ]
-  for (const [label, mutate] of mutations) await assertBoundedMutationRejected(report, mutate, `bounded SSR validator must reject ${label}`, /SSR|hydration|snapshot|teleport|script|diagnostic|node/i)
+  await assertBoundedControlPasses(report)
+  for (const [label, pattern, captureArtifact, mutate] of mutations) {
+    const forged = structuredClone(report)
+    mutate(forged)
+    if (captureArtifact) {
+      await assert.rejects(async () => {
+        await verifyArtifactBindings(forged)
+        validateBoundedReleaseReport(forged)
+      }, error => error?.message && pattern.test(error.message), `bounded SSR validator must reject ${label} through capture artifact binding`)
+    } else {
+      assert.throws(() => validateBoundedReleaseReport(forged), error => Array.isArray(error?.failures) && error.failures.some(failure => pattern.test(failure)), `bounded SSR validator must reject ${label} through its dedicated contract failure`)
+    }
+  }
 })
 
 test('real bounded family events use one normalized clock domain and stay inside each scenario', async () => {
