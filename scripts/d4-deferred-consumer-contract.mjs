@@ -69,7 +69,9 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
     }
   }
   const buildManifestPath = report.realEvidenceBinding?.buildManifestPath
-  if (buildManifestPath) {
+  if (!buildManifestPath) {
+    failures.push('build manifest path is required for collected artifact verification')
+  } else {
     try {
       const manifest = JSON.parse(await readFile(resolve(buildManifestPath), 'utf8'))
       const lines = []
