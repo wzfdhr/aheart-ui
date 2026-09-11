@@ -108,13 +108,38 @@ test('five columns keep logical 2k siblings virtualized with one vertical scroll
   await page.getByTestId('cascader-virtual-five-columns').click()
   const popup = await open(page)
   const columns = popup.locator('.aheart-cascader__column')
+  const assertDeepColumnGeometry = async () => {
+    const geometry = await popup.evaluate(element => {
+      const panelRect = element.getBoundingClientRect()
+      const active = element.ownerDocument.activeElement
+      const row = active instanceof HTMLElement && active.matches('.aheart-cascader__option') ? active : null
+      const rowRect = row?.getBoundingClientRect()
+      return {
+        viewport: { width: element.ownerDocument.defaultView?.innerWidth ?? 0, height: element.ownerDocument.defaultView?.innerHeight ?? 0 },
+        panel: { left: panelRect.left, right: panelRect.right, top: panelRect.top, bottom: panelRect.bottom, width: panelRect.width },
+        focused: row?.getAttribute('data-cascader-value') ?? null,
+        row: rowRect ? { left: rowRect.left, right: rowRect.right, top: rowRect.top, bottom: rowRect.bottom, width: rowRect.width, height: rowRect.height } : null
+      }
+    })
+    console.log(`five-column geometry ${JSON.stringify(geometry)}`)
+    expect(geometry.focused).not.toBeNull()
+    expect(geometry.panel.left).toBeGreaterThanOrEqual(8)
+    expect(geometry.panel.right).toBeLessThanOrEqual(geometry.viewport.width - 8)
+    expect(geometry.row).not.toBeNull()
+    expect(geometry.row!.left).toBeGreaterThanOrEqual(0)
+    expect(geometry.row!.right).toBeLessThanOrEqual(geometry.viewport.width)
+    expect(geometry.row!.top).toBeGreaterThanOrEqual(0)
+    expect(geometry.row!.bottom).toBeLessThanOrEqual(geometry.viewport.height)
+  }
   await expect(columns).toHaveCount(1)
   for (let column = 0; column < 4; column++) {
     const first = popup.locator(`.aheart-cascader__option[data-cascader-column="${column}"]`).first()
-    await first.press('Enter')
+    await first.press('ArrowRight')
     await expect.poll(() => popup.locator('.aheart-cascader__column').count()).toBe(column + 2)
+    await assertDeepColumnGeometry()
   }
   await expect(popup.locator('.aheart-cascader__column')).toHaveCount(5)
+  await assertDeepColumnGeometry()
   for (const column of [0, 1, 2, 3, 4]) {
     const columnRows = popup.locator(`.aheart-cascader__option[data-cascader-column="${column}"]`)
     await expect.poll(() => columnRows.count()).toBeGreaterThan(0)
