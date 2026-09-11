@@ -84,7 +84,7 @@ const iframeControlReport = () => {
       add('resource', { kind, action: 'create', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
       if (kind === 'resizeObserver') { add('resource', { kind, action: 'observe', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' }); add('resource', { kind, action: 'unobserve', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' }); add('resource', { kind, action: 'observe', resourceId: `${scenarioId}-${kind}`, targetSelector: '.secondary-root', source: 'component-runtime' }) }
     }
-    if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentTag: type === 'popup-open' ? 'BODY' : undefined, panelParentOwnerDocument: true, panelParentDefaultView: true, scrollOwnerDocument: true, scrollOwnerDefaultView: true, panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', observedWithoutCollectorFocus: type === 'focus-restore', parentActiveElement: type === 'focus-restore' ? 'iframe' : undefined, visible: type === 'reopen', expanded: type === 'reopen', escapeEventRealm: type === 'escape' ? 'iframe' : undefined, consumed: false })
+    if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentTag: type === 'popup-open' ? 'BODY' : undefined, panelParentOwnerDocument: true, panelParentDefaultView: true, scrollOwnerDocument: true, scrollOwnerDefaultView: true, parentDocumentResidualNodes: 0, parentDocumentResidualNodesAfterUnmount: 0, panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', observedWithoutCollectorFocus: type === 'focus-restore', parentActiveElement: type === 'focus-restore' ? 'iframe' : undefined, visible: type === 'reopen', expanded: type === 'reopen', escapeEventRealm: type === 'escape' ? 'iframe' : undefined, consumed: false })
     if (component === 'Cascader') add('lazy-pending')
     add('frame-unmount-invoked', { connected: true })
     if (component === 'Cascader') add('lazy-abort')
@@ -720,6 +720,7 @@ test('iframe lifecycle validator rejects forged raw resource, popup, focus, unmo
   const mutations = [
     ['resource balance/realm', /resource.*(active|balance)|residual|cleanup/i, report => { const events = report.iframe.rawLifecycle.scenarios[0].events; const disconnect = events.find(event => event.type === 'resource' && event.action === 'disconnect'); disconnect.action = 'unobserve'; disconnect.targetSelector = '.secondary-root'; events.forEach((event, index) => { event.seq = index + 1; event.time = index + 1 }) }],
     ['Teleport ownership/residual', /teleport|residual|ownerDocument/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'TreeSelect').events.find(event => event.type === 'popup-open'); event.ownerDocument = false }],
+    ['parent document residual', /parent.*document|residual|teleport/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'TreeSelect').events.find(event => event.type === 'popup-open'); event.parentDocumentResidualNodes = 1 }],
     ['focus restore/close', /focus|escape|popup/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'focus-restore'); event.restored = false }],
     ['unmount ordering/frame alive', /unmount|frame|connected|order/i, report => { const event = report.iframe.rawLifecycle.scenarios[0].events.find(event => event.type === 'frame-unmount-invoked'); event.connected = false }],
     ['late update/hash', /late|lazy|hash|update/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'lazy-resolve-after-unmount'); event.componentUpdateCount = 1 }],
@@ -802,6 +803,33 @@ test('iframe probe source preserves owner APIs, focus measurement and non-silent
   assert.match(installText, /Object\.defineProperty\(window,\s*['"]__d4IframeLifecycleProbe['"][\s\S]*writable:\s*false[\s\S]*configurable:\s*false/)
   assert.match(installText, /probeMarker[\s\S]*(?:throw|Error)/, 'existing probe marker mismatch must fail explicitly')
   assert.match(installText, /original(?:ResizeObserver|RequestAnimationFrame|SetTimeout|SetInterval)/, 'probe must retain original owner APIs')
+  assert.match(installText, /observe[\s\S]*targets|targets[\s\S]*observe/, 'ResizeObserver proxy must track observed targets')
+  assert.match(installText, /unobserve[\s\S]*targets|targets[\s\S]*unobserve/, 'ResizeObserver proxy must remove only one target')
+  assert.match(installText, /disconnect[\s\S]*targets|targets[\s\S]*disconnect/, 'ResizeObserver disconnect must clear target state')
+})
+
+test('iframe ResizeObserver target state distinguishes unobserve from disconnect', async () => {
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  const control = iframeControlReport().iframe.rawLifecycle
+  assert.equal(typeof contract.recomputeIframeLifecycle, 'function')
+  const raw = structuredClone(control)
+  const scenario = raw.scenarios[0]
+  scenario.events = [
+    { seq: 1, time: 1, type: 'instrumentation-install', scenarioId: scenario.scenarioId, realmId: scenario.realmId, proxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedProxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedBeforeMount: true, collectorWaitsExcluded: true, realmType: 'iframe', propertyLocked: true, probeMarker: 'd4-iframe-probe-v1' },
+    { seq: 2, time: 2, type: 'frame-mounted', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: true },
+    { seq: 3, time: 3, type: 'resource', kind: 'resizeObserver', action: 'create', resourceId: 'ro-1', targetSelector: '.a', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId },
+    { seq: 4, time: 4, type: 'resource', kind: 'resizeObserver', action: 'observe', resourceId: 'ro-1', targetSelector: '.a', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId },
+    { seq: 5, time: 5, type: 'resource', kind: 'resizeObserver', action: 'unobserve', resourceId: 'ro-1', targetSelector: '.a', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId },
+    { seq: 6, time: 6, type: 'resource', kind: 'resizeObserver', action: 'observe', resourceId: 'ro-1', targetSelector: '.b', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId },
+    { seq: 7, time: 7, type: 'frame-unmount-invoked', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: true },
+    { seq: 8, time: 8, type: 'frame-unmount-complete', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: true },
+    { seq: 9, time: 9, type: 'owner-flush', scenarioId: scenario.scenarioId, realmId: scenario.realmId, domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 },
+    { seq: 10, time: 10, type: 'frame-removed', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: false },
+  ]
+  const summary = contract.recomputeIframeLifecycle(raw)
+  assert.equal(summary.byKind.resizeObserver, 1)
+  assert.equal(summary.finalActive, 0)
+  assert.equal(summary.unmountCleanup, false)
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
