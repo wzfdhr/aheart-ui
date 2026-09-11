@@ -447,11 +447,18 @@ test('real bounded Tree family coverage preserves raw flat and expanded logical 
   assert.ok(flat.scroll.some(step => step.rowKeys?.includes(flat.logicalKeys.at(-1))))
   assert.ok(flat.mountedRows <= 24)
   assert.ok(expanded, 'Tree must record the expanded-100x99 raw scenario')
+  assert.equal(expanded.rawRoots?.length, 100)
+  assert.ok(expanded.rawRoots?.every(root => root.children?.length === 99))
   assert.equal(expanded.roots, 100)
   assert.equal(expanded.childrenPerRoot, 99)
-  assert.equal(expanded.expandedKeys?.length, 100)
-  assert.equal(new Set(expanded.logicalVisibleKeys).size, 10000)
+  assert.equal(expanded.expandedKeysInput?.length, 100)
+  const adjacencyVisible = expanded.rawRoots.flatMap(root => expanded.expandedKeysInput.includes(root.key) ? [root.key, ...root.children.map(child => child.key)] : [root.key])
+  assert.deepEqual(expanded.logicalVisibleKeys, adjacencyVisible)
+  assert.equal(new Set(adjacencyVisible).size, 10000)
   assert.ok(expanded.mountedRows <= 24)
+  assert.ok(expanded.eventRecords.some(event => event.name === 'expand' && event.beforeExpandedKeys?.length === 99 && event.afterExpandedKeys?.length === 100))
+  const source = await readFile(path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
+  assert.doesNotMatch(source, /Math\.min\([^\n]*logicalVisibleKeys|Math\.min\([^\n]*logicalKeys/)
 })
 
 test('real bounded TreeSelect family coverage recomputes the 5000-match query and controlled rejection', async () => {
@@ -459,13 +466,14 @@ test('real bounded TreeSelect family coverage recomputes the 5000-match query an
   const scenario = report.familyCoverage?.TreeSelect?.scenarios?.find(item => item.label === 'search-5000-controlled')
   assert.ok(scenario, 'TreeSelect must record the raw 5000-match controlled-search scenario')
   assert.ok(Array.isArray(scenario.sourceKeys) && Array.isArray(scenario.sourceLabels) && scenario.sourceKeys.length > 5000)
-  assert.equal(scenario.query, 'match')
-  const expected = scenario.sourceLabels.map((label, index) => label.includes(scenario.query) ? scenario.sourceKeys[index] : null).filter(Boolean)
+  assert.equal(scenario.searchInputValue, 'match')
+  const expected = scenario.sourceLabels.map((label, index) => label.includes(scenario.searchInputValue) ? scenario.sourceKeys[index] : null).filter(Boolean)
   assert.deepEqual(scenario.matchedKeys, expected)
   assert.equal(scenario.matchedKeys.length, 5000)
-  assert.ok(scenario.eventRecords.some(event => event.name === 'check'))
+  assert.ok(scenario.eventRecords.some(event => event.name === 'update:modelValue' && event.intent === 'check'))
   assert.ok(scenario.controlledRejected === true)
   assert.deepEqual(scenario.valueBefore, scenario.valueAfter)
+  assert.notDeepEqual(scenario.valueBefore, [])
 })
 
 test('real bounded Cascader family coverage preserves deep columns, search paths, lazy state and controlled rejection', async () => {
@@ -473,37 +481,46 @@ test('real bounded Cascader family coverage preserves deep columns, search paths
   const scenario = report.familyCoverage?.Cascader?.scenarios?.find(item => item.label === 'deep5-search-lazy-controlled')
   assert.ok(scenario, 'Cascader must record the combined deep/search/lazy controlled scenario')
   assert.deepEqual(scenario.columnSizes, [2000, 2000, 2000, 2000, 2000])
-  assert.ok(scenario.columns.every(column => new Set(column.logicalOptionKeys).size === 2000 && column.mountedRows <= 24))
-  assert.equal(scenario.selectedPath?.length, 5)
-  assert.ok(scenario.search.rawLeaves.length > 10000)
-  assert.equal(scenario.search.matchedPaths.length, 10000)
-  assert.equal(scenario.search.pathHash, hash(Buffer.from(scenario.search.matchedPaths.map(pathValue => pathValue.join('/')).join('\n'))))
+  assert.ok(scenario.columns.every(column => new Set(column.rawLogicalOptionKeys).size === 2000 && column.mountedRows > 0 && column.mountedRows <= 24))
+  assert.equal(scenario.selectedPath?.join('/'), scenario.selectionEvent?.value?.join('/'))
+  assert.ok(scenario.search.inputValue && scenario.search.rawLeaves.length > 10000)
+  const expectedPaths = scenario.search.rawLeaves.filter(leaf => leaf.labels.join(' / ').includes(scenario.search.inputValue)).map(leaf => leaf.path)
+  assert.equal(expectedPaths.length, 10000)
+  assert.deepEqual(scenario.search.matchedPaths, expectedPaths)
+  assert.ok(scenario.search.visibleFirst && scenario.search.visibleTail)
+  assert.equal(scenario.search.pathHash, hash(Buffer.from(expectedPaths.map(pathValue => pathValue.join('/')).join('\n'))))
   assert.deepEqual(scenario.lazy.events.map(event => event.name), ['pending', 'error', 'pending', 'retry', 'resolve', 'pending', 'cancel', 'late-resolve-stale-ignored'])
+  assert.ok(scenario.lazy.events.every(event => event.componentActionId && Number.isFinite(event.timestamp)))
+  assert.ok(scenario.lazy.events.some(event => event.action === 'option' || event.action === 'retry' || event.action === 'escape' || event.action === 'revision'))
   assert.notDeepEqual(scenario.lazy.stateBefore, scenario.lazy.stateAfter)
   assert.equal(scenario.controlledRejected, true)
+  const source = await readFile(path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
+  assert.doesNotMatch(source, /window\.__d4LoadData/)
 })
 
 test('real bounded measured rows retain computed fixed/coarse/dynamic heights and raw actionability probes', async () => {
   const { report } = await collectRealBoundedReport()
-  for (const item of Object.values(report.cases ?? {})) {
-    for (const modeName of ['full', 'virtual']) {
-      const mode = item[modeName]
-      assert.ok(Array.isArray(mode.rowMetrics), `${item.component}/${item.count}/${item.rowMode}/${modeName} must retain computed row metrics`)
-      if (item.rowMode === 'fixed') assert.ok(mode.rowMetrics.every(row => row.height === row.expectedHeight))
-      if (item.rowMode === 'coarse') assert.ok(mode.rowMetrics.every(row => row.height >= 44))
-      if (item.rowMode === 'dynamic') assert.ok([0, 10, 20].every(index => mode.rowMetrics[index].height > mode.rowMetrics[1].height))
+  for (const component of ['Tree', 'TreeSelect', 'Cascader']) {
+    const rowModes = report.familyCoverage?.[component]?.rowModeEvidence
+    assert.ok(rowModes, `${component} must expose rowModeEvidence`)
+    for (const rowMode of ['fixed', 'coarse', 'dynamic']) {
+      const metrics = rowModes[rowMode]
+      assert.ok(metrics?.every(metric => [0, 1, 10, 20].includes(metric.index) && metric.key && metric.rect && metric.computedStyle))
+      if (rowMode === 'fixed') assert.ok(metrics.every(metric => metric.height === metric.expectedHeight))
+      if (rowMode === 'coarse') assert.ok(metrics.every(metric => metric.height >= 44))
+      if (rowMode === 'dynamic') assert.ok([0, 10, 20].every(index => metrics.find(metric => metric.index === index).height > metrics.find(metric => metric.index === 1).height && metrics.find(metric => metric.index === index).wrapped === true))
     }
-    for (const mode of [item.full, item.virtual]) {
-      const timing = mode.timing
-      assert.equal(timing.targetKind, 'row')
-      assert.equal(timing.targetSelectorIncludesTrigger, false)
-      assert.equal(timing.fallbackTarget, false)
-      assert.ok(timing.targetRect && timing.targetViewportRect)
-      assert.ok(timing.targetRect.left < timing.targetViewportRect.right && timing.targetRect.right > timing.targetViewportRect.left && timing.targetRect.top < timing.targetViewportRect.bottom && timing.targetRect.bottom > timing.targetViewportRect.top)
-      assert.equal(timing.hitTarget?.kind, 'row')
-      assert.equal(timing.focusProbe?.activeElementInRow, true)
-      assert.ok(timing.actionableAt <= timing.probeAt && timing.probeAt <= timing.endAt)
-    }
+  }
+  for (const timing of [report.case?.timing]) {
+    assert.equal(timing.targetKind, 'row')
+    assert.equal(timing.targetSelectorIncludesTrigger, false)
+    assert.equal(timing.fallbackTarget, false)
+    assert.ok(timing.targetRect && timing.targetViewportRect && timing.hitTarget && timing.focusProbe)
+    assert.ok(timing.targetRect.left < timing.targetViewportRect.right && timing.targetRect.right > timing.targetViewportRect.left && timing.targetRect.top < timing.targetViewportRect.bottom && timing.targetRect.bottom > timing.targetViewportRect.top)
+    assert.equal(timing.hitTarget.kind, 'row')
+    assert.equal(timing.focusProbe.activeElementInRow, true)
+    assert.ok(timing.startedAt <= timing.triggerAt && timing.clickStartedAt <= timing.clickCompletedAt && timing.clickCompletedAt < timing.actionableAt && timing.probeAt <= timing.endAt)
+    assert.equal(timing.firstInteractionMs, timing.endAt - timing.startedAt)
   }
 })
 
