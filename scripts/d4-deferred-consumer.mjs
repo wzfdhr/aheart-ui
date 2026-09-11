@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { execFile } from 'node:child_process'
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { buildSmokeReport } from './d4-deferred-consumer-contract.mjs'
+import { APPROVED_BASELINE_COMMIT, buildSmokeReport, validateSmokeReport } from './d4-deferred-consumer-contract.mjs'
 
 const exec = promisify(execFile)
 const workspace = fileURLToPath(new URL('..', import.meta.url))
@@ -20,10 +20,11 @@ const outPath = path.resolve(arg('--out') ?? path.join(workspace, 'docs/superpow
 const smoke = has('--smoke')
 const candidateInput = arg('--candidate-tarball') ?? arg('--candidate')
 const baselineInput = arg('--baseline-tarball') ?? arg('--baseline')
+const baselineCommit = arg('--baseline-commit')
 
 function usage() {
   console.log(`Usage:
-  node scripts/d4-deferred-consumer.mjs --smoke [--candidate-tarball path] [--baseline-tarball path] [--out path]
+  node scripts/d4-deferred-consumer.mjs --smoke --baseline-tarball path --baseline-commit ${APPROVED_BASELINE_COMMIT} [--candidate-tarball path] [--out path]
   node scripts/d4-deferred-consumer.mjs --report path [--require-release]
 
 --smoke performs only bounded packed-package/resource checks and always writes acceptanceEligible:false.
@@ -31,8 +32,6 @@ function usage() {
 }
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
-const exists = async file => stat(file).then(() => true, () => false)
-
 async function packageInfo(tarball, label, { clean = false } = {}) {
   assert(tarball, `--${label}-tarball is required`)
   const absolute = path.resolve(tarball)
@@ -88,8 +87,10 @@ async function smokeRun() {
   const temporary = await mkdtemp(path.join(tmpdir(), 'aheart-d4-deferred-consumer-'))
   let generatedCandidate = false
   try {
+    assert(baselineInput, '--baseline-tarball is required; the historical baseline fallback is disabled')
+    assert(baselineCommit === APPROVED_BASELINE_COMMIT, `--baseline-commit must equal approved baseline ${APPROVED_BASELINE_COMMIT}`)
     const candidate = candidateInput ? path.resolve(candidateInput) : await packCurrent(temporary).then(file => { generatedCandidate = true; return file })
-    const baseline = baselineInput ? path.resolve(baselineInput) : (await exists(path.join(workspace, 'docs/superpowers/evidence/d4-c/consumer/baseline.tgz')) ? path.join(workspace, 'docs/superpowers/evidence/d4-c/consumer/baseline.tgz') : null)
+    const baseline = path.resolve(baselineInput)
     const candidateInfo = await packageInfo(candidate, 'candidate')
     const baselineInfo = baseline ? await packageInfo(baseline, 'baseline') : null
     const smokeChecks = {
@@ -99,13 +100,19 @@ async function smokeRun() {
       candidateNoWorkspaceLinks: candidateInfo.workspaceLinks.length === 0,
       candidateNoFsImports: candidateInfo.fsImports.length === 0,
       candidatePublicSurface: candidateInfo.esm && candidateInfo.cjs && candidateInfo.css && candidateInfo.publicTypes,
+      baselineExplicit: true,
       baselineAvailable: Boolean(baselineInfo),
       releaseMeasurements: 'not-run',
     }
     const report = buildSmokeReport({ baseline: baselineInfo, candidate: candidateInfo, smokeChecks, note: 'Bounded package smoke only; no release performance, cross-browser, SSR/hydration, iframe or gzip gate was run.' })
+    validateSmokeReport(report)
     await mkdir(path.dirname(outPath), { recursive: true })
     await writeFile(outPath, `${JSON.stringify(report, null, 2)}\n`)
     console.log(JSON.stringify({ out: outPath, acceptanceEligible: false, candidate: candidateInfo.path, baseline: baselineInfo?.path ?? null, smokeChecks }, null, 2))
+  } catch (error) {
+    await mkdir(path.dirname(outPath), { recursive: true })
+    await writeFile(outPath, `${JSON.stringify({ schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), acceptanceEligible: false, smoke: true, failure: String(error?.message ?? error), preservedFailureArtifact: true }, null, 2)}\n`)
+    throw error
   } finally {
     await rm(temporary, { recursive: true, force: true })
   }

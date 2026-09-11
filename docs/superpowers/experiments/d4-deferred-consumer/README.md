@@ -19,6 +19,8 @@ needed:
 
 ```sh
 node scripts/d4-deferred-consumer.mjs --smoke \
+  --baseline-tarball docs/superpowers/evidence/d4-c/consumer/baseline.tgz \
+  --baseline-commit 4a7511f9594d0a74906e427e158d02343ba33a22 \
   --out docs/superpowers/evidence/d4-deferred-consumer/smoke.json
 ```
 
@@ -34,7 +36,27 @@ pass the release gate.
 ## Full report validation
 
 The full Playwright/consumer run is intentionally supplied as a raw report
-input so a missing browser run cannot be silently replaced with fixture data:
+input so a missing browser run cannot be silently replaced with fixture data.
+The real collector is `collect.mjs`; it requires both explicit tarballs,
+approved baseline/candidate commits and explicit clean-checkout attestations:
+
+```sh
+node docs/superpowers/experiments/d4-deferred-consumer/collect.mjs \
+  --baseline-tarball /path/to/baseline.tgz \
+  --candidate-tarball /path/to/candidate.tgz \
+  --baseline-commit 4a7511f9594d0a74906e427e158d02343ba33a22 \
+  --candidate-commit CANDIDATE_SHA \
+  --baseline-clean true --candidate-clean true \
+  --out docs/superpowers/evidence/d4-deferred-consumer/full.json
+```
+
+It installs each tarball in its own temporary pnpm consumer, typechecks the
+public surface, renders SSR twice for eight distinct boolean combinations,
+drives serial Playwright measurements and exact 40-step scroll sequences, and
+recursively records JS/CSS gzip level-9 bytes. The collector is intentionally
+not run as part of bounded smoke.
+
+An already-collected raw report can then be validated independently:
 
 ```sh
 node scripts/d4-deferred-consumer.mjs \
@@ -55,4 +77,3 @@ The contract tests are pure Node tests:
 ```sh
 node --test scripts/d4-deferred-consumer.test.mjs
 ```
-

@@ -35,6 +35,7 @@ export const PINNED_VERSIONS = freeze({
 
 export const COMPONENTS = freeze(['Tree', 'TreeSelect', 'Cascader'])
 export const BROWSERS = freeze(['chromium', 'firefox', 'webkit'])
+export const APPROVED_BASELINE_COMMIT = '4a7511f9594d0a74906e427e158d02343ba33a22'
 
 const keyFor = (component, count, rowMode) => `${component}/${count}/${rowMode}`
 const median = values => {
@@ -112,6 +113,7 @@ function packageManifest(label, packagePath) {
   const content = Buffer.from(`d4-${label}-manifest\n`)
   return {
     path: packagePath,
+    exists: true,
     sha256: sha256(content),
     clean: true,
     symlinks: [],
@@ -125,6 +127,7 @@ function packageManifest(label, packagePath) {
     ssr: true,
     contentSha256Verified: true,
     tarballSha256Verified: true,
+    sourceCommit: label === 'baseline' ? APPROVED_BASELINE_COMMIT : 'candidate-commit',
   }
 }
 
@@ -196,9 +199,9 @@ function makePerformance() {
 
 function makeBrowsers() {
   return {
-    chromium: { browserVersion: 'Chromium (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, longTasks: { status: 'recorded', maxMs: 42 }, layoutShifts: { status: 'recorded', cls: 0.02 } },
-    firefox: { browserVersion: 'Firefox (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
-    webkit: { browserVersion: 'WebKit (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
+    chromium: { browserVersion: 'Chromium (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'recorded', maxMs: 42, entries: [{ startTime: 10, duration: 42 }] }, layoutShifts: { status: 'recorded', cls: 0.02, entries: [{ startTime: 10, value: 0.02 }] } },
+    firefox: { browserVersion: 'Firefox (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
+    webkit: { browserVersion: 'WebKit (pinned Playwright browser)', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, consoleErrors: 0, pageErrors: 0, scrollSteps: 40, resources: { status: 'recorded', scripts: ['aheart-ui/es/index.js'], styles: ['aheart-ui/es/style.css'] }, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } },
   }
 }
 
@@ -217,15 +220,19 @@ export function buildAcceptanceFixture({ baselinePackage, candidatePackage, gene
   const baselineFiles = makeBundle('baseline', ['tree.js', 'tree-select.js', 'cascader.js', 'style.css'])
   const candidateFiles = makeBundle('candidate', ['tree.js', 'tree-select.js', 'cascader.js', 'style.css'])
   const total = files => files.reduce((sum, file) => sum + file.gzipBytes, 0)
+  const baseline = packageManifest('baseline', baselinePackage ?? '/tmp/d4-baseline.tgz')
+  const candidate = packageManifest('candidate', candidatePackage ?? '/tmp/d4-candidate.tgz')
   return {
     schema: 'd4-deferred-consumer/v1',
     generatedAt,
     acceptanceEligible: !smoke,
     smoke,
+    syntheticEvidence: true,
     environment: { ...PINNED_VERSIONS, node: process.version === `v${PINNED_VERSIONS.node}` ? PINNED_VERSIONS.node : PINNED_VERSIONS.node, cpu: 'fixture', concurrency: 1 },
     matrix: RELEASE_MATRIX,
     fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { sharedTree: true, checkable: true, queryMatches: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000 }, rowHeights: { fixed: 28, coarse: 44, dynamicEvery: 10 } },
-    packages: { baseline: packageManifest('baseline', baselinePackage ?? '/tmp/d4-baseline.tgz'), candidate: packageManifest('candidate', candidatePackage ?? '/tmp/d4-candidate.tgz'), sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: false, newDependencies: [] },
+    provenance: { baselineCommit: APPROVED_BASELINE_COMMIT, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit: 'candidate-commit', baselineTarballSha256: baseline.sha256, candidateTarballSha256: candidate.sha256, baselineCommitVerified: true, candidateCommitVerified: true },
+    packages: { baseline, candidate, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: false, newDependencies: [] },
     performance,
     browsers: makeBrowsers(),
     ssrHydration: makeSsr(),
@@ -241,11 +248,13 @@ export function buildSmokeReport({ baseline, candidate, generatedAt = new Date()
     generatedAt,
     acceptanceEligible: false,
     smoke: true,
+    syntheticEvidence: false,
     smokeReason: note,
     environment: { ...PINNED_VERSIONS, cpu: 'recorded by smoke runner', concurrency: 1 },
     matrix: RELEASE_MATRIX,
     fixtures: { deterministic: true, noSourcePreviewCopies: true, status: 'not-run' },
-    packages: { baseline: baseline ?? null, candidate: candidate ?? null, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: null, newDependencies: null },
+    provenance: { status: 'notRun', baselineCommit: null, candidateCommit: null, baselineTarballSha256: baseline?.sha256 ?? null, candidateTarballSha256: candidate?.sha256 ?? null },
+    packages: { baseline: baseline ?? null, candidate: candidate ?? null, sameConsumer: 'notRun', installedWithoutWorkspaceLinks: 'notRun', lockfileDrift: 'notRun', newDependencies: 'notRun' },
     performance: { status: 'not-run', firstInteraction: null, cases: {} },
     browsers: { status: 'not-run' },
     ssrHydration: { status: 'not-run', count: 0, combinations: {} },
@@ -270,11 +279,15 @@ function recomputeMode(mode, path) {
   const errors = []
   ensure(mode.warmup?.length === RELEASE_MATRIX.warmupRuns && mode.warmup[0]?.discarded === true, `${path} must have one discarded warmup`, errors)
   ensure(mode.medianMs === median(samples), `${path} median is not recomputed from raw samples`, errors)
+  ensure(samples.every(value => value > 0), `${path} measured timings must be positive`, errors)
   ensure(Array.isArray(mode.scroll) && mode.scroll.length === RELEASE_MATRIX.scrollSteps, `${path} must have forty scroll samples`, errors)
   if (Array.isArray(mode.scroll)) {
     ensure(mode.scroll.slice(0, 20).every(step => step.direction === 'forward'), `${path} must have twenty forward scroll steps`, errors)
     ensure(mode.scroll.slice(20).every(step => step.direction === 'reverse'), `${path} must have twenty reverse scroll steps`, errors)
-    ensure(mode.scroll.every(step => step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true), `${path} scroll steps must prove flush/two-frame/no-gap stabilization`, errors)
+    ensure(mode.scroll.every((step, index) => {
+      const expected = index < 20 ? index / 19 : (39 - index) / 19
+      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
+    }), `${path} scroll steps must prove exact endpoints, positive timing and bounded mounted rows`, errors)
   }
   return { errors, medianMs: median(samples) }
 }
@@ -300,6 +313,10 @@ export function recomputeEvidence(report) {
     const bundle = report.gzip?.[side]
     ensure(Array.isArray(bundle?.files) && bundle.files.length > 0, `${side} gzip evidence must list files`, errors)
     const files = bundle?.files ?? []
+    const names = files.map(file => file.path)
+    ensure(new Set(names).size === names.length, `${side} gzip evidence contains duplicate assets`, errors)
+    ensure(names.includes('tree.js') && names.includes('tree-select.js') && names.includes('cascader.js') && names.some(name => name.endsWith('.css')), `${side} gzip evidence must include Tree, TreeSelect, Cascader and CSS`, errors)
+    ensure(names.every(name => /\.(?:js|css)$/.test(name) && !name.startsWith('/')), `${side} gzip evidence contains a non-JS/CSS asset`, errors)
     let rawBytes = 0, gzipBytes = 0
     for (const file of files) {
       const content = Buffer.from(file.contentBase64 ?? '', 'base64')
@@ -316,13 +333,19 @@ export function recomputeEvidence(report) {
   return { firstInteraction, gzip, errors }
 }
 
-export function validateReport(report, { requireRelease = false } = {}) {
+export function validateReport(report, { requireRelease = false, requireSmokeChecks = false } = {}) {
+  if (report?.smoke === true && requireSmokeChecks) return validateSmokeReport(report)
   const failures = []
   if (requireRelease && (report?.smoke === true || report?.acceptanceEligible !== true)) {
-    throw new Error('D4 deferred consumer contract failed: smoke or ineligible reports cannot pass release validation')
+    throw new Error('D4 deferred consumer contract failed: smoke, ineligible or synthetic provenance reports cannot pass release validation')
   }
   ensure(report?.schema === 'd4-deferred-consumer/v1', 'schema must be d4-deferred-consumer/v1', failures)
+  ensure(report?.syntheticEvidence !== true || requireRelease !== true, 'synthetic fixture provenance cannot pass release validation', failures)
+  ensure(report?.provenance?.baselineCommit === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitExpected === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitVerified === true && report?.provenance?.candidateCommitVerified === true, 'baseline/candidate commit provenance is missing or does not match the approved baseline', failures)
+  ensure(report?.provenance?.baselineTarballSha256 === report?.packages?.baseline?.sha256 && report?.provenance?.candidateTarballSha256 === report?.packages?.candidate?.sha256, 'tarball hash provenance does not match package manifests', failures)
   ensure(report?.environment && JSON.stringify({ ...PINNED_VERSIONS }) === JSON.stringify(Object.fromEntries(Object.keys(PINNED_VERSIONS).map(key => [key, report.environment[key]]))), 'pinned Node/pnpm/Vue/Vite/Playwright/TypeScript versions are required', failures)
+  ensure(typeof report.environment?.cpu === 'string' && report.environment.cpu.trim().length > 0, 'CPU model is required', failures)
+  ensure(Number.isSafeInteger(report.environment?.concurrency) && report.environment.concurrency >= 1 && report.environment.concurrency <= 32, 'concurrency must be a positive bounded integer', failures)
   ensure(report?.matrix && JSON.stringify(report.matrix) === JSON.stringify(RELEASE_MATRIX), 'release matrix differs from the approved fixed matrix', failures)
   ensure(report?.fixtures?.deterministic === true && report.fixtures.noSourcePreviewCopies === true, 'fixtures must be deterministic and independent of source-preview fixture shapes', failures)
   ensure(report?.packages?.sameConsumer === true && report.packages.installedWithoutWorkspaceLinks === true, 'baseline and candidate must use the same consumer without workspace links', failures)
@@ -330,11 +353,13 @@ export function validateReport(report, { requireRelease = false } = {}) {
   for (const side of ['baseline', 'candidate']) {
     const pkg = report.packages?.[side]
     ensure(pkg?.clean === true, `${side} package must come from a clean manifest`, failures)
+    ensure(pkg?.exists === true, `${side} tarball path must exist and be verified`, failures)
     ensure(pkg?.sha256 && pkg.sha256.length === 64, `${side} tarball SHA-256 is required`, failures)
     ensure(Array.isArray(pkg?.symlinks) && pkg.symlinks.length === 0, `${side} package contains symlinks`, failures)
     ensure(Array.isArray(pkg?.workspaceLinks) && pkg.workspaceLinks.length === 0, `${side} package contains workspace links`, failures)
     ensure(Array.isArray(pkg?.fsImports) && pkg.fsImports.length === 0, `${side} package contains @fs imports`, failures)
     for (const field of ['esm', 'cjs', 'css', 'publicTypes', 'ssr', 'contentSha256Verified', 'tarballSha256Verified']) ensure(pkg?.[field] === true, `${side} package is missing ${field} evidence`, failures)
+    ensure(pkg?.sourceCommit === (side === 'baseline' ? APPROVED_BASELINE_COMMIT : report.provenance?.candidateCommit), `${side} package source commit provenance is missing`, failures)
   }
   const recomputed = recomputeEvidence(report)
   failures.push(...recomputed.errors)
@@ -355,17 +380,20 @@ export function validateReport(report, { requireRelease = false } = {}) {
       continue
     }
     ensure(item?.browserVersion, `${browser} browser build is missing`, failures)
-    ensure(item?.ownerRealm === true && item.twoRaf === true && item.observersStoppedAfterFinal === true && item.scrollSteps === 40 && item.consoleErrors === 0 && item.pageErrors === 0, `${browser} scroll/realm/error observer contract is incomplete`, failures)
+    ensure(item?.ownerRealm === true && item.twoRaf === true && item.observersStartedBeforeFirstWrite === true && item.observersStoppedAfterFinal === true && item.scrollSteps === 40 && item.consoleErrors === 0 && item.pageErrors === 0, `${browser} scroll/realm/error observer contract is incomplete`, failures)
+    ensure(item.resources?.status === 'recorded' && item.resources.scripts?.length > 0 && item.resources.styles?.length > 0, `${browser} resource evidence is missing`, failures)
     if (browser === 'chromium') {
-      ensure(item.longTasks?.status === 'recorded' && item.longTasks.maxMs <= RELEASE_MATRIX.maxLongTaskMs, 'Chromium long-task observer is missing or over 100ms', failures)
-      ensure(item.layoutShifts?.status === 'recorded' && item.layoutShifts.cls <= RELEASE_MATRIX.maxCls, 'Chromium layout-shift observer is missing or over 0.1', failures)
+      ensure(item.longTasks?.status === 'recorded' && item.longTasks.maxMs <= RELEASE_MATRIX.maxLongTaskMs && Array.isArray(item.longTasks.entries) && item.longTasks.entries.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.duration)), 'Chromium long-task observer is missing raw timestamp entries or over 100ms', failures)
+      ensure(item.layoutShifts?.status === 'recorded' && item.layoutShifts.cls <= RELEASE_MATRIX.maxCls && Array.isArray(item.layoutShifts.entries) && item.layoutShifts.entries.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.value)), 'Chromium layout-shift observer is missing raw timestamp entries or over 0.1', failures)
     } else {
       ensure(item.longTasks?.status === 'unsupported' && item.longTasks.reason, `${browser} long-task metrics must be explicitly unsupported`, failures)
       ensure(item.layoutShifts?.status === 'unsupported' && item.layoutShifts.reason, `${browser} layout-shift metrics must be explicitly unsupported`, failures)
     }
   }
   ensure(report.ssrHydration?.count === 8 && Object.keys(report.ssrHydration.combinations ?? {}).length === 8 && report.ssrHydration.deterministicDoubleRender === true, 'SSR/hydration must cover eight deterministic boolean combinations', failures)
-  for (const item of Object.values(report.ssrHydration?.combinations ?? {})) ensure(item.deterministic === true && item.hydrationWarnings === 0 && item.hydrationErrors === 0 && item.bounded === true, 'SSR/hydration combination has warnings, errors or unbounded output', failures)
+  const ssrItems = Object.values(report.ssrHydration?.combinations ?? {})
+  ensure(new Set(ssrItems.map(item => JSON.stringify(item.virtual))).size === 8, 'SSR/hydration combinations must contain eight distinct false/true assignments', failures)
+  for (const item of ssrItems) ensure(item.deterministic === true && item.hydrationWarnings === 0 && item.hydrationErrors === 0 && item.bounded === true, 'SSR/hydration combination has warnings, errors or unbounded output', failures)
   ensure(report.iframe?.sameOrigin === true && report.iframe.ownerDocument === true && report.iframe.focusTransfer === true && report.iframe.unmountCleanup === true && report.iframe.postUnmountInteractions === 0, 'same-origin iframe owner/focus/unmount evidence is incomplete', failures)
   ensure(report.gzip?.level === 9 && JSON.stringify(report.gzip.consumer) === JSON.stringify({ components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild' }) && report.gzip?.deltaBytes <= RELEASE_MATRIX.maxGzipDeltaBytes, 'gzip level-9 consumer comparison or delta is invalid', failures)
   if (requireRelease) ensure(report.acceptanceEligible === true && report.smoke === false, 'smoke reports are not release eligible', failures)
@@ -375,4 +403,18 @@ export function validateReport(report, { requireRelease = false } = {}) {
     throw error
   }
   return { status: 'passed', acceptanceEligible: report.acceptanceEligible === true, failures: [] }
+}
+
+export function validateSmokeReport(report) {
+  const failures = []
+  ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'smoke must be explicitly ineligible', failures)
+  ensure(report.packages?.sameConsumer === 'notRun' && report.packages?.installedWithoutWorkspaceLinks === 'notRun', 'smoke must not claim installed same-consumer verification', failures)
+  ensure(report.smokeChecks?.baselineExplicit === true && report.smokeChecks?.baselineAvailable === true, 'smoke requires an explicit available baseline', failures)
+  for (const field of ['candidateRequiredFiles', 'candidateNoSymlink', 'candidateNoWorkspaceLinks', 'candidateNoFsImports', 'candidatePublicSurface']) ensure(report.smokeChecks?.[field] === true, `smoke package check failed: ${field}`, failures)
+  if (failures.length) {
+    const error = new Error(`D4 smoke contract failed: ${failures.join('; ')}`)
+    error.failures = failures
+    throw error
+  }
+  return { status: 'passed', acceptanceEligible: false, failures: [] }
 }

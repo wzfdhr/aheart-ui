@@ -1,0 +1,47 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+  .:
+    dependencies:
+      '@vue/server-renderer':
+        specifier: 3.5.38
+        version: 3.5.38(vue@3.5.38)
+      aheart-ui:
+        specifier: file:./aheart-ui.tgz
+        version: file:aheart-ui.tgz
+      vue:
+        specifier: 3.5.38
+        version: 3.5.38
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.61.1
+        version: 1.61.1
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+      vite:
+        specifier: 5.0.12
+        version: 5.0.12
+
+packages:
+  '@playwright/test@1.61.1':
+    resolution: {tarball: https://registry.npmjs.org/@playwright/test/-/test-1.61.1.tgz}
+  '@vue/server-renderer@3.5.38':
+    resolution: {tarball: https://registry.npmjs.org/@vue/server-renderer/-/server-renderer-3.5.38.tgz}
+  typescript@5.3.3:
+    resolution: {tarball: https://registry.npmjs.org/typescript/-/typescript-5.3.3.tgz}
+  vite@5.0.12:
+    resolution: {tarball: https://registry.npmjs.org/vite/-/vite-5.0.12.tgz}
+  vue@3.5.38:
+    resolution: {tarball: https://registry.npmjs.org/vue/-/vue-3.5.38.tgz}
+
+snapshots:
+  '@playwright/test@1.61.1': {}
+  '@vue/server-renderer@3.5.38(vue@3.5.38)': {}
+  typescript@5.3.3: {}
+  vite@5.0.12: {}
+  vue@3.5.38: {}
