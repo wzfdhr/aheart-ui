@@ -189,6 +189,7 @@ export function buildFullReportShell({ baseline, candidate, baselineCommit, cand
     packages: { baseline: baseline.packageManifest, candidate: candidate.packageManifest, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: baseline.packageManifest.lockDependenciesSha256 !== candidate.packageManifest.lockDependenciesSha256, newDependencies: [] },
     performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} },
     cases: {}, browsers: {}, ssrHydration: candidate.ssrHydration ?? { count: 8, combinations: {}, deterministicDoubleRender: true },
+    typeProbe: candidate.typeProbe,
     iframe: candidate.iframe ?? { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 },
     gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: { baseline: { path: baseline.packageManifest.modulePath, sha256: baseline.packageManifest.afterHashes?.['es/index.js'] }, candidate: { path: candidate.packageManifest.modulePath, sha256: candidate.packageManifest.afterHashes?.['es/index.js'] } } }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
     familyCoverage: candidate.familyCoverage ?? {},
@@ -237,6 +238,18 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       const lockFingerprint = side === 'candidate' ? report.realEvidenceBinding?.lockFingerprint : report.realEvidenceBinding?.baselineLockFingerprint
       if (lockFingerprint) { const lockHash = sha256(await readFile(resolve(pkg.lockPath))); ensure(lockHash === lockFingerprint.before && lockHash === lockFingerprint.after, `${side} lock fingerprint before/after mismatch`, failures) }
     }
+  }
+  if (report.typeProbe?.typesPath) {
+    await verifyHash('consumer type probe', report.typeProbe.typesPath, report.typeProbe.typesSha256)
+    try {
+      const source = await readFile(resolve(report.typeProbe.typesPath), 'utf8')
+      ensure(report.typeProbe.tscExitCode === 0, 'consumer type probe tsc did not pass', failures)
+      const positives = Array.isArray(report.typeProbe.positiveChecks) ? report.typeProbe.positiveChecks : []
+      const negatives = Array.isArray(report.typeProbe.negativeChecks) ? report.typeProbe.negativeChecks : []
+      ensure((source.match(/D4-POSITIVE-/g) ?? []).length === positives.length && positives.every(check => source.includes(check.source ?? check.code ?? check.name ?? '')), 'consumer type probe positive marker count mismatch', failures)
+      ensure((source.match(/D4-NEGATIVE-/g) ?? []).length === negatives.length && negatives.every(check => source.includes(check.source ?? check.code ?? check.name ?? '')), 'consumer type probe negative marker count mismatch', failures)
+      ensure(positives.length >= 4 && negatives.length >= 3, 'consumer type probe does not cover all public virtual types', failures)
+    } catch (error) { failures.push(`consumer type probe cannot be reopened: ${error.message}`) }
   }
   const moduleProvenance = report.gzip?.consumer?.moduleProvenance
   const moduleProvenanceSha256 = report.gzip?.consumer?.moduleProvenanceSha256
@@ -816,7 +829,36 @@ export function validateBoundedReleaseReport(report) {
   const shifts = report.case?.observers?.layoutShifts ?? []
   ensure(report.case?.observers?.disconnected === true && report.case.observers.rawRecomputed === true && roundWindow && recomputeObserverRounds(observerRounds) && longTasks.every(entry => entry.startTime >= roundWindow.startedAt && entry.startTime <= roundWindow.drainedAt && entry.duration <= RELEASE_MATRIX.maxLongTaskMs) && shifts.every(entry => entry.startTime >= roundWindow.startedAt && entry.startTime <= roundWindow.drainedAt) && shifts.reduce((sum, entry) => sum + entry.value, 0) <= RELEASE_MATRIX.maxCls, 'bounded observer raw rounds are not drained/recomputed', failures)
   ensure(recomputeFamilyCoverage(report.familyCoverage), 'bounded family evidence is missing raw source/event/state records', failures)
+  const validateAccessibilitySnapshot = (snapshot, label) => {
+    ensure(snapshot && Array.isArray(snapshot.sortedIds) && snapshot.sortedIds.length > 0, `${label} accessibility snapshot is missing`, failures)
+    if (!snapshot) return
+    const ids = new Set(snapshot.sortedIds)
+    ensure(JSON.stringify(snapshot.sortedIds) === JSON.stringify([...snapshot.sortedIds].sort()) && ids.size === snapshot.sortedIds.length, `${label} accessibility IDs are not sorted and unique`, failures)
+    const components = new Set(snapshot.nodes?.map(node => node.component) ?? [])
+    ensure(JSON.stringify([...components].sort()) === JSON.stringify([...COMPONENTS].sort()), `${label} accessibility component coverage is incomplete`, failures)
+    for (const node of snapshot.nodes ?? []) {
+      ensure(ids.has(node.id), `${label} node ID is not in the raw ID set`, failures)
+      for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) {
+        ensure(Object.prototype.hasOwnProperty.call(node, attribute), `${label} ${attribute} field is missing`, failures)
+        const value = node[attribute]
+        if (value == null || value === '') continue
+        const refs = Array.isArray(value) ? value : String(value).split(/\s+/)
+        ensure(refs.every(reference => ids.has(reference)), `${label} ${attribute} references an unrecorded ID`, failures)
+      }
+    }
+  }
   ensure(report.ssrHydration?.status === 'recorded' && Object.values(report.ssrHydration.combinations ?? {}).length === 8 && Object.values(report.ssrHydration.combinations).every(item => item.cjsRender === true && item.initialIdSha256 === item.hydratedIdSha256 && item.postHydrationInteraction === true && item.postHydrationStateChanged === true && item.businessEventsAfterHydration > 0), 'bounded SSR/hydration raw evidence is incomplete', failures)
+  for (const [key, item] of Object.entries(report.ssrHydration?.combinations ?? {})) {
+    validateAccessibilitySnapshot(item.serverSnapshot, `${key} server`)
+    validateAccessibilitySnapshot(item.hydratedSnapshot, `${key} hydrated`)
+    ensure(JSON.stringify(item.serverSnapshot) === JSON.stringify(item.hydratedSnapshot), `${key} server/hydrated accessibility snapshots differ`, failures)
+    ensure(item.combinedSha256 === item.serverSnapshot?.combinedSha256 && item.combinedSha256 === item.hydratedSnapshot?.combinedSha256, `${key} combined DOM hash is not bound to both snapshots`, failures)
+    ensure(item.mainHtmlSha256 === item.hydratedMainHtmlSha256 && item.teleportHtmlSha256 === item.hydratedTeleportHtmlSha256, `${key} main/teleport hydrated hashes are not bound`, failures)
+    ensure(new Set((item.postHydrationActions ?? []).map(action => action.component)).size === COMPONENTS.length && COMPONENTS.every(component => (item.postHydrationActions ?? []).some(action => action.component === component)), `${key} post-hydration actions do not cover all components`, failures)
+    for (const action of item.postHydrationActions ?? []) ensure(action.target && action.beforeState && action.afterState && JSON.stringify(action.beforeState) !== JSON.stringify(action.afterState) && Array.isArray(action.callbackEventNames) && action.callbackEventNames.length > 0, `${key} ${action.component} action is not a real state-changing callback record`, failures)
+    for (const component of COMPONENTS) { const rows = item.initialRowsByComponent?.[component]; ensure(Number.isInteger(rows) && rows > 0, `${key} ${component} initial row count is missing`, failures); if (item.virtual?.[component] === true) ensure(rows <= RELEASE_MATRIX.maxVirtualRows, `${key} ${component} virtual initial row window exceeds limit`, failures); else ensure(rows === item.componentRows?.[component], `${key} ${component} full initial rows are not bound to component evidence`, failures) }
+  }
+  ensure(report.typeProbe?.tscExitCode === 0 && Array.isArray(report.typeProbe.positiveChecks) && report.typeProbe.positiveChecks.length >= 4 && Array.isArray(report.typeProbe.negativeChecks) && report.typeProbe.negativeChecks.length >= 3, 'bounded public type probe evidence is incomplete', failures)
   ensure(report.iframe?.ownerDocument === true && report.iframe.teleportOwnerDocument === true && report.iframe.resourceCounts?.before > 0 && report.iframe.resourceCounts.after === 0 && report.iframe.postUnmountInteractions === 0, 'bounded iframe lifecycle evidence is incomplete', failures)
   if (failures.length) { const error = new Error(`D4 bounded release contract failed: ${failures.join('; ')}`); error.failures = failures; throw error }
   return { status: 'passed-ineligible', acceptanceEligible: false, failures: [] }
