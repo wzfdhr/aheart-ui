@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFile } from 'node:child_process'
-import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { cp, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { validateBoundedReleaseReport } from './d4-deferred-consumer-contract.mjs'
+import { validateBoundedReleaseReport, verifyArtifactBindings } from './d4-deferred-consumer-contract.mjs'
 
 const run = promisify(execFile)
 const workspace = process.cwd()
@@ -139,15 +139,51 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
   assert.equal(report.outputDirectoryDurable, true)
 })
 
-const assertBoundedMutationRejected = (report, mutate, message, pattern) => {
+const assertDurableArtifactDescriptors = async report => {
+  assert.ok(report.artifactDirectory, 'collector must publish a durable artifactDirectory')
+  assert.ok(report.runDir, 'collector must retain the cleaned runDir marker')
+  const artifactDirectory = path.resolve(report.artifactDirectory)
+  const runDir = path.resolve(report.runDir)
+  assert.notEqual(artifactDirectory, runDir, 'durable artifact directory must not be the cleaned runDir')
+  const relativeToRunDir = path.relative(runDir, artifactDirectory)
+  assert.ok(relativeToRunDir.startsWith('..'), 'durable artifact directory must be outside the cleaned runDir')
+  const packageDescriptors = [
+    report.packages.baseline.path,
+    report.packages.baseline.manifestPath,
+    report.packages.candidate.path,
+    report.packages.candidate.manifestPath,
+    report.packages.candidate.modulePath,
+    report.packages.candidate.lockPath,
+  ]
+  for (const descriptor of packageDescriptors) {
+    const absolute = path.resolve(descriptor)
+    const relativeToArtifacts = path.relative(artifactDirectory, absolute)
+    assert.ok(relativeToArtifacts && !relativeToArtifacts.startsWith('..') && !path.isAbsolute(relativeToArtifacts), `artifact descriptor must be inside durable output artifacts: ${descriptor}`)
+    assert.ok(path.relative(runDir, absolute).startsWith('..'), `artifact descriptor must not remain under cleaned runDir: ${descriptor}`)
+    assert.ok((await stat(absolute)).isFile(), `artifact descriptor must exist after collector exit: ${descriptor}`)
+  }
+  assert.ok((await stat(path.resolve(report.collectorSourcePath))).isFile(), 'collectorSourcePath must remain reopenable')
+}
+
+const assertBoundedControlPasses = async report => {
+  await verifyArtifactBindings(report)
+  assert.doesNotThrow(() => validateBoundedReleaseReport(report), 'unmodified real bounded report must pass before mutation')
+  await assertDurableArtifactDescriptors(report)
+}
+
+const assertBoundedMutationRejected = async (report, mutate, message, pattern) => {
+  await assertBoundedControlPasses(report)
   const forged = structuredClone(report)
   mutate(forged)
-  assert.throws(() => validateBoundedReleaseReport(forged), pattern, message)
+  await assert.rejects(async () => {
+    await verifyArtifactBindings(forged)
+    validateBoundedReleaseReport(forged)
+  }, pattern, message)
 }
 
 test('real bounded geometry cannot retain coverage flags after rowRects move offscreen', async () => {
   const { report } = await collectRealBoundedReport()
-  assertBoundedMutationRejected(report, forged => {
+  await assertBoundedMutationRejected(report, forged => {
     for (const step of forged.case.scroll) {
       for (const row of step.rowRects) {
         row.top = -99999
@@ -156,22 +192,22 @@ test('real bounded geometry cannot retain coverage flags after rowRects move off
         row.right = -99971
       }
     }
-  }, 'bounded validator must recompute viewport coverage from raw rowRects', /coverage|geometry|viewport|row/i)
+  }, 'bounded validator must recompute viewport coverage from raw rowRects', /bounded raw geometry cannot be recomputed from rowRects\/viewport/)
 })
 
 test('real bounded artifact paths must exist for both baseline and candidate tarballs', async () => {
   const { report } = await collectRealBoundedReport()
-  assertBoundedMutationRejected(report, forged => {
+  await assertBoundedMutationRejected(report, forged => {
     forged.packages.baseline.path = path.join(forged.runDir ?? tmpdir(), 'missing-baseline.tgz')
     forged.packages.candidate.path = path.join(forged.runDir ?? tmpdir(), 'missing-candidate.tgz')
     forged.packages.baseline.exists = true
     forged.packages.candidate.exists = true
-  }, 'bounded validator must reject nonexistent baseline/candidate tarball paths', /artifact|path|exist|tarball/i)
+  }, 'bounded validator must reject nonexistent baseline/candidate tarball paths', /(?:baseline|candidate) tarball artifact path does not exist/)
 })
 
 test('real bounded collector provenance rejects a forged collector source hash', async () => {
   const { report } = await collectRealBoundedReport()
-  assertBoundedMutationRejected(report, forged => { forged.collectorSourceSha256 = 'fake-collector-source' }, 'bounded validator must bind collectorSourceSha256 to the collector source', /collector|source|hash/i)
+  await assertBoundedMutationRejected(report, forged => { forged.collectorSourceSha256 = 'fake-collector-source' }, 'bounded validator must bind collectorSourceSha256 to the collector source', /collector source reopened hash mismatch/)
 })
 
 test('real bounded artifact, manifest, build, module and lock hashes are independently bound', async () => {
@@ -184,13 +220,13 @@ test('real bounded artifact, manifest, build, module and lock hashes are indepen
     ['lockfile', forged => { forged.packages.candidate.lockfileSha256 = '0'.repeat(64) }],
   ]
   for (const [label, mutate] of mutations) {
-    assertBoundedMutationRejected(report, mutate, `bounded validator must reject forged ${label} hash`, /artifact|manifest|build|module|lock|hash|fingerprint|provenance/i)
+    await assertBoundedMutationRejected(report, mutate, `bounded validator must reject forged ${label} hash`, new RegExp(label === 'artifact tarball' ? 'candidate tarball reopened hash mismatch' : label === 'manifest' ? 'candidate manifest reopened hash mismatch' : label === 'build fingerprint' ? 'build fingerprint' : label === 'module fingerprint' ? 'module fingerprint' : 'candidate lock reopened hash mismatch'))
   }
 })
 
 test('real bounded actionability and observer summaries are recomputed from raw geometry/style/entries', async () => {
   const { report } = await collectRealBoundedReport()
-  assertBoundedMutationRejected(report, forged => {
+  await assertBoundedMutationRejected(report, forged => {
     forged.case.timing.targetRect.top = -99999
     forged.case.timing.targetRect.bottom = -99971
     forged.case.timing.targetRect.left = -99999
@@ -198,9 +234,9 @@ test('real bounded actionability and observer summaries are recomputed from raw 
     forged.case.timing.targetRect.intersectsViewport = true
     forged.case.timing.targetRect.enabled = true
     forged.case.timing.targetRect.pointerEvents = 'auto'
-  }, 'bounded validator must recompute target actionability from raw target rect and style', /target|actionable|viewport|style/i)
+  }, 'bounded validator must recompute target actionability from raw target rect and style', /bounded first interaction raw timing\/target evidence is invalid/)
 
-  assertBoundedMutationRejected(report, forged => {
+  await assertBoundedMutationRejected(report, forged => {
     const round = forged.case.observers.rawRounds[0]
     const longTask = { startTime: round.startedAt + 1, duration: 999 }
     const layoutShift = { startTime: round.drainedAt - 1, value: 0.9 }
@@ -210,5 +246,5 @@ test('real bounded actionability and observer summaries are recomputed from raw 
     ]
     forged.case.observers.longTasks = [longTask]
     forged.case.observers.layoutShifts = [layoutShift]
-  }, 'bounded validator must recompute observer max/CLS and time bounds from raw entries', /observer|long.?task|layout|CLS|timestamp|entry/i)
+  }, 'bounded validator must recompute observer max/CLS and time bounds from raw entries', /bounded observer raw rounds are not drained\/recomputed/)
 })

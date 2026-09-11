@@ -21,6 +21,30 @@ const fullReport = () => buildAcceptanceFixture({
   generatedAt: '2026-09-11T00:00:00.000Z',
 })
 
+const releaseDescriptorFixture = () => {
+  const report = fullReport()
+  report.syntheticEvidence = false
+  report.sourceKind = 'collected'
+  report.runId = 'bounded-test-fixture'
+  report.collectorSourcePath = '/artifacts/collector.mjs'
+  report.collectorSourceSha256 = 'a'.repeat(64)
+  report.realEvidenceBinding = {
+    tarballReopened: true,
+    buildFingerprint: { before: 'b'.repeat(64), after: 'c'.repeat(64) },
+    moduleFingerprint: { before: 'd'.repeat(64), after: 'e'.repeat(64) },
+  }
+  for (const side of ['baseline', 'candidate']) {
+    report.packages[side].path = `/artifacts/${side}.tgz`
+    report.packages[side].manifestPath = `/artifacts/${side}-manifest.json`
+    report.packages[side].modulePath = `/artifacts/${side}-module.js`
+    report.packages[side].lockPath = `/artifacts/${side}-pnpm-lock.yaml`
+    report.packages[side].manifestSha256 = 'f'.repeat(64)
+    report.packages[side].lockfileSha256 = '1'.repeat(64)
+    report.packages[side].afterHashes = { 'es/index.js': '2'.repeat(64) }
+  }
+  return report
+}
+
 test('the contract exposes the frozen release matrix', () => {
   assert.deepEqual(RELEASE_MATRIX, {
     counts: [1000, 5000, 10000],
@@ -196,6 +220,18 @@ test('release validation rejects arbitrary collected source/run/fingerprint stri
     report.packages[side].afterHashes = { 'es/index.js': 'arbitrary-module-hash' }
   }
   assert.throws(() => validateReport(report, { requireRelease: true }), /source|run|fingerprint|artifact|provenance|tarball|path|exist/i)
+})
+
+test('full release descriptor contract rejects pending validator status', () => {
+  const pending = releaseDescriptorFixture()
+  pending.releaseFormat = { validatorStatus: 'pending' }
+  assert.throws(() => validateReport(pending, { requireRelease: true }), /pending|validator status/i)
+})
+
+test('full release descriptor contract rejects missing collectorSourcePath', () => {
+  const missingCollectorSource = releaseDescriptorFixture()
+  missingCollectorSource.releaseFormat = { validatorStatus: 'passed' }
+  assert.throws(() => validateReport(missingCollectorSource, { requireRelease: true }), /collectorSourcePath|collector source path/i)
 })
 
 test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {
