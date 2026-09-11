@@ -551,7 +551,7 @@ async function collectSmoke(temporary) {
   return report
 }
 
-async function collectSide(tarball, label, temporary, { preflight = false, checkpoint } = {}) {
+async function collectSide(tarball, label, temporary, { preflight = false, checkpoint, cleanupCounters: sharedCleanupCounters } = {}) {
   const root = await mkdtemp(path.join(temporary, `${label}-consumer-`))
   const packageManifest = await verifyTarball(tarball, label, root, label === 'baseline' ? baselineManifest : candidateManifest)
   await checkpoint?.('pack', { stage: 'pack', label, root, packageManifest, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
@@ -580,7 +580,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   packageManifest.moduleRealpaths = [install.packageRealpath]
   packageManifest.afterHashes = { 'es/index.js': install.packageIndexHash }
   packageManifest.versions = install.versions
-  const cleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
+  const cleanupCounters = sharedCleanupCounters ?? { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
   if (preflight) {
     let preflightServer
     let preflightBrowser
@@ -746,8 +746,10 @@ if (smoke) {
   await mkdir(durableRunDir, { recursive: true })
   const temporary = await mkdtemp(path.join(tmpdir(), 'aheart-d4-deferred-preflight-'))
   let partial = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), preflight: true, smoke: false, acceptanceEligible: false, sourceKind: 'collected', checkpoints: [] }
-  const cleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0, temporaryRemovedAfterPersistence: false }
-  let lastSideCleanupCounters = { browserClosed: 0, serversClosed: 0 }
+  const baselineCleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
+  const candidateCleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
+  const cleanupCounters = { baseline: baselineCleanupCounters, candidate: candidateCleanupCounters, browserClosed: 0, serversClosed: 0, temporaryRemovedAfterPersistence: false }
+  const syncCleanupCounters = () => { cleanupCounters.chromiumClose = baselineCleanupCounters.chromiumClose + candidateCleanupCounters.chromiumClose; cleanupCounters.previewServerClose = baselineCleanupCounters.previewServerClose + candidateCleanupCounters.previewServerClose; cleanupCounters.browserClosed = cleanupCounters.chromiumClose; cleanupCounters.serversClosed = cleanupCounters.previewServerClose }
   let checkpointSequence = 0
   const checkpoint = async (stage, details) => {
     const evidence = await copyCheckpointEvidence({ ...details, stage, durableRoot: durableDir }, path.join(durableDir, 'checkpoints', `${String(checkpointSequence++).padStart(4, '0')}-${details?.label ?? 'run'}-${stage}`))
@@ -756,16 +758,17 @@ if (smoke) {
     await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
   }
   try {
-    const baseline = await collectSide(baselineTarball, 'baseline', temporary, { preflight: true, checkpoint })
-    lastSideCleanupCounters = { browserClosed: baseline.cleanupCounters.chromiumClose, serversClosed: baseline.cleanupCounters.previewServerClose }
-    const candidate = await collectSide(candidateTarball, 'candidate', temporary, { preflight: true, checkpoint })
-    const report = buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId: `preflight-${Date.now()}-${Math.random().toString(16).slice(2)}`, preflight: true })
+    const baseline = await collectSide(baselineTarball, 'baseline', temporary, { preflight: true, checkpoint, cleanupCounters: baselineCleanupCounters })
+    syncCleanupCounters()
+    const candidate = await collectSide(candidateTarball, 'candidate', temporary, { preflight: true, checkpoint, cleanupCounters: candidateCleanupCounters })
+    syncCleanupCounters()
+    const report = buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId: `preflight-${Date.now()}-${Math.random().toString(16).slice(2)}`, preflight: true, environment: { cpu: os.cpus()[0]?.model ?? 'unknown', concurrency: 1 } })
     report.preflight = true
     report.acceptanceEligible = false
     report.performance = { status: 'notRun', cases: {}, firstInteraction: { full: {}, virtual: {} } }
     report.browsers = {}
     report.checkpoints = partial.checkpoints
-    report.cleanupCounters = { baseline: baseline.cleanupCounters, candidate: candidate.cleanupCounters, temporaryRemovedAfterPersistence: false }
+    report.cleanupCounters = cleanupCounters
     report.collectorSourcePath = fileURLToPath(import.meta.url)
     report.collectorSourceSha256 = sha256(await readFile(report.collectorSourcePath))
     await prepareFullArtifactBindings(report, {
@@ -799,9 +802,10 @@ if (smoke) {
     await rename(`${output}.preflight.tmp`, output)
     console.log(JSON.stringify({ output, status: 'passed-ineligible', preflight: true, acceptanceEligible: false }, null, 2))
   } catch (error) {
+    syncCleanupCounters()
     partial.failure = String(error?.message ?? error)
     partial.failureEvidence = { ...(partial.failureEvidence ?? {}), preservedFailureArtifact: true, candidate: true, validationFailures: error.failures ?? [] }
-    partial.cleanupCounters = { ...lastSideCleanupCounters, ...cleanupCounters }
+    partial.cleanupCounters = cleanupCounters
     await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(partial, null, 2)}\n`)
     await writeFile(path.join(durableDir, 'partial-report.json'), `${JSON.stringify(partial, null, 2)}\n`)
     await mkdir(path.dirname(output), { recursive: true })
@@ -809,11 +813,13 @@ if (smoke) {
     throw error
   } finally {
     await rm(temporary, { recursive: true, force: true })
+    syncCleanupCounters()
     cleanupCounters.temporaryRemovedAfterPersistence = true
     if (partial.failure) {
       const failed = { ...partial, cleanupCounters: { ...(partial.cleanupCounters ?? {}), ...cleanupCounters } }
       await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(failed, null, 2)}\n`)
       await writeFile(path.join(durableDir, 'partial-report.json'), `${JSON.stringify(failed, null, 2)}\n`)
+      await writeFile(output, `${JSON.stringify(failed, null, 2)}\n`)
     }
     else if (await stat(output).then(() => true).catch(() => false)) { const saved = JSON.parse(await readFile(output, 'utf8')); saved.cleanupCounters = { ...(saved.cleanupCounters ?? {}), temporaryRemovedAfterPersistence: true }; await writeFile(output, `${JSON.stringify(saved, null, 2)}\n`) }
   }
@@ -824,7 +830,10 @@ const durableRunDir = `${output}.run`
 await mkdir(durableDir, { recursive: true })
 await mkdir(durableRunDir, { recursive: true })
 let checkpointState = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: false, acceptanceEligible: true, checkpoints: [] }
-const cleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0, temporaryRemovedAfterPersistence: false }
+const baselineCleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
+const candidateCleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
+const cleanupCounters = { baseline: baselineCleanupCounters, candidate: candidateCleanupCounters, browserClosed: 0, serversClosed: 0, temporaryRemovedAfterPersistence: false }
+const syncCleanupCounters = () => { cleanupCounters.chromiumClose = baselineCleanupCounters.chromiumClose + candidateCleanupCounters.chromiumClose; cleanupCounters.previewServerClose = baselineCleanupCounters.previewServerClose + candidateCleanupCounters.previewServerClose; cleanupCounters.browserClosed = cleanupCounters.chromiumClose; cleanupCounters.serversClosed = cleanupCounters.previewServerClose }
 let checkpointSequence = 0
 const checkpoint = async (stage, details) => {
   const evidence = await copyCheckpointEvidence({ ...details, stage, durableRoot: durableDir }, path.join(durableDir, 'checkpoints', `${String(checkpointSequence++).padStart(4, '0')}-${details?.label ?? 'run'}-${stage}`))
@@ -833,15 +842,16 @@ const checkpoint = async (stage, details) => {
   await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
 }
 try {
-  const baseline = await collectSide(baselineTarball, 'baseline', temporary, { checkpoint })
-  const candidate = await collectSide(candidateTarball, 'candidate', temporary, { checkpoint })
-  const report = buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId: `full-${Date.now()}-${Math.random().toString(16).slice(2)}` })
+  const baseline = await collectSide(baselineTarball, 'baseline', temporary, { checkpoint, cleanupCounters: baselineCleanupCounters })
+  syncCleanupCounters()
+  const candidate = await collectSide(candidateTarball, 'candidate', temporary, { checkpoint, cleanupCounters: candidateCleanupCounters })
+  syncCleanupCounters()
+  const report = buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId: `full-${Date.now()}-${Math.random().toString(16).slice(2)}`, environment: { cpu: os.cpus()[0]?.model ?? 'unknown', concurrency: 1 } })
   report.acceptanceEligible = true
   report.preflight = false
   report.benchmarkExecuted = true
-  report.environment.cpu = os.cpus()[0]?.model ?? 'unknown'
   report.checkpoints = checkpointState.checkpoints
-  report.cleanupCounters = { baseline: baseline.cleanupCounters, candidate: candidate.cleanupCounters, temporaryRemovedAfterPersistence: false }
+  report.cleanupCounters = cleanupCounters
   report.sourceKind = 'collected'
   report.runId = `full-${Date.now()}-${Math.random().toString(16).slice(2)}`
   report.collectorSourcePath = fileURLToPath(import.meta.url)
@@ -893,6 +903,7 @@ try {
   await finalizeCollectedReport(report, output)
   console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: true }, null, 2))
 } catch (error) {
+  syncCleanupCounters()
   await mkdir(path.dirname(output), { recursive: true })
   const partialText = await readFile(path.join(durableRunDir, 'partial-report.json'), 'utf8').catch(() => readFile(output, 'utf8').catch(() => '{}'))
   const partial = JSON.parse(partialText)
@@ -910,6 +921,7 @@ try {
   throw error
 } finally {
   await rm(temporary, { recursive: true, force: true })
+  syncCleanupCounters()
   cleanupCounters.temporaryRemovedAfterPersistence = true
   if (checkpointState.failure) {
     const failed = { ...checkpointState, cleanupCounters: { ...(checkpointState.cleanupCounters ?? {}), ...cleanupCounters } }

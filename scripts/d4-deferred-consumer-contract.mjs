@@ -170,7 +170,7 @@ export async function prepareFullArtifactBindings(report, options = {}) {
   return report
 }
 
-export function buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId, preflight = false } = {}) {
+export function buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId, preflight = false, environment = {} } = {}) {
   assert(baseline?.packageManifest && candidate?.packageManifest, 'baseline and candidate side results are required')
   return {
     schema: 'd4-deferred-consumer/v1',
@@ -182,7 +182,7 @@ export function buildFullReportShell({ baseline, candidate, baselineCommit, cand
     syntheticEvidence: false,
     sourceKind: 'collected',
     runId: runId ?? `${preflight ? 'preflight' : 'full'}-${Date.now()}`,
-    environment: { ...(candidate.packageManifest.versions ?? {}) },
+    environment: { ...(candidate.packageManifest.versions ?? {}), ...environment },
     matrix: RELEASE_MATRIX,
     fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } },
     provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit, baselineCommitVerified: baselineCommit === APPROVED_BASELINE_COMMIT, candidateCommitVerified: Boolean(candidateCommit), baselineTarballSha256: baseline.packageManifest.sha256, candidateTarballSha256: candidate.packageManifest.sha256 },
@@ -205,6 +205,9 @@ export async function validateFullPreflightReport(report, options = {}) {
   assert.deepEqual(Object.keys(report?.performance?.cases ?? {}), [], 'full preflight must not carry performance cases')
   assert.deepEqual(Object.keys(report?.browsers ?? {}), [], 'full preflight must not carry browser benchmark evidence')
   assert.equal(report?.sourceKind, 'collected', 'full preflight report must come from collected evidence')
+  assert(report?.environment && Object.keys(PINNED_VERSIONS).every(key => report.environment[key] === PINNED_VERSIONS[key]), 'full preflight pinned environment is incomplete')
+  assert(typeof report.environment.cpu === 'string' && report.environment.cpu.trim().length > 0, 'full preflight CPU model is required')
+  assert(Number.isSafeInteger(report.environment.concurrency) && report.environment.concurrency >= 1 && report.environment.concurrency <= 32, 'full preflight concurrency is invalid')
   assert(report?.artifactDirectory && report?.runDir, 'full preflight durable descriptors are required')
   assert(report?.realEvidenceBinding?.buildManifestPath, 'full preflight build manifest is required')
   assert(report?.packages?.baseline?.path && report?.packages?.candidate?.path, 'full preflight package descriptors are required')
