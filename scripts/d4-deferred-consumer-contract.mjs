@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/promises'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
@@ -49,6 +49,161 @@ const median = values => {
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const json = value => JSON.stringify(value)
 
+async function durableFileManifest(directory, destination) {
+  const files = []
+  async function walk(current) {
+    for (const entry of await readdir(current, { withFileTypes: true })) {
+      const full = path.join(current, entry.name)
+      if (entry.isDirectory()) await walk(full)
+      else files.push(full)
+    }
+  }
+  await walk(directory)
+  const descriptors = []
+  for (const file of files.sort()) {
+    const bytes = await readFile(file)
+    descriptors.push({ path: file, relativePath: path.relative(directory, file).split(path.sep).join('/'), bytes: bytes.length, sha256: sha256(bytes) })
+  }
+  await writeFile(destination, `${JSON.stringify({ files: descriptors }, null, 2)}\n`)
+  const lines = descriptors.map(file => `${file.relativePath}=${file.sha256}`).sort().join('\n')
+  return { descriptors, fingerprint: sha256(Buffer.from(lines)) }
+}
+
+/**
+ * Copy all release inputs into durable evidence and bind every descriptor to
+ * bytes that can be reopened after the temporary consumer is removed.  The
+ * helper is deliberately data-oriented so preflight and full collection share
+ * exactly the same artifact contract.
+ */
+export async function prepareFullArtifactBindings(report, options = {}) {
+  const {
+    artifactDirectory,
+    runDir,
+    baselineTarball,
+    candidateTarball,
+    baselineManifestPath,
+    candidateManifestPath,
+    candidateBuildDirectory,
+    baselineBuildDirectory,
+    candidateModulePath,
+    baselineModulePath,
+    candidateLockPath,
+    baselineLockPath,
+    collectorSourcePath,
+  } = options
+  assert(artifactDirectory && runDir, 'durable artifactDirectory and runDir are required')
+  assert(baselineTarball && candidateTarball, 'baseline and candidate tarballs are required')
+  assert(baselineManifestPath && candidateManifestPath, 'baseline and candidate manifests are required')
+  assert(candidateBuildDirectory && candidateModulePath && candidateLockPath, 'candidate build/module/lock paths are required')
+  assert(baselineBuildDirectory && baselineModulePath && baselineLockPath, 'baseline build/module/lock paths are required')
+  await mkdir(artifactDirectory, { recursive: true })
+  await mkdir(runDir, { recursive: true })
+  const copy = async (source, name) => {
+    const destination = path.join(artifactDirectory, name)
+    await cp(source, destination, { recursive: true })
+    return destination
+  }
+  const baselinePackagePath = await copy(baselineTarball, 'baseline.tgz')
+  const candidatePackagePath = await copy(candidateTarball, 'candidate.tgz')
+  const baselineManifest = await copy(baselineManifestPath, 'baseline-manifest.json')
+  const candidateManifest = await copy(candidateManifestPath, 'candidate-manifest.json')
+  const buildDirectory = path.join(artifactDirectory, 'dist')
+  await cp(candidateBuildDirectory, buildDirectory, { recursive: true })
+  const buildManifestPath = path.join(artifactDirectory, 'dist-files.json')
+  const build = await durableFileManifest(buildDirectory, buildManifestPath)
+  const baselineBuildDirectoryDurable = path.join(artifactDirectory, 'baseline-dist')
+  await cp(baselineBuildDirectory, baselineBuildDirectoryDurable, { recursive: true })
+  const baselineBuildManifestPath = path.join(artifactDirectory, 'baseline-dist-files.json')
+  const baselineBuild = await durableFileManifest(baselineBuildDirectoryDurable, baselineBuildManifestPath)
+  const modulePath = await copy(candidateModulePath, 'module-index.js')
+  const baselineModulePathDurable = await copy(baselineModulePath, 'baseline-module-index.js')
+  const lockPath = await copy(candidateLockPath, 'pnpm-lock.yaml')
+  const baselineLockPathDurable = await copy(baselineLockPath, 'baseline-pnpm-lock.yaml')
+  const moduleHash = sha256(await readFile(modulePath))
+  const baselineModuleHash = sha256(await readFile(baselineModulePathDurable))
+  const lockHash = sha256(await readFile(lockPath))
+  const baselineLockHash = sha256(await readFile(baselineLockPathDurable))
+  const sourcePath = collectorSourcePath ? path.resolve(collectorSourcePath) : report.collectorSourcePath
+  assert(sourcePath, 'collectorSourcePath is required')
+  const sourceHash = sha256(await readFile(sourcePath))
+  report.artifactDirectory = path.resolve(artifactDirectory)
+  report.runDir = path.resolve(runDir)
+  report.collectorSourcePath = sourcePath
+  report.collectorSourceSha256 = sourceHash
+  report.packages ??= {}
+  report.packages.baseline ??= {}
+  report.packages.candidate ??= {}
+  report.packages.baseline.path = baselinePackagePath
+  report.packages.baseline.manifestPath = baselineManifest
+  report.packages.baseline.sha256 = sha256(await readFile(baselinePackagePath))
+  report.packages.baseline.manifestSha256 = sha256(await readFile(baselineManifest))
+  report.packages.baseline.modulePath = baselineModulePathDurable
+  report.packages.baseline.lockPath = baselineLockPathDurable
+  report.packages.baseline.lockfileSha256 = baselineLockHash
+  report.packages.baseline.lockfileAfterSha256 = baselineLockHash
+  report.packages.baseline.afterHashes = { ...(report.packages.baseline.afterHashes ?? {}), 'es/index.js': baselineModuleHash }
+  report.packages.candidate.path = candidatePackagePath
+  report.packages.candidate.manifestPath = candidateManifest
+  report.packages.candidate.sha256 = sha256(await readFile(candidatePackagePath))
+  report.packages.candidate.manifestSha256 = sha256(await readFile(candidateManifest))
+  report.packages.candidate.modulePath = modulePath
+  report.packages.candidate.lockPath = lockPath
+  report.packages.candidate.lockfileSha256 = lockHash
+  report.packages.candidate.lockfileAfterSha256 = lockHash
+  report.packages.candidate.afterHashes = { ...(report.packages.candidate.afterHashes ?? {}), 'es/index.js': moduleHash }
+  report.realEvidenceBinding ??= {}
+  report.realEvidenceBinding.buildDirectory = buildDirectory
+  report.realEvidenceBinding.buildManifestPath = buildManifestPath
+  report.realEvidenceBinding.buildFingerprint = { before: build.fingerprint, after: build.fingerprint }
+  report.realEvidenceBinding.baselineBuildDirectory = baselineBuildDirectoryDurable
+  report.realEvidenceBinding.baselineBuildManifestPath = baselineBuildManifestPath
+  report.realEvidenceBinding.baselineBuildFingerprint = { before: baselineBuild.fingerprint, after: baselineBuild.fingerprint }
+  report.realEvidenceBinding.moduleFingerprint = { before: moduleHash, after: moduleHash }
+  report.realEvidenceBinding.baselineModuleFingerprint = { before: baselineModuleHash, after: baselineModuleHash }
+  report.realEvidenceBinding.lockFingerprint = { before: lockHash, after: lockHash }
+  report.realEvidenceBinding.baselineLockFingerprint = { before: baselineLockHash, after: baselineLockHash }
+  report.realEvidenceBinding.artifactDirectory = report.artifactDirectory
+  report.realEvidenceBinding.sourceKind = 'collected'
+  return report
+}
+
+export function buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId, preflight = false } = {}) {
+  assert(baseline?.packageManifest && candidate?.packageManifest, 'baseline and candidate side results are required')
+  return {
+    schema: 'd4-deferred-consumer/v1',
+    generatedAt: new Date().toISOString(),
+    preflight,
+    smoke: false,
+    acceptanceEligible: false,
+    benchmarkExecuted: false,
+    syntheticEvidence: false,
+    sourceKind: 'collected',
+    runId: runId ?? `${preflight ? 'preflight' : 'full'}-${Date.now()}`,
+    environment: { ...(candidate.packageManifest.versions ?? {}) },
+    matrix: RELEASE_MATRIX,
+    fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } },
+    provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit, baselineCommitVerified: baselineCommit === APPROVED_BASELINE_COMMIT, candidateCommitVerified: Boolean(candidateCommit) },
+    packages: { baseline: baseline.packageManifest, candidate: candidate.packageManifest, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: baseline.packageManifest.lockDependenciesSha256 !== candidate.packageManifest.lockDependenciesSha256, newDependencies: [] },
+    performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} },
+    cases: {}, browsers: {}, ssrHydration: candidate.ssrHydration ?? { count: 8, combinations: {}, deterministicDoubleRender: true },
+    iframe: candidate.iframe ?? { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 },
+    gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' } }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
+    familyCoverage: candidate.familyCoverage ?? {},
+  }
+}
+
+export async function validateFullPreflightReport(report, options = {}) {
+  assert.equal(report?.preflight, true, 'full preflight report must set preflight=true')
+  assert.equal(report?.smoke, false, 'full preflight report must not be smoke')
+  assert.equal(report?.acceptanceEligible, false, 'full preflight report is release-ineligible')
+  assert.equal(report?.sourceKind, 'collected', 'full preflight report must come from collected evidence')
+  assert(report?.artifactDirectory && report?.runDir, 'full preflight durable descriptors are required')
+  assert(report?.realEvidenceBinding?.buildManifestPath, 'full preflight build manifest is required')
+  assert(report?.packages?.baseline?.path && report?.packages?.candidate?.path, 'full preflight package descriptors are required')
+  await verifyArtifactBindings(report, options)
+  return { status: 'passed-ineligible', acceptanceEligible: false, performance: 'notRun' }
+}
+
 export async function verifyArtifactBindings(report, { reportPath } = {}) {
   const failures = []
   const base = reportPath ? path.dirname(path.resolve(reportPath)) : process.cwd()
@@ -61,11 +216,35 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
     const pkg = report.packages?.[side]
     await verifyHash(`${side} tarball`, pkg?.path, pkg?.sha256)
     await verifyHash(`${side} manifest`, pkg?.manifestPath, pkg?.manifestSha256)
-    if (side === 'candidate') {
-      await verifyHash(`${side} module`, pkg?.modulePath, pkg?.afterHashes?.['es/index.js'])
-      await verifyHash(`${side} lock`, pkg?.lockPath, pkg?.lockfileSha256)
-      if (pkg?.modulePath) { const moduleHash = sha256(await readFile(resolve(pkg.modulePath))); ensure(moduleHash === report.realEvidenceBinding?.moduleFingerprint?.before && moduleHash === report.realEvidenceBinding?.moduleFingerprint?.after, 'module fingerprint before/after mismatch', failures) }
-      if (pkg?.lockPath) { const lockHash = sha256(await readFile(resolve(pkg.lockPath))); ensure(lockHash === report.realEvidenceBinding?.lockFingerprint?.before && lockHash === report.realEvidenceBinding?.lockFingerprint?.after, 'lock fingerprint before/after mismatch', failures) }
+    if (pkg?.modulePath) {
+      const moduleFingerprint = side === 'candidate' ? report.realEvidenceBinding?.moduleFingerprint : report.realEvidenceBinding?.baselineModuleFingerprint
+      await verifyHash(`${side} module`, pkg.modulePath, pkg?.afterHashes?.['es/index.js'])
+      if (moduleFingerprint) { const moduleHash = sha256(await readFile(resolve(pkg.modulePath))); ensure(moduleHash === moduleFingerprint.before && moduleHash === moduleFingerprint.after, `${side} module fingerprint before/after mismatch`, failures) }
+    }
+    if (pkg?.lockPath) {
+      await verifyHash(`${side} lock`, pkg.lockPath, pkg.lockfileSha256)
+      const lockFingerprint = side === 'candidate' ? report.realEvidenceBinding?.lockFingerprint : report.realEvidenceBinding?.baselineLockFingerprint
+      if (lockFingerprint) { const lockHash = sha256(await readFile(resolve(pkg.lockPath))); ensure(lockHash === lockFingerprint.before && lockHash === lockFingerprint.after, `${side} lock fingerprint before/after mismatch`, failures) }
+    }
+  }
+  for (const prefix of ['baseline', 'candidate']) {
+    const manifestPath = report.realEvidenceBinding?.[`${prefix}BuildManifestPath`]
+    const buildDirectory = report.realEvidenceBinding?.[`${prefix}BuildDirectory`]
+    const fingerprintPair = report.realEvidenceBinding?.[`${prefix}BuildFingerprint`]
+    if (manifestPath || buildDirectory || fingerprintPair) {
+      try {
+        ensure(manifestPath && buildDirectory && fingerprintPair, `${prefix} build manifest descriptors are incomplete`, failures)
+        const manifest = JSON.parse(await readFile(resolve(manifestPath), 'utf8'))
+        const listed = new Set()
+        const lines = []
+        for (const file of manifest.files ?? []) { ensure(!listed.has(file.relativePath), `duplicate ${prefix} build file in manifest: ${file.relativePath}`, failures); listed.add(file.relativePath); const bytes = await readFile(resolve(file.path)); const hash = sha256(bytes); ensure(hash === file.sha256 && bytes.length === file.bytes, `${prefix} build file hash/bytes mismatch: ${file.relativePath}`, failures); lines.push(`${file.relativePath}=${hash}`) }
+        const actual = []
+        async function walk(dir) { for (const entry of await readdir(dir, { withFileTypes: true })) { const full = path.join(dir, entry.name); if (entry.isDirectory()) await walk(full); else actual.push(path.relative(resolve(buildDirectory), full).split(path.sep).join('/')) } }
+        await walk(resolve(buildDirectory))
+        ensure(JSON.stringify(actual.sort()) === JSON.stringify([...listed].sort()), `${prefix} build manifest file set does not exactly cover durable dist`, failures)
+        const fingerprint = sha256(Buffer.from(lines.sort().join('\n')))
+        ensure(fingerprint === fingerprintPair.before && fingerprint === fingerprintPair.after, `${prefix} build fingerprint before/after mismatch`, failures)
+      } catch (error) { failures.push(`${prefix} build manifest cannot be reopened: ${error.message}`) }
     }
   }
   const buildManifestPath = report.realEvidenceBinding?.buildManifestPath
@@ -87,6 +266,7 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
   }
   ensure(report.realEvidenceBinding?.moduleFingerprint?.before === report.realEvidenceBinding?.moduleFingerprint?.after, 'module fingerprint before/after mismatch', failures)
   ensure(report.packages?.candidate?.lockfileSha256 === report.packages?.candidate?.lockfileAfterSha256, 'lock fingerprint before/after mismatch', failures)
+  if (report.packages?.baseline?.lockfileSha256 || report.packages?.baseline?.lockfileAfterSha256) ensure(report.packages?.baseline?.lockfileSha256 === report.packages?.baseline?.lockfileAfterSha256, 'baseline lock fingerprint before/after mismatch', failures)
   if (report.runDir) { try { ensure((await stat(resolve(report.runDir))).isDirectory(), 'collector runDir is not durable', failures) } catch (error) { failures.push(`collector runDir cannot be reopened: ${error.message}`) } }
   if (failures.length) { const error = new Error(`D4 artifact binding verification failed: ${failures.join('; ')}`); error.failures = failures; throw error }
   return { status: 'passed', failures: [] }

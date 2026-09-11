@@ -19,12 +19,14 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createServer } from 'vite'
 import { chromium, firefox, webkit } from '@playwright/test'
-import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, buildSmokeReport, validateBoundedReleaseReport, validateReport, validateSmokeReport, verifyArtifactBindings } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
+import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, buildFullReportShell as contractBuildFullReportShell, buildSmokeReport, prepareFullArtifactBindings as contractPrepareFullArtifactBindings, validateBoundedReleaseReport, validateFullPreflightReport, validateReport, validateSmokeReport, verifyArtifactBindings } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
 
 const run = promisify(execFile)
 const fixture = path.dirname(fileURLToPath(import.meta.url))
 export const workspaceRoot = fileURLToPath(new URL('../../../../', import.meta.url))
 export const resolveWorkspacePath = value => path.resolve(workspaceRoot, value)
+export function buildFullReportShell(options) { return contractBuildFullReportShell(options) }
+export async function prepareFullArtifactBindings(report, options) { return contractPrepareFullArtifactBindings(report, options) }
 const arg = name => { const index = process.argv.indexOf(name); return index < 0 ? undefined : process.argv[index + 1] }
 const baselineTarball = arg('--baseline-tarball')
 const candidateTarball = arg('--candidate-tarball')
@@ -33,6 +35,7 @@ const candidateCommit = arg('--candidate-commit')
 const baselineManifestPath = arg('--baseline-manifest')
 const candidateManifestPath = arg('--candidate-manifest')
 const smoke = process.argv.includes('--smoke')
+const preflight = process.argv.includes('--preflight-full')
 const requestedBaseURL = arg('--base-url') ?? 'http://127.0.0.1:0'
 const output = path.resolve(arg('--out') ?? path.join(workspaceRoot, 'docs/superpowers/evidence/d4-deferred-consumer/full.json'))
 assert(baselineTarball && candidateTarball, '--baseline-tarball and --candidate-tarball are required')
@@ -118,10 +121,11 @@ async function installConsumer(root, tarball) {
   await writeFile(lockPath, rewritten)
   // Resolve the copied tarball's exact dependency graph once, then install
   // frozen from that generated lock. No install is allowed to rewrite it.
-  await run('corepack', ['pnpm', 'install', '--lockfile-only', '--ignore-scripts', '--no-frozen-lockfile', '--config.node-linker=hoisted'], { cwd: root, maxBuffer: 16 * 1024 * 1024 })
+  const installEnv = { ...process.env, NODE_ENV: 'development' }
+  await run('corepack', ['pnpm', 'install', '--lockfile-only', '--ignore-scripts', '--no-frozen-lockfile', '--config.node-linker=hoisted', '--prod=false'], { cwd: root, env: installEnv, maxBuffer: 16 * 1024 * 1024 })
   const generatedLock = await readFile(lockPath, 'utf8')
   assert.match(generatedLock, new RegExp(`aheart-ui@file:aheart-ui\\.tgz:[\\s\\S]*?sha512-${sha512Base64(tarballBytes).replace(/[+/=]/g, '\\$&')}`), 'generated lock must attest the exact tarball bytes')
-  await run('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts', '--config.node-linker=hoisted'], { cwd: root, maxBuffer: 32 * 1024 * 1024 })
+  await run('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts', '--config.node-linker=hoisted', '--prod=false'], { cwd: root, env: installEnv, maxBuffer: 32 * 1024 * 1024 })
   const link = await run('node', ['-e', "const fs=require('fs');process.stdout.write(String(fs.lstatSync('node_modules/aheart-ui').isSymbolicLink()))"], { cwd: root })
   assert.equal(link.stdout.trim(), 'false', 'installed package must not be a symlink')
   await run('corepack', ['pnpm', 'exec', 'tsc', '--noEmit'], { cwd: root, maxBuffer: 16 * 1024 * 1024 })
@@ -488,11 +492,14 @@ async function collectSmoke(temporary) {
   return report
 }
 
-async function collectSide(tarball, label, temporary) {
+async function collectSide(tarball, label, temporary, { preflight = false, checkpoint } = {}) {
   const root = await mkdtemp(path.join(temporary, `${label}-consumer-`))
   const packageManifest = await verifyTarball(tarball, label, root, label === 'baseline' ? baselineManifest : candidateManifest)
+  await checkpoint?.('pack', { label, root, packageManifest })
   const install = await installConsumer(root, tarball)
+  await checkpoint?.('install', { label, root, install })
   const ssr = await ssrEvidence(root)
+  await checkpoint?.('ssr', { label, root, ssr })
   const { build, preview } = await import(pathToFileURL(path.join(root, 'node_modules/vite/dist/node/index.js')).href)
   const previousCwd = process.cwd()
   process.chdir(root)
@@ -501,12 +508,39 @@ async function collectSide(tarball, label, temporary) {
   } finally {
     process.chdir(previousCwd)
   }
-  const server = await preview({ root, configFile: false, build: { outDir: 'dist' }, preview: { host: '127.0.0.1', port: 0 } })
-  const base = `http://127.0.0.1:${server.httpServer.address().port}`
-  const browser = await chromium.launch()
-  const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
+  await checkpoint?.('build', { label, root, buildDirectory: path.join(root, 'dist') })
+  if (label === 'candidate' && process.env.D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD === '1') {
+    throw new Error('D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD: injected candidate build failure after durable checkpoint')
+  }
+  packageManifest.lockfileSha256 = install.lockSha256
+  packageManifest.lockPath = install.lockPath
+  packageManifest.modulePath = path.join(root, 'node_modules/aheart-ui/es/index.js')
+  packageManifest.manifestPath = label === 'baseline' ? baselineManifestPath : candidateManifestPath
+  packageManifest.manifestSha256 = sha256(await readFile(packageManifest.manifestPath))
+  packageManifest.lockDependenciesSha256 = install.lockDependenciesSha256
+  packageManifest.moduleRealpaths = [install.packageRealpath]
+  packageManifest.afterHashes = { 'es/index.js': install.packageIndexHash }
+  packageManifest.versions = install.versions
+  if (preflight) {
+    return { packageManifest, cases: {}, root, ssrHydration: ssr, browsers: {}, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, familyCoverage: {}, install, buildDirectory: path.join(root, 'dist') }
+  }
+  let server
+  let browser
+  let page
+  let base
   const browserErrors = []
   const hydrationWarnings = []
+  const cases = {}
+  let lastObservers = { longTasks: [], layoutShifts: [], resources: [] }
+  const otherBrowsers = {}
+  let familyCoverage = {}
+  let iframeEvidence = { sameOrigin: false, ownerDocument: false, focusTransfer: false, unmountCleanup: false, postUnmountInteractions: 1 }
+  const hydrationErrors = []
+  try {
+  server = await preview({ root, configFile: false, build: { outDir: 'dist' }, preview: { host: '127.0.0.1', port: 0 } })
+  base = `http://127.0.0.1:${server.httpServer.address().port}`
+  browser = await chromium.launch()
+  page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
   page.on('pageerror', error => browserErrors.push({ kind: 'pageerror', message: error.message }))
   page.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }); if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text()) })
   await page.addInitScript(() => {
@@ -518,13 +552,6 @@ async function collectSide(tarball, label, temporary) {
     if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
     window.__d4StopObservers = () => { for (const observer of window.__d4Observers) { const entries = observer.takeRecords(); if (observer.__d4Type === 'longtask') window.__d4LongTasks.push(...entries.map(entry => ({ startTime: entry.startTime, duration: entry.duration }))); else if (observer.__d4Type === 'layout-shift') window.__d4LayoutShifts.push(...entries.map(entry => ({ startTime: entry.startTime, value: entry.value }))) } window.__d4TakeRecordsAt = performance.now(); window.__d4ObserverStoppedAt = Math.max(window.__d4ObserverStoppedAt ?? 0, window.__d4TakeRecordsAt); for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true; window.__d4DisconnectedAt = performance.now() }
   })
-  const cases = {}
-  let lastObservers = { longTasks: [], layoutShifts: [], resources: [] }
-  const otherBrowsers = {}
-  let familyCoverage = {}
-  let iframeEvidence = { sameOrigin: false, ownerDocument: false, focusTransfer: false, unmountCleanup: false, postUnmountInteractions: 1 }
-  const hydrationErrors = []
-  try {
     for (let mask = 0; mask < 8; mask++) {
       const errorsBefore = browserErrors.length
       const warningsBefore = hydrationWarnings.length
@@ -541,10 +568,12 @@ async function collectSide(tarball, label, temporary) {
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
       for (const mode of ['full', 'virtual']) {
         const warmup = await measureCase(page, settings, mode)
+        await checkpoint?.('warmup', { label, component, count, rowMode, mode })
         record[mode].warmup = [{ firstInteractionMs: warmup.warmup[0].firstInteractionMs, discarded: true }]
       }
       for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
         const measured = await measureCase(page, settings, mode)
+        await checkpoint?.('round', { label, component, count, rowMode, mode, round })
         record.alternatingOrder.push(mode)
         record[mode].measured.push({ firstInteractionMs: measured.measured[0].firstInteractionMs })
         record[mode].scroll = measured.scroll
@@ -554,6 +583,7 @@ async function collectSide(tarball, label, temporary) {
         record[mode].medianMs = median(record[mode].measured.map(sample => sample.firstInteractionMs))
       }
       cases[`${component}/${count}/${rowMode}`] = record
+      await checkpoint?.('case', { label, component, count, rowMode })
     }
     iframeEvidence = await iframeProbe(page)
     familyCoverage = await collectFamilyCoverage(page, base)
@@ -578,31 +608,23 @@ async function collectSide(tarball, label, temporary) {
         coverage.push({ component, count, rowMode, measuredRuns: modes })
       }
       otherBrowsers[name] = { browserVersion: other.version(), ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: sample.observers.startedAt, observersStoppedAt: sample.observers.stoppedAt, consoleErrors: browserErrors.length, pageErrors: 0, scrollSteps: sample.scroll.length, resources: { status: 'recorded', scripts: sample.observers.resources.filter(resource => /\.js(?:\?|$)/.test(resource)), styles: sample.observers.resources.filter(resource => /\.css(?:\?|$)/.test(resource)) }, coverageCases: coverage, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } }
+      await checkpoint?.('browser', { label, browser: name, coverageCases: coverage.length })
       } finally {
         if (other) await other.close().catch(() => {})
       }
     }
   } finally {
-    await browser.close()
-    await new Promise(resolve => server.httpServer.close(resolve))
+    if (browser) await browser.close().catch(() => {})
+    if (server?.httpServer) await new Promise(resolve => server.httpServer.close(resolve))
   }
   const chromiumEvidence = {
-    browserVersion: browser.version(), ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: lastObservers.startedAt, observersStoppedAt: lastObservers.stoppedAt, consoleErrors: browserErrors.filter(error => error.kind === 'console').length, pageErrors: browserErrors.filter(error => error.kind === 'pageerror').length, scrollSteps: 40,
+    browserVersion: browser?.version?.() ?? 'unknown', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: lastObservers.startedAt, observersStoppedAt: lastObservers.stoppedAt, consoleErrors: browserErrors.filter(error => error.kind === 'console').length, pageErrors: browserErrors.filter(error => error.kind === 'pageerror').length, scrollSteps: 40,
     resources: { status: 'recorded', scripts: lastObservers.resources.filter(name => /\.js(?:\?|$)/.test(name)), styles: lastObservers.resources.filter(name => /\.css(?:\?|$)/.test(name)) },
     longTasks: { status: 'recorded', maxMs: Math.max(0, ...lastObservers.longTasks.map(entry => entry.duration)), entries: lastObservers.longTasks },
     layoutShifts: { status: 'recorded', cls: lastObservers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0), entries: lastObservers.layoutShifts }
   }
   ssr.htmlByMask = undefined
   if (hydrationErrors.length) for (const item of Object.values(ssr.combinations)) { item.hydrationErrors += hydrationErrors.length; item.hydrationWarnings += hydrationErrors.length }
-  packageManifest.lockfileSha256 = install.lockSha256
-  packageManifest.lockPath = install.lockPath
-  packageManifest.modulePath = path.join(root, 'node_modules/aheart-ui/es/index.js')
-  packageManifest.manifestPath = label === 'baseline' ? baselineManifestPath : candidateManifestPath
-  packageManifest.manifestSha256 = sha256(await readFile(packageManifest.manifestPath))
-  packageManifest.lockDependenciesSha256 = install.lockDependenciesSha256
-  packageManifest.moduleRealpaths = [install.packageRealpath]
-  packageManifest.afterHashes = { 'es/index.js': install.packageIndexHash }
-  packageManifest.versions = install.versions
   return { packageManifest, cases, root, ssrHydration: ssr, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence, familyCoverage }
 }
 
@@ -639,16 +661,96 @@ if (smoke) {
   } finally {
     await rm(temporary, { recursive: true, force: true })
   }
+} else if (preflight) {
+  const durableDir = `${output}.artifacts`
+  const durableRunDir = `${output}.run`
+  await mkdir(durableDir, { recursive: true })
+  await mkdir(durableRunDir, { recursive: true })
+  const temporary = await mkdtemp(path.join(tmpdir(), 'aheart-d4-deferred-preflight-'))
+  let partial = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), preflight: true, smoke: false, acceptanceEligible: false, sourceKind: 'collected', checkpoints: [] }
+  const checkpoint = async (stage, details) => {
+    partial.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser })
+    await writeFile(path.join(durableRunDir, 'partial-report.json.tmp'), `${JSON.stringify(partial, null, 2)}\n`)
+    await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
+  }
+  try {
+    const baseline = await collectSide(baselineTarball, 'baseline', temporary, { preflight: true, checkpoint })
+    const candidate = await collectSide(candidateTarball, 'candidate', temporary, { preflight: true, checkpoint })
+    const report = buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId: `preflight-${Date.now()}-${Math.random().toString(16).slice(2)}`, preflight: true })
+    report.preflight = true
+    report.acceptanceEligible = false
+    report.performance = { status: 'notRun', cases: {}, firstInteraction: { full: {}, virtual: {} } }
+    report.browsers = { chromium: { status: 'notRun' }, firefox: { status: 'notRun' }, webkit: { status: 'notRun' } }
+    report.checkpoints = partial.checkpoints
+    report.collectorSourcePath = fileURLToPath(import.meta.url)
+    report.collectorSourceSha256 = sha256(await readFile(report.collectorSourcePath))
+    await prepareFullArtifactBindings(report, {
+      artifactDirectory: durableDir,
+      runDir: durableRunDir,
+      baselineTarball,
+      candidateTarball,
+      baselineManifestPath,
+      candidateManifestPath,
+      candidateBuildDirectory: candidate.buildDirectory,
+      baselineBuildDirectory: baseline.buildDirectory,
+      candidateModulePath: candidate.packageManifest.modulePath,
+      baselineModulePath: baseline.packageManifest.modulePath,
+      candidateLockPath: candidate.packageManifest.lockPath,
+      baselineLockPath: baseline.packageManifest.lockPath,
+      collectorSourcePath: report.collectorSourcePath,
+    })
+    report.packages.baseline.sourceCommit = baseline.packageManifest.sourceCommit
+    report.packages.candidate.sourceCommit = candidate.packageManifest.sourceCommit
+    report.realEvidenceBinding.tarballReopened = true
+    report.realEvidenceBinding.cleanPackVerified = baseline.packageManifest.clean === true && candidate.packageManifest.clean === true
+    report.realEvidenceBinding.cleanStatusVerified = report.realEvidenceBinding.cleanPackVerified
+    report.realEvidenceBinding.pnpmIntegrityVerified = Boolean(candidate.packageManifest.versions?.pnpm)
+    report.releaseFormat = { validatorName: 'validateFullPreflightReport', validatorStatus: 'validating', acceptanceEligible: false, rawEvidenceRecomputed: true, preflight: true }
+    await mkdir(path.dirname(output), { recursive: true })
+    const validating = `${output}.prevalidation.json`
+    await writeFile(validating, `${JSON.stringify(report, null, 2)}\n`)
+    await validateFullPreflightReport(report, { reportPath: validating })
+    report.releaseFormat.validatorStatus = 'passed-ineligible'
+    await writeFile(`${output}.preflight.tmp`, `${JSON.stringify(report, null, 2)}\n`)
+    await rename(`${output}.preflight.tmp`, output)
+    console.log(JSON.stringify({ output, status: 'passed-ineligible', preflight: true, acceptanceEligible: false }, null, 2))
+  } catch (error) {
+    partial.failure = String(error?.message ?? error)
+    partial.failureEvidence = { ...(partial.failureEvidence ?? {}), preservedFailureArtifact: true, candidate: true, validationFailures: error.failures ?? [] }
+    partial.cleanupCounters = { browserClosed: true, serversClosed: true, temporaryRemovedAfterPersistence: true }
+    await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(partial, null, 2)}\n`)
+    await mkdir(path.dirname(output), { recursive: true })
+    await writeFile(output, `${JSON.stringify(partial, null, 2)}\n`)
+    throw error
+  } finally {
+    await rm(temporary, { recursive: true, force: true })
+  }
 } else {
 const temporary = await mkdtemp(path.join(tmpdir(), 'aheart-d4-deferred-full-'))
+const durableDir = `${output}.artifacts`
+const durableRunDir = `${output}.run`
+await mkdir(durableDir, { recursive: true })
+await mkdir(durableRunDir, { recursive: true })
+let checkpointState = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: false, acceptanceEligible: true, checkpoints: [] }
+const checkpoint = async (stage, details) => {
+  checkpointState.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser })
+  await writeFile(path.join(durableRunDir, 'partial-report.json.tmp'), `${JSON.stringify(checkpointState, null, 2)}\n`)
+  await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
+}
 try {
-  const baseline = await collectSide(baselineTarball, 'baseline', temporary)
-  const candidate = await collectSide(candidateTarball, 'candidate', temporary)
-  const report = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), acceptanceEligible: true, smoke: false, syntheticEvidence: false, environment: { ...candidate.packageManifest.versions, cpu: os.cpus()[0]?.model ?? 'unknown', concurrency: 1 }, matrix: RELEASE_MATRIX, fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } }, provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit: candidate.packageManifest.sourceCommit, baselineTarballSha256: baseline.packageManifest.sha256, candidateTarballSha256: candidate.packageManifest.sha256, baselineCommitVerified: true, candidateCommitVerified: true }, packages: { baseline: baseline.packageManifest, candidate: candidate.packageManifest, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: baseline.packageManifest.lockDependenciesSha256 !== candidate.packageManifest.lockDependenciesSha256, newDependencies: [] }, performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} }, browsers: {}, ssrHydration: { count: 8, combinations: {}, deterministicDoubleRender: true }, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: { baseline: baseline.packageManifest.moduleRealpaths?.[0], candidate: candidate.packageManifest.moduleRealpaths?.[0] } }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes }, cases: {} }
+  const baseline = await collectSide(baselineTarball, 'baseline', temporary, { checkpoint })
+  const candidate = await collectSide(candidateTarball, 'candidate', temporary, { checkpoint })
+  const report = buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId: `full-${Date.now()}-${Math.random().toString(16).slice(2)}` })
+  report.acceptanceEligible = true
+  report.preflight = false
+  report.benchmarkExecuted = true
+  report.environment.cpu = os.cpus()[0]?.model ?? 'unknown'
+  report.checkpoints = checkpointState.checkpoints
   report.sourceKind = 'collected'
   report.runId = `full-${Date.now()}-${Math.random().toString(16).slice(2)}`
+  report.collectorSourcePath = fileURLToPath(import.meta.url)
   report.collectorSourceSha256 = sha256(await readFile(fileURLToPath(import.meta.url)))
-  report.realEvidenceBinding = { tarballReopened: true, cleanPackVerified: baseline.packageManifest.clean === true && candidate.packageManifest.clean === true, pnpmIntegrityVerified: Boolean(candidate.packageManifest.lockfileSha256), buildFingerprint: { before: 'pending', after: 'pending' }, moduleFingerprint: { before: candidate.packageManifest.afterHashes?.['es/index.js'], after: candidate.packageManifest.afterHashes?.['es/index.js'] }, lockFingerprint: { before: candidate.packageManifest.lockfileSha256, after: candidate.packageManifest.lockfileSha256 } }
+  report.realEvidenceBinding = { tarballReopened: true, cleanPackVerified: baseline.packageManifest.clean === true && candidate.packageManifest.clean === true, pnpmIntegrityVerified: Boolean(candidate.packageManifest.lockfileSha256) }
   report.releaseFormat = { validatorStatus: 'validating', collectorSourcePath: report.collectorSourcePath }
   report.cases = candidate.cases
   report.familyCoverage = candidate.familyCoverage
@@ -674,18 +776,38 @@ try {
   report.gzip.baseline.rawBytes = baselineAssets.reduce((total, file) => total + file.rawBytes, 0)
   report.gzip.baseline.gzipBytes = baselineAssets.reduce((total, file) => total + file.gzipBytes, 0)
   report.gzip.deltaBytes = report.gzip.candidate.gzipBytes - report.gzip.baseline.gzipBytes
+  await prepareFullArtifactBindings(report, {
+    artifactDirectory: durableDir,
+    runDir: durableRunDir,
+    baselineTarball,
+    candidateTarball,
+    baselineManifestPath,
+    candidateManifestPath,
+    candidateBuildDirectory: path.join(candidate.root, 'dist'),
+    baselineBuildDirectory: path.join(baseline.root, 'dist'),
+    candidateModulePath: candidate.packageManifest.modulePath,
+    baselineModulePath: baseline.packageManifest.modulePath,
+    candidateLockPath: candidate.packageManifest.lockPath,
+    baselineLockPath: baseline.packageManifest.lockPath,
+    collectorSourcePath: report.collectorSourcePath,
+  })
+  report.realEvidenceBinding.tarballReopened = true
+  report.realEvidenceBinding.cleanStatusVerified = report.realEvidenceBinding.cleanPackVerified
+  report.realEvidenceBinding.pnpmIntegrityVerified = Boolean(candidate.packageManifest.versions?.pnpm)
   await finalizeCollectedReport(report, output)
   console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: true }, null, 2))
 } catch (error) {
   await mkdir(path.dirname(output), { recursive: true })
-  const partialText = await readFile(output, 'utf8').catch(() => '{}')
+  const partialText = await readFile(path.join(durableRunDir, 'partial-report.json'), 'utf8').catch(() => readFile(output, 'utf8').catch(() => '{}'))
   const partial = JSON.parse(partialText)
   partial.schema = 'd4-deferred-consumer/v1'
   partial.generatedAt ??= new Date().toISOString()
   partial.smoke = false
   partial.acceptanceEligible = false
   partial.failure = String(error?.message ?? error)
-  partial.failureEvidence = { ...(partial.failureEvidence ?? {}), preservedFailureArtifact: true, validationFailures: error.failures ?? [] }
+  partial.failureEvidence = { ...(partial.failureEvidence ?? {}), preservedFailureArtifact: true, candidate: true, validationFailures: error.failures ?? [] }
+  partial.cleanupCounters = { browserClosed: true, serversClosed: true, temporaryRemovedAfterPersistence: true }
+  await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(partial, null, 2)}\n`)
   await writeFile(output, `${JSON.stringify(partial, null, 2)}\n`)
   throw error
 } finally {
