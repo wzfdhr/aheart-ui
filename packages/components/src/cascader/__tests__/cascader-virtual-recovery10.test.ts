@@ -68,6 +68,7 @@ const probeRealm = (ownerDocument: Document) => {
   let listenerId = 0
   const pendingRaf = new Map<number, FrameRequestCallback>()
   const pendingTimers = new Set<ReturnType<typeof ownerWindow.setTimeout>>()
+  const timerCallbacks = new Map<ReturnType<typeof ownerWindow.setTimeout>, () => void>()
   const originalDocumentAdd = ownerDocument.addEventListener
   const originalDocumentRemove = ownerDocument.removeEventListener
   const originalWindowAdd = ownerWindow.addEventListener
@@ -105,15 +106,17 @@ const probeRealm = (ownerDocument: Document) => {
   Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, value(id: number) { pendingRaf.delete(id) } })
   Object.defineProperty(ownerWindow, 'setTimeout', { configurable: true, value(handler: TimerHandler, timeout?: number, ...args: any[]) {
     let timer: ReturnType<typeof ownerWindow.setTimeout>
-    const callback = () => { pendingTimers.delete(timer); if (typeof handler === 'function') handler(...args); else ownerWindow.eval(handler) }
+    const callback = () => { pendingTimers.delete(timer); timerCallbacks.delete(timer); if (typeof handler === 'function') handler(...args); else ownerWindow.eval(handler) }
     timer = originalSetTimeout.call(this, callback, timeout, ...args)
     pendingTimers.add(timer)
+    timerCallbacks.set(timer, callback)
     return timer
   } })
-  Object.defineProperty(ownerWindow, 'clearTimeout', { configurable: true, value(id: ReturnType<typeof ownerWindow.setTimeout>) { pendingTimers.delete(id); return originalClearTimeout.call(this, id) } })
+  Object.defineProperty(ownerWindow, 'clearTimeout', { configurable: true, value(id: ReturnType<typeof ownerWindow.setTimeout>) { pendingTimers.delete(id); timerCallbacks.delete(id); return originalClearTimeout.call(this, id) } })
   const focusKeys = ['focusin', 'pointerdown', 'touchstart', 'wheel', 'keydown'].map(type => `document:${type}`)
   const ownerListenerCounts = () => Object.fromEntries(focusKeys.concat(['window:blur']).map(type => [type, [...active.entries()].filter(([name]) => name.startsWith(`${type}:`)).reduce((sum, [, count]) => sum + count, 0)]))
   const drainOwnerRaf = () => { const callbacks = [...pendingRaf.values()]; pendingRaf.clear(); callbacks.forEach(callback => callback(ownerWindow.performance.now())) }
+  const drainOwnerTimers = () => { const timers = [...pendingTimers]; timers.forEach(timer => { originalClearTimeout.call(ownerWindow, timer); pendingTimers.delete(timer); const callback = timerCallbacks.get(timer); timerCallbacks.delete(timer); callback?.() }) }
   const restore = () => {
     if (Object.getOwnPropertyDescriptor(ownerDocument, 'addEventListener')?.value) Object.defineProperty(ownerDocument, 'addEventListener', { configurable: true, value: originalDocumentAdd })
     if (Object.getOwnPropertyDescriptor(ownerDocument, 'removeEventListener')?.value) Object.defineProperty(ownerDocument, 'removeEventListener', { configurable: true, value: originalDocumentRemove })
@@ -128,7 +131,7 @@ const probeRealm = (ownerDocument: Document) => {
     if (previousWindowClearTimeout) Object.defineProperty(ownerWindow, 'clearTimeout', previousWindowClearTimeout)
     else Reflect.deleteProperty(ownerWindow, 'clearTimeout')
   }
-  return { active, pendingRaf, pendingTimers, ownerListenerCounts, drainOwnerRaf, restore }
+  return { active, pendingRaf, pendingTimers, ownerListenerCounts, drainOwnerRaf, drainOwnerTimers, restore }
 }
 
 beforeEach(() => {
@@ -164,10 +167,42 @@ describe('Cascader lazy keyboard focus ownership round ten', () => {
       nativeRenderBlur(root.element, document)
       expect(probe.pendingRaf.size).toBeGreaterThan(0)
       probe.drainOwnerRaf()
+      probe.drainOwnerTimers()
       nativeRenderBlur(root.element, document)
       resolveLoad([{ value: 'child', label: 'Loaded child' }])
       await settle()
       expect(document.activeElement).not.toBe(wrapper.get('[data-cascader-value="child"]').element)
+    } finally {
+      probe.restore()
+    }
+  })
+
+  it('keeps a post-RAF null blur owned until the follow-up timer, then cancels a later explicit blur', async () => {
+    const probe = probeRealm(document)
+    const requests: Array<{ resolve: (children: Array<{ value: string; label: string }>) => void; reject: (error: Error) => void }> = []
+    const loadData = vi.fn(() => new Promise<Array<{ value: string; label: string }>>((resolve, reject) => { requests.push({ resolve, reject }) }))
+    const wrapper = mountLazy({ loadData })
+    try {
+      await settle()
+      const root = await enter(wrapper)
+      nativeRenderBlur(root.element, document)
+      probe.drainOwnerRaf()
+      expect(probe.pendingTimers.size).toBeGreaterThan(0)
+      nativeRenderBlur(root.element, document)
+      requests[0].reject(new Error('offline'))
+      await settle()
+      expect(document.activeElement).toBe(root.element)
+
+      root.element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
+      await nextTick()
+      nativeRenderBlur(root.element, document)
+      probe.drainOwnerRaf()
+      expect(probe.pendingTimers.size).toBeGreaterThan(0)
+      probe.drainOwnerTimers()
+      nativeRenderBlur(root.element, document)
+      requests[1].reject(new Error('offline again'))
+      await settle()
+      expect(document.activeElement).not.toBe(root.element)
     } finally {
       probe.restore()
     }
