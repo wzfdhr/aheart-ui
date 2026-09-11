@@ -11,7 +11,7 @@ This is the independent follow-up authorized by the persistent optimization goal
 - [x] Tree genuine RED: existing `44/44` passed; corrected suite `3 passed / 10 failed`; full Tree `47 passed / 10 failed`; public type-included check failed as expected.
 - [x] Tree GREEN implementation and functional development/design/test/product reviews: candidate `dc8c299`, independent unit91/91, developer28/28, isolated five-browser45/45, fresh lazy visual supplement and product P0/P1/P2=`0/0/0`. Joint final phase gates below remain open.
 - [x] TreeSelect genuine RED, GREEN implementation and functional development/design/test/product reviews: production candidate `ad18e3b`, test-isolation closeout `586dfac`; maintained142/142, public types, TreeSelect50/50, Tree45/45, independent ownership24/24 and13 freshly opened final screenshots. Independent developer, design, test-manager and product verdicts are P0/P1/P2=`0/0/0`. Combined phase gates below remain open.
-- [ ] Cascader genuine RED, GREEN implementation, development/design/test/product reviews.
+- [x] Cascader genuine RED, GREEN implementation and functional development/design/test/product reviews: production candidate `7964d86`; maintained135/135, recovery8–13 40/40, five-project Cascader60/60, geometry15/15, TreeSelect50/50 and typecheck passed. Thirteen final screenshots were individually opened; independent development, design, test-manager and product verdicts are P0/P1/P2=`0/0/0`. Combined phase gates below remain open.
 - [ ] Real tgz consumer, 1k/5k/10k performance, gzip, SSR/hydration and iframe evidence.
 - [ ] Frozen candidate full repository gates, generated outputs and zero new skips.
 - [ ] Four final independent reports with P0/P1/P2=`0/0/0`.
