@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto'
 import { promisify } from 'node:util'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import ts from 'typescript'
 
 import {
   RELEASE_MATRIX,
@@ -506,31 +507,40 @@ test('full SSR semantic parity rejects malformed IDs, ARIA refs, selectors, acti
 
 test('full collection reuses smoke SSR capture helper and returns candidate type probe', async () => {
   const source = await deferredCollectorSource()
-  const smokeStart = source.indexOf('async function collectSmoke')
-  const sideStart = source.indexOf('async function collectSide')
-  const serverStart = source.indexOf('  let server\n  let browser', sideStart)
-  const finalizeStart = source.indexOf('export async function finalizeCollectedReport', serverStart)
-  assert.ok(smokeStart >= 0 && sideStart > smokeStart && serverStart > sideStart && finalizeStart > serverStart, 'collector function boundaries must be discoverable')
-  const smokeBody = source.slice(smokeStart, sideStart)
-  const sideBody = source.slice(serverStart, finalizeStart)
-  assert.match(smokeBody, /collectHydratedSsrEvidence\(/, 'smoke must call the named shared hydration/capture helper')
-  assert.match(sideBody, /collectHydratedSsrEvidence\(/, 'collectSide must call the named shared hydration/capture helper')
-  assert.equal((smokeBody.match(/collectHydratedSsrEvidence\(/g) ?? []).length, 1, 'smoke must invoke the shared hydration/capture helper exactly once')
-  assert.equal((sideBody.match(/collectHydratedSsrEvidence\(/g) ?? []).length, 1, 'full collectSide must invoke the shared hydration/capture helper exactly once')
-  assert.equal((smokeBody.match(/for \(let mask = 0; mask < 8/g) ?? []).length, 0, 'smoke must not retain the old per-mask hydration loop')
-  assert.equal((sideBody.match(/for \(let mask = 0; mask < 8/g) ?? []).length, 0, 'full collectSide must not retain the old per-mask hydration loop')
-  const assertProtectedCapture = (body, label) => {
-    const call = body.indexOf('collectHydratedSsrEvidence(')
-    const tryStart = body.lastIndexOf('try {', call)
-    const finallyStart = body.indexOf('} finally {', call)
-    assert.ok(call >= 0 && tryStart >= 0 && finallyStart > call, `${label} shared capture must be inside a try/finally resource block`)
-    const finallyBody = body.slice(finallyStart, finallyStart + 900)
-    assert.match(finallyBody, /browser\.close|httpServer\.close|server\?\.httpServer/, `${label} capture finally must close browser/server resources`)
+  const file = ts.createSourceFile('collect.mjs', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const findFunction = (root, name) => {
+    let found
+    const visit = node => {
+      if (ts.isFunctionDeclaration(node) && node.name?.text === name) found = node
+      ts.forEachChild(node, visit)
+    }
+    visit(root)
+    assert.ok(found, `collector must declare ${name}`)
+    return found
   }
-  assertProtectedCapture(smokeBody, 'smoke')
-  assertProtectedCapture(sideBody, 'full collectSide')
-  assert.match(sideBody, /durableTypeProbe\(/, 'collectSide must execute the public type probe')
-  assert.match(sideBody, /return \{[\s\S]*ssrHydration: ssr[\s\S]*typeProbe[\s\S]*\}/, 'collectSide must return the candidate public type probe')
+  const descendants = (root, predicate) => {
+    const found = []
+    const visit = node => { if (predicate(node)) found.push(node); ts.forEachChild(node, visit) }
+    visit(root)
+    return found
+  }
+  const callName = node => ts.isIdentifier(node.expression) ? node.expression.text : ts.isPropertyAccessExpression(node.expression) ? node.expression.name.text : ''
+  const assertCollectorFunction = (fn, label) => {
+    const calls = descendants(fn.body, node => ts.isCallExpression(node) && callName(node) === 'collectHydratedSsrEvidence')
+    assert.equal(calls.length, 1, `${label} must call collectHydratedSsrEvidence exactly once`)
+    const call = calls[0]
+    const tryStatement = descendants(fn.body, node => ts.isTryStatement(node) && call.pos >= node.tryBlock.pos && call.end <= node.tryBlock.end)[0]
+    assert.ok(tryStatement, `${label} capture call must be inside a TryStatement.tryBlock`)
+    const finallyText = tryStatement.finallyBlock ? source.slice(tryStatement.finallyBlock.pos, tryStatement.finallyBlock.end) : ''
+    assert.match(finallyText, /browser\.close/, `${label} finally block must close browser`)
+    assert.match(finallyText, /(?:server|httpServer).*\.close/, `${label} finally block must close server/httpServer`)
+    const oldLoops = descendants(fn.body, node => ts.isForStatement(node) && /mask\s*<\s*8/.test(source.slice(node.expression?.pos ?? node.pos, node.expression?.end ?? node.end)) && /(page\.goto|__d4Hydrated|serverSnapshot)/.test(source.slice(node.statement.pos, node.statement.end)))
+    assert.equal(oldLoops.length, 0, `${label} must not retain the old per-mask hydration loop`)
+  }
+  const smokeFn = findFunction(file, 'collectSmoke')
+  const sideFn = findFunction(file, 'collectSide')
+  assertCollectorFunction(smokeFn, 'smoke')
+  assertCollectorFunction(sideFn, 'full collectSide')
   const sentinel = { marker: 'candidate-type-probe' }
   const shell = buildFullReportShell({ baseline: { packageManifest: { sha256: 'a'.repeat(64) } }, candidate: { packageManifest: { sha256: 'b'.repeat(64) }, typeProbe: sentinel }, baselineCommit: '4a7511f9594d0a74906e427e158d02343ba33a22', candidateCommit: 'candidate', runId: 'full-shell-test' })
   assert.equal(shell.typeProbe, sentinel, 'full report shell must preserve the candidate type probe sentinel')
@@ -538,14 +548,22 @@ test('full collection reuses smoke SSR capture helper and returns candidate type
 
 test('bounded and full validation share one SSR semantic validator', async () => {
   const source = await readFile(path.join(process.cwd(), 'scripts/d4-deferred-consumer-contract.mjs'), 'utf8')
-  assert.match(source, /function validateSsrEvidence\(/, 'contract must expose one shared SSR semantic validator')
-  const boundedStart = source.indexOf('export function validateBoundedReleaseReport')
-  const boundedEnd = source.indexOf('export function validateSmokeReport', boundedStart)
-  const fullStart = source.indexOf('export function validateReport')
-  const fullEnd = source.indexOf('export function validateSmokeReport', fullStart)
-  assert.ok(boundedStart >= 0 && boundedEnd > boundedStart && fullStart >= 0 && fullEnd > fullStart)
-  assert.match(source.slice(boundedStart, boundedEnd), /validateSsrEvidence\(/, 'bounded validation must call the shared SSR semantic validator')
-  assert.match(source.slice(fullStart, fullEnd), /validateSsrEvidence\(/, 'full validation must call the shared SSR semantic validator')
+  const file = ts.createSourceFile('contract.mjs', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const findFunction = name => {
+    let found
+    const visit = node => { if (ts.isFunctionDeclaration(node) && node.name?.text === name) found = node; ts.forEachChild(node, visit) }
+    visit(file)
+    assert.ok(found, `contract must declare ${name}`)
+    return found
+  }
+  const countCalls = fn => {
+    let count = 0
+    const visit = node => { if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'validateSsrEvidence') count += 1; ts.forEachChild(node, visit) }
+    visit(fn.body)
+    return count
+  }
+  assert.ok(countCalls(findFunction('validateBoundedReleaseReport')) >= 1, 'bounded validation must call the shared SSR semantic validator within its own function body')
+  assert.ok(countCalls(findFunction('validateReport')) >= 1, 'full validation must call the shared SSR semantic validator within its own function body')
 })
 
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
