@@ -500,6 +500,10 @@ if (smoke) {
   try {
     const report = await collectSmoke(temporary)
     console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: report.acceptanceEligible, preview: report.preview }, null, 2))
+  } catch (error) {
+    await mkdir(path.dirname(output), { recursive: true })
+    await writeFile(output, `${JSON.stringify({ schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: true, acceptanceEligible: false, failure: String(error?.message ?? error), preservedFailureArtifact: true }, null, 2)}\n`)
+    throw error
   } finally {
     await rm(temporary, { recursive: true, force: true })
   }
@@ -536,6 +540,10 @@ try {
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
   validateReport(report, { requireRelease: true })
   console.log(JSON.stringify({ output, status: 'passed', acceptanceEligible: true }, null, 2))
+} catch (error) {
+  await mkdir(path.dirname(output), { recursive: true })
+  await writeFile(output, `${JSON.stringify({ schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: false, acceptanceEligible: false, failure: String(error?.message ?? error), preservedFailureArtifact: true }, null, 2)}\n`)
+  throw error
 } finally {
   await rm(temporary, { recursive: true, force: true })
 }
