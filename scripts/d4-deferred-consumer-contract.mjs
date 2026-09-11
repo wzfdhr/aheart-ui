@@ -239,7 +239,10 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       if (lockFingerprint) { const lockHash = sha256(await readFile(resolve(pkg.lockPath))); ensure(lockHash === lockFingerprint.before && lockHash === lockFingerprint.after, `${side} lock fingerprint before/after mismatch`, failures) }
     }
   }
-  if (report.typeProbe?.typesPath) {
+  const requiresTypeProbe = report?.sourceKind === 'collected' && (report?.preflight === true || report?.releaseFormat?.validatorName || report?.realEvidenceBinding?.sourceKind === 'collected')
+  if (requiresTypeProbe && !report.typeProbe) failures.push('consumer type probe descriptor is missing')
+  if (report.typeProbe) {
+    if (!report.typeProbe.typesPath) failures.push('consumer type probe typesPath is missing')
     await verifyHash('consumer type probe', report.typeProbe.typesPath, report.typeProbe.typesSha256)
     try {
       const source = await readFile(resolve(report.typeProbe.typesPath), 'utf8')
