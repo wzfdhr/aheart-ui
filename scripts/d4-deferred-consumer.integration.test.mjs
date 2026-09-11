@@ -149,7 +149,27 @@ test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, 
     for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
       assert.ok(snapshot && Array.isArray(snapshot.sortedIds) && snapshot.sortedIds.length > 0)
       assert.ok(Array.isArray(snapshot.nodes) && snapshot.nodes.length > 0)
-      assert.ok(snapshot.nodes.every(node => node.id && node.ariaControls && node.ariaActivedescendant && node.ariaLabelledby && node.ariaDescribedby))
+      assert.deepEqual(snapshot.sortedIds, [...snapshot.sortedIds].sort(), 'snapshot sortedIds must be actual deterministic values')
+      assert.equal(new Set(snapshot.sortedIds).size, snapshot.sortedIds.length)
+      const ids = new Set(snapshot.sortedIds)
+      const components = new Set(['Tree', 'TreeSelect', 'Cascader'])
+      assert.deepEqual(new Set(snapshot.nodes.map(node => node.component)), components)
+      for (const component of components) {
+        assert.ok(snapshot.nodes.some(node => node.component === component && node.kind === 'trigger'))
+        assert.ok(snapshot.nodes.some(node => node.component === component && node.kind === 'root'))
+      }
+      for (const node of snapshot.nodes) {
+        assert.ok(node.id && ids.has(node.id))
+        for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) assert.ok(Object.prototype.hasOwnProperty.call(node, attribute), `${node.component}/${node.kind} snapshot must record ${attribute}, including null when absent`)
+        for (const attribute of ['ariaControls', 'ariaActivedescendant', 'ariaLabelledby', 'ariaDescribedby']) {
+          const value = node[attribute]
+          if (value == null || value === '') continue
+          const references = Array.isArray(value) ? value : String(value).split(/\s+/)
+          assert.ok(references.every(reference => ids.has(reference)), `${node.component}/${node.kind} ${attribute} must reference a recorded ID`)
+        }
+      }
+      const treeSelectTrigger = snapshot.nodes.find(node => node.component === 'TreeSelect' && node.kind === 'trigger')
+      if (item.virtual?.TreeSelect === true && treeSelectTrigger?.ariaActivedescendant == null) assert.equal(treeSelectTrigger.focusModel, 'roving-dom-focus')
     }
     assert.deepEqual(item.serverSnapshot, item.hydratedSnapshot, 'server and hydrated accessibility snapshots must be structurally identical')
     assert.equal(item.combinedSha256, item.serverSnapshot.combinedSha256)
@@ -181,6 +201,8 @@ test('bounded SSR validator rejects forged accessibility IDs, teleport hashes an
   const mutations = [
     forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.hydratedSnapshot.nodes[0].id = 'd4-forged-id' },
     forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.hydratedSnapshot.nodes[0].ariaControls = 'd4-forged-controls' },
+    forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.hydratedSnapshot.nodes[0].ariaLabelledby = 'd4-missing-label' },
+    forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.hydratedSnapshot.nodes[0].ariaDescribedby = item.hydratedSnapshot.nodes[0].id },
     forged => { forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]].teleportHtmlSha256 = '0'.repeat(64) },
     forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.postHydrationActions = item.postHydrationActions.filter(action => action.component !== 'Cascader') },
   ]
