@@ -30,11 +30,7 @@ export function cascaderData(count, rowMode) {
 }
 
 export function cascaderSearchData(count, rowMode) {
-  const options = [{
-    value: 'deep-0-0',
-    label: 'Lazy deep root',
-    isLeaf: false
-  }]
+  const options = []
   for (let group = 0; group < 101; group += 1) {
     const leaves = Array.from({ length: group === 100 ? 50 : 100 }, (_, leaf) => {
       const index = group * 100 + leaf
@@ -42,8 +38,16 @@ export function cascaderSearchData(count, rowMode) {
     })
     options.push({ value: `search-${group}`, label: `Search group ${group}`, children: leaves })
   }
-  for (let index = options.length; index < count; index += 1) options.push({ value: `consumer-${count}-${index}`, label: rowMode === 'dynamic' && index % 10 === 0 ? `Wrapped Cascader option ${index}`.repeat(8) : `Cascader option ${index}`, isLeaf: true })
   return options
+}
+
+export function cascaderDeepData() {
+  const make = level => Array.from({ length: 2000 }, (_, index) => ({ value: `deep-${level}-${index}`, label: `Deep ${level}.${index}`, isLeaf: level === 4, ...(index === 0 && level < 4 ? { children: make(level + 1) } : {}) }))
+  return make(0)
+}
+
+export function cascaderLazyData() {
+  return [{ value: 'lazy-root', label: 'Lazy root', isLeaf: false }, { value: 'lazy-sibling', label: 'Lazy sibling', isLeaf: true }]
 }
 
 export function cascaderFixture(count, rowMode) {
@@ -88,7 +92,8 @@ export function componentProps(component, count, rowMode, virtual, treeScenario 
   const virtualValue = virtual ? { height: component === 'Tree' ? 320 : 256, estimateSize: component === 'Cascader' ? 32 : 28, overscan: 4 } : false
   if (component === 'Tree') { const data = treeData(count, rowMode, treeScenario); const defaultExpandedKeys = treeScenario === 'expanded100' ? data.map(node => node.key) : []; let expandedState = [...defaultExpandedKeys]; const recordExpand = value => { if (typeof window !== 'undefined') { const beforeExpandedKeys = [...expandedState]; const afterExpandedKeys = [...value]; expandedState = afterExpandedKeys; window.__d4EventLog?.push({ name: 'expand', ...eventTime(), beforeExpandedKeys, afterExpandedKeys, value: afterExpandedKeys }) } }; return { treeData: data, defaultExpandAll: false, defaultExpandedKeys, virtual: virtualValue, onExpand: recordExpand, onSelect: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'select', ...eventTime(), value }) }, 'onUpdate:expandedKeys': recordExpand } }
   if (component === 'TreeSelect') return { treeData: treeSelectData(count, rowMode), defaultOpen: treeSelectScenario === 'search-5000-controlled', showSearch: true, treeCheckable: true, virtual: virtualValue, modelValue: treeSelectScenario === 'search-5000-controlled' ? ['consumer-root-0'] : [], onOpenChange: open => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'openChange', ...eventTime(), open }); if (!open) window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), reason: 'controlled-open-state' }) } }, onSearch: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'search', ...eventTime(), value }) }, onChange: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) }, onCheck: value => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'check', ...eventTime(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } }, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'update:modelValue', intent: 'check', ...eventTime(), value, valueSnapshot: { requestedValue: value } }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } } }
-  const cascaderProps = { options: cascaderScenario === 'search-lazy' ? cascaderSearchData(count, rowMode) : cascaderData(count, rowMode), defaultOpen: false, showSearch: true, virtual: virtualValue, modelValue: undefined, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'selection', ...eventTime(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } } }
+  const cascaderOptions = cascaderScenario === 'deep' ? cascaderDeepData() : cascaderScenario === 'search' ? cascaderSearchData(count, rowMode) : cascaderScenario === 'lazy' ? cascaderLazyData() : cascaderData(count, rowMode)
+  const cascaderProps = { options: cascaderOptions, defaultOpen: false, showSearch: true, virtual: virtualValue, modelValue: undefined, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'selection', ...eventTime(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } } }
   cascaderProps.loadData = createCascaderLoadData()
   return cascaderProps
 }
@@ -97,6 +102,14 @@ export function createConsumerApp(settings) {
   const Component = settings.component === 'Tree' ? Tree : settings.component === 'TreeSelect' ? TreeSelect : Cascader
   const props = componentProps(settings.component, settings.count, settings.rowMode, settings.virtual, settings.treeScenario, settings.treeSelectScenario, settings.cascaderScenario)
   if (settings.component === 'TreeSelect' && typeof window !== 'undefined') window.__d4AcceptedValue = ['consumer-root-0']
+  if (settings.component === 'Cascader' && typeof window !== 'undefined') {
+    const options = props.options ?? []
+    const leaves = options.flatMap(option => option.children?.map(child => ({ path: [option.value, child.value], label: child.label })) ?? [{ path: [option.value], label: option.label }])
+    const columns = []
+    let current = options
+    for (let index = 0; index < 5; index += 1) { columns.push({ index, keys: current.map(option => option.value), optionsHash: current.map(option => option.value).join('\n') }); current = current[0]?.children ?? [] }
+    window.__d4ActualComponentInput = settings.cascaderScenario === 'deep' ? { kind: 'deep', actualOptionsColumns: columns } : settings.cascaderScenario === 'search' ? { kind: 'search', actualComponentInput: { rawLeaves: leaves } } : { kind: 'lazy', actualComponentInput: { kind: 'lazy', inputKeys: options.map(option => option.value), loaderId: 'createCascaderLoadData:v1', events: [] } }
+  }
   return { render: () => h(Component, { id: `d4-${settings.component.toLowerCase()}`, ...props }) }
 }
 

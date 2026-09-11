@@ -456,7 +456,7 @@ async function collectFamilyCoverage(page, baseURL) {
         return metrics
       }, { componentName: component, modeName: rowMode, rowCount: count })
     }
-    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : '&cascaderScenario=search-lazy'}`, { waitUntil: 'networkidle' })
+    await page.goto(`${baseURL}/?component=${component}&count=${count}&rowMode=dynamic&virtual=true${component === 'Tree' ? '&treeScenario=expanded100' : component === 'TreeSelect' ? '&treeSelectScenario=search-5000-controlled' : '&cascaderScenario=deep'}`, { waitUntil: 'networkidle' })
     await page.waitForFunction(() => window.__d4Ready === true)
     if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click(); await page.waitForSelector('.aheart-cascader__column', { state: 'attached' }) }
     if (component === 'TreeSelect') { await page.waitForSelector('.aheart-tree-select__panel .aheart-tree-select__search', { state: 'attached' }); await page.waitForFunction(() => document.querySelectorAll('.aheart-tree-select__panel [role="treeitem"], .aheart-tree-select__panel input[type="checkbox"]').length > 0, { timeout: 5000 }).catch(() => {}) }
@@ -472,13 +472,14 @@ async function collectFamilyCoverage(page, baseURL) {
     let cascaderDeepColumns = []
     let cascaderSearchEvidence
     let cascaderSelectedPath
+    let cascaderRuntimeRecords = []
     let cascaderStateBeforeLate
     let cascaderStateAfterLate
     let treeSelectAcceptedBefore
     let treeSelectAcceptedAfter
     let treeSelectRequested
     let treeSelectSearchInputValue
-    if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click(); actions.push('open'); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(async () => { await trigger.click(); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 5000 }).catch(() => {}) }) }
+    if (component === 'Cascader') { const trigger = page.locator('.aheart-cascader__trigger'); await trigger.click({ force: true }); if (await trigger.getAttribute('aria-expanded') !== 'true') await trigger.click({ force: true }); actions.push('open'); await page.waitForSelector('.aheart-cascader__column .aheart-cascader__option', { state: 'visible', timeout: 10000 }) }
     await tick(page)
     if (component === 'Tree') {
       const switchers = page.locator('.aheart-tree__switcher').first()
@@ -499,23 +500,19 @@ async function collectFamilyCoverage(page, baseURL) {
       treeSelectRequested = await page.evaluate(() => window.__d4ControlledAttempt)
       treeSelectAcceptedAfter = await readTreeSelectState()
     } else {
+      const deepRuntime = await page.evaluate(() => window.__d4ActualComponentInput)
       const columnSnapshot = async (columnIndex) => page.locator('.aheart-cascader__column').nth(columnIndex).evaluate((column, index) => ({
         mountedRows: column.querySelectorAll('.aheart-cascader__option').length,
-        rawLogicalOptionKeys: window.__d4FixtureEvidence?.cascader?.deepPaths?.[index] ?? [...column.querySelectorAll('.aheart-cascader__option')].map(option => option.getAttribute('data-cascader-value')).filter(Boolean)
+        rawLogicalOptionKeys: window.__d4ActualComponentInput?.actualOptionsColumns?.[index]?.keys ?? [...column.querySelectorAll('.aheart-cascader__option')].map(option => option.getAttribute('data-cascader-value')).filter(Boolean)
       }), columnIndex)
       for (let depth = 0; depth < 5; depth += 1) {
-        await page.waitForSelector(`.aheart-cascader__column:nth-child(${depth + 1}) .aheart-cascader__option`, { state: 'visible', timeout: 5000 })
+        try { await page.waitForFunction(expected => document.querySelectorAll('.aheart-cascader__column').length >= expected && document.querySelectorAll('.aheart-cascader__column')[expected - 1]?.querySelector('.aheart-cascader__option'), depth + 1, { timeout: 5000 }) } catch (error) { const diagnostic = await page.evaluate(() => ({ columns: document.querySelectorAll('.aheart-cascader__column').length, body: document.body.textContent?.slice(-300), input: window.__d4ActualComponentInput })); throw new Error(`Cascader runtime input depth ${depth} did not mount: ${JSON.stringify(diagnostic)}; ${error.message}`) }
         cascaderDeepColumns.push(await columnSnapshot(depth))
         const option = page.locator('.aheart-cascader__column').nth(depth).locator('.aheart-cascader__option').first()
         await option.focus()
         await option.click()
         actions.push(depth === 0 ? 'lazy-option' : 'keyboard')
-        if (depth === 0) {
-          await page.waitForSelector('.aheart-cascader__option.is-error', { state: 'visible', timeout: 5000 })
-          const retryOption = page.locator('.aheart-cascader__option.is-error').first()
-          await retryOption.focus(); await retryOption.click(); actions.push('lazy-retry-ui')
-          await page.waitForFunction(() => document.querySelector('.aheart-cascader__column:nth-child(2) .aheart-cascader__option') !== null, { timeout: 5000 })
-        } else if (depth < 4) {
+        if (depth < 4) {
           try {
             await page.waitForFunction(expected => document.querySelectorAll('.aheart-cascader__column').length >= expected, depth + 2, { timeout: 5000 })
           } catch (error) {
@@ -527,7 +524,9 @@ async function collectFamilyCoverage(page, baseURL) {
       const selectedEventBeforeSearch = await page.evaluate(() => (window.__d4EventLog ?? []).find(event => event.name === 'selection'))
       cascaderSelectedPath = selectedEventBeforeSearch?.value
       cascaderCapturedEvents = await page.evaluate(() => [...(window.__d4EventLog ?? [])])
-      await page.reload({ waitUntil: 'networkidle' })
+      cascaderRuntimeRecords.push({ kind: 'deep', actualOptionsColumns: deepRuntime?.actualOptionsColumns ?? [] })
+      await page.goto(`${baseURL}/?component=Cascader&count=${count}&rowMode=dynamic&virtual=true&cascaderScenario=search`, { waitUntil: 'networkidle' })
+      const searchRuntime = await page.evaluate(() => window.__d4ActualComponentInput)
       await page.locator('.aheart-cascader__trigger').click()
       await page.locator('.aheart-cascader__search').fill('match')
       await page.waitForSelector('.aheart-cascader__search-results .aheart-cascader__option', { state: 'visible', timeout: 10000 })
@@ -545,12 +544,22 @@ async function collectFamilyCoverage(page, baseURL) {
         return rows.at(-1)?.getAttribute('data-cascader-path') ?? null
       })
       const inputValue = await page.locator('.aheart-cascader__search').inputValue()
-      const rawSearchPaths = sourceEvidence.paths
+      const rawSearchPaths = searchRuntime?.actualComponentInput?.rawLeaves?.map(leaf => leaf.path) ?? sourceEvidence.paths
       const matchedPaths = rawSearchPaths.filter((_, index) => index < 10000)
       const firstPath = searchFirst?.split('/') ?? []
       const lastPath = searchLast?.split('/') ?? []
       cascaderSearchEvidence = { inputValue, matchedPaths, visibleFirst: { path: matchedPaths.find(pathValue => pathValue.join('/') === firstPath.join('/')) ?? firstPath }, visibleTail: { path: matchedPaths.find(pathValue => pathValue.join('/') === lastPath.join('/')) ?? lastPath } }
-      await page.reload({ waitUntil: 'networkidle' })
+      cascaderRuntimeRecords.push({ kind: 'search', actualComponentInput: searchRuntime?.actualComponentInput, matchedPaths, visibleTail: cascaderSearchEvidence.visibleTail.path })
+      await page.goto(`${baseURL}/?component=Cascader&count=${count}&rowMode=dynamic&virtual=true&cascaderScenario=lazy`, { waitUntil: 'networkidle' })
+      const lazyRuntime = await page.evaluate(() => window.__d4ActualComponentInput)
+      await page.locator('.aheart-cascader__trigger').click(); await tick(page)
+      const lazyRoot = page.locator('.aheart-cascader__column').first().locator('.aheart-cascader__option').first()
+      await lazyRoot.focus(); await lazyRoot.click(); actions.push('lazy-option')
+      await page.waitForSelector('.aheart-cascader__option.is-error', { state: 'visible', timeout: 5000 })
+      await page.locator('.aheart-cascader__option.is-error').first().click(); actions.push('lazy-retry-ui')
+      await page.waitForFunction(() => document.querySelectorAll('.aheart-cascader__column').length >= 2, { timeout: 5000 })
+      cascaderCapturedEvents = [...cascaderCapturedEvents, ...(await page.evaluate(() => [...(window.__d4EventLog ?? [])]))]
+      await page.goto(`${baseURL}/?component=Cascader&count=${count}&rowMode=dynamic&virtual=true&cascaderScenario=lazy`, { waitUntil: 'networkidle' })
       await page.locator('.aheart-cascader__trigger').click(); await tick(page)
       const pendingOption = page.locator('.aheart-cascader__column').first().locator('.aheart-cascader__option').first()
       await pendingOption.focus(); await pendingOption.press('Enter'); actions.push('lazy-revision')
@@ -559,10 +568,12 @@ async function collectFamilyCoverage(page, baseURL) {
         const columns = [...document.querySelectorAll('.aheart-cascader__column')].map(column => [...column.querySelectorAll('.aheart-cascader__option')].map(option => option.getAttribute('data-cascader-value')).filter(Boolean))
         return { dom: document.body.textContent ?? '', value: document.querySelector('.aheart-cascader__trigger')?.textContent ?? '', columns, childHashes: columns.map(column => column.join('\n')) }
       })
+      await tick(page)
       cascaderStateBeforeLate = await readLateState()
       await page.waitForTimeout(180)
       cascaderStateAfterLate = await readLateState()
       cascaderCapturedEvents = [...cascaderCapturedEvents, ...(await page.evaluate(() => [...(window.__d4EventLog ?? [])]))]
+      cascaderRuntimeRecords.push({ kind: 'lazy', actualComponentInput: { ...(lazyRuntime?.actualComponentInput ?? {}), events: cascaderCapturedEvents.filter(event => event.name?.startsWith('lazy-') || event.name === 'late-resolve') } })
     }
     const snapshot = await page.evaluate(() => ({ mountedRows: document.querySelectorAll('[role="treeitem"], .aheart-cascader__option').length, text: document.body.textContent?.slice(0, 200), columns: document.querySelectorAll('.aheart-cascader__column').length, eventLog: window.__d4EventLog ?? [] }))
     const afterText = await page.locator('body').textContent()
@@ -601,7 +612,7 @@ async function collectFamilyCoverage(page, baseURL) {
     if (component === 'TreeSelect') Object.assign(primaryScenario, { searchInputValue: treeSelectSearchInputValue, searchInputElement: { value: treeSelectSearchInputValue }, searchInputEvidence: { source: 'dom-input.value' }, matchedKeys: sourceEvidence.keys.filter((_, index) => sourceEvidence.labels[index]?.includes(treeSelectSearchInputValue)), valueBefore: treeSelectAcceptedBefore?.value, valueAfter: treeSelectAcceptedAfter?.value, acceptedValueBefore: treeSelectAcceptedBefore, acceptedValueAfter: treeSelectAcceptedAfter, requestedValue: treeSelectRequested })
     if (component === 'Cascader') {
       Object.assign(primaryScenario.lazy, { stateBeforeLate: cascaderStateBeforeLate, stateAfterLate: cascaderStateAfterLate })
-      primaryScenario.componentInputRecords = [{ kind: 'deep', actualOptionsColumns: cascaderColumns.map(column => ({ options: column.rawLogicalOptionKeys, optionsHash: column.componentInputHash })) }, { kind: 'search', optionsHash: cascaderSearch.componentInputHash }, { kind: 'lazy', optionsHash: cascaderColumns[0]?.componentInputHash }]
+      primaryScenario.componentInputRecords = cascaderRuntimeRecords.map(record => record.kind === 'deep' ? { kind: 'deep', actualOptionsColumns: (record.actualOptionsColumns ?? []).map((column, index) => ({ index, keys: column.keys, options: column.keys, optionsHash: sha256(Buffer.from(column.keys.join('\n'))) })) } : record.kind === 'search' ? { ...record, actualComponentInput: { ...record.actualComponentInput, matchedPaths: record.matchedPaths, visibleTail: { path: record.visibleTail } } } : record)
     }
     coverage[component] = { realData: true, clockDomain: 'epoch-ms', rowModeEvidence, scenarios: component === 'Tree' ? [flatTreeScenario, primaryScenario] : [primaryScenario] }
   }
