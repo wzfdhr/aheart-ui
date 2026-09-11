@@ -456,6 +456,9 @@ test('real bounded Tree family coverage preserves raw flat and expanded logical 
   assert.deepEqual(expanded.logicalVisibleKeys, adjacencyVisible)
   assert.equal(new Set(adjacencyVisible).size, 10000)
   assert.ok(expanded.mountedRows <= 24)
+  assert.ok(expanded.mountedRows > 0)
+  assert.equal('clamped' in expanded, false)
+  assert.deepEqual(expanded.expandedKeysInput, expanded.eventRecords.find(event => event.name === 'expand')?.afterExpandedKeys)
   assert.ok(expanded.eventRecords.some(event => event.name === 'expand' && event.beforeExpandedKeys?.length === 99 && event.afterExpandedKeys?.length === 100))
   const source = await readFile(path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
   assert.doesNotMatch(source, /Math\.min\([^\n]*logicalVisibleKeys|Math\.min\([^\n]*logicalKeys/)
@@ -488,6 +491,8 @@ test('real bounded Cascader family coverage preserves deep columns, search paths
   assert.equal(expectedPaths.length, 10000)
   assert.deepEqual(scenario.search.matchedPaths, expectedPaths)
   assert.ok(scenario.search.visibleFirst && scenario.search.visibleTail)
+  assert.ok(scenario.search.matchedPaths.includes(scenario.search.visibleTail.path))
+  assert.deepEqual(scenario.search.visibleTail.path, scenario.search.matchedPaths.at(-1))
   assert.equal(scenario.search.pathHash, hash(Buffer.from(expectedPaths.map(pathValue => pathValue.join('/')).join('\n'))))
   assert.deepEqual(scenario.lazy.events.map(event => event.name), ['pending', 'error', 'pending', 'retry', 'resolve', 'pending', 'cancel', 'late-resolve-stale-ignored'])
   assert.ok(scenario.lazy.events.every(event => event.componentActionId && Number.isFinite(event.timestamp)))
@@ -496,6 +501,7 @@ test('real bounded Cascader family coverage preserves deep columns, search paths
   assert.equal(scenario.controlledRejected, true)
   const source = await readFile(path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'), 'utf8')
   assert.doesNotMatch(source, /window\.__d4LoadData/)
+  assert.doesNotMatch(source, /__d4RunLazyScenario/)
 })
 
 test('real bounded measured rows retain computed fixed/coarse/dynamic heights and raw actionability probes', async () => {
@@ -505,10 +511,14 @@ test('real bounded measured rows retain computed fixed/coarse/dynamic heights an
     assert.ok(rowModes, `${component} must expose rowModeEvidence`)
     for (const rowMode of ['fixed', 'coarse', 'dynamic']) {
       const metrics = rowModes[rowMode]
-      assert.ok(metrics?.every(metric => [0, 1, 10, 20].includes(metric.index) && metric.key && metric.rect && metric.computedStyle))
+      assert.equal(metrics?.length, 4)
+      assert.equal(new Set(metrics.map(metric => metric.index)).size, 4)
+      assert.deepEqual(metrics.map(metric => metric.index).sort((a, b) => a - b), [0, 1, 10, 20])
+      assert.equal(new Set(metrics.map(metric => metric.key)).size, 4)
+      assert.ok(metrics.every(metric => Number(metric.key.split(/[-:]/).at(-1)) === metric.index && metric.rect && metric.computedStyle && Math.abs(metric.height - (metric.rect.bottom - metric.rect.top)) <= 0.5 && Math.abs(metric.height - Number.parseFloat(metric.computedStyle.height)) <= 0.5))
       if (rowMode === 'fixed') assert.ok(metrics.every(metric => metric.height === metric.expectedHeight))
       if (rowMode === 'coarse') assert.ok(metrics.every(metric => metric.height >= 44))
-      if (rowMode === 'dynamic') assert.ok([0, 10, 20].every(index => metrics.find(metric => metric.index === index).height > metrics.find(metric => metric.index === 1).height && metrics.find(metric => metric.index === index).wrapped === true))
+      if (rowMode === 'dynamic') assert.ok([0, 10, 20].every(index => metrics.find(metric => metric.index === index).height > metrics.find(metric => metric.index === 1).height && metrics.find(metric => metric.index === index).wrapped === true && (metrics.find(metric => metric.index === index).scrollWidth > metrics.find(metric => metric.index === index).clientWidth || metrics.find(metric => metric.index === index).lineHeight > 0)))
     }
   }
   for (const timing of [report.case?.timing]) {
@@ -520,6 +530,7 @@ test('real bounded measured rows retain computed fixed/coarse/dynamic heights an
     assert.equal(timing.hitTarget.kind, 'row')
     assert.equal(timing.focusProbe.activeElementInRow, true)
     assert.ok(timing.startedAt <= timing.triggerAt && timing.clickStartedAt <= timing.clickCompletedAt && timing.clickCompletedAt < timing.actionableAt && timing.probeAt <= timing.endAt)
+    assert.ok(timing.startedAt <= timing.triggerAt && timing.triggerAt <= timing.clickStartedAt && timing.clickStartedAt - timing.startedAt <= 5 && timing.clickCompletedAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt[0] && timing.rafAt[0] <= timing.rafAt[1] && timing.rafAt[1] <= timing.probeAt && timing.probeAt <= timing.endAt)
     assert.equal(timing.firstInteractionMs, timing.endAt - timing.startedAt)
   }
 })
@@ -531,6 +542,8 @@ test('bounded actionability validator rejects raw hit-target or focus-probe forg
     forged => { forged.case.timing.hitTarget.kind = 'trigger' },
     forged => { forged.case.timing.focusProbe.activeElementInRow = false },
     forged => { forged.case.timing.targetRect.top = forged.case.timing.targetViewportRect.bottom + 100 },
+    forged => { forged.case.timing.probeAt = forged.case.timing.endAt + 100 },
+    forged => { forged.case.timing.endAt = forged.case.timing.probeAt - 100 },
   ]) {
     const forged = structuredClone(report)
     mutate(forged)
