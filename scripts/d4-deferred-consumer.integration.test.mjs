@@ -49,6 +49,44 @@ const collectRealBoundedReport = () => realCollection ??= (async () => {
   return { root, candidate, candidateCommit, result, report, log }
 })()
 
+const collectAuthenticSsrSnapshotRed = async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'd4-deferred-ssr-authentic-red-'))
+  const candidate = await packCurrent(root)
+  const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
+  const baselineBytes = await readFile(baseline)
+  assert.equal(hash(baselineBytes), approvedBaselineHash)
+  const candidateBytes = await readFile(candidate)
+  const baselineManifest = path.join(root, 'baseline-manifest.json')
+  const candidateManifest = path.join(root, 'candidate-manifest.json')
+  await writeFile(baselineManifest, JSON.stringify({ clean: true, commit: approvedBaseline, tarballSha256: hash(baselineBytes) }))
+  await writeFile(candidateManifest, JSON.stringify({ clean: true, commit: candidateCommit, tarballSha256: hash(candidateBytes) }))
+  const out = path.join(root, 'collector.json')
+  const args = [
+    path.join(workspace, 'docs/superpowers/experiments/d4-deferred-consumer/collect.mjs'),
+    '--smoke',
+    '--baseline-tarball', baseline,
+    '--candidate-tarball', candidate,
+    '--baseline-commit', approvedBaseline,
+    '--candidate-commit', candidateCommit,
+    '--baseline-manifest', baselineManifest,
+    '--candidate-manifest', candidateManifest,
+    '--base-url', 'http://127.0.0.1:0',
+    '--out', out,
+  ]
+  const result = await run(process.execPath, args, { cwd: workspace, maxBuffer: 8 * 1024 * 1024 }).then(value => ({ code: 0, output: `${value.stdout}\n${value.stderr}` }), error => ({ code: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
+  await writeFile('/tmp/d4-ssr-authentic-red-v2.log', result.output)
+  assert.notEqual(result.code, 0, 'authentic SSR RED must remain a real collector failure until the snapshot contract is implemented')
+  const prevalidationPath = `${out}.prevalidation.json`
+  const report = JSON.parse(await readFile(prevalidationPath, 'utf8'))
+  return { report, result, prevalidationPath }
+}
+
+const snapshotStructureProjection = snapshot => {
+  if (!snapshot) return snapshot
+  const { capturePhase: _capturePhase, captureNonce: _captureNonce, ...structure } = snapshot
+  return structure
+}
+
 async function packCurrent(directory) {
   const result = await run('corepack', ['pnpm', '--dir', path.join(workspace, 'packages/components'), 'pack', '--json', '--pack-destination', directory], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
   return JSON.parse(result.stdout).filename
@@ -192,7 +230,12 @@ test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, 
       const treeSelectTrigger = snapshot.nodes.find(node => node.component === 'TreeSelect' && node.kind === 'trigger')
       if (item.virtual?.TreeSelect === true && treeSelectTrigger?.ariaActivedescendant == null) assert.equal(treeSelectTrigger.focusModel, 'roving-dom-focus')
     }
-    assert.deepEqual(item.serverSnapshot, item.hydratedSnapshot, 'server and hydrated accessibility snapshots must be structurally identical')
+    assert.equal(item.serverSnapshot.capturePhase, 'server-before-hydration')
+    assert.equal(item.hydratedSnapshot.capturePhase, 'hydrated-after-mount')
+    assert.ok(typeof item.serverSnapshot.captureNonce === 'string' && item.serverSnapshot.captureNonce.length > 0)
+    assert.ok(typeof item.hydratedSnapshot.captureNonce === 'string' && item.hydratedSnapshot.captureNonce.length > 0)
+    assert.notEqual(item.serverSnapshot.captureNonce, item.hydratedSnapshot.captureNonce)
+    assert.deepEqual(snapshotStructureProjection(item.serverSnapshot), snapshotStructureProjection(item.hydratedSnapshot), 'server and hydrated accessibility structures must match after excluding capture metadata only')
     assert.equal(item.combinedSha256, item.serverSnapshot.combinedSha256)
     assert.equal(item.combinedSha256, item.hydratedSnapshot.combinedSha256)
     assert.equal(item.mainHtmlSha256, item.hydratedMainHtmlSha256)
@@ -200,6 +243,30 @@ test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, 
     assert.ok(item.cjsRenderRecord?.exportPath && item.cjsRenderRecord?.exportSha256)
     assert.equal(hash(await readFile(item.cjsRenderRecord.exportPath)), item.cjsRenderRecord.exportSha256)
   }
+})
+
+test('authentic SSR RED directly checks exact nodes, independent captures, selectors, normalization and pollution', async () => {
+  const { report, result, prevalidationPath } = await collectAuthenticSsrSnapshotRed()
+  assert.match(result.output, /D4 bounded release contract failed|SSR|snapshot|selector/i, `RED must identify snapshot contract failure; report ${prevalidationPath}`)
+  const item = Object.values(report.ssrHydration?.combinations ?? {})[0]
+  assert.ok(item?.serverSnapshot && item?.hydratedSnapshot, `prevalidation report must preserve snapshots: ${prevalidationPath}`)
+  for (const [phase, snapshot] of [['server-before-hydration', item.serverSnapshot], ['hydrated-after-mount', item.hydratedSnapshot]]) {
+    assert.equal(snapshot.capturePhase, phase)
+    assert.ok(typeof snapshot.captureNonce === 'string' && snapshot.captureNonce.length > 0)
+    assert.equal(snapshot.nodes?.length, 6)
+    assert.deepEqual(snapshot.nodes.map(node => `${node.component}/${node.kind}`).sort(), ['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger'])
+    for (const node of snapshot.nodes) {
+      assert.equal(node.selectorProvenance?.source, 'document.querySelector')
+      assert.equal(node.selectorMatchCount, 1)
+      assert.equal(node.selectorResolved, true)
+    }
+    const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
+    assert.equal(snapshot.mainHtml, normalize(snapshot.rawMainHtml))
+    assert.equal(snapshot.teleportHtml, normalize(snapshot.rawTeleportHtml))
+    assert.doesNotMatch(snapshot.rawMainHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i)
+    assert.doesNotMatch(snapshot.rawTeleportHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i)
+  }
+  assert.notEqual(item.serverSnapshot.captureNonce, item.hydratedSnapshot.captureNonce)
 })
 
 test('bounded SSR hydration records have all three component actions and honest virtual row windows', async () => {
@@ -249,14 +316,49 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
     ['copied hydrated snapshot', forged => {
       const item = forged.ssrHydration.combinations[key]
       item.hydratedSnapshot = structuredClone(item.serverSnapshot)
+      item.hydratedSnapshot.capturePhase = 'hydrated-after-mount'
+      item.hydratedSnapshot.captureNonce = `${item.serverSnapshot.captureNonce}-copied`
     }],
     ['extra snapshot node', forged => {
       const item = forged.ssrHydration.combinations[key]
       item.serverSnapshot.nodes.push(structuredClone(item.serverSnapshot.nodes[0]))
+      item.hydratedSnapshot.nodes.push(structuredClone(item.hydratedSnapshot.nodes[0]))
+    }],
+    ['duplicate or missing node identity', forged => {
+      const item = forged.ssrHydration.combinations[key]
+      for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
+        snapshot.nodes = snapshot.nodes.filter(node => !(node.component === 'TreeSelect' && node.kind === 'root'))
+        snapshot.nodes.push({ ...structuredClone(snapshot.nodes[0]), component: 'Tree', kind: 'row' })
+      }
+    }],
+    ['non-unique selector provenance', forged => {
+      const item = forged.ssrHydration.combinations[key]
+      for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
+        const node = snapshot.nodes.find(entry => entry.component === 'TreeSelect' && entry.kind === 'trigger')
+        node.selector = '.aheart-tree-select__trigger'
+        node.selectorProvenance.selector = node.selector
+        node.selectorMatchCount = 2
+        node.selectorResolved = false
+      }
+    }],
+    ['wrong selector provenance', forged => {
+      const item = forged.ssrHydration.combinations[key]
+      for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
+        const node = snapshot.nodes.find(entry => entry.component === 'Cascader' && entry.kind === 'root')
+        node.selector = '.aheart-cascader__trigger'
+        node.selectorProvenance.selector = node.selector
+        node.selectorMatchCount = 1
+        node.selectorResolved = true
+      }
     }],
     ['teleport diagnostic', forged => {
       const item = forged.ssrHydration.combinations[key]
       for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.rawTeleportHtml += '<script>window.__d4CaptureSnapshot()</script>'
+      refreshHashes(item)
+    }],
+    ['raw teleport only', forged => {
+      const item = forged.ssrHydration.combinations[key]
+      item.serverSnapshot.rawTeleportHtml += '<script>diagnostic()</script>'
       refreshHashes(item)
     }],
   ]
