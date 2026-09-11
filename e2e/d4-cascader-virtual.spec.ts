@@ -82,6 +82,18 @@ async function open(page: Page, testId = 'cascader-virtual-main') {
   return panel(page, testId)
 }
 
+async function settleOwnerFrames(page: Page, frames = 20) {
+  await page.evaluate(async count => {
+    await new Promise<void>(resolve => {
+      const tick = () => {
+        if (count-- <= 0) { resolve(); return }
+        requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    })
+  }, frames)
+}
+
 test('default Cascader remains full-DOM compatible while the opt-in fixture exposes a virtual contract', async ({ page }) => {
   const popup = await open(page, 'cascader-virtual-default')
   await expect(popup.locator('.aheart-cascader__option[data-cascader-column="0"]')).toHaveCount(1000)
@@ -153,6 +165,94 @@ test('five columns keep logical 2k siblings virtualized with one vertical scroll
   expect(verticalOwners.columns).toEqual(['auto', 'auto', 'auto', 'auto', 'auto'])
   expect(verticalOwners.popup).not.toMatch(/^(auto|scroll)$/)
   expect(verticalOwners.columnsWrap).not.toMatch(/^(auto|scroll)$/)
+})
+
+test('deep five-column search clear keeps the current column and panel inside a 775px viewport', async ({ page }) => {
+  await page.getByTestId('cascader-virtual-five-columns').click()
+  const popup = await open(page)
+  const columns = popup.locator('.aheart-cascader__column')
+  for (let column = 0; column < 4; column++) {
+    const first = popup.locator(`.aheart-cascader__option[data-cascader-column="${column}"]`).first()
+    await first.focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(columns).toHaveCount(column + 2)
+  }
+  const search = popup.getByRole('searchbox', { name: '搜索级联选项' })
+  await search.fill('no-match-after-deep')
+  await expect(popup.getByRole('status')).toHaveText('暂无匹配选项')
+  await page.setViewportSize({ width: 775, height: 720 })
+  await settleOwnerFrames(page)
+  await search.fill('')
+  await settleOwnerFrames(page)
+  const geometry = await popup.evaluate(element => {
+    const view = element.ownerDocument.defaultView
+    const panel = element.getBoundingClientRect()
+    const activeRows = Array.from(element.querySelectorAll<HTMLElement>('.aheart-cascader__option.is-active'))
+    const current = activeRows.at(-1) ?? null
+    const currentRect = current?.getBoundingClientRect()
+    const column = current?.closest<HTMLElement>('.aheart-cascader__column')
+    const columnRect = column?.getBoundingClientRect()
+    const intersection = currentRect && columnRect
+      ? Math.max(0, Math.min(currentRect.right, columnRect.right) - Math.max(currentRect.left, columnRect.left)) * Math.max(0, Math.min(currentRect.bottom, columnRect.bottom) - Math.max(currentRect.top, columnRect.top))
+      : 0
+    const area = currentRect ? currentRect.width * currentRect.height : 0
+    return {
+      viewport: { width: view?.innerWidth ?? 0, height: view?.innerHeight ?? 0 },
+      panel: { left: panel.left, right: panel.right, top: panel.top, bottom: panel.bottom, width: panel.width },
+      current: current ? { value: current.getAttribute('data-cascader-value'), column: current.getAttribute('data-cascader-column'), left: currentRect?.left, right: currentRect?.right, top: currentRect?.top, bottom: currentRect?.bottom } : null,
+      column: columnRect ? { left: columnRect.left, right: columnRect.right, top: columnRect.top, bottom: columnRect.bottom } : null,
+      intersectionRatio: area > 0 ? intersection / area : 0
+    }
+  })
+  console.log(`five-column search-clear geometry ${JSON.stringify(geometry)}`)
+  expect(geometry.panel.left).toBeGreaterThanOrEqual(8)
+  expect(geometry.panel.right).toBeLessThanOrEqual(geometry.viewport.width - 8)
+  expect(geometry.current).not.toBeNull()
+  expect(geometry.intersectionRatio).toBeGreaterThanOrEqual(0.99)
+})
+
+test('deep five-column ArrowLeft returns a fully visible root row after stable scroll', async ({ page }) => {
+  await page.getByTestId('cascader-virtual-five-columns').click()
+  const popup = await open(page)
+  const columns = popup.locator('.aheart-cascader__column')
+  for (let column = 0; column < 4; column++) {
+    const first = popup.locator(`.aheart-cascader__option[data-cascader-column="${column}"]`).first()
+    await first.focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(columns).toHaveCount(column + 2)
+  }
+  for (let column = 4; column > 0; column--) {
+    await page.keyboard.press('ArrowLeft')
+  }
+  await settleOwnerFrames(page)
+  const geometry = await popup.evaluate(element => {
+    const view = element.ownerDocument.defaultView
+    const panel = element.getBoundingClientRect()
+    const active = element.ownerDocument.activeElement
+    const row = active instanceof HTMLElement && active.matches('.aheart-cascader__option') ? active : null
+    const rowRect = row?.getBoundingClientRect()
+    const column = row?.closest<HTMLElement>('.aheart-cascader__column')
+    const columnRect = column?.getBoundingClientRect()
+    const viewport = view ? { left: 0, right: view.innerWidth, top: 0, bottom: view.innerHeight } : null
+    const clips = [columnRect, panel, viewport].filter(Boolean) as DOMRect[]
+    const clip = clips.reduce((current, next) => ({ left: Math.max(current.left, next.left), right: Math.min(current.right, next.right), top: Math.max(current.top, next.top), bottom: Math.min(current.bottom, next.bottom) }))
+    const intersection = rowRect ? Math.max(0, Math.min(rowRect.right, clip.right) - Math.max(rowRect.left, clip.left)) * Math.max(0, Math.min(rowRect.bottom, clip.bottom) - Math.max(rowRect.top, clip.top)) : 0
+    const area = rowRect ? rowRect.width * rowRect.height : 0
+    return {
+      viewport: { width: view?.innerWidth ?? 0, height: view?.innerHeight ?? 0 },
+      panel: { left: panel.left, right: panel.right, top: panel.top, bottom: panel.bottom, width: panel.width },
+      focused: row?.getAttribute('data-cascader-value') ?? null,
+      row: rowRect ? { left: rowRect.left, right: rowRect.right, top: rowRect.top, bottom: rowRect.bottom, width: rowRect.width, height: rowRect.height } : null,
+      column: columnRect ? { left: columnRect.left, right: columnRect.right, top: columnRect.top, bottom: columnRect.bottom } : null,
+      intersectionRatio: area > 0 ? intersection / area : 0
+    }
+  })
+  console.log(`five-column ArrowLeft geometry ${JSON.stringify(geometry)}`)
+  expect(geometry.panel.left).toBeGreaterThanOrEqual(8)
+  expect(geometry.panel.right).toBeLessThanOrEqual(geometry.viewport.width - 8)
+  expect(geometry.focused).not.toBeNull()
+  expect(geometry.row).not.toBeNull()
+  expect(geometry.intersectionRatio).toBeGreaterThanOrEqual(0.99)
 })
 
 test('keyboard navigation reaches real focus, disabled tail, End, Left/Right and Enter', async ({ page }) => {
