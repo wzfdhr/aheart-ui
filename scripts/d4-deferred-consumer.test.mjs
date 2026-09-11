@@ -382,6 +382,36 @@ test('full and preflight collection share artifact preparation/report-shell help
   assert.ok((source.match(/buildFullReportShell\(/g) ?? []).length >= 3, 'full and preflight paths must reuse the report shell')
 })
 
+test('full release SSR/types contract rejects missing snapshots, actions, capture artifacts and public type probe', () => {
+  const mutations = [
+    ['full SSR snapshots', report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) {
+        delete item.serverSnapshot
+        delete item.hydratedSnapshot
+      }
+    }, /full SSR snapshots/i],
+    ['full SSR actions', report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) delete item.postHydrationActions
+    }, /full SSR actions/i],
+    ['full SSR capture evidence', report => {
+      for (const item of Object.values(report.ssrHydration.combinations)) delete item.captureEvidence
+    }, /full SSR capture evidence/i],
+    ['full public type probe', report => { delete report.typeProbe }, /full public type probe/i],
+  ]
+  for (const [label, mutate, pattern] of mutations) {
+    const report = fullReport()
+    mutate(report)
+    assert.throws(() => validateReport(report), error => (error?.failures ?? []).some(failure => pattern.test(failure)), `full release must reject missing ${label}`)
+  }
+})
+
+test('full collection reuses smoke SSR capture helper and returns candidate type probe', async () => {
+  const source = await deferredCollectorSource()
+  assert.ok((source.match(/ssrEvidence\(/g) ?? []).length >= 3, 'smoke and full collectSide paths must reuse the shared SSR/hydration capture helper')
+  assert.match(source, /return \{[\s\S]*ssrHydration: ssr[\s\S]*typeProbe[\s\S]*\}/, 'collectSide must return the candidate public type probe')
+  assert.match(source, /report\.typeProbe\s*=\s*candidate\.typeProbe/, 'full report must preserve candidate type probe evidence')
+})
+
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
   const source = await deferredCollectorSource()
   const fullBranch = source.slice(source.indexOf('\n} else {'))

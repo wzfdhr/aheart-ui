@@ -424,6 +424,36 @@ test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and t
   }
 })
 
+test('bounded metadata cannot bypass capture artifacts or validator identity', async t => {
+  const { report } = await collectRealBoundedReport()
+  await assertBoundedControlPasses(report)
+  const key = Object.keys(report.ssrHydration.combinations)[0]
+  const mutations = [
+    ['copied snapshot with forged capture metadata', /capture artifact mandatory|capture.*artifact|snapshot.*mismatch/i, forged => {
+      const item = forged.ssrHydration.combinations[key]
+      item.hydratedSnapshot = structuredClone(item.serverSnapshot)
+      item.hydratedSnapshot.capturePhase = 'hydrated-after-mount'
+      item.hydratedSnapshot.captureNonce = `${item.serverSnapshot.captureNonce}-forged`
+    }],
+    ['forged bounded run identity', /bounded run identity|run identity|capture artifact mandatory/i, forged => {
+      forged.runId = 'bounded-forged-run'
+    }],
+    ['forged bounded validator marker', /validator marker|validator identity|capture artifact mandatory/i, forged => {
+      forged.releaseFormat.validatorName = 'validateBoundedReleaseReport-forged'
+    }],
+  ]
+  for (const [label, pattern, mutate] of mutations) {
+    await t.test(label, async () => {
+      const forged = structuredClone(report)
+      mutate(forged)
+      await assert.rejects(async () => {
+        await verifyArtifactBindings(forged)
+        validateBoundedReleaseReport(forged)
+      }, error => pattern.test(error?.message ?? '') || (error?.failures ?? []).some(failure => pattern.test(failure)), `bounded metadata bypass must reject ${label}`)
+    })
+  }
+})
+
 test('real bounded family events use one normalized clock domain and stay inside each scenario', async () => {
   const { report } = await collectRealBoundedReport()
   for (const [component, family] of Object.entries(report.familyCoverage ?? {})) {
