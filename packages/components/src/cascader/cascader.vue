@@ -252,6 +252,7 @@ const virtualConfig = computed(() => normalizeCascaderVirtual(props.virtual, (me
 const virtualEnabled = computed(() => virtualConfig.value !== null)
 const focusedSearchPath = ref<CascaderPath>([])
 const virtualListRefs = new Map<string, CascaderVirtualListExpose>()
+let revealGeneration = 0
 const rovingKeys = ref<Record<string, CascaderKey | undefined>>({})
 const setVirtualListRef = (key: string, element: Element | ComponentPublicInstance | null) => {
   if (element && '$el' in element) virtualListRefs.set(key, element as unknown as CascaderVirtualListExpose)
@@ -402,6 +403,7 @@ const cancelOtherLoads = (requestKey: string) => {
 }
 watch(() => props.options, (options) => {
   const nextOptions = cloneOptions(options)
+  revealGeneration += 1
   invalidateLoads()
   innerOptions.value = nextOptions
   errorPaths.value = []
@@ -525,11 +527,12 @@ const isLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.
 const isLoadError = (columnIndex: number, option: CascaderOption) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const requestOpen = (open: boolean) => {
   if (props.disabled) return
-  if (!open) invalidateModeFocus()
+  if (!open) { revealGeneration += 1; invalidateModeFocus() }
   openState.setState(open, { force: true })
 }
 watch(mergedOpen, (open, previousOpen) => {
   if (previousOpen && !open) {
+    revealGeneration += 1
     invalidateModeFocus()
     suspendVirtualLists()
     invalidateLoads()
@@ -567,11 +570,31 @@ const replaceChildren = (options: CascaderOption[], path: CascaderPath, children
   if (path.length === 1) return { ...option, children }
   return { ...option, children: replaceChildren(option.children ?? [], path.slice(1), children) }
 })
+const revealColumnInViewport = (columnIndex: number) => {
+  const columns = columnsRef.value
+  const column = columns?.children[columnIndex] as HTMLElement | undefined
+  if (!columns || !column) return
+  const viewport = columns.getBoundingClientRect()
+  const target = column.getBoundingClientRect()
+  let nextScrollLeft = columns.scrollLeft
+  if (target.left < viewport.left) nextScrollLeft += target.left - viewport.left
+  else if (target.right > viewport.right) nextScrollLeft += target.right - viewport.right
+  const maximum = Math.max(0, columns.scrollWidth - columns.clientWidth)
+  nextScrollLeft = Math.min(maximum, Math.max(0, nextScrollLeft))
+  if (Math.abs(nextScrollLeft - columns.scrollLeft) < 0.5) return
+  const previousBehavior = columns.style.scrollBehavior
+  columns.style.scrollBehavior = 'auto'
+  columns.scrollLeft = nextScrollLeft
+  columns.style.scrollBehavior = previousBehavior
+}
 const revealLastColumn = async () => {
+  const generation = ++revealGeneration
   await nextTick()
+  if (generation !== revealGeneration || !mergedOpen.value || props.disabled || searchText.value.trim()) return
   await floatingPosition.update()
   await nextTick()
-  if (columnsRef.value) columnsRef.value.scrollLeft = columnsRef.value.scrollWidth
+  if (generation !== revealGeneration || !mergedOpen.value || props.disabled || searchText.value.trim()) return
+  revealColumnInViewport(Math.max(0, columns.value.length - 1))
 }
 const handleOption = async (option: CascaderOption, columnIndex: number, owner?: FocusOwner) => {
   if (props.disabled || option.disabled) return
@@ -637,6 +660,7 @@ const handleSearchInputBlur = (event: FocusEvent) => {
   if (!event.relatedTarget) invalidateModeFocus()
 }
 const focusColumnIndex = (columnIndex: number, index: number) => {
+  revealColumnInViewport(columnIndex)
   const key = columnPrefixToken(columnIndex)
   const list = virtualListRefs.get(key)
   if (list) list.focusIndex(index)
@@ -647,6 +671,7 @@ const focusColumnIndex = (columnIndex: number, index: number) => {
 }
 watch(searchText, (query, previousQuery) => {
   if (!virtualEnabled.value || query === previousQuery) return
+  revealGeneration += 1
   const active = searchRef.value?.ownerDocument.activeElement as HTMLElement | null
   const resultWasFocused = Boolean(active?.classList.contains('aheart-cascader__option') && active.dataset.cascaderPath)
   const path = [...focusedSearchPath.value]
@@ -661,8 +686,11 @@ watch(searchText, (query, previousQuery) => {
       const index = siblings.findIndex(option => option.value === path.at(-1) && !option.disabled)
       if (index >= 0) focusColumnIndex(path.length - 1, index)
     }))
+    void revealLastColumn()
   } else if (query.trim() && resultWasFocused) {
     searchRef.value?.focus()
+  } else if (!query.trim()) {
+    void revealLastColumn()
   }
   if (query.trim()) {
     const retained = searchResults.value.some(result => samePath(result.path, path) && !result.disabled)
