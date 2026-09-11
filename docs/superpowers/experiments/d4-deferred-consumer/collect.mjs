@@ -19,7 +19,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createServer } from 'vite'
 import { chromium, firefox, webkit } from '@playwright/test'
-import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, buildFullReportShell as contractBuildFullReportShell, buildSmokeReport, prepareFullArtifactBindings as contractPrepareFullArtifactBindings, validateBoundedReleaseReport, validateFullPreflightReport, validateReport, validateSmokeReport, verifyArtifactBindings } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
+import { APPROVED_BASELINE_COMMIT, BROWSERS, COMPONENTS, PINNED_VERSIONS, RELEASE_MATRIX, applyHydrationEvidence, buildFullReportShell as contractBuildFullReportShell, buildSmokeReport, prepareFullArtifactBindings as contractPrepareFullArtifactBindings, validateBoundedReleaseReport, validateFullPreflightReport, validateReport, validateSmokeReport, verifyArtifactBindings } from '../../../../scripts/d4-deferred-consumer-contract.mjs'
 
 const run = promisify(execFile)
 const fixture = path.dirname(fileURLToPath(import.meta.url))
@@ -420,7 +420,7 @@ async function collectHydratedSsrEvidence({ page, baseURL, ssr, artifactDirector
     item.captureEvidence = captureEvidence
     hydration[mask] = { errors: browserErrors.length - errorsBefore, warnings: hydrationWarnings.length - warningsBefore, interacted: hydratedState.interacted, hydratedHtmlSha256: sha256(Buffer.from(hydratedState.html)), hydratedIdSha256: item.hydratedIdSha256, postHydrationInteraction: hydratedState.interacted, postHydrationStateChanged: hydratedState.changed, businessEventsAfterHydration: hydratedState.businessEvents, businessEventNames: hydratedState.businessEventNames, expandedChanged: hydratedState.expandedChanged }
   }
-  return hydration
+  return applyHydrationEvidence(ssr, hydration)
 }
 
 async function measureCase(page, settings, mode, baseURL = page.url()) {
@@ -804,9 +804,8 @@ async function collectSmoke(temporary) {
   let caseEvidence
   let iframe
   let familyCoverage
-  let hydration
   try {
-    hydration = await collectHydratedSsrEvidence({ page, baseURL: actualBaseURL, ssr, artifactDirectory: durableDir, browserErrors: errors, hydrationWarnings })
+    await collectHydratedSsrEvidence({ page, baseURL: actualBaseURL, ssr, artifactDirectory: durableDir, browserErrors: errors, hydrationWarnings })
     await page.goto(`${actualBaseURL}/?component=TreeSelect&count=5000&rowMode=fixed&virtual=true`, { waitUntil: 'networkidle' })
     caseEvidence = await measureCase(page, { component: 'TreeSelect', count: 5000, rowMode: 'fixed' }, 'virtual', actualBaseURL)
     iframe = await iframeProbe(page)
@@ -854,7 +853,7 @@ async function collectSmoke(temporary) {
   report.packages.candidate.moduleRealpaths = [install.packageRealpath]
   report.packages.candidate.afterHashes = { 'es/index.js': install.packageIndexHash }
   report.packages.candidate.versions = install.versions
-  report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(hydration).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item], index) => [key, { ...item, initialHtmlSha256: item.htmlSha256, hydrationErrors: hydration[index]?.errors ?? 1, hydrationWarnings: hydration[index]?.warnings ?? 1, interacted: hydration[index]?.interacted === true, hydratedHtmlSha256: hydration[index]?.hydratedHtmlSha256, hydratedIdSha256: hydration[index]?.hydratedIdSha256, postHydrationInteraction: hydration[index]?.postHydrationInteraction === true, postHydrationStateChanged: hydration[index]?.postHydrationStateChanged === true, businessEventsAfterHydration: hydration[index]?.businessEventsAfterHydration ?? 0, businessEventNames: hydration[index]?.businessEventNames ?? [], expandedChanged: hydration[index]?.expandedChanged === true }])), count: 8, deterministicDoubleRender: true }
+  report.ssrHydration = { status: 'recorded', initialWindowDeterministic: Object.values(ssr.combinations).every(item => item.deterministic), idsDeterministic: Object.values(ssr.combinations).every(item => item.initialIdSha256), postHydrationInteraction: Object.values(ssr.combinations).every(item => item.postHydrationInteraction === true), combinations: Object.fromEntries(Object.entries(ssr.combinations).map(([key, item]) => [key, { ...item, initialHtmlSha256: item.htmlSha256 }])), count: 8, deterministicDoubleRender: true }
   const cjsSource = path.join(candidateRoot, 'node_modules/aheart-ui/lib/index.js')
   const cjsRecordPath = path.join(durableDir, 'aheart-ui-cjs-index.js')
   await cp(cjsSource, cjsRecordPath)
@@ -981,7 +980,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
     if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
     window.__d4StopObservers = () => { for (const observer of window.__d4Observers) { const entries = observer.takeRecords(); if (observer.__d4Type === 'longtask') window.__d4LongTasks.push(...entries.map(entry => ({ startTime: entry.startTime, duration: entry.duration }))); else if (observer.__d4Type === 'layout-shift') window.__d4LayoutShifts.push(...entries.map(entry => ({ startTime: entry.startTime, value: entry.value }))) } window.__d4TakeRecordsAt = performance.now(); window.__d4ObserverStoppedAt = Math.max(window.__d4ObserverStoppedAt ?? 0, window.__d4TakeRecordsAt); for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true; window.__d4DisconnectedAt = performance.now() }
   })
-  const fullHydration = await collectHydratedSsrEvidence({ page, baseURL: base, ssr, artifactDirectory: sideArtifactDir, browserErrors, hydrationWarnings })
+  await collectHydratedSsrEvidence({ page, baseURL: base, ssr: ssr, artifactDirectory: sideArtifactDir, browserErrors, hydrationWarnings })
   ssr.status = 'recorded'
     for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
       const settings = fixtureCount(component, count, rowMode)

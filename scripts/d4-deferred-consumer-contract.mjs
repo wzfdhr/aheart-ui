@@ -40,6 +40,23 @@ export const COMPONENTS = freeze(['Tree', 'TreeSelect', 'Cascader'])
 export const BROWSERS = freeze(['chromium', 'firefox', 'webkit'])
 export const APPROVED_BASELINE_COMMIT = '4a7511f9594d0a74906e427e158d02343ba33a22'
 export function expectedAlternatingOrder() { return Array.from({ length: RELEASE_MATRIX.measuredRuns }, (_, round) => round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']).flat() }
+export function applyHydrationEvidence(ssr, hydration) {
+  for (const [key, item] of Object.entries(ssr?.combinations ?? {})) {
+    const index = Object.keys(ssr.combinations).indexOf(key)
+    const evidence = hydration?.[index] ?? hydration?.[key] ?? {}
+    item.hydrationErrors = evidence.errors ?? 1
+    item.hydrationWarnings = evidence.warnings ?? 1
+    item.interacted = evidence.interacted === true
+    item.hydratedHtmlSha256 = evidence.hydratedHtmlSha256
+    item.hydratedIdSha256 = evidence.hydratedIdSha256
+    item.postHydrationInteraction = evidence.postHydrationInteraction === true
+    item.postHydrationStateChanged = evidence.postHydrationStateChanged === true
+    item.businessEventsAfterHydration = evidence.businessEventsAfterHydration ?? 0
+    item.businessEventNames = evidence.businessEventNames ?? []
+    item.expandedChanged = evidence.expandedChanged === true
+  }
+  return ssr
+}
 
 const keyFor = (component, count, rowMode) => `${component}/${count}/${rowMode}`
 const median = values => {
@@ -786,6 +803,8 @@ export function validateSsrEvidence(report, failures = [], mode = 'bounded') {
 export function validateReport(report, { requireRelease = false, requireSmokeChecks = false, allowValidationPhase = false } = {}) {
   if (report?.smoke === true && requireSmokeChecks) return validateSmokeReport(report)
   const failures = []
+  if (report?.preflight === true && report?.acceptanceEligible === true) failures.push('preflight reports are ineligible for acceptance')
+  if (requireRelease && report?.preflight === true) failures.push('release validation rejects preflight reports')
   if (requireRelease && (report?.smoke === true || report?.acceptanceEligible !== true)) {
     throw new Error('D4 deferred consumer contract failed: smoke, ineligible or synthetic provenance reports cannot pass release validation')
   }
