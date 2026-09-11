@@ -340,7 +340,7 @@ import type { CascaderVirtual, TreeSelectVirtual, TreeVirtual } from 'aheart-ui'
 import type { CascaderVirtual as CascaderVirtualShape } from 'aheart-ui/es/cascader/types'
 import type { TreeSelectVirtual as TreeSelectVirtualShape } from 'aheart-ui/es/tree-select/virtual-options'
 import type { TreeVirtual as TreeVirtualShape } from 'aheart-ui/es/tree/types'
-const treeVirtual: TreeVirtual = { height: 320, estimateSize: 28, overscan: 4 }
+const treeVirtual: TreeVirtual = { height: 320, estimateSize: 28, overscan: 4 } // D4-POSITIVE-VIRTUAL-TYPES TreeVirtual TreeSelectVirtual CascaderVirtual
 const treeSelectVirtual: TreeSelectVirtual = { height: 256, estimateSize: 28, overscan: 4 }
 const cascaderVirtual: CascaderVirtual = { height: 256, estimateSize: 32, overscan: 4 }
 h(Tree, { virtual: true }) // D4-POSITIVE-TREE
@@ -359,7 +359,7 @@ void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
   const result = await run('corepack', ['pnpm', 'exec', 'tsc', '--noEmit', '--pretty', 'false'], { cwd: root, maxBuffer: 16 * 1024 * 1024 }).then(() => ({ exitCode: 0, output: '' }), error => ({ exitCode: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
   assert.equal(result.exitCode, 0, `consumer public type probe failed: ${result.output}`)
   const line = marker => ({ name: marker, source: source.split('\n').find(item => item.includes(marker)) ?? '' })
-  const positiveChecks = ['D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER'].map(line)
+  const positiveChecks = ['D4-POSITIVE-VIRTUAL-TYPES', 'D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER'].map(line)
   const negativeChecks = ['D4-NEGATIVE-TREE', 'D4-NEGATIVE-TREESELECT', 'D4-NEGATIVE-CASCADER'].map(line)
   return { typesPath, typesSha256: sha256(Buffer.from(source)), tscExitCode: result.exitCode, positiveChecks, negativeChecks }
 }
@@ -857,7 +857,7 @@ import type { CascaderVirtual as CascaderVirtualShape } from 'aheart-ui/es/casca
 import type { TreeSelectVirtual as TreeSelectVirtualShape } from 'aheart-ui/es/tree-select/virtual-options'
 import type { TreeVirtual as TreeVirtualShape } from 'aheart-ui/es/tree/types'
 
-const treeVirtual: TreeVirtual = { height: 320, estimateSize: 28, overscan: 4 }
+const treeVirtual: TreeVirtual = { height: 320, estimateSize: 28, overscan: 4 } // D4-POSITIVE-VIRTUAL-TYPES TreeVirtual TreeSelectVirtual CascaderVirtual
 const treeSelectVirtual: TreeSelectVirtual = { height: 256, estimateSize: 28, overscan: 4 }
 const cascaderVirtual: CascaderVirtual = { height: 256, estimateSize: 32, overscan: 4 }
 h(Tree, { virtual: true }) // D4-POSITIVE-TREE
@@ -875,7 +875,7 @@ void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
   const typeProbeSource = await readFile(typeProbePath, 'utf8')
   const typeProbeResult = await run('corepack', ['pnpm', 'exec', 'tsc', '--noEmit', '--pretty', 'false'], { cwd: candidateRoot, maxBuffer: 16 * 1024 * 1024 }).then(() => ({ exitCode: 0, output: '' }), error => ({ exitCode: error.code ?? 1, output: `${error.stdout ?? ''}\n${error.stderr ?? ''}` }))
   assert.equal(typeProbeResult.exitCode, 0, `consumer public type probe failed: ${typeProbeResult.output}`)
-  const positiveMarkers = ['D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER']
+  const positiveMarkers = ['D4-POSITIVE-VIRTUAL-TYPES', 'D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER']
   const negativeMarkers = ['D4-NEGATIVE-TREE', 'D4-NEGATIVE-TREESELECT', 'D4-NEGATIVE-CASCADER']
   const positiveChecks = positiveMarkers.map(marker => ({ name: marker, source: typeProbeSource.split('\n').find(line => line.includes(marker)) ?? '' }))
   const negativeChecks = negativeMarkers.map(marker => ({ name: marker, source: typeProbeSource.split('\n').find(line => line.includes(marker)) ?? '' }))
