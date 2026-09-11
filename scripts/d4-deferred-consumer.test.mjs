@@ -117,6 +117,39 @@ const readableFinalizationFixture = async root => {
   const lock = await artifact('pnpm-lock.yaml', 'lock source')
   const dist = await artifact('dist/index.js', 'dist source')
   const buildManifest = await artifact('dist-files.json', JSON.stringify({ files: [{ path: dist.file, relativePath: 'index.js', bytes: Buffer.byteLength('dist source'), sha256: dist.hash }] }))
+  const typeProbeSource = `import { h } from 'vue'
+import { Cascader, Tree, TreeSelect } from 'aheart-ui'
+import type { CascaderVirtual, TreeSelectVirtual, TreeVirtual } from 'aheart-ui'
+const treeVirtual: TreeVirtual = { height: 320, estimateSize: 28, overscan: 4 } // D4-POSITIVE-VIRTUAL-TYPES TreeVirtual TreeSelectVirtual CascaderVirtual
+const treeSelectVirtual: TreeSelectVirtual = { height: 256, estimateSize: 28, overscan: 4 }
+const cascaderVirtual: CascaderVirtual = { height: 256, estimateSize: 32, overscan: 4 }
+h(Tree, { virtual: true }) // D4-POSITIVE-TREE
+h(Tree, { virtual: treeVirtual }) // D4-POSITIVE-TREE-CONFIG
+h(TreeSelect, { virtual: treeSelectVirtual }) // D4-POSITIVE-TREESELECT
+h(Cascader, { virtual: cascaderVirtual }) // D4-POSITIVE-CASCADER
+// @ts-expect-error D4-NEGATIVE-TREE height estimateSize overscan string
+const invalidTreeConfig: TreeVirtual = { height: 'bad' }
+// @ts-expect-error D4-NEGATIVE-TREESELECT height estimateSize overscan string
+const invalidTreeSelectConfig: TreeSelectVirtual = { estimateSize: 'bad' }
+// @ts-expect-error D4-NEGATIVE-CASCADER height estimateSize overscan string
+const invalidCascaderConfig: CascaderVirtual = { overscan: 'bad' }
+void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
+`
+  const typeProbeFile = await artifact('types-probe.ts', typeProbeSource)
+  const typeProbeConfig = await artifact('tsconfig.type-probe.json', `${JSON.stringify({ compilerOptions: { strict: true, noEmit: true, module: 'ESNext', moduleResolution: 'Bundler', target: 'ES2022', skipLibCheck: true }, include: ['types-probe.ts'] }, null, 2)}\n`)
+  const command = 'corepack pnpm exec tsc --noEmit -p tsconfig.type-probe.json --pretty false'
+  const line = marker => ({ name: marker, source: typeProbeSource.split('\n').find(item => item.includes(marker)) ?? '' })
+  report.typeProbe = { typesPath: typeProbeFile.file, typesSha256: typeProbeFile.hash, configPath: typeProbeConfig.file, configSha256: typeProbeConfig.hash, command, commandSha256: sha256(Buffer.from(command)), tscExitCode: 0, positiveChecks: ['D4-POSITIVE-VIRTUAL-TYPES', 'D4-POSITIVE-TREE', 'D4-POSITIVE-TREE-CONFIG', 'D4-POSITIVE-TREESELECT', 'D4-POSITIVE-CASCADER'].map(line), negativeChecks: ['D4-NEGATIVE-TREE', 'D4-NEGATIVE-TREESELECT', 'D4-NEGATIVE-CASCADER'].map(line) }
+  const ssrArtifactDirectory = path.join(artifactDirectory, 'ssr-snapshots')
+  await mkdir(ssrArtifactDirectory, { recursive: true })
+  for (const [index, [combinationKey, item]] of Object.entries(report.ssrHydration.combinations).entries()) {
+    item.captureEvidence = []
+    for (const [ordinal, snapshot] of [item.serverSnapshot, item.hydratedSnapshot].entries()) {
+      const payload = `${JSON.stringify({ snapshot }, null, 2)}\n`
+      const snapshotFile = await artifact(path.join('ssr-snapshots', `${String(index).padStart(2, '0')}-${ordinal + 1}.json`), payload)
+      item.captureEvidence.push({ ordinal: ordinal + 1, combinationKey, phase: snapshot.capturePhase, nonce: snapshot.captureNonce, structureSha256: sha256(Buffer.from(JSON.stringify(snapshotStructureProjection(snapshot)))), path: snapshotFile.file, sha256: snapshotFile.hash })
+    }
+  }
   const buildFingerprint = sha256(`index.js=${dist.hash}`)
   report.artifactDirectory = artifactDirectory
   report.collectorSourcePath = collector.file
