@@ -344,9 +344,6 @@ async function durableTypeProbe(root, destination) {
   const source = `import { h } from 'vue'
 import { Cascader, Tree, TreeSelect } from 'aheart-ui'
 import type { CascaderVirtual, TreeSelectVirtual, TreeVirtual } from 'aheart-ui'
-import type { CascaderVirtual as CascaderVirtualShape } from 'aheart-ui/es/cascader/types'
-import type { TreeSelectVirtual as TreeSelectVirtualShape } from 'aheart-ui/es/tree-select/virtual-options'
-import type { TreeVirtual as TreeVirtualShape } from 'aheart-ui/es/tree/types'
 const treeVirtual: TreeVirtual = { height: 320, estimateSize: 28, overscan: 4 } // D4-POSITIVE-VIRTUAL-TYPES TreeVirtual TreeSelectVirtual CascaderVirtual
 const treeSelectVirtual: TreeSelectVirtual = { height: 256, estimateSize: 28, overscan: 4 }
 const cascaderVirtual: CascaderVirtual = { height: 256, estimateSize: 32, overscan: 4 }
@@ -355,11 +352,11 @@ h(Tree, { virtual: treeVirtual }) // D4-POSITIVE-TREE-CONFIG
 h(TreeSelect, { virtual: treeSelectVirtual }) // D4-POSITIVE-TREESELECT
 h(Cascader, { virtual: cascaderVirtual }) // D4-POSITIVE-CASCADER
 // @ts-expect-error D4-NEGATIVE-TREE height estimateSize overscan string
-const invalidTreeConfig: TreeVirtualShape = { unknown: true }
+const invalidTreeConfig: TreeVirtual = { height: 'bad' }
 // @ts-expect-error D4-NEGATIVE-TREESELECT height estimateSize overscan string
-const invalidTreeSelectConfig: TreeSelectVirtualShape = { unknown: true }
+const invalidTreeSelectConfig: TreeSelectVirtual = { estimateSize: 'bad' }
 // @ts-expect-error D4-NEGATIVE-CASCADER height estimateSize overscan string
-const invalidCascaderConfig: CascaderVirtualShape = { unknown: true }
+const invalidCascaderConfig: CascaderVirtual = { overscan: 'bad' }
 void [invalidTreeConfig, invalidTreeSelectConfig, invalidCascaderConfig]
 `
   const config = { compilerOptions: { strict: true, noEmit: true, module: 'NodeNext', moduleResolution: 'NodeNext', target: 'ES2022', skipLibCheck: true }, include: ['types-probe.ts'] }
