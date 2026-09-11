@@ -20,8 +20,20 @@ window.__d4MountStart = performance.now()
 window.__d4NextTick = nextTick
 window.__d4EventLog = []
 window.__d4FixtureEvidence = fixtureEvidence(settings.count, settings.rowMode, settings.treeScenario)
-document.addEventListener('keydown', event => window.__d4EventLog.push({ name: 'keyboard', key: event.key, timestamp: Date.now(), clockDomain: 'epoch-ms' }), { capture: true })
+const iframeLifecycleProbe = window.__d4IframeLifecycleProbe
+const recordIframeLifecycle = (type, fields = {}) => iframeLifecycleProbe?.record?.(type, fields)
+const handleKeydown = event => window.__d4EventLog.push({ name: 'keyboard', key: event.key, timestamp: Date.now(), clockDomain: 'epoch-ms' })
+document.addEventListener('keydown', handleKeydown, { capture: true })
 const app = createApp(createConsumerApp(settings))
 app.mount('#app')
-window.__d4Unmount = () => app.unmount()
+recordIframeLifecycle('frame-mounted', { connected: window.frameElement?.isConnected === true })
+let unmounted = false
+window.__d4Unmount = () => {
+  if (unmounted) return
+  unmounted = true
+  recordIframeLifecycle('frame-unmount-invoked', { connected: window.frameElement?.isConnected === true })
+  app.unmount()
+  document.removeEventListener('keydown', handleKeydown, { capture: true })
+  recordIframeLifecycle('frame-unmount-complete', { connected: window.frameElement?.isConnected === true })
+}
 window.__d4Ready = true

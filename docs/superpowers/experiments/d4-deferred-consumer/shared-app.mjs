@@ -88,13 +88,41 @@ export function createCascaderLoadData() {
   }
 }
 
+function createIframeLazyCascaderLoadData() {
+  return (option, context) => {
+    const returnedChildren = [{ value: `${String(option.value)}-child`, label: `Loaded ${option.label}`, isLeaf: true }]
+    let resolvePending
+    let settled = false
+    const control = {
+      signal: context.signal,
+      returnedChildren,
+      resolve: () => {
+        if (settled) return
+        settled = true
+        control.loaderCompletion += 1
+        resolvePending(returnedChildren)
+      },
+      loaderCompletion: 0,
+    }
+    if (typeof window !== 'undefined') {
+      window.__d4IframeLazyControl = control
+      const record = (type, fields = {}) => window.__d4IframeLifecycleProbe?.record?.(type, fields)
+      record('lazy-pending', { key: String(option.value) })
+      context.signal.addEventListener('abort', () => record('lazy-abort', { key: String(option.value) }), { once: true })
+    }
+    return new Promise(resolve => {
+      resolvePending = resolve
+    })
+  }
+}
+
 export function componentProps(component, count, rowMode, virtual, treeScenario = 'flat10000', treeSelectScenario = '', cascaderScenario = '') {
   const virtualValue = virtual ? { height: component === 'Tree' ? 320 : 256, estimateSize: component === 'Cascader' ? 32 : 28, overscan: 4 } : false
   if (component === 'Tree') { const data = treeData(count, rowMode, treeScenario); const defaultExpandedKeys = treeScenario === 'expanded100' ? data.map(node => node.key) : []; let expandedState = [...defaultExpandedKeys]; const recordExpand = value => { if (typeof window !== 'undefined') { const beforeExpandedKeys = [...expandedState]; const afterExpandedKeys = [...value]; expandedState = afterExpandedKeys; window.__d4EventLog?.push({ name: 'expand', ...eventTime(), beforeExpandedKeys, afterExpandedKeys, value: afterExpandedKeys }) } }; return { treeData: data, defaultExpandAll: false, defaultExpandedKeys, virtual: virtualValue, onExpand: recordExpand, onSelect: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'select', ...eventTime(), value }) }, 'onUpdate:expandedKeys': recordExpand } }
   if (component === 'TreeSelect') return { treeData: treeSelectData(count, rowMode), defaultOpen: treeSelectScenario === 'search-5000-controlled', showSearch: true, treeCheckable: true, virtual: virtualValue, modelValue: treeSelectScenario === 'search-5000-controlled' ? ['consumer-root-0'] : [], onOpenChange: open => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'openChange', ...eventTime(), open }); if (!open) window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), reason: 'controlled-open-state' }) } }, onSearch: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'search', ...eventTime(), value }) }, onChange: value => { if (typeof window !== 'undefined') window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) }, onCheck: value => { if (typeof window !== 'undefined') { window.__d4EventLog?.push({ name: 'check', ...eventTime(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } }, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'update:modelValue', intent: 'check', ...eventTime(), value, valueSnapshot: { requestedValue: value } }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } } }
-  const cascaderOptions = cascaderScenario === 'deep' ? cascaderDeepData() : cascaderScenario === 'search' ? cascaderSearchData(count, rowMode) : cascaderScenario === 'lazy' ? cascaderLazyData() : cascaderData(count, rowMode)
+  const cascaderOptions = cascaderScenario === 'deep' ? cascaderDeepData() : cascaderScenario === 'search' ? cascaderSearchData(count, rowMode) : ['lazy', 'iframe-lazy'].includes(cascaderScenario) ? cascaderLazyData() : cascaderData(count, rowMode)
   const cascaderProps = { options: cascaderOptions, defaultOpen: false, showSearch: true, virtual: virtualValue, modelValue: undefined, 'onUpdate:modelValue': value => { if (typeof window !== 'undefined') { window.__d4ControlledAttempt = value; window.__d4EventLog?.push({ name: 'selection', ...eventTime(), value }); window.__d4EventLog?.push({ name: 'controlled-reject', ...eventTime(), value }) } } }
-  cascaderProps.loadData = createCascaderLoadData()
+  cascaderProps.loadData = cascaderScenario === 'iframe-lazy' ? createIframeLazyCascaderLoadData() : createCascaderLoadData()
   return cascaderProps
 }
 
