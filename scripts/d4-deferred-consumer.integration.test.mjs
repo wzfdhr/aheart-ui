@@ -9,8 +9,9 @@ import path from 'node:path'
 
 const run = promisify(execFile)
 const workspace = process.cwd()
-const baseline = path.join(workspace, 'docs/superpowers/evidence/d4-c/consumer/baseline.tgz')
+const baseline = '/private/tmp/aheart-d4-baseline-evidence-F5VN6u/repacked/aheart-ui-1.0.0.tgz'
 const approvedBaseline = '4a7511f9594d0a74906e427e158d02343ba33a22'
+const approvedBaselineHash = 'b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 
 async function packCurrent(directory) {
@@ -21,12 +22,14 @@ async function packCurrent(directory) {
 test('packed production smoke has an absolute preview baseURL and authentic collector output', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'd4-deferred-integration-red-'))
   const candidate = await packCurrent(root)
+  const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const baselineBytes = await readFile(baseline)
+  assert.equal(hash(baselineBytes), approvedBaselineHash)
   const candidateBytes = await readFile(candidate)
   const baselineManifest = path.join(root, 'baseline-manifest.json')
   const candidateManifest = path.join(root, 'candidate-manifest.json')
   await writeFile(baselineManifest, JSON.stringify({ clean: true, commit: approvedBaseline, tarballSha256: hash(baselineBytes) }))
-  await writeFile(candidateManifest, JSON.stringify({ clean: true, commit: 'candidate-from-clean-checkout', tarballSha256: hash(candidateBytes) }))
+  await writeFile(candidateManifest, JSON.stringify({ clean: true, commit: candidateCommit, tarballSha256: hash(candidateBytes) }))
   const out = path.join(root, 'collector.json')
   const log = path.join(root, 'collector.log')
   const result = await run(process.execPath, [
@@ -35,7 +38,7 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
     '--baseline-tarball', baseline,
     '--candidate-tarball', candidate,
     '--baseline-commit', approvedBaseline,
-    '--candidate-commit', 'candidate-from-clean-checkout',
+    '--candidate-commit', candidateCommit,
     '--baseline-manifest', baselineManifest,
     '--candidate-manifest', candidateManifest,
     '--base-url', 'http://127.0.0.1:0',
