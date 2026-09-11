@@ -83,7 +83,6 @@ const iframeControlReport = () => {
     for (const kind of ['resizeObserver', 'raf', 'timeout', 'interval']) {
       add('resource', { kind, action: 'create', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
       if (kind === 'resizeObserver') add('resource', { kind, action: 'observe', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
-      add('resource', { kind, action: 'callback', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
     }
     if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', consumed: false })
     if (component === 'Cascader') add('lazy-pending')
@@ -719,7 +718,7 @@ test('contradictory preflight reports are ineligible and legal preflight shells 
 
 test('iframe lifecycle validator rejects forged raw resource, popup, focus, unmount and late-loader evidence', async t => {
   const mutations = [
-    ['resource balance/realm', /resource|constructor|realm/i, report => { const events = report.iframe.rawLifecycle.scenarios[0].events; events.splice(events.findIndex(event => event.type === 'resource' && event.action === 'disconnect'), 1) }],
+    ['resource balance/realm', /resource.*(active|balance)|residual|cleanup/i, report => { const events = report.iframe.rawLifecycle.scenarios[0].events; events.splice(events.findIndex(event => event.type === 'resource' && event.action === 'disconnect'), 1); events.forEach((event, index) => { event.seq = index + 1; event.time = index + 1 }) }],
     ['Teleport ownership/residual', /teleport|residual|ownerDocument/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'TreeSelect').events.find(event => event.type === 'popup-open'); event.ownerDocument = false }],
     ['focus restore/close', /focus|escape|popup/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'focus-restore'); event.restored = false }],
     ['unmount ordering/frame alive', /unmount|frame|connected|order/i, report => { const event = report.iframe.rawLifecycle.scenarios[0].events.find(event => event.type === 'frame-unmount-invoked'); event.connected = false }],
