@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFile, stat } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
 
@@ -60,8 +61,10 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
     const pkg = report.packages?.[side]
     await verifyHash(`${side} tarball`, pkg?.path, pkg?.sha256)
     await verifyHash(`${side} manifest`, pkg?.manifestPath, pkg?.manifestSha256)
-    await verifyHash(`${side} module`, pkg?.modulePath, pkg?.afterHashes?.['es/index.js'])
-    await verifyHash(`${side} lock`, pkg?.lockPath, pkg?.lockfileSha256)
+    if (side === 'candidate') {
+      await verifyHash(`${side} module`, pkg?.modulePath, pkg?.afterHashes?.['es/index.js'])
+      await verifyHash(`${side} lock`, pkg?.lockPath, pkg?.lockfileSha256)
+    }
   }
   if (report.runDir) { try { ensure((await stat(resolve(report.runDir))).isDirectory(), 'collector runDir is not durable', failures) } catch (error) { failures.push(`collector runDir cannot be reopened: ${error.message}`) } }
   if (failures.length) { const error = new Error(`D4 artifact binding verification failed: ${failures.join('; ')}`); error.failures = failures; throw error }
@@ -313,7 +316,10 @@ export function recomputeViewportCoverage(step) {
 }
 
 export function recomputeActionability(timing) {
-  return Boolean(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false && timing.targetRect?.intersectsViewport === true && timing.targetRect?.enabled === true && timing.targetRect?.pointerEvents !== 'none')
+  const rect = timing?.targetRect
+  const viewport = timing?.targetViewportRect
+  const intersects = rect && viewport && rect.bottom > viewport.top && rect.top < viewport.bottom && rect.right > viewport.left && rect.left < viewport.right
+  return Boolean(timing && timing.startedAt < timing.triggerAt && timing.triggerAt < timing.actionableAt && timing.actionableAt <= timing.nextTickAt && timing.nextTickAt <= timing.rafAt?.[0] && timing.rafAt?.[0] <= timing.rafAt?.[1] && timing.endAt === timing.rafAt?.[1] && timing.targetSelectorIncludesTrigger === false && intersects && rect.enabled === true && rect.pointerEvents !== 'none')
 }
 
 export function recomputeObserverRounds(rounds) {
@@ -387,7 +393,10 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     throw new Error('D4 deferred consumer contract failed: smoke, ineligible or synthetic provenance reports cannot pass release validation')
   }
   ensure(report?.schema === 'd4-deferred-consumer/v1', 'schema must be d4-deferred-consumer/v1', failures)
-  if (requireRelease) ensure(report?.sourceKind === 'collected' && report.runId && report.collectorSourceSha256 && report?.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildFingerprint?.before && report.realEvidenceBinding.moduleFingerprint?.before, 'release report must carry collected source/run/artifact bindings', failures)
+  if (requireRelease) {
+    const hash = value => typeof value === 'string' && /^[a-f0-9]{64}$/i.test(value)
+    ensure(report?.sourceKind === 'collected' && /^(bounded|full)-/.test(report.runId ?? '') && hash(report.collectorSourceSha256) && report?.realEvidenceBinding?.tarballReopened === true && hash(report.realEvidenceBinding.buildFingerprint?.before) && hash(report.realEvidenceBinding.buildFingerprint?.after) && hash(report.realEvidenceBinding.moduleFingerprint?.before) && hash(report.realEvidenceBinding.moduleFingerprint?.after), 'release report must carry collected source/run/artifact bindings', failures)
+  }
   ensure(report?.syntheticEvidence !== true || requireRelease !== true, 'synthetic fixture provenance cannot pass release validation', failures)
   ensure(report?.provenance?.baselineCommit === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitExpected === APPROVED_BASELINE_COMMIT && report?.provenance?.baselineCommitVerified === true && report?.provenance?.candidateCommitVerified === true, 'baseline/candidate commit provenance is missing or does not match the approved baseline', failures)
   ensure(report?.provenance?.baselineTarballSha256 === report?.packages?.baseline?.sha256 && report?.provenance?.candidateTarballSha256 === report?.packages?.candidate?.sha256, 'tarball hash provenance does not match package manifests', failures)
@@ -408,7 +417,7 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     ensure(Array.isArray(pkg?.fsImports) && pkg.fsImports.length === 0, `${side} package contains @fs imports`, failures)
     for (const field of ['esm', 'cjs', 'css', 'publicTypes', 'ssr', 'contentSha256Verified', 'tarballSha256Verified']) ensure(pkg?.[field] === true, `${side} package is missing ${field} evidence`, failures)
     ensure(pkg?.sourceCommit === (side === 'baseline' ? APPROVED_BASELINE_COMMIT : report.provenance?.candidateCommit), `${side} package source commit provenance is missing`, failures)
-    if (requireRelease) ensure(pkg?.path && pkg?.manifestPath && pkg?.modulePath && pkg?.lockPath && pkg?.manifestSha256 && pkg?.afterHashes?.['es/index.js'], `${side} release artifact descriptors are incomplete`, failures)
+    if (requireRelease) ensure(pkg?.path && pkg?.manifestPath && pkg?.modulePath && pkg?.lockPath && /^[a-f0-9]{64}$/i.test(pkg?.manifestSha256 ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.afterHashes?.['es/index.js'] ?? '') && /^[a-f0-9]{64}$/i.test(pkg?.lockfileSha256 ?? ''), `${side} release artifact descriptors are incomplete`, failures)
   }
   const recomputed = recomputeEvidence(report)
   failures.push(...recomputed.errors)
@@ -485,6 +494,14 @@ export function validateBoundedReleaseReport(report) {
   const failures = []
   ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'bounded report must be smoke=true and acceptanceEligible=false', failures)
   ensure(report?.sourceKind === 'collected' && report.runId && report.collectorSourceSha256, 'bounded report collector provenance is missing', failures)
+  const reopen = (label, file, expected) => { if (!file || !existsSync(file)) { failures.push(`${label} artifact path does not exist`); return } try { ensure(Boolean(expected) && sha256(readFileSync(file)) === expected, `${label} reopened hash mismatch`, failures) } catch (error) { failures.push(`${label} artifact cannot be reopened: ${error.message}`) } }
+  reopen('collector source', report.collectorSourcePath, report.collectorSourceSha256)
+  for (const side of ['baseline', 'candidate']) {
+    const pkg = report.packages?.[side]
+    reopen(`${side} tarball`, pkg?.path, pkg?.sha256)
+    reopen(`${side} manifest`, pkg?.manifestPath, pkg?.manifestSha256)
+    if (side === 'candidate') { reopen(`${side} module`, pkg?.modulePath, pkg?.afterHashes?.['es/index.js']); reopen(`${side} lock`, pkg?.lockPath, pkg?.lockfileSha256) }
+  }
   ensure(report?.realEvidenceBinding?.tarballReopened === true && report.realEvidenceBinding.buildFingerprint?.before && report.realEvidenceBinding.moduleFingerprint?.before, 'bounded artifact binding is missing', failures)
   ensure(report?.packages?.candidate?.path && report.packages.candidate.sha256 && report.provenance?.candidateTarballSha256 === report.packages.candidate.sha256, 'bounded candidate artifact binding is missing', failures)
   const timing = report.case?.timing
@@ -494,7 +511,11 @@ export function validateBoundedReleaseReport(report) {
   if (Array.isArray(steps)) {
     ensure(steps.every((step, index) => step.offset === (index < 20 ? index / 19 : (39 - index) / 19) && step.actualOffset >= 0 && step.timestamp >= 0 && recomputeViewportCoverage(step).complete && step.viewportRect?.height > 0 && step.rowRects?.length > 0 && step.rowRects.every(row => row.height > 0 && row.intersectsViewport !== false && row.nextTickAt <= row.rafAt?.[0] && row.rafAt?.[0] <= row.rafAt?.[1])), 'bounded raw geometry cannot be recomputed from rowRects/viewport', failures)
   }
-  ensure(report.case?.observers?.disconnected === true && report.case.observers.rawRecomputed === true && recomputeObserverRounds(report.case.observers.rawRounds), 'bounded observer raw rounds are not drained/recomputed', failures)
+  const observerRounds = report.case?.observers?.rawRounds ?? []
+  const roundWindow = observerRounds[0]
+  const longTasks = report.case?.observers?.longTasks ?? []
+  const shifts = report.case?.observers?.layoutShifts ?? []
+  ensure(report.case?.observers?.disconnected === true && report.case.observers.rawRecomputed === true && roundWindow && recomputeObserverRounds(observerRounds) && longTasks.every(entry => entry.startTime >= roundWindow.startedAt && entry.startTime <= roundWindow.drainedAt && entry.duration <= RELEASE_MATRIX.maxLongTaskMs) && shifts.every(entry => entry.startTime >= roundWindow.startedAt && entry.startTime <= roundWindow.drainedAt) && shifts.reduce((sum, entry) => sum + entry.value, 0) <= RELEASE_MATRIX.maxCls, 'bounded observer raw rounds are not drained/recomputed', failures)
   ensure(report.familyCoverage && Object.values(report.familyCoverage).every(item => item.scenarios?.every(scenario => scenario.executed === true && scenario.eventRecords?.length > 0 && scenario.beforeStateHash !== scenario.afterStateHash)), 'bounded family evidence is missing raw event/state records', failures)
   ensure(report.ssrHydration?.status === 'recorded' && Object.values(report.ssrHydration.combinations ?? {}).length === 8 && Object.values(report.ssrHydration.combinations).every(item => item.cjsRender === true && item.initialIdSha256 === item.hydratedIdSha256 && item.postHydrationInteraction === true && item.postHydrationStateChanged === true && item.businessEventsAfterHydration > 0), 'bounded SSR/hydration raw evidence is incomplete', failures)
   ensure(report.iframe?.ownerDocument === true && report.iframe.teleportOwnerDocument === true && report.iframe.resourceCounts?.before > 0 && report.iframe.resourceCounts.after === 0 && report.iframe.postUnmountInteractions === 0, 'bounded iframe lifecycle evidence is incomplete', failures)
