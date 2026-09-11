@@ -606,9 +606,10 @@ test('hydration evidence mapping preserves non-zero runtime values across all co
   const ssr = structuredClone(control.ssrHydration)
   const hydration = Object.fromEntries(Object.keys(ssr.combinations).map((key, index) => [index, { errors: index === 0 ? 2 : 1, warnings: index === 0 ? 3 : 1, interacted: true, postHydrationStateChanged: true, businessEventsAfterHydration: 4 + index, hydratedHtmlSha256: `hydrated-${index}`, hydratedIdSha256: `ids-${index}`, businessEventNames: ['Tree:change'], expandedChanged: true }]))
   const mapped = contract.applyHydrationEvidence(ssr, hydration)
-  assert.equal(mapped.combinations['Tree=false,TreeSelect=false,Cascader=false'].hydrationErrors, 2)
-  assert.equal(mapped.combinations['Tree=false,TreeSelect=false,Cascader=false'].hydrationWarnings, 3)
-  for (const [index, item] of Object.values(mapped.combinations).entries()) {
+  assert.strictEqual(mapped, ssr, 'hydration evidence mapper must mutate and return the same SSR object')
+  assert.equal(ssr.combinations['Tree=false,TreeSelect=false,Cascader=false'].hydrationErrors, 2)
+  assert.equal(ssr.combinations['Tree=false,TreeSelect=false,Cascader=false'].hydrationWarnings, 3)
+  for (const [index, item] of Object.values(ssr.combinations).entries()) {
     assert.equal(item.interacted, true)
     assert.equal(item.postHydrationStateChanged, true)
     assert.equal(item.businessEventsAfterHydration, 4 + index)
@@ -626,10 +627,18 @@ test('hydration evidence mapping preserves non-zero runtime values across all co
   }
   const callNames = fn => { const names = []; const visit = node => { if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) names.push(node.expression.text); ts.forEachChild(node, visit) }; visit(fn.body); return names }
   const helper = findFunction('collectHydratedSsrEvidence')
-  assert.ok(callNames(helper).includes('applyHydrationEvidence'), 'hydration helper must call the shared mapping function')
-  const sideText = collector.slice(findFunction('collectSide').pos, findFunction('collectSide').end)
+  const applyCalls = []
+  const inspectApply = node => { if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'applyHydrationEvidence') applyCalls.push(node); ts.forEachChild(node, inspectApply) }
+  inspectApply(helper.body)
+  assert.ok(applyCalls.some(call => call.arguments.length >= 2 && ts.isIdentifier(call.arguments[0]) && call.arguments[0].text === 'ssr' && ts.isIdentifier(call.arguments[1]) && call.arguments[1].text === 'hydration'), 'hydration helper must call applyHydrationEvidence(ssr, hydration)')
+  const sideFn = findFunction('collectSide')
+  const sideText = collector.slice(sideFn.pos, sideFn.end)
   assert.doesNotMatch(sideText, /\bfullHydration\b/, 'collectSide must not retain an unused fullHydration result')
-  assert.match(sideText, /applyHydrationEvidence\(ssr,\s*hydration\)/, 'collectSide must reapply one mapped hydration result to the shared ssr object')
+  const sideCalls = []
+  const inspectSide = node => { if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'collectHydratedSsrEvidence') sideCalls.push(node); ts.forEachChild(node, inspectSide) }
+  inspectSide(sideFn.body)
+  assert.ok(sideCalls.some(call => call.arguments.some(argument => ts.isObjectLiteralExpression(argument) && argument.properties.some(property => ts.isPropertyAssignment(property) && property.name?.getText(file) === 'ssr' && ts.isIdentifier(property.initializer) && property.initializer.text === 'ssr'))), 'full collectSide must pass the shared ssr object to the hydration helper')
+  assert.match(sideText, /ssrHydration:\s*ssr/, 'full collectSide must return the mutated shared ssr object')
 })
 
 test('contradictory preflight reports are ineligible and legal preflight shells stay non-acceptance', async t => {
