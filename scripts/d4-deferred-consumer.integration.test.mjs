@@ -149,21 +149,32 @@ test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, 
     for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
       assert.ok(snapshot && Array.isArray(snapshot.sortedIds) && snapshot.sortedIds.length > 0)
       assert.ok(Array.isArray(snapshot.nodes) && snapshot.nodes.length > 0)
+      assert.equal(snapshot.nodes.length, 6, 'SSR accessibility snapshot must contain exactly the six contract nodes')
       assert.deepEqual(snapshot.sortedIds, [...snapshot.sortedIds].sort(), 'snapshot sortedIds must be actual deterministic values')
       assert.equal(new Set(snapshot.sortedIds).size, snapshot.sortedIds.length)
       const ids = new Set(snapshot.sortedIds)
       const expectedKinds = { Tree: ['root', 'row'], TreeSelect: ['trigger', 'root'], Cascader: ['trigger', 'root'] }
       assert.deepEqual(new Set(snapshot.nodes.map(node => node.component)), new Set(Object.keys(expectedKinds)))
+      assert.deepEqual(
+        snapshot.nodes.map(node => `${node.component}/${node.kind}`).sort(),
+        ['Cascader/root', 'Cascader/trigger', 'Tree/root', 'Tree/row', 'TreeSelect/root', 'TreeSelect/trigger'],
+        'SSR accessibility snapshot must contain one unique record for each contract node'
+      )
       for (const [component, kinds] of Object.entries(expectedKinds)) {
         for (const kind of kinds) {
           const node = snapshot.nodes.find(item => item.component === component && item.kind === kind)
           assert.ok(node, `${component}/${kind} must be captured from an actual rendered selector`)
           const selector = node.selector ?? node.selectorProvenance ?? node.identity?.selector
           assert.ok(typeof selector === 'string' && selector.length > 0, `${component}/${kind} must retain its actual selector provenance`)
+          assert.equal(node.selectorProvenance?.source, 'document.querySelector')
+          assert.equal(node.selectorMatchCount, 1, `${component}/${kind} selector must resolve exactly once`)
+          assert.equal(node.selectorResolved, true, `${component}/${kind} selector must resolve to the recorded node`)
           const selectorPattern = component === 'Tree' ? (kind === 'row' ? /treeitem|aheart-tree__node/ : /aheart-tree/) : component === 'TreeSelect' ? (kind === 'trigger' ? /tree-select__trigger/ : /tree-select__panel|role=.?tree/) : (kind === 'trigger' ? /cascader__trigger/ : /cascader__panel|cascader__column/)
           assert.match(selector, selectorPattern, `${component}/${kind} selector must identify the actual component element`)
         }
       }
+      assert.doesNotMatch(snapshot.rawMainHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i, 'raw main HTML must exclude collector diagnostics')
+      assert.doesNotMatch(snapshot.rawTeleportHtml, /<script\b|__d4CaptureSnapshot|D4FLOATDBG|diagnostic/i, 'raw teleport HTML must exclude collector diagnostics')
       for (const node of snapshot.nodes) {
         if (node.id == null) {
           assert.equal(node.component, 'Cascader', 'an id-less snapshot node is only valid for the actual Cascader trigger')
@@ -217,6 +228,39 @@ test('bounded SSR validator rejects forged accessibility IDs, teleport hashes an
     forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.postHydrationActions = item.postHydrationActions.filter(action => action.component !== 'Cascader') },
   ]
   for (const mutate of mutations) await assertBoundedMutationRejected(report, mutate, 'bounded SSR raw accessibility/teleport/action evidence must be immutable', /SSR|hydration|accessib|teleport|action|snapshot|hash/i)
+})
+
+test('bounded SSR validator rejects copied hydrated snapshots, extra nodes and teleport diagnostics', async () => {
+  const { report } = await collectRealBoundedReport()
+  const key = Object.keys(report.ssrHydration.combinations)[0]
+  const normalize = html => String(html || '').replace(/\s+/g, ' ').trim()
+  const refreshHashes = item => {
+    for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
+      snapshot.teleportHtml = normalize(snapshot.rawTeleportHtml)
+      snapshot.combinedHtml = normalize(snapshot.rawMainHtml + snapshot.rawTeleportHtml)
+      snapshot.teleportHtmlSha256 = hash(Buffer.from(snapshot.teleportHtml))
+      snapshot.combinedSha256 = hash(Buffer.from(snapshot.combinedHtml))
+    }
+    item.teleportHtmlSha256 = item.serverSnapshot.teleportHtmlSha256
+    item.hydratedTeleportHtmlSha256 = item.hydratedSnapshot.teleportHtmlSha256
+    item.combinedSha256 = item.serverSnapshot.combinedSha256
+  }
+  const mutations = [
+    ['copied hydrated snapshot', forged => {
+      const item = forged.ssrHydration.combinations[key]
+      item.hydratedSnapshot = structuredClone(item.serverSnapshot)
+    }],
+    ['extra snapshot node', forged => {
+      const item = forged.ssrHydration.combinations[key]
+      item.serverSnapshot.nodes.push(structuredClone(item.serverSnapshot.nodes[0]))
+    }],
+    ['teleport diagnostic', forged => {
+      const item = forged.ssrHydration.combinations[key]
+      for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) snapshot.rawTeleportHtml += '<script>window.__d4CaptureSnapshot()</script>'
+      refreshHashes(item)
+    }],
+  ]
+  for (const [label, mutate] of mutations) await assertBoundedMutationRejected(report, mutate, `bounded SSR validator must reject ${label}`, /SSR|hydration|snapshot|teleport|script|diagnostic|node/i)
 })
 
 test('real bounded family events use one normalized clock domain and stay inside each scenario', async () => {
