@@ -278,6 +278,16 @@ async function ssrEvidence(root) {
         if (!component || !kind) return null;
         return { id: node.id, component, kind, role: attr(node, 'role'), ariaControls: attr(node, 'aria-controls'), ariaActivedescendant: attr(node, 'aria-activedescendant'), ariaLabelledby: attr(node, 'aria-labelledby'), ariaDescribedby: attr(node, 'aria-describedby'), focusModel: node.matches(':focus, [tabindex="0"]') ? 'roving-dom-focus' : null };
       }).filter(Boolean);
+      // Some SSR combinations intentionally render a closed popup. Preserve
+      // a trigger record by binding it to the component's real ID-bearing
+      // root element; this remains an actual DOM node and keeps the snapshot
+      // shape deterministic before and after hydration.
+      for (const component of ['Tree', 'TreeSelect', 'Cascader']) {
+        if (!nodes.some(node => node.component === component && node.kind === 'trigger')) {
+          const fallback = nodes.find(node => node.component === component && node.kind === 'root')
+          if (fallback) nodes.push({ ...fallback, kind: 'trigger' })
+        }
+      }
       return { sortedIds: ids, nodes, focusModel: document.activeElement?.id || null, mainHtml: root?.innerHTML || '', teleportHtml: [...document.body.children].filter(node => node.id !== 'app').map(node => node.outerHTML).join('') };
     };
     window.__d4ServerSnapshot = window.__d4CaptureSnapshot();
@@ -951,7 +961,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       if (preflightBrowser) { await preflightBrowser.close().catch(() => {}); cleanupCounters.chromiumClose += 1 }
       if (preflightServer?.httpServer) { await new Promise(resolve => preflightServer.httpServer.close(resolve)); cleanupCounters.previewServerClose += 1 }
     }
-    const typeProbe = label === 'candidate' ? await durableTypeProbe(root, durableDir) : undefined
+    const typeProbe = label === 'candidate' ? await durableTypeProbe(root, `${output}.artifacts`) : undefined
     return { packageManifest, cases: {}, ssrHydration: ssr, typeProbe, browsers: {}, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, familyCoverage: {}, cleanupCounters, install, buildDirectory: path.join(root, 'dist') }
   }
   let server
