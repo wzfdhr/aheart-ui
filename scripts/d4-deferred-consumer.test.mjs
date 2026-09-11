@@ -10,6 +10,7 @@ import {
   RELEASE_MATRIX,
   buildAcceptanceFixture,
   recomputeEvidence,
+  validateBoundedReleaseReport,
   validateReport,
 } from './d4-deferred-consumer-contract.mjs'
 
@@ -160,4 +161,35 @@ test('smoke requires an explicit approved baseline and rejects the old fallback 
   } finally {
     await rm(directory, { recursive: true, force: true })
   }
+})
+
+test('bounded validator is a distinct ineligible release-format gate', () => {
+  const report = fullReport()
+  report.smoke = true
+  report.acceptanceEligible = false
+  assert.throws(() => validateBoundedReleaseReport(report), /artifact|raw|bounded|authentic/i)
+})
+
+test('release validation rejects synthetic fixture even when syntheticEvidence is toggled false', () => {
+  const report = fullReport()
+  report.syntheticEvidence = false
+  assert.throws(() => validateReport(report, { requireRelease: true }), /artifact|sourceKind|runId|tarball|clean|provenance/i)
+})
+
+test('raw mutation cases reject row geometry, event records, SSR IDs and artifact binding', () => {
+  const report = fullReport()
+  report.cases['Tree/10000/fixed'].virtual.scroll[0].rowKeys = []
+  assert.throws(() => validateBoundedReleaseReport({ ...report, smoke: true, acceptanceEligible: false }), /row|geometry|raw|bounded/i)
+
+  const events = fullReport()
+  events.cases['Tree/10000/fixed'].alternatingOrder.reverse()
+  assert.throws(() => validateBoundedReleaseReport({ ...events, smoke: true, acceptanceEligible: false }), /alternat|order|raw/i)
+
+  const ssr = fullReport()
+  ssr.ssrHydration.combinations[Object.keys(ssr.ssrHydration.combinations)[0]].deterministic = false
+  assert.throws(() => validateBoundedReleaseReport({ ...ssr, smoke: true, acceptanceEligible: false }), /SSR|hydration|determin/i)
+
+  const artifact = fullReport()
+  artifact.provenance.baselineTarballSha256 = 'f'.repeat(64)
+  assert.throws(() => validateBoundedReleaseReport({ ...artifact, smoke: true, acceptanceEligible: false }), /artifact|hash|provenance/i)
 })
