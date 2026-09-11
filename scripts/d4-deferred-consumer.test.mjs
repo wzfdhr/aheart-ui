@@ -382,7 +382,7 @@ test('full and preflight collection share artifact preparation/report-shell help
   assert.ok((source.match(/buildFullReportShell\(/g) ?? []).length >= 3, 'full and preflight paths must reuse the report shell')
 })
 
-test('full release SSR/types contract rejects missing snapshots, actions, capture artifacts and public type probe', () => {
+test('full release SSR/types contract rejects missing snapshots, actions, capture artifacts and public type probe', async t => {
   const mutations = [
     ['full SSR snapshots', report => {
       for (const item of Object.values(report.ssrHydration.combinations)) {
@@ -399,9 +399,11 @@ test('full release SSR/types contract rejects missing snapshots, actions, captur
     ['full public type probe', report => { delete report.typeProbe }, /full public type probe/i],
   ]
   for (const [label, mutate, pattern] of mutations) {
-    const report = fullReport()
-    mutate(report)
-    assert.throws(() => validateReport(report), error => (error?.failures ?? []).some(failure => pattern.test(failure)), `full release must reject missing ${label}`)
+    await t.test(label, () => {
+      const report = fullReport()
+      mutate(report)
+      assert.throws(() => validateReport(report), error => (error?.failures ?? []).some(failure => pattern.test(failure)), `full release must reject missing ${label}`)
+    })
   }
 })
 
