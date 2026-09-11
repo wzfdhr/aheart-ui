@@ -141,6 +141,52 @@ test('packed production smoke has an absolute preview baseURL and authentic coll
   assert.equal(report.outputDirectoryDurable, true)
 })
 
+test('bounded SSR records bind full server/hydrated DOM and teleport snapshots, not only ID counts', async () => {
+  const { report } = await collectRealBoundedReport()
+  const combinations = Object.values(report.ssrHydration.combinations ?? {})
+  assert.equal(combinations.length, 8)
+  for (const item of combinations) {
+    for (const snapshot of [item.serverSnapshot, item.hydratedSnapshot]) {
+      assert.ok(snapshot && Array.isArray(snapshot.sortedIds) && snapshot.sortedIds.length > 0)
+      assert.ok(Array.isArray(snapshot.nodes) && snapshot.nodes.length > 0)
+      assert.ok(snapshot.nodes.every(node => node.id && node.ariaControls && node.ariaActivedescendant && node.ariaLabelledby && node.ariaDescribedby))
+    }
+    assert.deepEqual(item.serverSnapshot, item.hydratedSnapshot, 'server and hydrated accessibility snapshots must be structurally identical')
+    assert.equal(item.combinedSha256, item.serverSnapshot.combinedSha256)
+    assert.equal(item.combinedSha256, item.hydratedSnapshot.combinedSha256)
+    assert.equal(item.mainHtmlSha256, item.hydratedMainHtmlSha256)
+    assert.equal(item.teleportHtmlSha256, item.hydratedTeleportHtmlSha256)
+    assert.ok(item.cjsRenderRecord?.exportPath && item.cjsRenderRecord?.exportSha256)
+    assert.equal(hash(await readFile(item.cjsRenderRecord.exportPath)), item.cjsRenderRecord.exportSha256)
+  }
+})
+
+test('bounded SSR hydration records have all three component actions and honest virtual row windows', async () => {
+  const { report } = await collectRealBoundedReport()
+  for (const item of Object.values(report.ssrHydration.combinations ?? {})) {
+    const actions = item.postHydrationActions ?? []
+    assert.deepEqual(new Set(actions.map(action => action.component)), new Set(['Tree', 'TreeSelect', 'Cascader']))
+    assert.ok(actions.every(action => action.target && action.beforeState && action.afterState && JSON.stringify(action.beforeState) !== JSON.stringify(action.afterState) && action.callbackEventNames?.length > 0))
+    for (const component of ['Tree', 'TreeSelect', 'Cascader']) {
+      const rows = item.initialRowsByComponent?.[component]
+      assert.ok(Number.isInteger(rows) && rows > 0)
+      if (item.virtual?.[component] === true) assert.ok(rows <= 24)
+      else assert.equal(rows, item.componentRows?.[component])
+    }
+  }
+})
+
+test('bounded SSR validator rejects forged accessibility IDs, teleport hashes and component action records', async () => {
+  const { report } = await collectRealBoundedReport()
+  const mutations = [
+    forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.hydratedSnapshot.nodes[0].id = 'd4-forged-id' },
+    forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.hydratedSnapshot.nodes[0].ariaControls = 'd4-forged-controls' },
+    forged => { forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]].teleportHtmlSha256 = '0'.repeat(64) },
+    forged => { const item = forged.ssrHydration.combinations[Object.keys(forged.ssrHydration.combinations)[0]]; item.postHydrationActions = item.postHydrationActions.filter(action => action.component !== 'Cascader') },
+  ]
+  for (const mutate of mutations) await assertBoundedMutationRejected(report, mutate, 'bounded SSR raw accessibility/teleport/action evidence must be immutable', /SSR|hydration|accessib|teleport|action|snapshot|hash/i)
+})
+
 test('real bounded family events use one normalized clock domain and stay inside each scenario', async () => {
   const { report } = await collectRealBoundedReport()
   for (const [component, family] of Object.entries(report.familyCoverage ?? {})) {
@@ -362,6 +408,29 @@ test('real preflight-full runs both artifact sides without benchmark and saves a
   await contract.verifyArtifactBindings(report, { reportPath: output })
   assert.equal(typeof contract.validateFullPreflightReport, 'function')
   assert.doesNotThrow(() => contract.validateFullPreflightReport(report))
+})
+
+test('durable consumer type probe binds a real types.ts file, tsc result and positive/negative virtual API checks', async () => {
+  const { output, report } = await collectPreflightReport()
+  const probe = report.typeProbe
+  assert.ok(probe?.typesPath && probe?.typesSha256)
+  assert.equal((await stat(probe.typesPath)).isFile(), true)
+  assert.equal(hash(await readFile(probe.typesPath)), probe.typesSha256)
+  assert.equal(probe.tscExitCode, 0)
+  assert.ok(probe.positiveChecks?.length > 0 && probe.negativeChecks?.length > 0)
+  assert.ok(probe.positiveChecks.some(check => /TreeVirtual|TableVirtual|TreeSelectVirtual|CascaderVirtual/.test(check.source ?? check.code ?? check.name ?? '')))
+  assert.ok(probe.positiveChecks.some(check => /h\s*\(?(Tree|TreeSelect|Cascader)/.test(check.source ?? check.code ?? '')))
+  assert.ok(probe.negativeChecks.some(check => /@ts-expect-error/.test(check.source ?? check.code ?? '') && /height|estimateSize|overscan|string/.test(check.source ?? check.code ?? '')))
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  for (const mutate of [
+    forged => { delete forged.typeProbe.typesPath },
+    forged => { forged.typeProbe.typesSha256 = '0'.repeat(64) },
+    forged => { forged.typeProbe.positiveChecks = forged.typeProbe.positiveChecks.slice(1) },
+  ]) {
+    const forged = structuredClone(report)
+    mutate(forged)
+    await assert.rejects(() => contract.verifyArtifactBindings(forged, { reportPath: output }), /type|types|probe|hash|artifact/i)
+  }
 })
 
 test('preflight validator rejects any benchmark execution marker or non-empty benchmark evidence', async () => {
