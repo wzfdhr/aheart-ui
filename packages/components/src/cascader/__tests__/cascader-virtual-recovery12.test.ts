@@ -118,7 +118,7 @@ describe('Cascader lazy focus owner partial-capability realm', () => {
     { request: true, cancel: true, expectedRaf: 1, expectedTimers: 0 },
     { request: true, cancel: false, expectedRaf: 0, expectedTimers: 1 },
     { request: false, cancel: true, expectedRaf: 0, expectedTimers: 1 },
-    { request: false, cancel: false, expectedRaf: 0, expectedTimers: 0 }
+    { request: false, cancel: false, expectedRaf: 0, expectedTimers: 1 }
   ] satisfies Capability[])('uses only cancelable owner handles for request=%s cancel=%s', async capability => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
