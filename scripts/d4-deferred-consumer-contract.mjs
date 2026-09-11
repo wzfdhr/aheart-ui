@@ -164,6 +164,9 @@ export async function prepareFullArtifactBindings(report, options = {}) {
   report.realEvidenceBinding.baselineLockFingerprint = { before: baselineLockHash, after: baselineLockHash }
   report.realEvidenceBinding.artifactDirectory = report.artifactDirectory
   report.realEvidenceBinding.sourceKind = 'collected'
+  report.gzip ??= { consumer: {} }
+  report.gzip.consumer ??= {}
+  report.gzip.consumer.moduleProvenance = { baseline: { path: baselineModulePathDurable, sha256: baselineModuleHash }, candidate: { path: modulePath, sha256: moduleHash } }
   return report
 }
 
@@ -182,12 +185,12 @@ export function buildFullReportShell({ baseline, candidate, baselineCommit, cand
     environment: { ...(candidate.packageManifest.versions ?? {}) },
     matrix: RELEASE_MATRIX,
     fixtures: { deterministic: true, noSourcePreviewCopies: true, tree: { roots: 100, childrenPerRoot: 99, expandedRoots: 100 }, treeSelect: { count: 5000, checkable: true, searchMatchesAtLeast: 5000 }, cascader: { siblings: 10000, deepColumns: 5, optionsPerColumn: 2000, flattenedSearchLeaves: 10000, lazy: true } },
-    provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit, baselineCommitVerified: baselineCommit === APPROVED_BASELINE_COMMIT, candidateCommitVerified: Boolean(candidateCommit) },
+    provenance: { baselineCommit, baselineCommitExpected: APPROVED_BASELINE_COMMIT, candidateCommit, baselineCommitVerified: baselineCommit === APPROVED_BASELINE_COMMIT, candidateCommitVerified: Boolean(candidateCommit), baselineTarballSha256: baseline.packageManifest.sha256, candidateTarballSha256: candidate.packageManifest.sha256 },
     packages: { baseline: baseline.packageManifest, candidate: candidate.packageManifest, sameConsumer: true, installedWithoutWorkspaceLinks: true, lockfileDrift: baseline.packageManifest.lockDependenciesSha256 !== candidate.packageManifest.lockDependenciesSha256, newDependencies: [] },
     performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} },
     cases: {}, browsers: {}, ssrHydration: candidate.ssrHydration ?? { count: 8, combinations: {}, deterministicDoubleRender: true },
     iframe: candidate.iframe ?? { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 },
-    gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' } }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
+    gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: { baseline: { path: baseline.packageManifest.modulePath, sha256: baseline.packageManifest.afterHashes?.['es/index.js'] }, candidate: { path: candidate.packageManifest.modulePath, sha256: candidate.packageManifest.afterHashes?.['es/index.js'] } } }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
     familyCoverage: candidate.familyCoverage ?? {},
   }
 }
@@ -196,12 +199,17 @@ export async function validateFullPreflightReport(report, options = {}) {
   assert.equal(report?.preflight, true, 'full preflight report must set preflight=true')
   assert.equal(report?.smoke, false, 'full preflight report must not be smoke')
   assert.equal(report?.acceptanceEligible, false, 'full preflight report is release-ineligible')
+  assert.equal(report?.benchmarkExecuted, false, 'full preflight must not execute benchmark matrix')
+  assert.equal(report?.performance?.status, 'notRun', 'full preflight performance must be notRun')
+  assert.deepEqual(Object.keys(report?.cases ?? {}), [], 'full preflight must not carry benchmark cases')
+  assert.deepEqual(Object.keys(report?.performance?.cases ?? {}), [], 'full preflight must not carry performance cases')
+  assert.deepEqual(Object.keys(report?.browsers ?? {}), [], 'full preflight must not carry browser benchmark evidence')
   assert.equal(report?.sourceKind, 'collected', 'full preflight report must come from collected evidence')
   assert(report?.artifactDirectory && report?.runDir, 'full preflight durable descriptors are required')
   assert(report?.realEvidenceBinding?.buildManifestPath, 'full preflight build manifest is required')
   assert(report?.packages?.baseline?.path && report?.packages?.candidate?.path, 'full preflight package descriptors are required')
   await verifyArtifactBindings(report, options)
-  return { status: 'passed-ineligible', acceptanceEligible: false, performance: 'notRun' }
+  return { status: report.releaseFormat?.validatorStatus ?? 'validated-ineligible', acceptanceEligible: report.acceptanceEligible, performance: report.performance.status }
 }
 
 export async function verifyArtifactBindings(report, { reportPath } = {}) {
@@ -225,6 +233,22 @@ export async function verifyArtifactBindings(report, { reportPath } = {}) {
       await verifyHash(`${side} lock`, pkg.lockPath, pkg.lockfileSha256)
       const lockFingerprint = side === 'candidate' ? report.realEvidenceBinding?.lockFingerprint : report.realEvidenceBinding?.baselineLockFingerprint
       if (lockFingerprint) { const lockHash = sha256(await readFile(resolve(pkg.lockPath))); ensure(lockHash === lockFingerprint.before && lockHash === lockFingerprint.after, `${side} lock fingerprint before/after mismatch`, failures) }
+    }
+  }
+  const moduleProvenance = report.gzip?.consumer?.moduleProvenance
+  const moduleProvenanceSha256 = report.gzip?.consumer?.moduleProvenanceSha256
+  const requireModuleProvenance = report.preflight === true || (report.acceptanceEligible === true && String(report.runId ?? '').startsWith('full-'))
+  if (moduleProvenance && requireModuleProvenance) {
+    for (const side of ['baseline', 'candidate']) {
+      const descriptor = moduleProvenance[side]
+      try {
+        const descriptorPath = typeof descriptor === 'string' ? descriptor : descriptor?.path
+        const descriptorHash = typeof descriptor === 'string' ? moduleProvenanceSha256?.[side] : descriptor?.sha256
+        ensure(descriptorPath && descriptorHash, `${side} gzip module provenance is incomplete`, failures)
+        const moduleHash = sha256(await readFile(resolve(descriptorPath)))
+        ensure(moduleHash === descriptorHash, `${side} gzip module provenance hash mismatch`, failures)
+        ensure(moduleHash === sha256(await readFile(resolve(report.packages?.[side]?.modulePath))), `${side} gzip module provenance path mismatch`, failures)
+      } catch (error) { failures.push(`${side} gzip module provenance cannot be reopened: ${error.message}`) }
     }
   }
   for (const prefix of ['baseline', 'candidate']) {

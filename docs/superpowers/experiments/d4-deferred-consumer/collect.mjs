@@ -9,7 +9,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { execFile } from 'node:child_process'
-import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { promisify } from 'node:util'
@@ -66,6 +66,65 @@ async function writeFileManifest(directory, destination) {
   async function walk(current) { for (const entry of await readdir(current, { withFileTypes: true })) { const file = path.join(current, entry.name); if (entry.isDirectory()) await walk(file); else files.push(file) } }
   await walk(directory)
   await writeFile(destination, `${JSON.stringify({ files: files.sort().map(file => { const bytes = readFileSync(file); return { path: file, relativePath: path.relative(directory, file).split(path.sep).join('/'), bytes: bytes.length, sha256: sha256(bytes) } }) }, null, 2)}\n`)
+}
+
+async function copyCheckpointEvidence(details, destination) {
+  await mkdir(destination, { recursive: true })
+  const sources = []
+  const add = (source, name = path.basename(source)) => { if (source) sources.push([source, name]) }
+  add(details.root && path.join(details.root, 'aheart-ui.tgz'), 'candidate.tgz')
+  add(details.manifestPath, 'source-manifest.json')
+  add(details.root && path.join(details.root, 'pnpm-lock.yaml'), 'pnpm-lock.yaml')
+  add(details.root && path.join(details.root, 'node_modules/aheart-ui/es/index.js'), 'module-index.js')
+  add(details.root && path.join(details.root, 'dist'), 'dist')
+  add(details.root && path.join(details.root, 'bundle'), 'bundle')
+  add(details.root && path.join(details.root, 'ssr-0.html'), 'ssr-0.html')
+  add(details.root && path.join(details.root, 'ssr-1.html'), 'ssr-1.html')
+  add(details.root && path.join(details.root, 'ssr-2.html'), 'ssr-2.html')
+  add(details.root && path.join(details.root, 'ssr-3.html'), 'ssr-3.html')
+  add(details.root && path.join(details.root, 'ssr-4.html'), 'ssr-4.html')
+  add(details.root && path.join(details.root, 'ssr-5.html'), 'ssr-5.html')
+  add(details.root && path.join(details.root, 'ssr-6.html'), 'ssr-6.html')
+  add(details.root && path.join(details.root, 'ssr-7.html'), 'ssr-7.html')
+  const copied = []
+  for (const [source, name] of sources) {
+    try {
+      await stat(source)
+      const target = path.join(destination, name)
+      await cp(source, target, { recursive: true })
+      copied.push(target)
+    } catch {}
+  }
+  const files = []
+  const walk = async current => {
+    for (const entry of await readdir(current, { withFileTypes: true })) {
+      const file = path.join(current, entry.name)
+      if (entry.isDirectory()) await walk(file)
+      else files.push(file)
+    }
+  }
+  await walk(destination)
+  const manifest = { stage: details.stage, label: details.label, files: [] }
+  for (const file of files.sort()) {
+    const bytes = await readFile(file)
+    manifest.files.push({ path: file, relativePath: path.relative(destination, file).split(path.sep).join('/'), bytes: bytes.length, sha256: sha256(bytes) })
+  }
+  await writeFile(path.join(destination, 'checkpoint-files.json'), `${JSON.stringify(manifest, null, 2)}\n`)
+  if (details.result) await writeFile(path.join(destination, 'raw-result.json'), `${JSON.stringify(details.result, null, 2)}\n`)
+  const rawPayload = details.result ? JSON.stringify(details.result) : JSON.stringify({ stage: details.stage, label: details.label, files: manifest.files })
+  const rawPayloadHash = sha256(Buffer.from(rawPayload))
+  await writeFile(path.join(destination, 'raw-payload.json'), `${rawPayload}\n`)
+  if (details.durableRoot) {
+    const label = details.label === 'baseline' ? 'baseline' : 'candidate'
+    const copyRoot = async (source, name) => { try { await stat(source); await cp(source, path.join(details.durableRoot, name), { recursive: true }); return true } catch { return false } }
+    await copyRoot(path.join(details.root, 'aheart-ui.tgz'), `${label}.tgz`)
+    await copyRoot(details.manifestPath, `${label}-manifest.json`)
+    await copyRoot(path.join(details.root, 'node_modules/aheart-ui/es/index.js'), label === 'candidate' ? 'module-index.js' : 'baseline-module-index.js')
+    await copyRoot(path.join(details.root, 'pnpm-lock.yaml'), label === 'candidate' ? 'pnpm-lock.yaml' : 'baseline-pnpm-lock.yaml')
+    const distName = label === 'candidate' ? 'dist' : 'baseline-dist'
+    if (await copyRoot(path.join(details.root, 'dist'), distName)) await writeFileManifest(path.join(details.durableRoot, distName), path.join(details.durableRoot, label === 'candidate' ? 'dist-files.json' : 'baseline-dist-files.json'))
+  }
+  return { directory: destination, manifestPath: path.join(destination, 'checkpoint-files.json'), files: manifest.files, rawPayloadPath: path.join(destination, 'raw-payload.json'), rawPayloadHash, rawPayload }
 }
 
 async function verifyTarball(tarball, label, root, manifestAttestation) {
@@ -495,11 +554,11 @@ async function collectSmoke(temporary) {
 async function collectSide(tarball, label, temporary, { preflight = false, checkpoint } = {}) {
   const root = await mkdtemp(path.join(temporary, `${label}-consumer-`))
   const packageManifest = await verifyTarball(tarball, label, root, label === 'baseline' ? baselineManifest : candidateManifest)
-  await checkpoint?.('pack', { label, root, packageManifest })
+  await checkpoint?.('pack', { stage: 'pack', label, root, packageManifest, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
   const install = await installConsumer(root, tarball)
-  await checkpoint?.('install', { label, root, install })
+  await checkpoint?.('install', { stage: 'install', label, root, install, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
   const ssr = await ssrEvidence(root)
-  await checkpoint?.('ssr', { label, root, ssr })
+  await checkpoint?.('ssr', { stage: 'ssr', label, root, ssr, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath, result: ssr })
   const { build, preview } = await import(pathToFileURL(path.join(root, 'node_modules/vite/dist/node/index.js')).href)
   const previousCwd = process.cwd()
   process.chdir(root)
@@ -508,7 +567,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   } finally {
     process.chdir(previousCwd)
   }
-  await checkpoint?.('build', { label, root, buildDirectory: path.join(root, 'dist') })
+  await checkpoint?.('build', { stage: 'build', label, root, buildDirectory: path.join(root, 'dist'), manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
   if (label === 'candidate' && process.env.D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD === '1') {
     throw new Error('D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD: injected candidate build failure after durable checkpoint')
   }
@@ -521,8 +580,24 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   packageManifest.moduleRealpaths = [install.packageRealpath]
   packageManifest.afterHashes = { 'es/index.js': install.packageIndexHash }
   packageManifest.versions = install.versions
+  const cleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
   if (preflight) {
-    return { packageManifest, cases: {}, root, ssrHydration: ssr, browsers: {}, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, familyCoverage: {}, install, buildDirectory: path.join(root, 'dist') }
+    let preflightServer
+    let preflightBrowser
+    try {
+      preflightServer = await preview({ root, configFile: false, build: { outDir: 'dist' }, preview: { host: '127.0.0.1', port: 0 } })
+      if (process.env.D4_DEFERRED_FAIL_BROWSER_LAUNCH === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_LAUNCH: injected chromium launch failure')
+      preflightBrowser = await chromium.launch()
+      if (process.env.D4_DEFERRED_FAIL_BROWSER_PAGE === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_PAGE: injected chromium page failure')
+      const preflightPage = await preflightBrowser.newPage({ viewport: { width: 1100, height: 800 } })
+      if (process.env.D4_DEFERRED_FAIL_BROWSER_SETUP === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_SETUP: injected chromium setup failure')
+      await preflightPage.goto(`http://127.0.0.1:${preflightServer.httpServer.address().port}/`, { waitUntil: 'domcontentloaded' })
+      await checkpoint?.('browser', { stage: 'browser', label, root, browser: 'chromium', manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
+    } finally {
+      if (preflightBrowser) { await preflightBrowser.close().catch(() => {}); cleanupCounters.chromiumClose += 1 }
+      if (preflightServer?.httpServer) { await new Promise(resolve => preflightServer.httpServer.close(resolve)); cleanupCounters.previewServerClose += 1 }
+    }
+    return { packageManifest, cases: {}, root, ssrHydration: ssr, browsers: {}, iframe: { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 }, familyCoverage: {}, cleanupCounters, install, buildDirectory: path.join(root, 'dist') }
   }
   let server
   let browser
@@ -539,8 +614,11 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   try {
   server = await preview({ root, configFile: false, build: { outDir: 'dist' }, preview: { host: '127.0.0.1', port: 0 } })
   base = `http://127.0.0.1:${server.httpServer.address().port}`
+  if (process.env.D4_DEFERRED_FAIL_BROWSER_LAUNCH === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_LAUNCH: injected chromium launch failure')
   browser = await chromium.launch()
+  if (process.env.D4_DEFERRED_FAIL_BROWSER_PAGE === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_PAGE: injected chromium page failure')
   page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
+  if (process.env.D4_DEFERRED_FAIL_BROWSER_SETUP === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_SETUP: injected chromium setup failure')
   page.on('pageerror', error => browserErrors.push({ kind: 'pageerror', message: error.message }))
   page.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }); if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text()) })
   await page.addInitScript(() => {
@@ -568,12 +646,12 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
       for (const mode of ['full', 'virtual']) {
         const warmup = await measureCase(page, settings, mode)
-        await checkpoint?.('warmup', { label, component, count, rowMode, mode })
+        await checkpoint?.('warmup', { stage: 'warmup', label, root, component, count, rowMode, mode, result: warmup, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record[mode].warmup = [{ firstInteractionMs: warmup.warmup[0].firstInteractionMs, discarded: true }]
       }
       for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
         const measured = await measureCase(page, settings, mode)
-        await checkpoint?.('round', { label, component, count, rowMode, mode, round })
+        await checkpoint?.('round', { stage: 'round', label, root, component, count, rowMode, mode, round, result: measured, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record.alternatingOrder.push(mode)
         record[mode].measured.push({ firstInteractionMs: measured.measured[0].firstInteractionMs })
         record[mode].scroll = measured.scroll
@@ -583,7 +661,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
         record[mode].medianMs = median(record[mode].measured.map(sample => sample.firstInteractionMs))
       }
       cases[`${component}/${count}/${rowMode}`] = record
-      await checkpoint?.('case', { label, component, count, rowMode })
+      await checkpoint?.('case', { stage: 'case', label, root, component, count, rowMode, result: record, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
     }
     iframeEvidence = await iframeProbe(page)
     familyCoverage = await collectFamilyCoverage(page, base)
@@ -608,14 +686,14 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
         coverage.push({ component, count, rowMode, measuredRuns: modes })
       }
       otherBrowsers[name] = { browserVersion: other.version(), ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: sample.observers.startedAt, observersStoppedAt: sample.observers.stoppedAt, consoleErrors: browserErrors.length, pageErrors: 0, scrollSteps: sample.scroll.length, resources: { status: 'recorded', scripts: sample.observers.resources.filter(resource => /\.js(?:\?|$)/.test(resource)), styles: sample.observers.resources.filter(resource => /\.css(?:\?|$)/.test(resource)) }, coverageCases: coverage, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } }
-      await checkpoint?.('browser', { label, browser: name, coverageCases: coverage.length })
+      await checkpoint?.('browser', { stage: 'browser', label, root, browser: name, coverageCases: coverage.length, result: coverage, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
       } finally {
-        if (other) await other.close().catch(() => {})
+        if (other) { await other.close().catch(() => {}); cleanupCounters[`${name}Close`] += 1 }
       }
     }
   } finally {
-    if (browser) await browser.close().catch(() => {})
-    if (server?.httpServer) await new Promise(resolve => server.httpServer.close(resolve))
+    if (browser) { await browser.close().catch(() => {}); cleanupCounters.chromiumClose += 1 }
+    if (server?.httpServer) { await new Promise(resolve => server.httpServer.close(resolve)); cleanupCounters.previewServerClose += 1 }
   }
   const chromiumEvidence = {
     browserVersion: browser?.version?.() ?? 'unknown', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: lastObservers.startedAt, observersStoppedAt: lastObservers.stoppedAt, consoleErrors: browserErrors.filter(error => error.kind === 'console').length, pageErrors: browserErrors.filter(error => error.kind === 'pageerror').length, scrollSteps: 40,
@@ -625,7 +703,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   }
   ssr.htmlByMask = undefined
   if (hydrationErrors.length) for (const item of Object.values(ssr.combinations)) { item.hydrationErrors += hydrationErrors.length; item.hydrationWarnings += hydrationErrors.length }
-  return { packageManifest, cases, root, ssrHydration: ssr, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence, familyCoverage }
+  return { packageManifest, cases, root, ssrHydration: ssr, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence, familyCoverage, cleanupCounters }
 }
 
 export async function finalizeCollectedReport(report, output) {
@@ -668,20 +746,26 @@ if (smoke) {
   await mkdir(durableRunDir, { recursive: true })
   const temporary = await mkdtemp(path.join(tmpdir(), 'aheart-d4-deferred-preflight-'))
   let partial = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), preflight: true, smoke: false, acceptanceEligible: false, sourceKind: 'collected', checkpoints: [] }
+  const cleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0, temporaryRemovedAfterPersistence: false }
+  let lastSideCleanupCounters = { browserClosed: 0, serversClosed: 0 }
+  let checkpointSequence = 0
   const checkpoint = async (stage, details) => {
-    partial.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser })
+    const evidence = await copyCheckpointEvidence({ ...details, stage, durableRoot: durableDir }, path.join(durableDir, 'checkpoints', `${String(checkpointSequence++).padStart(4, '0')}-${details?.label ?? 'run'}-${stage}`))
+    partial.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser, rawEvidence: evidence, rawPayloadHash: evidence.rawPayloadHash, rawPayload: evidence.rawPayload })
     await writeFile(path.join(durableRunDir, 'partial-report.json.tmp'), `${JSON.stringify(partial, null, 2)}\n`)
     await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
   }
   try {
     const baseline = await collectSide(baselineTarball, 'baseline', temporary, { preflight: true, checkpoint })
+    lastSideCleanupCounters = { browserClosed: baseline.cleanupCounters.chromiumClose, serversClosed: baseline.cleanupCounters.previewServerClose }
     const candidate = await collectSide(candidateTarball, 'candidate', temporary, { preflight: true, checkpoint })
     const report = buildFullReportShell({ baseline, candidate, baselineCommit, candidateCommit, runId: `preflight-${Date.now()}-${Math.random().toString(16).slice(2)}`, preflight: true })
     report.preflight = true
     report.acceptanceEligible = false
     report.performance = { status: 'notRun', cases: {}, firstInteraction: { full: {}, virtual: {} } }
-    report.browsers = { chromium: { status: 'notRun' }, firefox: { status: 'notRun' }, webkit: { status: 'notRun' } }
+    report.browsers = {}
     report.checkpoints = partial.checkpoints
+    report.cleanupCounters = { baseline: baseline.cleanupCounters, candidate: candidate.cleanupCounters, temporaryRemovedAfterPersistence: false }
     report.collectorSourcePath = fileURLToPath(import.meta.url)
     report.collectorSourceSha256 = sha256(await readFile(report.collectorSourcePath))
     await prepareFullArtifactBindings(report, {
@@ -717,13 +801,21 @@ if (smoke) {
   } catch (error) {
     partial.failure = String(error?.message ?? error)
     partial.failureEvidence = { ...(partial.failureEvidence ?? {}), preservedFailureArtifact: true, candidate: true, validationFailures: error.failures ?? [] }
-    partial.cleanupCounters = { browserClosed: true, serversClosed: true, temporaryRemovedAfterPersistence: true }
+    partial.cleanupCounters = { ...lastSideCleanupCounters, ...cleanupCounters }
     await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(partial, null, 2)}\n`)
+    await writeFile(path.join(durableDir, 'partial-report.json'), `${JSON.stringify(partial, null, 2)}\n`)
     await mkdir(path.dirname(output), { recursive: true })
     await writeFile(output, `${JSON.stringify(partial, null, 2)}\n`)
     throw error
   } finally {
     await rm(temporary, { recursive: true, force: true })
+    cleanupCounters.temporaryRemovedAfterPersistence = true
+    if (partial.failure) {
+      const failed = { ...partial, cleanupCounters: { ...(partial.cleanupCounters ?? {}), ...cleanupCounters } }
+      await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(failed, null, 2)}\n`)
+      await writeFile(path.join(durableDir, 'partial-report.json'), `${JSON.stringify(failed, null, 2)}\n`)
+    }
+    else if (await stat(output).then(() => true).catch(() => false)) { const saved = JSON.parse(await readFile(output, 'utf8')); saved.cleanupCounters = { ...(saved.cleanupCounters ?? {}), temporaryRemovedAfterPersistence: true }; await writeFile(output, `${JSON.stringify(saved, null, 2)}\n`) }
   }
 } else {
 const temporary = await mkdtemp(path.join(tmpdir(), 'aheart-d4-deferred-full-'))
@@ -732,8 +824,11 @@ const durableRunDir = `${output}.run`
 await mkdir(durableDir, { recursive: true })
 await mkdir(durableRunDir, { recursive: true })
 let checkpointState = { schema: 'd4-deferred-consumer/v1', generatedAt: new Date().toISOString(), smoke: false, acceptanceEligible: true, checkpoints: [] }
+const cleanupCounters = { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0, temporaryRemovedAfterPersistence: false }
+let checkpointSequence = 0
 const checkpoint = async (stage, details) => {
-  checkpointState.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser })
+  const evidence = await copyCheckpointEvidence({ ...details, stage, durableRoot: durableDir }, path.join(durableDir, 'checkpoints', `${String(checkpointSequence++).padStart(4, '0')}-${details?.label ?? 'run'}-${stage}`))
+  checkpointState.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser, rawEvidence: evidence, rawPayloadHash: evidence.rawPayloadHash, rawPayload: evidence.rawPayload })
   await writeFile(path.join(durableRunDir, 'partial-report.json.tmp'), `${JSON.stringify(checkpointState, null, 2)}\n`)
   await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
 }
@@ -746,6 +841,7 @@ try {
   report.benchmarkExecuted = true
   report.environment.cpu = os.cpus()[0]?.model ?? 'unknown'
   report.checkpoints = checkpointState.checkpoints
+  report.cleanupCounters = { baseline: baseline.cleanupCounters, candidate: candidate.cleanupCounters, temporaryRemovedAfterPersistence: false }
   report.sourceKind = 'collected'
   report.runId = `full-${Date.now()}-${Math.random().toString(16).slice(2)}`
   report.collectorSourcePath = fileURLToPath(import.meta.url)
@@ -806,11 +902,19 @@ try {
   partial.acceptanceEligible = false
   partial.failure = String(error?.message ?? error)
   partial.failureEvidence = { ...(partial.failureEvidence ?? {}), preservedFailureArtifact: true, candidate: true, validationFailures: error.failures ?? [] }
-  partial.cleanupCounters = { browserClosed: true, serversClosed: true, temporaryRemovedAfterPersistence: true }
+  partial.cleanupCounters = cleanupCounters
+  checkpointState.failure = partial.failure
+  checkpointState.failureEvidence = partial.failureEvidence
   await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(partial, null, 2)}\n`)
   await writeFile(output, `${JSON.stringify(partial, null, 2)}\n`)
   throw error
 } finally {
   await rm(temporary, { recursive: true, force: true })
+  cleanupCounters.temporaryRemovedAfterPersistence = true
+  if (checkpointState.failure) {
+    const failed = { ...checkpointState, cleanupCounters: { ...(checkpointState.cleanupCounters ?? {}), ...cleanupCounters } }
+    await writeFile(path.join(durableRunDir, 'partial-report.json'), `${JSON.stringify(failed, null, 2)}\n`)
+    await writeFile(output, `${JSON.stringify(failed, null, 2)}\n`)
+  } else if (await stat(output).then(() => true).catch(() => false)) { const saved = JSON.parse(await readFile(output, 'utf8')); saved.cleanupCounters = { ...(saved.cleanupCounters ?? {}), temporaryRemovedAfterPersistence: true }; await writeFile(output, `${JSON.stringify(saved, null, 2)}\n`) }
 }
 }
