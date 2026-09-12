@@ -87,6 +87,7 @@ export function recomputeIframeLifecycle(raw) {
   for (const scenario of scenarios) {
     const events = Array.isArray(scenario?.events) ? [...scenario.events].sort((a, b) => (a.seq ?? 0) - (b.seq ?? 0)) : []
     const ledger = new Map()
+    const instances = new Map()
     const install = events.find(event => event.type === 'instrumentation-install')
     const invoked = events.find(event => event.type === 'frame-unmount-invoked')
     const complete = events.find(event => event.type === 'frame-unmount-complete')
@@ -98,10 +99,21 @@ export function recomputeIframeLifecycle(raw) {
     allRealmsIframe &&= events.every(event => event.realmId === scenario.realmId && event.scenarioId === scenario.scenarioId)
     for (const event of events) {
       if (event.type === 'resource') {
-        if (event.action === 'create') { if (complete && event.seq > complete.seq) invalidAfterUnmount = true; else { ledger.set(event.resourceId, event); if (!invoked || event.seq < invoked.seq) createdBeforeUnmount += 1 } }
         if (complete && event.seq > complete.seq && ['create', 'callback', 'cancel', 'clear', 'disconnect', 'unobserve'].includes(event.action)) invalidAfterUnmount = true
-        if (['cancel', 'clear', 'disconnect'].includes(event.action)) ledger.delete(event.resourceId)
-        if (event.action === 'callback' && ['raf', 'timeout'].includes(event.kind)) ledger.delete(event.resourceId)
+        const isResizeObserver = event.kind === 'resizeObserver'
+        if (event.action === 'create') {
+          instances.set(event.resourceId, { event, targets: new Set(), active: !isResizeObserver })
+          if (!isResizeObserver) ledger.set(event.resourceId, event)
+          if (!invoked || event.seq < invoked.seq) createdBeforeUnmount += 1
+        } else {
+          const instance = instances.get(event.resourceId)
+          if (isResizeObserver && instance) {
+            if (event.action === 'observe') { instance.targets.add(event.targetSelector); instance.active = true; ledger.set(event.resourceId, instance.event) }
+            if (event.action === 'unobserve') { instance.targets.delete(event.targetSelector); if (instance.targets.size === 0) { instance.active = false; ledger.delete(event.resourceId) } }
+            if (event.action === 'disconnect') { instance.targets.clear(); instance.active = false; ledger.delete(event.resourceId) }
+          } else if (['cancel', 'clear', 'disconnect'].includes(event.action)) ledger.delete(event.resourceId)
+          if (event.action === 'callback' && ['raf', 'timeout'].includes(event.kind)) ledger.delete(event.resourceId)
+        }
       }
       if (event.type === 'frame-unmount-complete') { completeActive = ledger.size; completeByKind = { ...byKind, resizeObserver: 0, raf: 0, timeout: 0, interval: 0 }; for (const resource of ledger.values()) completeByKind[resource.kind] = (completeByKind[resource.kind] ?? 0) + 1 }
       if (event.type === 'focus-restore') escapeFocusRestored &&= event.restored === true

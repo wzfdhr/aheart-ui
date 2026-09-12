@@ -134,15 +134,15 @@ function installIframeLifecycleProbe(page) {
   if (originalResizeObserver) {
     window.ResizeObserver = function D4ResizeObserver(callback) {
       const resourceId = `${scenarioId}-resizeObserver-${++resourceSequence}`
-      track('resizeObserver', resourceId, 'create')
+      record('resource', { kind: 'resizeObserver', action: 'create', resourceId, targetSelector: 'window', source: 'component-runtime' })
       const wrapped = (entries, observer) => { record('resource', { kind: 'resizeObserver', action: 'callback', resourceId, targetSelector: selectorFor(entries?.[0]?.target), source: 'component-runtime' }); callback(entries, observer) }
       const observer = new originalResizeObserver(wrapped)
       const originalObserve = observer.observe.bind(observer)
       const originalUnobserve = observer.unobserve?.bind(observer)
       const originalDisconnect = observer.disconnect.bind(observer)
       const targets = new Set()
-      observer.observe = (target, options) => { if (!active.has(resourceId)) track('resizeObserver', resourceId, 'create'); targets.add(target); track('resizeObserver', resourceId, 'observe', target); return originalObserve(target, options) }
-      if (originalUnobserve) observer.unobserve = target => { targets.delete(target); track('resizeObserver', resourceId, 'unobserve', target); return originalUnobserve(target) }
+      observer.observe = (target, options) => { if (!active.has(resourceId)) active.set(resourceId, { kind: 'resizeObserver', resourceId, targetSelector: selectorFor(target), source: 'component-runtime' }); targets.add(target); track('resizeObserver', resourceId, 'observe', target); return originalObserve(target, options) }
+      if (originalUnobserve) observer.unobserve = target => { targets.delete(target); if (targets.size === 0) active.delete(resourceId); track('resizeObserver', resourceId, 'unobserve', target); return originalUnobserve(target) }
       observer.disconnect = () => { targets.clear(); track('resizeObserver', resourceId, 'disconnect', window); return originalDisconnect() }
       return observer
     }
