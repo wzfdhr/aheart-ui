@@ -141,13 +141,13 @@ function installIframeLifecycleProbe(page) {
       const originalUnobserve = observer.unobserve?.bind(observer)
       const originalDisconnect = observer.disconnect.bind(observer)
       const targets = new Set()
-      observer.observe = (target, options) => { targets.add(target); track('resizeObserver', resourceId, 'observe', target); return originalObserve(target, options) }
+      observer.observe = (target, options) => { if (!active.has(resourceId)) track('resizeObserver', resourceId, 'create'); targets.add(target); track('resizeObserver', resourceId, 'observe', target); return originalObserve(target, options) }
       if (originalUnobserve) observer.unobserve = target => { targets.delete(target); track('resizeObserver', resourceId, 'unobserve', target); return originalUnobserve(target) }
-      observer.disconnect = () => { track('resizeObserver', resourceId, 'disconnect', window); return originalDisconnect() }
-      installedProxyKinds.push('resizeObserver')
+      observer.disconnect = () => { targets.clear(); track('resizeObserver', resourceId, 'disconnect', window); return originalDisconnect() }
       return observer
     }
     window.ResizeObserver.prototype = originalResizeObserver.prototype
+    installedProxyKinds.push('resizeObserver')
   }
   const rafs = new Map()
   window.requestAnimationFrame = callback => {
@@ -679,7 +679,8 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
         const panel = componentName === 'TreeSelect' ? document.querySelector('.aheart-tree-select__panel') : document.querySelector('.aheart-cascader__panel')
         const parent = panel?.parentElement
         const scroll = document.querySelector(scrollSel)
-        return { panelParentRealm: panel?.ownerDocument?.defaultView === window ? 'iframe' : 'unknown', panelParentTag: parent?.tagName ?? null, panelParentOwnerDocument: Boolean(parent && parent.ownerDocument === document), panelParentDefaultView: Boolean(parent?.ownerDocument?.defaultView === window), scrollOwnerDocument: Boolean(scroll && scroll.ownerDocument === document), scrollOwnerDefaultView: Boolean(scroll?.ownerDocument?.defaultView === window), parentDocumentResidualNodes: parent ? parent.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length : 0, ownerDocument: Boolean(panel && panel.ownerDocument === document), defaultView: Boolean(panel?.ownerDocument?.defaultView === window), triggerExpanded: triggerNode?.getAttribute('aria-expanded') }
+        const parentDocument = window.parent?.document
+        return { panelParentRealm: panel?.ownerDocument?.defaultView === window ? 'iframe' : 'unknown', panelParentTag: parent?.tagName ?? null, panelParentOwnerDocument: Boolean(parent && parent.ownerDocument === document), panelParentDefaultView: Boolean(parent?.ownerDocument?.defaultView === window), scrollOwnerDocument: Boolean(scroll && scroll.ownerDocument === document), scrollOwnerDefaultView: Boolean(scroll?.ownerDocument?.defaultView === window), parentDocumentResidualNodes: parentDocument ? parentDocument.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length : null, ownerDocument: Boolean(panel && panel.ownerDocument === document), defaultView: Boolean(panel?.ownerDocument?.defaultView === window), triggerExpanded: triggerNode?.getAttribute('aria-expanded') }
       }, { componentName: component, triggerSel: triggerSelector, scrollSel: scrollSelector })
       openedEvidence = opened
       await record('popup-open', opened)
@@ -731,7 +732,7 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
     const ownerFlush = await frame.evaluate(async () => {
       const probe = window.__d4IframeLifecycleProbe
       if (!probe) return null
-      await Promise.resolve(); await new Promise(resolve => probe.originals.requestAnimationFrame(() => probe.originals.requestAnimationFrame(resolve))); const residual = document.querySelector('#app')?.children.length ?? 0; const teleportResidual = document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length; const active = probe.snapshotActive(); const result = { domResidualNodes: residual, teleportResidualNodes: teleportResidual, resourceResiduals: active.length }
+      await Promise.resolve(); await new Promise(resolve => probe.originals.requestAnimationFrame(() => probe.originals.requestAnimationFrame(resolve))); const residual = document.querySelector('#app')?.children.length ?? 0; const teleportResidual = document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length; const parentDocumentResidualNodes = window.parent?.document?.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length ?? null; const active = probe.snapshotActive(); const result = { domResidualNodes: residual, teleportResidualNodes: teleportResidual, parentDocumentResidualNodes, resourceResiduals: active.length }
       probe.record('owner-flush', result)
       return result
     })
@@ -756,7 +757,7 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
     const observation = await frame.evaluate(async () => {
       const probe = window.__d4IframeLifecycleProbe
       if (!probe) return null
-      await new Promise(resolve => probe.originals.setTimeout(resolve, 0)); const result = { domResidualNodes: document.querySelector('#app')?.children.length ?? 0, teleportResidualNodes: document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length, resourceResiduals: probe.snapshotActive().length }
+      await new Promise(resolve => probe.originals.setTimeout(resolve, 0)); const result = { domResidualNodes: document.querySelector('#app')?.children.length ?? 0, teleportResidualNodes: document.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length, parentDocumentResidualNodes: window.parent?.document?.querySelectorAll('.aheart-tree-select__panel,.aheart-cascader__panel').length ?? null, resourceResiduals: probe.snapshotActive().length }
       probe.record('owner-observation', result)
       return result
     })
@@ -807,7 +808,7 @@ async function iframeProbe(page, baseURL, artifactDirectory) {
   const lifecyclePath = path.join(lifecycleDirectory, 'iframe-lifecycle.json')
   await writeFile(lifecyclePath, `${JSON.stringify(rawLifecycle, null, 2)}\n`)
   const lifecycleBytes = await readFile(lifecyclePath)
-  return { status: 'recorded', sameOrigin: scenarios.every(item => item.events.some(event => event.type === 'frame-mounted')), ownerDocument: Object.values(componentEvidence).every(item => item.ownerDocument), focusTransfer: Object.values(componentEvidence).every(item => item.focus?.focused), popupReopened: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.popupReopened), resourceCounts: { before: scenarios.reduce((sum, item) => sum + item.events.filter(event => event.type === 'resource' && event.action === 'create').length, 0), after: summary.finalActive }, observersAfterUnmount: summary.activeAfterUnmount, rafAfterUnmount: summary.byKind.raf, timersAfterUnmount: summary.byKind.timeout, componentResizeObserversAfterUnmount: summary.byKind.resizeObserver, componentRafAfterUnmount: summary.byKind.raf, componentTimersAfterUnmount: summary.byKind.timeout, constructorProxy: { resizeObserversAfterUnmount: summary.byKind.resizeObserver, rafAfterUnmount: summary.byKind.raf, timersAfterUnmount: summary.byKind.timeout }, teleportOwnerDocument: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.ownerDocument), teleportResidualNodes: summary.teleportResidualNodes, escapeFocusRestored: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.focusRestore?.restored), lateLazyStateUpdates: summary.lateLazyStateUpdates, unmountCleanup: summary.unmountCleanup, postUnmountInteractions: summary.postUnmountInteractions, scenarioUrls: scenarios.map(item => ({ component: item.component, url: item.scenarioUrl })), components: componentEvidence, rawLifecycle, lifecycleArtifact: { path: lifecyclePath, sha256: sha256(lifecycleBytes) } }
+  return { status: 'recorded', sameOrigin: scenarios.every(item => item.events.some(event => event.type === 'frame-mounted')), ownerDocument: Object.values(componentEvidence).every(item => item.ownerDocument), focusTransfer: Object.values(componentEvidence).every(item => item.focus?.focused), popupReopened: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.popupReopened), resourceCounts: { before: summary.createdBeforeUnmount, after: summary.finalActive }, observersAfterUnmount: summary.activeAfterUnmount, rafAfterUnmount: summary.byKind.raf, timersAfterUnmount: summary.byKind.timeout, componentResizeObserversAfterUnmount: summary.byKind.resizeObserver, componentRafAfterUnmount: summary.byKind.raf, componentTimersAfterUnmount: summary.byKind.timeout, constructorProxy: { resizeObserversAfterUnmount: summary.byKind.resizeObserver, rafAfterUnmount: summary.byKind.raf, timersAfterUnmount: summary.byKind.timeout }, teleportOwnerDocument: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.ownerDocument), teleportResidualNodes: summary.teleportResidualNodes, escapeFocusRestored: Object.values(componentEvidence).filter(item => item.trigger).every(item => item.focusRestore?.restored), lateLazyStateUpdates: summary.lateLazyStateUpdates, unmountCleanup: summary.unmountCleanup, postUnmountInteractions: summary.postUnmountInteractions, scenarioUrls: scenarios.map(item => ({ component: item.component, url: item.scenarioUrl })), components: componentEvidence, rawLifecycle, lifecycleArtifact: { path: lifecyclePath, sha256: sha256(lifecycleBytes) } }
 }
 
 async function collectFamilyCoverage(page, baseURL) {

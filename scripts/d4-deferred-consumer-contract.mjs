@@ -99,7 +99,7 @@ export function recomputeIframeLifecycle(raw) {
     for (const event of events) {
       if (event.type === 'resource') {
         if (event.action === 'create') { if (complete && event.seq > complete.seq) invalidAfterUnmount = true; else { ledger.set(event.resourceId, event); if (!invoked || event.seq < invoked.seq) createdBeforeUnmount += 1 } }
-        if (event.action === 'callback' && complete && event.seq > complete.seq) invalidAfterUnmount = true
+        if (complete && event.seq > complete.seq && ['create', 'callback', 'cancel', 'clear', 'disconnect', 'unobserve'].includes(event.action)) invalidAfterUnmount = true
         if (['cancel', 'clear', 'disconnect'].includes(event.action)) ledger.delete(event.resourceId)
         if (event.action === 'callback' && ['raf', 'timeout'].includes(event.kind)) ledger.delete(event.resourceId)
       }
@@ -115,7 +115,8 @@ export function recomputeIframeLifecycle(raw) {
     finalActive += ledger.size
     const observation = events.find(event => event.type === 'owner-observation')
     teleportResidualNodes += Number(observation?.teleportResidualNodes ?? flush?.teleportResidualNodes ?? 0)
-    unmountCleanup &&= Boolean(invoked?.connected === true && complete?.connected === true && flush?.domResidualNodes === 0 && flush?.teleportResidualNodes === 0 && !invalidAfterUnmount)
+    const parentDocumentResidualNodes = observation?.parentDocumentResidualNodes ?? flush?.parentDocumentResidualNodes ?? 0
+    unmountCleanup &&= Boolean(invoked?.connected === true && complete?.connected === true && flush?.domResidualNodes === 0 && flush?.teleportResidualNodes === 0 && parentDocumentResidualNodes === 0 && !invalidAfterUnmount && (completeActive ?? ledger.size) === 0)
   }
   return { scenarioCount: scenarios.length, components, proxiesInstalled, allRealmsIframe, createdBeforeUnmount, activeAfterUnmount, byKind, finalActive, teleportResidualNodes, escapeFocusRestored, unmountCleanup, lateLazyStateUpdates, postUnmountInteractions }
 }
