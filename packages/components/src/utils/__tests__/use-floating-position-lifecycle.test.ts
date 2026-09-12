@@ -2,11 +2,17 @@ import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { effectScope, nextTick, ref } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { autoUpdate as realAutoUpdate } from '@floating-ui/dom'
+import { autoUpdate as realAutoUpdate, computePosition } from '@floating-ui/dom'
 
-// RED evidence is retained from ZtHhpE's real iframe realm reobserveFrame residue:
-// the popup updated through the parent realm while the iframe ResizeObserver
-// callback remained alive after close/reopen.
+vi.mock('@floating-ui/dom', async importOriginal => {
+  const actual = await importOriginal<typeof import('@floating-ui/dom')>()
+  return { ...actual, computePosition: vi.fn(actual.computePosition) }
+})
+
+const computePositionSpy = vi.mocked(computePosition)
+
+// RED evidence is retained from ZtHhpE's iframe realm reobserveFrame cleanup
+// residue: its ResizeObserver callback remained active across close/reopen.
 
 type ResizeCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => void
 
@@ -156,6 +162,7 @@ afterEach(() => {
   else delete (window as Window & { ResizeObserver?: typeof ResizeObserver }).ResizeObserver
   if (originalGlobalResizeObserver) Object.defineProperty(globalThis, 'ResizeObserver', originalGlobalResizeObserver)
   else delete (globalThis as typeof globalThis & { ResizeObserver?: typeof ResizeObserver }).ResizeObserver
+  computePositionSpy.mockClear()
   vi.restoreAllMocks()
 })
 
@@ -244,8 +251,10 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     first.cleanup()
     const second = await createHarness()
     const secondObserver = ControlledResizeObserver.instances.at(-1)
+    const firstUpdates = first.updates.mock.calls.length
     const secondUpdates = second.updates.mock.calls.length
     oldCallback?.(0)
+    expect(first.updates).toHaveBeenCalledTimes(firstUpdates)
     expect(second.updates).toHaveBeenCalledTimes(secondUpdates)
     expect(secondObserver).toBeDefined()
     expect(secondObserver).not.toBe(firstObserver)
@@ -268,6 +277,7 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     firstObserver.emit(harness.reference)
     const oldCallback = harness.ownerRafQueue[0]?.callback
     expect(oldCallback).toBeDefined()
+    const computeCallsBeforeClose = computePositionSpy.mock.calls.length
 
     harness.openRef.value = false
     await flushVue()
@@ -276,8 +286,10 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     const queueBeforeStaleCallback = harness.ownerRafQueue.length
     const styleAfterClose = structuredClone(harness.result?.popupStyle.value)
     oldCallback?.(0)
+    await flushVue()
     expect(harness.ownerRafQueue.length).toBe(queueBeforeStaleCallback)
     expect(harness.result?.popupStyle.value).toEqual(styleAfterClose)
+    expect(computePositionSpy.mock.calls.length).toBe(computeCallsBeforeClose)
 
     harness.openRef.value = true
     await flushVue()
@@ -286,9 +298,12 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     expect(secondObserver).toBeDefined()
     oldCallback?.(0)
     expect(harness.ownerRafQueue.length).toBe(0)
+    const computeCallsBeforeReopenedResize = computePositionSpy.mock.calls.length
     secondObserver.emit(harness.reference)
     expect(harness.ownerRafQueue).toHaveLength(1)
     harness.runOwnerRaf()
+    await flushVue()
+    expect(computePositionSpy.mock.calls.length).toBeGreaterThan(computeCallsBeforeReopenedResize)
 
     secondObserver.emit(harness.floating)
     expect(harness.ownerRafQueue).toHaveLength(1)
