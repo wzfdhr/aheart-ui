@@ -768,15 +768,16 @@ test('iframe raw resource completion, probe locking and late hashes are recomput
   const control = iframeControlReport()
   assert.equal(typeof contract.recomputeIframeLifecycle, 'function')
   const controlSummary = contract.recomputeIframeLifecycle(control.iframe.rawLifecycle)
+  const controlScenario = control.iframe.rawLifecycle.scenarios[0]
+  assert.ok(controlScenario.events.findIndex(event => event.type === 'frame-unmount-complete') < controlScenario.events.findIndex(event => event.type === 'owner-observation') && controlScenario.events.findIndex(event => event.type === 'owner-observation') < controlScenario.events.findIndex(event => event.type === 'frame-removed'))
   assert.equal(controlSummary.activeAfterUnmount, 0)
   assert.ok(controlSummary.byKind, 'recomputed iframe summary must expose per-kind resource balance')
   assert.equal(controlSummary.byKind.resizeObserver, 0)
   const forged = structuredClone(control.iframe.rawLifecycle)
   const scenario = forged.scenarios[0]
   const unmount = scenario.events.findIndex(event => event.type === 'frame-unmount-complete')
-  scenario.events.splice(unmount, 0, { type: 'resource', kind: 'resizeObserver', action: 'create', resourceId: 'late-ro', targetSelector: '.late', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
-  scenario.events.splice(unmount + 1, 0, { type: 'resource', kind: 'resizeObserver', action: 'observe', resourceId: 'late-ro', targetSelector: '.late', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
-  scenario.events.splice(unmount + 3, 0, { type: 'resource', kind: 'resizeObserver', action: 'disconnect', resourceId: 'late-ro', targetSelector: '.late', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
+  for (const event of scenario.events.filter(event => event.type === 'resource' && event.kind === 'resizeObserver' && ['create', 'observe'].includes(event.action))) event.resourceId = 'ro-1'
+  scenario.events.splice(unmount + 1, 0, { type: 'resource', kind: 'resizeObserver', action: 'disconnect', resourceId: 'ro-1', targetSelector: '.secondary-root', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
   scenario.events.forEach((event, index) => { event.seq = index + 1; event.time = (index + 1) * 10 })
   const forgedSummary = contract.recomputeIframeLifecycle(forged)
   assert.equal(forgedSummary.activeAfterUnmount, 1)
