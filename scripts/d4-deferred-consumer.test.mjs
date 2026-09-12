@@ -84,7 +84,7 @@ const iframeControlReport = () => {
       add('resource', { kind, action: 'create', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' })
       if (kind === 'resizeObserver') { add('resource', { kind, action: 'observe', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' }); add('resource', { kind, action: 'unobserve', resourceId: `${scenarioId}-${kind}`, targetSelector: '.component-root', source: 'component-runtime' }); add('resource', { kind, action: 'observe', resourceId: `${scenarioId}-${kind}`, targetSelector: '.secondary-root', source: 'component-runtime' }) }
     }
-    if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentTag: type === 'popup-open' ? 'BODY' : undefined, panelParentOwnerDocument: true, panelParentDefaultView: true, scrollOwnerDocument: true, scrollOwnerDefaultView: true, parentDocumentResidualNodes: 0, parentDocumentResidualNodesAfterUnmount: 0, panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', observedWithoutCollectorFocus: type === 'focus-restore', parentActiveElement: type === 'focus-restore' ? 'iframe' : undefined, visible: type === 'reopen', expanded: type === 'reopen', escapeEventRealm: type === 'escape' ? 'iframe' : undefined, consumed: false })
+    if (component !== 'Tree') for (const type of ['popup-open', 'escape', 'popup-close', 'focus-restore', 'reopen']) add(type, { panelParentTag: type === 'popup-open' ? 'BODY' : undefined, panelParentOwnerDocument: true, panelParentDefaultView: true, scrollOwnerDocument: true, scrollOwnerDefaultView: true, parentDocumentResidualNodes: 0, panelParentRealm: 'iframe', ownerDocument: true, defaultView: true, restored: type === 'focus-restore', observedWithoutCollectorFocus: type === 'focus-restore', parentActiveElement: type === 'focus-restore' ? 'iframe' : undefined, visible: type === 'reopen', expanded: type === 'reopen', escapeEventRealm: type === 'escape' ? 'iframe' : undefined, consumed: false })
     if (component === 'Cascader') add('lazy-pending')
     add('frame-unmount-invoked', { connected: true })
     if (component === 'Cascader') add('lazy-abort')
@@ -93,6 +93,7 @@ const iframeControlReport = () => {
     add('resource', { kind: 'timeout', action: 'clear', resourceId: `${scenarioId}-timeout`, targetSelector: '.component-root', source: 'component-runtime' })
     add('resource', { kind: 'interval', action: 'clear', resourceId: `${scenarioId}-interval`, targetSelector: '.component-root', source: 'component-runtime' })
     add('frame-unmount-complete', { connected: true })
+    add('resource', { kind: 'resizeObserver', action: 'disconnect', resourceId: `${scenarioId}-resizeObserver`, targetSelector: '.secondary-root', source: 'component-runtime' })
     add('owner-flush', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
     if (component === 'Cascader') add('lazy-resolve-after-unmount', { returnedChildrenCount: 1, componentUpdateCount: 0, stateRawBefore: 'same', stateRawAfter: 'same', domRawBefore: 'same', domRawAfter: 'same', stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksBefore: [], callbacksAfter: [], stateHashBeforeSha256: sha256(Buffer.from('same')), stateHashAfterSha256: sha256(Buffer.from('same')), domHashBeforeSha256: sha256(Buffer.from('same')), domHashAfterSha256: sha256(Buffer.from('same')), callbacksBeforeSha256: sha256(Buffer.from('[]')), callbacksAfterSha256: sha256(Buffer.from('[]')) })
     add('owner-observation', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
@@ -718,9 +719,10 @@ test('contradictory preflight reports are ineligible and legal preflight shells 
 
 test('iframe lifecycle validator rejects forged raw resource, popup, focus, unmount and late-loader evidence', async t => {
   const mutations = [
-    ['resource balance/realm', /resource.*(active|balance)|residual|cleanup/i, report => { const events = report.iframe.rawLifecycle.scenarios[0].events; const disconnect = events.find(event => event.type === 'resource' && event.action === 'disconnect'); disconnect.action = 'unobserve'; disconnect.targetSelector = '.secondary-root'; events.forEach((event, index) => { event.seq = index + 1; event.time = index + 1 }) }],
+    ['resource balance/realm', /resource.*(active|balance)|residual|cleanup/i, report => { const events = report.iframe.rawLifecycle.scenarios[0].events; events.splice(events.findIndex(event => event.type === 'resource' && event.action === 'disconnect'), 1); events.forEach((event, index) => { event.seq = index + 1; event.time = index + 1 }) }],
     ['Teleport ownership/residual', /teleport|residual|ownerDocument/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'TreeSelect').events.find(event => event.type === 'popup-open'); event.ownerDocument = false }],
     ['parent document residual', /parent.*document|residual|teleport/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'TreeSelect').events.find(event => event.type === 'popup-open'); event.parentDocumentResidualNodes = 1 }],
+    ['owner observation residual', /parent.*document|residual|teleport/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'TreeSelect').events.find(event => event.type === 'owner-observation'); event.parentDocumentResidualNodes = 1 }],
     ['focus restore/close', /focus|escape|popup/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'focus-restore'); event.restored = false }],
     ['unmount ordering/frame alive', /unmount|frame|connected|order/i, report => { const event = report.iframe.rawLifecycle.scenarios[0].events.find(event => event.type === 'frame-unmount-invoked'); event.connected = false }],
     ['late update/hash', /late|lazy|hash|update/i, report => { const event = report.iframe.rawLifecycle.scenarios.find(scenario => scenario.component === 'Cascader').events.find(event => event.type === 'lazy-resolve-after-unmount'); event.componentUpdateCount = 1 }],
@@ -768,16 +770,17 @@ test('iframe raw resource completion, probe locking and late hashes are recomput
   const controlSummary = contract.recomputeIframeLifecycle(control.iframe.rawLifecycle)
   assert.equal(controlSummary.activeAfterUnmount, 0)
   assert.ok(controlSummary.byKind, 'recomputed iframe summary must expose per-kind resource balance')
-  assert.equal(controlSummary.byKind.raf, 0)
+  assert.equal(controlSummary.byKind.resizeObserver, 0)
   const forged = structuredClone(control.iframe.rawLifecycle)
   const scenario = forged.scenarios[0]
   const unmount = scenario.events.findIndex(event => event.type === 'frame-unmount-complete')
-  scenario.events.splice(unmount, 0, { type: 'resource', kind: 'raf', action: 'create', resourceId: 'late-raf', targetSelector: '.component-root', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
-  scenario.events.splice(unmount + 2, 0, { type: 'resource', kind: 'raf', action: 'callback', resourceId: 'late-raf', targetSelector: '.component-root', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
+  scenario.events.splice(unmount, 0, { type: 'resource', kind: 'resizeObserver', action: 'create', resourceId: 'late-ro', targetSelector: '.late', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
+  scenario.events.splice(unmount + 1, 0, { type: 'resource', kind: 'resizeObserver', action: 'observe', resourceId: 'late-ro', targetSelector: '.late', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
+  scenario.events.splice(unmount + 3, 0, { type: 'resource', kind: 'resizeObserver', action: 'disconnect', resourceId: 'late-ro', targetSelector: '.late', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
   scenario.events.forEach((event, index) => { event.seq = index + 1; event.time = (index + 1) * 10 })
   const forgedSummary = contract.recomputeIframeLifecycle(forged)
   assert.equal(forgedSummary.activeAfterUnmount, 1)
-  assert.equal(forgedSummary.byKind.raf, 1)
+  assert.equal(forgedSummary.byKind.resizeObserver, 1)
   assert.equal(forgedSummary.finalActive, 0)
   assert.equal(forgedSummary.unmountCleanup, false)
   const source = await deferredCollectorSource()
