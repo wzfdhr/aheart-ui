@@ -93,10 +93,9 @@ const iframeControlReport = () => {
     add('resource', { kind: 'timeout', action: 'clear', resourceId: `${scenarioId}-timeout`, targetSelector: '.component-root', source: 'component-runtime' })
     add('resource', { kind: 'interval', action: 'clear', resourceId: `${scenarioId}-interval`, targetSelector: '.component-root', source: 'component-runtime' })
     add('frame-unmount-complete', { connected: true })
-    add('resource', { kind: 'resizeObserver', action: 'disconnect', resourceId: `${scenarioId}-resizeObserver`, targetSelector: '.secondary-root', source: 'component-runtime' })
     add('owner-flush', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
     if (component === 'Cascader') add('lazy-resolve-after-unmount', { returnedChildrenCount: 1, componentUpdateCount: 0, stateRawBefore: 'same', stateRawAfter: 'same', domRawBefore: 'same', domRawAfter: 'same', stateHashBefore: 'same', stateHashAfter: 'same', domHashBefore: 'same', domHashAfter: 'same', callbacksBefore: [], callbacksAfter: [], stateHashBeforeSha256: sha256(Buffer.from('same')), stateHashAfterSha256: sha256(Buffer.from('same')), domHashBeforeSha256: sha256(Buffer.from('same')), domHashAfterSha256: sha256(Buffer.from('same')), callbacksBeforeSha256: sha256(Buffer.from('[]')), callbacksAfterSha256: sha256(Buffer.from('[]')) })
-    add('owner-observation', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 })
+    add('owner-observation', { domResidualNodes: 0, teleportResidualNodes: 0, parentDocumentResidualNodes: 0, resourceResiduals: 0 })
     add('post-unmount-escape', { consumed: false, mutationCount: 0, updateCount: 0, callbacksBefore: [], callbacksAfter: [], beforeRaw: 'same', afterRaw: 'same', beforeHash: sha256(Buffer.from('same')), afterHash: sha256(Buffer.from('same')) })
     add('post-unmount-pointer', { consumed: false, mutationCount: 0, updateCount: 0, callbacksBefore: [], callbacksAfter: [], beforeRaw: 'same', afterRaw: 'same', beforeHash: sha256(Buffer.from('same')), afterHash: sha256(Buffer.from('same')) })
     add('frame-removed', { connected: false })
@@ -776,7 +775,8 @@ test('iframe raw resource completion, probe locking and late hashes are recomput
   const forged = structuredClone(control.iframe.rawLifecycle)
   const scenario = forged.scenarios[0]
   const unmount = scenario.events.findIndex(event => event.type === 'frame-unmount-complete')
-  for (const event of scenario.events.filter(event => event.type === 'resource' && event.kind === 'resizeObserver' && ['create', 'observe'].includes(event.action))) event.resourceId = 'ro-1'
+  for (const event of scenario.events.filter(event => event.type === 'resource' && event.kind === 'resizeObserver' && ['create', 'observe', 'unobserve'].includes(event.action))) event.resourceId = 'ro-1'
+  scenario.events = scenario.events.filter(event => !(event.type === 'resource' && event.kind === 'resizeObserver' && event.action === 'disconnect'))
   scenario.events.splice(unmount + 1, 0, { type: 'resource', kind: 'resizeObserver', action: 'disconnect', resourceId: 'ro-1', targetSelector: '.secondary-root', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId })
   scenario.events.forEach((event, index) => { event.seq = index + 1; event.time = (index + 1) * 10 })
   const forgedSummary = contract.recomputeIframeLifecycle(forged)
@@ -827,8 +827,9 @@ test('iframe ResizeObserver target state distinguishes unobserve from disconnect
     { seq: 6, time: 6, type: 'resource', kind: 'resizeObserver', action: 'observe', resourceId: 'ro-1', targetSelector: '.b', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId },
     { seq: 7, time: 7, type: 'frame-unmount-invoked', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: true },
     { seq: 8, time: 8, type: 'frame-unmount-complete', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: true },
-    { seq: 9, time: 9, type: 'owner-flush', scenarioId: scenario.scenarioId, realmId: scenario.realmId, domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 },
-    { seq: 10, time: 10, type: 'frame-removed', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: false },
+    { seq: 9, time: 9, type: 'resource', kind: 'resizeObserver', action: 'disconnect', resourceId: 'ro-1', targetSelector: '.b', source: 'component-runtime', scenarioId: scenario.scenarioId, realmId: scenario.realmId },
+    { seq: 10, time: 10, type: 'owner-flush', scenarioId: scenario.scenarioId, realmId: scenario.realmId, domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 },
+    { seq: 11, time: 11, type: 'frame-removed', scenarioId: scenario.scenarioId, realmId: scenario.realmId, connected: false },
   ]
   const summary = contract.recomputeIframeLifecycle(raw)
   assert.equal(summary.byKind.resizeObserver, 1)
