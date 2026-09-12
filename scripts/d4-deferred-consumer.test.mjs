@@ -837,6 +837,61 @@ test('iframe ResizeObserver target state distinguishes unobserve from disconnect
   assert.equal(summary.unmountCleanup, false)
 })
 
+test('iframe resource model treats ResizeObserver unobserve as target state and allows re-observe', async () => {
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  const control = iframeControlReport().iframe.rawLifecycle
+  const baseScenario = structuredClone(control.scenarios[0])
+  const makeRaw = events => ({ ...structuredClone(control), scenarios: [{ ...baseScenario, events }] })
+  const event = (seq, type, fields = {}) => ({ seq, time: seq, type, scenarioId: baseScenario.scenarioId, realmId: baseScenario.realmId, ...fields })
+  const resource = (seq, action, targetSelector) => event(seq, 'resource', { kind: 'resizeObserver', action, resourceId: 'ro-targets', targetSelector, source: 'component-runtime' })
+  const lifecycle = (resourceEvents = []) => [
+    event(1, 'instrumentation-install', { proxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedProxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedBeforeMount: true, collectorWaitsExcluded: true, realmType: 'iframe', propertyLocked: true, probeMarker: 'd4-iframe-probe-v1' }),
+    event(2, 'frame-mounted', { connected: true }),
+    ...resourceEvents,
+    event(7, 'frame-unmount-invoked', { connected: true }),
+    event(8, 'frame-unmount-complete', { connected: true }),
+    event(9, 'owner-flush', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 0 }),
+    event(10, 'owner-observation', { domResidualNodes: 0, teleportResidualNodes: 0, parentDocumentResidualNodes: 0, resourceResiduals: 0 }),
+    event(11, 'frame-removed', { connected: false }),
+  ]
+  const noTarget = contract.recomputeIframeLifecycle(makeRaw(lifecycle([
+    resource(3, 'create', '.a'),
+    resource(4, 'observe', '.a'),
+    resource(5, 'unobserve', '.a'),
+  ])))
+  assert.equal(noTarget.byKind.resizeObserver, 0)
+  assert.equal(noTarget.activeAfterUnmount, 0)
+  const reobserved = contract.recomputeIframeLifecycle(makeRaw(lifecycle([
+    resource(3, 'create', '.a'),
+    resource(4, 'observe', '.a'),
+    resource(5, 'unobserve', '.a'),
+    resource(6, 'observe', '.b'),
+  ])))
+  assert.equal(reobserved.byKind.resizeObserver, 1)
+  assert.equal(reobserved.activeAfterUnmount, 1)
+})
+
+test('iframe resource model rejects timeout creation after unmount completion', async () => {
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  const control = iframeControlReport().iframe.rawLifecycle
+  const scenario = structuredClone(control.scenarios[0])
+  const event = (seq, type, fields = {}) => ({ seq, time: seq, type, scenarioId: scenario.scenarioId, realmId: scenario.realmId, ...fields })
+  scenario.events = [
+    event(1, 'instrumentation-install', { proxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedProxyKinds: ['resizeObserver', 'raf', 'timeout', 'interval'], installedBeforeMount: true, collectorWaitsExcluded: true, realmType: 'iframe', propertyLocked: true, probeMarker: 'd4-iframe-probe-v1' }),
+    event(2, 'frame-mounted', { connected: true }),
+    event(3, 'frame-unmount-invoked', { connected: true }),
+    event(4, 'frame-unmount-complete', { connected: true }),
+    event(5, 'resource', { kind: 'timeout', action: 'create', resourceId: 'timeout-late', targetSelector: '.component-root', source: 'component-runtime' }),
+    event(6, 'owner-flush', { domResidualNodes: 0, teleportResidualNodes: 0, resourceResiduals: 1 }),
+    event(7, 'owner-observation', { domResidualNodes: 0, teleportResidualNodes: 0, parentDocumentResidualNodes: 0, resourceResiduals: 1 }),
+    event(8, 'frame-removed', { connected: false }),
+  ]
+  const summary = contract.recomputeIframeLifecycle({ ...structuredClone(control), scenarios: [scenario] })
+  assert.equal(summary.byKind.timeout, 0)
+  assert.equal(summary.finalActive, 1)
+  assert.equal(summary.unmountCleanup, false)
+})
+
 test('full collector failure persistence keeps partial raw evidence and appends failure metadata', async () => {
   const source = await deferredCollectorSource()
   const fullBranch = source.slice(source.indexOf('\n} else {'))
