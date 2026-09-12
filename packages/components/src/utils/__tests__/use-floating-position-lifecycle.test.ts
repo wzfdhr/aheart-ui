@@ -1,7 +1,10 @@
-import { effectScope, nextTick } from 'vue'
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
+import { effectScope, nextTick, ref } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { autoUpdate as realAutoUpdate } from '@floating-ui/dom'
 
-// RED evidence is retained from ZtHhpE's real iframe owner-realm reproduction:
+// RED evidence is retained from ZtHhpE's real iframe realm reobserveFrame residue:
 // the popup updated through the parent realm while the iframe ResizeObserver
 // callback remained alive after close/reopen.
 
@@ -12,6 +15,7 @@ class ControlledResizeObserver {
   readonly callback: ResizeCallback
   readonly targets = new Set<Element>()
   disconnectCount = 0
+  lastEntryTarget: Element | undefined
 
   constructor(callback: ResizeCallback) {
     this.callback = callback
@@ -31,9 +35,24 @@ class ControlledResizeObserver {
     this.targets.clear()
   }
 
-  emit() {
-    this.callback([], this as unknown as ResizeObserver)
+  emit(target: Element) {
+    this.lastEntryTarget = target
+    this.callback([{ target } as ResizeObserverEntry], this as unknown as ResizeObserver)
   }
+}
+
+class MainResizeObserverSpy {
+  static instances: MainResizeObserverSpy[] = []
+  readonly callback: ResizeCallback
+
+  constructor(callback: ResizeCallback) {
+    this.callback = callback
+    MainResizeObserverSpy.instances.push(this)
+  }
+
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 }
 
 type OwnerRaf = { handle: number; callback: FrameRequestCallback }
@@ -51,7 +70,10 @@ const flushVue = async () => {
   await Promise.resolve()
 }
 
-const createHarness = async () => {
+const originalWindowResizeObserver = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
+const originalGlobalResizeObserver = Object.getOwnPropertyDescriptor(globalThis, 'ResizeObserver')
+
+const createHarness = async ({ composable = false } = {}) => {
   const frame = document.createElement('iframe')
   document.body.appendChild(frame)
   const ownerWindow = frame.contentWindow
@@ -76,11 +98,29 @@ const createHarness = async () => {
   Object.defineProperty(ownerWindow, 'cancelAnimationFrame', { configurable: true, writable: true, value: ownerCancelAnimationFrame })
   Object.defineProperty(ownerWindow, 'ResizeObserver', { configurable: true, writable: true, value: ControlledResizeObserver })
   ControlledResizeObserver.instances = []
+  MainResizeObserverSpy.instances = []
+  Object.defineProperty(window, 'ResizeObserver', { configurable: true, writable: true, value: MainResizeObserverSpy })
+  Object.defineProperty(globalThis, 'ResizeObserver', { configurable: true, writable: true, value: MainResizeObserverSpy })
   const mainRaf = vi.spyOn(window, 'requestAnimationFrame')
   const module = await import('../use-floating-position')
   const scope = effectScope()
   const updates = vi.fn()
-  const cleanup = scope.run(() => module.createOwnerRealmAutoUpdate(reference, floating, updates, baseOptions))
+  const referenceRef = ref(reference)
+  const floatingRef = ref(floating)
+  const openRef = ref(true)
+  const upstreamAutoUpdate = vi.fn((...args: Parameters<typeof realAutoUpdate>) => realAutoUpdate(...args))
+  const cleanup = composable
+    ? undefined
+    : scope.run(() => module.createOwnerRealmAutoUpdate(
+      reference,
+      floating,
+      updates,
+      baseOptions,
+      upstreamAutoUpdate
+    ))
+  const result = composable
+    ? scope.run(() => module.useFloatingPosition({ reference: referenceRef, floating: floatingRef, open: openRef, autoUpdateOptions: baseOptions }))
+    : undefined
   await flushVue()
 
   const runOwnerRaf = () => {
@@ -100,12 +140,22 @@ const createHarness = async () => {
     ownerRequestAnimationFrame,
     ownerCancelAnimationFrame,
     runOwnerRaf,
-    resizeObserver: () => ControlledResizeObserver.instances[0]
+    resizeObserver: () => ControlledResizeObserver.instances[0],
+    upstreamAutoUpdate,
+    result,
+    referenceRef,
+    floatingRef,
+    openRef,
+    mainResizeObserverInstances: () => MainResizeObserverSpy.instances
   }
 }
 
 afterEach(() => {
   document.body.innerHTML = ''
+  if (originalWindowResizeObserver) Object.defineProperty(window, 'ResizeObserver', originalWindowResizeObserver)
+  else delete (window as Window & { ResizeObserver?: typeof ResizeObserver }).ResizeObserver
+  if (originalGlobalResizeObserver) Object.defineProperty(globalThis, 'ResizeObserver', originalGlobalResizeObserver)
+  else delete (globalThis as typeof globalThis & { ResizeObserver?: typeof ResizeObserver }).ResizeObserver
   vi.restoreAllMocks()
 })
 
@@ -116,11 +166,18 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     expect(observer).toBeDefined()
     expect(observer.targets.has(harness.reference)).toBe(true)
     expect(observer.targets.has(harness.floating)).toBe(true)
+    observer.emit(harness.reference)
+    expect(observer.lastEntryTarget).toBe(harness.reference)
+    observer.emit(harness.floating)
+    expect(observer.lastEntryTarget).toBe(harness.floating)
     expect(ControlledResizeObserver.instances).toHaveLength(1)
+    expect(harness.mainResizeObserverInstances()).toHaveLength(0)
+    expect(harness.upstreamAutoUpdate).toHaveBeenCalledTimes(1)
+    expect(harness.upstreamAutoUpdate.mock.calls[0]?.[3]).toMatchObject({ ...baseOptions, elementResize: false })
 
     const initialUpdates = harness.updates.mock.calls.length
-    observer.emit()
-    observer.emit()
+    observer.emit(harness.reference)
+    observer.emit(harness.floating)
     expect(harness.ownerRequestAnimationFrame).toHaveBeenCalledTimes(1)
     expect(harness.mainRaf).not.toHaveBeenCalled()
     expect(harness.updates).toHaveBeenCalledTimes(initialUpdates)
@@ -133,7 +190,7 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
   it('cancels a pending owner RAF and disconnects RO without a stale callback update', async () => {
     const harness = await createHarness()
     const observer = harness.resizeObserver()
-    observer.emit()
+    observer.emit(harness.reference)
     const oldCallback = harness.ownerRafQueue[0]?.callback
     expect(oldCallback).toBeDefined()
     const updatesBeforeCleanup = harness.updates.mock.calls.length
@@ -149,12 +206,12 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     const harness = await createHarness()
     const observer = harness.resizeObserver()
     const initialUpdates = harness.updates.mock.calls.length
-    observer.emit()
-    observer.emit()
+    observer.emit(harness.reference)
+    observer.emit(harness.floating)
     expect(harness.ownerRequestAnimationFrame).toHaveBeenCalledTimes(1)
     harness.runOwnerRaf()
     expect(harness.updates.mock.calls.length).toBe(initialUpdates + 1)
-    observer.emit()
+    observer.emit(harness.floating)
     expect(harness.ownerRequestAnimationFrame).toHaveBeenCalledTimes(2)
     harness.runOwnerRaf()
     expect(harness.updates.mock.calls.length).toBe(initialUpdates + 2)
@@ -182,7 +239,7 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
   it('isolates a reopened owner lifecycle from the old callback', async () => {
     const first = await createHarness()
     const firstObserver = first.resizeObserver()
-    firstObserver.emit()
+    firstObserver.emit(first.reference)
     const oldCallback = first.ownerRafQueue[0]?.callback
     first.cleanup()
     const second = await createHarness()
@@ -195,5 +252,49 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     second.cleanup()
     first.scope.stop()
     second.scope.stop()
+  })
+
+  it('wires useFloatingPosition watchEffect through the owner-realm helper', async () => {
+    const source = await readFile(resolve(process.cwd(), 'src/utils/use-floating-position.ts'), 'utf8')
+    expect(source).toMatch(/watchEffect[\s\S]*createOwnerRealmAutoUpdate/)
+    expect(source).toMatch(/createOwnerRealmAutoUpdate\([\s\S]*options\.autoUpdateOptions/)
+  })
+
+  it('cleans and reopens the production composable on the same iframe refs', async () => {
+    const harness = await createHarness({ composable: true })
+    const firstObserver = harness.resizeObserver()
+    expect(firstObserver).toBeDefined()
+    expect(ControlledResizeObserver.instances).toHaveLength(1)
+    firstObserver.emit(harness.reference)
+    const oldCallback = harness.ownerRafQueue[0]?.callback
+    expect(oldCallback).toBeDefined()
+
+    harness.openRef.value = false
+    await flushVue()
+    expect(harness.ownerCancelAnimationFrame).toHaveBeenCalledTimes(1)
+    expect(firstObserver.disconnectCount).toBe(1)
+    const queueBeforeStaleCallback = harness.ownerRafQueue.length
+    const styleAfterClose = structuredClone(harness.result?.popupStyle.value)
+    oldCallback?.(0)
+    expect(harness.ownerRafQueue.length).toBe(queueBeforeStaleCallback)
+    expect(harness.result?.popupStyle.value).toEqual(styleAfterClose)
+
+    harness.openRef.value = true
+    await flushVue()
+    expect(ControlledResizeObserver.instances).toHaveLength(2)
+    const secondObserver = ControlledResizeObserver.instances[1]
+    expect(secondObserver).toBeDefined()
+    oldCallback?.(0)
+    expect(harness.ownerRafQueue.length).toBe(0)
+    secondObserver.emit(harness.reference)
+    expect(harness.ownerRafQueue).toHaveLength(1)
+    harness.runOwnerRaf()
+
+    secondObserver.emit(harness.floating)
+    expect(harness.ownerRafQueue).toHaveLength(1)
+    harness.scope.stop()
+    expect(harness.ownerCancelAnimationFrame).toHaveBeenCalledTimes(2)
+    expect(secondObserver.disconnectCount).toBe(1)
+    expect(harness.ownerRafQueue).toHaveLength(0)
   })
 })
