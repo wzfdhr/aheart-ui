@@ -296,7 +296,10 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     expect(ControlledResizeObserver.instances).toHaveLength(2)
     const secondObserver = ControlledResizeObserver.instances[1]
     expect(secondObserver).toBeDefined()
+    const computeBeforeOldReopenCallback = computePositionSpy.mock.calls.length
     oldCallback?.(0)
+    await flushVue()
+    expect(computePositionSpy.mock.calls.length).toBe(computeBeforeOldReopenCallback)
     expect(harness.ownerRafQueue.length).toBe(0)
     const computeCallsBeforeReopenedResize = computePositionSpy.mock.calls.length
     secondObserver.emit(harness.reference)
