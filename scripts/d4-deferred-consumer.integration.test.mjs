@@ -841,7 +841,12 @@ test('preflight candidate-build failure preserves durable partial raw/checkpoint
   const partial = JSON.parse(await readFile(output, 'utf8'))
   assert.equal(partial.preflight, true)
   assert.equal(partial.failureEvidence?.candidate, true)
-  assert.ok(partial.checkpoints?.some(checkpoint => checkpoint.rawPayloadHash && checkpoint.rawPayload))
+  const rawCheckpoint = partial.checkpoints?.find(checkpoint => checkpoint.rawPayloadHash && checkpoint.rawPayloadPath && checkpoint.rawPayloadGzipSha256)
+  assert.ok(rawCheckpoint, 'failure checkpoint must reference a compressed raw payload artifact')
+  assert.equal(rawCheckpoint.rawPayload, undefined, 'partial report must not duplicate raw payload strings inline')
+  const compressedPayload = await readFile(rawCheckpoint.rawPayloadPath)
+  assert.equal(hash(compressedPayload), rawCheckpoint.rawPayloadGzipSha256)
+  assert.ok(rawCheckpoint.rawPayloadBytes > 0 && rawCheckpoint.rawPayloadGzipBytes === compressedPayload.length)
   assert.ok(partial.cleanupCounters?.chromiumClose > 0 && partial.cleanupCounters?.previewServerClose > 0)
   assert.equal(partial.cleanupCounters?.temporaryRemovedAfterPersistence, true)
   const artifactDirectory = `${output}.artifacts`

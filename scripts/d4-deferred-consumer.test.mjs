@@ -991,6 +991,20 @@ test('full collector failure persistence keeps partial raw evidence and appends 
   assert.match(failureBranch, /cases|performance|partial/i, 'full failure artifact must preserve partial raw evidence instead of replacing it with a summary')
 })
 
+test('full checkpoint index stays bounded and references compressed raw payload artifacts', async () => {
+  const source = await deferredCollectorSource()
+  const copyStart = source.indexOf('async function copyCheckpointEvidence')
+  const copyEnd = source.indexOf('\nasync function verifyTarball', copyStart)
+  const copySource = source.slice(copyStart, copyEnd)
+  assert.ok(copyStart >= 0 && copyEnd > copyStart)
+  assert.match(copySource, /raw-payload\.json\.gz/, 'large checkpoint payloads must be stored as gzip artifacts')
+  assert.match(copySource, /rawPayloadGzipSha256|gzipSha256/, 'compressed checkpoint bytes must be hash-bound')
+  assert.doesNotMatch(copySource, /return\s*\{[^}]*\brawPayload\s*[,}]/s, 'checkpoint descriptors must not return the raw JSON string inline')
+  assert.doesNotMatch(copySource, /add\(details\.root\s*&&\s*path\.join\(details\.root,\s*['"]dist['"]\)/, 'immutable dist must not be copied into every checkpoint directory')
+  const fullBranch = source.slice(source.indexOf('\n} else {'))
+  assert.doesNotMatch(fullBranch, /rawPayload:\s*evidence\.rawPayload/, 'partial-report index must not duplicate raw checkpoint payloads')
+})
+
 test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
   const source = await deferredCollectorSource()
   const browserLoop = source.slice(source.indexOf("for (const [name, Browser] of Object.entries({ firefox, webkit }))"))
