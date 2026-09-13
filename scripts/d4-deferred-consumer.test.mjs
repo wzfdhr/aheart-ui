@@ -1041,6 +1041,12 @@ test('collector bounds full-mode Tree viewport and serializes visible geometry o
   assert.match(collector, /scrollAdjustment/, 'dynamic measurement scroll adjustments must be explicit')
 })
 
+test('Tree visual fixture contains wide trees inside its horizontal scroll owner', async () => {
+  const fixture = await readFile(path.join(process.cwd(), 'docs/.vitepress/components/TreeVirtualFixture.vue'), 'utf8')
+  assert.doesNotMatch(fixture, /class="tree-virtual-fixture__frame"\s+:style="treeStyle"/, 'fixed tree width on the frame leaks into the mobile document')
+  assert.match(fixture, /<Tree[\s\S]*:style="\[treeStyle,\s*titleStyle\]"/, 'the wide Tree itself must sit inside the bounded overflow frame')
+})
+
 test('full collector recycles instrumented pages between matrix cases', async () => {
   const source = await deferredCollectorSource()
   assert.match(source, /createMeasuredPage/, 'collector must centralize page instrumentation for every recycled page')
