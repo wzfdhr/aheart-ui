@@ -399,6 +399,13 @@ test('full observer evidence validates all 270 measured rounds and derives metri
     return failures
   }
   assert.deepEqual(validate(browserEvidence), [], 'complete all-round observer evidence must pass')
+  const coarseClockEvidence = structuredClone(browserEvidence)
+  const coarseRound = coarseClockEvidence.observerRounds.at(-1)
+  coarseRound.takeRecordsAt = coarseRound.lastWriteAt
+  coarseRound.drainedAt = coarseRound.lastWriteAt
+  coarseRound.disconnectedAt = coarseRound.lastWriteAt
+  coarseClockEvidence.observersStoppedAt = coarseRound.drainedAt
+  assert.deepEqual(validate(coarseClockEvidence), [], 'coarse browser clocks may report equal ordered take/drain/disconnect timestamps')
   const unsupportedEvidence = structuredClone(browserEvidence)
   unsupportedEvidence.supportedEntryTypes = ['resource']
   for (const round of unsupportedEvidence.observerRounds) {
@@ -433,6 +440,8 @@ test('full collector persists every observer round and records actual Performanc
   assert.match(source, /runtimeErrors/, 'each observer round must bind its own console/page errors')
   assert.match(source, /summarizeBrowserObserverEvidence/, 'browser summaries must be derived from raw observer rounds')
   assert.match(source, /async function createMeasuredPage[\s\S]*await installPerformanceObserverProbe\(page\)/, 'every recycled browser page must install the same per-navigation observer probe')
+  assert.match(source, /__d4StartObservers/, 'each measured scroll round must start a fresh observer window on demand')
+  assert.match(source, /window\.__d4StartObservers\?\.\(\)[\s\S]*for \(let index = 0; index < 40; index\+\+\)/, 'observer window must start immediately before the forty scroll writes')
 })
 
 test('gzip provenance includes all components, CSS, nested chunks and unique assets', () => {
@@ -1024,8 +1033,12 @@ test('collector bounds full-mode Tree viewport and serializes visible geometry o
   const collector = await deferredCollectorSource()
   const fixture = await readFile(path.join(process.cwd(), 'docs/superpowers/experiments/d4-deferred-consumer/main.mjs'), 'utf8')
   assert.match(fixture, /aheart-tree[^`]*block-size:\s*320px[^`]*overflow-y:\s*auto/s, 'full and virtual Tree must share a 320px scroll viewport')
+  assert.match(fixture, /aheart-tree-select__panel[^`]*\[role=["']tree["']\][^`]*block-size:\s*256px[^`]*overflow-y:\s*auto/s, 'full and virtual TreeSelect must share a 256px scroll viewport')
+  assert.doesNotMatch(fixture, /nth-child\(10n\+1\)/, 'dynamic row identity must come from logical fixture data, not recycled DOM position')
   assert.match(collector, /evidenceRects\s*=\s*visibleRects/, 'collector must derive persisted geometry from visible rows')
   assert.doesNotMatch(collector, /rowRects:\s*rowRects\.map/, 'collector must not serialize every full-DOM row on every scroll step')
+  assert.match(collector, /requestedOffset/, 'dynamic scroll evidence must preserve the requested pixel offset')
+  assert.match(collector, /scrollAdjustment/, 'dynamic measurement scroll adjustments must be explicit')
 })
 
 test('full collector recycles instrumented pages between matrix cases', async () => {
