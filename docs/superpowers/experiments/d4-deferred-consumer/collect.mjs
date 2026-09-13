@@ -661,11 +661,30 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchStartedAt, searchEndedAt, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, popup: { startedAt }, startedAt, triggerAt, clickStartedAt, clickCompletedAt, actionableAt, nextTickAt, rafAt, endAt, probeAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
 }
 
+async function collectMeasureFailureDiagnostics(page) {
+  const pageUrl = page.url()
+  return page.evaluate(() => {
+    const app = document.querySelector('#app')
+    return {
+      url: location.href,
+      documentReadyState: document.readyState,
+      fixtureReady: window.__d4Ready ?? null,
+      mountStart: window.__d4MountStart ?? null,
+      appHtmlLength: app?.innerHTML.length ?? null,
+      appChildCount: app?.childElementCount ?? null,
+      bodyText: document.body?.innerText.slice(0, 300) ?? '',
+      scripts: [...document.scripts].map(script => script.src || script.type || 'inline'),
+      resources: performance.getEntriesByType('resource').map(entry => ({ name: entry.name, initiatorType: entry.initiatorType, duration: entry.duration, transferSize: entry.transferSize })),
+    }
+  }).catch(error => ({ url: pageUrl, diagnosticError: error?.message ?? String(error) }))
+}
+
 async function measureCaseWithContext(page, settings, mode, baseURL) {
   try {
     return await measureCase(page, settings, mode, baseURL)
   } catch (error) {
-    throw new Error(`measureCase ${settings.component}/${settings.count}/${settings.rowMode}/${mode}: ${error?.message ?? error}`, { cause: error })
+    const diagnostics = await collectMeasureFailureDiagnostics(page)
+    throw new Error(`measureCase ${settings.component}/${settings.count}/${settings.rowMode}/${mode}: ${error?.message ?? error}; diagnostics=${JSON.stringify(diagnostics)}`, { cause: error })
   }
 }
 
