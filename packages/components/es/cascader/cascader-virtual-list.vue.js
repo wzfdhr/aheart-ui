@@ -35,6 +35,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     let measurementTimer;
     const virtualMode = computed(() => !fallback.value);
     const active = computed(() => virtualMode.value && props.enabled);
+    const itemKeys = computed(() => props.items.map((option, index) => props.rowKey(index, option)));
+    const indexByKey = computed(() => new Map(itemKeys.value.map((key, index) => [key, index])));
     const canUseVirtualRuntime = () => {
       var _a;
       const view = (_a = scrollRef.value) == null ? void 0 : _a.ownerDocument.defaultView;
@@ -81,7 +83,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           const key = row.dataset.virtualKey;
           if (!key)
             continue;
-          const index = props.items.findIndex((option, itemIndex) => props.rowKey(itemIndex, option) === key);
+          const index = indexByKey.value.get(key) ?? -1;
           const item = virtualizer.value.getVirtualItems().find((current) => current.index === index);
           if (index >= 0 && item && Math.abs(item.size - size) > 0.01) {
             virtualizer.value.resizeItem(index, size);
@@ -154,7 +156,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       observationCleanups.add(cleanup);
       return cleanup;
     };
-    const getItemKey = computed(() => (index) => props.rowKey(index, props.items[index]));
+    const getItemKey = computed(() => (index) => itemKeys.value[index] ?? `missing-${index}`);
     const virtualizer = useVirtualizer(computed(() => {
       const capturedPendingKey = pendingKey.value;
       return {
@@ -177,7 +179,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         rangeExtractor: (range) => {
           const indexes = defaultRangeExtractor(range);
           const currentPendingKey = capturedPendingKey;
-          const pendingIndex = currentPendingKey === void 0 ? -1 : props.items.findIndex((option, index) => props.rowKey(index, option) === currentPendingKey);
+          const pendingIndex = currentPendingKey === void 0 ? -1 : indexByKey.value.get(currentPendingKey) ?? -1;
           for (const index of [props.activeIndex, pendingIndex, ...props.pinnedIndexes]) {
             if (index >= 0 && index < props.items.length && !indexes.includes(index))
               indexes.push(index);
@@ -192,14 +194,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return [];
       const virtualRows = virtualizer.value.getVirtualItems();
       const measurements = virtualizer.value.getMeasurements();
-      const currentKeys = new Set(props.items.map((option, index) => props.rowKey(index, option)));
       const pinned = [props.activeIndex, ...props.pinnedIndexes];
       if (pendingKey.value !== void 0) {
-        const pendingIndex = props.items.findIndex((option, index) => props.rowKey(index, option) === pendingKey.value);
+        const pendingIndex = indexByKey.value.get(pendingKey.value) ?? -1;
         if (pendingIndex >= 0)
           pinned.push(pendingIndex);
       }
-      const nextRows = [...virtualRows, ...pinned.map((index) => measurements[index]).filter((item) => Boolean(item))].filter((item) => item.index >= 0 && item.index < props.items.length).filter((item, index, all) => all.findIndex((candidate) => candidate.index === item.index) === index).map((item) => ({ index: item.index, item, key: getItemKey.value(item.index) })).filter((row) => currentKeys.has(row.key));
+      const nextRows = [...virtualRows, ...pinned.map((index) => measurements[index]).filter((item) => Boolean(item))].filter((item) => item.index >= 0 && item.index < props.items.length).filter((item, index, all) => all.findIndex((candidate) => candidate.index === item.index) === index).map((item) => ({ index: item.index, item, key: getItemKey.value(item.index) })).filter((row) => indexByKey.value.has(row.key));
       if (nextRows.length)
         cachedRows.value = nextRows;
       if (nextRows.length || active.value)
@@ -207,8 +208,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const fallbackCount = Math.min(24, props.items.length);
       return Array.from({ length: fallbackCount }, (_, index) => ({
         index,
-        key: props.rowKey(index, props.items[index]),
-        item: { index, key: props.rowKey(index, props.items[index]), start: index * props.config.estimateSize, end: (index + 1) * props.config.estimateSize, size: props.config.estimateSize, lane: 0 }
+        key: getItemKey.value(index),
+        item: { index, key: getItemKey.value(index), start: index * props.config.estimateSize, end: (index + 1) * props.config.estimateSize, size: props.config.estimateSize, lane: 0 }
       }));
     });
     const contentStyle = computed(() => {
@@ -231,7 +232,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!props.items.length)
         return;
       const clamped = Math.max(0, Math.min(props.items.length - 1, index));
-      const requestedKey = props.rowKey(clamped, props.items[clamped]);
+      const requestedKey = getItemKey.value(clamped);
       pendingKey.value = requestedKey;
       const generation = ++focusGeneration;
       focusRetry = 0;
@@ -250,7 +251,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         var _a, _b, _c;
         if (generation !== focusGeneration || pendingKey.value !== requestedKey || !alive)
           return;
-        const currentIndex = props.items.findIndex((option, index2) => props.rowKey(index2, option) === requestedKey);
+        const currentIndex = indexByKey.value.get(requestedKey) ?? -1;
         if (currentIndex < 0) {
           pendingKey.value = void 0;
           return;
@@ -325,7 +326,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     });
     watch([() => props.items, () => props.config], () => {
       pruneRowObservers();
-      cachedRows.value = cachedRows.value.filter((row) => props.items.some((option, index) => props.rowKey(index, option) === row.key));
+      cachedRows.value = cachedRows.value.filter((row) => indexByKey.value.has(row.key));
     }, { flush: "post" });
     watch(active, (value) => {
       if (!value)
@@ -381,9 +382,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       scheduleRowMeasurement();
     };
     const pruneRowObservers = () => {
-      const keys = new Set(props.items.map((option, index) => props.rowKey(index, option)));
       for (const [key, entry] of rowObservers)
-        if (!keys.has(key) || !entry.element.isConnected) {
+        if (!indexByKey.value.has(key) || !entry.element.isConnected) {
           entry.observer.disconnect();
           rowObservers.delete(key);
           rowReportedSizes.delete(entry.element);
