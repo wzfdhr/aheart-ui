@@ -225,7 +225,8 @@ async function copyCheckpointEvidence(details, destination) {
     await copyRoot(path.join(details.root, 'node_modules/aheart-ui/es/index.js'), label === 'candidate' ? 'module-index.js' : 'baseline-module-index.js')
     await copyRoot(path.join(details.root, 'pnpm-lock.yaml'), label === 'candidate' ? 'pnpm-lock.yaml' : 'baseline-pnpm-lock.yaml')
     const distName = label === 'candidate' ? 'dist' : 'baseline-dist'
-    if (await copyRoot(path.join(details.root, 'dist'), distName)) await writeFileManifest(path.join(details.durableRoot, distName), path.join(details.durableRoot, label === 'candidate' ? 'dist-files.json' : 'baseline-dist-files.json'))
+    const distManifestPath = path.join(details.durableRoot, label === 'candidate' ? 'dist-files.json' : 'baseline-dist-files.json')
+    if (await copyRoot(path.join(details.root, 'dist'), distName) && !await stat(distManifestPath).then(() => true).catch(() => false)) await writeFileManifest(path.join(details.durableRoot, distName), distManifestPath)
   }
   const manifest = {
     stage: details.stage,
