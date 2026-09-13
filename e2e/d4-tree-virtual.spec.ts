@@ -112,6 +112,30 @@ async function expectVisible(page: Page, key: string) {
   }).toBe(true)
 }
 
+test('Tree fixture contains wide content without expanding the document', async ({ page }, testInfo) => {
+  const layout = await page.evaluate(() => {
+    const frame = document.querySelector<HTMLElement>('.tree-virtual-fixture__frame')!
+    const tree = document.querySelector<HTMLElement>('[aria-label="Tree virtual fixture tree"]')!
+    return {
+      documentClientWidth: document.documentElement.clientWidth,
+      documentScrollWidth: document.documentElement.scrollWidth,
+      bodyScrollWidth: document.body.scrollWidth,
+      frameClientWidth: frame.clientWidth,
+      frameScrollWidth: frame.scrollWidth,
+      treeWidth: tree.getBoundingClientRect().width,
+    }
+  })
+
+  expect(layout.documentScrollWidth).toBeLessThanOrEqual(layout.documentClientWidth + 1)
+  expect(layout.bodyScrollWidth).toBeLessThanOrEqual(layout.documentClientWidth + 1)
+  expect(layout.frameClientWidth).toBeLessThanOrEqual(layout.documentClientWidth)
+
+  if (testInfo.project.name.includes('mobile')) {
+    expect(layout.treeWidth).toBeGreaterThan(layout.frameClientWidth)
+    expect(layout.frameScrollWidth).toBeGreaterThan(layout.frameClientWidth)
+  }
+})
+
 test('Tree virtual fixture exposes a bounded real DOM window for 1000 and 10000 items', async ({ page }) => {
   await expect(page.getByTestId('tree-virtual-count')).toHaveText('count=1000')
   await expect.poll(() => snapshot(page)).toMatchObject({ rowCount: expect.any(Number) })
