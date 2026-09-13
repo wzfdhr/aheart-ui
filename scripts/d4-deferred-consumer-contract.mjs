@@ -133,6 +133,161 @@ export function recomputeIframeLifecycle(raw) {
   return { scenarioCount: scenarios.length, components, proxiesInstalled, allRealmsIframe, createdBeforeUnmount, activeAfterUnmount, byKind, finalActive, teleportResidualNodes, escapeFocusRestored, unmountCleanup, lateLazyStateUpdates, postUnmountInteractions }
 }
 
+/**
+ * Validate iframe lifecycle evidence from the raw owner-realm event stream.
+ *
+ * Synthetic legacy fixtures may omit the detailed stream, but once a report
+ * claims `status: recorded` it must satisfy the same semantic checks as a real
+ * bounded/full collector run. Real collected release-shaped reports are never
+ * allowed to fall back to the legacy top-level booleans.
+ */
+export function validateIframeEvidence(report, failures, mode = 'full') {
+  const iframe = report?.iframe
+  const legacyFixture = /^(?:full|bounded)-test-fixture$/.test(report?.runId ?? '')
+  const collectedFull = report?.sourceKind === 'collected' && report?.syntheticEvidence !== true && !legacyFixture && report?.preflight !== true && report?.smoke !== true
+  const detailedRequired = mode === 'bounded' || (!legacyFixture && (mode === 'release' || collectedFull))
+
+  if (report?.sourceKind === 'collected' && report?.preflight === true) {
+    ensure(iframe?.status === 'not-run', 'preflight iframe evidence must be status not-run and release-ineligible', failures)
+    ensure(report.acceptanceEligible === false, 'preflight iframe evidence is release-ineligible', failures)
+    return
+  }
+
+  if (iframe?.status !== 'recorded') {
+    ensure(!detailedRequired, `${mode} iframe lifecycle raw evidence must be recorded`, failures)
+    return
+  }
+
+  const raw = iframe.rawLifecycle
+  ensure(raw?.schema === 'd4-iframe-lifecycle/v1', 'iframe lifecycle raw schema is invalid', failures)
+  const scenarios = Array.isArray(raw?.scenarios) ? raw.scenarios : []
+  ensure(scenarios.length === COMPONENTS.length, 'iframe lifecycle must contain three component scenarios', failures)
+  const scenarioComponents = scenarios.map(scenario => scenario?.component)
+  ensure(json([...scenarioComponents].sort()) === json([...COMPONENTS].sort()) && new Set(scenarioComponents).size === COMPONENTS.length, 'iframe lifecycle component scenarios are missing or duplicated', failures)
+  ensure(new Set(scenarios.map(scenario => scenario?.scenarioId)).size === scenarios.length && scenarios.every(scenario => typeof scenario?.scenarioId === 'string' && scenario.scenarioId.length > 0), 'iframe lifecycle scenario IDs must be unique and nonempty', failures)
+  ensure(new Set(scenarios.map(scenario => scenario?.realmId)).size === scenarios.length && scenarios.every(scenario => typeof scenario?.realmId === 'string' && scenario.realmId.length > 0), 'iframe lifecycle realm IDs must be unique and nonempty', failures)
+
+  const expectedUrls = Object.fromEntries((iframe.scenarioUrls ?? []).map(item => [item.component, item.url]))
+  ensure(Array.isArray(iframe.scenarioUrls) && iframe.scenarioUrls.length === COMPONENTS.length && Object.keys(expectedUrls).length === COMPONENTS.length, 'iframe lifecycle scenario URL descriptors are missing or duplicated', failures)
+
+  const proxyKinds = ['interval', 'raf', 'resizeObserver', 'timeout']
+  const requiredOnce = (events, type, component) => {
+    const matches = events.filter(event => event.type === type)
+    ensure(matches.length === 1, `${component} iframe lifecycle requires exactly one ${type} event`, failures)
+    return matches[0]
+  }
+  const hashRaw = value => sha256(Buffer.from(String(value ?? '')))
+  const hashCallbacks = value => sha256(Buffer.from(json(value ?? [])))
+
+  for (const scenario of scenarios) {
+    const component = scenario?.component ?? 'unknown'
+    const events = Array.isArray(scenario?.events) ? scenario.events : []
+    ensure(events.length > 0, `${component} iframe lifecycle events are empty and cannot be recomputed`, failures)
+    ensure(typeof scenario?.scenarioUrl === 'string' && scenario.scenarioUrl === expectedUrls[component] && scenario.scenarioUrl.includes(`component=${component}`) && scenario.scenarioUrl.includes('iframeProbe=true') && scenario.scenarioUrl.includes('virtual=true'), `${component} iframe lifecycle scenario URL is not bound to the recorded descriptor`, failures)
+    ensure(events.every((event, index) => Number.isSafeInteger(event.seq) && event.seq === index + 1), `${component} iframe lifecycle sequence must be contiguous and ordered`, failures)
+    ensure(events.every((event, index) => Number.isFinite(event.time) && (index === 0 || event.time >= events[index - 1].time)), `${component} iframe lifecycle timestamps must be finite and monotonic`, failures)
+    ensure(events.every(event => event.scenarioId === scenario.scenarioId && event.realmId === scenario.realmId), `${component} iframe lifecycle event realm/scenario provenance is invalid`, failures)
+
+    const install = requiredOnce(events, 'instrumentation-install', component)
+    const mounted = requiredOnce(events, 'frame-mounted', component)
+    const invoked = requiredOnce(events, 'frame-unmount-invoked', component)
+    const complete = requiredOnce(events, 'frame-unmount-complete', component)
+    const flush = requiredOnce(events, 'owner-flush', component)
+    const observation = requiredOnce(events, 'owner-observation', component)
+    const postEscape = requiredOnce(events, 'post-unmount-escape', component)
+    const postPointer = requiredOnce(events, 'post-unmount-pointer', component)
+    const removed = requiredOnce(events, 'frame-removed', component)
+    const indexOf = event => events.indexOf(event)
+
+    ensure(indexOf(install) === 0 && indexOf(install) < indexOf(mounted), `${component} iframe probe must install before frame mount`, failures)
+    ensure(install?.installedBeforeMount === true && install?.collectorWaitsExcluded === true && install?.realmType === 'iframe' && install?.propertyLocked === true && install?.probeMarker === 'd4-iframe-probe-v1', `${component} iframe proxy installation evidence is incomplete or unlocked`, failures)
+    ensure(json([...(install?.proxyKinds ?? [])].sort()) === json(proxyKinds) && json([...(install?.installedProxyKinds ?? [])].sort()) === json(proxyKinds), `${component} iframe proxy kinds are incomplete`, failures)
+    ensure(mounted?.connected === true, `${component} iframe must be connected when mounted`, failures)
+    ensure(invoked?.connected === true && complete?.connected === true, `${component} iframe unmount must be invoked and completed while the frame is connected`, failures)
+    ensure(removed?.connected === false, `${component} iframe removal must be recorded after it is disconnected`, failures)
+    ensure(indexOf(mounted) < indexOf(invoked) && indexOf(invoked) < indexOf(complete) && indexOf(complete) < indexOf(flush) && indexOf(flush) < indexOf(observation) && indexOf(observation) < indexOf(postEscape) && indexOf(postEscape) < indexOf(postPointer) && indexOf(postPointer) < indexOf(removed), `${component} iframe unmount/frame cleanup event order is invalid`, failures)
+    for (const event of [flush, observation]) ensure(event?.domResidualNodes === 0 && event?.teleportResidualNodes === 0 && Number(event?.parentDocumentResidualNodes ?? 0) === 0 && event?.resourceResiduals === 0, `${component} iframe owner/parent document or Teleport residual cleanup is nonzero`, failures)
+
+    const resources = new Map()
+    const allowedActions = {
+      resizeObserver: new Set(['create', 'observe', 'unobserve', 'disconnect', 'callback']),
+      raf: new Set(['create', 'callback', 'cancel']),
+      timeout: new Set(['create', 'callback', 'clear']),
+      interval: new Set(['create', 'callback', 'clear']),
+    }
+    for (const event of events.filter(item => item.type === 'resource')) {
+      ensure(allowedActions[event.kind]?.has(event.action), `${component} iframe resource action/kind is invalid`, failures)
+      ensure(typeof event.resourceId === 'string' && event.resourceId.length > 0 && event.source === 'component-runtime', `${component} iframe resource provenance is invalid`, failures)
+      if (event.action === 'create') {
+        ensure(!resources.has(event.resourceId), `${component} iframe resource ID is created more than once`, failures)
+        resources.set(event.resourceId, event.kind)
+      } else {
+        ensure(resources.get(event.resourceId) === event.kind, `${component} iframe resource action has no matching create`, failures)
+      }
+      if (event.kind === 'resizeObserver' && ['observe', 'unobserve'].includes(event.action)) ensure(typeof event.targetSelector === 'string' && event.targetSelector.length > 0, `${component} iframe ResizeObserver target evidence is missing`, failures)
+    }
+
+    if (component !== 'Tree') {
+      const popup = requiredOnce(events, 'popup-open', component)
+      const escape = requiredOnce(events, 'escape', component)
+      const popupClose = requiredOnce(events, 'popup-close', component)
+      const focusRestore = requiredOnce(events, 'focus-restore', component)
+      const reopen = requiredOnce(events, 'reopen', component)
+      ensure(indexOf(popup) < indexOf(escape) && indexOf(escape) < indexOf(popupClose) && indexOf(popupClose) < indexOf(focusRestore) && indexOf(focusRestore) < indexOf(reopen) && indexOf(reopen) < indexOf(invoked), `${component} iframe popup/Escape/focus/reopen order is invalid`, failures)
+      ensure(popup?.panelParentRealm === 'iframe' && popup?.panelParentTag === 'BODY' && popup?.panelParentOwnerDocument === true && popup?.panelParentDefaultView === true && popup?.scrollOwnerDocument === true && popup?.scrollOwnerDefaultView === true && popup?.ownerDocument === true && popup?.defaultView === true && popup?.parentDocumentResidualNodes === 0, `${component} iframe popup Teleport ownerDocument or parent document residual evidence is invalid`, failures)
+      ensure(escape?.escapeEventRealm === 'iframe', `${component} iframe Escape event realm is invalid`, failures)
+      if (detailedRequired) ensure(escape?.consumed === true && popupClose?.closed === true && popupClose?.hidden === true, `${component} iframe Escape did not close the popup`, failures)
+      ensure(focusRestore?.restored === true && focusRestore?.ownerDocument === true && focusRestore?.observedWithoutCollectorFocus === true && focusRestore?.parentActiveElement === 'iframe', `${component} iframe Escape focus restoration evidence is invalid`, failures)
+      ensure(reopen?.visible === true && reopen?.expanded === true, `${component} iframe popup reopen evidence is invalid`, failures)
+    }
+
+    if (component === 'Cascader') {
+      const lazyPending = requiredOnce(events, 'lazy-pending', component)
+      const lazyAbort = requiredOnce(events, 'lazy-abort', component)
+      const late = requiredOnce(events, 'lazy-resolve-after-unmount', component)
+      ensure(indexOf(lazyPending) < indexOf(invoked) && indexOf(invoked) < indexOf(lazyAbort) && indexOf(lazyAbort) < indexOf(complete) && indexOf(flush) < indexOf(late) && indexOf(late) < indexOf(observation), 'Cascader iframe late lazy/unmount event order is invalid', failures)
+      ensure(Number(late?.returnedChildrenCount ?? 0) > 0 && Number(late?.componentUpdateCount ?? 0) === 0 && Number(late?.mutationCount ?? 0) === 0, 'Cascader iframe late lazy result produced a state or DOM update', failures)
+      ensure(late?.stateRawBefore === late?.stateRawAfter && late?.domRawBefore === late?.domRawAfter && json(late?.callbacksBefore ?? []) === json(late?.callbacksAfter ?? []), 'Cascader iframe late lazy raw state/DOM/callback evidence changed', failures)
+      ensure(late?.stateHashBeforeSha256 === hashRaw(late?.stateRawBefore) && late?.stateHashAfterSha256 === hashRaw(late?.stateRawAfter), 'Cascader iframe late lazy state hash is invalid', failures)
+      ensure(late?.domHashBeforeSha256 === hashRaw(late?.domRawBefore) && late?.domHashAfterSha256 === hashRaw(late?.domRawAfter), 'Cascader iframe late lazy DOM hash is invalid', failures)
+      ensure(late?.callbacksBeforeSha256 === hashCallbacks(late?.callbacksBefore) && late?.callbacksAfterSha256 === hashCallbacks(late?.callbacksAfter), 'Cascader iframe late lazy callback hash is invalid', failures)
+    }
+
+    for (const event of [postEscape, postPointer]) {
+      ensure(event?.consumed === false && Number(event?.mutationCount ?? 0) === 0 && Number(event?.updateCount ?? 0) === 0 && Number(event?.callbackCount ?? 0) === 0, `${component} iframe post-unmount interaction was consumed or produced mutation/update callbacks`, failures)
+      ensure(event?.beforeRaw === event?.afterRaw && event?.beforeHash === hashRaw(event?.beforeRaw) && event?.afterHash === hashRaw(event?.afterRaw), `${component} iframe post-unmount DOM hash is invalid`, failures)
+      ensure(json(event?.callbacksBefore ?? []) === json(event?.callbacksAfter ?? []), `${component} iframe post-unmount callback list changed`, failures)
+      if (event?.callbacksBeforeSha256 || event?.callbacksAfterSha256) ensure(event.callbacksBeforeSha256 === hashCallbacks(event.callbacksBefore) && event.callbacksAfterSha256 === hashCallbacks(event.callbacksAfter), `${component} iframe post-unmount callback hash is invalid`, failures)
+      if (event?.ownerOriginalFlush) ensure(event.ownerOriginalFlush.resourceResiduals === 0 && event.ownerOriginalFlush.domResidualNodes === 0, `${component} iframe post-unmount original owner flush left residuals`, failures)
+    }
+  }
+
+  const summary = recomputeIframeLifecycle(raw)
+  ensure(json(raw?.summary) === json(summary), 'iframe lifecycle summary differs from recomputed raw events', failures)
+  ensure(summary.scenarioCount === COMPONENTS.length && summary.proxiesInstalled === true && summary.allRealmsIframe === true && summary.createdBeforeUnmount > 0, 'iframe lifecycle raw event coverage is incomplete', failures)
+  ensure(summary.activeAfterUnmount === 0 && Object.values(summary.byKind).every(value => value === 0) && summary.finalActive === 0, 'iframe resource active balance or cleanup residual is nonzero', failures)
+  ensure(summary.teleportResidualNodes === 0 && summary.escapeFocusRestored === true && summary.unmountCleanup === true, 'iframe Teleport/focus/unmount cleanup evidence is invalid', failures)
+  ensure(summary.lateLazyStateUpdates === 0 && summary.postUnmountInteractions === 0, 'iframe late lazy or post-unmount updates are nonzero', failures)
+
+  const derived = [
+    ['resourceCounts.before', iframe.resourceCounts?.before, summary.createdBeforeUnmount],
+    ['resourceCounts.after', iframe.resourceCounts?.after, summary.finalActive],
+    ['observersAfterUnmount', iframe.observersAfterUnmount, summary.byKind.resizeObserver],
+    ['rafAfterUnmount', iframe.rafAfterUnmount, summary.byKind.raf],
+    ['timersAfterUnmount', iframe.timersAfterUnmount, summary.byKind.timeout + summary.byKind.interval],
+    ['teleportResidualNodes', iframe.teleportResidualNodes, summary.teleportResidualNodes],
+    ['escapeFocusRestored', iframe.escapeFocusRestored, summary.escapeFocusRestored],
+    ['lateLazyStateUpdates', iframe.lateLazyStateUpdates, summary.lateLazyStateUpdates],
+    ['unmountCleanup', iframe.unmountCleanup, summary.unmountCleanup],
+    ['postUnmountInteractions', iframe.postUnmountInteractions, summary.postUnmountInteractions],
+  ]
+  for (const [label, actual, expected] of derived) if (actual !== undefined) ensure(actual === expected, `iframe legacy ${label} differs from recomputed raw lifecycle`, failures)
+  if (iframe.constructorProxy) ensure(iframe.constructorProxy.resizeObserversAfterUnmount === summary.byKind.resizeObserver && iframe.constructorProxy.rafAfterUnmount === summary.byKind.raf && iframe.constructorProxy.timersAfterUnmount === summary.byKind.timeout + summary.byKind.interval, 'iframe constructor proxy counts differ from recomputed raw lifecycle', failures)
+  ensure(iframe.sameOrigin === true && iframe.ownerDocument === true && iframe.focusTransfer === true, 'iframe ownerDocument/focus top-level evidence is incomplete', failures)
+  if (iframe.teleportOwnerDocument !== undefined) ensure(iframe.teleportOwnerDocument === true, 'iframe Teleport ownerDocument top-level evidence is invalid', failures)
+  if (iframe.popupReopened !== undefined) ensure(iframe.popupReopened === true, 'iframe popup reopen top-level evidence is invalid', failures)
+}
+
 async function durableFileManifest(directory, destination) {
   const files = []
   async function walk(current) {
@@ -274,7 +429,7 @@ export function buildFullReportShell({ baseline, candidate, baselineCommit, cand
     performance: { firstInteraction: { full: {}, virtual: {} }, cases: {} },
     cases: {}, browsers: {}, ssrHydration: candidate.ssrHydration ?? { count: 8, combinations: {}, deterministicDoubleRender: true },
     typeProbe: candidate.typeProbe,
-    iframe: candidate.iframe ?? { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 },
+    iframe: preflight ? { status: 'not-run' } : candidate.iframe ?? { sameOrigin: true, ownerDocument: true, focusTransfer: true, unmountCleanup: true, postUnmountInteractions: 0 },
     gzip: { level: 9, consumer: { components: [...COMPONENTS], publicCss: true, externalizedVue: true, minifier: 'vite/esbuild', entry: 'bundle-entry.mjs', config: { vite: PINNED_VERSIONS.vite, mode: 'production' }, moduleProvenance: { baseline: { path: baseline.packageManifest.modulePath, sha256: baseline.packageManifest.afterHashes?.['es/index.js'] }, candidate: { path: candidate.packageManifest.modulePath, sha256: candidate.packageManifest.afterHashes?.['es/index.js'] } } }, baseline: { files: [], rawBytes: 0, gzipBytes: 0 }, candidate: { files: [], rawBytes: 0, gzipBytes: 0 }, deltaBytes: 0, limitBytes: RELEASE_MATRIX.maxGzipDeltaBytes },
     familyCoverage: candidate.familyCoverage ?? {},
   }
@@ -878,6 +1033,7 @@ export function validateSsrEvidence(report, failures = [], mode = 'bounded') {
 export function validateReport(report, { requireRelease = false, requireSmokeChecks = false, allowValidationPhase = false } = {}) {
   if (report?.smoke === true && requireSmokeChecks) return validateSmokeReport(report)
   const failures = []
+  validateIframeEvidence(report, failures, requireRelease ? 'release' : 'full')
   if (report?.preflight === true && report?.acceptanceEligible === true) failures.push('preflight reports are ineligible for acceptance')
   if (requireRelease && report?.preflight === true) failures.push('release validation rejects preflight reports')
   if (requireRelease && (report?.smoke === true || report?.acceptanceEligible !== true)) {
@@ -1022,6 +1178,7 @@ export function validateSmokeReport(report) {
 /** Validate the bounded, release-shaped subset using the same raw evidence rules as full release. */
 export function validateBoundedReleaseReport(report) {
   const failures = []
+  validateIframeEvidence(report, failures, 'bounded')
   ensure(report?.schema === 'd4-deferred-consumer/v1' && report.smoke === true && report.acceptanceEligible === false, 'bounded report must be smoke=true and acceptanceEligible=false', failures)
   ensure(/^bounded-[0-9]+-[a-f0-9]+$/i.test(report?.runId ?? ''), 'bounded run identity is invalid', failures)
   ensure(report?.releaseFormat?.validatorName === 'validateBoundedReleaseReport', 'bounded validator identity is invalid', failures)
