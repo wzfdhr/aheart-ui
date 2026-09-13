@@ -386,11 +386,12 @@ test('full observer evidence validates all 270 measured rounds and derives metri
     observersStoppedAt: rounds.at(-1).drainedAt,
     consoleErrors: 0,
     pageErrors: 0,
+    runtimeErrors: [],
     scrollSteps: 40,
     supportedEntryTypes: ['layout-shift', 'longtask', 'resource'],
     resources: { status: 'recorded', scripts: ['assets/index.js'], styles: ['assets/style.css'] },
     longTasks: { status: 'recorded', maxMs: 10, entries: rounds.flatMap(item => item.longTasks) },
-    layoutShifts: { status: 'recorded', cls: rounds.length * 0.0001, entries: rounds.flatMap(item => item.layoutShifts) },
+    layoutShifts: { status: 'recorded', cls: 0.0001, entries: rounds.flatMap(item => item.layoutShifts) },
   }
   const validate = evidence => {
     const failures = []
@@ -398,6 +399,16 @@ test('full observer evidence validates all 270 measured rounds and derives metri
     return failures
   }
   assert.deepEqual(validate(browserEvidence), [], 'complete all-round observer evidence must pass')
+  const unsupportedEvidence = structuredClone(browserEvidence)
+  unsupportedEvidence.supportedEntryTypes = ['resource']
+  for (const round of unsupportedEvidence.observerRounds) {
+    round.supportedEntryTypes = ['resource']
+    round.longTasks = []
+    round.layoutShifts = []
+  }
+  unsupportedEvidence.longTasks = { status: 'unsupported', reason: 'PerformanceObserver.supportedEntryTypes excludes longtask in this browser' }
+  unsupportedEvidence.layoutShifts = { status: 'unsupported', reason: 'PerformanceObserver.supportedEntryTypes excludes layout-shift in this browser' }
+  assert.deepEqual(validate(unsupportedEvidence), [], 'unsupported metrics must be accepted only when the raw browser entry types omit them')
   const mutations = [
     ['missing round', /270|round|coverage/i, evidence => { evidence.observerRounds.pop() }],
     ['duplicate observer run', /unique|duplicate|run/i, evidence => { evidence.observerRounds[1].observerRunId = evidence.observerRounds[0].observerRunId }],
@@ -421,6 +432,7 @@ test('full collector persists every observer round and records actual Performanc
   assert.match(source, /supportedEntryTypes/, 'metric support must come from the active browser realm')
   assert.match(source, /runtimeErrors/, 'each observer round must bind its own console/page errors')
   assert.match(source, /summarizeBrowserObserverEvidence/, 'browser summaries must be derived from raw observer rounds')
+  assert.match(source, /await installPerformanceObserverProbe\(otherPage\)/, 'Firefox and WebKit pages must install the same per-navigation observer probe')
 })
 
 test('gzip provenance includes all components, CSS, nested chunks and unique assets', () => {

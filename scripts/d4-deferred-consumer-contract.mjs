@@ -930,6 +930,68 @@ export function recomputeObserverRounds(rounds) {
   return Array.isArray(rounds) && rounds.length > 0 && rounds.every(round => round.startedAt < round.firstWriteAt && round.lastWriteAt < round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt && (round.entries ?? []).every(entry => entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt))
 }
 
+const expectedObserverRoundIdentities = () => {
+  const identities = []
+  for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) identities.push({ ordinal: identities.length + 1, component, count, rowMode, mode, round, caseKey: keyFor(component, count, rowMode) })
+  return identities
+}
+
+/** Validate and recompute one browser's complete measured observer ledger. */
+export function validateBrowserObserverEvidence(item, failures, { browser = 'browser', required = false } = {}) {
+  const rounds = item?.observerRounds
+  if (!Array.isArray(rounds)) {
+    ensure(!required, `${browser} observer evidence must retain all 270 measured rounds`, failures)
+    return
+  }
+  const expected = expectedObserverRoundIdentities()
+  ensure(rounds.length === expected.length, `${browser} observer round coverage must contain exactly ${expected.length} measured rounds`, failures)
+  ensure(rounds.every((round, index) => json({ ordinal: round.ordinal, component: round.component, count: round.count, rowMode: round.rowMode, mode: round.mode, round: round.round, caseKey: round.caseKey }) === json(expected[index])), `${browser} observer round identities/order do not cover the release matrix`, failures)
+  ensure(new Set(rounds.map(round => round.observerRunId)).size === rounds.length && rounds.every(round => typeof round.observerRunId === 'string' && round.observerRunId.length > 0), `${browser} observer run IDs must be unique and nonempty`, failures)
+
+  const normalizeTypes = value => [...new Set(Array.isArray(value) ? value : [])].sort()
+  const supportedEntryTypes = normalizeTypes(rounds[0]?.supportedEntryTypes)
+  ensure(supportedEntryTypes.length > 0 && json(normalizeTypes(item?.supportedEntryTypes)) === json(supportedEntryTypes), `${browser} supported entry types are missing or not derived from the browser realm`, failures)
+  ensure(rounds.every(round => json(normalizeTypes(round.supportedEntryTypes)) === json(supportedEntryTypes)), `${browser} supported entry types changed or were omitted across observer rounds`, failures)
+
+  for (const round of rounds) {
+    ensure(round.startedAt < round.firstWriteAt && round.firstWriteAt <= round.lastWriteAt && round.lastWriteAt < round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt, `${browser} observer round timestamp window is invalid`, failures)
+    ensure(round.disconnected === true && round.activeAfterDrain === 0, `${browser} observer round was not disconnected and drained`, failures)
+    ensure(round.scrollSteps === RELEASE_MATRIX.scrollSteps, `${browser} observer round does not bind forty scroll steps`, failures)
+    ensure(Array.isArray(round.runtimeErrors) && round.runtimeErrors.length === 0, `${browser} observer round contains console/page runtime errors`, failures)
+    ensure(Array.isArray(round.longTasks) && round.longTasks.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.duration) && entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt && entry.duration <= RELEASE_MATRIX.maxLongTaskMs), `${browser} long-task entry is outside its observer round window or over budget`, failures)
+    ensure(Array.isArray(round.layoutShifts) && round.layoutShifts.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.value) && entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt) && round.layoutShifts.reduce((sum, entry) => sum + entry.value, 0) <= RELEASE_MATRIX.maxCls, `${browser} layout-shift entry is outside its observer round window or over budget`, failures)
+    ensure(Array.isArray(round.resources?.scripts) && round.resources.scripts.length > 0 && Array.isArray(round.resources?.styles) && round.resources.styles.length > 0, `${browser} observer round package resource evidence is missing`, failures)
+  }
+
+  const firstStarted = Math.min(...rounds.map(round => round.startedAt))
+  const lastDrained = Math.max(...rounds.map(round => round.drainedAt))
+  ensure(item.observersStartedBeforeFirstWrite === true && item.observersStoppedAfterFinal === true && item.observersStartedAt === firstStarted && item.observersStoppedAt === lastDrained, `${browser} observer summary timestamps are not derived from all rounds`, failures)
+  const roundRuntimeErrors = rounds.flatMap(round => round.runtimeErrors)
+  ensure(Array.isArray(item.runtimeErrors) && item.runtimeErrors.length === 0 && roundRuntimeErrors.length === 0, `${browser} observer ledger contains runtime console/page errors`, failures)
+  ensure(item.consoleErrors === item.runtimeErrors?.filter(error => error.kind === 'console').length && item.pageErrors === item.runtimeErrors?.filter(error => error.kind === 'pageerror').length, `${browser} observer runtime error summary is not recomputed from the complete browser ledger`, failures)
+  ensure(item.scrollSteps === RELEASE_MATRIX.scrollSteps, `${browser} observer summary scroll step count is invalid`, failures)
+  const scripts = [...new Set(rounds.flatMap(round => round.resources.scripts))].sort()
+  const styles = [...new Set(rounds.flatMap(round => round.resources.styles))].sort()
+  ensure(item.resources?.status === 'recorded' && json(item.resources.scripts) === json(scripts) && json(item.resources.styles) === json(styles), `${browser} observer resource summary is not recomputed from all rounds`, failures)
+
+  const validateMetric = (entryType, field, summaryField, entryField) => {
+    const support = rounds.map(round => normalizeTypes(round.supportedEntryTypes).includes(entryType))
+    ensure(support.every(Boolean) || support.every(value => !value), `${browser} ${entryType} support is inconsistent across observer rounds`, failures)
+    const supported = support.every(Boolean)
+    const summary = item?.[field]
+    const entries = rounds.flatMap(round => round[entryField])
+    if (supported) {
+      const recomputed = field === 'longTasks' ? Math.max(0, ...entries.map(entry => entry.duration)) : Math.max(0, ...rounds.map(round => round.layoutShifts.reduce((sum, entry) => sum + entry.value, 0)))
+      ensure(summary?.status === 'recorded' && json(summary.entries) === json(entries) && summary[summaryField] === recomputed, `${browser} ${entryType} recorded summary is not derived from supported raw rounds`, failures)
+    } else {
+      ensure(summary?.status === 'unsupported' && summary?.reason === `PerformanceObserver.supportedEntryTypes excludes ${entryType} in this browser`, `${browser} ${entryType} unsupported status is not bound to supported entry types`, failures)
+      ensure(entries.length === 0, `${browser} ${entryType} cannot contain entries when the browser reports it unsupported`, failures)
+    }
+  }
+  validateMetric('longtask', 'longTasks', 'maxMs', 'longTasks')
+  validateMetric('layout-shift', 'layoutShifts', 'cls', 'layoutShifts')
+}
+
 function recomputeMode(mode, path) {
   const samples = mode?.measured?.map(sample => sample.firstInteractionMs)
   if (!Array.isArray(samples) || samples.length !== RELEASE_MATRIX.measuredRuns || samples.some(value => !Number.isFinite(value))) return { errors: [`${path} measured samples must contain exactly five finite values`] }
@@ -1088,22 +1150,26 @@ export function validateReport(report, { requireRelease = false, requireSmokeChe
     ensure(virtual.medianMs <= RELEASE_MATRIX.maxFirstInteractionMs, `${key} virtual first interaction exceeds 500ms`, failures)
     if (item.count === 10000) ensure(virtual.medianMs <= item.full.medianMs * RELEASE_MATRIX.maxVirtualRatio, `${key} virtual median is above fifty percent of full path`, failures)
   }
+  const requiresAllObserverRounds = report?.sourceKind === 'collected' && report?.syntheticEvidence !== true && report?.preflight !== true && report?.smoke !== true && !/test-fixture$/.test(report?.runId ?? '')
   for (const browser of BROWSERS) {
     const item = report.browsers?.[browser]
     if (!item) {
       ensure(false, `${browser} browser evidence is missing`, failures)
       continue
     }
+    validateBrowserObserverEvidence(item, failures, { browser, required: requiresAllObserverRounds })
     ensure(item?.browserVersion, `${browser} browser build is missing`, failures)
     ensure(item?.ownerRealm === true && item.twoRaf === true && item.observersStartedBeforeFirstWrite === true && item.observersStoppedAfterFinal === true && item.scrollSteps === 40 && item.consoleErrors === 0 && item.pageErrors === 0, `${browser} scroll/realm/error observer contract is incomplete`, failures)
     ensure(Number.isFinite(item.observersStartedAt) && Number.isFinite(item.observersStoppedAt) && item.observersStoppedAt >= item.observersStartedAt, `${browser} observer lifecycle timestamps are missing`, failures)
     ensure(item.resources?.status === 'recorded' && item.resources.scripts?.length > 0 && item.resources.styles?.length > 0, `${browser} resource evidence is missing`, failures)
-    if (browser === 'chromium') {
-      ensure(item.longTasks?.status === 'recorded' && item.longTasks.maxMs <= RELEASE_MATRIX.maxLongTaskMs && Array.isArray(item.longTasks.entries) && item.longTasks.entries.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.duration)), 'Chromium long-task observer is missing raw timestamp entries or over 100ms', failures)
-      ensure(item.layoutShifts?.status === 'recorded' && item.layoutShifts.cls <= RELEASE_MATRIX.maxCls && Array.isArray(item.layoutShifts.entries) && item.layoutShifts.entries.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.value)), 'Chromium layout-shift observer is missing raw timestamp entries or over 0.1', failures)
-    } else {
-      ensure(item.longTasks?.status === 'unsupported' && item.longTasks.reason, `${browser} long-task metrics must be explicitly unsupported`, failures)
-      ensure(item.layoutShifts?.status === 'unsupported' && item.layoutShifts.reason, `${browser} layout-shift metrics must be explicitly unsupported`, failures)
+    if (!Array.isArray(item.observerRounds)) {
+      if (browser === 'chromium') {
+        ensure(item.longTasks?.status === 'recorded' && item.longTasks.maxMs <= RELEASE_MATRIX.maxLongTaskMs && Array.isArray(item.longTasks.entries) && item.longTasks.entries.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.duration)), 'Chromium long-task observer is missing raw timestamp entries or over 100ms', failures)
+        ensure(item.layoutShifts?.status === 'recorded' && item.layoutShifts.cls <= RELEASE_MATRIX.maxCls && Array.isArray(item.layoutShifts.entries) && item.layoutShifts.entries.every(entry => Number.isFinite(entry.startTime) && Number.isFinite(entry.value)), 'Chromium layout-shift observer is missing raw timestamp entries or over 0.1', failures)
+      } else {
+        ensure(item.longTasks?.status === 'unsupported' && item.longTasks.reason, `${browser} long-task metrics must be explicitly unsupported`, failures)
+        ensure(item.layoutShifts?.status === 'unsupported' && item.layoutShifts.reason, `${browser} layout-shift metrics must be explicitly unsupported`, failures)
+      }
     }
   }
   const isFullReport = report?.preflight !== true && report?.smoke !== true && report?.acceptanceEligible === true

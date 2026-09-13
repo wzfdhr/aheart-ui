@@ -549,6 +549,25 @@ async function collectHydratedSsrEvidence({ page, baseURL, ssr, artifactDirector
   return applyHydrationEvidence(ssr, hydration)
 }
 
+function installPerformanceObserverProbe(page) {
+  return page.addInitScript(() => {
+    window.__d4LongTasks = []
+    window.__d4LayoutShifts = []
+    window.__d4Observers = []
+    window.__d4ObserverRunId = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
+    window.__d4SupportedEntryTypes = [...(PerformanceObserver.supportedEntryTypes ?? [])].sort()
+    window.__d4ObserverStartedAt = performance.now()
+    const recordEntries = (type, entries) => {
+      const inWindow = entries.filter(entry => entry.startTime >= window.__d4ObserverStartedAt)
+      if (type === 'longtask') window.__d4LongTasks.push(...inWindow.map(entry => ({ startTime: entry.startTime, duration: entry.duration })))
+      else if (type === 'layout-shift') window.__d4LayoutShifts.push(...inWindow.map(entry => ({ startTime: entry.startTime, value: entry.value })))
+    }
+    if (window.__d4SupportedEntryTypes.includes('longtask')) { const observer = new PerformanceObserver(list => recordEntries('longtask', list.getEntries())); observer.__d4Type = 'longtask'; observer.observe({ type: 'longtask', buffered: true }); window.__d4Observers.push(observer) }
+    if (window.__d4SupportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => recordEntries('layout-shift', list.getEntries())); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
+    window.__d4StopObservers = () => { for (const observer of window.__d4Observers) recordEntries(observer.__d4Type, observer.takeRecords()); window.__d4TakeRecordsAt = performance.now(); window.__d4ObserverStoppedAt = Math.max(window.__d4ObserverStoppedAt ?? 0, window.__d4TakeRecordsAt); for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true; window.__d4DisconnectedAt = performance.now() }
+  })
+}
+
 async function measureCase(page, settings, mode, baseURL = page.url()) {
   const origin = new URL(baseURL).origin
   await page.goto(`${origin}/?component=${settings.component}&count=${settings.count}&rowMode=${settings.rowMode}&virtual=${mode === 'virtual'}`, { waitUntil: 'domcontentloaded' })
@@ -619,11 +638,63 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     window.__d4DisconnectedAt = performance.now()
     return steps
   })
-  const observers = await page.evaluate(() => ({ longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, takeRecordsAt: window.__d4TakeRecordsAt, disconnectedAt: window.__d4DisconnectedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
+  const observers = await page.evaluate(() => ({ observerRunId: window.__d4ObserverRunId, supportedEntryTypes: window.__d4SupportedEntryTypes ?? [], longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, takeRecordsAt: window.__d4TakeRecordsAt, disconnectedAt: window.__d4DisconnectedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
   const metricHeights = [...state.rowModeProbe.heights]
   for (const step of scroll) for (const row of step.rowRects ?? []) if (metricHeights.length < 24) metricHeights.push(row.height)
   const rowMetrics = metricHeights.map((height, index) => ({ index, height, expectedHeight: settings.rowMode === 'fixed' ? 28 : settings.rowMode === 'coarse' ? 44 : index % 10 === 0 ? 56 : 28 }))
   return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchStartedAt, searchEndedAt, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, popup: { startedAt }, startedAt, triggerAt, clickStartedAt, clickCompletedAt, actionableAt, nextTickAt, rafAt, endAt, probeAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
+}
+
+function observerRoundEvidence(measured, identity, runtimeErrors = []) {
+  const observers = measured.observers
+  const scripts = [...new Set(observers.resources.filter(resource => /\.js(?:\?|$)/.test(resource)))].sort()
+  const styles = [...new Set(observers.resources.filter(resource => /\.css(?:\?|$)/.test(resource)))].sort()
+  return {
+    ...identity,
+    observerRunId: observers.observerRunId,
+    supportedEntryTypes: [...new Set(observers.supportedEntryTypes)].sort(),
+    startedAt: observers.startedAt,
+    firstWriteAt: measured.scroll[0].timestamp,
+    lastWriteAt: measured.scroll.at(-1).timestamp,
+    takeRecordsAt: observers.takeRecordsAt,
+    drainedAt: observers.stoppedAt,
+    disconnectedAt: observers.disconnectedAt,
+    disconnected: observers.disconnected,
+    activeAfterDrain: observers.activeAfterDrain,
+    scrollSteps: measured.scroll.length,
+    runtimeErrors: structuredClone(runtimeErrors),
+    longTasks: observers.longTasks,
+    layoutShifts: observers.layoutShifts,
+    resources: { scripts, styles },
+  }
+}
+
+function summarizeBrowserObserverEvidence(browserVersion, observerRounds, runtimeErrors = []) {
+  const supportedEntryTypes = [...new Set(observerRounds.flatMap(round => round.supportedEntryTypes))].sort()
+  const scripts = [...new Set(observerRounds.flatMap(round => round.resources.scripts))].sort()
+  const styles = [...new Set(observerRounds.flatMap(round => round.resources.styles))].sort()
+  const longTaskEntries = observerRounds.flatMap(round => round.longTasks)
+  const layoutShiftEntries = observerRounds.flatMap(round => round.layoutShifts)
+  const supports = entryType => observerRounds.every(round => round.supportedEntryTypes.includes(entryType))
+  const unsupported = entryType => ({ status: 'unsupported', reason: `PerformanceObserver.supportedEntryTypes excludes ${entryType} in this browser` })
+  return {
+    browserVersion,
+    ownerRealm: true,
+    twoRaf: true,
+    observersStartedBeforeFirstWrite: observerRounds.every(round => round.startedAt < round.firstWriteAt),
+    observersStoppedAfterFinal: observerRounds.every(round => round.lastWriteAt < round.drainedAt),
+    observersStartedAt: Math.min(...observerRounds.map(round => round.startedAt)),
+    observersStoppedAt: Math.max(...observerRounds.map(round => round.drainedAt)),
+    consoleErrors: runtimeErrors.filter(error => error.kind === 'console').length,
+    pageErrors: runtimeErrors.filter(error => error.kind === 'pageerror').length,
+    runtimeErrors: structuredClone(runtimeErrors),
+    scrollSteps: RELEASE_MATRIX.scrollSteps,
+    supportedEntryTypes,
+    observerRounds,
+    resources: { status: 'recorded', scripts, styles },
+    longTasks: supports('longtask') ? { status: 'recorded', maxMs: Math.max(0, ...longTaskEntries.map(entry => entry.duration)), entries: longTaskEntries } : unsupported('longtask'),
+    layoutShifts: supports('layout-shift') ? { status: 'recorded', cls: Math.max(0, ...observerRounds.map(round => round.layoutShifts.reduce((sum, entry) => sum + entry.value, 0))), entries: layoutShiftEntries } : unsupported('layout-shift'),
+  }
 }
 
 async function iframeProbe(page, baseURL, artifactDirectory) {
@@ -1072,15 +1143,7 @@ async function collectSmoke(temporary) {
   page.on('pageerror', error => errors.push({ kind: 'pageerror', message: error.message }))
   page.on('console', message => { if (message.type() === 'error') errors.push({ kind: 'console', message: message.text() }); if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text()) })
   await installIframeLifecycleProbe(page)
-  await page.addInitScript(() => {
-    window.__d4LongTasks = []
-    window.__d4LayoutShifts = []
-    window.__d4Observers = []
-    window.__d4ObserverStartedAt = performance.now()
-    if (PerformanceObserver.supportedEntryTypes.includes('longtask')) { const observer = new PerformanceObserver(list => window.__d4LongTasks.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, duration: entry.duration })))); observer.__d4Type = 'longtask'; observer.observe({ type: 'longtask', buffered: true }); window.__d4Observers.push(observer) }
-    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
-    window.__d4StopObservers = () => { for (const observer of window.__d4Observers) { const entries = observer.takeRecords(); if (observer.__d4Type === 'longtask') window.__d4LongTasks.push(...entries.map(entry => ({ startTime: entry.startTime, duration: entry.duration }))); else if (observer.__d4Type === 'layout-shift') window.__d4LayoutShifts.push(...entries.map(entry => ({ startTime: entry.startTime, value: entry.value }))) } window.__d4TakeRecordsAt = performance.now(); window.__d4ObserverStoppedAt = Math.max(window.__d4ObserverStoppedAt ?? 0, window.__d4TakeRecordsAt); for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true; window.__d4DisconnectedAt = performance.now() }
-  })
+  await installPerformanceObserverProbe(page)
   let caseEvidence
   let iframe
   let familyCoverage
@@ -1236,7 +1299,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   const browserErrors = []
   const hydrationWarnings = []
   const cases = {}
-  let lastObservers = { longTasks: [], layoutShifts: [], resources: [] }
+  const chromiumObserverRounds = []
   const otherBrowsers = {}
   let familyCoverage = {}
   let iframeEvidence = { sameOrigin: false, ownerDocument: false, focusTransfer: false, unmountCleanup: false, postUnmountInteractions: 1 }
@@ -1252,15 +1315,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   page.on('pageerror', error => browserErrors.push({ kind: 'pageerror', message: error.message }))
   page.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }); if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text()) })
   await installIframeLifecycleProbe(page)
-  await page.addInitScript(() => {
-    window.__d4LongTasks = []
-    window.__d4LayoutShifts = []
-    window.__d4Observers = []
-    window.__d4ObserverStartedAt = performance.now()
-    if (PerformanceObserver.supportedEntryTypes.includes('longtask')) { const observer = new PerformanceObserver(list => window.__d4LongTasks.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, duration: entry.duration })))); observer.__d4Type = 'longtask'; observer.observe({ type: 'longtask', buffered: true }); window.__d4Observers.push(observer) }
-    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => window.__d4LayoutShifts.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, value: entry.value })))); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
-    window.__d4StopObservers = () => { for (const observer of window.__d4Observers) { const entries = observer.takeRecords(); if (observer.__d4Type === 'longtask') window.__d4LongTasks.push(...entries.map(entry => ({ startTime: entry.startTime, duration: entry.duration }))); else if (observer.__d4Type === 'layout-shift') window.__d4LayoutShifts.push(...entries.map(entry => ({ startTime: entry.startTime, value: entry.value }))) } window.__d4TakeRecordsAt = performance.now(); window.__d4ObserverStoppedAt = Math.max(window.__d4ObserverStoppedAt ?? 0, window.__d4TakeRecordsAt); for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true; window.__d4DisconnectedAt = performance.now() }
-  })
+  await installPerformanceObserverProbe(page)
   await collectHydratedSsrEvidence({ page, baseURL: base, ssr: ssr, artifactDirectory: sideArtifactDir, browserErrors, hydrationWarnings })
   ssr.status = 'recorded'
     for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
@@ -1272,13 +1327,14 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
         record[mode].warmup = [{ firstInteractionMs: warmup.warmup[0].firstInteractionMs, discarded: true }]
       }
       for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
+        const runtimeErrorStart = browserErrors.length
         const measured = await measureCase(page, settings, mode)
         await checkpoint?.('round', { stage: 'round', label, root, component, count, rowMode, mode, round, result: measured, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record.alternatingOrder.push(mode)
         record[mode].measured.push({ firstInteractionMs: measured.measured[0].firstInteractionMs })
         record[mode].rowMetrics = measured.rowMetrics
         record[mode].scroll = measured.scroll
-        lastObservers = measured.observers
+        chromiumObserverRounds.push(observerRoundEvidence(measured, { ordinal: chromiumObserverRounds.length + 1, component, count, rowMode, mode, round, caseKey: `${component}/${count}/${rowMode}` }, browserErrors.slice(runtimeErrorStart)))
         record[mode].maxRows = measured.maxRows
         record[mode].actionableRows = measured.actionableRows
         record[mode].medianMs = median(record[mode].measured.map(sample => sample.firstInteractionMs))
@@ -1294,22 +1350,24 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       other = await Browser.launch()
       const otherPage = await other.newPage({ viewport: { width: 1100, height: 800 } })
       const browserErrors = []
-      otherPage.on('pageerror', error => browserErrors.push(error.message))
-      otherPage.on('console', message => { if (message.type() === 'error') browserErrors.push(message.text()) })
-      await otherPage.goto(base, { waitUntil: 'domcontentloaded' })
-      const sample = await measureCase(otherPage, fixtureCount('Tree', 1000, 'fixed'), 'virtual')
+      otherPage.on('pageerror', error => browserErrors.push({ kind: 'pageerror', message: error.message }))
+      otherPage.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }) })
+      await installPerformanceObserverProbe(otherPage)
       const coverage = []
+      const observerRounds = []
       for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
         const settings = fixtureCount(component, count, rowMode)
         const modes = []
         for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
+          const runtimeErrorStart = browserErrors.length
           const measured = await measureCase(otherPage, settings, mode)
           modes.push({ mode, firstInteractionMs: measured.measured[0].firstInteractionMs, scroll: measured.scroll })
+          observerRounds.push(observerRoundEvidence(measured, { ordinal: observerRounds.length + 1, component, count, rowMode, mode, round, caseKey: `${component}/${count}/${rowMode}` }, browserErrors.slice(runtimeErrorStart)))
         }
         coverage.push({ component, count, rowMode, measuredRuns: modes })
       }
-      otherBrowsers[name] = { browserVersion: other.version(), ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: sample.observers.startedAt, observersStoppedAt: sample.observers.stoppedAt, consoleErrors: browserErrors.length, pageErrors: 0, scrollSteps: sample.scroll.length, resources: { status: 'recorded', scripts: sample.observers.resources.filter(resource => /\.js(?:\?|$)/.test(resource)), styles: sample.observers.resources.filter(resource => /\.css(?:\?|$)/.test(resource)) }, coverageCases: coverage, longTasks: { status: 'unsupported', reason: 'PerformanceObserver longtask is not exposed by this engine' }, layoutShifts: { status: 'unsupported', reason: 'PerformanceObserver layout-shift is not exposed by this engine' } }
-      await checkpoint?.('browser', { stage: 'browser', label, root, browser: name, coverageCases: coverage.length, result: coverage, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
+      otherBrowsers[name] = { ...summarizeBrowserObserverEvidence(other.version(), observerRounds, browserErrors), coverageCases: coverage }
+      await checkpoint?.('browser', { stage: 'browser', label, root, browser: name, coverageCases: coverage.length, observerRounds: observerRounds.length, result: { coverage, observerRounds }, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
       } finally {
         if (other) { await other.close().catch(() => {}); cleanupCounters[`${name}Close`] += 1 }
       }
@@ -1318,12 +1376,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
     if (browser) { await browser.close().catch(() => {}); cleanupCounters.chromiumClose += 1 }
     if (server?.httpServer) { await new Promise(resolve => server.httpServer.close(resolve)); cleanupCounters.previewServerClose += 1 }
   }
-  const chromiumEvidence = {
-    browserVersion: browser?.version?.() ?? 'unknown', ownerRealm: true, twoRaf: true, observersStartedBeforeFirstWrite: true, observersStoppedAfterFinal: true, observersStartedAt: lastObservers.startedAt, observersStoppedAt: lastObservers.stoppedAt, consoleErrors: browserErrors.filter(error => error.kind === 'console').length, pageErrors: browserErrors.filter(error => error.kind === 'pageerror').length, scrollSteps: 40,
-    resources: { status: 'recorded', scripts: lastObservers.resources.filter(name => /\.js(?:\?|$)/.test(name)), styles: lastObservers.resources.filter(name => /\.css(?:\?|$)/.test(name)) },
-    longTasks: { status: 'recorded', maxMs: Math.max(0, ...lastObservers.longTasks.map(entry => entry.duration)), entries: lastObservers.longTasks },
-    layoutShifts: { status: 'recorded', cls: lastObservers.layoutShifts.reduce((sum, entry) => sum + entry.value, 0), entries: lastObservers.layoutShifts }
-  }
+  const chromiumEvidence = summarizeBrowserObserverEvidence(browser?.version?.() ?? 'unknown', chromiumObserverRounds, browserErrors)
   ssr.htmlByMask = undefined
   if (hydrationErrors.length) for (const item of Object.values(ssr.combinations)) { item.hydrationErrors += hydrationErrors.length; item.hydrationWarnings += hydrationErrors.length }
   const typeProbe = label === 'candidate' ? await durableTypeProbe(root, sideArtifactDir) : undefined
