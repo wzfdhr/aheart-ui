@@ -432,7 +432,7 @@ test('full collector persists every observer round and records actual Performanc
   assert.match(source, /supportedEntryTypes/, 'metric support must come from the active browser realm')
   assert.match(source, /runtimeErrors/, 'each observer round must bind its own console/page errors')
   assert.match(source, /summarizeBrowserObserverEvidence/, 'browser summaries must be derived from raw observer rounds')
-  assert.match(source, /await installPerformanceObserverProbe\(otherPage\)/, 'Firefox and WebKit pages must install the same per-navigation observer probe')
+  assert.match(source, /async function createMeasuredPage[\s\S]*await installPerformanceObserverProbe\(page\)/, 'every recycled browser page must install the same per-navigation observer probe')
 })
 
 test('gzip provenance includes all components, CSS, nested chunks and unique assets', () => {

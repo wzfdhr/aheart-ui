@@ -550,6 +550,24 @@ function installPerformanceObserverProbe(page) {
   })
 }
 
+async function createMeasuredPage(browser, runtimeErrors, hydrationWarnings = []) {
+  const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
+  page.on('pageerror', error => runtimeErrors.push({ kind: 'pageerror', message: error.message }))
+  page.on('console', message => {
+    if (message.type() === 'error') runtimeErrors.push({ kind: 'console', message: message.text() })
+    if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text())
+  })
+  await installIframeLifecycleProbe(page)
+  await installPerformanceObserverProbe(page)
+  return page
+}
+
+async function recycleMeasuredPage(page, browser, runtimeErrors, hydrationWarnings = [], cleanupCounters) {
+  await page.close()
+  if (cleanupCounters) cleanupCounters.pageClose = (cleanupCounters.pageClose ?? 0) + 1
+  return createMeasuredPage(browser, runtimeErrors, hydrationWarnings)
+}
+
 async function measureCase(page, settings, mode, baseURL = page.url()) {
   const origin = new URL(baseURL).origin
   await page.goto(`${origin}/?component=${settings.component}&count=${settings.count}&rowMode=${settings.rowMode}&virtual=${mode === 'virtual'}`, { waitUntil: 'domcontentloaded' })
@@ -1301,14 +1319,11 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   if (process.env.D4_DEFERRED_FAIL_BROWSER_LAUNCH === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_LAUNCH: injected chromium launch failure')
   browser = await chromium.launch()
   if (process.env.D4_DEFERRED_FAIL_BROWSER_PAGE === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_PAGE: injected chromium page failure')
-  page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
+  page = await createMeasuredPage(browser, browserErrors, hydrationWarnings)
   if (process.env.D4_DEFERRED_FAIL_BROWSER_SETUP === 'chromium') throw new Error('D4_DEFERRED_FAIL_BROWSER_SETUP: injected chromium setup failure')
-  page.on('pageerror', error => browserErrors.push({ kind: 'pageerror', message: error.message }))
-  page.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }); if (message.type() === 'warning' && /hydration|mismatch/i.test(message.text())) hydrationWarnings.push(message.text()) })
-  await installIframeLifecycleProbe(page)
-  await installPerformanceObserverProbe(page)
   await collectHydratedSsrEvidence({ page, baseURL: base, ssr: ssr, artifactDirectory: sideArtifactDir, browserErrors, hydrationWarnings })
   ssr.status = 'recorded'
+    page = await recycleMeasuredPage(page, browser, browserErrors, hydrationWarnings, cleanupCounters)
     for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
       const settings = fixtureCount(component, count, rowMode)
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
@@ -1332,6 +1347,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       }
       cases[`${component}/${count}/${rowMode}`] = record
       await checkpoint?.('case', { stage: 'case', label, root, component, count, rowMode, result: record, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
+      page = await recycleMeasuredPage(page, browser, browserErrors, hydrationWarnings, cleanupCounters)
     }
     iframeEvidence = await iframeProbe(page, base, sideArtifactDir)
     familyCoverage = await collectFamilyCoverage(page, base)
@@ -1339,11 +1355,8 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       let other
       try {
       other = await Browser.launch()
-      const otherPage = await other.newPage({ viewport: { width: 1100, height: 800 } })
       const browserErrors = []
-      otherPage.on('pageerror', error => browserErrors.push({ kind: 'pageerror', message: error.message }))
-      otherPage.on('console', message => { if (message.type() === 'error') browserErrors.push({ kind: 'console', message: message.text() }) })
-      await installPerformanceObserverProbe(otherPage)
+      let otherPage = await createMeasuredPage(other, browserErrors)
       const coverage = []
       const observerRounds = []
       for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
@@ -1356,6 +1369,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
           observerRounds.push(observerRoundEvidence(measured, { ordinal: observerRounds.length + 1, component, count, rowMode, mode, round, caseKey: `${component}/${count}/${rowMode}` }, browserErrors.slice(runtimeErrorStart)))
         }
         coverage.push({ component, count, rowMode, measuredRuns: modes })
+        otherPage = await recycleMeasuredPage(otherPage, other, browserErrors, [], cleanupCounters)
       }
       otherBrowsers[name] = { ...summarizeBrowserObserverEvidence(other.version(), observerRounds, browserErrors), coverageCases: coverage }
       await checkpoint?.('browser', { stage: 'browser', label, root, browser: name, coverageCases: coverage.length, observerRounds: observerRounds.length, result: { coverage, observerRounds }, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
