@@ -176,7 +176,7 @@ onMounted(() => {
 .tree-virtual-fixture button { padding: 5px 8px; border: 1px solid #b8c4d0; border-radius: 5px; background: #fff; color: inherit; cursor: pointer; }
 .tree-virtual-fixture button:focus-visible { outline: 2px solid #1677ff; outline-offset: 2px; }
 .tree-virtual-fixture__readout { display: flex; flex-wrap: wrap; gap: 16px; margin: 0; color: #536273; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
-.tree-virtual-fixture__frame { max-width: 100%; overflow-x: auto; }
+.tree-virtual-fixture__frame { min-width: 0; width: 100%; max-width: 100%; overflow-x: auto; }
 .tree-virtual-lazy { max-width: 100%; overflow-x: auto; }
 .tree-virtual-lazy :deep(.aheart-tree) { border: 1px solid #e5eaf0; }
 .tree-virtual-fixture :deep(.aheart-tree) { border: 1px solid #e5eaf0; }
