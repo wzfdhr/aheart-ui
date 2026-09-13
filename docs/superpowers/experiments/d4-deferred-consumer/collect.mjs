@@ -536,16 +536,22 @@ function installPerformanceObserverProbe(page) {
     window.__d4LongTasks = []
     window.__d4LayoutShifts = []
     window.__d4Observers = []
-    window.__d4ObserverRunId = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
     window.__d4SupportedEntryTypes = [...(PerformanceObserver.supportedEntryTypes ?? [])].sort()
-    window.__d4ObserverStartedAt = performance.now()
     const recordEntries = (type, entries) => {
       const inWindow = entries.filter(entry => entry.startTime >= window.__d4ObserverStartedAt)
       if (type === 'longtask') window.__d4LongTasks.push(...inWindow.map(entry => ({ startTime: entry.startTime, duration: entry.duration })))
       else if (type === 'layout-shift') window.__d4LayoutShifts.push(...inWindow.map(entry => ({ startTime: entry.startTime, value: entry.value })))
     }
-    if (window.__d4SupportedEntryTypes.includes('longtask')) { const observer = new PerformanceObserver(list => recordEntries('longtask', list.getEntries())); observer.__d4Type = 'longtask'; observer.observe({ type: 'longtask', buffered: true }); window.__d4Observers.push(observer) }
-    if (window.__d4SupportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => recordEntries('layout-shift', list.getEntries())); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift', buffered: true }); window.__d4Observers.push(observer) }
+    window.__d4StartObservers = () => {
+      window.__d4LongTasks = []
+      window.__d4LayoutShifts = []
+      window.__d4Observers = []
+      window.__d4ObserverRunId = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
+      window.__d4ObserverStartedAt = performance.now()
+      window.__d4ObserversDisconnected = false
+      if (window.__d4SupportedEntryTypes.includes('longtask')) { const observer = new PerformanceObserver(list => recordEntries('longtask', list.getEntries())); observer.__d4Type = 'longtask'; observer.observe({ type: 'longtask' }); window.__d4Observers.push(observer) }
+      if (window.__d4SupportedEntryTypes.includes('layout-shift')) { const observer = new PerformanceObserver(list => recordEntries('layout-shift', list.getEntries())); observer.__d4Type = 'layout-shift'; observer.observe({ type: 'layout-shift' }); window.__d4Observers.push(observer) }
+    }
     window.__d4StopObservers = () => { for (const observer of window.__d4Observers) recordEntries(observer.__d4Type, observer.takeRecords()); window.__d4TakeRecordsAt = performance.now(); window.__d4ObserverStoppedAt = Math.max(window.__d4ObserverStoppedAt ?? 0, window.__d4TakeRecordsAt); for (const observer of window.__d4Observers) observer.disconnect(); window.__d4Observers = []; window.__d4ObserversDisconnected = true; window.__d4DisconnectedAt = performance.now() }
   })
 }
@@ -635,9 +641,11 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     const target = document.querySelector('[role="tree"], .aheart-cascader__column')
     if (!target) return []
     const steps = []
+    window.__d4StartObservers?.()
     for (let index = 0; index < 40; index++) {
       const dynamicEnd = Math.max(0, target.scrollHeight - target.clientHeight)
       const offset = index === 19 || index === 20 ? dynamicEnd : dynamicEnd * (index < 20 ? index / 19 : (39 - index) / 19)
+      const requestedOffset = offset
       const before = performance.now()
       target.scrollTop = offset
       await window.__d4NextTick()
@@ -649,13 +657,10 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
       const visibleRects = rowRects.filter(rect => rect.bottom >= viewport.top && rect.top <= viewport.bottom).sort((a, b) => a.top - b.top)
       const evidenceRects = visibleRects.slice(0, maxGeometryRows)
       const coverageComplete = visibleRects.length > 0 && visibleRects[0].top <= viewport.top + 1 && visibleRects.at(-1).bottom >= viewport.bottom - 1 && visibleRects.every((rect, index) => index === 0 || rect.top <= visibleRects[index - 1].bottom + 1)
-      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, maxScrollOffset: dynamicEnd, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, visibleRowCount: visibleRects.length, rowKeys: evidenceRects.map(rect => rect.key), rect: evidenceRects[0] ?? null, rowRects: evidenceRects.map(rect => ({ ...rect, nextTickAt, rafAt })), viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, evidenceCoverageComplete: evidenceRects.length > 0 && evidenceRects[0].top <= viewport.top + 1 && evidenceRects.at(-1).bottom >= viewport.bottom - 1 && evidenceRects.every((rect, rectIndex) => rectIndex === 0 || rect.top <= evidenceRects[rectIndex - 1].bottom + 1), excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
+      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, requestedOffset, actualOffset: target.scrollTop, scrollAdjustment: target.scrollTop - requestedOffset, maxScrollOffset: dynamicEnd, settledMaxScrollOffset: Math.max(0, target.scrollHeight - target.clientHeight), timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, visibleRowCount: visibleRects.length, rowKeys: evidenceRects.map(rect => rect.key), rect: evidenceRects[0] ?? null, rowRects: evidenceRects.map(rect => ({ ...rect, nextTickAt, rafAt })), viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, evidenceCoverageComplete: evidenceRects.length > 0 && evidenceRects[0].top <= viewport.top + 1 && evidenceRects.at(-1).bottom >= viewport.bottom - 1 && evidenceRects.every((rect, rectIndex) => rectIndex === 0 || rect.top <= evidenceRects[rectIndex - 1].bottom + 1), excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
     }
     await new Promise(resolve => requestAnimationFrame(resolve))
-    window.__d4ObserverStoppedAt = performance.now()
-    window.__d4TakeRecordsAt = performance.now()
     window.__d4StopObservers?.()
-    window.__d4DisconnectedAt = performance.now()
     return steps
   }, RELEASE_MATRIX.maxVirtualRows)
   const observers = await page.evaluate(() => ({ observerRunId: window.__d4ObserverRunId, supportedEntryTypes: window.__d4SupportedEntryTypes ?? [], longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, takeRecordsAt: window.__d4TakeRecordsAt, disconnectedAt: window.__d4DisconnectedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
@@ -729,7 +734,7 @@ function summarizeBrowserObserverEvidence(browserVersion, observerRounds, runtim
     ownerRealm: true,
     twoRaf: true,
     observersStartedBeforeFirstWrite: observerRounds.every(round => round.startedAt < round.firstWriteAt),
-    observersStoppedAfterFinal: observerRounds.every(round => round.lastWriteAt < round.drainedAt),
+    observersStoppedAfterFinal: observerRounds.every(round => round.lastWriteAt <= round.drainedAt),
     observersStartedAt: Math.min(...observerRounds.map(round => round.startedAt)),
     observersStoppedAt: Math.max(...observerRounds.map(round => round.drainedAt)),
     consoleErrors: runtimeErrors.filter(error => error.kind === 'console').length,

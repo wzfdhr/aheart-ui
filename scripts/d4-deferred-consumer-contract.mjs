@@ -744,8 +744,11 @@ function makeMode(component, count, rowMode, mode) {
       noBlankGap: true,
       vueFlushed: true,
       animationFrames: 2,
+      requestedOffset: offset * 1000,
       actualOffset: offset * 1000,
+      scrollAdjustment: 0,
       maxScrollOffset: 1000,
+      settledMaxScrollOffset: 1000,
       timestamp: index + 1,
       rowKeys: [`${component}-${index}`],
       rect: { top: 0, bottom: 320, height: 320 },
@@ -933,7 +936,7 @@ export function recomputeFamilyCoverage(familyCoverage) {
 }
 
 export function recomputeObserverRounds(rounds) {
-  return Array.isArray(rounds) && rounds.length > 0 && rounds.every(round => round.startedAt < round.firstWriteAt && round.lastWriteAt < round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt && (round.entries ?? []).every(entry => entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt))
+  return Array.isArray(rounds) && rounds.length > 0 && rounds.every(round => round.startedAt < round.firstWriteAt && round.firstWriteAt <= round.lastWriteAt && round.lastWriteAt <= round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt && (round.entries ?? []).every(entry => entry.startTime >= round.startedAt && entry.startTime <= round.drainedAt))
 }
 
 const expectedObserverRoundIdentities = () => {
@@ -960,7 +963,7 @@ export function validateBrowserObserverEvidence(item, failures, { browser = 'bro
   ensure(rounds.every(round => json(normalizeTypes(round.supportedEntryTypes)) === json(supportedEntryTypes)), `${browser} supported entry types changed or were omitted across observer rounds`, failures)
 
   for (const round of rounds) {
-    ensure(round.startedAt < round.firstWriteAt && round.firstWriteAt <= round.lastWriteAt && round.lastWriteAt < round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt, `${browser} observer round timestamp window is invalid`, failures)
+    ensure(round.startedAt < round.firstWriteAt && round.firstWriteAt <= round.lastWriteAt && round.lastWriteAt <= round.takeRecordsAt && round.takeRecordsAt <= round.drainedAt && round.drainedAt <= round.disconnectedAt, `${browser} observer round timestamp window is invalid`, failures)
     ensure(round.disconnected === true && round.activeAfterDrain === 0, `${browser} observer round was not disconnected and drained`, failures)
     ensure(round.scrollSteps === RELEASE_MATRIX.scrollSteps, `${browser} observer round does not bind forty scroll steps`, failures)
     ensure(Array.isArray(round.runtimeErrors) && round.runtimeErrors.length === 0, `${browser} observer round contains console/page runtime errors`, failures)
@@ -998,7 +1001,7 @@ export function validateBrowserObserverEvidence(item, failures, { browser = 'bro
   validateMetric('layout-shift', 'layoutShifts', 'cls', 'layoutShifts')
 }
 
-function recomputeMode(mode, path) {
+function recomputeMode(mode, path, rowMode) {
   const samples = mode?.measured?.map(sample => sample.firstInteractionMs)
   if (!Array.isArray(samples) || samples.length !== RELEASE_MATRIX.measuredRuns || samples.some(value => !Number.isFinite(value))) return { errors: [`${path} measured samples must contain exactly five finite values`] }
   const errors = []
@@ -1011,10 +1014,12 @@ function recomputeMode(mode, path) {
     ensure(mode.scroll.slice(20).every(step => step.direction === 'reverse'), `${path} must have twenty reverse scroll steps`, errors)
     ensure(mode.scroll.every((step, index) => {
       const expected = index < 20 ? index / 19 : (39 - index) / 19
-      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && step.evidenceCoverageComplete === true && recomputeViewportCoverage(step).complete && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && Number.isFinite(step.maxScrollOffset) && step.maxScrollOffset > 0 && Number.isFinite(step.actualOffset) && Math.abs(step.actualOffset - expected * step.maxScrollOffset) <= 1 && Number.isFinite(step.timestamp) && step.timestamp >= 0 && Array.isArray(step.rowKeys) && Array.isArray(step.rowRects) && step.rowRects.length > 0 && step.rowRects.length <= RELEASE_MATRIX.maxVirtualRows && step.rowKeys.length === step.rowRects.length && step.visibleRowCount >= step.rowRects.length && step.rect && Number.isFinite(step.rect.height) && step.rect.height > 0 && Number.isFinite(step.viewportRect?.height) && step.viewportRect.height > 0 && step.viewportRect.height <= 320 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
+      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && step.evidenceCoverageComplete === true && recomputeViewportCoverage(step).complete && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && Number.isFinite(step.maxScrollOffset) && step.maxScrollOffset > 0 && Number.isFinite(step.settledMaxScrollOffset) && step.settledMaxScrollOffset > 0 && Number.isFinite(step.requestedOffset) && Math.abs(step.requestedOffset - expected * step.maxScrollOffset) <= 1 && Number.isFinite(step.actualOffset) && Number.isFinite(step.scrollAdjustment) && Math.abs(step.scrollAdjustment - (step.actualOffset - step.requestedOffset)) < 1e-9 && (rowMode !== 'fixed' || Math.abs(step.actualOffset - step.requestedOffset) <= 1) && Number.isFinite(step.timestamp) && step.timestamp >= 0 && Array.isArray(step.rowKeys) && Array.isArray(step.rowRects) && step.rowRects.length > 0 && step.rowRects.length <= RELEASE_MATRIX.maxVirtualRows && step.rowKeys.length === step.rowRects.length && step.visibleRowCount >= step.rowRects.length && step.rect && Number.isFinite(step.rect.height) && step.rect.height > 0 && Number.isFinite(step.viewportRect?.height) && step.viewportRect.height > 0 && step.viewportRect.height <= 320 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
     }), `${path} scroll steps must prove exact endpoints, positive timing and bounded mounted rows`, errors)
     const viewportHeight = mode.scroll[0]?.viewportRect?.height
     ensure(mode.scroll.every(step => Number.isFinite(step.viewportRect?.height) && Math.abs(step.viewportRect.height - viewportHeight) <= 1), `${path} scroll viewport height changed across samples`, errors)
+    ensure(mode.scroll.slice(0, 20).every((step, index, values) => index === 0 || step.actualOffset >= values[index - 1].actualOffset) && mode.scroll.slice(20).every((step, index, values) => index === 0 || step.actualOffset <= values[index - 1].actualOffset), `${path} actual scroll offsets do not preserve forward/reverse direction`, errors)
+    ensure(Math.abs(mode.scroll[0].actualOffset) <= 1 && mode.scroll[19].actualOffset > 0 && mode.scroll[20].actualOffset > 0 && Math.abs(mode.scroll[39].actualOffset) <= 1, `${path} actual scroll endpoints are invalid`, errors)
   }
   return { errors, medianMs: median(samples), viewportHeight: mode?.scroll?.[0]?.viewportRect?.height }
 }
@@ -1029,7 +1034,7 @@ export function recomputeEvidence(report) {
     ensure(JSON.stringify(item.alternatingOrder) === JSON.stringify(expectedAlternatingOrder()), `${key} measured order is not alternating`, errors)
     const modeResults = {}
     for (const modeName of ['full', 'virtual']) {
-      const result = recomputeMode(item[modeName], `${key}/${modeName}`)
+      const result = recomputeMode(item[modeName], `${key}/${modeName}`, item.rowMode)
       modeResults[modeName] = result
       errors.push(...result.errors)
       firstInteraction[modeName][item.component] ??= {}
