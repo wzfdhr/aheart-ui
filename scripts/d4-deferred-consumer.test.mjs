@@ -1005,6 +1005,29 @@ test('full checkpoint index stays bounded and references compressed raw payload 
   assert.doesNotMatch(fullBranch, /rawPayload:\s*evidence\.rawPayload/, 'partial-report index must not duplicate raw checkpoint payloads')
 })
 
+test('full and virtual scroll evidence requires the same bounded viewport and real nonzero offsets', () => {
+  const report = fullReport()
+  assert.doesNotThrow(() => validateReport(report))
+  const forged = structuredClone(report)
+  for (const step of forged.cases['Tree/10000/dynamic'].full.scroll) {
+    step.actualOffset = 0
+    step.maxScrollOffset = 0
+    step.viewportRect = { top: 0, bottom: 10000, height: 10000 }
+    step.rowRects = Array.from({ length: 100 }, (_, index) => ({ top: 0, bottom: 10000, height: 10000, key: `row-${index}`, nextTickAt: step.timestamp, rafAt: [step.timestamp + 1, step.timestamp + 2] }))
+    step.rowKeys = step.rowRects.map(row => row.key)
+    step.rect = step.rowRects[0]
+  }
+  assert.throws(() => validateReport(forged), /scroll|viewport|geometry|offset|bounded/i)
+})
+
+test('collector bounds full-mode Tree viewport and serializes visible geometry only', async () => {
+  const collector = await deferredCollectorSource()
+  const fixture = await readFile(path.join(process.cwd(), 'docs/superpowers/experiments/d4-deferred-consumer/main.mjs'), 'utf8')
+  assert.match(fixture, /aheart-tree[^`]*block-size:\s*320px[^`]*overflow-y:\s*auto/s, 'full and virtual Tree must share a 320px scroll viewport')
+  assert.match(collector, /evidenceRects\s*=\s*visibleRects/, 'collector must derive persisted geometry from visible rows')
+  assert.doesNotMatch(collector, /rowRects:\s*rowRects\.map/, 'collector must not serialize every full-DOM row on every scroll step')
+})
+
 test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
   const source = await deferredCollectorSource()
   const browserLoop = source.slice(source.indexOf("for (const [name, Browser] of Object.entries({ firefox, webkit }))"))
