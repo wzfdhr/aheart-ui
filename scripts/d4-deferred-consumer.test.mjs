@@ -1028,6 +1028,14 @@ test('collector bounds full-mode Tree viewport and serializes visible geometry o
   assert.doesNotMatch(collector, /rowRects:\s*rowRects\.map/, 'collector must not serialize every full-DOM row on every scroll step')
 })
 
+test('full collector recycles instrumented pages between matrix cases', async () => {
+  const source = await deferredCollectorSource()
+  assert.match(source, /createMeasuredPage/, 'collector must centralize page instrumentation for every recycled page')
+  assert.match(source, /recycleMeasuredPage/, 'collector must recycle pages between large matrix cases')
+  assert.match(source, /page\s*=\s*await recycleMeasuredPage\(page,\s*browser/, 'Chromium matrix must replace its page between cases')
+  assert.match(source, /otherPage\s*=\s*await recycleMeasuredPage\(otherPage,\s*other/, 'Firefox and WebKit matrices must replace their pages between cases')
+})
+
 test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
   const source = await deferredCollectorSource()
   const browserLoop = source.slice(source.indexOf("for (const [name, Browser] of Object.entries({ firefox, webkit }))"))
