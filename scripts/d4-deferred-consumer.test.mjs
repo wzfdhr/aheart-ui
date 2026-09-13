@@ -1120,6 +1120,15 @@ test('D4 integration tests rebuild the approved baseline from repository history
   assert.match(verify, /uses:\s*actions\/checkout@v4[\s\S]*?fetch-depth:\s*0/u, 'verify must fetch the approved baseline commit')
 })
 
+test('candidate public type probe is persisted before long browser collection', async () => {
+  const source = await deferredCollectorSource()
+  const collectSide = source.slice(source.indexOf('async function collectSide('), source.indexOf('export async function finalizeCollectedReport'))
+  const preflightBranch = collectSide.indexOf('  if (preflight)')
+  const typeProbe = collectSide.indexOf("const typeProbe = label === 'candidate' ? await durableTypeProbe")
+  assert.ok(typeProbe > 0 && typeProbe < preflightBranch, 'full and preflight collection must persist the type probe before opening browsers')
+  assert.equal((collectSide.slice(preflightBranch).match(/await durableTypeProbe\(/g) ?? []).length, 0, 'browser-tail collection cannot defer the type probe')
+})
+
 test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {
   const expected = ['full', 'virtual', 'virtual', 'full', 'full', 'virtual', 'virtual', 'full', 'full', 'virtual']
   const report = fullReport()

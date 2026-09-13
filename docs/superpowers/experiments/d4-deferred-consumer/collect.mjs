@@ -1325,6 +1325,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   const cleanupCounters = sharedCleanupCounters ?? { chromiumClose: 0, previewServerClose: 0, firefoxClose: 0, webkitClose: 0 }
   const sideArtifactDir = path.join(`${output}.artifacts`, label)
   await mkdir(sideArtifactDir, { recursive: true })
+  const typeProbe = label === 'candidate' ? await durableTypeProbe(root, sideArtifactDir) : undefined
   if (preflight) {
     let preflightServer
     let preflightBrowser
@@ -1341,7 +1342,6 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       if (preflightBrowser) { await preflightBrowser.close().catch(() => {}); cleanupCounters.chromiumClose += 1 }
       if (preflightServer?.httpServer) { await new Promise(resolve => preflightServer.httpServer.close(resolve)); cleanupCounters.previewServerClose += 1 }
     }
-    const typeProbe = label === 'candidate' ? await durableTypeProbe(root, sideArtifactDir) : undefined
     return { packageManifest, cases: {}, ssrHydration: ssr, typeProbe, browsers: {}, iframe: { status: 'not-run' }, familyCoverage: {}, cleanupCounters, install, buildDirectory: path.join(root, 'dist') }
   }
   let server
@@ -1427,7 +1427,6 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   const chromiumEvidence = summarizeBrowserObserverEvidence(browser?.version?.() ?? 'unknown', chromiumObserverRounds, browserErrors)
   ssr.htmlByMask = undefined
   if (hydrationErrors.length) for (const item of Object.values(ssr.combinations)) { item.hydrationErrors += hydrationErrors.length; item.hydrationWarnings += hydrationErrors.length }
-  const typeProbe = label === 'candidate' ? await durableTypeProbe(root, sideArtifactDir) : undefined
   return { packageManifest, cases, root, ssrHydration: ssr, typeProbe, browsers: { chromium: chromiumEvidence, ...otherBrowsers }, iframe: iframeEvidence, familyCoverage, cleanupCounters }
 }
 
