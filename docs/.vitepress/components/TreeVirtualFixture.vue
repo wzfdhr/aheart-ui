@@ -145,14 +145,14 @@ onMounted(() => {
       <span data-testid="tree-virtual-revision">revision={{ revision }}</span>
     </p>
     <button type="button" data-testid="tree-virtual-before">outside tree before</button>
-    <div class="tree-virtual-fixture__frame" :style="treeStyle">
+    <div class="tree-virtual-fixture__frame">
       <Tree
         :tree-data="data"
         :expanded-keys="expandedKeys"
         :disabled="treeDisabled"
         checkable
         :virtual="virtual ? { height, estimateSize: 28, overscan: 4 } : false"
-        :style="titleStyle"
+        :style="[treeStyle, titleStyle]"
         aria-label="Tree virtual fixture tree"
         @update:expanded-keys="expandedKeys = $event"
       />
