@@ -1044,6 +1044,16 @@ test('full collector recycles instrumented pages between matrix cases', async ()
   assert.match(source, /coverage\.push\([\s\S]{0,500}recycleMeasuredBrowser\(otherPage,\s*other,\s*Browser/, 'Firefox and WebKit must restart after every completed matrix case')
 })
 
+test('measureCase failures persist page readiness and resource diagnostics', async () => {
+  const source = await deferredCollectorSource()
+  assert.match(source, /collectMeasureFailureDiagnostics/, 'collector must capture diagnostics before discarding a failed page')
+  assert.match(source, /document\.readyState/, 'failure diagnostics must identify document loading state')
+  assert.match(source, /__d4Ready/, 'failure diagnostics must record whether the fixture reached ready')
+  assert.match(source, /performance\.getEntriesByType\(['"]resource['"]\)/, 'failure diagnostics must record loaded production resources')
+  assert.match(source, /appHtmlLength|appChildCount/, 'failure diagnostics must distinguish module load from Vue mount')
+  assert.match(source, /measureCase[^`]*diagnostics=/s, 'the thrown failure must include the captured diagnostic payload')
+})
+
 test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
   const source = await deferredCollectorSource()
   const browserLoop = source.slice(source.indexOf("for (const [name, Browser] of Object.entries({ firefox, webkit }))"))
