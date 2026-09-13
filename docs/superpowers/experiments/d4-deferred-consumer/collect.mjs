@@ -594,7 +594,7 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     const search = page.locator('.aheart-tree-select__search')
     if (await search.count()) { searchStartedAt = await page.evaluate(() => performance.now()); await search.fill('Consumer'); await tick(page); searchEndedAt = await page.evaluate(() => performance.now()); searchMs = searchEndedAt - searchStartedAt }
   }
-  const scroll = await page.evaluate(async () => {
+  const scroll = await page.evaluate(async maxGeometryRows => {
     const target = document.querySelector('[role="tree"], .aheart-cascader__column')
     if (!target) return []
     const steps = []
@@ -610,8 +610,9 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
       const viewport = target.getBoundingClientRect()
       const rowRects = mountedRows.map(row => { const rect = row.getBoundingClientRect(); return { top: rect.top, bottom: rect.bottom, height: rect.height, key: row.getAttribute('data-tree-key') || row.getAttribute('data-cascader-path-token') || row.id || row.textContent?.slice(0, 40) } })
       const visibleRects = rowRects.filter(rect => rect.bottom >= viewport.top && rect.top <= viewport.bottom).sort((a, b) => a.top - b.top)
+      const evidenceRects = visibleRects.slice(0, maxGeometryRows)
       const coverageComplete = visibleRects.length > 0 && visibleRects[0].top <= viewport.top + 1 && visibleRects.at(-1).bottom >= viewport.bottom - 1 && visibleRects.every((rect, index) => index === 0 || rect.top <= visibleRects[index - 1].bottom + 1)
-      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, rowKeys: rowRects.map(rect => rect.key), rect: rowRects[0] ?? null, rowRects: rowRects.map(rect => ({ ...rect, nextTickAt, rafAt })), viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
+      steps.push({ index, direction: index < 20 ? 'forward' : 'reverse', offset: index < 20 ? index / 19 : (39 - index) / 19, actualOffset: target.scrollTop, maxScrollOffset: dynamicEnd, timestamp: performance.now(), elapsedMs: performance.now() - before, mountedRows: mountedRows.length, visibleRowCount: visibleRects.length, rowKeys: evidenceRects.map(rect => rect.key), rect: evidenceRects[0] ?? null, rowRects: evidenceRects.map(rect => ({ ...rect, nextTickAt, rafAt })), viewportRect: { top: viewport.top, bottom: viewport.bottom, height: viewport.height }, coverageComplete, evidenceCoverageComplete: evidenceRects.length > 0 && evidenceRects[0].top <= viewport.top + 1 && evidenceRects.at(-1).bottom >= viewport.bottom - 1 && evidenceRects.every((rect, rectIndex) => rectIndex === 0 || rect.top <= evidenceRects[rectIndex - 1].bottom + 1), excludeOffscreenPins: true, noBlankGap: mountedRows.length > 0 && coverageComplete, vueFlushed: true, animationFrames: 2 })
     }
     await new Promise(resolve => requestAnimationFrame(resolve))
     window.__d4ObserverStoppedAt = performance.now()
@@ -619,12 +620,20 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     window.__d4StopObservers?.()
     window.__d4DisconnectedAt = performance.now()
     return steps
-  })
+  }, RELEASE_MATRIX.maxVirtualRows)
   const observers = await page.evaluate(() => ({ observerRunId: window.__d4ObserverRunId, supportedEntryTypes: window.__d4SupportedEntryTypes ?? [], longTasks: window.__d4LongTasks ?? null, layoutShifts: window.__d4LayoutShifts ?? null, resources: performance.getEntriesByType('resource').map(entry => entry.name), startedAt: window.__d4ObserverStartedAt, stoppedAt: window.__d4ObserverStoppedAt, takeRecordsAt: window.__d4TakeRecordsAt, disconnectedAt: window.__d4DisconnectedAt, disconnected: window.__d4ObserversDisconnected === true, activeAfterDrain: window.__d4Observers?.length ?? 0 }))
   const metricHeights = [...state.rowModeProbe.heights]
   for (const step of scroll) for (const row of step.rowRects ?? []) if (metricHeights.length < 24) metricHeights.push(row.height)
   const rowMetrics = metricHeights.map((height, index) => ({ index, height, expectedHeight: settings.rowMode === 'fixed' ? 28 : settings.rowMode === 'coarse' ? 44 : index % 10 === 0 ? 56 : 28 }))
   return { component: settings.component, count: settings.count, rowMode: settings.rowMode, mode, warmup: [{ firstInteractionMs, discarded: true }], measured: [{ firstInteractionMs }], medianMs: firstInteractionMs, maxRows: state.mountedRows, actionableRows: state.mountedRows, rowModeProbe: state.rowModeProbe, rowMetrics, scroll, state, observers, timing: { firstInteractionMs, searchMs, searchStartedAt, searchEndedAt, searchSeparated: true, triggerExcludedFromRows: true, vueNextTick: state.vueFlushed, ownerRealmFrames: state.animationFrames, popup: { startedAt }, startedAt, triggerAt, clickStartedAt, clickCompletedAt, actionableAt, nextTickAt, rafAt, endAt, probeAt, targetKind: 'row', fallbackTarget: false, targetRect: state.targetRect, targetViewportRect: state.targetViewportRect, hitTarget: { kind: state.actionProbe?.hitTest === true ? 'row' : 'none', hitTest: state.actionProbe?.hitTest === true }, focusProbe: { activeElementInRow: state.actionProbe?.focused === true, ownerDocument: state.actionProbe?.ownerDocument === true }, actionProbe: state.actionProbe, targetSelectorIncludesTrigger: false } }
+}
+
+async function measureCaseWithContext(page, settings, mode, baseURL) {
+  try {
+    return await measureCase(page, settings, mode, baseURL)
+  } catch (error) {
+    throw new Error(`measureCase ${settings.component}/${settings.count}/${settings.rowMode}/${mode}: ${error?.message ?? error}`, { cause: error })
+  }
 }
 
 function observerRoundEvidence(measured, identity, runtimeErrors = []) {
@@ -1304,13 +1313,13 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       const settings = fixtureCount(component, count, rowMode)
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
       for (const mode of ['full', 'virtual']) {
-        const warmup = await measureCase(page, settings, mode)
+        const warmup = await measureCaseWithContext(page, settings, mode)
         await checkpoint?.('warmup', { stage: 'warmup', label, root, component, count, rowMode, mode, result: warmup, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record[mode].warmup = [{ firstInteractionMs: warmup.warmup[0].firstInteractionMs, discarded: true }]
       }
       for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
         const runtimeErrorStart = browserErrors.length
-        const measured = await measureCase(page, settings, mode)
+        const measured = await measureCaseWithContext(page, settings, mode)
         await checkpoint?.('round', { stage: 'round', label, root, component, count, rowMode, mode, round, result: measured, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record.alternatingOrder.push(mode)
         record[mode].measured.push({ firstInteractionMs: measured.measured[0].firstInteractionMs })
@@ -1342,7 +1351,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
         const modes = []
         for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
           const runtimeErrorStart = browserErrors.length
-          const measured = await measureCase(otherPage, settings, mode)
+          const measured = await measureCaseWithContext(otherPage, settings, mode)
           modes.push({ mode, firstInteractionMs: measured.measured[0].firstInteractionMs, scroll: measured.scroll })
           observerRounds.push(observerRoundEvidence(measured, { ordinal: observerRounds.length + 1, component, count, rowMode, mode, round, caseKey: `${component}/${count}/${rowMode}` }, browserErrors.slice(runtimeErrorStart)))
         }

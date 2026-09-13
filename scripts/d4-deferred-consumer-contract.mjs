@@ -732,23 +732,29 @@ function makeBundle(label, files) {
 function makeMode(component, count, rowMode, mode) {
   const base = mode === 'virtual' ? 90 + (count / 10000) * 20 : 300 + (count / 10000) * 70
   const samples = Array.from({ length: RELEASE_MATRIX.measuredRuns }, (_, index) => Math.round(base + ((index * 7 + deterministicSeed(`${component}/${rowMode}`)) % 9) - 4))
-  const scroll = Array.from({ length: RELEASE_MATRIX.scrollSteps }, (_, index) => ({
-    index,
-    direction: index < 20 ? 'forward' : 'reverse',
-    offset: index < 20 ? index / 19 : (39 - index) / 19,
-    elapsedMs: mode === 'virtual' ? 2 + (index % 3) : 4 + (index % 5),
-    mountedRows: mode === 'virtual' ? 18 + (index % 3) : count,
-    noBlankGap: true,
-    vueFlushed: true,
-    animationFrames: 2,
-    actualOffset: index < 20 ? index / 19 : (39 - index) / 19,
-    timestamp: index + 1,
-    rowKeys: [`${component}-${index}`],
-    rect: { top: 0, bottom: 38, height: 38 },
-    rowRects: [{ top: 0, bottom: 38, height: 38, key: `${component}-${index}`, intersectsViewport: true, pointerEvents: 'auto', nextTickAt: index + 1, rafAt: [index + 2, index + 3] }],
-    viewportRect: { top: 0, bottom: 38, height: 38 },
-    coverageComplete: true,
-  }))
+  const scroll = Array.from({ length: RELEASE_MATRIX.scrollSteps }, (_, index) => {
+    const offset = index < 20 ? index / 19 : (39 - index) / 19
+    return {
+      index,
+      direction: index < 20 ? 'forward' : 'reverse',
+      offset,
+      elapsedMs: mode === 'virtual' ? 2 + (index % 3) : 4 + (index % 5),
+      mountedRows: mode === 'virtual' ? 18 + (index % 3) : count,
+      visibleRowCount: 1,
+      noBlankGap: true,
+      vueFlushed: true,
+      animationFrames: 2,
+      actualOffset: offset * 1000,
+      maxScrollOffset: 1000,
+      timestamp: index + 1,
+      rowKeys: [`${component}-${index}`],
+      rect: { top: 0, bottom: 320, height: 320 },
+      rowRects: [{ top: 0, bottom: 320, height: 320, key: `${component}-${index}`, intersectsViewport: true, pointerEvents: 'auto', nextTickAt: index + 1, rafAt: [index + 2, index + 3] }],
+      viewportRect: { top: 0, bottom: 320, height: 320 },
+      coverageComplete: true,
+      evidenceCoverageComplete: true,
+    }
+  })
   return {
     warmup: [{ firstInteractionMs: Math.round(base + 20), discarded: true }],
     measured: samples.map(firstInteractionMs => ({ firstInteractionMs })),
@@ -1005,10 +1011,12 @@ function recomputeMode(mode, path) {
     ensure(mode.scroll.slice(20).every(step => step.direction === 'reverse'), `${path} must have twenty reverse scroll steps`, errors)
     ensure(mode.scroll.every((step, index) => {
       const expected = index < 20 ? index / 19 : (39 - index) / 19
-      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && recomputeViewportCoverage(step).complete && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && Number.isFinite(step.actualOffset) && Number.isFinite(step.timestamp) && step.timestamp >= 0 && Array.isArray(step.rowKeys) && step.rowKeys.length > 0 && step.rect && Number.isFinite(step.rect.height) && step.rect.height > 0 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
+      return step.vueFlushed === true && step.animationFrames >= 2 && step.noBlankGap === true && step.evidenceCoverageComplete === true && recomputeViewportCoverage(step).complete && Number.isFinite(step.offset) && Math.abs(step.offset - expected) < 1e-9 && Number.isFinite(step.maxScrollOffset) && step.maxScrollOffset > 0 && Number.isFinite(step.actualOffset) && Math.abs(step.actualOffset - expected * step.maxScrollOffset) <= 1 && Number.isFinite(step.timestamp) && step.timestamp >= 0 && Array.isArray(step.rowKeys) && Array.isArray(step.rowRects) && step.rowRects.length > 0 && step.rowRects.length <= RELEASE_MATRIX.maxVirtualRows && step.rowKeys.length === step.rowRects.length && step.visibleRowCount >= step.rowRects.length && step.rect && Number.isFinite(step.rect.height) && step.rect.height > 0 && Number.isFinite(step.viewportRect?.height) && step.viewportRect.height > 0 && step.viewportRect.height <= 320 && step.elapsedMs > 0 && step.mountedRows > 0 && (mode.maxRows > 24 || step.mountedRows <= RELEASE_MATRIX.maxVirtualRows)
     }), `${path} scroll steps must prove exact endpoints, positive timing and bounded mounted rows`, errors)
+    const viewportHeight = mode.scroll[0]?.viewportRect?.height
+    ensure(mode.scroll.every(step => Number.isFinite(step.viewportRect?.height) && Math.abs(step.viewportRect.height - viewportHeight) <= 1), `${path} scroll viewport height changed across samples`, errors)
   }
-  return { errors, medianMs: median(samples) }
+  return { errors, medianMs: median(samples), viewportHeight: mode?.scroll?.[0]?.viewportRect?.height }
 }
 
 export function recomputeEvidence(report) {
@@ -1019,13 +1027,16 @@ export function recomputeEvidence(report) {
     ensure(item, `missing matrix case ${key}`, errors)
     if (!item) continue
     ensure(JSON.stringify(item.alternatingOrder) === JSON.stringify(expectedAlternatingOrder()), `${key} measured order is not alternating`, errors)
+    const modeResults = {}
     for (const modeName of ['full', 'virtual']) {
       const result = recomputeMode(item[modeName], `${key}/${modeName}`)
+      modeResults[modeName] = result
       errors.push(...result.errors)
       firstInteraction[modeName][item.component] ??= {}
       firstInteraction[modeName][item.component][item.count] ??= {}
       firstInteraction[modeName][item.component][item.count][item.rowMode] = { medianMs: result.medianMs }
     }
+    ensure(Number.isFinite(modeResults.full?.viewportHeight) && Math.abs(modeResults.full.viewportHeight - modeResults.virtual?.viewportHeight) <= 1, `${key} full and virtual scroll viewports are not comparable`, errors)
   }
   const gzip = {}
   for (const side of ['baseline', 'candidate']) {
