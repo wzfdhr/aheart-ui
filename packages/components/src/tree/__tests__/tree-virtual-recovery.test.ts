@@ -104,6 +104,45 @@ describe('Tree virtual implementation recovery RED', () => {
     expect(after).toBe(56)
   })
 
+  it('does not enqueue redundant virtualizer resizes for unchanged fixed rows', async () => {
+    const frames = new Map<number, FrameRequestCallback>()
+    let serial = 0
+    Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: ((callback: FrameRequestCallback) => {
+      const id = ++serial
+      frames.set(id, callback)
+      return id
+    }) as typeof window.requestAnimationFrame })
+    Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: ((id: number) => {
+      frames.delete(id)
+    }) as typeof window.cancelAnimationFrame })
+    const geometry = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const height = this.matches('.aheart-tree') ? 320 : 28
+      return { height, width: 400, top: 0, left: 0, right: 400, bottom: height, x: 0, y: 0, toJSON() {} } as DOMRect
+    })
+    const flushFrames = async () => {
+      for (let cycle = 0; cycle < 4 && frames.size > 0; cycle += 1) {
+        const callbacks = [...frames.values()]
+        frames.clear()
+        callbacks.forEach(callback => callback(performance.now()))
+        await nextTick()
+      }
+    }
+
+    const wrapper = mountTree({ attachTo: document.body, props: { virtual: true, treeData: data() } as never })
+    await nextTick()
+    await flushFrames()
+    const virtualizer = adapter(wrapper)
+    const resize = vi.spyOn(virtualizer, 'resizeItem')
+    resize.mockClear()
+    const rowObservers = observers.filter(observer => [...observer.elements].some(element => element.classList.contains('aheart-tree__treeitem')))
+    expect(rowObservers.length).toBeGreaterThan(0)
+    for (const observer of rowObservers) observer.callback([...observer.elements].map(target => ({ target } as ResizeObserverEntry)), observer as unknown as ResizeObserver)
+    await flushFrames()
+
+    geometry.mockRestore()
+    expect(resize).not.toHaveBeenCalled()
+  })
+
   it('invalidates a same-key replacement instead of retaining an offscreen measurement', async () => {
     const original = data()
     const wrapper = mountTree({
