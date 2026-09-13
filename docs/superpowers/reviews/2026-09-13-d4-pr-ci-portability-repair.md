@@ -28,4 +28,17 @@ Both tests called `readFileSync('/Users/start/.codex/worktrees/091b/aheart-ui/pa
 - Search across packages/e2e/scripts found no remaining literal for the rejected local checkout.
 - No component production, generated package, CSS, docs fixture or browser test behavior changed in this repair.
 
-Finding disposition: P0/P1/P2 = `0/0/0` after GREEN. The previous failed jobs remain visible audit history. A new PR head must rerun both verify jobs and all five-browser jobs; old-head browser success is not used as the final CI release signal.
+## Second remote RED and repository-owned baseline repair
+
+The next head `94c1ce94251e49dc964a3e4feee5ef4368d5606d` proved the Cascader repair in CI, but its [push verify](https://github.com/wzfdhr/aheart-ui/actions/runs/34748216113/job/103699938608) exposed a wider pre-existing dependency: 36 real integration tests read the approved baseline from `/private/tmp/aheart-d4-baseline-evidence-F5VN6u/...`. That file happened to exist locally but not on GitHub. CI reported 183 scripts passed / 36 failed; all five QG5 browser jobs passed. This was classified as a second P1, not retried or skipped.
+
+The repair keeps the approved baseline commit and hash unchanged. `d4-deferred-consumer.integration.test.mjs` now creates one test-run fixture by:
+
+1. archiving the exact approved commit `4a7511f9594d0a74906e427e158d02343ba33a22` from repository history;
+2. packing its tracked `packages/components` output with the pinned workspace package manager;
+3. requiring SHA-256 `b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b` before any real collector test may use it;
+4. removing the shared temporary baseline fixture after the file's tests finish.
+
+The verify checkout uses `fetch-depth: 0` so the approved baseline commit exists in CI. QG5 checkout behavior is unchanged; this is not the deferred D9 CI split. A new contract test rejects external baseline temp paths, requires `git archive`, and requires full history for verify. Its genuine local RED rejected the old source. Final targeted GREEN is guard 1/1 plus the complete integration file 49/49, zero skip. The full Node script count is now 232.
+
+Finding disposition: P0/P1/P2 = `0/0/0` after both GREEN repairs. All failed jobs remain visible audit history. A new PR head must rerun verify and all five-browser jobs; old-head browser success is not used as the final CI release signal.

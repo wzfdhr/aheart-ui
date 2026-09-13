@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFile } from 'node:child_process'
-import { cp, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
@@ -10,14 +10,33 @@ import { recomputeFamilyCoverage, validateBoundedReleaseReport, verifyArtifactBi
 
 const run = promisify(execFile)
 const workspace = process.cwd()
-const baseline = '/private/tmp/aheart-d4-baseline-evidence-F5VN6u/repacked/aheart-ui-1.0.0.tgz'
 const approvedBaseline = '4a7511f9594d0a74906e427e158d02343ba33a22'
 const approvedBaselineHash = 'b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 
+let approvedBaselineRoot
+let approvedBaselineFixture
+const getApprovedBaseline = () => approvedBaselineFixture ??= (async () => {
+  approvedBaselineRoot = await mkdtemp(path.join(tmpdir(), 'd4-approved-baseline-'))
+  const checkout = path.join(approvedBaselineRoot, 'checkout')
+  const archive = path.join(approvedBaselineRoot, 'baseline.tar')
+  await mkdir(checkout)
+  await run('git', ['archive', '--format=tar', '-o', archive, approvedBaseline], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
+  await run('tar', ['-xf', archive, '-C', checkout], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
+  const result = await run('corepack', ['pnpm', '--dir', path.join(checkout, 'packages/components'), 'pack', '--json', '--pack-destination', approvedBaselineRoot], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
+  const tarball = JSON.parse(result.stdout).filename
+  assert.equal(hash(await readFile(tarball)), approvedBaselineHash, 'repacked approved baseline must match its frozen SHA-256')
+  return tarball
+})()
+
+test.after(async () => {
+  if (approvedBaselineRoot) await rm(approvedBaselineRoot, { recursive: true, force: true })
+})
+
 let realCollection
 const collectRealBoundedReport = () => realCollection ??= (async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'd4-deferred-integration-red-'))
+  const baseline = await getApprovedBaseline()
   const candidate = await packCurrent(root)
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const baselineBytes = await readFile(baseline)
@@ -51,6 +70,7 @@ const collectRealBoundedReport = () => realCollection ??= (async () => {
 
 const collectAuthenticSsrSnapshotRed = async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'd4-deferred-ssr-authentic-red-'))
+  const baseline = await getApprovedBaseline()
   const candidate = await packCurrent(root)
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const baselineBytes = await readFile(baseline)
@@ -726,6 +746,7 @@ const collectPreflightReport = () => preflightCollection ??= (async () => {
   const collectorSource = await readFile(collectorPath, 'utf8')
   assert.match(collectorSource, /preflight-full/, 'collector must expose the preflight-full API before this integration can run')
   const root = await mkdtemp(path.join(tmpdir(), 'd4-preflight-full-red-'))
+  const baseline = await getApprovedBaseline()
   const candidate = await packCurrent(root)
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const baselineBytes = await readFile(baseline)
@@ -827,6 +848,7 @@ test('preflight candidate-build failure preserves durable partial raw/checkpoint
   const collectorSource = await readFile(collectorPath, 'utf8')
   assert.match(collectorSource, /D4_DEFERRED_FAIL_AFTER_CANDIDATE_BUILD/, 'preflight must expose the candidate-build failure injection')
   const root = await mkdtemp(path.join(tmpdir(), 'd4-preflight-failure-red-'))
+  const baseline = await getApprovedBaseline()
   const candidate = await packCurrent(root)
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const baselineBytes = await readFile(baseline)
@@ -864,6 +886,7 @@ test('preflight browser launch/page/setup failure injections report actual close
 
 test('preflight browser-page injection executes the failing CLI and persists closed browser/server counters', async () => {
   const { collectorPath, root } = await collectPreflightReport()
+  const baseline = await getApprovedBaseline()
   const output = path.join(root, 'preflight-browser-page-failure.json')
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const result = await run(process.execPath, [collectorPath, '--preflight-full', '--baseline-tarball', baseline, '--candidate-tarball', path.join(root, 'aheart-ui.tgz'), '--baseline-commit', approvedBaseline, '--candidate-commit', candidateCommit, '--baseline-manifest', path.join(root, 'baseline-manifest.json'), '--candidate-manifest', path.join(root, 'candidate-manifest.json'), '--out', output], { cwd: workspace, env: { ...process.env, D4_DEFERRED_FAIL_BROWSER_PAGE: 'chromium' }, maxBuffer: 8 * 1024 * 1024 }).then(() => ({ code: 0 }), error => ({ code: error.code ?? 1 }))

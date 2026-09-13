@@ -13,7 +13,7 @@ This final test-manager pass evaluates maintained assertions, real browser behav
 | Components unit | 114 files, 1,431/1,431 passed |
 | DnD unit | 5 files, 79/79 passed |
 | AI unit | 10 files, 200/200 passed |
-| Node contract/scripts | 231/231 passed, 0 skipped/todo after the PR CI portability guard |
+| Node contract/scripts | 232/232 passed, 0 skipped/todo after both PR CI portability guards |
 | Typecheck | components, DnD and AI passed |
 | Determinism/generated/docs/pack | passed; package counts 1,025 / 79 / 115 |
 | D4 targeted five-project browser | 160/160 passed, 0 skipped/failed |
@@ -37,4 +37,4 @@ Test-manager verdict: **PASS** for the combined D4 code candidate. PR-head CI an
 
 ## PR CI portability supplement
 
-The first PR head exposed two local-checkout literals in Cascader CSS geometry tests. Both exact-head verify jobs failed while ten QG5 jobs passed. The preserved RED, failed first repair and final 1/1 scan + 19/19 affected + 1,431/79/200/231 full GREEN are documented in [the CI portability repair review](2026-09-13-d4-pr-ci-portability-repair.md). This supplement changes no production package behavior; it requires a new exact-head CI run and does not reinterpret the failed jobs as passing.
+The first PR head exposed two local-checkout literals in Cascader CSS geometry tests. Both exact-head verify jobs failed while ten QG5 jobs passed. The next head proved that fix but exposed 36 integration tests sharing a local-only baseline tarball; its five QG5 jobs passed and verify failed 183/36. The preserved REDs, failed first Cascader repair, final Cascader scan and repository-history baseline reconstruction are documented in [the CI portability repair review](2026-09-13-d4-pr-ci-portability-repair.md). Final local results are 1/1 + 19/19 + integration 49/49 and 1,431/79/200/232. This supplement changes no production package behavior; it requires a new exact-head CI run and does not reinterpret failed jobs as passing.

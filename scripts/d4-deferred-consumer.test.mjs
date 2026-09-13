@@ -1110,6 +1110,16 @@ test('Cascader test sources never depend on a developer or CI checkout path', as
   assert.deepEqual(offenders, [], 'tests must resolve fixtures from portable module or package paths instead of a machine checkout')
 })
 
+test('D4 integration tests rebuild the approved baseline from repository history', async () => {
+  const source = await readFile(path.join(process.cwd(), 'scripts/d4-deferred-consumer.integration.test.mjs'), 'utf8')
+  assert.doesNotMatch(source, /\/private\/tmp\/aheart-d4-baseline/u, 'integration tests cannot depend on a pre-existing machine temp artifact')
+  assert.match(source, /git['"],\s*\[['"]archive['"]/u, 'integration tests must rebuild the approved baseline with git archive')
+
+  const workflow = await readFile(path.join(process.cwd(), '.github/workflows/ci.yml'), 'utf8')
+  const verify = workflow.slice(workflow.indexOf('  verify:'), workflow.indexOf('  qg5-cross-browser:'))
+  assert.match(verify, /uses:\s*actions\/checkout@v4[\s\S]*?fetch-depth:\s*0/u, 'verify must fetch the approved baseline commit')
+})
+
 test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {
   const expected = ['full', 'virtual', 'virtual', 'full', 'full', 'virtual', 'virtual', 'full', 'full', 'virtual']
   const report = fullReport()
