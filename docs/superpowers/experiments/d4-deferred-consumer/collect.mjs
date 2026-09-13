@@ -1328,13 +1328,13 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       const settings = fixtureCount(component, count, rowMode)
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
       for (const mode of ['full', 'virtual']) {
-        const warmup = await measureCaseWithContext(page, settings, mode)
+        const warmup = await measureCaseWithContext(page, settings, mode, base)
         await checkpoint?.('warmup', { stage: 'warmup', label, root, component, count, rowMode, mode, result: warmup, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record[mode].warmup = [{ firstInteractionMs: warmup.warmup[0].firstInteractionMs, discarded: true }]
       }
       for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
         const runtimeErrorStart = browserErrors.length
-        const measured = await measureCaseWithContext(page, settings, mode)
+        const measured = await measureCaseWithContext(page, settings, mode, base)
         await checkpoint?.('round', { stage: 'round', label, root, component, count, rowMode, mode, round, result: measured, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
         record.alternatingOrder.push(mode)
         record[mode].measured.push({ firstInteractionMs: measured.measured[0].firstInteractionMs })
@@ -1364,7 +1364,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
         const modes = []
         for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
           const runtimeErrorStart = browserErrors.length
-          const measured = await measureCaseWithContext(otherPage, settings, mode)
+          const measured = await measureCaseWithContext(otherPage, settings, mode, base)
           modes.push({ mode, firstInteractionMs: measured.measured[0].firstInteractionMs, scroll: measured.scroll })
           observerRounds.push(observerRoundEvidence(measured, { ordinal: observerRounds.length + 1, component, count, rowMode, mode, round, caseKey: `${component}/${count}/${rowMode}` }, browserErrors.slice(runtimeErrorStart)))
         }
