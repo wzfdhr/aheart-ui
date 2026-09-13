@@ -1098,6 +1098,18 @@ test('preflight candidate-build failure injection preserves raw checkpoints and 
   assert.match(source, /cleanupCounters|browser.*close|server.*close/i, 'preflight failure must report cleanup counters')
 })
 
+test('Cascader test sources never depend on a developer or CI checkout path', async () => {
+  const directory = new URL('../packages/components/src/cascader/__tests__/', import.meta.url)
+  const entries = await import('node:fs/promises').then(({ readdir }) => readdir(directory, { withFileTypes: true }))
+  const offenders = []
+  for (const entry of entries) {
+    if (!entry.isFile() || !entry.name.endsWith('.test.ts')) continue
+    const source = await readFile(new URL(entry.name, directory), 'utf8')
+    if (/\/Users\/[^/'"]+\/|\/home\/runner\/|[A-Za-z]:\\\\Users\\\\/u.test(source)) offenders.push(entry.name)
+  }
+  assert.deepEqual(offenders, [], 'tests must resolve fixtures from portable module or package paths instead of a machine checkout')
+})
+
 test('release validation accepts the pair-forward-reverse order and rejects any other order', () => {
   const expected = ['full', 'virtual', 'virtual', 'full', 'full', 'virtual', 'virtual', 'full', 'full', 'virtual']
   const report = fullReport()

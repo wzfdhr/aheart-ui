@@ -2,7 +2,10 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import Cascader from '../cascader.vue'
+
+const cascaderStylePath = resolve(process.cwd(), 'src/cascader/style.css')
 
 type Option = { value: string; label: string; children?: Option[]; isLeaf?: boolean; disabled?: boolean }
 type ObserverRecord = { callback: ResizeObserverCallback; disconnect: ReturnType<typeof vi.fn>; observed: Element[] }
@@ -151,7 +154,7 @@ describe('Cascader virtual recovery boundaries', () => {
 
   it('does not make the virtual popup a second vertical overflow owner', async () => {
     const style = document.createElement('style')
-    style.textContent = readFileSync('/Users/start/.codex/worktrees/091b/aheart-ui/packages/components/src/cascader/style.css', 'utf8')
+    style.textContent = readFileSync(cascaderStylePath, 'utf8')
     document.head.append(style)
     try {
       const wrapper = await prepare()

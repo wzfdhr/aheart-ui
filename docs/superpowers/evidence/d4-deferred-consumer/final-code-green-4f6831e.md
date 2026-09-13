@@ -44,7 +44,7 @@ The maximum candidate virtual median was 179.9ms, below 500ms. Every 10k ratio w
 
 ## Repository gates on the same code candidate
 
-- Components 1,431/1,431; DnD 79/79; AI 200/200; Node scripts 230/230.
+- Components 1,431/1,431; DnD 79/79; AI 200/200; Node scripts 231/231 after the PR CI portability guard.
 - Three-package typecheck passed.
 - Deterministic double build, generated-output check, docs production build and release pack passed; pack counts were 1,025 / 79 / 115.
 - D4 five-project targeted browser matrix: 160/160, zero skip/failure.
