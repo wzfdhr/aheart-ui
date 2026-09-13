@@ -568,6 +568,21 @@ async function recycleMeasuredPage(page, browser, runtimeErrors, hydrationWarnin
   return createMeasuredPage(browser, runtimeErrors, hydrationWarnings)
 }
 
+async function recycleMeasuredBrowser(page, browser, BrowserType, runtimeErrors, hydrationWarnings = [], cleanupCounters, closeCounter) {
+  await page.close()
+  if (cleanupCounters) cleanupCounters.pageClose = (cleanupCounters.pageClose ?? 0) + 1
+  await browser.close()
+  if (cleanupCounters && closeCounter) cleanupCounters[closeCounter] = (cleanupCounters[closeCounter] ?? 0) + 1
+  const nextBrowser = await BrowserType.launch()
+  try {
+    return { browser: nextBrowser, page: await createMeasuredPage(nextBrowser, runtimeErrors, hydrationWarnings) }
+  } catch (error) {
+    await nextBrowser.close().catch(() => {})
+    if (cleanupCounters && closeCounter) cleanupCounters[closeCounter] = (cleanupCounters[closeCounter] ?? 0) + 1
+    throw error
+  }
+}
+
 async function measureCase(page, settings, mode, baseURL = page.url()) {
   const origin = new URL(baseURL).origin
   await page.goto(`${origin}/?component=${settings.component}&count=${settings.count}&rowMode=${settings.rowMode}&virtual=${mode === 'virtual'}`, { waitUntil: 'domcontentloaded' })
@@ -1324,7 +1339,9 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
   await collectHydratedSsrEvidence({ page, baseURL: base, ssr: ssr, artifactDirectory: sideArtifactDir, browserErrors, hydrationWarnings })
   ssr.status = 'recorded'
     page = await recycleMeasuredPage(page, browser, browserErrors, hydrationWarnings, cleanupCounters)
-    for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
+    for (const [componentIndex, component] of COMPONENTS.entries()) {
+      if (componentIndex > 0) ({ browser, page } = await recycleMeasuredBrowser(page, browser, chromium, browserErrors, hydrationWarnings, cleanupCounters, 'chromiumClose'))
+      for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
       const settings = fixtureCount(component, count, rowMode)
       const record = { ...settings, alternatingOrder: [], full: { warmup: [], measured: [], scroll: [] }, virtual: { warmup: [], measured: [], scroll: [] } }
       for (const mode of ['full', 'virtual']) {
@@ -1348,6 +1365,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       cases[`${component}/${count}/${rowMode}`] = record
       await checkpoint?.('case', { stage: 'case', label, root, component, count, rowMode, result: record, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
       page = await recycleMeasuredPage(page, browser, browserErrors, hydrationWarnings, cleanupCounters)
+      }
     }
     iframeEvidence = await iframeProbe(page, base, sideArtifactDir)
     familyCoverage = await collectFamilyCoverage(page, base)
@@ -1359,7 +1377,9 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
       let otherPage = await createMeasuredPage(other, browserErrors)
       const coverage = []
       const observerRounds = []
-      for (const component of COMPONENTS) for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
+      for (const [componentIndex, component] of COMPONENTS.entries()) {
+        if (componentIndex > 0) ({ browser: other, page: otherPage } = await recycleMeasuredBrowser(otherPage, other, Browser, browserErrors, [], cleanupCounters, `${name}Close`))
+        for (const count of RELEASE_MATRIX.counts) for (const rowMode of RELEASE_MATRIX.rowModes) {
         const settings = fixtureCount(component, count, rowMode)
         const modes = []
         for (let round = 0; round < RELEASE_MATRIX.measuredRuns; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
@@ -1370,6 +1390,7 @@ async function collectSide(tarball, label, temporary, { preflight = false, check
         }
         coverage.push({ component, count, rowMode, measuredRuns: modes })
         otherPage = await recycleMeasuredPage(otherPage, other, browserErrors, [], cleanupCounters)
+        }
       }
       otherBrowsers[name] = { ...summarizeBrowserObserverEvidence(other.version(), observerRounds, browserErrors), coverageCases: coverage }
       await checkpoint?.('browser', { stage: 'browser', label, root, browser: name, coverageCases: coverage.length, observerRounds: observerRounds.length, result: { coverage, observerRounds }, manifestPath: label === 'baseline' ? baselineManifestPath : candidateManifestPath })
