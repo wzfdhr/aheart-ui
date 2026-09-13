@@ -1054,6 +1054,17 @@ test('measureCase failures persist page readiness and resource diagnostics', asy
   assert.match(source, /measureCase[^`]*diagnostics=/s, 'the thrown failure must include the captured diagnostic payload')
 })
 
+test('dynamic-row action probes hit the visible row intersection, not a clipped row center', async () => {
+  const source = await deferredCollectorSource()
+  const measureStart = source.indexOf('async function measureCase(')
+  const measureEnd = source.indexOf('\nasync function collectMeasureFailureDiagnostics', measureStart)
+  const measureSource = source.slice(measureStart, measureEnd)
+  assert.ok(measureStart >= 0 && measureEnd > measureStart)
+  assert.doesNotMatch(measureSource, /rect\.top\s*\+\s*rect\.height\s*\/\s*2/, 'a tall clipped row center is not necessarily actionable')
+  assert.match(measureSource, /Math\.max\(rect\.top,\s*viewport\.top\)/, 'hit probe must clamp to the visible top edge')
+  assert.match(measureSource, /Math\.min\(rect\.bottom,\s*viewport\.bottom\)/, 'hit probe must clamp to the visible bottom edge')
+})
+
 test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
   const source = await deferredCollectorSource()
   const browserLoop = source.slice(source.indexOf("for (const [name, Browser] of Object.entries({ firefox, webkit }))"))
