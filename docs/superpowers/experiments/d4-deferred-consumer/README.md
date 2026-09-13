@@ -29,9 +29,11 @@ provided, uses the preserved baseline tarball when available (or accepts an
 explicit `--baseline-tarball`), and checks the real tarball SHA-256, required
 ESM/CJS/CSS/declaration files, exports, symlinks, workspace links and Vite
 `@fs` imports. It uses a temporary directory and removes it in `finally`.
-`smoke` reports always contain `acceptanceEligible: false`; smoke has no
-performance, browser, SSR/hydration, iframe or gzip release result and cannot
-pass the release gate.
+The bounded collector also records one production-browser scroll case, all
+eight SSR/hydration combinations, public types, same-origin iframe lifecycle
+and family coverage. `smoke` reports always contain
+`acceptanceEligible: false`; those bounded samples do not claim the full
+performance/browser/gzip release matrix and cannot pass the release gate.
 
 ## Full report validation
 
@@ -54,8 +56,11 @@ node docs/superpowers/experiments/d4-deferred-consumer/collect.mjs \
 It installs each tarball in its own temporary pnpm consumer, typechecks the
 public surface, renders SSR twice for eight distinct boolean combinations,
 drives serial Playwright measurements and exact 40-step scroll sequences, and
-recursively records JS/CSS gzip level-9 bytes. The collector is intentionally
-not run as part of bounded smoke.
+recursively records JS/CSS gzip level-9 bytes. Each browser records 270
+measured observer rounds. Browser processes are isolated per matrix case, and
+large checkpoint payloads are stored once as gzip artifacts with raw and
+compressed hashes instead of being embedded in the partial-report index. The
+full matrix is intentionally not run as part of bounded smoke.
 
 For the independently reviewable bounded real collector, add `--smoke` to the
 same command. It performs one packed Tree case through a production Vite
@@ -81,12 +86,14 @@ node scripts/d4-deferred-consumer.mjs \
 
 `--require-release` requires `acceptanceEligible:true` and rejects smoke
 reports. A valid full report must pin Node 24.17.0, pnpm 9.15.4, Vue 3.5.38,
-Vite 5.0.12, Playwright 1.61.1 and TypeScript 5.3.3. Chromium must record
-long-task/layout-shift observers; Firefox/WebKit must explicitly record those
-metrics as unsupported rather than inventing zeroes. Every installed package
-must be a clean real tarball with no symlink, workspace protocol or `@fs`
-artifact. The gzip section uses Node `gzipSync(..., { level: 9 })` over every
-listed emitted JS/CSS file and stores raw/gzip bytes and hashes for each file.
+Vite 5.0.12, Playwright 1.61.1 and TypeScript 5.3.3. Long-task and layout-shift
+status is derived from each browser realm's actual
+`PerformanceObserver.supportedEntryTypes`: supported engines must record raw
+entries, while unsupported engines must preserve the explicit capability
+reason rather than inventing zeroes. Every installed package must be a clean
+real tarball with no symlink, workspace protocol or `@fs` artifact. The gzip
+section uses Node `gzipSync(..., { level: 9 })` over every listed emitted
+JS/CSS file and stores raw/gzip bytes and hashes for each file.
 
 The only approved baseline commit is
 `4a7511f9594d0a74906e427e158d02343ba33a22`. The collector has no historical
