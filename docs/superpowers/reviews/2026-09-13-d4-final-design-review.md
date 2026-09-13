@@ -1,6 +1,6 @@
 # D4 deferred virtualization final screenshot-first design review
 
-Date: 2026-09-13. Candidate reviewed: `932f589c602f397cb8ef38e46384907365ad5b80`.
+Date: 2026-09-13. Visual candidate reviewed: `932f589c602f397cb8ef38e46384907365ad5b80`. Final runtime code candidate `4f6831e956218ff3d95d23507819f974aafdc7b2` differs afterward only by this review record and the browser regression that asserts the accepted containment geometry; production and fixture files are identical.
 
 ## Audit scope
 
