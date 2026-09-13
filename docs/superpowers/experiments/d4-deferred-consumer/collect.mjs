@@ -200,53 +200,26 @@ async function writeFileManifest(directory, destination) {
 
 async function copyCheckpointEvidence(details, destination) {
   await mkdir(destination, { recursive: true })
-  const sources = []
-  const add = (source, name = path.basename(source)) => { if (source) sources.push([source, name]) }
-  add(details.root && path.join(details.root, 'aheart-ui.tgz'), 'candidate.tgz')
-  add(details.manifestPath, 'source-manifest.json')
-  add(details.root && path.join(details.root, 'pnpm-lock.yaml'), 'pnpm-lock.yaml')
-  add(details.root && path.join(details.root, 'node_modules/aheart-ui/es/index.js'), 'module-index.js')
-  add(details.root && path.join(details.root, 'dist'), 'dist')
-  add(details.root && path.join(details.root, 'bundle'), 'bundle')
-  add(details.root && path.join(details.root, 'ssr-0.html'), 'ssr-0.html')
-  add(details.root && path.join(details.root, 'ssr-1.html'), 'ssr-1.html')
-  add(details.root && path.join(details.root, 'ssr-2.html'), 'ssr-2.html')
-  add(details.root && path.join(details.root, 'ssr-3.html'), 'ssr-3.html')
-  add(details.root && path.join(details.root, 'ssr-4.html'), 'ssr-4.html')
-  add(details.root && path.join(details.root, 'ssr-5.html'), 'ssr-5.html')
-  add(details.root && path.join(details.root, 'ssr-6.html'), 'ssr-6.html')
-  add(details.root && path.join(details.root, 'ssr-7.html'), 'ssr-7.html')
-  const copied = []
-  for (const [source, name] of sources) {
-    try {
-      await stat(source)
-      const target = path.join(destination, name)
-      await cp(source, target, { recursive: true })
-      copied.push(target)
-    } catch {}
-  }
-  const files = []
-  const walk = async current => {
-    for (const entry of await readdir(current, { withFileTypes: true })) {
-      const file = path.join(current, entry.name)
-      if (entry.isDirectory()) await walk(file)
-      else files.push(file)
-    }
-  }
-  await walk(destination)
-  const manifest = { stage: details.stage, label: details.label, files: [] }
-  for (const file of files.sort()) {
-    const bytes = await readFile(file)
-    manifest.files.push({ path: file, relativePath: path.relative(destination, file).split(path.sep).join('/'), bytes: bytes.length, sha256: sha256(bytes) })
-  }
-  await writeFile(path.join(destination, 'checkpoint-files.json'), `${JSON.stringify(manifest, null, 2)}\n`)
-  if (details.result) await writeFile(path.join(destination, 'raw-result.json'), `${JSON.stringify(details.result, null, 2)}\n`)
-  const rawPayload = details.result ? JSON.stringify(details.result) : JSON.stringify({ stage: details.stage, label: details.label, files: manifest.files })
-  const rawPayloadHash = sha256(Buffer.from(rawPayload))
-  await writeFile(path.join(destination, 'raw-payload.json'), `${rawPayload}\n`)
+  const rawPayload = details.result ? JSON.stringify(details.result) : JSON.stringify({ stage: details.stage, label: details.label })
+  const rawPayloadBytes = Buffer.from(rawPayload)
+  const compressedPayload = gzipSync(rawPayloadBytes, { level: 9 })
+  const rawPayloadPath = path.join(destination, 'raw-payload.json.gz')
+  await writeFile(rawPayloadPath, compressedPayload)
+  const rawPayloadHash = sha256(rawPayloadBytes)
+  const rawPayloadGzipSha256 = sha256(compressedPayload)
+  const sharedArtifacts = {}
   if (details.durableRoot) {
     const label = details.label === 'baseline' ? 'baseline' : 'candidate'
-    const copyRoot = async (source, name) => { try { await stat(source); await cp(source, path.join(details.durableRoot, name), { recursive: true }); return true } catch { return false } }
+    const copyRoot = async (source, name) => {
+      if (!source) return false
+      try {
+        await stat(source)
+        const target = path.join(details.durableRoot, name)
+        if (!await stat(target).then(() => true).catch(() => false)) await cp(source, target, { recursive: true })
+        sharedArtifacts[name] = target
+        return true
+      } catch { return false }
+    }
     await copyRoot(path.join(details.root, 'aheart-ui.tgz'), `${label}.tgz`)
     await copyRoot(details.manifestPath, `${label}-manifest.json`)
     await copyRoot(path.join(details.root, 'node_modules/aheart-ui/es/index.js'), label === 'candidate' ? 'module-index.js' : 'baseline-module-index.js')
@@ -254,7 +227,15 @@ async function copyCheckpointEvidence(details, destination) {
     const distName = label === 'candidate' ? 'dist' : 'baseline-dist'
     if (await copyRoot(path.join(details.root, 'dist'), distName)) await writeFileManifest(path.join(details.durableRoot, distName), path.join(details.durableRoot, label === 'candidate' ? 'dist-files.json' : 'baseline-dist-files.json'))
   }
-  return { directory: destination, manifestPath: path.join(destination, 'checkpoint-files.json'), files: manifest.files, rawPayloadPath: path.join(destination, 'raw-payload.json'), rawPayloadHash, rawPayload }
+  const manifest = {
+    stage: details.stage,
+    label: details.label,
+    files: [{ path: rawPayloadPath, relativePath: 'raw-payload.json.gz', bytes: compressedPayload.length, sha256: rawPayloadGzipSha256 }],
+    sharedArtifacts,
+  }
+  const manifestPath = path.join(destination, 'checkpoint-files.json')
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
+  return { directory: destination, manifestPath, files: manifest.files, sharedArtifacts, rawPayloadPath, rawPayloadHash, rawPayloadBytes: rawPayloadBytes.length, rawPayloadGzipSha256, rawPayloadGzipBytes: compressedPayload.length }
 }
 
 async function verifyTarball(tarball, label, root, manifestAttestation) {
@@ -1430,7 +1411,7 @@ if (smoke) {
   let checkpointSequence = 0
   const checkpoint = async (stage, details) => {
     const evidence = await copyCheckpointEvidence({ ...details, stage, durableRoot: durableDir }, path.join(durableDir, 'checkpoints', `${String(checkpointSequence++).padStart(4, '0')}-${details?.label ?? 'run'}-${stage}`))
-    partial.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser, rawEvidence: evidence, rawPayloadHash: evidence.rawPayloadHash, rawPayload: evidence.rawPayload })
+    partial.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser, rawEvidence: evidence, rawPayloadPath: evidence.rawPayloadPath, rawPayloadHash: evidence.rawPayloadHash, rawPayloadBytes: evidence.rawPayloadBytes, rawPayloadGzipSha256: evidence.rawPayloadGzipSha256, rawPayloadGzipBytes: evidence.rawPayloadGzipBytes })
     await writeFile(path.join(durableRunDir, 'partial-report.json.tmp'), `${JSON.stringify(partial, null, 2)}\n`)
     await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
   }
@@ -1514,7 +1495,7 @@ const syncCleanupCounters = () => { cleanupCounters.chromiumClose = baselineClea
 let checkpointSequence = 0
 const checkpoint = async (stage, details) => {
   const evidence = await copyCheckpointEvidence({ ...details, stage, durableRoot: durableDir }, path.join(durableDir, 'checkpoints', `${String(checkpointSequence++).padStart(4, '0')}-${details?.label ?? 'run'}-${stage}`))
-  checkpointState.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser, rawEvidence: evidence, rawPayloadHash: evidence.rawPayloadHash, rawPayload: evidence.rawPayload })
+  checkpointState.checkpoints.push({ stage, at: new Date().toISOString(), label: details?.label, component: details?.component, count: details?.count, rowMode: details?.rowMode, mode: details?.mode, round: details?.round, browser: details?.browser, rawEvidence: evidence, rawPayloadPath: evidence.rawPayloadPath, rawPayloadHash: evidence.rawPayloadHash, rawPayloadBytes: evidence.rawPayloadBytes, rawPayloadGzipSha256: evidence.rawPayloadGzipSha256, rawPayloadGzipBytes: evidence.rawPayloadGzipBytes })
   await writeFile(path.join(durableRunDir, 'partial-report.json.tmp'), `${JSON.stringify(checkpointState, null, 2)}\n`)
   await rename(path.join(durableRunDir, 'partial-report.json.tmp'), path.join(durableRunDir, 'partial-report.json'))
 }
