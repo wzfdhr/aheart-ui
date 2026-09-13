@@ -153,7 +153,7 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
     if (!(height > 0))
       return;
     const current = (_a = virtualizer.value.getVirtualItems().find((item) => item.index === index)) == null ? void 0 : _a.size;
-    if (current === void 0 || Math.abs(current - height) > 0.5)
+    if (current === void 0 || current !== height)
       virtualizer.value.resizeItem(index, height);
   };
   const cancelPending = (stopReconcile = true) => {

@@ -155,7 +155,7 @@ export function useTreeVirtual(
   const resizeMeasuredItem = (index: number, height: number) => {
     if (!(height > 0)) return
     const current = virtualizer.value.getVirtualItems().find(item => item.index === index)?.size
-    if (current === undefined || Math.abs(current - height) > 0.5) virtualizer.value.resizeItem(index, height)
+    if (current === undefined || current !== height) virtualizer.value.resizeItem(index, height)
   }
 
   const cancelPending = (stopReconcile = true) => {
