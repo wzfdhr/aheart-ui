@@ -1037,6 +1037,9 @@ test('full collector recycles instrumented pages between matrix cases', async ()
   assert.doesNotMatch(source, /measureCaseWithContext\((?:page|otherPage),\s*settings,\s*mode\)/, 'recycled about:blank pages must not infer a null origin')
   assert.match(source, /measureCaseWithContext\(page,\s*settings,\s*mode,\s*base\)/, 'Chromium measurements must receive the explicit preview base URL')
   assert.match(source, /measureCaseWithContext\(otherPage,\s*settings,\s*mode,\s*base\)/, 'Firefox and WebKit measurements must receive the explicit preview base URL')
+  assert.match(source, /recycleMeasuredBrowser/, 'long matrices must recycle the browser process between component families')
+  assert.match(source, /recycleMeasuredBrowser\(page,\s*browser,\s*chromium/, 'Chromium must restart before the next component family')
+  assert.match(source, /recycleMeasuredBrowser\(otherPage,\s*other,\s*Browser/, 'Firefox and WebKit must restart before the next component family')
 })
 
 test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
