@@ -345,6 +345,84 @@ test('raw observer entries, timestamps and package resources are required', () =
   assert.throws(() => validateReport(report), /observer|timestamp|resource|raw/i)
 })
 
+test('full observer evidence validates all 270 measured rounds and derives metric support from raw entry types', async t => {
+  const contract = await import('./d4-deferred-consumer-contract.mjs')
+  assert.equal(typeof contract.validateBrowserObserverEvidence, 'function', 'contract must expose a shared all-round observer validator')
+  let ordinal = 0
+  const rounds = []
+  for (const component of ['Tree', 'TreeSelect', 'Cascader']) for (const count of [1000, 5000, 10000]) for (const rowMode of ['fixed', 'coarse', 'dynamic']) for (let round = 0; round < 5; round++) for (const mode of round % 2 === 0 ? ['full', 'virtual'] : ['virtual', 'full']) {
+    ordinal += 1
+    const startedAt = ordinal * 100
+    rounds.push({
+      ordinal,
+      component,
+      count,
+      rowMode,
+      mode,
+      round,
+      caseKey: `${component}/${count}/${rowMode}`,
+      observerRunId: `observer-round-${ordinal}`,
+      supportedEntryTypes: ['layout-shift', 'longtask', 'resource'],
+      startedAt,
+      firstWriteAt: startedAt + 1,
+      lastWriteAt: startedAt + 50,
+      takeRecordsAt: startedAt + 51,
+      drainedAt: startedAt + 52,
+      disconnectedAt: startedAt + 53,
+      disconnected: true,
+      activeAfterDrain: 0,
+      scrollSteps: 40,
+      runtimeErrors: [],
+      longTasks: [{ startTime: startedAt + 20, duration: 10 }],
+      layoutShifts: [{ startTime: startedAt + 30, value: 0.0001 }],
+      resources: { scripts: ['assets/index.js'], styles: ['assets/style.css'] },
+    })
+  }
+  const browserEvidence = {
+    observerRounds: rounds,
+    observersStartedBeforeFirstWrite: true,
+    observersStoppedAfterFinal: true,
+    observersStartedAt: rounds[0].startedAt,
+    observersStoppedAt: rounds.at(-1).drainedAt,
+    consoleErrors: 0,
+    pageErrors: 0,
+    scrollSteps: 40,
+    supportedEntryTypes: ['layout-shift', 'longtask', 'resource'],
+    resources: { status: 'recorded', scripts: ['assets/index.js'], styles: ['assets/style.css'] },
+    longTasks: { status: 'recorded', maxMs: 10, entries: rounds.flatMap(item => item.longTasks) },
+    layoutShifts: { status: 'recorded', cls: rounds.length * 0.0001, entries: rounds.flatMap(item => item.layoutShifts) },
+  }
+  const validate = evidence => {
+    const failures = []
+    contract.validateBrowserObserverEvidence(evidence, failures, { browser: 'chromium', required: true })
+    return failures
+  }
+  assert.deepEqual(validate(browserEvidence), [], 'complete all-round observer evidence must pass')
+  const mutations = [
+    ['missing round', /270|round|coverage/i, evidence => { evidence.observerRounds.pop() }],
+    ['duplicate observer run', /unique|duplicate|run/i, evidence => { evidence.observerRounds[1].observerRunId = evidence.observerRounds[0].observerRunId }],
+    ['undisconnected round', /disconnect|active|drain/i, evidence => { evidence.observerRounds[10].disconnected = false; evidence.observerRounds[10].activeAfterDrain = 1 }],
+    ['round runtime error', /runtime|console|page.*error/i, evidence => { evidence.observerRounds[20].runtimeErrors.push({ kind: 'console', message: 'boom' }) }],
+    ['forged unsupported status', /support|unsupported|entry.*type/i, evidence => { evidence.longTasks = { status: 'unsupported', reason: 'hard-coded' } }],
+    ['entry outside its round', /entry|timestamp|window/i, evidence => { evidence.observerRounds[30].longTasks[0].startTime = evidence.observerRounds[30].drainedAt + 1 }],
+  ]
+  for (const [label, pattern, mutate] of mutations) await t.test(label, () => {
+    const evidence = structuredClone(browserEvidence)
+    mutate(evidence)
+    assert.ok(validate(evidence).some(failure => pattern.test(failure)), `observer mutation must be rejected: ${label}`)
+  })
+})
+
+test('full collector persists every observer round and records actual PerformanceObserver support', async () => {
+  const source = await deferredCollectorSource()
+  assert.doesNotMatch(source, /\blastObservers\b/, 'collector must not retain only the last observer sample')
+  assert.match(source, /observerRounds/, 'collector must persist all measured observer rounds')
+  assert.match(source, /observerRunId/, 'each navigation must expose a unique observer run identity')
+  assert.match(source, /supportedEntryTypes/, 'metric support must come from the active browser realm')
+  assert.match(source, /runtimeErrors/, 'each observer round must bind its own console/page errors')
+  assert.match(source, /summarizeBrowserObserverEvidence/, 'browser summaries must be derived from raw observer rounds')
+})
+
 test('gzip provenance includes all components, CSS, nested chunks and unique assets', () => {
   const report = fullReport()
   report.gzip.candidate.files = report.gzip.candidate.files.filter(file => file.path === 'tree.js')
