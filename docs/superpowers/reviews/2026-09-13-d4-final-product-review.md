@@ -1,6 +1,6 @@
 # D4 deferred virtualization final product-manager acceptance
 
-Date: 2026-09-13. Accepted runtime code candidate: `4f6831e956218ff3d95d23507819f974aafdc7b2`.
+Date: 2026-09-13. Accepted production candidate: `cf2a24c1460187041f622ddd0a01831076f91ab0`. Browser-test closeout: `3618e16bcdf7bdf3439ae3255529cc934588e4a3`.
 
 ## Product decision
 
@@ -30,3 +30,7 @@ Date: 2026-09-13. Accepted runtime code candidate: `4f6831e956218ff3d95d23507819
 PR creation, exact-head CI, squash merge, master CI, Pages and live deployed interaction remain uncompleted until externally observed. Physical iOS Safari, npm authentication/publication, Form.List, D0-D3 final audit, D9 and aheart-ui v2 are outside this acceptance. Mobile WebKit and intent to publish are not substitutes for those gates.
 
 Product-manager verdict: **accept D4 functional and quality scope; authorize PR delivery sequence only.**
+
+## Final repair acceptance supplement
+
+The final long-task repair removes duplicate internal measurement writes without removing real subpixel changes or changing any user-visible task. The exact previously failing round is now 83.7ms first interaction, 45.1ms maximum scroll step and zero long tasks. The complete collector and repository gates pass, while all REDs remain documented. The later WebKit test fix waits for the same five user-visible geometry conditions to converge and does not lower them. Product acceptance is therefore restored for candidate `cf2a24c`/`3618e16`, with P0/P1/P2=`0/0/0`; PR CI, merge, master CI, Pages and live verification remain separate.

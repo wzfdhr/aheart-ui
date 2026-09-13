@@ -1,6 +1,6 @@
 # D4 deferred virtualization final screenshot-first design review
 
-Date: 2026-09-13. Visual candidate reviewed: `932f589c602f397cb8ef38e46384907365ad5b80`. Final runtime code candidate `4f6831e956218ff3d95d23507819f974aafdc7b2` differs afterward only by this review record and the browser regression that asserts the accepted containment geometry; production and fixture files are identical.
+Date: 2026-09-13. Visual candidate reviewed: `932f589c602f397cb8ef38e46384907365ad5b80`. Final production candidate: `cf2a24c1460187041f622ddd0a01831076f91ab0`.
 
 ## Audit scope
 
@@ -33,3 +33,7 @@ User goal: browse, search, expand, select, recover from lazy-load failure and re
 The live accessibility snapshots showed named tree/combobox/dialog controls, expanded/disabled states, checkboxes, status regions and retry buttons. Screenshots support visible focus, contrast, wrapping and target discoverability, but do not by themselves prove screen-reader announcements, complete WCAG conformance, resource cleanup or all keyboard transitions. Those claims remain bound to the independent automated test/consumer gates. Mobile IAB viewport emulation is not physical iOS Safari; physical-device acceptance remains D9.
 
 Final design decision: **PASS, P0/P1/P2 = 0/0/0**, releasing independent test-manager verification. The exact screenshots are retained as current-run inline Product Design audit captures in this task; this report preserves the ordered states, measurements, findings and rejected-capture history.
+
+## Performance-repair design impact supplement
+
+The post-audit production delta changes only whether Tree calls TanStack `resizeItem` when the newly measured numeric height is exactly equal to its current cached size. Markup, attributes, CSS, row content, public props and focus rendering are unchanged. A rejected 0.5px tolerance was replaced with strict equality so even 28.25px dynamic geometry remains observable. The final Tree/TreeSelect/Cascader five-project matrix passed 160/160, including large-text wrapping and mobile containment. The WebKit stable-geometry repair changed only when the test reads the final geometry and retained all original visual constraints. No screenshot baseline was updated. Therefore the accepted screenshot states remain representative and design P0/P1/P2 remain `0/0/0`.

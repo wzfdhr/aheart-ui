@@ -1,6 +1,6 @@
 # D4 deferred virtualization final development-manager review
 
-Date: 2026-09-13. Runtime code candidate: `4f6831e956218ff3d95d23507819f974aafdc7b2`. Baseline: master `4a7511f9594d0a74906e427e158d02343ba33a22`.
+Date: 2026-09-13. Final production candidate: `cf2a24c1460187041f622ddd0a01831076f91ab0`. Browser-test closeout: `3618e16bcdf7bdf3439ae3255529cc934588e4a3`. Baseline: master `4a7511f9594d0a74906e427e158d02343ba33a22`.
 
 ## Scope and review independence
 
@@ -30,3 +30,9 @@ The final code evidence is [bound here](../evidence/d4-deferred-consumer/final-c
 - Non-blocking boundary: physical iOS Safari and npm publication remain D9 and are not represented by mobile WebKit.
 
 Development-manager verdict: **PASS** for the combined D4 runtime candidate. This releases final delivery preparation; it does not approve merge without exact PR-head CI, squash merge, master CI, Pages and live verification.
+
+## Post-PR performance repair review
+
+The final-head collector later rejected a real 126ms Chromium long task in Tree/10k/fixed virtual scroll. The production repair adds one internal `resizeMeasuredItem`: it suppresses only an update whose measured height is exactly the size already stored by the virtualizer. The corrected RED proved 16 redundant 28px writes; a follow-up RED proved that a 28.25px subpixel change must still call `resizeItem`. Strict comparison satisfies both without an accumulating tolerance. Public API, DOM, CSS, key identity, focus, SSR and fallback paths are unchanged.
+
+Affected GREEN: Tree virtual units 56/56, full components 1,432/1,432, D4 five-project 160/160, full E2E 808/127/0, generated output and all release gates. The final 714-checkpoint collector has max long task 0ms, including the exact prior failing round; see [final production GREEN](../evidence/d4-deferred-consumer/full-green-cf2a24c.md). Development finding disposition remains P0/P1/P2=`0/0/0`.

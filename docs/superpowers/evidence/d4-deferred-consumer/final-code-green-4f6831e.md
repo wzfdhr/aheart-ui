@@ -1,8 +1,8 @@
-# D4 deferred virtualization final code candidate GREEN
+# D4 deferred virtualization earlier code candidate GREEN
 
 Date: 2026-09-13. Code candidate: `4f6831e956218ff3d95d23507819f974aafdc7b2`. Approved baseline: `4a7511f9594d0a74906e427e158d02343ba33a22`.
 
-This record binds the final Tree, TreeSelect and Cascader code candidate to the complete local consumer, performance, browser and repository gates. It is not PR, merge, master, Pages or npm-publication evidence.
+This record binds the earlier Tree, TreeSelect and Cascader code candidate to its complete local consumer, performance, browser and repository gates. It is superseded by [the final production GREEN](full-green-cf2a24c.md) after the preserved long-task and type-probe REDs. It is not PR, merge, master, Pages or npm-publication evidence.
 
 ## Artifact identity
 
