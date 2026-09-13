@@ -1122,6 +1122,7 @@ test('D4 integration tests rebuild the approved baseline from repository history
   const workflow = await readFile(path.join(process.cwd(), '.github/workflows/ci.yml'), 'utf8')
   const verify = workflow.slice(workflow.indexOf('  verify:'), workflow.indexOf('  qg5-cross-browser:'))
   assert.match(verify, /uses:\s*actions\/checkout@v4[\s\S]*?fetch-depth:\s*0/u, 'verify must fetch the approved baseline commit')
+  assert.equal((workflow.match(/node-version:\s*24\.17\.0/g) ?? []).length, 2, 'verify and QG5 must both use the release-contract Node version')
 })
 
 test('candidate public type probe is persisted before long browser collection', async () => {

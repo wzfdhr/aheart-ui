@@ -53,3 +53,12 @@ Final head `4c881658c9719be2c805020e3096973d62352a2f` produced ten successful QG
 The repair does not replace the approved release baseline or accept either platform hash by fiat. Integration tests still archive exact commit `4a7511f`, pack a real local tgz, bind that run's raw tgz SHA in the manifest and let the collector reopen it. They additionally unpack the tgz and hash a deterministic, path-sorted ledger of all 995 file paths, types, byte counts and per-file SHA-256 values. The approved content fingerprint is `eb1bf948660e16caf96109b9b77a181f3c1acaec63283ab91ffec47088778dbc`.
 
 The first content-ledger implementation was rejected locally because `localeCompare` made order locale-dependent (`48c2f25c…` instead of the pinned ledger). A new RED guard forbids locale ordering; explicit code-point comparison produced the pinned fingerprint and the complete integration suite passed 49/49. External full release runs continue to use and require the original `b600f47a…cd0b` artifact. A fresh two-group CI run is still required.
+
+## Fourth remote RED: CI Node version drift
+
+The deterministic content ledger passed on head `407ad9edee681e5fefbcb2b258ef31dbc34eb3a5`, but both verify jobs then reached the real collector and were correctly rejected because the workflow installed Node 20.20.2 while the approved D4 consumer environment pins Node 24.17.0. All ten QG5 jobs passed.
+
+- [push verify](https://github.com/wzfdhr/aheart-ui/actions/runs/34760321517/job/103731903867)
+- [pull_request verify](https://github.com/wzfdhr/aheart-ui/actions/runs/34760323344/job/103731908750)
+
+The contract is not relaxed to accept Node 20. Both verify and QG5 jobs now install exact Node 24.17.0, matching the final local consumer reports. The repository guard requires two exact `node-version: 24.17.0` declarations and went RED at 0/2 before the workflow repair, then GREEN at 2/2. This is D4 toolchain alignment, not the deferred D9 CI job split. A fresh two-group exact-head CI run remains required.
