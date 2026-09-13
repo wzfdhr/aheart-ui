@@ -284,7 +284,7 @@ describe('useFloatingPosition owner-realm auto-update lifecycle', () => {
     expect(harness.ownerCancelAnimationFrame).toHaveBeenCalledTimes(1)
     expect(firstObserver.disconnectCount).toBe(1)
     const queueBeforeStaleCallback = harness.ownerRafQueue.length
-    const styleAfterClose = structuredClone(harness.result?.popupStyle.value)
+    const styleAfterClose = { ...harness.result?.popupStyle.value }
     oldCallback?.(0)
     await flushVue()
     expect(harness.ownerRafQueue.length).toBe(queueBeforeStaleCallback)
