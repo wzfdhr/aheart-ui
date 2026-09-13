@@ -423,7 +423,7 @@ test('narrow short viewport, font 24 and long labels keep dynamic geometry insid
   await page.getByTestId('cascader-virtual-viewport').click()
   const popup = await open(page)
   await expect(popup.getByRole('searchbox', { name: '搜索级联选项' })).toBeVisible()
-  const geometry = await popup.evaluate(element => {
+  const readGeometry = () => popup.evaluate(element => {
     const panelRect = element.getBoundingClientRect()
     const viewportRect = element.querySelector<HTMLElement>('.aheart-cascader__column')?.getBoundingClientRect()
     const rows = Array.from(element.querySelectorAll<HTMLElement>('.aheart-cascader__option[data-cascader-column="0"]'))
@@ -435,6 +435,17 @@ test('narrow short viewport, font 24 and long labels keep dynamic geometry insid
       rows: rows.map(row => { const rect = row.getBoundingClientRect(); const title = row.querySelector<HTMLElement>(':scope > span'); const titleRect = title?.getBoundingClientRect(); return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height, titleHeight: titleRect?.height ?? 0 } })
     }
   })
+  let geometry = await readGeometry()
+  await expect.poll(async () => {
+    geometry = await readGeometry()
+    return {
+      rowsMeasured: geometry.rows.every(row => row.height > 0 && row.titleHeight > 0),
+      topCovered: geometry.rows.some(row => row.top <= geometry.viewport!.top && row.bottom >= geometry.viewport!.top),
+      bottomCovered: geometry.rows.some(row => row.top <= geometry.viewport!.bottom && row.bottom >= geometry.viewport!.bottom),
+      noOverlap: geometry.rows.every((row, index) => index === 0 || row.top >= geometry.rows[index - 1].bottom - 1),
+      wrapped: geometry.rows.some(row => row.titleHeight > 24)
+    }
+  }).toEqual({ rowsMeasured: true, topCovered: true, bottomCovered: true, noOverlap: true, wrapped: true })
   expect(geometry.mounted).toBeGreaterThan(0)
   expect(geometry.mounted).toBeLessThanOrEqual(24)
   expect(geometry.panel.width).toBeGreaterThan(0)
@@ -442,9 +453,4 @@ test('narrow short viewport, font 24 and long labels keep dynamic geometry insid
   expect(geometry.viewport?.width).toBeGreaterThan(0)
   expect(geometry.viewport?.height).toBeGreaterThan(0)
   expect(geometry.fontSize).toBe('24px')
-  expect(geometry.rows.every(row => row.height > 0 && row.titleHeight > 0)).toBe(true)
-  expect(geometry.rows.some(row => row.top <= geometry.viewport!.top && row.bottom >= geometry.viewport!.top)).toBe(true)
-  expect(geometry.rows.some(row => row.top <= geometry.viewport!.bottom && row.bottom >= geometry.viewport!.bottom)).toBe(true)
-  expect(geometry.rows.every((row, index) => index === 0 || row.top >= geometry.rows[index - 1].bottom - 1)).toBe(true)
-  expect(geometry.rows.some(row => row.titleHeight > 24)).toBe(true)
 })
