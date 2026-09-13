@@ -146,6 +146,14 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
   const items = computed(() => config.value && !fallback.value ? virtualizer.value.getVirtualItems() : []);
   const rows = computed(() => items.value.map((item) => ({ entry: nodes.value[item.index], item })).filter((row) => row.entry));
   const totalSize = computed(() => config.value && !fallback.value ? virtualizer.value.getTotalSize() : 0);
+  const resizeMeasuredItem = (index, height) => {
+    var _a;
+    if (!(height > 0))
+      return;
+    const current = (_a = virtualizer.value.getVirtualItems().find((item) => item.index === index)) == null ? void 0 : _a.size;
+    if (current === void 0 || Math.abs(current - height) > 0.5)
+      virtualizer.value.resizeItem(index, height);
+  };
   const cancelPending = (stopReconcile = true) => {
     pendingVersion.value += 1;
     pendingKey.value = void 0;
@@ -286,8 +294,7 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
         if (!entry || !entry.element.isConnected || !config.value || fallback.value)
           continue;
         const height = entry.element.getBoundingClientRect().height || entry.element.offsetHeight;
-        if (height > 0)
-          virtualizer.value.resizeItem(entry.index, height);
+        resizeMeasuredItem(entry.index, height);
       }
     });
   };
@@ -307,8 +314,7 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
       return;
     if (disabled.value) {
       const height2 = element.getBoundingClientRect().height || element.offsetHeight;
-      if (height2 > 0)
-        virtualizer.value.resizeItem(index, height2);
+      resizeMeasuredItem(index, height2);
       return;
     }
     if ((previous == null ? void 0 : previous.element) === element) {
@@ -323,8 +329,7 @@ function useTreeVirtual(root, config, nodes, focusedKey, disabled) {
     observer == null ? void 0 : observer.observe(element);
     rowEntries.set(token, { element, index, observer });
     const height = row.getBoundingClientRect().height || row.offsetHeight;
-    if (height > 0)
-      virtualizer.value.resizeItem(index, height);
+    resizeMeasuredItem(index, height);
   };
   const cleanupRows = () => {
     var _a;

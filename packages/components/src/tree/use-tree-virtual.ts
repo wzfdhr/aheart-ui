@@ -152,6 +152,11 @@ export function useTreeVirtual(
   const items = computed(() => config.value && !fallback.value ? virtualizer.value.getVirtualItems() : [])
   const rows = computed(() => items.value.map(item => ({ entry: nodes.value[item.index], item })).filter(row => row.entry))
   const totalSize = computed(() => config.value && !fallback.value ? virtualizer.value.getTotalSize() : 0)
+  const resizeMeasuredItem = (index: number, height: number) => {
+    if (!(height > 0)) return
+    const current = virtualizer.value.getVirtualItems().find(item => item.index === index)?.size
+    if (current === undefined || Math.abs(current - height) > 0.5) virtualizer.value.resizeItem(index, height)
+  }
 
   const cancelPending = (stopReconcile = true) => {
     pendingVersion.value += 1
@@ -283,7 +288,7 @@ export function useTreeVirtual(
         const entry = rowEntries.get(queuedToken)
         if (!entry || !entry.element.isConnected || !config.value || fallback.value) continue
         const height = (entry.element as HTMLElement).getBoundingClientRect().height || (entry.element as HTMLElement).offsetHeight
-        if (height > 0) virtualizer.value.resizeItem(entry.index, height)
+        resizeMeasuredItem(entry.index, height)
       }
     })
   }
@@ -300,7 +305,7 @@ export function useTreeVirtual(
     if (element.nodeType !== 1 || (HTMLElementCtor && !(element instanceof HTMLElementCtor)) || !config.value || fallback.value || !mounted.value) return
     if (disabled.value) {
       const height = (element as HTMLElement).getBoundingClientRect().height || (element as HTMLElement).offsetHeight
-      if (height > 0) virtualizer.value.resizeItem(index, height)
+      resizeMeasuredItem(index, height)
       return
     }
     if (previous?.element === element) {
@@ -314,7 +319,7 @@ export function useTreeVirtual(
     observer?.observe(element)
     rowEntries.set(token, { element, index, observer })
     const height = row.getBoundingClientRect().height || row.offsetHeight
-    if (height > 0) virtualizer.value.resizeItem(index, height)
+    resizeMeasuredItem(index, height)
   }
   const cleanupRows = () => {
     for (const token of rowEntries.keys()) disconnectRow(token)
