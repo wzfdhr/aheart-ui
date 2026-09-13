@@ -1114,6 +1114,10 @@ test('D4 integration tests rebuild the approved baseline from repository history
   const source = await readFile(path.join(process.cwd(), 'scripts/d4-deferred-consumer.integration.test.mjs'), 'utf8')
   assert.doesNotMatch(source, /\/private\/tmp\/aheart-d4-baseline/u, 'integration tests cannot depend on a pre-existing machine temp artifact')
   assert.match(source, /git['"],\s*\[['"]archive['"]/u, 'integration tests must rebuild the approved baseline with git archive')
+  assert.match(source, /approvedBaselineContentHash/u, 'cross-platform baseline validation must pin the extracted package content fingerprint')
+  assert.match(source, /tarballContentFingerprint/u, 'cross-platform baseline validation must hash sorted extracted file content')
+  assert.doesNotMatch(source, /assert\.equal\(hash\(await readFile\(tarball\)\),\s*approvedBaselineHash/u, 'integration tests cannot compare platform-specific gzip container bytes')
+  assert.doesNotMatch(source, /localeCompare/u, 'content fingerprint ordering must not depend on the host locale')
 
   const workflow = await readFile(path.join(process.cwd(), '.github/workflows/ci.yml'), 'utf8')
   const verify = workflow.slice(workflow.indexOf('  verify:'), workflow.indexOf('  qg5-cross-browser:'))

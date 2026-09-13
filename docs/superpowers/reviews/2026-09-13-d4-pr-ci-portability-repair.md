@@ -42,3 +42,14 @@ The repair keeps the approved baseline commit and hash unchanged. `d4-deferred-c
 The verify checkout uses `fetch-depth: 0` so the approved baseline commit exists in CI. QG5 checkout behavior is unchanged; this is not the deferred D9 CI split. A new contract test rejects external baseline temp paths, requires `git archive`, and requires full history for verify. Its genuine local RED rejected the old source. Final targeted GREEN is guard 1/1 plus the complete integration file 49/49, zero skip. The full Node script count is now 232.
 
 Finding disposition: P0/P1/P2 = `0/0/0` after both GREEN repairs. All failed jobs remain visible audit history. A new PR head must rerun verify and all five-browser jobs; old-head browser success is not used as the final CI release signal.
+
+## Third remote RED: cross-platform tar container bytes
+
+Final head `4c881658c9719be2c805020e3096973d62352a2f` produced ten successful QG5 jobs but both verify jobs rejected the freshly reconstructed baseline. The same approved commit packed to raw SHA `b600f47a…cd0b` on macOS and `8cc595fd…c80` on Linux. The package contained 995 files in both cases; the difference is the platform-specific tar/gzip container encoding, so raw compressed bytes cannot serve as a cross-platform reconstruction invariant.
+
+- [push verify](https://github.com/wzfdhr/aheart-ui/actions/runs/34757756582/job/103724994164)
+- [pull_request verify](https://github.com/wzfdhr/aheart-ui/actions/runs/34757757840/job/103724997768)
+
+The repair does not replace the approved release baseline or accept either platform hash by fiat. Integration tests still archive exact commit `4a7511f`, pack a real local tgz, bind that run's raw tgz SHA in the manifest and let the collector reopen it. They additionally unpack the tgz and hash a deterministic, path-sorted ledger of all 995 file paths, types, byte counts and per-file SHA-256 values. The approved content fingerprint is `eb1bf948660e16caf96109b9b77a181f3c1acaec63283ab91ffec47088778dbc`.
+
+The first content-ledger implementation was rejected locally because `localeCompare` made order locale-dependent (`48c2f25c…` instead of the pinned ledger). A new RED guard forbids locale ordering; explicit code-point comparison produced the pinned fingerprint and the complete integration suite passed 49/49. External full release runs continue to use and require the original `b600f47a…cd0b` artifact. A fresh two-group CI run is still required.

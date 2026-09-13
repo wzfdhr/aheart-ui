@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFile } from 'node:child_process'
-import { cp, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, readdir, readlink, rm, stat, writeFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
@@ -11,8 +11,31 @@ import { recomputeFamilyCoverage, validateBoundedReleaseReport, verifyArtifactBi
 const run = promisify(execFile)
 const workspace = process.cwd()
 const approvedBaseline = '4a7511f9594d0a74906e427e158d02343ba33a22'
-const approvedBaselineHash = 'b600f47aa5e32f46dda00ac57241a16237308f2d335f9c92603a4efe249bcd0b'
+const approvedBaselineContentHash = 'eb1bf948660e16caf96109b9b77a181f3c1acaec63283ab91ffec47088778dbc'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
+
+async function tarballContentFingerprint(tarball, destination) {
+  await mkdir(destination)
+  await run('tar', ['-xzf', tarball, '-C', destination], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
+  const packageRoot = path.join(destination, 'package')
+  const records = []
+  const walk = async directory => {
+    const entries = await readdir(directory, { withFileTypes: true })
+    entries.sort((left, right) => left.name < right.name ? -1 : left.name > right.name ? 1 : 0)
+    for (const entry of entries) {
+      const file = path.join(directory, entry.name)
+      const relativePath = path.relative(packageRoot, file).split(path.sep).join('/')
+      if (entry.isDirectory()) await walk(file)
+      else if (entry.isSymbolicLink()) records.push({ path: relativePath, type: 'symlink', target: await readlink(file) })
+      else {
+        const bytes = await readFile(file)
+        records.push({ path: relativePath, type: 'file', bytes: bytes.length, sha256: hash(bytes) })
+      }
+    }
+  }
+  await walk(packageRoot)
+  return { files: records.length, sha256: hash(Buffer.from(JSON.stringify(records))) }
+}
 
 let approvedBaselineRoot
 let approvedBaselineFixture
@@ -25,7 +48,8 @@ const getApprovedBaseline = () => approvedBaselineFixture ??= (async () => {
   await run('tar', ['-xf', archive, '-C', checkout], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
   const result = await run('corepack', ['pnpm', '--dir', path.join(checkout, 'packages/components'), 'pack', '--json', '--pack-destination', approvedBaselineRoot], { cwd: workspace, maxBuffer: 4 * 1024 * 1024 })
   const tarball = JSON.parse(result.stdout).filename
-  assert.equal(hash(await readFile(tarball)), approvedBaselineHash, 'repacked approved baseline must match its frozen SHA-256')
+  const content = await tarballContentFingerprint(tarball, path.join(approvedBaselineRoot, 'content'))
+  assert.deepEqual(content, { files: 995, sha256: approvedBaselineContentHash }, 'repacked approved baseline must match its frozen package contents')
   return tarball
 })()
 
@@ -40,7 +64,6 @@ const collectRealBoundedReport = () => realCollection ??= (async () => {
   const candidate = await packCurrent(root)
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const baselineBytes = await readFile(baseline)
-  assert.equal(hash(baselineBytes), approvedBaselineHash)
   const candidateBytes = await readFile(candidate)
   const baselineManifest = path.join(root, 'baseline-manifest.json')
   const candidateManifest = path.join(root, 'candidate-manifest.json')
@@ -74,7 +97,6 @@ const collectAuthenticSsrSnapshotRed = async () => {
   const candidate = await packCurrent(root)
   const candidateCommit = (await run('git', ['rev-parse', 'HEAD'], { cwd: workspace })).stdout.trim()
   const baselineBytes = await readFile(baseline)
-  assert.equal(hash(baselineBytes), approvedBaselineHash)
   const candidateBytes = await readFile(candidate)
   const baselineManifest = path.join(root, 'baseline-manifest.json')
   const candidateManifest = path.join(root, 'candidate-manifest.json')
