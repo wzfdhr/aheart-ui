@@ -596,7 +596,7 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
   if (settings.component === 'Tree') clickCompletedAt = triggerAt
   if (settings.component !== 'Tree') await page.waitForSelector(settings.component === 'TreeSelect' ? '.aheart-tree-select__panel, [role="tree"]' : '.aheart-cascader__column', { state: 'attached', timeout: 5000 }).catch(async () => { await page.locator(settings.component === 'TreeSelect' ? '.aheart-tree-select__trigger' : '.aheart-cascader__trigger').click(); await page.waitForSelector(settings.component === 'TreeSelect' ? '.aheart-tree-select__panel, [role="tree"]' : '.aheart-cascader__column', { state: 'attached', timeout: 5000 }) })
   const rowSelector = settings.component === 'Cascader' ? '.aheart-cascader__column .aheart-cascader__option:not(:disabled)' : '[role="treeitem"]:not([aria-disabled="true"])'
-  await page.waitForFunction(selector => { const row = document.querySelector(selector); const scroller = row?.closest('[role="tree"], .aheart-cascader__column'); const rect = row?.getBoundingClientRect(); const viewport = scroller?.getBoundingClientRect(); if (!row || !scroller || !rect || !viewport) return false; const x = rect.left + rect.width / 2; const y = rect.top + rect.height / 2; return rect.bottom > viewport.top && rect.top < viewport.bottom && rect.right > viewport.left && rect.left < viewport.right && !row.matches(':disabled,[aria-disabled="true"]') && getComputedStyle(row).pointerEvents !== 'none' && document.elementFromPoint(x, y)?.closest(selector) === row }, rowSelector)
+  await page.waitForFunction(selector => { const row = document.querySelector(selector); const scroller = row?.closest('[role="tree"], .aheart-cascader__column'); const rect = row?.getBoundingClientRect(); const viewport = scroller?.getBoundingClientRect(); if (!row || !scroller || !rect || !viewport) return false; const visibleTop = Math.max(rect.top, viewport.top); const visibleBottom = Math.min(rect.bottom, viewport.bottom); const visibleLeft = Math.max(rect.left, viewport.left); const visibleRight = Math.min(rect.right, viewport.right); if (visibleBottom <= visibleTop || visibleRight <= visibleLeft) return false; const x = (visibleLeft + visibleRight) / 2; const y = (visibleTop + visibleBottom) / 2; return !row.matches(':disabled,[aria-disabled="true"]') && getComputedStyle(row).pointerEvents !== 'none' && document.elementFromPoint(x, y)?.closest(selector) === row }, rowSelector)
   const actionableAt = await page.evaluate(() => performance.now())
   const stabilization = await page.evaluate(async () => { await window.__d4NextTick(); const nextTickAt = performance.now(); const rafAt = await new Promise(resolve => requestAnimationFrame(() => { const first = performance.now(); requestAnimationFrame(() => resolve([first, performance.now()])) })); return { nextTickAt, rafAt } })
   const nextTickAt = stabilization.nextTickAt
@@ -612,7 +612,11 @@ async function measureCase(page, settings, mode, baseURL = page.url()) {
     const scroll = row?.closest('[role="tree"], .aheart-cascader__column')
     const rect = row?.getBoundingClientRect()
     const viewport = scroll?.getBoundingClientRect()
-    const center = rect && { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+    const visibleTop = rect && viewport ? Math.max(rect.top, viewport.top) : 0
+    const visibleBottom = rect && viewport ? Math.min(rect.bottom, viewport.bottom) : 0
+    const visibleLeft = rect && viewport ? Math.max(rect.left, viewport.left) : 0
+    const visibleRight = rect && viewport ? Math.min(rect.right, viewport.right) : 0
+    const center = rect && viewport && visibleBottom > visibleTop && visibleRight > visibleLeft ? { x: (visibleLeft + visibleRight) / 2, y: (visibleTop + visibleBottom) / 2 } : null
     const hit = center ? document.elementFromPoint(center.x, center.y)?.closest(selector) === row : false
     row?.focus()
     const focused = document.activeElement === row && row?.ownerDocument === document
