@@ -1040,6 +1040,8 @@ test('full collector recycles instrumented pages between matrix cases', async ()
   assert.match(source, /recycleMeasuredBrowser/, 'long matrices must recycle the browser process between component families')
   assert.match(source, /recycleMeasuredBrowser\(page,\s*browser,\s*chromium/, 'Chromium must restart before the next component family')
   assert.match(source, /recycleMeasuredBrowser\(otherPage,\s*other,\s*Browser/, 'Firefox and WebKit must restart before the next component family')
+  assert.match(source, /checkpoint\?\.\(['"]case['"][\s\S]{0,700}recycleMeasuredBrowser\(page,\s*browser,\s*chromium/, 'Chromium must restart after every completed matrix case')
+  assert.match(source, /coverage\.push\([\s\S]{0,500}recycleMeasuredBrowser\(otherPage,\s*other,\s*Browser/, 'Firefox and WebKit must restart after every completed matrix case')
 })
 
 test('collectSide browser launch/page failures must close Firefox and WebKit in per-browser finally blocks', async () => {
