@@ -107,6 +107,7 @@ describe('Tree virtual implementation recovery RED', () => {
   it('does not enqueue redundant virtualizer resizes for unchanged fixed rows', async () => {
     const frames = new Map<number, FrameRequestCallback>()
     let serial = 0
+    let rowHeight = 28
     Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: ((callback: FrameRequestCallback) => {
       const id = ++serial
       frames.set(id, callback)
@@ -116,7 +117,7 @@ describe('Tree virtual implementation recovery RED', () => {
       frames.delete(id)
     }) as typeof window.cancelAnimationFrame })
     const geometry = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      const height = this.matches('.aheart-tree') ? 320 : 28
+      const height = this.matches('.aheart-tree') ? 320 : rowHeight
       return { height, width: 400, top: 0, left: 0, right: 400, bottom: height, x: 0, y: 0, toJSON() {} } as DOMRect
     })
     const flushFrames = async () => {
@@ -138,9 +139,13 @@ describe('Tree virtual implementation recovery RED', () => {
     expect(rowObservers.length).toBeGreaterThan(0)
     for (const observer of rowObservers) observer.callback([...observer.elements].map(target => ({ target } as ResizeObserverEntry)), observer as unknown as ResizeObserver)
     await flushFrames()
-
-    geometry.mockRestore()
     expect(resize).not.toHaveBeenCalled()
+
+    rowHeight = 28.25
+    for (const observer of rowObservers) observer.callback([...observer.elements].map(target => ({ target } as ResizeObserverEntry)), observer as unknown as ResizeObserver)
+    await flushFrames()
+    geometry.mockRestore()
+    expect(resize).toHaveBeenCalledWith(expect.any(Number), 28.25)
   })
 
   it('invalidates a same-key replacement instead of retaining an offscreen measurement', async () => {
