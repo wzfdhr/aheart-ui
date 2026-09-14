@@ -1,7 +1,5 @@
 import type { CascaderVirtual } from './types';
-export interface NormalizedCascaderVirtual {
-    height: number;
-    estimateSize: number;
-    overscan: number;
+import { type NormalizedVirtualOptions } from '../utils/normalize-virtual-options';
+export interface NormalizedCascaderVirtual extends NormalizedVirtualOptions {
 }
-export declare const normalizeCascaderVirtual: (value: CascaderVirtual | undefined, warn?: ((message: string) => void) | undefined) => NormalizedCascaderVirtual | null;
+export declare function normalizeCascaderVirtual(value: CascaderVirtual | undefined, warn?: (message: string) => void): NormalizedCascaderVirtual | null;

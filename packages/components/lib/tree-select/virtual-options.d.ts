@@ -1,9 +1,7 @@
 import type { TreeVirtual, TreeVirtualConfig } from '../tree/types';
 export type TreeSelectVirtualConfig = TreeVirtualConfig;
 export type TreeSelectVirtual = TreeVirtual;
-export interface NormalizedTreeSelectVirtual {
-    height: number;
-    estimateSize: number;
-    overscan: number;
+import { type NormalizedVirtualOptions } from '../utils/normalize-virtual-options';
+export interface NormalizedTreeSelectVirtual extends NormalizedVirtualOptions {
 }
 export declare function normalizeTreeSelectVirtual(value: TreeSelectVirtual | undefined, warn?: (message: string) => void): NormalizedTreeSelectVirtual | null;
