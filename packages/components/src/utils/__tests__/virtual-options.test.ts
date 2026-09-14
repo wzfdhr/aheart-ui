@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { runInNewContext } from 'node:vm'
 import { normalizeTreeVirtual } from '../../tree/virtual-options'
 import { normalizeTreeSelectVirtual } from '../../tree-select/virtual-options'
@@ -49,5 +49,14 @@ describe.each([
     }
     expect(normalize(source)).toEqual({ height: 22.5, estimateSize: 11, overscan: 0 })
     expect(reads).toEqual({ height: compact ? 5 : 3, estimateSize: compact ? 5 : 3, overscan: 5 })
+  })
+  it('keeps production validation while omitting development diagnostics', () => {
+    vi.stubEnv('DEV', false)
+    try {
+      const warn = vi.fn()
+      expect(normalize({ height: -1, estimateSize: NaN, overscan: .5 }, warn)).toEqual({ height, estimateSize, overscan: 4 })
+      expect(normalize([] as never, warn)).toBeNull()
+      expect(warn).not.toHaveBeenCalled()
+    } finally { vi.unstubAllEnvs() }
   })
 })

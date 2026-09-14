@@ -6,7 +6,6 @@ function normalizeVirtualOptions(value, defaults, name, warn, compact = false) {
     return { ...defaults };
   const prototype = value && typeof value === "object" ? Object.getPrototypeOf(value) : void 0;
   if (prototype === void 0 || !(prototype === null || Object.prototype.toString.call(value) === "[object Object]" && Object.getPrototypeOf(prototype) === null)) {
-    warn == null ? void 0 : warn(`[${name}] invalid virtual options; virtualization is disabled.`);
     return null;
   }
   const source = value;
@@ -18,10 +17,6 @@ function normalizeVirtualOptions(value, defaults, name, warn, compact = false) {
     const valid = integer ? typeof source[key] === "number" && Number.isSafeInteger(source[key]) && source[key] >= 0 : compact ? typeof source[key] === "number" && Number.isFinite(source[key]) && source[key] > 0 : positive(source[key]);
     if (valid)
       result[key] = source[key];
-    else {
-      const requirement = integer ? "non-negative safe integer" : compact ? "positive" : "positive number";
-      warn == null ? void 0 : warn(`[${name}] virtual.${key} must be ${compact ? "" : "a "}${requirement}; using ${compact ? "" : "the "}default.`);
-    }
   }
   return result;
 }

@@ -110,8 +110,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     });
     const mergedOpen = vue.computed(() => Boolean(openState.state.value));
-    const virtualConfig = vue.computed(() => virtualOptions.normalizeTreeSelectVirtual(props.virtual, (message) => {
-    }));
+    const virtualConfig = vue.computed(() => virtualOptions.normalizeTreeSelectVirtual(props.virtual));
     const virtualEnabled = vue.computed(() => virtualConfig.value !== null);
     const mergedValue = valueState.state;
     const isMultiple = vue.computed(() => props.multiple || props.treeCheckable);

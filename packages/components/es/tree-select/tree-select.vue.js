@@ -108,8 +108,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     const mergedOpen = computed(() => Boolean(openState.state.value));
-    const virtualConfig = computed(() => normalizeTreeSelectVirtual(props.virtual, (message) => {
-    }));
+    const virtualConfig = computed(() => normalizeTreeSelectVirtual(props.virtual));
     const virtualEnabled = computed(() => virtualConfig.value !== null);
     const mergedValue = valueState.state;
     const isMultiple = computed(() => props.multiple || props.treeCheckable);

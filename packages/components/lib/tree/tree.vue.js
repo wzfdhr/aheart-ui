@@ -63,8 +63,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       const parentKey = (_a2 = treeIndex$1.value.nodes.get(key)) == null ? void 0 : _a2.parentKey;
       return parentKey === void 0 ? void 0 : (_b = treeIndex$1.value.nodes.get(parentKey)) == null ? void 0 : _b.node;
     };
-    const virtualConfig = vue.computed(() => virtualOptions.normalizeTreeVirtual(props.virtual, (message) => {
-    }));
+    const virtualConfig = vue.computed(() => virtualOptions.normalizeTreeVirtual(props.virtual));
     const virtualAdapter = useTreeVirtual.useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled);
     const virtualFallback = vue.computed(() => virtualAdapter.fallback.value);
     const retireRetryIntent = (intent, cancelGeneration = true) => {

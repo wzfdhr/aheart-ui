@@ -61,8 +61,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const parentKey = (_a2 = treeIndex.value.nodes.get(key)) == null ? void 0 : _a2.parentKey;
       return parentKey === void 0 ? void 0 : (_b = treeIndex.value.nodes.get(parentKey)) == null ? void 0 : _b.node;
     };
-    const virtualConfig = computed(() => normalizeTreeVirtual(props.virtual, (message) => {
-    }));
+    const virtualConfig = computed(() => normalizeTreeVirtual(props.virtual));
     const virtualAdapter = useTreeVirtual(rootRef, virtualConfig, visibleNodes, focusedKey, isDisabled);
     const virtualFallback = computed(() => virtualAdapter.fallback.value);
     const retireRetryIntent = (intent, cancelGeneration = true) => {
