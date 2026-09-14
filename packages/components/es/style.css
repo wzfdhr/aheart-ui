@@ -3,7 +3,8 @@
   --aheart-color-primary-hover: #4096ff;
   --aheart-color-success: #52c41a;
   --aheart-color-warning: #faad14;
-  --aheart-color-danger: #ff4d4f;
+  /* Keep the default danger token readable when it is used as text. */
+  --aheart-color-danger: #b42318;
   --aheart-color-info: #1677ff;
   --aheart-color-text: #1f2329;
   --aheart-color-text-secondary: #646a73;
