@@ -18,7 +18,7 @@ This is the independent follow-up authorized by the persistent optimization goal
 - [x] Independently reopened durable gzip double-build for c608a9b: +12,261B <=12,288B; actual component exports and both build artifact sets verified. See [size evidence](../evidence/d4-deferred-consumer/gzip-c608a9b-green.md).
 - [x] Final whole-repository automated gates for production c608a9b: both a9734e3 CI groups passed; independent test manager verified unit1459/79/200, scripts238, types/determinism/generated/docs/pack, E2E808 passed/127 existing skips, QG5 62 passed/3 existing skips and no new skip lines. See [independent test report](../reviews/2026-09-14-d4-independent-final-test.md). Any later final merge head still requires its own CI checks.
 - [x] Independent development-manager review for production c608a9b: scoped P0/P1/P2=0/0/0. See [development report](../reviews/2026-09-14-d4-independent-final-dev.md).
-- [ ] Four final independent role reports with P0/P1/P2=`0/0/0`. Earlier component substages retain their historical reports; withdrawn final reports do not satisfy this gate.
+- [x] Four final independent role reports for c608a9b with scoped P0/P1/P2=`0/0/0`: development, test-manager, design and product reports. Native200% supplement is independently reviewed; limitations remain explicit. Earlier component substages retain their historical reports.
 - [ ] Final PR exact-head push/PR CI, squash merge, master CI, Pages and live deployed verification.
 
 Form.List, D0-D3 final review, D9, physical devices, npm publication and aheart-ui v2 remain outside this phase.

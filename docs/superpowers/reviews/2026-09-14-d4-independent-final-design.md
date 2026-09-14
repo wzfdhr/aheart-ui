@@ -96,4 +96,28 @@ This independent visual audit used the in-app browser only. It did not repeat th
 
 Temporary viewport overrides were reset. The current tab error log returned no errors. Images 00–02 are excluded preflight evidence; images 08–09 captured intermediate search/column states and are excluded; image16 did not show the recovered subtree and was replaced by17; image26 is closed-mobile context and not needed for the final open-state claim. The accepted screenshots above are the only visual evidence supporting this report.
 
-Proceed with independent product/test acceptance and the delivery gates using this bounded design verdict.
+## Independently reviewed native 200% supplement
+
+The main implementation agent subsequently captured the native Chrome supplement in [native zoom supplement](2026-09-14-d4-native-zoom-supplement.md), against the same 5191 build. This reviewer independently reopened all five supplied files and inspected them; these are attributed supplemental captures, not browser actions performed by this reviewer. The earlier statement that this reviewer's IAB run did not execute native zoom remains accurate, while the evidence gap is now closed for the bounded three-component task.
+
+20. Native Chrome zoom indicator visibly reads 200%; the main agent additionally records the toolbar accessibility value on each route. Accepted as native browser zoom evidence rather than viewport simulation.
+
+![Native 200 percent](/private/tmp/d4-native-zoom-200/00-native-200-percent.png)
+
+21. Cascader final enabled root `Sibling 0998` and its blue focus outline remain visible alongside the search field. Healthy tail reachability; this does not establish every deep-column search combination at 200%.
+
+![Cascader native zoom](/private/tmp/d4-native-zoom-200/01-cascader-tail.png)
+
+22. Tree final row `00999`, its checkbox and scrolling boundary are visible; healthy tail reachability. Actual focus identity is attributed to the main agent's accompanying accessibility observation.
+
+![Tree native zoom](/private/tmp/d4-native-zoom-200/02-tree-tail.png)
+
+23. TreeSelect final enabled node `00998` and search field are simultaneously visible without clipping the selected row; healthy. The main agent records End skipping disabled 00999.
+
+![TreeSelect native zoom tail](/private/tmp/d4-native-zoom-200/03-tree-select-tail.png)
+
+24. TreeSelect query `00998`, visible search focus outline and matching row show editable search at native 200%. Escape restoration and resetting Chrome to 100% are runtime observations attributed to the main agent, not inferred from this still image.
+
+![TreeSelect native zoom search](/private/tmp/d4-native-zoom-200/04-tree-select-search.png)
+
+Supplement verdict: PASS for native 200% final-item reachability across the three components and editable TreeSelect search. No additional P0/P1/P2 identified. Physical-device, all-browser zoom, every dynamic font/label combination and full assistive-technology compliance are not claimed. Proceed with independent product/test acceptance and the delivery gates using this bounded design verdict and attributed supplement.
