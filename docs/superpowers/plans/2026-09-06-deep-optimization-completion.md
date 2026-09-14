@@ -94,11 +94,13 @@ D8 delivery is closed through [PR #24](https://github.com/wzfdhr/aheart-ui/pull/
 
 ## 延后项与 D0–D3 最终复核
 
-- [ ] Form.List API 评审、实现、动态数组增删移动与稳定字段身份。
-- [ ] D0：WebKit Modal 20 次零偶发、DnD 消费端类型、QG4 真实证据、Pages 质量保护。
-- [ ] D1：五个内部 helper 契约及优先迁移组件；默认值初始化、父接受/拒绝、异步生命周期。
-- [ ] D2：完整浮层堆栈、焦点/滚动管理、placement/arrow/motion/container、关闭中重开、自动 ARIA 与嵌套场景。
-- [ ] D3：嵌套路径、保留/依赖/触发、服务器错误/异步过期、控件协议、AIForm 核心复用。
+- [x] Form.List API 评审、实现、动态数组增删移动与稳定字段身份；PR #26 已 squash 合并为 `05f6b904`，master CI、Pages 与线上交互均通过。
+- [ ] D0：WebKit Modal 20 次零偶发、DnD 消费端类型、QG4 真实证据、Pages 质量保护；最终复核已通过，待本候选 PR/CI/merge/master/Pages 交付门禁。
+- [ ] D1：五个内部 helper 契约及优先迁移组件；默认值初始化、父接受/拒绝、异步生命周期；最终复核已通过，待本候选交付门禁。
+- [ ] D2：完整浮层堆栈、焦点/滚动管理、placement/arrow/motion/container、关闭中重开、自动 ARIA 与嵌套场景；最终复核已通过，待本候选交付门禁。
+- [ ] D3：嵌套路径、保留/依赖/触发、服务器错误/异步过期、控件协议、AIForm 核心复用；最终复核已通过，待本候选交付门禁。
+
+Final D0–D3 candidate `619fbe6` also closes the previously recorded default danger-token contrast P2 (`#ff4d4f` → `#b42318`). The separate D9 package, device and publication gates remain open.
 
 ## D9 发布与质量门禁
 

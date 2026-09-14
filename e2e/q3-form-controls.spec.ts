@@ -171,7 +171,7 @@ test('Q3 controls preserve sizing, status colors, theme states, and visible keyb
     element.classList.remove('aheart-select--outlined')
     element.classList.add('aheart-select--underlined', 'aheart-select--error')
   })
-  await expect(select.locator('.aheart-select__selector')).toHaveCSS('border-bottom-color', 'rgb(255, 77, 79)')
+  await expect(select.locator('.aheart-select__selector')).toHaveCSS('border-bottom-color', 'rgb(180, 35, 24)')
 
   await page.goto('/components/textarea')
   const textarea = page.locator('.aheart-demo-panel').first().locator('.aheart-textarea')
@@ -179,7 +179,7 @@ test('Q3 controls preserve sizing, status colors, theme states, and visible keyb
     element.classList.remove('aheart-textarea--outlined')
     element.classList.add('aheart-textarea--underlined', 'aheart-textarea--error')
   })
-  await expect(textarea.locator('textarea')).toHaveCSS('border-bottom-color', 'rgb(255, 77, 79)')
+  await expect(textarea.locator('textarea')).toHaveCSS('border-bottom-color', 'rgb(180, 35, 24)')
 
   await page.goto('/components/input-number')
   const inputNumber = page.locator('.aheart-demo-panel').first().locator('.aheart-input-number').first()
@@ -187,7 +187,7 @@ test('Q3 controls preserve sizing, status colors, theme states, and visible keyb
     element.classList.remove('aheart-input-number--outlined')
     element.classList.add('aheart-input-number--underlined', 'aheart-input-number--error')
   })
-  await expect(inputNumber).toHaveCSS('border-bottom-color', 'rgb(255, 77, 79)')
+  await expect(inputNumber).toHaveCSS('border-bottom-color', 'rgb(180, 35, 24)')
 
   await page.goto('/components/checkbox')
   const checkbox = page.locator('.aheart-demo-panel').first().getByRole('checkbox').first()
