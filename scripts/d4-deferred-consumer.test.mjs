@@ -7,6 +7,7 @@ import { promisify } from 'node:util'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import ts from 'typescript'
+import { gzipSync } from 'node:zlib'
 
 import {
   RELEASE_MATRIX,
@@ -1140,6 +1141,21 @@ test('gzip validation rejects an empty JavaScript entry', () => {
     if (file.path.endsWith('.js')) file.contentBase64 = Buffer.from('\n').toString('base64')
   }
   assert.throws(() => validateReport(report), /gzip JavaScript is empty/u)
+})
+
+test('gzip validation rejects nonempty JS without component exports despite valid hashes', () => {
+  const report = fullReport()
+  const digest = bytes => createHash('sha256').update(bytes).digest('hex')
+  for (const file of report.gzip.candidate.files) {
+    if (!file.path.endsWith('.js')) continue
+    const content = Buffer.from('export {};\n')
+    const compressed = gzipSync(content, { level: 9 })
+    Object.assign(file, { contentBase64: content.toString('base64'), rawBytes: content.length, rawSha256: digest(content), gzipBytes: compressed.length, gzipSha256: digest(compressed) })
+  }
+  report.gzip.candidate.rawBytes = report.gzip.candidate.files.reduce((sum, file) => sum + file.rawBytes, 0)
+  report.gzip.candidate.gzipBytes = report.gzip.candidate.files.reduce((sum, file) => sum + file.gzipBytes, 0)
+  report.gzip.deltaBytes = report.gzip.candidate.gzipBytes - report.gzip.baseline.gzipBytes
+  assert.throws(() => validateReport(report), /component exports/u)
 })
 
 test('candidate public type probe is persisted before long browser collection', async () => {

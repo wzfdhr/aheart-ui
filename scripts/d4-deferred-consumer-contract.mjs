@@ -4,6 +4,7 @@ import { cp, mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/p
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
+import ts from 'typescript'
 
 const freeze = value => {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -716,7 +717,7 @@ function packageManifest(label, packagePath) {
 
 function makeBundle(label, files) {
   return files.map((name, index) => {
-    const content = Buffer.from(`d4-${label}-${name}-${index}\n`)
+    const content = Buffer.from(name.endsWith('.js') ? `export const Tree={}, TreeSelect={}, Cascader={}; // fixture ${label}-${index}\n` : `d4-${label}-${name}-${index}\n`)
     const compressed = gzipSync(content, { level: 9 })
     return {
       path: name,
@@ -1049,6 +1050,22 @@ export function recomputeEvidence(report) {
     ensure(Array.isArray(bundle?.files) && bundle.files.length > 0, `${side} gzip evidence must list files`, errors)
     const files = bundle?.files ?? []
     const names = files.map(file => file.path)
+    const hasComponentEntry = files.filter(file => file.path.endsWith('.js')).some(file => {
+      const source = ts.createSourceFile(file.path, Buffer.from(file.contentBase64 ?? '', 'base64').toString('utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+      if (source.parseDiagnostics.length) return false
+      const exports = new Set()
+      for (const statement of source.statements) {
+        if (ts.isExportDeclaration(statement) && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+          for (const item of statement.exportClause.elements) exports.add(item.name.text)
+        }
+        if (statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)) {
+          if (ts.isVariableStatement(statement)) for (const item of statement.declarationList.declarations) { if (ts.isIdentifier(item.name)) exports.add(item.name.text) }
+          else if (statement.name && ts.isIdentifier(statement.name)) exports.add(statement.name.text)
+        }
+      }
+      return COMPONENTS.every(name => exports.has(name))
+    })
+    ensure(hasComponentEntry, `${side} gzip entry is missing component exports`, errors)
     ensure(files.some(file => file.path.endsWith('.js') && Buffer.from(file.contentBase64 ?? '', 'base64').toString('utf8').trim().length > 0), `${side} gzip JavaScript is empty`, errors)
     ensure(new Set(names).size === names.length, `${side} gzip evidence contains duplicate assets`, errors)
     ensure(names.some(name => name.endsWith('.js')) && names.some(name => name.endsWith('.css')) && names.some(name => name.includes('/')), `${side} gzip evidence must include recursive JS/CSS assets`, errors)
