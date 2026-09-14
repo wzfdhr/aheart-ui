@@ -137,6 +137,10 @@ test('splits CI into observable unit, typecheck, build, docs, consumer and brows
   assert.match(workflowSource, /pnpm test:e2e:non-qg5/)
   assert.match(workflowSource, /scripts\/root-entry-consumer\.mjs/)
   assert.match(workflowSource, /scripts\/form-list-consumer\.mjs/)
+  assert.match(workflowSource, /docs\/superpowers\/experiments\/d8-consumer\/run\.mjs/)
+  assert.match(workflowSource, /--components-tarball/)
+  assert.match(workflowSource, /--dnd-tarball/)
+  assert.match(workflowSource, /--ai-tarball/)
   assert.doesNotMatch(workflowSource, /  verify:\n/)
 })
 

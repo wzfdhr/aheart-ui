@@ -145,13 +145,20 @@ jobs:
           pack_dir=$(mktemp -d)
           root_out=$(mktemp -d)
           form_out=$(mktemp -d)
+          d8_out=$(mktemp -d)
           pnpm --dir packages/components pack --json --pack-destination "$pack_dir" > "$pack_dir/pack.json"
-          tarball=$(find "$pack_dir" -name '*.tgz' -print -quit)
-          node scripts/root-entry-consumer.mjs --tarball "$tarball" --out "$root_out"
-          node scripts/form-list-consumer.mjs --tarball "$tarball" --out "$form_out"
+          pnpm --dir packages/dnd pack --json --pack-destination "$pack_dir" > "$pack_dir/dnd-pack.json"
+          pnpm --dir packages/ai pack --json --pack-destination "$pack_dir" > "$pack_dir/ai-pack.json"
+          components_tarball="$pack_dir/aheart-ui-1.0.0.tgz"
+          dnd_tarball="$pack_dir/aheart-ui-dnd-1.0.0.tgz"
+          ai_tarball="$pack_dir/aheart-ui-ai-1.0.0.tgz"
+          node scripts/root-entry-consumer.mjs --tarball "$components_tarball" --out "$root_out"
+          node scripts/form-list-consumer.mjs --tarball "$components_tarball" --out "$form_out"
+          node docs/superpowers/experiments/d8-consumer/run.mjs --out "$d8_out" --components-tarball "$components_tarball" --dnd-tarball "$dnd_tarball" --ai-tarball "$ai_tarball"
           mkdir -p test-results/d9-consumers
           cp "$root_out/results.json" test-results/d9-consumers/root-results.json
           cp "$form_out/results.json" test-results/d9-consumers/form-results.json
+          cp "$d8_out/results.json" test-results/d9-consumers/d8-results.json
       - name: Upload Consumer Evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
