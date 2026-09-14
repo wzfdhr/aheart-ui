@@ -21,42 +21,69 @@ on:
       - master
 
 jobs:
-  verify:
+  unit:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.15.4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24.17.0
           cache: pnpm
-
       - name: Install
         run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Unit and script tests
+        run: pnpm test
 
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.17.0
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
-
-      - name: Test
-        run: pnpm test
-
+  build-generated:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.17.0
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
       - name: Check Build Determinism and Generated Output
         id: build_generated
         run: pnpm check:build-determinism
-
       - name: Capture Build Diagnostics
         if: ${{ failure() && steps.build_generated.outcome == 'failure' }}
         run: |
@@ -64,7 +91,6 @@ jobs:
           git diff --cached HEAD -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/build-generated-diagnostics/generated-cached.diff
           git diff -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/build-generated-diagnostics/generated-worktree.diff
           git ls-files --others -- packages/components/es packages/components/lib packages/dnd/es packages/dnd/lib packages/ai/es packages/ai/lib > test-results/build-generated-diagnostics/generated-untracked.txt
-
       - name: Upload Build Diagnostics
         if: ${{ failure() && steps.build_generated.outcome == 'failure' }}
         uses: actions/upload-artifact@v4
@@ -72,17 +98,89 @@ jobs:
           name: build-generated-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
           path: test-results/build-generated-diagnostics/
           if-no-files-found: error
+      - name: Check Whitespace
+        run: git diff --check
 
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.17.0
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
       - name: Build Docs
         run: pnpm docs:build
 
+  consumer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.17.0
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
       - name: Verify Release Tarballs
         run: pnpm release:pack
+      - name: Pack and run isolated consumers
+        run: |
+          pack_dir=$(mktemp -d)
+          root_out=$(mktemp -d)
+          form_out=$(mktemp -d)
+          pnpm --dir packages/components pack --json --pack-destination "$pack_dir" > "$pack_dir/pack.json"
+          tarball=$(find "$pack_dir" -name '*.tgz' -print -quit)
+          node scripts/root-entry-consumer.mjs --tarball "$tarball" --out "$root_out"
+          node scripts/form-list-consumer.mjs --tarball "$tarball" --out "$form_out"
+          mkdir -p test-results/d9-consumers
+          cp "$root_out/results.json" test-results/d9-consumers/root-results.json
+          cp "$form_out/results.json" test-results/d9-consumers/form-results.json
+      - name: Upload Consumer Evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: consumer-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/d9-consumers/
+          if-no-files-found: error
 
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.17.0
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
       - name: End-to-End Tests
         id: e2e
-        run: pnpm test:e2e
-
+        run: pnpm test:e2e:non-qg5
       - name: Upload End-to-End Evidence
         if: ${{ always() && steps.e2e.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
@@ -92,9 +190,6 @@ jobs:
             test-results/
             playwright-report/
           if-no-files-found: warn
-
-      - name: Check Whitespace
-        run: git diff --check
 
   qg5-cross-browser:
     runs-on: ubuntu-latest
@@ -107,31 +202,24 @@ jobs:
           - desktop-firefox
           - desktop-webkit
           - mobile-webkit
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.15.4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24.17.0
           cache: pnpm
-
       - name: Install
         run: pnpm install --frozen-lockfile
-
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps chromium firefox webkit
-
       - name: QG5 E2E
         run: pnpm exec playwright test e2e/cross-browser-production.spec.ts e2e/cross-browser-r1.spec.ts --project "${{ matrix.project }}"
-
       - name: Upload QG5 Playwright Evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

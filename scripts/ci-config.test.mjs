@@ -130,6 +130,16 @@ test('allows repeatable QG5 baseline collection on master without weakening push
   assert.match(qg5Job, /qg5-cross-browser/)
 })
 
+test('splits CI into observable unit, typecheck, build, docs, consumer and browser jobs', () => {
+  for (const job of ['  unit:', '  typecheck:', '  build-generated:', '  docs:', '  consumer:', '  browser:', '  qg5-cross-browser:']) {
+    assert.match(workflowSource, new RegExp(`\\n${job}`), `${job} job is missing`)
+  }
+  assert.match(workflowSource, /pnpm test:e2e:non-qg5/)
+  assert.match(workflowSource, /scripts\/root-entry-consumer\.mjs/)
+  assert.match(workflowSource, /scripts\/form-list-consumer\.mjs/)
+  assert.doesNotMatch(workflowSource, /  verify:\n/)
+})
+
 test('exposes dedicated QG5 evidence commands without adding them to the ordinary unit test entry point', () => {
   assert.equal(workspacePackage.scripts['test:e2e:qg5'], 'playwright test e2e/cross-browser-production.spec.ts e2e/cross-browser-r1.spec.ts')
   assert.equal(workspacePackage.scripts['check:qg5-ios-safari'], 'node scripts/qg5-ios-safari-evidence.mjs')
