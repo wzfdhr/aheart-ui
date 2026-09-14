@@ -69,6 +69,23 @@ export interface FormFieldState {
   preserve: boolean
 }
 
+export interface FormListField {
+  key: string
+  name: number
+  fieldKey: string
+}
+
+export interface FormListOperations {
+  add: (defaultValue?: unknown, insertIndex?: number) => void
+  remove: (index: number | readonly number[]) => void
+  move: (from: number, to: number) => void
+}
+
+export interface FormListSlotProps extends FormListOperations {
+  fields: FormListField[]
+  errors: string[]
+}
+
 export interface FormContext {
   requiredMark: ComputedRef<FormRequiredMark>
   colon: ComputedRef<boolean>
@@ -187,5 +204,16 @@ export const formItemProps = {
   preserve: { type: Boolean, default: undefined }
 } as const
 
+export const formListProps = {
+  name: {
+    type: [String, Array] as PropType<FormNamePath>,
+    required: true
+  },
+  initialValue: Array as PropType<unknown[]>,
+  rules: Array as PropType<FormRule[]>,
+  preserve: { type: Boolean, default: undefined }
+} as const
+
 export type FormProps = ExtractPropTypes<typeof formProps>
 export type FormItemProps = ExtractPropTypes<typeof formItemProps>
+export type FormListProps = ExtractPropTypes<typeof formListProps>

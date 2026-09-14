@@ -2,6 +2,9 @@ import { defineComponent, inject, useSlots, ref, computed, onMounted, onUpdated,
 import _sfc_main$1 from "../tooltip/tooltip.vue.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { mergeAriaIds, formControlKey } from "./control-context.js";
+import { formInternalContextKey } from "./internal-context.js";
+import { formListNameContextKey } from "./list-context.js";
+import { namePathKey } from "./name-path.js";
 import { formItemProps, formContextKey } from "./types.js";
 import "./style.css.js";
 const _hoisted_1 = ["data-name"];
@@ -40,6 +43,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props) {
     const props = __props;
     const formContext = inject(formContextKey, void 0);
+    const formInternalContext = inject(formInternalContextKey, void 0);
+    const formListContext = inject(formListNameContextKey, void 0);
     const ATooltip = _sfc_main$1;
     const slots = useSlots();
     const itemRef = ref();
@@ -80,17 +85,40 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return find(((_a = slots.default) == null ? void 0 : _a.call(slots)) ?? []);
     };
     let disposed = false;
+    const resolvedName = computed(
+      () => props.name === void 0 ? void 0 : (formListContext == null ? void 0 : formListContext.resolveName(props.name)) ?? props.name
+    );
+    const resolvedOwner = computed(
+      () => props.name === void 0 ? void 0 : formListContext == null ? void 0 : formListContext.resolveOwner(props.name)
+    );
+    const resolvedDependencies = computed(
+      () => (props.dependencies ?? []).map((dependency) => (formListContext == null ? void 0 : formListContext.resolveName(dependency)) ?? dependency)
+    );
+    const dataName = computed(() => {
+      const name = resolvedName.value;
+      return name === void 0 ? void 0 : typeof name === "string" ? name : JSON.stringify(name);
+    });
     const notifyControl = (kind) => {
-      const name = typeof props.name === "string" ? props.name : props.name ? [...props.name] : void 0;
+      const currentName = resolvedName.value;
+      const name = typeof currentName === "string" ? currentName : currentName ? [...currentName] : void 0;
+      const owner = resolvedOwner.value;
       if (name === void 0)
         return;
       void nextTick(() => {
-        if (disposed || JSON.stringify(name) !== JSON.stringify(props.name))
+        const latestName = resolvedName.value;
+        if (disposed || latestName === void 0)
           return;
-        if (kind === "change")
-          formContext == null ? void 0 : formContext.onFieldChange(name);
-        else
-          formContext == null ? void 0 : formContext.onFieldBlur(name);
+        if (formInternalContext && owner) {
+          if (kind === "change")
+            formInternalContext.onOwnedFieldChange(name, owner);
+          else
+            formInternalContext.onOwnedFieldBlur(name, owner);
+        } else if (namePathKey(name) === namePathKey(latestName)) {
+          if (kind === "change")
+            formContext == null ? void 0 : formContext.onFieldChange(name);
+          else
+            formContext == null ? void 0 : formContext.onFieldBlur(name);
+        }
       });
     };
     const syncExplicitControlId = () => {
@@ -149,19 +177,31 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const effectiveMessageVariables = computed(() => {
       var _a;
       return {
-        name: typeof props.name === "string" ? props.name : ((_a = props.name) == null ? void 0 : _a.join(".")) ?? "",
+        name: typeof resolvedName.value === "string" ? resolvedName.value : ((_a = resolvedName.value) == null ? void 0 : _a.join(".")) ?? "",
         ...labelMessageVariable.value !== void 0 ? { label: labelMessageVariable.value } : {},
         ...props.messageVariables
       };
     });
-    const fieldErrors = computed(() => props.name !== void 0 ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
-    const isRequired = computed(() => Boolean(props.required || props.name !== void 0 && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
+    const fieldErrors = computed(() => {
+      const name = resolvedName.value;
+      if (name === void 0)
+        return [];
+      return resolvedOwner.value && formInternalContext ? formInternalContext.getFieldErrors(name) : (formContext == null ? void 0 : formContext.getFieldErrors(name)) ?? [];
+    });
+    const isRequired = computed(() => {
+      const name = resolvedName.value;
+      if (props.required)
+        return true;
+      if (name === void 0)
+        return false;
+      return resolvedOwner.value && formInternalContext ? formInternalContext.isFieldRequired(name) : (formContext == null ? void 0 : formContext.isFieldRequired(name)) ?? false;
+    });
     const showRequiredMark = computed(() => isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) !== false);
     const showOptionalMark = computed(
       () => Boolean(props.label || props.name) && !isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) === "optional"
     );
     const effectiveValidateStatus = computed(
-      () => props.validateStatus ?? (props.name !== void 0 && (formContext == null ? void 0 : formContext.isFieldValidating(props.name)) ? "validating" : fieldErrors.value.length > 0 ? "error" : void 0)
+      () => props.validateStatus ?? (resolvedName.value !== void 0 && (resolvedOwner.value && formInternalContext ? formInternalContext.isFieldValidating(resolvedName.value) : formContext == null ? void 0 : formContext.isFieldValidating(resolvedName.value)) ? "validating" : fieldErrors.value.length > 0 ? "error" : void 0)
     );
     const effectiveHelp = computed(() => props.help !== void 0 ? props.help : fieldErrors.value[0] ?? "");
     const hasHelp = computed(() => hasRenderableContent(effectiveHelp.value));
@@ -217,24 +257,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     let registeredName;
+    let registeredOwner;
     watch(
-      () => [props.name, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value, props.dependencies, props.validateTrigger, props.preserve],
-      ([name, rules, validateFirst, messageVariables, dependencies, validateTrigger, preserve]) => {
+      () => [resolvedName.value, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value, resolvedDependencies.value, props.validateTrigger, props.preserve, resolvedOwner.value],
+      ([name, rules, validateFirst, messageVariables, dependencies, validateTrigger, preserve, owner]) => {
         const previousName = registeredName;
-        if (previousName !== void 0 && JSON.stringify(previousName) !== JSON.stringify(name)) {
-          formContext == null ? void 0 : formContext.unregisterField(previousName);
+        const previousOwner = registeredOwner;
+        if (previousName !== void 0 && (name === void 0 || namePathKey(previousName) !== namePathKey(name) || previousOwner !== owner)) {
+          if (previousOwner && formInternalContext)
+            formInternalContext.unregisterOwnedField(previousName, previousOwner);
+          else
+            formContext == null ? void 0 : formContext.unregisterField(previousName);
         }
         if (name !== void 0) {
-          formContext == null ? void 0 : formContext.registerField(name, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve });
+          if (owner && formInternalContext)
+            formInternalContext.registerOwnedField(name, owner, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve });
+          else
+            formContext == null ? void 0 : formContext.registerField(name, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve });
         }
         registeredName = typeof name === "string" ? name : name ? [...name] : void 0;
+        registeredOwner = owner;
       },
       { immediate: true, deep: true }
     );
     onBeforeUnmount(() => {
       disposed = true;
       if (registeredName !== void 0) {
-        formContext == null ? void 0 : formContext.unregisterField(registeredName);
+        if (registeredOwner && formInternalContext)
+          formInternalContext.unregisterOwnedField(registeredName, registeredOwner);
+        else
+          formContext == null ? void 0 : formContext.unregisterField(registeredName);
       }
     });
     const formItemClass = computed(() => ({
@@ -263,7 +315,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ref_key: "itemRef",
         ref: itemRef,
         class: normalizeClass(["aheart-form-item", formItemClass.value]),
-        "data-name": typeof _ctx.name === "string" ? _ctx.name : JSON.stringify(_ctx.name)
+        "data-name": dataName.value
       }, [
         _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (openBlock(), createElementBlock("label", {
           key: 0,

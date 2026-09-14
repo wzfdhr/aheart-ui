@@ -512,6 +512,65 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         extra?(_: {}): any;
     };
 })>;
+export declare const FormList: import("../utils/install").SFCWithInstall<{
+    new (...args: any[]): import("vue").CreateComponentPublicInstanceWithMixins<Readonly<import("vue").ExtractPropTypes<{
+        readonly name: {
+            readonly type: import("vue").PropType<import("./types").FormNamePath>;
+            readonly required: true;
+        };
+        readonly initialValue: import("vue").PropType<unknown[]>;
+        readonly rules: import("vue").PropType<import("./types").FormRule[]>;
+        readonly preserve: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
+    }>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, import("vue").PublicProps, {
+        readonly preserve: boolean;
+    }, true, {}, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, {}, any, import("vue").ComponentProvideOptions, {
+        P: {};
+        B: {};
+        D: {};
+        C: {};
+        M: {};
+        Defaults: {};
+    }, Readonly<import("vue").ExtractPropTypes<{
+        readonly name: {
+            readonly type: import("vue").PropType<import("./types").FormNamePath>;
+            readonly required: true;
+        };
+        readonly initialValue: import("vue").PropType<unknown[]>;
+        readonly rules: import("vue").PropType<import("./types").FormRule[]>;
+        readonly preserve: {
+            readonly type: BooleanConstructor;
+            readonly default: undefined;
+        };
+    }>> & Readonly<{}>, {}, {}, {}, {}, {
+        readonly preserve: boolean;
+    }>;
+    __isFragment?: undefined;
+    __isTeleport?: undefined;
+    __isSuspense?: undefined;
+} & import("vue").ComponentOptionsBase<Readonly<import("vue").ExtractPropTypes<{
+    readonly name: {
+        readonly type: import("vue").PropType<import("./types").FormNamePath>;
+        readonly required: true;
+    };
+    readonly initialValue: import("vue").PropType<unknown[]>;
+    readonly rules: import("vue").PropType<import("./types").FormRule[]>;
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+}>> & Readonly<{}>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, {
+    readonly preserve: boolean;
+}, {}, string, {}, import("vue").GlobalComponents, import("vue").GlobalDirectives, string, import("vue").ComponentProvideOptions> & import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps & (new () => {
+    $slots: Readonly<{
+        default?: ((props: import("./types").FormListSlotProps) => unknown) | undefined;
+    }> & {
+        default?: ((props: import("./types").FormListSlotProps) => unknown) | undefined;
+    };
+})>;
 export { FormItem as AFormItem };
+export { FormList as AFormList };
 export default Form;
 export type * from './types';

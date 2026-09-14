@@ -36,7 +36,7 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
 
   assert.match(configSource, /const d7DndOnly = \/d7-dnd\\.spec\\.ts\//)
   assert.match(configSource, /const d8AiOnly = \/d8-ai\\.spec\\.ts\//)
-  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly\]/)
+  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, formListOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly\]/)
   assert.ok(configSource.includes('const d5TableOnly = /d5-table-pagination\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableBOnly = /d5-table-b\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableCOnly = /d5-table-c\\.spec\\.ts/'))
@@ -47,6 +47,7 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
   assert.ok(configSource.includes('const d4SelectionOnly = /d4-selection\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d4IframeOnly = /d4-iframe\\.spec\\.ts/'))
   assert.ok(configSource.includes('const formEngineOnly = /form-engine\\.spec\\.ts/'))
+  assert.ok(configSource.includes('const formListOnly = /form-list\\.spec\\.ts/'))
   for (const project of ['desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
     assert.match(
       configSource,
@@ -55,6 +56,17 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
   }
   assert.ok(configSource.includes('const d4CascaderVirtualOnly = /d4-cascader-virtual\\.spec\\.ts/'))
   assert.match(configSource, /const crossBrowserTests = \[[^\]]*d4CascaderVirtualOnly[^\]]*\]/)
+})
+
+test('routes the Form.List browser suite through all five configured browsers', () => {
+  assert.ok(configSource.includes("const formListOnly = /form-list\\.spec\\.ts/"))
+  assert.match(configSource, /const crossBrowserTests = \[[^\]]*formListOnly[^\]]*\]/)
+  for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
+  }
+  for (const project of ['desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'[^}]*testMatch:\s*crossBrowserTests`))
+  }
 })
 
 test('routes the Cascader virtual browser suite through all five configured browsers', () => {

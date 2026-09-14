@@ -20,7 +20,22 @@ import {
   type FormValidateFirst,
   type FormValidationError
 } from './types'
-import { deleteNamePathValue, getNamePathValue, namePathKey, namePathLabel, normalizeNamePath, setNamePathValue } from './name-path'
+import {
+  deleteNamePathValue,
+  getNamePathValue,
+  matchListDescendant,
+  namePathKey,
+  namePathLabel,
+  namePathSegments,
+  normalizeNamePath,
+  remapListDescendant,
+  setNamePathValue
+} from './name-path'
+import {
+  formInternalContextKey,
+  type FormInternalContext,
+  type FormListController
+} from './internal-context'
 import './style.css'
 
 defineOptions({
@@ -136,8 +151,12 @@ const initialValues = cloneInitialValue(props.model)
 const retiredFieldNames = new Set<string>()
 const validationRuns = new Map<string, number>()
 const externalErrors = reactive(new Map<string, string[]>())
+const fieldOwners = new Map<string, string>()
+const recentlyRemappedOwners = new Set<string>()
+const listControllers = new Map<string, FormListController>()
 let submissionRun = 0
 let validationRevision = 0
+let listMutationDepth = 0
 let disposed = false
 let resetting = false
 const staleValidation = Symbol('stale-validation')
@@ -398,6 +417,7 @@ const getFieldNames = () => Array.from(fieldNames.entries()).filter(([key]) => !
   .concat(Object.keys(props.rules).filter((name) => !fieldNames.has(namePathKey(name)) && !retiredFieldNames.has(namePathKey(name))).map((name) => name as FormNamePath))
 
 const validateFields = (names?: FormNamePath[]) => {
+  flushPendingListReconciliation()
   const startRevision = validationRevision
   const targets = names ?? getFieldNames()
   const results = targets.map((name) => validateField(name))
@@ -420,33 +440,52 @@ const validateFields = (names?: FormNamePath[]) => {
 const validate = () => validateFields()
 
 const resetFields = (names?: FormNamePath[]) => {
+  flushPendingListReconciliation()
   const targetNames = (names ?? getFieldNames()).map(normalizeNamePath)
   submissionRun += 1
   validationRevision += 1
   resetting = true
+  listMutationDepth += 1
   pendingValidations.clear()
+  try {
+    targetNames.forEach((name) => {
+      const key = namePathKey(name)
+      validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1)
+      externalErrors.delete(key)
 
+      if (typeof name === 'string' && Object.prototype.hasOwnProperty.call(initialValues, name)) {
+        setNamePathValue(props.model, name, cloneInitialValue(initialValues[name]))
+      } else if (typeof name !== 'string' && getNamePathValue(initialValues, name) !== undefined) {
+        setNamePathValue(props.model, name, cloneInitialValue(getNamePathValue(initialValues, name)))
+      } else {
+        deleteNamePathValue(props.model, name)
+      }
+
+      if (fieldStates[key]) {
+        fieldStates[key].errors = []
+        fieldStates[key].validating = false
+      }
+    })
+
+    const targetKeys = new Set(targetNames.map(namePathKey))
+    const controllers = Array.from(new Set(listControllers.values()))
+      .filter(controller => targetKeys.has(namePathKey(controller.name)))
+      .sort((left, right) => namePathSegments(left.name).length - namePathSegments(right.name).length)
+    for (const controller of controllers) {
+      if (listControllers.get(namePathKey(controller.name)) !== controller) continue
+      const value = getNamePathValue(props.model, controller.name)
+      controller.reset(Array.isArray(value) ? value : [])
+      remapOwnedListState(controller.name, new Map(), controller.owner)
+    }
+  } finally {
+    listMutationDepth -= 1
+    resetting = false
+  }
+  observedModel = cloneValues()
   targetNames.forEach((name) => {
     const key = namePathKey(name)
-    validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1)
-    externalErrors.delete(key)
-
-    if (typeof name === 'string' && Object.prototype.hasOwnProperty.call(initialValues, name)) {
-      setNamePathValue(props.model, name, cloneInitialValue(initialValues[name]))
-    } else if (typeof name !== 'string' && getNamePathValue(initialValues, name) !== undefined) {
-      setNamePathValue(props.model, name, cloneInitialValue(getNamePathValue(initialValues, name)))
-    } else {
-      deleteNamePathValue(props.model, name)
-    }
-
-    if (fieldStates[key]) {
-      fieldStates[key].errors = []
-      fieldStates[key].validating = false
-    }
+    if (fieldNames.has(key)) notifiedValues.set(key, cloneInitialValue(getNamePathValue(props.model, name)))
   })
-  resetting = false
-  observedModel = cloneValues()
-  targetNames.forEach((name) => notifiedValues.set(namePathKey(name), cloneInitialValue(getNamePathValue(props.model, name))))
 }
 
 const clearValidate = (names?: FormNamePath[]) => {
@@ -561,21 +600,176 @@ const invalidateField = (name: FormNamePath) => {
 }
 const shouldTrigger = (trigger: FormFieldState['validateTrigger'] | undefined, event: 'change' | 'blur') =>
   trigger !== false && (trigger === event || (Array.isArray(trigger) && trigger.includes(event)))
-const observeModel = () => {
-  const previous = observedModel
-  observedModel = cloneValues()
+
+const isOwnedBy = (owner: string | undefined, prefix: string) =>
+  owner === prefix || owner?.startsWith(`${prefix}/`) === true
+
+const warnFormList = (message: string) => {
+  if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV) console.warn(`[AFormList] ${message}`)
+}
+
+const remapOwnedListState = (
+  listName: FormNamePath,
+  oldIndexToNewIndex: ReadonlyMap<number, number>,
+  ownerPrefix: string
+) => {
+  const skippedValueInvalidation = new Set<string>()
+  const fieldSnapshots = Array.from(fieldNames.entries()).flatMap(([oldKey, name]) => {
+    const owner = fieldOwners.get(oldKey)
+    const match = owner && isOwnedBy(owner, ownerPrefix) ? matchListDescendant(name, listName) : undefined
+    if (!match) return []
+    const nextName = remapListDescendant(name, listName, oldIndexToNewIndex)
+    return [{
+      oldKey,
+      oldIndex: match.index,
+      nextName,
+      state: fieldStates[oldKey],
+      options: fieldOptions.get(oldKey),
+      run: validationRuns.get(oldKey) ?? 0,
+      external: externalErrors.get(oldKey),
+      notified: notifiedValues.get(oldKey),
+      hasNotified: notifiedValues.has(oldKey),
+      owner
+    }]
+  })
+
+  const nestedControllers = Array.from(new Set(listControllers.values())).flatMap((controller) => {
+    const match = isOwnedBy(controller.owner, ownerPrefix) ? matchListDescendant(controller.name, listName) : undefined
+    if (!match) return []
+    return [{ controller, oldKey: namePathKey(controller.name), nextName: remapListDescendant(controller.name, listName, oldIndexToNewIndex) }]
+  })
+
+  for (const snapshot of fieldSnapshots) {
+    delete fieldStates[snapshot.oldKey]
+    fieldNames.delete(snapshot.oldKey)
+    fieldOptions.delete(snapshot.oldKey)
+    pendingValidations.delete(snapshot.oldKey)
+    notifiedValues.delete(snapshot.oldKey)
+    externalErrors.delete(snapshot.oldKey)
+    fieldOwners.delete(snapshot.oldKey)
+    validationRuns.set(snapshot.oldKey, snapshot.run + 1)
+    retiredFieldNames.delete(snapshot.oldKey)
+  }
+
+  for (const { controller, oldKey } of nestedControllers) {
+    if (listControllers.get(oldKey) === controller) listControllers.delete(oldKey)
+  }
+
+  for (const snapshot of fieldSnapshots) {
+    if (!snapshot.nextName || !snapshot.state) continue
+    const nextKey = namePathKey(snapshot.nextName)
+    const nextIndex = matchListDescendant(snapshot.nextName, listName)?.index
+    if (fieldNames.has(nextKey) && !fieldSnapshots.some(candidate => candidate.oldKey === nextKey)) {
+      warnFormList(`cannot remap field state to occupied path ${namePathLabel(snapshot.nextName)}`)
+      continue
+    }
+    snapshot.state.validating = false
+    snapshot.state.dependencies = snapshot.state.dependencies.map((dependency) =>
+      remapListDescendant(dependency, listName, oldIndexToNewIndex) ?? dependency
+    )
+    fieldStates[nextKey] = snapshot.state
+    fieldNames.set(nextKey, snapshot.nextName)
+    if (snapshot.options) fieldOptions.set(nextKey, snapshot.options)
+    validationRuns.set(nextKey, snapshot.run + 1)
+    if (snapshot.external) externalErrors.set(nextKey, snapshot.external)
+    notifiedValues.set(nextKey, snapshot.hasNotified
+      ? cloneInitialValue(snapshot.notified)
+      : cloneInitialValue(getNamePathValue(props.model, snapshot.nextName)))
+    if (snapshot.owner) fieldOwners.set(nextKey, snapshot.owner)
+    retiredFieldNames.delete(nextKey)
+    if (nextIndex !== snapshot.oldIndex) {
+      skippedValueInvalidation.add(nextKey)
+      if (snapshot.owner) {
+        const remappedOwner = snapshot.owner
+        recentlyRemappedOwners.add(remappedOwner)
+        void nextTick(() => recentlyRemappedOwners.delete(remappedOwner))
+      }
+    }
+  }
+
+  for (const { controller, nextName } of nestedControllers) {
+    if (!nextName) continue
+    const nextKey = namePathKey(nextName)
+    const occupied = listControllers.get(nextKey)
+    if (occupied && occupied !== controller) {
+      warnFormList(`cannot remap nested list to occupied path ${namePathLabel(nextName)}`)
+      continue
+    }
+    controller.name = nextName
+    listControllers.set(nextKey, controller)
+  }
+
+  validationRevision += 1
+  submissionRun += 1
+  return skippedValueInvalidation
+}
+
+const reconcileExternalLists = () => {
+  const skippedValueInvalidation = new Set<string>()
+  const controllers = Array.from(new Set(listControllers.values()))
+    .sort((left, right) => namePathSegments(left.name).length - namePathSegments(right.name).length)
+  for (const controller of controllers) {
+    if (listControllers.get(namePathKey(controller.name)) !== controller) continue
+    const value = getNamePathValue(props.model, controller.name)
+    const items = Array.isArray(value) ? value : []
+    const result = controller.reconcile(items)
+    if (!result) continue
+    for (const key of remapOwnedListState(controller.name, result.oldIndexToNewIndex, controller.owner)) {
+      skippedValueInvalidation.add(key)
+    }
+  }
+  return skippedValueInvalidation
+}
+
+const processModelChanges = (previous: FormModel, skippedValueInvalidation = new Set<string>()) => {
   for (const name of getFieldNames()) {
     const key = namePathKey(name)
-    if (!isSameFormValue(getNamePathValue(previous, name), getNamePathValue(props.model, name))) {
+    if (!skippedValueInvalidation.has(key) && !isSameFormValue(getNamePathValue(previous, name), getNamePathValue(props.model, name))) {
       invalidateField(name)
       clearExternalError(name)
     }
     const dependencies = fieldStates[key]?.dependencies ?? []
-    if (!resetting && dependencies.some((path) => !isSameFormValue(getNamePathValue(previous, path), getNamePathValue(props.model, path)))) {
+    if (!resetting && !skippedValueInvalidation.has(key) && dependencies.some((path) => !isSameFormValue(getNamePathValue(previous, path), getNamePathValue(props.model, path)))) {
       invalidateField(name)
       queueValidation(name)
     }
   }
+}
+
+let externalListReconcileScheduled = false
+let externalListPreviousModel: FormModel | undefined
+const needsExternalListReconcile = () => Array.from(new Set(listControllers.values())).some(controller => {
+  const value = getNamePathValue(props.model, controller.name)
+  return controller.needsReconcile(Array.isArray(value) ? value : [])
+})
+
+const flushPendingListReconciliation = () => {
+  if (!externalListReconcileScheduled) return
+  externalListReconcileScheduled = false
+  const previous = externalListPreviousModel ?? observedModel
+  externalListPreviousModel = undefined
+  if (disposed) return
+  const skippedValueInvalidation = reconcileExternalLists()
+  observedModel = cloneValues()
+  processModelChanges(previous, skippedValueInvalidation)
+}
+
+const scheduleExternalListReconciliation = () => {
+  if (externalListReconcileScheduled) return
+  externalListReconcileScheduled = true
+  externalListPreviousModel = observedModel
+  queueMicrotask(flushPendingListReconciliation)
+}
+
+const observeModel = () => {
+  if (listMutationDepth > 0) return
+  if (externalListReconcileScheduled || needsExternalListReconcile()) {
+    scheduleExternalListReconciliation()
+    return
+  }
+  const previous = observedModel
+  observedModel = cloneValues()
+  processModelChanges(previous)
 }
 watch(() => props.model, observeModel, { deep: true, flush: 'sync' })
 watch(() => props.rules, () => {
@@ -590,12 +784,17 @@ watch(() => [props.validateTrigger, props.preserve], () => {
   })
 }, { deep: true })
 
-const formContext: FormContext = {
-  requiredMark: computed(() => props.requiredMark),
-  colon: computed(() => props.colon),
-  registerField(name, rules, validateFirst: FormValidateFirst, messageVariables: FormMessageVariables, options) {
+const registerField = (
+  name: FormNamePath,
+  rules: FormRule[],
+  validateFirst: FormValidateFirst,
+  messageVariables: FormMessageVariables,
+  options?: { dependencies?: FormNamePath[]; validateTrigger?: FormFieldState['validateTrigger']; preserve?: boolean },
+  owner?: string
+) => {
     const key = namePathKey(name)
     const previousState = fieldStates[key]
+    const previousOwner = fieldOwners.get(key)
     const effectiveTrigger = options?.validateTrigger === undefined ? props.validateTrigger : options.validateTrigger
     const effectivePreserve = options?.preserve === undefined ? props.preserve : options.preserve
     const changed = previousState && (!isSameFormValue(previousState.rules, rules) || previousState.validateFirst !== validateFirst || !isSameFormValue(previousState.messageVariables, messageVariables) || !isSameFormValue(previousState.dependencies, options?.dependencies ?? []))
@@ -603,7 +802,10 @@ const formContext: FormContext = {
     fieldNames.set(key, normalizeNamePath(name))
     if (!notifiedValues.has(key)) notifiedValues.set(key, cloneInitialValue(getNamePathValue(props.model, name)))
     fieldOptions.set(key, { validateTrigger: options?.validateTrigger, preserve: options?.preserve })
-    if (changed) invalidateField(name)
+    if (owner === undefined) fieldOwners.delete(key)
+    else fieldOwners.set(key, owner)
+    const lifecycleRemap = owner !== undefined && previousOwner === owner && recentlyRemappedOwners.delete(owner)
+    if (changed && !lifecycleRemap) invalidateField(name)
     fieldStates[key] = {
       errors: fieldStates[key]?.errors ?? [],
       validating: fieldStates[key]?.validating ?? false,
@@ -614,9 +816,11 @@ const formContext: FormContext = {
       validateTrigger: effectiveTrigger,
       preserve: effectivePreserve
     }
-  },
-  unregisterField(name) {
+}
+
+const unregisterField = (name: FormNamePath, owner?: string) => {
     const key = namePathKey(name)
+    if (owner !== undefined && fieldOwners.get(key) !== owner) return
     const state = fieldStates[key]
     retiredFieldNames.add(key)
     validationRevision += 1
@@ -627,7 +831,44 @@ const formContext: FormContext = {
     fieldOptions.delete(key)
     pendingValidations.delete(key)
     notifiedValues.delete(key)
+    fieldOwners.delete(key)
+    if (owner) recentlyRemappedOwners.delete(owner)
     if (state?.preserve === false) deleteNamePathValue(props.model, name)
+}
+
+const resolveOwnedName = (name: FormNamePath, owner: string) => {
+  const directKey = namePathKey(name)
+  if (fieldOwners.get(directKey) === owner) return fieldNames.get(directKey) ?? name
+  for (const [key, candidateOwner] of fieldOwners) {
+    if (candidateOwner === owner) return fieldNames.get(key) ?? name
+  }
+  return undefined
+}
+
+const notifyFieldChange = (name: FormNamePath) => {
+    flushPendingListReconciliation()
+    observeModel()
+    const key = namePathKey(name)
+    const value = getNamePathValue(props.model, name)
+    if (isSameFormValue(value, notifiedValues.get(key))) return
+    notifiedValues.set(key, cloneInitialValue(value))
+    if (shouldTrigger(fieldStates[key]?.validateTrigger, 'change')) queueValidation(name, 'change')
+}
+
+const notifyFieldBlur = (name: FormNamePath) => {
+    flushPendingListReconciliation()
+    observeModel()
+    if (shouldTrigger(fieldStates[namePathKey(name)]?.validateTrigger, 'blur')) queueValidation(name, 'blur')
+}
+
+const formContext: FormContext = {
+  requiredMark: computed(() => props.requiredMark),
+  colon: computed(() => props.colon),
+  registerField(name, rules, validateFirst, messageVariables, options) {
+    registerField(name, rules, validateFirst, messageVariables, options)
+  },
+  unregisterField(name) {
+    unregisterField(name)
   },
   getFieldErrors(name) {
     return getFieldError(name)
@@ -639,20 +880,105 @@ const formContext: FormContext = {
     return getRules(name).some((rule) => rule.required)
   },
   onFieldChange(name) {
-    observeModel()
-    const key = namePathKey(name)
-    const value = getNamePathValue(props.model, name)
-    if (isSameFormValue(value, notifiedValues.get(key))) return
-    notifiedValues.set(key, cloneInitialValue(value))
-    if (shouldTrigger(fieldStates[key]?.validateTrigger, 'change')) queueValidation(name, 'change')
+    notifyFieldChange(name)
   },
   onFieldBlur(name) {
-    observeModel()
-    if (shouldTrigger(fieldStates[namePathKey(name)]?.validateTrigger, 'blur')) queueValidation(name, 'blur')
+    notifyFieldBlur(name)
   }
 }
 
 provide(formContextKey, formContext)
+
+const formInternalContext: FormInternalContext = {
+  registerOwnedField(name, owner, rules, validateFirst, messageVariables, options) {
+    registerField(name, rules, validateFirst, messageVariables, options, owner)
+  },
+  unregisterOwnedField(name, owner) {
+    unregisterField(name, owner)
+  },
+  getFieldErrors: getFieldError,
+  isFieldValidating(name) {
+    return fieldStates[namePathKey(name)]?.validating ?? false
+  },
+  isFieldRequired(name) {
+    return getRules(name).some(rule => rule.required)
+  },
+  onOwnedFieldChange(name, owner) {
+    const currentName = resolveOwnedName(name, owner)
+    if (currentName !== undefined) notifyFieldChange(currentName)
+  },
+  onOwnedFieldBlur(name, owner) {
+    const currentName = resolveOwnedName(name, owner)
+    if (currentName !== undefined) notifyFieldBlur(currentName)
+  },
+  initializeList(name, initialValue) {
+    const current = getNamePathValue(props.model, name)
+    if (current !== undefined || initialValue === undefined) return Array.isArray(current) ? current : undefined
+    const cloned = cloneInitialValue(initialValue)
+    listMutationDepth += 1
+    try {
+      setNamePathValue(props.model, name, cloned)
+      setNamePathValue(initialValues, name, cloneInitialValue(initialValue))
+      observedModel = cloneValues()
+    } finally {
+      listMutationDepth -= 1
+    }
+    return getNamePathValue(props.model, name) as readonly unknown[]
+  },
+  getValue(name) {
+    return getNamePathValue(props.model, name)
+  },
+  registerList(controller) {
+    const key = namePathKey(controller.name)
+    const current = listControllers.get(key)
+    if (current && current.owner !== controller.owner) {
+      warnFormList(`duplicate live list path ${namePathLabel(controller.name)}; the first owner remains active`)
+      return false
+    }
+    listControllers.set(key, controller)
+    return true
+  },
+  unregisterList(name, owner) {
+    const key = namePathKey(name)
+    const current = listControllers.get(key)
+    if (current?.owner === owner) listControllers.delete(key)
+  },
+  mutateList(name, owner, oldIndexToNewIndex, mutation) {
+    flushPendingListReconciliation()
+    const direct = listControllers.get(namePathKey(name))
+    const controller = direct?.owner === owner ? direct : Array.from(new Set(listControllers.values())).find(item => item.owner === owner)
+    if (!controller) return false
+    const current = getNamePathValue(props.model, controller.name)
+    if (current !== undefined && !Array.isArray(current)) return false
+    const previous = observedModel
+    const ownerDocument = formElement.value?.ownerDocument
+    const activeElement = ownerDocument?.activeElement as (Element & { focus?: (options?: FocusOptions) => void }) | null | undefined
+    listMutationDepth += 1
+    try {
+      let items = current as unknown[] | undefined
+      if (!items) {
+        items = []
+        setNamePathValue(props.model, controller.name, items)
+      }
+      mutation(items)
+      const skipped = remapOwnedListState(controller.name, oldIndexToNewIndex, owner)
+      observedModel = cloneValues()
+      processModelChanges(previous, skipped)
+    } finally {
+      listMutationDepth -= 1
+    }
+    notifyFieldChange(controller.name)
+    void nextTick(() => {
+      if (!ownerDocument || !activeElement?.isConnected || typeof activeElement.focus !== 'function') return
+      if (ownerDocument.activeElement === ownerDocument.body || ownerDocument.activeElement === null) {
+        activeElement.focus({ preventScroll: true })
+      }
+    })
+    return true
+  }
+}
+
+provide(formInternalContextKey, formInternalContext)
 
 const handleSubmit = (event: Event) => {
   emit('submit', event)
@@ -686,6 +1012,7 @@ const handleSubmit = (event: Event) => {
 }
 
 const setFieldsErrors = (fields: Array<{ name: FormNamePath; errors: string[] }>) => {
+  flushPendingListReconciliation()
   fields.forEach(({ name, errors }) => {
     const key = namePathKey(name)
     fieldNames.set(key, normalizeNamePath(name))

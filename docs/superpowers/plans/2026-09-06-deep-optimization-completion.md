@@ -43,7 +43,7 @@
 - [x] Tree虚拟化功能子阶段：生产候选`dc8c299`通过窗口化、展开/勾选/焦点、ARIA、懒加载、动态高度和独立开发/设计/测试/产品验收；联合消费者、性能和交付仍由下方共用门禁约束。
 - [x] TreeSelect虚拟化功能子阶段：生产候选`ad18e3b`与测试清理`586dfac`通过搜索/已选节点/活动项/Tree复用、独立开发/设计/测试经理/产品验收，P0/P1/P2=`0/0/0`；联合消费者/性能/交付仍由下方共用门禁约束。
 - [x] Cascader虚拟化功能子阶段：生产候选`7964d86`通过多列窗口化、typed path、键盘、异步加载/重试、动态高度、受控拒绝、iframe/owner realm及独立开发/设计/测试/产品验收，P0/P1/P2=`0/0/0`；联合消费者、性能和交付仍由下方共用门禁约束。
-- [x] 共用前置门禁：生产候选`cf2a24c`和浏览器测试收尾`3618e16`通过真实tgz、714检查点性能/体积、SSR/iframe、完整仓库、四角色终审与产品验收，P0/P1/P2=`0/0/0`；PR/CI/merge/Pages/线上仍由交付门禁单独约束。
+- [x] 共用与交付门禁：生产候选`c608a9b`通过真实tgz、714检查点性能/体积、SSR/iframe、完整仓库、四角色终审与产品验收，P0/P1/P2=`0/0/0`；PR #25 exact head `8899365`全绿并 squash 合并为`19a0bf8`，master CI `34823011366`、Pages `34828162352`及新部署 Tree/TreeSelect/Cascader 线上交互均通过。D4延期虚拟化至此正式闭环。
 
 ## D5 Table / Pagination
 
@@ -104,6 +104,7 @@ D8 delivery is closed through [PR #24](https://github.com/wzfdhr/aheart-ui/pull/
 
 - [ ] 三个 tarball 在无 workspace 软链的临时 Vue 消费项目安装。
 - [ ] ESM/CJS、类型、CSS、按需导入、插件安装与 SSR。
+  - 当前已知：根入口 named import 的真实 Vite consumer 仍保留 Table/Cascader/TreeSelect/Upload 等无关代码；Form.List 阶段以公开 `es/form/index.js` 子路径隔离验证，不把该结果冒充根入口按需导入通过。D9 必须修复并复测。
 - [ ] 引入覆盖率，R1 状态机 branch coverage ≥80%。
 - [ ] CI 拆为 unit/typecheck/build/docs/browser/consumer。
 - [ ] 消除重复 QG5 E2E，核实 CI 耗时改善。

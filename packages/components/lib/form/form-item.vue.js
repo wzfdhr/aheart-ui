@@ -4,6 +4,9 @@ const vue = require("vue");
 const tooltip_vue_vue_type_script_setup_true_lang = require("../tooltip/tooltip.vue.js");
 const useStableId = require("../utils/use-stable-id.js");
 const controlContext = require("./control-context.js");
+const internalContext = require("./internal-context.js");
+const listContext = require("./list-context.js");
+const namePath = require("./name-path.js");
 const types = require("./types.js");
 require("./style.css.js");
 const _hoisted_1 = ["data-name"];
@@ -42,6 +45,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   setup(__props) {
     const props = __props;
     const formContext = vue.inject(types.formContextKey, void 0);
+    const formInternalContext = vue.inject(internalContext.formInternalContextKey, void 0);
+    const formListContext = vue.inject(listContext.formListNameContextKey, void 0);
     const ATooltip = tooltip_vue_vue_type_script_setup_true_lang.default;
     const slots = vue.useSlots();
     const itemRef = vue.ref();
@@ -82,17 +87,40 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return find(((_a = slots.default) == null ? void 0 : _a.call(slots)) ?? []);
     };
     let disposed = false;
+    const resolvedName = vue.computed(
+      () => props.name === void 0 ? void 0 : (formListContext == null ? void 0 : formListContext.resolveName(props.name)) ?? props.name
+    );
+    const resolvedOwner = vue.computed(
+      () => props.name === void 0 ? void 0 : formListContext == null ? void 0 : formListContext.resolveOwner(props.name)
+    );
+    const resolvedDependencies = vue.computed(
+      () => (props.dependencies ?? []).map((dependency) => (formListContext == null ? void 0 : formListContext.resolveName(dependency)) ?? dependency)
+    );
+    const dataName = vue.computed(() => {
+      const name = resolvedName.value;
+      return name === void 0 ? void 0 : typeof name === "string" ? name : JSON.stringify(name);
+    });
     const notifyControl = (kind) => {
-      const name = typeof props.name === "string" ? props.name : props.name ? [...props.name] : void 0;
+      const currentName = resolvedName.value;
+      const name = typeof currentName === "string" ? currentName : currentName ? [...currentName] : void 0;
+      const owner = resolvedOwner.value;
       if (name === void 0)
         return;
       void vue.nextTick(() => {
-        if (disposed || JSON.stringify(name) !== JSON.stringify(props.name))
+        const latestName = resolvedName.value;
+        if (disposed || latestName === void 0)
           return;
-        if (kind === "change")
-          formContext == null ? void 0 : formContext.onFieldChange(name);
-        else
-          formContext == null ? void 0 : formContext.onFieldBlur(name);
+        if (formInternalContext && owner) {
+          if (kind === "change")
+            formInternalContext.onOwnedFieldChange(name, owner);
+          else
+            formInternalContext.onOwnedFieldBlur(name, owner);
+        } else if (namePath.namePathKey(name) === namePath.namePathKey(latestName)) {
+          if (kind === "change")
+            formContext == null ? void 0 : formContext.onFieldChange(name);
+          else
+            formContext == null ? void 0 : formContext.onFieldBlur(name);
+        }
       });
     };
     const syncExplicitControlId = () => {
@@ -151,19 +179,31 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const effectiveMessageVariables = vue.computed(() => {
       var _a;
       return {
-        name: typeof props.name === "string" ? props.name : ((_a = props.name) == null ? void 0 : _a.join(".")) ?? "",
+        name: typeof resolvedName.value === "string" ? resolvedName.value : ((_a = resolvedName.value) == null ? void 0 : _a.join(".")) ?? "",
         ...labelMessageVariable.value !== void 0 ? { label: labelMessageVariable.value } : {},
         ...props.messageVariables
       };
     });
-    const fieldErrors = vue.computed(() => props.name !== void 0 ? (formContext == null ? void 0 : formContext.getFieldErrors(props.name)) ?? [] : []);
-    const isRequired = vue.computed(() => Boolean(props.required || props.name !== void 0 && (formContext == null ? void 0 : formContext.isFieldRequired(props.name))));
+    const fieldErrors = vue.computed(() => {
+      const name = resolvedName.value;
+      if (name === void 0)
+        return [];
+      return resolvedOwner.value && formInternalContext ? formInternalContext.getFieldErrors(name) : (formContext == null ? void 0 : formContext.getFieldErrors(name)) ?? [];
+    });
+    const isRequired = vue.computed(() => {
+      const name = resolvedName.value;
+      if (props.required)
+        return true;
+      if (name === void 0)
+        return false;
+      return resolvedOwner.value && formInternalContext ? formInternalContext.isFieldRequired(name) : (formContext == null ? void 0 : formContext.isFieldRequired(name)) ?? false;
+    });
     const showRequiredMark = vue.computed(() => isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) !== false);
     const showOptionalMark = vue.computed(
       () => Boolean(props.label || props.name) && !isRequired.value && (formContext == null ? void 0 : formContext.requiredMark.value) === "optional"
     );
     const effectiveValidateStatus = vue.computed(
-      () => props.validateStatus ?? (props.name !== void 0 && (formContext == null ? void 0 : formContext.isFieldValidating(props.name)) ? "validating" : fieldErrors.value.length > 0 ? "error" : void 0)
+      () => props.validateStatus ?? (resolvedName.value !== void 0 && (resolvedOwner.value && formInternalContext ? formInternalContext.isFieldValidating(resolvedName.value) : formContext == null ? void 0 : formContext.isFieldValidating(resolvedName.value)) ? "validating" : fieldErrors.value.length > 0 ? "error" : void 0)
     );
     const effectiveHelp = vue.computed(() => props.help !== void 0 ? props.help : fieldErrors.value[0] ?? "");
     const hasHelp = vue.computed(() => hasRenderableContent(effectiveHelp.value));
@@ -219,24 +259,36 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     });
     let registeredName;
+    let registeredOwner;
     vue.watch(
-      () => [props.name, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value, props.dependencies, props.validateTrigger, props.preserve],
-      ([name, rules, validateFirst, messageVariables, dependencies, validateTrigger, preserve]) => {
+      () => [resolvedName.value, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value, resolvedDependencies.value, props.validateTrigger, props.preserve, resolvedOwner.value],
+      ([name, rules, validateFirst, messageVariables, dependencies, validateTrigger, preserve, owner]) => {
         const previousName = registeredName;
-        if (previousName !== void 0 && JSON.stringify(previousName) !== JSON.stringify(name)) {
-          formContext == null ? void 0 : formContext.unregisterField(previousName);
+        const previousOwner = registeredOwner;
+        if (previousName !== void 0 && (name === void 0 || namePath.namePathKey(previousName) !== namePath.namePathKey(name) || previousOwner !== owner)) {
+          if (previousOwner && formInternalContext)
+            formInternalContext.unregisterOwnedField(previousName, previousOwner);
+          else
+            formContext == null ? void 0 : formContext.unregisterField(previousName);
         }
         if (name !== void 0) {
-          formContext == null ? void 0 : formContext.registerField(name, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve });
+          if (owner && formInternalContext)
+            formInternalContext.registerOwnedField(name, owner, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve });
+          else
+            formContext == null ? void 0 : formContext.registerField(name, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve });
         }
         registeredName = typeof name === "string" ? name : name ? [...name] : void 0;
+        registeredOwner = owner;
       },
       { immediate: true, deep: true }
     );
     vue.onBeforeUnmount(() => {
       disposed = true;
       if (registeredName !== void 0) {
-        formContext == null ? void 0 : formContext.unregisterField(registeredName);
+        if (registeredOwner && formInternalContext)
+          formInternalContext.unregisterOwnedField(registeredName, registeredOwner);
+        else
+          formContext == null ? void 0 : formContext.unregisterField(registeredName);
       }
     });
     const formItemClass = vue.computed(() => ({
@@ -265,7 +317,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ref_key: "itemRef",
         ref: itemRef,
         class: vue.normalizeClass(["aheart-form-item", formItemClass.value]),
-        "data-name": typeof _ctx.name === "string" ? _ctx.name : JSON.stringify(_ctx.name)
+        "data-name": dataName.value
       }, [
         _ctx.$slots.label || _ctx.label !== void 0 && _ctx.label !== null ? (vue.openBlock(), vue.createElementBlock("label", {
           key: 0,

@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
+import FormListFixture from '../.vitepress/components/FormListFixture.vue'
+
+const showFormListFixture = ref(false)
+onMounted(() => { showFormListFixture.value = new URLSearchParams(window.location.search).get('fixture') === 'form-list' })
 
 const formLabelNode = h('span', { class: 'demo-form-label-node' }, 'Name')
 const formHelpNode = h('span', { class: 'demo-form-help-node' }, 'Email is required')
@@ -30,6 +34,10 @@ const saveAccount = () => {
   } else accountStatus.value = '账户资料已保存'
 }
 </script>
+
+<ClientOnly>
+  <FormListFixture v-if="showFormListFixture" />
+</ClientOnly>
 
 # Form 表单 <span class="aheart-status aheart-status--ready">已完成</span>
 
@@ -500,6 +508,39 @@ const passwordTooltipIcon = h('span', 'i')
 服务端返回的字段错误可用 `setFieldsErrors([{ name: ['account', 'email'], errors: ['该邮箱已注册'] }])` 写入。该字段值改变、`resetFields`、`clearValidate` 或空错误数组会清除错误；旧异步校验不能覆盖新错误。
 
 异步校验期间模型、规则或字段注册发生变化时，旧校验返回 `outOfDate: true`，应用应忽略该结果。进行中的旧提交不会再发出 finish/finishFailed；当前字段准备好后可重新提交。
+
+## 动态数组 Form.List
+
+`AFormList` 是无额外布局的动态数组协调器。默认插槽提供 `fields`、`add`、`remove`、`move` 和列表级 `errors`；循环节点必须使用 `field.key`，字段路径使用当前的 `field.name`。
+
+```vue
+<AForm :model="formState" layout="vertical">
+  <AFormList name="users" v-slot="{ fields, add, remove, move, errors }">
+    <div v-for="field in fields" :key="field.key">
+      <AFormItem :name="[field.name, 'email']" label="Email" :rules="emailRules">
+        <AInput v-model="formState.users[field.name].email" />
+      </AFormItem>
+      <AButton :disabled="field.name === 0" @click="move(field.name, field.name - 1)">上移</AButton>
+      <AButton @click="remove(field.name)">删除</AButton>
+    </div>
+    <AButton @click="add({ email: '' })">添加成员</AButton>
+    <p v-if="errors.length" role="alert">{{ errors.join('; ') }}</p>
+  </AFormList>
+</AForm>
+```
+
+列表操作会原子迁移存活项的稳定 key、同步/服务端错误和嵌套字段注册；移动中的旧异步校验会失效。外部对象引用重排也会保留对应 key；无法可靠判断业务身份的 primitive 或全新克隆对象采用确定的位置语义。`initialValue` 只在模型路径为 `undefined` 时生效，已有空数组也由模型优先。删除当前焦点行时 Form.List 不猜测下一个焦点，业务按钮应按产品流程决定焦点去向。
+
+### FormList API
+
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| name | 列表字段名；嵌套 FormList 内相对父列表解析 | `FormNamePath` | 必填 |
+| initialValue | 仅在模型路径未定义时写入，并纳入 Form reset 快照 | `unknown[]` | - |
+| rules | 列表数组的校验规则 | `FormRule[]` | `[]` |
+| preserve | FormList 卸载时是否保留模型值 | `boolean` | Form 配置 |
+
+默认插槽字段：`fields: Array<{ key: string; fieldKey: string; name: number }>`、`errors: string[]`、`add(value?, insertIndex?)`、`remove(index | index[])`、`move(from, to)`。
 
 ## Form API
 
