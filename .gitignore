@@ -9,6 +9,7 @@ yarn-error.log*
 **/*.log
 
 tests/**/coverage/
+**/coverage/
 tests/e2e/reports
 test-results/
 playwright-report/

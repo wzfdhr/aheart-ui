@@ -26,6 +26,13 @@ test('never reuses an unknown local server for production verification', () => {
   assert.match(configSource, /reuseExistingServer:\s*false/)
 })
 
+test('ordinary browser verification can exclude the dedicated QG5 specs', () => {
+  assert.match(configSource, /AHEART_E2E_SKIP_QG5/)
+  assert.match(configSource, /testIgnore:\s*skipQG5\s*\?/)
+  assert.match(configSource, /cross-browser-production\\\.spec\\\.ts/)
+  assert.match(configSource, /cross-browser-r1\\\.spec\\\.ts/)
+})
+
 test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKit', () => {
   for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
     assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))

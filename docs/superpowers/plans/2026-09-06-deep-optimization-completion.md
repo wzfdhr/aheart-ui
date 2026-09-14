@@ -109,7 +109,9 @@ Final D0–D3 candidate `619fbe6` also closes the previously recorded default da
   - [x] 根入口 named import 的真实 Vite consumer 已修复并通过：生成 ESM/CJS module roots 标记 `sideEffects:false`，组件 CSS 改为显式 `style.css` 入口；root bundle 不再保留无关 Table/Cascader/TreeSelect/Upload。
   - [ ] 三包完整 ESM/CJS、插件安装、SSR/hydration 组合仍待 D9 总消费者门禁。
 - [ ] 引入覆盖率，R1 状态机 branch coverage ≥80%。
+  - [x] V8 coverage baseline and branch threshold are implemented in all three packages: components 88.36%, DnD 80.37%, AI 86.22%; delivery PR/CI still pending.
 - [ ] CI 拆为 unit/typecheck/build/docs/browser/consumer。
+  - [x] Candidate workflow splits unit/typecheck/build-generated/docs/consumer/browser and excludes QG5 specs from ordinary browser E2E; exact-head delivery still pending.
 - [ ] 消除重复 QG5 E2E，核实 CI 耗时改善。
 - [ ] 每个 skip 登记原因、负责人、issue、失效日期。
 - [ ] 实体 iOS Safari 的 DnD、Picker、浮层和 Workbench 真实设备验收。

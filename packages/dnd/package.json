@@ -26,7 +26,8 @@
   "scripts": {
     "build": "vite build",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
-    "test": "vitest run --environment jsdom"
+    "test": "vitest run --environment jsdom",
+    "test:coverage": "vitest run --environment jsdom --coverage"
   },
   "keywords": [
     "aheart-ui",
@@ -59,6 +60,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",
+    "@vitest/coverage-v8": "1.6.1",
     "@vue/server-renderer": "^3.5.38",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^24.1.1",
