@@ -105,6 +105,7 @@ Final D0–D3 candidate `619fbe6` also closes the previously recorded default da
 ## D9 发布与质量门禁
 
 - [ ] 三个 tarball 在无 workspace 软链的临时 Vue 消费项目安装。
+  - [x] 本地 D8 consumer 已从三个真实 tarball 安装并通过；同一 runner 已加入 CI，待修复候选 exact-head 与 master/Pages 复验。
 - [ ] ESM/CJS、类型、CSS、按需导入、插件安装与 SSR。
   - [x] 根入口 named import 的真实 Vite consumer 已修复并通过：生成 ESM/CJS module roots 标记 `sideEffects:false`，组件 CSS 改为显式 `style.css` 入口；root bundle 不再保留无关 Table/Cascader/TreeSelect/Upload。
   - [ ] 三包完整 ESM/CJS、插件安装、SSR/hydration 组合仍待 D9 总消费者门禁。
@@ -113,7 +114,8 @@ Final D0–D3 candidate `619fbe6` also closes the previously recorded default da
 - [ ] CI 拆为 unit/typecheck/build/docs/browser/consumer。
   - [x] Candidate workflow splits unit/typecheck/build-generated/docs/consumer/browser and excludes QG5 specs from ordinary browser E2E; exact-head delivery still pending.
 - [ ] 消除重复 QG5 E2E，核实 CI 耗时改善。
-- [ ] 每个 skip 登记原因、负责人、issue、失效日期。
+  - [x] QG5 已从普通 browser job 拆为五个独立矩阵项目；首次主线 run 发现普通 browser 的移动 WebKit 演示定时竞态，保留为修复证据并重跑完整门禁。
+- [x] 每个 skip 登记原因、负责人、issue、失效日期：38 个静态 `test.skip` 站点由 `d9-skip-ledger.json` 和自动校验覆盖。
 - [ ] 实体 iOS Safari 的 DnD、Picker、浮层和 Workbench 真实设备验收。
 - [ ] 四角色最终逐条完成审计。
 - [ ] 发布 aheart-ui@1.1.0、DnD 和 AI 正式版本，验证 registry 和消费者安装。

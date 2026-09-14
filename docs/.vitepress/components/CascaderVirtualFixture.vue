@@ -123,7 +123,9 @@ const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSign
   }
   const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? globalThis.window
   await new Promise<void>((resolve, reject) => {
-    const timer = ownerWindow.setTimeout(resolve, 180)
+    // Keep the pending branch comfortably open for WebKit keyboard actions on a busy CI worker.
+    // The test is asserting Escape cancellation, not a timing race against a 180ms mock network.
+    const timer = ownerWindow.setTimeout(resolve, 1000)
     const abort = () => { ownerWindow.clearTimeout(timer); lazyAborts.value++; transitionLazy('aborted'); reject(new Error('fixture lazy request aborted')) }
     signal.addEventListener('abort', abort, { once: true })
   })
