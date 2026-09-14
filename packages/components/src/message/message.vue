@@ -38,7 +38,6 @@
 import { computed, defineComponent, type PropType, type VNodeChild } from 'vue'
 import { messageEmits, messageProps } from './types'
 import type { MessageNotice, MessageStackConfig } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AMessage'

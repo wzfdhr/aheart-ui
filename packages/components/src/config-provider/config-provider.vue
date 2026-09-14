@@ -8,7 +8,6 @@
 import { computed } from 'vue'
 import { provideAheartConfig } from '../config'
 import { configProviderProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AConfigProvider'

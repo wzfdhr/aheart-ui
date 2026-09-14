@@ -12,7 +12,6 @@ const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const useSelectVirtual = require("./use-select-virtual.js");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["id", "role", "tabindex", "aria-controls", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
 const _hoisted_2 = { class: "aheart-select__tag-label" };

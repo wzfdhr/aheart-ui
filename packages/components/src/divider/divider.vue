@@ -22,7 +22,6 @@
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
 import { dividerProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ADivider'

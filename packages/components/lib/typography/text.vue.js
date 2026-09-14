@@ -3,7 +3,6 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const copyable = require("./copyable.js");
 const types = require("./types.js");
-require("./style.css.js");
 const _hoisted_1 = ["title", "aria-label", "tabindex", "disabled"];
 const _hoisted_2 = ["title", "aria-label", "tabindex", "disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({

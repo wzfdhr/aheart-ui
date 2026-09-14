@@ -73,7 +73,6 @@
 import { computed, defineComponent, ref, useSlots, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { cardEmits, cardProps, type CardTab } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ACard'

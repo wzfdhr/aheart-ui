@@ -14,7 +14,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { linkProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ALink'

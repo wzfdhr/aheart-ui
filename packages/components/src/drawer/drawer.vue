@@ -131,7 +131,6 @@ import {
   type DrawerSemanticConfig,
   type DrawerSemanticPart
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ADrawer'

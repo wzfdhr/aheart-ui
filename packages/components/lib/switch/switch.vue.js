@@ -4,7 +4,6 @@ const vue = require("vue");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-checked", "aria-busy", "disabled"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({

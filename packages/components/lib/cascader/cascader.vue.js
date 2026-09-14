@@ -12,7 +12,6 @@ const useTeleportReady = require("../utils/use-teleport-ready.js");
 const usePopupViewportBudget = require("../utils/use-popup-viewport-budget.js");
 const cascaderVirtualList_vue_vue_type_script_setup_true_lang = require("./cascader-virtual-list.vue.js");
 const virtualOptions = require("./virtual-options.js");
-require("./style.css.js");
 const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled", "aria-activedescendant", "aria-labelledby", "aria-describedby"];
 const _hoisted_2 = {
   key: 0,

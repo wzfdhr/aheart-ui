@@ -38,7 +38,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, useSlots, type PropType, type VNodeChild } from 'vue'
 import { tagEmits, tagProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ATag'

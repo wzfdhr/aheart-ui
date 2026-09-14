@@ -8,7 +8,6 @@ import { treeProps } from "./types.js";
 import { normalizeTreeVirtual } from "./virtual-options.js";
 import { useTreeVirtual } from "./use-tree-virtual.js";
 import { treeFocusBridgeKey, treeVirtualViewportHeightKey } from "./tree-focus-bridge.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-multiselectable", "tabindex"];
 const _sfc_main = /* @__PURE__ */ defineComponent({

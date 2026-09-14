@@ -1,6 +1,5 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createVNode, unref, createCommentVNode, toDisplayString } from "vue";
 import { stepsProps, stepsEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-current"];
 const _hoisted_2 = ["disabled", "aria-disabled", "onClick"];

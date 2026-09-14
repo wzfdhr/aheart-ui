@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { checkableTagProps, checkableTagEmits } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["title", "aria-pressed", "disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

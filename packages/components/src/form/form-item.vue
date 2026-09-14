@@ -55,7 +55,6 @@ import {
   type FormNamePath,
   type FormTooltipTitle
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AFormItem'

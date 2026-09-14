@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, Comment, Text, onMounted, onBeforeUnmount, cloneVNode, h } from "vue";
 import { usePointerDrag } from "../utils/use-pointer-drag.js";
 import { resolveSplitterSizes, resolveSplitterPanelBounds, resizeAdjacentPanels } from "./solver.js";
-import "./style.css.js";
 const SPLITTER_HANDLE_SIZE = 6;
 const splitterProps = {
   sizes: Array,

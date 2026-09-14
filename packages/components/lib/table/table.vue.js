@@ -10,7 +10,6 @@ const useStableId = require("../utils/use-stable-id.js");
 const types = require("./types.js");
 const virtualOptions = require("./virtual-options.js");
 const useTableVirtual = require("./use-table-virtual.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["data-table-narrow-left", "data-table-right-downgraded", "data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
 const _hoisted_2 = {

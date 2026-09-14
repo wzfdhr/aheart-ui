@@ -9,7 +9,6 @@ import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTriggerAria } from "../utils/use-trigger-aria.js";
 import { popconfirmProps, popconfirmEmits } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["aria-controls", "aria-expanded"];
 const _hoisted_2 = ["id", "aria-labelledby", "aria-hidden"];
 const _hoisted_3 = ["id"];

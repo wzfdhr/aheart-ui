@@ -1,0 +1,187 @@
+import Alert from "./alert/index.js";
+import Badge, { BadgeRibbon } from "./badge/index.js";
+import Breadcrumb from "./breadcrumb/index.js";
+import Button from "./button/index.js";
+import Card, { CardGrid, CardMeta } from "./card/index.js";
+import Cascader from "./cascader/index.js";
+import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
+import ConfigProvider from "./config-provider/index.js";
+import Descriptions from "./descriptions/index.js";
+import DatePicker, { DateRangePicker } from "./date-picker/index.js";
+import Divider from "./divider/index.js";
+import Drawer from "./drawer/index.js";
+import Dropdown, { DropdownButton } from "./dropdown/index.js";
+import Empty from "./empty/index.js";
+import { PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE } from "./empty/index.js";
+import Flex from "./flex/index.js";
+import Form, { FormItem, FormList } from "./form/index.js";
+import Grid from "./grid/index.js";
+import { Col, Row } from "./grid/index.js";
+import Icon from "./icon/index.js";
+import Input from "./input/index.js";
+import InputNumber from "./input-number/index.js";
+import Menu from "./menu/index.js";
+import Message from "./message/public.js";
+import Modal from "./modal/index.js";
+import Pagination from "./pagination/index.js";
+import Popconfirm from "./popconfirm/index.js";
+import Popover from "./popover/index.js";
+import Radio, { RadioGroup } from "./radio/index.js";
+import Select from "./select/index.js";
+import Skeleton from "./skeleton/index.js";
+import Space from "./space/index.js";
+import Spin from "./spin/index.js";
+import Steps from "./steps/index.js";
+import Switch from "./switch/index.js";
+import Splitter, { SplitterPanel } from "./splitter/index.js";
+import Table from "./table/index.js";
+import Tag, { CheckableTag, TagGroup } from "./tag/index.js";
+import Tabs from "./tabs/index.js";
+import TimePicker, { TimeRangePicker } from "./time-picker/index.js";
+import Textarea from "./textarea/index.js";
+import Tree from "./tree/index.js";
+import TreeSelect from "./tree-select/index.js";
+import Tooltip from "./tooltip/index.js";
+import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
+import Upload from "./upload/index.js";
+const components = [
+  Button,
+  Cascader,
+  ConfigProvider,
+  Space,
+  Divider,
+  DatePicker,
+  DateRangePicker,
+  TimePicker,
+  TimeRangePicker,
+  Upload,
+  Tree,
+  TreeSelect,
+  Flex,
+  Grid,
+  Icon,
+  Typography,
+  Title,
+  Text,
+  Paragraph,
+  Link,
+  Tag,
+  CheckableTag,
+  TagGroup,
+  Badge,
+  BadgeRibbon,
+  Alert,
+  Message,
+  Modal,
+  Drawer,
+  Tooltip,
+  Popover,
+  Popconfirm,
+  Spin,
+  Skeleton,
+  Empty,
+  Breadcrumb,
+  Dropdown,
+  DropdownButton,
+  Menu,
+  Tabs,
+  Steps,
+  Input,
+  Textarea,
+  InputNumber,
+  Checkbox,
+  CheckboxGroup,
+  Radio,
+  RadioGroup,
+  Switch,
+  Splitter,
+  SplitterPanel,
+  Card,
+  CardGrid,
+  CardMeta,
+  Descriptions,
+  Pagination,
+  Select,
+  Form,
+  FormItem,
+  FormList,
+  Table
+];
+const AheartUI = {
+  install(app) {
+    components.forEach((component) => app.use(component));
+  }
+};
+const AheartUI$1 = AheartUI;
+export {
+  DropdownButton as ADropdownButton,
+  FormItem as AFormItem,
+  FormList as AFormList,
+  AheartUI,
+  Alert,
+  Badge,
+  BadgeRibbon,
+  Breadcrumb,
+  Button,
+  Card,
+  CardGrid,
+  CardMeta,
+  Cascader,
+  CheckableTag,
+  Checkbox,
+  CheckboxGroup,
+  Col,
+  ConfigProvider,
+  DatePicker,
+  DateRangePicker,
+  Descriptions,
+  Divider,
+  Drawer,
+  Dropdown,
+  DropdownButton,
+  Empty,
+  Flex,
+  Form,
+  FormItem,
+  FormList,
+  Grid,
+  Icon,
+  Input,
+  InputNumber,
+  Link,
+  Menu,
+  Message,
+  Modal,
+  PRESENTED_IMAGE_DEFAULT,
+  PRESENTED_IMAGE_SIMPLE,
+  Pagination,
+  Paragraph,
+  Popconfirm,
+  Popover,
+  Radio,
+  RadioGroup,
+  Row,
+  Select,
+  Skeleton,
+  Space,
+  Spin,
+  Splitter,
+  SplitterPanel,
+  Steps,
+  Switch,
+  Table,
+  Tabs,
+  Tag,
+  TagGroup,
+  Text,
+  Textarea,
+  TimePicker,
+  TimeRangePicker,
+  Title,
+  Tooltip,
+  Tree,
+  TreeSelect,
+  Typography,
+  Upload,
+  AheartUI$1 as default
+};

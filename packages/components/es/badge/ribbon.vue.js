@@ -1,6 +1,5 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createElementVNode, createVNode, unref } from "vue";
 import { badgeRibbonProps } from "./types.js";
-import "./style.css.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ABadgeRibbon"

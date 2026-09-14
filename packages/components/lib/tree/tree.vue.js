@@ -10,7 +10,6 @@ const types = require("./types.js");
 const virtualOptions = require("./virtual-options.js");
 const useTreeVirtual = require("./use-tree-virtual.js");
 const treeFocusBridge = require("./tree-focus-bridge.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-multiselectable", "tabindex"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({

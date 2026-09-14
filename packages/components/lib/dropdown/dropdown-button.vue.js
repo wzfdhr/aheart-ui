@@ -4,7 +4,6 @@ const vue = require("vue");
 const index = require("../button/index.js");
 const dropdown_vue_vue_type_script_setup_true_lang = require("./dropdown.vue.js");
 const types = require("./types.js");
-require("./style.css.js");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "ADropdownButton"

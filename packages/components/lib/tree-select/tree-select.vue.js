@@ -17,7 +17,6 @@ const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const usePopupViewportBudget = require("../utils/use-popup-viewport-budget.js");
 const virtualOptions = require("./virtual-options.js");
-require("./style.css.js");
 const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby", "aria-invalid"];
 const _hoisted_2 = {
   key: 0,

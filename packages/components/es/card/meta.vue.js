@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode } from "vue";
 import { cardMetaProps } from "./types.js";
-import "./style.css.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ACardMeta"

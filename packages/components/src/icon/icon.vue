@@ -15,7 +15,6 @@
 import { computed, markRaw, toRaw, useSlots, warn, watchEffect } from 'vue'
 import { iconComponents, warnedUnknownIconNames } from './icons'
 import { iconProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AIcon'

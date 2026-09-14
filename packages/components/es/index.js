@@ -1,193 +1,123 @@
-import Alert from "./alert/index.js";
-import Badge, { BadgeRibbon } from "./badge/index.js";
-import Breadcrumb from "./breadcrumb/index.js";
-import Button from "./button/index.js";
-import Card, { CardGrid, CardMeta } from "./card/index.js";
-import Cascader from "./cascader/index.js";
-import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
-import ConfigProvider from "./config-provider/index.js";
-import Descriptions from "./descriptions/index.js";
-import DatePicker, { DateRangePicker } from "./date-picker/index.js";
-import Divider from "./divider/index.js";
-import Drawer from "./drawer/index.js";
-import Dropdown, { DropdownButton } from "./dropdown/index.js";
-import Empty from "./empty/index.js";
-import { PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE } from "./empty/index.js";
-import Flex from "./flex/index.js";
-import Form, { FormItem, FormList } from "./form/index.js";
-import Grid from "./grid/index.js";
-import { Col, Row } from "./grid/index.js";
-import Icon from "./icon/index.js";
-import Input from "./input/index.js";
-import InputNumber from "./input-number/index.js";
-import Menu from "./menu/index.js";
-import Message from "./message/public.js";
-import Modal from "./modal/index.js";
-import Pagination from "./pagination/index.js";
-import Popconfirm from "./popconfirm/index.js";
-import Popover from "./popover/index.js";
-import Radio, { RadioGroup } from "./radio/index.js";
-import Select from "./select/index.js";
-import Skeleton from "./skeleton/index.js";
-import Space from "./space/index.js";
-import Spin from "./spin/index.js";
-import Steps from "./steps/index.js";
-import Switch from "./switch/index.js";
-import Splitter, { SplitterPanel } from "./splitter/index.js";
-import Table from "./table/index.js";
-import Tag, { CheckableTag, TagGroup } from "./tag/index.js";
-import Tabs from "./tabs/index.js";
-import TimePicker, { TimeRangePicker } from "./time-picker/index.js";
-import Textarea from "./textarea/index.js";
-import Tree from "./tree/index.js";
-import TreeSelect from "./tree-select/index.js";
-import Tooltip from "./tooltip/index.js";
-import Typography, { Title, Text, Paragraph, Link } from "./typography/index.js";
-import Upload from "./upload/index.js";
+import { default as default2 } from "./button/index.js";
+import { default as default3 } from "./cascader/index.js";
+import { default as default4 } from "./config-provider/index.js";
+import { default as default5 } from "./space/index.js";
+import { default as default6 } from "./divider/index.js";
+import { default as default7, DateRangePicker } from "./date-picker/index.js";
+import { default as default8, TimeRangePicker } from "./time-picker/index.js";
+import { default as default9 } from "./upload/index.js";
+import { default as default10 } from "./tree/index.js";
+import { default as default11 } from "./tree-select/index.js";
+import { default as default12 } from "./flex/index.js";
+import { Col, default as default13, Row } from "./grid/index.js";
+import { default as default14 } from "./icon/index.js";
+import { Link, Paragraph, Text, Title, default as default15 } from "./typography/index.js";
+import { CheckableTag, default as default16, TagGroup } from "./tag/index.js";
+import { default as default17, BadgeRibbon } from "./badge/index.js";
+import { default as default18 } from "./alert/index.js";
+import { default as default19 } from "./message/public.js";
+import { default as default20 } from "./modal/index.js";
+import { default as default21 } from "./drawer/index.js";
+import { default as default22 } from "./tooltip/index.js";
+import { default as default23 } from "./popover/index.js";
+import { default as default24 } from "./popconfirm/index.js";
+import { default as default25 } from "./spin/index.js";
+import { default as default26 } from "./skeleton/index.js";
+import { default as default27, PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE } from "./empty/index.js";
+import { default as default28 } from "./breadcrumb/index.js";
+import { DropdownButton, default as default29, DropdownButton as DropdownButton2 } from "./dropdown/index.js";
+import { default as default30 } from "./menu/index.js";
+import { default as default31 } from "./tabs/index.js";
+import { default as default32 } from "./steps/index.js";
+import { default as default33 } from "./input/index.js";
+import { default as default34 } from "./textarea/index.js";
+import { default as default35 } from "./input-number/index.js";
+import { default as default36, CheckboxGroup } from "./checkbox/index.js";
+import { default as default37, RadioGroup } from "./radio/index.js";
+import { default as default38 } from "./switch/index.js";
+import { default as default39, SplitterPanel } from "./splitter/index.js";
+import { default as default40, CardGrid, CardMeta } from "./card/index.js";
+import { default as default41 } from "./descriptions/index.js";
+import { default as default42 } from "./pagination/index.js";
+import { default as default43 } from "./select/index.js";
+import { FormItem, FormList, default as default44, FormItem as FormItem2, FormList as FormList2 } from "./form/index.js";
+import { default as default45 } from "./table/index.js";
 import { floatingPlacements, floatingTriggers, getFloatingPopupStyle, isFloatingPlacement, isFloatingTrigger, isFloatingTriggerProp, normalizeFloatingTriggers } from "./utils/floating-core.js";
 import "./theme/index.css.js";
+import { default as default46 } from "./plugin.js";
 import { message } from "./message/service.js";
 import { enUS, zhCN } from "./config/context.js";
 import { fromFloatingUIPlacement, getFloatingArrowStaticSide, toFloatingUIPlacement, useFloatingPosition } from "./utils/use-floating-position.js";
-const components = [
-  Button,
-  Cascader,
-  ConfigProvider,
-  Space,
-  Divider,
-  DatePicker,
-  DateRangePicker,
-  TimePicker,
-  TimeRangePicker,
-  Upload,
-  Tree,
-  TreeSelect,
-  Flex,
-  Grid,
-  Icon,
-  Typography,
-  Title,
-  Text,
-  Paragraph,
-  Link,
-  Tag,
-  CheckableTag,
-  TagGroup,
-  Badge,
-  BadgeRibbon,
-  Alert,
-  Message,
-  Modal,
-  Drawer,
-  Tooltip,
-  Popover,
-  Popconfirm,
-  Spin,
-  Skeleton,
-  Empty,
-  Breadcrumb,
-  Dropdown,
-  DropdownButton,
-  Menu,
-  Tabs,
-  Steps,
-  Input,
-  Textarea,
-  InputNumber,
-  Checkbox,
-  CheckboxGroup,
-  Radio,
-  RadioGroup,
-  Switch,
-  Splitter,
-  SplitterPanel,
-  Card,
-  CardGrid,
-  CardMeta,
-  Descriptions,
-  Pagination,
-  Select,
-  Form,
-  FormItem,
-  FormList,
-  Table
-];
-const AheartUI = {
-  install(app) {
-    components.forEach((component) => {
-      app.use(component);
-    });
-  }
-};
 export {
   DropdownButton as ADropdownButton,
+  FormItem as AFormItem,
   FormList as AFormList,
-  Alert,
-  Badge,
+  default18 as Alert,
+  default17 as Badge,
   BadgeRibbon,
-  Breadcrumb,
-  Button,
-  Card,
+  default28 as Breadcrumb,
+  default2 as Button,
+  default40 as Card,
   CardGrid,
   CardMeta,
-  Cascader,
+  default3 as Cascader,
   CheckableTag,
-  Checkbox,
+  default36 as Checkbox,
   CheckboxGroup,
   Col,
-  ConfigProvider,
-  DatePicker,
+  default4 as ConfigProvider,
+  default7 as DatePicker,
   DateRangePicker,
-  Descriptions,
-  Divider,
-  Drawer,
-  Dropdown,
-  DropdownButton,
-  Empty,
-  Flex,
-  Form,
-  FormItem,
-  FormList,
-  Grid,
-  Icon,
-  Input,
-  InputNumber,
+  default41 as Descriptions,
+  default6 as Divider,
+  default21 as Drawer,
+  default29 as Dropdown,
+  DropdownButton2 as DropdownButton,
+  default27 as Empty,
+  default12 as Flex,
+  default44 as Form,
+  FormItem2 as FormItem,
+  FormList2 as FormList,
+  default13 as Grid,
+  default14 as Icon,
+  default33 as Input,
+  default35 as InputNumber,
   Link,
-  Menu,
-  Message,
-  Modal,
+  default30 as Menu,
+  default19 as Message,
+  default20 as Modal,
   PRESENTED_IMAGE_DEFAULT,
   PRESENTED_IMAGE_SIMPLE,
-  Pagination,
+  default42 as Pagination,
   Paragraph,
-  Popconfirm,
-  Popover,
-  Radio,
+  default24 as Popconfirm,
+  default23 as Popover,
+  default37 as Radio,
   RadioGroup,
   Row,
-  Select,
-  Skeleton,
-  Space,
-  Spin,
-  Splitter,
+  default43 as Select,
+  default26 as Skeleton,
+  default5 as Space,
+  default25 as Spin,
+  default39 as Splitter,
   SplitterPanel,
-  Steps,
-  Switch,
-  Table,
-  Tabs,
-  Tag,
+  default32 as Steps,
+  default38 as Switch,
+  default45 as Table,
+  default31 as Tabs,
+  default16 as Tag,
   TagGroup,
   Text,
-  Textarea,
-  TimePicker,
+  default34 as Textarea,
+  default8 as TimePicker,
   TimeRangePicker,
   Title,
-  Tooltip,
-  Tree,
-  TreeSelect,
-  Typography,
-  Upload,
-  AheartUI as default,
+  default22 as Tooltip,
+  default10 as Tree,
+  default11 as TreeSelect,
+  default15 as Typography,
+  default9 as Upload,
+  default46 as default,
   enUS,
   floatingPlacements,
   floatingTriggers,

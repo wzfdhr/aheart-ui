@@ -57,7 +57,6 @@
 import { computed, defineComponent, nextTick, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { tabsEmits, tabsProps, type TabItem, type TabsExtraContent, type TabsExtraContentConfig } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ATabs'

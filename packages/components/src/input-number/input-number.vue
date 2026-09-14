@@ -96,7 +96,6 @@ import { resolveConfigValue, useAheartConfig } from '../config'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { inputNumberEmits, inputNumberProps } from './types'
 import type { InputNumberFocusOptions, InputNumberSemanticInfo, InputNumberSemanticRecord, InputNumberValue } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AInputNumber',

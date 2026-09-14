@@ -7,7 +7,6 @@ const useFloatingPosition = require("../utils/use-floating-position.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-expanded", "aria-disabled"];
 const _hoisted_2 = ["aria-hidden"];

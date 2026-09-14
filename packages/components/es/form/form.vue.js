@@ -2,7 +2,6 @@ import { defineComponent, reactive, ref, computed, watch, provide, onBeforeUnmou
 import { formProps, formEmits, formContextKey } from "./types.js";
 import { namePathKey, normalizeNamePath, setNamePathValue, getNamePathValue, deleteNamePathValue, namePathSegments, matchListDescendant, remapListDescendant, namePathLabel } from "./name-path.js";
 import { formInternalContextKey } from "./internal-context.js";
-import "./style.css.js";
 import { provideAheartConfig } from "../config/context.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

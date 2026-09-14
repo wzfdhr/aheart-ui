@@ -12,7 +12,6 @@ import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { timeRangePickerProps, timeRangePickerEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = {
   key: 0,

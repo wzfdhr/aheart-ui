@@ -1,6 +1,5 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot } from "vue";
 import { linkProps } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["href", "target", "aria-disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

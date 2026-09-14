@@ -200,7 +200,6 @@ import {
   type SelectRawOption,
   type SelectValue
 } from './types'
-import './style.css'
 
 defineOptions({ name: 'ASelect', inheritAttrs: false })
 

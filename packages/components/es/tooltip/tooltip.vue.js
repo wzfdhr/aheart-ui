@@ -8,7 +8,6 @@ import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTriggerAria } from "../utils/use-trigger-aria.js";
 import { tooltipProps, tooltipEmits } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["aria-describedby"];
 const _hoisted_2 = ["id", "aria-hidden"];
 const _sfc_main = /* @__PURE__ */ defineComponent({

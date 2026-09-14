@@ -43,7 +43,6 @@ import { resolveConfigValue, useAheartConfig } from '../config'
 import AIcon from '../icon/icon.vue'
 import type { ButtonColor, ButtonType, ButtonVariant } from './types'
 import { buttonEmits, buttonProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AButton'

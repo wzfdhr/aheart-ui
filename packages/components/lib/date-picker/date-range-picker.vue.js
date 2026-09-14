@@ -17,7 +17,6 @@ const usePropPresence = require("../utils/use-prop-presence.js");
 const useStableId = require("../utils/use-stable-id.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = {
   key: 0,

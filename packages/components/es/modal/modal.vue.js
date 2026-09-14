@@ -5,7 +5,6 @@ import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { modalProps, modalEmits } from "./types.js";
 import { getRecentPointerTarget, prepareOverlayDocument, isTopmost, registerOverlay, lockBodyScroll, refreshOverlayStack, unregisterOverlay, unlockBodyScroll } from "../utils/overlay-controller.js";
-import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];

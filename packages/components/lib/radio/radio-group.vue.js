@@ -3,7 +3,6 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const radio_vue_vue_type_script_setup_true_lang = require("./radio.vue.js");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["title"];
 const _hoisted_2 = ["name", "value", "checked", "disabled", "onChange"];

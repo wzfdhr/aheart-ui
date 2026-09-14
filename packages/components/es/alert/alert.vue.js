@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { alertProps, alertEmits } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["role"];
 const _hoisted_2 = ["aria-label", "aria-labelledby", "aria-describedby"];
 const _sfc_main = /* @__PURE__ */ defineComponent({

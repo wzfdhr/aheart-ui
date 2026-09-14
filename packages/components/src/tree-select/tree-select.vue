@@ -103,7 +103,6 @@ import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { usePopupViewportBudget } from '../utils/use-popup-viewport-budget'
 import { normalizeTreeSelectVirtual } from './virtual-options'
-import './style.css'
 
 defineOptions({ name: 'ATreeSelect' })
 

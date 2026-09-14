@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, onMounted, nextTick, watchEffect, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { checkboxProps, checkboxEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["title"];
 const _hoisted_2 = { class: "aheart-checkbox__box" };

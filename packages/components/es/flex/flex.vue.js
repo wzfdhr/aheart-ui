@@ -1,6 +1,5 @@
 import { defineComponent, computed, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, renderSlot } from "vue";
 import { flexProps } from "./types.js";
-import "./style.css.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AFlex"

@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, toRef, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, unref, createElementBlock, createVNode, createCommentVNode, createElementVNode, renderSlot } from "vue";
 import { useTypographyCopyable, TypographyRenderNode } from "./copyable.js";
 import { textProps } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["title", "aria-label", "tabindex", "disabled"];
 const _hoisted_2 = ["title", "aria-label", "tabindex", "disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({

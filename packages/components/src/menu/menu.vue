@@ -34,7 +34,6 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AMenuNode from './menu-node.vue'
 import { menuEmits, menuProps, type MenuClickInfo } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AMenu'

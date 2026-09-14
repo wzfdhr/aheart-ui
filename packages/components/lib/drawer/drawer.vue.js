@@ -7,7 +7,6 @@ const useMotionPresence = require("../utils/use-motion-presence.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
 const overlayController = require("../utils/overlay-controller.js");
 const types = require("./types.js");
-require("./style.css.js");
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];
 const _hoisted_3 = ["disabled"];

@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, watch, onMounted, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createVNode, unref, createCommentVNode, nextTick } from "vue";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { textareaProps, textareaEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["id", "value", "placeholder", "rows", "disabled", "readonly", "maxlength", "aria-invalid"];
 const _sfc_main = /* @__PURE__ */ defineComponent({

@@ -2,7 +2,6 @@ import { defineComponent, ref, computed, openBlock, createElementBlock, normaliz
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import _sfc_main$1 from "./checkbox.vue.js";
 import { checkboxGroupProps, checkboxGroupEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

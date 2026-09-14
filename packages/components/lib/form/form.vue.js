@@ -4,7 +4,6 @@ const vue = require("vue");
 const types = require("./types.js");
 const namePath = require("./name-path.js");
 const internalContext = require("./internal-context.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{

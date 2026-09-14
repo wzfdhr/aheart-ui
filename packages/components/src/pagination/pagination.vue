@@ -87,7 +87,6 @@ import { computed, defineComponent, ref, watch, type PropType, type VNodeChild }
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { paginationEmits, paginationProps, type PaginationItemType, type PaginationQuickJumperConfig } from './types'
 import { getPageCount, normalizeCurrent, normalizePageSize, normalizeTotal } from './pagination-state'
-import './style.css'
 
 defineOptions({
   name: 'APagination'

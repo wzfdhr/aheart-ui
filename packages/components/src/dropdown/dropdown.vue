@@ -67,7 +67,6 @@ import {
   type DropdownSemanticInfo,
   type DropdownSemanticStyles
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ADropdown'

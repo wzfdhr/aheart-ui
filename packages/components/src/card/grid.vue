@@ -9,7 +9,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { cardGridProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ACardGrid'

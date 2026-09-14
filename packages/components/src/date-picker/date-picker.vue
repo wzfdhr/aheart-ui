@@ -204,7 +204,6 @@ import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { datePickerEmits, datePickerProps } from './types'
-import './style.css'
 
 defineOptions({ name: 'ADatePicker' })
 

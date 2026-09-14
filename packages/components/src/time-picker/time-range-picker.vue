@@ -70,7 +70,6 @@ import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timeRangePickerEmits, timeRangePickerProps } from './types'
-import './style.css'
 
 defineOptions({ name: 'ATimeRangePicker' })
 

@@ -13,7 +13,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, type PropType, type VNodeChild } from 'vue'
 import { badgeRibbonProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ABadgeRibbon'

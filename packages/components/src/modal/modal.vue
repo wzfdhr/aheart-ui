@@ -103,7 +103,6 @@ import {
   unlockBodyScroll,
   unregisterOverlay
 } from '../utils/overlay-controller'
-import './style.css'
 
 defineOptions({
   name: 'AModal'

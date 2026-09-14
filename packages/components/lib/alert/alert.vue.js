@@ -2,7 +2,6 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const types = require("./types.js");
-require("./style.css.js");
 const _hoisted_1 = ["role"];
 const _hoisted_2 = ["aria-label", "aria-labelledby", "aria-describedby"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({

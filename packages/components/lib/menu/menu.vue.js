@@ -3,7 +3,6 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const menuNode_vue_vue_type_script_setup_true_lang = require("./menu-node.vue.js");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{

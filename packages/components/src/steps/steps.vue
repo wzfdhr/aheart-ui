@@ -58,7 +58,6 @@
 import { computed, defineComponent, type PropType, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { stepsEmits, stepsProps, type StepItem, type StepStatus } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ASteps'

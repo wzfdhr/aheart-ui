@@ -5,7 +5,6 @@ import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { dropdownProps, dropdownEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-expanded", "aria-disabled"];
 const _hoisted_2 = ["aria-hidden"];

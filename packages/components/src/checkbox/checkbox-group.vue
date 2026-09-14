@@ -23,7 +23,6 @@ import { resolveConfigValue, useAheartConfig } from '../config'
 import { usePropPresence } from '../utils/use-prop-presence'
 import Checkbox from './checkbox.vue'
 import { checkboxGroupEmits, checkboxGroupProps, type CheckboxOption, type CheckboxValue } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ACheckboxGroup'

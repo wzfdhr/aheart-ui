@@ -176,7 +176,6 @@ import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
 import { useTeleportReady } from '../utils/use-teleport-ready'
 import { dateRangePickerEmits, dateRangePickerProps, type DatePickerCellRenderInfo } from './types'
-import './style.css'
 
 defineOptions({ name: 'ADateRangePicker' })
 

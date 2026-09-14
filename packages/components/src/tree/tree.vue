@@ -42,7 +42,6 @@ import { treeProps, type TreeCheckInfo, type TreeKey, type TreeNodeData } from '
 import { normalizeTreeVirtual } from './virtual-options'
 import { useTreeVirtual } from './use-tree-virtual'
 import { treeFocusBridgeKey, treeVirtualViewportHeightKey } from './tree-focus-bridge'
-import './style.css'
 
 defineOptions({ name: 'ATree' })
 

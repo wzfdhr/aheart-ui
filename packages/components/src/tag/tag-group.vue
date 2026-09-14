@@ -21,7 +21,6 @@
 import { computed, defineComponent, ref, type PropType, type VNodeChild } from 'vue'
 import CheckableTag from './checkable-tag.vue'
 import { tagGroupEmits, tagGroupProps, type TagGroupValue, type TagOption, type TagValue } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ATagGroup'

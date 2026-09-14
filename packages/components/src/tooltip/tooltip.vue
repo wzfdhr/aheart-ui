@@ -75,7 +75,6 @@ import {
   type TooltipSemanticStyles,
   type TooltipTitle
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ATooltip'

@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { colProps, type ColSpanConfig, type GridBreakpoint } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ACol'

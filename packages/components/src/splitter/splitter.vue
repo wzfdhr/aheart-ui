@@ -16,7 +16,6 @@ import {
 import { usePointerDrag } from '../utils/use-pointer-drag'
 import { resizeAdjacentPanels, resolveSplitterPanelBounds, resolveSplitterSizes } from './solver'
 import type { SplitterLayout, SplitterPanelConstraint, SplitterSize } from './types'
-import './style.css'
 
 const SPLITTER_HANDLE_SIZE = 6
 

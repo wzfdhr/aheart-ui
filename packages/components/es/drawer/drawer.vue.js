@@ -5,7 +5,6 @@ import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { getRecentPointerTarget, prepareOverlayDocument, isTopmost, registerOverlay, lockBodyScroll, refreshOverlayStack, unregisterOverlay, unlockBodyScroll } from "../utils/overlay-controller.js";
 import { drawerProps, drawerEmits } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];
 const _hoisted_3 = ["disabled"];

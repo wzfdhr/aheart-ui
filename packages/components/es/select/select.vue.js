@@ -10,7 +10,6 @@ import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { useSelectVirtual } from "./use-select-virtual.js";
 import { selectProps, selectEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["id", "role", "tabindex", "aria-controls", "aria-labelledby", "aria-describedby", "aria-invalid", "aria-expanded", "aria-haspopup", "aria-disabled", "aria-busy", "aria-activedescendant"];
 const _hoisted_2 = { class: "aheart-select__tag-label" };

@@ -1,5 +1,5 @@
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { defineConfig, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue"
 import dts from 'vite-plugin-dts'
@@ -69,8 +69,18 @@ function deterministicStyleBundle(): Plugin {
                 }
             }
 
-            writeFileSync(new URL('./es/package.json', import.meta.url), '{\n  "type": "module"\n}\n')
-            writeFileSync(new URL('./lib/package.json', import.meta.url), '{\n  "type": "commonjs"\n}\n')
+            for (const source of styleSourceFiles) {
+                const output = source.replace(/\.css$/, '.css.js')
+                const esTarget = new URL(`./es/${output}`, import.meta.url)
+                const libTarget = new URL(`./lib/${output}`, import.meta.url)
+                mkdirSync(new URL('.', esTarget), { recursive: true })
+                mkdirSync(new URL('.', libTarget), { recursive: true })
+                writeFileSync(esTarget, '')
+                writeFileSync(libTarget, '"use strict";\n')
+            }
+
+            writeFileSync(new URL('./es/package.json', import.meta.url), '{\n  "type": "module",\n  "sideEffects": false\n}\n')
+            writeFileSync(new URL('./lib/package.json', import.meta.url), '{\n  "type": "commonjs",\n  "sideEffects": false\n}\n')
         }
     }
 }

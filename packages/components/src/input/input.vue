@@ -121,7 +121,6 @@ import type { PropType, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import { inputEmits, inputProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AInput',
