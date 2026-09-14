@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, useAttrs, nextTick, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, withCtx, vShow } from "vue";
+import { defineComponent, ref, computed, watch, useAttrs, onBeforeUnmount, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, withCtx, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
@@ -381,9 +381,18 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const isLoading = (columnIndex, option) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
     const isLoadError = (columnIndex, option) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
+    let selectionFocus;
+    const clearSelectionFocus = () => {
+      selectionFocus == null ? void 0 : selectionFocus.clear();
+      selectionFocus = void 0;
+    };
+    onBeforeUnmount(clearSelectionFocus);
+    watch([() => props.disabled, () => props.options], clearSelectionFocus);
     const requestOpen = (open) => {
       if (props.disabled)
         return;
+      if (open)
+        clearSelectionFocus();
       if (!open) {
         revealGeneration += 1;
         invalidateModeFocus();
@@ -392,6 +401,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     watch(mergedOpen, (open, previousOpen) => {
       if (previousOpen && !open) {
+        selectionFocus == null ? void 0 : selectionFocus.restore();
         revealGeneration += 1;
         invalidateModeFocus();
         suspendVirtualLists();
@@ -414,6 +424,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emitValue(selectedPaths.value.filter((current) => !samePath(current, path)));
     };
     const selectPath = (path) => {
+      var _a, _b;
       const option = findOption(path);
       if (props.disabled || !option || pathHasDisabledOption(path) || isBranch(option))
         return;
@@ -421,6 +432,44 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         const paths = selectedPaths.value.some((current) => samePath(current, path)) ? selectedPaths.value.filter((current) => !samePath(current, path)) : [...selectedPaths.value, path];
         emitValue(paths);
         return;
+      }
+      clearSelectionFocus();
+      const document = (_a = panelRef.value) == null ? void 0 : _a.ownerDocument;
+      const focused = document == null ? void 0 : document.activeElement;
+      if (document && focused && ((_b = panelRef.value) == null ? void 0 : _b.contains(focused))) {
+        const cancel = () => {
+          if (selectionFocus === pending)
+            clearSelectionFocus();
+        };
+        const focus = (event) => {
+          if (event.target !== focused)
+            cancel();
+        };
+        const blur = (event) => {
+          if (event.target === focused && mergedOpen.value && focused.isConnected)
+            cancel();
+        };
+        const clear = () => {
+          document.removeEventListener("focusin", focus, true);
+          document.removeEventListener("focusout", blur, true);
+          document.removeEventListener("pointerdown", cancel, true);
+          document.removeEventListener("keydown", cancel, true);
+        };
+        const pending = { clear, restore: () => {
+          void nextTick(() => {
+            if (selectionFocus !== pending)
+              return;
+            const trigger = triggerRef.value;
+            clearSelectionFocus();
+            if (!props.disabled && !mergedOpen.value && (trigger == null ? void 0 : trigger.isConnected) && (document.activeElement === focused || document.activeElement === document.body))
+              trigger.focus();
+          });
+        } };
+        selectionFocus = pending;
+        document.addEventListener("focusin", focus, true);
+        document.addEventListener("focusout", blur, true);
+        document.addEventListener("pointerdown", cancel, true);
+        document.addEventListener("keydown", cancel, true);
       }
       emitValue(path);
       requestOpen(false);

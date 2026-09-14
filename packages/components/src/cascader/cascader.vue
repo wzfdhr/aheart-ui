@@ -574,8 +574,10 @@ const selectPath = (path: CascaderPath) => {
   if (document && focused && panelRef.value?.contains(focused)) {
     const cancel = () => { if (selectionFocus === pending) clearSelectionFocus() }
     const focus = (event: FocusEvent) => { if (event.target !== focused) cancel() }
+    const blur = (event: FocusEvent) => { if (event.target === focused && mergedOpen.value && focused.isConnected) cancel() }
     const clear = () => {
       document.removeEventListener('focusin', focus, true)
+      document.removeEventListener('focusout', blur, true)
       document.removeEventListener('pointerdown', cancel, true)
       document.removeEventListener('keydown', cancel, true)
     }
@@ -587,6 +589,7 @@ const selectPath = (path: CascaderPath) => {
     }) } }
     selectionFocus = pending
     document.addEventListener('focusin', focus, true)
+    document.addEventListener('focusout', blur, true)
     document.addEventListener('pointerdown', cancel, true)
     document.addEventListener('keydown', cancel, true)
   }
