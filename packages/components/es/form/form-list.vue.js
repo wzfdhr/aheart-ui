@@ -88,6 +88,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(
       () => [fullName.value, owner.value],
       ([name, nextOwner]) => {
+        const previousNameChanged = registeredName !== void 0 && namePathKey(registeredName) !== namePathKey(name);
+        const wasRelocatedByParent = previousNameChanged && namePathKey(controller.name) === namePathKey(name);
         if (registeredName !== void 0 && registeredOwner !== void 0) {
           form == null ? void 0 : form.unregisterList(registeredName, registeredOwner);
           form == null ? void 0 : form.unregisterOwnedField(registeredName, `${registeredOwner}/root`);
@@ -98,8 +100,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         if (active) {
           form == null ? void 0 : form.registerOwnedField(name, `${nextOwner}/root`, props.rules ?? [], false, {}, { preserve: props.preserve });
           const value = form == null ? void 0 : form.getValue(name);
-          if (Array.isArray(value) && previousItems.length === 0 && tokens.value.length === 0)
+          if (Array.isArray(value) && (previousNameChanged && !wasRelocatedByParent || previousItems.length === 0 && tokens.value.length === 0))
             resetInitialTokens(value);
+          else if (previousNameChanged && !wasRelocatedByParent)
+            resetInitialTokens([]);
         }
         registeredName = typeof name === "string" ? name : [...name];
         registeredOwner = nextOwner;

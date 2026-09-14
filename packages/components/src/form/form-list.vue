@@ -109,6 +109,8 @@ const controller: FormListController = {
 watch(
   () => [fullName.value, owner.value] as const,
   ([name, nextOwner]) => {
+    const previousNameChanged = registeredName !== undefined && namePathKey(registeredName) !== namePathKey(name)
+    const wasRelocatedByParent = previousNameChanged && namePathKey(controller.name) === namePathKey(name)
     if (registeredName !== undefined && registeredOwner !== undefined) {
       form?.unregisterList(registeredName, registeredOwner)
       form?.unregisterOwnedField(registeredName, `${registeredOwner}/root`)
@@ -119,7 +121,8 @@ watch(
     if (active) {
       form?.registerOwnedField(name, `${nextOwner}/root`, props.rules ?? [], false, {}, { preserve: props.preserve })
       const value = form?.getValue(name)
-      if (Array.isArray(value) && previousItems.length === 0 && tokens.value.length === 0) resetInitialTokens(value)
+      if (Array.isArray(value) && (previousNameChanged && !wasRelocatedByParent || previousItems.length === 0 && tokens.value.length === 0)) resetInitialTokens(value)
+      else if (previousNameChanged && !wasRelocatedByParent) resetInitialTokens([])
     }
     registeredName = typeof name === 'string' ? name : [...name]
     registeredOwner = nextOwner

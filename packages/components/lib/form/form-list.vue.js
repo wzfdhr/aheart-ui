@@ -90,6 +90,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.watch(
       () => [fullName.value, owner.value],
       ([name, nextOwner]) => {
+        const previousNameChanged = registeredName !== void 0 && namePath.namePathKey(registeredName) !== namePath.namePathKey(name);
+        const wasRelocatedByParent = previousNameChanged && namePath.namePathKey(controller.name) === namePath.namePathKey(name);
         if (registeredName !== void 0 && registeredOwner !== void 0) {
           form == null ? void 0 : form.unregisterList(registeredName, registeredOwner);
           form == null ? void 0 : form.unregisterOwnedField(registeredName, `${registeredOwner}/root`);
@@ -100,8 +102,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         if (active) {
           form == null ? void 0 : form.registerOwnedField(name, `${nextOwner}/root`, props.rules ?? [], false, {}, { preserve: props.preserve });
           const value = form == null ? void 0 : form.getValue(name);
-          if (Array.isArray(value) && previousItems.length === 0 && tokens.value.length === 0)
+          if (Array.isArray(value) && (previousNameChanged && !wasRelocatedByParent || previousItems.length === 0 && tokens.value.length === 0))
             resetInitialTokens(value);
+          else if (previousNameChanged && !wasRelocatedByParent)
+            resetInitialTokens([]);
         }
         registeredName = typeof name === "string" ? name : [...name];
         registeredOwner = nextOwner;

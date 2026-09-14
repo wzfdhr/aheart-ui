@@ -197,6 +197,23 @@ describe('Form.List optimization', () => {
     expect(model.users).toEqual([{ id: 'kept' }])
   })
 
+  it('refreshes identity for a real name change while parent relocation keeps nested identity', async () => {
+    const model = reactive({ users: [{ id: 'user' }], others: [{ id: 'other' }] })
+    const listName = ref<'users' | 'others'>('users')
+    let slot!: SlotState
+    mount(Form, { props: { model }, slots: { default: () => h(requireFormList(), { name: listName.value }, { default: (state: SlotState) => { slot = state; return null } }) } })
+    await nextTick()
+    const userKey = slot.fields[0].key
+    listName.value = 'others'
+    await flushPromises()
+    expect(slot.fields).toHaveLength(1)
+    expect(slot.fields[0].key).not.toBe(userKey)
+    slot.add({ id: 'second-other' })
+    await nextTick()
+    expect(model.users).toEqual([{ id: 'user' }])
+    expect(model.others.map(item => item.id)).toEqual(['other', 'second-other'])
+  })
+
   it('keeps a duplicate live list inert while the first owner mutates', async () => {
     const model = reactive({ users: [{ id: 'a' }] })
     const slots: SlotState[] = []
